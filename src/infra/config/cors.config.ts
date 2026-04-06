@@ -1,9 +1,13 @@
-import { APP_URL, TAX_CALCULATOR_URL, WEBSITE_URL } from './vars.config';
+import {
+  APP_URL,
+  TAX_CALCULATOR_URL,
+  WEB_APP_URL,
+  WEBSITE_URL,
+} from './vars.config';
 
 export const CORS_WHITELIST = [
   APP_URL,
-  WEBSITE_URL,
+  WEB_APP_URL,
   WEBSITE_URL,
   TAX_CALCULATOR_URL,
-  'http://localhost:4321',
 ];

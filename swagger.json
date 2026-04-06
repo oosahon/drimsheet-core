@@ -181,16 +181,7 @@
         "description": "User signup with email and password",
         "tags": ["Auth"],
         "security": [],
-        "parameters": [
-          {
-            "in": "header",
-            "name": "x-correlation-id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
