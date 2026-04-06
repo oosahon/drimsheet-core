@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Navigate to project root to run NPM securely
+cd "$(dirname "$0")/.." || exit
+
+echo "🔄 Running automated ADR Sync..."
+npm run adr:sync
+
+# Check if the sync operation unexpectedly modified the architecture index
+# If it did, it means the developer forgot to commit synchronized documentation!
+if ! git diff --quiet docs/09_architecture_decisions.md; then
+  echo ""
+  echo "❌ ERROR: ADRs are out of sync!"
+  echo "The 'adr:sync' script just updated docs/09_architecture_decisions.md."
+  echo "This means a file was removed/status changed manually without running the proper CLI tools."
+  echo ""
+  echo "Please commit the newly synced docs/09_architecture_decisions.md file and try pushing again!"
+  exit 1
+fi
+
+echo "✅ ADRs are perfectly synced. Continuing push..."
+exit 0

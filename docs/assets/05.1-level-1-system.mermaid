@@ -1,0 +1,19 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+    Interface["Interface Layer<br>(src/interface)"] -- Invokes Use Cases --> Application["Application Layer<br>(src/app)"]
+    Application -- Coordinates --> Domain["Domain Layer<br>(src/domain)"]
+    Application -- Uses Types/Utils --> Shared["Shared Layer<br>(src/shared)"]
+    Domain -- Uses Types/Utils --> Shared
+    Infrastructure["Infrastructure Layer<br>(src/infra)"] -- Implements Ports &amp; Adapters --> Application
+    Infrastructure -- Implements Repositories --> Domain
+    Interface -- Uses Configuration --> Infrastructure
+
+     Interface:::layerBox
+     Application:::layerBox
+     Domain:::layerBox
+     Shared:::layerBox
+     Infrastructure:::layerBox
+    classDef layerBox fill:#f9f9f9,stroke:#333,stroke-width:2px

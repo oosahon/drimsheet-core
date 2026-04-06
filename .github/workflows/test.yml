@@ -1,0 +1,65 @@
+name: Test and Coverage
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Create Env File
+        run: |
+          cat << 'EOF' > .env
+          ${{ secrets.ENV_CONTENT }}
+          EOF
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Create tmp directory for potential mock setups
+        run: mkdir -p tmp
+
+      - name: Run Tests with Coverage
+        run: npm test -- --coverage --coverageReporters="json-summary" --coverageReporters="text" --coverageReporters="lcov"
+        
+      - name: Generate Coverage Badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          mkdir -p badges
+          COVERAGE=$(node -e "const summary = require('./coverage/coverage-summary.json'); console.log(summary.total.lines.pct);")
+          echo "Coverage is $COVERAGE%"
+          
+          COLOR="red"
+          if (( $(echo "$COVERAGE >= 80" | bc -l) )); then
+            COLOR="green"
+          elif (( $(echo "$COVERAGE >= 60" | bc -l) )); then
+            COLOR="yellow"
+          fi
+          
+          curl -s "https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}" > badges/coverage.svg
+
+      - name: Commit and Push Coverage Badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add badges/coverage.svg
+          git commit -m "chore(coverage): update badge [skip ci]" || echo "No changes to commit"
+          git push

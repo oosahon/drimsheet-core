@@ -1,0 +1,9 @@
+node_modules
+.env*
+dist
+logs
+.idea
+qodana.yaml
+.sentryclirc
+coverage
+scribbles

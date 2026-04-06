@@ -1,0 +1,67 @@
+# 10. Quality Requirements
+
+This section defines the specific, measurable scenarios that prove PurpleLedger meets the quality goals outlined in Section 1.2 and the architectural constraints defined in Section 2.
+
+## 10.1 Quality Tree
+
+The following quality tree breaks down the high-level quality goals into specific, measurable attributes for PurpleLedger.
+
+- **Data Integrity & Correctness**
+  - **Immutability:** Financial records (transactions, journal entries) must be append-only.
+  - **ACID Compliance:** All double-entry postings must be perfectly balanced and atomically persisted.
+  - **Compliance:** Full adherence to the Nigeria Tax Act (NTA) 2025 and core accounting principles.
+- **Maintainability**
+  - **Decoupling:** Business logic must remain isolated from interfaces, and tax rule logic must be versioned and separated from core ledgers.
+  - **Testability:** Core accounting and taxation modules must maintain >85% automated test coverage.
+- **Operability (Usability & Automation)**
+  - **Abstraction:** The system must handle ledger setup and transaction categorisation seamlessly for non-accountant users.
+  - **Automation:** External integrations (e.g., Mono for bank feeds, FIRS for tax filings) must operate automatically with high resilience.
+- **Security & Reliability**
+  - **Access Control:** Strict Role-Based Access Control (RBAC) must isolate contexts for Sole Traders and Organizations.
+  - **Agent Security:** External AI Agents communicating via MCP must operate strictly within bounded scopes.
+  - **Idempotency:** Network calls to external APIs must be idempotent and traced via correlation IDs.
+
+## 10.2 Quality Scenarios
+
+The following scenarios describe how the PurpleLedger system will react in specific situations to fulfill the quality goals defined above.
+
+### Data Integrity & Correctness
+
+1. **Transaction Modification (Immutability):**
+   - **Stimulus:** An accountant user attempts to edit the monetary value of an already posted transaction or journal entry.
+   - **System:** The repository layer intercepts the direct `UPDATE` or `DELETE` mutation.
+   - **Response:** The system forces the user to post a reversing (voiding) transaction instead and logs the attempt in an immutable audit trail, ensuring 100% accounting transparency.
+
+2. **Unbalanced Entry Detection (ACID Compliance):**
+   - **Stimulus:** The core engine receives a transaction where the total debits do not equal the total credits (e.g., due to a client-side bug or misconfiguration).
+   - **System:** The core validation service processes the transaction.
+   - **Response:** The system structurally rejects the transaction before reaching the database, preventing an invalid financial state, and returns a detailed validation error using standard domain formats.
+
+3. **Tax Policy Evolution (Compliance):**
+   - **Stimulus:** The Nigerian Government updates the standard VAT rate or introduces a new tax policy in the NTA.
+   - **System:** The tax engine evaluates the versioned tax rules repository.
+   - **Response:** Historical financial reports remain perfectly accurate according to the old rules, while new transactions are computed using the new rules without requiring a database migration of historical data.
+
+### Operability
+
+4. **Non-Accountant Onboarding (Abstraction):**
+   - **Stimulus:** A new individual user registers without any prior accounting knowledge.
+   - **System:** The system evaluates the user's `x-accounting-domain` context and role.
+   - **Response:** The system automatically provisions a standard general ledger and sensible subledgers in the background. When the user creates an invoice, the system automatically handles the underlying double-entry postings (Accounts Receivable & Revenue) without requiring the user to know accounting terminology.
+
+5. **External API Failure (Automation / Reliability):**
+   - **Stimulus:** The FIRS Tax ProMax API becomes unresponsive while the system is attempting to automate a tax remittal.
+   - **System:** The asynchronous worker evaluates the transient failure.
+   - **Response:** The payload is safely routed to a dead-letter queue (DLQ) with exponential backoff logic, ensuring eventual consistency without failing the user's current bookkeeping session or losing the tax data.
+
+### Security
+
+6. **Cross-Domain Isolation (Access Control):**
+   - **Stimulus:** A user who owns "Organization A" attempts to query financial reports using an ID belonging to "Organization B".
+   - **System:** The repository layer evaluates the authorized `x-accounting-domain` header against the requested resource's metadata.
+   - **Response:** The system immediately denies the request (403 Forbidden), guaranteeing zero cross-domain data leakage.
+
+7. **AI Agent Operations (Agent Security):**
+   - **Stimulus:** An autonomous AI Agent connecting via the Model Context Protocol (MCP) attempts to execute a destructive or highly sensitive operation (e.g., inviting a new accountant role).
+   - **System:** The MCP interface validates the requested tool against the agent's authorized scopes.
+   - **Response:** The system halts the operation and requests explicit human approval out-of-band before allowing the execution to proceed.
