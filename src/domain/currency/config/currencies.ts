@@ -11,7 +11,7 @@
  * If you need to add a new category or currency, carefully review
  * the migration guidelines first.
  */
-import { ICurrency } from '../../../domain/currency/types/currency.types';
+import { ICurrency } from '../types/currency.types';
 
 export const NAIRA: ICurrency = {
   name: 'Naira',

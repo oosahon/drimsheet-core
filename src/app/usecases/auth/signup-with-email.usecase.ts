@@ -6,10 +6,14 @@ import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../domain/user/value-objects/password.vo';
 import {
+  ErrorBadRequest,
   ErrorConflict,
   ErrorForbidden,
 } from '../../../shared/value-objects/error';
-import { NAIRA } from '../../bootstrap/data/currencies';
+import {
+  NAIRA,
+  SYSTEM_CURRENCIES,
+} from '../../../domain/currency/config/currencies';
 import { IIndividualSignupReq } from '../../contracts/dto/auth.dto';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
@@ -50,11 +54,21 @@ export default function signupWithEmailUsecase(
       emailVerified: false,
     });
 
+    const functionalCurrency = SYSTEM_CURRENCIES.find(
+      (c) => c.code === payload.reportingCurrencyCode
+    );
+
+    if (!functionalCurrency) {
+      throw new ErrorBadRequest(
+        `Currency ${payload.reportingCurrencyCode} is not supported`
+      );
+    }
+
     const [individualDomain, individualEntityEvents] =
       accountingEntityTypeEntity.make({
         ownerId: user.id,
         functionalCurrency: NAIRA,
-        reportingCurrency: payload.reportingCurrency,
+        reportingCurrency: functionalCurrency,
         type: EAccountingEntityType.Individual,
         fiscalYearStart: { month: 12, day: 31 },
       });

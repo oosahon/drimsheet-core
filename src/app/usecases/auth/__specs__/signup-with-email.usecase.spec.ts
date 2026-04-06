@@ -14,7 +14,7 @@ import { IRequestContextData } from '../../../contracts/app/request-context.cont
 import { IUser } from '../../../../domain/user/types/user.types';
 import { ITransactionContext } from '../../../contracts/infra/repo.contract';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import { NAIRA } from '../../../bootstrap/data/currencies';
+import { NAIRA } from '../../../../domain/currency/config/currencies';
 
 describe('signupWithEmailUsecase', () => {
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe('signupWithEmailUsecase', () => {
       lastName: 'Doe',
       email: 'johndoe@example.com',
       password: 'SecurePassword123!',
-      reportingCurrency: NAIRA,
+      reportingCurrencyCode: 'NGN',
     };
 
     mockAuthService.isPermittedEmail.mockReturnValue(true);
@@ -114,12 +114,7 @@ describe('signupWithEmailUsecase', () => {
       lastName: 'Doe',
       email: 'janedoe@example.com',
       password: 'SecurePassword123!',
-      reportingCurrency: {
-        code: 'NGN',
-        name: 'Naira',
-        symbol: '₦',
-        minorUnit: 100n,
-      },
+      reportingCurrencyCode: 'NGN',
     };
 
     mockAuthService.isPermittedEmail.mockReturnValue(true);
@@ -156,12 +151,7 @@ describe('signupWithEmailUsecase', () => {
       lastName: 'Doe',
       email: 'notpermitted@example.com',
       password: 'SecurePassword123!',
-      reportingCurrency: {
-        code: 'NGN',
-        name: 'Naira',
-        symbol: '₦',
-        minorUnit: 100n,
-      },
+      reportingCurrencyCode: 'NGN',
     };
 
     mockAuthService.isPermittedEmail.mockReturnValue(false);

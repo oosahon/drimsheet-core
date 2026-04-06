@@ -13,7 +13,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockDbService from '../../../../infra/services/__mocks__/repo.service.mock';
-import { NAIRA } from '../../../bootstrap/data/currencies';
+import { NAIRA } from '../../../../domain/currency/config/currencies';
 
 jest.mock('../../../../domain/ledger/services/ledger.service');
 
