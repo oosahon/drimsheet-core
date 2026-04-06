@@ -1,0 +1,57 @@
+sequenceDiagram
+    actor User
+    participant App as Web Client
+    participant API as API Gateway
+    participant UseCase as Bank Account Creation Use Case
+    participant BSTHandler as Bank Statement Handler
+    participant S3 as AWS S3
+    participant EventBus as Event Bus
+    participant OCR as OCR / AI Service
+    participant Ledger as Ledger Repository
+
+    User->>App: Submits Name & Currency
+    
+    alt Option 1: Manual Opening Balance
+        App->>API: POST /api/ledgers/bank-accounts (Balance)
+        API->>UseCase: CreateAccountCmd
+        UseCase->>Ledger: Create Sub-Ledger (100xxx)
+        UseCase->>Ledger: Create Suspense Ledger (199xxx)
+        UseCase->>Ledger: Create OBE Sub-Ledger (300xxx)
+        Note over UseCase,Ledger: System offsets Opening Balance<br/>against Opening Balance Equity (Sub-Ledger)
+        UseCase->>Ledger: Post Opening Balance Journal
+        UseCase-->>API: 201 Created
+        API-->>User: Success
+        
+    else Option 2: Statement Upload
+        App->>API: POST /api/ledgers/bank-accounts (with PDF)
+        API->>UseCase: CreateAccountWithStatementCmd
+        UseCase->>Ledger: Create Sub-Ledger (100xxx)
+        UseCase->>Ledger: Create Suspense Ledger (199xxx)
+        UseCase->>Ledger: Create OBE Sub-Ledger (300xxx)
+        UseCase->>S3: Upload Statement PDF
+        UseCase->>EventBus: Publish StatementUploadedEvent
+        UseCase-->>API: 204 No Content
+        API-->>User: UI: "Working in background..."
+        
+        %% Async Processing Flow
+        EventBus->>OCR: Consume StatementUploadedEvent
+        activate OCR
+        OCR->>OCR: Extract Transactions & Opening Bal
+        OCR->>OCR: AI Auto-Categorization & Transfer Prediction
+        OCR->>EventBus: Publish TransactionsExtractedEvent
+        deactivate OCR
+
+        EventBus->>BSTHandler: Consume TransactionsExtractedEvent
+        Note over BSTHandler,Ledger: System offsets Opening Balance<br/>against Opening Balance Equity (Sub-Ledger)
+        BSTHandler->>Ledger: Post Opening Balance Journal
+        BSTHandler->>Ledger: Store Raw Transactions in Suspense Ledger (199xxx)
+        BSTHandler->>App: Push Notification: "Ready for Review"
+        
+        %% User Review Flow
+        App-->>User: Prompt to Review Categories/Transfers
+        User->>App: Review & Modify Descriptions (Amt/Date Locked)
+        App->>API: POST /api/reconciliation/match
+        API->>UseCase: ReconcileTransactionsCmd
+        UseCase->>Ledger: Clear Suspense (199xxx) & Credit Target Accounts
+        UseCase-->>User: Reconciled & Recorded
+    end

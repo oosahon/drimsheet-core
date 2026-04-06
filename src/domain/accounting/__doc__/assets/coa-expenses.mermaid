@@ -1,0 +1,27 @@
+flowchart LR
+    Expenses["Expenses: 5xxxxx"]
+    Expenses --> DirectCosts & OperatingExpenses & NonOperatingExpenses & TaxExpense & Losses
+
+    DirectCosts["Direct Costs: 500xxx"]
+    
+    OperatingExpenses["Operating Expenses (OPEX)"]
+        OperatingExpenses --> PayrollAndPersonnel["Payroll & Personnel: 501xxx"]
+        OperatingExpenses --> RentUtilities["Rent & Utilities: 502xxx"]
+        OperatingExpenses --> AdminGeneral["Admin & General: 503xxx"]
+        OperatingExpenses --> MarketingSelling["Marketing & Selling: 504xxx"]
+        OperatingExpenses --> ResearchDevelopment["Research & Development: 505xxx"]
+        OperatingExpenses --> Depreciation["Depreciation & Amortization: 506xxx"]
+            
+    NonOperatingExpenses["Non-Operating Expenses"]
+        NonOperatingExpenses --> FinanceCosts["Interest & Finance Charges: 507xxx"]
+
+    TaxExpense["Income Tax Expense: 508xxx"]
+
+    Losses["Losses & Adjustments"]
+        Losses --> UnrealizedLoss["Unrealized Loss: 509xxx"]
+        Losses --> AssetDisposal["Loss on Asset Disposal: 510xxx"]
+        Losses --> ImpairmentLoss["Impairment Losses: 511xxx"]
+        Losses --> OtherLosses["Other Losses: 512xxx"]
+
+     %% For positioning
+    OperatingExpenses ~~~ DirectCosts & TaxExpense
