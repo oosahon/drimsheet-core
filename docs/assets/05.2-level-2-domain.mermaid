@@ -1,0 +1,25 @@
+---
+config:
+  layout: dagre
+---
+flowchart TB
+    Transaction["Transaction"] -- Posts --> JournalEntry["Journal Entry"]
+    Transaction -- Updates balances --> LedgerAccount["Ledger Account"]
+    Transaction -- Computes via --> Tax["Tax"]
+    Transaction -- References --> Currency["Currency"]
+    Transaction -- Categorizes via --> Category["Category"]
+    JournalEntry -- Belongs to --> LedgerAccount
+    LedgerAccount -- Owned by --> Accounting["Accounting"]
+    Tax -- Applied to --> Accounting
+    Category -- Owned by --> Accounting
+    User["User"] -- Manages --> Accounting
+
+     Transaction:::domainBox
+     JournalEntry:::domainBox
+     LedgerAccount:::domainBox
+     Tax:::domainBox
+     Currency:::domainBox
+     Category:::domainBox
+     Accounting:::domainBox
+     User:::domainBox
+    classDef domainBox fill:#e4f0f5,stroke:#0066cc,stroke-width:2px

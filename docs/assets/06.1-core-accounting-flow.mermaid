@@ -1,0 +1,50 @@
+---
+config:
+  layout: elk
+---
+sequenceDiagram
+    autonumber
+    actor User
+    participant API as HTTP Layer
+    participant UC as Use Case
+    participant AccDomain as Accounting Domain
+    participant Domain as Domain Factories
+    participant Repo as Repository
+    participant EventBus as Event Handler
+    participant TaxDomain as Tax Domain
+    participant Notification as Email Service
+
+    User->>API: Add categorized transaction
+    API->>UC: Execute Transaction Use Case
+    
+    rect rgb(240, 240, 240)
+        Note over UC,Domain: Core Accounting Domain
+        UC->>AccDomain: Get posting rule
+        AccDomain-->>UC: Return posting rule
+        UC->>Domain: Create transaction & journal entries (entities)
+        Domain-->>UC: Return entities & domain events
+    end
+    
+    rect rgb(230, 240, 255)
+        Note over UC,Repo: Database Persistence
+        UC->>Repo: Save entities (Transaction + Journals)
+        Repo-->>UC: Save successful
+    end
+
+    UC-)EventBus: Publish Domain Event
+    UC-->>API: 
+    API-->>User: 201 OK Created response
+
+    rect rgb(255, 240, 230)
+        Note over EventBus,Notification: Asynchronous Tax Domain Logic
+        EventBus-)TaxDomain: Listen to emitted event
+        
+        alt Requires User Input
+            TaxDomain->>Notification: Send email notification
+            Notification-->>User: Prompt to give a verdict (e.g., owner-occupied home?)
+        else Taxable (No User Input required)
+            TaxDomain->>Repo: Mark transaction as tax related
+        else Not Taxable
+            TaxDomain->>TaxDomain: Ignore transaction
+        end
+    end

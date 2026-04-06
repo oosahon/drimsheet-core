@@ -1,0 +1,35 @@
+---
+config:
+  layout: elk
+---
+flowchart TB
+ subgraph Col["Coolify PaaS (Platform as a Service)"]
+        API("PurpleLedger Core Container")
+        Proxy("Coolify Reverse Proxy")
+        DB[("PostgreSQL Container")]
+        Cache[("Redis Container")]
+        VectorDB[("Qdrant Container")]
+  end
+ subgraph DO["DigitalOcean Droplet (Infrastructure)"]
+        Col
+  end
+ subgraph External["External Cloud Services"]
+        Doppler["Doppler Secret Management"]
+        S3["AWS S3 Blob Storage"]
+        Sentry["Sentry Observability"]
+        Auth["Identity and Marketing Services"]
+        CoreExt["FIRS, Mono, Paystack, ZeptoMail"]
+  end
+    Client(["Web & Mobile Clients"]) -- HTTPS --> Proxy
+    Agent(["AI Agents"]) -- MCP or HTTPS --> Proxy
+    Proxy -- Routes Traffic --> API
+    API <-- TCP/IP SQL --> DB
+    API <-- TCP Redis --> Cache
+    API <-- HTTP --> VectorDB
+    Doppler -. Injects Configs .-> Col
+    API -- HTTPS --> S3 & Sentry & Auth & CoreExt
+
+     Col:::Col_Style
+    classDef DO_Style fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000
+    classDef Col_Style fill:#e6f3ff,stroke:#0066cc,stroke-width:2px,stroke-dasharray: 5 5,color:#000
+    classDef Ext_Style fill:#fff,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5,color:#000

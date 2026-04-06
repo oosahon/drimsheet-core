@@ -1,0 +1,34 @@
+---
+config:
+  layout: dagre
+---
+flowchart TB
+ subgraph Domains["Supported Domains"]
+        Ind["Individual"]
+        Sole["Sole Trader"]
+        Org["Organization"]
+  end
+ subgraph PurpleLedgerSystem["Purple Ledger Core"]
+    direction TB
+        Domains
+        CoreApp[("Core Accounting Engine")]
+  end
+    Ind ~~~ CoreApp
+    Sole ~~~ CoreApp
+    Org ~~~ CoreApp
+    
+    NonAccountant(["Non-Accountant User"]) -- Manages finances across --> Domains
+    Accountant(["Accountant User"]) -- Manages ledgers/journals across --> Domains
+    AIAgent["🤖 AI Agents"] -- Reads/Writes via MCP Server --> CoreApp
+    Auditor(["Auditor / Admin"]) -- Inspects immutable logs --> CoreApp
+    CoreApp -- Files Taxes --> FIRS["FIRS Tax ProMax"]
+    CoreApp -- Syncs Bank Feeds --> Mono["Mono (Open Banking)"]
+    CoreApp -- Processes Subscriptions --> Paystack["Paystack"]
+    CoreApp -- Sends Notifications/Reports --> ZeptoMail["ZeptoMail"]
+
+    style CoreApp fill:#333,stroke:#fff,color:#fff
+    style NonAccountant fill:#f4f4f4,stroke:#333
+    style Accountant fill:#f4f4f4,stroke:#333
+    style AIAgent fill:#009688,color:#fff,stroke:#333
+    style Auditor fill:#aec6fa,stroke:#333
+    style PurpleLedgerSystem fill:#757575,stroke:#fff,stroke-width:2px,color:#fff
