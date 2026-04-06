@@ -117,6 +117,12 @@ export function RegisterRoutes(app: Router) {
       required: true,
       ref: 'IIndividualSignupReq',
     },
+    _: {
+      in: 'header',
+      name: 'x-correlation-id',
+      required: true,
+      dataType: 'string',
+    },
   };
   app.post(
     '/api/v1/auth/signup-with-email',

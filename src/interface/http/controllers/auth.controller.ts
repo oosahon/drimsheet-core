@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Header,
   OperationId,
   Post,
   Response,
@@ -26,7 +27,10 @@ export class AuthController extends Controller {
   @Response<IApiError>('409')
   @Response<IApiError>('500')
   @Response<IApiError>('422')
-  public async signupWithEmail(@Body() body: IIndividualSignupReq) {
+  public async signupWithEmail(
+    @Body() body: IIndividualSignupReq,
+    @Header('x-correlation-id') _: string
+  ) {
     return authUseCase.signupWithEmail(body);
   }
 }
