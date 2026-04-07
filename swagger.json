@@ -1,0 +1,194 @@
+{
+  "openapi": "3.0.0",
+  "components": {
+    "examples": {},
+    "headers": {},
+    "parameters": {},
+    "requestBodies": {},
+    "responses": {},
+    "schemas": {
+      "IApiValidationError": {
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["field", "message"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IApiError": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "validationErrors": {
+            "items": {
+              "$ref": "#/components/schemas/IApiValidationError"
+            },
+            "type": "array"
+          },
+          "cause": {}
+        },
+        "required": ["message"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IIndividualSignupReq": {
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": ["firstName", "lastName", "email", "password"],
+        "type": "object",
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {}
+  },
+  "info": {
+    "title": "purple-ledger-core",
+    "version": "1.0.0",
+    "description": "This repo contains the server-side source code for Purple Ledger's bookkeeping and tax app.",
+    "license": {
+      "name": "AGPL-3.0-or-later"
+    },
+    "contact": {
+      "name": "Osahon Oboite"
+    }
+  },
+  "paths": {
+    "/currencies": {
+      "get": {
+        "operationId": "getCurrencies",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "symbol": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "minorUnit": {
+                        "type": "number",
+                        "format": "double"
+                      }
+                    },
+                    "required": ["name", "symbol", "code", "minorUnit"],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get Currencies",
+        "tags": ["Currency"],
+        "security": [],
+        "parameters": []
+      }
+    },
+    "/auth/signup-with-email": {
+      "post": {
+        "operationId": "signupWithEmail",
+        "responses": {
+          "201": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "User signup with email and password",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IIndividualSignupReq"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ]
+}

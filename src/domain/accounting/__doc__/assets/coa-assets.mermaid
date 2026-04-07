@@ -1,0 +1,30 @@
+flowchart LR
+    Assets["Assets: 1xxxxx"] --> CAssets & NCAssets & SuspenseAccounts
+
+    SuspenseAccounts["Suspense Accounts: 199xxx"]
+    CAssets["Current Assets"]  
+        CAssets --> Cash["Cash and Equivalents: 100xxx"]
+        CAssets --> STInvestments["Short Term Investments: 101xxx"]
+        CAssets --> Receivables["Receivables: 102xxx"] 
+            Receivables --> TradeReceivables["Trade Receivables: 102001"]
+            Receivables --> StatutoryReceivables["Statutory Receivables: 102002"]
+            
+        CAssets --> Inventories["Inventories: 103xxx"]
+        CAssets --> AccruedIncome["Accrued Income: 104xxx"]
+        CAssets --> Prepayments["Prepayments: 105xxx"]
+
+
+      
+
+    NCAssets["Non Current Assets"]
+        NCAssets --> LTInvestments["Long Term Investments: 106xxx"]
+        NCAssets --> PPE["Property, Plant & Equipment: 107xxx"]
+        NCAssets --> IntangibleAssets["Intangible Assets: 108xxx"]
+        NCAssets --> ROU["Right-of-Use Assets: 109xxx"]
+        NCAssets --> Goodwill["Goodwill: 110xxx"]
+        %% For individuals only
+        NCAssets --> PersonalChattels["Personal Chattels: 111xxx"] 
+        
+    NCAssets ~~~ SuspenseAccounts
+
+
