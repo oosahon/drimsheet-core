@@ -1,5 +1,5 @@
 import accountingEntityCreatedEventHandler from '../accounting-entity-created-event.handler';
-import setupIndividualEntityBaseAccountsUseCase from '../../../usecases/ledger-account/setup-individual-entity-base-accounts.usecase';
+import ledgerAccountUsecase from '../../../usecases/ledger-account';
 import { IEvent } from '../../../../shared/types/event.types';
 import { AppError } from '../../../../shared/value-objects/error';
 import {
@@ -10,24 +10,19 @@ import { EAccountingEntityEvents } from '../../../../domain/accounting/events/ac
 import { TEntityId } from '../../../../shared/types/uuid';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import { NAIRA } from '../../../../domain/currency/config/currencies';
 
-jest.mock(
-  '../../../usecases/ledger/setup-individual-entity-base-accounts.usecase'
-);
+jest.mock('../../../usecases/ledger-account', () => ({
+  __esModule: true,
+  default: {
+    setupIndividualEntityBaseAccounts: jest.fn(),
+  },
+}));
 
 describe('accountingEntityCreatedEventHandler', () => {
-  const mockSetupBaseAccounts = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
-    (setupIndividualEntityBaseAccountsUseCase as jest.Mock).mockReturnValue(
-      mockSetupBaseAccounts
-    );
   });
 
   const validEntityId = '00000000-0000-0000-0000-000000000001' as TEntityId;
@@ -63,10 +58,7 @@ describe('accountingEntityCreatedEventHandler', () => {
   it('should successfully handle AccountingEntityCreated event', async () => {
     const handler = accountingEntityCreatedEventHandler(
       MockReporter,
-      mockLedgerAccountRepo,
-      mockRequestContext,
-      mockAccountingEntityRepo,
-      mockEventBus
+      mockRequestContext
     );
 
     const mockEvent = getValidEvent();
@@ -74,7 +66,9 @@ describe('accountingEntityCreatedEventHandler', () => {
       correlationId: 'default-corr-id',
     } as any);
 
-    mockSetupBaseAccounts.mockResolvedValue(undefined);
+    (
+      ledgerAccountUsecase.setupIndividualEntityBaseAccounts as jest.Mock
+    ).mockResolvedValue(undefined);
 
     await handler(mockEvent);
 
@@ -82,24 +76,16 @@ describe('accountingEntityCreatedEventHandler', () => {
       correlationId: mockEvent.correlationId,
     });
 
-    expect(setupIndividualEntityBaseAccountsUseCase).toHaveBeenCalledWith(
-      mockRequestContext,
-      mockLedgerAccountRepo,
-      mockAccountingEntityRepo,
-      mockEventBus
-    );
-
-    expect(mockSetupBaseAccounts).toHaveBeenCalledWith(mockEvent.data.id);
+    expect(
+      ledgerAccountUsecase.setupIndividualEntityBaseAccounts
+    ).toHaveBeenCalledWith(mockEvent.data.id);
     expect(MockReporter.report).not.toHaveBeenCalled();
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
     const handler = accountingEntityCreatedEventHandler(
       MockReporter,
-      mockLedgerAccountRepo,
-      mockRequestContext,
-      mockAccountingEntityRepo,
-      mockEventBus
+      mockRequestContext
     );
 
     const mockEvent: IEvent<IAccountingEntity> = {
@@ -112,7 +98,9 @@ describe('accountingEntityCreatedEventHandler', () => {
       correlationId: 'default-corr-id',
     } as any);
 
-    mockSetupBaseAccounts.mockResolvedValue(undefined);
+    (
+      ledgerAccountUsecase.setupIndividualEntityBaseAccounts as jest.Mock
+    ).mockResolvedValue(undefined);
 
     await handler(mockEvent);
 
@@ -120,16 +108,15 @@ describe('accountingEntityCreatedEventHandler', () => {
       correlationId: 'default-corr-id',
     });
 
-    expect(mockSetupBaseAccounts).toHaveBeenCalledWith(mockEvent.data.id);
+    expect(
+      ledgerAccountUsecase.setupIndividualEntityBaseAccounts
+    ).toHaveBeenCalledWith(mockEvent.data.id);
   });
 
   it('should throw and report if event type is invalid', async () => {
     const handler = accountingEntityCreatedEventHandler(
       MockReporter,
-      mockLedgerAccountRepo,
-      mockRequestContext,
-      mockAccountingEntityRepo,
-      mockEventBus
+      mockRequestContext
     );
 
     const mockEvent = getValidEvent();
@@ -147,10 +134,7 @@ describe('accountingEntityCreatedEventHandler', () => {
   it('should report an error if transaction fails', async () => {
     const handler = accountingEntityCreatedEventHandler(
       MockReporter,
-      mockLedgerAccountRepo,
-      mockRequestContext,
-      mockAccountingEntityRepo,
-      mockEventBus
+      mockRequestContext
     );
 
     const mockEvent = getValidEvent();
@@ -159,7 +143,9 @@ describe('accountingEntityCreatedEventHandler', () => {
     } as any);
 
     const error = new Error('DB Error');
-    mockSetupBaseAccounts.mockRejectedValue(error);
+    (
+      ledgerAccountUsecase.setupIndividualEntityBaseAccounts as jest.Mock
+    ).mockRejectedValue(error);
 
     await handler(mockEvent);
 

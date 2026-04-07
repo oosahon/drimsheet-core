@@ -8,12 +8,6 @@ export interface ITransactionalEmailPayload extends ICorrelationId {
   data?: Record<string, string>;
 }
 
-export enum ETransactionalEmailAgent {
-  Notifications = 'notifications',
-  Osahon = 'osahon',
-  NoReply = 'noReply',
-}
-
-export default interface ITransactionalEmailAgent {
-  send(payload: ITransactionalEmailPayload): Promise<void>;
+export interface IQueue {
+  addTransactionalEmail(payload: ITransactionalEmailPayload): void;
 }

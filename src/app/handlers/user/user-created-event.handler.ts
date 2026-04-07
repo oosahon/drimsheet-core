@@ -4,6 +4,7 @@ import { IEvent } from '../../../shared/types/event.types';
 import eventValue from '../../../shared/value-objects/event.vo';
 import ILogger from '../../contracts/infra/logger.contract';
 import IReporter from '../../contracts/infra/reporter.contract';
+import authUseCase from '../../usecases/auth';
 
 export default function userCreatedEventHandler(
   reporter: IReporter,
@@ -16,7 +17,9 @@ export default function userCreatedEventHandler(
       const shouldSendEmailVerification = !event.data.emailVerified;
 
       if (shouldSendEmailVerification) {
-        // TODO: add to email queue
+        await authUseCase.sendEmailVerificationEmail(event.data.email);
+      } else {
+        // TODO: send welcome email
       }
     } catch (error) {
       logger.error(error);

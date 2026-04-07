@@ -8,6 +8,7 @@ import swagger from './swagger';
 import rateLimiter from './rate-limiter';
 import middlewares from '../../interface/http/middlewares';
 import cors from './cors';
+import bullMqServerAdapter from './bull-dashboard';
 
 function setupServer(bootstrap?: () => Promise<void>) {
   const app = express();
@@ -21,6 +22,8 @@ function setupServer(bootstrap?: () => Promise<void>) {
   app.use(rateLimiter());
 
   app.use(express.static('public'));
+
+  app.use('/bullmq-board-admin', bullMqServerAdapter.getRouter());
 
   app.use(compression());
 

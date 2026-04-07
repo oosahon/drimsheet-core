@@ -13,7 +13,10 @@ interface IEmailSender {
   agent: string;
 }
 
-async function send(payload: ITransactionalEmailPayload, sender: IEmailSender) {
+async function sendEmail(
+  payload: Omit<ITransactionalEmailPayload, 'correlationId'>,
+  sender: IEmailSender
+) {
   await axios.post(
     'https://api.zeptomail.com/v1.1/email',
     {
@@ -41,8 +44,8 @@ async function send(payload: ITransactionalEmailPayload, sender: IEmailSender) {
 
 function createSender(sender: IEmailSender) {
   return {
-    async send(payload: ITransactionalEmailPayload) {
-      await send(payload, sender);
+    async send(payload: Omit<ITransactionalEmailPayload, 'correlationId'>) {
+      await sendEmail(payload, sender);
     },
   };
 }

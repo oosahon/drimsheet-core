@@ -13,7 +13,8 @@ export default function requestContextMiddleware(
   requestContext: IRequestContext
 ): RequestHandler {
   return (req, res, next) => {
-    const correlationId = getHttpHeaderValue('x-correlation-id', req.headers);
+    const correlationId =
+      getHttpHeaderValue('x-correlation-id', req.headers) || generateUUID();
     const idempotencyKey = getHttpHeaderValue('x-idempotency-key', req.headers);
     const accountingEntityType = getHttpHeaderValue(
       'x-accounting-entity-type',
@@ -25,7 +26,7 @@ export default function requestContextMiddleware(
     requestContext.init(
       {
         user,
-        correlationId: correlationId || generateUUID(),
+        correlationId,
         idempotencyKey: idempotencyKey || '',
         accountingEntityType: accountingEntityType as UAccountingEntityType,
       },
