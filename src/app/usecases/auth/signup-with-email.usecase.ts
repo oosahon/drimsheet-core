@@ -19,6 +19,7 @@ import IAuthService from '../../contracts/infra/auth-service.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
+import eventValue from '../../../shared/value-objects/event.vo';
 
 export default function signupWithEmailUsecase(
   repoService: IRepoService,
@@ -83,9 +84,17 @@ export default function signupWithEmailUsecase(
       await accountingEntityRepo.save(individualDomain, repoOptions);
     });
 
-    [...userEvents, ...individualEntityEvents].forEach(({ enricher }) => {
-      const event = enricher({ correlationId, idempotencyKey });
-      eventBus.publish(event);
-    });
+    const enrichedUserEvents = userEvents.map((e) =>
+      eventValue.enrich(e, { correlationId, idempotencyKey })
+    );
+
+    const enrichedIndividualEntityEvents = individualEntityEvents.map((e) =>
+      eventValue.enrich(e, { correlationId, idempotencyKey })
+    );
+
+    eventBus.publish([
+      ...enrichedUserEvents,
+      ...enrichedIndividualEntityEvents,
+    ]);
   };
 }

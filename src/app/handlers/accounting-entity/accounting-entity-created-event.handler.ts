@@ -5,7 +5,7 @@ import { IAccountingEntity } from '../../../domain/accounting/types/accounting.t
 import { EAccountingEntityEvents } from '../../../domain/accounting/events/accounting-entity.events';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import setupIndividualEntityBaseAccountsUseCase from '../../usecases/ledger/setup-individual-entity-base-accounts.usecase';
+import setupIndividualEntityBaseAccountsUseCase from '../../usecases/ledger-account/setup-individual-entity-base-accounts.usecase';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 

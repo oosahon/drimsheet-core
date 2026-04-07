@@ -8,14 +8,13 @@ describe('event.vo', () => {
   describe('make', () => {
     it('creates an event successfully with valid payload', () => {
       const payload = { type: 'TestEvent', data: { id: 1 } };
-      const { event, enricher } = eventValue.make(payload);
+      const event = eventValue.make(payload);
 
       expect(event.type).toBe('TestEvent');
       expect(event.data).toEqual({ id: 1 });
       expect(event.occurredAt).toBeInstanceOf(Date);
       expect(event.correlationId).toBeUndefined();
       expect(event.idempotencyKey).toBeUndefined();
-      expect(typeof enricher).toBe('function');
     });
 
     it('throws error if type is empty or missing', () => {
@@ -45,7 +44,7 @@ describe('event.vo', () => {
         correlationId: validUUID,
         idempotencyKey: validUUID2,
       };
-      const { event } = eventValue.make(payload);
+      const event = eventValue.make(payload);
 
       expect(event.correlationId).toBe(validUUID);
       expect(event.idempotencyKey).toBe(validUUID2);
@@ -62,11 +61,11 @@ describe('event.vo', () => {
     });
   });
 
-  describe('enricher', () => {
+  describe('enrich', () => {
     it('enriches the event with correlationId and idempotencyKey', () => {
-      const { enricher } = eventValue.make({ type: 'TestEvent', data: {} });
+      const event = eventValue.make({ type: 'TestEvent', data: {} });
 
-      const enrichedEvent = enricher({
+      const enrichedEvent = eventValue.enrich(event, {
         correlationId: validUUID,
         idempotencyKey: validUUID2,
       });
@@ -77,38 +76,38 @@ describe('event.vo', () => {
     });
 
     it('throws error if trying to overwrite existing correlationId', () => {
-      const { enricher } = eventValue.make({
+      const event = eventValue.make({
         type: 'TestEvent',
         data: {},
         correlationId: validUUID,
       });
 
-      expect(() => enricher({ correlationId: validUUID2 })).toThrow(
-        'Correlation ID cannot be overwritten'
-      );
+      expect(() =>
+        eventValue.enrich(event, { correlationId: validUUID2 })
+      ).toThrow('Correlation ID cannot be overwritten');
     });
 
     it('throws error if trying to overwrite existing idempotencyKey', () => {
-      const { enricher } = eventValue.make({
+      const event = eventValue.make({
         type: 'TestEvent',
         data: {},
         idempotencyKey: validUUID,
       });
 
-      expect(() => enricher({ idempotencyKey: validUUID2 })).toThrow(
-        'Idempotency key cannot be overwritten'
-      );
+      expect(() =>
+        eventValue.enrich(event, { idempotencyKey: validUUID2 })
+      ).toThrow('Idempotency key cannot be overwritten');
     });
 
     it('allows enrichment with same existing values (idempotent)', () => {
-      const { enricher } = eventValue.make({
+      const event = eventValue.make({
         type: 'TestEvent',
         data: {},
         correlationId: validUUID,
         idempotencyKey: validUUID2,
       });
 
-      const enrichedEvent = enricher({
+      const enrichedEvent = eventValue.enrich(event, {
         correlationId: validUUID,
         idempotencyKey: validUUID2,
       });
@@ -118,9 +117,29 @@ describe('event.vo', () => {
     });
 
     it('throws error if enriched with non-string correlationId or idempotencyKey', () => {
-      const { enricher } = eventValue.make({ type: 'TestEvent', data: {} });
-      expect(() => enricher({ correlationId: 123 as any })).toThrow(AppError);
-      expect(() => enricher({ idempotencyKey: 123 as any })).toThrow(AppError);
+      const event = eventValue.make({ type: 'TestEvent', data: {} });
+      expect(() =>
+        eventValue.enrich(event, { correlationId: 123 as any })
+      ).toThrow(AppError);
+      expect(() =>
+        eventValue.enrich(event, { idempotencyKey: 123 as any })
+      ).toThrow(AppError);
+    });
+  });
+
+  describe('validateEventTypeMatch', () => {
+    it('passes if the event type matches the expected type', () => {
+      const event = eventValue.make({ type: 'TestEvent', data: {} });
+      expect(() =>
+        eventValue.validateEventTypeMatch(event, 'TestEvent')
+      ).not.toThrow();
+    });
+
+    it('throws error if the event type does not match', () => {
+      const event = eventValue.make({ type: 'TestEvent', data: {} });
+      expect(() =>
+        eventValue.validateEventTypeMatch(event, 'OtherEvent')
+      ).toThrow(AppError);
     });
   });
 

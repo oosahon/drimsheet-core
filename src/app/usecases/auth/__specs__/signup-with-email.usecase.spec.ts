@@ -15,6 +15,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import { ITransactionContext } from '../../../contracts/infra/repo.contract';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import { NAIRA } from '../../../../domain/currency/config/currencies';
+import { IEvent } from '../../../../shared/types/event.types';
 
 describe('signupWithEmailUsecase', () => {
   beforeEach(() => {
@@ -95,10 +96,13 @@ describe('signupWithEmailUsecase', () => {
     expect(mockEventBus.publish).toHaveBeenCalled();
     const publishCalls = (mockEventBus.publish as jest.Mock).mock.calls;
     expect(publishCalls.length).toBeGreaterThan(0);
-    publishCalls.forEach(([event]) => {
-      expect(event).toMatchObject({
-        correlationId,
-        idempotencyKey,
+    publishCalls.forEach(([events]) => {
+      expect(Array.isArray(events)).toBe(true);
+      (events as IEvent<unknown>[]).forEach((event) => {
+        expect(event).toMatchObject({
+          correlationId,
+          idempotencyKey,
+        });
       });
     });
   });
@@ -107,7 +111,7 @@ describe('signupWithEmailUsecase', () => {
     const correlationId = 'test-corr-id';
     mockRequestContext.get.mockReturnValue({
       correlationId,
-    } as unknown as IRequestContextData);
+    } as IRequestContextData);
 
     const payload = {
       firstName: 'Jane',

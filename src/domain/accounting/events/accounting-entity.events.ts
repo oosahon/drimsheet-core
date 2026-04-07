@@ -1,9 +1,9 @@
 import eventValue from '../../../shared/value-objects/event.vo';
 import { IAccountingEntity } from '../types/accounting.types';
 
-export enum EAccountingEntityEvents {
-  Created = 'domain:accounting:entity:created',
-}
+export const EAccountingEntityEvents = {
+  Created: 'domain:accounting:entity:created',
+} as const;
 
 function makeCreatedEvent(params: IAccountingEntity) {
   return eventValue.make<IAccountingEntity>({

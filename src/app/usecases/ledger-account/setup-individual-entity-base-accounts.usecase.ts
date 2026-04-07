@@ -3,9 +3,10 @@ import { EAccountingEntityType } from '../../../domain/accounting/types/accounti
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import ledgerService from '../../../domain/ledger/services/ledger.service';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
-import { IEventWithEnricher } from '../../../shared/types/event.types';
+import { IEvent } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { AppError } from '../../../shared/value-objects/error';
+import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 
@@ -49,7 +50,7 @@ export default function setupIndividualEntityBaseAccountsUseCase(
     );
 
     const entities: ILedgerAccount[] = [];
-    const entityEvents: IEventWithEnricher<ILedgerAccount>[] = [];
+    const entityEvents: IEvent<ILedgerAccount>[] = [];
 
     entitiesAndEvents.forEach(([entity, events]) => {
       entities.push(entity);
@@ -60,11 +61,10 @@ export default function setupIndividualEntityBaseAccountsUseCase(
       await ledgerAccountRepo.save(entities, { correlationId });
     }
 
-    await Promise.all(
-      entityEvents.map(async ({ enricher }) => {
-        const event = enricher({ correlationId });
-        await eventBus.publish(event);
-      })
+    const enrichedEvents = entityEvents.map((event) =>
+      eventValue.enrich(event, { correlationId })
     );
+
+    eventBus.publish(enrichedEvents);
   };
 }

@@ -2,6 +2,7 @@ import { AppError } from '../../../../shared/value-objects/error';
 import userEntity from '../user.entity';
 import { IUser } from '../../types/user.types';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
+import { IEvent } from '../../../../shared/types/event.types';
 
 describe('User Entity', () => {
   beforeEach(() => {
@@ -26,8 +27,8 @@ describe('User Entity', () => {
       const [result, events] = userEntity.make(payload);
 
       expect(events).toHaveLength(1);
-      expect(events[0].event.type).toBe('domain:user:created');
-      expect(events[0].event.data).toEqual(result);
+      expect(events[0].type).toBe('domain:user:created');
+      expect(events[0].data).toEqual(result);
 
       expect(typeof result.id).toBe('string');
       expect(result.id.length).toBeGreaterThan(0);
@@ -52,7 +53,7 @@ describe('User Entity', () => {
       const [result, events] = userEntity.make(payload);
 
       expect(result.emailVerified).toBe(true);
-      expect(events[0].event.data).toEqual(result);
+      expect(events[0].data).toEqual(result);
     });
 
     it('should throw an error for invalid firstName length', () => {
@@ -114,8 +115,8 @@ describe('User Entity', () => {
       const [result, events] = userEntity.verifyEmail(unverifiedUser);
 
       expect(events).toHaveLength(1);
-      expect(events[0].event.type).toBe('domain:user:email-verified');
-      expect(events[0].event.data).toEqual(result);
+      expect(events[0].type).toBe('domain:user:email-verified');
+      expect(events[0].data).toEqual(result);
 
       expect(result.emailVerified).toBe(true);
       expect(result.updatedAt.getTime()).toBeGreaterThan(
@@ -159,11 +160,11 @@ describe('User Entity', () => {
       const [result, events] = userEntity.update(
         existingUser,
         updateOptions
-      ) as [IUser, any[]];
+      ) as [IUser, IEvent<IUser>[]];
 
       expect(events).toHaveLength(1);
-      expect(events[0].event.type).toBe('domain:user:updated');
-      expect(events[0].event.data).toEqual(result);
+      expect(events[0].type).toBe('domain:user:updated');
+      expect(events[0].data).toEqual(result);
 
       expect(result.firstName).toBe('Updated First');
       expect(result.lastName).toBe('Updated Last');
@@ -175,10 +176,7 @@ describe('User Entity', () => {
 
     it('should update only firstName correctly', () => {
       const updateOptions = { firstName: 'Updated First' };
-      const [result, events] = userEntity.update(
-        existingUser,
-        updateOptions
-      ) as [IUser, any[]];
+      const [result, events] = userEntity.update(existingUser, updateOptions);
 
       expect(events).toHaveLength(1);
       expect(result.firstName).toBe('Updated First');
@@ -187,10 +185,7 @@ describe('User Entity', () => {
 
     it('should update only lastName correctly', () => {
       const updateOptions = { lastName: 'Updated Last' };
-      const [result, events] = userEntity.update(
-        existingUser,
-        updateOptions
-      ) as [IUser, any[]];
+      const [result, events] = userEntity.update(existingUser, updateOptions);
 
       expect(events).toHaveLength(1);
       expect(result.firstName).toBe('Original First');
@@ -202,10 +197,7 @@ describe('User Entity', () => {
         firstName: 'Original First',
         lastName: 'Original Last',
       };
-      const [result, events] = userEntity.update(
-        existingUser,
-        updateOptions
-      ) as [IUser, any[]];
+      const [result, events] = userEntity.update(existingUser, updateOptions);
 
       expect(events).toHaveLength(0);
       expect(result).toBe(existingUser);

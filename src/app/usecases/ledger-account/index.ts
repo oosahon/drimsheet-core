@@ -3,7 +3,7 @@ import repos from '../../../infra/persistence/repos';
 import appContext from '../../context';
 import setupIndividualEntityBaseAccountsUseCase from './setup-individual-entity-base-accounts.usecase';
 
-const ledgerAccountUsecases = {
+const ledgerAccountUsecase = {
   setupIndividualEntityBaseAccounts: setupIndividualEntityBaseAccountsUseCase(
     appContext.request,
     repos.ledgerAccount,
@@ -12,4 +12,4 @@ const ledgerAccountUsecases = {
   ),
 };
 
-export default ledgerAccountUsecases;
+export default ledgerAccountUsecase;

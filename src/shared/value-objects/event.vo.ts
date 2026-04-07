@@ -1,8 +1,4 @@
-import {
-  IEvent,
-  IEventEnrichmentPayload,
-  IEventWithEnricher,
-} from '../types/event.types';
+import { IEvent, IEventEnrichmentPayload } from '../types/event.types';
 import stringUtils from '../utils/string';
 import { AppError } from './error';
 
@@ -60,28 +56,18 @@ function enrich<T>(
  */
 function make<T>(
   payload: Omit<IEvent<T>, 'occurredAt' | 'enrichedAt'>
-): IEventWithEnricher<T> {
+): IEvent<T> {
   validate(payload);
 
-  const event = Object.freeze({
+  const event: IEvent<T> = Object.freeze({
     type: payload.type,
     data: payload.data,
     occurredAt: new Date(),
     correlationId: payload.correlationId,
     idempotencyKey: payload.idempotencyKey,
+    enrichedAt: null,
   });
-
-  const eventAndEnricher: IEventWithEnricher<T> = {
-    event,
-    enricher: (enrichmentPayload) =>
-      enrich(event, {
-        correlationId: enrichmentPayload.correlationId ?? event.correlationId,
-        idempotencyKey:
-          enrichmentPayload.idempotencyKey ?? event.idempotencyKey,
-      }),
-  };
-
-  return Object.freeze(eventAndEnricher);
+  return Object.freeze(event);
 }
 
 function validateEnrichmentPayload(payload: IEventEnrichmentPayload) {

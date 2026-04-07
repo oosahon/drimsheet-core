@@ -15,10 +15,13 @@ const validateEventType = (eventType: string) => {
 const eventBus: IEventBus = {
   publish: async (event) => {
     try {
-      validateEventType(event.type);
+      const eventsArray = Array.isArray(event) ? event : [event];
+      for (const event of eventsArray) {
+        validateEventType(event.type);
 
-      if (event.type.startsWith('domain:')) {
-        emitter.emit(event.type, event);
+        if (event.type.startsWith('domain:')) {
+          emitter.emit(event.type, event);
+        }
       }
       // TODO add redis pub/sub
     } catch (error) {

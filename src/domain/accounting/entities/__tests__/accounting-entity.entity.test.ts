@@ -54,8 +54,8 @@ describe('Accounting Domain Entity', () => {
       const [domain, events] = accountingEntityTypeEntity.make(payload);
 
       expect(events).toHaveLength(1);
-      expect(events[0].event.type).toBe(EAccountingEntityEvents.Created);
-      expect(events[0].event.data).toEqual(domain);
+      expect(events[0].type).toBe(EAccountingEntityEvents.Created);
+      expect(events[0].data).toEqual(domain);
 
       expect(typeof domain.id).toBe('string');
       expect(domain.id.length).toBeGreaterThan(0);

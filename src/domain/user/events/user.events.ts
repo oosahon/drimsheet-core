@@ -1,12 +1,12 @@
 import eventValue from '../../../shared/value-objects/event.vo';
 import { IUser } from '../types/user.types';
 
-export enum EUserEvents {
-  Created = 'domain:user:created',
-  Updated = 'domain:user:updated',
-  Deleted = 'domain:user:deleted',
-  EmailVerified = 'domain:user:email-verified',
-}
+export const EUserEvents = {
+  Created: 'domain:user:created',
+  Updated: 'domain:user:updated',
+  Deleted: 'domain:user:deleted',
+  EmailVerified: 'domain:user:email-verified',
+} as const;
 
 function makeCreatedEvent(user: IUser) {
   return eventValue.make<IUser>({
