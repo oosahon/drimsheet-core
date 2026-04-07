@@ -1,0 +1,17 @@
+flowchart LR
+    Revenues["Revenues: 4xxxxx"]
+
+    OperatingRevenues["Operating Revenues"]
+        Sales["Sales: 400xxx"]
+        Services["Services: 401xxx"]
+        Subscriptions["Subscriptions: 402xxx"]
+        EmploymentIncome["Employment Income: 403xxx"]
+        
+    NonOperatingRevenues["Non-Operating Revenues"]
+        InterestIncome["Interest Income: 404xxx"]
+        GainOnSale["Gain on Sale of Assets: 405xxx"]
+        UnrealizedGains["Unrealized Gains: 406xxx"]
+
+    Revenues --> OperatingRevenues & NonOperatingRevenues
+    OperatingRevenues --> Sales & Services & Subscriptions & EmploymentIncome
+    NonOperatingRevenues --> InterestIncome & GainOnSale & UnrealizedGains

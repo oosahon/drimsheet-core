@@ -1,0 +1,14 @@
+{
+  "entryFile": "src/app/bootstrap/index.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": ["src/**/*.controller.ts"],
+  "spec": {
+    "outputDirectory": ".",
+    "basePath": "/api/v1",
+    "specVersion": 3
+  },
+  "routes": {
+    "routesDir": ".",
+    "basePath": "/api/v1"
+  }
+}

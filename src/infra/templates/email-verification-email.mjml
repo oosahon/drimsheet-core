@@ -1,0 +1,103 @@
+<mjml>
+  <mj-head>
+
+    <mj-html-attributes>
+      <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="text-color" text-color="#000000"></mj-html-attribute>
+      <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="font-family" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans','Helvetica Neue', sans-serif"></mj-html-attribute>
+      <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="font-size" font-size="14px"></mj-html-attribute>
+      <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="line-height" line-height="1.7"></mj-html-attribute>
+      <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="font-weight" font-weight="400"></mj-html-attribute>
+      <mj-html-attribute class="easy-email" multiple-attributes="false" attribute-name="responsive" responsive="true"></mj-html-attribute>
+
+    </mj-html-attributes>
+
+    <mj-style>
+      .lc-text a {
+        color: #77E375 !important;
+        text-decoration: underline;
+      }
+
+      .lc-shadow {
+        border: 1px solid #1b301b !important;
+      }
+
+      .lc-button td {
+        border: 2px solid #636b63;
+        border-style: dashed;
+      }
+    </mj-style>
+
+    <mj-breakpoint width="480px" />
+
+    <mj-font name="Manrope" href="https://fonts.googleapis.com/css?family=Manrope" />
+    <mj-attributes>
+      <mj-all font-family="Manrope, Helvetica, Arial, sans-serif" />
+      <mj-text font-weight="400" font-size="14px" color="#ffffff" line-height="22px" />
+      <mj-text font-size="14px" />
+      <mj-text line-height="1.7" />
+      <mj-text font-weight="400" />
+      <mj-all font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans','Helvetica Neue', sans-serif" />
+      <mj-text font-size="14px" />
+      <mj-text color="#000000" />
+      <mj-text line-height="1.7" />
+      <mj-text font-weight="400" />
+
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#070e07" width="600px">
+    <mj-raw padding="20px 0px 20px 0px" border="none" direction="ltr" text-align="center">
+      <!-- Webview tag -->
+    </mj-raw>
+    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="center" background-color="transparent" padding="20px 0px 20px 0px">
+      <mj-column border="none" vertical-align="top" padding="0px 0px 0px 0px">
+        <mj-text align="center" color="#fff" font-size="12px" css-class="lc-text" line-height="22px" padding="0px 0px 0px 0px"><br></mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="center" css-class="lc-shadow" border-radius="20px" background-color="#16171d" padding="30px 40px 30px 40px">
+      <mj-column border="none" vertical-align="top" width="100%" padding="0px 0px 0px 0px">
+        <mj-raw>
+          <!-- Logo -->
+        </mj-raw>
+        <mj-image align="center" height="auto" src="https://purple-ledger-public.s3.us-east-1.amazonaws.com/transactional-email-header.png" href="https://purpleledger.app" width="40px" padding="0px 0px 0px 0px"></mj-image>
+        <mj-spacer height="40px"></mj-spacer>
+        <mj-raw>
+          <!-- Image -->
+        </mj-raw>
+        <mj-spacer height="30px"></mj-spacer>
+        <mj-text align="center" color="#fff" line-height="34px" padding="0px 0px 0px 0px" font-size="18px">
+          <div style="text-align: left;">
+            <font size="4">Hi, {{firstName}}</font>
+          </div>
+        </mj-text>
+        <mj-spacer height="20px" padding="   "></mj-spacer>
+        <mj-text align="left" color="#fff" css-class="lc-text" line-height="22px" padding="0px 0px 0px 0px">Thanks for signing up for PurpleLedger! Please confirm your email address to activate your account.<div><br></div>
+          <div>Click the link below to verify:</div>
+        </mj-text>
+        <mj-spacer height="20px"></mj-spacer>
+        <mj-button align="left" background-color="#8E33FF" color="#ffffff" font-weight="normal" border-radius="10px" line-height="120%" target="_blank" vertical-align="middle" border="1px solid" text-align="center" href="{{verificationLink}}" font-size="14px" css-class="lc-button" padding="0px 0px 0px 0px" inner-padding="10px 25px 10px 25px">Verify email</mj-button>
+        <mj-spacer height="20px"></mj-spacer>
+        <mj-text align="left" color="#B4B4B4" css-class="lc-text" line-height="22px" padding="0px 0px 0px 0px">
+          <font color="#ffffff">If you didn't create this account, you can safely ignore this email.</font><br class="Apple-interchange-newline"><br>
+        </mj-text>
+        <mj-spacer height="40px"></mj-spacer>
+        <mj-text align="left" padding="0px 0px 0px 0px">
+          <font color="#ffffff">💜<br>Team PurpleLedger</font>
+        </mj-text>
+        <mj-spacer height="40px" padding="   "></mj-spacer>
+        <mj-spacer height="20px"></mj-spacer>
+        <mj-text align="center" color="#fff" line-height="22px" padding="0px 0px 0px 0px">© PurpleLedger</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-repeat="repeat" background-size="auto" background-position="top center" border="none" direction="ltr" text-align="center" padding="20px 0px 20px 0px">
+      <mj-column border="none" vertical-align="top" width="50" padding="0px 0px 0px 0px">
+        <mj-image align="center" height="auto" src="https://purple-ledger-public.s3.us-east-1.amazonaws.com/x-light.png" width="20px" padding="0px 0px 0px 0px" href="https://x.com/purple_ledger"></mj-image>
+      </mj-column>
+      <mj-column border="none" vertical-align="top" width="50" padding="0px 0px 0px 0px">
+        <mj-image align="center" height="auto" src="https://purple-ledger-public.s3.us-east-1.amazonaws.com/instagram-light.png" width="20px" padding="0px 0px 0px 0px" href="https://www.instagram.com/purple_ledger" target="_blank"></mj-image>
+      </mj-column>
+      <mj-column border="none" vertical-align="top" width="50" padding="0px 0px 0px 0px">
+        <mj-image align="center" height="auto" src="https://purple-ledger-public.s3.us-east-1.amazonaws.com/linkedin-light.png" width="20px" padding="0px 0px 0px 0px" href="https://www.linkedin.com/company/110437717"></mj-image>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
