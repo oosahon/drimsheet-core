@@ -11,4 +11,5 @@ export interface IRequestContextData extends ICorrelationId, IIdempotencyKey {
 export default interface IRequestContext {
   init: (store: IRequestContextData, callback: () => void) => void;
   get(): IRequestContextData;
+  set: (store: Partial<IRequestContextData>) => void;
 }

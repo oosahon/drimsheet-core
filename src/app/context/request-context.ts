@@ -22,5 +22,10 @@ export default function storageService(logger: ILogger): IRequestContext {
 
       return store;
     },
+
+    set(store) {
+      const currentStore = this.get();
+      asyncLocalStorage.run({ ...currentStore, ...store }, () => {});
+    },
   };
 }

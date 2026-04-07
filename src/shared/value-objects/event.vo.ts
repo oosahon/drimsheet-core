@@ -123,10 +123,19 @@ function validate<T = object>(
   validateEnrichmentPayload(payload);
 }
 
+function validateEventTypeMatch(event: IEvent<unknown>, expectedType: string) {
+  if (event.type !== expectedType) {
+    throw new AppError('Event type does not match expected type', {
+      cause: { eventType: event.type, expectedType },
+    });
+  }
+}
+
 const eventValue = Object.freeze({
   make,
   enrich,
   validate,
+  validateEventTypeMatch,
 });
 
 export default eventValue;

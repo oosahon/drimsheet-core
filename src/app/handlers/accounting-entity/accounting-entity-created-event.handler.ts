@@ -1,60 +1,38 @@
-import ledgerService from '../../../domain/ledger/services/ledger.service';
 import { IEvent } from '../../../shared/types/event.types';
-import { AppError } from '../../../shared/value-objects/error';
 import IReporter from '../../contracts/infra/reporter.contract';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting.types';
-import { IRepoService } from '../../contracts/infra/repo.contract';
-import generateUUID from '../../../shared/utils/uuid-generator';
 import { EAccountingEntityEvents } from '../../../domain/accounting/events/accounting-entity.events';
+import eventValue from '../../../shared/value-objects/event.vo';
+import IRequestContext from '../../contracts/app/request-context.contract';
+import setupIndividualEntityBaseAccountsUseCase from '../../usecases/ledger/setup-individual-entity-base-accounts.usecase';
+import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
+import IEventBus from '../../contracts/infra/event-bus.contract';
 
 export default function accountingEntityCreatedEventHandler(
   reporter: IReporter,
   ledgerAccountRepo: ILedgerAccountRepo,
-  repoService: IRepoService
+  requestContext: IRequestContext,
+  accountingEntityRepo: IAccountingEntityRepo,
+  eventBus: IEventBus
 ) {
   return async (event: IEvent<IAccountingEntity>) => {
     try {
-      const shouldHandler = event.type === EAccountingEntityEvents.Created;
+      eventValue.validateEventTypeMatch(event, EAccountingEntityEvents.Created);
+      const { correlationId: defaultCorrelationId } = requestContext.get();
 
-      if (!shouldHandler) {
-        throw new AppError(
-          'Invalid event type passed to accounting entity created event handler',
-          {
-            cause: {
-              type: event.type,
-              correlationId: event.correlationId,
-            },
-          }
-        );
-      }
-
-      await repoService.runInTransaction(async (tx) => {
-        const ledgerServiceFn = ledgerService(ledgerAccountRepo);
-
-        const correlationId = event.correlationId ?? generateUUID();
-
-        const setupPayload = {
-          userId: event.data.ownerId,
-          accountingEntityId: event.data.id,
-          functionalCurrency: event.data.functionalCurrency,
-        };
-        const repoParams = {
-          tx,
-          correlationId,
-        };
-
-        const entitiesAndEvents =
-          await ledgerServiceFn.setupBaseIndividualAccounts(
-            setupPayload,
-            repoParams
-          );
-
-        for (const [entity, events] of entitiesAndEvents) {
-          await ledgerAccountRepo.save(entity, repoParams);
-          // TODO: publish events
-        }
+      requestContext.set({
+        correlationId: event.correlationId || defaultCorrelationId,
       });
+
+      const setupBaseAccounts = setupIndividualEntityBaseAccountsUseCase(
+        requestContext,
+        ledgerAccountRepo,
+        accountingEntityRepo,
+        eventBus
+      );
+
+      await setupBaseAccounts(event.data.id);
     } catch (error) {
       reporter.report(error);
     }

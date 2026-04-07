@@ -5,11 +5,14 @@ import { currenciesInCore, ledgerAccountsInCore } from '../drizzle/schema';
 import getDbQuery from './helpers/query';
 
 const ledgerAccountRepoImpl: ILedgerAccountRepo = {
-  save: async (account, options) => {
+  save: async (payload, options) => {
     const dbQuery = getDbQuery(options);
-    await dbQuery
-      .insert(ledgerAccountsInCore)
-      .values(ledgerAccountMapper.toRepo(account));
+
+    const valuesArray = Array.isArray(payload)
+      ? payload.map(ledgerAccountMapper.toRepo)
+      : [ledgerAccountMapper.toRepo(payload)];
+
+    await dbQuery.insert(ledgerAccountsInCore).values(valuesArray);
   },
   findById: async () => null,
 

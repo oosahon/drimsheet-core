@@ -3,7 +3,10 @@ import { TEntityId } from '../../../shared/types/uuid';
 import { ILedgerAccount } from '../types/ledger.types';
 
 export default interface ILedgerAccountRepo {
-  save(account: ILedgerAccount, options: IRepoOptions): Promise<void>;
+  save(
+    account: ILedgerAccount | ILedgerAccount[],
+    options: IRepoOptions
+  ): Promise<void>;
 
   findById(
     id: TEntityId,
