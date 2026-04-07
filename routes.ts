@@ -46,7 +46,6 @@ const models: TsoaRoute.Models = {
       lastName: { dataType: 'string', required: true },
       email: { dataType: 'string', required: true },
       password: { dataType: 'string', required: true },
-      reportingCurrencyCode: { dataType: 'string', required: true },
     },
     additionalProperties: false,
   },

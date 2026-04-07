@@ -50,18 +50,9 @@
           },
           "password": {
             "type": "string"
-          },
-          "reportingCurrencyCode": {
-            "type": "string"
           }
         },
-        "required": [
-          "firstName",
-          "lastName",
-          "email",
-          "password",
-          "reportingCurrencyCode"
-        ],
+        "required": ["firstName", "lastName", "email", "password"],
         "type": "object",
         "additionalProperties": false
       }
