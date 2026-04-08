@@ -6,7 +6,7 @@ import IRequestContext from '../../contracts/app/request-context.contract';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 
-export default function verifyEmailAddress(
+export default function verifyEmailAddressUseCase(
   authService: IAuthService,
   userRepo: IUserRepo,
   requestContext: IRequestContext,

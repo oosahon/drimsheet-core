@@ -184,6 +184,49 @@
           }
         }
       }
+    },
+    "/auth/signup/complete": {
+      "post": {
+        "operationId": "verifyEmail",
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "\nVerify user email",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
     }
   },
   "servers": [
