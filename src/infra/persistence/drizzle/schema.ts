@@ -6,7 +6,6 @@ import {
   pgSchema,
   uuid,
   boolean,
-  index,
   foreignKey,
   jsonb,
   char,
@@ -90,20 +89,14 @@ export const userActivitiesInAudit = audit.table(
       .default(sql`uuid_generate_v4()`)
       .notNull(),
     userId: uuid('user_id'),
-    action: varchar({ length: 50 }).notNull(),
-    resourceType: varchar('resource_type', { length: 50 }).notNull(),
-    resourceId: uuid('resource_id').notNull(),
-    metadata: jsonb(),
+    eventKey: varchar('event_key', { length: 150 }).notNull(),
+    description: varchar({ length: 100 }).notNull(),
+    meta: jsonb(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
       .notNull(),
   },
   (table) => [
-    index().using(
-      'btree',
-      table.resourceType.asc().nullsLast().op('text_ops'),
-      table.resourceId.asc().nullsLast().op('text_ops')
-    ),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [usersInCore.id],

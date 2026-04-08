@@ -3,11 +3,9 @@ import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../domain/user/value-objects/password.vo';
 import {
-  ErrorBadRequest,
   ErrorConflict,
   ErrorForbidden,
 } from '../../../shared/value-objects/error';
-import { SYSTEM_CURRENCIES } from '../../../domain/currency/config/currencies';
 import { IIndividualSignupReq } from '../../contracts/dto/auth.dto';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IRequestContext from '../../contracts/app/request-context.contract';

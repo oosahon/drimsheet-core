@@ -12,6 +12,14 @@ export const EAssetLedgerEvent = {
   ReceivablesCreated: 'domain:ledger:asset:account:receivables:created',
 } as const;
 
+export const assetAccountEventDescriptions: Record<string, string> = {
+  [EAssetLedgerEvent.SuspenseCreated]: 'Created an asset suspense account.',
+  [EAssetLedgerEvent.CashAndEquivalentCreated]:
+    'Created a cash and equivalent asset account.',
+  [EAssetLedgerEvent.ReceivablesCreated]:
+    'Created a receivables asset account.',
+};
+
 function makeSuspenseAccountCreatedEvent(payload: IAssetSuspenseAccount) {
   return eventValue.make<IAssetSuspenseAccount>({
     type: EAssetLedgerEvent.SuspenseCreated,

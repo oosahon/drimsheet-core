@@ -11,6 +11,13 @@ export const EEquityLedgerEvent = {
     'domain:ledger:equity:account:opening-balance-equity:created',
 } as const;
 
+export const equityAccountEventDescriptions: Record<string, string> = {
+  [EEquityLedgerEvent.RetainedEarningsCreated]:
+    'Created a retained earnings equity account.',
+  [EEquityLedgerEvent.OpeningBalanceEquityCreated]:
+    'Created an opening balance equity account.',
+};
+
 function makeRetainedEarningsCreatedEvent(payload: IRetainedEarningsAccount) {
   return eventValue.make<IRetainedEarningsAccount>({
     type: EEquityLedgerEvent.RetainedEarningsCreated,
