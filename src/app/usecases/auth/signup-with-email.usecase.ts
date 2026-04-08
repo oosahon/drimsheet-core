@@ -37,18 +37,18 @@ export default function signupWithEmailUsecase(
       throw new ErrorConflict('User already exists');
     }
 
+    const password = passwordValue.make(payload.password);
+    const passwordHash = await authService.hashPassword(password);
+
     const [user, userEvents] = userEntity.make({
       firstName: payload.firstName,
       lastName: payload.lastName,
       email,
       emailVerified: false,
+      password: passwordHash,
     });
 
-    const password = passwordValue.make(payload.password);
-    const passwordHash = await authService.hashPassword(password);
-    const userWithPassword = { ...user, password: passwordHash };
-
-    await userRepo.save(userWithPassword, { correlationId });
+    await userRepo.save(user, { correlationId });
 
     const enrichedUserEvents = userEvents.map((e) =>
       eventValue.enrich(e, { correlationId, idempotencyKey })

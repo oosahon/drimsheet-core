@@ -6,7 +6,7 @@ import ILogger from '../../contracts/infra/logger.contract';
 import IReporter from '../../contracts/infra/reporter.contract';
 import authUseCase from '../../usecases/auth';
 import userUseCase from '../../usecases/user';
-import validateEventAndSetRequestContext from '../helpers/validate-and-set-request-context';
+import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
 
 export default function userCreatedEventHandler(
   reporter: IReporter,
@@ -30,7 +30,7 @@ export default function userCreatedEventHandler(
           .sendEmailVerificationEmail(event.data.email)
           .catch(reporter.report);
       } else {
-        // TODO: send welcome email
+        // TODO: send welcome email https://linear.app/purpleledger/issue/PUR-20/create-and-send-welcome-emails
       }
     } catch (error) {
       logger.error(error);

@@ -4,7 +4,7 @@ import { IAccountingEntity } from '../../../domain/accounting/types/accounting.t
 import { EAccountingEntityEvents } from '../../../domain/accounting/events/accounting-entity.events';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import ledgerAccountUsecase from '../../usecases/ledger-account';
-import validateEventAndSetRequestContext from '../helpers/validate-and-set-request-context';
+import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
 import userUseCase from '../../usecases/user';
 
 export default function accountingEntityCreatedEventHandler(
