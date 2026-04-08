@@ -12,7 +12,6 @@ import {
 import authUseCase from '../../../app/usecases/auth';
 import { IIndividualSignupReq } from '../../../app/contracts/dto/auth.dto';
 import { IApiError } from '../handlers/error.handler';
-import { ErrorBadRequest } from '../../../shared/value-objects/error';
 
 @Route('auth')
 @Tags('Auth')

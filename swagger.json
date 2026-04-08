@@ -55,6 +55,19 @@
         "required": ["firstName", "lastName", "email", "password"],
         "type": "object",
         "additionalProperties": false
+      },
+      "IAuthRes": {
+        "properties": {
+          "authToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "required": ["authToken", "refreshToken"],
+        "type": "object",
+        "additionalProperties": false
       }
     },
     "securitySchemes": {}
@@ -190,7 +203,14 @@
         "operationId": "verifyEmail",
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IAuthRes"
+                }
+              }
+            }
           },
           "400": {
             "description": "",
