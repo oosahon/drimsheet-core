@@ -3,11 +3,9 @@ import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../domain/user/value-objects/password.vo';
 import {
-  ErrorBadRequest,
   ErrorConflict,
   ErrorForbidden,
 } from '../../../shared/value-objects/error';
-import { SYSTEM_CURRENCIES } from '../../../domain/currency/config/currencies';
 import { IIndividualSignupReq } from '../../contracts/dto/auth.dto';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IRequestContext from '../../contracts/app/request-context.contract';
@@ -39,18 +37,18 @@ export default function signupWithEmailUsecase(
       throw new ErrorConflict('User already exists');
     }
 
+    const password = passwordValue.make(payload.password);
+    const passwordHash = await authService.hashPassword(password);
+
     const [user, userEvents] = userEntity.make({
       firstName: payload.firstName,
       lastName: payload.lastName,
       email,
       emailVerified: false,
+      password: passwordHash,
     });
 
-    const password = passwordValue.make(payload.password);
-    const passwordHash = await authService.hashPassword(password);
-    const userWithPassword = { ...user, password: passwordHash };
-
-    await userRepo.save(userWithPassword, { correlationId });
+    await userRepo.save(user, { correlationId });
 
     const enrichedUserEvents = userEvents.map((e) =>
       eventValue.enrich(e, { correlationId, idempotencyKey })

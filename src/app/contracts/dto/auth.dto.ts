@@ -4,3 +4,8 @@ export interface IIndividualSignupReq {
   email: string;
   password: string;
 }
+
+export interface IAuthRes {
+  authToken: string;
+  refreshToken: string;
+}

@@ -15,6 +15,16 @@ export const ERevenueLedgerEvent = {
     'domain:ledger:revenue:account:unrealized-gains:created',
 } as const;
 
+export const revenueAccountEventDescriptions: Record<string, string> = {
+  [ERevenueLedgerEvent.ServicesCreated]: 'Created a services revenue account.',
+  [ERevenueLedgerEvent.EmploymentIncomeCreated]:
+    'Created an employment income revenue account.',
+  [ERevenueLedgerEvent.GainOnSaleCreated]:
+    'Created a gain on sale revenue account.',
+  [ERevenueLedgerEvent.UnrealizedGainsCreated]:
+    'Created an unrealized gains revenue account.',
+};
+
 function makeServicesAccountCreatedEvent(payload: IServicesAccount) {
   return eventValue.make<IServicesAccount>({
     type: ERevenueLedgerEvent.ServicesCreated,

@@ -46,6 +46,7 @@ function make(payload: TCreationOmits<IUser>): TEntityWithEvents<IUser, IUser> {
     emailVerified: !!payload.emailVerified,
     firstName,
     lastName,
+    password: payload.password,
     deletedAt: null,
     createdAt: timestamp,
     updatedAt: timestamp,

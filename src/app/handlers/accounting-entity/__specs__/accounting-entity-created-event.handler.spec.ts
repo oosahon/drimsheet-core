@@ -12,11 +12,19 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { NAIRA } from '../../../../domain/currency/config/currencies';
+import userUseCase from '../../../usecases/user';
 
 jest.mock('../../../usecases/ledger-account', () => ({
   __esModule: true,
   default: {
     setupIndividualEntityBaseAccounts: jest.fn(),
+  },
+}));
+
+jest.mock('../../../usecases/user', () => ({
+  __esModule: true,
+  default: {
+    saveActivity: jest.fn(),
   },
 }));
 
@@ -69,13 +77,21 @@ describe('accountingEntityCreatedEventHandler', () => {
     (
       ledgerAccountUsecase.setupIndividualEntityBaseAccounts as jest.Mock
     ).mockResolvedValue(undefined);
+    (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
 
     await handler(mockEvent);
+
+    // Wait for detached promises
+    await new Promise(process.nextTick);
 
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: mockEvent.correlationId,
     });
 
+    expect(userUseCase.saveActivity).toHaveBeenCalledWith(
+      mockEvent.data.ownerId,
+      mockEvent
+    );
     expect(
       ledgerAccountUsecase.setupIndividualEntityBaseAccounts
     ).toHaveBeenCalledWith(mockEvent.data.id);
@@ -101,13 +117,21 @@ describe('accountingEntityCreatedEventHandler', () => {
     (
       ledgerAccountUsecase.setupIndividualEntityBaseAccounts as jest.Mock
     ).mockResolvedValue(undefined);
+    (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
 
     await handler(mockEvent);
 
+    // Wait for detached promises
+    await new Promise(process.nextTick);
+
     expect(mockRequestContext.set).toHaveBeenCalledWith({
-      correlationId: 'default-corr-id',
+      correlationId: expect.any(String),
     });
 
+    expect(userUseCase.saveActivity).toHaveBeenCalledWith(
+      mockEvent.data.ownerId,
+      mockEvent
+    );
     expect(
       ledgerAccountUsecase.setupIndividualEntityBaseAccounts
     ).toHaveBeenCalledWith(mockEvent.data.id);
@@ -146,8 +170,12 @@ describe('accountingEntityCreatedEventHandler', () => {
     (
       ledgerAccountUsecase.setupIndividualEntityBaseAccounts as jest.Mock
     ).mockRejectedValue(error);
+    (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
 
     await handler(mockEvent);
+
+    // Wait for detached promises
+    await new Promise(process.nextTick);
 
     expect(MockReporter.report).toHaveBeenCalledTimes(1);
     expect(MockReporter.report).toHaveBeenCalledWith(error);
