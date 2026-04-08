@@ -11,6 +11,7 @@ import { IRequestContextData } from '../../../contracts/app/request-context.cont
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import { IEvent } from '../../../../shared/types/event.types';
+import passwordValue from '../../../../domain/user/value-objects/password.vo';
 
 describe('signupWithEmailUsecase', () => {
   beforeEach(() => {
@@ -49,13 +50,19 @@ describe('signupWithEmailUsecase', () => {
 
     expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
 
-    // Check if user was searched by email
     const email = emailValue.make(payload.email);
+    const password = passwordValue.make(payload.password);
+
+    expect(mockAuthService.isPermittedEmail).toHaveBeenCalledTimes(1);
+    expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);
+
+    // Check if user was searched by email
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(email, {
       correlationId,
     });
 
     expect(mockAuthService.hashPassword).toHaveBeenCalledTimes(1);
+    expect(mockAuthService.hashPassword).toHaveBeenCalledWith(password);
 
     // Assert that save methods were called correctly
     expect(mockUserRepo.save).toHaveBeenCalledTimes(1);
@@ -113,6 +120,8 @@ describe('signupWithEmailUsecase', () => {
     await expect(usecase(payload)).rejects.toThrow(ErrorConflict);
     await expect(usecase(payload)).rejects.toThrow('User already exists');
 
+    const email = emailValue.make(payload.email);
+    expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);
     expect(mockUserRepo.findByEmail).toHaveBeenCalledTimes(2); // Since we called it twice in expect
     expect(mockAuthService.hashPassword).not.toHaveBeenCalled();
   });
@@ -143,6 +152,8 @@ describe('signupWithEmailUsecase', () => {
     await expect(usecase(payload)).rejects.toThrow(ErrorForbidden);
     await expect(usecase(payload)).rejects.toThrow('Email is not permitted');
 
+    const email = emailValue.make(payload.email);
+    expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);
     expect(mockUserRepo.findByEmail).not.toHaveBeenCalled();
     expect(mockAuthService.hashPassword).not.toHaveBeenCalled();
   });

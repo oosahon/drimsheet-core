@@ -49,6 +49,13 @@ function enrich<T>(
   });
 }
 
+function enrichAll<T>(
+  events: IEvent<T>[],
+  payload: { correlationId?: string; idempotencyKey?: string }
+): IEvent<T>[] {
+  return events.map((event) => enrich(event, payload));
+}
+
 /**
  * Creates an event and an event enricher.
  * @param payload The event payload to create.
@@ -120,6 +127,7 @@ function validateEventTypeMatch(event: IEvent<unknown>, expectedType: string) {
 const eventValue = Object.freeze({
   make,
   enrich,
+  enrichAll,
   validate,
   validateEventTypeMatch,
 });

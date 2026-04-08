@@ -3,6 +3,7 @@ import {
   Controller,
   OperationId,
   Post,
+  Query,
   Response,
   Route,
   SuccessResponse,
@@ -28,5 +29,18 @@ export class AuthController extends Controller {
   @Response<IApiError>('422')
   public async signupWithEmail(@Body() body: IIndividualSignupReq) {
     return authUseCase.signupWithEmail(body);
+  }
+
+  /**
+   *
+   * Verify user email
+   */
+  @Post('signup/complete')
+  @OperationId('verifyEmail')
+  @SuccessResponse('200')
+  @Response<IApiError>('400')
+  @Response<IApiError>('422')
+  public async verifyEmail(@Query() token: string) {
+    return await authUseCase.verifyEmail(token);
   }
 }
