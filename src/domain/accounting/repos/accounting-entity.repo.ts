@@ -4,8 +4,14 @@ import { IAccountingEntity } from '../types/accounting.types';
 
 export default interface IAccountingEntityRepo {
   save(domain: IAccountingEntity, options: IRepoOptions): Promise<void>;
+
   findById(
     id: TEntityId,
     options: IRepoOptions
   ): Promise<IAccountingEntity | null>;
+
+  findByUserId(
+    userId: TEntityId,
+    options: IRepoOptions
+  ): Promise<IAccountingEntity[]>;
 }

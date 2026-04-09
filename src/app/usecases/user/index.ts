@@ -1,5 +1,6 @@
 import repos from '../../../infra/persistence/repos';
 import appContext from '../../context';
+import getAuthUserAccountingEntities from './get-accounting-entities.usecase';
 import getUserPreferencesUseCase from './get-preferences.usecase';
 import getAuthUserProfileUseCase from './get-profile.usecase';
 import saveUserActivityUseCase from './save-activity.usecase';
@@ -13,6 +14,11 @@ const userUseCase = {
   ),
 
   getAuthUserProfile: getAuthUserProfileUseCase(appContext.request),
+
+  getAuthUserAccountingEntities: getAuthUserAccountingEntities(
+    appContext.request,
+    repos.accountingEntity
+  ),
 };
 
 export default userUseCase;

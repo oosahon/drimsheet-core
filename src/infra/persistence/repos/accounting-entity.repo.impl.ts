@@ -34,6 +34,28 @@ const accountingEntityRepo: IAccountingEntityRepo = {
 
     return accountingEntityMapper.toDomain(result);
   },
+
+  findByUserId: async (userId, options) => {
+    const query = getDbQuery(options);
+
+    const results = await query
+      .select({
+        ...getTableColumns(accountingEntitiesInCore),
+        functionalCurrency: getTableColumns(currenciesInCore),
+        reportingCurrency: getTableColumns(currenciesInCore),
+      })
+      .from(accountingEntitiesInCore)
+      .innerJoin(
+        currenciesInCore,
+        eq(
+          accountingEntitiesInCore.functionalCurrencyCode,
+          currenciesInCore.code
+        )
+      )
+      .where(eq(accountingEntitiesInCore.ownerId, userId));
+
+    return results.map(accountingEntityMapper.toDomain);
+  },
 };
 
 export default accountingEntityRepo;

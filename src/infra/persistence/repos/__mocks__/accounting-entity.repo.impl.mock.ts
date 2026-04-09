@@ -3,6 +3,7 @@ import IAccountingEntityRepo from '../../../../domain/accounting/repos/accountin
 export const mockAccountingEntityRepo: jest.Mocked<IAccountingEntityRepo> = {
   save: jest.fn(),
   findById: jest.fn(),
+  findByUserId: jest.fn(),
 };
 
 export default mockAccountingEntityRepo;
