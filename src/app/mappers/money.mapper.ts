@@ -21,6 +21,13 @@ const moneyMapper = {
       currency,
     };
   },
+
+  toInterface(money: IMoney): IMoneyDto {
+    return {
+      amount: Number(money.amount),
+      currency: money.currency.code,
+    };
+  },
 };
 
 export default moneyMapper;

@@ -9,6 +9,8 @@ import { UserController } from './src/interface/http/controllers/user.controller
 import { CurrencyController } from './src/interface/http/controllers/currency.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './src/interface/http/controllers/auth.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { AccountingEntityController } from './src/interface/http/controllers/account-entity.controller';
 import type {
   Request as ExRequest,
   Response as ExResponse,
@@ -115,6 +117,62 @@ const models: TsoaRoute.Models = {
     properties: {
       authToken: { dataType: 'string', required: true },
       refreshToken: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UAccountingEntityType: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['individual'] },
+        { dataType: 'enum', enums: ['sole_trader'] },
+        { dataType: 'enum', enums: ['company'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IFiscalYearStart: {
+    dataType: 'refObject',
+    properties: {
+      month: { dataType: 'double', required: true },
+      day: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  'Pick_IAccountingEntity.Exclude_keyofIAccountingEntity.functionalCurrency-or-reportingCurrency__':
+    {
+      dataType: 'refAlias',
+      type: {
+        dataType: 'nestedObjectLiteral',
+        nestedProperties: {
+          id: { ref: 'TEntityId', required: true },
+          createdAt: { dataType: 'datetime', required: true },
+          updatedAt: { dataType: 'datetime', required: true },
+          deletedAt: { dataType: 'datetime', required: true },
+          type: { ref: 'UAccountingEntityType', required: true },
+          ownerId: { ref: 'TEntityId', required: true },
+          fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
+        },
+        validators: {},
+      },
+    },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IAccountingEntityRes: {
+    dataType: 'refObject',
+    properties: {
+      id: { ref: 'TEntityId', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+      deletedAt: { dataType: 'datetime', required: true },
+      type: { ref: 'UAccountingEntityType', required: true },
+      ownerId: { ref: 'TEntityId', required: true },
+      fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
+      functionalCurrency: { dataType: 'string', required: true },
+      reportingCurrency: { dataType: 'string', required: true },
     },
     additionalProperties: false,
   },
@@ -336,6 +394,48 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'verifyEmail',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAccountingEntityController_getAccountingEntities: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {};
+  app.get(
+    '/api/v1/accounting-entities',
+    ...fetchMiddlewares<RequestHandler>(AccountingEntityController),
+    ...fetchMiddlewares<RequestHandler>(
+      AccountingEntityController.prototype.getAccountingEntities
+    ),
+
+    async function AccountingEntityController_getAccountingEntities(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAccountingEntityController_getAccountingEntities,
+          request,
+          response,
+        });
+
+        const controller = new AccountingEntityController();
+
+        await templateService.apiHandler({
+          methodName: 'getAccountingEntities',
           controller,
           response,
           next,

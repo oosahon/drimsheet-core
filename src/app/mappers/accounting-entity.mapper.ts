@@ -4,6 +4,7 @@ import { accountingEntitiesInCore } from '../../infra/persistence/drizzle/schema
 import { fromCommonRepoDates, toCommonRepoDates } from './date';
 import currencyMapper, { ICurrencyModel } from './currency.mapper';
 import { TEntityId } from '../../shared/types/uuid';
+import { IAccountingEntityRes } from '../contracts/dto/accounting-entity.dto';
 
 export interface IAccountingEntityModel extends InferSelectModel<
   typeof accountingEntitiesInCore
@@ -41,6 +42,14 @@ const accountingEntityMapper = {
       }),
       ...fromCommonRepoDates(payload),
     });
+  },
+
+  toInterface(payload: IAccountingEntity): IAccountingEntityRes {
+    return {
+      ...payload,
+      functionalCurrency: payload.functionalCurrency.code,
+      reportingCurrency: payload.reportingCurrency.code,
+    };
   },
 };
 

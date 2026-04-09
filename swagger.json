@@ -127,6 +127,112 @@
         "required": ["authToken", "refreshToken"],
         "type": "object",
         "additionalProperties": false
+      },
+      "UAccountingEntityType": {
+        "type": "string",
+        "enum": ["individual", "sole_trader", "company"]
+      },
+      "IFiscalYearStart": {
+        "description": "Represents the month and day on which an accounting entity's fiscal year ends.\nDefaults to December 31 for individuals. Companies and sole traders\nmay configure any valid calendar date (e.g., March 31, June 30).",
+        "properties": {
+          "month": {
+            "type": "number",
+            "format": "double"
+          },
+          "day": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["month", "day"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "Pick_IAccountingEntity.Exclude_keyofIAccountingEntity.functionalCurrency-or-reportingCurrency__": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UAccountingEntityType"
+          },
+          "ownerId": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "fiscalYearStart": {
+            "$ref": "#/components/schemas/IFiscalYearStart"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "type",
+          "ownerId",
+          "fiscalYearStart"
+        ],
+        "type": "object",
+        "description": "From T, pick a set of properties whose keys are in the union K"
+      },
+      "IAccountingEntityRes": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UAccountingEntityType"
+          },
+          "ownerId": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "fiscalYearStart": {
+            "$ref": "#/components/schemas/IFiscalYearStart"
+          },
+          "functionalCurrency": {
+            "type": "string"
+          },
+          "reportingCurrency": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt",
+          "updatedAt",
+          "deletedAt",
+          "type",
+          "ownerId",
+          "fiscalYearStart",
+          "functionalCurrency",
+          "reportingCurrency"
+        ],
+        "type": "object",
+        "additionalProperties": false
       }
     },
     "securitySchemes": {}
@@ -179,6 +285,7 @@
             }
           }
         },
+        "description": "Get authenticated user profile",
         "tags": ["User"],
         "security": [],
         "parameters": []
@@ -346,6 +453,30 @@
             }
           }
         ]
+      }
+    },
+    "/accounting-entities": {
+      "get": {
+        "operationId": "getAccountingEntities",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IAccountingEntityRes"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get all accounting entities of an authenticated user",
+        "tags": ["Accounting Entities"],
+        "security": [],
+        "parameters": []
       }
     }
   },
