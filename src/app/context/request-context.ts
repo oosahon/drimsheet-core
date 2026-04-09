@@ -6,7 +6,7 @@ import IRequestContext, {
 
 const asyncLocalStorage = new AsyncLocalStorage<IRequestContextData>();
 
-export default function requestContext(logger: ILogger): IRequestContext {
+export default function storageService(logger: ILogger): IRequestContext {
   return {
     init(store, callback) {
       asyncLocalStorage.run(store, callback);
@@ -25,7 +25,7 @@ export default function requestContext(logger: ILogger): IRequestContext {
 
     set(store) {
       const currentStore = this.get();
-      asyncLocalStorage.run({ ...currentStore, ...store }, () => {});
+      Object.assign(currentStore, store);
     },
   };
 }
