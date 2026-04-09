@@ -21,6 +21,6 @@ export class AccountingEntityController extends Controller {
   @SuccessResponse('200')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getAccountingEntities() {
-    return accountEntityUsecase.getAll();
+    return await accountEntityUsecase.getAll();
   }
 }
