@@ -7,6 +7,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting.types';
 import { USD } from '../../../../domain/currency/config/currencies';
+import accountingEntityMapper from '../../../mappers/accounting-entity.mapper';
 
 describe('getAuthUserAccountingEntities', () => {
   beforeEach(() => {
@@ -64,7 +65,9 @@ describe('getAuthUserAccountingEntities', () => {
       mockUser.id,
       { correlationId }
     );
-    expect(result).toEqual(mockAccountingEntities);
+    expect(result).toEqual(
+      mockAccountingEntities.map(accountingEntityMapper.toInterface)
+    );
   });
 
   it('should throw ErrorUnauthorized if user is not in request context', async () => {
