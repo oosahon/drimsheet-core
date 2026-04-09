@@ -18,7 +18,6 @@ export interface IApiError {
 
 function httpErrorHandler(logger: ILogger, reporter: IReporter) {
   return (req: Request, res: Response<IApiError>, error: any) => {
-    console.log('>>>>>>>>>>>>>>>>>>>>>>', { error });
     delete req?.headers.authorization;
     // @ts-ignore
     delete req?.file?.buffer;

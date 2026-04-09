@@ -28,7 +28,7 @@ export class AuthController extends Controller {
   @Response<IApiError>('500')
   @Response<IApiError>('422')
   public async signupWithEmail(@Body() body: IIndividualSignupReq) {
-    return authUseCase.signupWithEmail(body);
+    return await authUseCase.signupWithEmail(body);
   }
 
   /**

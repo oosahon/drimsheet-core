@@ -31,8 +31,8 @@ export class ErrorBadRequest extends ApiError {
 }
 
 export class ErrorUnauthorized extends ApiError {
-  constructor(message: string, cause?: Record<string, unknown>) {
-    super(401, message, cause);
+  constructor(message?: string, cause?: Record<string, unknown>) {
+    super(401, message || 'Unauthorized', cause);
   }
 }
 

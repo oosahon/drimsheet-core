@@ -7,6 +7,56 @@
     "requestBodies": {},
     "responses": {},
     "schemas": {
+      "TEntityId": {
+        "allOf": [
+          {
+            "type": "string"
+          },
+          {
+            "properties": {
+              "__brand": {
+                "type": "string",
+                "enum": ["uuid"],
+                "nullable": false
+              }
+            },
+            "required": ["__brand"],
+            "type": "object"
+          }
+        ]
+      },
+      "IUserAppPreferences": {
+        "properties": {
+          "theme": {
+            "type": "string",
+            "enum": ["light", "dark", "system"]
+          }
+        },
+        "required": ["theme"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IUserPreferences": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "appPreferences": {
+            "$ref": "#/components/schemas/IUserAppPreferences"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["id", "appPreferences", "createdAt", "updatedAt"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IApiValidationError": {
         "properties": {
           "field": {
@@ -84,6 +134,27 @@
     }
   },
   "paths": {
+    "/user/preferences": {
+      "get": {
+        "operationId": "getUserPreferences",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IUserPreferences"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get user preferences",
+        "tags": ["User"],
+        "security": [],
+        "parameters": []
+      }
+    },
     "/currencies": {
       "get": {
         "operationId": "getCurrencies",

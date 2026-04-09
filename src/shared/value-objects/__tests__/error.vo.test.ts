@@ -64,6 +64,11 @@ describe('Error Value Objects', () => {
       expect(error).toBeInstanceOf(ErrorUnauthorized);
       expect(error.code).toBe(401);
       expect(error.message).toBe('Not allowed');
+
+      const error2 = new ErrorUnauthorized();
+      expect(error2).toBeInstanceOf(ErrorUnauthorized);
+      expect(error2.code).toBe(401);
+      expect(error2.message).toBe('Unauthorized');
     });
 
     it('ErrorPaymentRequired sets code to 402', () => {

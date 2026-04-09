@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
-import httpErrorHandler from '../handlers/error.handler';
 import ILogger from '../../../app/contracts/infra/logger.contract';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
+import httpHandlers from '../handlers';
 
 export default function isOptionalAuthenticatedUserMiddleware(
   logger: ILogger,
@@ -12,7 +12,7 @@ export default function isOptionalAuthenticatedUserMiddleware(
       // TODO: implement
       next();
     } catch (error) {
-      httpErrorHandler(logger, reporter)(req, res, error);
+      httpHandlers.error(req, res, error);
     }
   };
 }
