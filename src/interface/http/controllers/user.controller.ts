@@ -24,6 +24,9 @@ export class UserController extends Controller {
     return userUseCase.getPreferences();
   }
 
+  /**
+   * Get authenticated user profile
+   */
   @Get('/profile')
   @OperationId('getAuthUserProfile')
   @SuccessResponse('200')

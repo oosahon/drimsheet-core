@@ -2,7 +2,7 @@ import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-e
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
 
-export default function getAuthUserAccountingEntities(
+export default function getAllAccountingEntitiesUseCase(
   requestContext: IRequestContext,
   accountingEntityRepo: IAccountingEntityRepo
 ) {
