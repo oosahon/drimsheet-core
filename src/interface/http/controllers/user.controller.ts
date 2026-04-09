@@ -23,4 +23,12 @@ export class UserController extends Controller {
   public async getCurrencies() {
     return userUseCase.getPreferences();
   }
+
+  @Get('/profile')
+  @OperationId('getAuthUserProfile')
+  @SuccessResponse('200')
+  @Middlewares(middlewares.isAuthenticatedUser)
+  public async getAuthUserProfile() {
+    return userUseCase.getAuthUserProfile();
+  }
 }

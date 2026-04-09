@@ -4,6 +4,7 @@ import IUserRepo from '../../../domain/user/repos/user.repo';
 import httpHandlers from '../handlers';
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import IAuthService from '../../../app/contracts/infra/auth-service.contract';
+import userMapper from '../../../app/mappers/user.mapper';
 
 export default function isAuthenticatedUserMiddleware(
   requestContext: IRequestContext,
@@ -31,7 +32,7 @@ export default function isAuthenticatedUserMiddleware(
         throw new ErrorUnauthorized('error.email.unverified');
       }
 
-      requestContext.set({ user });
+      requestContext.set({ user: userMapper.toInterface(user) });
 
       next();
     } catch (error) {
