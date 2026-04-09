@@ -457,7 +457,7 @@
     },
     "/accounting-entities": {
       "get": {
-        "operationId": "getAccountingEntities",
+        "operationId": "getAll",
         "responses": {
           "200": {
             "description": "",

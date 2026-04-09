@@ -17,7 +17,7 @@ export class AccountingEntityController extends Controller {
    * Get all accounting entities of an authenticated user
    */
   @Get('/')
-  @OperationId('getAccountingEntities')
+  @OperationId('getAll')
   @SuccessResponse('200')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getAccountingEntities() {
