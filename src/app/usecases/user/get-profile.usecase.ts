@@ -8,8 +8,6 @@ export default function getAuthUserProfileUseCase(
   return async () => {
     const { user } = requestContext.get();
 
-    console.log('>>>>>>>>>>>>>>>>>>>', { user });
-
     if (!user) {
       throw new ErrorUnauthorized();
     }

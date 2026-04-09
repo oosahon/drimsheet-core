@@ -28,10 +28,6 @@ export default function isAuthenticatedUserMiddleware(
 
       const user = await userRepo.findById(authUser.id, { correlationId });
 
-      console.log('>>>>>>>>>>>>>>>>>>>', {
-        user: userMapper.toInterface(user!),
-      });
-
       if (!user?.emailVerified) {
         throw new ErrorUnauthorized('error.email.unverified');
       }

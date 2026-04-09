@@ -8,6 +8,7 @@ import isAuthenticatedUserMiddleware from './is-authenticated-user.middleware';
 
 import isOptionalAuthenticatedUserMiddleware from './is-optional-authenticated-user.middleware';
 import requestContextMiddleware from './request-context.middleware';
+import requestLoggerMiddleware from './request-logger.middleware';
 
 const middlewares = {
   isOptionalAuthenticatedUser: isOptionalAuthenticatedUserMiddleware(
@@ -24,6 +25,8 @@ const middlewares = {
     repos.user,
     services.auth
   ),
+
+  requestLogger: requestLoggerMiddleware(logger),
 };
 
 export default middlewares;
