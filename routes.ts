@@ -196,7 +196,7 @@ export function RegisterRoutes(app: Router) {
     TsoaRoute.ParameterSchema
   > = {};
   app.get(
-    '/api/v1/user/preferences',
+    '/api/v1/users/preferences',
     ...fetchMiddlewares<RequestHandler>(UserController),
     ...fetchMiddlewares<RequestHandler>(UserController.prototype.getCurrencies),
 
@@ -236,7 +236,7 @@ export function RegisterRoutes(app: Router) {
     TsoaRoute.ParameterSchema
   > = {};
   app.get(
-    '/api/v1/user/profile',
+    '/api/v1/users/profile',
     ...fetchMiddlewares<RequestHandler>(UserController),
     ...fetchMiddlewares<RequestHandler>(
       UserController.prototype.getAuthUserProfile

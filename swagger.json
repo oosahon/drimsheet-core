@@ -249,7 +249,7 @@
     }
   },
   "paths": {
-    "/user/preferences": {
+    "/users/preferences": {
       "get": {
         "operationId": "getUserPreferences",
         "responses": {
@@ -270,7 +270,7 @@
         "parameters": []
       }
     },
-    "/user/profile": {
+    "/users/profile": {
       "get": {
         "operationId": "getAuthUserProfile",
         "responses": {
@@ -474,7 +474,7 @@
           }
         },
         "description": "Get all accounting entities of an authenticated user",
-        "tags": ["Accounting Entities"],
+        "tags": ["Accounting Entity"],
         "security": [],
         "parameters": []
       }

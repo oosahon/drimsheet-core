@@ -10,13 +10,6 @@ import {
 import currencyUseCase from '../../../app/usecases/currency';
 import middlewares from '../middlewares';
 
-export interface ICurrencyResponse {
-  code: string;
-  symbol: string;
-  name: string;
-  minorUnit: number;
-}
-
 @Route('currencies')
 @Tags('Currency')
 export class CurrencyController extends Controller {

@@ -11,7 +11,7 @@ import middlewares from '../middlewares';
 import accountEntityUsecase from '../../../app/usecases/account-entity';
 
 @Route('accounting-entities')
-@Tags('Accounting Entities')
+@Tags('Accounting Entity')
 export class AccountingEntityController extends Controller {
   /**
    * Get all accounting entities of an authenticated user

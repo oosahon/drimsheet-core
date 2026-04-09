@@ -10,7 +10,7 @@ import {
 import userUseCase from '../../../app/usecases/user';
 import middlewares from '../middlewares';
 
-@Route('user')
+@Route('users')
 @Tags('User')
 export class UserController extends Controller {
   /**
