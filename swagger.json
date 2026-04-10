@@ -125,7 +125,7 @@
           "fiscalYearStart": {
             "$ref": "#/components/schemas/IFiscalYearStart"
           },
-          "accountingMode": {
+          "appUsageMode": {
             "$ref": "#/components/schemas/UAppUsageMode"
           }
         },
@@ -136,7 +136,7 @@
           "functionalCurrencyCode",
           "reportingCurrencyCode",
           "fiscalYearStart",
-          "accountingMode"
+          "appUsageMode"
         ],
         "type": "object",
         "additionalProperties": false

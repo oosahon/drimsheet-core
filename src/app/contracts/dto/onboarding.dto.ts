@@ -11,5 +11,5 @@ export interface IAccountingEntityOnboardingReq {
   functionalCurrencyCode: string;
   reportingCurrencyCode: string;
   fiscalYearStart: IFiscalYearStart;
-  accountingMode: UAppUsageMode;
+  appUsageMode: UAppUsageMode;
 }

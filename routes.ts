@@ -142,7 +142,7 @@ const models: TsoaRoute.Models = {
       functionalCurrencyCode: { dataType: 'string', required: true },
       reportingCurrencyCode: { dataType: 'string', required: true },
       fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
-      accountingMode: { ref: 'UAppUsageMode', required: true },
+      appUsageMode: { ref: 'UAppUsageMode', required: true },
     },
     additionalProperties: false,
   },

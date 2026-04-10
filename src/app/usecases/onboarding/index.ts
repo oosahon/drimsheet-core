@@ -9,6 +9,7 @@ const onboardingUseCases = {
     appContext.request,
     repos.accountingEntity,
     repos.userPreferences,
+    repos.ledgerAccount,
     services.repo,
     messaging.eventBus
   ),

@@ -1,11 +1,19 @@
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import accountingEntityService from '../../../domain/accounting/services/accounting-entity.service';
-import { IAccountingEntity } from '../../../domain/accounting/types/accounting.types';
+import {
+  EAccountingEntityType,
+  IAccountingEntity,
+} from '../../../domain/accounting/types/accounting.types';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import ledgerService from '../../../domain/ledger/services/ledger.service';
+import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
 import userPreferencesService from '../../../domain/user/services/user-preferences.service';
 import { IUserPreferences } from '../../../domain/user/types/user-preferences.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
+import { IEvent } from '../../../shared/types/event.types';
 import {
+  ErrorBadRequest,
   ErrorResourceNotFound,
   ErrorUnauthorized,
 } from '../../../shared/value-objects/error';
@@ -20,13 +28,14 @@ export default function onboardAccountingEntityUseCase(
   requestContext: IRequestContext,
   accountingEntityRepo: IAccountingEntityRepo,
   userPreferencesRepo: IUserPreferencesRepo,
+  ledgerAccountRepo: ILedgerAccountRepo,
   repoService: IRepoService,
   eventBus: IEventBus
 ) {
   const accountingEntityServiceFn =
     accountingEntityService(accountingEntityRepo);
-
   const userPreferencesServiceFn = userPreferencesService(userPreferencesRepo);
+  const ledgerServiceFn = ledgerService(ledgerAccountRepo);
 
   return async (payload: IAccountingEntityOnboardingReq) => {
     const { functionalCurrencyCode, reportingCurrencyCode } = payload;
@@ -34,6 +43,11 @@ export default function onboardAccountingEntityUseCase(
 
     if (!user) {
       throw new ErrorUnauthorized();
+    }
+
+    // !! We only support individuals for now
+    if (payload.entityType !== EAccountingEntityType.Individual) {
+      throw new ErrorBadRequest('This entity type is not currently supported');
     }
 
     const functionalCurrency = currencyMapper.fromInterface(
@@ -53,6 +67,9 @@ export default function onboardAccountingEntityUseCase(
       correlationId,
     };
 
+    /**
+     * Create accounting entity
+     */
     const accountingEntityCreatePayload: TCreationOmits<IAccountingEntity> = {
       type: payload.entityType,
       ownerId: user.id,
@@ -67,9 +84,34 @@ export default function onboardAccountingEntityUseCase(
         correlationIdObj
       );
 
+    /**
+     * Setup base accounts
+     */
+
+    const baseGlAccountsWithEvents =
+      await ledgerServiceFn.setupBaseIndividualAccounts(
+        {
+          userId: user.id,
+          accountingEntityId: accountingEntity.id,
+          functionalCurrency,
+        },
+        correlationIdObj
+      );
+
+    const baseGlAccounts: ILedgerAccount[] = [];
+    const baseGlAccountEvents: IEvent<ILedgerAccount>[] = [];
+
+    baseGlAccountsWithEvents.forEach(([account, events]) => {
+      baseGlAccounts.push(account);
+      baseGlAccountEvents.push(...events);
+    });
+
+    /**
+     * Create user preferences
+     */
     const userPreferencesCreatePayload: Partial<IUserPreferences> = {
       appPreferences: {
-        appUsageMode: payload.accountingMode,
+        appUsageMode: payload.appUsageMode,
       },
     };
     const [updatedPreference, preferencesEvents] =
@@ -79,16 +121,29 @@ export default function onboardAccountingEntityUseCase(
         correlationIdObj
       );
 
+    /**
+     * Save all entities in the right order
+     */
     await repoService.runInTransaction(async (tx) => {
       const txOptions = { tx, ...correlationIdObj };
+      // step 1: save accounting entity
       await accountingEntityRepo.save(accountingEntity, txOptions);
+
+      // step 2: save base accounts
+      await ledgerAccountRepo.save(baseGlAccounts, txOptions);
+
+      // step 3: save user preferences
       await userPreferencesRepo.save(updatedPreference, txOptions);
     });
 
+    /**
+     * Publish events
+     */
     const events = [
       ...accountingEntityEvents.map((e) =>
         eventValue.enrich(e, correlationIdObj)
       ),
+      ...baseGlAccountEvents.map((e) => eventValue.enrich(e, correlationIdObj)),
       ...preferencesEvents.map((e) => eventValue.enrich(e, correlationIdObj)),
     ];
 
