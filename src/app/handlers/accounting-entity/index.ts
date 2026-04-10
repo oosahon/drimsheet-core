@@ -1,4 +1,4 @@
-import { EAccountingEntityEvents } from '../../../domain/accounting/events/accounting-entity.events';
+import { EAccountingEntityEvents } from '../../../domain/accounting-entity/events/accounting-entity.events';
 import observability from '../../../infra/observability';
 import appContext from '../../context';
 import accountingEntityCreatedEventHandler from './accounting-entity-created-event.handler';

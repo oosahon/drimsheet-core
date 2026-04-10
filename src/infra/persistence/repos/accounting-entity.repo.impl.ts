@@ -1,4 +1,4 @@
-import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
+import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
 import { accountingEntitiesInCore, currenciesInCore } from '../drizzle/schema';
 import accountingEntityMapper from '../../../app/mappers/accounting-entity.mapper';
 import getDbQuery from './helpers/query';

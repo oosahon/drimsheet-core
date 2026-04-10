@@ -22,6 +22,8 @@ export interface IFiscalYearStart {
 
 export interface IAccountingEntity {
   id: TEntityId;
+  name: string;
+  operatingCountryCode: string;
   type: UAccountingEntityType;
   ownerId: TEntityId;
   functionalCurrency: ICurrency;

@@ -8,7 +8,7 @@ import IAccountingEntityRepo from '../repos/accounting-entity.repo';
 import {
   EAccountingEntityType,
   IAccountingEntity,
-} from '../types/accounting.types';
+} from '../types/accounting-entity.types';
 
 export interface IAccountingEntityService {
   make: (

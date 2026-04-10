@@ -3,7 +3,7 @@ import { TEntityId } from '../../../shared/types/uuid';
 import {
   IAccountingEntity,
   UAccountingEntityType,
-} from '../types/accounting.types';
+} from '../types/accounting-entity.types';
 
 export default interface IAccountingEntityRepo {
   save(domain: IAccountingEntity, options: IRepoOptions): Promise<void>;

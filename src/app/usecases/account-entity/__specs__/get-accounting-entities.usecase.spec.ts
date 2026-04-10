@@ -5,8 +5,8 @@ import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting.types';
-import { USD } from '../../../../domain/currency/config/currencies';
+import { IAccountingEntity } from '../../../../domain/accounting-entity/types/accounting-entity.types';
+import { USD } from '../../../../domain/currency/config/currencies.config';
 import accountingEntityMapper from '../../../mappers/accounting-entity.mapper';
 
 describe('getAuthUserAccountingEntities', () => {

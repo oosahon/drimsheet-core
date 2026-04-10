@@ -178,7 +178,7 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IIndividualSignupReq: {
+  IUserSignupReq: {
     dataType: 'refObject',
     properties: {
       firstName: { dataType: 'string', required: true },
@@ -208,6 +208,8 @@ const models: TsoaRoute.Models = {
           createdAt: { dataType: 'datetime', required: true },
           updatedAt: { dataType: 'datetime', required: true },
           deletedAt: { dataType: 'datetime', required: true },
+          name: { dataType: 'string', required: true },
+          operatingCountryCode: { dataType: 'string', required: true },
           type: { ref: 'UAccountingEntityType', required: true },
           ownerId: { ref: 'TEntityId', required: true },
           fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
@@ -223,6 +225,8 @@ const models: TsoaRoute.Models = {
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
       deletedAt: { dataType: 'datetime', required: true },
+      name: { dataType: 'string', required: true },
+      operatingCountryCode: { dataType: 'string', required: true },
       type: { ref: 'UAccountingEntityType', required: true },
       ownerId: { ref: 'TEntityId', required: true },
       fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
@@ -425,12 +429,7 @@ export function RegisterRoutes(app: Router) {
     string,
     TsoaRoute.ParameterSchema
   > = {
-    body: {
-      in: 'body',
-      name: 'body',
-      required: true,
-      ref: 'IIndividualSignupReq',
-    },
+    body: { in: 'body', name: 'body', required: true, ref: 'IUserSignupReq' },
   };
   app.post(
     '/api/v1/auth/signup-with-email',

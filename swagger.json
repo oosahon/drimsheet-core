@@ -171,7 +171,7 @@
         "type": "object",
         "additionalProperties": false
       },
-      "IIndividualSignupReq": {
+      "IUserSignupReq": {
         "properties": {
           "firstName": {
             "type": "string"
@@ -220,6 +220,12 @@
             "type": "string",
             "format": "date-time"
           },
+          "name": {
+            "type": "string"
+          },
+          "operatingCountryCode": {
+            "type": "string"
+          },
           "type": {
             "$ref": "#/components/schemas/UAccountingEntityType"
           },
@@ -235,6 +241,8 @@
           "createdAt",
           "updatedAt",
           "deletedAt",
+          "name",
+          "operatingCountryCode",
           "type",
           "ownerId",
           "fiscalYearStart"
@@ -259,6 +267,12 @@
             "type": "string",
             "format": "date-time"
           },
+          "name": {
+            "type": "string"
+          },
+          "operatingCountryCode": {
+            "type": "string"
+          },
           "type": {
             "$ref": "#/components/schemas/UAccountingEntityType"
           },
@@ -280,6 +294,8 @@
           "createdAt",
           "updatedAt",
           "deletedAt",
+          "name",
+          "operatingCountryCode",
           "type",
           "ownerId",
           "fiscalYearStart",
@@ -493,7 +509,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IIndividualSignupReq"
+                "$ref": "#/components/schemas/IUserSignupReq"
               }
             }
           }

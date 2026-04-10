@@ -1,7 +1,7 @@
 import {
   IFiscalYearStart,
   UAccountingEntityType,
-} from '../../../domain/accounting/types/accounting.types';
+} from '../../../domain/accounting-entity/types/accounting-entity.types';
 import { UAppUsageMode } from '../../../domain/user/types/user-preferences.types';
 
 export interface IAccountingEntityOnboardingReq {

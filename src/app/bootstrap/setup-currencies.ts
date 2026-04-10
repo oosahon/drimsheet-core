@@ -1,7 +1,7 @@
 import ICurrencyRepo from '../../domain/currency/repos/currency.repo';
 import generateUUID from '../../shared/utils/uuid-generator';
 import ILogger from '../contracts/infra/logger.contract';
-import { SYSTEM_CURRENCIES } from '../../domain/currency/config/currencies';
+import { SYSTEM_CURRENCIES } from '../../domain/currency/config/currencies.config';
 
 export default async function bootstrapCurrencies(
   currencyRepo: ICurrencyRepo,

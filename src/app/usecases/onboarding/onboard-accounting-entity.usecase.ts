@@ -1,9 +1,9 @@
-import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
-import accountingEntityService from '../../../domain/accounting/services/accounting-entity.service';
+import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
+import accountingEntityService from '../../../domain/accounting-entity/services/accounting-entity.service';
 import {
   EAccountingEntityType,
   IAccountingEntity,
-} from '../../../domain/accounting/types/accounting.types';
+} from '../../../domain/accounting-entity/types/accounting-entity.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import ledgerService from '../../../domain/ledger/services/ledger.service';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
@@ -23,6 +23,20 @@ import { IAccountingEntityOnboardingReq } from '../../contracts/dto/onboarding.d
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import currencyMapper from '../../mappers/currency.mapper';
+import { z } from 'zod';
+import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+
+const validationSchema = z.object({
+  name: z.string(),
+  operatingCountryCode: z.string().length(2),
+  type: z.enum([EAccountingEntityType.Individual]),
+  functionalCurrencyCode: z.string().length(3),
+  reportingCurrencyCode: z.string().length(3),
+  fiscalYearStart: z.object({
+    month: z.number().min(1).max(12),
+    day: z.number().min(1).max(31),
+  }),
+});
 
 export default function onboardAccountingEntityUseCase(
   requestContext: IRequestContext,
@@ -38,6 +52,8 @@ export default function onboardAccountingEntityUseCase(
   const ledgerServiceFn = ledgerService(ledgerAccountRepo);
 
   return async (payload: IAccountingEntityOnboardingReq) => {
+    zodValidationRunner(validationSchema, payload);
+
     const { functionalCurrencyCode, reportingCurrencyCode } = payload;
     const { user, correlationId } = requestContext.get();
 
@@ -71,6 +87,8 @@ export default function onboardAccountingEntityUseCase(
      * Create accounting entity
      */
     const accountingEntityCreatePayload: TCreationOmits<IAccountingEntity> = {
+      name: payload.name,
+      operatingCountryCode: payload.operatingCountryCode,
       type: payload.entityType,
       ownerId: user.id,
       functionalCurrency,

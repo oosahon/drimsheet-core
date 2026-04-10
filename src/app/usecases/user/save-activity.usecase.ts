@@ -1,5 +1,5 @@
 import userActivityEntity from '../../../domain/user/entities/user-activity.entity';
-import { accountingEntityEventDescriptions } from '../../../domain/accounting/events/accounting-entity.events';
+import { accountingEntityEventDescriptions } from '../../../domain/accounting-entity/events/accounting-entity.events';
 import { assetAccountEventDescriptions } from '../../../domain/ledger/events/asset-account.events';
 import { equityAccountEventDescriptions } from '../../../domain/ledger/events/equity-account.events';
 import { expenseAccountEventDescriptions } from '../../../domain/ledger/events/expense-account.events';

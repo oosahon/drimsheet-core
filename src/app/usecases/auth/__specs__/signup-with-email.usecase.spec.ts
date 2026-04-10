@@ -2,6 +2,7 @@ import signupWithEmailUsecase from '../signup-with-email.usecase';
 import {
   ErrorConflict,
   ErrorForbidden,
+  ErrorUnprocessableEntity,
 } from '../../../../shared/value-objects/error';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
@@ -16,6 +17,27 @@ import passwordValue from '../../../../domain/user/value-objects/password.vo';
 describe('signupWithEmailUsecase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+    const usecase = signupWithEmailUsecase(
+      mockRequestContext,
+      mockUserRepo,
+      mockAuthService,
+      mockEventBus
+    );
+
+    const invalidPayload = {
+      firstName: '', // empty name
+      lastName: '', // empty name
+      email: 'not-an-email', // invalid email
+      password: 'short', // invalid password
+      reportingCurrencyCode: 'NGN',
+    } as any;
+
+    await expect(usecase(invalidPayload)).rejects.toThrow(
+      ErrorUnprocessableEntity
+    );
   });
 
   it('should successfully sign up a new user', async () => {

@@ -9,7 +9,7 @@ import {
   EAccountingEntityType,
   IAccountingEntity,
   UAccountingEntityType,
-} from '../../types/accounting.types';
+} from '../../types/accounting-entity.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 
 describe('Accounting Domain Entity', () => {
@@ -44,6 +44,8 @@ describe('Accounting Domain Entity', () => {
   describe('make', () => {
     it('should successfully create an individual domain account with valid inputs', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -59,6 +61,8 @@ describe('Accounting Domain Entity', () => {
 
       expect(typeof domain.id).toBe('string');
       expect(domain.id.length).toBeGreaterThan(0);
+      expect(domain.name).toBe('Test Entity');
+      expect(domain.operatingCountryCode).toBe('NG');
       expect(domain.ownerId).toEqual(validUser.id);
       expect(domain.functionalCurrency).toEqual(validCurrency);
       expect(domain.reportingCurrency).toEqual(validCurrency);
@@ -72,6 +76,8 @@ describe('Accounting Domain Entity', () => {
 
     it('should successfully create an entity with a non-December fiscal year-end', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Company,
         functionalCurrency: validCurrency,
@@ -86,6 +92,8 @@ describe('Accounting Domain Entity', () => {
 
     it('should throw an AppError if the entity type is invalid', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: 'INVALID_TYPE' as UAccountingEntityType,
         functionalCurrency: validCurrency,
@@ -101,6 +109,8 @@ describe('Accounting Domain Entity', () => {
 
     it('should throw an AppError if the ownerId is invalid', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: 'invalid-uuid' as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -115,6 +125,8 @@ describe('Accounting Domain Entity', () => {
       const invalidCurrency = { ...validCurrency, code: 'INVALID_CODE' };
 
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: invalidCurrency,
@@ -129,6 +141,8 @@ describe('Accounting Domain Entity', () => {
       const invalidCurrency = { ...validCurrency, code: 'INVALID_CODE' };
 
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -146,6 +160,8 @@ describe('Accounting Domain Entity', () => {
       };
 
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.SoleTrader,
         functionalCurrency: invalidCurrency,
@@ -158,6 +174,8 @@ describe('Accounting Domain Entity', () => {
 
     it('should throw an AppError if fiscal year-end month is out of range', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -170,6 +188,8 @@ describe('Accounting Domain Entity', () => {
 
     it('should throw an AppError if fiscal year-end month is zero', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -182,6 +202,8 @@ describe('Accounting Domain Entity', () => {
 
     it('should throw an AppError if fiscal year-end day exceeds the maximum for the month', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -194,6 +216,8 @@ describe('Accounting Domain Entity', () => {
 
     it('should throw an AppError if fiscal year-end day is zero', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -206,6 +230,8 @@ describe('Accounting Domain Entity', () => {
 
     it('should allow February 29 as a valid fiscal year-end day', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Company,
         functionalCurrency: validCurrency,
@@ -220,6 +246,8 @@ describe('Accounting Domain Entity', () => {
 
     it('should throw an AppError if February day exceeds 29', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'NG',
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Company,
         functionalCurrency: validCurrency,
@@ -228,6 +256,45 @@ describe('Accounting Domain Entity', () => {
       };
 
       expect(() => accountingEntityTypeEntity.make(payload)).toThrow(AppError);
+    });
+
+    it('should throw an AppError if name is invalid', () => {
+      const payload1: TCreationOmits<IAccountingEntity> = {
+        name: '   ',
+        operatingCountryCode: 'NG',
+        ownerId: validUser.id as TEntityId,
+        type: EAccountingEntityType.Individual,
+        functionalCurrency: validCurrency,
+        reportingCurrency: validCurrency,
+        fiscalYearStart: { month: 12, day: 31 },
+      };
+      const payload2: TCreationOmits<IAccountingEntity> = {
+        ...payload1,
+        name: undefined as unknown as string,
+      };
+
+      expect(() => accountingEntityTypeEntity.make(payload1)).toThrow(
+        'Invalid accounting entity name'
+      );
+      expect(() => accountingEntityTypeEntity.make(payload2)).toThrow(
+        'Invalid accounting entity name'
+      );
+    });
+
+    it('should throw an AppError if operatingCountryCode is unsupported', () => {
+      const payload: TCreationOmits<IAccountingEntity> = {
+        name: 'Test Entity',
+        operatingCountryCode: 'INVALID_COUNTRY',
+        ownerId: validUser.id as TEntityId,
+        type: EAccountingEntityType.Individual,
+        functionalCurrency: validCurrency,
+        reportingCurrency: validCurrency,
+        fiscalYearStart: { month: 12, day: 31 },
+      };
+
+      expect(() => accountingEntityTypeEntity.make(payload)).toThrow(
+        'Invalid operating country code'
+      );
     });
   });
 });

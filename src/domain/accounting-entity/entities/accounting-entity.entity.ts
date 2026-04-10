@@ -4,13 +4,14 @@ import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import { AppError } from '../../../shared/value-objects/error';
 import currencyEntity from '../../currency/entities/currency.entity';
+import accountingEntitySupportedCountries from '../config/supported-countries.config';
 import accountingEntityTypeEvents from '../events/accounting-entity.events';
 import {
   EAccountingEntityType,
   IAccountingEntity,
   IFiscalYearStart,
   UAccountingEntityType,
-} from '../types/accounting.types';
+} from '../types/accounting-entity.types';
 
 const DAYS_IN_MONTH: Record<number, number> = {
   1: 31,
@@ -53,8 +54,27 @@ function validateType(entityType: UAccountingEntityType) {
   }
 }
 
+function validateName(name: string) {
+  if (typeof name !== 'string' || name.trim() === '') {
+    throw new AppError('Invalid accounting entity name', { cause: name });
+  }
+}
+
+function validateOperatingCountryCode(operatingCountryCode: string) {
+  const supported = accountingEntitySupportedCountries.find(
+    (c) => c.code === operatingCountryCode
+  );
+  if (!supported) {
+    throw new AppError('Invalid operating country code', {
+      cause: operatingCountryCode,
+    });
+  }
+}
+
 function validate(entity: TCreationOmits<IAccountingEntity>) {
   stringUtils.validateUUID(entity.ownerId);
+  validateName(entity.name);
+  validateOperatingCountryCode(entity.operatingCountryCode);
   currencyEntity.validateCode(entity.functionalCurrency.code);
   currencyEntity.validateCode(entity.reportingCurrency.code);
   validateType(entity.type);
@@ -70,6 +90,8 @@ function make(
 
   const domain: IAccountingEntity = Object.freeze({
     id: generateUUID(),
+    name: payload.name.trim(),
+    operatingCountryCode: payload.operatingCountryCode,
     ownerId: payload.ownerId,
     type: payload.type,
     functionalCurrency: payload.functionalCurrency,
@@ -90,6 +112,8 @@ const accountingEntityEntity = Object.freeze({
   validate,
   validateType,
   validateFiscalYearStart,
+  validateName,
+  validateOperatingCountryCode,
 });
 
 export default accountingEntityEntity;
