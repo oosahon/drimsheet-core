@@ -85,11 +85,11 @@ function make(
   return [domain, [event]];
 }
 
-const accountingEntity = Object.freeze({
+const accountingEntityEntity = Object.freeze({
   make,
   validate,
   validateType,
   validateFiscalYearStart,
 });
 
-export default accountingEntity;
+export default accountingEntityEntity;

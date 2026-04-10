@@ -1,6 +1,8 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import {
+  EAppThemePreference,
+  EAppUsageModePreference,
   IUserAppPreferences,
   IUserPreferences,
 } from '../types/user-preferences.types';
@@ -10,14 +12,28 @@ import { TEntityId } from '../../../shared/types/uuid';
 import userEvents from '../events/user.events';
 
 function makeAppPreferences(appPreferences: IUserAppPreferences) {
-  if (!['light', 'dark', 'system'].includes(appPreferences.theme)) {
-    throw new AppError('Invalid theme preference', {
-      cause: appPreferences.theme,
+  const { theme, appUsageMode } = appPreferences;
+  const isInvalidTheme =
+    theme && !Object.values(EAppThemePreference).includes(theme);
+  const isInvalidUsageMode =
+    appUsageMode &&
+    !Object.values(EAppUsageModePreference).includes(appUsageMode);
+
+  if (isInvalidTheme) {
+    throw new AppError('Invalid app preferences', {
+      cause: appPreferences,
+    });
+  }
+
+  if (isInvalidUsageMode) {
+    throw new AppError('Invalid app preferences', {
+      cause: appPreferences,
     });
   }
 
   return Object.freeze({
-    theme: appPreferences.theme,
+    theme,
+    appUsageMode,
   });
 }
 

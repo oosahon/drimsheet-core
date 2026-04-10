@@ -1,7 +1,24 @@
 import { TEntityId } from '../../../shared/types/uuid';
 
+export const EAppUsageModePreference = {
+  PowerUser: 'power_user',
+  NonPowerUser: 'non_power_user',
+} as const;
+
+export const EAppThemePreference = {
+  Light: 'light',
+  Dark: 'dark',
+  System: 'system',
+} as const;
+
+export type UAppUsageMode =
+  (typeof EAppUsageModePreference)[keyof typeof EAppUsageModePreference];
+export type UAppThemePreference =
+  (typeof EAppThemePreference)[keyof typeof EAppThemePreference];
+
 export interface IUserAppPreferences {
-  theme: 'light' | 'dark' | 'system';
+  theme?: UAppThemePreference | null;
+  appUsageMode?: UAppUsageMode | null;
 }
 
 export interface IUserPreferences {

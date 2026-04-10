@@ -25,14 +25,33 @@
           }
         ]
       },
+      "UAppThemePreference": {
+        "type": "string",
+        "enum": ["light", "dark", "system"]
+      },
+      "UAppUsageMode": {
+        "type": "string",
+        "enum": ["power_user", "non_power_user"]
+      },
       "IUserAppPreferences": {
         "properties": {
           "theme": {
-            "type": "string",
-            "enum": ["light", "dark", "system"]
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UAppThemePreference"
+              }
+            ],
+            "nullable": true
+          },
+          "appUsageMode": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UAppUsageMode"
+              }
+            ],
+            "nullable": true
           }
         },
-        "required": ["theme"],
         "type": "object",
         "additionalProperties": false
       },
@@ -65,6 +84,62 @@
       "Omit_IUser.password_": {
         "$ref": "#/components/schemas/Pick_IUser.Exclude_keyofIUser.password__",
         "description": "Construct a type with the properties of T except for those in type K."
+      },
+      "UAccountingEntityType": {
+        "type": "string",
+        "enum": ["individual", "sole_trader", "company"]
+      },
+      "IFiscalYearStart": {
+        "description": "Represents the month and day on which an accounting entity's fiscal year ends.\nDefaults to December 31 for individuals. Companies and sole traders\nmay configure any valid calendar date (e.g., March 31, June 30).",
+        "properties": {
+          "month": {
+            "type": "number",
+            "format": "double"
+          },
+          "day": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["month", "day"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IAccountingEntityOnboardingReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/UAccountingEntityType"
+          },
+          "operatingCountryCode": {
+            "type": "string"
+          },
+          "functionalCurrencyCode": {
+            "type": "string"
+          },
+          "reportingCurrencyCode": {
+            "type": "string"
+          },
+          "fiscalYearStart": {
+            "$ref": "#/components/schemas/IFiscalYearStart"
+          },
+          "accountingMode": {
+            "$ref": "#/components/schemas/UAppUsageMode"
+          }
+        },
+        "required": [
+          "name",
+          "entityType",
+          "operatingCountryCode",
+          "functionalCurrencyCode",
+          "reportingCurrencyCode",
+          "fiscalYearStart",
+          "accountingMode"
+        ],
+        "type": "object",
+        "additionalProperties": false
       },
       "IApiValidationError": {
         "properties": {
@@ -125,26 +200,6 @@
           }
         },
         "required": ["authToken", "refreshToken"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "UAccountingEntityType": {
-        "type": "string",
-        "enum": ["individual", "sole_trader", "company"]
-      },
-      "IFiscalYearStart": {
-        "description": "Represents the month and day on which an accounting entity's fiscal year ends.\nDefaults to December 31 for individuals. Companies and sole traders\nmay configure any valid calendar date (e.g., March 31, June 30).",
-        "properties": {
-          "month": {
-            "type": "number",
-            "format": "double"
-          },
-          "day": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "required": ["month", "day"],
         "type": "object",
         "additionalProperties": false
       },
@@ -289,6 +344,30 @@
         "tags": ["User"],
         "security": [],
         "parameters": []
+      }
+    },
+    "/onboarding/accounting-entity": {
+      "post": {
+        "operationId": "onboardAccountingEntity",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "description": "Onboard Accounting Entity",
+        "tags": ["Onboarding"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IAccountingEntityOnboardingReq"
+              }
+            }
+          }
+        }
       }
     },
     "/currencies": {

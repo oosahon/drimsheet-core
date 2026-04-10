@@ -2,7 +2,7 @@ import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-e
 import { accountingEntitiesInCore, currenciesInCore } from '../drizzle/schema';
 import accountingEntityMapper from '../../../app/mappers/accounting-entity.mapper';
 import getDbQuery from './helpers/query';
-import { eq, getTableColumns } from 'drizzle-orm';
+import { and, eq, getTableColumns } from 'drizzle-orm';
 
 const accountingEntityRepo: IAccountingEntityRepo = {
   save: async (domain, options) => {
@@ -35,8 +35,14 @@ const accountingEntityRepo: IAccountingEntityRepo = {
     return accountingEntityMapper.toDomain(result);
   },
 
-  findByUserId: async (userId, options) => {
+  findByUserId: async (userId, options, type) => {
     const query = getDbQuery(options);
+
+    const whereClause = [eq(accountingEntitiesInCore.ownerId, userId)];
+
+    if (type) {
+      whereClause.push(eq(accountingEntitiesInCore.type, type));
+    }
 
     const results = await query
       .select({
@@ -52,7 +58,7 @@ const accountingEntityRepo: IAccountingEntityRepo = {
           currenciesInCore.code
         )
       )
-      .where(eq(accountingEntitiesInCore.ownerId, userId));
+      .where(and(...whereClause));
 
     return results.map(accountingEntityMapper.toDomain);
   },
