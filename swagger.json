@@ -290,7 +290,15 @@
         "additionalProperties": false
       }
     },
-    "securitySchemes": {}
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "in": "header",
+        "name": "Authorization",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
   },
   "info": {
     "title": "purple-ledger-core",
@@ -342,7 +350,11 @@
         },
         "description": "Get authenticated user profile",
         "tags": ["User"],
-        "security": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": []
       }
     },
@@ -356,7 +368,11 @@
         },
         "description": "Onboard Accounting Entity",
         "tags": ["Onboarding"],
-        "security": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [],
         "requestBody": {
           "required": true,

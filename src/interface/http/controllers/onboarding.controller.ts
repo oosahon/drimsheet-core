@@ -5,6 +5,7 @@ import {
   OperationId,
   Post,
   Route,
+  Security,
   SuccessResponse,
   Tags,
 } from 'tsoa';
@@ -21,6 +22,7 @@ export class OnboardingController extends Controller {
   @Post('/accounting-entity')
   @OperationId('onboardAccountingEntity')
   @SuccessResponse('200')
+  @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async onboardAccountingEntity(
     @Body() requestBody: IAccountingEntityOnboardingReq

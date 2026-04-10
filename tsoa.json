@@ -5,10 +5,20 @@
   "spec": {
     "outputDirectory": ".",
     "basePath": "/api/v1",
-    "specVersion": 3
+    "specVersion": 3,
+    "securityDefinitions": {
+      "bearerAuth": {
+        "type": "http",
+        "in": "header",
+        "name": "Authorization",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
   },
   "routes": {
     "routesDir": ".",
-    "basePath": "/api/v1"
+    "basePath": "/api/v1",
+    "authenticationModule": "./src/infra/config/tsoa-express-auth.ts"
   }
 }

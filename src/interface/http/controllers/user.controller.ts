@@ -4,6 +4,7 @@ import {
   Middlewares,
   OperationId,
   Route,
+  Security,
   SuccessResponse,
   Tags,
 } from 'tsoa';
@@ -30,6 +31,7 @@ export class UserController extends Controller {
   @Get('/profile')
   @OperationId('getAuthUserProfile')
   @SuccessResponse('200')
+  @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getAuthUserProfile() {
     return userUseCase.getAuthUserProfile();
