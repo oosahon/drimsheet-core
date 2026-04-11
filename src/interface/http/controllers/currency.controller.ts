@@ -14,7 +14,7 @@ import middlewares from '../middlewares';
 @Tags('Currency')
 export class CurrencyController extends Controller {
   /**
-   * Get Currencies
+   * Gets all system currencies
    */
   @Get('/')
   @OperationId('getCurrencies')

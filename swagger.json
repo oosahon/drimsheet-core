@@ -76,6 +76,36 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IApiValidationError": {
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["field", "message"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IApiError": {
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "validationErrors": {
+            "items": {
+              "$ref": "#/components/schemas/IApiValidationError"
+            },
+            "type": "array"
+          },
+          "cause": {}
+        },
+        "required": ["message"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IUser": {
         "properties": {
           "id": {
@@ -176,36 +206,6 @@
           "fiscalYearStart",
           "appUsageMode"
         ],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "IApiValidationError": {
-        "properties": {
-          "field": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["field", "message"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "IApiError": {
-        "properties": {
-          "message": {
-            "type": "string"
-          },
-          "validationErrors": {
-            "items": {
-              "$ref": "#/components/schemas/IApiValidationError"
-            },
-            "type": "array"
-          },
-          "cause": {}
-        },
-        "required": ["message"],
         "type": "object",
         "additionalProperties": false
       },
@@ -379,11 +379,25 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
           }
         },
         "description": "Get user preferences",
         "tags": ["User"],
-        "security": [],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": []
       }
     },
@@ -397,6 +411,16 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/IUser"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
                 }
               }
             }
@@ -416,11 +440,31 @@
       "post": {
         "operationId": "onboardAccountingEntity",
         "responses": {
-          "200": {
+          "201": {
             "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
           }
         },
-        "description": "Onboard Accounting Entity",
+        "description": "Onboard an accounting entity",
         "tags": ["Onboarding"],
         "security": [
           {
@@ -474,7 +518,7 @@
             }
           }
         },
-        "description": "Get Currencies",
+        "description": "Gets all system currencies",
         "tags": ["Currency"],
         "security": [],
         "parameters": []
@@ -497,37 +541,7 @@
               }
             }
           },
-          "403": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IApiError"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IApiError"
-                }
-              }
-            }
-          },
           "422": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IApiError"
-                }
-              }
-            }
-          },
-          "500": {
             "description": "",
             "content": {
               "application/json": {
