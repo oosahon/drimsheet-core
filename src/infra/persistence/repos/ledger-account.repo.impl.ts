@@ -63,6 +63,29 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
 
     return results.map(ledgerAccountMapper.toDomain);
   },
+
+  findByBehavior: async (accountingEntityId, behavior, options) => {
+    const dbQuery = getDbQuery(options);
+
+    const results = await dbQuery
+      .select({
+        ...getTableColumns(ledgerAccountsInCore),
+        currency: getTableColumns(currenciesInCore),
+      })
+      .from(ledgerAccountsInCore)
+      .innerJoin(
+        currenciesInCore,
+        eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
+      )
+      .where(
+        and(
+          eq(ledgerAccountsInCore.accountingEntityId, accountingEntityId),
+          eq(ledgerAccountsInCore.behavior, behavior)
+        )
+      );
+
+    return results.map(ledgerAccountMapper.toDomain);
+  },
 };
 
 export default ledgerAccountRepoImpl;

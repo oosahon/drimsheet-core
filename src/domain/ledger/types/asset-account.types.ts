@@ -52,7 +52,7 @@ const ECashBehavior = {
 type UCashBehavior = (typeof ECashBehavior)[keyof typeof ECashBehavior];
 
 const EReceivableBehavior = {
-  TaxReceivable: 'tax_receivable',
+  StatutoryReceivable: 'statutory_receivable',
   TradeReceivable: 'trade_receivable',
   DefaultReceivables: 'default_receivables',
 } as const;
@@ -190,22 +190,12 @@ export interface IReceivablesAccount extends IAssetLedgerAccount {
     | typeof EAdjunctAccountRule.AdjunctNotPermitted;
 }
 
-export interface IStatutoryReceivableAccountMeta {
-  taxAuthority: string;
-  taxType: UTaxType;
-}
-
 export interface IStatutoryReceivableAccount extends IReceivablesAccount {
   controlAccountId: TEntityId;
-  behavior: typeof EReceivableBehavior.TaxReceivable;
+  behavior: typeof EReceivableBehavior.StatutoryReceivable;
   contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
-  meta: IStatutoryReceivableAccountMeta;
-}
-
-export interface ITradeReceivableAccountMeta {
-  customerId: TEntityId;
-  invoiceId: TEntityId;
+  meta: null;
 }
 
 export interface ITradeReceivableAccount extends IReceivablesAccount {
@@ -213,7 +203,7 @@ export interface ITradeReceivableAccount extends IReceivablesAccount {
   behavior: typeof EReceivableBehavior.TradeReceivable;
   contraAccountRule: typeof EContraAccountRule.ContraPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctPermitted;
-  meta: ITradeReceivableAccountMeta;
+  meta: null;
 }
 
 /**

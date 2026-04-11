@@ -25,4 +25,10 @@ export default interface ILedgerAccountRepo {
     subType: string,
     options: IRepoOptions
   ): Promise<ILedgerAccount[]>;
+
+  findByBehavior(
+    accountingEntityId: TEntityId,
+    behavior: string,
+    options: IRepoOptions
+  ): Promise<ILedgerAccount[]>;
 }

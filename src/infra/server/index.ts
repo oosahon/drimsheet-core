@@ -27,9 +27,9 @@ function setupServer(bootstrap?: () => Promise<void>) {
 
   app.use(compression());
 
-  app.use(middlewares.requestLogger);
-
   app.use(middlewares.requestContext);
+
+  app.use(middlewares.requestLogger);
 
   RegisterRoutes(app);
 

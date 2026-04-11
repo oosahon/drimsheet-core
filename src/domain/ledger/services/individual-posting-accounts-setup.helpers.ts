@@ -51,38 +51,6 @@ type THelper<T extends ILedgerAccount> = (
   repoOptions: IRepoOptions
 ) => Promise<TEntityWithEvents<T, T>[]>;
 
-// ================ Asset Posting Accounts =================
-const makeAssetSuspenseAccount: THelper<IAssetSuspenseAccount> = async (
-  params,
-  repo,
-  repoOptions
-) => {
-  const { userId, accountingEntityId, functionalCurrency } = params;
-
-  const accounts: TEntityWithEvents<
-    IAssetSuspenseAccount,
-    IAssetSuspenseAccount
-  >[] = [];
-
-  const existingAssetSuspenseAccount = await repo.findBySubType(
-    accountingEntityId,
-    ELedgerType.Asset,
-    EAssetSubType.Suspense,
-    repoOptions
-  );
-
-  if (existingAssetSuspenseAccount.length) return accounts;
-
-  const account = assetSuspenseAccountEntity.make({
-    accountingEntityId,
-    currency: functionalCurrency,
-    name: 'Asset Suspense Account',
-    createdBy: userId,
-  });
-
-  return [account];
-};
-
 // ================ Liability Posting Accounts =================
 const makeLiabilitySuspenseAccount: THelper<ILiabilitySuspenseAccount> = async (
   params,
@@ -621,8 +589,6 @@ export default function getIndividualPostingAccountsSetupHelpers(
   repoOptions: IRepoOptions
 ) {
   return {
-    makeAssetSuspenseAccount: () =>
-      makeAssetSuspenseAccount(params, repo, repoOptions),
     makeLiabilitySuspenseAccount: () =>
       makeLiabilitySuspenseAccount(params, repo, repoOptions),
     makeDefaultServicesAccount: () =>

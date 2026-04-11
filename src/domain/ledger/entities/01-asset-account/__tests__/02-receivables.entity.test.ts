@@ -188,7 +188,7 @@ describe('Receivables Entity', () => {
       expect(account.type).toBe(ELedgerType.Asset);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
       expect(account.subType).toBe(EAssetSubType.Receivables);
-      expect(account.behavior).toBe(EAssetAccountBehavior.TaxReceivable);
+      expect(account.behavior).toBe(EAssetAccountBehavior.StatutoryReceivable);
       expect(account.status).toBe(ELedgerAccountStatus.Active);
       expect(account.contraAccountRule).toBe(
         EContraAccountRule.ContraNotPermitted

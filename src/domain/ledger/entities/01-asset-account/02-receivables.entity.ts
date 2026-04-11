@@ -8,9 +8,7 @@ import {
   EAssetSubType,
   IReceivablesAccount,
   IStatutoryReceivableAccount,
-  IStatutoryReceivableAccountMeta,
   ITradeReceivableAccount,
-  ITradeReceivableAccountMeta,
 } from '../../types/asset-account.types';
 import { ETaxType } from '../../types/tax.types';
 import { TReceivablesLedgerCode } from '../../types/ledger-code.types';
@@ -79,24 +77,6 @@ function make(
   return [account, [event]];
 }
 
-function makeStatutoryReceivableAccountMeta(
-  meta: IStatutoryReceivableAccountMeta
-) {
-  const taxAuthority = stringUtils.sanitizeAndValidate(meta.taxAuthority, {
-    min: 2,
-    max: 100,
-  });
-
-  if (!Object.values(ETaxType).includes(meta.taxType)) {
-    throw new AppError('Invalid tax type provided', { cause: meta.taxType });
-  }
-
-  return Object.freeze<IStatutoryReceivableAccountMeta>({
-    taxAuthority,
-    taxType: meta.taxType,
-  });
-}
-
 /**
  * Creates a new statutory receivable sub ledger.
  * @param payload statutory receivable creation payload
@@ -104,7 +84,15 @@ function makeStatutoryReceivableAccountMeta(
  * @returns [IReceivablesAccount, IAssetLedgerCreationEvent]
  */
 function makeStatutoryReceivableAccount(
-  payload: TCreationOmits<IStatutoryReceivableAccount>,
+  payload: Pick<
+    IStatutoryReceivableAccount,
+    | 'name'
+    | 'createdBy'
+    | 'accountingEntityId'
+    | 'currency'
+    | 'isControlAccount'
+    | 'controlAccountId'
+  >,
   predecessorCode: TReceivablesLedgerCode
 ): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
   return make(
@@ -115,23 +103,13 @@ function makeStatutoryReceivableAccount(
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,
       controlAccountId: payload.controlAccountId,
-      behavior: EAssetAccountBehavior.TaxReceivable,
-      meta: makeStatutoryReceivableAccountMeta(payload.meta),
+      behavior: EAssetAccountBehavior.StatutoryReceivable,
+      meta: null,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
     },
     predecessorCode
   );
-}
-
-function makeTradeReceivableAccountMeta(meta: ITradeReceivableAccountMeta) {
-  stringUtils.validateUUID(meta.customerId);
-  stringUtils.validateUUID(meta.invoiceId);
-
-  return Object.freeze<ITradeReceivableAccountMeta>({
-    customerId: meta.customerId,
-    invoiceId: meta.invoiceId,
-  });
 }
 
 /**
@@ -141,8 +119,16 @@ function makeTradeReceivableAccountMeta(meta: ITradeReceivableAccountMeta) {
  * @returns [IReceivablesAccount, IAssetLedgerCreationEvent]
  */
 function makeTradeReceivableAccount(
-  payload: TCreationOmits<ITradeReceivableAccount>,
-  predecessorCode: TReceivablesLedgerCode
+  payload: Pick<
+    ITradeReceivableAccount,
+    | 'name'
+    | 'accountingEntityId'
+    | 'currency'
+    | 'createdBy'
+    | 'isControlAccount'
+    | 'controlAccountId'
+  >,
+  predecessorCode: TReceivablesLedgerCode | null
 ): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
   return make(
     {
@@ -153,7 +139,7 @@ function makeTradeReceivableAccount(
       isControlAccount: payload.isControlAccount,
       controlAccountId: payload.controlAccountId,
       behavior: EAssetAccountBehavior.TradeReceivable,
-      meta: makeTradeReceivableAccountMeta(payload.meta),
+      meta: null,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
     },
@@ -164,10 +150,8 @@ function makeTradeReceivableAccount(
 const receivablesAccountEntity = Object.freeze({
   make,
 
-  makeStatutoryReceivableAccountMeta,
   makeStatutoryReceivableAccount,
 
-  makeTradeReceivableAccountMeta,
   makeTradeReceivableAccount,
 
   getCode,

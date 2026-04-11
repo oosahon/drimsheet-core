@@ -5,6 +5,7 @@ const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   findById: jest.fn(),
   findByCode: jest.fn(),
   findBySubType: jest.fn(),
+  findByBehavior: jest.fn(),
 };
 
 export default mockLedgerAccountRepo;

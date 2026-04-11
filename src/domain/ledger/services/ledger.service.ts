@@ -7,6 +7,7 @@ import {
 } from '../../accounting-entity/types/accounting-entity.types';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import { ILedgerAccount } from '../types/ledger.types';
+import assetAccountService from './asset-account.service';
 import individualGLSetupHelpers from './individual-gl-setup.helpers';
 import getIndividualPostingAccountsSetupHelpers from './individual-posting-accounts-setup.helpers';
 
@@ -25,6 +26,8 @@ export interface ILedgerService {
 export default function ledgerService(
   repo: ILedgerAccountRepo
 ): ILedgerService {
+  const assetAccountServiceFn = assetAccountService(repo);
+
   return {
     /**
      * Sets up the following general ledger accounts for an individual:
@@ -62,18 +65,22 @@ export default function ledgerService(
       };
 
       const {
-        makeBaseAssetAccounts,
         makeBaseLiabilityAccounts,
         makeBaseEquityAccounts,
         makeBaseRevenueAccounts,
         makeBaseExpenseAccounts,
       } = individualGLSetupHelpers(params, repo, repoOptions);
 
-      const assetAccounts = await makeBaseAssetAccounts();
       const liabilityAccounts = await makeBaseLiabilityAccounts();
       const equityAccounts = await makeBaseEquityAccounts();
       const revenueAccounts = await makeBaseRevenueAccounts();
       const expenseAccounts = await makeBaseExpenseAccounts();
+
+      const assetAccounts =
+        await assetAccountServiceFn.setupBaseIndividualAccounts(
+          entity,
+          repoOptions
+        );
 
       const entitiesAndEvents = [
         ...assetAccounts,
@@ -117,7 +124,6 @@ export default function ledgerService(
       };
 
       const {
-        makeAssetSuspenseAccount,
         makeLiabilitySuspenseAccount,
         makeDefaultServicesAccount,
         makeDefaultEmploymentIncomeAccount,
@@ -131,7 +137,6 @@ export default function ledgerService(
         makeDefaultAssetDisposalLossAccount,
       } = getIndividualPostingAccountsSetupHelpers(params, repo, repoOptions);
 
-      const assetSuspenseAccounts = await makeAssetSuspenseAccount();
       const liabilitySuspenseAccounts = await makeLiabilitySuspenseAccount();
       const servicesAccounts = await makeDefaultServicesAccount();
       const employmentIncomeAccounts =
@@ -147,8 +152,14 @@ export default function ledgerService(
       const assetDisposalLossAccounts =
         await makeDefaultAssetDisposalLossAccount();
 
+      const assetAccounts =
+        await assetAccountServiceFn.bootstrapNonPowerUserAccounts(
+          entity,
+          repoOptions
+        );
+
       return [
-        ...assetSuspenseAccounts,
+        ...assetAccounts,
         ...liabilitySuspenseAccounts,
         ...servicesAccounts,
         ...employmentIncomeAccounts,

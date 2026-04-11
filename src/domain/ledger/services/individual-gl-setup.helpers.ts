@@ -2,8 +2,6 @@ import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { ICurrency } from '../../currency/types/currency.types';
-import cashAndEquivalentAccountEntity from '../entities/01-asset-account/00-cash-and-equivalents.entity';
-import receivablesAccountEntity from '../entities/01-asset-account/02-receivables.entity';
 import shortTermLoanAccountEntity from '../entities/02-liability-account/00-short-term-loan.entity';
 import payableAccountEntity from '../entities/02-liability-account/03-payables.entity';
 import retainedEarningAccountEntity from '../entities/03-equity-account/01-retained-earning.entity';
@@ -19,10 +17,6 @@ import taxExpenseAccountEntity from '../entities/05-expense-account/08-tax-expen
 import unrealizedLossAccountEntity from '../entities/05-expense-account/09-unrealized-loss.entity';
 import assetDisposalLossAccountEntity from '../entities/05-expense-account/10-asset-disposal-loss.entity';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
-import {
-  EAssetAccountBehavior,
-  IAssetLedgerAccount,
-} from '../types/asset-account.types';
 import { IEquityLedgerAccount } from '../types/equity-account.types';
 import {
   EExpenseAccountBehavior,
@@ -41,70 +35,6 @@ interface IParams {
   functionalCurrency: ICurrency;
 }
 
-const makeBaseAssetAccounts = async (
-  params: IParams,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  repoOptions: IRepoOptions
-) => {
-  const { userId, accountingEntityId, functionalCurrency } = params;
-  // ========== Assets ==========
-  const assetAccounts: TEntityWithEvents<
-    IAssetLedgerAccount,
-    IAssetLedgerAccount
-  >[] = [];
-
-  // ========== Cash and Cash Equivalents ==========
-  const existingCashAndEquivalentsAccount = await ledgerAccountRepo.findByCode(
-    '100000',
-    accountingEntityId,
-    repoOptions
-  );
-  if (!existingCashAndEquivalentsAccount) {
-    const cashAndCashEquivalentsAccount = cashAndEquivalentAccountEntity.make(
-      {
-        name: 'Cash and Cash Equivalents',
-        createdBy: userId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: true,
-        controlAccountId: null,
-        behavior: EAssetAccountBehavior.DefaultCash,
-        meta: null,
-      },
-      null
-    );
-
-    assetAccounts.push(cashAndCashEquivalentsAccount);
-  }
-
-  // ========== Receivables ==========
-  const existingReceivables = await ledgerAccountRepo.findByCode(
-    '102000',
-    accountingEntityId,
-    repoOptions
-  );
-  if (!existingReceivables) {
-    const receivablesAccount = receivablesAccountEntity.make(
-      {
-        name: 'Receivables',
-        createdBy: userId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: true,
-        controlAccountId: null,
-        behavior: EAssetAccountBehavior.DefaultReceivables,
-        contraAccountRule: EContraAccountRule.ContraPermitted,
-        adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-        meta: null,
-      },
-      null
-    );
-
-    assetAccounts.push(receivablesAccount);
-  }
-
-  return assetAccounts;
-};
 const makeBaseLiabilityAccounts = async (
   params: IParams,
   ledgerAccountRepo: ILedgerAccountRepo,
@@ -475,8 +405,6 @@ export default function getIndividualGLSetupHelpers(
   repoOptions: IRepoOptions
 ) {
   return {
-    makeBaseAssetAccounts: () =>
-      makeBaseAssetAccounts(params, ledgerAccountRepo, repoOptions),
     makeBaseLiabilityAccounts: () =>
       makeBaseLiabilityAccounts(params, ledgerAccountRepo, repoOptions),
     makeBaseEquityAccounts: () =>
