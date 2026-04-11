@@ -4,6 +4,7 @@ import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
 import appContext from '../../context';
+import loginWithEmailUseCase from './login-with-email.usecase';
 import sendEmailVerificationEmailUseCase from './send-email-verification-email.usecase';
 import signupWithEmailUsecase from './signup-with-email.usecase';
 import verifyEmailAddressUseCase from './verify-email.usecase';
@@ -28,6 +29,13 @@ const authUseCase = {
     services.auth,
     repos.user,
     appContext.request,
+    eventBus
+  ),
+
+  loginWithEmail: loginWithEmailUseCase(
+    appContext.request,
+    repos.user,
+    services.auth,
     eventBus
   ),
 };

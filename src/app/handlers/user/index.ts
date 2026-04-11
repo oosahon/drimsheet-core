@@ -3,6 +3,7 @@ import observability from '../../../infra/observability';
 import appContext from '../../context';
 import userCreatedEventHandler from './user-created-event.handler';
 import userEmailVerifiedEventHandler from './user-email-verified-event.handler';
+import userLoggedInEventHandler from './user-logged-in-event.handler';
 
 const userEventHandlers = {
   created: userCreatedEventHandler(observability.reporter, appContext.request),
@@ -11,11 +12,16 @@ const userEventHandlers = {
     observability.reporter,
     appContext.request
   ),
+  loggedIn: userLoggedInEventHandler(
+    observability.reporter,
+    appContext.request
+  ),
 };
 
 const userEventsRegistry = {
   [EUserEvents.Created]: userEventHandlers.created,
   [EUserEvents.EmailVerified]: userEventHandlers.emailVerified,
+  [EUserEvents.LoggedIn]: userEventHandlers.loggedIn,
 };
 
 export { userEventsRegistry };

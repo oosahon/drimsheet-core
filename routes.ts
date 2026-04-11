@@ -207,6 +207,15 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ILoginReq: {
+    dataType: 'refObject',
+    properties: {
+      email: { dataType: 'string', required: true },
+      password: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   'Pick_IAccountingEntity.Exclude_keyofIAccountingEntity.functionalCurrency-or-reportingCurrency__':
     {
       dataType: 'refAlias',
@@ -509,6 +518,50 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'verifyEmail',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAuthController_loginWithEmail: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: { in: 'body', name: 'body', required: true, ref: 'ILoginReq' },
+  };
+  app.post(
+    '/api/v1/auth/login-with-email',
+    ...fetchMiddlewares<RequestHandler>(AuthController),
+    ...fetchMiddlewares<RequestHandler>(
+      AuthController.prototype.loginWithEmail
+    ),
+
+    async function AuthController_loginWithEmail(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAuthController_loginWithEmail,
+          request,
+          response,
+        });
+
+        const controller = new AuthController();
+
+        await templateService.apiHandler({
+          methodName: 'loginWithEmail',
           controller,
           response,
           next,

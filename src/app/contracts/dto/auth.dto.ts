@@ -9,3 +9,8 @@ export interface IAuthRes {
   authToken: string;
   refreshToken: string;
 }
+
+export interface ILoginReq {
+  email: string;
+  password: string;
+}
