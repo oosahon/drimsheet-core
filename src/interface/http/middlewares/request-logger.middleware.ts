@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import { performance } from 'perf_hooks';
 import ILogger from '../../../app/contracts/infra/logger.contract';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
@@ -8,29 +9,31 @@ export default function requestLoggerMiddleware(
   reporter: IReporter,
   requestContext: IRequestContext
 ): RequestHandler {
+  const SLOW_REQUEST_THRESHOLD =
+    Number(process.env.SLOW_REQUEST_THRESHOLD_MS) || 1000;
+
   return (req, res, next) => {
-    const start = Date.now();
+    const start = performance.now();
 
     const { correlationId } = requestContext.get();
 
-    const reqTitle = `${req.method} ${req.originalUrl}`;
-    logger.info(reqTitle, {
-      correlationId,
-    });
-
     res.on('finish', () => {
-      const duration = Date.now() - start;
+      const duration = Math.round(performance.now() - start);
 
       const responseLog = {
         duration: `${duration}ms`,
-        responseSize: res.getHeader('content-length') || 0,
+        responseSize: parseInt(
+          (res.getHeader('content-length') as string) || '0',
+          10
+        ),
         correlationId,
+        ip: req.ip || req.headers['x-forwarded-for'],
+        userAgent: req.headers['user-agent'],
       };
 
-      const isBadRequest = res.statusCode >= 400 && res.statusCode < 500;
-      const isSlowRequest = duration > 1000;
-
-      const shouldWarn = isBadRequest || isSlowRequest;
+      const isClientError = res.statusCode >= 400 && res.statusCode < 500;
+      const isServerError = res.statusCode >= 500;
+      const isSlowRequest = duration > SLOW_REQUEST_THRESHOLD;
 
       if (isSlowRequest) {
         reporter.report(
@@ -40,7 +43,11 @@ export default function requestLoggerMiddleware(
       }
 
       const resTitle = `[${res.statusCode}] ${req.method} ${req.originalUrl}`;
-      if (shouldWarn) {
+
+      if (isServerError) {
+        // error is already being reported in src/interface/http/handlers/error.handler.ts
+        logger.error(resTitle, responseLog);
+      } else if (isClientError || isSlowRequest) {
         logger.warn(resTitle, responseLog);
       } else {
         logger.info(resTitle, responseLog);
