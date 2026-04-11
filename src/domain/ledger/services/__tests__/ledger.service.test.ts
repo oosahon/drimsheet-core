@@ -1,5 +1,10 @@
 import { ICurrency } from '../../../currency/types/currency.types';
 import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
+import { ILedgerAccount } from '../../types/ledger.types';
+import {
+  EAccountingEntityType,
+  IAccountingEntity,
+} from '../../../accounting-entity/types/accounting-entity.types';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import ledgerService from '../ledger.service';
 import generateUUID from '../../../../shared/utils/uuid-generator';
@@ -7,15 +12,28 @@ import generateUUID from '../../../../shared/utils/uuid-generator';
 describe('Ledger Service', () => {
   const service = ledgerService(mockLedgerAccountRepo);
 
-  const mockParams = {
-    userId: generateUUID(),
-    accountingEntityId: generateUUID(),
+  const mockEntity: IAccountingEntity = {
+    id: generateUUID(),
+    name: 'John Doe',
+    operatingCountryCode: 'NG',
+    type: EAccountingEntityType.Individual,
+    ownerId: generateUUID(),
     functionalCurrency: {
       code: 'NGN',
       name: 'Naira',
       symbol: '₦',
       minorUnit: 2n,
     } as ICurrency,
+    reportingCurrency: {
+      code: 'NGN',
+      name: 'Naira',
+      symbol: '₦',
+      minorUnit: 2n,
+    } as ICurrency,
+    fiscalYearStart: { month: 1, day: 1 },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
   };
 
   const mockRepoOptions: IRepoOptions = { correlationId: generateUUID() };
@@ -28,7 +46,7 @@ describe('Ledger Service', () => {
     it('should fetch from ledger account repo for each base account', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
-      await service.setupBaseIndividualAccounts(mockParams, mockRepoOptions);
+      await service.setupBaseIndividualAccounts(mockEntity, mockRepoOptions);
 
       expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledTimes(16);
     });
@@ -37,7 +55,7 @@ describe('Ledger Service', () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
       const result = await service.setupBaseIndividualAccounts(
-        mockParams,
+        mockEntity,
         mockRepoOptions
       );
 
@@ -72,10 +90,11 @@ describe('Ledger Service', () => {
     it('should return no accounts if they all already exist', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue({
         id: generateUUID(),
-      } as any);
+        code: 'dummy',
+      } as ILedgerAccount);
 
       const result = await service.setupBaseIndividualAccounts(
-        mockParams,
+        mockEntity,
         mockRepoOptions
       );
 
@@ -93,14 +112,14 @@ describe('Ledger Service', () => {
         ];
 
         if (existingCodes.includes(code)) {
-          return { id: generateUUID() } as any;
+          return { id: generateUUID(), code } as ILedgerAccount;
         }
 
         return null;
       });
 
       const result = await service.setupBaseIndividualAccounts(
-        mockParams,
+        mockEntity,
         mockRepoOptions
       );
 

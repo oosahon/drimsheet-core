@@ -10,15 +10,9 @@ import { TEntityId } from '../../../../shared/types/uuid';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { NAIRA } from '../../../../domain/currency/config/currencies.config';
 import userUseCase from '../../../usecases/user';
-
-jest.mock('../../../usecases/ledger-account', () => ({
-  __esModule: true,
-  default: {
-    setupIndividualEntityBaseAccounts: jest.fn(),
-  },
-}));
 
 jest.mock('../../../usecases/user', () => ({
   __esModule: true,
@@ -73,7 +67,7 @@ describe('accountingEntityCreatedEventHandler', () => {
     const mockEvent = getValidEvent();
     mockRequestContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as any);
+    } as IRequestContextData);
 
     (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
 
@@ -106,7 +100,7 @@ describe('accountingEntityCreatedEventHandler', () => {
     };
     mockRequestContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as any);
+    } as IRequestContextData);
 
     (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
 
@@ -152,7 +146,7 @@ describe('accountingEntityCreatedEventHandler', () => {
     const mockEvent = getValidEvent();
     mockRequestContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as any);
+    } as IRequestContextData);
 
     const error = new Error('DB Error');
     (userUseCase.saveActivity as jest.Mock).mockRejectedValue(error);
