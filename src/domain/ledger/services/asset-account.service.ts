@@ -35,13 +35,13 @@ interface IAssetAccountService {
 export default function assetAccountService(
   repo: ILedgerAccountRepo
 ): IAssetAccountService {
-  return {
+  const service: IAssetAccountService = {
     /**
      * Sets up the following asset accounts for an individual:
      *  - Cash and Cash Equivalents:    100000
      *  - Receivables:                  102000
-     *  - Trade Receivables:            102001
-     *  - Statutory Receivables:        102002
+     *    - Trade Receivables:          102001
+     *    - Statutory Receivables:        102002
      *
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
@@ -173,7 +173,7 @@ export default function assetAccountService(
     /**
      * Sets up the following asset accounts for a non-power user:
      *  - Asset Suspense Account: 199000
-     *  - Default statutory receivable account: 102002
+     *  - Default statutory receivable account: 102003
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
      */
@@ -245,4 +245,6 @@ export default function assetAccountService(
       return assetAccounts;
     },
   };
+
+  return Object.freeze(service);
 }

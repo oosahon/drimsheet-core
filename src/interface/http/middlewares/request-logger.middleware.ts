@@ -21,6 +21,9 @@ export default function requestLoggerMiddleware(
       const duration = Math.round(performance.now() - start);
 
       const responseLog = {
+        method: req.method,
+        url: req.originalUrl,
+        statusCode: res.statusCode,
         duration: `${duration}ms`,
         responseSize: parseInt(
           (res.getHeader('content-length') as string) || '0',

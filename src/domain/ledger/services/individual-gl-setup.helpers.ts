@@ -23,10 +23,6 @@ import {
   IExpenseLedgerAccount,
 } from '../types/expense-account.types';
 import { EAdjunctAccountRule, EContraAccountRule } from '../types/ledger.types';
-import {
-  ELiabilityAccountBehavior,
-  ILiabilityLedgerAccount,
-} from '../types/liability-account.types';
 import { IRevenueLedgerAccount } from '../types/revenue-account.types';
 
 interface IParams {
@@ -35,71 +31,6 @@ interface IParams {
   functionalCurrency: ICurrency;
 }
 
-const makeBaseLiabilityAccounts = async (
-  params: IParams,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  repoOptions: IRepoOptions
-) => {
-  const { userId, accountingEntityId, functionalCurrency } = params;
-  // ========== Liabilities ==========
-  const liabilityAccounts: TEntityWithEvents<
-    ILiabilityLedgerAccount,
-    ILiabilityLedgerAccount
-  >[] = [];
-
-  // ============ Short term debts ============
-  const existingShortTermDebts = await ledgerAccountRepo.findByCode(
-    '200000',
-    accountingEntityId,
-    repoOptions
-  );
-  if (!existingShortTermDebts) {
-    const shortTermDebtsAccount = shortTermLoanAccountEntity.make(
-      {
-        name: 'Short Term Debts',
-        createdBy: userId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: true,
-        controlAccountId: null,
-        behavior: ELiabilityAccountBehavior.DefaultShortTermDebt,
-        meta: null,
-      },
-      null
-    );
-    liabilityAccounts.push(shortTermDebtsAccount);
-  }
-
-  // ========== Payables ==========
-  let payablesAccountId: TEntityId;
-  const existingPayables = await ledgerAccountRepo.findByCode(
-    '201000',
-    accountingEntityId,
-    repoOptions
-  );
-  if (!existingPayables) {
-    const payablesAccount = payableAccountEntity.make(
-      {
-        name: 'Payables',
-        createdBy: userId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: true,
-        controlAccountId: null,
-        behavior: ELiabilityAccountBehavior.DefaultPayable,
-        meta: null,
-        contraAccountRule: EContraAccountRule.ContraPermitted,
-        adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      },
-      null
-    );
-    payablesAccountId = payablesAccount[0].id;
-    liabilityAccounts.push(payablesAccount);
-  } else {
-    payablesAccountId = existingPayables.id;
-  }
-  return liabilityAccounts;
-};
 const makeBaseEquityAccounts = async (
   params: IParams,
   ledgerAccountRepo: ILedgerAccountRepo,
@@ -352,7 +283,7 @@ const makeBaseExpenseAccounts = async (
     expenseAccounts.push(taxExpenseAccount);
   }
 
-  // ========== Unrealized Loss (FX) (509000) ==========
+  // ========== Unrealized Loss (509000) ==========
   const existingUnrealizedLoss = await ledgerAccountRepo.findByCode(
     '509000',
     accountingEntityId,
@@ -361,7 +292,7 @@ const makeBaseExpenseAccounts = async (
   if (!existingUnrealizedLoss) {
     const unrealizedLossAccount = unrealizedLossAccountEntity.make(
       {
-        name: 'Unrealized Loss (FX)',
+        name: 'Unrealized Loss',
         createdBy: userId,
         accountingEntityId,
         currency: functionalCurrency,
@@ -405,8 +336,6 @@ export default function getIndividualGLSetupHelpers(
   repoOptions: IRepoOptions
 ) {
   return {
-    makeBaseLiabilityAccounts: () =>
-      makeBaseLiabilityAccounts(params, ledgerAccountRepo, repoOptions),
     makeBaseEquityAccounts: () =>
       makeBaseEquityAccounts(params, ledgerAccountRepo, repoOptions),
     makeBaseRevenueAccounts: () =>

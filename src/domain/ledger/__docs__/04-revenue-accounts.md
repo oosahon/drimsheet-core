@@ -162,7 +162,7 @@ The `GainOnAssetSale` entity ([`06-gain-on-sale.entity.ts`](../entities/04-reven
 ### Unrealized Gains
 
 - **Ledger codes**: 406xxx
-- **Description**: accounts used to track positive mark-to-market valuations (paper gains) on short-term trading assets, marketable securities, or foreign exchange (FX) balances before they are sold or settled.
+- **Description**: accounts used to track positive mark-to-market valuations (paper gains) on short-term trading assets, marketable securities, or foreign exchange balances before they are sold or settled.
 - **Main reporting hierarchy**: Non-Operating Revenues / Unrealized Gains
 
 #### Behaviors

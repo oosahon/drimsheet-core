@@ -3,7 +3,6 @@ import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { ICurrency } from '../../currency/types/currency.types';
 import assetSuspenseAccountEntity from '../entities/01-asset-account/99-suspense-account.entity';
-import liabilitySuspenseAccountEntity from '../entities/02-liability-account/99-suspense-account.entity';
 import servicesAccountEntity from '../entities/04-revenue-account/02-services.entity';
 import employmentIncomeAccountEntity from '../entities/04-revenue-account/04-employment-income.entity';
 import GainOnAssetSaleAccountEntity from '../entities/04-revenue-account/06-gain-on-sale.entity';
@@ -24,10 +23,6 @@ import {
   EExpenseSubType,
   IExpenseLedgerAccount,
 } from '../types/expense-account.types';
-import {
-  ELiabilitySubType,
-  ILiabilitySuspenseAccount,
-} from '../types/liability-account.types';
 import {
   ERevenueSubType,
   IRevenueLedgerAccount,
@@ -52,37 +47,6 @@ type THelper<T extends ILedgerAccount> = (
 ) => Promise<TEntityWithEvents<T, T>[]>;
 
 // ================ Liability Posting Accounts =================
-const makeLiabilitySuspenseAccount: THelper<ILiabilitySuspenseAccount> = async (
-  params,
-  repo,
-  repoOptions
-) => {
-  const { userId, accountingEntityId, functionalCurrency } = params;
-
-  const accounts: TEntityWithEvents<
-    ILiabilitySuspenseAccount,
-    ILiabilitySuspenseAccount
-  >[] = [];
-
-  const existingLiabilitySuspenseAccount = await repo.findBySubType(
-    accountingEntityId,
-    ELedgerType.Liability,
-    ELiabilitySubType.Suspense,
-    repoOptions
-  );
-
-  if (existingLiabilitySuspenseAccount.length) return accounts;
-
-  const account = liabilitySuspenseAccountEntity.make({
-    accountingEntityId,
-    currency: functionalCurrency,
-    name: 'Liability Suspense Account',
-    createdBy: userId,
-  });
-
-  return [account];
-};
-
 interface ICanMakeAccountParams {
   accountingEntityId: TEntityId;
   type: ULedgerType;
@@ -589,8 +553,6 @@ export default function getIndividualPostingAccountsSetupHelpers(
   repoOptions: IRepoOptions
 ) {
   return {
-    makeLiabilitySuspenseAccount: () =>
-      makeLiabilitySuspenseAccount(params, repo, repoOptions),
     makeDefaultServicesAccount: () =>
       makeDefaultServicesAccount(params, repo, repoOptions),
     makeDefaultEmploymentIncomeAccount: () =>

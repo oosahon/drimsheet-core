@@ -8,6 +8,7 @@ import {
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import { ILedgerAccount } from '../types/ledger.types';
 import assetAccountService from './asset-account.service';
+import liabilityAccountService from './liability-account.service';
 import individualGLSetupHelpers from './individual-gl-setup.helpers';
 import getIndividualPostingAccountsSetupHelpers from './individual-posting-accounts-setup.helpers';
 
@@ -27,31 +28,16 @@ export default function ledgerService(
   repo: ILedgerAccountRepo
 ): ILedgerService {
   const assetAccountServiceFn = assetAccountService(repo);
+  const liabilityAccountServiceFn = liabilityAccountService(repo);
 
   return {
     /**
      * Sets up the following general ledger accounts for an individual:
-     *    - Assets:
-     *        - Cash and Cash Equivalents: 100000
-     *        - Receivables (Tax Credits): 102000
-     *    - Liabilities:
-     *        - Short Term Loan (Overdraft): 200000
-     *        - Payables (Tax Obligations): 201000
-     *    - Equity:
-     *        - Retained Earnings: 301000
-     *        - Opening Balance Equity: 399000
-     *    - Revenue:
-     *        - Services: 401000
-     *        - Employment Income: 403000
-     *        - Gain on Sale of Assets: 405000
-     *        - Unrealized Gain (FX): 406000
-     *    - Expenses:
-     *        - Direct Costs: 500000
-     *        - Rent and Utilities: 502000
-     *        - Finance Costs: 507000
-     *        - Tax Expense: 508000
-     *        - Unrealized Loss (FX): 509000
-     *        - Asset Disposal Loss: 510000
+     *    - Assets
+     *    - Liabilities
+     *    - Equity
+     *    - Revenue
+     *    - Expenses
      */
     async setupBaseIndividualAccounts(entity, repoOptions) {
       if (entity.type !== EAccountingEntityType.Individual) {
@@ -65,13 +51,16 @@ export default function ledgerService(
       };
 
       const {
-        makeBaseLiabilityAccounts,
         makeBaseEquityAccounts,
         makeBaseRevenueAccounts,
         makeBaseExpenseAccounts,
       } = individualGLSetupHelpers(params, repo, repoOptions);
 
-      const liabilityAccounts = await makeBaseLiabilityAccounts();
+      const liabilityAccounts =
+        await liabilityAccountServiceFn.setupBaseIndividualAccounts(
+          entity,
+          repoOptions
+        );
       const equityAccounts = await makeBaseEquityAccounts();
       const revenueAccounts = await makeBaseRevenueAccounts();
       const expenseAccounts = await makeBaseExpenseAccounts();
@@ -95,22 +84,10 @@ export default function ledgerService(
 
     /**
      * Sets up the following general ledger accounts for a non-power user:
-     *    - Assets:
-     *        - Asset Suspense Account: 199000
-     *    - Liabilities:
-     *        - Liability Suspense Account: 299000
-     *    - Revenue:
-     *        - Services (Default): 401001
-     *        - Employment Income (Default): 403001
-     *        - Gain on assets (Default): 405001
-     *        - Unrealized Gains (Default): 406001
-     *    - Expenses:
-     *        - Direct Costs (Default): 500001
-     *        - Rent and Utilities (Default): 502001
-     *        - Finance Costs (Default): 507001
-     *        - Tax Expense (Default): 508001
-     *        - Unrealized Loss (FX) (Default): 509001
-     *        - Asset Disposal Loss (Default): 510001
+     *    - Assets
+     *    - Liabilities
+     *    - Revenue
+     *    - Expenses
      */
     async bootstrapNonPowerUserPostingAccounts(entity, repoOptions) {
       if (entity.type !== EAccountingEntityType.Individual) {
@@ -124,7 +101,6 @@ export default function ledgerService(
       };
 
       const {
-        makeLiabilitySuspenseAccount,
         makeDefaultServicesAccount,
         makeDefaultEmploymentIncomeAccount,
         makeDefaultGainOnAssetsAccount,
@@ -137,7 +113,11 @@ export default function ledgerService(
         makeDefaultAssetDisposalLossAccount,
       } = getIndividualPostingAccountsSetupHelpers(params, repo, repoOptions);
 
-      const liabilitySuspenseAccounts = await makeLiabilitySuspenseAccount();
+      const liabilitySuspenseAccounts =
+        await liabilityAccountServiceFn.bootstrapNonPowerUserAccounts(
+          entity,
+          repoOptions
+        );
       const servicesAccounts = await makeDefaultServicesAccount();
       const employmentIncomeAccounts =
         await makeDefaultEmploymentIncomeAccount();

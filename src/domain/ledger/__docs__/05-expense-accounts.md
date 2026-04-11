@@ -245,7 +245,7 @@ Distinct charges resulting from adverse market shifts or asset devaluation, isol
 ### Unrealized Loss
 
 - **Ledger codes**: 509xxx
-- **Description**: accounts used to track negative mark-to-market valuation shifts on short-term/trading assets or foreign exchange (FX) balances.
+- **Description**: accounts used to track negative mark-to-market valuation shifts on short-term/trading assets or foreign exchange balances.
 - **Main reporting hierarchy**: Losses & Adjustments / Unrealized Loss
 
 #### Behaviors
