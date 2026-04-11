@@ -1,15 +1,15 @@
-import verifyEmailAddressUseCase from '../verify-email.usecase';
+import { IUser } from '../../../../domain/user/types/user.types';
+import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
+import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
+import { IEvent } from '../../../../shared/types/event.types';
 import {
   ErrorUnauthorized,
   ErrorUnprocessableEntity,
 } from '../../../../shared/value-objects/error';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import { IUser } from '../../../../domain/user/types/user.types';
-import { IEvent } from '../../../../shared/types/event.types';
+import verifyEmailAddressUseCase from '../verify-email.usecase';
 
 describe('verifyEmailAddressUseCase', () => {
   beforeEach(() => {

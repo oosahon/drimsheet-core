@@ -1,12 +1,12 @@
 import { relations } from 'drizzle-orm/relations';
 import {
-  usersInCore,
-  userActivitiesInAudit,
   accountingEntitiesInCore,
   currenciesInCore,
   currencyExchangeRatesInCore,
   ledgerAccountsInCore,
+  userActivitiesInAudit,
   userPreferencesInCore,
+  usersInCore,
 } from './schema';
 
 export const userActivitiesInAuditRelations = relations(

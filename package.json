@@ -28,7 +28,7 @@
     "mjml:build": "tsx bin/mjml-to-ts.ts"
   },
   "lint-staged": {
-    "*.{ts,js,json,md}": "prettier --write"
+    "*.{ts,js,json,md}": "prettier --write --plugin=prettier-plugin-organize-imports"
   },
   "keywords": [],
   "author": "Osahon Oboite",
@@ -52,11 +52,12 @@
     "@types/uuid": "^10.0.0",
     "concurrently": "^9.2.1",
     "dotenv": "^17.3.1",
-    "drizzle-kit": "^0.31.9",
+    "drizzle-kit": "^0.18.1",
     "husky": "^9.1.7",
     "jest": "^30.3.0",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.1",
+    "prettier-plugin-organize-imports": "^4.3.0",
     "swagger-typescript-api": "^13.6.3",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",

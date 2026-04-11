@@ -1,10 +1,10 @@
 import { RequestHandler } from 'express';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
-import IUserRepo from '../../../domain/user/repos/user.repo';
-import httpHandlers from '../handlers';
-import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import IAuthService from '../../../app/contracts/infra/auth-service.contract';
 import userMapper from '../../../app/mappers/user.mapper';
+import IUserRepo from '../../../domain/user/repos/user.repo';
+import { ErrorUnauthorized } from '../../../shared/value-objects/error';
+import httpHandlers from '../handlers';
 
 export default function isAuthenticatedUserMiddleware(
   requestContext: IRequestContext,

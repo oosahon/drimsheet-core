@@ -1,11 +1,11 @@
-import saveUserActivityUseCase from '../save-activity.usecase';
-import { MockUserActivityRepo } from '../../../../infra/persistence/repos/__mocks__/user-activity.repo.impl.mock';
-import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import userActivityEntity from '../../../../domain/user/entities/user-activity.entity';
-import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import { EUserEvents } from '../../../../domain/user/events/user.events';
+import { MockUserActivityRepo } from '../../../../infra/persistence/repos/__mocks__/user-activity.repo.impl.mock';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { EUserEvents } from '../../../../domain/user/events/user.events';
+import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import saveUserActivityUseCase from '../save-activity.usecase';
 
 jest.mock('../../../../domain/user/entities/user-activity.entity', () => ({
   make: jest.fn(),

@@ -1,4 +1,3 @@
-import IUserRepo from '../../../domain/user/repos/user.repo';
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
 
 export interface ITransactionContext {

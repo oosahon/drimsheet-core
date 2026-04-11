@@ -9,9 +9,9 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import middlewares from '../middlewares';
-import onboardingUseCases from '../../../app/usecases/onboarding';
 import { IAccountingEntityOnboardingReq } from '../../../app/contracts/dto/onboarding.dto';
+import onboardingUseCases from '../../../app/usecases/onboarding';
+import middlewares from '../middlewares';
 
 @Route('onboarding')
 @Tags('Onboarding')

@@ -1,3 +1,6 @@
+import { z } from 'zod';
+import accountingEntitySupportedCountries from '../../../domain/accounting-entity/config/supported-countries.config';
+import accountingEntityEvents from '../../../domain/accounting-entity/events/accounting-entity.events';
 import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
 import accountingEntityService from '../../../domain/accounting-entity/services/accounting-entity.service';
 import {
@@ -14,9 +17,9 @@ import {
   IUserPreferences,
 } from '../../../domain/user/types/user-preferences.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import { IEvent } from '../../../shared/types/event.types';
+import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import {
-  ErrorBadRequest,
   ErrorResourceNotFound,
   ErrorUnauthorized,
 } from '../../../shared/value-objects/error';
@@ -29,10 +32,6 @@ import {
   TRepoTransactionFn,
 } from '../../contracts/infra/repo.contract';
 import currencyMapper from '../../mappers/currency.mapper';
-import { z } from 'zod';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import accountingEntitySupportedCountries from '../../../domain/accounting-entity/config/supported-countries.config';
-import accountingEntityEvents from '../../../domain/accounting-entity/events/accounting-entity.events';
 
 const validationSchema = z.object({
   name: z.string(),

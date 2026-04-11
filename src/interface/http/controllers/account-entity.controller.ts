@@ -7,8 +7,8 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import middlewares from '../middlewares';
 import accountingEntityUsecase from '../../../app/usecases/accounting-entity';
+import middlewares from '../middlewares';
 
 @Route('accounting-entities')
 @Tags('Accounting Entity')

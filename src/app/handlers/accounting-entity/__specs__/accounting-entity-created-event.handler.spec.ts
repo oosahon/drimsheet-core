@@ -1,17 +1,17 @@
-import accountingEntityCreatedEventHandler from '../accounting-entity-created-event.handler';
-import { IEvent } from '../../../../shared/types/event.types';
-import { AppError } from '../../../../shared/value-objects/error';
-import {
-  IAccountingEntity,
-  EAccountingEntityType,
-} from '../../../../domain/accounting-entity/types/accounting-entity.types';
 import { EAccountingEntityEvents } from '../../../../domain/accounting-entity/events/accounting-entity.events';
+import {
+  EAccountingEntityType,
+  IAccountingEntity,
+} from '../../../../domain/accounting-entity/types/accounting-entity.types';
+import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { AppError } from '../../../../shared/value-objects/error';
+import accountingEntityCreatedEventHandler from '../accounting-entity-created-event.handler';
 
+import { NAIRA } from '../../../../domain/currency/config/currencies.config';
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import { NAIRA } from '../../../../domain/currency/config/currencies.config';
 import userUseCase from '../../../usecases/user';
 
 jest.mock('../../../usecases/user', () => ({

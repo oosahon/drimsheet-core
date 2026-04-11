@@ -1,14 +1,13 @@
+import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import { MockUserPreferencesRepo } from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
-import userPreferencesService from '../user-preferences.service';
+import generateUUID from '../../../../shared/utils/uuid-generator';
+import { EUserEvents } from '../../events/user.events';
 import {
   EAppThemePreference,
   EAppUsageModePreference,
   IUserPreferences,
 } from '../../types/user-preferences.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
-import { EUserEvents } from '../../events/user.events';
+import userPreferencesService from '../user-preferences.service';
 
 describe('userPreferencesService', () => {
   const service = userPreferencesService(MockUserPreferencesRepo);

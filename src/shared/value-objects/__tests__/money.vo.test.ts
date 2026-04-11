@@ -1,6 +1,6 @@
-import money from '../money.vo';
-import { AppError } from '../error';
 import mockCurrencies from '../__mocks__/currencies.mock';
+import { AppError } from '../error';
+import money from '../money.vo';
 
 describe('Money Value Object', () => {
   const NGN = mockCurrencies.NGN;

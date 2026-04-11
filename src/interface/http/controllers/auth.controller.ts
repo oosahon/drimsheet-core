@@ -9,8 +9,8 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import authUseCase from '../../../app/usecases/auth';
 import { IUserSignupReq } from '../../../app/contracts/dto/auth.dto';
+import authUseCase from '../../../app/usecases/auth';
 import { IApiError } from '../handlers/error.handler';
 
 @Route('auth')

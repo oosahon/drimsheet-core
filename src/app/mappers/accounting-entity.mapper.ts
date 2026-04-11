@@ -1,10 +1,10 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IAccountingEntity } from '../../domain/accounting-entity/types/accounting-entity.types';
 import { accountingEntitiesInCore } from '../../infra/persistence/drizzle/schema';
-import { fromCommonRepoDates, toCommonRepoDates } from './date';
-import currencyMapper, { ICurrencyModel } from './currency.mapper';
 import { TEntityId } from '../../shared/types/uuid';
 import { IAccountingEntityRes } from '../contracts/dto/accounting-entity.dto';
+import currencyMapper, { ICurrencyModel } from './currency.mapper';
+import { fromCommonRepoDates, toCommonRepoDates } from './date';
 
 export interface IAccountingEntityModel extends InferSelectModel<
   typeof accountingEntitiesInCore

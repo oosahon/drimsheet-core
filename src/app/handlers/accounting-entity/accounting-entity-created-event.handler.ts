@@ -1,10 +1,10 @@
-import { IEvent } from '../../../shared/types/event.types';
-import IReporter from '../../contracts/infra/reporter.contract';
-import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
 import { EAccountingEntityEvents } from '../../../domain/accounting-entity/events/accounting-entity.events';
+import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import { IEvent } from '../../../shared/types/event.types';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
+import IReporter from '../../contracts/infra/reporter.contract';
 import userUseCase from '../../usecases/user';
+import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
 
 export default function accountingEntityCreatedEventHandler(
   reporter: IReporter,

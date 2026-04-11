@@ -1,11 +1,11 @@
-import getUserPreferencesUseCase from '../get-preferences.usecase';
-import { MockUserPreferencesRepo } from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
-import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
-import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserPreferences } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
+import { MockUserPreferencesRepo } from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
+import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import getUserPreferencesUseCase from '../get-preferences.usecase';
 
 describe('getUserPreferencesUseCase', () => {
   beforeEach(() => {

@@ -1,11 +1,11 @@
 import axios from 'axios';
 
+import { ITransactionalEmailPayload } from '../../app/contracts/infra/transactional-email-agent.contract';
 import {
   ZEPTO_TOKEN_NOREPLY,
   ZEPTO_TOKEN_NOTIFICATIONS,
   ZEPTO_TOKEN_OSAHON,
 } from './vars.config';
-import { ITransactionalEmailPayload } from '../../app/contracts/infra/transactional-email-agent.contract';
 
 interface IEmailSender {
   email: string;

@@ -97,5 +97,9 @@ export function parseError(error: unknown) {
     };
   }
 
-  return error;
+  return {
+    type: 'unknown',
+    message: (error as Error).message ?? 'Unknown error',
+    cause: error,
+  };
 }

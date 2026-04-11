@@ -1,17 +1,17 @@
-import sendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
-import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
+import { IUser } from '../../../../domain/user/types/user.types';
+import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
+import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
+import { TEntityId } from '../../../../shared/types/uuid';
 import {
   AppError,
   ErrorUnprocessableEntity,
 } from '../../../../shared/value-objects/error';
+import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import emailValue from '../../../../domain/user/value-objects/email.vo';
-import { IUser } from '../../../../domain/user/types/user.types';
-import { TEntityId } from '../../../../shared/types/uuid';
+import sendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 
 describe('sendEmailVerificationEmailUseCase', () => {
   const correlationId = 'test-corr-id';

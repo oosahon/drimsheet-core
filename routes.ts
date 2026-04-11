@@ -2,7 +2,7 @@
 /* eslint-disable */
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import type { TsoaRoute } from '@tsoa/runtime';
-import { fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
+import { ExpressTemplateService, fetchMiddlewares } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UserController } from './src/interface/http/controllers/user.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -12,8 +12,8 @@ import { CurrencyController } from './src/interface/http/controllers/currency.co
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './src/interface/http/controllers/auth.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { AccountingEntityController } from './src/interface/http/controllers/account-entity.controller';
 import { expressAuthentication } from './src/infra/config/tsoa-express-auth';
+import { AccountingEntityController } from './src/interface/http/controllers/account-entity.controller';
 // @ts-ignore - no great way to install types from subpackage
 import type {
   Request as ExRequest,

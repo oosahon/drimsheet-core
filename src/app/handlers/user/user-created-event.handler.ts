@@ -2,7 +2,6 @@ import { EUserEvents } from '../../../domain/user/events/user.events';
 import { IUser } from '../../../domain/user/types/user.types';
 import { IEvent } from '../../../shared/types/event.types';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import ILogger from '../../contracts/infra/logger.contract';
 import IReporter from '../../contracts/infra/reporter.contract';
 import authUseCase from '../../usecases/auth';
 import userUseCase from '../../usecases/user';

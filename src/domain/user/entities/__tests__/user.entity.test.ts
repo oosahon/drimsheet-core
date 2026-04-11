@@ -1,8 +1,8 @@
-import { AppError } from '../../../../shared/value-objects/error';
-import userEntity from '../user.entity';
-import { IUser } from '../../types/user.types';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { IEvent } from '../../../../shared/types/event.types';
+import { AppError } from '../../../../shared/value-objects/error';
+import { IUser } from '../../types/user.types';
+import userEntity from '../user.entity';
 
 describe('User Entity', () => {
   beforeEach(() => {

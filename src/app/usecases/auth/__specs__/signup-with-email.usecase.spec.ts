@@ -1,18 +1,18 @@
-import signupWithEmailUsecase from '../signup-with-email.usecase';
+import { IUser } from '../../../../domain/user/types/user.types';
+import emailValue from '../../../../domain/user/value-objects/email.vo';
+import passwordValue from '../../../../domain/user/value-objects/password.vo';
+import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
+import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
+import { IEvent } from '../../../../shared/types/event.types';
 import {
   ErrorConflict,
   ErrorForbidden,
   ErrorUnprocessableEntity,
 } from '../../../../shared/value-objects/error';
-import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import { IEvent } from '../../../../shared/types/event.types';
-import passwordValue from '../../../../domain/user/value-objects/password.vo';
+import signupWithEmailUsecase from '../signup-with-email.usecase';
 
 describe('signupWithEmailUsecase', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
-import numberUtils from '../number';
 import { AppError } from '../../value-objects/error';
+import numberUtils from '../number';
 
 describe('numberUtils', () => {
   describe('toBigInt', () => {

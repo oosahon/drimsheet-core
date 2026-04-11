@@ -1,14 +1,14 @@
+import compression from 'compression';
 import express from 'express';
 import helmet from 'helmet';
-import compression from 'compression';
 import { RegisterRoutes } from '../../../routes';
+import middlewares from '../../interface/http/middlewares';
 import { PORT } from '../config/vars.config';
 import logger from '../observability/logger';
-import swagger from './swagger';
-import rateLimiter from './rate-limiter';
-import middlewares from '../../interface/http/middlewares';
-import cors from './cors';
 import bullMqServerAdapter from './bull-dashboard';
+import cors from './cors';
+import rateLimiter from './rate-limiter';
+import swagger from './swagger';
 
 function setupServer(bootstrap?: () => Promise<void>) {
   const app = express();

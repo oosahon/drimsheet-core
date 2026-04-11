@@ -1,6 +1,6 @@
 import { Queue } from 'bullmq';
-import { queueConnection } from '../../config/redis.config';
 import { IQueue } from '../../../app/contracts/infra/queues.contract';
+import { queueConnection } from '../../config/redis.config';
 import reporter from '../../observability/reporter';
 
 export const transactionalEmailQueue = new Queue('transactional-email', {

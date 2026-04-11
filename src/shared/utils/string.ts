@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { AppError } from '../value-objects/error';
-import { TEntityId } from '../types/uuid';
 import { v7 as uuid } from 'uuid';
+import { z } from 'zod';
+import { TEntityId } from '../types/uuid';
+import { AppError } from '../value-objects/error';
 
 interface ISanitizeOptions {
   min: number;

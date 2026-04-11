@@ -1,6 +1,6 @@
-import userActivityMapper from '../user-activity.mapper';
 import { IUserActivity } from '../../../domain/user/types/user-activity.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import userActivityMapper from '../user-activity.mapper';
 
 describe('User Activity Mapper', () => {
   describe('toRepo', () => {

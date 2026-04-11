@@ -1,9 +1,9 @@
-import userCreatedEventHandler from '../user-created-event.handler';
-import { IEvent } from '../../../../shared/types/event.types';
-import { AppError } from '../../../../shared/value-objects/error';
-import { IUser } from '../../../../domain/user/types/user.types';
 import { EUserEvents } from '../../../../domain/user/events/user.events';
+import { IUser } from '../../../../domain/user/types/user.types';
+import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { AppError } from '../../../../shared/value-objects/error';
+import userCreatedEventHandler from '../user-created-event.handler';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
