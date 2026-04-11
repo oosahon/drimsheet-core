@@ -124,8 +124,9 @@ declare const InterestIncomePrefix = '404';
 export type TInterestIncomeLedgerCode =
   `${typeof InterestIncomePrefix}${string}`;
 
-declare const GainOnSalePrefix = '405';
-export type TGainOnSaleLedgerCode = `${typeof GainOnSalePrefix}${string}`;
+declare const GainOnAssetSalePrefix = '405';
+export type TGainOnAssetSaleLedgerCode =
+  `${typeof GainOnAssetSalePrefix}${string}`;
 
 declare const UnrealizedGainPrefix = '406';
 export type TUnrealizedGainLedgerCode =

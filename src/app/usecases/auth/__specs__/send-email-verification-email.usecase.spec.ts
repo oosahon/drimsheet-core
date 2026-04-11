@@ -4,7 +4,10 @@ import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
-import { AppError } from '../../../../shared/value-objects/error';
+import {
+  AppError,
+  ErrorUnprocessableEntity,
+} from '../../../../shared/value-objects/error';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import { IUser } from '../../../../domain/user/types/user.types';
@@ -18,6 +21,20 @@ describe('sendEmailVerificationEmailUseCase', () => {
     mockRequestContext.get.mockReturnValue({
       correlationId,
     } as IRequestContextData);
+  });
+
+  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+    const usecase = sendEmailVerificationEmailUseCase(
+      mockRequestContext,
+      mockLogger,
+      mockAuthService,
+      mockUserRepo,
+      mockTransactionalEmailService
+    );
+
+    await expect(usecase('invalid-email')).rejects.toThrow(
+      ErrorUnprocessableEntity
+    );
   });
 
   it('should throw AppError if user is not found', async () => {

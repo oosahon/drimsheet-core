@@ -1,11 +1,11 @@
 import eventValue from '../../../shared/value-objects/event.vo';
 import {
-  IRentUtilitiesAccount,
-  IDirectCostsAccount,
-  IInterestFinanceAccount,
-  IIncomeTaxExpenseAccount,
-  IUnrealizedLossAccount,
   IAssetDisposalLossAccount,
+  IDirectCostsAccount,
+  IIncomeTaxExpenseAccount,
+  IInterestFinanceAccount,
+  IRentUtilitiesAccount,
+  IUnrealizedLossAccount,
 } from '../types/expense-account.types';
 
 export const EExpenseLedgerEvent = {

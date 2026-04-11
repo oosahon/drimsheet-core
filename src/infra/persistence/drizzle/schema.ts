@@ -8,8 +8,8 @@ import {
   boolean,
   foreignKey,
   jsonb,
-  char,
   smallint,
+  char,
   numeric,
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
@@ -68,8 +68,8 @@ export const usersInCore = core.table('users', {
   id: uuid()
     .default(sql`uuid_generate_v4()`)
     .notNull(),
-  firstName: varchar('first_name', { length: 200 }).notNull(),
-  lastName: varchar('last_name', { length: 200 }).notNull(),
+  firstName: varchar('first_name', { length: 100 }).notNull(),
+  lastName: varchar('last_name', { length: 100 }).notNull(),
   email: varchar({ length: 200 }).notNull(),
   emailVerified: boolean('email_verified').notNull(),
   password: varchar({ length: 200 }),
@@ -102,6 +102,53 @@ export const userActivitiesInAudit = audit.table(
       foreignColumns: [usersInCore.id],
       name: 'user_activities_user_id_fkey',
     }).onDelete('cascade'),
+  ]
+);
+
+export const accountingEntitiesInCore = core.table(
+  'accounting_entities',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    type: accountingEntityTypeInCore().notNull(),
+    name: varchar({ length: 255 }).notNull(),
+    operatingCountryCode: varchar('operating_country_code', {
+      length: 2,
+    }).notNull(),
+    ownerId: uuid('owner_id').notNull(),
+    functionalCurrencyCode: varchar('functional_currency_code', {
+      length: 3,
+    }).notNull(),
+    reportingCurrencyCode: varchar('reporting_currency_code', {
+      length: 3,
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    fiscalYearStartMonth: smallint('fiscal_year_start_month').notNull(),
+    fiscalYearStartDay: smallint('fiscal_year_start_day').notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.ownerId],
+      foreignColumns: [usersInCore.id],
+      name: 'accounting_entities_owner_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.functionalCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'accounting_entities_functional_currency_code_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.reportingCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'accounting_entities_reporting_currency_code_fkey',
+    }).onDelete('restrict'),
   ]
 );
 
@@ -144,49 +191,6 @@ export const currencyExchangeRatesInCore = core.table(
       foreignColumns: [currenciesInCore.code],
       name: 'currency_exchange_rates_target_currency_code_fkey',
     }).onDelete('cascade'),
-  ]
-);
-
-export const accountingEntitiesInCore = core.table(
-  'accounting_entities',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    type: accountingEntityTypeInCore().notNull(),
-    ownerId: uuid('owner_id').notNull(),
-    functionalCurrencyCode: varchar('functional_currency_code', {
-      length: 3,
-    }).notNull(),
-    reportingCurrencyCode: varchar('reporting_currency_code', {
-      length: 3,
-    }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    fiscalYearStartMonth: smallint('fiscal_year_start_month').notNull(),
-    fiscalYearStartDay: smallint('fiscal_year_start_day').notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.ownerId],
-      foreignColumns: [usersInCore.id],
-      name: 'accounting_entities_owner_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.functionalCurrencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'accounting_entities_functional_currency_code_fkey',
-    }).onDelete('restrict'),
-    foreignKey({
-      columns: [table.reportingCurrencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'accounting_entities_reporting_currency_code_fkey',
-    }).onDelete('restrict'),
   ]
 );
 

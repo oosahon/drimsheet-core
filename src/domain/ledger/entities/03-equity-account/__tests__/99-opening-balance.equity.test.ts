@@ -1,6 +1,5 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import openingBalanceEquityLedgerEntity from '../99-opening-balance.equity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EEquityAccountBehavior,
   EEquitySubType,
@@ -12,6 +11,7 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import openingBalanceEquityLedgerEntity from '../99-opening-balance.equity';
 
 describe('Opening Balance Equity Entity', () => {
   const validUUID1 = generateUUID();

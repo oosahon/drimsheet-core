@@ -1,8 +1,7 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import cashAndEquivalentAccountEntity from '../00-cash-and-equivalents.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -18,6 +17,7 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import cashAndEquivalentAccountEntity from '../00-cash-and-equivalents.entity';
 
 describe('Cash and Cash Equivalent Entity', () => {
   const validUUID1 = generateUUID();

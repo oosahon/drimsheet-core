@@ -1,7 +1,12 @@
-import { IRepoService } from '../../../app/contracts/infra/repo.contract';
+import {
+  IRepoService,
+  ITransactionContext,
+} from '../../../app/contracts/infra/repo.contract';
 
-const mockDbService: jest.Mocked<IRepoService> = {
-  runInTransaction: jest.fn(),
-};
+const mockDbService = {
+  runInTransaction: jest.fn((_: (tx: ITransactionContext) => Promise<any>) =>
+    Promise.resolve()
+  ),
+} as jest.Mocked<IRepoService>;
 
 export default mockDbService;

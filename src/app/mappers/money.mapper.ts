@@ -1,6 +1,6 @@
 import { IMoney } from '../../shared/types/money.types';
 import { AppError } from '../../shared/value-objects/error';
-import { SYSTEM_CURRENCIES } from '../../domain/currency/config/currencies';
+import { SYSTEM_CURRENCIES } from '../../domain/currency/config/currencies.config';
 import { IMoneyDto } from '../contracts/dto/money.dto';
 
 const moneyMapper = {
@@ -19,6 +19,13 @@ const moneyMapper = {
     return {
       amount: BigInt(money.amount),
       currency,
+    };
+  },
+
+  toInterface(money: IMoney): IMoneyDto {
+    return {
+      amount: Number(money.amount),
+      currency: money.currency.code,
     };
   },
 };

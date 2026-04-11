@@ -3,14 +3,12 @@ import { IUserActivity } from '../types/user-activity.types';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import stringUtils from '../../../shared/utils/string';
 import { AppError } from '../../../shared/value-objects/error';
+import eventValue from '../../../shared/value-objects/event.vo';
 
 function make(payload: TCreationOmits<IUserActivity>) {
   stringUtils.validateUUID(payload.userId);
 
-  const eventKey = stringUtils.sanitizeAndValidate(payload.eventKey, {
-    min: 1,
-    max: 100,
-  });
+  eventValue.validateKey(payload.eventKey);
 
   const description = stringUtils.sanitizeAndValidate(payload.description, {
     min: 1,
@@ -24,7 +22,7 @@ function make(payload: TCreationOmits<IUserActivity>) {
   const userActivity: IUserActivity = Object.freeze({
     id: generateUUID(),
     userId: payload.userId,
-    eventKey,
+    eventKey: payload.eventKey,
     description,
     meta: payload.meta,
     createdAt: new Date(),

@@ -153,16 +153,16 @@ The `EmploymentIncome` entity ([`04-employment-income.entity.ts`](../entities/04
 
 #### Entity Details
 
-The `GainOnSale` entity ([`06-gain-on-sale.entity.ts`](../entities/04-revenue-account/06-gain-on-sale.entity.ts)) creates accounts with:
+The `GainOnAssetSale` entity ([`06-gain-on-sale.entity.ts`](../entities/04-revenue-account/06-gain-on-sale.entity.ts)) creates accounts with:
 
-- Fixed `behavior: 'gain_on_sale'` / `subType: 'gain_on_sale'`
+- Fixed `behavior: 'gain_on_asset_sale'` / `subType: 'gain_on_asset_sale'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
 - Accepts `isControlAccount`, `controlAccountId`, and `meta` via payload
 
 ### Unrealized Gains
 
 - **Ledger codes**: 406xxx
-- **Description**: accounts used to track positive mark-to-market valuations (paper gains) on short-term trading assets, marketable securities, or foreign exchange (FX) balances before they are sold or settled.
+- **Description**: accounts used to track positive mark-to-market valuations (paper gains) on short-term trading assets, marketable securities, or foreign exchange balances before they are sold or settled.
 - **Main reporting hierarchy**: Non-Operating Revenues / Unrealized Gains
 
 #### Behaviors

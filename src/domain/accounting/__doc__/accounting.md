@@ -70,18 +70,18 @@ The following ledger accounts are in scope for the individual MVP. Accounts are 
 | Services (Freelance) | `401xxx`   | `02-services.entity.ts`          | ✅ Implemented |
 | Employment Income    | `403xxx`   | `04-employment-income.entity.ts` | ✅ Implemented |
 | Gain on Asset Sale   | `405xxx`   | `06-gain-on-sale.entity.ts`      | ✅ Implemented |
-| Unrealized Gain (FX) | `406xxx`   | `07-unrealized-gain.entity.ts`   | ✅ Implemented |
+| Unrealized Gain      | `406xxx`   | `07-unrealized-gain.entity.ts`   | ✅ Implemented |
 
 #### Expenses
 
-| Account              | Code Block | Entity File                        | Status         |
-| -------------------- | ---------- | ---------------------------------- | -------------- |
-| Direct Costs         | `500xxx`   | `00-direct-costs.entity.ts`        | ✅ Implemented |
-| Rent and Utilities   | `502xxx`   | `03-rent-and-utilities.entity.ts`  | ✅ Implemented |
-| Finance Costs        | `507xxx`   | `07-finance-costs.entity.ts`       | ✅ Implemented |
-| Tax Expense          | `508xxx`   | `08-tax-expense.entity.ts`         | ✅ Implemented |
-| Unrealized Loss (FX) | `509xxx`   | `09-unrealized-loss.entity.ts`     | ✅ Implemented |
-| Asset Disposal Loss  | `510xxx`   | `10-asset-disposal-loss.entity.ts` | ✅ Implemented |
+| Account             | Code Block | Entity File                        | Status         |
+| ------------------- | ---------- | ---------------------------------- | -------------- |
+| Direct Costs        | `500xxx`   | `00-direct-costs.entity.ts`        | ✅ Implemented |
+| Rent and Utilities  | `502xxx`   | `03-rent-and-utilities.entity.ts`  | ✅ Implemented |
+| Finance Costs       | `507xxx`   | `07-finance-costs.entity.ts`       | ✅ Implemented |
+| Tax Expense         | `508xxx`   | `08-tax-expense.entity.ts`         | ✅ Implemented |
+| Unrealized Loss     | `509xxx`   | `09-unrealized-loss.entity.ts`     | ✅ Implemented |
+| Asset Disposal Loss | `510xxx`   | `10-asset-disposal-loss.entity.ts` | ✅ Implemented |
 
 ## Reporting Needs
 

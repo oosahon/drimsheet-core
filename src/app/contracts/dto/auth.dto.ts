@@ -1,4 +1,4 @@
-export interface IIndividualSignupReq {
+export interface IUserSignupReq {
   firstName: string;
   lastName: string;
   email: string;

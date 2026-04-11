@@ -1,6 +1,5 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import unrealizedLossAccountEntity from '../09-unrealized-loss.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -13,6 +12,7 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import unrealizedLossAccountEntity from '../09-unrealized-loss.entity';
 
 describe('Unrealized Loss Entity', () => {
   const validUUID1 = generateUUID();

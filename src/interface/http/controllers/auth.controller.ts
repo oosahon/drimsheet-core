@@ -10,7 +10,7 @@ import {
   Tags,
 } from 'tsoa';
 import authUseCase from '../../../app/usecases/auth';
-import { IIndividualSignupReq } from '../../../app/contracts/dto/auth.dto';
+import { IUserSignupReq } from '../../../app/contracts/dto/auth.dto';
 import { IApiError } from '../handlers/error.handler';
 
 @Route('auth')
@@ -27,8 +27,8 @@ export class AuthController extends Controller {
   @Response<IApiError>('409')
   @Response<IApiError>('500')
   @Response<IApiError>('422')
-  public async signupWithEmail(@Body() body: IIndividualSignupReq) {
-    return authUseCase.signupWithEmail(body);
+  public async signupWithEmail(@Body() body: IUserSignupReq) {
+    return await authUseCase.signupWithEmail(body);
   }
 
   /**

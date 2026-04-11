@@ -1,8 +1,14 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import shortTermLoanAccountEntity from '../00-short-term-loan.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerAccountStatus,
+  ELedgerType,
+  ENormalBalance,
+} from '../../../types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
@@ -14,13 +20,7 @@ import {
   IShortTermLoanAccount,
   IShortTermLoanAccountMeta,
 } from '../../../types/liability-account.types';
-import {
-  EAdjunctAccountRule,
-  EContraAccountRule,
-  ELedgerAccountStatus,
-  ELedgerType,
-  ENormalBalance,
-} from '../../../types/ledger.types';
+import shortTermLoanAccountEntity from '../00-short-term-loan.entity';
 
 describe('Short Term Loan Liability Entity', () => {
   const validUUID1 = generateUUID();

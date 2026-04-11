@@ -1,10 +1,5 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import unrealizedGainAccountEntity from '../07-unrealized-gain.entity';
-import {
-  ERevenueAccountBehavior,
-  ERevenueSubType,
-} from '../../../types/revenue-account.types';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -12,6 +7,11 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import {
+  ERevenueAccountBehavior,
+  ERevenueSubType,
+} from '../../../types/revenue-account.types';
+import unrealizedGainAccountEntity from '../07-unrealized-gain.entity';
 
 describe('Unrealized Gains Revenue Entity', () => {
   const validUUID1 = generateUUID();

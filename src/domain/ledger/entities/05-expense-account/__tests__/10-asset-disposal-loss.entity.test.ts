@@ -1,6 +1,5 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import assetDisposalLossAccountEntity from '../10-asset-disposal-loss.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -13,6 +12,7 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import assetDisposalLossAccountEntity from '../10-asset-disposal-loss.entity';
 
 describe('Asset Disposal Loss Entity', () => {
   const validUUID1 = generateUUID();

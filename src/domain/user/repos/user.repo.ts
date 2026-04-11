@@ -1,8 +1,8 @@
 import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
-import { IUser, IUserWithPassword } from '../types/user.types';
+import { IUser } from '../types/user.types';
 
 interface IUserRepo {
-  save(user: IUserWithPassword, options: IRepoOptions): Promise<void>;
+  save(user: IUser, options: IRepoOptions): Promise<void>;
 
   findByEmail(email: string, options: IRepoOptions): Promise<IUser | null>;
 

@@ -1,5 +1,8 @@
 import verifyEmailAddressUseCase from '../verify-email.usecase';
-import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
+import {
+  ErrorUnauthorized,
+  ErrorUnprocessableEntity,
+} from '../../../../shared/value-objects/error';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
@@ -11,6 +14,17 @@ import { IEvent } from '../../../../shared/types/event.types';
 describe('verifyEmailAddressUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+    const usecase = verifyEmailAddressUseCase(
+      mockAuthService,
+      mockUserRepo,
+      mockRequestContext,
+      mockEventBus
+    );
+
+    await expect(usecase(123 as any)).rejects.toThrow(ErrorUnprocessableEntity);
   });
 
   it('should successfully verify email and return tokens', async () => {

@@ -6,6 +6,12 @@ import IRequestContext from '../../contracts/app/request-context.contract';
 import { IAuthRes } from '../../contracts/dto/auth.dto';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
+import { z } from 'zod';
+import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+
+const validationSchema = z.object({
+  token: z.string(),
+});
 
 export default function verifyEmailAddressUseCase(
   authService: IAuthService,
@@ -14,6 +20,8 @@ export default function verifyEmailAddressUseCase(
   eventBus: IEventBus
 ) {
   return async (token: string): Promise<IAuthRes> => {
+    zodValidationRunner(validationSchema, { token });
+
     const { correlationId } = requestContext.get();
 
     const decodedToken = authService.verifyAuthToken(token);

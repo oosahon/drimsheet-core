@@ -10,7 +10,6 @@ import validateEventAndSetRequestContext from '../shared/validate-and-set-reques
 
 export default function userCreatedEventHandler(
   reporter: IReporter,
-  logger: ILogger,
   requestContext: IRequestContext
 ) {
   return async (event: IEvent<IUser>) => {
@@ -21,19 +20,20 @@ export default function userCreatedEventHandler(
         EUserEvents.Created
       );
 
-      userUseCase.saveActivity(event.data.id, event).catch(reporter.report);
+      await userUseCase
+        .saveActivity(event.data.id, event)
+        .catch(reporter.report);
 
       const shouldSendEmailVerification = !event.data.emailVerified;
 
       if (shouldSendEmailVerification) {
-        authUseCase
+        await authUseCase
           .sendEmailVerificationEmail(event.data.email)
           .catch(reporter.report);
       } else {
         // TODO: send welcome email https://linear.app/purpleledger/issue/PUR-20/create-and-send-welcome-emails
       }
     } catch (error) {
-      logger.error(error);
       reporter.report(error);
     }
   };

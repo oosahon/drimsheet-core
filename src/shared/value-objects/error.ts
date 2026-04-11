@@ -31,8 +31,8 @@ export class ErrorBadRequest extends ApiError {
 }
 
 export class ErrorUnauthorized extends ApiError {
-  constructor(message: string, cause?: Record<string, unknown>) {
-    super(401, message, cause);
+  constructor(message?: string, cause?: Record<string, unknown>) {
+    super(401, message || 'Unauthorized', cause);
   }
 }
 
@@ -77,4 +77,25 @@ export class ErrorInternalServerError extends ApiError {
   constructor(message: string, cause?: Record<string, unknown>) {
     super(500, message, cause);
   }
+}
+
+export function parseError(error: unknown) {
+  if (error instanceof ApiError) {
+    return {
+      type: 'api',
+      message: error.message,
+      cause: error.cause,
+      code: error.code,
+    };
+  }
+
+  if (error instanceof AppError) {
+    return {
+      type: 'domain',
+      message: error.message,
+      cause: error.cause,
+    };
+  }
+
+  return error;
 }

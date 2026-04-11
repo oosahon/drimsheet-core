@@ -1,19 +1,20 @@
 import eventValue from '../../../shared/value-objects/event.vo';
+import { IUserPreferences } from '../types/user-preferences.types';
 import { IUser } from '../types/user.types';
 
 export const EUserEvents = {
   Created: 'domain:user:created',
   Updated: 'domain:user:updated',
-  Deleted: 'domain:user:deleted',
   EmailVerified: 'domain:user:email-verified',
+  PreferencesUpdated: 'domain:user:preferences-updated',
 } as const;
 
 export const userEventDescriptions: Record<string, string> = {
   [EUserEvents.Created]: 'Signed up to Purple Ledger.',
   [EUserEvents.Updated]: 'Updated profile information.',
-  [EUserEvents.Deleted]: 'Deleted account.',
   [EUserEvents.EmailVerified]: 'Verified email address.',
-};
+  [EUserEvents.PreferencesUpdated]: 'Updated user preferences.',
+} as const;
 
 function makeCreatedEvent(user: IUser) {
   return eventValue.make<IUser>({
@@ -29,13 +30,6 @@ function makeUpdatedEvent(user: IUser) {
   });
 }
 
-function makeDeletedEvent(user: IUser) {
-  return eventValue.make<IUser>({
-    type: EUserEvents.Deleted,
-    data: user,
-  });
-}
-
 function makeEmailVerifiedEvent(user: IUser) {
   return eventValue.make<IUser>({
     type: EUserEvents.EmailVerified,
@@ -43,11 +37,18 @@ function makeEmailVerifiedEvent(user: IUser) {
   });
 }
 
+function makePreferencesUpdatedEvent(userPreferences: IUserPreferences) {
+  return eventValue.make<IUserPreferences>({
+    type: EUserEvents.PreferencesUpdated,
+    data: userPreferences,
+  });
+}
+
 const userEvents = Object.freeze({
   created: makeCreatedEvent,
   updated: makeUpdatedEvent,
-  deleted: makeDeletedEvent,
   emailVerified: makeEmailVerifiedEvent,
+  preferencesUpdated: makePreferencesUpdatedEvent,
 });
 
 export default userEvents;

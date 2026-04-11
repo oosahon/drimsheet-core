@@ -29,6 +29,8 @@ function setupServer(bootstrap?: () => Promise<void>) {
 
   app.use(middlewares.requestContext);
 
+  app.use(middlewares.requestLogger);
+
   RegisterRoutes(app);
 
   app.use(...swagger());
