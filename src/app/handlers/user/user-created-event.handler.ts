@@ -20,12 +20,14 @@ export default function userCreatedEventHandler(
         EUserEvents.Created
       );
 
-      userUseCase.saveActivity(event.data.id, event).catch(reporter.report);
+      await userUseCase
+        .saveActivity(event.data.id, event)
+        .catch(reporter.report);
 
       const shouldSendEmailVerification = !event.data.emailVerified;
 
       if (shouldSendEmailVerification) {
-        authUseCase
+        await authUseCase
           .sendEmailVerificationEmail(event.data.email)
           .catch(reporter.report);
       } else {

@@ -7,9 +7,7 @@ import {
   EAssetSubType,
   IReceivablesAccount,
   IStatutoryReceivableAccount,
-  IStatutoryReceivableAccountMeta,
   ITradeReceivableAccount,
-  ITradeReceivableAccountMeta,
 } from '../../../types/asset-account.types';
 import {
   EAdjunctAccountRule,
@@ -18,7 +16,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import { ETaxType } from '../../../types/tax.types';
 import receivablesAccountEntity from '../02-receivables.entity';
 
 describe('Receivables Entity', () => {
@@ -104,10 +101,10 @@ describe('Receivables Entity', () => {
       const invalidPayload = {
         ...validPayload,
         isControlAccount: false,
-        controlAccountId: 'invalid' as TEntityId,
+        controlAccountId: 'invalid' as unknown as TEntityId,
       };
       expect(() =>
-        receivablesAccountEntity.make(invalidPayload as any, '102000')
+        receivablesAccountEntity.make(invalidPayload, '102000')
       ).toThrow(AppError);
     });
 
@@ -122,60 +119,23 @@ describe('Receivables Entity', () => {
     });
   });
 
-  describe('makeStatutoryReceivableAccountMeta', () => {
-    const validMeta: IStatutoryReceivableAccountMeta = {
-      taxAuthority: 'LIRS',
-      taxType: ETaxType.ValueAddedTax,
-    };
-
-    it('should successfully create statutory receivable account meta', () => {
-      const meta =
-        receivablesAccountEntity.makeStatutoryReceivableAccountMeta(validMeta);
-      expect(meta).toEqual(validMeta);
-      expect(Object.isFrozen(meta)).toBe(true);
-    });
-
-    it('should throw AppError if taxAuthority is too short', () => {
-      expect(() =>
-        receivablesAccountEntity.makeStatutoryReceivableAccountMeta({
-          ...validMeta,
-          taxAuthority: 'A',
-        })
-      ).toThrow(AppError);
-    });
-
-    it('should throw AppError if taxAuthority is too long', () => {
-      expect(() =>
-        receivablesAccountEntity.makeStatutoryReceivableAccountMeta({
-          ...validMeta,
-          taxAuthority: 'A'.repeat(101),
-        })
-      ).toThrow(AppError);
-    });
-
-    it('should throw AppError if taxType is invalid', () => {
-      expect(() =>
-        receivablesAccountEntity.makeStatutoryReceivableAccountMeta({
-          ...validMeta,
-          taxType: 'invalid_tax_type' as any,
-        })
-      ).toThrow(AppError);
-    });
-  });
-
   describe('makeStatutoryReceivableAccount', () => {
-    const validStatutoryPayload: TCreationOmits<IStatutoryReceivableAccount> = {
+    const validStatutoryPayload: Pick<
+      IStatutoryReceivableAccount,
+      | 'name'
+      | 'accountingEntityId'
+      | 'currency'
+      | 'createdBy'
+      | 'isControlAccount'
+      | 'controlAccountId'
+    > = {
       name: 'VAT Receivable',
       accountingEntityId: validUUID1,
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,
-      meta: {
-        taxAuthority: 'FIRS',
-        taxType: ETaxType.ValueAddedTax,
-      },
       createdBy: validUUID2,
-    } as TCreationOmits<IStatutoryReceivableAccount>;
+    };
 
     it('should successfully create a statutory receivable account', () => {
       const [account, events] =
@@ -196,70 +156,41 @@ describe('Receivables Entity', () => {
       expect(account.adjunctAccountRule).toBe(
         EAdjunctAccountRule.AdjunctNotPermitted
       );
-      expect(account.meta).toEqual(validStatutoryPayload.meta);
-      expect(Object.isFrozen(account.meta)).toBe(true);
+      expect(account.meta).toBeNull();
       expect(events).toHaveLength(1);
     });
 
     it('should throw if controlAccountId is invalid', () => {
       const invalidPayload = {
         ...validStatutoryPayload,
-        controlAccountId: 'invalid' as TEntityId,
+        controlAccountId: 'invalid' as unknown as TEntityId,
       };
       expect(() =>
         receivablesAccountEntity.makeStatutoryReceivableAccount(
-          invalidPayload as any,
+          invalidPayload,
           '102000'
         )
       ).toThrow(AppError);
     });
   });
 
-  describe('makeTradeReceivableAccountMeta', () => {
-    const validTradeMeta: ITradeReceivableAccountMeta = {
-      customerId: validUUID1,
-      invoiceId: validUUID2,
-    };
-
-    it('should successfully create trade receivable account meta', () => {
-      const meta =
-        receivablesAccountEntity.makeTradeReceivableAccountMeta(validTradeMeta);
-      expect(meta).toEqual(validTradeMeta);
-      expect(Object.isFrozen(meta)).toBe(true);
-    });
-
-    it('should throw AppError if customerId is invalid', () => {
-      expect(() =>
-        receivablesAccountEntity.makeTradeReceivableAccountMeta({
-          ...validTradeMeta,
-          customerId: 'invalid_uuid' as any,
-        })
-      ).toThrow(AppError);
-    });
-
-    it('should throw AppError if invoiceId is invalid', () => {
-      expect(() =>
-        receivablesAccountEntity.makeTradeReceivableAccountMeta({
-          ...validTradeMeta,
-          invoiceId: 'invalid_uuid' as any,
-        })
-      ).toThrow(AppError);
-    });
-  });
-
   describe('makeTradeReceivableAccount', () => {
-    const validTradePayload: TCreationOmits<ITradeReceivableAccount> = {
+    const validTradePayload: Pick<
+      ITradeReceivableAccount,
+      | 'name'
+      | 'accountingEntityId'
+      | 'currency'
+      | 'createdBy'
+      | 'isControlAccount'
+      | 'controlAccountId'
+    > = {
       name: 'Trade Receivable - Client A',
       accountingEntityId: validUUID1,
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,
-      meta: {
-        customerId: validUUID1,
-        invoiceId: validUUID2,
-      },
       createdBy: validUUID2,
-    } as TCreationOmits<ITradeReceivableAccount>;
+    };
 
     it('should successfully create a trade receivable account', () => {
       const [account, events] =
@@ -280,19 +211,18 @@ describe('Receivables Entity', () => {
       expect(account.adjunctAccountRule).toBe(
         EAdjunctAccountRule.AdjunctPermitted
       );
-      expect(account.meta).toEqual(validTradePayload.meta);
-      expect(Object.isFrozen(account.meta)).toBe(true);
+      expect(account.meta).toBeNull();
       expect(events).toHaveLength(1);
     });
 
     it('should throw if controlAccountId is invalid', () => {
       const invalidPayload = {
         ...validTradePayload,
-        controlAccountId: 'invalid' as TEntityId,
+        controlAccountId: 'invalid' as unknown as TEntityId,
       };
       expect(() =>
         receivablesAccountEntity.makeTradeReceivableAccount(
-          invalidPayload as any,
+          invalidPayload,
           '102000'
         )
       ).toThrow(AppError);

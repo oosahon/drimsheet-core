@@ -18,7 +18,7 @@ export default function bootstrapIndividualAccountEntityPostingAccountsHandler(
         EAccountingEntityEvents.BootstrapIndividualPostingAccounts
       );
 
-      accountingEntityUsecase
+      await accountingEntityUsecase
         .setupNonPowerUserPostingAccounts(event.data.id)
         .catch(reporter.report);
     } catch (error) {

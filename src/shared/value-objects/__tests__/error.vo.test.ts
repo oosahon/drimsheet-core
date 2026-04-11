@@ -9,6 +9,7 @@ import {
   ErrorConflict,
   ErrorUnprocessableEntity,
   ErrorInternalServerError,
+  parseError,
 } from '../error';
 
 describe('Error Value Objects', () => {
@@ -142,6 +143,45 @@ describe('Error Value Objects', () => {
       expect(error.message).toBe('Validation Failed');
       expect(error.validationErrors).toBe(validationErrors);
       expect(error.cause).toBe(cause);
+    });
+  });
+
+  describe('parseError', () => {
+    it('parses an ApiError correctly', () => {
+      const cause = { detail: 'issue' };
+      const apiError = new ApiError(500, 'Server crashed', cause);
+      const parsed = parseError(apiError);
+
+      expect(parsed).toEqual({
+        type: 'api',
+        message: 'Server crashed',
+        cause: cause,
+        code: 500,
+      });
+    });
+
+    it('parses an AppError correctly', () => {
+      const cause = { detail: 'some cause' };
+      const appError = new AppError('App crashed', cause);
+      const parsed = parseError(appError);
+
+      expect(parsed).toEqual({
+        type: 'domain',
+        message: 'App crashed',
+        cause: cause,
+      });
+    });
+
+    it('returns the error as-is if it is not an AppError or ApiError', () => {
+      const genericError = new Error('Standard error');
+      const parsed = parseError(genericError);
+
+      expect(parsed).toBe(genericError);
+
+      const stringError = 'String error';
+      const parsedString = parseError(stringError);
+
+      expect(parsedString).toBe(stringError);
     });
   });
 });

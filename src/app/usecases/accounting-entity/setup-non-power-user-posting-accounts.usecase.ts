@@ -56,10 +56,10 @@ export default function setupNonPowerUserPostingAccountsUseCase(
     const accounts: ILedgerAccount[] = [];
     const events: IEvent<ILedgerAccount>[] = [];
 
-    for (const [account, events] of postingAccountsAndEvents) {
+    for (const [account, accountEvents] of postingAccountsAndEvents) {
       accounts.push(account);
 
-      events.push(...events);
+      events.push(...accountEvents);
     }
 
     await ledgerAccountRepo.save(accounts, { correlationId });

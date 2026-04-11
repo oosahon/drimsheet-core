@@ -18,7 +18,7 @@ export default function accountingEntityCreatedEventHandler(
         EAccountingEntityEvents.Created
       );
 
-      userUseCase
+      await userUseCase
         .saveActivity(event.data.ownerId, event)
         .catch(reporter.report);
     } catch (error) {

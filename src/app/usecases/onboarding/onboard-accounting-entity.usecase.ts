@@ -24,7 +24,10 @@ import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { IAccountingEntityOnboardingReq } from '../../contracts/dto/onboarding.dto';
 import IEventBus from '../../contracts/infra/event-bus.contract';
-import { IRepoService } from '../../contracts/infra/repo.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '../../contracts/infra/repo.contract';
 import currencyMapper from '../../mappers/currency.mapper';
 import { z } from 'zod';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
@@ -68,11 +71,6 @@ export default function onboardAccountingEntityUseCase(
 
     if (!user) {
       throw new ErrorUnauthorized();
-    }
-
-    // !! We only support individuals for now
-    if (payload.entityType !== EAccountingEntityType.Individual) {
-      throw new ErrorBadRequest('This entity type is not currently supported');
     }
 
     const functionalCurrency = currencyMapper.fromInterface(
@@ -144,10 +142,7 @@ export default function onboardAccountingEntityUseCase(
         correlationIdObj
       );
 
-    /**
-     * Save all entities in the right order
-     */
-    await repoService.runInTransaction(async (tx) => {
+    const repoTransaction: TRepoTransactionFn = async (tx) => {
       const txOptions = { tx, ...correlationIdObj };
       // step 1: save accounting entity
       await accountingEntityRepo.save(accountingEntity, txOptions);
@@ -157,7 +152,9 @@ export default function onboardAccountingEntityUseCase(
 
       // step 3: save user preferences
       await userPreferencesRepo.save(updatedPreference, txOptions);
-    });
+    };
+
+    await repoService.runInTransaction(repoTransaction);
 
     /**
      * Publish events
