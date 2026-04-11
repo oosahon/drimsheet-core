@@ -15,7 +15,7 @@ import {
   EExpenseAccountBehavior,
 } from '../types/expense-account.types';
 import { ELedgerType } from '../types/ledger.types';
-import { canMakePostingAccount } from './posting-account.utils';
+import { canBootstrapPostingAccount } from './helpers/can-bootstrap-posting-account';
 
 export interface IExpenseAccountService {
   setupBaseIndividualAccounts(
@@ -238,19 +238,21 @@ export default function expenseAccountService(
        * Direct Costs (Default)
        */
       const directCostsControlCode = EXPENSE_LEDGER_CODES.DIRECT_COSTS.HEADER;
-      const { canMake: canMakeDirect, controlAccount: directControl } =
-        await canMakePostingAccount(
-          {
-            accountingEntityId,
-            type: ELedgerType.Expense,
-            subType: EExpenseSubType.DirectCosts,
-            controlLedgerCode: directCostsControlCode,
-          },
-          repo,
-          repoOptions
-        );
+      const {
+        canBootstrap: canBootstrapDirect,
+        controlAccount: directControl,
+      } = await canBootstrapPostingAccount(
+        {
+          accountingEntityId,
+          type: ELedgerType.Expense,
+          subType: EExpenseSubType.DirectCosts,
+          controlLedgerCode: directCostsControlCode,
+        },
+        repo,
+        repoOptions
+      );
 
-      if (canMakeDirect) {
+      if (canBootstrapDirect) {
         const account = directCostsAccountEntity.make(
           {
             name: 'Direct Costs (Default)',
@@ -271,8 +273,8 @@ export default function expenseAccountService(
        * Rent and Utilities (Default)
        */
       const rentControlCode = EXPENSE_LEDGER_CODES.RENT_AND_UTILITIES.HEADER;
-      const { canMake: canMakeRent, controlAccount: rentControl } =
-        await canMakePostingAccount(
+      const { canBootstrap: canBootstrapRent, controlAccount: rentControl } =
+        await canBootstrapPostingAccount(
           {
             accountingEntityId,
             type: ELedgerType.Expense,
@@ -283,7 +285,7 @@ export default function expenseAccountService(
           repoOptions
         );
 
-      if (canMakeRent) {
+      if (canBootstrapRent) {
         const account = rentAndUtilitiesAccountEntity.make(
           {
             name: 'Rent and Utilities (Default)',
@@ -303,19 +305,21 @@ export default function expenseAccountService(
        * Finance Costs (Default)
        */
       const financeControlCode = EXPENSE_LEDGER_CODES.FINANCE_COSTS.HEADER;
-      const { canMake: canMakeFinance, controlAccount: financeControl } =
-        await canMakePostingAccount(
-          {
-            accountingEntityId,
-            type: ELedgerType.Expense,
-            subType: EExpenseSubType.InterestAndFinanceCharges,
-            controlLedgerCode: financeControlCode,
-          },
-          repo,
-          repoOptions
-        );
+      const {
+        canBootstrap: canBootstrapFinance,
+        controlAccount: financeControl,
+      } = await canBootstrapPostingAccount(
+        {
+          accountingEntityId,
+          type: ELedgerType.Expense,
+          subType: EExpenseSubType.InterestAndFinanceCharges,
+          controlLedgerCode: financeControlCode,
+        },
+        repo,
+        repoOptions
+      );
 
-      if (canMakeFinance) {
+      if (canBootstrapFinance) {
         const account = financeCostsAccountEntity.make(
           {
             name: 'Finance Costs (Default)',
@@ -335,8 +339,8 @@ export default function expenseAccountService(
        * Tax Expense (Default)
        */
       const taxControlCode = EXPENSE_LEDGER_CODES.TAX_EXPENSE.HEADER;
-      const { canMake: canMakeTax, controlAccount: taxControl } =
-        await canMakePostingAccount(
+      const { canBootstrap: canBootstrapTax, controlAccount: taxControl } =
+        await canBootstrapPostingAccount(
           {
             accountingEntityId,
             type: ELedgerType.Expense,
@@ -347,7 +351,7 @@ export default function expenseAccountService(
           repoOptions
         );
 
-      if (canMakeTax) {
+      if (canBootstrapTax) {
         const account = taxExpenseAccountEntity.make(
           {
             name: 'Tax Expense (Default)',
@@ -367,19 +371,21 @@ export default function expenseAccountService(
        * Unrealized Loss (Default)
        */
       const unrealizedControlCode = EXPENSE_LEDGER_CODES.UNREALIZED_LOSS.HEADER;
-      const { canMake: canMakeUnrealized, controlAccount: unrealizedControl } =
-        await canMakePostingAccount(
-          {
-            accountingEntityId,
-            type: ELedgerType.Expense,
-            subType: EExpenseSubType.UnrealizedLoss,
-            controlLedgerCode: unrealizedControlCode,
-          },
-          repo,
-          repoOptions
-        );
+      const {
+        canBootstrap: canBootstrapUnrealized,
+        controlAccount: unrealizedControl,
+      } = await canBootstrapPostingAccount(
+        {
+          accountingEntityId,
+          type: ELedgerType.Expense,
+          subType: EExpenseSubType.UnrealizedLoss,
+          controlLedgerCode: unrealizedControlCode,
+        },
+        repo,
+        repoOptions
+      );
 
-      if (canMakeUnrealized) {
+      if (canBootstrapUnrealized) {
         const account = unrealizedLossAccountEntity.make(
           {
             name: 'Unrealized Loss (Default)',
@@ -400,19 +406,21 @@ export default function expenseAccountService(
        */
       const assetDisposalControlCode =
         EXPENSE_LEDGER_CODES.ASSET_DISPOSAL_LOSS.HEADER;
-      const { canMake: canMakeDisposal, controlAccount: disposalControl } =
-        await canMakePostingAccount(
-          {
-            accountingEntityId,
-            type: ELedgerType.Expense,
-            subType: EExpenseSubType.LossOnAssetDisposal,
-            controlLedgerCode: assetDisposalControlCode,
-          },
-          repo,
-          repoOptions
-        );
+      const {
+        canBootstrap: canBootstrapDisposal,
+        controlAccount: disposalControl,
+      } = await canBootstrapPostingAccount(
+        {
+          accountingEntityId,
+          type: ELedgerType.Expense,
+          subType: EExpenseSubType.LossOnAssetDisposal,
+          controlLedgerCode: assetDisposalControlCode,
+        },
+        repo,
+        repoOptions
+      );
 
-      if (canMakeDisposal) {
+      if (canBootstrapDisposal) {
         const account = assetDisposalLossAccountEntity.make(
           {
             name: 'Asset Disposal Loss (Default)',

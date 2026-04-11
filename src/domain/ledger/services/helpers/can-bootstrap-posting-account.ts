@@ -1,18 +1,18 @@
-import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
-import { TEntityId } from '../../../shared/types/uuid';
-import { AppError } from '../../../shared/value-objects/error';
-import ILedgerAccountRepo from '../repos/ledger-account.repo';
-import { ULedgerType } from '../types/ledger.types';
+import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
+import { TEntityId } from '../../../../shared/types/uuid';
+import { AppError } from '../../../../shared/value-objects/error';
+import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import { ULedgerType } from '../../types/ledger.types';
 
-export interface ICanMakeAccountParams {
+interface IParams {
   accountingEntityId: TEntityId;
   type: ULedgerType;
   subType: string;
   controlLedgerCode: string;
 }
 
-export async function canMakePostingAccount(
-  params: ICanMakeAccountParams,
+export async function canBootstrapPostingAccount(
+  params: IParams,
   repo: ILedgerAccountRepo,
   repoOptions: IRepoOptions
 ) {
@@ -48,7 +48,7 @@ export async function canMakePostingAccount(
   );
 
   return {
-    canMake: !nonControlAccountInType.length,
+    canBootstrap: !nonControlAccountInType.length,
     controlAccount,
   };
 }

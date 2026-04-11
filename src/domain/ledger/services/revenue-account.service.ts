@@ -12,7 +12,7 @@ import {
   ERevenueSubType,
 } from '../types/revenue-account.types';
 import { ELedgerType } from '../types/ledger.types';
-import { canMakePostingAccount } from './posting-account.utils';
+import { canBootstrapPostingAccount } from './helpers/can-bootstrap-posting-account';
 
 export interface IRevenueAccountService {
   setupBaseIndividualAccounts(
@@ -181,19 +181,21 @@ export default function revenueAccountService(
        * Services (Default)
        */
       const servicesControlCode = REVENUE_LEDGER_CODES.SERVICES.HEADER;
-      const { canMake: canMakeServices, controlAccount: servicesControl } =
-        await canMakePostingAccount(
-          {
-            accountingEntityId,
-            type: ELedgerType.Revenue,
-            subType: ERevenueSubType.Services,
-            controlLedgerCode: servicesControlCode,
-          },
-          repo,
-          repoOptions
-        );
+      const {
+        canBootstrap: canBootstrapServices,
+        controlAccount: servicesControl,
+      } = await canBootstrapPostingAccount(
+        {
+          accountingEntityId,
+          type: ELedgerType.Revenue,
+          subType: ERevenueSubType.Services,
+          controlLedgerCode: servicesControlCode,
+        },
+        repo,
+        repoOptions
+      );
 
-      if (canMakeServices) {
+      if (canBootstrapServices) {
         const account = servicesAccountEntity.make(
           {
             name: 'Services (Default)',
@@ -214,8 +216,8 @@ export default function revenueAccountService(
        */
       const employmentControlCode =
         REVENUE_LEDGER_CODES.EMPLOYMENT_INCOME.HEADER;
-      const { canMake: canMakeEmp, controlAccount: empControl } =
-        await canMakePostingAccount(
+      const { canBootstrap: canBootstrapEmp, controlAccount: empControl } =
+        await canBootstrapPostingAccount(
           {
             accountingEntityId,
             type: ELedgerType.Revenue,
@@ -226,7 +228,7 @@ export default function revenueAccountService(
           repoOptions
         );
 
-      if (canMakeEmp) {
+      if (canBootstrapEmp) {
         const account = employmentIncomeAccountEntity.make(
           {
             name: 'Employment Income (Default)',
@@ -247,8 +249,8 @@ export default function revenueAccountService(
        */
       const gainOnAssetsControlCode =
         REVENUE_LEDGER_CODES.GAIN_ON_ASSET_SALE.HEADER;
-      const { canMake: canMakeGain, controlAccount: gainControl } =
-        await canMakePostingAccount(
+      const { canBootstrap: canBootstrapGain, controlAccount: gainControl } =
+        await canBootstrapPostingAccount(
           {
             accountingEntityId,
             type: ELedgerType.Revenue,
@@ -259,7 +261,7 @@ export default function revenueAccountService(
           repoOptions
         );
 
-      if (canMakeGain) {
+      if (canBootstrapGain) {
         const account = GainOnAssetSaleAccountEntity.make(
           {
             name: 'Gain on Sale of Assets (Default)',
@@ -280,19 +282,21 @@ export default function revenueAccountService(
        */
       const unrealizedGainsControlCode =
         REVENUE_LEDGER_CODES.UNREALIZED_GAINS.HEADER;
-      const { canMake: canMakeUnrealized, controlAccount: unrealizedControl } =
-        await canMakePostingAccount(
-          {
-            accountingEntityId,
-            type: ELedgerType.Revenue,
-            subType: ERevenueSubType.UnrealizedGains,
-            controlLedgerCode: unrealizedGainsControlCode,
-          },
-          repo,
-          repoOptions
-        );
+      const {
+        canBootstrap: canBootstrapUnrealized,
+        controlAccount: unrealizedControl,
+      } = await canBootstrapPostingAccount(
+        {
+          accountingEntityId,
+          type: ELedgerType.Revenue,
+          subType: ERevenueSubType.UnrealizedGains,
+          controlLedgerCode: unrealizedGainsControlCode,
+        },
+        repo,
+        repoOptions
+      );
 
-      if (canMakeUnrealized) {
+      if (canBootstrapUnrealized) {
         const account = unrealizedGainAccountEntity.make(
           {
             name: 'Unrealized Gains (Default)',
