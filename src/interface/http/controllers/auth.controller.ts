@@ -9,7 +9,7 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IUserSignupReq } from '../../../app/contracts/dto/auth.dto';
+import { ILoginReq, IUserSignupReq } from '../../../app/contracts/dto/auth.dto';
 import authUseCase from '../../../app/usecases/auth';
 import { IApiError } from '../handlers/error.handler';
 
@@ -39,5 +39,17 @@ export class AuthController extends Controller {
   @Response<IApiError>('422')
   public async verifyEmail(@Query() token: string) {
     return await authUseCase.verifyEmail(token);
+  }
+
+  /**
+   * User login with email and password
+   */
+  @Post('/login-with-email')
+  @OperationId('loginWithEmail')
+  @SuccessResponse('200')
+  @Response<IApiError>('400')
+  @Response<IApiError>('422')
+  public async loginWithEmail(@Body() body: ILoginReq) {
+    return await authUseCase.loginWithEmail(body);
   }
 }

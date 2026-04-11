@@ -7,6 +7,7 @@ export const EUserEvents = {
   Updated: 'domain:user:updated',
   EmailVerified: 'domain:user:email-verified',
   PreferencesUpdated: 'domain:user:preferences-updated',
+  LoggedIn: 'domain:user:logged-in',
 } as const;
 
 export const userEventDescriptions: Record<string, string> = {
@@ -14,6 +15,7 @@ export const userEventDescriptions: Record<string, string> = {
   [EUserEvents.Updated]: 'Updated profile information.',
   [EUserEvents.EmailVerified]: 'Verified email address.',
   [EUserEvents.PreferencesUpdated]: 'Updated user preferences.',
+  [EUserEvents.LoggedIn]: 'Logged in.',
 } as const;
 
 function makeCreatedEvent(user: IUser) {
@@ -44,11 +46,19 @@ function makePreferencesUpdatedEvent(userPreferences: IUserPreferences) {
   });
 }
 
+function makeLoggedInEvent(user: IUser) {
+  return eventValue.make<IUser>({
+    type: EUserEvents.LoggedIn,
+    data: user,
+  });
+}
+
 const userEvents = Object.freeze({
   created: makeCreatedEvent,
   updated: makeUpdatedEvent,
   emailVerified: makeEmailVerifiedEvent,
   preferencesUpdated: makePreferencesUpdatedEvent,
+  loggedIn: makeLoggedInEvent,
 });
 
 export default userEvents;
