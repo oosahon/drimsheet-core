@@ -106,18 +106,27 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  'Pick_IUser.Exclude_keyofIUser.password__': {
-    dataType: 'refAlias',
-    type: {
-      dataType: 'nestedObjectLiteral',
-      nestedProperties: {},
-      validators: {},
+  IUser: {
+    dataType: 'refObject',
+    properties: {
+      id: { ref: 'TEntityId', required: true },
+      email: { dataType: 'string', required: true },
+      emailVerified: { dataType: 'boolean', required: true },
+      password: { dataType: 'string' },
+      firstName: { dataType: 'string', required: true },
+      lastName: { dataType: 'string', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+      deletedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
     },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  'Omit_IUser.password_': {
-    dataType: 'refAlias',
-    type: { ref: 'Pick_IUser.Exclude_keyofIUser.password__', validators: {} },
+    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   UAccountingEntityType: {
@@ -205,14 +214,14 @@ const models: TsoaRoute.Models = {
         dataType: 'nestedObjectLiteral',
         nestedProperties: {
           id: { ref: 'TEntityId', required: true },
-          createdAt: { dataType: 'datetime', required: true },
-          updatedAt: { dataType: 'datetime', required: true },
-          deletedAt: { dataType: 'datetime', required: true },
           name: { dataType: 'string', required: true },
           operatingCountryCode: { dataType: 'string', required: true },
           type: { ref: 'UAccountingEntityType', required: true },
           ownerId: { ref: 'TEntityId', required: true },
           fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
+          createdAt: { dataType: 'datetime', required: true },
+          updatedAt: { dataType: 'datetime', required: true },
+          deletedAt: { dataType: 'datetime', required: true },
         },
         validators: {},
       },
@@ -222,14 +231,14 @@ const models: TsoaRoute.Models = {
     dataType: 'refObject',
     properties: {
       id: { ref: 'TEntityId', required: true },
-      createdAt: { dataType: 'datetime', required: true },
-      updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: { dataType: 'datetime', required: true },
       name: { dataType: 'string', required: true },
       operatingCountryCode: { dataType: 'string', required: true },
       type: { ref: 'UAccountingEntityType', required: true },
       ownerId: { ref: 'TEntityId', required: true },
       fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+      deletedAt: { dataType: 'datetime', required: true },
       functionalCurrency: { dataType: 'string', required: true },
       reportingCurrency: { dataType: 'string', required: true },
     },
