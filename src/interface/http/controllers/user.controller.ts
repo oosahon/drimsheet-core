@@ -3,12 +3,14 @@ import {
   Get,
   Middlewares,
   OperationId,
+  Response,
   Route,
   Security,
   SuccessResponse,
   Tags,
 } from 'tsoa';
 import userUseCase from '../../../app/usecases/user';
+import { IApiError } from '../handlers/error.handler';
 import middlewares from '../middlewares';
 
 @Route('users')
@@ -20,6 +22,8 @@ export class UserController extends Controller {
   @Get('/preferences')
   @OperationId('getUserPreferences')
   @SuccessResponse('200')
+  @Response<IApiError>('401')
+  @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getCurrencies() {
     return userUseCase.getPreferences();
@@ -31,6 +35,7 @@ export class UserController extends Controller {
   @Get('/profile')
   @OperationId('getAuthUserProfile')
   @SuccessResponse('200')
+  @Response<IApiError>('401')
   @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getAuthUserProfile() {

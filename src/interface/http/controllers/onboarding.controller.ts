@@ -4,6 +4,7 @@ import {
   Middlewares,
   OperationId,
   Post,
+  Response,
   Route,
   Security,
   SuccessResponse,
@@ -11,22 +12,25 @@ import {
 } from 'tsoa';
 import { IAccountingEntityOnboardingReq } from '../../../app/contracts/dto/onboarding.dto';
 import onboardingUseCases from '../../../app/usecases/onboarding';
+import { IApiError } from '../handlers/error.handler';
 import middlewares from '../middlewares';
 
 @Route('onboarding')
 @Tags('Onboarding')
 export class OnboardingController extends Controller {
   /**
-   * Onboard Accounting Entity
+   * Onboard an accounting entity
    */
   @Post('/accounting-entity')
   @OperationId('onboardAccountingEntity')
-  @SuccessResponse('200')
+  @SuccessResponse('201')
+  @Response<IApiError>('400')
+  @Response<IApiError>('401')
   @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async onboardAccountingEntity(
     @Body() requestBody: IAccountingEntityOnboardingReq
   ) {
-    return onboardingUseCases.onboardAccountingEntity(requestBody);
+    return await onboardingUseCases.onboardAccountingEntity(requestBody);
   }
 }
