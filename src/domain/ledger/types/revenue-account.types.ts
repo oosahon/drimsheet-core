@@ -1,15 +1,19 @@
-import { ELedgerType, ILedgerAccount } from './ledger.types';
 import {
+  TEmploymentIncomeLedgerCode,
+  TGainOnAssetSaleLedgerCode,
+  TInterestIncomeLedgerCode,
   TRevenueLedgerCode,
   TSalesLedgerCode,
   TServicesLedgerCode,
   TSubscriptionsLedgerCode,
-  TEmploymentIncomeLedgerCode,
-  TInterestIncomeLedgerCode,
-  TGainOnAssetSaleLedgerCode,
   TUnrealizedGainLedgerCode,
 } from './ledger-code.types';
-import { EAdjunctAccountRule, EContraAccountRule } from './ledger.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerType,
+  ILedgerAccount,
+} from './ledger.types';
 
 export const ERevenueSubType = {
   Sales: 'sales',

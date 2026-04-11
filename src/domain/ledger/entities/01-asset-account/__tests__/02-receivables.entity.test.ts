@@ -1,8 +1,7 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import receivablesAccountEntity from '../02-receivables.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -20,6 +19,7 @@ import {
   ENormalBalance,
 } from '../../../types/ledger.types';
 import { ETaxType } from '../../../types/tax.types';
+import receivablesAccountEntity from '../02-receivables.entity';
 
 describe('Receivables Entity', () => {
   const validUUID1 = generateUUID();

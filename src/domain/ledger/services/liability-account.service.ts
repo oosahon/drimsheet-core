@@ -2,6 +2,7 @@ import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { AppError } from '../../../shared/value-objects/error';
 import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
+import { LIABILITY_LEDGER_CODES } from '../config/liability-codes.config';
 import shortTermLoanAccountEntity from '../entities/02-liability-account/00-short-term-loan.entity';
 import payableAccountEntity from '../entities/02-liability-account/03-payables.entity';
 import liabilitySuspenseAccountEntity from '../entities/02-liability-account/99-suspense-account.entity';
@@ -18,7 +19,6 @@ import {
   IPayableAccount,
   IStatutoryPayableAccount,
 } from '../types/liability-account.types';
-import { LIABILITY_LEDGER_CODES } from '../config/liability-codes.config';
 
 interface ILiabilityAccountService {
   setupBaseIndividualAccounts(

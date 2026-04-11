@@ -1,10 +1,5 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import liabilityAccountEvents from '../../events/liability-account.events';
-import {
-  ELiabilityAccountBehavior,
-  ELiabilitySubType,
-  ILiabilitySuspenseAccount,
-} from '../../types/liability-account.types';
 import { TLiabilitySuspenseLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -12,6 +7,11 @@ import {
   ELedgerAccountStatus,
   ELedgerType,
 } from '../../types/ledger.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
+  ILiabilitySuspenseAccount,
+} from '../../types/liability-account.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 
 function getCode(predecessorCode: TLiabilitySuspenseLedgerCode) {

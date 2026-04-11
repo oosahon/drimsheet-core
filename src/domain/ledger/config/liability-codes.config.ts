@@ -5,9 +5,9 @@
  */
 
 import {
+  TLiabilitySuspenseLedgerCode,
   TPayablesLedgerCode,
   TShortTermDebtLedgerCode,
-  TLiabilitySuspenseLedgerCode,
 } from '../types/ledger-code.types';
 
 const SHORT_TERM_DEBT: Record<string, TShortTermDebtLedgerCode> = {

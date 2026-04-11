@@ -1,8 +1,15 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
-import { AppError } from '../../../../shared/value-objects/error';
 import stringUtils from '../../../../shared/utils/string';
+import { AppError } from '../../../../shared/value-objects/error';
 import liabilityAccountEvents from '../../events/liability-account.events';
+import { TPayablesLedgerCode } from '../../types/ledger-code.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerAccountStatus,
+  ELedgerType,
+} from '../../types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
@@ -13,13 +20,6 @@ import {
   ITradePayableAccountMeta,
 } from '../../types/liability-account.types';
 import { ETaxType } from '../../types/tax.types';
-import { TPayablesLedgerCode } from '../../types/ledger-code.types';
-import {
-  EAdjunctAccountRule,
-  EContraAccountRule,
-  ELedgerAccountStatus,
-  ELedgerType,
-} from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 
 function getCode(predecessorCode: TPayablesLedgerCode): TPayablesLedgerCode {

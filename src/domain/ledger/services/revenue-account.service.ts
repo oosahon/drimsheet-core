@@ -1,17 +1,17 @@
 import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
+import { REVENUE_LEDGER_CODES } from '../config/revenue-codes.config';
 import servicesAccountEntity from '../entities/04-revenue-account/02-services.entity';
 import employmentIncomeAccountEntity from '../entities/04-revenue-account/04-employment-income.entity';
 import GainOnAssetSaleAccountEntity from '../entities/04-revenue-account/06-gain-on-sale.entity';
 import unrealizedGainAccountEntity from '../entities/04-revenue-account/07-unrealized-gain.entity';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
-import { REVENUE_LEDGER_CODES } from '../config/revenue-codes.config';
-import {
-  IRevenueLedgerAccount,
-  ERevenueSubType,
-} from '../types/revenue-account.types';
 import { ELedgerType } from '../types/ledger.types';
+import {
+  ERevenueSubType,
+  IRevenueLedgerAccount,
+} from '../types/revenue-account.types';
 import { canBootstrapPostingAccount } from './helpers/can-bootstrap-posting-account';
 
 export interface IRevenueAccountService {

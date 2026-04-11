@@ -1,8 +1,8 @@
 import eventValue from '../../../shared/value-objects/event.vo';
 import {
   ILiabilitySuspenseAccount,
-  IShortTermDebtAccount,
   IPayableAccount,
+  IShortTermDebtAccount,
 } from '../types/liability-account.types';
 
 export const ELiabilityLedgerEvent = {

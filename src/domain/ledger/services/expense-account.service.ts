@@ -1,6 +1,7 @@
 import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
+import { EXPENSE_LEDGER_CODES } from '../config/expense-codes.config';
 import directCostsAccountEntity from '../entities/05-expense-account/00-direct-costs.entity';
 import rentAndUtilitiesAccountEntity from '../entities/05-expense-account/02-rent-and-utilities.entity';
 import financeCostsAccountEntity from '../entities/05-expense-account/07-finance-costs.entity';
@@ -8,11 +9,10 @@ import taxExpenseAccountEntity from '../entities/05-expense-account/08-tax-expen
 import unrealizedLossAccountEntity from '../entities/05-expense-account/09-unrealized-loss.entity';
 import assetDisposalLossAccountEntity from '../entities/05-expense-account/10-asset-disposal-loss.entity';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
-import { EXPENSE_LEDGER_CODES } from '../config/expense-codes.config';
 import {
-  IExpenseLedgerAccount,
-  EExpenseSubType,
   EExpenseAccountBehavior,
+  EExpenseSubType,
+  IExpenseLedgerAccount,
 } from '../types/expense-account.types';
 import { ELedgerType } from '../types/ledger.types';
 import { canBootstrapPostingAccount } from './helpers/can-bootstrap-posting-account';

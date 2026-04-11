@@ -198,7 +198,7 @@ export default function assetAccountService(
         repoOptions
       );
 
-      if (!existingSuspense) {
+      if (!existingSuspense.length) {
         const account = assetSuspenseAccountEntity.make({
           accountingEntityId,
           currency: functionalCurrency,

@@ -8,10 +8,10 @@ import {
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import { ILedgerAccount } from '../types/ledger.types';
 import assetAccountService from './asset-account.service';
-import liabilityAccountService from './liability-account.service';
 import equityAccountService from './equity-account.service';
-import revenueAccountService from './revenue-account.service';
 import expenseAccountService from './expense-account.service';
+import liabilityAccountService from './liability-account.service';
+import revenueAccountService from './revenue-account.service';
 
 export interface ILedgerService {
   setupBaseIndividualAccounts(

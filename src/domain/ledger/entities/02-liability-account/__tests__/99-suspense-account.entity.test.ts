@@ -1,10 +1,5 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import liabilitySuspenseAccountEntity from '../99-suspense-account.entity';
-import {
-  ELiabilityAccountBehavior,
-  ELiabilitySubType,
-} from '../../../types/liability-account.types';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -12,6 +7,11 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
+} from '../../../types/liability-account.types';
+import liabilitySuspenseAccountEntity from '../99-suspense-account.entity';
 
 describe('Liability Suspense Account Entity', () => {
   const validUUID1 = generateUUID();

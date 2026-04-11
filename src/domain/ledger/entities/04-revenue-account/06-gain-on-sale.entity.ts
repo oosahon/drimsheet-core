@@ -1,10 +1,5 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import revenueAccountEvents from '../../events/revenue-account.events';
-import {
-  ERevenueAccountBehavior,
-  ERevenueSubType,
-  IGainOnAssetSaleAccount,
-} from '../../types/revenue-account.types';
 import { TGainOnAssetSaleLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -12,6 +7,11 @@ import {
   ELedgerAccountStatus,
   ELedgerType,
 } from '../../types/ledger.types';
+import {
+  ERevenueAccountBehavior,
+  ERevenueSubType,
+  IGainOnAssetSaleAccount,
+} from '../../types/revenue-account.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 
 function getCode(

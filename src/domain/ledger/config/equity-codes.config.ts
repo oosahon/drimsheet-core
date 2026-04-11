@@ -5,8 +5,8 @@
  */
 
 import {
-  TRetainedEarningsLedgerCode,
   TOpeningBalanceEquityLedgerCode,
+  TRetainedEarningsLedgerCode,
 } from '../types/ledger-code.types';
 
 const RETAINED_EARNINGS: Record<string, TRetainedEarningsLedgerCode> = {

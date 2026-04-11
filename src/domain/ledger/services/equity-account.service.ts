@@ -1,10 +1,10 @@
 import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
+import { EQUITY_LEDGER_CODES } from '../config/equity-codes.config';
 import retainedEarningAccountEntity from '../entities/03-equity-account/01-retained-earning.entity';
 import openingBalanceEquityLedgerEntity from '../entities/03-equity-account/99-opening-balance.equity';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
-import { EQUITY_LEDGER_CODES } from '../config/equity-codes.config';
 import { IEquityLedgerAccount } from '../types/equity-account.types';
 
 export interface IEquityAccountService {

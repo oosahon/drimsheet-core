@@ -5,12 +5,12 @@
  */
 
 import {
-  TDirectCostsLedgerCode,
-  TRentUtilitiesLedgerCode,
-  TInterestFinanceLedgerCode,
-  TIncomeTaxLedgerCode,
-  TUnrealizedLossLedgerCode,
   TAssetDisposalLossLedgerCode,
+  TDirectCostsLedgerCode,
+  TIncomeTaxLedgerCode,
+  TInterestFinanceLedgerCode,
+  TRentUtilitiesLedgerCode,
+  TUnrealizedLossLedgerCode,
 } from '../types/ledger-code.types';
 
 const DIRECT_COSTS: Record<string, TDirectCostsLedgerCode> = {

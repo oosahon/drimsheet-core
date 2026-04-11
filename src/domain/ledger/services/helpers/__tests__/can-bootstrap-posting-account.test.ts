@@ -1,12 +1,12 @@
 import { IRepoOptions } from '../../../../../app/contracts/infra/repo.contract';
+import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import { AppError } from '../../../../../shared/value-objects/error';
 import {
+  ELedgerType,
   ILedgerAccount,
   ULedgerType,
-  ELedgerType,
 } from '../../../types/ledger.types';
-import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import { canBootstrapPostingAccount } from '../can-bootstrap-posting-account';
 
 describe('canBootstrapPostingAccount', () => {

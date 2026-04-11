@@ -5,9 +5,9 @@
  */
 
 import {
-  TServicesLedgerCode,
   TEmploymentIncomeLedgerCode,
   TGainOnAssetSaleLedgerCode,
+  TServicesLedgerCode,
   TUnrealizedGainLedgerCode,
 } from '../types/ledger-code.types';
 

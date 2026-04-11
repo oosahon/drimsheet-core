@@ -1,6 +1,4 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
-import { AppError } from '../../../../shared/value-objects/error';
 import stringUtils from '../../../../shared/utils/string';
 import assetAccountEvents from '../../events/asset-account.events';
 import {
@@ -10,7 +8,6 @@ import {
   IStatutoryReceivableAccount,
   ITradeReceivableAccount,
 } from '../../types/asset-account.types';
-import { ETaxType } from '../../types/tax.types';
 import { TReceivablesLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,

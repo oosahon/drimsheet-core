@@ -4,16 +4,16 @@ import generateUUID from '../../../../shared/utils/uuid-generator';
 import { AppError } from '../../../../shared/value-objects/error';
 import currencyEntity from '../../../currency/entities/currency.entity';
 import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ENormalBalance,
   ILedgerAccount,
+  UAdjunctAccountRule,
+  UContraAccountRule,
   ULedgerAccountStatus,
   ULedgerType,
-  UContraAccountRule,
-  EContraAccountRule,
-  UAdjunctAccountRule,
-  EAdjunctAccountRule,
-  ENormalBalance,
   UNormalBalance,
 } from '../../types/ledger.types';
 

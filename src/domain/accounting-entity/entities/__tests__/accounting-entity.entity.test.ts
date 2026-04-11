@@ -1,16 +1,16 @@
+import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
+import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import accountingEntityTypeEntity from '../accounting-entity.entity';
-import userEntity from '../../../user/entities/user.entity';
 import { ICurrency } from '../../../currency/types/currency.types';
+import userEntity from '../../../user/entities/user.entity';
 import { IUser } from '../../../user/types/user.types';
 import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import {
   EAccountingEntityType,
   IAccountingEntity,
   UAccountingEntityType,
 } from '../../types/accounting-entity.types';
-import { TEntityId } from '../../../../shared/types/uuid';
+import accountingEntityTypeEntity from '../accounting-entity.entity';
 
 describe('Accounting Domain Entity', () => {
   let validUser: IUser;

@@ -1,7 +1,7 @@
 import eventValue from '../../../shared/value-objects/event.vo';
 import {
-  IRetainedEarningsAccount,
   IOpeningBalanceEquityAccount,
+  IRetainedEarningsAccount,
 } from '../types/equity-account.types';
 
 export const EEquityLedgerEvent = {
