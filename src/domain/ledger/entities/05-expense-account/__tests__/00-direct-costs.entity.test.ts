@@ -1,6 +1,5 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import directCostsAccountEntity from '../00-direct-costs.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -13,6 +12,7 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import directCostsAccountEntity from '../00-direct-costs.entity';
 
 describe('Direct Costs Expense Entity', () => {
   const validUUID1 = generateUUID();

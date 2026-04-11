@@ -1,8 +1,7 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import ledgerAccountEntity from '../ledger-account.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -11,6 +10,7 @@ import {
   ENormalBalance,
   ILedgerAccount,
 } from '../../../types/ledger.types';
+import ledgerAccountEntity from '../ledger-account.entity';
 
 describe('Ledger Account Shared Entity', () => {
   const validUUID1 = generateUUID();

@@ -1,6 +1,5 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import retainedEarningAccountEntity from '../01-retained-earning.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EEquityAccountBehavior,
   EEquitySubType,
@@ -12,6 +11,7 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import retainedEarningAccountEntity from '../01-retained-earning.entity';
 
 describe('Retained Earning Entity', () => {
   const validUUID1 = generateUUID();

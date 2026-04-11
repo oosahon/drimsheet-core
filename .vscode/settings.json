@@ -3,8 +3,9 @@
     "bootstraper",
     "iban",
     "IPIT",
-    "PurpleLedger",
     "Payables",
+    "PurpleLedger",
+    "tsoa",
     "TUUID",
     "usecase",
     "usecases"

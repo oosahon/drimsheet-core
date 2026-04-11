@@ -1,9 +1,10 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IAccountingEntity } from '../../domain/accounting/types/accounting.types';
+import { IAccountingEntity } from '../../domain/accounting-entity/types/accounting-entity.types';
 import { accountingEntitiesInCore } from '../../infra/persistence/drizzle/schema';
 import { fromCommonRepoDates, toCommonRepoDates } from './date';
 import currencyMapper, { ICurrencyModel } from './currency.mapper';
 import { TEntityId } from '../../shared/types/uuid';
+import { IAccountingEntityRes } from '../contracts/dto/accounting-entity.dto';
 
 export interface IAccountingEntityModel extends InferSelectModel<
   typeof accountingEntitiesInCore
@@ -19,6 +20,8 @@ const accountingEntityMapper = {
     return {
       id: entity.id,
       ownerId: entity.ownerId,
+      name: entity.name,
+      operatingCountryCode: entity.operatingCountryCode,
       functionalCurrencyCode: entity.functionalCurrency.code,
       reportingCurrencyCode: entity.reportingCurrency.code,
       type: entity.type,
@@ -32,6 +35,8 @@ const accountingEntityMapper = {
     return Object.freeze({
       id: payload.id as TEntityId,
       ownerId: payload.ownerId as TEntityId,
+      name: payload.name,
+      operatingCountryCode: payload.operatingCountryCode,
       functionalCurrency: currencyMapper.toDomain(payload.functionalCurrency),
       reportingCurrency: currencyMapper.toDomain(payload.reportingCurrency),
       type: payload.type,
@@ -41,6 +46,14 @@ const accountingEntityMapper = {
       }),
       ...fromCommonRepoDates(payload),
     });
+  },
+
+  toInterface(payload: IAccountingEntity): IAccountingEntityRes {
+    return {
+      ...payload,
+      functionalCurrency: payload.functionalCurrency.code,
+      reportingCurrency: payload.reportingCurrency.code,
+    };
   },
 };
 

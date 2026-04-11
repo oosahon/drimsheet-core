@@ -124,11 +124,26 @@ function validateEventTypeMatch(event: IEvent<unknown>, expectedType: string) {
   }
 }
 
+function validateKey(key: string) {
+  if (!stringUtils.isNonEmptyString(key)) {
+    throw new AppError('Key is required', { cause: key });
+  }
+
+  const isDomainEvent = key.startsWith('domain');
+  const isApplicationEvent = key.startsWith('app');
+  const isInfrastructureEvent = key.startsWith('infra');
+
+  if (!isDomainEvent && !isApplicationEvent && !isInfrastructureEvent) {
+    throw new AppError('Invalid event key', { cause: key });
+  }
+}
+
 const eventValue = Object.freeze({
   make,
   enrich,
   enrichAll,
   validate,
+  validateKey,
   validateEventTypeMatch,
 });
 

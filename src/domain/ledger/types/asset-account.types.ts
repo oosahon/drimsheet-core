@@ -1,27 +1,30 @@
-import { ELedgerType, ILedgerAccount } from './ledger.types';
+import { TEntityId } from '../../../shared/types/uuid';
 import {
+  TAccruedIncomeLedgerCode,
   TAssetLedgerCode,
   TAssetSuspenseLedgerCode,
   TCashLedgerCode,
-  TShortTermInvestmentLedgerCode,
-  TReceivablesLedgerCode,
+  TGoodwillLedgerCode,
+  TIntangibleAssetsLedgerCode,
   TInventoryLedgerCode,
-  TAccruedIncomeLedgerCode,
-  TPrepaymentsLedgerCode,
   TLongTermInvestmentLedgerCode,
   TPPELedgerCode,
-  TIntangibleAssetsLedgerCode,
+  TPrepaymentsLedgerCode,
+  TReceivablesLedgerCode,
   TROUAssetsLedgerCode,
-  TGoodwillLedgerCode,
+  TShortTermInvestmentLedgerCode,
 } from './ledger-code.types';
-import { EAdjunctAccountRule, EContraAccountRule } from './ledger.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerType,
+  ILedgerAccount,
+} from './ledger.types';
 import {
   ESuspenseSubType,
   ISuspenseLedgerAccount,
   TSuspenseSubType,
 } from './suspense-account.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { UTaxType } from './tax.types';
 
 export const EAssetSubType = {
   CashAndCashEquivalent: 'cash_and_cash_equivalent',
@@ -52,7 +55,7 @@ const ECashBehavior = {
 type UCashBehavior = (typeof ECashBehavior)[keyof typeof ECashBehavior];
 
 const EReceivableBehavior = {
-  TaxReceivable: 'tax_receivable',
+  StatutoryReceivable: 'statutory_receivable',
   TradeReceivable: 'trade_receivable',
   DefaultReceivables: 'default_receivables',
 } as const;
@@ -190,22 +193,12 @@ export interface IReceivablesAccount extends IAssetLedgerAccount {
     | typeof EAdjunctAccountRule.AdjunctNotPermitted;
 }
 
-export interface IStatutoryReceivableAccountMeta {
-  taxAuthority: string;
-  taxType: UTaxType;
-}
-
 export interface IStatutoryReceivableAccount extends IReceivablesAccount {
   controlAccountId: TEntityId;
-  behavior: typeof EReceivableBehavior.TaxReceivable;
+  behavior: typeof EReceivableBehavior.StatutoryReceivable;
   contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
-  meta: IStatutoryReceivableAccountMeta;
-}
-
-export interface ITradeReceivableAccountMeta {
-  customerId: TEntityId;
-  invoiceId: TEntityId;
+  meta: null;
 }
 
 export interface ITradeReceivableAccount extends IReceivablesAccount {
@@ -213,7 +206,7 @@ export interface ITradeReceivableAccount extends IReceivablesAccount {
   behavior: typeof EReceivableBehavior.TradeReceivable;
   contraAccountRule: typeof EContraAccountRule.ContraPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctPermitted;
-  meta: ITradeReceivableAccountMeta;
+  meta: null;
 }
 
 /**

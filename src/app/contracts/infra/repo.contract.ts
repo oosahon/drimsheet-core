@@ -1,3 +1,4 @@
+import IUserRepo from '../../../domain/user/repos/user.repo';
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
 
 export interface ITransactionContext {
@@ -6,8 +7,13 @@ export interface ITransactionContext {
 
 export interface IRepoOptions extends ICorrelationId {
   tx?: ITransactionContext;
+  selectingForUpdate?: boolean;
 }
 
+export type TRepoTransactionFn<T = void> = (
+  tx: ITransactionContext
+) => Promise<T>;
+
 export interface IRepoService {
-  runInTransaction<T>(fn: (tx: ITransactionContext) => Promise<T>): Promise<T>;
+  runInTransaction<T>(fn: TRepoTransactionFn<T>): Promise<T>;
 }

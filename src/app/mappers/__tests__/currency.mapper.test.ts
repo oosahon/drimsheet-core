@@ -1,4 +1,4 @@
-import currencyMapper from '../currency.mapper';
+import currencyMapper, { ICurrencyModel } from '../currency.mapper';
 import { ICurrency } from '../../../domain/currency/types/currency.types';
 
 describe('Currency Mapper', () => {
@@ -38,7 +38,7 @@ describe('Currency Mapper', () => {
         minorUnit: 2n,
       };
 
-      expect(currencyMapper.toDomain(repoModel as any)).toEqual(
+      expect(currencyMapper.toDomain(repoModel as ICurrencyModel)).toEqual(
         expectedDomainCurrency
       );
     });

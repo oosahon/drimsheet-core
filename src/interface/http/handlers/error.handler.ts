@@ -4,10 +4,8 @@ import {
   ErrorInternalServerError,
   ErrorUnprocessableEntity,
   IApiValidationError,
+  parseError,
 } from '../../../shared/value-objects/error';
-
-import { NODE_ENV } from '../../../infra/config/vars.config';
-import ILogger from '../../../app/contracts/infra/logger.contract';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
 
 export interface IApiError {
@@ -16,9 +14,8 @@ export interface IApiError {
   cause?: any;
 }
 
-function httpErrorHandler(logger: ILogger, reporter: IReporter) {
+function httpErrorHandler(reporter: IReporter) {
   return (req: Request, res: Response<IApiError>, error: any) => {
-    console.log('>>>>>>>>>>>>>>>>>>>>>>', { error });
     delete req?.headers.authorization;
     // @ts-ignore
     delete req?.file?.buffer;
@@ -44,24 +41,20 @@ function httpErrorHandler(logger: ILogger, reporter: IReporter) {
       return res.status(code).json(body);
     }
 
-    if (error.name === 'ApiError') {
-      return res.status(error.code).json({
-        message: error.message,
-        validationErrors: error.validationErrors,
-        cause: error.cause,
-      });
+    const { type, ...parsedError } = parseError(error);
+
+    const isKnownError = type === 'api' || type === 'domain';
+
+    if (isKnownError) {
+      const { code = 400, ...body } = parsedError;
+
+      return res.status(code).json(body);
     }
 
+    reporter.report(error);
     const serverError = new ErrorInternalServerError(error.message);
-    if (NODE_ENV !== 'local') {
-      reporter.report(serverError);
-    } else {
-      logger.error('error', serverError);
-    }
-
     return res.status(serverError.code).json({
       message: serverError.message,
-      cause: serverError.cause,
     });
   };
 }

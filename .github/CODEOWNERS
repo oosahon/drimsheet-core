@@ -6,3 +6,6 @@
 
 # Protect docs from accidental changes
 /docs/ @oosahon
+
+# Protected configs
+*.config.ts @oosahon

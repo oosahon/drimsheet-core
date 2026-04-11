@@ -33,9 +33,10 @@ const ledgerAccountMapper = {
   },
 
   toDomain(
-    model: ILedgerAccountModel,
-    currency: ICurrencyModel
+    res: ILedgerAccountModel & { currency: ICurrencyModel }
   ): ILedgerAccount {
+    const { currency, ...model } = res;
+
     return {
       id: model.id as TEntityId,
       code: model.code,

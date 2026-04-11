@@ -1,133 +1,123 @@
-import { ICurrency } from '../../../currency/types/currency.types';
 import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import { TEntityId } from '../../../../shared/types/uuid';
+import { AppError } from '../../../../shared/value-objects/error';
+import {
+  EAccountingEntityType,
+  IAccountingEntity,
+} from '../../../accounting-entity/types/accounting-entity.types';
+import { ICurrency } from '../../../currency/types/currency.types';
+import { IStatutoryReceivableAccount } from '../../types/asset-account.types';
+import { ELedgerType, ILedgerAccount } from '../../types/ledger.types';
+import { IStatutoryPayableAccount } from '../../types/liability-account.types';
 import ledgerService from '../ledger.service';
-import generateUUID from '../../../../shared/utils/uuid-generator';
 
-describe('Ledger Service', () => {
+describe('ledgerService', () => {
   const service = ledgerService(mockLedgerAccountRepo);
+  const repoOptions: IRepoOptions = { correlationId: 'test-req' };
+  const accountingEntityId =
+    '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
+  const ownerId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 
-  const mockParams = {
-    userId: generateUUID(),
-    accountingEntityId: generateUUID(),
-    functionalCurrency: {
-      code: 'NGN',
-      name: 'Naira',
-      symbol: '₦',
-      minorUnit: 2n,
-    } as ICurrency,
-  };
-
-  const mockRepoOptions: IRepoOptions = { correlationId: generateUUID() };
+  const accountingEntity = {
+    id: accountingEntityId,
+    ownerId,
+    type: EAccountingEntityType.Individual,
+    functionalCurrency: { code: 'USD' } as unknown as ICurrency,
+  } as unknown as IAccountingEntity;
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   describe('setupBaseIndividualAccounts', () => {
-    it('should fetch from ledger account repo for each base account', async () => {
-      mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
-
-      await service.setupBaseIndividualAccounts(mockParams, mockRepoOptions);
-
-      expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledTimes(16);
-    });
-
-    it('should create all base accounts if none exist in the repository', async () => {
+    it('should create all expected accounts across all services', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
       const result = await service.setupBaseIndividualAccounts(
-        mockParams,
-        mockRepoOptions
+        accountingEntity,
+        repoOptions
       );
 
-      const codes = result.map((r) => r[0].code);
-
-      expect(result).toHaveLength(16);
-
-      const expectedAssetCodes = ['100000', '102000'];
-      const expectedLiabilityCodes = ['200000', '201000'];
-      const expectedEquityCodes = ['301000', '399000'];
-      const expectedRevenueCodes = ['401000', '403000', '405000', '406000'];
-      const expectedExpenseCodes = [
-        '500000',
-        '502000',
-        '507000',
-        '508000',
-        '509000',
-        '510000',
-      ];
-
-      const expectedCodes = [
-        ...expectedAssetCodes,
-        ...expectedLiabilityCodes,
-        ...expectedEquityCodes,
-        ...expectedRevenueCodes,
-        ...expectedExpenseCodes,
-      ];
-
-      expect(codes).toEqual(expect.arrayContaining(expectedCodes));
+      // Asset(4) + Liability(4) + Equity(2) + Revenue(4) + Expense(6) = 20
+      expect(result.length).toBe(20);
     });
 
-    it('should return no accounts if they all already exist', async () => {
-      mockLedgerAccountRepo.findByCode.mockResolvedValue({
-        id: generateUUID(),
-      } as any);
+    it('should throw AppError if entity is not individual', async () => {
+      const companyEntity = {
+        ...accountingEntity,
+        type: EAccountingEntityType.Company,
+      } as unknown as IAccountingEntity;
 
-      const result = await service.setupBaseIndividualAccounts(
-        mockParams,
-        mockRepoOptions
-      );
-
-      expect(result).toHaveLength(0);
+      await expect(
+        service.setupBaseIndividualAccounts(companyEntity, repoOptions)
+      ).rejects.toThrow(AppError);
     });
+  });
 
-    it('should only create accounts that do not exist', async () => {
-      mockLedgerAccountRepo.findByCode.mockImplementation(async (code) => {
-        const existingCodes = [
-          '100000',
-          '200000',
-          '301000',
-          '401000',
-          '500000',
-        ];
+  describe('bootstrapNonPowerUserPostingAccounts', () => {
+    const mockStatutoryReceivable = {
+      id: '123e4567-e89b-12d3-a456-426614174005' as TEntityId,
+      code: '102002',
+    } as unknown as IStatutoryReceivableAccount;
 
-        if (existingCodes.includes(code)) {
-          return { id: generateUUID() } as any;
+    const mockStatutoryPayable = {
+      id: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
+      code: '201002',
+    } as unknown as IStatutoryPayableAccount;
+
+    const mockControlAccount = {
+      id: '123e4567-e89b-12d3-a456-426614174007' as TEntityId,
+      type: ELedgerType.Expense,
+      isControlAccount: true,
+    } as unknown as ILedgerAccount;
+
+    it('should create all expected bootstrap accounts across all services', async () => {
+      mockLedgerAccountRepo.findBySubType.mockImplementation(
+        async (entityId, type) => {
+          if (type === ELedgerType.Asset || type === ELedgerType.Liability) {
+            return [];
+          }
+          return [
+            { ...mockControlAccount, type },
+          ] as unknown as ILedgerAccount[];
         }
+      );
 
-        return null;
+      mockLedgerAccountRepo.findByBehavior.mockImplementation(
+        async (entityId, behavior) => {
+          if (behavior.includes('receivable'))
+            return [mockStatutoryReceivable] as unknown as ILedgerAccount[];
+          if (behavior.includes('payable'))
+            return [mockStatutoryPayable] as unknown as ILedgerAccount[];
+          return [] as unknown as ILedgerAccount[];
+        }
+      );
+
+      mockLedgerAccountRepo.findByCode.mockImplementation(async (code) => {
+        let type: string = ELedgerType.Revenue;
+        if (code.startsWith('5')) type = ELedgerType.Expense;
+        return { ...mockControlAccount, type } as unknown as ILedgerAccount;
       });
 
-      const result = await service.setupBaseIndividualAccounts(
-        mockParams,
-        mockRepoOptions
+      const result = await service.bootstrapNonPowerUserPostingAccounts(
+        accountingEntity,
+        repoOptions
       );
 
-      const createdCodes = result.map((r) => r[0].code);
+      // Asset(2) + Liability(2) + Revenue(4) + Expense(6) = 14
+      expect(result.length).toBe(14);
+    });
 
-      const expectedAssetCodes = ['102000'];
-      const expectedLiabilityCodes = ['201000'];
-      const expectedEquityCodes = ['399000'];
-      const expectedRevenueCodes = ['403000', '405000', '406000'];
-      const expectedExpenseCodes = [
-        '502000',
-        '507000',
-        '508000',
-        '509000',
-        '510000',
-      ];
+    it('should throw AppError if entity is not individual', async () => {
+      const companyEntity = {
+        ...accountingEntity,
+        type: EAccountingEntityType.Company,
+      } as unknown as IAccountingEntity;
 
-      const expectedCodes = [
-        ...expectedAssetCodes,
-        ...expectedLiabilityCodes,
-        ...expectedEquityCodes,
-        ...expectedRevenueCodes,
-        ...expectedExpenseCodes,
-      ];
-
-      expect(result).toHaveLength(expectedCodes.length);
-      expect(createdCodes).toEqual(expect.arrayContaining(expectedCodes));
+      await expect(
+        service.bootstrapNonPowerUserPostingAccounts(companyEntity, repoOptions)
+      ).rejects.toThrow(AppError);
     });
   });
 });

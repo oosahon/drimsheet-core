@@ -1,12 +1,16 @@
-import { ELedgerType, ILedgerAccount } from './ledger.types';
 import {
-  TEquityLedgerCode,
   TCapitalLedgerCode,
-  TRetainedEarningsLedgerCode,
-  TReservesLedgerCode,
+  TEquityLedgerCode,
   TOpeningBalanceEquityLedgerCode,
+  TReservesLedgerCode,
+  TRetainedEarningsLedgerCode,
 } from './ledger-code.types';
-import { EAdjunctAccountRule, EContraAccountRule } from './ledger.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerType,
+  ILedgerAccount,
+} from './ledger.types';
 
 export const EEquitySubType = {
   Capital: 'capital',

@@ -1,15 +1,19 @@
-import { ELedgerType, ILedgerAccount } from './ledger.types';
 import {
+  TEmploymentIncomeLedgerCode,
+  TGainOnAssetSaleLedgerCode,
+  TInterestIncomeLedgerCode,
   TRevenueLedgerCode,
   TSalesLedgerCode,
   TServicesLedgerCode,
   TSubscriptionsLedgerCode,
-  TEmploymentIncomeLedgerCode,
-  TInterestIncomeLedgerCode,
-  TGainOnSaleLedgerCode,
   TUnrealizedGainLedgerCode,
 } from './ledger-code.types';
-import { EAdjunctAccountRule, EContraAccountRule } from './ledger.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerType,
+  ILedgerAccount,
+} from './ledger.types';
 
 export const ERevenueSubType = {
   Sales: 'sales',
@@ -17,7 +21,7 @@ export const ERevenueSubType = {
   Subscriptions: 'subscriptions',
   EmploymentIncome: 'employment_income',
   InterestIncome: 'interest_income',
-  GainOnSale: 'gain_on_sale',
+  GainOnAssetSale: 'gain_on_asset_sale',
   UnrealizedGains: 'unrealized_gains',
 } as const;
 
@@ -30,7 +34,7 @@ export const ERevenueAccountBehavior = {
   Subscriptions: 'subscriptions',
   EmploymentIncome: 'employment_income',
   InterestIncome: 'interest_income',
-  GainOnSale: 'gain_on_sale',
+  GainOnAssetSale: 'gain_on_asset_sale',
   UnrealizedGains: 'unrealized_gains',
 } as const;
 
@@ -108,10 +112,10 @@ export interface IInterestIncomeAccount extends IRevenueLedgerAccount {
  * =============== Gain on Sale of Assets ===============
  * code: 405xxx
  */
-export interface IGainOnSaleAccount extends IRevenueLedgerAccount {
-  code: TGainOnSaleLedgerCode;
-  subType: typeof ERevenueSubType.GainOnSale;
-  behavior: typeof ERevenueAccountBehavior.GainOnSale;
+export interface IGainOnAssetSaleAccount extends IRevenueLedgerAccount {
+  code: TGainOnAssetSaleLedgerCode;
+  subType: typeof ERevenueSubType.GainOnAssetSale;
+  behavior: typeof ERevenueAccountBehavior.GainOnAssetSale;
   contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
 }

@@ -1,7 +1,7 @@
 import eventValue from '../../../shared/value-objects/event.vo';
 import {
   IEmploymentIncomeAccount,
-  IGainOnSaleAccount,
+  IGainOnAssetSaleAccount,
   IServicesAccount,
   IUnrealizedGainAccount,
 } from '../types/revenue-account.types';
@@ -10,7 +10,7 @@ export const ERevenueLedgerEvent = {
   ServicesCreated: 'domain:ledger:revenue:account:services:created',
   EmploymentIncomeCreated:
     'domain:ledger:revenue:account:employment-income:created',
-  GainOnSaleCreated: 'domain:ledger:revenue:account:gain-on-sale:created',
+  GainOnAssetSaleCreated: 'domain:ledger:revenue:account:gain-on-sale:created',
   UnrealizedGainsCreated:
     'domain:ledger:revenue:account:unrealized-gains:created',
 } as const;
@@ -19,7 +19,7 @@ export const revenueAccountEventDescriptions: Record<string, string> = {
   [ERevenueLedgerEvent.ServicesCreated]: 'Created a services revenue account.',
   [ERevenueLedgerEvent.EmploymentIncomeCreated]:
     'Created an employment income revenue account.',
-  [ERevenueLedgerEvent.GainOnSaleCreated]:
+  [ERevenueLedgerEvent.GainOnAssetSaleCreated]:
     'Created a gain on sale revenue account.',
   [ERevenueLedgerEvent.UnrealizedGainsCreated]:
     'Created an unrealized gains revenue account.',
@@ -41,9 +41,11 @@ function makeEmploymentIncomeAccountCreatedEvent(
   });
 }
 
-function makeGainOnSaleAccountCreatedEvent(payload: IGainOnSaleAccount) {
-  return eventValue.make<IGainOnSaleAccount>({
-    type: ERevenueLedgerEvent.GainOnSaleCreated,
+function makeGainOnAssetSaleAccountCreatedEvent(
+  payload: IGainOnAssetSaleAccount
+) {
+  return eventValue.make<IGainOnAssetSaleAccount>({
+    type: ERevenueLedgerEvent.GainOnAssetSaleCreated,
     data: payload,
   });
 }
@@ -60,7 +62,7 @@ function makeUnrealizedGainsAccountCreatedEvent(
 const revenueAccountEvents = Object.freeze({
   servicesCreated: makeServicesAccountCreatedEvent,
   employmentIncomeCreated: makeEmploymentIncomeAccountCreatedEvent,
-  gainOnSaleCreated: makeGainOnSaleAccountCreatedEvent,
+  GainOnAssetSaleCreated: makeGainOnAssetSaleAccountCreatedEvent,
   unrealizedGainsCreated: makeUnrealizedGainsAccountCreatedEvent,
 });
 

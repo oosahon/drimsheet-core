@@ -1,6 +1,5 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import rentAndUtilitiesAccountEntity from '../02-rent-and-utilities.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -13,6 +12,7 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import rentAndUtilitiesAccountEntity from '../02-rent-and-utilities.entity';
 
 describe('Rent and Utilities Expense Entity', () => {
   const validUUID1 = generateUUID();

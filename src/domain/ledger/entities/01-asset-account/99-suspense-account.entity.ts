@@ -33,7 +33,7 @@ function make(
     IAssetSuspenseAccount,
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
-  predecessorCode: TAssetSuspenseLedgerCode
+  predecessorCode?: TAssetSuspenseLedgerCode
 ): TEntityWithEvents<IAssetSuspenseAccount, IAssetSuspenseAccount> {
   const { name, createdBy, accountingEntityId, currency } = payload;
 
@@ -41,7 +41,7 @@ function make(
     name,
     accountingEntityId,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
-    code: getCode(predecessorCode),
+    code: predecessorCode ? getCode(predecessorCode) : '199000',
     type: ELedgerType.Asset,
     subType: EAssetSubType.Suspense,
     behavior: EAssetAccountBehavior.Default,

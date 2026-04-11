@@ -1,6 +1,5 @@
-import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import assetSuspenseAccountEntity from '../99-suspense-account.entity';
+import { AppError } from '../../../../../shared/value-objects/error';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -12,6 +11,7 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
+import assetSuspenseAccountEntity from '../99-suspense-account.entity';
 
 describe('Asset Suspense Account Entity', () => {
   const validUUID1 = generateUUID();
