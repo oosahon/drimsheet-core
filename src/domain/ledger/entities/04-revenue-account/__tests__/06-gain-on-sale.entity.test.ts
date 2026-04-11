@@ -1,6 +1,6 @@
 import { AppError } from '../../../../../shared/value-objects/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import gainOnSaleAccountEntity from '../06-gain-on-sale.entity';
+import GainOnAssetSaleAccountEntity from '../06-gain-on-sale.entity';
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
@@ -36,14 +36,14 @@ describe('Gain on Sale Revenue Entity', () => {
 
   describe('getCode', () => {
     it('should generate the next sub-ledger code for gain on sale accounts', () => {
-      expect(gainOnSaleAccountEntity.getCode('405000')).toBe('405001');
-      expect(gainOnSaleAccountEntity.getCode('405099')).toBe('405100');
+      expect(GainOnAssetSaleAccountEntity.getCode('405000')).toBe('405001');
+      expect(GainOnAssetSaleAccountEntity.getCode('405099')).toBe('405100');
     });
 
     it('should throw if predecessor code does not match header code', () => {
-      expect(() => gainOnSaleAccountEntity.getCode('400000' as any)).toThrow(
-        AppError
-      );
+      expect(() =>
+        GainOnAssetSaleAccountEntity.getCode('400000' as any)
+      ).toThrow(AppError);
     });
   });
 
@@ -59,7 +59,7 @@ describe('Gain on Sale Revenue Entity', () => {
     };
 
     it('should successfully create a gain on sale account', () => {
-      const [account, events] = gainOnSaleAccountEntity.make(
+      const [account, events] = GainOnAssetSaleAccountEntity.make(
         validPayload,
         '405000'
       );
@@ -67,8 +67,8 @@ describe('Gain on Sale Revenue Entity', () => {
       expect(account.code).toBe('405001');
       expect(account.type).toBe(ELedgerType.Revenue);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
-      expect(account.subType).toBe(ERevenueSubType.GainOnSale);
-      expect(account.behavior).toBe(ERevenueAccountBehavior.GainOnSale);
+      expect(account.subType).toBe(ERevenueSubType.GainOnAssetSale);
+      expect(account.behavior).toBe(ERevenueAccountBehavior.GainOnAssetSale);
       expect(account.meta).toBeNull();
       expect(account.isControlAccount).toBe(false);
       expect(account.controlAccountId).toBeNull();
@@ -90,12 +90,12 @@ describe('Gain on Sale Revenue Entity', () => {
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        gainOnSaleAccountEntity.make(invalidPayload, '405000')
+        GainOnAssetSaleAccountEntity.make(invalidPayload, '405000')
       ).toThrow(AppError);
     });
 
     it('should use base code 405000 when predecessorCode is null', () => {
-      const [account] = gainOnSaleAccountEntity.make(validPayload, null);
+      const [account] = GainOnAssetSaleAccountEntity.make(validPayload, null);
       expect(account.code).toBe('405000');
     });
   });

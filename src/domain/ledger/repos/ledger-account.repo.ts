@@ -1,6 +1,6 @@
 import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TEntityId } from '../../../shared/types/uuid';
-import { ILedgerAccount } from '../types/ledger.types';
+import { ILedgerAccount, ULedgerType } from '../types/ledger.types';
 
 export default interface ILedgerAccountRepo {
   save(
@@ -18,4 +18,11 @@ export default interface ILedgerAccountRepo {
     accountingEntityId: TEntityId,
     options: IRepoOptions
   ): Promise<ILedgerAccount | null>;
+
+  findBySubType(
+    accountingEntityId: TEntityId,
+    type: ULedgerType,
+    subType: string,
+    options: IRepoOptions
+  ): Promise<ILedgerAccount[]>;
 }

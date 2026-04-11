@@ -1,4 +1,4 @@
-import getAuthUserAccountingEntities from '../../account-entity/get-accounting-entities.usecase';
+import getAuthUserAccountingEntities from '../get-accounting-entities.usecase';
 import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { ErrorUnauthorized } from '../../../../shared/value-objects/error';

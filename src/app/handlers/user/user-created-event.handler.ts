@@ -10,7 +10,6 @@ import validateEventAndSetRequestContext from '../shared/validate-and-set-reques
 
 export default function userCreatedEventHandler(
   reporter: IReporter,
-  logger: ILogger,
   requestContext: IRequestContext
 ) {
   return async (event: IEvent<IUser>) => {
@@ -33,7 +32,6 @@ export default function userCreatedEventHandler(
         // TODO: send welcome email https://linear.app/purpleledger/issue/PUR-20/create-and-send-welcome-emails
       }
     } catch (error) {
-      logger.error(error);
       reporter.report(error);
     }
   };

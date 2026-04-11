@@ -1,3 +1,4 @@
+import IUserRepo from '../../../domain/user/repos/user.repo';
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
 
 export interface ITransactionContext {
@@ -6,6 +7,7 @@ export interface ITransactionContext {
 
 export interface IRepoOptions extends ICorrelationId {
   tx?: ITransactionContext;
+  selectingForUpdate?: boolean;
 }
 
 export interface IRepoService {

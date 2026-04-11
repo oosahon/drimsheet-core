@@ -10,7 +10,7 @@ import retainedEarningAccountEntity from '../entities/03-equity-account/01-retai
 import openingBalanceEquityLedgerEntity from '../entities/03-equity-account/99-opening-balance.equity';
 import servicesAccountEntity from '../entities/04-revenue-account/02-services.entity';
 import employmentIncomeAccountEntity from '../entities/04-revenue-account/04-employment-income.entity';
-import gainOnSaleAccountEntity from '../entities/04-revenue-account/06-gain-on-sale.entity';
+import GainOnAssetSaleAccountEntity from '../entities/04-revenue-account/06-gain-on-sale.entity';
 import unrealizedGainAccountEntity from '../entities/04-revenue-account/07-unrealized-gain.entity';
 import directCostsAccountEntity from '../entities/05-expense-account/00-direct-costs.entity';
 import rentAndUtilitiesAccountEntity from '../entities/05-expense-account/02-rent-and-utilities.entity';
@@ -35,14 +35,14 @@ import {
 } from '../types/liability-account.types';
 import { IRevenueLedgerAccount } from '../types/revenue-account.types';
 
-export interface IBaseIndividualAccountsCreationParams {
+interface IParams {
   userId: TEntityId;
   accountingEntityId: TEntityId;
   functionalCurrency: ICurrency;
 }
 
 const makeBaseAssetAccounts = async (
-  params: IBaseIndividualAccountsCreationParams,
+  params: IParams,
   ledgerAccountRepo: ILedgerAccountRepo,
   repoOptions: IRepoOptions
 ) => {
@@ -106,7 +106,7 @@ const makeBaseAssetAccounts = async (
   return assetAccounts;
 };
 const makeBaseLiabilityAccounts = async (
-  params: IBaseIndividualAccountsCreationParams,
+  params: IParams,
   ledgerAccountRepo: ILedgerAccountRepo,
   repoOptions: IRepoOptions
 ) => {
@@ -171,7 +171,7 @@ const makeBaseLiabilityAccounts = async (
   return liabilityAccounts;
 };
 const makeBaseEquityAccounts = async (
-  params: IBaseIndividualAccountsCreationParams,
+  params: IParams,
   ledgerAccountRepo: ILedgerAccountRepo,
   repoOptions: IRepoOptions
 ) => {
@@ -222,7 +222,7 @@ const makeBaseEquityAccounts = async (
   return equityAccounts;
 };
 const makeBaseRevenueAccounts = async (
-  params: IBaseIndividualAccountsCreationParams,
+  params: IParams,
   ledgerAccountRepo: ILedgerAccountRepo,
   repoOptions: IRepoOptions
 ) => {
@@ -277,13 +277,13 @@ const makeBaseRevenueAccounts = async (
   }
 
   // ========== Gain on Sale of Assets (405000) ==========
-  const existingGainOnSaleOfAssets = await ledgerAccountRepo.findByCode(
+  const existingGainOnAssetSaleOfAssets = await ledgerAccountRepo.findByCode(
     '405000',
     accountingEntityId,
     repoOptions
   );
-  if (!existingGainOnSaleOfAssets) {
-    const gainOnSaleOfAssetsAccount = gainOnSaleAccountEntity.make(
+  if (!existingGainOnAssetSaleOfAssets) {
+    const GainOnAssetSaleOfAssetsAccount = GainOnAssetSaleAccountEntity.make(
       {
         name: 'Gain on Sale of Assets',
         createdBy: userId,
@@ -295,7 +295,7 @@ const makeBaseRevenueAccounts = async (
       },
       null
     );
-    revenueAccounts.push(gainOnSaleOfAssetsAccount);
+    revenueAccounts.push(GainOnAssetSaleOfAssetsAccount);
   }
 
   // ========== Unrealized Gain (406000) ==========
@@ -323,7 +323,7 @@ const makeBaseRevenueAccounts = async (
   return revenueAccounts;
 };
 const makeBaseExpenseAccounts = async (
-  params: IBaseIndividualAccountsCreationParams,
+  params: IParams,
   ledgerAccountRepo: ILedgerAccountRepo,
   repoOptions: IRepoOptions
 ) => {
@@ -470,7 +470,7 @@ const makeBaseExpenseAccounts = async (
 };
 
 export default function getIndividualGLSetupHelpers(
-  params: IBaseIndividualAccountsCreationParams,
+  params: IParams,
   ledgerAccountRepo: ILedgerAccountRepo,
   repoOptions: IRepoOptions
 ) {

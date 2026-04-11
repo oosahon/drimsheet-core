@@ -78,3 +78,27 @@ export class ErrorInternalServerError extends ApiError {
     super(500, message, cause);
   }
 }
+
+export function parseError(error: any) {
+  const isAppError = error instanceof AppError;
+  const isApiError = error instanceof ApiError;
+
+  if (isAppError) {
+    return {
+      type: 'domain',
+      message: error.message,
+      cause: error.cause,
+    };
+  }
+
+  if (isApiError) {
+    return {
+      type: 'api',
+      message: error.message,
+      cause: error.cause,
+      code: error.code,
+    };
+  }
+
+  return error;
+}

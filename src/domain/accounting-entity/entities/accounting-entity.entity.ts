@@ -5,7 +5,7 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import { AppError } from '../../../shared/value-objects/error';
 import currencyEntity from '../../currency/entities/currency.entity';
 import accountingEntitySupportedCountries from '../config/supported-countries.config';
-import accountingEntityTypeEvents from '../events/accounting-entity.events';
+import accountingEntityEvents from '../events/accounting-entity.events';
 import {
   EAccountingEntityType,
   IAccountingEntity,
@@ -102,7 +102,7 @@ function make(
     deletedAt: null,
   });
 
-  const event = accountingEntityTypeEvents.created(domain);
+  const event = accountingEntityEvents.created(domain);
 
   return [domain, [event]];
 }

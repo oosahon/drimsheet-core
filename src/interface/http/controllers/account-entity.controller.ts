@@ -8,7 +8,7 @@ import {
   Tags,
 } from 'tsoa';
 import middlewares from '../middlewares';
-import accountEntityUsecase from '../../../app/usecases/account-entity';
+import accountingEntityUsecase from '../../../app/usecases/accounting-entity';
 
 @Route('accounting-entities')
 @Tags('Accounting Entity')
@@ -21,6 +21,6 @@ export class AccountingEntityController extends Controller {
   @SuccessResponse('200')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getAccountingEntities() {
-    return await accountEntityUsecase.getAll();
+    return await accountingEntityUsecase.getAll();
   }
 }

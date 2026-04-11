@@ -26,14 +26,14 @@ function make(
     ILiabilitySuspenseAccount,
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
-  predecessorCode: TLiabilitySuspenseLedgerCode
+  predecessorCode?: TLiabilitySuspenseLedgerCode
 ): TEntityWithEvents<ILiabilitySuspenseAccount, ILiabilitySuspenseAccount> {
   const { name, createdBy, accountingEntityId, currency } = payload;
 
   const account = ledgerAccountEntity.make<ILiabilitySuspenseAccount>({
     name,
     accountingEntityId,
-    code: getCode(predecessorCode),
+    code: predecessorCode ? getCode(predecessorCode) : '299000',
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),
     type: ELedgerType.Liability,
     subType: ELiabilitySubType.Suspense,

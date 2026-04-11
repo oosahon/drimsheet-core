@@ -9,9 +9,12 @@ import ledgerService from '../../../domain/ledger/services/ledger.service';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
 import userPreferencesService from '../../../domain/user/services/user-preferences.service';
-import { IUserPreferences } from '../../../domain/user/types/user-preferences.types';
+import {
+  EAppUsageModePreference,
+  IUserPreferences,
+} from '../../../domain/user/types/user-preferences.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { IEvent } from '../../../shared/types/event.types';
+import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
 import {
   ErrorBadRequest,
   ErrorResourceNotFound,
@@ -25,11 +28,16 @@ import { IRepoService } from '../../contracts/infra/repo.contract';
 import currencyMapper from '../../mappers/currency.mapper';
 import { z } from 'zod';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import accountingEntitySupportedCountries from '../../../domain/accounting-entity/config/supported-countries.config';
+import accountingEntityEvents from '../../../domain/accounting-entity/events/accounting-entity.events';
 
 const validationSchema = z.object({
   name: z.string(),
-  operatingCountryCode: z.string().length(2),
-  type: z.enum([EAccountingEntityType.Individual]),
+  operatingCountryCode: z.enum(
+    accountingEntitySupportedCountries.map((v) => v.code),
+    'Unsupported operating country code'
+  ),
+  entityType: z.enum([EAccountingEntityType.Individual]),
   functionalCurrencyCode: z.string().length(3),
   reportingCurrencyCode: z.string().length(3),
   fiscalYearStart: z.object({
@@ -46,13 +54,14 @@ export default function onboardAccountingEntityUseCase(
   repoService: IRepoService,
   eventBus: IEventBus
 ) {
-  const accountingEntityServiceFn =
-    accountingEntityService(accountingEntityRepo);
-  const userPreferencesServiceFn = userPreferencesService(userPreferencesRepo);
-  const ledgerServiceFn = ledgerService(ledgerAccountRepo);
-
   return async (payload: IAccountingEntityOnboardingReq) => {
     zodValidationRunner(validationSchema, payload);
+
+    const accountingEntityServiceFn =
+      accountingEntityService(accountingEntityRepo);
+    const userPreferencesServiceFn =
+      userPreferencesService(userPreferencesRepo);
+    const ledgerServiceFn = ledgerService(ledgerAccountRepo);
 
     const { functionalCurrencyCode, reportingCurrencyCode } = payload;
     const { user, correlationId } = requestContext.get();
@@ -95,7 +104,7 @@ export default function onboardAccountingEntityUseCase(
       reportingCurrency,
       fiscalYearStart: payload.fiscalYearStart,
     };
-    const [accountingEntity, accountingEntityEvents] =
+    const [accountingEntity, createdAccountingEntityEvents] =
       await accountingEntityServiceFn.make(
         user.id,
         accountingEntityCreatePayload,
@@ -108,11 +117,7 @@ export default function onboardAccountingEntityUseCase(
 
     const baseGlAccountsWithEvents =
       await ledgerServiceFn.setupBaseIndividualAccounts(
-        {
-          userId: user.id,
-          accountingEntityId: accountingEntity.id,
-          functionalCurrency,
-        },
+        accountingEntity,
         correlationIdObj
       );
 
@@ -158,13 +163,20 @@ export default function onboardAccountingEntityUseCase(
      * Publish events
      */
     const events = [
-      ...accountingEntityEvents.map((e) =>
+      ...createdAccountingEntityEvents.map((e) =>
         eventValue.enrich(e, correlationIdObj)
       ),
       ...baseGlAccountEvents.map((e) => eventValue.enrich(e, correlationIdObj)),
       ...preferencesEvents.map((e) => eventValue.enrich(e, correlationIdObj)),
     ];
-
     eventBus.publish(events);
+
+    if (payload.appUsageMode === EAppUsageModePreference.NonPowerUser) {
+      eventBus.publish(
+        accountingEntityEvents.bootstrapIndividualPostingAccounts(
+          accountingEntity
+        )
+      );
+    }
   };
 }

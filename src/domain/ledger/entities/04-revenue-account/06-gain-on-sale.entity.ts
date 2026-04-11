@@ -3,9 +3,9 @@ import revenueAccountEvents from '../../events/revenue-account.events';
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
-  IGainOnSaleAccount,
+  IGainOnAssetSaleAccount,
 } from '../../types/revenue-account.types';
-import { TGainOnSaleLedgerCode } from '../../types/ledger-code.types';
+import { TGainOnAssetSaleLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -15,9 +15,9 @@ import {
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 
 function getCode(
-  predecessorCode: TGainOnSaleLedgerCode
-): TGainOnSaleLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TGainOnSaleLedgerCode>(
+  predecessorCode: TGainOnAssetSaleLedgerCode
+): TGainOnAssetSaleLedgerCode {
+  return ledgerAccountEntity.getSubLedgerCode<TGainOnAssetSaleLedgerCode>(
     '405',
     predecessorCode
   );
@@ -25,7 +25,7 @@ function getCode(
 
 function make(
   payload: Pick<
-    IGainOnSaleAccount,
+    IGainOnAssetSaleAccount,
     | 'name'
     | 'createdBy'
     | 'accountingEntityId'
@@ -34,16 +34,16 @@ function make(
     | 'controlAccountId'
     | 'meta'
   >,
-  predecessorCode: TGainOnSaleLedgerCode | null
-): TEntityWithEvents<IGainOnSaleAccount, IGainOnSaleAccount> {
-  const account = ledgerAccountEntity.make<IGainOnSaleAccount>({
+  predecessorCode: TGainOnAssetSaleLedgerCode | null
+): TEntityWithEvents<IGainOnAssetSaleAccount, IGainOnAssetSaleAccount> {
+  const account = ledgerAccountEntity.make<IGainOnAssetSaleAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
     code: predecessorCode ? getCode(predecessorCode) : '405000',
     type: ELedgerType.Revenue,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
-    subType: ERevenueSubType.GainOnSale,
-    behavior: ERevenueAccountBehavior.GainOnSale,
+    subType: ERevenueSubType.GainOnAssetSale,
+    behavior: ERevenueAccountBehavior.GainOnAssetSale,
     isControlAccount: payload.isControlAccount,
     controlAccountId: payload.controlAccountId,
     currency: payload.currency,
@@ -54,13 +54,13 @@ function make(
     createdBy: payload.createdBy,
   });
 
-  const event = revenueAccountEvents.gainOnSaleCreated(account);
+  const event = revenueAccountEvents.GainOnAssetSaleCreated(account);
   return [account, [event]];
 }
 
-const gainOnSaleAccountEntity = Object.freeze({
+const GainOnAssetSaleAccountEntity = Object.freeze({
   make,
   getCode,
 });
 
-export default gainOnSaleAccountEntity;
+export default GainOnAssetSaleAccountEntity;

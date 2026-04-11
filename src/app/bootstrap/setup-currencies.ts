@@ -7,20 +7,14 @@ export default async function bootstrapCurrencies(
   currencyRepo: ICurrencyRepo,
   logger: ILogger
 ) {
-  try {
-    const correlationId = `bootstrap-currencies-${generateUUID()}`;
-    logger.info(
-      `Bootstrapping currencies with correlation id ${correlationId}`
-    );
+  const correlationId = `bootstrap-currencies-${generateUUID()}`;
+  logger.info(`Bootstrapping currencies with correlation id ${correlationId}`);
 
-    for (const currency of SYSTEM_CURRENCIES) {
-      await currencyRepo.save(currency, {
-        correlationId,
-      });
-    }
-
-    logger.info('Currencies bootstrapped successfully');
-  } catch (error) {
-    logger.error('Failed to bootstrap currencies', error);
+  for (const currency of SYSTEM_CURRENCIES) {
+    await currencyRepo.save(currency, {
+      correlationId,
+    });
   }
+
+  logger.info('Currencies bootstrapped successfully');
 }

@@ -5,11 +5,7 @@ import emailVerifiedEventHandler from './email-verified-event.handler';
 import userCreatedEventHandler from './user-created-event.handler';
 
 const userEventHandlers = {
-  created: userCreatedEventHandler(
-    observability.reporter,
-    observability.logger,
-    appContext.request
-  ),
+  created: userCreatedEventHandler(observability.reporter, appContext.request),
 
   emailVerified: emailVerifiedEventHandler(
     observability.reporter,
