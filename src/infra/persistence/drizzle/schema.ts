@@ -1,18 +1,18 @@
+import { sql } from 'drizzle-orm';
 import {
-  pgTable,
-  serial,
-  varchar,
-  timestamp,
-  pgSchema,
-  uuid,
   boolean,
+  char,
   foreignKey,
   jsonb,
-  smallint,
-  char,
   numeric,
+  pgSchema,
+  pgTable,
+  serial,
+  smallint,
+  timestamp,
+  uuid,
+  varchar,
 } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
 
 export const audit = pgSchema('audit');
 export const core = pgSchema('core');

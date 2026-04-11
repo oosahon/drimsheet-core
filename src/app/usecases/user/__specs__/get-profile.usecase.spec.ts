@@ -1,10 +1,10 @@
-import getAuthUserProfileUseCase from '../get-profile.usecase';
-import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import userMapper from '../../../mappers/user.mapper';
-import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
-import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
+import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import userMapper from '../../../mappers/user.mapper';
+import getAuthUserProfileUseCase from '../get-profile.usecase';
 
 jest.mock('../../../mappers/user.mapper', () => ({
   toInterface: jest.fn(),

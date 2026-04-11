@@ -1,8 +1,8 @@
-import { AppError } from '../../../../shared/value-objects/error';
-import userActivityEntity from '../user-activity.entity';
-import { IUserActivity } from '../../types/user-activity.types';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import { AppError } from '../../../../shared/value-objects/error';
+import { IUserActivity } from '../../types/user-activity.types';
+import userActivityEntity from '../user-activity.entity';
 
 describe('User Activity Entity', () => {
   beforeEach(() => {

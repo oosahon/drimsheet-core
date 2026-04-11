@@ -1,5 +1,5 @@
-import eventValue from '../event.vo';
 import { AppError } from '../error';
+import eventValue from '../event.vo';
 
 describe('event.vo', () => {
   const validUUID = '123e4567-e89b-12d3-a456-426614174000';

@@ -1,5 +1,5 @@
-import password from '../password.vo';
 import { AppError } from '../../../../shared/value-objects/error';
+import password from '../password.vo';
 
 describe('Password Value Object', () => {
   describe('make()', () => {

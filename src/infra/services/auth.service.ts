@@ -1,11 +1,11 @@
-import { sign, verify } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { WEB_APP_URL, JWT_SECRET_KEY, NODE_ENV } from '../config/vars.config';
+import { sign, verify } from 'jsonwebtoken';
 import IAuthService, {
   IAuthTokenPayload,
 } from '../../app/contracts/infra/auth-service.contract';
 import { ICacheStorage } from '../../app/contracts/infra/cache-storage.contract';
 import { NON_PROD_EMAIL_WHITELIST } from '../config/email-whitelist.config';
+import { JWT_SECRET_KEY, NODE_ENV, WEB_APP_URL } from '../config/vars.config';
 
 export default function authService(cacheStorage: ICacheStorage): IAuthService {
   return {

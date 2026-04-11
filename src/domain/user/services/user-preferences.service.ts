@@ -1,5 +1,5 @@
 import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import userPreferencesEntity from '../entities/user-preferences.entity';
 import IUserPreferencesRepo from '../repos/user-preferences.repo';

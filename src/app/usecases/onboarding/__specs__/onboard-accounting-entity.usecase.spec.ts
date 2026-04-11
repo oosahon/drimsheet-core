@@ -1,34 +1,32 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import {
-  ErrorBadRequest,
-  ErrorResourceNotFound,
-  ErrorUnauthorized,
-  ErrorUnprocessableEntity,
-} from '../../../../shared/value-objects/error';
+import accountingEntityEvents from '../../../../domain/accounting-entity/events/accounting-entity.events';
+import accountingEntityService from '../../../../domain/accounting-entity/services/accounting-entity.service';
 import {
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../../../domain/accounting-entity/types/accounting-entity.types';
+import ledgerService from '../../../../domain/ledger/services/ledger.service';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
+import userPreferencesService from '../../../../domain/user/services/user-preferences.service';
 import {
   EAppUsageModePreference,
   IUserPreferences,
 } from '../../../../domain/user/types/user-preferences.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import { IEvent } from '../../../../shared/types/event.types';
-import { IRepoService } from '../../../contracts/infra/repo.contract';
-import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
-import { MockUserPreferencesRepo } from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import accountingEntityService from '../../../../domain/accounting-entity/services/accounting-entity.service';
-import userPreferencesService from '../../../../domain/user/services/user-preferences.service';
-import ledgerService from '../../../../domain/ledger/services/ledger.service';
-import onboardAccountingEntityUseCase from '../onboard-accounting-entity.usecase';
-import accountingEntityEvents from '../../../../domain/accounting-entity/events/accounting-entity.events';
-import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUser } from '../../../../domain/user/types/user.types';
+import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import { MockUserPreferencesRepo } from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
+import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
+import { IEvent } from '../../../../shared/types/event.types';
+import { TEntityId } from '../../../../shared/types/uuid';
+import {
+  ErrorResourceNotFound,
+  ErrorUnauthorized,
+  ErrorUnprocessableEntity,
+} from '../../../../shared/value-objects/error';
+import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import onboardAccountingEntityUseCase from '../onboard-accounting-entity.usecase';
 
 jest.mock(
   '../../../../domain/accounting-entity/services/accounting-entity.service'

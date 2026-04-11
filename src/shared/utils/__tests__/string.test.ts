@@ -1,5 +1,5 @@
-import stringUtils from '../string';
 import { AppError } from '../../value-objects/error';
+import stringUtils from '../string';
 
 describe('stringUtils', () => {
   describe('isNonEmptyString', () => {

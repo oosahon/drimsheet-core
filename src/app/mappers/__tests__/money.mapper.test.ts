@@ -1,8 +1,8 @@
-import moneyMapper from '../money.mapper';
-import { IMoney } from '../../../shared/types/money.types';
-import { IMoneyDto } from '../../contracts/dto/money.dto';
 import { ICurrency } from '../../../domain/currency/types/currency.types';
+import { IMoney } from '../../../shared/types/money.types';
 import { AppError } from '../../../shared/value-objects/error';
+import { IMoneyDto } from '../../contracts/dto/money.dto';
+import moneyMapper from '../money.mapper';
 
 describe('Money Mapper', () => {
   const currency: ICurrency = {

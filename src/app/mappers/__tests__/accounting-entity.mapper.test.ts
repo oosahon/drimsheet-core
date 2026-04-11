@@ -1,8 +1,8 @@
+import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import { TEntityId } from '../../../shared/types/uuid';
 import accountingEntityMapper, {
   IAccountingEntityModel,
 } from '../accounting-entity.mapper';
-import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
-import { TEntityId } from '../../../shared/types/uuid';
 
 describe('Accounting Entity Mapper', () => {
   const createdAt = new Date('2026-04-10T12:00:00Z');

@@ -1,5 +1,5 @@
-import currencyMapper, { ICurrencyModel } from '../currency.mapper';
 import { ICurrency } from '../../../domain/currency/types/currency.types';
+import currencyMapper, { ICurrencyModel } from '../currency.mapper';
 
 describe('Currency Mapper', () => {
   describe('toRepo', () => {

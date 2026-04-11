@@ -1,9 +1,9 @@
-import { AppError } from '../../../../shared/value-objects/error';
-import userPreferencesEntity from '../user-preferences.entity';
-import { IUserPreferences } from '../../types/user-preferences.types';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import { AppError } from '../../../../shared/value-objects/error';
 import userEvents from '../../events/user.events';
+import { IUserPreferences } from '../../types/user-preferences.types';
+import userPreferencesEntity from '../user-preferences.entity';
 
 describe('User Preferences Entity', () => {
   beforeEach(() => {

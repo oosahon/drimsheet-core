@@ -1,9 +1,9 @@
 import Sentry from '@sentry/node';
+import appContext from '../../app/context';
+import IReporter from '../../app/contracts/infra/reporter.contract';
+import { parseError } from '../../shared/value-objects/error';
 import { NODE_ENV, SENTRY_DSN } from '../config/vars.config';
 import logger from './logger';
-import IReporter from '../../app/contracts/infra/reporter.contract';
-import appContext from '../../app/context';
-import { parseError } from '../../shared/value-objects/error';
 
 Sentry.init({ dsn: SENTRY_DSN, sendDefaultPii: true, environment: NODE_ENV });
 

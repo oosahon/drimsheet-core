@@ -1,10 +1,10 @@
-import IReporter from '../../contracts/infra/reporter.contract';
-import { IEvent } from '../../../shared/types/event.types';
+import { EUserEvents } from '../../../domain/user/events/user.events';
 import { IUser } from '../../../domain/user/types/user.types';
+import { IEvent } from '../../../shared/types/event.types';
+import IRequestContext from '../../contracts/app/request-context.contract';
+import IReporter from '../../contracts/infra/reporter.contract';
 import userUseCase from '../../usecases/user';
 import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
-import { EUserEvents } from '../../../domain/user/events/user.events';
-import IRequestContext from '../../contracts/app/request-context.contract';
 
 function userEmailVerifiedEventHandler(
   reporter: IReporter,

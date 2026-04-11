@@ -1,6 +1,6 @@
 import IEventBus from '../contracts/infra/event-bus.contract';
-import { userEventsRegistry } from '../handlers/user';
 import { accountingEntityEventsRegistry } from '../handlers/accounting-entity';
+import { userEventsRegistry } from '../handlers/user';
 
 export default function eventsRegistry(eventBus: IEventBus) {
   const events = {

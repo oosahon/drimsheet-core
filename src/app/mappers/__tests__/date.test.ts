@@ -1,8 +1,8 @@
 import {
-  toRepoDate,
-  fromRepoDate,
   fromCommonRepoDates,
+  fromRepoDate,
   toCommonRepoDates,
+  toRepoDate,
 } from '../date';
 
 describe('Date Mappers', () => {

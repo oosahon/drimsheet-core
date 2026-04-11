@@ -1,9 +1,9 @@
 import { InferSelectModel } from 'drizzle-orm';
+import _ from 'lodash';
 import { IUser } from '../../domain/user/types/user.types';
 import { usersInCore } from '../../infra/persistence/drizzle/schema';
-import { fromCommonRepoDates, toCommonRepoDates } from './date';
 import { TEntityId } from '../../shared/types/uuid';
-import _ from 'lodash';
+import { fromCommonRepoDates, toCommonRepoDates } from './date';
 
 export interface IUserModel extends InferSelectModel<typeof usersInCore> {}
 

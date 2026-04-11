@@ -1,24 +1,22 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import {
-  ErrorBadRequest,
-  ErrorResourceNotFound,
-} from '../../../../shared/value-objects/error';
 import {
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../../../domain/accounting-entity/types/accounting-entity.types';
-import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
+import ledgerService from '../../../../domain/ledger/services/ledger.service';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
+import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import setupNonPowerUserPostingAccountsUseCase from '../setup-non-power-user-posting-accounts.usecase';
-import ledgerService from '../../../../domain/ledger/services/ledger.service';
-import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import eventValue from '../../../../shared/value-objects/event.vo';
-import { ZodError } from 'zod';
-import { ErrorUnprocessableEntity } from '../../../../shared/value-objects/error';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { IEvent } from '../../../../shared/types/event.types';
+import { TEntityId } from '../../../../shared/types/uuid';
+import {
+  ErrorBadRequest,
+  ErrorResourceNotFound,
+  ErrorUnprocessableEntity,
+} from '../../../../shared/value-objects/error';
+import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import setupNonPowerUserPostingAccountsUseCase from '../setup-non-power-user-posting-accounts.usecase';
 
 jest.mock('../../../../domain/ledger/services/ledger.service');
 

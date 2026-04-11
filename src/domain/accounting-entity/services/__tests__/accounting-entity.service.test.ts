@@ -1,15 +1,15 @@
+import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
-import accountingEntityService from '../accounting-entity.service';
+import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
+import generateUUID from '../../../../shared/utils/uuid-generator';
+import { ErrorConflict } from '../../../../shared/value-objects/error';
+import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
 import {
   EAccountingEntityType,
   IAccountingEntity,
   UAccountingEntityType,
 } from '../../types/accounting-entity.types';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import { ErrorConflict } from '../../../../shared/value-objects/error';
-import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
+import accountingEntityService from '../accounting-entity.service';
 
 describe('accountingEntityService', () => {
   const service = accountingEntityService(mockAccountingEntityRepo);

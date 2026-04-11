@@ -1,6 +1,6 @@
-import userMapper, { IUserModel } from '../user.mapper';
 import { IUser } from '../../../domain/user/types/user.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import userMapper, { IUserModel } from '../user.mapper';
 
 describe('User Mapper', () => {
   const createdAt = new Date('2026-04-10T12:00:00Z');

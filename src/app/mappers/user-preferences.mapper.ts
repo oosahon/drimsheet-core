@@ -1,8 +1,8 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IUserPreferences } from '../../domain/user/types/user-preferences.types';
 import { userPreferencesInCore } from '../../infra/persistence/drizzle/schema';
-import { fromRepoDate, toRepoDate } from './date';
 import { TEntityId } from '../../shared/types/uuid';
+import { fromRepoDate, toRepoDate } from './date';
 
 interface IUserPreferencesModel extends InferSelectModel<
   typeof userPreferencesInCore

@@ -1,8 +1,8 @@
 import { rateLimit } from 'express-rate-limit';
 import {
   RATE_LIMITER_MAX,
-  RATE_LIMITER_WINDOW_MS,
   RATE_LIMITER_MESSAGE,
+  RATE_LIMITER_WINDOW_MS,
 } from '../config/rate-limiter.config';
 
 export default function rateLimiter() {

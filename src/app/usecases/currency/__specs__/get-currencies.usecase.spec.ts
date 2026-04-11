@@ -1,8 +1,8 @@
-import getCurrenciesUseCase from '../get-currencies.usecase';
+import { ICurrency } from '../../../../domain/currency/types/currency.types';
 import { MockCurrencyRepo } from '../../../../infra/persistence/repos/__mocks__/currency.repo.impl.mock';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import { ICurrency } from '../../../../domain/currency/types/currency.types';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import getCurrenciesUseCase from '../get-currencies.usecase';
 
 /**
  * ========= USECASE TESTS =========
