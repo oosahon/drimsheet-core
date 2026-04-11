@@ -172,16 +172,24 @@ describe('Error Value Objects', () => {
       });
     });
 
-    it('returns the error as-is if it is not an AppError or ApiError', () => {
+    it('parses an unknown error correctly if it is not an AppError or ApiError', () => {
       const genericError = new Error('Standard error');
       const parsed = parseError(genericError);
 
-      expect(parsed).toBe(genericError);
+      expect(parsed).toEqual({
+        type: 'unknown',
+        message: 'Standard error',
+        cause: genericError,
+      });
 
       const stringError = 'String error';
       const parsedString = parseError(stringError);
 
-      expect(parsedString).toBe(stringError);
+      expect(parsedString).toEqual({
+        type: 'unknown',
+        message: 'Unknown error',
+        cause: stringError,
+      });
     });
   });
 });
