@@ -18,6 +18,7 @@ import {
   IPayableAccount,
   IStatutoryPayableAccount,
 } from '../types/liability-account.types';
+import { LIABILITY_LEDGER_CODES } from '../config/liability-codes.config';
 
 interface ILiabilityAccountService {
   setupBaseIndividualAccounts(
@@ -59,10 +60,10 @@ export default function liabilityAccountService(
         ILiabilityLedgerAccount
       >[] = [];
 
-      const shortTermLoanCode = '200000';
-      const payablesCode = '201000';
-      const tradePayablesCode = '201001';
-      const statutoryPayablesCode = '201002';
+      const shortTermLoanCode = LIABILITY_LEDGER_CODES.SHORT_TERM_DEBT.HEADER;
+      const payablesCode = LIABILITY_LEDGER_CODES.PAYABLES.HEADER;
+      const tradePayablesCode = LIABILITY_LEDGER_CODES.PAYABLES.TRADE;
+      const statutoryPayablesCode = LIABILITY_LEDGER_CODES.PAYABLES.STATUTORY;
 
       /**
        * Short Term Loans / Debts

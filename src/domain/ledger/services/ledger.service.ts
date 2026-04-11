@@ -9,8 +9,9 @@ import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import { ILedgerAccount } from '../types/ledger.types';
 import assetAccountService from './asset-account.service';
 import liabilityAccountService from './liability-account.service';
-import individualGLSetupHelpers from './individual-gl-setup.helpers';
-import getIndividualPostingAccountsSetupHelpers from './individual-posting-accounts-setup.helpers';
+import equityAccountService from './equity-account.service';
+import revenueAccountService from './revenue-account.service';
+import expenseAccountService from './expense-account.service';
 
 export interface ILedgerService {
   setupBaseIndividualAccounts(
@@ -29,6 +30,9 @@ export default function ledgerService(
 ): ILedgerService {
   const assetAccountServiceFn = assetAccountService(repo);
   const liabilityAccountServiceFn = liabilityAccountService(repo);
+  const equityAccountServiceFn = equityAccountService(repo);
+  const revenueAccountServiceFn = revenueAccountService(repo);
+  const expenseAccountServiceFn = expenseAccountService(repo);
 
   return {
     /**
@@ -44,26 +48,29 @@ export default function ledgerService(
         throw new AppError('Entity is not an individual', { cause: entity });
       }
 
-      const params = {
-        userId: entity.ownerId,
-        accountingEntityId: entity.id,
-        functionalCurrency: entity.functionalCurrency,
-      };
-
-      const {
-        makeBaseEquityAccounts,
-        makeBaseRevenueAccounts,
-        makeBaseExpenseAccounts,
-      } = individualGLSetupHelpers(params, repo, repoOptions);
-
       const liabilityAccounts =
         await liabilityAccountServiceFn.setupBaseIndividualAccounts(
           entity,
           repoOptions
         );
-      const equityAccounts = await makeBaseEquityAccounts();
-      const revenueAccounts = await makeBaseRevenueAccounts();
-      const expenseAccounts = await makeBaseExpenseAccounts();
+
+      const equityAccounts =
+        await equityAccountServiceFn.setupBaseIndividualAccounts(
+          entity,
+          repoOptions
+        );
+
+      const revenueAccounts =
+        await revenueAccountServiceFn.setupBaseIndividualAccounts(
+          entity,
+          repoOptions
+        );
+
+      const expenseAccounts =
+        await expenseAccountServiceFn.setupBaseIndividualAccounts(
+          entity,
+          repoOptions
+        );
 
       const assetAccounts =
         await assetAccountServiceFn.setupBaseIndividualAccounts(
@@ -71,15 +78,13 @@ export default function ledgerService(
           repoOptions
         );
 
-      const entitiesAndEvents = [
+      return [
         ...assetAccounts,
         ...liabilityAccounts,
         ...equityAccounts,
         ...revenueAccounts,
         ...expenseAccounts,
       ];
-
-      return entitiesAndEvents;
     },
 
     /**
@@ -94,43 +99,23 @@ export default function ledgerService(
         throw new AppError('Entity is not an individual', { cause: entity });
       }
 
-      const params = {
-        userId: entity.ownerId,
-        accountingEntityId: entity.id,
-        functionalCurrency: entity.functionalCurrency,
-      };
-
-      const {
-        makeDefaultServicesAccount,
-        makeDefaultEmploymentIncomeAccount,
-        makeDefaultGainOnAssetsAccount,
-        makeDefaultUnrealizedGainsAccount,
-        makeDefaultDirectCostsAccount,
-        makeDefaultRentAndUtilitiesAccount,
-        makeDefaultFinanceCostsAccount,
-        makeDefaultTaxExpenseAccount,
-        makeDefaultUnrealizedLossAccount,
-        makeDefaultAssetDisposalLossAccount,
-      } = getIndividualPostingAccountsSetupHelpers(params, repo, repoOptions);
-
       const liabilitySuspenseAccounts =
         await liabilityAccountServiceFn.bootstrapNonPowerUserAccounts(
           entity,
           repoOptions
         );
-      const servicesAccounts = await makeDefaultServicesAccount();
-      const employmentIncomeAccounts =
-        await makeDefaultEmploymentIncomeAccount();
-      const gainOnAssetsAccounts = await makeDefaultGainOnAssetsAccount();
-      const unrealizedGainsAccounts = await makeDefaultUnrealizedGainsAccount();
-      const directCostsAccounts = await makeDefaultDirectCostsAccount();
-      const rentAndUtilitiesAccounts =
-        await makeDefaultRentAndUtilitiesAccount();
-      const financeCostsAccounts = await makeDefaultFinanceCostsAccount();
-      const taxExpenseAccounts = await makeDefaultTaxExpenseAccount();
-      const unrealizedLossAccounts = await makeDefaultUnrealizedLossAccount();
-      const assetDisposalLossAccounts =
-        await makeDefaultAssetDisposalLossAccount();
+
+      const revenueSuspenseAccounts =
+        await revenueAccountServiceFn.bootstrapNonPowerUserAccounts(
+          entity,
+          repoOptions
+        );
+
+      const expenseSuspenseAccounts =
+        await expenseAccountServiceFn.bootstrapNonPowerUserAccounts(
+          entity,
+          repoOptions
+        );
 
       const assetAccounts =
         await assetAccountServiceFn.bootstrapNonPowerUserAccounts(
@@ -141,16 +126,8 @@ export default function ledgerService(
       return [
         ...assetAccounts,
         ...liabilitySuspenseAccounts,
-        ...servicesAccounts,
-        ...employmentIncomeAccounts,
-        ...gainOnAssetsAccounts,
-        ...unrealizedGainsAccounts,
-        ...directCostsAccounts,
-        ...rentAndUtilitiesAccounts,
-        ...financeCostsAccounts,
-        ...taxExpenseAccounts,
-        ...unrealizedLossAccounts,
-        ...assetDisposalLossAccounts,
+        ...revenueSuspenseAccounts,
+        ...expenseSuspenseAccounts,
       ];
     },
   };
