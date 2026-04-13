@@ -8,14 +8,16 @@ export const EUserEvents = {
   EmailVerified: 'domain:user:email-verified',
   PreferencesUpdated: 'domain:user:preferences-updated',
   LoggedIn: 'domain:user:logged-in',
+  RequestedPasswordReset: 'domain:user:reset-password-requested',
 } as const;
 
 export const userEventDescriptions: Record<string, string> = {
   [EUserEvents.Created]: 'Signed up to Purple Ledger.',
   [EUserEvents.Updated]: 'Updated profile information.',
   [EUserEvents.EmailVerified]: 'Verified email address.',
-  [EUserEvents.PreferencesUpdated]: 'Updated user preferences.',
+  [EUserEvents.PreferencesUpdated]: 'Updated preferences.',
   [EUserEvents.LoggedIn]: 'Logged in.',
+  [EUserEvents.RequestedPasswordReset]: 'Requested password reset.',
 } as const;
 
 function makeCreatedEvent(user: IUser) {
@@ -53,12 +55,20 @@ function makeLoggedInEvent(user: IUser) {
   });
 }
 
+function makeRequestedPasswordResetEvent(user: IUser) {
+  return eventValue.make<IUser>({
+    type: EUserEvents.RequestedPasswordReset,
+    data: user,
+  });
+}
+
 const userEvents = Object.freeze({
   created: makeCreatedEvent,
   updated: makeUpdatedEvent,
   emailVerified: makeEmailVerifiedEvent,
   preferencesUpdated: makePreferencesUpdatedEvent,
   loggedIn: makeLoggedInEvent,
+  requestedPasswordReset: makeRequestedPasswordResetEvent,
 });
 
 export default userEvents;

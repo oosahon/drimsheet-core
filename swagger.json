@@ -682,6 +682,56 @@
         }
       }
     },
+    "/auth/get-password-reset-link": {
+      "post": {
+        "operationId": "getPasswordResetLink",
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "\nGet password reset link",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email"],
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
     "/accounting-entities": {
       "get": {
         "operationId": "getAll",

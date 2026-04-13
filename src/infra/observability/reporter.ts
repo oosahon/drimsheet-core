@@ -31,6 +31,28 @@ const reporter: IReporter = {
       logger.error(JSON.stringify(parseError(error)));
     }
   },
+  reportAbuse(message, meta) {
+    try {
+      const { correlationId } = appContext.request.get() || {};
+      const loggerError = JSON.stringify({
+        level: 'warning',
+        message,
+        ...meta,
+        correlationId,
+      });
+
+      logger.warn(loggerError);
+
+      if (NODE_ENV === 'local') return;
+
+      Sentry.captureMessage(message, {
+        level: 'warning',
+        extra: { ...meta, correlationId },
+      });
+    } catch (error) {
+      logger.error(JSON.stringify(parseError(error)));
+    }
+  },
 };
 
 export default reporter;

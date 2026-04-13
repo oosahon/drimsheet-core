@@ -1,17 +1,12 @@
-import { rateLimit } from 'express-rate-limit';
 import {
+  configureRateLimiter,
   RATE_LIMITER_MAX,
-  RATE_LIMITER_MESSAGE,
   RATE_LIMITER_WINDOW_MS,
 } from '../config/rate-limiter.config';
 
 export default function rateLimiter() {
-  return rateLimit({
+  return configureRateLimiter({
     windowMs: RATE_LIMITER_WINDOW_MS,
     max: RATE_LIMITER_MAX,
-    message: RATE_LIMITER_MESSAGE,
-    legacyHeaders: false,
-    standardHeaders: true,
-    ipv6Subnet: 64,
   });
 }

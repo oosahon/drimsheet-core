@@ -1,6 +1,6 @@
+import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
-import { execFileSync } from 'child_process';
 
 const ROOT = process.cwd();
 const IGNORE = new Set([
@@ -156,7 +156,10 @@ async function run() {
     const params = extractParams(source);
 
     const baseName = path.basename(mjmlPath, '.mjml');
-    const functionName = toCamelCase(baseName);
+    let functionName = toCamelCase(baseName);
+    if (!functionName.endsWith('Template')) {
+      functionName += 'Template';
+    }
 
     const html = compileMjml(mjmlPath);
     const outPath = path.join(path.dirname(mjmlPath), `${baseName}.ts`);
