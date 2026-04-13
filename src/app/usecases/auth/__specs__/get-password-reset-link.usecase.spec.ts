@@ -15,9 +15,15 @@ describe('getPasswordResetLinkUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2023-01-01T00:00:00.000Z'));
     mockRequestContext.get.mockReturnValue({
       correlationId,
     } as IRequestContextData);
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('should return early if user is not found', async () => {
