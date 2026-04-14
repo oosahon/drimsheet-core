@@ -216,6 +216,16 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IResetPasswordReq: {
+    dataType: 'refObject',
+    properties: {
+      token: { dataType: 'string', required: true },
+      password: { dataType: 'string', required: true },
+      confirmPassword: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   'Pick_IAccountingEntity.Exclude_keyofIAccountingEntity.functionalCurrency-or-reportingCurrency__':
     {
       dataType: 'refAlias',
@@ -562,6 +572,103 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'loginWithEmail',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAuthController_getPasswordResetLink: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    payload: {
+      in: 'body',
+      name: 'payload',
+      required: true,
+      dataType: 'nestedObjectLiteral',
+      nestedProperties: { email: { dataType: 'string', required: true } },
+    },
+  };
+  app.post(
+    '/api/v1/auth/get-password-reset-link',
+    ...fetchMiddlewares<RequestHandler>(AuthController),
+    ...fetchMiddlewares<RequestHandler>(
+      AuthController.prototype.getPasswordResetLink
+    ),
+
+    async function AuthController_getPasswordResetLink(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAuthController_getPasswordResetLink,
+          request,
+          response,
+        });
+
+        const controller = new AuthController();
+
+        await templateService.apiHandler({
+          methodName: 'getPasswordResetLink',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAuthController_resetPassword: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    payload: {
+      in: 'body',
+      name: 'payload',
+      required: true,
+      ref: 'IResetPasswordReq',
+    },
+  };
+  app.post(
+    '/api/v1/auth/reset-password',
+    ...fetchMiddlewares<RequestHandler>(AuthController),
+    ...fetchMiddlewares<RequestHandler>(AuthController.prototype.resetPassword),
+
+    async function AuthController_resetPassword(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAuthController_resetPassword,
+          request,
+          response,
+        });
+
+        const controller = new AuthController();
+
+        await templateService.apiHandler({
+          methodName: 'resetPassword',
           controller,
           response,
           next,

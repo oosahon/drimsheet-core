@@ -143,7 +143,10 @@ async function run() {
     const params = extractParams(source);
 
     const parentDir = path.basename(path.dirname(mjmlPath));
-    const functionName = toCamelCase(parentDir);
+    let functionName = toCamelCase(parentDir);
+    if (!functionName.endsWith('Template')) {
+      functionName += 'Template';
+    }
 
     const html = compileMjml(mjmlPath);
     const outPath = path.join(path.dirname(mjmlPath), 'template.ts');

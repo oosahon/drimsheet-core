@@ -4,7 +4,9 @@ import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
 import appContext from '../../context';
+import getPasswordResetLinkUseCase from './get-password-reset-link.usecase';
 import loginWithEmailUseCase from './login-with-email.usecase';
+import resetPasswordUseCase from './reset-password.usecase';
 import sendEmailVerificationEmailUseCase from './send-email-verification-email.usecase';
 import signupWithEmailUsecase from './signup-with-email.usecase';
 import verifyEmailAddressUseCase from './verify-email.usecase';
@@ -33,6 +35,21 @@ const authUseCase = {
   ),
 
   loginWithEmail: loginWithEmailUseCase(
+    appContext.request,
+    repos.user,
+    services.auth,
+    eventBus
+  ),
+
+  getPasswordResetLink: getPasswordResetLinkUseCase(
+    appContext.request,
+    repos.user,
+    services.auth,
+    services.transactionalEmail,
+    eventBus
+  ),
+
+  resetPassword: resetPasswordUseCase(
     appContext.request,
     repos.user,
     services.auth,

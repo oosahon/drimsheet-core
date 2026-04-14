@@ -14,3 +14,9 @@ export interface ILoginReq {
   email: string;
   password: string;
 }
+
+export interface IResetPasswordReq {
+  token: string;
+  password: string;
+  confirmPassword: string;
+}
