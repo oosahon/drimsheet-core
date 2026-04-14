@@ -8,7 +8,7 @@ sequenceDiagram
     Browser->>Server: POST /login { email, password }
     Server->>Server: Validate Credentials
     Server->>Cookie: Set-Cookie: refreshToken (domain=.example.com, HttpOnly, SameSite=Lax)
-    Server-->>Browser: { accessToken, user }
+    Server-->>Browser: { accessToken }
     Browser->>Browser: Store accessToken in variable
 
     Note over Browser, Cookie: Standard API Request
