@@ -12,9 +12,8 @@ import {
 } from 'tsoa';
 import { ILoginReq, IUserSignupReq } from '../../../app/contracts/dto/auth.dto';
 import authUseCase from '../../../app/usecases/auth';
-import { IApiError } from '../handlers/error.handler';
-
 import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
+import { IApiError } from '../handlers/error.handler';
 
 const rateLimiter = {
   default: configureRateLimiter({
@@ -22,8 +21,7 @@ const rateLimiter = {
     max: 5,
     message:
       'Too many authentication attempts for this account, please try again.',
-    keyGenerator: (req) =>
-      req.body?.email || (req.query?.token as string) || req.ip || 'unknown-ip',
+    keyGenerator: (req) => req.body?.email || (req.query?.token as string),
   }),
 
   getPasswordResetLink: configureRateLimiter({
@@ -31,7 +29,7 @@ const rateLimiter = {
     max: 3,
     message:
       'Too many password reset requests for this account, please try again.',
-    keyGenerator: (req) => req.body?.email || req.ip || 'unknown-ip',
+    keyGenerator: (req) => req.body?.email,
   }),
 };
 

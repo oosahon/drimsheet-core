@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 export const RATE_LIMITER_WINDOW_MS = 15 * 60 * 1000;
 export const RATE_LIMITER_MAX = 100;
@@ -11,7 +11,10 @@ interface IConfig {
   windowMs: number;
   max: number;
   message?: string;
-  keyGenerator?: (req: Request, res: Response) => string | Promise<string>;
+  keyGenerator?: (
+    req: Request,
+    res: Response
+  ) => string | undefined | Promise<string | undefined>;
 }
 
 import reporter from '../observability/reporter';
@@ -21,10 +24,16 @@ export function configureRateLimiter(config: IConfig) {
     windowMs: config.windowMs,
     max: config.max,
     message: config.message || RATE_LIMITER_MESSAGE,
-    keyGenerator: config.keyGenerator,
+    ...(config.keyGenerator
+      ? {
+          keyGenerator: async (req: Request, res: Response) => {
+            const key = await config.keyGenerator!(req, res);
+            return key || (req.ip ? ipKeyGenerator(req.ip, 64) : 'unknown-ip');
+          },
+        }
+      : { ipv6Subnet: 64 }),
     legacyHeaders: false,
     standardHeaders: true,
-    ipv6Subnet: 64,
     handler: (req, res, next, options) => {
       const rateLimitInfo = (req as any).rateLimit;
 
