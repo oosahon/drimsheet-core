@@ -1,4 +1,5 @@
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
 import { RegisterRoutes } from '../../../routes';
@@ -26,6 +27,8 @@ function setupServer(bootstrap?: () => Promise<void>) {
   app.use('/bullmq-board-admin', bullMqServerAdapter.getRouter());
 
   app.use(compression());
+
+  app.use(cookieParser());
 
   app.use(middlewares.requestContext);
 

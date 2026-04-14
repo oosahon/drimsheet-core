@@ -6,7 +6,7 @@ import errorHandlerMiddleware from './error-handler.middleware';
 import isAuthenticatedUserMiddleware from './is-authenticated-user.middleware';
 
 import isOptionalAuthenticatedUserMiddleware from './is-optional-authenticated-user.middleware';
-import requestContextMiddleware from './request-context.middleware';
+import requestContextInitMiddleware from './request-context-init.middleware';
 import requestLoggerMiddleware from './request-logger.middleware';
 
 const middlewares = {
@@ -15,7 +15,7 @@ const middlewares = {
     observability.reporter
   ),
 
-  requestContext: requestContextMiddleware(appContext.request),
+  requestContext: requestContextInitMiddleware(appContext.request),
 
   errorHandler: errorHandlerMiddleware(
     observability.logger,

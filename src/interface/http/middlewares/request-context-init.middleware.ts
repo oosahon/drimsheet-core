@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
 import { UAccountingEntityType } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import { NODE_ENV, WEB_APP_URL } from '../../../infra/config/vars.config';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import getHttpHeaderValue from '../helpers/get-http-header-value';
 
@@ -9,7 +10,7 @@ import getHttpHeaderValue from '../helpers/get-http-header-value';
  *
  * This middleware is used to initialize the request context
  */
-export default function requestContextMiddleware(
+export default function requestContextInitMiddleware(
   requestContext: IRequestContext
 ): RequestHandler {
   return (req, res, next) => {
@@ -29,6 +30,21 @@ export default function requestContextMiddleware(
         correlationId,
         idempotencyKey: idempotencyKey || '',
         accountingEntityType: accountingEntityType as UAccountingEntityType,
+        clientSession: {
+          setRefreshToken: (token: string) => {
+            res.cookie('refresh_token', token, {
+              httpOnly: true,
+              secure: NODE_ENV === 'production',
+              domain: new URL(WEB_APP_URL).hostname,
+              sameSite: 'lax',
+              maxAge: 1000 * 60 * 60 * 24 * 7,
+            });
+          },
+
+          getRefreshToken: () => {
+            return req.cookies.refresh_token;
+          },
+        },
       },
       next
     );
