@@ -24,7 +24,9 @@ export interface IUserSession {
 export default interface IAuthService {
   hashPassword(password: string): Promise<string>;
 
-  getSignupVerificationLink(user: IAuthTokenPayload): string;
+  generateSignupToken(user: IAuthTokenPayload): Promise<string>;
+
+  verifySignupToken(token: string): Promise<IAuthTokenPayload | null>;
 
   comparePassword(
     passwordString: string,
@@ -38,8 +40,6 @@ export default interface IAuthService {
   generatePasswordResetToken(payload: IAuthTokenPayload): Promise<string>;
 
   verifyPasswordResetToken(token: string): Promise<IAuthTokenPayload | null>;
-
-  getResetPasswordLink(token: string): string;
 
   verifyAuthToken(token: string): IAuthTokenPayload;
 

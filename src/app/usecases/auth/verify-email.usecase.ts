@@ -24,7 +24,7 @@ export default function verifyEmailAddressUseCase(
 
     const { correlationId } = requestContext.get();
 
-    const decodedToken = authService.verifyAuthToken(token);
+    const decodedToken = await authService.verifySignupToken(token);
 
     if (!decodedToken) {
       throw new ErrorUnauthorized('Invalid or expired verification token');

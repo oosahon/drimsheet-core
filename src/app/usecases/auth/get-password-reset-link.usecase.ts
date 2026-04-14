@@ -1,6 +1,7 @@
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
+import { WEB_APP_URL } from '../../../infra/config/vars.config';
 import { ErrorBadRequest } from '../../../shared/value-objects/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
@@ -37,7 +38,7 @@ export default function getPasswordResetLinkUseCase(
     }
 
     const resetToken = await authService.generatePasswordResetToken(user);
-    const resetLink = authService.getResetPasswordLink(resetToken);
+    const resetLink = `${WEB_APP_URL}/auth/reset-password?token=${resetToken}`;
 
     await transactionEmailService.sendPasswordResetLink({
       user,

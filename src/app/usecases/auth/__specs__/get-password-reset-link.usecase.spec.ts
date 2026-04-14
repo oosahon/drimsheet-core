@@ -52,7 +52,6 @@ describe('getPasswordResetLinkUseCase', () => {
       }
     );
     expect(mockAuthService.generatePasswordResetToken).not.toHaveBeenCalled();
-    expect(mockAuthService.getResetPasswordLink).not.toHaveBeenCalled();
     expect(
       mockTransactionalEmailService.sendPasswordResetLink
     ).not.toHaveBeenCalled();
@@ -72,8 +71,8 @@ describe('getPasswordResetLinkUseCase', () => {
       deletedAt: null,
     };
     const resetToken = 'test-reset-token';
-    const resetLink =
-      'https://example.com/reset-password?token=test-reset-token';
+    const { WEB_APP_URL } = require('../../../../infra/config/vars.config');
+    const resetLink = `${WEB_APP_URL}/auth/reset-password?token=${resetToken}`;
 
     const mockUserAuth = {
       userId: mockUser.id,
@@ -85,7 +84,6 @@ describe('getPasswordResetLinkUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
     mockAuthService.generatePasswordResetToken.mockResolvedValue(resetToken);
-    mockAuthService.getResetPasswordLink.mockReturnValue(resetLink);
 
     const usecase = getPasswordResetLinkUseCase(
       mockRequestContext,
@@ -106,9 +104,6 @@ describe('getPasswordResetLinkUseCase', () => {
     );
     expect(mockAuthService.generatePasswordResetToken).toHaveBeenCalledWith(
       mockUser
-    );
-    expect(mockAuthService.getResetPasswordLink).toHaveBeenCalledWith(
-      resetToken
     );
     expect(
       mockTransactionalEmailService.sendPasswordResetLink
@@ -162,7 +157,6 @@ describe('getPasswordResetLinkUseCase', () => {
     );
 
     expect(mockAuthService.generatePasswordResetToken).not.toHaveBeenCalled();
-    expect(mockAuthService.getResetPasswordLink).not.toHaveBeenCalled();
     expect(
       mockTransactionalEmailService.sendPasswordResetLink
     ).not.toHaveBeenCalled();

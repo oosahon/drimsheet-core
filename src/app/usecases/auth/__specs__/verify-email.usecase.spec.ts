@@ -49,7 +49,7 @@ describe('verifyEmailAddressUseCase', () => {
       deletedAt: null,
     };
 
-    mockAuthService.verifyAuthToken.mockReturnValue(decodedToken);
+    mockAuthService.verifySignupToken.mockResolvedValue(decodedToken);
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
@@ -64,7 +64,7 @@ describe('verifyEmailAddressUseCase', () => {
     const result = await usecase(token);
 
     expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
-    expect(mockAuthService.verifyAuthToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
       correlationId,
     });
@@ -103,7 +103,7 @@ describe('verifyEmailAddressUseCase', () => {
     } as IRequestContextData);
 
     const token = 'invalid-token';
-    mockAuthService.verifyAuthToken.mockReturnValue(null as any);
+    mockAuthService.verifySignupToken.mockResolvedValue(null);
 
     const usecase = verifyEmailAddressUseCase(
       mockAuthService,
@@ -117,7 +117,7 @@ describe('verifyEmailAddressUseCase', () => {
       'Invalid or expired verification token'
     );
 
-    expect(mockAuthService.verifyAuthToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).not.toHaveBeenCalled();
     expect(mockUserRepo.save).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
@@ -135,7 +135,7 @@ describe('verifyEmailAddressUseCase', () => {
       email: 'johndoe@example.com',
     } as any;
 
-    mockAuthService.verifyAuthToken.mockReturnValue(decodedToken);
+    mockAuthService.verifySignupToken.mockResolvedValue(decodedToken);
     mockUserRepo.findById.mockResolvedValue(null);
 
     const usecase = verifyEmailAddressUseCase(
@@ -150,7 +150,7 @@ describe('verifyEmailAddressUseCase', () => {
       'Invalid or expired verification token'
     );
 
-    expect(mockAuthService.verifyAuthToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
       correlationId,
     });
