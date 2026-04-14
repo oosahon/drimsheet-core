@@ -8,6 +8,9 @@ import { NON_PROD_EMAIL_WHITELIST } from '../config/email-whitelist.config';
 import { JWT_SECRET_KEY, NODE_ENV } from '../config/vars.config';
 
 export default function authService(cacheStorage: ICacheStorage): IAuthService {
+  const verifyAuthToken = (token: string) =>
+    verify(token, JWT_SECRET_KEY) as IAuthTokenPayload & { type: string };
+
   return {
     hashPassword: async (password) => {
       const salt = await bcrypt.genSalt(10);
@@ -34,17 +37,23 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
     },
 
     async verifySignupToken(token) {
-      const decoded = verify(token, JWT_SECRET_KEY) as IAuthTokenPayload;
+      try {
+        const decoded = verifyAuthToken(token);
 
-      const cachedToken = await cacheStorage.get<string>(
-        `app:auth:signup-token:${decoded.id}`
-      );
+        if (decoded.type !== 'signup') return null;
 
-      if (!cachedToken) {
+        const cachedToken = await cacheStorage.get<string>(
+          `app:auth:signup-token:${decoded.id}`
+        );
+
+        if (!cachedToken) {
+          return null;
+        }
+
+        return cachedToken === token ? decoded : null;
+      } catch (err) {
         return null;
       }
-
-      return cachedToken === token ? decoded : null;
     },
 
     comparePassword: async (passwordString, hashedPassword) => {
@@ -56,7 +65,6 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
       const token = sign({ id, type: 'access' }, JWT_SECRET_KEY, {
         expiresIn: ttlSeconds,
       });
-      await cacheStorage.set(`app:auth:access-token:${id}`, token, ttlSeconds);
 
       return token;
     },
@@ -71,7 +79,6 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
         JWT_SECRET_KEY,
         { expiresIn: ttlSeconds }
       );
-      await cacheStorage.set(`app:auth:refresh-token:${id}`, token, ttlSeconds);
 
       return token;
     },
@@ -93,7 +100,9 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
 
     async verifyPasswordResetToken(token) {
       try {
-        const decoded = verify(token, JWT_SECRET_KEY) as IAuthTokenPayload;
+        const decoded = verifyAuthToken(token);
+
+        if (decoded.type !== 'reset') return null;
 
         const cachedToken = await cacheStorage.get<string>(
           `app:auth:reset-token:${decoded.id}`
@@ -109,23 +118,15 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
       }
     },
 
-    verifyAuthToken(token) {
-      return verify(token, JWT_SECRET_KEY) as IAuthTokenPayload;
-    },
+    verifyAuthToken,
 
     async getAuthUser(token: string) {
       try {
-        const decoded = this.verifyAuthToken(token);
+        const decoded = verifyAuthToken(token);
 
-        const cachedToken = await cacheStorage.get<string>(
-          `app:auth:access-token:${decoded.id}`
-        );
+        if (decoded.type !== 'access') return null;
 
-        if (!cachedToken) {
-          return null;
-        }
-
-        return cachedToken === token ? decoded : null;
+        return decoded;
       } catch (err) {
         return null;
       }

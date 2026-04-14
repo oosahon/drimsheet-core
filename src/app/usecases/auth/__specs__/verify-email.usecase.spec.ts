@@ -1,19 +1,34 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/user-session.repo.impl.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import { IEvent } from '../../../../shared/types/event.types';
+import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import {
   ErrorUnauthorized,
   ErrorUnprocessableEntity,
 } from '../../../../shared/value-objects/error';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import {
+  IClientSession,
+  IRequestContextData,
+} from '../../../contracts/app/request-context.contract';
+import { ITransactionContext } from '../../../contracts/infra/repo.contract';
 import verifyEmailAddressUseCase from '../verify-email.usecase';
 
 describe('verifyEmailAddressUseCase', () => {
+  let mockClientSession: jest.Mocked<IClientSession>;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockClientSession = {
+      getRefreshToken: jest.fn(),
+      setRefreshToken: jest.fn(),
+    };
+
+    mockRepoService.runInTransaction.mockImplementation(async (cb) => {
+      await cb('mock-tx' as unknown as ITransactionContext);
+    });
   });
 
   it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
@@ -21,7 +36,9 @@ describe('verifyEmailAddressUseCase', () => {
       mockAuthService,
       mockUserRepo,
       mockRequestContext,
-      mockEventBus
+      mockEventBus,
+      mockUserSessionRepo,
+      mockRepoService
     );
 
     await expect(usecase(123 as any)).rejects.toThrow(ErrorUnprocessableEntity);
@@ -31,7 +48,8 @@ describe('verifyEmailAddressUseCase', () => {
     const correlationId = 'test-corr-id';
     mockRequestContext.get.mockReturnValue({
       correlationId,
-    } as IRequestContextData);
+      clientSession: mockClientSession,
+    } as unknown as IRequestContextData);
 
     const token = 'valid-token';
     const decodedToken = {
@@ -58,31 +76,40 @@ describe('verifyEmailAddressUseCase', () => {
       mockAuthService,
       mockUserRepo,
       mockRequestContext,
-      mockEventBus
+      mockEventBus,
+      mockUserSessionRepo,
+      mockRepoService
     );
 
     const result = await usecase(token);
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockRequestContext.get).toHaveBeenCalledTimes(2);
     expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
       correlationId,
     });
 
     expect(mockUserRepo.save).toHaveBeenCalledTimes(1);
-    const savedUserArgs = mockUserRepo.save.mock.calls[0];
-    expect(savedUserArgs[0]).toMatchObject({
+    // User save check
+    const savedUserArgs = mockUserRepo.save.mock.calls.find(
+      (c) => c[0].emailVerified === true
+    );
+    expect(savedUserArgs).toBeDefined();
+    expect(savedUserArgs![0]).toMatchObject({
       id: '123e4567-e89b-12d3-a456-426614174000',
       emailVerified: true,
     });
-    expect(savedUserArgs[1]).toEqual({ correlationId });
+    expect(savedUserArgs![1]).toEqual({ correlationId });
+
+    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
+    expect(mockUserSessionRepo.save).toHaveBeenCalled();
 
     expect(mockEventBus.publish).toHaveBeenCalled();
     const publishCalls = (mockEventBus.publish as jest.Mock).mock.calls;
     expect(publishCalls.length).toBeGreaterThan(0);
     publishCalls.forEach(([events]) => {
-      expect(Array.isArray(events)).toBe(true);
-      (events as IEvent<unknown>[]).forEach((event) => {
+      const eventsArray = Array.isArray(events) ? events : [events];
+      eventsArray.forEach((event) => {
         expect(event).toMatchObject({
           correlationId,
         });
@@ -100,7 +127,8 @@ describe('verifyEmailAddressUseCase', () => {
     const correlationId = 'test-corr-id';
     mockRequestContext.get.mockReturnValue({
       correlationId,
-    } as IRequestContextData);
+      clientSession: mockClientSession,
+    } as unknown as IRequestContextData);
 
     const token = 'invalid-token';
     mockAuthService.verifySignupToken.mockResolvedValue(null);
@@ -109,7 +137,9 @@ describe('verifyEmailAddressUseCase', () => {
       mockAuthService,
       mockUserRepo,
       mockRequestContext,
-      mockEventBus
+      mockEventBus,
+      mockUserSessionRepo,
+      mockRepoService
     );
 
     await expect(usecase(token)).rejects.toThrow(ErrorUnauthorized);
@@ -127,7 +157,8 @@ describe('verifyEmailAddressUseCase', () => {
     const correlationId = 'test-corr-id';
     mockRequestContext.get.mockReturnValue({
       correlationId,
-    } as IRequestContextData);
+      clientSession: mockClientSession,
+    } as unknown as IRequestContextData);
 
     const token = 'valid-token';
     const decodedToken = {
@@ -142,7 +173,9 @@ describe('verifyEmailAddressUseCase', () => {
       mockAuthService,
       mockUserRepo,
       mockRequestContext,
-      mockEventBus
+      mockEventBus,
+      mockUserSessionRepo,
+      mockRepoService
     );
 
     await expect(usecase(token)).rejects.toThrow(ErrorUnauthorized);

@@ -8,6 +8,9 @@ import IRequestContext from '../../contracts/app/request-context.contract';
 import { IAccessToken } from '../../contracts/dto/auth.dto';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
+import { IRepoService } from '../../contracts/infra/repo.contract';
+import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
+import issueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z.object({
   token: z.string(),
@@ -17,7 +20,9 @@ export default function verifyEmailAddressUseCase(
   authService: IAuthService,
   userRepo: IUserRepo,
   requestContext: IRequestContext,
-  eventBus: IEventBus
+  eventBus: IEventBus,
+  userSessionRepo: IUserSessionRepo,
+  repoService: IRepoService
 ) {
   return async (token: string): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, { token });
@@ -42,10 +47,13 @@ export default function verifyEmailAddressUseCase(
 
     eventBus.publish(eventValue.enrichAll(events, { correlationId }));
 
-    const accessToken = await authService.generateAccessToken(updatedUser);
-
-    return {
-      accessToken,
-    };
+    return issueUserSessionHelper({
+      user: updatedUser,
+      reqContext: requestContext,
+      authService,
+      userSessionRepo,
+      eventBus,
+      repoService,
+    });
   };
 }

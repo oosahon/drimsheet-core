@@ -32,7 +32,9 @@ const authUseCase = {
     services.auth,
     repos.user,
     appContext.request,
-    messaging.eventBus
+    messaging.eventBus,
+    repos.userSession,
+    services.repo
   ),
 
   loginWithEmail: loginWithEmailUseCase(
