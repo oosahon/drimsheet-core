@@ -10,7 +10,11 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { ILoginReq, IUserSignupReq } from '../../../app/contracts/dto/auth.dto';
+import {
+  ILoginReq,
+  IResetPasswordReq,
+  IUserSignupReq,
+} from '../../../app/contracts/dto/auth.dto';
 import authUseCase from '../../../app/usecases/auth';
 import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
 import { IApiError } from '../handlers/error.handler';
@@ -88,5 +92,18 @@ export class AuthController extends Controller {
   @Response<IApiError>('422')
   public async getPasswordResetLink(@Body() payload: { email: string }) {
     return await authUseCase.getPasswordResetLink(payload.email);
+  }
+
+  /**
+   *
+   * Reset password
+   */
+  @Post('reset-password')
+  @OperationId('resetPassword')
+  @SuccessResponse('200')
+  @Response<IApiError>('400')
+  @Response<IApiError>('422')
+  public async resetPassword(@Body() payload: IResetPasswordReq) {
+    return await authUseCase.resetPassword(payload);
   }
 }

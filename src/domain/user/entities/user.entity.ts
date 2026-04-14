@@ -116,10 +116,28 @@ function update(
   return [updatedUser, [event]];
 }
 
+function updatePassword(
+  user: IUser,
+  passwordHash: string
+): TEntityWithEvents<IUser, IUser> {
+  userHelpers.validate(user);
+
+  const updatedUser: IUser = Object.freeze({
+    ...user,
+    password: passwordHash,
+    updatedAt: new Date(),
+  });
+
+  const event = userEvents.passwordReset(updatedUser);
+
+  return [updatedUser, [event]];
+}
+
 const userEntity = Object.freeze({
   make,
   verifyEmail,
   update,
+  updatePassword,
   ...userHelpers,
 });
 
