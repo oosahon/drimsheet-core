@@ -1,6 +1,7 @@
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
+import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
@@ -33,6 +34,8 @@ export default function getPasswordResetLinkUseCase(
       correlationId,
     });
 
-    eventBus.publish(userEvents.requestedPasswordReset(user));
+    const event = userEvents.requestedPasswordReset(user);
+
+    eventBus.publish(eventValue.enrich(event, { correlationId }));
   };
 }

@@ -753,7 +753,14 @@
         "operationId": "resetPassword",
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IAuthRes"
+                }
+              }
+            }
           },
           "400": {
             "description": "",

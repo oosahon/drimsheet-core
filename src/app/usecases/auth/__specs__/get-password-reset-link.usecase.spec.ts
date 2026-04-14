@@ -6,6 +6,7 @@ import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.rep
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
+import eventValue from '../../../../shared/value-objects/event.vo';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import getPasswordResetLinkUseCase from '../get-password-reset-link.usecase';
@@ -104,7 +105,9 @@ describe('getPasswordResetLinkUseCase', () => {
       correlationId,
     });
     expect(mockEventBus.publish).toHaveBeenCalledWith(
-      userEvents.requestedPasswordReset(mockUser)
+      eventValue.enrich(userEvents.requestedPasswordReset(mockUser), {
+        correlationId,
+      })
     );
   });
 });

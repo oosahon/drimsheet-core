@@ -5,7 +5,7 @@ import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import { ErrorBadRequest } from '../../../shared/value-objects/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import { IResetPasswordReq } from '../../contracts/dto/auth.dto';
+import { IAuthRes, IResetPasswordReq } from '../../contracts/dto/auth.dto';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 
@@ -37,7 +37,7 @@ export default function resetPasswordUseCase(
   authService: IAuthService,
   eventBus: IEventBus
 ) {
-  return async (payload: IResetPasswordReq) => {
+  return async (payload: IResetPasswordReq): Promise<IAuthRes> => {
     zodValidationRunner(validationSchema, payload);
 
     const { correlationId, idempotencyKey } = requestContext.get();
@@ -67,10 +67,18 @@ export default function resetPasswordUseCase(
 
     await userRepo.save(updatedUser, { correlationId });
 
+    const authToken = await authService.generateAuthToken(updatedUser);
+    const refreshToken = await authService.generateRefreshToken(updatedUser);
+
     const enrichedUserEvents = userEvents.map((e) =>
       eventValue.enrich(e, { correlationId, idempotencyKey })
     );
 
     eventBus.publish(enrichedUserEvents);
+
+    return {
+      authToken,
+      refreshToken,
+    };
   };
 }

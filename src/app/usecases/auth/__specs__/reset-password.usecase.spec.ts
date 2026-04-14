@@ -109,6 +109,10 @@ describe('resetPasswordUseCase', () => {
     });
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockAuthService.hashPassword.mockResolvedValue('new-hash');
+    mockAuthService.generateAuthToken.mockResolvedValue('mock-auth-token');
+    mockAuthService.generateRefreshToken.mockResolvedValue(
+      'mock-refresh-token'
+    );
 
     // Mocks for save and event propagation
     const usecase = resetPasswordUseCase(
@@ -119,7 +123,7 @@ describe('resetPasswordUseCase', () => {
     );
 
     const payload = getValidPayload();
-    await usecase(payload);
+    const result = await usecase(payload);
 
     expect(mockAuthService.verifyPasswordResetToken).toHaveBeenCalledWith(
       payload.token
@@ -128,6 +132,12 @@ describe('resetPasswordUseCase', () => {
       correlationId,
     });
     expect(mockAuthService.hashPassword).toHaveBeenCalledWith(payload.password);
+    expect(mockAuthService.generateAuthToken).toHaveBeenCalledWith(
+      expect.objectContaining({ password: 'new-hash' })
+    );
+    expect(mockAuthService.generateRefreshToken).toHaveBeenCalledWith(
+      expect.objectContaining({ password: 'new-hash' })
+    );
     expect(mockUserRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({ password: 'new-hash' }),
       { correlationId }
@@ -139,5 +149,10 @@ describe('resetPasswordUseCase', () => {
       .calls[0][0] as IEvent<IUser>[];
     expect(publishedArgs[0].correlationId).toBe(correlationId);
     expect(publishedArgs[0].idempotencyKey).toBe(idempotencyKey);
+
+    expect(result).toEqual({
+      authToken: 'mock-auth-token',
+      refreshToken: 'mock-refresh-token',
+    });
   });
 });
