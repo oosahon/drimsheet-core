@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Middlewares,
   OperationId,
   Post,
@@ -18,6 +19,7 @@ import {
 import authUseCase from '../../../app/usecases/auth';
 import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
 import { IApiError } from '../handlers/error.handler';
+import middlewares from '../middlewares';
 
 const rateLimiter = {
   default: configureRateLimiter({
@@ -105,5 +107,27 @@ export class AuthController extends Controller {
   @Response<IApiError>('422')
   public async resetPassword(@Body() payload: IResetPasswordReq) {
     return await authUseCase.resetPassword(payload);
+  }
+
+  /**
+   * Start the Google OAuth flow.
+   * Redirects the user to Google for authentication.
+   */
+  @Get('google')
+  @OperationId('loginWithGoogle')
+  @Middlewares(middlewares.initiateLoginWithGoogle)
+  public loginWithGoogle() {
+    return;
+  }
+
+  /**
+   * Google OAuth callback.
+   * Exchanges the Google user profile for an auth token and redirects to the client.
+   */
+  @Get('google/callback')
+  @OperationId('loginWithGoogleCallback')
+  @Middlewares(middlewares.completeLoginWithGoogle)
+  public async loginWithGoogleCallback() {
+    return;
   }
 }

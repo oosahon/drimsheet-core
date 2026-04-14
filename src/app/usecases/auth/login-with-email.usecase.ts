@@ -5,7 +5,9 @@ import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import { ErrorBadRequest } from '../../../shared/value-objects/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { IAccessToken, IEmailLoginReq } from '../../contracts/dto/auth.dto';
-import IAuthService from '../../contracts/infra/auth-service.contract';
+import IAuthService, {
+  EAuthStrategy,
+} from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
@@ -57,7 +59,10 @@ export default function loginWithEmailUseCase(
       );
     }
 
-    if (!userAuth.strategy.includes('email') || !userAuth.password) {
+    if (
+      !userAuth.strategy.includes(EAuthStrategy.Email) ||
+      !userAuth.password
+    ) {
       await userAuthRepo.incrementFailedLoginAttempts(user.id, {
         correlationId,
       });

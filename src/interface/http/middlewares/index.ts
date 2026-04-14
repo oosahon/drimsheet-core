@@ -9,7 +9,19 @@ import isOptionalAuthenticatedUserMiddleware from './is-optional-authenticated-u
 import requestContextInitMiddleware from './request-context-init.middleware';
 import requestLoggerMiddleware from './request-logger.middleware';
 
+import authUseCase from '../../../app/usecases/auth';
+import {
+  completeLoginWithGoogleMiddleware,
+  initiateLoginWithGoogleMiddleware,
+} from './google-oauth.middleware';
+
 const middlewares = {
+  initiateLoginWithGoogle: initiateLoginWithGoogleMiddleware(),
+
+  completeLoginWithGoogle: completeLoginWithGoogleMiddleware(
+    authUseCase.oAuth.handleGoogleCallback
+  ),
+
   isOptionalAuthenticatedUser: isOptionalAuthenticatedUserMiddleware(
     observability.logger,
     observability.reporter

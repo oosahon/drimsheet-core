@@ -134,7 +134,6 @@ const models: TsoaRoute.Models = {
       id: { ref: 'TEntityId', required: true },
       email: { dataType: 'string', required: true },
       emailVerified: { dataType: 'boolean', required: true },
-      password: { dataType: 'string' },
       firstName: { dataType: 'string', required: true },
       lastName: { dataType: 'string', required: true },
       createdAt: { dataType: 'datetime', required: true },
@@ -201,8 +200,7 @@ const models: TsoaRoute.Models = {
   IAccessToken: {
     dataType: 'refObject',
     properties: {
-      authToken: { dataType: 'string', required: true },
-      refreshToken: { dataType: 'string', required: true },
+      accessToken: { dataType: 'string', required: true },
     },
     additionalProperties: false,
   },
@@ -674,6 +672,90 @@ export function RegisterRoutes(app: Router) {
           next,
           validatedArgs,
           successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAuthController_loginWithGoogle: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {};
+  app.get(
+    '/api/v1/auth/google',
+    ...fetchMiddlewares<RequestHandler>(AuthController),
+    ...fetchMiddlewares<RequestHandler>(
+      AuthController.prototype.loginWithGoogle
+    ),
+
+    async function AuthController_loginWithGoogle(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAuthController_loginWithGoogle,
+          request,
+          response,
+        });
+
+        const controller = new AuthController();
+
+        await templateService.apiHandler({
+          methodName: 'loginWithGoogle',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: undefined,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAuthController_loginWithGoogleCallback: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {};
+  app.get(
+    '/api/v1/auth/google/callback',
+    ...fetchMiddlewares<RequestHandler>(AuthController),
+    ...fetchMiddlewares<RequestHandler>(
+      AuthController.prototype.loginWithGoogleCallback
+    ),
+
+    async function AuthController_loginWithGoogleCallback(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAuthController_loginWithGoogleCallback,
+          request,
+          response,
+        });
+
+        const controller = new AuthController();
+
+        await templateService.apiHandler({
+          methodName: 'loginWithGoogleCallback',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: undefined,
         });
       } catch (err) {
         return next(err);

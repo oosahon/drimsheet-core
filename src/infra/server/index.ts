@@ -4,6 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import { RegisterRoutes } from '../../../routes';
 import middlewares from '../../interface/http/middlewares';
+import setupOAuth from '../config/oauth.config';
 import { PORT } from '../config/vars.config';
 import logger from '../observability/logger';
 import bullMqServerAdapter from './bull-dashboard';
@@ -12,6 +13,8 @@ import rateLimiter from './rate-limiter';
 import swagger from './swagger';
 
 function setupServer(bootstrap?: () => Promise<void>) {
+  setupOAuth();
+
   const app = express();
 
   app.use(helmet());

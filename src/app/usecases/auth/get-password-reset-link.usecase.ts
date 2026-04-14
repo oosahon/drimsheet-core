@@ -5,7 +5,9 @@ import { WEB_APP_URL } from '../../../infra/config/vars.config';
 import { ErrorBadRequest } from '../../../shared/value-objects/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import IAuthService from '../../contracts/infra/auth-service.contract';
+import IAuthService, {
+  EAuthStrategy,
+} from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import ITransactionalEmailService from '../../contracts/infra/transactional-email-service.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
@@ -33,7 +35,7 @@ export default function getPasswordResetLinkUseCase(
       correlationId,
     });
 
-    if (!userAuth || !userAuth.strategy.includes('email')) {
+    if (!userAuth || !userAuth.strategy.includes(EAuthStrategy.Email)) {
       throw new ErrorBadRequest('You signed up with a different method');
     }
 

@@ -4,11 +4,18 @@ export interface IAuthTokenPayload {
   id: TEntityId;
 }
 
+export const EAuthStrategy = {
+  Email: 'email',
+  Google: 'google',
+} as const;
+
+export type UAuthStrategy = (typeof EAuthStrategy)[keyof typeof EAuthStrategy];
+
 export interface IUserAuth {
   userId: TEntityId;
   password: string | null;
   failedLoginAttempts: number;
-  strategy: ('email' | 'google')[];
+  strategy: UAuthStrategy[];
   createdAt: Date;
   updatedAt: Date;
 }

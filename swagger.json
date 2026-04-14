@@ -117,9 +117,6 @@
           "emailVerified": {
             "type": "boolean"
           },
-          "password": {
-            "type": "string"
-          },
           "firstName": {
             "type": "string"
           },
@@ -230,14 +227,11 @@
       },
       "IAccessToken": {
         "properties": {
-          "authToken": {
-            "type": "string"
-          },
-          "refreshToken": {
+          "accessToken": {
             "type": "string"
           }
         },
-        "required": ["authToken", "refreshToken"],
+        "required": ["accessToken"],
         "type": "object",
         "additionalProperties": false
       },
@@ -797,6 +791,34 @@
             }
           }
         }
+      }
+    },
+    "/auth/google": {
+      "get": {
+        "operationId": "loginWithGoogle",
+        "responses": {
+          "204": {
+            "description": "No content"
+          }
+        },
+        "description": "Start the Google OAuth flow.\nRedirects the user to Google for authentication.",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": []
+      }
+    },
+    "/auth/google/callback": {
+      "get": {
+        "operationId": "loginWithGoogleCallback",
+        "responses": {
+          "204": {
+            "description": "No content"
+          }
+        },
+        "description": "Google OAuth callback.\nExchanges the Google user profile for an auth token and redirects to the client.",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": []
       }
     },
     "/accounting-entities": {

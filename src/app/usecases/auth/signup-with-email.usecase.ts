@@ -11,7 +11,9 @@ import {
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { IUserSignupReq } from '../../contracts/dto/auth.dto';
-import IAuthService from '../../contracts/infra/auth-service.contract';
+import IAuthService, {
+  EAuthStrategy,
+} from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import {
   IRepoService,
@@ -82,15 +84,16 @@ export default function signupWithEmailUsecase(
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
       await userRepo.save(user, { correlationId, tx });
+      const timestamp = new Date();
 
       await userAuthRepo.save(
         {
           userId: user.id,
           password: passwordHash,
           failedLoginAttempts: 0,
-          strategy: ['email'],
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          strategy: [EAuthStrategy.Email],
+          createdAt: timestamp,
+          updatedAt: timestamp,
         },
         { correlationId, tx }
       );
