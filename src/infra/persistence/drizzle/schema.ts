@@ -3,6 +3,7 @@ import {
   boolean,
   char,
   foreignKey,
+  integer,
   jsonb,
   numeric,
   pgSchema,
@@ -14,8 +15,8 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-export const audit = pgSchema('audit');
 export const core = pgSchema('core');
+export const audit = pgSchema('audit');
 export const accountingEntityTypeInCore = core.enum('accounting_entity_type', [
   'individual',
   'sole_trader',
@@ -55,6 +56,46 @@ export const pgmigrations = pgTable('pgmigrations', {
   runOn: timestamp('run_on', { mode: 'string' }).notNull(),
 });
 
+export const usersInCore = core.table('users', {
+  id: uuid()
+    .default(sql`uuid_generate_v4()`)
+    .notNull(),
+  firstName: varchar('first_name', { length: 100 }).notNull(),
+  lastName: varchar('last_name', { length: 100 }).notNull(),
+  email: varchar({ length: 200 }).notNull(),
+  emailVerified: boolean('email_verified').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+});
+
+export const userAuthInCore = core.table(
+  'user_auth',
+  {
+    userId: uuid('user_id').notNull(),
+    password: varchar({ length: 200 }),
+    failedLoginAttempts: integer('failed_login_attempts').default(0),
+    strategies: varchar({ length: 50 }).array().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_auth_user_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
 export const seeds = pgTable('seeds', {
   id: serial().notNull(),
   fileName: varchar('file_name', { length: 250 }).notNull(),
@@ -64,23 +105,33 @@ export const seeds = pgTable('seeds', {
   }).notNull(),
 });
 
-export const usersInCore = core.table('users', {
-  id: uuid()
-    .default(sql`uuid_generate_v4()`)
-    .notNull(),
-  firstName: varchar('first_name', { length: 100 }).notNull(),
-  lastName: varchar('last_name', { length: 100 }).notNull(),
-  email: varchar({ length: 200 }).notNull(),
-  emailVerified: boolean('email_verified').notNull(),
-  password: varchar({ length: 200 }),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-});
+export const userSessionsInCore = core.table(
+  'user_sessions',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    userId: uuid('user_id').notNull(),
+    refreshToken: varchar('refresh_token', { length: 200 }).notNull(),
+    lastLoginAt: timestamp('last_login_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_sessions_user_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
 
 export const userActivitiesInAudit = audit.table(
   'user_activities',
@@ -101,6 +152,48 @@ export const userActivitiesInAudit = audit.table(
       columns: [table.userId],
       foreignColumns: [usersInCore.id],
       name: 'user_activities_user_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const currenciesInCore = core.table('currencies', {
+  code: char({ length: 3 }).notNull(),
+  symbol: varchar({ length: 5 }).notNull(),
+  name: varchar({ length: 50 }).notNull(),
+  minorUnit: smallint('minor_unit').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+});
+
+export const currencyExchangeRatesInCore = core.table(
+  'currency_exchange_rates',
+  {
+    baseCurrencyCode: char('base_currency_code', { length: 3 }).notNull(),
+    targetCurrencyCode: char('target_currency_code', { length: 3 }).notNull(),
+    rate: numeric({ precision: 20, scale: 10 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.baseCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'currency_exchange_rates_base_currency_code_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.targetCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'currency_exchange_rates_target_currency_code_fkey',
     }).onDelete('cascade'),
   ]
 );
@@ -149,48 +242,6 @@ export const accountingEntitiesInCore = core.table(
       foreignColumns: [currenciesInCore.code],
       name: 'accounting_entities_reporting_currency_code_fkey',
     }).onDelete('restrict'),
-  ]
-);
-
-export const currenciesInCore = core.table('currencies', {
-  code: char({ length: 3 }).notNull(),
-  symbol: varchar({ length: 5 }).notNull(),
-  name: varchar({ length: 50 }).notNull(),
-  minorUnit: smallint('minor_unit').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-});
-
-export const currencyExchangeRatesInCore = core.table(
-  'currency_exchange_rates',
-  {
-    baseCurrencyCode: char('base_currency_code', { length: 3 }).notNull(),
-    targetCurrencyCode: char('target_currency_code', { length: 3 }).notNull(),
-    rate: numeric({ precision: 20, scale: 10 }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.baseCurrencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'currency_exchange_rates_base_currency_code_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.targetCurrencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'currency_exchange_rates_target_currency_code_fkey',
-    }).onDelete('cascade'),
   ]
 );
 

@@ -3,26 +3,77 @@ import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
+
+import mockUserAuthRepo from '../../../../infra/persistence/repos/__mocks__/user-auth.repo.impl.mock';
+import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/user-session.repo.impl.mock';
+import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import {
   ErrorBadRequest,
   ErrorUnprocessableEntity,
 } from '../../../../shared/value-objects/error';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import {
+  IClientSession,
+  IRequestContextData,
+} from '../../../contracts/app/request-context.contract';
+import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
+import { ITransactionContext } from '../../../contracts/infra/repo.contract';
 import loginWithEmailUseCase from '../login-with-email.usecase';
 
 describe('loginWithEmailUseCase', () => {
+  let mockClientSession: jest.Mocked<IClientSession>;
+  const correlationId = 'test-corr-id';
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockClientSession = {
+      getRefreshToken: jest.fn(),
+      setRefreshToken: jest.fn(),
+    };
+    mockRequestContext.get.mockReturnValue({
+      correlationId,
+      clientSession: mockClientSession,
+    } as unknown as IRequestContextData);
+
+    // Set up runInTransaction to execute the callback by default for test coverage
+    mockRepoService.runInTransaction.mockImplementation(async (cb) => {
+      await cb('mock-tx' as unknown as ITransactionContext);
+    });
   });
 
-  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
-    const usecase = loginWithEmailUseCase(
+  const validPayload = {
+    email: 'johndoe@example.com',
+    password: 'SecurePassword123!',
+  };
+
+  const getMockUser = () =>
+    ({
+      id: 'existing-user-id',
+      email: emailValue.make(validPayload.email),
+    }) as unknown as IUser;
+
+  const getMockUserAuth = (overrides = {}) =>
+    ({
+      userId: 'existing-user-id',
+      password: 'hashed-password',
+      failedLoginAttempts: 0,
+      strategy: ['email'],
+      ...overrides,
+    }) as unknown as IUserAuth;
+
+  const getUseCase = () =>
+    loginWithEmailUseCase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
-      mockEventBus
+      mockEventBus,
+      mockUserAuthRepo,
+      mockUserSessionRepo,
+      mockRepoService
     );
+
+  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+    const usecase = getUseCase();
 
     const invalidPayload = {
       email: 'not-an-email',
@@ -34,155 +85,181 @@ describe('loginWithEmailUseCase', () => {
     );
   });
 
-  it('should successfully log in a user and return tokens', async () => {
-    const correlationId = 'test-corr-id';
-    mockRequestContext.get.mockReturnValue({
-      correlationId,
-    } as IRequestContextData);
-
-    const payload = {
-      email: 'johndoe@example.com',
-      password: 'SecurePassword123!',
-    };
-
-    const mockUser = {
-      id: 'existing-user-id',
-      email: emailValue.make(payload.email),
-      password: 'hashed-password',
-    } as unknown as IUser;
+  it('should successfully log in a user, overwrite old session, reset failed attempts, and return tokens', async () => {
+    const mockUser = getMockUser();
+    const mockUserAuth = getMockUserAuth({ failedLoginAttempts: 2 }); // Coverage for failedLoginAttempts > 0
+    mockClientSession.getRefreshToken.mockReturnValue('old-refresh-token'); // Coverage for existing session
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
     mockAuthService.comparePassword.mockResolvedValue(true);
-    mockAuthService.generateAuthToken.mockResolvedValue('auth-token');
+    mockAuthService.generateAccessToken.mockResolvedValue('auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
 
-    const usecase = loginWithEmailUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus
+    const usecase = getUseCase();
+    const result = await usecase(validPayload);
+
+    expect(mockRequestContext.get).toHaveBeenCalledTimes(2);
+    expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(
+      emailValue.make(validPayload.email),
+      {
+        correlationId,
+      }
     );
-
-    const result = await usecase(payload);
-
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
-
-    const email = emailValue.make(payload.email);
-
-    expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(email, {
-      correlationId,
-    });
-
     expect(mockAuthService.comparePassword).toHaveBeenCalledWith(
-      payload.password,
-      mockUser.password
+      validPayload.password,
+      mockUserAuth.password
     );
-
-    expect(mockAuthService.generateAuthToken).toHaveBeenCalledWith(mockUser);
+    expect(mockAuthService.generateAccessToken).toHaveBeenCalledWith(mockUser);
     expect(mockAuthService.generateRefreshToken).toHaveBeenCalledWith(mockUser);
 
+    // Assert session repo operations within transaction
+    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
+    expect(mockUserSessionRepo.delete).toHaveBeenCalledWith(
+      mockUser.id,
+      'old-refresh-token',
+      { correlationId, tx: 'mock-tx' }
+    );
+    expect(mockUserSessionRepo.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: expect.any(String),
+        userId: mockUser.id,
+        refreshToken: 'refresh-token',
+        lastLoginAt: expect.any(Date),
+        createdAt: expect.any(Date),
+      }),
+      { correlationId, tx: 'mock-tx' }
+    );
+    expect(mockClientSession.setRefreshToken).toHaveBeenCalledWith(
+      'refresh-token'
+    );
+
+    // Assert reset attempts
+    expect(mockUserAuthRepo.resetFailedLoginAttempts).toHaveBeenCalledWith(
+      mockUser.id,
+      { correlationId }
+    );
+
+    // Assert events
     expect(mockEventBus.publish).toHaveBeenCalled();
 
-    expect(result).toEqual({
-      authToken: 'auth-token',
-      refreshToken: 'refresh-token',
-    });
+    expect(result).toEqual({ accessToken: 'auth-token' });
   });
 
   it('should throw ErrorBadRequest if user does not exist', async () => {
-    const correlationId = 'test-corr-id';
-    mockRequestContext.get.mockReturnValue({
-      correlationId,
-    } as IRequestContextData);
-
-    const payload = {
-      email: 'nonexistent@example.com',
-      password: 'SecurePassword123!',
-    };
-
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
-    const usecase = loginWithEmailUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus
+    const usecase = getUseCase();
+
+    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
+    await expect(usecase(validPayload)).rejects.toThrow(
+      'Invalid email or password'
     );
-
-    await expect(usecase(payload)).rejects.toThrow(ErrorBadRequest);
-    await expect(usecase(payload)).rejects.toThrow('Invalid email or password');
-
-    const email = emailValue.make(payload.email);
-    expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(email, {
-      correlationId,
-    });
     expect(mockAuthService.comparePassword).not.toHaveBeenCalled();
   });
 
-  it('should throw ErrorBadRequest if user has no password set', async () => {
-    const correlationId = 'test-corr-id';
-    mockRequestContext.get.mockReturnValue({
-      correlationId,
-    } as IRequestContextData);
+  it('should throw ErrorBadRequest if userAuth record is not found', async () => {
+    mockUserRepo.findByEmail.mockResolvedValue(getMockUser());
+    mockUserAuthRepo.findByUserId.mockResolvedValue(null);
 
-    const payload = {
-      email: 'nopassword@example.com',
-      password: 'SecurePassword123!',
-    };
+    const usecase = getUseCase();
 
-    const mockUser = {
-      id: 'user-id',
-      email: emailValue.make(payload.email),
-    } as unknown as IUser;
-
-    mockUserRepo.findByEmail.mockResolvedValue(mockUser);
-
-    const usecase = loginWithEmailUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus
+    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
+    await expect(usecase(validPayload)).rejects.toThrow(
+      'Invalid email or password'
     );
-
-    await expect(usecase(payload)).rejects.toThrow(ErrorBadRequest);
-    await expect(usecase(payload)).rejects.toThrow('Invalid email or password');
-    expect(mockAuthService.comparePassword).not.toHaveBeenCalled();
   });
 
-  it('should throw ErrorBadRequest if password does not match', async () => {
-    const correlationId = 'test-corr-id';
-    mockRequestContext.get.mockReturnValue({
-      correlationId,
-    } as IRequestContextData);
+  it('should throw ErrorBadRequest if max login attempts reached', async () => {
+    mockUserRepo.findByEmail.mockResolvedValue(getMockUser());
+    mockUserAuthRepo.findByUserId.mockResolvedValue(
+      getMockUserAuth({ failedLoginAttempts: 5 })
+    );
 
-    const payload = {
-      email: 'johndoe@example.com',
-      password: 'WrongPassword!',
-    };
+    const usecase = getUseCase();
 
-    const mockUser = {
-      id: 'existing-user-id',
-      email: emailValue.make(payload.email),
-      password: 'hashed-password',
-    } as unknown as IUser;
+    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
+    await expect(usecase(validPayload)).rejects.toThrow(
+      'Account locked due to too many failed login attempts. Please reset your password.'
+    );
+  });
+
+  it('should throw ErrorBadRequest and increment failed attempts if user has no password set', async () => {
+    const mockUser = getMockUser();
+    mockUserRepo.findByEmail.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(
+      getMockUserAuth({ password: null })
+    );
+
+    const usecase = getUseCase();
+
+    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
+    await expect(usecase(validPayload)).rejects.toThrow(
+      'You signup up with a different method'
+    );
+    expect(mockAuthService.comparePassword).not.toHaveBeenCalled();
+    expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
+      mockUser.id,
+      { correlationId }
+    );
+  });
+
+  it('should throw ErrorBadRequest and increment failed attempts if strategy does not include email', async () => {
+    const mockUser = getMockUser();
+    mockUserRepo.findByEmail.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(
+      getMockUserAuth({ strategy: ['google'] })
+    );
+
+    const usecase = getUseCase();
+
+    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
+    await expect(usecase(validPayload)).rejects.toThrow(
+      'You signup up with a different method'
+    );
+    expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
+      mockUser.id,
+      { correlationId }
+    );
+  });
+
+  it('should throw ErrorBadRequest and increment failed attempts if password does not match', async () => {
+    const mockUser = getMockUser();
+    const payload = { ...validPayload, password: 'WrongPassword!' };
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(getMockUserAuth());
     mockAuthService.comparePassword.mockResolvedValue(false);
 
-    const usecase = loginWithEmailUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus
-    );
+    const usecase = getUseCase();
 
     await expect(usecase(payload)).rejects.toThrow(ErrorBadRequest);
     await expect(usecase(payload)).rejects.toThrow('Invalid email or password');
-
     expect(mockAuthService.comparePassword).toHaveBeenCalledWith(
       payload.password,
-      mockUser.password
+      'hashed-password'
     );
-    expect(mockAuthService.generateAuthToken).not.toHaveBeenCalled();
+    expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
+      mockUser.id,
+      { correlationId }
+    );
+    expect(mockAuthService.generateAccessToken).not.toHaveBeenCalled();
+  });
+
+  it('should not delete session if no old refresh token exists', async () => {
+    const mockUser = getMockUser();
+    mockClientSession.getRefreshToken.mockReturnValue(null);
+
+    mockUserRepo.findByEmail.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(getMockUserAuth());
+    mockAuthService.comparePassword.mockResolvedValue(true);
+    mockAuthService.generateAccessToken.mockResolvedValue('auth-token');
+    mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
+
+    const usecase = getUseCase();
+    await usecase(validPayload);
+
+    expect(mockUserSessionRepo.delete).not.toHaveBeenCalled();
+    expect(mockUserSessionRepo.save).toHaveBeenCalled();
   });
 });

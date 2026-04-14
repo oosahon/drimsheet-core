@@ -2,7 +2,9 @@ import accountingEntityRepo from './accounting-entity.repo.impl';
 import currencyRepo from './currency.repo.impl';
 import ledgerAccountRepo from './ledger-account.repo.impl';
 import userActivityRepo from './user-activity.repo.impl';
+import userAuthRepo from './user-auth.repo.impl';
 import userPreferencesRepo from './user-preferences.repo.impl';
+import userSessionRepo from './user-session.repo.impl';
 import userRepo from './user.repo.impl';
 
 const repos = {
@@ -12,6 +14,8 @@ const repos = {
   ledgerAccount: ledgerAccountRepo,
   userActivity: userActivityRepo,
   userPreferences: userPreferencesRepo,
+  userAuth: userAuthRepo,
+  userSession: userSessionRepo,
 };
 
 export default repos;

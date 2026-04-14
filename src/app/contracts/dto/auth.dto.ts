@@ -5,12 +5,11 @@ export interface IUserSignupReq {
   password: string;
 }
 
-export interface IAuthRes {
-  authToken: string;
-  refreshToken: string;
+export interface IAccessToken {
+  accessToken: string;
 }
 
-export interface ILoginReq {
+export interface IEmailLoginReq {
   email: string;
   password: string;
 }

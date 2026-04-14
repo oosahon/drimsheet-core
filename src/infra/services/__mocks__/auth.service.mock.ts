@@ -4,7 +4,7 @@ const mockAuthService: jest.Mocked<IAuthService> = {
   hashPassword: jest.fn(),
   getSignupVerificationLink: jest.fn(),
   comparePassword: jest.fn(),
-  generateAuthToken: jest.fn(),
+  generateAccessToken: jest.fn(),
   generateRefreshToken: jest.fn(),
   generatePasswordResetToken: jest.fn(),
   verifyPasswordResetToken: jest.fn(),

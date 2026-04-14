@@ -1,5 +1,4 @@
 import messaging from '../../../infra/messaging';
-import eventBus from '../../../infra/messaging/event-bus';
 import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
@@ -16,7 +15,9 @@ const authUseCase = {
     appContext.request,
     repos.user,
     services.auth,
-    messaging.eventBus
+    messaging.eventBus,
+    repos.userAuth,
+    services.repo
   ),
 
   sendEmailVerificationEmail: sendEmailVerificationEmailUseCase(
@@ -31,14 +32,17 @@ const authUseCase = {
     services.auth,
     repos.user,
     appContext.request,
-    eventBus
+    messaging.eventBus
   ),
 
   loginWithEmail: loginWithEmailUseCase(
     appContext.request,
     repos.user,
     services.auth,
-    eventBus
+    messaging.eventBus,
+    repos.userAuth,
+    repos.userSession,
+    services.repo
   ),
 
   getPasswordResetLink: getPasswordResetLinkUseCase(
@@ -46,14 +50,18 @@ const authUseCase = {
     repos.user,
     services.auth,
     services.transactionalEmail,
-    eventBus
+    messaging.eventBus,
+    repos.userAuth
   ),
 
   resetPassword: resetPasswordUseCase(
     appContext.request,
     repos.user,
     services.auth,
-    eventBus
+    messaging.eventBus,
+    repos.userAuth,
+    repos.userSession,
+    services.repo
   ),
 };
 

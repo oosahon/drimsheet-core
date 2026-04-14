@@ -97,7 +97,7 @@ describe('sendEmailVerificationEmailUseCase', () => {
       }
     );
     expect(mockLogger.info).toHaveBeenCalledWith(
-      'User email is already verified',
+      'Skipping sending email verification email as user email is already verified',
       {
         userId: mockUser.id,
         email: mockUser.email,
@@ -145,7 +145,6 @@ describe('sendEmailVerificationEmailUseCase', () => {
     );
     expect(mockAuthService.getSignupVerificationLink).toHaveBeenCalledWith({
       id: mockUser.id,
-      email: mockUser.email,
     });
     expect(
       mockTransactionalEmailService.sendEmailVerification

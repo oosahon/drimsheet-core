@@ -2,7 +2,23 @@ import { TEntityId } from '../../../shared/types/uuid';
 
 export interface IAuthTokenPayload {
   id: TEntityId;
-  email: string;
+}
+
+export interface IUserAuth {
+  userId: TEntityId;
+  password: string | null;
+  failedLoginAttempts: number;
+  strategy: ('email' | 'google')[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IUserSession {
+  id: TEntityId;
+  userId: TEntityId;
+  refreshToken: string;
+  lastLoginAt: Date;
+  createdAt: Date;
 }
 
 export default interface IAuthService {
@@ -15,7 +31,7 @@ export default interface IAuthService {
     hashedPassword: string
   ): Promise<boolean>;
 
-  generateAuthToken(userData: IAuthTokenPayload): Promise<string>;
+  generateAccessToken(userData: IAuthTokenPayload): Promise<string>;
 
   generateRefreshToken(userData: IAuthTokenPayload): Promise<string>;
 

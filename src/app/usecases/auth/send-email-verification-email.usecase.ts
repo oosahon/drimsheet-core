@@ -33,16 +33,18 @@ export default function sendEmailVerificationEmailUseCase(
     }
 
     if (user.emailVerified) {
-      logger.info('User email is already verified', {
-        userId: user.id,
-        email: user.email,
-      });
+      logger.info(
+        'Skipping sending email verification email as user email is already verified',
+        {
+          userId: user.id,
+          email: user.email,
+        }
+      );
       return;
     }
 
     const verificationLink = authService.getSignupVerificationLink({
       id: user.id,
-      email: user.email,
     });
 
     await transactionalEmailService.sendEmailVerification({

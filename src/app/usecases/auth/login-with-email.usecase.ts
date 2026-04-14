@@ -1,13 +1,16 @@
 import z from 'zod';
-import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import { ErrorBadRequest } from '../../../shared/value-objects/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import { IAuthRes, ILoginReq } from '../../contracts/dto/auth.dto';
+import { IAccessToken, IEmailLoginReq } from '../../contracts/dto/auth.dto';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
+import { IRepoService } from '../../contracts/infra/repo.contract';
+import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
+import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
+import issueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z.object({
   email: z.email({ message: 'Email is required' }),
@@ -20,37 +23,70 @@ export default function loginWithEmailUseCase(
   reqContext: IRequestContext,
   userRepo: IUserRepo,
   authService: IAuthService,
-  eventBus: IEventBus
+  eventBus: IEventBus,
+  userAuthRepo: IUserAuthRepo,
+  userSessionRepo: IUserSessionRepo,
+  repoService: IRepoService
 ) {
-  return async (payload: ILoginReq): Promise<IAuthRes> => {
+  return async (payload: IEmailLoginReq): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, payload);
 
-    const { correlationId } = reqContext.get();
-
-    const { password } = payload;
+    const { correlationId, clientSession } = reqContext.get();
 
     const email = emailValue.normalize(payload.email);
 
     const user = await userRepo.findByEmail(email, { correlationId });
 
-    if (!user || !password || !user.password) {
+    if (!user) {
       throw new ErrorBadRequest('Invalid email or password');
+    }
+
+    const userAuth = await userAuthRepo.findByUserId(user.id, {
+      correlationId,
+    });
+
+    if (!userAuth) {
+      throw new ErrorBadRequest('Invalid email or password');
+    }
+
+    const MAX_LOGIN_ATTEMPTS = 5;
+
+    if (userAuth.failedLoginAttempts >= MAX_LOGIN_ATTEMPTS) {
+      throw new ErrorBadRequest(
+        'Account locked due to too many failed login attempts. Please reset your password.'
+      );
+    }
+
+    if (!userAuth.strategy.includes('email') || !userAuth.password) {
+      await userAuthRepo.incrementFailedLoginAttempts(user.id, {
+        correlationId,
+      });
+      throw new ErrorBadRequest('You signup up with a different method');
     }
 
     const isValidPassword = await authService.comparePassword(
-      password,
-      user.password
+      payload.password,
+      userAuth.password
     );
 
     if (!isValidPassword) {
+      await userAuthRepo.incrementFailedLoginAttempts(user.id, {
+        correlationId,
+      });
       throw new ErrorBadRequest('Invalid email or password');
     }
 
-    const authToken = await authService.generateAuthToken(user);
-    const refreshToken = await authService.generateRefreshToken(user);
+    if (userAuth.failedLoginAttempts > 0) {
+      await userAuthRepo.resetFailedLoginAttempts(user.id, { correlationId });
+    }
 
-    eventBus.publish(userEvents.loggedIn(user));
-
-    return { authToken: authToken, refreshToken };
+    return issueUserSessionHelper({
+      user,
+      reqContext,
+      authService,
+      userSessionRepo,
+      eventBus,
+      repoService,
+    });
   };
 }

@@ -24,7 +24,7 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
       return await bcrypt.compare(passwordString, hashedPassword);
     },
 
-    generateAuthToken: async (userData) => {
+    generateAccessToken: async (userData) => {
       const ttlSeconds = 1 * 24 * 60 * 60 * 30; // 30 days
       const token = sign(userData, JWT_SECRET_KEY, { expiresIn: ttlSeconds });
       await cacheStorage.set(`auth:token:${userData.id}`, token, ttlSeconds);

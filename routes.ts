@@ -198,7 +198,7 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IAuthRes: {
+  IAccessToken: {
     dataType: 'refObject',
     properties: {
       authToken: { dataType: 'string', required: true },
@@ -207,7 +207,7 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ILoginReq: {
+  IEmailLoginReq: {
     dataType: 'refObject',
     properties: {
       email: { dataType: 'string', required: true },
@@ -544,7 +544,7 @@ export function RegisterRoutes(app: Router) {
     string,
     TsoaRoute.ParameterSchema
   > = {
-    body: { in: 'body', name: 'body', required: true, ref: 'ILoginReq' },
+    body: { in: 'body', name: 'body', required: true, ref: 'IEmailLoginReq' },
   };
   app.post(
     '/api/v1/auth/login-with-email',

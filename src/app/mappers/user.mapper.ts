@@ -1,5 +1,4 @@
 import { InferSelectModel } from 'drizzle-orm';
-import _ from 'lodash';
 import { IUser } from '../../domain/user/types/user.types';
 import { usersInCore } from '../../infra/persistence/drizzle/schema';
 import { TEntityId } from '../../shared/types/uuid';
@@ -12,7 +11,6 @@ const userMapper = {
     return Object.freeze({
       ...user,
       ...toCommonRepoDates(user),
-      password: user.password ?? null,
     });
   },
 
@@ -20,13 +18,12 @@ const userMapper = {
     return Object.freeze({
       ...user,
       id: user.id as TEntityId,
-      password: user.password ?? undefined,
       ...fromCommonRepoDates(user),
     });
   },
 
-  toInterface(user: IUser): Omit<IUser, 'password'> {
-    return Object.freeze(_.omit(user, 'password'));
+  toInterface(user: IUser): IUser {
+    return Object.freeze({ ...user });
   },
 };
 

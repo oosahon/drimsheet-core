@@ -44,7 +44,6 @@ describe('verifyEmailAddressUseCase', () => {
       emailVerified: false,
       firstName: 'John',
       lastName: 'Doe',
-      password: 'hashed-password',
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
@@ -52,7 +51,7 @@ describe('verifyEmailAddressUseCase', () => {
 
     mockAuthService.verifyAuthToken.mockReturnValue(decodedToken);
     mockUserRepo.findById.mockResolvedValue(mockUser);
-    mockAuthService.generateAuthToken.mockResolvedValue('new-auth-token');
+    mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
     const usecase = verifyEmailAddressUseCase(
@@ -90,12 +89,10 @@ describe('verifyEmailAddressUseCase', () => {
       });
     });
 
-    expect(mockAuthService.generateAuthToken).toHaveBeenCalledTimes(1);
-    expect(mockAuthService.generateRefreshToken).toHaveBeenCalledTimes(1);
+    expect(mockAuthService.generateAccessToken).toHaveBeenCalledTimes(1);
 
     expect(result).toEqual({
-      authToken: 'new-auth-token',
-      refreshToken: 'new-refresh-token',
+      accessToken: 'new-auth-token',
     });
   });
 

@@ -11,7 +11,7 @@ import {
   Tags,
 } from 'tsoa';
 import {
-  ILoginReq,
+  IEmailLoginReq,
   IResetPasswordReq,
   IUserSignupReq,
 } from '../../../app/contracts/dto/auth.dto';
@@ -76,7 +76,7 @@ export class AuthController extends Controller {
   @Response<IApiError>('400')
   @Response<IApiError>('422')
   @Middlewares(rateLimiter.default)
-  public async loginWithEmail(@Body() body: ILoginReq) {
+  public async loginWithEmail(@Body() body: IEmailLoginReq) {
     return await authUseCase.loginWithEmail(body);
   }
 

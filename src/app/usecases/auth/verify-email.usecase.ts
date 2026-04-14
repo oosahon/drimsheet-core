@@ -5,7 +5,7 @@ import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import { IAuthRes } from '../../contracts/dto/auth.dto';
+import { IAccessToken } from '../../contracts/dto/auth.dto';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 
@@ -19,7 +19,7 @@ export default function verifyEmailAddressUseCase(
   requestContext: IRequestContext,
   eventBus: IEventBus
 ) {
-  return async (token: string): Promise<IAuthRes> => {
+  return async (token: string): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, { token });
 
     const { correlationId } = requestContext.get();
@@ -42,12 +42,10 @@ export default function verifyEmailAddressUseCase(
 
     eventBus.publish(eventValue.enrichAll(events, { correlationId }));
 
-    const authToken = await authService.generateAuthToken(updatedUser);
-    const refreshToken = await authService.generateRefreshToken(updatedUser);
+    const accessToken = await authService.generateAccessToken(updatedUser);
 
     return {
-      authToken,
-      refreshToken,
+      accessToken,
     };
   };
 }

@@ -228,7 +228,7 @@
         "type": "object",
         "additionalProperties": false
       },
-      "IAuthRes": {
+      "IAccessToken": {
         "properties": {
           "authToken": {
             "type": "string"
@@ -241,7 +241,7 @@
         "type": "object",
         "additionalProperties": false
       },
-      "ILoginReq": {
+      "IEmailLoginReq": {
         "properties": {
           "email": {
             "type": "string"
@@ -606,7 +606,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IAuthRes"
+                  "$ref": "#/components/schemas/IAccessToken"
                 }
               }
             }
@@ -656,7 +656,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IAuthRes"
+                  "$ref": "#/components/schemas/IAccessToken"
                 }
               }
             }
@@ -691,7 +691,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ILoginReq"
+                "$ref": "#/components/schemas/IEmailLoginReq"
               }
             }
           }
@@ -757,7 +757,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IAuthRes"
+                  "$ref": "#/components/schemas/IAccessToken"
                 }
               }
             }

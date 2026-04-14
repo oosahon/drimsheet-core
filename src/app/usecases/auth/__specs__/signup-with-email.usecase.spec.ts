@@ -2,8 +2,10 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../../domain/user/value-objects/password.vo';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockUserAuthRepo from '../../../../infra/persistence/repos/__mocks__/user-auth.repo.impl.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
+import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import { IEvent } from '../../../../shared/types/event.types';
 import {
   ErrorConflict,
@@ -24,7 +26,9 @@ describe('signupWithEmailUsecase', () => {
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
-      mockEventBus
+      mockEventBus,
+      mockUserAuthRepo,
+      mockRepoService
     );
 
     const invalidPayload = {
@@ -65,7 +69,9 @@ describe('signupWithEmailUsecase', () => {
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
-      mockEventBus
+      mockEventBus,
+      mockUserAuthRepo,
+      mockRepoService
     );
 
     await usecase(payload);
@@ -86,6 +92,9 @@ describe('signupWithEmailUsecase', () => {
     expect(mockAuthService.hashPassword).toHaveBeenCalledTimes(1);
     expect(mockAuthService.hashPassword).toHaveBeenCalledWith(password);
 
+    const txCallback = mockRepoService.runInTransaction.mock.calls[0][0];
+    if (txCallback) await txCallback('mock-tx' as any);
+
     // Assert that save methods were called correctly
     expect(mockUserRepo.save).toHaveBeenCalledTimes(1);
     const savedUserArgs = mockUserRepo.save.mock.calls[0];
@@ -94,9 +103,8 @@ describe('signupWithEmailUsecase', () => {
       lastName: payload.lastName,
       email,
       emailVerified: false,
-      password: 'hashed-password',
     });
-    expect(savedUserArgs[1]).toEqual({ correlationId });
+    expect(savedUserArgs[1]).toEqual({ correlationId, tx: 'mock-tx' });
 
     expect(mockEventBus.publish).toHaveBeenCalled();
     const publishCalls = (mockEventBus.publish as jest.Mock).mock.calls;
@@ -136,11 +144,15 @@ describe('signupWithEmailUsecase', () => {
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
-      mockEventBus
+      mockEventBus,
+      mockUserAuthRepo,
+      mockRepoService
     );
 
     await expect(usecase(payload)).rejects.toThrow(ErrorConflict);
-    await expect(usecase(payload)).rejects.toThrow('User already exists');
+    await expect(usecase(payload)).rejects.toThrow(
+      'An account with this email already exists'
+    );
 
     const email = emailValue.make(payload.email);
     expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);
@@ -168,7 +180,9 @@ describe('signupWithEmailUsecase', () => {
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
-      mockEventBus
+      mockEventBus,
+      mockUserAuthRepo,
+      mockRepoService
     );
 
     await expect(usecase(payload)).rejects.toThrow(ErrorForbidden);
