@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
+/**
+ * 700 requests per 15 minutes
+ */
 export const RATE_LIMITER_WINDOW_MS = 15 * 60 * 1000;
-export const RATE_LIMITER_MAX = 100;
+export const RATE_LIMITER_MAX = 700;
 
 export const RATE_LIMITER_MESSAGE =
   'Too many requests from this IP, please try again later.';
@@ -17,6 +20,7 @@ interface IConfig {
   ) => string | undefined | Promise<string | undefined>;
 }
 
+import { ErrorTooManyRequests } from '../../shared/value-objects/error';
 import reporter from '../observability/reporter';
 
 export function configureRateLimiter(config: IConfig) {
@@ -37,7 +41,6 @@ export function configureRateLimiter(config: IConfig) {
     handler: (req, res, next, options) => {
       const rateLimitInfo = (req as any).rateLimit;
 
-      // Only report abuse on the exact request that breached the limit
       if (rateLimitInfo && rateLimitInfo.used === rateLimitInfo.limit + 1) {
         reporter.reportAbuse('Too many requests to API', {
           method: req.method,
@@ -47,7 +50,12 @@ export function configureRateLimiter(config: IConfig) {
         });
       }
 
-      res.status(options.statusCode).send(options.message);
+      throw new ErrorTooManyRequests(options.message, {
+        cause: {
+          used: rateLimitInfo.used,
+          limit: rateLimitInfo.limit,
+        },
+      });
     },
   });
 }

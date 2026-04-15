@@ -59,7 +59,7 @@ describe('sendEmailVerificationEmailUseCase', () => {
       }
     );
     expect(mockLogger.info).not.toHaveBeenCalled();
-    expect(mockAuthService.getSignupVerificationLink).not.toHaveBeenCalled();
+    expect(mockAuthService.generateSignupToken).not.toHaveBeenCalled();
     expect(
       mockTransactionalEmailService.sendEmailVerification
     ).not.toHaveBeenCalled();
@@ -97,13 +97,13 @@ describe('sendEmailVerificationEmailUseCase', () => {
       }
     );
     expect(mockLogger.info).toHaveBeenCalledWith(
-      'User email is already verified',
+      'Skipping sending email verification email as user email is already verified',
       {
         userId: mockUser.id,
         email: mockUser.email,
       }
     );
-    expect(mockAuthService.getSignupVerificationLink).not.toHaveBeenCalled();
+    expect(mockAuthService.generateSignupToken).not.toHaveBeenCalled();
     expect(
       mockTransactionalEmailService.sendEmailVerification
     ).not.toHaveBeenCalled();
@@ -122,10 +122,9 @@ describe('sendEmailVerificationEmailUseCase', () => {
       deletedAt: null,
     };
 
-    const verificationLink = 'https://example.com/verify?token=123';
-
+    const token = '123';
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
-    mockAuthService.getSignupVerificationLink.mockReturnValue(verificationLink);
+    mockAuthService.generateSignupToken.mockResolvedValue(token);
 
     const usecase = sendEmailVerificationEmailUseCase(
       mockRequestContext,
@@ -143,10 +142,14 @@ describe('sendEmailVerificationEmailUseCase', () => {
         correlationId,
       }
     );
-    expect(mockAuthService.getSignupVerificationLink).toHaveBeenCalledWith({
+    expect(mockAuthService.generateSignupToken).toHaveBeenCalledWith({
       id: mockUser.id,
-      email: mockUser.email,
     });
+
+    // We import WEB_APP_URL from config or it is undefined in test if mocked loosely.
+    // Usually it's handled properly by jest when importing.
+    const { WEB_APP_URL } = require('../../../../infra/config/vars.config');
+    const verificationLink = `${WEB_APP_URL}/auth/signup/complete?token=${token}`;
     expect(
       mockTransactionalEmailService.sendEmailVerification
     ).toHaveBeenCalledWith({

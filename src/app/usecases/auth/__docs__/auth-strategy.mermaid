@@ -1,0 +1,25 @@
+sequenceDiagram
+    autonumber
+    participant Browser as React SPA (In-Memory)
+    participant Server as Node.js API
+    participant Cookie as Cookie Jar (HttpOnly)
+
+    Note over Browser, Cookie: Authentication
+    Browser->>Server: POST /login { email, password }
+    Server->>Server: Validate Credentials
+    Server->>Cookie: Set-Cookie: refreshToken (domain=.example.com, HttpOnly, SameSite=Lax)
+    Server-->>Browser: { accessToken }
+    Browser->>Browser: Store accessToken in variable
+
+    Note over Browser, Cookie: Standard API Request
+    Browser->>Server: GET /ledgers (Authorization: Bearer accessToken)
+    Server-->>Browser: 200 OK [Data]
+
+    Note over Browser, Cookie: Token Expiry & Silent Refresh
+    Browser->>Server: GET /ledgers (Expired Token)
+    Server-->>Browser: 401 Unauthorized
+    Browser->>Server: POST /refresh (Browser automatically includes Cookie)
+    Server->>Cookie: Validate refreshToken
+    Server->>Cookie: Set-Cookie: newRefreshToken (Rotation)
+    Server-->>Browser: { accessToken: "new..." }
+    Browser->>Browser: Update memory & retry original request

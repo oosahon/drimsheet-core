@@ -2,16 +2,19 @@ import userEvents from '../../../../domain/user/events/user.events';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockUserAuthRepo from '../../../../infra/persistence/repos/__mocks__/user-auth.repo.impl.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { ErrorBadRequest } from '../../../../shared/value-objects/error';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import getPasswordResetLinkUseCase from '../get-password-reset-link.usecase';
+import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
+import requestPasswordResetUseCase from '../request-password-reset.usecase';
 
-describe('getPasswordResetLinkUseCase', () => {
+describe('requestPasswordResetUseCase', () => {
   const correlationId = 'test-corr-id';
 
   beforeEach(() => {
@@ -31,12 +34,13 @@ describe('getPasswordResetLinkUseCase', () => {
     const userEmail = 'notfound@example.com';
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
-    const usecase = getPasswordResetLinkUseCase(
+    const usecase = requestPasswordResetUseCase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
       mockTransactionalEmailService,
-      mockEventBus
+      mockEventBus,
+      mockUserAuthRepo
     );
 
     await usecase(userEmail);
@@ -48,7 +52,6 @@ describe('getPasswordResetLinkUseCase', () => {
       }
     );
     expect(mockAuthService.generatePasswordResetToken).not.toHaveBeenCalled();
-    expect(mockAuthService.getResetPasswordLink).not.toHaveBeenCalled();
     expect(
       mockTransactionalEmailService.sendPasswordResetLink
     ).not.toHaveBeenCalled();
@@ -68,19 +71,27 @@ describe('getPasswordResetLinkUseCase', () => {
       deletedAt: null,
     };
     const resetToken = 'test-reset-token';
-    const resetLink =
-      'https://example.com/reset-password?token=test-reset-token';
+    const { WEB_APP_URL } = require('../../../../infra/config/vars.config');
+    const resetLink = `${WEB_APP_URL}/auth/reset-password?token=${resetToken}`;
+
+    const mockUserAuth = {
+      userId: mockUser.id,
+      password: 'hashed-password',
+      failedLoginAttempts: 0,
+      strategy: ['email'],
+    } as unknown as IUserAuth;
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
     mockAuthService.generatePasswordResetToken.mockResolvedValue(resetToken);
-    mockAuthService.getResetPasswordLink.mockReturnValue(resetLink);
 
-    const usecase = getPasswordResetLinkUseCase(
+    const usecase = requestPasswordResetUseCase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
       mockTransactionalEmailService,
-      mockEventBus
+      mockEventBus,
+      mockUserAuthRepo
     );
 
     await usecase(userEmail);
@@ -94,9 +105,6 @@ describe('getPasswordResetLinkUseCase', () => {
     expect(mockAuthService.generatePasswordResetToken).toHaveBeenCalledWith(
       mockUser
     );
-    expect(mockAuthService.getResetPasswordLink).toHaveBeenCalledWith(
-      resetToken
-    );
     expect(
       mockTransactionalEmailService.sendPasswordResetLink
     ).toHaveBeenCalledWith({
@@ -109,5 +117,49 @@ describe('getPasswordResetLinkUseCase', () => {
         correlationId,
       })
     );
+  });
+
+  it('should throw ErrorBadRequest if user strategy does not include email', async () => {
+    const userEmail = 'found@example.com';
+    const mockUser: IUser = {
+      id: 'test-user-id' as TEntityId,
+      email: emailValue.make(userEmail),
+      emailVerified: true,
+      firstName: 'John',
+      lastName: 'Doe',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    };
+
+    const mockUserAuth = {
+      userId: mockUser.id,
+      password: null,
+      failedLoginAttempts: 0,
+      strategy: ['google'],
+    } as unknown as IUserAuth;
+
+    mockUserRepo.findByEmail.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
+
+    const usecase = requestPasswordResetUseCase(
+      mockRequestContext,
+      mockUserRepo,
+      mockAuthService,
+      mockTransactionalEmailService,
+      mockEventBus,
+      mockUserAuthRepo
+    );
+
+    await expect(usecase(userEmail)).rejects.toThrow(ErrorBadRequest);
+    await expect(usecase(userEmail)).rejects.toThrow(
+      'You signed up with a different method'
+    );
+
+    expect(mockAuthService.generatePasswordResetToken).not.toHaveBeenCalled();
+    expect(
+      mockTransactionalEmailService.sendPasswordResetLink
+    ).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 });

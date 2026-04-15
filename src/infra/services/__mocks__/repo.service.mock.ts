@@ -3,10 +3,12 @@ import {
   ITransactionContext,
 } from '../../../app/contracts/infra/repo.contract';
 
-const mockDbService = {
-  runInTransaction: jest.fn((_: (tx: ITransactionContext) => Promise<any>) =>
-    Promise.resolve()
+const mockRepoService = {
+  runInTransaction: jest.fn(
+    async (cb: (tx: ITransactionContext) => Promise<any>) => {
+      return await cb('mock-tx' as unknown as ITransactionContext);
+    }
   ),
-} as jest.Mocked<IRepoService>;
+} as unknown as jest.Mocked<IRepoService>;
 
-export default mockDbService;
+export default mockRepoService;

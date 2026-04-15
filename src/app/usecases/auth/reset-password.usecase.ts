@@ -1,13 +1,20 @@
 import { z } from 'zod';
-import userEntity from '../../../domain/user/entities/user.entity';
+import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import { ErrorBadRequest } from '../../../shared/value-objects/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import { IAuthRes, IResetPasswordReq } from '../../contracts/dto/auth.dto';
+import { IAccessToken, IResetPasswordReq } from '../../contracts/dto/auth.dto';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '../../contracts/infra/repo.contract';
+import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
+import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
+import issueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z
   .object({
@@ -35,9 +42,12 @@ export default function resetPasswordUseCase(
   requestContext: IRequestContext,
   userRepo: IUserRepo,
   authService: IAuthService,
-  eventBus: IEventBus
+  eventBus: IEventBus,
+  userAuthRepo: IUserAuthRepo,
+  userSessionRepo: IUserSessionRepo,
+  repoService: IRepoService
 ) {
-  return async (payload: IResetPasswordReq): Promise<IAuthRes> => {
+  return async (payload: IResetPasswordReq): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, payload);
 
     const { correlationId, idempotencyKey } = requestContext.get();
@@ -58,27 +68,39 @@ export default function resetPasswordUseCase(
       throw new ErrorBadRequest('Invalid or expired password reset token');
     }
 
+    const existingUserAuth = await userAuthRepo.findByUserId(existingUser.id, {
+      correlationId,
+    });
+
+    if (!existingUserAuth) {
+      throw new ErrorBadRequest('Invalid or expired password reset token');
+    }
+
     const passwordHash = await authService.hashPassword(payload.password);
 
-    const [updatedUser, userEvents] = userEntity.updatePassword(
-      existingUser,
-      passwordHash
-    );
-
-    await userRepo.save(updatedUser, { correlationId });
-
-    const authToken = await authService.generateAuthToken(updatedUser);
-    const refreshToken = await authService.generateRefreshToken(updatedUser);
-
-    const enrichedUserEvents = userEvents.map((e) =>
-      eventValue.enrich(e, { correlationId, idempotencyKey })
-    );
-
-    eventBus.publish(enrichedUserEvents);
-
-    return {
-      authToken,
-      refreshToken,
+    const repoTransaction: TRepoTransactionFn = async (tx) => {
+      await userAuthRepo.update(
+        { ...existingUserAuth, password: passwordHash, failedLoginAttempts: 0 },
+        { correlationId, tx }
+      );
     };
+    await repoService.runInTransaction(repoTransaction);
+
+    const event = userEvents.passwordReset(existingUser);
+
+    const enrichedEvent = eventValue.enrich(event, {
+      correlationId,
+      idempotencyKey,
+    });
+
+    return issueUserSessionHelper({
+      user: existingUser,
+      reqContext: requestContext,
+      authService,
+      userSessionRepo,
+      eventBus,
+      repoService,
+      events: enrichedEvent,
+    });
   };
 }

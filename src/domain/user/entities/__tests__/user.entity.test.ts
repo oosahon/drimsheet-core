@@ -210,44 +210,4 @@ describe('User Entity', () => {
       ).toThrow(AppError);
     });
   });
-
-  describe('updatePassword', () => {
-    let existingUser: IUser;
-
-    beforeEach(() => {
-      [existingUser] = userEntity.make({
-        email: 'test@example.com',
-        firstName: 'Original First',
-        lastName: 'Original Last',
-        emailVerified: false,
-      });
-
-      jest.advanceTimersByTime(1000);
-    });
-
-    it('should update password and updatedAt correctly', () => {
-      const newHash = 'new_hashed_password';
-      const [result, events] = userEntity.updatePassword(
-        existingUser,
-        newHash
-      ) as [IUser, IEvent<IUser>[]];
-
-      expect(events).toHaveLength(1);
-      expect(events[0].type).toBe('domain:user:password-reset');
-      expect(events[0].data).toEqual(result);
-
-      expect(result.password).toBe(newHash);
-      expect(result.updatedAt.getTime()).toBeGreaterThan(
-        existingUser.updatedAt.getTime()
-      );
-      expect(Object.isFrozen(result)).toBe(true);
-    });
-
-    it('should throw error if user is invalid before updating password', () => {
-      const invalidNameUser = { ...existingUser, firstName: '' };
-      expect(() =>
-        userEntity.updatePassword(invalidNameUser, 'some_hash')
-      ).toThrow(AppError);
-    });
-  });
 });

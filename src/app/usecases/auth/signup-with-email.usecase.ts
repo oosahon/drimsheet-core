@@ -11,8 +11,15 @@ import {
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { IUserSignupReq } from '../../contracts/dto/auth.dto';
-import IAuthService from '../../contracts/infra/auth-service.contract';
+import IAuthService, {
+  EAuthStrategy,
+} from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '../../contracts/infra/repo.contract';
+import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
 
 const validationSchema = z.object({
   firstName: z
@@ -40,7 +47,9 @@ export default function signupWithEmailUsecase(
   requestContext: IRequestContext,
   userRepo: IUserRepo,
   authService: IAuthService,
-  eventBus: IEventBus
+  eventBus: IEventBus,
+  userAuthRepo: IUserAuthRepo,
+  repoService: IRepoService
 ) {
   return async (payload: IUserSignupReq) => {
     zodValidationRunner(validationSchema, payload);
@@ -60,7 +69,7 @@ export default function signupWithEmailUsecase(
     });
 
     if (existingUser) {
-      throw new ErrorConflict('User already exists');
+      throw new ErrorConflict('An account with this email already exists');
     }
 
     const password = passwordValue.make(payload.password);
@@ -71,10 +80,26 @@ export default function signupWithEmailUsecase(
       lastName: payload.lastName,
       email,
       emailVerified: false,
-      password: passwordHash,
     });
 
-    await userRepo.save(user, { correlationId });
+    const repoTransaction: TRepoTransactionFn = async (tx) => {
+      await userRepo.save(user, { correlationId, tx });
+      const timestamp = new Date();
+
+      await userAuthRepo.save(
+        {
+          userId: user.id,
+          password: passwordHash,
+          failedLoginAttempts: 0,
+          strategy: [EAuthStrategy.Email],
+          createdAt: timestamp,
+          updatedAt: timestamp,
+        },
+        { correlationId, tx }
+      );
+    };
+
+    await repoService.runInTransaction(repoTransaction);
 
     const enrichedUserEvents = userEvents.map((e) =>
       eventValue.enrich(e, { correlationId, idempotencyKey })

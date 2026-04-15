@@ -7,6 +7,7 @@ import {
   ErrorInternalServerError,
   ErrorPaymentRequired,
   ErrorResourceNotFound,
+  ErrorTooManyRequests,
   ErrorUnauthorized,
   ErrorUnprocessableEntity,
   parseError,
@@ -107,6 +108,15 @@ describe('Error Value Objects', () => {
       expect(error).toBeInstanceOf(ErrorInternalServerError);
       expect(error.code).toBe(500);
       expect(error.message).toBe('Internal Failure');
+    });
+
+    it('ErrorTooManyRequests sets code to 429', () => {
+      const cause = { retryAfter: '60s' };
+      const error = new ErrorTooManyRequests('Rate limit exceeded', cause);
+      expect(error).toBeInstanceOf(ErrorTooManyRequests);
+      expect(error.code).toBe(429);
+      expect(error.message).toBe('Rate limit exceeded');
+      expect(error.cause).toBe(cause);
     });
   });
 

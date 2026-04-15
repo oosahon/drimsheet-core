@@ -6,16 +6,28 @@ import errorHandlerMiddleware from './error-handler.middleware';
 import isAuthenticatedUserMiddleware from './is-authenticated-user.middleware';
 
 import isOptionalAuthenticatedUserMiddleware from './is-optional-authenticated-user.middleware';
-import requestContextMiddleware from './request-context.middleware';
+import requestContextInitMiddleware from './request-context-init.middleware';
 import requestLoggerMiddleware from './request-logger.middleware';
 
+import authUseCase from '../../../app/usecases/auth';
+import {
+  completeLoginWithGoogleMiddleware,
+  initiateLoginWithGoogleMiddleware,
+} from './google-oauth.middleware';
+
 const middlewares = {
+  initiateLoginWithGoogle: initiateLoginWithGoogleMiddleware(),
+
+  completeLoginWithGoogle: completeLoginWithGoogleMiddleware(
+    authUseCase.oAuth.handleGoogleCallback
+  ),
+
   isOptionalAuthenticatedUser: isOptionalAuthenticatedUserMiddleware(
     observability.logger,
     observability.reporter
   ),
 
-  requestContext: requestContextMiddleware(appContext.request),
+  requestContext: requestContextInitMiddleware(appContext.request),
 
   errorHandler: errorHandlerMiddleware(
     observability.logger,

@@ -1,8 +1,10 @@
 import compression from 'compression';
+import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
 import { RegisterRoutes } from '../../../routes';
 import middlewares from '../../interface/http/middlewares';
+import setupOAuth from '../config/oauth.config';
 import { PORT } from '../config/vars.config';
 import logger from '../observability/logger';
 import bullMqServerAdapter from './bull-dashboard';
@@ -11,6 +13,8 @@ import rateLimiter from './rate-limiter';
 import swagger from './swagger';
 
 function setupServer(bootstrap?: () => Promise<void>) {
+  setupOAuth();
+
   const app = express();
 
   app.use(helmet());
@@ -26,6 +30,8 @@ function setupServer(bootstrap?: () => Promise<void>) {
   app.use('/bullmq-board-admin', bullMqServerAdapter.getRouter());
 
   app.use(compression());
+
+  app.use(cookieParser());
 
   app.use(middlewares.requestContext);
 

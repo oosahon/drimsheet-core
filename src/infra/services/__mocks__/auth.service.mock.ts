@@ -2,15 +2,16 @@ import IAuthService from '../../../app/contracts/infra/auth-service.contract';
 
 const mockAuthService: jest.Mocked<IAuthService> = {
   hashPassword: jest.fn(),
-  getSignupVerificationLink: jest.fn(),
+  generateSignupToken: jest.fn(),
   comparePassword: jest.fn(),
-  generateAuthToken: jest.fn(),
+  generateAccessToken: jest.fn(),
   generateRefreshToken: jest.fn(),
   generatePasswordResetToken: jest.fn(),
   verifyPasswordResetToken: jest.fn(),
-  getResetPasswordLink: jest.fn(),
+  verifySignupToken: jest.fn(),
   verifyAuthToken: jest.fn(),
   getAuthUser: jest.fn(),
+  verifyRefreshToken: jest.fn(),
   isPermittedEmail: jest.fn(),
 };
 

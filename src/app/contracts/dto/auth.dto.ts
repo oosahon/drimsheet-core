@@ -1,3 +1,5 @@
+import { IUser } from '../../../domain/user/types/user.types';
+
 export interface IUserSignupReq {
   firstName: string;
   lastName: string;
@@ -5,12 +7,11 @@ export interface IUserSignupReq {
   password: string;
 }
 
-export interface IAuthRes {
-  authToken: string;
-  refreshToken: string;
+export interface IAccessToken {
+  accessToken: string;
 }
 
-export interface ILoginReq {
+export interface IEmailLoginReq {
   email: string;
   password: string;
 }
@@ -20,3 +21,14 @@ export interface IResetPasswordReq {
   password: string;
   confirmPassword: string;
 }
+
+export interface IOAuthProfile {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export type TOAuthDoneCallback = (
+  err: Error | null,
+  user?: IUser | false
+) => void;

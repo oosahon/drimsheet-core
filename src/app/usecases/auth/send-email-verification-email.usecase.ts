@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
+import { WEB_APP_URL } from '../../../infra/config/vars.config';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import { AppError } from '../../../shared/value-objects/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
@@ -33,17 +34,21 @@ export default function sendEmailVerificationEmailUseCase(
     }
 
     if (user.emailVerified) {
-      logger.info('User email is already verified', {
-        userId: user.id,
-        email: user.email,
-      });
+      logger.info(
+        'Skipping sending email verification email as user email is already verified',
+        {
+          userId: user.id,
+          email: user.email,
+        }
+      );
       return;
     }
 
-    const verificationLink = authService.getSignupVerificationLink({
+    const verificationToken = await authService.generateSignupToken({
       id: user.id,
-      email: user.email,
     });
+
+    const verificationLink = `${WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
 
     await transactionalEmailService.sendEmailVerification({
       user,

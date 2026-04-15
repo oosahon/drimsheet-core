@@ -29,7 +29,6 @@ describe('userEmailVerifiedEventHandler', () => {
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@example.com',
-    password: 'hashed-password',
     emailVerified: true,
     createdAt: new Date(),
     updatedAt: new Date(),

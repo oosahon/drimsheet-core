@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Middlewares,
   OperationId,
   Post,
@@ -11,13 +12,14 @@ import {
   Tags,
 } from 'tsoa';
 import {
-  ILoginReq,
+  IEmailLoginReq,
   IResetPasswordReq,
   IUserSignupReq,
 } from '../../../app/contracts/dto/auth.dto';
 import authUseCase from '../../../app/usecases/auth';
 import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
 import { IApiError } from '../handlers/error.handler';
+import middlewares from '../middlewares';
 
 const rateLimiter = {
   default: configureRateLimiter({
@@ -76,7 +78,7 @@ export class AuthController extends Controller {
   @Response<IApiError>('400')
   @Response<IApiError>('422')
   @Middlewares(rateLimiter.default)
-  public async loginWithEmail(@Body() body: ILoginReq) {
+  public async loginWithEmail(@Body() body: IEmailLoginReq) {
     return await authUseCase.loginWithEmail(body);
   }
 
@@ -105,5 +107,49 @@ export class AuthController extends Controller {
   @Response<IApiError>('422')
   public async resetPassword(@Body() payload: IResetPasswordReq) {
     return await authUseCase.resetPassword(payload);
+  }
+
+  /**
+   * Start the Google OAuth flow.
+   * Redirects the user to Google for authentication.
+   */
+  @Get('google')
+  @OperationId('loginWithGoogle')
+  @Middlewares(middlewares.initiateLoginWithGoogle)
+  public loginWithGoogle() {
+    return;
+  }
+
+  /**
+   * Google OAuth callback.
+   * Exchanges the Google user profile for an auth token and redirects to the client.
+   */
+  @Get('google/callback')
+  @OperationId('loginWithGoogleCallback')
+  @Middlewares(middlewares.completeLoginWithGoogle)
+  public async loginWithGoogleCallback() {
+    return;
+  }
+
+  /**
+   * Refresh access token
+   */
+  @Post('refresh-access-token')
+  @OperationId('refreshAccessToken')
+  @SuccessResponse('200')
+  @Response<IApiError>('400')
+  @Response<IApiError>('422')
+  public async refreshAccessToken() {
+    return await authUseCase.refreshAccessToken();
+  }
+
+  /**
+   * Logout user
+   */
+  @Post('logout')
+  @OperationId('logout')
+  @SuccessResponse('200')
+  public async logout() {
+    return await authUseCase.logout();
   }
 }

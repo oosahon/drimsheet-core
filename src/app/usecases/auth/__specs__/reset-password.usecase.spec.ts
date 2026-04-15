@@ -1,8 +1,11 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockUserAuthRepo from '../../../../infra/persistence/repos/__mocks__/user-auth.repo.impl.mock';
+import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/user-session.repo.impl.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
+import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
@@ -10,8 +13,11 @@ import {
   AppError,
   ErrorBadRequest,
 } from '../../../../shared/value-objects/error';
-import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
+import mockRequestContext, {
+  mockClientSession,
+} from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
 import resetPasswordUseCase from '../reset-password.usecase';
 
 describe('resetPasswordUseCase', () => {
@@ -25,7 +31,8 @@ describe('resetPasswordUseCase', () => {
     mockRequestContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
-    } as IRequestContextData);
+      clientSession: mockClientSession,
+    } as unknown as IRequestContextData);
   });
 
   afterEach(() => {
@@ -38,13 +45,19 @@ describe('resetPasswordUseCase', () => {
     confirmPassword: 'Password123!',
   });
 
-  it('should explicitly fail validation if passwords do not match', async () => {
-    const usecase = resetPasswordUseCase(
+  const getUseCase = () =>
+    resetPasswordUseCase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
-      mockEventBus
+      mockEventBus,
+      mockUserAuthRepo,
+      mockUserSessionRepo,
+      mockRepoService
     );
+
+  it('should explicitly fail validation if passwords do not match', async () => {
+    const usecase = getUseCase();
 
     const payload = getValidPayload();
     payload.confirmPassword = 'DifferentPassword1!';
@@ -55,13 +68,7 @@ describe('resetPasswordUseCase', () => {
   it('should throw an error if the reset token is invalid or expired', async () => {
     mockAuthService.verifyPasswordResetToken.mockResolvedValue(null);
 
-    const usecase = resetPasswordUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus
-    );
-
+    const usecase = getUseCase();
     const payload = getValidPayload();
 
     await expect(usecase(payload)).rejects.toThrow(
@@ -72,17 +79,25 @@ describe('resetPasswordUseCase', () => {
   it('should throw an error if user cannot be found in DB', async () => {
     mockAuthService.verifyPasswordResetToken.mockResolvedValue({
       id: 'internal-id' as TEntityId,
-      email: 'user@example.com',
     });
     mockUserRepo.findById.mockResolvedValue(null);
 
-    const usecase = resetPasswordUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus
-    );
+    const usecase = getUseCase();
+    const payload = getValidPayload();
 
+    await expect(usecase(payload)).rejects.toThrow(
+      new ErrorBadRequest('Invalid or expired password reset token')
+    );
+  });
+
+  it('should throw an error if the user auth record cannot be found in DB', async () => {
+    mockAuthService.verifyPasswordResetToken.mockResolvedValue({
+      id: 'internal-id' as TEntityId,
+    });
+    mockUserRepo.findById.mockResolvedValue({ id: 'internal-id' } as IUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(null);
+
+    const usecase = getUseCase();
     const payload = getValidPayload();
 
     await expect(usecase(payload)).rejects.toThrow(
@@ -100,27 +115,24 @@ describe('resetPasswordUseCase', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
-      password: 'old-hash',
     };
 
     mockAuthService.verifyPasswordResetToken.mockResolvedValue({
       id: mockUser.id,
-      email: mockUser.email,
     });
     mockUserRepo.findById.mockResolvedValue(mockUser);
+    const existingUserAuth = {
+      userId: mockUser.id,
+      password: 'old-hash',
+    } as unknown as IUserAuth;
+    mockUserAuthRepo.findByUserId.mockResolvedValue(existingUserAuth);
     mockAuthService.hashPassword.mockResolvedValue('new-hash');
-    mockAuthService.generateAuthToken.mockResolvedValue('mock-auth-token');
+    mockAuthService.generateAccessToken.mockResolvedValue('mock-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue(
       'mock-refresh-token'
     );
 
-    // Mocks for save and event propagation
-    const usecase = resetPasswordUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus
-    );
+    const usecase = getUseCase();
 
     const payload = getValidPayload();
     const result = await usecase(payload);
@@ -132,27 +144,22 @@ describe('resetPasswordUseCase', () => {
       correlationId,
     });
     expect(mockAuthService.hashPassword).toHaveBeenCalledWith(payload.password);
-    expect(mockAuthService.generateAuthToken).toHaveBeenCalledWith(
-      expect.objectContaining({ password: 'new-hash' })
-    );
-    expect(mockAuthService.generateRefreshToken).toHaveBeenCalledWith(
-      expect.objectContaining({ password: 'new-hash' })
-    );
-    expect(mockUserRepo.save).toHaveBeenCalledWith(
-      expect.objectContaining({ password: 'new-hash' }),
-      { correlationId }
+    expect(mockAuthService.generateAccessToken).toHaveBeenCalledWith(mockUser);
+
+    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
+    expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
+      { ...existingUserAuth, password: 'new-hash', failedLoginAttempts: 0 },
+      { correlationId, tx: 'mock-tx' }
     );
     expect(mockEventBus.publish).toHaveBeenCalled();
 
-    // Verify it passes enriched events
     const publishedArgs = (mockEventBus.publish as jest.Mock).mock
-      .calls[0][0] as IEvent<IUser>[];
+      .calls[0] as IEvent<IUser>[];
     expect(publishedArgs[0].correlationId).toBe(correlationId);
     expect(publishedArgs[0].idempotencyKey).toBe(idempotencyKey);
 
     expect(result).toEqual({
-      authToken: 'mock-auth-token',
-      refreshToken: 'mock-refresh-token',
+      accessToken: 'mock-auth-token',
     });
   });
 });

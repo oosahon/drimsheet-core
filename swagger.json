@@ -117,9 +117,6 @@
           "emailVerified": {
             "type": "boolean"
           },
-          "password": {
-            "type": "string"
-          },
           "firstName": {
             "type": "string"
           },
@@ -228,20 +225,17 @@
         "type": "object",
         "additionalProperties": false
       },
-      "IAuthRes": {
+      "IAccessToken": {
         "properties": {
-          "authToken": {
-            "type": "string"
-          },
-          "refreshToken": {
+          "accessToken": {
             "type": "string"
           }
         },
-        "required": ["authToken", "refreshToken"],
+        "required": ["accessToken"],
         "type": "object",
         "additionalProperties": false
       },
-      "ILoginReq": {
+      "IEmailLoginReq": {
         "properties": {
           "email": {
             "type": "string"
@@ -606,7 +600,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IAuthRes"
+                  "$ref": "#/components/schemas/IAccessToken"
                 }
               }
             }
@@ -656,7 +650,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IAuthRes"
+                  "$ref": "#/components/schemas/IAccessToken"
                 }
               }
             }
@@ -691,7 +685,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ILoginReq"
+                "$ref": "#/components/schemas/IEmailLoginReq"
               }
             }
           }
@@ -757,7 +751,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IAuthRes"
+                  "$ref": "#/components/schemas/IAccessToken"
                 }
               }
             }
@@ -797,6 +791,89 @@
             }
           }
         }
+      }
+    },
+    "/auth/google": {
+      "get": {
+        "operationId": "loginWithGoogle",
+        "responses": {
+          "204": {
+            "description": "No content"
+          }
+        },
+        "description": "Start the Google OAuth flow.\nRedirects the user to Google for authentication.",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": []
+      }
+    },
+    "/auth/google/callback": {
+      "get": {
+        "operationId": "loginWithGoogleCallback",
+        "responses": {
+          "204": {
+            "description": "No content"
+          }
+        },
+        "description": "Google OAuth callback.\nExchanges the Google user profile for an auth token and redirects to the client.",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": []
+      }
+    },
+    "/auth/refresh-access-token": {
+      "post": {
+        "operationId": "refreshAccessToken",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IAccessToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Refresh access token",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": []
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "description": "Logout user",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": []
       }
     },
     "/accounting-entities": {

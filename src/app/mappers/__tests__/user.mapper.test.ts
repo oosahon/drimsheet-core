@@ -13,7 +13,6 @@ describe('User Mapper', () => {
     lastName: 'Doe',
     email: 'john.doe@example.com',
     emailVerified: true,
-    password: 'secure-password',
     createdAt,
     updatedAt,
     deletedAt,
@@ -25,7 +24,6 @@ describe('User Mapper', () => {
     lastName: 'Doe',
     email: 'john.doe@example.com',
     emailVerified: true,
-    password: 'secure-password',
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
     deletedAt: deletedAt.toISOString(),
@@ -35,12 +33,11 @@ describe('User Mapper', () => {
     it('should map domain user to a repo model', () => {
       expect(userMapper.toRepo(domainUser)).toEqual({
         ...repoModel,
-        password: 'secure-password', // explicit to match object
       });
     });
 
-    it('should map domain user to a repo model with null password and deletedAt', () => {
-      const { password, deletedAt, ...restDomain } = domainUser;
+    it('should map domain user to a repo model with null deletedAt', () => {
+      const { deletedAt, ...restDomain } = domainUser;
 
       const domainUserWithoutOptional = {
         ...restDomain,
@@ -49,7 +46,6 @@ describe('User Mapper', () => {
 
       const expectedRepoModel = {
         ...repoModel,
-        password: null,
         deletedAt: null,
       };
 
@@ -64,16 +60,14 @@ describe('User Mapper', () => {
       expect(userMapper.toDomain(repoModel as IUserModel)).toEqual(domainUser);
     });
 
-    it('should map a repo model with null password and deletedAt to domain user', () => {
+    it('should map a repo model with null deletedAt to domain user', () => {
       const repoModelWithoutOptional = {
         ...repoModel,
-        password: null,
         deletedAt: null,
       };
 
       const expectedDomainUser = {
         ...domainUser,
-        password: undefined,
         deletedAt: null,
       };
 
@@ -84,10 +78,9 @@ describe('User Mapper', () => {
   });
 
   describe('toInterface', () => {
-    it('should map domain user to interface representation (remove password)', () => {
+    it('should map domain user to interface representation', () => {
       const interfaceUser = userMapper.toInterface(domainUser);
 
-      expect(interfaceUser).not.toHaveProperty('password');
       expect(interfaceUser.id).toBe(domainUser.id);
       expect(interfaceUser.firstName).toBe(domainUser.firstName);
     });
