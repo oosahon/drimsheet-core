@@ -5,7 +5,7 @@ import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.rep
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import {
-  ErrorUnauthorized,
+  ErrorBadRequest,
   ErrorUnprocessableEntity,
 } from '../../../../shared/value-objects/error';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
@@ -142,7 +142,7 @@ describe('verifyEmailAddressUseCase', () => {
       mockRepoService
     );
 
-    await expect(usecase(token)).rejects.toThrow(ErrorUnauthorized);
+    await expect(usecase(token)).rejects.toThrow(ErrorBadRequest);
     await expect(usecase(token)).rejects.toThrow(
       'Invalid or expired verification token'
     );
@@ -178,7 +178,7 @@ describe('verifyEmailAddressUseCase', () => {
       mockRepoService
     );
 
-    await expect(usecase(token)).rejects.toThrow(ErrorUnauthorized);
+    await expect(usecase(token)).rejects.toThrow(ErrorBadRequest);
     await expect(usecase(token)).rejects.toThrow(
       'Invalid or expired verification token'
     );

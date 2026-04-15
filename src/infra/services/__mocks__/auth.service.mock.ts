@@ -11,6 +11,7 @@ const mockAuthService: jest.Mocked<IAuthService> = {
   verifySignupToken: jest.fn(),
   verifyAuthToken: jest.fn(),
   getAuthUser: jest.fn(),
+  verifyRefreshToken: jest.fn(),
   isPermittedEmail: jest.fn(),
 };
 
