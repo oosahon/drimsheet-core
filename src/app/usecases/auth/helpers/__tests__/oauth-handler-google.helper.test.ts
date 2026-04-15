@@ -11,7 +11,6 @@ import {
   EAuthStrategy,
   IUserAuth,
 } from '../../../../contracts/infra/auth-service.contract';
-import { ITransactionContext } from '../../../../contracts/infra/repo.contract';
 import googleOAuthHelper from '../oauth-handler-google.helper';
 
 describe('googleOAuthHelper', () => {
@@ -24,10 +23,6 @@ describe('googleOAuthHelper', () => {
       correlationId,
       idempotencyKey,
     } as unknown as IRequestContextData);
-
-    mockRepoService.runInTransaction.mockImplementation(async (cb) => {
-      await cb('mock-tx' as unknown as ITransactionContext);
-    });
   });
 
   const validProfile: IOAuthProfile = {
@@ -100,13 +95,11 @@ describe('googleOAuthHelper', () => {
       correlationId,
     });
 
-    // Check mapping sync
     expect(mockUserAuth.strategy).toContain(EAuthStrategy.Google);
     expect(mockUserAuthRepo.save).toHaveBeenCalledWith(mockUserAuth, {
       correlationId,
     });
 
-    // Should yield user gracefully
     expect(doneCallback).toHaveBeenCalledWith(null, mockUser);
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
   });
@@ -158,10 +151,8 @@ describe('googleOAuthHelper', () => {
       expect.objectContaining({ correlationId, tx: 'mock-tx' })
     );
 
-    // Assert that domain events fired successfully
     expect(mockEventBus.publish).toHaveBeenCalled();
 
-    // Verify callback
     expect(doneCallback).toHaveBeenCalledWith(
       null,
       expect.objectContaining({
@@ -180,6 +171,23 @@ describe('googleOAuthHelper', () => {
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'Database explosion' }),
+      false
+    );
+  });
+
+  it('should catch non-Error exceptions and map to ErrorInternalServerError', async () => {
+    mockUserRepo.findByEmail.mockRejectedValue('String error');
+
+    const helper = getHelper();
+    const doneCallback = jest.fn();
+
+    await helper(validProfile, doneCallback);
+
+    expect(doneCallback).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'Unknown authentication error',
+        code: 500,
+      }),
       false
     );
   });

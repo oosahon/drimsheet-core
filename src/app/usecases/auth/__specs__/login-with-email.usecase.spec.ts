@@ -11,34 +11,22 @@ import {
   ErrorBadRequest,
   ErrorUnprocessableEntity,
 } from '../../../../shared/value-objects/error';
-import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import {
-  IClientSession,
-  IRequestContextData,
-} from '../../../contracts/app/request-context.contract';
+import mockRequestContext, {
+  mockClientSession,
+} from '../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
-import { ITransactionContext } from '../../../contracts/infra/repo.contract';
 import loginWithEmailUseCase from '../login-with-email.usecase';
 
 describe('loginWithEmailUseCase', () => {
-  let mockClientSession: jest.Mocked<IClientSession>;
   const correlationId = 'test-corr-id';
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockClientSession = {
-      getRefreshToken: jest.fn(),
-      setRefreshToken: jest.fn(),
-    };
     mockRequestContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
     } as unknown as IRequestContextData);
-
-    // Set up runInTransaction to execute the callback by default for test coverage
-    mockRepoService.runInTransaction.mockImplementation(async (cb) => {
-      await cb('mock-tx' as unknown as ITransactionContext);
-    });
   });
 
   const validPayload = {
@@ -87,8 +75,8 @@ describe('loginWithEmailUseCase', () => {
 
   it('should successfully log in a user, overwrite old session, reset failed attempts, and return tokens', async () => {
     const mockUser = getMockUser();
-    const mockUserAuth = getMockUserAuth({ failedLoginAttempts: 2 }); // Coverage for failedLoginAttempts > 0
-    mockClientSession.getRefreshToken.mockReturnValue('old-refresh-token'); // Coverage for existing session
+    const mockUserAuth = getMockUserAuth({ failedLoginAttempts: 2 });
+    mockClientSession.getRefreshToken.mockReturnValue('old-refresh-token');
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
@@ -113,7 +101,6 @@ describe('loginWithEmailUseCase', () => {
     expect(mockAuthService.generateAccessToken).toHaveBeenCalledWith(mockUser);
     expect(mockAuthService.generateRefreshToken).toHaveBeenCalledWith(mockUser);
 
-    // Assert session repo operations within transaction
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
     expect(mockUserSessionRepo.delete).toHaveBeenCalledWith(
       mockUser.id,
@@ -134,13 +121,10 @@ describe('loginWithEmailUseCase', () => {
       'refresh-token'
     );
 
-    // Assert reset attempts
     expect(mockUserAuthRepo.resetFailedLoginAttempts).toHaveBeenCalledWith(
       mockUser.id,
       { correlationId }
     );
-
-    // Assert events
     expect(mockEventBus.publish).toHaveBeenCalled();
 
     expect(result).toEqual({ accessToken: 'auth-token' });

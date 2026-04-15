@@ -92,9 +92,6 @@ describe('signupWithEmailUsecase', () => {
     expect(mockAuthService.hashPassword).toHaveBeenCalledTimes(1);
     expect(mockAuthService.hashPassword).toHaveBeenCalledWith(password);
 
-    const txCallback = mockRepoService.runInTransaction.mock.calls[0][0];
-    if (txCallback) await txCallback('mock-tx' as any);
-
     // Assert that save methods were called correctly
     expect(mockUserRepo.save).toHaveBeenCalledTimes(1);
     const savedUserArgs = mockUserRepo.save.mock.calls[0];

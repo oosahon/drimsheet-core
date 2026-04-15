@@ -862,6 +862,20 @@
         "parameters": []
       }
     },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "description": "Logout user",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": []
+      }
+    },
     "/accounting-entities": {
       "get": {
         "operationId": "getAll",

@@ -142,4 +142,14 @@ export class AuthController extends Controller {
   public async refreshAccessToken() {
     return await authUseCase.refreshAccessToken();
   }
+
+  /**
+   * Logout user
+   */
+  @Post('logout')
+  @OperationId('logout')
+  @SuccessResponse('200')
+  public async logout() {
+    return await authUseCase.logout();
+  }
 }

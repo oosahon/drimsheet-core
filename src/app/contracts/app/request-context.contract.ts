@@ -6,6 +6,7 @@ import { IIdempotencyKey } from '../../../shared/types/idempotency-key.types';
 export interface IClientSession {
   setRefreshToken(token: string): void;
   getRefreshToken(): string | null;
+  clearRefreshToken(): void;
 }
 
 export interface IRequestContextData extends ICorrelationId, IIdempotencyKey {

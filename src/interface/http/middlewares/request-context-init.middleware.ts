@@ -50,6 +50,21 @@ export default function requestContextInitMiddleware(
           getRefreshToken: () => {
             return req.cookies.refresh_token;
           },
+
+          clearRefreshToken: () => {
+            const hostname = new URL(WEB_APP_URL).hostname;
+            const cookieDomain =
+              hostname === 'localhost' || hostname === '127.0.0.1'
+                ? undefined
+                : hostname;
+
+            res.clearCookie('refresh_token', {
+              httpOnly: true,
+              secure: NODE_ENV === 'production',
+              domain: cookieDomain,
+              sameSite: 'lax',
+            });
+          },
         },
       },
       next

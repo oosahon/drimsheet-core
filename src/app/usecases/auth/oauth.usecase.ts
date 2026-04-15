@@ -26,7 +26,7 @@ export default function oauthUsecase(
         events: [],
       });
 
-      return `${webAppUrl}/auth/callback?access_token=${accessToken}`;
+      return `${webAppUrl}/auth/oauth-confirmation?access_token=${accessToken}`;
     },
   };
 }

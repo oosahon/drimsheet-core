@@ -73,6 +73,12 @@ export class ErrorUnprocessableEntity extends ApiError {
   }
 }
 
+export class ErrorTooManyRequests extends ApiError {
+  constructor(message: string, cause?: Record<string, unknown>) {
+    super(429, message, cause);
+  }
+}
+
 export class ErrorInternalServerError extends ApiError {
   constructor(message: string, cause?: Record<string, unknown>) {
     super(500, message, cause);

@@ -4,11 +4,12 @@ import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
 import appContext from '../../context';
-import getPasswordResetLinkUseCase from './get-password-reset-link.usecase';
 import googleOAuthHelper from './helpers/oauth-handler-google.helper';
 import loginWithEmailUseCase from './login-with-email.usecase';
+import logoutUseCase from './logout.usecase';
 import oauthUsecase from './oauth.usecase';
 import refreshAccessTokenUseCase from './refresh-access-token.usecase';
+import requestPasswordResetUseCase from './request-password-reset.usecase';
 import resetPasswordUseCase from './reset-password.usecase';
 import sendEmailVerificationEmailUseCase from './send-email-verification-email.usecase';
 import signupWithEmailUsecase from './signup-with-email.usecase';
@@ -51,7 +52,7 @@ const authUseCase = {
     services.repo
   ),
 
-  getPasswordResetLink: getPasswordResetLinkUseCase(
+  getPasswordResetLink: requestPasswordResetUseCase(
     appContext.request,
     repos.user,
     services.auth,
@@ -95,6 +96,8 @@ const authUseCase = {
     repos.userSession,
     services.repo
   ),
+
+  logout: logoutUseCase(appContext.request, services.auth, repos.userSession),
 };
 
 export default authUseCase;

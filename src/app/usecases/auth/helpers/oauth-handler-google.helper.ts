@@ -1,7 +1,10 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
-import { ErrorBadRequest } from '../../../../shared/value-objects/error';
+import {
+  ErrorBadRequest,
+  ErrorInternalServerError,
+} from '../../../../shared/value-objects/error';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import IRequestContext from '../../../contracts/app/request-context.contract';
 import {
@@ -85,7 +88,10 @@ export default function googleOAuthHelper(
       if (error instanceof Error) {
         return done(error, false);
       }
-      return done(new Error('Unknown authentication error'), false);
+      return done(
+        new ErrorInternalServerError('Unknown authentication error'),
+        false
+      );
     }
   };
 }

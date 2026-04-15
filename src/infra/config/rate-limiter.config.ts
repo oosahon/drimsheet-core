@@ -17,6 +17,7 @@ interface IConfig {
   ) => string | undefined | Promise<string | undefined>;
 }
 
+import { ErrorTooManyRequests } from '../../shared/value-objects/error';
 import reporter from '../observability/reporter';
 
 export function configureRateLimiter(config: IConfig) {
@@ -37,7 +38,6 @@ export function configureRateLimiter(config: IConfig) {
     handler: (req, res, next, options) => {
       const rateLimitInfo = (req as any).rateLimit;
 
-      // Only report abuse on the exact request that breached the limit
       if (rateLimitInfo && rateLimitInfo.used === rateLimitInfo.limit + 1) {
         reporter.reportAbuse('Too many requests to API', {
           method: req.method,
@@ -47,7 +47,12 @@ export function configureRateLimiter(config: IConfig) {
         });
       }
 
-      res.status(options.statusCode).send(options.message);
+      throw new ErrorTooManyRequests(options.message, {
+        cause: {
+          used: rateLimitInfo.used,
+          limit: rateLimitInfo.limit,
+        },
+      });
     },
   });
 }

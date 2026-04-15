@@ -12,9 +12,9 @@ import eventValue from '../../../../shared/value-objects/event.vo';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
-import getPasswordResetLinkUseCase from '../get-password-reset-link.usecase';
+import requestPasswordResetUseCase from '../request-password-reset.usecase';
 
-describe('getPasswordResetLinkUseCase', () => {
+describe('requestPasswordResetUseCase', () => {
   const correlationId = 'test-corr-id';
 
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe('getPasswordResetLinkUseCase', () => {
     const userEmail = 'notfound@example.com';
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
-    const usecase = getPasswordResetLinkUseCase(
+    const usecase = requestPasswordResetUseCase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
@@ -85,7 +85,7 @@ describe('getPasswordResetLinkUseCase', () => {
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
     mockAuthService.generatePasswordResetToken.mockResolvedValue(resetToken);
 
-    const usecase = getPasswordResetLinkUseCase(
+    const usecase = requestPasswordResetUseCase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
@@ -142,7 +142,7 @@ describe('getPasswordResetLinkUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
 
-    const usecase = getPasswordResetLinkUseCase(
+    const usecase = requestPasswordResetUseCase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,

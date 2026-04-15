@@ -13,17 +13,14 @@ import {
   AppError,
   ErrorBadRequest,
 } from '../../../../shared/value-objects/error';
-import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
-import {
-  IClientSession,
-  IRequestContextData,
-} from '../../../contracts/app/request-context.contract';
+import mockRequestContext, {
+  mockClientSession,
+} from '../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
-import { ITransactionContext } from '../../../contracts/infra/repo.contract';
 import resetPasswordUseCase from '../reset-password.usecase';
 
 describe('resetPasswordUseCase', () => {
-  let mockClientSession: jest.Mocked<IClientSession>;
   const correlationId = 'test-corr-id';
   const idempotencyKey = 'idempotency-key';
 
@@ -31,20 +28,11 @@ describe('resetPasswordUseCase', () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2023-01-01T00:00:00.000Z'));
-    mockClientSession = {
-      getRefreshToken: jest.fn(),
-      setRefreshToken: jest.fn(),
-    };
     mockRequestContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
       clientSession: mockClientSession,
     } as unknown as IRequestContextData);
-
-    // Set up runInTransaction to execute the callback by default for test coverage
-    mockRepoService.runInTransaction.mockImplementation(async (cb) => {
-      await cb('mock-tx' as unknown as ITransactionContext);
-    });
   });
 
   afterEach(() => {
@@ -144,7 +132,6 @@ describe('resetPasswordUseCase', () => {
       'mock-refresh-token'
     );
 
-    // Mocks for save and event propagation
     const usecase = getUseCase();
 
     const payload = getValidPayload();
@@ -166,7 +153,6 @@ describe('resetPasswordUseCase', () => {
     );
     expect(mockEventBus.publish).toHaveBeenCalled();
 
-    // Verify it passes enriched events
     const publishedArgs = (mockEventBus.publish as jest.Mock).mock
       .calls[0] as IEvent<IUser>[];
     expect(publishedArgs[0].correlationId).toBe(correlationId);
