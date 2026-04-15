@@ -823,7 +823,7 @@
     },
     "/auth/refresh-access-token": {
       "post": {
-        "operationId": "resetPassword",
+        "operationId": "refreshAccessToken",
         "responses": {
           "200": {
             "description": "",

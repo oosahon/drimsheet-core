@@ -135,7 +135,7 @@ export class AuthController extends Controller {
    * Refresh access token
    */
   @Post('refresh-access-token')
-  @OperationId('resetPassword')
+  @OperationId('refreshAccessToken')
   @SuccessResponse('200')
   @Response<IApiError>('400')
   @Response<IApiError>('422')
