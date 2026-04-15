@@ -18,7 +18,6 @@ const userSessionMapper = {
         ? toRepoDate(userSession.lastLoginAt)
         : null,
       createdAt: toRepoDate(userSession.createdAt),
-      updatedAt: toRepoDate(new Date()),
     });
   },
 

@@ -23,6 +23,7 @@ export default function oauthUsecase(
         userSessionRepo,
         eventBus,
         repoService,
+        events: [],
       });
 
       return `${webAppUrl}/auth/callback?access_token=${accessToken}`;

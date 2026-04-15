@@ -821,6 +821,47 @@
         "parameters": []
       }
     },
+    "/auth/refresh-access-token": {
+      "post": {
+        "operationId": "resetPassword",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IAccessToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Refresh access token",
+        "tags": ["Auth"],
+        "security": [],
+        "parameters": []
+      }
+    },
     "/accounting-entities": {
       "get": {
         "operationId": "getAll",

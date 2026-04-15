@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
+import IReporter from '../../../app/contracts/infra/reporter.contract';
 import {
   ErrorInternalServerError,
   ErrorUnprocessableEntity,
   IApiValidationError,
   parseError,
 } from '../../../shared/value-objects/error';
-import IReporter from '../../../app/contracts/infra/reporter.contract';
 
 export interface IApiError {
   message: string;

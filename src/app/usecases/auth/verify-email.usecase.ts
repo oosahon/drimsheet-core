@@ -2,7 +2,7 @@ import { z } from 'zod';
 import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import { ErrorUnauthorized } from '../../../shared/value-objects/error';
+import { ErrorBadRequest } from '../../../shared/value-objects/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { IAccessToken } from '../../contracts/dto/auth.dto';
@@ -32,20 +32,30 @@ export default function verifyEmailAddressUseCase(
     const decodedToken = await authService.verifySignupToken(token);
 
     if (!decodedToken) {
-      throw new ErrorUnauthorized('Invalid or expired verification token');
+      throw new ErrorBadRequest('Invalid or expired verification token');
     }
 
     const user = await userRepo.findById(decodedToken.id, { correlationId });
 
     if (!user) {
-      throw new ErrorUnauthorized('Invalid or expired verification token');
+      throw new ErrorBadRequest('Invalid or expired verification token');
+    }
+
+    if (user.emailVerified) {
+      return issueUserSessionHelper({
+        user,
+        reqContext: requestContext,
+        authService,
+        userSessionRepo,
+        eventBus,
+        repoService,
+        events: [],
+      });
     }
 
     const [updatedUser, events] = userEntity.verifyEmail(user);
 
     await userRepo.save(updatedUser, { correlationId });
-
-    eventBus.publish(eventValue.enrichAll(events, { correlationId }));
 
     return issueUserSessionHelper({
       user: updatedUser,
@@ -54,6 +64,7 @@ export default function verifyEmailAddressUseCase(
       userSessionRepo,
       eventBus,
       repoService,
+      events: eventValue.enrichAll(events, { correlationId }),
     });
   };
 }

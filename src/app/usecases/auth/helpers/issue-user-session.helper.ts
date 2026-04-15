@@ -1,7 +1,6 @@
-import userEvents from '../../../../domain/user/events/user.events';
 import { IUser } from '../../../../domain/user/types/user.types';
+import { IEvent } from '../../../../shared/types/event.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import eventValue from '../../../../shared/value-objects/event.vo';
 import IRequestContext from '../../../contracts/app/request-context.contract';
 import { IAccessToken } from '../../../contracts/dto/auth.dto';
 import IAuthService from '../../../contracts/infra/auth-service.contract';
@@ -19,6 +18,7 @@ export interface IIssueUserSessionDeps {
   userSessionRepo: IUserSessionRepo;
   eventBus: IEventBus;
   repoService: IRepoService;
+  events: IEvent<unknown>[] | IEvent<unknown>;
 }
 
 export default async function issueUserSessionHelper({
@@ -28,6 +28,7 @@ export default async function issueUserSessionHelper({
   userSessionRepo,
   eventBus,
   repoService,
+  events,
 }: IIssueUserSessionDeps): Promise<IAccessToken> {
   const { correlationId, clientSession } = reqContext.get();
 
@@ -35,21 +36,41 @@ export default async function issueUserSessionHelper({
   const refreshToken = await authService.generateRefreshToken(user);
 
   const repoTransaction: TRepoTransactionFn = async (tx) => {
-    const oldRefreshToken = clientSession.getRefreshToken();
-    if (oldRefreshToken) {
-      await userSessionRepo.delete(user.id, oldRefreshToken, {
+    const existingClientRefreshToken = clientSession.getRefreshToken();
+
+    if (existingClientRefreshToken) {
+      await userSessionRepo.delete(user.id, existingClientRefreshToken, {
         correlationId,
         tx,
       });
     }
 
+    const existingDbRefreshToken = await userSessionRepo.findByRefreshToken(
+      user.id,
+      refreshToken,
+      { correlationId, tx, lock: 'update' }
+    );
+
+    // This is in the off chance that use user makes the request twice
+    if (existingDbRefreshToken) {
+      await userSessionRepo.delete(
+        user.id,
+        existingDbRefreshToken.refreshToken,
+        {
+          correlationId,
+          tx,
+        }
+      );
+    }
+
+    const timestamp = new Date();
     await userSessionRepo.save(
       {
         id: generateUUID(),
         userId: user.id,
         refreshToken,
-        lastLoginAt: new Date(),
-        createdAt: new Date(),
+        lastLoginAt: timestamp,
+        createdAt: timestamp,
       },
       { correlationId, tx }
     );
@@ -59,9 +80,7 @@ export default async function issueUserSessionHelper({
 
   clientSession.setRefreshToken(refreshToken);
 
-  eventBus.publish(
-    eventValue.enrich(userEvents.loggedIn(user), { correlationId })
-  );
+  eventBus.publish(events);
 
   return { accessToken };
 }

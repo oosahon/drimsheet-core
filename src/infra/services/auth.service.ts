@@ -83,6 +83,18 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
       return token;
     },
 
+    verifyRefreshToken(token) {
+      try {
+        const { type, ...decoded } = verifyAuthToken(token);
+
+        if (type !== 'refresh') return null;
+
+        return decoded;
+      } catch (err) {
+        return null;
+      }
+    },
+
     async generatePasswordResetToken({ id }) {
       const ttlSeconds = 2 * 60 * 60; // 2 hours
       const token = sign(

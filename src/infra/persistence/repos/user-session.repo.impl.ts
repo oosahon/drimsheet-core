@@ -9,22 +9,14 @@ const userSessionRepo: IUserSessionRepo = {
     const query = getDbQuery(options);
     const repoData = userSessionMapper.toRepo(userSessionData);
 
-    await query
-      .insert(userSessions)
-      .values(repoData)
-      .onConflictDoUpdate({
-        target: userSessions.id,
-        set: {
-          ...repoData,
-          updatedAt: new Date().toISOString(),
-        },
-      });
+    await query.insert(userSessions).values(repoData).onConflictDoUpdate({
+      target: userSessions.id,
+      set: repoData,
+    });
   },
 
   findByRefreshToken: async (userId, refreshToken, options) => {
-    const query = getDbQuery(options);
-
-    const result = await query
+    const baseQuery = getDbQuery(options)
       .select()
       .from(userSessions)
       .where(
@@ -34,9 +26,11 @@ const userSessionRepo: IUserSessionRepo = {
         )
       );
 
-    if (!result.length) return null;
+    const query = options.lock ? baseQuery.for(options.lock) : baseQuery;
 
-    return userSessionMapper.toDomain(result[0]);
+    const [result] = await query;
+    if (!result) return null;
+    return userSessionMapper.toDomain(result);
   },
 
   findAllByUserId: async (userId, options) => {

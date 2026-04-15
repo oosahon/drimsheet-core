@@ -1,8 +1,10 @@
 import z from 'zod';
+import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import { ErrorBadRequest } from '../../../shared/value-objects/error';
+import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { IAccessToken, IEmailLoginReq } from '../../contracts/dto/auth.dto';
 import IAuthService, {
@@ -85,6 +87,10 @@ export default function loginWithEmailUseCase(
       await userAuthRepo.resetFailedLoginAttempts(user.id, { correlationId });
     }
 
+    const events = eventValue.enrich(userEvents.loggedIn(user), {
+      correlationId,
+    });
+
     return issueUserSessionHelper({
       user,
       reqContext,
@@ -92,6 +98,7 @@ export default function loginWithEmailUseCase(
       userSessionRepo,
       eventBus,
       repoService,
+      events,
     });
   };
 }

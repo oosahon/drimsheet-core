@@ -93,8 +93,6 @@ export default function resetPasswordUseCase(
       idempotencyKey,
     });
 
-    eventBus.publish(enrichedEvent);
-
     return issueUserSessionHelper({
       user: existingUser,
       reqContext: requestContext,
@@ -102,6 +100,7 @@ export default function resetPasswordUseCase(
       userSessionRepo,
       eventBus,
       repoService,
+      events: enrichedEvent,
     });
   };
 }

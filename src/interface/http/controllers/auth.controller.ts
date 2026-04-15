@@ -130,4 +130,16 @@ export class AuthController extends Controller {
   public async loginWithGoogleCallback() {
     return;
   }
+
+  /**
+   * Refresh access token
+   */
+  @Post('refresh-access-token')
+  @OperationId('resetPassword')
+  @SuccessResponse('200')
+  @Response<IApiError>('400')
+  @Response<IApiError>('422')
+  public async refreshAccessToken() {
+    return await authUseCase.refreshAccessToken();
+  }
 }

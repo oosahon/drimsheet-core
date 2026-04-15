@@ -10,7 +10,9 @@ import {
   pgTable,
   serial,
   smallint,
+  text,
   timestamp,
+  uniqueIndex,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -56,6 +58,15 @@ export const pgmigrations = pgTable('pgmigrations', {
   runOn: timestamp('run_on', { mode: 'string' }).notNull(),
 });
 
+export const seeds = pgTable('seeds', {
+  id: serial().notNull(),
+  fileName: varchar('file_name', { length: 250 }).notNull(),
+  createdAt: timestamp('created_at', {
+    withTimezone: true,
+    mode: 'string',
+  }).notNull(),
+});
+
 export const usersInCore = core.table('users', {
   id: uuid()
     .default(sql`uuid_generate_v4()`)
@@ -96,15 +107,6 @@ export const userAuthInCore = core.table(
   ]
 );
 
-export const seeds = pgTable('seeds', {
-  id: serial().notNull(),
-  fileName: varchar('file_name', { length: 250 }).notNull(),
-  createdAt: timestamp('created_at', {
-    withTimezone: true,
-    mode: 'string',
-  }).notNull(),
-});
-
 export const userSessionsInCore = core.table(
   'user_sessions',
   {
@@ -112,7 +114,7 @@ export const userSessionsInCore = core.table(
       .default(sql`uuid_generate_v4()`)
       .notNull(),
     userId: uuid('user_id').notNull(),
-    refreshToken: varchar('refresh_token', { length: 200 }).notNull(),
+    refreshToken: text('refresh_token').notNull(),
     lastLoginAt: timestamp('last_login_at', {
       withTimezone: true,
       mode: 'string',
@@ -120,11 +122,13 @@ export const userSessionsInCore = core.table(
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
       .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
   },
   (table) => [
+    uniqueIndex('user_sessions_user_id_refresh_token_unique_index').using(
+      'btree',
+      table.userId.asc().nullsLast().op('text_ops'),
+      table.refreshToken.asc().nullsLast().op('text_ops')
+    ),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [usersInCore.id],

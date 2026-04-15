@@ -44,6 +44,8 @@ export default interface IAuthService {
 
   generateRefreshToken(userData: IAuthTokenPayload): Promise<string>;
 
+  verifyRefreshToken(token: string): IAuthTokenPayload | null;
+
   generatePasswordResetToken(payload: IAuthTokenPayload): Promise<string>;
 
   verifyPasswordResetToken(token: string): Promise<IAuthTokenPayload | null>;

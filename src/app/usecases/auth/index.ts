@@ -8,6 +8,7 @@ import getPasswordResetLinkUseCase from './get-password-reset-link.usecase';
 import googleOAuthHelper from './helpers/oauth-handler-google.helper';
 import loginWithEmailUseCase from './login-with-email.usecase';
 import oauthUsecase from './oauth.usecase';
+import refreshAccessTokenUseCase from './refresh-access-token.usecase';
 import resetPasswordUseCase from './reset-password.usecase';
 import sendEmailVerificationEmailUseCase from './send-email-verification-email.usecase';
 import signupWithEmailUsecase from './signup-with-email.usecase';
@@ -83,6 +84,15 @@ const authUseCase = {
     appContext.request,
     repos.user,
     repos.userAuth,
+    services.repo
+  ),
+
+  refreshAccessToken: refreshAccessTokenUseCase(
+    appContext.request,
+    repos.user,
+    services.auth,
+    messaging.eventBus,
+    repos.userSession,
     services.repo
   ),
 };
