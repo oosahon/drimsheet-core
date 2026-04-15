@@ -32,10 +32,16 @@ export default function requestContextInitMiddleware(
         accountingEntityType: accountingEntityType as UAccountingEntityType,
         clientSession: {
           setRefreshToken: (token: string) => {
+            const hostname = new URL(WEB_APP_URL).hostname;
+            const cookieDomain =
+              hostname === 'localhost' || hostname === '127.0.0.1'
+                ? undefined
+                : hostname;
+
             res.cookie('refresh_token', token, {
               httpOnly: true,
               secure: NODE_ENV === 'production',
-              domain: new URL(WEB_APP_URL).hostname,
+              domain: cookieDomain,
               sameSite: 'lax',
               maxAge: 1000 * 60 * 60 * 24 * 7,
             });

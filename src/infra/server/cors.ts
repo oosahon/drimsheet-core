@@ -3,6 +3,7 @@ import { CORS_WHITELIST } from '../config/cors.config';
 
 export default function cors() {
   const options: CorsOptions = {
+    credentials: true,
     origin: function (origin, callback) {
       if (!origin) {
         return callback(null, true);
