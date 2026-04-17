@@ -7,7 +7,7 @@ if [ "${NODE_ENV:-}" != "test" ]; then
 fi
 
 ENV_FILE=".env.test"
-POSTGRES_VOLUME="PurpleLedger_pg_data_test"
+POSTGRES_VOLUME="pg_test_data_purple_ledger"
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "$ENV_FILE file not found"
@@ -19,13 +19,13 @@ set -a
 source "$ENV_FILE"
 set +a
 
-if docker ps -a --format '{{.Names}}' | grep -q "^${POSTGRES_CONTAINER}$"; then
-  echo "Container ${POSTGRES_CONTAINER} already exists, starting it..."
-  docker start "${POSTGRES_CONTAINER}"
+if docker ps -a --format '{{.Names}}' | grep -q "^${POSTGRES_CONTAINER_NAME}$"; then
+  echo "Container ${POSTGRES_CONTAINER_NAME} already exists, starting it..."
+  docker start "${POSTGRES_CONTAINER_NAME}"
 else
   echo "Creating new PostgreSQL container with persistent volume (${POSTGRES_VOLUME})..."
   docker run -d \
-    --name "${POSTGRES_CONTAINER}" \
+    --name "${POSTGRES_CONTAINER_NAME}" \
     -e POSTGRES_DB="${POSTGRES_DB}" \
     -e POSTGRES_USER="${POSTGRES_USER}" \
     -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
@@ -35,7 +35,7 @@ else
 fi
 
 echo "Waiting for PostgreSQL to be ready..."
-until docker exec "${POSTGRES_CONTAINER}" pg_isready -U "${POSTGRES_USER}" >/dev/null 2>&1; do
+until docker exec "${POSTGRES_CONTAINER_NAME}" pg_isready -U "${POSTGRES_USER}" >/dev/null 2>&1; do
   sleep 1
 done
 

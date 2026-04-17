@@ -35,7 +35,7 @@ export default function loginWithEmailUseCase(
   return async (payload: IEmailLoginReq): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, payload);
 
-    const { correlationId, clientSession } = reqContext.get();
+    const { correlationId } = reqContext.get();
 
     const email = emailValue.normalize(payload.email);
 
@@ -68,7 +68,7 @@ export default function loginWithEmailUseCase(
       await userAuthRepo.incrementFailedLoginAttempts(user.id, {
         correlationId,
       });
-      throw new ErrorBadRequest('You signup up with a different method');
+      throw new ErrorBadRequest('You signed up with a different method.');
     }
 
     const isValidPassword = await authService.comparePassword(

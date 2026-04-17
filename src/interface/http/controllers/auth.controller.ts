@@ -25,14 +25,13 @@ const rateLimiter = {
   default: configureRateLimiter({
     windowMs: 1000 * 60,
     max: 5,
-    message:
-      'Too many authentication attempts for this account, please try again.',
+    message: 'Too many authentication attempts, please try again later.',
     keyGenerator: (req) => req.body?.email || (req.query?.token as string),
   }),
 
   getPasswordResetLink: configureRateLimiter({
     windowMs: 1000 * 60 * 5,
-    max: 3,
+    max: 5,
     message:
       'Too many password reset requests for this account, please try again.',
     keyGenerator: (req) => req.body?.email,

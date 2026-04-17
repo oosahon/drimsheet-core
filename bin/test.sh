@@ -8,10 +8,10 @@ if [ -f .env.test ]; then
   set +a
 fi
 
-# Start dev services
+export NODE_ENV=test
+
+yarn test:db:reset
+echo "Starting test server..."
 npx cross-env NODE_ENV=test concurrently \
-  "npm run start:postgres" \
-  "npm run start:redis" \
-  "npm run db:migrate" \
   "nodemon" \
   "nodemon -x 'tsoa spec-and-routes -c tsoa.json'"

@@ -4,6 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import { RegisterRoutes } from '../../../routes';
 import middlewares from '../../interface/http/middlewares';
+import internalRouter from '../../interface/http/routes/internal.routes';
 import setupOAuth from '../config/oauth.config';
 import { PORT } from '../config/vars.config';
 import logger from '../observability/logger';
@@ -36,6 +37,8 @@ function setupServer(bootstrap?: () => Promise<void>) {
   app.use(middlewares.requestContext);
 
   app.use(middlewares.requestLogger);
+
+  app.use('/internal', internalRouter);
 
   RegisterRoutes(app);
 
