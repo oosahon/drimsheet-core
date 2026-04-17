@@ -17,3 +17,8 @@ export enum ETransactionalEmailAgent {
 export default interface ITransactionalEmailAgent {
   send(payload: ITransactionalEmailPayload): Promise<void>;
 }
+
+export interface IInternalMailer {
+  send(payload: Omit<ITransactionalEmailPayload, 'correlationId'>): void;
+  getEmail(email: string, subject: string): ITransactionalEmailPayload | null;
+}

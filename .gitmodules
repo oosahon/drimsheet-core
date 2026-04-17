@@ -1,0 +1,3 @@
+[submodule "submodules"]
+	path = submodules
+	url = git@github.com:purple-ledger/purple-ledger-pg-schema.git

@@ -1,16 +1,23 @@
+import { RequestHandler } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDoc from '../../../swagger.json';
 import { APP_URL, NODE_ENV } from '../config/vars.config';
 
 export default function swagger() {
-  if (['development', 'local'].includes(NODE_ENV)) {
-    swaggerDoc.servers = [
-      {
-        url: `${APP_URL}/api/v1`,
-      },
-    ];
+  const isSupportedEnv = ['development', 'local'].includes(NODE_ENV);
 
-    return [swaggerUi.serve, swaggerUi.setup(swaggerDoc)];
+  if (!isSupportedEnv) {
+    const dummy: RequestHandler = (req, res, next) => {
+      next();
+    };
+    return [dummy];
   }
-  return [];
+
+  swaggerDoc.servers = [
+    {
+      url: `${APP_URL}/api/v1`,
+    },
+  ];
+
+  return [swaggerUi.serve, swaggerUi.setup(swaggerDoc)];
 }

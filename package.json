@@ -8,10 +8,12 @@
   "scripts": {
     "test": "jest",
     "test:ci": "bash bin/test-ci.sh",
+    "test:seed": "ts-node bin/seed.ts",
     "start": "node ./dist/src/app/bootstrap/index.js",
     "start:test": "bash bin/test.sh",
-    "start:postgres": "bash bin/start-postgres.sh",
-    "start:redis": "bash bin/redis-setup.sh",
+    "start:test:postgres": "bash bin/pg-setup.sh",
+    "start:test:redis": "bash bin/redis-setup.sh",
+    "setup:test:db": "bash bin/setup-test-db.sh",
     "dev": "bash bin/dev.sh",
     "format:all": "prettier --write \"src/**/*.{ts,js,json,md}\"",
     "format:changed": "prettier --write --cache .",
@@ -25,7 +27,8 @@
     "adr:remove": "tsx bin/remove-adr.ts",
     "adr:rename": "tsx bin/rename-adr.ts",
     "adr:sync": "tsx bin/sync-adr.ts",
-    "mjml:build": "tsx bin/mjml-to-ts.ts"
+    "mjml:build": "tsx bin/mjml-to-ts.ts",
+    "db:migrate": "tsx ./node_modules/.bin/node-pg-migrate -j ts -m ./submodules/migrations -d POSTGRES_URL"
   },
   "lint-staged": {
     "*.{ts,js,json,md}": "prettier --write --plugin=prettier-plugin-organize-imports"
@@ -57,6 +60,7 @@
     "drizzle-kit": "^0.31.10",
     "husky": "^9.1.7",
     "jest": "^30.3.0",
+    "node-pg-migrate": "^8.0.4",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.1",
     "prettier-plugin-organize-imports": "^4.3.0",

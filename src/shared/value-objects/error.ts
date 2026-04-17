@@ -43,8 +43,8 @@ export class ErrorPaymentRequired extends ApiError {
 }
 
 export class ErrorForbidden extends ApiError {
-  constructor(message: string, cause?: Record<string, unknown>) {
-    super(403, message, cause);
+  constructor(message?: string, cause?: Record<string, unknown>) {
+    super(403, message || 'Forbidden', cause);
   }
 }
 

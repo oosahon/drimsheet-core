@@ -145,7 +145,7 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
     },
 
     isPermittedEmail(email: string) {
-      if (NODE_ENV === 'local') return true;
+      if (NODE_ENV === 'local' || NODE_ENV === 'test') return true;
 
       const isProd = NODE_ENV === 'production';
       return isProd ? true : NON_PROD_EMAIL_WHITELIST.includes(email);
