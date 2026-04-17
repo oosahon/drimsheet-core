@@ -197,7 +197,7 @@ describe('loginWithEmailUseCase', () => {
 
     await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
     await expect(usecase(validPayload)).rejects.toThrow(
-      'You signup up with a different method.'
+      'You signed up up with a different method.'
     );
     expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
       mockUser.id,
