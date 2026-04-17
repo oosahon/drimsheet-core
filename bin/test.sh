@@ -10,17 +10,7 @@ fi
 
 export NODE_ENV=test
 
-echo "Setting up PostgreSQL and Redis..."
-yarn start:test:postgres
-yarn start:test:redis
-
-echo "Tearing down and setting up database migrations..."
-yarn db:migrate down 9999 || true
-yarn db:migrate up
-
-echo "Running seeds..."
-yarn test:seed
-
+yarn test:db:reset
 echo "Starting test server..."
 npx cross-env NODE_ENV=test concurrently \
   "nodemon" \

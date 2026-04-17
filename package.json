@@ -9,6 +9,7 @@
     "test": "jest",
     "test:ci": "bash bin/test-ci.sh",
     "test:seed": "ts-node bin/seed.ts",
+    "test:db:reset": "bash bin/reset-test-db.sh",
     "start": "node ./dist/src/app/bootstrap/index.js",
     "start:test": "bash bin/test.sh",
     "start:test:postgres": "bash bin/pg-setup.sh",

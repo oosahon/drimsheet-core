@@ -50,7 +50,13 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
           return null;
         }
 
-        return cachedToken === token ? decoded : null;
+        const isValid = cachedToken === token ? decoded : null;
+
+        if (isValid) {
+          await cacheStorage.del(`app:auth:signup-token:${decoded.id}`);
+        }
+
+        return isValid;
       } catch (err) {
         return null;
       }
@@ -124,7 +130,13 @@ export default function authService(cacheStorage: ICacheStorage): IAuthService {
           return null;
         }
 
-        return cachedToken === token ? decoded : null;
+        const isValid = cachedToken === token ? decoded : null;
+
+        if (isValid) {
+          await cacheStorage.del(`app:auth:reset-token:${decoded.id}`);
+        }
+
+        return isValid;
       } catch (err) {
         return null;
       }
