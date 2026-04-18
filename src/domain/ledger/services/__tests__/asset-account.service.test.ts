@@ -42,11 +42,11 @@ describe('assetAccountService', () => {
     jest.clearAllMocks();
   });
 
-  describe('setupBaseIndividualAccounts', () => {
+  describe('makeHeaderAccountsForIndividuals', () => {
     it('should create all accounts when none exist', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
-      const result = await service.setupBaseIndividualAccounts(
+      const result = await service.makeHeaderAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -67,7 +67,7 @@ describe('assetAccountService', () => {
         return null;
       });
 
-      const result = await service.setupBaseIndividualAccounts(
+      const result = await service.makeHeaderAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -76,7 +76,7 @@ describe('assetAccountService', () => {
     });
   });
 
-  describe('bootstrapNonPowerUserAccounts', () => {
+  describe('makePostingAccountsForIndividuals', () => {
     const mockStatutoryReceivable = {
       id: '123e4567-e89b-12d3-a456-426614174005' as TEntityId,
       code: '102002',
@@ -88,7 +88,7 @@ describe('assetAccountService', () => {
         mockStatutoryReceivable,
       ]);
 
-      const result = await service.bootstrapNonPowerUserAccounts(
+      const result = await service.makePostingAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -108,7 +108,7 @@ describe('assetAccountService', () => {
         mockStatutoryReceivable,
       ]);
 
-      const result = await service.bootstrapNonPowerUserAccounts(
+      const result = await service.makePostingAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -121,7 +121,7 @@ describe('assetAccountService', () => {
       mockLedgerAccountRepo.findByBehavior.mockResolvedValue([]);
 
       await expect(
-        service.bootstrapNonPowerUserAccounts(accountingEntity, repoOptions)
+        service.makePostingAccountsForIndividuals(accountingEntity, repoOptions)
       ).rejects.toThrow(AppError);
     });
   });

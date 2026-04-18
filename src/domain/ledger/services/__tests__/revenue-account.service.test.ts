@@ -34,11 +34,11 @@ describe('revenueAccountService', () => {
     jest.clearAllMocks();
   });
 
-  describe('setupBaseIndividualAccounts', () => {
+  describe('makeHeaderAccountsForIndividuals', () => {
     it('should create all accounts when none exist', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
-      const result = await service.setupBaseIndividualAccounts(
+      const result = await service.makeHeaderAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -55,7 +55,7 @@ describe('revenueAccountService', () => {
         {} as IRevenueLedgerAccount
       );
 
-      const result = await service.setupBaseIndividualAccounts(
+      const result = await service.makeHeaderAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -64,14 +64,14 @@ describe('revenueAccountService', () => {
     });
   });
 
-  describe('bootstrapNonPowerUserAccounts', () => {
+  describe('makePostingAccountsForIndividuals', () => {
     it('should create non-power user accounts', async () => {
       mockLedgerAccountRepo.findBySubType.mockResolvedValue([
         mockControlAccount,
       ]);
       mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
 
-      const result = await service.bootstrapNonPowerUserAccounts(
+      const result = await service.makePostingAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -99,7 +99,7 @@ describe('revenueAccountService', () => {
       ]);
       mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
 
-      const result = await service.bootstrapNonPowerUserAccounts(
+      const result = await service.makePostingAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );

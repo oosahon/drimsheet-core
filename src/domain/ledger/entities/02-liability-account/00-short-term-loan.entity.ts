@@ -32,9 +32,9 @@ function getCode(
 }
 
 /**
- * Creates a new short term debt account.
+ * Creates a new short term debt header/sub account.
  * @param payload short term debt account creation payload
- * @param predecessorCode the ledger code of the most recent Short Term Debt sub ledger.
+ * @param predecessorCode the ledger code of the most recent Short Term Debt account.
  * @returns [IShortTermDebtAccount, IShortTermDebtCreationEvent]
  */
 function make(
@@ -49,7 +49,7 @@ function make(
     | 'behavior'
     | 'meta'
   >,
-  predecessorCode: TShortTermDebtLedgerCode | null // null for the control account
+  predecessorCode: TShortTermDebtLedgerCode | null // null for the header account
 ): TEntityWithEvents<IShortTermDebtAccount, IShortTermDebtAccount> {
   if (payload.controlAccountId) {
     stringUtils.validateUUID(payload.controlAccountId);
@@ -96,9 +96,9 @@ function makeCreditCardAccountMeta(meta: ICreditCardAccountMeta) {
 }
 
 /**
- * Creates a new credit card sub ledger.
+ * Creates a new credit card sub account.
  * @param payload credit card creation payload
- * @param predecessorCode the ledger code of the most recent Short Term Debt sub ledger.
+ * @param predecessorCode the ledger code of the most recent Short Term Debt account.
  * @returns [IShortTermDebtAccount, IShortTermDebtCreationEvent]
  */
 function makeCreditCardAccount(
@@ -129,9 +129,9 @@ function makeOverdraftAccountMeta(meta: IOverdraftAccountMeta) {
 }
 
 /**
- * Creates a new overdraft sub ledger.
+ * Creates a new overdraft sub account.
  * @param payload overdraft creation payload
- * @param predecessorCode the ledger code of the most recent Short Term Debt sub ledger.
+ * @param predecessorCode the ledger code of the most recent Short Term Debt account.
  * @returns [IShortTermDebtAccount, IShortTermDebtCreationEvent]
  */
 function makeOverdraftAccount(
@@ -166,9 +166,9 @@ function makeShortTermLoanAccountMeta(meta: IShortTermLoanAccountMeta) {
 }
 
 /**
- * Creates a new short term loan sub ledger.
+ * Creates a new short term loan sub account.
  * @param payload short term loan creation payload
- * @param predecessorCode the ledger code of the most recent Short Term Debt sub ledger.
+ * @param predecessorCode the ledger code of the most recent Short Term Debt account.
  * @returns [IShortTermDebtAccount, IShortTermDebtCreationEvent]
  */
 function makeShortTermLoanAccount(

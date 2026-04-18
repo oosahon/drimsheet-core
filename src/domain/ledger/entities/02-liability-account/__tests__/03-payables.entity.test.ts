@@ -226,7 +226,7 @@ describe('Payable Liability Entity', () => {
 
   describe('makeTradePayableAccountMeta', () => {
     const validMeta: ITradePayableAccountMeta = {
-      vendorId: validUUID3,
+      counterpartyId: validUUID3,
       invoiceId: validUUID4,
     };
 
@@ -236,11 +236,11 @@ describe('Payable Liability Entity', () => {
       expect(Object.isFrozen(meta)).toBe(true);
     });
 
-    it('should throw AppError if vendorId is invalid', () => {
+    it('should throw AppError if counterpartyId is invalid', () => {
       expect(() =>
         payableAccountEntity.makeTradePayableAccountMeta({
           ...validMeta,
-          vendorId: 'invalid' as TEntityId,
+          counterpartyId: 'invalid' as TEntityId,
         })
       ).toThrow(AppError);
     });
@@ -257,12 +257,12 @@ describe('Payable Liability Entity', () => {
 
   describe('makeTradePayableAccount', () => {
     const validMeta: ITradePayableAccountMeta = {
-      vendorId: validUUID3,
+      counterpartyId: validUUID3,
       invoiceId: validUUID4,
     };
 
     const validPayload: TCreationOmits<ITradePayableAccount> = {
-      name: 'Vendor Invoice #001',
+      name: 'Counterparty Invoice #001',
       accountingEntityId: validUUID1,
       isControlAccount: false,
       controlAccountId: validUUID3,

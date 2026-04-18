@@ -108,7 +108,7 @@ The `CashAndCashEquivalents` entity ([`00-cash-and-equivalents.entity.ts`](../en
 | Sub-Class             | Reporting Hierarchy | Behaviors                                                                                                                                                                                                                                                                                                               |
 | --------------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Trade Receivables     | /                   | <ul><li>Requires invoice or debit note transaction for creation</li><li>Requires payment, credit note, or write-off transaction for settlement</li><li>Supports automated aging</li><li>Supports contra accounts (for doubtful accounts)</li><li>Supports adjunct accounts (for interest on overdue accounts)</li></ul> |
-| Statutory Receivables | /                   | <ul><li>Tax credit note or supplier invoice transaction for creation</li><li>Requires statutory payment transaction for settlement (computed net of payables)</li><li>Does not support contra accounts</li><li>Does not support adjunct accounts</li></ul>                                                              |
+| Statutory Receivables | /                   | <ul><li>Tax credit note or counterparty invoice transaction for creation</li><li>Requires statutory payment transaction for settlement (computed net of payables)</li><li>Does not support contra accounts</li><li>Does not support adjunct accounts</li></ul>                                                          |
 
 #### Entity Details
 
@@ -116,7 +116,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../entities/01-asset-acco
 
 - `make()` — base factory accepting `behavior`, `contraAccountRule`, and `adjunctAccountRule` parameters
 - `makeStatutoryReceivableAccount()` — validates `IStatutoryReceivableAccountMeta` (taxAuthority, taxType per [`tax.types.ts`](../types/tax.types.ts))
-- `makeTradeReceivableAccount()` — validates `ITradeReceivableAccountMeta` (customerId, invoiceId)
+- `makeTradeReceivableAccount()` — validates `ITradeReceivableAccountMeta` (counterpartyId, invoiceId)
 
 ### Inventories
 
@@ -129,7 +129,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../entities/01-asset-acco
 ### Accrued Income
 
 - **Ledger codes**: 104xxx
-- **Description**: accounts that are used to track revenue that has been earned by providing goods or services, but has not yet been formally billed to the customer (e.g., unbilled project milestones, unbilled subscriptions).
+- **Description**: accounts that are used to track revenue that has been earned by providing goods or services, but has not yet been formally billed to the counterparty (e.g., unbilled project milestones, unbilled subscriptions).
 - **Main reporting hierarchy**: Current Assets / Accrued Income
 
 > [!NOTE]
@@ -152,9 +152,9 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../entities/01-asset-acco
 
 #### Behaviors
 
-| Sub-Class   | Reporting Hierarchy | Behaviors                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| ----------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Prepayments | /                   | <ul><li>Requires payment or supplier invoice transaction for creation</li><li>Automatically created by the system when an invoice or payment service period exceeds the current accounting period (for non-power users)</li><li>Requires automated schedule or manual journal entry for amortization</li><li>Supports automated amortization schedules</li><li>Adjunct accounts prohibited</li><li>Contra accounts prohibited</li></ul> |
+| Sub-Class   | Reporting Hierarchy | Behaviors                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ----------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Prepayments | /                   | <ul><li>Requires payment or counterparty invoice transaction for creation</li><li>Automatically created by the system when an invoice or payment service period exceeds the current accounting period (for non-power users)</li><li>Requires automated schedule or manual journal entry for amortization</li><li>Supports automated amortization schedules</li><li>Adjunct accounts prohibited</li><li>Contra accounts prohibited</li></ul> |
 
 ## Non-Current Assets
 

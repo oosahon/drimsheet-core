@@ -57,8 +57,8 @@ describe('onboardAccountingEntityUseCase', () => {
     } as any);
 
     mockLedgerService.mockReturnValue({
-      setupBaseIndividualAccounts: mockLedgerServiceSetup,
-      bootstrapNonPowerUserPostingAccounts: jest.fn(),
+      makeHeaderAccountsForIndividuals: mockLedgerServiceSetup,
+      bootstrapPostingAccounts: jest.fn(),
     } as any);
 
     mockUserPreferencesService.mockReturnValue({

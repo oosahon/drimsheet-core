@@ -45,7 +45,7 @@ function make(
     | 'behavior'
     | 'meta'
   >,
-  predecessorCode: TCashLedgerCode | null // null for the root cash and cash equivalent account
+  predecessorCode: TCashLedgerCode | null // null for the header account
 ): TEntityWithEvents<
   ICashAndCashEquivalentAccount,
   ICashAndCashEquivalentAccount

@@ -8,12 +8,12 @@ import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import { IEquityLedgerAccount } from '../types/equity-account.types';
 
 export interface IEquityAccountService {
-  setupBaseIndividualAccounts(
+  makeHeaderAccountsForIndividuals(
     accountingEntity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<IEquityLedgerAccount, IEquityLedgerAccount>[]>;
 
-  bootstrapNonPowerUserAccounts(
+  makePostingAccountsForIndividuals(
     accountingEntity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<IEquityLedgerAccount, IEquityLedgerAccount>[]>;
@@ -30,7 +30,7 @@ export default function equityAccountService(
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
      */
-    async setupBaseIndividualAccounts(accountingEntity, repoOptions) {
+    async makeHeaderAccountsForIndividuals(accountingEntity, repoOptions) {
       const {
         ownerId,
         id: accountingEntityId,
@@ -96,7 +96,7 @@ export default function equityAccountService(
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
      */
-    async bootstrapNonPowerUserAccounts() {
+    async makePostingAccountsForIndividuals() {
       // Equity accounts are not bootstrapped for non-power users
       return [];
     },

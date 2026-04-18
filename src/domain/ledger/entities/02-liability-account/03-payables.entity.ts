@@ -30,9 +30,9 @@ function getCode(predecessorCode: TPayablesLedgerCode): TPayablesLedgerCode {
 }
 
 /**
- * Creates a new payable account.
+ * Creates a new payable header/sub account.
  * @param payload payable account creation payload
- * @param predecessorCode the ledger code of the most recent Payable sub ledger.
+ * @param predecessorCode the ledger code of the most recent Payable account.
  * @returns [IPayableAccount, IPayableCreationEvent]
  */
 function make(
@@ -49,7 +49,7 @@ function make(
     | 'contraAccountRule'
     | 'adjunctAccountRule'
   >,
-  predecessorCode: TPayablesLedgerCode | null // null for the control account
+  predecessorCode: TPayablesLedgerCode | null // null for the header account
 ): TEntityWithEvents<IPayableAccount, IPayableAccount> {
   if (payload.controlAccountId) {
     stringUtils.validateUUID(payload.controlAccountId);
@@ -94,9 +94,9 @@ function makeStatutoryPayableAccountMeta(meta: IStatutoryPayableAccountMeta) {
 }
 
 /**
- * Creates a new statutory payable sub ledger.
+ * Creates a new statutory payable sub account.
  * @param payload statutory payable creation payload
- * @param predecessorCode the ledger code of the most recent Payable sub ledger.
+ * @param predecessorCode the ledger code of the most recent Payable account.
  * @returns [IPayableAccount, IPayableCreationEvent]
  */
 function makeStatutoryPayableAccount(
@@ -121,19 +121,19 @@ function makeStatutoryPayableAccount(
 }
 
 function makeTradePayableAccountMeta(meta: ITradePayableAccountMeta) {
-  stringUtils.validateUUID(meta.vendorId);
+  stringUtils.validateUUID(meta.counterpartyId);
   stringUtils.validateUUID(meta.invoiceId);
 
   return Object.freeze<ITradePayableAccountMeta>({
-    vendorId: meta.vendorId,
+    counterpartyId: meta.counterpartyId,
     invoiceId: meta.invoiceId,
   });
 }
 
 /**
- * Creates a new trade payable sub ledger.
+ * Creates a new trade payable sub account.
  * @param payload trade payable creation payload
- * @param predecessorCode the ledger code of the most recent Payable sub ledger.
+ * @param predecessorCode the ledger code of the most recent Payable account.
  * @returns [IPayableAccount, IPayableCreationEvent]
  */
 function makeTradePayableAccount(

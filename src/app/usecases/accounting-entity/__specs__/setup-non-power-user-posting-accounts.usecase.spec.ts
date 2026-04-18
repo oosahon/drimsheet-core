@@ -31,8 +31,8 @@ describe('setupNonPowerUserPostingAccountsUseCase', () => {
     jest.clearAllMocks();
 
     mockLedgerService.mockReturnValue({
-      bootstrapNonPowerUserPostingAccounts: mockBootstrapFn,
-      setupBaseIndividualAccounts: jest.fn(),
+      bootstrapPostingAccounts: mockBootstrapFn,
+      makeHeaderAccountsForIndividuals: jest.fn(),
     });
   });
 

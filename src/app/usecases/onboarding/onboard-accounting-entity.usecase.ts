@@ -113,7 +113,7 @@ export default function onboardAccountingEntityUseCase(
      */
 
     const baseGlAccountsWithEvents =
-      await ledgerServiceFn.setupBaseIndividualAccounts(
+      await ledgerServiceFn.makeHeaderAccountsForIndividuals(
         accountingEntity,
         correlationIdObj
       );

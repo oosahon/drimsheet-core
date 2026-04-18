@@ -14,12 +14,12 @@ import liabilityAccountService from './liability-account.service';
 import revenueAccountService from './revenue-account.service';
 
 export interface ILedgerService {
-  setupBaseIndividualAccounts(
+  makeHeaderAccountsForIndividuals(
     entity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<ILedgerAccount, ILedgerAccount>[]>;
 
-  bootstrapNonPowerUserPostingAccounts(
+  bootstrapPostingAccounts(
     entity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<ILedgerAccount, ILedgerAccount>[]>;
@@ -36,44 +36,44 @@ export default function ledgerService(
 
   return {
     /**
-     * Sets up the following general ledger accounts for an individual:
+     * Sets up the following header accounts for an individual:
      *    - Assets
      *    - Liabilities
      *    - Equity
      *    - Revenue
      *    - Expenses
      */
-    async setupBaseIndividualAccounts(entity, repoOptions) {
+    async makeHeaderAccountsForIndividuals(entity, repoOptions) {
       if (entity.type !== EAccountingEntityType.Individual) {
         throw new AppError('Entity is not an individual', { cause: entity });
       }
 
       const liabilityAccounts =
-        await liabilityAccountServiceFn.setupBaseIndividualAccounts(
+        await liabilityAccountServiceFn.makeHeaderAccountsForIndividuals(
           entity,
           repoOptions
         );
 
       const equityAccounts =
-        await equityAccountServiceFn.setupBaseIndividualAccounts(
+        await equityAccountServiceFn.makeHeaderAccountsForIndividuals(
           entity,
           repoOptions
         );
 
       const revenueAccounts =
-        await revenueAccountServiceFn.setupBaseIndividualAccounts(
+        await revenueAccountServiceFn.makeHeaderAccountsForIndividuals(
           entity,
           repoOptions
         );
 
       const expenseAccounts =
-        await expenseAccountServiceFn.setupBaseIndividualAccounts(
+        await expenseAccountServiceFn.makeHeaderAccountsForIndividuals(
           entity,
           repoOptions
         );
 
       const assetAccounts =
-        await assetAccountServiceFn.setupBaseIndividualAccounts(
+        await assetAccountServiceFn.makeHeaderAccountsForIndividuals(
           entity,
           repoOptions
         );
@@ -88,37 +88,37 @@ export default function ledgerService(
     },
 
     /**
-     * Sets up the following general ledger accounts for a non-power user:
+     * Sets up the following posting (sub) accounts for a non-power user:
      *    - Assets
      *    - Liabilities
      *    - Revenue
      *    - Expenses
      */
-    async bootstrapNonPowerUserPostingAccounts(entity, repoOptions) {
+    async bootstrapPostingAccounts(entity, repoOptions) {
       if (entity.type !== EAccountingEntityType.Individual) {
         throw new AppError('Entity is not an individual', { cause: entity });
       }
 
       const liabilitySuspenseAccounts =
-        await liabilityAccountServiceFn.bootstrapNonPowerUserAccounts(
+        await liabilityAccountServiceFn.makePostingAccountsForIndividuals(
           entity,
           repoOptions
         );
 
       const revenueSuspenseAccounts =
-        await revenueAccountServiceFn.bootstrapNonPowerUserAccounts(
+        await revenueAccountServiceFn.makePostingAccountsForIndividuals(
           entity,
           repoOptions
         );
 
       const expenseSuspenseAccounts =
-        await expenseAccountServiceFn.bootstrapNonPowerUserAccounts(
+        await expenseAccountServiceFn.makePostingAccountsForIndividuals(
           entity,
           repoOptions
         );
 
       const assetAccounts =
-        await assetAccountServiceFn.bootstrapNonPowerUserAccounts(
+        await assetAccountServiceFn.makePostingAccountsForIndividuals(
           entity,
           repoOptions
         );
