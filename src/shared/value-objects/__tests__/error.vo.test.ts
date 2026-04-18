@@ -87,6 +87,9 @@ describe('Error Value Objects', () => {
       expect(error.code).toBe(403);
       expect(error.message).toBe('Forbidden access');
       expect(error.cause).toBe(cause);
+
+      const errorWithoutMessage = new ErrorForbidden();
+      expect(errorWithoutMessage.message).toBe('Forbidden');
     });
 
     it('ErrorResourceNotFound sets code to 404', () => {
@@ -117,6 +120,14 @@ describe('Error Value Objects', () => {
       expect(error.code).toBe(429);
       expect(error.message).toBe('Rate limit exceeded');
       expect(error.cause).toBe(cause);
+    });
+
+    it('ErrorTooManyRequests sets code to 429 without cause', () => {
+      const error = new ErrorTooManyRequests('Rate limit exceeded');
+      expect(error).toBeInstanceOf(ErrorTooManyRequests);
+      expect(error.code).toBe(429);
+      expect(error.message).toBe('Rate limit exceeded');
+      expect(error.cause).toBeUndefined();
     });
   });
 
