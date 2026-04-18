@@ -170,7 +170,7 @@ export interface IStatutoryPayableAccount extends IPayableAccount {
 }
 
 export interface ITradePayableAccountMeta {
-  vendorId: TEntityId;
+  counterpartyId: TEntityId;
   invoiceId: TEntityId;
 }
 

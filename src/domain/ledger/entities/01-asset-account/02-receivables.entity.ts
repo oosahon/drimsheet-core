@@ -27,9 +27,9 @@ function getCode(
 }
 
 /**
- * Creates a new receivable account.
+ * Creates a new receivable header/sub account.
  * @param payload receivable account creation payload
- * @param predecessorCode the ledger code of the most recent Receivable sub ledger.
+ * @param predecessorCode the ledger code of the most recent Receivable account.
  * @returns [IReceivablesAccount, IAssetLedgerCreationEvent]
  */
 function make(
@@ -46,7 +46,7 @@ function make(
     | 'contraAccountRule'
     | 'adjunctAccountRule'
   >,
-  predecessorCode: TReceivablesLedgerCode | null // null for the root receivable account
+  predecessorCode: TReceivablesLedgerCode | null // null for the header account
 ): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
   if (payload.controlAccountId) {
     stringUtils.validateUUID(payload.controlAccountId);
@@ -75,9 +75,9 @@ function make(
 }
 
 /**
- * Creates a new statutory receivable sub ledger.
+ * Creates a new statutory receivable sub account.
  * @param payload statutory receivable creation payload
- * @param predecessorCode the ledger code of the most recent Receivable sub ledger.
+ * @param predecessorCode the ledger code of the most recent Receivable account.
  * @returns [IReceivablesAccount, IAssetLedgerCreationEvent]
  */
 function makeStatutoryReceivableAccount(
@@ -110,9 +110,9 @@ function makeStatutoryReceivableAccount(
 }
 
 /**
- * Creates a new trade receivable sub ledger.
+ * Creates a new trade receivable sub account.
  * @param payload trade receivable creation payload
- * @param predecessorCode the ledger code of the most recent Receivable sub ledger.
+ * @param predecessorCode the ledger code of the most recent Receivable account.
  * @returns [IReceivablesAccount, IAssetLedgerCreationEvent]
  */
 function makeTradeReceivableAccount(

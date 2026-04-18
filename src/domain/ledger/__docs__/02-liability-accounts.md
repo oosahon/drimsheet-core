@@ -78,7 +78,7 @@ All short-term debt sub-types have `contraAccountRule: 'contra_permitted'` and `
 ### Payables
 
 - **Ledger codes**: 201xxx
-- **Description**: accounts that are used to track amounts owed to suppliers, vendors, and statutory authorities.
+- **Description**: accounts that are used to track amounts owed to counterparties and statutory authorities.
 - **Main reporting hierarchy**: Current Liabilities / Payables
 
 #### Behaviors
@@ -94,7 +94,7 @@ The `Payables` entity ([`03-payables.entity.ts`](../entities/02-liability-accoun
 
 - `make()` — base factory accepting `behavior`, `contraAccountRule`, and `adjunctAccountRule` parameters
 - `makeStatutoryPayableAccount()` — validates `IStatutoryPayableAccountMeta` (taxAuthority, taxType per [`tax.types.ts`](../types/tax.types.ts)); forces `ContraNotPermitted` and `AdjunctNotPermitted`
-- `makeTradePayableAccount()` — validates `ITradePayableAccountMeta` (vendorId, invoiceId); permits contra and adjunct
+- `makeTradePayableAccount()` — validates `ITradePayableAccountMeta` (counterpartyId, invoiceId); permits contra and adjunct
 
 Tax types are validated against the shared `ETaxType` enum (Nigerian Tax Act 2025): VAT, WHT, PAYE, CIT, PIT, Development Levy, Stamp Duty, Other Deductions.
 

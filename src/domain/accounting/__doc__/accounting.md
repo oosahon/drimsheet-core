@@ -174,8 +174,8 @@ A ledger account's behavior and system constraints are defined by its properties
 | `normalBalance`      | `UNormalBalance`      | Debit or Credit — auto-derived from `type`                                                         |
 | `subType`            | string                | "What it is" — account classification within its type (e.g. `cash_and_cash_equivalent`, `payable`) |
 | `behavior`           | string                | "How it acts" — operational semantics (e.g. `bank`, `petty_cash`, `tax_payable`)                   |
-| `isControlAccount`   | boolean               | Whether this account is a parent/header account                                                    |
-| `controlAccountId`   | UUID \| null          | FK linking a sub-ledger to its parent control account                                              |
+| `isControlAccount`   | boolean               | Whether this account is a Header Account or Control Account                                        |
+| `controlAccountId`   | UUID \| null          | FK linking a sub-ledger to its Control Account                                                     |
 | `contraAccountRule`  | `UContraAccountRule`  | Whether contra accounts are permitted, required, or prohibited                                     |
 | `adjunctAccountRule` | `UAdjunctAccountRule` | Whether adjunct accounts are permitted, required, or prohibited                                    |
 | `meta`               | object \| null        | Account-specific metadata (e.g. `IBankAccountMeta`, `IStatutoryPayableAccountMeta`)                |

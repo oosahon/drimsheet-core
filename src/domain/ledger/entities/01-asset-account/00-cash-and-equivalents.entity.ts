@@ -28,9 +28,9 @@ function getCode(predecessorCode: TCashLedgerCode): TCashLedgerCode {
 }
 
 /**
- * Creates a new cash and cash equivalent account.
+ * Creates a new cash and cash equivalent header/sub account.
  * @param payload cash and cash equivalent account creation payload
- * @param predecessorCode the ledger code of the most recent Cash and Cash Equivalent sub ledger.
+ * @param predecessorCode the ledger code of the most recent Cash and Cash Equivalent account.
  * @returns [ICashAndCashEquivalentAccount, ICashCreationEvent]
  */
 function make(
@@ -45,7 +45,7 @@ function make(
     | 'behavior'
     | 'meta'
   >,
-  predecessorCode: TCashLedgerCode | null // null for the root cash and cash equivalent account
+  predecessorCode: TCashLedgerCode | null // null for the header account
 ): TEntityWithEvents<
   ICashAndCashEquivalentAccount,
   ICashAndCashEquivalentAccount
@@ -77,9 +77,9 @@ function make(
 }
 
 /**
- * Creates a new petty cash sub ledger.
+ * Creates a new petty cash sub account.
  * @param payload petty cash creation payload
- * @param predecessorCode the ledger code of the most recent Cash and Cash Equivalent sub ledger.
+ * @param predecessorCode the ledger code of the most recent Cash and Cash Equivalent account.
  * @returns [ICashAndCashEquivalentAccount, ICashCreationEvent]
  */
 function makePettyCashAccount(
@@ -178,9 +178,9 @@ function makeBankAccountMeta(meta: IBankAccountMeta) {
 }
 
 /**
- * Creates a new bank account sub ledger.
+ * Creates a new bank account sub account.
  * @param payload bank account creation payload
- * @param predecessorCode the ledger code of the most recent Cash and Cash Equivalent sub ledger.
+ * @param predecessorCode the ledger code of the most recent Cash and Cash Equivalent account.
  * @returns [ICashAndCashEquivalentAccount, ICashCreationEvent]
  */
 function makeBankAccount(

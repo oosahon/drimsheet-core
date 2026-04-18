@@ -21,12 +21,12 @@ import {
 } from '../types/ledger.types';
 
 interface IAssetAccountService {
-  setupBaseIndividualAccounts(
+  makeHeaderAccountsForIndividuals(
     accountingEntity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<IAssetLedgerAccount, IAssetLedgerAccount>[]>;
 
-  bootstrapNonPowerUserAccounts(
+  makePostingAccountsForIndividuals(
     accountingEntity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<IAssetLedgerAccount, IAssetLedgerAccount>[]>;
@@ -46,7 +46,7 @@ export default function assetAccountService(
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
      */
-    async setupBaseIndividualAccounts(accountingEntity, repoOptions) {
+    async makeHeaderAccountsForIndividuals(accountingEntity, repoOptions) {
       const {
         ownerId,
         id: accountingEntityId,
@@ -177,7 +177,7 @@ export default function assetAccountService(
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
      */
-    async bootstrapNonPowerUserAccounts(accountingEntity, repoOptions) {
+    async makePostingAccountsForIndividuals(accountingEntity, repoOptions) {
       const {
         ownerId,
         id: accountingEntityId,

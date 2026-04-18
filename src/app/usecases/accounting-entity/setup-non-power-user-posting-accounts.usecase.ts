@@ -46,12 +46,9 @@ export default function setupNonPowerUserPostingAccountsUseCase(
 
     const ledgerServiceFn = ledgerService(ledgerAccountRepo);
     const postingAccountsAndEvents =
-      await ledgerServiceFn.bootstrapNonPowerUserPostingAccounts(
-        accountingEntity,
-        {
-          correlationId,
-        }
-      );
+      await ledgerServiceFn.bootstrapPostingAccounts(accountingEntity, {
+        correlationId,
+      });
 
     const accounts: ILedgerAccount[] = [];
     const events: IEvent<ILedgerAccount>[] = [];

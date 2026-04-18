@@ -30,11 +30,11 @@ describe('ledgerService', () => {
     jest.clearAllMocks();
   });
 
-  describe('setupBaseIndividualAccounts', () => {
+  describe('makeHeaderAccountsForIndividuals', () => {
     it('should create all expected accounts across all services', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
-      const result = await service.setupBaseIndividualAccounts(
+      const result = await service.makeHeaderAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -50,12 +50,12 @@ describe('ledgerService', () => {
       } as unknown as IAccountingEntity;
 
       await expect(
-        service.setupBaseIndividualAccounts(companyEntity, repoOptions)
+        service.makeHeaderAccountsForIndividuals(companyEntity, repoOptions)
       ).rejects.toThrow(AppError);
     });
   });
 
-  describe('bootstrapNonPowerUserPostingAccounts', () => {
+  describe('bootstrapPostingAccounts', () => {
     const mockStatutoryReceivable = {
       id: '123e4567-e89b-12d3-a456-426614174005' as TEntityId,
       code: '102002',
@@ -100,7 +100,7 @@ describe('ledgerService', () => {
         return { ...mockControlAccount, type } as unknown as ILedgerAccount;
       });
 
-      const result = await service.bootstrapNonPowerUserPostingAccounts(
+      const result = await service.bootstrapPostingAccounts(
         accountingEntity,
         repoOptions
       );
@@ -116,7 +116,7 @@ describe('ledgerService', () => {
       } as unknown as IAccountingEntity;
 
       await expect(
-        service.bootstrapNonPowerUserPostingAccounts(companyEntity, repoOptions)
+        service.bootstrapPostingAccounts(companyEntity, repoOptions)
       ).rejects.toThrow(AppError);
     });
   });

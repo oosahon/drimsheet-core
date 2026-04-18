@@ -37,7 +37,7 @@ Expense ledgers come in five reporting hierarchies:
 
 When an expense ledger/sub-ledger is created, it MUST be associated with one of the reporting hierarchies.
 
-By default, standard expense accounts carry a **debit** normal balance. **Contra-expense accounts** (like Purchase Returns and Purchase Discounts) carry a **credit** normal balance as they act to reduce gross expenses without erasing historical audit trails. Contra-expense accounts are created relationally within their parent's code range and are distinguished by their flipped `normalBalance` and `IAdjustmentMetaData`.
+By default, standard expense accounts carry a **debit** normal balance. **Contra-expense accounts** (like Purchase Returns and Purchase Discounts) carry a **credit** normal balance as they act to reduce gross expenses without erasing historical audit trails. Contra-expense accounts are created relationally within their Control Account's code range and are distinguished by their flipped `normalBalance` and `IAdjustmentMetaData`.
 
 To ensure our system is extensible, we have not baked functionalities into ledger codes or predefined accounts. For non-power users, our ledger accounts bootstrap will handle the creation of accounts and association of behaviors. For power users, they can create accounts and associate behaviors available to the account class.
 

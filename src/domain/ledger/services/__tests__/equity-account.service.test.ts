@@ -27,11 +27,11 @@ describe('equityAccountService', () => {
     jest.clearAllMocks();
   });
 
-  describe('setupBaseIndividualAccounts', () => {
+  describe('makeHeaderAccountsForIndividuals', () => {
     it('should create all accounts when none exist', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
-      const result = await service.setupBaseIndividualAccounts(
+      const result = await service.makeHeaderAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -46,7 +46,7 @@ describe('equityAccountService', () => {
         {} as IEquityLedgerAccount
       );
 
-      const result = await service.setupBaseIndividualAccounts(
+      const result = await service.makeHeaderAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
@@ -55,9 +55,9 @@ describe('equityAccountService', () => {
     });
   });
 
-  describe('bootstrapNonPowerUserAccounts', () => {
+  describe('makePostingAccountsForIndividuals', () => {
     it('should return empty array', async () => {
-      const result = await service.bootstrapNonPowerUserAccounts(
+      const result = await service.makePostingAccountsForIndividuals(
         accountingEntity,
         repoOptions
       );
