@@ -7,6 +7,7 @@ export interface ITransactionContext {
 export interface IRepoOptions extends ICorrelationId {
   tx?: ITransactionContext;
   lock?: 'update' | 'no key update' | 'share' | 'key share';
+  expectedVersion?: number;
 }
 
 export type TRepoTransactionFn<T = void> = (

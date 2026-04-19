@@ -1,8 +1,7 @@
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import readline from 'readline';
-import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
 
 // Because we are likely running in a CommonJS env based on tsconfig/package,
 // __dirname is usually available natively. But if tsx treats it loosely, this approach works.
