@@ -93,18 +93,20 @@ function deepDiff(afterNode: unknown, beforeNode: unknown): TDiffNodeResult {
 export default function generateDiff<T extends object>(
   after: T,
   before?: T | null
-): IDiff<T> {
+): IDiff<T> & { hasChanges: boolean } {
   if (!before) {
     return {
       before: {} as Partial<T>,
       after: after as Partial<T>,
+      hasChanges: true,
     };
   }
 
-  const { bDiff, aDiff } = deepDiff(after, before);
+  const { bDiff, aDiff, hasChanges } = deepDiff(after, before);
 
   return {
     before: (bDiff ?? {}) as Partial<T>,
     after: (aDiff ?? {}) as Partial<T>,
+    hasChanges,
   };
 }

@@ -14,9 +14,13 @@ describe('stringUtils', () => {
     });
 
     it('returns false for non-string values', () => {
-      expect(stringUtils.isNonEmptyString(null as any)).toBe(false);
-      expect(stringUtils.isNonEmptyString(123 as any)).toBe(false);
-      expect(stringUtils.isNonEmptyString({} as any)).toBe(false);
+      expect(stringUtils.isNonEmptyString(null as unknown as string)).toBe(
+        false
+      );
+      expect(stringUtils.isNonEmptyString(123 as unknown as string)).toBe(
+        false
+      );
+      expect(stringUtils.isNonEmptyString({} as unknown as string)).toBe(false);
     });
   });
 
@@ -25,6 +29,15 @@ describe('stringUtils', () => {
       expect(
         stringUtils.sanitizeAndValidate('hello', { min: 3, max: 10 })
       ).toBe('hello');
+    });
+
+    it('throws AppError if the value is not a string', () => {
+      expect(() =>
+        stringUtils.sanitizeAndValidate(123 as unknown as string, {
+          min: 3,
+          max: 10,
+        })
+      ).toThrow(AppError);
     });
 
     it('throws AppError if the string is less than min length', () => {

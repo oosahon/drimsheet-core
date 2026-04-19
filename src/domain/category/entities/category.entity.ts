@@ -30,7 +30,7 @@ function makeCategory(
     updatedAt: timestamp,
   });
 
-  const event = categoryEvents.categoryCreated(category);
+  const event = categoryEvents.created(category);
 
   return [category, [event]];
 }
@@ -41,39 +41,42 @@ function updateCategory(
     Pick<ICategory, 'name' | 'displayName' | 'key' | 'isGrouping' | 'accountId'>
   >
 ): TEntityWithEvents<ICategory, ICategory> {
-  const name = options.name ?? category.name;
-  const displayName =
-    options.displayName !== undefined
-      ? options.displayName
-      : category.displayName;
-  const key = options.key ?? category.key;
-  const isGrouping =
-    options.isGrouping !== undefined ? options.isGrouping : category.isGrouping;
-  const accountId = options.accountId ?? category.accountId;
+  const currentState = {
+    name: category.name,
+    displayName: category.displayName,
+    key: category.key,
+    isGrouping: category.isGrouping,
+    accountId: category.accountId,
+  };
 
-  const isUnchanged =
-    name === category.name &&
-    displayName === category.displayName &&
-    key === category.key &&
-    isGrouping === category.isGrouping &&
-    accountId === category.accountId;
+  const updatedState = {
+    name: options.name ?? currentState.name,
+    displayName:
+      options.displayName !== undefined
+        ? options.displayName
+        : currentState.displayName,
+    key: options.key ?? currentState.key,
+    isGrouping:
+      options.isGrouping !== undefined
+        ? options.isGrouping
+        : currentState.isGrouping,
+    accountId: options.accountId ?? currentState.accountId,
+  };
 
-  if (isUnchanged) {
+  const { hasChanges } = generateDiff(updatedState, currentState);
+
+  if (!hasChanges) {
     return [category, []] as TEntityWithEvents<ICategory, ICategory>;
   }
 
   const updatedCategory: ICategory = Object.freeze({
     ...category,
-    name,
-    displayName,
-    key,
-    isGrouping,
-    accountId,
+    ...updatedState,
     version: category.version + 1,
     updatedAt: new Date(),
   });
 
-  const event = categoryEvents.categoryUpdated(updatedCategory);
+  const event = categoryEvents.updated(updatedCategory);
 
   return [updatedCategory, [event]];
 }
@@ -90,12 +93,14 @@ function makeHistoryLog(
     note = stringUtils.sanitizeAndValidate(payload.note, { max: 100, min: 1 });
   }
 
+  const { before, after } = generateDiff(payload.current, payload.previous);
+
   const log: ICategoryHistoryLog = Object.freeze({
     categoryId: payload.current.id,
     userId: payload.userId,
     action: payload.action,
     note,
-    diff: generateDiff(payload.current, payload.previous),
+    diff: { before, after },
     createdAt: new Date(),
   });
 

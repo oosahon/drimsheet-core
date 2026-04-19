@@ -26,8 +26,8 @@ function makeCategoryUpdatedEvent(payload: ICategory) {
 }
 
 const categoryEvents = Object.freeze({
-  categoryCreated: makeCategoryCreatedEvent,
-  categoryUpdated: makeCategoryUpdatedEvent,
+  created: makeCategoryCreatedEvent,
+  updated: makeCategoryUpdatedEvent,
 });
 
 export default categoryEvents;

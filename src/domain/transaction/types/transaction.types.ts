@@ -66,7 +66,7 @@ export interface ITransaction {
   updatedAt: Date;
 }
 
-const ETransactionHistoryLogAction = {
+export const ETransactionHistoryLogAction = {
   Created: 'created',
   Updated: 'updated',
   Voided: 'voided',
@@ -75,11 +75,11 @@ const ETransactionHistoryLogAction = {
   Unarchived: 'unarchived',
 } as const;
 
-type UTransactionHistoryLogAction =
+export type UTransactionHistoryLogAction =
   (typeof ETransactionHistoryLogAction)[keyof typeof ETransactionHistoryLogAction];
 
 export interface ITransactionHistoryLog {
-  id: number; // using serials for db performance
+  // NB: serial will be generated in the persistence layer
   transactionId: TEntityId;
   userId: TEntityId;
   action: UTransactionHistoryLogAction;

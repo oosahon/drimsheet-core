@@ -7,6 +7,13 @@ describe('generateDiff', () => {
     expect(diff.after).toEqual({});
   });
 
+  it('should return empty objects if identical arrays are provided', () => {
+    const diff = generateDiff({ a: [1, 2, 3] }, { a: [1, 2, 3] });
+    expect(diff.before).toEqual({});
+    expect(diff.after).toEqual({});
+    expect(diff.hasChanges).toBe(false);
+  });
+
   it('should treat missing before as full creation', () => {
     const diff = generateDiff({ a: 1 });
     expect(diff.before).toEqual({});
@@ -40,6 +47,14 @@ describe('generateDiff', () => {
     const diff1 = generateDiff({ d: date1 }, { d: date1 });
     expect(diff1.before).toEqual({});
     expect(diff1.after).toEqual({});
+
+    const diffSameTime = generateDiff(
+      { d: new Date('2026-01-01') },
+      { d: new Date('2026-01-01') }
+    );
+    expect(diffSameTime.before).toEqual({});
+    expect(diffSameTime.after).toEqual({});
+    expect(diffSameTime.hasChanges).toBe(false);
 
     const diff2 = generateDiff({ d: date2 }, { d: date1 });
     expect(diff2.before).toEqual({ d: date1 });
