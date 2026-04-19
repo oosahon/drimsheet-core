@@ -17,8 +17,11 @@ function isNonEmptyString(value: string) {
 }
 
 function sanitizeAndValidateString(value: string, options: ISanitizeOptions) {
+  if (!isString(value)) {
+    throw new AppError('Invalid string', { cause: value });
+  }
   const schema = z.string().min(options.min).max(options.max);
-  const result = schema.safeParse(value);
+  const result = schema.safeParse(value.trim());
 
   if (!result.success) {
     throw new AppError('Invalid string', { cause: value });
