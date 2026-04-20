@@ -42,7 +42,7 @@ function make(
   moneyValue.validate(payload.amount);
   numberUtils.isNumber(payload.exchangeRate);
   validateSide(payload.side);
-  dateUtils.isValidDate(entryPayload.createdAt);
+  dateUtils.validateDate(entryPayload.createdAt);
 
   const functionalAmount = moneyValue.convert(
     payload.amount,
