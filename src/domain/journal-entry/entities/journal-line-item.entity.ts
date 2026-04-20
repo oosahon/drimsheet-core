@@ -38,9 +38,8 @@ function make(
 ): TEntityWithEvents<IJournalLineItem, IJournalLineItem> {
   stringUtils.validateUUID(entryPayload.id);
   stringUtils.validateUUID(payload.accountId);
-  numberUtils.isNumber(payload.sequenceOrder);
+  numberUtils.validateInteger(payload.sequenceOrder);
   moneyValue.validate(payload.amount);
-  numberUtils.isNumber(payload.exchangeRate);
   validateSide(payload.side);
   dateUtils.validateDate(entryPayload.createdAt);
 
@@ -57,7 +56,7 @@ function make(
     accountId: payload.accountId,
     sequenceOrder: payload.sequenceOrder,
     amount: payload.amount,
-    exchangeRate: payload.exchangeRate,
+    exchangeRate: numberUtils.toFloat(payload.exchangeRate),
     functionalAmount,
     side: payload.side,
     description,

@@ -83,12 +83,28 @@ function isNumber(value: unknown): boolean {
   return typeof value === 'number' && !isNaN(value);
 }
 
+function validateNumber(value: string | number | bigint) {
+  toFloat(value);
+}
+
+function isInteger(value: string | number | bigint): boolean {
+  return Number.isInteger(toFloat(value));
+}
+
+function validateInteger(value: string | number | bigint) {
+  if (!isInteger(value)) {
+    throw new AppError('Value must not be a float', { cause: value });
+  }
+}
+
 const numberUtils = Object.freeze({
   toBigInt,
   toFloat,
   toNonNegativeNumber,
   toFactor,
   isNumber,
+  isInteger,
+  validateInteger,
 });
 
 export default numberUtils;

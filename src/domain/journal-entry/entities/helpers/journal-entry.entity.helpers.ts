@@ -14,6 +14,13 @@ function validateStatus(status: UJournalEntryStatus) {
   }
 }
 
+function isUniqueSequenceOrder(lineItems: IJournalLineItem[]) {
+  const sequenceOrders = lineItems.map((item) => item.sequenceOrder);
+  const uniqueSequenceOrders = new Set(sequenceOrders);
+
+  return sequenceOrders.length === uniqueSequenceOrders.size;
+}
+
 function validateLineItems(lineItems: IJournalLineItem[]) {
   if (!lineItems.length || lineItems.length < 2) {
     throw new AppError('Invalid line items', { cause: lineItems });
@@ -44,11 +51,16 @@ function validateLineItems(lineItems: IJournalLineItem[]) {
       cause: lineItems,
     });
   }
+
+  if (!isUniqueSequenceOrder(lineItems)) {
+    throw new AppError('Sequence orders must be unique', { cause: lineItems });
+  }
 }
 
 const journalEntryEntityHelpers = Object.freeze({
   validateStatus,
   validateLineItems,
+  isUniqueSequenceOrder,
 });
 
 export default journalEntryEntityHelpers;
