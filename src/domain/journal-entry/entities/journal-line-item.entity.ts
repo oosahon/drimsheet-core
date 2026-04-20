@@ -40,6 +40,7 @@ function make(
   stringUtils.validateUUID(payload.accountId);
   numberUtils.validateInteger(payload.sequenceOrder);
   moneyValue.validate(payload.amount);
+  numberUtils.validateNumber(payload.exchangeRate);
   validateSide(payload.side);
   dateUtils.validateDate(entryPayload.createdAt);
 

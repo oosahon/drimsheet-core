@@ -42,6 +42,8 @@ function make(
   stringUtils.validateUUID(payload.sourceAccountId);
   helpers.validateAttachments(payload.attachments);
   helpers.validateCounterpartyId(payload.type, payload.counterPartyId);
+  helpers.validateItemsPayload(itemsPayload);
+  numberUtils.validateNumber(payload.exchangeRate);
 
   const id = generateUUID();
   const timestamp = new Date();
