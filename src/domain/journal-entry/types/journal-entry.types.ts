@@ -1,12 +1,12 @@
 import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
 
-const EEJournalEntrySide = {
+export const EEJournalEntrySide = {
   Debit: 'debit',
   Credit: 'credit',
 } as const;
 
-type UJournalEntrySide =
+export type UJournalEntrySide =
   (typeof EEJournalEntrySide)[keyof typeof EEJournalEntrySide];
 
 interface IJournalLineItemMeta extends Record<
@@ -14,8 +14,9 @@ interface IJournalLineItemMeta extends Record<
   string | object | boolean | null
 > {}
 
-interface IJournalLineItem {
+export interface IJournalLineItem {
   id: TEntityId;
+  entryId: TEntityId;
   accountId: TEntityId;
   sequenceOrder: number;
   amount: IMoney;
@@ -24,22 +25,24 @@ interface IJournalLineItem {
   side: UJournalEntrySide;
   description?: string;
   meta?: IJournalLineItemMeta;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const EJournalEntryStatus = {
+export const EJournalEntryStatus = {
   Draft: 'draft',
   Posted: 'posted',
   Voided: 'voided',
 } as const;
 
-type UJournalEntryStatus =
+export type UJournalEntryStatus =
   (typeof EJournalEntryStatus)[keyof typeof EJournalEntryStatus];
 
 export interface IJournalEntry {
   id: TEntityId;
-  transactionId: TEntityId;
-  version: number;
   accountingEntityId: TEntityId;
+  transactionId: TEntityId;
   lineItems: IJournalLineItem[];
   memo: string;
   status: UJournalEntryStatus;
@@ -47,6 +50,7 @@ export interface IJournalEntry {
   postedAt: Date | null;
   voidedAt: Date | null;
   voidedByJournalEntryId: TEntityId | null;
+  version: number;
   createdAt: Date;
   updatedAt: Date;
 }

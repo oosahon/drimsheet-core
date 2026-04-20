@@ -79,11 +79,16 @@ function toFactor(value: string | number | bigint): IFactor {
   return { numerator, denominator };
 }
 
+function isNumber(value: unknown): boolean {
+  return typeof value === 'number' && !isNaN(value);
+}
+
 const numberUtils = Object.freeze({
   toBigInt,
   toFloat,
   toNonNegativeNumber,
   toFactor,
+  isNumber,
 });
 
 export default numberUtils;

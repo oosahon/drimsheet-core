@@ -136,4 +136,24 @@ describe('numberUtils', () => {
       expect(() => numberUtils.toFactor('invalid')).toThrow(AppError);
     });
   });
+
+  describe('isNumber', () => {
+    it('returns true for a valid number', () => {
+      expect(numberUtils.isNumber(42)).toBe(true);
+      expect(numberUtils.isNumber(0)).toBe(true);
+      expect(numberUtils.isNumber(-42.5)).toBe(true);
+    });
+
+    it('returns false for NaN', () => {
+      expect(numberUtils.isNumber(NaN)).toBe(false);
+    });
+
+    it('returns false for non-number types', () => {
+      expect(numberUtils.isNumber('42')).toBe(false);
+      expect(numberUtils.isNumber(null)).toBe(false);
+      expect(numberUtils.isNumber(undefined)).toBe(false);
+      expect(numberUtils.isNumber({})).toBe(false);
+      expect(numberUtils.isNumber(42n)).toBe(false);
+    });
+  });
 });

@@ -77,7 +77,7 @@ describe('Transaction Entity', () => {
       );
 
       expect(events).toHaveLength(3);
-      expect(events[0].type).toBe(ETransactionEvent.TransactionCreated);
+      expect(events[0].type).toBe(ETransactionEvent.Created);
       expect(events[0].data).toEqual(transaction);
 
       expect(typeof transaction.id).toBe('string');

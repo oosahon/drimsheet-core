@@ -2,16 +2,19 @@ import eventValue from '../../../shared/value-objects/event.vo';
 import { ITransaction } from '../types/transaction.types';
 
 export const ETransactionEvent = {
-  TransactionCreated: 'domain:transaction:created',
+  Created: 'domain:transaction:created',
 } as const;
 
+export type UTransactionEvent =
+  (typeof ETransactionEvent)[keyof typeof ETransactionEvent];
+
 export const transactionEventDescriptions: Record<string, string> = {
-  [ETransactionEvent.TransactionCreated]: 'Created a new transaction.',
+  [ETransactionEvent.Created]: 'Created a new transaction.',
 };
 
 function makeTransactionCreatedEvent(payload: ITransaction) {
   return eventValue.make<ITransaction>({
-    type: ETransactionEvent.TransactionCreated,
+    type: ETransactionEvent.Created,
     data: payload,
   });
 }
