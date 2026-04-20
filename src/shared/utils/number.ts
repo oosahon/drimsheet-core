@@ -103,6 +103,7 @@ const numberUtils = Object.freeze({
   toNonNegativeNumber,
   toFactor,
   isNumber,
+  validateNumber,
   isInteger,
   validateInteger,
 });

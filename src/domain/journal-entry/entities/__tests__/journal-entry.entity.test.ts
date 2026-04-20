@@ -7,6 +7,7 @@ import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import {
   EEJournalEntrySide,
   EJournalEntryStatus,
+  IJournalLineItem,
   UJournalEntryStatus,
 } from '../../types/journal-entry.types';
 import journalEntryEntity from '../journal-entry.entity';
@@ -102,7 +103,7 @@ describe('JournalEntry Entity', () => {
 
       const payload: TMakePayload = {
         ...validPayload,
-        lineItems: [lineItemWithoutDesc],
+        lineItems: [lineItemWithoutDesc, validPayload.lineItems[1]],
       };
 
       const [entry] = journalEntryEntity.make(payload);
@@ -188,6 +189,69 @@ describe('JournalEntry Entity', () => {
 
       expect(() => journalEntryEntity.make(invalidPayload)).toThrow(AppError);
     });
+
+    it('should throw an AppError if there are only debits or only credits', () => {
+      const payload: TMakePayload = {
+        ...validPayload,
+        lineItems: [
+          validPayload.lineItems[0],
+          {
+            ...validPayload.lineItems[1],
+            side: EEJournalEntrySide.Debit,
+          },
+        ],
+      };
+
+      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+    });
+
+    it('should throw an AppError if total debits do not equal total credits', () => {
+      const payload: TMakePayload = {
+        ...validPayload,
+        lineItems: [
+          validPayload.lineItems[0],
+          {
+            ...validPayload.lineItems[1],
+            amount: moneyValue.make(50.0, USD, false),
+          },
+        ],
+      };
+
+      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+    });
+
+    it('should throw an AppError if sequence orders are not unique', () => {
+      const payload: TMakePayload = {
+        ...validPayload,
+        lineItems: [
+          validPayload.lineItems[0],
+          {
+            ...validPayload.lineItems[1],
+            sequenceOrder: validPayload.lineItems[0].sequenceOrder,
+          },
+        ],
+      };
+
+      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+    });
+
+    it('should throw an AppError if there are less than 2 line items', () => {
+      const payload: TMakePayload = {
+        ...validPayload,
+        lineItems: [validPayload.lineItems[0]],
+      };
+
+      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+    });
+
+    it('should throw an AppError if there are no line items', () => {
+      const payload: TMakePayload = {
+        ...validPayload,
+        lineItems: [],
+      };
+
+      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+    });
   });
 
   describe('Helpers', () => {
@@ -207,6 +271,37 @@ describe('JournalEntry Entity', () => {
       it('should throw an AppError for an invalid status', () => {
         expect(() =>
           journalEntryEntity.validateStatus('invalid' as UJournalEntryStatus)
+        ).toThrow(AppError);
+      });
+    });
+
+    describe('validateLineItems', () => {
+      it('throws an AppError for an invalid side', () => {
+        const item1: IJournalLineItem = {
+          id: '1' as TEntityId,
+          entryId: '2' as TEntityId,
+          accountId: '3' as TEntityId,
+          sequenceOrder: 1,
+          amount: moneyValue.make(100, USD, false),
+          exchangeRate: 1,
+          functionalAmount: moneyValue.make(100, USD, false),
+          // @ts-expect-error Testing invalid side at runtime
+          side: 'InvalidSide',
+          description: 'test',
+          meta: undefined,
+          version: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        const item2: IJournalLineItem = {
+          ...item1,
+          id: '4' as TEntityId,
+          sequenceOrder: 2,
+          side: EEJournalEntrySide.Credit,
+        };
+
+        expect(() =>
+          journalEntryEntity.validateLineItems([item1, item2])
         ).toThrow(AppError);
       });
     });

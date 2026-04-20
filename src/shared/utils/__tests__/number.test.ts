@@ -156,4 +156,40 @@ describe('numberUtils', () => {
       expect(numberUtils.isNumber(42n)).toBe(false);
     });
   });
+
+  describe('validateNumber', () => {
+    it('does not throw for a valid number', () => {
+      expect(() => numberUtils.validateNumber(42)).not.toThrow();
+      expect(() => numberUtils.validateNumber('42.5')).not.toThrow();
+    });
+
+    it('throws AppError for an invalid number', () => {
+      expect(() => numberUtils.validateNumber('invalid')).toThrow(AppError);
+    });
+  });
+
+  describe('isInteger', () => {
+    it('returns true for an integer', () => {
+      expect(numberUtils.isInteger(42)).toBe(true);
+      expect(numberUtils.isInteger('42')).toBe(true);
+    });
+
+    it('returns false for a float', () => {
+      expect(numberUtils.isInteger(42.5)).toBe(false);
+      expect(numberUtils.isInteger('42.5')).toBe(false);
+    });
+  });
+
+  describe('validateInteger', () => {
+    it('does not throw for an integer', () => {
+      expect(() => numberUtils.validateInteger(42)).not.toThrow();
+      expect(() => numberUtils.validateInteger('42')).not.toThrow();
+    });
+
+    it('throws AppError for a float', () => {
+      expect(() => numberUtils.validateInteger(42.5)).toThrow(AppError);
+      expect(() => numberUtils.validateInteger('42.5')).toThrow(AppError);
+      expect(() => numberUtils.validateInteger('invalid')).toThrow(AppError);
+    });
+  });
 });
