@@ -38,7 +38,7 @@ export interface ITransactionItem {
   deletedAt: Date | null;
 }
 
-interface ITransactionAttachment {
+export interface ITransactionAttachment {
   url: string;
   name: string;
   type: string;
@@ -51,15 +51,15 @@ export interface ITransaction {
   reference: string;
   type: UTransactionType;
   status: UTransactionStatus;
+  items: ITransactionItem[];
   effectiveDate: Date;
   createdBy: TEntityId;
   sourceAccountId: TEntityId;
   amount: IMoney;
-  functionalCurrencyAmount: IMoney; // simplifies reporting calculations
   exchangeRate: number; // for explicitness
+  functionalCurrencyAmount: IMoney;
   attachments: ITransactionAttachment[];
   counterPartyId: TEntityId | null; // null for transfers
-  items: ITransactionItem[];
   notes: string | null;
   version: number;
   createdAt: Date;

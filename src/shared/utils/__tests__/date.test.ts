@@ -91,4 +91,38 @@ describe('dateUtils', () => {
       );
     });
   });
+
+  describe('isInTheFuture', () => {
+    it('returns true for a future date', () => {
+      const futureDate = dayjs().add(1, 'day').toDate();
+      expect(dateUtils.isInTheFuture(futureDate)).toBe(true);
+    });
+
+    it('returns false for a past date', () => {
+      const pastDate = dayjs().subtract(1, 'day').toDate();
+      expect(dateUtils.isInTheFuture(pastDate)).toBe(false);
+    });
+
+    it('returns false for an invalid date', () => {
+      expect(dateUtils.isInTheFuture('invalid-date')).toBe(false);
+    });
+  });
+
+  describe('validateIsInTheFuture', () => {
+    it('does not throw for a future date', () => {
+      const futureDate = dayjs().add(1, 'day').toDate();
+      expect(() => dateUtils.validateIsInTheFuture(futureDate)).not.toThrow();
+    });
+
+    it('throws AppError for a past date', () => {
+      const pastDate = dayjs().subtract(1, 'day').toDate();
+      expect(() => dateUtils.validateIsInTheFuture(pastDate)).toThrow(AppError);
+    });
+
+    it('throws AppError for an invalid date', () => {
+      expect(() => dateUtils.validateIsInTheFuture('invalid')).toThrow(
+        AppError
+      );
+    });
+  });
 });

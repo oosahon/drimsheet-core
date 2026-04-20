@@ -33,9 +33,11 @@ describe('Transaction Item Entity', () => {
       };
 
       const [item, events] = transactionItemEntity.make(
-        validTransactionId,
-        ETransactionType.Expense,
-        transactionDate,
+        {
+          id: validTransactionId,
+          type: ETransactionType.Expense,
+          createdAt: transactionDate,
+        },
         payload
       );
 
@@ -70,9 +72,11 @@ describe('Transaction Item Entity', () => {
 
       expect(() =>
         transactionItemEntity.make(
-          'invalid-uuid' as TEntityId,
-          ETransactionType.Expense,
-          transactionDate,
+          {
+            id: 'invalid-uuid' as TEntityId,
+            type: ETransactionType.Expense,
+            createdAt: transactionDate,
+          },
           payload
         )
       ).toThrow(AppError);
@@ -89,9 +93,11 @@ describe('Transaction Item Entity', () => {
 
       expect(() =>
         transactionItemEntity.make(
-          validTransactionId,
-          ETransactionType.Expense,
-          transactionDate,
+          {
+            id: validTransactionId,
+            type: ETransactionType.Expense,
+            createdAt: transactionDate,
+          },
           payload
         )
       ).toThrow(AppError);
@@ -108,9 +114,11 @@ describe('Transaction Item Entity', () => {
 
       expect(() =>
         transactionItemEntity.make(
-          validTransactionId,
-          ETransactionType.Expense,
-          transactionDate,
+          {
+            id: validTransactionId,
+            type: ETransactionType.Expense,
+            createdAt: transactionDate,
+          },
           payload
         )
       ).toThrow(AppError);
@@ -119,7 +127,9 @@ describe('Transaction Item Entity', () => {
     it('should throw an AppError if amount is not a valid money object', () => {
       const payload = {
         description: 'Pens',
-        amount: { amount: 50, currency: USD } as any,
+        amount: { amount: 50, currency: USD } as unknown as Parameters<
+          typeof transactionItemEntity.make
+        >[1]['amount'],
         functionalCurrencyAmount: moneyValue.make(50.0, USD, false),
         categoryId: validCategoryId,
         accountId: validAccountId,
@@ -127,9 +137,11 @@ describe('Transaction Item Entity', () => {
 
       expect(() =>
         transactionItemEntity.make(
-          validTransactionId,
-          ETransactionType.Expense,
-          transactionDate,
+          {
+            id: validTransactionId,
+            type: ETransactionType.Expense,
+            createdAt: transactionDate,
+          },
           payload
         )
       ).toThrow(AppError);
@@ -139,16 +151,23 @@ describe('Transaction Item Entity', () => {
       const payload = {
         description: 'Pens',
         amount: moneyValue.make(50.0, USD, false),
-        functionalCurrencyAmount: { amount: 50, currency: USD } as any,
+        functionalCurrencyAmount: {
+          amount: 50,
+          currency: USD,
+        } as unknown as Parameters<
+          typeof transactionItemEntity.make
+        >[1]['functionalCurrencyAmount'],
         categoryId: validCategoryId,
         accountId: validAccountId,
       };
 
       expect(() =>
         transactionItemEntity.make(
-          validTransactionId,
-          ETransactionType.Expense,
-          transactionDate,
+          {
+            id: validTransactionId,
+            type: ETransactionType.Expense,
+            createdAt: transactionDate,
+          },
           payload
         )
       ).toThrow(AppError);

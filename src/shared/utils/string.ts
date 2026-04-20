@@ -44,6 +44,16 @@ function isNumeric(value: string) {
   return /^[0-9]+$/.test(value);
 }
 
+function isUrl(value: string) {
+  if (typeof value !== 'string') return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function toUUD(value: string): TEntityId {
   validateUUID(value);
   return value as TEntityId;
@@ -61,6 +71,7 @@ const stringUtils = Object.freeze({
   generateUUID,
   toUUD,
   isNumeric,
+  isUrl,
 });
 
 export default stringUtils;

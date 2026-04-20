@@ -119,4 +119,23 @@ describe('stringUtils', () => {
       expect(stringUtils.isNumeric('123.45')).toBe(false);
     });
   });
+
+  describe('isUrl', () => {
+    it('returns true for a valid URL', () => {
+      expect(stringUtils.isUrl('https://example.com')).toBe(true);
+      expect(stringUtils.isUrl('http://www.test.org/path?query=1')).toBe(true);
+    });
+
+    it('returns false for an invalid URL', () => {
+      expect(stringUtils.isUrl('not-a-url')).toBe(false);
+      expect(stringUtils.isUrl('htp://wrong-scheme')).toBe(false);
+      expect(stringUtils.isUrl('')).toBe(false);
+    });
+
+    it('returns false for non-string values', () => {
+      expect(stringUtils.isUrl(null as unknown as string)).toBe(false);
+      expect(stringUtils.isUrl(123 as unknown as string)).toBe(false);
+      expect(stringUtils.isUrl({} as unknown as string)).toBe(false);
+    });
+  });
 });

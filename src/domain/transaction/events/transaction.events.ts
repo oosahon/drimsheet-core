@@ -3,12 +3,10 @@ import { ITransaction } from '../types/transaction.types';
 
 export const ETransactionEvent = {
   TransactionCreated: 'domain:transaction:created',
-  TransactionUpdated: 'domain:transaction:updated',
 } as const;
 
 export const transactionEventDescriptions: Record<string, string> = {
   [ETransactionEvent.TransactionCreated]: 'Created a new transaction.',
-  [ETransactionEvent.TransactionUpdated]: 'Updated an existing transaction.',
 };
 
 function makeTransactionCreatedEvent(payload: ITransaction) {
@@ -18,16 +16,8 @@ function makeTransactionCreatedEvent(payload: ITransaction) {
   });
 }
 
-function makeTransactionUpdatedEvent(payload: ITransaction) {
-  return eventValue.make<ITransaction>({
-    type: ETransactionEvent.TransactionUpdated,
-    data: payload,
-  });
-}
-
 const transactionEvents = Object.freeze({
   created: makeTransactionCreatedEvent,
-  updated: makeTransactionUpdatedEvent,
 });
 
 export default transactionEvents;

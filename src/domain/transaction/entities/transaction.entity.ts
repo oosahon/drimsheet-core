@@ -1,223 +1,100 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
-import generateDiff from '../../../shared/utils/diff-generator';
+import dateUtils from '../../../shared/utils/date';
+import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
-import { AppError } from '../../../shared/value-objects/error';
 import moneyValue from '../../../shared/value-objects/money.vo';
+import { ICurrency } from '../../currency/types/currency.types';
 import transactionEvents from '../events/transaction.events';
-import {
-  ITransaction,
-  ITransactionHistoryLog,
-  ITransactionItem,
-} from '../types/transaction.types';
-
+import { ITransaction, ITransactionItem } from '../types/transaction.types';
+import helpers from './helpers/transaction.entity.helpers';
 import transactionItemEntity, {
   TMakeTransactionItemPayload,
 } from './transaction-item.entity';
 
-export type TMakeTransactionPayload = Omit<
-  TCreationOmits<ITransaction, 'version'>,
-  'items'
-> & {
-  items: TMakeTransactionItemPayload[];
-};
-
-interface IMakeHistoryLogPayload extends Pick<
-  ITransactionHistoryLog,
-  'action' | 'userId' | 'note'
+interface IMakePayload extends TCreationOmits<
+  ITransaction,
+  'reference' | 'version' | 'functionalCurrencyAmount' | 'amount' | 'items'
 > {
-  previous?: ITransaction | null;
-  current: ITransaction;
+  reference?: string;
+  functionalCurrency: ICurrency;
 }
 
-function validateUUIDs(payload: TMakeTransactionPayload) {
-  stringUtils.validateUUID(payload.accountingEntityId);
-  stringUtils.validateUUID(payload.createdBy);
-  stringUtils.validateUUID(payload.sourceAccountId);
-
-  if (payload.counterPartyId) {
-    stringUtils.validateUUID(payload.counterPartyId);
+function getReference(reference?: string) {
+  if (reference) {
+    return stringUtils
+      .sanitizeAndValidate(reference, { min: 3, max: 100 })
+      .toUpperCase();
   }
-}
-
-function validateAmounts(payload: TMakeTransactionPayload) {
-  moneyValue.validate(payload.amount);
-  moneyValue.validate(payload.functionalCurrencyAmount);
-
-  if (!payload.items || payload.items.length === 0) {
-    throw new AppError('Transaction must have at least one item');
-  }
-
-  const itemAmounts = payload.items.map((i) => i.amount);
-  const functionalItemAmounts = payload.items.map(
-    (i) => i.functionalCurrencyAmount
-  );
-
-  itemAmounts.forEach((a) => moneyValue.validate(a));
-  functionalItemAmounts.forEach((a) => moneyValue.validate(a));
-
-  if (!moneyValue.isSameCurrency(payload.amount, ...itemAmounts)) {
-    throw new AppError(
-      'All items must have the same currency as the transaction amount'
-    );
-  }
-
-  if (
-    !moneyValue.isSameCurrency(
-      payload.functionalCurrencyAmount,
-      ...functionalItemAmounts
-    )
-  ) {
-    throw new AppError(
-      'All functional items must have the same currency as the transaction functional amount'
-    );
-  }
-
-  const itemsSum = itemAmounts.reduce((acc, curr) => moneyValue.add(acc, curr));
-  if (!moneyValue.equals(payload.amount, itemsSum)) {
-    throw new AppError(
-      'Sum of transaction items must equal the transaction amount'
-    );
-  }
-
-  const functionalItemsSum = functionalItemAmounts.reduce((acc, curr) =>
-    moneyValue.add(acc, curr)
-  );
-  if (
-    !moneyValue.equals(payload.functionalCurrencyAmount, functionalItemsSum)
-  ) {
-    throw new AppError(
-      'Sum of transaction functional items must equal the transaction functional amount'
-    );
-  }
-}
-
-function validate(payload: TMakeTransactionPayload) {
-  validateUUIDs(payload);
-  validateAmounts(payload);
+  return helpers.generateReference();
 }
 
 function make(
-  payload: TMakeTransactionPayload
+  payload: IMakePayload,
+  itemsPayload: TMakeTransactionItemPayload[]
 ): TEntityWithEvents<ITransaction, ITransaction | ITransactionItem> {
-  validate(payload);
+  stringUtils.validateUUID(payload.accountingEntityId);
+  helpers.validateType(payload.type);
+  helpers.validateStatus(payload.status);
+  dateUtils.validateDate(payload.effectiveDate);
+  stringUtils.validateUUID(payload.createdBy);
+  stringUtils.validateUUID(payload.sourceAccountId);
+  helpers.validateAttachments(payload.attachments);
+  helpers.validateCounterpartyId(payload.type, payload.counterPartyId);
 
+  const id = generateUUID();
   const timestamp = new Date();
-  const transactionId = generateUUID();
 
-  const itemsWithEvents = payload.items.map((item) =>
-    transactionItemEntity.make(transactionId, payload.type, timestamp, item)
+  const itemsWithEvents = itemsPayload.map((item) => {
+    return transactionItemEntity.make(
+      { id, type: payload.type, createdAt: timestamp },
+      item
+    );
+  });
+
+  const items = itemsWithEvents.map((i) => i[0]);
+  const itemsEvents = itemsWithEvents.flatMap((i) => i[1]);
+
+  const amount = moneyValue.add(...items.map((i) => i.amount));
+  const exchangeRate = numberUtils.toFloat(payload.exchangeRate);
+  const functionalCurrencyAmount = moneyValue.convert(
+    amount,
+    numberUtils.toFactor(exchangeRate),
+    payload.functionalCurrency
   );
+  const notes = helpers.sanitizeAndValidateNotes(payload.notes);
 
-  const items = itemsWithEvents.map(([item]) => item);
-  const itemsEvents = itemsWithEvents.flatMap(([, events]) => events);
-
-  const transaction: ITransaction = Object.freeze({
-    id: transactionId,
+  const transaction: ITransaction = {
+    id,
     accountingEntityId: payload.accountingEntityId,
-    reference: payload.reference,
+    reference: getReference(payload.reference),
     type: payload.type,
     status: payload.status,
+    items,
     effectiveDate: payload.effectiveDate,
     createdBy: payload.createdBy,
     sourceAccountId: payload.sourceAccountId,
-    amount: payload.amount,
-    functionalCurrencyAmount: payload.functionalCurrencyAmount,
-    exchangeRate: payload.exchangeRate,
+    amount,
+    exchangeRate,
+    functionalCurrencyAmount,
     attachments: payload.attachments,
-    counterPartyId: payload.counterPartyId ?? null,
-    notes: payload.notes ?? null,
-    items,
+    counterPartyId: payload.counterPartyId,
+    notes,
     version: 1,
     createdAt: timestamp,
     updatedAt: timestamp,
-  });
-
-  const event = transactionEvents.created(transaction);
-
-  return [transaction, [event, ...itemsEvents]];
-}
-
-function update(
-  transaction: ITransaction,
-  options: Partial<
-    Pick<
-      ITransaction,
-      'reference' | 'status' | 'effectiveDate' | 'counterPartyId' | 'notes'
-    >
-  >
-): TEntityWithEvents<ITransaction, ITransaction> {
-  const currentState = {
-    reference: transaction.reference,
-    status: transaction.status,
-    effectiveDate: transaction.effectiveDate,
-    counterPartyId: transaction.counterPartyId,
-    notes: transaction.notes,
   };
 
-  const updatedState = {
-    reference: options.reference ?? currentState.reference,
-    status: options.status ?? currentState.status,
-    effectiveDate: options.effectiveDate ?? currentState.effectiveDate,
-    counterPartyId:
-      options.counterPartyId !== undefined
-        ? options.counterPartyId
-        : currentState.counterPartyId,
-    notes: options.notes !== undefined ? options.notes : currentState.notes,
-  };
+  const events = [transactionEvents.created(transaction), ...itemsEvents];
 
-  const { hasChanges } = generateDiff(updatedState, currentState);
-
-  if (!hasChanges) {
-    return [transaction, []] as TEntityWithEvents<ITransaction, ITransaction>;
-  }
-
-  const updatedTransaction: ITransaction = Object.freeze({
-    ...transaction,
-    ...updatedState,
-    version: transaction.version + 1,
-    updatedAt: new Date(),
-  });
-
-  const event = transactionEvents.updated(updatedTransaction);
-
-  return [updatedTransaction, [event]];
-}
-
-function makeHistoryLog(
-  payload: IMakeHistoryLogPayload
-): Readonly<ITransactionHistoryLog> {
-  stringUtils.validateUUID(payload.current.id);
-  stringUtils.validateUUID(payload.userId);
-
-  let note = undefined;
-
-  if (payload.note) {
-    note = stringUtils.sanitizeAndValidate(payload.note, { max: 100, min: 1 });
-  }
-
-  const { before, after } = generateDiff(payload.current, payload.previous);
-
-  const log: ITransactionHistoryLog = Object.freeze({
-    transactionId: payload.current.id,
-    userId: payload.userId,
-    action: payload.action,
-    note,
-    diff: { before, after },
-    createdAt: new Date(),
-  });
-
-  return log;
+  return [Object.freeze(transaction), events];
 }
 
 const transactionEntity = Object.freeze({
   make,
-  update,
-  makeHistoryLog,
-  validate,
-  validateUUIDs,
-  validateAmounts,
+
+  ...helpers,
 });
 
 export default transactionEntity;

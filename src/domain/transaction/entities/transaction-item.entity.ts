@@ -1,24 +1,23 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
-import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import transactionItemEvents from '../events/transaction-item.events';
-import { ITransactionItem, UTransactionType } from '../types/transaction.types';
+import { ITransaction, ITransactionItem } from '../types/transaction.types';
 
 export type TMakeTransactionItemPayload = TCreationOmits<
   ITransactionItem,
   'transactionId' | 'createdAt' | 'updatedAt' | 'deletedAt'
 >;
 
+type TTransactionDetails = Pick<ITransaction, 'id' | 'type' | 'createdAt'>;
+
 function make(
-  transactionId: TEntityId,
-  transactionType: UTransactionType,
-  transactionCreatedAt: Date,
+  transactionDetails: TTransactionDetails,
   payload: TMakeTransactionItemPayload
 ): TEntityWithEvents<ITransactionItem, ITransactionItem> {
-  stringUtils.validateUUID(transactionId);
+  stringUtils.validateUUID(transactionDetails.id);
   stringUtils.validateUUID(payload.accountId);
   stringUtils.validateUUID(payload.categoryId);
 
@@ -30,15 +29,15 @@ function make(
     description: payload.description,
     amount: payload.amount,
     functionalCurrencyAmount: payload.functionalCurrencyAmount,
-    transactionId: transactionId,
+    transactionId: transactionDetails.id,
     categoryId: payload.categoryId,
     accountId: payload.accountId,
-    createdAt: transactionCreatedAt,
-    updatedAt: transactionCreatedAt,
+    createdAt: transactionDetails.createdAt,
+    updatedAt: transactionDetails.createdAt,
     deletedAt: null,
   });
 
-  const event = transactionItemEvents.created(item, transactionType);
+  const event = transactionItemEvents.created(item, transactionDetails.type);
 
   return [item, [event]];
 }
