@@ -7,6 +7,7 @@ import shortTermLoanAccountEntity from '../entities/02-liability-account/00-shor
 import payableAccountEntity from '../entities/02-liability-account/03-payables.entity';
 import liabilitySuspenseAccountEntity from '../entities/02-liability-account/99-suspense-account.entity';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
+import { TPayablesLedgerCode } from '../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -142,7 +143,11 @@ export default function liabilityAccountService(
             adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
             meta: null,
           },
-          existingPayables.code
+          {
+            precedingCode: existingPayables.code as TPayablesLedgerCode,
+            parentMaterializedPath:
+              existingPayables.materializedPath as TPayablesLedgerCode,
+          }
         );
         existingTradePayables = tradePayables[0];
         liabilityAccounts.push(tradePayables);
@@ -170,7 +175,11 @@ export default function liabilityAccountService(
             adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
             meta: null,
           },
-          existingTradePayables.code
+          {
+            precedingCode: existingTradePayables.code as TPayablesLedgerCode,
+            parentMaterializedPath:
+              existingPayables.materializedPath as TPayablesLedgerCode,
+          }
         );
         liabilityAccounts.push(statutoryPayables);
       }
@@ -207,12 +216,15 @@ export default function liabilityAccountService(
       );
 
       if (!existingSuspense.length) {
-        const account = liabilitySuspenseAccountEntity.make({
-          accountingEntityId,
-          currency: functionalCurrency,
-          name: 'Liability Suspense Account',
-          createdBy: ownerId,
-        });
+        const account = liabilitySuspenseAccountEntity.make(
+          {
+            accountingEntityId,
+            currency: functionalCurrency,
+            name: 'Liability Suspense Account',
+            createdBy: ownerId,
+          },
+          null
+        );
         liabilityAccounts.push(account);
       }
 
@@ -245,7 +257,12 @@ export default function liabilityAccountService(
             contraAccountRule: EContraAccountRule.ContraNotPermitted,
             adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
           },
-          existingStatutoryPayables[0].code
+          {
+            precedingCode: existingStatutoryPayables[0]
+              .code as TPayablesLedgerCode,
+            parentMaterializedPath: existingStatutoryPayables[0]
+              .materializedPath as TPayablesLedgerCode,
+          }
         );
         liabilityAccounts.push(account);
       }

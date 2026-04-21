@@ -1,4 +1,5 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import revenueAccountEvents from '../../events/revenue-account.events';
 import { TUnrealizedGainLedgerCode } from '../../types/ledger-code.types';
 import {
@@ -13,14 +14,11 @@ import {
   IUnrealizedGainAccount,
 } from '../../types/revenue-account.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/unrealized-gain.entity.helpers';
 
-function getCode(
-  predecessorCode: TUnrealizedGainLedgerCode
-): TUnrealizedGainLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TUnrealizedGainLedgerCode>(
-    '406',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TUnrealizedGainLedgerCode;
+  precedingCode: TUnrealizedGainLedgerCode;
 }
 
 function make(
@@ -34,12 +32,19 @@ function make(
     | 'controlAccountId'
     | 'meta'
   >,
-  predecessorCode: TUnrealizedGainLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IUnrealizedGainAccount, IUnrealizedGainAccount> {
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IUnrealizedGainAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '406000',
+    code,
+    materializedPath,
     type: ELedgerType.Revenue,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
     subType: ERevenueSubType.UnrealizedGains,
@@ -55,12 +60,13 @@ function make(
   });
 
   const event = revenueAccountEvents.unrealizedGainsCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const unrealizedGainAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default unrealizedGainAccountEntity;

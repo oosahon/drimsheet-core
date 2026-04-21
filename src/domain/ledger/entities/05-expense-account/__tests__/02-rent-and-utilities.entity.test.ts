@@ -5,6 +5,7 @@ import {
   EExpenseSubType,
   IRentUtilitiesAccount,
 } from '../../../types/expense-account.types';
+import { TRentUtilitiesLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -25,6 +26,11 @@ describe('Rent and Utilities Expense Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '502000' as TRentUtilitiesLedgerCode,
+    parentMaterializedPath: '502000' as TRentUtilitiesLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -42,10 +48,28 @@ describe('Rent and Utilities Expense Entity', () => {
       expect(rentAndUtilitiesAccountEntity.getCode('502099')).toBe('502100');
     });
 
+    it('should return 502000 if predecessorCode is null', () => {
+      expect(rentAndUtilitiesAccountEntity.getCode(null)).toBe('502000');
+    });
+
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         rentAndUtilitiesAccountEntity.getCode('503000' as any)
       ).toThrow(AppError);
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(
+        rentAndUtilitiesAccountEntity.getMaterializedPath('502000', null)
+      ).toBe('502000');
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        rentAndUtilitiesAccountEntity.getMaterializedPath('502001', '502000')
+      ).toBe('502000.502001');
     });
   });
 
@@ -72,10 +96,11 @@ describe('Rent and Utilities Expense Entity', () => {
     it('should successfully create a rent and utilities account', () => {
       const [account, events] = rentAndUtilitiesAccountEntity.make(
         validPayload,
-        '502000'
+        validParent
       );
 
       expect(account.code).toBe('502001');
+      expect(account.materializedPath).toBe('502000.502001');
       expect(account.type).toBe(ELedgerType.Expense);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
       expect(account.subType).toBe(EExpenseSubType.RentAndUtilities);
@@ -92,7 +117,7 @@ describe('Rent and Utilities Expense Entity', () => {
       );
       expect(account.createdBy).toBe(validUUID2);
       expect(account.accountingEntityId).toBe(validUUID1);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should successfully create a rent and utilities account with controlAccountId', () => {
@@ -104,17 +129,17 @@ describe('Rent and Utilities Expense Entity', () => {
       };
       const [account, events] = rentAndUtilitiesAccountEntity.make(
         payloadWithControl,
-        '502000'
+        validParent
       );
       expect(account.isControlAccount).toBe(true);
       expect(account.controlAccountId).toBe(validUUID3);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        rentAndUtilitiesAccountEntity.make(invalidPayload, '502000')
+        rentAndUtilitiesAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
@@ -124,13 +149,14 @@ describe('Rent and Utilities Expense Entity', () => {
         controlAccountId: 'invalid-uuid' as any,
       };
       expect(() =>
-        rentAndUtilitiesAccountEntity.make(invalidPayload, '502000')
+        rentAndUtilitiesAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
     it('should use base code 502000 when predecessorCode is null', () => {
       const [account] = rentAndUtilitiesAccountEntity.make(validPayload, null);
       expect(account.code).toBe('502000');
+      expect(account.materializedPath).toBe('502000');
     });
   });
 });

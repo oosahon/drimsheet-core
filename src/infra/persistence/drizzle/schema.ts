@@ -256,6 +256,7 @@ export const ledgerAccountsInCore = core.table(
       .default(sql`uuid_generate_v4()`)
       .notNull(),
     code: varchar({ length: 6 }).notNull(),
+    materializedPath: varchar('materialized_path', { length: 100 }).notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     type: ledgerTypeInCore().notNull(),
     normalBalance: normalBalanceTypeInCore('normal_balance').notNull(),

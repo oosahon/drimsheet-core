@@ -1,5 +1,6 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { AppError } from '../../../../../shared/value-objects/error';
+import { TUnrealizedGainLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -24,6 +25,11 @@ describe('Unrealized Gains Revenue Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '406000' as TUnrealizedGainLedgerCode,
+    parentMaterializedPath: '406000' as TUnrealizedGainLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -40,10 +46,28 @@ describe('Unrealized Gains Revenue Entity', () => {
       expect(unrealizedGainAccountEntity.getCode('406099')).toBe('406100');
     });
 
+    it('should return 406000 if predecessorCode is null', () => {
+      expect(unrealizedGainAccountEntity.getCode(null)).toBe('406000');
+    });
+
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         unrealizedGainAccountEntity.getCode('400000' as any)
       ).toThrow(AppError);
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(
+        unrealizedGainAccountEntity.getMaterializedPath('406000', null)
+      ).toBe('406000');
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        unrealizedGainAccountEntity.getMaterializedPath('406001', '406000')
+      ).toBe('406000.406001');
     });
   });
 
@@ -61,10 +85,11 @@ describe('Unrealized Gains Revenue Entity', () => {
     it('should successfully create an unrealized gains account', () => {
       const [account, events] = unrealizedGainAccountEntity.make(
         validPayload,
-        '406000'
+        validParent
       );
 
       expect(account.code).toBe('406001');
+      expect(account.materializedPath).toBe('406000.406001');
       expect(account.type).toBe(ELedgerType.Revenue);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ERevenueSubType.UnrealizedGains);
@@ -84,19 +109,20 @@ describe('Unrealized Gains Revenue Entity', () => {
       expect(account.accountingEntityId).toBe(validUUID1);
       expect(account.createdBy).toBe(validUUID2);
       expect(account.currency).toEqual(validCurrency);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        unrealizedGainAccountEntity.make(invalidPayload, '406000')
+        unrealizedGainAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
     it('should use base code 406000 when predecessorCode is null', () => {
       const [account] = unrealizedGainAccountEntity.make(validPayload, null);
       expect(account.code).toBe('406000');
+      expect(account.materializedPath).toBe('406000');
     });
   });
 });

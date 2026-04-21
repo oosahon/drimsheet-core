@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import expenseAccountEvents from '../../events/expense-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -13,12 +14,11 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/tax-expense.entity.helpers';
 
-function getCode(predecessorCode: TIncomeTaxLedgerCode): TIncomeTaxLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TIncomeTaxLedgerCode>(
-    '508',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TIncomeTaxLedgerCode;
+  precedingCode: TIncomeTaxLedgerCode;
 }
 
 function make(
@@ -32,12 +32,19 @@ function make(
     | 'controlAccountId'
     | 'meta'
   >,
-  predecessorCode: TIncomeTaxLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IIncomeTaxExpenseAccount, IIncomeTaxExpenseAccount> {
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IIncomeTaxExpenseAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '508000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
     type: ELedgerType.Expense,
     subType: EExpenseSubType.IncomeTaxExpense,
@@ -53,12 +60,13 @@ function make(
   });
 
   const event = expenseAccountEvents.taxExpenseCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const taxExpenseAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default taxExpenseAccountEntity;

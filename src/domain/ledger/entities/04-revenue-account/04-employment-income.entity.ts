@@ -1,4 +1,5 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import revenueAccountEvents from '../../events/revenue-account.events';
 import { TEmploymentIncomeLedgerCode } from '../../types/ledger-code.types';
 import {
@@ -13,14 +14,11 @@ import {
   IEmploymentIncomeAccount,
 } from '../../types/revenue-account.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/employment-income.entity.helpers';
 
-function getCode(
-  predecessorCode: TEmploymentIncomeLedgerCode
-): TEmploymentIncomeLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TEmploymentIncomeLedgerCode>(
-    '403',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TEmploymentIncomeLedgerCode;
+  precedingCode: TEmploymentIncomeLedgerCode;
 }
 
 function make(
@@ -34,12 +32,19 @@ function make(
     | 'controlAccountId'
     | 'meta'
   >,
-  predecessorCode: TEmploymentIncomeLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IEmploymentIncomeAccount, IEmploymentIncomeAccount> {
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IEmploymentIncomeAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '403000',
+    code,
+    materializedPath,
     type: ELedgerType.Revenue,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
     subType: ERevenueSubType.EmploymentIncome,
@@ -55,12 +60,13 @@ function make(
   });
 
   const event = revenueAccountEvents.employmentIncomeCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const employmentIncomeAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default employmentIncomeAccountEntity;

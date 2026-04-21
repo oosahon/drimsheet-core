@@ -2,16 +2,7 @@ import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import {
-  EAccountingEntityType,
-  IAccountingEntity,
-} from '../../../accounting-entity/types/accounting-entity.types';
-import { ICurrency } from '../../../currency/types/currency.types';
-import {
-  IAssetLedgerAccount,
-  IReceivablesAccount,
-  IStatutoryReceivableAccount,
-} from '../../types/asset-account.types';
+import { EAccountingEntityType } from '../../../accounting-entity/types/accounting-entity.types';
 import assetAccountService from '../asset-account.service';
 
 describe('assetAccountService', () => {
@@ -25,18 +16,18 @@ describe('assetAccountService', () => {
     id: accountingEntityId,
     ownerId,
     type: EAccountingEntityType.Individual,
-    functionalCurrency: { code: 'USD' } as unknown as ICurrency,
-  } as unknown as IAccountingEntity;
+    functionalCurrency: { code: 'USD' },
+  };
 
   const mockReceivablesAccount = {
     id: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
     code: '102000',
-  } as unknown as IReceivablesAccount;
+  };
 
   const mockTradeReceivablesAccount = {
     id: '123e4567-e89b-12d3-a456-426614174003' as TEntityId,
     code: '102001',
-  } as unknown as IReceivablesAccount;
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -47,6 +38,7 @@ describe('assetAccountService', () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
       const result = await service.makeHeaderAccountsForIndividuals(
+        // @ts-expect-error - partial object testing
         accountingEntity,
         repoOptions
       );
@@ -59,15 +51,17 @@ describe('assetAccountService', () => {
     });
 
     it('should not create accounts if they already exist', async () => {
+      // @ts-expect-error - partial objects used for testing mock resolve values
       mockLedgerAccountRepo.findByCode.mockImplementation(async (code) => {
-        if (code === '100000') return {} as IAssetLedgerAccount;
+        if (code === '100000') return { code: '100000' };
         if (code === '102000') return mockReceivablesAccount;
         if (code === '102001') return mockTradeReceivablesAccount;
-        if (code === '102002') return {} as IAssetLedgerAccount;
+        if (code === '102002') return { code: '102002' };
         return null;
       });
 
       const result = await service.makeHeaderAccountsForIndividuals(
+        // @ts-expect-error - partial object testing
         accountingEntity,
         repoOptions
       );
@@ -80,15 +74,17 @@ describe('assetAccountService', () => {
     const mockStatutoryReceivable = {
       id: '123e4567-e89b-12d3-a456-426614174005' as TEntityId,
       code: '102002',
-    } as unknown as IStatutoryReceivableAccount;
+    };
 
     it('should create non-power user accounts', async () => {
       mockLedgerAccountRepo.findBySubType.mockResolvedValue([]);
       mockLedgerAccountRepo.findByBehavior.mockResolvedValue([
+        // @ts-expect-error - partial object mock
         mockStatutoryReceivable,
       ]);
 
       const result = await service.makePostingAccountsForIndividuals(
+        // @ts-expect-error - partial object testing
         accountingEntity,
         repoOptions
       );
@@ -101,14 +97,18 @@ describe('assetAccountService', () => {
 
     it('should not create accounts if they already exist', async () => {
       mockLedgerAccountRepo.findBySubType.mockResolvedValue([
-        {} as IAssetLedgerAccount,
+        // @ts-expect-error - partial object return
+        { code: 'suspense' },
       ]);
       mockLedgerAccountRepo.findByBehavior.mockResolvedValue([
+        // @ts-expect-error - partial object mock
         mockStatutoryReceivable,
+        // @ts-expect-error - partial object mock
         mockStatutoryReceivable,
       ]);
 
       const result = await service.makePostingAccountsForIndividuals(
+        // @ts-expect-error - partial object testing
         accountingEntity,
         repoOptions
       );
@@ -121,7 +121,11 @@ describe('assetAccountService', () => {
       mockLedgerAccountRepo.findByBehavior.mockResolvedValue([]);
 
       await expect(
-        service.makePostingAccountsForIndividuals(accountingEntity, repoOptions)
+        service.makePostingAccountsForIndividuals(
+          // @ts-expect-error - partial object testing
+          accountingEntity,
+          repoOptions
+        )
       ).rejects.toThrow(AppError);
     });
   });

@@ -10,6 +10,7 @@ import {
   ICashAndCashEquivalentAccount,
   IPettyCashAccount,
 } from '../../../types/asset-account.types';
+import { TCashLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -31,6 +32,11 @@ describe('Cash and Cash Equivalent Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '100000' as TCashLedgerCode,
+    parentMaterializedPath: '100000' as TCashLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -45,6 +51,24 @@ describe('Cash and Cash Equivalent Entity', () => {
     it('should generate the next sub-ledger code for cash accounts', () => {
       expect(cashAndEquivalentAccountEntity.getCode('100000')).toBe('100001');
       expect(cashAndEquivalentAccountEntity.getCode('100099')).toBe('100100');
+    });
+
+    it('should return 100000 if predecessorCode is null', () => {
+      expect(cashAndEquivalentAccountEntity.getCode(null)).toBe('100000');
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(
+        cashAndEquivalentAccountEntity.getMaterializedPath('100000', null)
+      ).toBe('100000');
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        cashAndEquivalentAccountEntity.getMaterializedPath('100001', '100000')
+      ).toBe('100000.100001');
     });
   });
 
@@ -73,10 +97,11 @@ describe('Cash and Cash Equivalent Entity', () => {
     it('should successfully create a cash and cash equivalent control account', () => {
       const [account, events] = cashAndEquivalentAccountEntity.make(
         validPayload,
-        '100000'
+        validParent
       );
 
       expect(account.code).toBe('100001');
+      expect(account.materializedPath).toBe('100000.100001');
       expect(account.type).toBe(ELedgerType.Asset);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
       expect(account.subType).toBe(EAssetSubType.CashAndCashEquivalent);
@@ -101,14 +126,14 @@ describe('Cash and Cash Equivalent Entity', () => {
         controlAccountId: 'invalid' as TEntityId,
       };
       expect(() =>
-        cashAndEquivalentAccountEntity.make(invalidPayload as any, '100000')
+        cashAndEquivalentAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
     it('should skip controlAccountId validation when null', () => {
       const [account] = cashAndEquivalentAccountEntity.make(
         validPayload,
-        '100000'
+        validParent
       );
       expect(account.controlAccountId).toBeNull();
     });
@@ -116,6 +141,7 @@ describe('Cash and Cash Equivalent Entity', () => {
     it('should use base code 100000 when predecessorCode is null', () => {
       const [account] = cashAndEquivalentAccountEntity.make(validPayload, null);
       expect(account.code).toBe('100000');
+      expect(account.materializedPath).toBe('100000');
     });
   });
 
@@ -141,16 +167,22 @@ describe('Cash and Cash Equivalent Entity', () => {
 
     it('should successfully create bank account meta without optional fields', () => {
       const {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sortCode,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         swiftCode,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         iban,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         routingNumber,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         branchCode,
         ...requiredMeta
       } = validMeta;
-      const meta = cashAndEquivalentAccountEntity.makeBankAccountMeta(
-        requiredMeta as any
-      );
+
+      const meta =
+        // @ts-expect-error - Testing creation without optional fields
+        cashAndEquivalentAccountEntity.makeBankAccountMeta(requiredMeta);
       expect(meta).toEqual({
         ...requiredMeta,
         sortCode: null,
@@ -249,7 +281,7 @@ describe('Cash and Cash Equivalent Entity', () => {
       const [account, events] =
         cashAndEquivalentAccountEntity.makePettyCashAccount(
           validPettyCashPayload,
-          '100000'
+          validParent
         );
 
       expect(account.code).toBe('100001');
@@ -276,8 +308,8 @@ describe('Cash and Cash Equivalent Entity', () => {
       };
       expect(() =>
         cashAndEquivalentAccountEntity.makePettyCashAccount(
-          invalidPayload as any,
-          '100000'
+          invalidPayload,
+          validParent
         )
       ).toThrow(AppError);
     });
@@ -309,7 +341,7 @@ describe('Cash and Cash Equivalent Entity', () => {
     it('should successfully create a bank account', () => {
       const [account, events] = cashAndEquivalentAccountEntity.makeBankAccount(
         validBankPayload,
-        '100000'
+        validParent
       );
 
       expect(account.code).toBe('100001');
@@ -335,8 +367,8 @@ describe('Cash and Cash Equivalent Entity', () => {
       };
       expect(() =>
         cashAndEquivalentAccountEntity.makeBankAccount(
-          invalidPayload as any,
-          '100000'
+          invalidPayload,
+          validParent
         )
       ).toThrow(AppError);
     });

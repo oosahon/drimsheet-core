@@ -7,6 +7,12 @@ import employmentIncomeAccountEntity from '../entities/04-revenue-account/04-emp
 import GainOnAssetSaleAccountEntity from '../entities/04-revenue-account/06-gain-on-sale.entity';
 import unrealizedGainAccountEntity from '../entities/04-revenue-account/07-unrealized-gain.entity';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
+import {
+  TEmploymentIncomeLedgerCode,
+  TGainOnAssetSaleLedgerCode,
+  TServicesLedgerCode,
+  TUnrealizedGainLedgerCode,
+} from '../types/ledger-code.types';
 import { ELedgerType } from '../types/ledger.types';
 import {
   ERevenueSubType,
@@ -206,7 +212,11 @@ export default function revenueAccountService(
             controlAccountId: servicesControl.id,
             meta: null,
           },
-          servicesControlCode
+          {
+            precedingCode: servicesControl.code as TServicesLedgerCode,
+            parentMaterializedPath:
+              servicesControl.materializedPath as TServicesLedgerCode,
+          }
         );
         revenueAccounts.push(account);
       }
@@ -239,7 +249,11 @@ export default function revenueAccountService(
             controlAccountId: empControl.id,
             meta: null,
           },
-          employmentControlCode
+          {
+            precedingCode: empControl.code as TEmploymentIncomeLedgerCode,
+            parentMaterializedPath:
+              empControl.materializedPath as TEmploymentIncomeLedgerCode,
+          }
         );
         revenueAccounts.push(account);
       }
@@ -272,7 +286,11 @@ export default function revenueAccountService(
             controlAccountId: gainControl.id,
             meta: null,
           },
-          gainOnAssetsControlCode
+          {
+            precedingCode: gainControl.code as TGainOnAssetSaleLedgerCode,
+            parentMaterializedPath:
+              gainControl.materializedPath as TGainOnAssetSaleLedgerCode,
+          }
         );
         revenueAccounts.push(account);
       }
@@ -307,7 +325,11 @@ export default function revenueAccountService(
             controlAccountId: unrealizedControl.id,
             meta: null,
           },
-          unrealizedGainsControlCode
+          {
+            precedingCode: unrealizedControl.code as TUnrealizedGainLedgerCode,
+            parentMaterializedPath:
+              unrealizedControl.materializedPath as TUnrealizedGainLedgerCode,
+          }
         );
         revenueAccounts.push(account);
       }

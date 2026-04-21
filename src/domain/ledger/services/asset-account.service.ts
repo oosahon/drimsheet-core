@@ -14,6 +14,7 @@ import {
   IReceivablesAccount,
   IStatutoryReceivableAccount,
 } from '../types/asset-account.types';
+import { TReceivablesLedgerCode } from '../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -137,7 +138,11 @@ export default function assetAccountService(
               isControlAccount: true,
               controlAccountId: existingReceivables.id,
             },
-            existingReceivables.code
+            {
+              precedingCode: existingReceivables.code,
+              parentMaterializedPath:
+                existingReceivables.materializedPath as TReceivablesLedgerCode,
+            }
           );
         existingTradeReceivables = tradeReceivables[0];
         assetAccounts.push(tradeReceivables);
@@ -162,7 +167,11 @@ export default function assetAccountService(
               isControlAccount: true,
               controlAccountId: existingReceivables.id,
             },
-            existingTradeReceivables.code
+            {
+              precedingCode: existingTradeReceivables.code,
+              parentMaterializedPath:
+                existingReceivables.materializedPath as TReceivablesLedgerCode,
+            }
           );
         assetAccounts.push(statutoryReceivables);
       }
@@ -199,12 +208,15 @@ export default function assetAccountService(
       );
 
       if (!existingSuspense.length) {
-        const account = assetSuspenseAccountEntity.make({
-          accountingEntityId,
-          currency: functionalCurrency,
-          name: 'Asset Suspense Account',
-          createdBy: ownerId,
-        });
+        const account = assetSuspenseAccountEntity.make(
+          {
+            accountingEntityId,
+            currency: functionalCurrency,
+            name: 'Asset Suspense Account',
+            createdBy: ownerId,
+          },
+          null
+        );
         assetAccounts.push(account);
       }
 
@@ -237,7 +249,12 @@ export default function assetAccountService(
             contraAccountRule: EContraAccountRule.ContraPermitted,
             adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
           },
-          existingStatutoryReceivables[0].code
+          {
+            precedingCode: existingStatutoryReceivables[0]
+              .code as TReceivablesLedgerCode,
+            parentMaterializedPath: existingStatutoryReceivables[0]
+              .materializedPath as TReceivablesLedgerCode,
+          }
         );
         assetAccounts.push(account);
       }

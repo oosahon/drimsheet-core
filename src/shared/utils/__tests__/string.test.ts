@@ -14,13 +14,12 @@ describe('stringUtils', () => {
     });
 
     it('returns false for non-string values', () => {
-      expect(stringUtils.isNonEmptyString(null as unknown as string)).toBe(
-        false
-      );
-      expect(stringUtils.isNonEmptyString(123 as unknown as string)).toBe(
-        false
-      );
-      expect(stringUtils.isNonEmptyString({} as unknown as string)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isNonEmptyString(null)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isNonEmptyString(123)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isNonEmptyString({})).toBe(false);
     });
   });
 
@@ -33,7 +32,8 @@ describe('stringUtils', () => {
 
     it('throws AppError if the value is not a string', () => {
       expect(() =>
-        stringUtils.sanitizeAndValidate(123 as unknown as string, {
+        // @ts-expect-error testing invalid types
+        stringUtils.sanitizeAndValidate(123, {
           min: 3,
           max: 10,
         })
@@ -133,9 +133,93 @@ describe('stringUtils', () => {
     });
 
     it('returns false for non-string values', () => {
-      expect(stringUtils.isUrl(null as unknown as string)).toBe(false);
-      expect(stringUtils.isUrl(123 as unknown as string)).toBe(false);
-      expect(stringUtils.isUrl({} as unknown as string)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isUrl(null)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isUrl(123)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isUrl({})).toBe(false);
+    });
+  });
+
+  describe('isStringWithinRange', () => {
+    it('returns true if string length is within min and max', () => {
+      expect(
+        stringUtils.isStringWithinRange('hello', { min: 3, max: 10 })
+      ).toBe(true);
+      expect(stringUtils.isStringWithinRange('123', { min: 3, max: 3 })).toBe(
+        true
+      );
+    });
+
+    it('returns false if value is not a string', () => {
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isStringWithinRange(123, { min: 3, max: 10 })).toBe(
+        false
+      );
+    });
+
+    it('returns false if string is shorter than min', () => {
+      expect(stringUtils.isStringWithinRange('hi', { min: 3, max: 10 })).toBe(
+        false
+      );
+    });
+
+    it('returns false if string is longer than max', () => {
+      expect(
+        stringUtils.isStringWithinRange('hello world', { min: 3, max: 10 })
+      ).toBe(false);
+    });
+
+    it('sanitizes the string if sanitize option is true', () => {
+      expect(
+        stringUtils.isStringWithinRange('  hi  ', {
+          min: 3,
+          max: 10,
+          sanitize: true,
+        })
+      ).toBe(false);
+      expect(
+        stringUtils.isStringWithinRange('  hello  ', {
+          min: 3,
+          max: 10,
+          sanitize: true,
+        })
+      ).toBe(true);
+      expect(
+        stringUtils.isStringWithinRange('  hello world  ', {
+          min: 3,
+          max: 10,
+          sanitize: true,
+        })
+      ).toBe(false);
+    });
+  });
+
+  describe('validateStringWithinRange', () => {
+    it('does not throw if string is within min and max', () => {
+      expect(() =>
+        stringUtils.validateStringWithinRange('hello', { min: 3, max: 10 })
+      ).not.toThrow();
+    });
+
+    it('throws AppError if value is not a string', () => {
+      expect(() =>
+        // @ts-expect-error testing invalid types
+        stringUtils.validateStringWithinRange(123, { min: 3, max: 10 })
+      ).toThrow(AppError);
+    });
+
+    it('throws AppError if string length is not within range', () => {
+      expect(() =>
+        stringUtils.validateStringWithinRange('hi', { min: 3, max: 10 })
+      ).toThrow(AppError);
+      expect(() =>
+        stringUtils.validateStringWithinRange('hello world', {
+          min: 3,
+          max: 10,
+        })
+      ).toThrow(AppError);
     });
   });
 });

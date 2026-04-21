@@ -4,6 +4,7 @@ import {
   EEquityAccountBehavior,
   EEquitySubType,
 } from '../../../types/equity-account.types';
+import { TRetainedEarningsLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -24,6 +25,11 @@ describe('Retained Earning Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '301000' as TRetainedEarningsLedgerCode,
+    parentMaterializedPath: '301000' as TRetainedEarningsLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -40,10 +46,28 @@ describe('Retained Earning Entity', () => {
       expect(retainedEarningAccountEntity.getCode('301099')).toBe('301100');
     });
 
+    it('should return 301000 if predecessorCode is null', () => {
+      expect(retainedEarningAccountEntity.getCode(null)).toBe('301000');
+    });
+
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         retainedEarningAccountEntity.getCode('300000' as any)
       ).toThrow(AppError);
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(
+        retainedEarningAccountEntity.getMaterializedPath('301000', null)
+      ).toBe('301000');
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        retainedEarningAccountEntity.getMaterializedPath('301001', '301000')
+      ).toBe('301000.301001');
     });
   });
 
@@ -58,10 +82,11 @@ describe('Retained Earning Entity', () => {
     it('should successfully create a retained earning account', () => {
       const [account, events] = retainedEarningAccountEntity.make(
         validPayload,
-        '301000'
+        validParent
       );
 
       expect(account.code).toBe('301001');
+      expect(account.materializedPath).toBe('301000.301001');
       expect(account.type).toBe(ELedgerType.Equity);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(EEquitySubType.RetainedEarnings);
@@ -81,19 +106,20 @@ describe('Retained Earning Entity', () => {
       expect(account.accountingEntityId).toBe(validUUID1);
       expect(account.createdBy).toBe(validUUID2);
       expect(account.currency).toEqual(validCurrency);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        retainedEarningAccountEntity.make(invalidPayload, '301000')
+        retainedEarningAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
     it('should use base code 301000 when predecessorCode is null', () => {
       const [account] = retainedEarningAccountEntity.make(validPayload, null);
       expect(account.code).toBe('301000');
+      expect(account.materializedPath).toBe('301000');
     });
   });
 });

@@ -14,6 +14,14 @@ import {
   EExpenseSubType,
   IExpenseLedgerAccount,
 } from '../types/expense-account.types';
+import {
+  TAssetDisposalLossLedgerCode,
+  TDirectCostsLedgerCode,
+  TIncomeTaxLedgerCode,
+  TInterestFinanceLedgerCode,
+  TRentUtilitiesLedgerCode,
+  TUnrealizedLossLedgerCode,
+} from '../types/ledger-code.types';
 import { ELedgerType } from '../types/ledger.types';
 import { canBootstrapPostingAccount } from './helpers/can-bootstrap-posting-account';
 
@@ -264,7 +272,11 @@ export default function expenseAccountService(
             controlAccountId: directControl.id,
             meta: null,
           },
-          directCostsControlCode
+          {
+            precedingCode: directControl.code as TDirectCostsLedgerCode,
+            parentMaterializedPath:
+              directControl.materializedPath as TDirectCostsLedgerCode,
+          }
         );
         expenseAccounts.push(account);
       }
@@ -296,7 +308,11 @@ export default function expenseAccountService(
             controlAccountId: rentControl.id,
             meta: null,
           },
-          rentControlCode
+          {
+            precedingCode: rentControl.code as TRentUtilitiesLedgerCode,
+            parentMaterializedPath:
+              rentControl.materializedPath as TRentUtilitiesLedgerCode,
+          }
         );
         expenseAccounts.push(account);
       }
@@ -330,7 +346,11 @@ export default function expenseAccountService(
             controlAccountId: financeControl.id,
             meta: null,
           },
-          financeControlCode
+          {
+            precedingCode: financeControl.code as TInterestFinanceLedgerCode,
+            parentMaterializedPath:
+              financeControl.materializedPath as TInterestFinanceLedgerCode,
+          }
         );
         expenseAccounts.push(account);
       }
@@ -362,7 +382,11 @@ export default function expenseAccountService(
             controlAccountId: taxControl.id,
             meta: null,
           },
-          taxControlCode
+          {
+            precedingCode: taxControl.code as TIncomeTaxLedgerCode,
+            parentMaterializedPath:
+              taxControl.materializedPath as TIncomeTaxLedgerCode,
+          }
         );
         expenseAccounts.push(account);
       }
@@ -396,7 +420,11 @@ export default function expenseAccountService(
             controlAccountId: unrealizedControl.id,
             meta: null,
           },
-          unrealizedControlCode
+          {
+            precedingCode: unrealizedControl.code as TUnrealizedLossLedgerCode,
+            parentMaterializedPath:
+              unrealizedControl.materializedPath as TUnrealizedLossLedgerCode,
+          }
         );
         expenseAccounts.push(account);
       }
@@ -431,7 +459,11 @@ export default function expenseAccountService(
             controlAccountId: disposalControl.id,
             meta: null,
           },
-          assetDisposalControlCode
+          {
+            precedingCode: disposalControl.code as TAssetDisposalLossLedgerCode,
+            parentMaterializedPath:
+              disposalControl.materializedPath as TAssetDisposalLossLedgerCode,
+          }
         );
         expenseAccounts.push(account);
       }

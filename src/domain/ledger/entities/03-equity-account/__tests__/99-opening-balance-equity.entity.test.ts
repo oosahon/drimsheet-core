@@ -4,6 +4,7 @@ import {
   EEquityAccountBehavior,
   EEquitySubType,
 } from '../../../types/equity-account.types';
+import { TOpeningBalanceEquityLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -11,7 +12,7 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import openingBalanceEquityLedgerEntity from '../99-opening-balance.equity';
+import openingBalanceEquityLedgerEntity from '../99-opening-balance-equity.entity';
 
 describe('Opening Balance Equity Entity', () => {
   const validUUID1 = generateUUID();
@@ -22,6 +23,11 @@ describe('Opening Balance Equity Entity', () => {
     name: 'US Dollar',
     symbol: '$',
     minorUnit: 2n,
+  };
+
+  const validParent = {
+    precedingCode: '399000' as TOpeningBalanceEquityLedgerCode,
+    parentMaterializedPath: '399000' as TOpeningBalanceEquityLedgerCode,
   };
 
   beforeEach(() => {
@@ -40,10 +46,28 @@ describe('Opening Balance Equity Entity', () => {
       expect(openingBalanceEquityLedgerEntity.getCode('399099')).toBe('399100');
     });
 
+    it('should return 399000 if predecessorCode is null', () => {
+      expect(openingBalanceEquityLedgerEntity.getCode(null)).toBe('399000');
+    });
+
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         openingBalanceEquityLedgerEntity.getCode('300000' as any)
       ).toThrow(AppError);
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(
+        openingBalanceEquityLedgerEntity.getMaterializedPath('399000', null)
+      ).toBe('399000');
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        openingBalanceEquityLedgerEntity.getMaterializedPath('399001', '399000')
+      ).toBe('399000.399001');
     });
   });
 
@@ -58,10 +82,11 @@ describe('Opening Balance Equity Entity', () => {
     it('should successfully create an opening balance equity account', () => {
       const [account, events] = openingBalanceEquityLedgerEntity.make(
         validPayload,
-        '399000'
+        validParent
       );
 
       expect(account.code).toBe('399001');
+      expect(account.materializedPath).toBe('399000.399001');
       expect(account.type).toBe(ELedgerType.Equity);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(EEquitySubType.OpeningBalance);
@@ -83,13 +108,13 @@ describe('Opening Balance Equity Entity', () => {
       expect(account.accountingEntityId).toBe(validUUID1);
       expect(account.createdBy).toBe(validUUID2);
       expect(account.currency).toEqual(validCurrency);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        openingBalanceEquityLedgerEntity.make(invalidPayload, '399000')
+        openingBalanceEquityLedgerEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
@@ -99,6 +124,7 @@ describe('Opening Balance Equity Entity', () => {
         null
       );
       expect(account.code).toBe('399000');
+      expect(account.materializedPath).toBe('399000');
     });
   });
 });

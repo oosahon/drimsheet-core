@@ -2,6 +2,7 @@ import { TCreationOmits } from '../../../../../shared/types/creation-omits.types
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { AppError } from '../../../../../shared/value-objects/error';
+import { TPayablesLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -33,6 +34,11 @@ describe('Payable Liability Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '201000' as TPayablesLedgerCode,
+    parentMaterializedPath: '201000' as TPayablesLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -47,6 +53,24 @@ describe('Payable Liability Entity', () => {
     it('should generate the next sub-ledger code for payable accounts', () => {
       expect(payableAccountEntity.getCode('201000')).toBe('201001');
       expect(payableAccountEntity.getCode('201099')).toBe('201100');
+    });
+
+    it('should return 201000 if predecessorCode is null', () => {
+      expect(payableAccountEntity.getCode(null)).toBe('201000');
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(payableAccountEntity.getMaterializedPath('201000', null)).toBe(
+        '201000'
+      );
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(payableAccountEntity.getMaterializedPath('201001', '201000')).toBe(
+        '201000.201001'
+      );
     });
   });
 
@@ -79,10 +103,11 @@ describe('Payable Liability Entity', () => {
     it('should successfully create a payable control account', () => {
       const [account, events] = payableAccountEntity.make(
         validPayload,
-        '201000'
+        validParent
       );
 
       expect(account.code).toBe('201001');
+      expect(account.materializedPath).toBe('201000.201001');
       expect(account.type).toBe(ELedgerType.Liability);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ELiabilitySubType.Payable);
@@ -97,7 +122,7 @@ describe('Payable Liability Entity', () => {
       expect(account.adjunctAccountRule).toBe(
         EAdjunctAccountRule.AdjunctPermitted
       );
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should validate controlAccountId when provided', () => {
@@ -107,18 +132,19 @@ describe('Payable Liability Entity', () => {
         controlAccountId: 'invalid' as TEntityId,
       };
       expect(() =>
-        payableAccountEntity.make(invalidPayload as any, '201000')
+        payableAccountEntity.make(invalidPayload as any, validParent)
       ).toThrow(AppError);
     });
 
     it('should skip controlAccountId validation when null', () => {
-      const [account] = payableAccountEntity.make(validPayload, '201000');
+      const [account] = payableAccountEntity.make(validPayload, validParent);
       expect(account.controlAccountId).toBeNull();
     });
 
     it('should use base code 201000 when predecessorCode is null', () => {
       const [account] = payableAccountEntity.make(validPayload, null);
       expect(account.code).toBe('201000');
+      expect(account.materializedPath).toBe('201000');
     });
   });
 
@@ -191,10 +217,11 @@ describe('Payable Liability Entity', () => {
       const [account, events] =
         payableAccountEntity.makeStatutoryPayableAccount(
           validPayload,
-          '201000'
+          validParent
         );
 
       expect(account.code).toBe('201001');
+      expect(account.materializedPath).toBe('201000.201001');
       expect(account.type).toBe(ELedgerType.Liability);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ELiabilitySubType.Payable);
@@ -207,7 +234,7 @@ describe('Payable Liability Entity', () => {
         EAdjunctAccountRule.AdjunctNotPermitted
       );
       expect(account.meta).toEqual(validMeta);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -218,7 +245,7 @@ describe('Payable Liability Entity', () => {
       expect(() =>
         payableAccountEntity.makeStatutoryPayableAccount(
           invalidPayload as any,
-          '201000'
+          validParent
         )
       ).toThrow(AppError);
     });
@@ -274,10 +301,11 @@ describe('Payable Liability Entity', () => {
     it('should successfully create a trade payable account', () => {
       const [account, events] = payableAccountEntity.makeTradePayableAccount(
         validPayload,
-        '201000'
+        validParent
       );
 
       expect(account.code).toBe('201001');
+      expect(account.materializedPath).toBe('201000.201001');
       expect(account.type).toBe(ELedgerType.Liability);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ELiabilitySubType.Payable);
@@ -290,7 +318,7 @@ describe('Payable Liability Entity', () => {
         EAdjunctAccountRule.AdjunctPermitted
       );
       expect(account.meta).toEqual(validMeta);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -301,7 +329,7 @@ describe('Payable Liability Entity', () => {
       expect(() =>
         payableAccountEntity.makeTradePayableAccount(
           invalidPayload as any,
-          '201000'
+          validParent
         )
       ).toThrow(AppError);
     });

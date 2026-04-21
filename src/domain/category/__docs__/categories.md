@@ -17,32 +17,22 @@ The Category domain provides an abstraction layer over the core Chart of Account
 
 ## Data Model & Mapping
 
-Every Category acts as a proxy object that maintains a strict `1:1` mapping with an underlying GL Account:
+Categories strictly represent **Classification** for non-accountants (e.g., Income, Expenses, COGS) and act as extremely lightweight proxy objects to the General Ledger.
 
-- **Leaf Categories (Postable):** Map directly to **Sub-Accounts**.
-- **Parent Categories (Non-Postable):** Map directly to **Control Accounts**.
+- **Postable Sub-Accounts Only:** Categories maintain a mapping _only_ with postable sub-accounts (leaf nodes). Control Accounts (parent groupings) do not have corresponding Category records.
+- **Asset Accounts Excluded:** Traditional Asset accounts (e.g., Bank, Accounts Receivable) are entirely excluded from the Category domain. Non-accountants categorize transactions into buckets like Income or Expense, while money movement across Assets is treated as a distinct "Transfer" behavior.
 
-This strict bidirectional mapping ensures that when an accountant (power user) reorganizes the CoA, the simplified Category view remains perfectly synchronized for the business owner, allowing seamless toggling between "Simple" and "Power User" modes.
+## System Architecture & Delegation
 
-## Materialized Path Representation
+### Materialized Path Delegation (Ledger)
 
-To efficiently represent and query the hierarchical tree structure of the CoA within a relational database, Category keys utilize the **Materialized Path** pattern.
+The hierarchical tree structure (e.g., nested parent-child groupings) is a fundamental property of the Chart of Accounts, not the Category abstraction.
+Therefore, the **Materialized Path** representation (`materializedKey`) is owned and managed entirely by the `LedgerAccount` domain.
 
-The hierarchical path is persisted as a flattened string using a period (`.`) as the universal delimiter:
-
-```text
-<root_ledger_code>.<header_account_code>.<...n_sub_account_code>
-```
-
-_Example: `100000.100001.100022.10xxxx`_
-
-This pattern eliminates the need for recursive CTE (Common Table Expression) queries, allowing entire sub-trees to be fetched using highly performant wildcard lookups (e.g., `LIKE '100000.100001.%'`).
+- Categories do not manage structural hierarchy. They maintain a simple `accountId` reference to their specific postable leaf node.
+- When generating the UI tree, the system hydrates the flat list of Categories with their corresponding Ledger Account's `materializedKey` and ancestral names, allowing the frontend to dynamically render the hierarchical groupings.
 
 ## Display Management & Restrictions
-
-### Control Account Abstraction
-
-By foundational accounting rules, journal entries cannot be directly posted to a Control Account. Therefore, parent categories are distinctly identified via an `is_grouping: boolean` property. Categories flagged as groupings are omitted from selectable transactional dropdowns and are utilized solely for hierarchical UI aggregation and reporting.
 
 ### Display Name Aliasing
 
@@ -58,17 +48,11 @@ To preserve the integrity and standardization of the Ledger, modifying the `disp
 
 A critical accounting invariant dictates that transactions may only be posted to sub-accounts (leaf nodes), never to Control Accounts.
 
-A domain collision occurs if a user acts on the UI to create a nested sub-category under a Category that has _already received posted transactions_. To satisfy the user's intent without breaching GL invariants, the system executes an automated refactoring strategy:
+A domain collision occurs if a user acts on the UI to create a nested sub-category under a Category that has _already received posted transactions_. To satisfy the user's intent without breaching GL invariants, the system resolves this via an automated restructuring in the Ledger:
 
-1. A **new** Control Account is created, taking the original name of the category to serve as the new parent in the tree.
-2. The original sub-account is renamed to include a default suffix (e.g., `CategoryName (default)`), preserving its identity (`id`).
-3. Because the original sub-account's ID remains unchanged, all historical journal entries inherently remain correctly linked without any database remapping or mutation.
-4. The newly requested sub-category is instantiated as a sibling to the renamed default account, under the newly created Control Account.
-
-**Example Scenario:** A user previously posted expenses to an `Automobile` category. They later decide to track granular data and add `Repairs` as a sub-category to `Automobile`.
-
-- **Before:** `Automobile` (Sub-Account with historical transactions).
-- **After Action:** The system creates a new Control Account and renames the existing sub-account to `Automobile (default)`. Historical transactions remain untouched, safely tied to the original entity ID. The new `Repairs` sub-category is then created as a sibling to `Automobile (default)`.
+1. **Ledger Transformation:** A new Control Account is created taking the original name of the category to serve as the new parent in the tree. The original sub-account is renamed to include a default suffix (e.g., `CategoryName (default)`), preserving its identity (`id`). The new requested sub-account (e.g., `Repairs`) is created as a sibling to the default account.
+2. **Category Behavior:** The original Category object remains untouched. It still points to the same `accountId` (now demoted and renamed). If the Category had a custom `displayName`, it is preserved, effectively aliasing the demoted sub-account. A new Category is created pointing to the new `Repairs` sub-account.
+3. **UI Rendering:** The UI reads the shared `materializedKey` prefixes from the Ledger and automatically groups both Categories under the parent Control Account header.
 
 ## System Constraints & UX Guidelines
 

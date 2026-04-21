@@ -1,4 +1,5 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import liabilityAccountEvents from '../../events/liability-account.events';
 import { TLiabilitySuspenseLedgerCode } from '../../types/ledger-code.types';
 import {
@@ -13,12 +14,11 @@ import {
   ILiabilitySuspenseAccount,
 } from '../../types/liability-account.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/suspense-account.entity.helpers';
 
-function getCode(predecessorCode: TLiabilitySuspenseLedgerCode) {
-  return ledgerAccountEntity.getSubLedgerCode<TLiabilitySuspenseLedgerCode>(
-    '299',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TLiabilitySuspenseLedgerCode;
+  precedingCode: TLiabilitySuspenseLedgerCode;
 }
 
 function make(
@@ -26,14 +26,21 @@ function make(
     ILiabilitySuspenseAccount,
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
-  predecessorCode?: TLiabilitySuspenseLedgerCode
+  parent: IParentDetails | null
 ): TEntityWithEvents<ILiabilitySuspenseAccount, ILiabilitySuspenseAccount> {
   const { name, createdBy, accountingEntityId, currency } = payload;
+
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
 
   const account = ledgerAccountEntity.make<ILiabilitySuspenseAccount>({
     name,
     accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '299000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),
     type: ELedgerType.Liability,
     subType: ELiabilitySubType.Suspense,
@@ -48,12 +55,13 @@ function make(
     createdBy,
   });
   const event = liabilityAccountEvents.suspenseCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const liabilitySuspenseAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default liabilitySuspenseAccountEntity;

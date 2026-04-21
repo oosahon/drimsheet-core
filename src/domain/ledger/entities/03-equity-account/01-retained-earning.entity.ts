@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import equityAccountEvents from '../../events/equity-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EEquityAccountBehavior,
   EEquitySubType,
@@ -13,14 +14,11 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/retained-earning.entity.helpers';
 
-function getCode(
-  predecessorCode: TRetainedEarningsLedgerCode
-): TRetainedEarningsLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TRetainedEarningsLedgerCode>(
-    '301',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TRetainedEarningsLedgerCode;
+  precedingCode: TRetainedEarningsLedgerCode;
 }
 
 function make(
@@ -28,12 +26,19 @@ function make(
     IRetainedEarningsAccount,
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
-  predecessorCode: TRetainedEarningsLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IRetainedEarningsAccount, IRetainedEarningsAccount> {
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IRetainedEarningsAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '301000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Equity),
     type: ELedgerType.Equity,
     subType: EEquitySubType.RetainedEarnings,
@@ -49,12 +54,13 @@ function make(
   });
 
   const event = equityAccountEvents.retainedEarningsCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const retainedEarningAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default retainedEarningAccountEntity;

@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import expenseAccountEvents from '../../events/expense-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -13,14 +14,11 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/finance-costs.entity.helpers';
 
-function getCode(
-  predecessorCode: TInterestFinanceLedgerCode
-): TInterestFinanceLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TInterestFinanceLedgerCode>(
-    '507',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TInterestFinanceLedgerCode;
+  precedingCode: TInterestFinanceLedgerCode;
 }
 
 function make(
@@ -34,12 +32,19 @@ function make(
     | 'controlAccountId'
     | 'meta'
   >,
-  predecessorCode: TInterestFinanceLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IInterestFinanceAccount, IInterestFinanceAccount> {
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IInterestFinanceAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '507000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
     type: ELedgerType.Expense,
     subType: EExpenseSubType.InterestAndFinanceCharges,
@@ -55,12 +60,13 @@ function make(
   });
 
   const event = expenseAccountEvents.financeCostsCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const financeCostsAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default financeCostsAccountEntity;

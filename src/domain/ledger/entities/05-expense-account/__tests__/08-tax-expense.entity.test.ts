@@ -5,6 +5,7 @@ import {
   EExpenseSubType,
   IIncomeTaxExpenseAccount,
 } from '../../../types/expense-account.types';
+import { TIncomeTaxLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -25,6 +26,11 @@ describe('Tax Expense Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '508000' as TIncomeTaxLedgerCode,
+    parentMaterializedPath: '508000' as TIncomeTaxLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -41,10 +47,28 @@ describe('Tax Expense Entity', () => {
       expect(taxExpenseAccountEntity.getCode('508099')).toBe('508100');
     });
 
+    it('should return 508000 if predecessorCode is null', () => {
+      expect(taxExpenseAccountEntity.getCode(null)).toBe('508000');
+    });
+
     it('should throw if predecessor code does not match header code', () => {
       expect(() => taxExpenseAccountEntity.getCode('509000' as any)).toThrow(
         AppError
       );
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(taxExpenseAccountEntity.getMaterializedPath('508000', null)).toBe(
+        '508000'
+      );
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        taxExpenseAccountEntity.getMaterializedPath('508001', '508000')
+      ).toBe('508000.508001');
     });
   });
 
@@ -71,10 +95,11 @@ describe('Tax Expense Entity', () => {
     it('should successfully create a tax expense account', () => {
       const [account, events] = taxExpenseAccountEntity.make(
         validPayload,
-        '508000'
+        validParent
       );
 
       expect(account.code).toBe('508001');
+      expect(account.materializedPath).toBe('508000.508001');
       expect(account.type).toBe(ELedgerType.Expense);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
       expect(account.subType).toBe(EExpenseSubType.IncomeTaxExpense);
@@ -91,7 +116,7 @@ describe('Tax Expense Entity', () => {
       );
       expect(account.createdBy).toBe(validUUID2);
       expect(account.accountingEntityId).toBe(validUUID1);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should successfully create a tax expense account with controlAccountId', () => {
@@ -103,17 +128,17 @@ describe('Tax Expense Entity', () => {
       };
       const [account, events] = taxExpenseAccountEntity.make(
         payloadWithControl,
-        '508000'
+        validParent
       );
       expect(account.isControlAccount).toBe(true);
       expect(account.controlAccountId).toBe(validUUID3);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        taxExpenseAccountEntity.make(invalidPayload, '508000')
+        taxExpenseAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
@@ -123,13 +148,14 @@ describe('Tax Expense Entity', () => {
         controlAccountId: 'invalid-uuid' as any,
       };
       expect(() =>
-        taxExpenseAccountEntity.make(invalidPayload, '508000')
+        taxExpenseAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
     it('should use base code 508000 when predecessorCode is null', () => {
       const [account] = taxExpenseAccountEntity.make(validPayload, null);
       expect(account.code).toBe('508000');
+      expect(account.materializedPath).toBe('508000');
     });
   });
 });

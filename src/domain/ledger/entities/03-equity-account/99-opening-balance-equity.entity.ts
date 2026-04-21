@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import equityAccountEvents from '../../events/equity-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EEquityAccountBehavior,
   EEquitySubType,
@@ -13,14 +14,11 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/opening-balance.entity.helpers';
 
-function getCode(
-  predecessorCode: TOpeningBalanceEquityLedgerCode
-): TOpeningBalanceEquityLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TOpeningBalanceEquityLedgerCode>(
-    '399',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TOpeningBalanceEquityLedgerCode;
+  precedingCode: TOpeningBalanceEquityLedgerCode;
 }
 
 function make(
@@ -28,15 +26,22 @@ function make(
     IOpeningBalanceEquityAccount,
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
-  predecessorCode: TOpeningBalanceEquityLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<
   IOpeningBalanceEquityAccount,
   IOpeningBalanceEquityAccount
 > {
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IOpeningBalanceEquityAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '399000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Equity),
     type: ELedgerType.Equity,
     subType: EEquitySubType.OpeningBalance,
@@ -52,12 +57,13 @@ function make(
   });
 
   const event = equityAccountEvents.openingBalanceEquityCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const openingBalanceEquityLedgerEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default openingBalanceEquityLedgerEntity;
