@@ -1,4 +1,4 @@
-import { and, eq, getTableColumns } from 'drizzle-orm';
+import { and, desc, eq, getTableColumns } from 'drizzle-orm';
 import ledgerAccountMapper from '../../../app/mappers/ledger-account.mapper';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { currenciesInCore, ledgerAccountsInCore } from '../drizzle/schema';
@@ -85,6 +85,31 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
       );
 
     return results.map(ledgerAccountMapper.toDomain);
+  },
+
+  findLatestBySubType: async (accountingEntityId, type, subType, options) => {
+    const dbQuery = getDbQuery(options);
+
+    const [result] = await dbQuery
+      .select({
+        id: ledgerAccountsInCore.id,
+        code: ledgerAccountsInCore.code,
+        materializedPath: ledgerAccountsInCore.materializedPath,
+      })
+      .from(ledgerAccountsInCore)
+      .where(
+        and(
+          eq(ledgerAccountsInCore.accountingEntityId, accountingEntityId),
+          eq(ledgerAccountsInCore.type, type),
+          eq(ledgerAccountsInCore.subType, subType)
+        )
+      )
+      .orderBy(desc(ledgerAccountsInCore.code))
+      .limit(1);
+
+    return result as unknown as ReturnType<
+      ILedgerAccountRepo['findLatestBySubType']
+    >;
   },
 };
 

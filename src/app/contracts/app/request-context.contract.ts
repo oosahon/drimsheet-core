@@ -1,4 +1,4 @@
-import { UAccountingEntityType } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
 import { IUser } from '../../../domain/user/types/user.types';
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
 import { IIdempotencyKey } from '../../../shared/types/idempotency-key.types';
@@ -10,8 +10,8 @@ export interface IClientSession {
 }
 
 export interface IRequestContextData extends ICorrelationId, IIdempotencyKey {
-  user: IUser | null;
-  accountingEntityType: UAccountingEntityType;
+  user: IUser;
+  accountingEntity: IAccountingEntity;
   clientSession: IClientSession;
 }
 

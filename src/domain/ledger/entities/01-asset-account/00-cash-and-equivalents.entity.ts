@@ -21,7 +21,7 @@ import {
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 import helpers from './helpers/cash.entity.helpers';
 
-interface IParentDetails {
+interface IScopeDetails {
   parentMaterializedPath: TCashLedgerCode;
   precedingCode: TCashLedgerCode;
 }
@@ -44,7 +44,7 @@ function make(
     | 'behavior'
     | 'meta'
   >,
-  parent: IParentDetails | null // null for the header account
+  scope: IScopeDetails | null // null for the header account
 ): TEntityWithEvents<
   ICashAndCashEquivalentAccount,
   ICashAndCashEquivalentAccount
@@ -53,10 +53,10 @@ function make(
     stringUtils.validateUUID(payload.controlAccountId);
   }
 
-  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const code = helpers.getCode(scope?.precedingCode ?? null);
   const materializedPath = helpers.getMaterializedPath(
     code,
-    parent?.parentMaterializedPath ?? null
+    scope?.parentMaterializedPath ?? null
   );
 
   const account = ledgerAccountEntity.make<ICashAndCashEquivalentAccount>({
@@ -86,12 +86,20 @@ function make(
 /**
  * Creates a new petty cash sub account.
  * @param payload petty cash creation payload
- * @param parent the ledger details of the most recent Cash and Cash Equivalent account.
+ * @param scope the ledger details of the most recent Cash and Cash Equivalent account.
  * @returns [ICashAndCashEquivalentAccount, ICashCreationEvent]
  */
 function makePettyCashAccount(
-  payload: TCreationOmits<IPettyCashAccount>,
-  parent: IParentDetails | null
+  payload: Pick<
+    IPettyCashAccount,
+    | 'name'
+    | 'currency'
+    | 'isControlAccount'
+    | 'controlAccountId'
+    | 'createdBy'
+    | 'accountingEntityId'
+  >,
+  scope: IScopeDetails | null
 ): TEntityWithEvents<
   ICashAndCashEquivalentAccount,
   ICashAndCashEquivalentAccount
@@ -106,24 +114,24 @@ function makePettyCashAccount(
       accountingEntityId: payload.accountingEntityId,
       currency: payload.currency,
       createdBy: payload.createdBy,
-      isControlAccount: payload.isControlAccount,
+      isControlAccount: !!payload.isControlAccount,
       controlAccountId: payload.controlAccountId,
       behavior: EAssetAccountBehavior.PettyCash,
       meta,
     },
-    parent
+    scope
   );
 }
 
 /**
  * Creates a new bank account sub account.
  * @param payload bank account creation payload
- * @param parent the ledger details of the most recent Cash and Cash Equivalent account.
+ * @param scope the ledger details of the most recent Cash and Cash Equivalent account.
  * @returns [ICashAndCashEquivalentAccount, ICashCreationEvent]
  */
 function makeBankAccount(
   payload: TCreationOmits<IBankAccount>,
-  parent: IParentDetails | null
+  scope: IScopeDetails | null
 ): TEntityWithEvents<
   ICashAndCashEquivalentAccount,
   ICashAndCashEquivalentAccount
@@ -139,7 +147,7 @@ function makeBankAccount(
       behavior: EAssetAccountBehavior.Bank,
       meta: helpers.makeBankAccountMeta(payload.meta),
     },
-    parent
+    scope
   );
 }
 

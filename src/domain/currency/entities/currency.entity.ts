@@ -1,4 +1,5 @@
 import { AppError } from '../../../shared/value-objects/error';
+import { SYSTEM_CURRENCIES } from '../config/currencies.config';
 
 function isValidCurrencyCode(code: string): boolean {
   const isInvalidFormat =
@@ -31,10 +32,24 @@ function validateCurrencyCode(code: string) {
   }
 }
 
+function getByCode(code: string) {
+  if (!isValidCurrencyCode(code)) {
+    throw new AppError('Invalid currency code', { cause: code });
+  }
+
+  const currency = SYSTEM_CURRENCIES.find((c) => c.code === code);
+  if (!currency) {
+    throw new AppError('Invalid currency code', { cause: code });
+  }
+
+  return currency;
+}
+
 const currencyEntity = Object.freeze({
   isValidCode: isValidCurrencyCode,
   isValidMinorUnit,
   validateCode: validateCurrencyCode,
+  getByCode,
 });
 
 export default currencyEntity;

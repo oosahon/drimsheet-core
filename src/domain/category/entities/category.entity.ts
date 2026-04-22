@@ -14,7 +14,7 @@ interface IMakeHistoryLogPayload extends Pick<
   current: ICategory;
 }
 
-function makeCategory(
+function make(
   payload: TCreationOmits<ICategory, 'version'>
 ): TEntityWithEvents<ICategory, ICategory> {
   stringUtils.validateUUID(payload.accountingEntityId);
@@ -35,7 +35,7 @@ function makeCategory(
   return [category, [event]];
 }
 
-function updateCategory(
+function update(
   category: ICategory,
   options: Partial<
     Pick<ICategory, 'name' | 'displayName' | 'key' | 'isGrouping' | 'accountId'>
@@ -108,8 +108,8 @@ function makeHistoryLog(
 }
 
 const categoryEntity = Object.freeze({
-  makeCategory,
-  updateCategory,
+  make,
+  update,
   makeHistoryLog,
 });
 

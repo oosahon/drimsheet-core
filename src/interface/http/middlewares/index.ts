@@ -27,7 +27,10 @@ const middlewares = {
     observability.reporter
   ),
 
-  requestContext: requestContextInitMiddleware(appContext.request),
+  requestContext: requestContextInitMiddleware(
+    appContext.request,
+    repos.accountingEntity
+  ),
 
   errorHandler: errorHandlerMiddleware(
     observability.logger,

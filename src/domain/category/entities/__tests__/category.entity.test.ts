@@ -19,7 +19,7 @@ describe('Category Entity', () => {
     jest.clearAllMocks();
   });
 
-  describe('makeCategory', () => {
+  describe('make', () => {
     it('should successfully create a category with valid inputs', () => {
       const payload: TCreationOmits<ICategory, 'version'> = {
         accountingEntityId: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
@@ -29,7 +29,7 @@ describe('Category Entity', () => {
         isGrouping: false,
       };
 
-      const [category, events] = categoryEntity.makeCategory(payload);
+      const [category, events] = categoryEntity.make(payload);
 
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe(ECategoryEvent.CategoryCreated);
@@ -59,7 +59,7 @@ describe('Category Entity', () => {
         isGrouping: false,
       };
 
-      expect(() => categoryEntity.makeCategory(payload)).toThrow(AppError);
+      expect(() => categoryEntity.make(payload)).toThrow(AppError);
     });
 
     it('should throw an AppError if accountId is invalid', () => {
@@ -71,15 +71,15 @@ describe('Category Entity', () => {
         isGrouping: false,
       };
 
-      expect(() => categoryEntity.makeCategory(payload)).toThrow(AppError);
+      expect(() => categoryEntity.make(payload)).toThrow(AppError);
     });
   });
 
-  describe('updateCategory', () => {
+  describe('update', () => {
     let baseCategory: ICategory;
 
     beforeEach(() => {
-      [baseCategory] = categoryEntity.makeCategory({
+      [baseCategory] = categoryEntity.make({
         accountingEntityId: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
         accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
         name: 'Old Name',
@@ -91,16 +91,13 @@ describe('Category Entity', () => {
     });
 
     it('should successfully update relevant fields and bump version', () => {
-      const [updatedCategory, events] = categoryEntity.updateCategory(
-        baseCategory,
-        {
-          name: 'New Name',
-          displayName: 'New Display Name',
-          key: '100000.100001.100002',
-          isGrouping: true,
-          accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
-        }
-      );
+      const [updatedCategory, events] = categoryEntity.update(baseCategory, {
+        name: 'New Name',
+        displayName: 'New Display Name',
+        key: '100000.100001.100002',
+        isGrouping: true,
+        accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
+      });
 
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe(ECategoryEvent.CategoryUpdated);
@@ -118,25 +115,19 @@ describe('Category Entity', () => {
     });
 
     it('should return the original category with no events if no changes are made', () => {
-      const [updatedCategory, events] = categoryEntity.updateCategory(
-        baseCategory,
-        {
-          name: 'Old Name',
-          key: '100000.100001',
-          isGrouping: false,
-          accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
-        }
-      );
+      const [updatedCategory, events] = categoryEntity.update(baseCategory, {
+        name: 'Old Name',
+        key: '100000.100001',
+        isGrouping: false,
+        accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
+      });
 
       expect(events).toHaveLength(0);
       expect(updatedCategory).toEqual(baseCategory);
     });
 
     it('should return the original category with no events if options are empty', () => {
-      const [updatedCategory, events] = categoryEntity.updateCategory(
-        baseCategory,
-        {}
-      );
+      const [updatedCategory, events] = categoryEntity.update(baseCategory, {});
 
       expect(events).toHaveLength(0);
       expect(updatedCategory).toEqual(baseCategory);
