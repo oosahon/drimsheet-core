@@ -12,7 +12,7 @@ import {
   IPayableAccount,
   IStatutoryPayableAccount,
 } from '../../types/liability-account.types';
-import liabilityAccountService from '../liability-account.service';
+import liabilityAccountService from '../liability-account-bootstrap.service';
 
 describe('liabilityAccountService', () => {
   const service = liabilityAccountService(mockLedgerAccountRepo);
@@ -42,11 +42,11 @@ describe('liabilityAccountService', () => {
     jest.clearAllMocks();
   });
 
-  describe('makeHeaderAccountsForIndividuals', () => {
+  describe('bootstrapIndividualHeaderAccounts', () => {
     it('should create all accounts when none exist', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
-      const result = await service.makeHeaderAccountsForIndividuals(
+      const result = await service.bootstrapIndividualHeaderAccounts(
         accountingEntity,
         repoOptions
       );
@@ -67,7 +67,7 @@ describe('liabilityAccountService', () => {
         return null;
       });
 
-      const result = await service.makeHeaderAccountsForIndividuals(
+      const result = await service.bootstrapIndividualHeaderAccounts(
         accountingEntity,
         repoOptions
       );
@@ -76,7 +76,7 @@ describe('liabilityAccountService', () => {
     });
   });
 
-  describe('makePostingAccountsForIndividuals', () => {
+  describe('bootstrapIndividualPostingAccounts', () => {
     const mockStatutoryPayable = {
       id: '123e4567-e89b-12d3-a456-426614174005' as TEntityId,
       code: '201002',
@@ -88,7 +88,7 @@ describe('liabilityAccountService', () => {
         mockStatutoryPayable,
       ]);
 
-      const result = await service.makePostingAccountsForIndividuals(
+      const result = await service.bootstrapIndividualPostingAccounts(
         accountingEntity,
         repoOptions
       );
@@ -108,7 +108,7 @@ describe('liabilityAccountService', () => {
         mockStatutoryPayable,
       ]);
 
-      const result = await service.makePostingAccountsForIndividuals(
+      const result = await service.bootstrapIndividualPostingAccounts(
         accountingEntity,
         repoOptions
       );
@@ -121,7 +121,10 @@ describe('liabilityAccountService', () => {
       mockLedgerAccountRepo.findByBehavior.mockResolvedValue([]);
 
       await expect(
-        service.makePostingAccountsForIndividuals(accountingEntity, repoOptions)
+        service.bootstrapIndividualPostingAccounts(
+          accountingEntity,
+          repoOptions
+        )
       ).rejects.toThrow(AppError);
     });
   });

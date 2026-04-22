@@ -8,7 +8,7 @@ import {
 import { ICurrency } from '../../../currency/types/currency.types';
 import { ELedgerType } from '../../types/ledger.types';
 import { IRevenueLedgerAccount } from '../../types/revenue-account.types';
-import revenueAccountService from '../revenue-account.service';
+import revenueAccountService from '../revenue-account-bootstrap.service';
 
 describe('revenueAccountService', () => {
   const service = revenueAccountService(mockLedgerAccountRepo);
@@ -34,11 +34,11 @@ describe('revenueAccountService', () => {
     jest.clearAllMocks();
   });
 
-  describe('makeHeaderAccountsForIndividuals', () => {
+  describe('bootstrapIndividualHeaderAccounts', () => {
     it('should create all accounts when none exist', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
-      const result = await service.makeHeaderAccountsForIndividuals(
+      const result = await service.bootstrapIndividualHeaderAccounts(
         accountingEntity,
         repoOptions
       );
@@ -55,7 +55,7 @@ describe('revenueAccountService', () => {
         {} as IRevenueLedgerAccount
       );
 
-      const result = await service.makeHeaderAccountsForIndividuals(
+      const result = await service.bootstrapIndividualHeaderAccounts(
         accountingEntity,
         repoOptions
       );
@@ -64,14 +64,14 @@ describe('revenueAccountService', () => {
     });
   });
 
-  describe('makePostingAccountsForIndividuals', () => {
+  describe('bootstrapIndividualPostingAccounts', () => {
     it('should create non-power user accounts', async () => {
       mockLedgerAccountRepo.findBySubType.mockResolvedValue([
         mockControlAccount,
       ]);
       mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
 
-      const result = await service.makePostingAccountsForIndividuals(
+      const result = await service.bootstrapIndividualPostingAccounts(
         accountingEntity,
         repoOptions
       );
@@ -99,7 +99,7 @@ describe('revenueAccountService', () => {
       ]);
       mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
 
-      const result = await service.makePostingAccountsForIndividuals(
+      const result = await service.bootstrapIndividualPostingAccounts(
         accountingEntity,
         repoOptions
       );

@@ -26,18 +26,18 @@ import { ELedgerType } from '../types/ledger.types';
 import { canBootstrapPostingAccount } from './helpers/can-bootstrap-posting-account';
 
 export interface IExpenseAccountService {
-  makeHeaderAccountsForIndividuals(
+  bootstrapIndividualHeaderAccounts(
     accountingEntity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<IExpenseLedgerAccount, IExpenseLedgerAccount>[]>;
 
-  makePostingAccountsForIndividuals(
+  bootstrapIndividualPostingAccounts(
     accountingEntity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<IExpenseLedgerAccount, IExpenseLedgerAccount>[]>;
 }
 
-export default function expenseAccountService(
+export default function makeExpenseAccountBootstrapService(
   repo: ILedgerAccountRepo
 ): IExpenseAccountService {
   const service: IExpenseAccountService = {
@@ -52,7 +52,7 @@ export default function expenseAccountService(
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
      */
-    async makeHeaderAccountsForIndividuals(accountingEntity, repoOptions) {
+    async bootstrapIndividualHeaderAccounts(accountingEntity, repoOptions) {
       const {
         ownerId,
         id: accountingEntityId,
@@ -231,7 +231,7 @@ export default function expenseAccountService(
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
      */
-    async makePostingAccountsForIndividuals(accountingEntity, repoOptions) {
+    async bootstrapIndividualPostingAccounts(accountingEntity, repoOptions) {
       const {
         ownerId,
         id: accountingEntityId,

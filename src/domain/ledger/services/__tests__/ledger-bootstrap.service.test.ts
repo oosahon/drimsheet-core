@@ -10,7 +10,7 @@ import { ICurrency } from '../../../currency/types/currency.types';
 import { IStatutoryReceivableAccount } from '../../types/asset-account.types';
 import { ELedgerType, ILedgerAccount } from '../../types/ledger.types';
 import { IStatutoryPayableAccount } from '../../types/liability-account.types';
-import ledgerService from '../ledger.service';
+import ledgerService from '../ledger-bootstrap.service';
 
 describe('ledgerService', () => {
   const service = ledgerService(mockLedgerAccountRepo);
@@ -30,11 +30,11 @@ describe('ledgerService', () => {
     jest.clearAllMocks();
   });
 
-  describe('makeHeaderAccountsForIndividuals', () => {
+  describe('bootstrapIndividualHeaderAccounts', () => {
     it('should create all expected accounts across all services', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
-      const result = await service.makeHeaderAccountsForIndividuals(
+      const result = await service.bootstrapIndividualHeaderAccounts(
         accountingEntity,
         repoOptions
       );
@@ -50,7 +50,7 @@ describe('ledgerService', () => {
       } as unknown as IAccountingEntity;
 
       await expect(
-        service.makeHeaderAccountsForIndividuals(companyEntity, repoOptions)
+        service.bootstrapIndividualHeaderAccounts(companyEntity, repoOptions)
       ).rejects.toThrow(AppError);
     });
   });

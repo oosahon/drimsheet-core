@@ -7,7 +7,7 @@ import {
 } from '../../../accounting-entity/types/accounting-entity.types';
 import { ICurrency } from '../../../currency/types/currency.types';
 import { IEquityLedgerAccount } from '../../types/equity-account.types';
-import equityAccountService from '../equity-account.service';
+import equityAccountService from '../equity-account-bootstrap.service';
 
 describe('equityAccountService', () => {
   const service = equityAccountService(mockLedgerAccountRepo);
@@ -27,11 +27,11 @@ describe('equityAccountService', () => {
     jest.clearAllMocks();
   });
 
-  describe('makeHeaderAccountsForIndividuals', () => {
+  describe('bootstrapIndividualHeaderAccounts', () => {
     it('should create all accounts when none exist', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
 
-      const result = await service.makeHeaderAccountsForIndividuals(
+      const result = await service.bootstrapIndividualHeaderAccounts(
         accountingEntity,
         repoOptions
       );
@@ -46,7 +46,7 @@ describe('equityAccountService', () => {
         {} as IEquityLedgerAccount
       );
 
-      const result = await service.makeHeaderAccountsForIndividuals(
+      const result = await service.bootstrapIndividualHeaderAccounts(
         accountingEntity,
         repoOptions
       );
@@ -55,9 +55,9 @@ describe('equityAccountService', () => {
     });
   });
 
-  describe('makePostingAccountsForIndividuals', () => {
+  describe('bootstrapIndividualPostingAccounts', () => {
     it('should return empty array', async () => {
-      const result = await service.makePostingAccountsForIndividuals(
+      const result = await service.bootstrapIndividualPostingAccounts(
         accountingEntity,
         repoOptions
       );

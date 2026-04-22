@@ -7,14 +7,14 @@ import {
 } from '../../accounting-entity/types/accounting-entity.types';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import { ILedgerAccount } from '../types/ledger.types';
-import assetAccountService from './asset-account.service';
-import equityAccountService from './equity-account.service';
-import expenseAccountService from './expense-account.service';
-import liabilityAccountService from './liability-account.service';
-import revenueAccountService from './revenue-account.service';
+import makeAssetAccountBootstrapService from './asset-account-bootstrap.service';
+import makeEquityAccountBootstrapService from './equity-account-bootstrap.service';
+import makeExpenseAccountBootstrapService from './expense-account-bootstrap.service';
+import makeLiabilityAccountBootstrapService from './liability-account-bootstrap.service';
+import makeRevenueAccountBootstrapService from './revenue-account-bootstrap.service';
 
-export interface ILedgerService {
-  makeHeaderAccountsForIndividuals(
+export interface ILedgerAccountBootstrapService {
+  bootstrapIndividualHeaderAccounts(
     entity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<ILedgerAccount, ILedgerAccount>[]>;
@@ -25,14 +25,17 @@ export interface ILedgerService {
   ): Promise<TEntityWithEvents<ILedgerAccount, ILedgerAccount>[]>;
 }
 
-export default function ledgerService(
+export default function makeLedgerBootstrapService(
   repo: ILedgerAccountRepo
-): ILedgerService {
-  const assetAccountServiceFn = assetAccountService(repo);
-  const liabilityAccountServiceFn = liabilityAccountService(repo);
-  const equityAccountServiceFn = equityAccountService(repo);
-  const revenueAccountServiceFn = revenueAccountService(repo);
-  const expenseAccountServiceFn = expenseAccountService(repo);
+): ILedgerAccountBootstrapService {
+  const assetAccountBootstrapService = makeAssetAccountBootstrapService(repo);
+  const liabilityAccountBootstrapService =
+    makeLiabilityAccountBootstrapService(repo);
+  const equityAccountBootstrapService = makeEquityAccountBootstrapService(repo);
+  const revenueAccountBootstrapService =
+    makeRevenueAccountBootstrapService(repo);
+  const expenseAccountBootstrapService =
+    makeExpenseAccountBootstrapService(repo);
 
   return {
     /**
@@ -43,37 +46,37 @@ export default function ledgerService(
      *    - Revenue
      *    - Expenses
      */
-    async makeHeaderAccountsForIndividuals(entity, repoOptions) {
+    async bootstrapIndividualHeaderAccounts(entity, repoOptions) {
       if (entity.type !== EAccountingEntityType.Individual) {
         throw new AppError('Entity is not an individual', { cause: entity });
       }
 
       const liabilityAccounts =
-        await liabilityAccountServiceFn.makeHeaderAccountsForIndividuals(
+        await liabilityAccountBootstrapService.bootstrapIndividualHeaderAccounts(
           entity,
           repoOptions
         );
 
       const equityAccounts =
-        await equityAccountServiceFn.makeHeaderAccountsForIndividuals(
+        await equityAccountBootstrapService.bootstrapIndividualHeaderAccounts(
           entity,
           repoOptions
         );
 
       const revenueAccounts =
-        await revenueAccountServiceFn.makeHeaderAccountsForIndividuals(
+        await revenueAccountBootstrapService.bootstrapIndividualHeaderAccounts(
           entity,
           repoOptions
         );
 
       const expenseAccounts =
-        await expenseAccountServiceFn.makeHeaderAccountsForIndividuals(
+        await expenseAccountBootstrapService.bootstrapIndividualHeaderAccounts(
           entity,
           repoOptions
         );
 
       const assetAccounts =
-        await assetAccountServiceFn.makeHeaderAccountsForIndividuals(
+        await assetAccountBootstrapService.bootstrapIndividualHeaderAccounts(
           entity,
           repoOptions
         );
@@ -100,25 +103,25 @@ export default function ledgerService(
       }
 
       const liabilitySuspenseAccounts =
-        await liabilityAccountServiceFn.makePostingAccountsForIndividuals(
+        await liabilityAccountBootstrapService.bootstrapIndividualPostingAccounts(
           entity,
           repoOptions
         );
 
       const revenueSuspenseAccounts =
-        await revenueAccountServiceFn.makePostingAccountsForIndividuals(
+        await revenueAccountBootstrapService.bootstrapIndividualPostingAccounts(
           entity,
           repoOptions
         );
 
       const expenseSuspenseAccounts =
-        await expenseAccountServiceFn.makePostingAccountsForIndividuals(
+        await expenseAccountBootstrapService.bootstrapIndividualPostingAccounts(
           entity,
           repoOptions
         );
 
       const assetAccounts =
-        await assetAccountServiceFn.makePostingAccountsForIndividuals(
+        await assetAccountBootstrapService.bootstrapIndividualPostingAccounts(
           entity,
           repoOptions
         );

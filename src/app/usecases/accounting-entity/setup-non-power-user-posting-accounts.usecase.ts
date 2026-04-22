@@ -2,7 +2,7 @@ import z from 'zod';
 import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
 import { EAccountingEntityType } from '../../../domain/accounting-entity/types/accounting-entity.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import ledgerService from '../../../domain/ledger/services/ledger.service';
+import makeLedgerAccountBootstrapService from '../../../domain/ledger/services/ledger-bootstrap.service';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import { IEvent } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
@@ -44,11 +44,16 @@ export default function setupNonPowerUserPostingAccountsUseCase(
       throw new ErrorBadRequest('This entity type is not currently supported');
     }
 
-    const ledgerServiceFn = ledgerService(ledgerAccountRepo);
+    const ledgerAccountBootstrapService =
+      makeLedgerAccountBootstrapService(ledgerAccountRepo);
+
     const postingAccountsAndEvents =
-      await ledgerServiceFn.bootstrapPostingAccounts(accountingEntity, {
-        correlationId,
-      });
+      await ledgerAccountBootstrapService.bootstrapPostingAccounts(
+        accountingEntity,
+        {
+          correlationId,
+        }
+      );
 
     const accounts: ILedgerAccount[] = [];
     const events: IEvent<ILedgerAccount>[] = [];

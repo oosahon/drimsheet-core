@@ -8,7 +8,7 @@ import {
   IAccountingEntity,
 } from '../../../domain/accounting-entity/types/accounting-entity.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import ledgerService from '../../../domain/ledger/services/ledger.service';
+import ledgerService from '../../../domain/ledger/services/ledger-bootstrap.service';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
 import userPreferencesService from '../../../domain/user/services/user-preferences.service';
@@ -113,7 +113,7 @@ export default function onboardAccountingEntityUseCase(
      */
 
     const baseGlAccountsWithEvents =
-      await ledgerServiceFn.makeHeaderAccountsForIndividuals(
+      await ledgerServiceFn.bootstrapIndividualHeaderAccounts(
         accountingEntity,
         correlationIdObj
       );

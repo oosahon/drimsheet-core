@@ -22,14 +22,14 @@ import {
 } from '../types/liability-account.types';
 
 interface ILiabilityAccountService {
-  makeHeaderAccountsForIndividuals(
+  bootstrapIndividualHeaderAccounts(
     accountingEntity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<
     TEntityWithEvents<ILiabilityLedgerAccount, ILiabilityLedgerAccount>[]
   >;
 
-  makePostingAccountsForIndividuals(
+  bootstrapIndividualPostingAccounts(
     accountingEntity: IAccountingEntity,
     repoOptions: IRepoOptions
   ): Promise<
@@ -37,7 +37,7 @@ interface ILiabilityAccountService {
   >;
 }
 
-export default function liabilityAccountService(
+export default function makeLiabilityAccountBootstrapService(
   repo: ILedgerAccountRepo
 ): ILiabilityAccountService {
   const service: ILiabilityAccountService = {
@@ -50,7 +50,7 @@ export default function liabilityAccountService(
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
      */
-    async makeHeaderAccountsForIndividuals(accountingEntity, repoOptions) {
+    async bootstrapIndividualHeaderAccounts(accountingEntity, repoOptions) {
       const {
         ownerId,
         id: accountingEntityId,
@@ -194,7 +194,7 @@ export default function liabilityAccountService(
      * @param accountingEntity: The individual entity account
      * @param repoOptions:      The repository options
      */
-    async makePostingAccountsForIndividuals(accountingEntity, repoOptions) {
+    async bootstrapIndividualPostingAccounts(accountingEntity, repoOptions) {
       const {
         ownerId,
         id: accountingEntityId,
