@@ -50,17 +50,17 @@ export const userActivitiesInAuditRelations = relations(
 export const currencyExchangeRatesInCoreRelations = relations(
   currencyExchangeRatesInCore,
   ({ one }) => ({
-    currenciesInCore_baseCurrencyCode: one(currenciesInCore, {
-      fields: [currencyExchangeRatesInCore.baseCurrencyCode],
+    currenciesInCore_baseCurrencyCodeCode: one(currenciesInCore, {
+      fields: [currencyExchangeRatesInCore.baseCurrencyCodeCode],
       references: [currenciesInCore.code],
       relationName:
-        'currencyExchangeRatesInCore_baseCurrencyCode_currenciesInCore_code',
+        'currencyExchangeRatesInCore_baseCurrencyCodeCode_currenciesInCore_code',
     }),
-    currenciesInCore_targetCurrencyCode: one(currenciesInCore, {
-      fields: [currencyExchangeRatesInCore.targetCurrencyCode],
+    currenciesInCore_targetCurrencyCodeCode: one(currenciesInCore, {
+      fields: [currencyExchangeRatesInCore.targetCurrencyCodeCode],
       references: [currenciesInCore.code],
       relationName:
-        'currencyExchangeRatesInCore_targetCurrencyCode_currenciesInCore_code',
+        'currencyExchangeRatesInCore_targetCurrencyCodeCode_currenciesInCore_code',
     }),
   })
 );
@@ -68,18 +68,18 @@ export const currencyExchangeRatesInCoreRelations = relations(
 export const currenciesInCoreRelations = relations(
   currenciesInCore,
   ({ many }) => ({
-    currencyExchangeRatesInCores_baseCurrencyCode: many(
+    currencyExchangeRatesInCores_baseCurrencyCodeCode: many(
       currencyExchangeRatesInCore,
       {
         relationName:
-          'currencyExchangeRatesInCore_baseCurrencyCode_currenciesInCore_code',
+          'currencyExchangeRatesInCore_baseCurrencyCodeCode_currenciesInCore_code',
       }
     ),
-    currencyExchangeRatesInCores_targetCurrencyCode: many(
+    currencyExchangeRatesInCores_targetCurrencyCodeCode: many(
       currencyExchangeRatesInCore,
       {
         relationName:
-          'currencyExchangeRatesInCore_targetCurrencyCode_currenciesInCore_code',
+          'currencyExchangeRatesInCore_targetCurrencyCodeCode_currenciesInCore_code',
       }
     ),
     accountingEntitiesInCores_functionalCurrencyCode: many(

@@ -1,4 +1,3 @@
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import stringUtils from '../../../shared/utils/string';
@@ -7,24 +6,30 @@ import { ICurrency } from '../../currency/types/currency.types';
 import journalEntryEvents from '../events/journal-entry.events';
 import { IJournalEntry, IJournalLineItem } from '../types/journal-entry.types';
 import helpers from './helpers/journal-entry.entity.helpers';
-import journalLineItemEntity from './journal-line-item.entity';
+import journalLineItemEntity, {
+  IMakePayload as IJournalLineItemMakePayload,
+} from './journal-line-item.entity';
 
-interface IMakePayload extends Omit<
-  TCreationOmits<IJournalEntry, 'version'>,
-  'lineItems'
+interface IMakePayload extends Pick<
+  IJournalEntry,
+  | 'accountingEntityId'
+  | 'transactionId'
+  | 'status'
+  | 'effectiveDate'
+  | 'postedAt'
+  | 'voidedAt'
+  | 'voidedByJournalEntryId'
+  | 'memo'
 > {
   functionalCurrency: ICurrency;
-  lineItems: TCreationOmits<
-    IJournalLineItem,
-    'id' | 'functionalAmount' | 'version' | 'entryId'
-  >[];
+  lineItems: IJournalLineItemMakePayload[];
 }
 
 function make(
   payload: IMakePayload
 ): TEntityWithEvents<IJournalEntry, IJournalEntry | IJournalLineItem> {
   stringUtils.validateUUID(payload.accountingEntityId);
-  stringUtils.validateUUID(payload.transactionId);
+  if (payload.transactionId) stringUtils.validateUUID(payload.transactionId);
   helpers.validateStatus(payload.status);
   dateUtils.validateDate(payload.effectiveDate);
   if (payload.postedAt) dateUtils.validateDate(payload.postedAt);
@@ -41,11 +46,7 @@ function make(
   });
 
   const lineItemsWithEvents = payload.lineItems.map((item) =>
-    journalLineItemEntity.make(
-      { id, memo, createdAt: timestamp },
-      item,
-      payload.functionalCurrency
-    )
+    journalLineItemEntity.make({ id, memo, createdAt: timestamp }, item)
   );
 
   const lineItems = lineItemsWithEvents.map(([item]) => item);

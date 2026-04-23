@@ -1,5 +1,6 @@
 import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { IExchangeRate } from '../../currency/types/exchange-rate.types';
 
 export const EEJournalEntrySide = {
   Debit: 'debit',
@@ -20,7 +21,7 @@ export interface IJournalLineItem {
   accountId: TEntityId;
   sequenceOrder: number;
   amount: IMoney;
-  exchangeRate: number;
+  exchangeRate: IExchangeRate | null; // if null, functionalAmount === amount
   functionalAmount: IMoney; // derived from amount and exchangeRate
   side: UJournalEntrySide;
   description?: string;
@@ -42,7 +43,7 @@ export type UJournalEntryStatus =
 export interface IJournalEntry {
   id: TEntityId;
   accountingEntityId: TEntityId;
-  transactionId: TEntityId;
+  transactionId: TEntityId | null; // non for manual entries and opening balances
   lineItems: IJournalLineItem[];
   memo: string;
   status: UJournalEntryStatus;

@@ -1,4 +1,3 @@
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
@@ -13,12 +12,21 @@ import transactionItemEntity, {
   TMakeTransactionItemPayload,
 } from './transaction-item.entity';
 
-interface IMakePayload extends TCreationOmits<
+interface IMakePayload extends Pick<
   ITransaction,
-  'reference' | 'version' | 'functionalCurrencyAmount' | 'amount' | 'items'
+  | 'accountingEntityId'
+  | 'type'
+  | 'status'
+  | 'effectiveDate'
+  | 'createdBy'
+  | 'sourceAccountId'
+  | 'attachments'
+  | 'counterPartyId'
+  | 'notes'
+  | 'exchangeRate'
 > {
-  reference?: string;
   functionalCurrency: ICurrency;
+  reference?: string;
 }
 
 function getReference(reference?: string) {

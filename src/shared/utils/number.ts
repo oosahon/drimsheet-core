@@ -97,6 +97,21 @@ function validateInteger(value: string | number | bigint) {
   }
 }
 
+function isPositiveNumber(value: string | number | bigint): boolean {
+  return toFloat(value) > 0;
+}
+
+function validatePositiveNumber(
+  value: string | number | bigint,
+  message?: string
+) {
+  if (!isPositiveNumber(value)) {
+    throw new AppError(message || 'Value must be greater than 0', {
+      cause: value,
+    });
+  }
+}
+
 const numberUtils = Object.freeze({
   toBigInt,
   toFloat,
@@ -106,6 +121,8 @@ const numberUtils = Object.freeze({
   validateNumber,
   isInteger,
   validateInteger,
+  isPositiveNumber,
+  validatePositiveNumber,
 });
 
 export default numberUtils;

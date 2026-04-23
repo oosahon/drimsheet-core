@@ -12,8 +12,8 @@ export interface ICurrencyWithEntityDates extends ICurrency {
 }
 
 export interface ICurrencyExchangeRate {
-  baseCurrencyCode: string;
-  targetCurrencyCode: string;
+  baseCurrencyCodeCode: string;
+  targetCurrencyCodeCode: string;
   rate: number;
 }
 

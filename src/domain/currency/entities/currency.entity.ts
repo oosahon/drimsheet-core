@@ -22,6 +22,11 @@ function isValidCurrencyCode(code: string): boolean {
   }
 }
 
+function normalizeCode(code: string) {
+  validateCurrencyCode(code);
+  return code.trim().toUpperCase();
+}
+
 function isValidMinorUnit(minorUnit: number): boolean {
   return Number.isInteger(minorUnit) && minorUnit >= 0 && minorUnit <= 8;
 }
@@ -49,6 +54,7 @@ const currencyEntity = Object.freeze({
   isValidCode: isValidCurrencyCode,
   isValidMinorUnit,
   validateCode: validateCurrencyCode,
+  normalizeCode,
   getByCode,
 });
 

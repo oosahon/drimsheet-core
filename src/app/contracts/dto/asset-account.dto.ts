@@ -1,10 +1,16 @@
 import z from 'zod';
-import { IMoneyDto, moneyDtoValidation } from './money.dto';
+import {
+  exchangeRateDtoValidation,
+  IExchangeRateDto,
+  IMoneyDto,
+  moneyDtoValidation,
+} from './money.dto';
 
 export interface IPettyCashAccountCreationReq {
   name: string;
   openingBalance: IMoneyDto;
   isControlAccount: boolean;
+  exchangeRate: IExchangeRateDto;
   controlAccountCode?: string;
 }
 export const pettyCashCreationReqValidation = z.object({
@@ -14,5 +20,6 @@ export const pettyCashCreationReqValidation = z.object({
     .max(100, 'Name must be at most 100 characters long'),
   openingBalance: moneyDtoValidation,
   isControlAccount: z.boolean(),
-  controlAccountId: z.string().optional(),
+  exchangeRate: exchangeRateDtoValidation,
+  controlAccountCode: z.string().optional(),
 });

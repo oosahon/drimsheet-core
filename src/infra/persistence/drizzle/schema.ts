@@ -177,8 +177,10 @@ export const currenciesInCore = core.table('currencies', {
 export const currencyExchangeRatesInCore = core.table(
   'currency_exchange_rates',
   {
-    baseCurrencyCode: char('base_currency_code', { length: 3 }).notNull(),
-    targetCurrencyCode: char('target_currency_code', { length: 3 }).notNull(),
+    baseCurrencyCodeCode: char('base_currency_code', { length: 3 }).notNull(),
+    targetCurrencyCodeCode: char('target_currency_code', {
+      length: 3,
+    }).notNull(),
     rate: numeric({ precision: 20, scale: 10 }).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
@@ -190,12 +192,12 @@ export const currencyExchangeRatesInCore = core.table(
   },
   (table) => [
     foreignKey({
-      columns: [table.baseCurrencyCode],
+      columns: [table.baseCurrencyCodeCode],
       foreignColumns: [currenciesInCore.code],
       name: 'currency_exchange_rates_base_currency_code_fkey',
     }).onDelete('cascade'),
     foreignKey({
-      columns: [table.targetCurrencyCode],
+      columns: [table.targetCurrencyCodeCode],
       foreignColumns: [currenciesInCore.code],
       name: 'currency_exchange_rates_target_currency_code_fkey',
     }).onDelete('cascade'),
