@@ -3,11 +3,13 @@ import { TEntityWithEvents } from '../../../shared/types/event.types';
 import generateDiff from '../../../shared/utils/diff-generator';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import categoryEvents from '../events/category.events';
-import { ICategory, ICategoryHistoryLog } from '../types/category.types';
+import { ICategory, ICategoryHistory } from '../types/category.types';
+import helpers from './helpers/category.entity.helpers';
 
 interface IMakeHistoryLogPayload extends Pick<
-  ICategoryHistoryLog,
+  ICategoryHistory,
   'action' | 'userId' | 'note'
 > {
   previous?: ICategory | null;
@@ -19,15 +21,25 @@ function make(
 ): TEntityWithEvents<ICategory, ICategory> {
   stringUtils.validateUUID(payload.accountingEntityId);
   stringUtils.validateUUID(payload.accountId);
+  ledgerAccountEntity.validateMaterializedPath(payload.accountMaterializedPath);
+  helpers.validateStatus(payload.status);
+
+  const name = helpers.sanitizeName(payload.name);
 
   const timestamp = new Date();
 
   const category: ICategory = Object.freeze({
-    ...payload,
     id: generateUUID(),
+    accountingEntityId: payload.accountingEntityId,
+    accountId: payload.accountId,
     version: 1,
+    name,
+    status: payload.status,
+    accountMaterializedPath: payload.accountMaterializedPath,
+    isGrouping: Boolean(payload.isGrouping),
     createdAt: timestamp,
     updatedAt: timestamp,
+    deletedAt: null,
   });
 
   const event = categoryEvents.created(category);
@@ -37,30 +49,16 @@ function make(
 
 function update(
   category: ICategory,
-  options: Partial<
-    Pick<ICategory, 'name' | 'displayName' | 'key' | 'isGrouping' | 'accountId'>
-  >
+  options: Partial<Pick<ICategory, 'name' | 'isGrouping'>>
 ): TEntityWithEvents<ICategory, ICategory> {
   const currentState = {
     name: category.name,
-    displayName: category.displayName,
-    key: category.key,
     isGrouping: category.isGrouping,
-    accountId: category.accountId,
   };
 
   const updatedState = {
     name: options.name ?? currentState.name,
-    displayName:
-      options.displayName !== undefined
-        ? options.displayName
-        : currentState.displayName,
-    key: options.key ?? currentState.key,
-    isGrouping:
-      options.isGrouping !== undefined
-        ? options.isGrouping
-        : currentState.isGrouping,
-    accountId: options.accountId ?? currentState.accountId,
+    isGrouping: Boolean(options.isGrouping ?? currentState.isGrouping),
   };
 
   const { hasChanges } = generateDiff(updatedState, currentState);
@@ -69,10 +67,19 @@ function update(
     return [category, []] as TEntityWithEvents<ICategory, ICategory>;
   }
 
+  const updatedName = helpers.sanitizeName(updatedState.name);
+
   const updatedCategory: ICategory = Object.freeze({
-    ...category,
-    ...updatedState,
+    id: category.id,
+    accountingEntityId: category.accountingEntityId,
+    accountId: category.accountId,
+    accountMaterializedPath: category.accountMaterializedPath,
+    name: updatedName,
     version: category.version + 1,
+    status: category.status,
+    isGrouping: updatedState.isGrouping,
+    createdAt: category.createdAt,
+    deletedAt: category.deletedAt,
     updatedAt: new Date(),
   });
 
@@ -83,7 +90,7 @@ function update(
 
 function makeHistoryLog(
   payload: IMakeHistoryLogPayload
-): Readonly<ICategoryHistoryLog> {
+): Readonly<ICategoryHistory> {
   stringUtils.validateUUID(payload.current.id);
   stringUtils.validateUUID(payload.userId);
 
@@ -95,7 +102,7 @@ function makeHistoryLog(
 
   const { before, after } = generateDiff(payload.current, payload.previous);
 
-  const log: ICategoryHistoryLog = Object.freeze({
+  const log: ICategoryHistory = Object.freeze({
     categoryId: payload.current.id,
     userId: payload.userId,
     action: payload.action,

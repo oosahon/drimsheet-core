@@ -2,10 +2,7 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import { ECategoryEvent } from '../../events/category.events';
-import {
-  ECategoryHistoryLogAction,
-  ICategory,
-} from '../../types/category.types';
+import { ECategoryHistoryAction, ICategory } from '../../types/category.types';
 import categoryEntity from '../category.entity';
 
 describe('Category Entity', () => {
@@ -156,7 +153,7 @@ describe('Category Entity', () => {
         current: mockCurrentCategory,
         previous: null,
         userId: '4d8e10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
-        action: ECategoryHistoryLogAction.Created,
+        action: ECategoryHistoryAction.Created,
         note: 'Initial creation',
       };
 
@@ -164,7 +161,7 @@ describe('Category Entity', () => {
 
       expect(log.categoryId).toBe('3c8e10ab-5c31-419b-ab29-688001d9f8e4');
       expect(log.userId).toBe('4d8e10ab-5c31-419b-ab29-688001d9f8e4');
-      expect(log.action).toBe(ECategoryHistoryLogAction.Created);
+      expect(log.action).toBe(ECategoryHistoryAction.Created);
       expect(log.note).toBe('Initial creation');
       expect(log.diff).toBeDefined();
       expect(log.diff.after).toEqual(mockCurrentCategory);
@@ -178,13 +175,13 @@ describe('Category Entity', () => {
         current: { ...mockCurrentCategory, name: 'New Test', version: 2 },
         previous: mockCurrentCategory,
         userId: '4d8e10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
-        action: ECategoryHistoryLogAction.Updated,
+        action: ECategoryHistoryAction.Updated,
         note: null,
       };
 
       const log = categoryEntity.makeHistoryLog(payload);
 
-      expect(log.action).toBe(ECategoryHistoryLogAction.Updated);
+      expect(log.action).toBe(ECategoryHistoryAction.Updated);
       expect(log.diff.before).toEqual({ name: 'Test Category', version: 1 });
       expect(log.diff.after).toEqual({ name: 'New Test', version: 2 });
     });
@@ -193,7 +190,7 @@ describe('Category Entity', () => {
       const payload = {
         current: { ...mockCurrentCategory, id: 'invalid-uuid' as TEntityId },
         userId: '4d8e10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
-        action: ECategoryHistoryLogAction.Updated,
+        action: ECategoryHistoryAction.Updated,
         note: null,
       };
 
@@ -204,7 +201,7 @@ describe('Category Entity', () => {
       const payload = {
         current: mockCurrentCategory,
         userId: 'invalid-uuid' as TEntityId,
-        action: ECategoryHistoryLogAction.Created,
+        action: ECategoryHistoryAction.Created,
         note: null,
       };
 
@@ -215,7 +212,7 @@ describe('Category Entity', () => {
       const payload = {
         current: mockCurrentCategory,
         userId: '4d8e10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
-        action: ECategoryHistoryLogAction.Created,
+        action: ECategoryHistoryAction.Created,
         note: '   Trim me   ',
       };
 
