@@ -5,12 +5,13 @@ import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import { ICurrency } from '../../currency/types/currency.types';
+import exchangeRateValue from '../../currency/value-objects/exchange-rate.vo';
 import transactionEvents from '../events/transaction.events';
-import { ITransaction, ITransactionItem } from '../types/transaction.types';
+import { ITransaction, ITransactionLineItem } from '../types/transaction.types';
 import helpers from './helpers/transaction.entity.helpers';
-import transactionItemEntity, {
-  TMakeTransactionItemPayload,
-} from './transaction-item.entity';
+import transactionLineItemEntity, {
+  TMakeTransactionLineItemPayload,
+} from './transaction-line-item.entity';
 
 interface IMakePayload extends Pick<
   ITransaction,
@@ -21,7 +22,6 @@ interface IMakePayload extends Pick<
   | 'createdBy'
   | 'sourceAccountId'
   | 'attachments'
-  | 'counterPartyId'
   | 'notes'
   | 'exchangeRate'
 > {
@@ -40,8 +40,8 @@ function getReference(reference?: string) {
 
 function make(
   payload: IMakePayload,
-  itemsPayload: TMakeTransactionItemPayload[]
-): TEntityWithEvents<ITransaction, ITransaction | ITransactionItem> {
+  itemsPayload: TMakeTransactionLineItemPayload[]
+): TEntityWithEvents<ITransaction, ITransaction | ITransactionLineItem> {
   stringUtils.validateUUID(payload.accountingEntityId);
   helpers.validateType(payload.type);
   helpers.validateStatus(payload.status);
@@ -49,15 +49,14 @@ function make(
   stringUtils.validateUUID(payload.createdBy);
   stringUtils.validateUUID(payload.sourceAccountId);
   helpers.validateAttachments(payload.attachments);
-  helpers.validateCounterpartyId(payload.type, payload.counterPartyId);
   helpers.validateItemsPayload(itemsPayload);
-  numberUtils.validateNumber(payload.exchangeRate);
+  exchangeRateValue.validate(payload.exchangeRate);
 
   const id = generateUUID();
   const timestamp = new Date();
 
   const itemsWithEvents = itemsPayload.map((item) => {
-    return transactionItemEntity.make(
+    return transactionLineItemEntity.make(
       { id, type: payload.type, createdAt: timestamp },
       item
     );
@@ -67,8 +66,8 @@ function make(
   const itemsEvents = itemsWithEvents.flatMap((i) => i[1]);
 
   const amount = moneyValue.add(...items.map((i) => i.amount));
-  const exchangeRate = numberUtils.toFloat(payload.exchangeRate);
-  const functionalCurrencyAmount = moneyValue.convert(
+  const exchangeRate = numberUtils.toFloat(payload.exchangeRate.rate);
+  const functionalAmount = moneyValue.convert(
     amount,
     numberUtils.toFactor(exchangeRate),
     payload.functionalCurrency
@@ -86,10 +85,9 @@ function make(
     createdBy: payload.createdBy,
     sourceAccountId: payload.sourceAccountId,
     amount,
-    exchangeRate,
-    functionalCurrencyAmount,
+    exchangeRate: payload.exchangeRate,
+    functionalAmount,
     attachments: payload.attachments,
-    counterPartyId: payload.counterPartyId,
     notes,
     version: 1,
     createdAt: timestamp,

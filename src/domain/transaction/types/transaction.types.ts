@@ -1,5 +1,6 @@
 import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { IExchangeRate } from '../../currency/types/exchange-rate.types';
 
 export const ETransactionType = {
   Sale: 'sale',
@@ -15,6 +16,7 @@ export const ETransactionType = {
 export type UTransactionType =
   (typeof ETransactionType)[keyof typeof ETransactionType];
 
+// TODO: review statuses
 export const ETransactionStatus = {
   Pending: 'pending',
   Posted: 'posted',
@@ -25,14 +27,14 @@ export const ETransactionStatus = {
 export type UTransactionStatus =
   (typeof ETransactionStatus)[keyof typeof ETransactionStatus];
 
-export interface ITransactionItem {
+export interface ITransactionLineItem {
   id: TEntityId;
-  description: string;
-  amount: IMoney;
-  functionalCurrencyAmount: IMoney;
   transactionId: TEntityId;
-  categoryId: TEntityId;
-  accountId: TEntityId;
+  targetAccountId: TEntityId;
+  amount: IMoney;
+  functionalAmount: IMoney;
+  counterPartyId: TEntityId | null; // null for transfers
+  description: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
@@ -51,15 +53,14 @@ export interface ITransaction {
   reference: string;
   type: UTransactionType;
   status: UTransactionStatus;
-  items: ITransactionItem[];
+  items: ITransactionLineItem[];
   effectiveDate: Date;
   createdBy: TEntityId;
   sourceAccountId: TEntityId;
   amount: IMoney;
-  exchangeRate: number; // for explicitness
-  functionalCurrencyAmount: IMoney;
+  exchangeRate: IExchangeRate; // for explicitness
+  functionalAmount: IMoney;
   attachments: ITransactionAttachment[];
-  counterPartyId: TEntityId | null; // null for transfers
   notes: string | null;
   version: number;
   createdAt: Date;

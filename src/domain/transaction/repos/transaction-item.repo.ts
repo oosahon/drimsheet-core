@@ -1,5 +1,5 @@
-import { ITransactionItem } from '../types/transaction.types';
+import { ITransactionLineItem } from '../types/transaction.types';
 
-export default interface ITransactionItemRepo {
-  save(item: ITransactionItem[] | ITransactionItem): Promise<void>;
+export default interface ITransactionLineItemRepo {
+  save(item: ITransactionLineItem[] | ITransactionLineItem): Promise<void>;
 }

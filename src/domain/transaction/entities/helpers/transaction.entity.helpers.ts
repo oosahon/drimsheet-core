@@ -8,7 +8,7 @@ import {
   UTransactionStatus,
   UTransactionType,
 } from '../../types/transaction.types';
-import { TMakeTransactionItemPayload } from '../transaction-item.entity';
+import { TMakeTransactionLineItemPayload } from '../transaction-line-item.entity';
 
 function generateReference(): string {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -87,7 +87,7 @@ function sanitizeAndValidateNotes(notes: string | null | undefined) {
   return stringUtils.sanitizeAndValidate(notes, { min: 1, max: 100 });
 }
 
-function validateItemsPayload(items: TMakeTransactionItemPayload[]) {
+function validateItemsPayload(items: TMakeTransactionLineItemPayload[]) {
   if (items.length === 0) {
     throw new AppError('Transaction must have at least one item', {
       cause: items,

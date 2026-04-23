@@ -88,17 +88,14 @@ function update(
   return [updatedCategory, [event]];
 }
 
-function makeHistoryLog(
+function makeHistory(
   payload: IMakeHistoryLogPayload
 ): Readonly<ICategoryHistory> {
   stringUtils.validateUUID(payload.current.id);
   stringUtils.validateUUID(payload.userId);
+  helpers.validateHistoryAction(payload.action);
 
-  let note = null;
-
-  if (payload.note) {
-    note = stringUtils.sanitizeAndValidate(payload.note, { max: 100, min: 1 });
-  }
+  const note = helpers.getHistoryNote(payload.note);
 
   const { before, after } = generateDiff(payload.current, payload.previous);
 
@@ -117,7 +114,7 @@ function makeHistoryLog(
 const categoryEntity = Object.freeze({
   make,
   update,
-  makeHistoryLog,
+  makeHistory,
 });
 
 export default categoryEntity;

@@ -26,7 +26,8 @@ export interface ICategory {
 export const ECategoryHistoryAction = {
   Created: 'created',
   Updated: 'updated',
-  Deleted: 'deleted',
+  Archived: 'archived',
+  Unarchived: 'unarchived',
 } as const;
 
 export type UCategoryHistoryAction =

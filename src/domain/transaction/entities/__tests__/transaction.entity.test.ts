@@ -2,6 +2,8 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import { EUR, USD } from '../../../currency/config/currencies.config';
+import { EExchangeRateType } from '../../../currency/types/exchange-rate.types';
+import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import { ETransactionEvent } from '../../events/transaction.events';
 import {
   ETransactionStatus,
@@ -9,7 +11,7 @@ import {
   UTransactionStatus,
   UTransactionType,
 } from '../../types/transaction.types';
-import { TMakeTransactionItemPayload } from '../transaction-item.entity';
+import { TMakeTransactionLineItemPayload } from '../transaction-line-item.entity';
 import transactionEntity from '../transaction.entity';
 
 type TMakeTransactionPayload = Parameters<typeof transactionEntity.make>[0];
@@ -17,7 +19,7 @@ type TMakeTransactionPayload = Parameters<typeof transactionEntity.make>[0];
 describe('Transaction Entity', () => {
   beforeEach(() => {
     jest.useFakeTimers();
-    jest.setSystemTime(new Date('2026-04-15T00:00:00.000Z'));
+    jest.setSystemTime(new Date('2026-04-15T00:00:01.000Z'));
   });
 
   afterEach(() => {
@@ -27,7 +29,7 @@ describe('Transaction Entity', () => {
 
   describe('make', () => {
     let validPayload: TMakeTransactionPayload;
-    let validItems: TMakeTransactionItemPayload[];
+    let validItems: TMakeTransactionLineItemPayload[];
 
     beforeEach(() => {
       validPayload = {
@@ -38,7 +40,14 @@ describe('Transaction Entity', () => {
         effectiveDate: new Date('2026-04-15T00:00:00.000Z'),
         createdBy: '4d8e10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
         sourceAccountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
-        exchangeRate: 1,
+        exchangeRate: exchangeRateValue.make({
+          baseCurrencyCode: USD.code,
+          targetCurrencyCode: USD.code,
+          rate: 1,
+          type: EExchangeRateType.Official,
+          asOf: new Date('2026-04-15T00:00:00.000Z'),
+          source: 'System',
+        }),
         attachments: [
           {
             url: 'https://example.com/receipt.pdf',
@@ -47,7 +56,6 @@ describe('Transaction Entity', () => {
             size: 1024,
           },
         ],
-        counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
         notes: 'Office supplies',
         functionalCurrency: USD,
       };
@@ -56,16 +64,16 @@ describe('Transaction Entity', () => {
         {
           description: 'Pens',
           amount: moneyValue.make(50.0, USD, false),
-          functionalCurrencyAmount: moneyValue.make(50.0, USD, false),
-          categoryId: '1a2b3c4d-5e6f-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
-          accountId: '5a6b7c8d-9e0f-4a2b-8c4d-5e6f7a8b9c0d' as TEntityId,
+          functionalAmount: moneyValue.make(50.0, USD, false),
+          targetAccountId: '5a6b7c8d-9e0f-4a2b-8c4d-5e6f7a8b9c0d' as TEntityId,
+          counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
         },
         {
           description: 'Paper',
           amount: moneyValue.make(50.5, USD, false),
-          functionalCurrencyAmount: moneyValue.make(50.5, USD, false),
-          categoryId: '2b3c4d5e-6f7a-4b9c-8d1e-2f3a4b5c6d7e' as TEntityId,
-          accountId: '6b7c8d9e-0f1a-4b3c-8d5e-6f7a8b9c0d1e' as TEntityId,
+          functionalAmount: moneyValue.make(50.5, USD, false),
+          targetAccountId: '6b7c8d9e-0f1a-4b3c-8d5e-6f7a8b9c0d1e' as TEntityId,
+          counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
         },
       ];
     });
@@ -87,10 +95,10 @@ describe('Transaction Entity', () => {
       expect(transaction.items[0].transactionId).toBe(transaction.id);
       expect(transaction.version).toBe(1);
       expect(transaction.createdAt).toEqual(
-        new Date('2026-04-15T00:00:00.000Z')
+        new Date('2026-04-15T00:00:01.000Z')
       );
       expect(transaction.amount.amount).toBe(10050n);
-      expect(transaction.functionalCurrencyAmount.amount).toBe(10050n);
+      expect(transaction.functionalAmount.amount).toBe(10050n);
       expect(Object.isFrozen(transaction)).toBe(true);
       expect(Object.isFrozen(transaction.items[0])).toBe(true);
       expect(transaction.notes).toBe('Office supplies');
@@ -128,9 +136,9 @@ describe('Transaction Entity', () => {
       validItems.push({
         description: 'Eraser',
         amount: moneyValue.make(50.0, EUR, false),
-        functionalCurrencyAmount: moneyValue.make(50.0, EUR, false),
-        categoryId: '1a2b3c4d-5e6f-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
-        accountId: '5a6b7c8d-9e0f-4a2b-8c4d-5e6f7a8b9c0d' as TEntityId,
+        functionalAmount: moneyValue.make(50.0, EUR, false),
+        targetAccountId: '5a6b7c8d-9e0f-4a2b-8c4d-5e6f7a8b9c0d' as TEntityId,
+        counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       });
       expect(() => transactionEntity.make(validPayload, validItems)).toThrow(
         AppError

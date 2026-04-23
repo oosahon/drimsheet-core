@@ -133,7 +133,7 @@ describe('Category Entity', () => {
     });
   });
 
-  describe('makeHistoryLog', () => {
+  describe('makeHistory', () => {
     let mockCurrentCategory: ICategory;
 
     beforeEach(() => {
@@ -161,7 +161,7 @@ describe('Category Entity', () => {
         note: 'Initial creation',
       };
 
-      const log = categoryEntity.makeHistoryLog(payload);
+      const log = categoryEntity.makeHistory(payload);
 
       expect(log.categoryId).toBe('3c8e10ab-5c31-419b-ab29-688001d9f8e4');
       expect(log.userId).toBe('4d8e10ab-5c31-419b-ab29-688001d9f8e4');
@@ -183,7 +183,7 @@ describe('Category Entity', () => {
         note: null,
       };
 
-      const log = categoryEntity.makeHistoryLog(payload);
+      const log = categoryEntity.makeHistory(payload);
 
       expect(log.action).toBe(ECategoryHistoryAction.Updated);
       expect(log.diff.before).toEqual({ name: 'Test Category', version: 1 });
@@ -198,7 +198,7 @@ describe('Category Entity', () => {
         note: null,
       };
 
-      expect(() => categoryEntity.makeHistoryLog(payload)).toThrow(AppError);
+      expect(() => categoryEntity.makeHistory(payload)).toThrow(AppError);
     });
 
     it('should throw an AppError if userId is invalid', () => {
@@ -209,7 +209,7 @@ describe('Category Entity', () => {
         note: null,
       };
 
-      expect(() => categoryEntity.makeHistoryLog(payload)).toThrow(AppError);
+      expect(() => categoryEntity.makeHistory(payload)).toThrow(AppError);
     });
 
     it('should sanitize and validate note appropriately', () => {
@@ -220,7 +220,7 @@ describe('Category Entity', () => {
         note: '   Trim me   ',
       };
 
-      const log = categoryEntity.makeHistoryLog(payload);
+      const log = categoryEntity.makeHistory(payload);
       expect(log.note).toBe('Trim me');
     });
   });
