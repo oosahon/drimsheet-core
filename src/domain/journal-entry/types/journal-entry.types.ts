@@ -1,35 +1,5 @@
-import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
-import { IExchangeRate } from '../../currency/types/exchange-rate.types';
-
-export const EEJournalEntrySide = {
-  Debit: 'debit',
-  Credit: 'credit',
-} as const;
-
-export type UJournalEntrySide =
-  (typeof EEJournalEntrySide)[keyof typeof EEJournalEntrySide];
-
-interface IJournalLineItemMeta extends Record<
-  string,
-  string | object | boolean | null
-> {}
-
-export interface IJournalLineItem {
-  id: TEntityId;
-  entryId: TEntityId;
-  accountId: TEntityId;
-  sequenceOrder: number;
-  amount: IMoney;
-  exchangeRate: IExchangeRate | null; // if null, functionalAmount === amount
-  functionalAmount: IMoney; // derived from amount and exchangeRate
-  side: UJournalEntrySide;
-  description?: string;
-  meta?: IJournalLineItemMeta;
-  version: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import { IJournalLineItem } from './journal-line-item.types';
 
 export const EJournalEntryStatus = {
   Draft: 'draft',
@@ -54,27 +24,4 @@ export interface IJournalEntry {
   version: number;
   createdAt: Date;
   updatedAt: Date;
-}
-
-const EJournalEntryHistoryLogAction = {
-  Created: 'created',
-  Updated: 'updated',
-  Voided: 'voided',
-  Posted: 'posted',
-} as const;
-
-type UJournalEntryHistoryLogAction =
-  (typeof EJournalEntryHistoryLogAction)[keyof typeof EJournalEntryHistoryLogAction];
-
-export interface IJournalEntryHistoryLog {
-  id: number; // using serials for db performance
-  journalEntryId: TEntityId;
-  userId: TEntityId;
-  action: UJournalEntryHistoryLogAction;
-  diff: {
-    before: Partial<IJournalEntry>;
-    after: Partial<IJournalEntry>;
-  };
-  note?: string;
-  createdAt: Date;
 }

@@ -5,12 +5,12 @@ import { ICurrency } from '../../../currency/types/currency.types';
 import { IExchangeRate } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import {
-  EEJournalEntrySide,
-  UJournalEntrySide,
-} from '../../types/journal-entry.types';
+  EJournalSide,
+  UJournalSide,
+} from '../../types/journal-line-item.types';
 
-function validateSide(side: UJournalEntrySide) {
-  if (!Object.values(EEJournalEntrySide).includes(side)) {
+function validateSide(side: UJournalSide) {
+  if (!Object.values(EJournalSide).includes(side)) {
     throw new AppError('Invalid side', { cause: side });
   }
 }

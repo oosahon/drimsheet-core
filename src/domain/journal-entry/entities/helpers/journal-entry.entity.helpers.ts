@@ -2,11 +2,13 @@ import { IMoney } from '../../../../shared/types/money.types';
 import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import {
-  EEJournalEntrySide,
   EJournalEntryStatus,
-  IJournalLineItem,
   UJournalEntryStatus,
 } from '../../types/journal-entry.types';
+import {
+  EJournalSide,
+  IJournalLineItem,
+} from '../../types/journal-line-item.types';
 
 function validateStatus(status: UJournalEntryStatus) {
   if (!Object.values(EJournalEntryStatus).includes(status)) {
@@ -30,9 +32,9 @@ function validateLineItems(lineItems: IJournalLineItem[]) {
   const credits: IMoney[] = [];
 
   for (const item of lineItems) {
-    if (item.side === EEJournalEntrySide.Debit) {
+    if (item.side === EJournalSide.Debit) {
       debits.push(item.functionalAmount);
-    } else if (item.side === EEJournalEntrySide.Credit) {
+    } else if (item.side === EJournalSide.Credit) {
       credits.push(item.functionalAmount);
     } else {
       throw new AppError('Invalid journal line item', { cause: item });

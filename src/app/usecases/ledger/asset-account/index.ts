@@ -5,7 +5,11 @@ import makeCreatePettyCashSubAccountUseCase from './create-petty-cash-sub-accoun
 const assetAccountUseCase = {
   createPettyCashSubAccount: makeCreatePettyCashSubAccountUseCase(
     appContext.request,
-    messaging.eventBus
+    messaging.eventBus,
+    {} as any,
+    {} as any,
+    {} as any,
+    {} as any
   ),
 };
 

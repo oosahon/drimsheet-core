@@ -5,10 +5,8 @@ import { IAccountingEntity } from '../../accounting-entity/types/accounting-enti
 import { IExchangeRate } from '../../currency/types/exchange-rate.types';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
 import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line-item.entity';
-import {
-  EEJournalEntrySide,
-  EJournalEntryStatus,
-} from '../../journal-entry/types/journal-entry.types';
+import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
+import { EJournalSide } from '../../journal-entry/types/journal-line-item.types';
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
 import { ELedgerType, ILedgerAccount } from '../../ledger/types/ledger.types';
@@ -65,7 +63,7 @@ export default function makeAccountingService(
         amount,
         exchangeRate,
         sequenceOrder: 1,
-        side: EEJournalEntrySide.Debit,
+        side: EJournalSide.Debit,
         description: 'Opening balance',
       };
 
@@ -75,7 +73,7 @@ export default function makeAccountingService(
         amount,
         exchangeRate,
         sequenceOrder: 2,
-        side: EEJournalEntrySide.Credit,
+        side: EJournalSide.Credit,
       };
 
       const timestamp = new Date();

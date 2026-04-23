@@ -5,11 +5,13 @@ import { USD } from '../../../currency/config/currencies.config';
 import { EJournalEntryEvent } from '../../events/journal-entry.events';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import {
-  EEJournalEntrySide,
   EJournalEntryStatus,
-  IJournalLineItem,
   UJournalEntryStatus,
 } from '../../types/journal-entry.types';
+import {
+  EJournalSide,
+  IJournalLineItem,
+} from '../../types/journal-line-item.types';
 import journalEntryEntity from '../journal-entry.entity';
 
 type TMakePayload = Parameters<typeof journalEntryEntity.make>[0];
@@ -45,7 +47,7 @@ describe('JournalEntry Entity', () => {
             sequenceOrder: 1,
             amount: moneyValue.make(100.0, USD, false),
             exchangeRate: null,
-            side: EEJournalEntrySide.Debit,
+            side: EJournalSide.Debit,
             description: 'Line item 1',
             functionalCurrency: USD,
           },
@@ -54,7 +56,7 @@ describe('JournalEntry Entity', () => {
             sequenceOrder: 2,
             amount: moneyValue.make(100.0, USD, false),
             exchangeRate: null,
-            side: EEJournalEntrySide.Credit,
+            side: EJournalSide.Credit,
             description: 'Line item 2',
             functionalCurrency: USD,
           },
@@ -199,7 +201,7 @@ describe('JournalEntry Entity', () => {
           validPayload.lineItems[0],
           {
             ...validPayload.lineItems[1],
-            side: EEJournalEntrySide.Debit,
+            side: EJournalSide.Debit,
           },
         ],
       };
@@ -299,7 +301,7 @@ describe('JournalEntry Entity', () => {
           ...item1,
           id: '4' as TEntityId,
           sequenceOrder: 2,
-          side: EEJournalEntrySide.Credit,
+          side: EJournalSide.Credit,
         };
 
         expect(() =>

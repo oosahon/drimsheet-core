@@ -1,4 +1,5 @@
 import categoryEntity from '../../../domain/category/entities/category.entity';
+import { ECategoryStatus } from '../../../domain/category/types/category.types';
 import {
   ELedgerType,
   ILedgerAccount,
@@ -30,11 +31,11 @@ export default function makeMapCategoryToAccountUseCase(logger: ILogger) {
 
     const [category, events] = categoryEntity.make({
       name: account.name,
-      displayName: account.name,
-      key: account.code,
+      accountMaterializedPath: account.materializedPath,
       accountingEntityId: account.accountingEntityId,
       accountId: account.id,
       isGrouping: false,
+      status: ECategoryStatus.Active, // TODO: map account status to category status
     });
 
     // TODO: save to repo

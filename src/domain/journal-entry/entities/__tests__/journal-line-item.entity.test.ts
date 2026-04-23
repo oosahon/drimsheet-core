@@ -6,9 +6,9 @@ import { EExchangeRateType } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import {
-  EEJournalEntrySide,
-  UJournalEntrySide,
-} from '../../types/journal-entry.types';
+  EJournalSide,
+  UJournalSide,
+} from '../../types/journal-line-item.types';
 import journalLineItemEntity from '../journal-line-item.entity';
 
 type TMakePayload = Parameters<typeof journalLineItemEntity.make>[1];
@@ -48,7 +48,7 @@ describe('JournalLineItem Entity', () => {
           asOf: new Date('2026-04-14T00:00:00.000Z'),
           source: 'Open Exchange Rates',
         }),
-        side: EEJournalEntrySide.Debit,
+        side: EJournalSide.Debit,
         description: 'Line item description',
         functionalCurrency: USD,
       };
@@ -74,7 +74,7 @@ describe('JournalLineItem Entity', () => {
 
       expect(lineItem.functionalAmount.currency).toEqual(USD);
 
-      expect(lineItem.side).toBe(EEJournalEntrySide.Debit);
+      expect(lineItem.side).toBe(EJournalSide.Debit);
       expect(lineItem.description).toBe('Line item description');
       expect(lineItem.meta).toBeUndefined();
       expect(lineItem.createdAt).toEqual(validEntryPayload.createdAt);
@@ -100,7 +100,7 @@ describe('JournalLineItem Entity', () => {
     it('should throw an AppError if side is invalid', () => {
       const invalidPayload = {
         ...validPayload,
-        side: 'invalid' as UJournalEntrySide,
+        side: 'invalid' as UJournalSide,
       };
 
       expect(() =>
@@ -113,16 +113,16 @@ describe('JournalLineItem Entity', () => {
     describe('validateSide', () => {
       it('should not throw for valid sides', () => {
         expect(() =>
-          journalLineItemEntity.validateSide(EEJournalEntrySide.Debit)
+          journalLineItemEntity.validateSide(EJournalSide.Debit)
         ).not.toThrow();
         expect(() =>
-          journalLineItemEntity.validateSide(EEJournalEntrySide.Credit)
+          journalLineItemEntity.validateSide(EJournalSide.Credit)
         ).not.toThrow();
       });
 
       it('should throw an AppError for an invalid side', () => {
         expect(() =>
-          journalLineItemEntity.validateSide('invalid' as UJournalEntrySide)
+          journalLineItemEntity.validateSide('invalid' as UJournalSide)
         ).toThrow(AppError);
       });
     });

@@ -6,7 +6,8 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import { ICurrency } from '../../currency/types/currency.types';
 import journalLineItemEvents from '../events/journal-line-item.events';
-import { IJournalEntry, IJournalLineItem } from '../types/journal-entry.types';
+import { IJournalEntry } from '../types/journal-entry.types';
+import { IJournalLineItem } from '../types/journal-line-item.types';
 import helpers from './helpers/journal-line-item.helpers';
 
 export interface IMakePayload extends Pick<

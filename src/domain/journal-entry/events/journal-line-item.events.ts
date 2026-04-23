@@ -1,5 +1,5 @@
 import eventValue from '../../../shared/value-objects/event.vo';
-import { IJournalLineItem } from '../types/journal-entry.types';
+import { IJournalLineItem } from '../types/journal-line-item.types';
 
 export const EJournalLineItemEvent = {
   Created: 'domain:journal-line-item:created',

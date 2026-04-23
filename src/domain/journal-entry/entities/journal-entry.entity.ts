@@ -4,7 +4,8 @@ import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import { ICurrency } from '../../currency/types/currency.types';
 import journalEntryEvents from '../events/journal-entry.events';
-import { IJournalEntry, IJournalLineItem } from '../types/journal-entry.types';
+import { IJournalEntry } from '../types/journal-entry.types';
+import { IJournalLineItem } from '../types/journal-line-item.types';
 import helpers from './helpers/journal-entry.entity.helpers';
 import journalLineItemEntity, {
   IMakePayload as IJournalLineItemMakePayload,
