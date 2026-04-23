@@ -2,7 +2,11 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import { ECategoryEvent } from '../../events/category.events';
-import { ECategoryHistoryAction, ICategory } from '../../types/category.types';
+import {
+  ECategoryHistoryAction,
+  ECategoryStatus,
+  ICategory,
+} from '../../types/category.types';
 import categoryEntity from '../category.entity';
 
 describe('Category Entity', () => {
@@ -22,7 +26,8 @@ describe('Category Entity', () => {
         accountingEntityId: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
         accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
         name: 'Test Category',
-        key: '100000.100001',
+        accountMaterializedPath: '100000.100001',
+        status: ECategoryStatus.Active,
         isGrouping: false,
       };
 
@@ -39,7 +44,8 @@ describe('Category Entity', () => {
       );
       expect(category.accountId).toBe('d571fba2-d5cb-43dc-8e6c-2f3b97b0a70f');
       expect(category.name).toBe('Test Category');
-      expect(category.key).toBe('100000.100001');
+      expect(category.accountMaterializedPath).toBe('100000.100001');
+      expect(category.status).toBe(ECategoryStatus.Active);
       expect(category.isGrouping).toBe(false);
       expect(category.version).toBe(1);
       expect(category.createdAt).toEqual(new Date('2026-04-15T00:00:00.000Z'));
@@ -52,7 +58,8 @@ describe('Category Entity', () => {
         accountingEntityId: 'invalid-uuid' as TEntityId,
         accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
         name: 'Test Category',
-        key: '100000.100001',
+        accountMaterializedPath: '100000.100001',
+        status: ECategoryStatus.Active,
         isGrouping: false,
       };
 
@@ -64,7 +71,8 @@ describe('Category Entity', () => {
         accountingEntityId: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
         accountId: 'invalid-uuid' as TEntityId,
         name: 'Test Category',
-        key: '100000.100001',
+        accountMaterializedPath: '100000.100001',
+        status: ECategoryStatus.Active,
         isGrouping: false,
       };
 
@@ -80,7 +88,8 @@ describe('Category Entity', () => {
         accountingEntityId: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
         accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
         name: 'Old Name',
-        key: '100000.100001',
+        accountMaterializedPath: '100000.100001',
+        status: ECategoryStatus.Active,
         isGrouping: false,
       });
 
@@ -90,10 +99,7 @@ describe('Category Entity', () => {
     it('should successfully update relevant fields and bump version', () => {
       const [updatedCategory, events] = categoryEntity.update(baseCategory, {
         name: 'New Name',
-        displayName: 'New Display Name',
-        key: '100000.100001.100002',
         isGrouping: true,
-        accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
       });
 
       expect(events).toHaveLength(1);
@@ -101,8 +107,6 @@ describe('Category Entity', () => {
       expect(events[0].data).toEqual(updatedCategory);
 
       expect(updatedCategory.name).toBe('New Name');
-      expect(updatedCategory.displayName).toBe('New Display Name');
-      expect(updatedCategory.key).toBe('100000.100001.100002');
       expect(updatedCategory.isGrouping).toBe(true);
       expect(updatedCategory.version).toBe(2);
       expect(updatedCategory.updatedAt).toEqual(
@@ -114,9 +118,7 @@ describe('Category Entity', () => {
     it('should return the original category with no events if no changes are made', () => {
       const [updatedCategory, events] = categoryEntity.update(baseCategory, {
         name: 'Old Name',
-        key: '100000.100001',
         isGrouping: false,
-        accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
       });
 
       expect(events).toHaveLength(0);
@@ -140,11 +142,13 @@ describe('Category Entity', () => {
         accountingEntityId: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
         accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
         name: 'Test Category',
-        key: '100000.100001',
+        accountMaterializedPath: '100000.100001',
+        status: ECategoryStatus.Active,
         isGrouping: false,
         version: 1,
         createdAt: new Date('2026-04-15T00:00:00.000Z'),
         updatedAt: new Date('2026-04-15T00:00:00.000Z'),
+        deletedAt: null,
       };
     });
 

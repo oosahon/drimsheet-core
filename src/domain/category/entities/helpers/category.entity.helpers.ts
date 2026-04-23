@@ -3,7 +3,7 @@ import { AppError } from '../../../../shared/value-objects/error';
 import { ECategoryStatus, UCategoryStatus } from '../../types/category.types';
 
 function validateStatus(status: UCategoryStatus) {
-  if (Object.values(ECategoryStatus).includes(status)) {
+  if (!Object.values(ECategoryStatus).includes(status)) {
     throw new AppError(`Invalid category status: ${status}`);
   }
 }
