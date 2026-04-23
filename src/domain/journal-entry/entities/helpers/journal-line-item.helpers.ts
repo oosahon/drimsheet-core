@@ -34,10 +34,14 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
   const isSameCurrency = amount.currency.code === functionalCurrency.code;
   const isNullExchangeRate = exchangeRate === null;
 
-  if (isSameCurrency && isNullExchangeRate) {
+  if (isSameCurrency && !isNullExchangeRate) {
     throw new AppError('Exchange rate is not supported for same currency.', {
       cause: exchangeRate,
     });
+  }
+
+  if (isSameCurrency && isNullExchangeRate) {
+    return;
   }
 
   if (isNullExchangeRate) {

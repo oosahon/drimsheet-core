@@ -2,6 +2,8 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import { EUR, USD } from '../../../currency/config/currencies.config';
+import { EExchangeRateType } from '../../../currency/types/exchange-rate.types';
+import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import {
   EEJournalEntrySide,
@@ -38,17 +40,24 @@ describe('JournalLineItem Entity', () => {
         accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
         sequenceOrder: 1,
         amount: moneyValue.make(100.0, EUR, false),
-        exchangeRate: 1.1,
+        exchangeRate: exchangeRateValue.make({
+          baseCurrencyCode: EUR.code,
+          targetCurrencyCode: USD.code,
+          rate: 1.1,
+          type: EExchangeRateType.Official,
+          asOf: new Date('2026-04-14T00:00:00.000Z'),
+          source: 'Open Exchange Rates',
+        }),
         side: EEJournalEntrySide.Debit,
         description: 'Line item description',
+        functionalCurrency: USD,
       };
     });
 
     it('should successfully create a journal line item with valid inputs', () => {
       const [lineItem, events] = journalLineItemEntity.make(
         validEntryPayload,
-        validPayload,
-        USD
+        validPayload
       );
 
       expect(events).toHaveLength(1);
@@ -61,7 +70,7 @@ describe('JournalLineItem Entity', () => {
       expect(lineItem.accountId).toBe(validPayload.accountId);
       expect(lineItem.sequenceOrder).toBe(1);
       expect(lineItem.amount.currency).toEqual(EUR);
-      expect(lineItem.exchangeRate).toBe(1.1);
+      expect(lineItem.exchangeRate?.rate).toBe(1.1);
 
       expect(lineItem.functionalAmount.currency).toEqual(USD);
 
@@ -82,8 +91,7 @@ describe('JournalLineItem Entity', () => {
 
       const [lineItem] = journalLineItemEntity.make(
         validEntryPayload,
-        payloadWithoutDesc,
-        USD
+        payloadWithoutDesc
       );
 
       expect(lineItem.description).toBe('General Memo');
@@ -96,7 +104,7 @@ describe('JournalLineItem Entity', () => {
       };
 
       expect(() =>
-        journalLineItemEntity.make(validEntryPayload, invalidPayload, USD)
+        journalLineItemEntity.make(validEntryPayload, invalidPayload)
       ).toThrow(AppError);
     });
   });

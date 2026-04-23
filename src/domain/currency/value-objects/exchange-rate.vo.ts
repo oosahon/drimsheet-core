@@ -16,7 +16,7 @@ function make(payload: TCreationOmits<IExchangeRate, 'currencyPair'>) {
     payload.targetCurrencyCode
   );
 
-  const currencyPair = `${baseCurrencyCode}-${targetCurrencyCode}`;
+  const currencyPair = `${baseCurrencyCode}/${targetCurrencyCode}`;
   const source = stringUtils.sanitizeAndValidate(payload.source, {
     min: 3,
     max: 100,
