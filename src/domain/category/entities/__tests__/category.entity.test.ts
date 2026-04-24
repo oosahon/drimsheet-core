@@ -286,8 +286,8 @@ describe('Category Entity', () => {
       });
 
       it('should throw an AppError for an invalid action', () => {
-        // @ts-expect-error Testing invalid action at runtime
         expect(() =>
+          // @ts-expect-error Testing invalid action at runtime
           categoryEntityHelpers.validateHistoryAction('invalid')
         ).toThrow(AppError);
       });
