@@ -1,8 +1,12 @@
 import { Request, RequestHandler, Response } from 'express';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
+import IAuthService from '../../../app/contracts/infra/auth-service.contract';
+import ILogger from '../../../app/contracts/infra/logger.contract';
 import accountingEntityEntity from '../../../domain/accounting-entity/entities/accounting-entity.entity';
 import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import IUserRepo from '../../../domain/user/repos/user.repo';
+import { IUser } from '../../../domain/user/types/user.types';
 import { NODE_ENV, WEB_APP_URL } from '../../../infra/config/vars.config';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
@@ -45,10 +49,34 @@ function handleClearRefreshToken(res: Response) {
   });
 }
 
+async function getUser(
+  req: Request,
+  authService: IAuthService,
+  logger: ILogger
+) {
+  const bearerToken = getHttpHeaderValue('authorization', req.headers);
+
+  if (!bearerToken) return null;
+
+  const token = bearerToken.split(' ')[1];
+
+  if (!token) return null;
+
+  try {
+    const user = await authService.getAuthUser(token);
+    return user;
+  } catch (error) {
+    logger.error('An error occurred while decoding token', {
+      error,
+    });
+    return null;
+  }
+}
+
 async function getAccountingEntity(
   req: Request,
   repo: IAccountingEntityRepo,
-  userId: TEntityId
+  userId?: TEntityId
 ): Promise<IAccountingEntity> {
   if (!userId) return {} as IAccountingEntity;
 
@@ -77,20 +105,35 @@ async function getAccountingEntity(
  */
 export default function requestContextInitMiddleware(
   requestContext: IRequestContext,
-  accountingEntityRepo: IAccountingEntityRepo
+  accountingEntityRepo: IAccountingEntityRepo,
+  authService: IAuthService,
+  userRepo: IUserRepo,
+  logger: ILogger
 ): RequestHandler {
   return async (req, res, next) => {
     const correlationId = getCorrelationId(req);
     const idempotencyKey = getIdempotencyKey(req);
 
-    const { user = {} } = res.locals;
+    const authUser = await getUser(req, authService, logger);
+
     const accountingEntity = await getAccountingEntity(
       req,
       accountingEntityRepo,
-      user.id
+      authUser?.id
     );
 
-    accountingEntityEntity.validateAccess(accountingEntity, user);
+    let user = {} as IUser;
+
+    if (authUser) {
+      const existingUser = await userRepo.findById(authUser.id, {
+        correlationId,
+      });
+
+      if (existingUser) {
+        accountingEntityEntity.validateAccess(accountingEntity, existingUser);
+        user = existingUser;
+      }
+    }
 
     requestContext.init(
       {

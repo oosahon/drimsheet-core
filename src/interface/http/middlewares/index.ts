@@ -1,19 +1,17 @@
 import appContext from '../../../app/context';
+import authUseCase from '../../../app/usecases/auth';
 import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
 import errorHandlerMiddleware from './error-handler.middleware';
-import isAuthenticatedUserMiddleware from './is-authenticated-user.middleware';
-
-import isOptionalAuthenticatedUserMiddleware from './is-optional-authenticated-user.middleware';
-import requestContextInitMiddleware from './request-context-init.middleware';
-import requestLoggerMiddleware from './request-logger.middleware';
-
-import authUseCase from '../../../app/usecases/auth';
 import {
   completeLoginWithGoogleMiddleware,
   initiateLoginWithGoogleMiddleware,
 } from './google-oauth.middleware';
+import isAuthenticatedUserMiddleware from './is-authenticated-user.middleware';
+import isOptionalAuthenticatedUserMiddleware from './is-optional-authenticated-user.middleware';
+import requestContextInitMiddleware from './request-context-init.middleware';
+import requestLoggerMiddleware from './request-logger.middleware';
 
 const middlewares = {
   initiateLoginWithGoogle: initiateLoginWithGoogleMiddleware(),
@@ -29,7 +27,10 @@ const middlewares = {
 
   requestContext: requestContextInitMiddleware(
     appContext.request,
-    repos.accountingEntity
+    repos.accountingEntity,
+    services.auth,
+    repos.user,
+    observability.logger
   ),
 
   errorHandler: errorHandlerMiddleware(
@@ -37,11 +38,7 @@ const middlewares = {
     observability.reporter
   ),
 
-  isAuthenticatedUser: isAuthenticatedUserMiddleware(
-    appContext.request,
-    repos.user,
-    services.auth
-  ),
+  isAuthenticatedUser: isAuthenticatedUserMiddleware(appContext.request),
 
   requestLogger: requestLoggerMiddleware(
     observability.logger,
