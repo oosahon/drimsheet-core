@@ -6,8 +6,19 @@ import IAccountingEntityRepo from '../../../../domain/accounting-entity/repos/ac
 import { IAccountingEntity } from '../../../../domain/accounting-entity/types/accounting-entity.types';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { WEB_APP_URL } from '../../../../infra/config/vars.config';
 import requestContextInitMiddleware from '../request-context-init.middleware';
+
+let mockWebAppUrl = 'http://localhost:3000';
+let mockNodeEnv = 'test';
+
+jest.mock('../../../../infra/config/vars.config', () => ({
+  get NODE_ENV() {
+    return mockNodeEnv;
+  },
+  get WEB_APP_URL() {
+    return mockWebAppUrl;
+  },
+}));
 
 describe('requestContextInitMiddleware', () => {
   let mockRequestContext: jest.Mocked<IRequestContext>;
@@ -55,6 +66,9 @@ describe('requestContextInitMiddleware', () => {
 
     mockNext = jest.fn();
 
+    // Reset mocks between tests
+    mockWebAppUrl = 'http://localhost:3000';
+    mockNodeEnv = 'test';
     jest.clearAllMocks();
   });
 
@@ -134,7 +148,8 @@ describe('requestContextInitMiddleware', () => {
     expect(mockNext).toHaveBeenCalled();
   });
 
-  it('should implement client session methods correctly', async () => {
+  it('should implement client session methods correctly with undefined domain on localhost', async () => {
+    mockWebAppUrl = 'http://localhost:3000'; // local
     const middleware = requestContextInitMiddleware(
       mockRequestContext,
       mockAccountingEntityRepo,
@@ -150,12 +165,6 @@ describe('requestContextInitMiddleware', () => {
 
     expect(clientSession).toBeDefined();
 
-    const expectedHostname = new URL(WEB_APP_URL).hostname;
-    const expectedDomain =
-      expectedHostname === 'localhost' || expectedHostname === '127.0.0.1'
-        ? undefined
-        : expectedHostname;
-
     // Test setRefreshToken
     clientSession.setRefreshToken('new_token');
     expect(mockRes.cookie).toHaveBeenCalledWith(
@@ -163,7 +172,7 @@ describe('requestContextInitMiddleware', () => {
       'new_token',
       expect.objectContaining({
         httpOnly: true,
-        domain: expectedDomain,
+        domain: undefined,
         sameSite: 'lax',
       })
     );
@@ -179,64 +188,52 @@ describe('requestContextInitMiddleware', () => {
       'refresh_token',
       expect.objectContaining({
         httpOnly: true,
-        domain: expectedDomain,
+        domain: undefined,
         sameSite: 'lax',
       })
     );
   });
 
   it('should set cookie domain appropriately when hostname is not localhost', async () => {
-    // We spy on the URL hostname getter to simulate a non-localhost environment
-    // without actually modifying the underlying config variables.
-    const urlSpy = jest
-      .spyOn(URL.prototype, 'hostname', 'get')
-      .mockReturnValue('production.purpleledger.app');
+    mockWebAppUrl = 'https://production.purpleledger.app'; // production
+    mockNodeEnv = 'production';
 
-    try {
-      const middleware = requestContextInitMiddleware(
-        mockRequestContext,
-        mockAccountingEntityRepo,
-        mockAuthService,
-        mockUserRepo,
-        mockLogger
-      );
+    const middleware = requestContextInitMiddleware(
+      mockRequestContext,
+      mockAccountingEntityRepo,
+      mockAuthService,
+      mockUserRepo,
+      mockLogger
+    );
 
-      await middleware(mockReq as Request, mockRes as Response, mockNext);
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-      const initArgs = mockRequestContext.init.mock.calls[0][0];
-      const clientSession = initArgs.clientSession;
+    const initArgs = mockRequestContext.init.mock.calls[0][0];
+    const clientSession = initArgs.clientSession;
 
-      // Verify against the ACTUAL config variable logic as requested
-      const expectedHostname = new URL(WEB_APP_URL).hostname;
-      const expectedDomain =
-        expectedHostname === 'localhost' || expectedHostname === '127.0.0.1'
-          ? undefined
-          : expectedHostname;
+    // Test setRefreshToken
+    clientSession.setRefreshToken('new_token');
+    expect(mockRes.cookie).toHaveBeenCalledWith(
+      'refresh_token',
+      'new_token',
+      expect.objectContaining({
+        httpOnly: true,
+        secure: true,
+        domain: 'production.purpleledger.app',
+        sameSite: 'lax',
+      })
+    );
 
-      // Test setRefreshToken
-      clientSession.setRefreshToken('new_token');
-      expect(mockRes.cookie).toHaveBeenCalledWith(
-        'refresh_token',
-        'new_token',
-        expect.objectContaining({
-          httpOnly: true,
-          domain: expectedDomain,
-          sameSite: 'lax',
-        })
-      );
-
-      // Test clearRefreshToken
-      clientSession.clearRefreshToken();
-      expect(mockRes.clearCookie).toHaveBeenCalledWith(
-        'refresh_token',
-        expect.objectContaining({
-          httpOnly: true,
-          domain: expectedDomain,
-          sameSite: 'lax',
-        })
-      );
-    } finally {
-      urlSpy.mockRestore();
-    }
+    // Test clearRefreshToken
+    clientSession.clearRefreshToken();
+    expect(mockRes.clearCookie).toHaveBeenCalledWith(
+      'refresh_token',
+      expect.objectContaining({
+        httpOnly: true,
+        secure: true,
+        domain: 'production.purpleledger.app',
+        sameSite: 'lax',
+      })
+    );
   });
 });
