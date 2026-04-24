@@ -1,8 +1,8 @@
-import IReporter from '../../../app/contracts/infra/reporter.contract';
+import type IReporter from '../../../app/contracts/infra/reporter.contract';
 
-export const MockReporter: jest.Mocked<IReporter> = {
+const mockReporter: jest.Mocked<IReporter> = {
   report: jest.fn(),
   reportAbuse: jest.fn(),
 };
 
-export default MockReporter;
+export default mockReporter;

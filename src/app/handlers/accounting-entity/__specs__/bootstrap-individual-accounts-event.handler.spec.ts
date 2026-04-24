@@ -9,7 +9,7 @@ import { AppError } from '../../../../shared/value-objects/error';
 import bootstrapIndividualAccountEntityPostingAccountsHandler from '../bootstrap-individual-accounts-event.handler';
 
 import { NAIRA } from '../../../../domain/currency/config/currencies.config';
-import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
+import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import accountingEntityUsecase from '../../../usecases/accounting-entity';
@@ -60,7 +60,7 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
 
   it('should successfully handle BootstrapIndividualPostingAccounts event', async () => {
     const handler = bootstrapIndividualAccountEntityPostingAccountsHandler(
-      MockReporter,
+      mockReporter,
       mockRequestContext
     );
 
@@ -86,7 +86,7 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
 
   it('should generate a correlationId if not provided in the event', async () => {
     const handler = bootstrapIndividualAccountEntityPostingAccountsHandler(
-      MockReporter,
+      mockReporter,
       mockRequestContext
     );
 
@@ -117,7 +117,7 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
 
   it('should throw and report if event type is invalid', async () => {
     const handler = bootstrapIndividualAccountEntityPostingAccountsHandler(
-      MockReporter,
+      mockReporter,
       mockRequestContext
     );
 
@@ -126,9 +126,9 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
 
     await handler(mockEvent);
 
-    expect(MockReporter.report).toHaveBeenCalledTimes(1);
-    expect(MockReporter.report.mock.calls[0][0]).toBeInstanceOf(AppError);
-    expect((MockReporter.report.mock.calls[0][0] as AppError).message).toBe(
+    expect(mockReporter.report).toHaveBeenCalledTimes(1);
+    expect(mockReporter.report.mock.calls[0][0]).toBeInstanceOf(AppError);
+    expect((mockReporter.report.mock.calls[0][0] as AppError).message).toBe(
       'Event type does not match expected type'
     );
     expect(
@@ -138,7 +138,7 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
 
   it('should report an error if setupNonPowerUserPostingAccounts fails', async () => {
     const handler = bootstrapIndividualAccountEntityPostingAccountsHandler(
-      MockReporter,
+      mockReporter,
       mockRequestContext
     );
 
@@ -154,7 +154,7 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
 
     await handler(mockEvent);
 
-    expect(MockReporter.report).toHaveBeenCalledTimes(1);
-    expect(MockReporter.report).toHaveBeenCalledWith(error);
+    expect(mockReporter.report).toHaveBeenCalledTimes(1);
+    expect(mockReporter.report).toHaveBeenCalledWith(error);
   });
 });
