@@ -8,7 +8,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import makeBootstrapIndividualAccountEntityPostingAccountsHandler from '../bootstrap-individual-accounts-event.handler';
 
-import { NAIRA } from '../../../../domain/currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
@@ -36,12 +36,12 @@ describe('makeBootstrapIndividualAccountEntityPostingAccountsHandler', () => {
     type: EAccountingEntityType.Individual,
     ownerId: validOwnerId,
     functionalCurrency: {
-      code: 'NGN',
+      code: 'SYSTEM_CURRENCIES.NGN',
       name: 'Naira',
       symbol: '₦',
       minorUnit: 100n,
     },
-    reportingCurrency: NAIRA,
+    reportingCurrency: SYSTEM_CURRENCIES.NGN,
     fiscalYearStart: { month: 1, day: 1 },
     createdAt: new Date(),
     updatedAt: new Date(),

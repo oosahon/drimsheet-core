@@ -25,7 +25,7 @@ const currencyMapper = {
   },
 
   fromInterface(code: string): ICurrency | undefined {
-    return SYSTEM_CURRENCIES.find((currency) => currency.code === code);
+    return SYSTEM_CURRENCIES[code];
   },
 };
 

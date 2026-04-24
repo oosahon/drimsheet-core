@@ -13,69 +13,413 @@
  */
 import { ICurrency } from '../types/currency.types';
 
-export const NAIRA: ICurrency = {
-  name: 'Naira',
-  symbol: '₦',
-  code: 'NGN',
+const AED: ICurrency = {
+  name: 'United Arab Emirates Dirham',
+  symbol: 'د.إ.',
+  code: 'AED',
   minorUnit: 2n,
 };
 
-export const USD: ICurrency = {
-  name: 'United States Dollar',
+const ARS: ICurrency = {
+  name: 'Argentine Peso',
   symbol: '$',
-  code: 'USD',
+  code: 'ARS',
   minorUnit: 2n,
 };
 
-export const EUR: ICurrency = {
-  name: 'Euro',
-  symbol: '€',
-  code: 'EUR',
+const AUD: ICurrency = {
+  name: 'Australian Dollar',
+  symbol: '$',
+  code: 'AUD',
   minorUnit: 2n,
 };
 
-export const GBP: ICurrency = {
-  name: 'British Pound',
-  symbol: '£',
-  code: 'GBP',
+const BDT: ICurrency = {
+  name: 'Bangladeshi Taka',
+  symbol: '৳',
+  code: 'BDT',
   minorUnit: 2n,
 };
 
-export const CAD: ICurrency = {
+const BRL: ICurrency = {
+  name: 'Brazilian Real',
+  symbol: 'R$',
+  code: 'BRL',
+  minorUnit: 2n,
+};
+
+const CAD: ICurrency = {
   name: 'Canadian Dollar',
   symbol: '$',
   code: 'CAD',
   minorUnit: 2n,
 };
 
-export const YEN: ICurrency = {
-  name: 'Yen',
-  symbol: '¥',
-  code: 'JPY',
+const CHF: ICurrency = {
+  name: 'Swiss Franc',
+  symbol: 'CHF',
+  code: 'CHF',
+  minorUnit: 2n,
+};
+
+const CLP: ICurrency = {
+  name: 'Chilean Peso',
+  symbol: '$',
+  code: 'CLP',
   minorUnit: 0n,
 };
 
-export const YUAN: ICurrency = {
-  name: 'Yuan',
+const CNY: ICurrency = {
+  name: 'Chinese Yuan',
   symbol: '¥',
   code: 'CNY',
   minorUnit: 2n,
 };
 
-const DIRHAM: ICurrency = {
-  name: 'Dirham',
-  symbol: 'د.إ',
-  code: 'AED',
+const COP: ICurrency = {
+  name: 'Colombian Peso',
+  symbol: '$',
+  code: 'COP',
   minorUnit: 2n,
 };
 
-export const SYSTEM_CURRENCIES: readonly ICurrency[] = [
-  NAIRA,
-  USD,
+const CZK: ICurrency = {
+  name: 'Czech Koruna',
+  symbol: 'Kč',
+  code: 'CZK',
+  minorUnit: 2n,
+};
+
+const DKK: ICurrency = {
+  name: 'Danish Krone',
+  symbol: 'kr.',
+  code: 'DKK',
+  minorUnit: 2n,
+};
+
+const DZD: ICurrency = {
+  name: 'Algerian Dinar',
+  symbol: 'د.ج.',
+  code: 'DZD',
+  minorUnit: 2n,
+};
+
+const EGP: ICurrency = {
+  name: 'Egyptian Pound',
+  symbol: 'ج.م.',
+  code: 'EGP',
+  minorUnit: 2n,
+};
+
+const EUR: ICurrency = {
+  name: 'Euro',
+  symbol: '€',
+  code: 'EUR',
+  minorUnit: 2n,
+};
+
+const GBP: ICurrency = {
+  name: 'British Pound',
+  symbol: '£',
+  code: 'GBP',
+  minorUnit: 2n,
+};
+
+const GHS: ICurrency = {
+  name: 'Ghanaian Cedi',
+  symbol: 'GH₵',
+  code: 'GHS',
+  minorUnit: 2n,
+};
+
+const HKD: ICurrency = {
+  name: 'Hong Kong Dollar',
+  symbol: 'HK$',
+  code: 'HKD',
+  minorUnit: 2n,
+};
+
+const HUF: ICurrency = {
+  name: 'Hungarian Forint',
+  symbol: 'Ft',
+  code: 'HUF',
+  minorUnit: 2n,
+};
+
+const IDR: ICurrency = {
+  name: 'Indonesian Rupiah',
+  symbol: 'Rp',
+  code: 'IDR',
+  minorUnit: 2n,
+};
+
+const ILS: ICurrency = {
+  name: 'Israeli New Shekel',
+  symbol: '₪',
+  code: 'ILS',
+  minorUnit: 2n,
+};
+
+const INR: ICurrency = {
+  name: 'Indian Rupee',
+  symbol: '₹',
+  code: 'INR',
+  minorUnit: 2n,
+};
+
+const JPY: ICurrency = {
+  name: 'Japanese Yen',
+  symbol: '￥',
+  code: 'JPY',
+  minorUnit: 0n,
+};
+
+const KES: ICurrency = {
+  name: 'Kenyan Shilling',
+  symbol: 'Ksh',
+  code: 'KES',
+  minorUnit: 2n,
+};
+
+const KRW: ICurrency = {
+  name: 'South Korean Won',
+  symbol: '₩',
+  code: 'KRW',
+  minorUnit: 0n,
+};
+
+const MAD: ICurrency = {
+  name: 'Moroccan Dirham',
+  symbol: 'د.م.',
+  code: 'MAD',
+  minorUnit: 2n,
+};
+
+const MXN: ICurrency = {
+  name: 'Mexican Peso',
+  symbol: '$',
+  code: 'MXN',
+  minorUnit: 2n,
+};
+
+const MYR: ICurrency = {
+  name: 'Malaysian Ringgit',
+  symbol: 'RM',
+  code: 'MYR',
+  minorUnit: 2n,
+};
+
+const NGN: ICurrency = {
+  name: 'Nigerian Naira',
+  symbol: '₦',
+  code: 'NGN',
+  minorUnit: 2n,
+};
+
+const NOK: ICurrency = {
+  name: 'Norwegian Krone',
+  symbol: 'kr',
+  code: 'NOK',
+  minorUnit: 2n,
+};
+
+const NZD: ICurrency = {
+  name: 'New Zealand Dollar',
+  symbol: '$',
+  code: 'NZD',
+  minorUnit: 2n,
+};
+
+const PEN: ICurrency = {
+  name: 'Peruvian Sol',
+  symbol: 'S/',
+  code: 'PEN',
+  minorUnit: 2n,
+};
+
+const PHP: ICurrency = {
+  name: 'Philippine Peso',
+  symbol: '₱',
+  code: 'PHP',
+  minorUnit: 2n,
+};
+
+const PKR: ICurrency = {
+  name: 'Pakistani Rupee',
+  symbol: 'Rs',
+  code: 'PKR',
+  minorUnit: 2n,
+};
+
+const PLN: ICurrency = {
+  name: 'Polish Zloty',
+  symbol: 'zł',
+  code: 'PLN',
+  minorUnit: 2n,
+};
+
+const RON: ICurrency = {
+  name: 'Romanian Leu',
+  symbol: 'RON',
+  code: 'RON',
+  minorUnit: 2n,
+};
+
+const RUB: ICurrency = {
+  name: 'Russian Ruble',
+  symbol: '₽',
+  code: 'RUB',
+  minorUnit: 2n,
+};
+
+const SAR: ICurrency = {
+  name: 'Saudi Riyal',
+  symbol: 'ر.س.',
+  code: 'SAR',
+  minorUnit: 2n,
+};
+
+const SEK: ICurrency = {
+  name: 'Swedish Krona',
+  symbol: 'kr',
+  code: 'SEK',
+  minorUnit: 2n,
+};
+
+const SGD: ICurrency = {
+  name: 'Singapore Dollar',
+  symbol: '$',
+  code: 'SGD',
+  minorUnit: 2n,
+};
+
+const THB: ICurrency = {
+  name: 'Thai Baht',
+  symbol: '฿',
+  code: 'THB',
+  minorUnit: 2n,
+};
+
+const TRY: ICurrency = {
+  name: 'Turkish Lira',
+  symbol: '₺',
+  code: 'TRY',
+  minorUnit: 2n,
+};
+
+const TWD: ICurrency = {
+  name: 'New Taiwan Dollar',
+  symbol: '$',
+  code: 'TWD',
+  minorUnit: 2n,
+};
+
+const TZS: ICurrency = {
+  name: 'Tanzanian Shilling',
+  symbol: 'TSh',
+  code: 'TZS',
+  minorUnit: 2n,
+};
+
+const UAH: ICurrency = {
+  name: 'Ukrainian Hryvnia',
+  symbol: '₴',
+  code: 'UAH',
+  minorUnit: 2n,
+};
+
+const UGX: ICurrency = {
+  name: 'Ugandan Shilling',
+  symbol: 'USh',
+  code: 'UGX',
+  minorUnit: 0n,
+};
+
+const USD: ICurrency = {
+  name: 'US Dollar',
+  symbol: '$',
+  code: 'USD',
+  minorUnit: 2n,
+};
+
+const VND: ICurrency = {
+  name: 'Vietnamese Dong',
+  symbol: '₫',
+  code: 'VND',
+  minorUnit: 0n,
+};
+
+const XAF: ICurrency = {
+  name: 'Central African CFA Franc',
+  symbol: 'FCFA',
+  code: 'XAF',
+  minorUnit: 0n,
+};
+
+const XOF: ICurrency = {
+  name: 'West African CFA Franc',
+  symbol: 'F CFA',
+  code: 'XOF',
+  minorUnit: 0n,
+};
+
+const ZAR: ICurrency = {
+  name: 'South African Rand',
+  symbol: 'R',
+  code: 'ZAR',
+  minorUnit: 2n,
+};
+
+export const SYSTEM_CURRENCIES: Record<string, ICurrency> = Object.freeze({
+  AED,
+  ARS,
+  AUD,
+  BDT,
+  BRL,
+  CAD,
+  CHF,
+  CLP,
+  CNY,
+  COP,
+  CZK,
+  DKK,
+  DZD,
+  EGP,
   EUR,
   GBP,
-  CAD,
-  YEN,
-  YUAN,
-  DIRHAM,
-];
+  GHS,
+  HKD,
+  HUF,
+  IDR,
+  ILS,
+  INR,
+  JPY,
+  KES,
+  KRW,
+  MAD,
+  MXN,
+  MYR,
+  NGN,
+  NOK,
+  NZD,
+  PEN,
+  PHP,
+  PKR,
+  PLN,
+  RON,
+  RUB,
+  SAR,
+  SEK,
+  SGD,
+  THB,
+  TRY,
+  TWD,
+  TZS,
+  UAH,
+  UGX,
+  USD,
+  VND,
+  XAF,
+  XOF,
+  ZAR,
+});

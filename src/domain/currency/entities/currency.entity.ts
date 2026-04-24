@@ -2,28 +2,10 @@ import { AppError } from '../../../shared/value-objects/error';
 import { SYSTEM_CURRENCIES } from '../config/currencies.config';
 
 function isValidCurrencyCode(code: string): boolean {
-  const isInvalidFormat =
-    typeof code !== 'string' ||
-    code.length !== 3 ||
-    code !== code.toUpperCase();
-
-  if (isInvalidFormat) {
-    return false;
-  }
-
-  try {
-    const dn = new Intl.DisplayNames(['en'], {
-      type: 'currency',
-      fallback: 'none',
-    });
-    return dn.of(code) !== undefined;
-  } catch {
-    return false;
-  }
+  return !!SYSTEM_CURRENCIES[code];
 }
 
 function normalizeCode(code: string) {
-  validateCurrencyCode(code);
   return code.trim().toUpperCase();
 }
 
@@ -38,11 +20,8 @@ function validateCurrencyCode(code: string) {
 }
 
 function getByCode(code: string) {
-  if (!isValidCurrencyCode(code)) {
-    throw new AppError('Invalid currency code', { cause: code });
-  }
-
-  const currency = SYSTEM_CURRENCIES.find((c) => c.code === code);
+  const normalizedCode = normalizeCode(code);
+  const currency = SYSTEM_CURRENCIES[normalizedCode];
   if (!currency) {
     throw new AppError('Invalid currency code', { cause: code });
   }

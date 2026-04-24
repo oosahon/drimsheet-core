@@ -10,7 +10,7 @@ export default async function bootstrapCurrencies(
   const correlationId = `bootstrap-currencies-${generateUUID()}`;
   logger.info(`Bootstrapping currencies with correlation id ${correlationId}`);
 
-  for (const currency of SYSTEM_CURRENCIES) {
+  for (const currency of Object.values(SYSTEM_CURRENCIES)) {
     await currencyRepo.save(currency, {
       correlationId,
     });

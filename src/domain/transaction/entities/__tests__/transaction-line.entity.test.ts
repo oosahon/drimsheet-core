@@ -1,7 +1,7 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import { USD } from '../../../currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import { ETransactionType } from '../../types/transaction.types';
 import transactionLineEntity from '../transaction-line.entity';
 
@@ -25,8 +25,8 @@ describe('Transaction Line Entity', () => {
     it('should successfully create a transaction item with valid inputs', () => {
       const payload = {
         description: 'Pens',
-        amount: moneyValue.make(50.0, USD, false),
-        functionalAmount: moneyValue.make(50.0, USD, false),
+        amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
+        functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
         targetAccountId: validAccountId,
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       };
@@ -61,8 +61,8 @@ describe('Transaction Line Entity', () => {
     it('should throw an AppError if transactionId is invalid', () => {
       const payload = {
         description: 'Pens',
-        amount: moneyValue.make(50.0, USD, false),
-        functionalAmount: moneyValue.make(50.0, USD, false),
+        amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
+        functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
         targetAccountId: validAccountId,
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       };
@@ -82,8 +82,8 @@ describe('Transaction Line Entity', () => {
     it('should throw an AppError if accountId is invalid', () => {
       const payload = {
         description: 'Pens',
-        amount: moneyValue.make(50.0, USD, false),
-        functionalAmount: moneyValue.make(50.0, USD, false),
+        amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
+        functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
         targetAccountId: 'invalid-uuid' as TEntityId,
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       };
@@ -103,8 +103,8 @@ describe('Transaction Line Entity', () => {
     it('should throw an AppError if counterPartyId is invalid', () => {
       const payload = {
         description: 'Pens',
-        amount: moneyValue.make(50.0, USD, false),
-        functionalAmount: moneyValue.make(50.0, USD, false),
+        amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
+        functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
         targetAccountId: validAccountId,
         counterPartyId: 'invalid-uuid' as TEntityId,
       };
@@ -124,8 +124,8 @@ describe('Transaction Line Entity', () => {
     it('should throw an AppError if counterPartyId is missing for non-transfer', () => {
       const payload = {
         description: 'Pens',
-        amount: moneyValue.make(50.0, USD, false),
-        functionalAmount: moneyValue.make(50.0, USD, false),
+        amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
+        functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
         targetAccountId: validAccountId,
         counterPartyId: null,
       };
@@ -145,8 +145,8 @@ describe('Transaction Line Entity', () => {
     it('should throw an AppError if counterPartyId is provided for a transfer', () => {
       const payload = {
         description: 'Transfer',
-        amount: moneyValue.make(50.0, USD, false),
-        functionalAmount: moneyValue.make(50.0, USD, false),
+        amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
+        functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
         targetAccountId: validAccountId,
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       };
@@ -166,8 +166,8 @@ describe('Transaction Line Entity', () => {
     it('should successfully create a transaction item for a transfer without counterPartyId', () => {
       const payload = {
         description: 'Transfer',
-        amount: moneyValue.make(50.0, USD, false),
-        functionalAmount: moneyValue.make(50.0, USD, false),
+        amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
+        functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
         targetAccountId: validAccountId,
         counterPartyId: null,
       };
@@ -189,10 +189,13 @@ describe('Transaction Line Entity', () => {
     it('should throw an AppError if amount is not a valid money object', () => {
       const payload = {
         description: 'Pens',
-        amount: { amount: 50, currency: USD } as unknown as Parameters<
+        amount: {
+          amount: 50,
+          currency: SYSTEM_CURRENCIES.USD,
+        } as unknown as Parameters<
           typeof transactionLineEntity.make
         >[1]['amount'],
-        functionalAmount: moneyValue.make(50.0, USD, false),
+        functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
         targetAccountId: validAccountId,
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       };
@@ -212,10 +215,10 @@ describe('Transaction Line Entity', () => {
     it('should throw an AppError if functionalAmount is not a valid money object', () => {
       const payload = {
         description: 'Pens',
-        amount: moneyValue.make(50.0, USD, false),
+        amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
         functionalAmount: {
           amount: 50,
-          currency: USD,
+          currency: SYSTEM_CURRENCIES.USD,
         } as unknown as Parameters<
           typeof transactionLineEntity.make
         >[1]['functionalAmount'],

@@ -1,5 +1,5 @@
 import { IAccountingEntity } from '../../../../domain/accounting-entity/types/accounting-entity.types';
-import { USD } from '../../../../domain/currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -30,8 +30,8 @@ describe('getAuthUserAccountingEntities', () => {
         id: 'entity-1' as TEntityId,
         type: 'individual',
         ownerId: mockUser.id,
-        functionalCurrency: USD,
-        reportingCurrency: USD,
+        functionalCurrency: SYSTEM_CURRENCIES.USD,
+        reportingCurrency: SYSTEM_CURRENCIES.USD,
         fiscalYearStart: { month: 1, day: 1 },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -41,8 +41,8 @@ describe('getAuthUserAccountingEntities', () => {
         id: 'entity-2' as TEntityId,
         type: 'company',
         ownerId: mockUser.id,
-        functionalCurrency: USD,
-        reportingCurrency: USD,
+        functionalCurrency: SYSTEM_CURRENCIES.USD,
+        reportingCurrency: SYSTEM_CURRENCIES.USD,
         fiscalYearStart: { month: 1, day: 1 },
         createdAt: new Date(),
         updatedAt: new Date(),

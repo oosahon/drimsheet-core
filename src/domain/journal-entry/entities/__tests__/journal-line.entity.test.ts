@@ -1,7 +1,7 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import { EUR, USD } from '../../../currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import { EExchangeRateType } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
@@ -36,10 +36,10 @@ describe('JournalLineItem Entity', () => {
       validPayload = {
         accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
         sequenceOrder: 1,
-        amount: moneyValue.make(100.0, EUR, false),
+        amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.EUR, false),
         exchangeRate: exchangeRateValue.make({
-          baseCurrencyCode: EUR.code,
-          targetCurrencyCode: USD.code,
+          baseCurrencyCode: SYSTEM_CURRENCIES.EUR.code,
+          targetCurrencyCode: SYSTEM_CURRENCIES.USD.code,
           rate: 1.1,
           type: EExchangeRateType.Official,
           asOf: new Date('2026-04-14T00:00:00.000Z'),
@@ -47,7 +47,7 @@ describe('JournalLineItem Entity', () => {
         }),
         side: EJournalSide.Debit,
         description: 'Line item description',
-        functionalCurrency: USD,
+        functionalCurrency: SYSTEM_CURRENCIES.USD,
       };
     });
 
@@ -66,10 +66,10 @@ describe('JournalLineItem Entity', () => {
       expect(lineItem.entryId).toBe(validEntryPayload.id);
       expect(lineItem.accountId).toBe(validPayload.accountId);
       expect(lineItem.sequenceOrder).toBe(1);
-      expect(lineItem.amount.currency).toEqual(EUR);
+      expect(lineItem.amount.currency).toEqual(SYSTEM_CURRENCIES.EUR);
       expect(lineItem.exchangeRate?.rate).toBe(1.1);
 
-      expect(lineItem.functionalAmount.currency).toEqual(USD);
+      expect(lineItem.functionalAmount.currency).toEqual(SYSTEM_CURRENCIES.USD);
 
       expect(lineItem.side).toBe(EJournalSide.Debit);
       expect(lineItem.description).toBe('Line item description');
@@ -108,8 +108,8 @@ describe('JournalLineItem Entity', () => {
     it('should successfully create a journal line item for same currency without exchange rate', () => {
       const sameCurrencyPayload = {
         ...validPayload,
-        amount: moneyValue.make(100.0, USD, false),
-        functionalCurrency: USD,
+        amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.USD, false),
+        functionalCurrency: SYSTEM_CURRENCIES.USD,
         exchangeRate: null,
       };
 
@@ -165,8 +165,8 @@ describe('JournalLineItem Entity', () => {
 
     describe('validateExchangeRate', () => {
       const validExchangeRate = exchangeRateValue.make({
-        baseCurrencyCode: EUR.code,
-        targetCurrencyCode: USD.code,
+        baseCurrencyCode: SYSTEM_CURRENCIES.EUR.code,
+        targetCurrencyCode: SYSTEM_CURRENCIES.USD.code,
         rate: 1.1,
         type: EExchangeRateType.Official,
         asOf: new Date('2026-04-14T00:00:00.000Z'),
@@ -176,8 +176,8 @@ describe('JournalLineItem Entity', () => {
       it('should throw if same currency but exchange rate is provided', () => {
         expect(() =>
           journalLineEntity.validateExchangeRate({
-            amount: moneyValue.make(100.0, USD, false),
-            functionalCurrency: USD,
+            amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.USD, false),
+            functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: validExchangeRate,
           })
         ).toThrow(AppError);
@@ -186,8 +186,8 @@ describe('JournalLineItem Entity', () => {
       it('should return if same currency and exchange rate is null', () => {
         expect(() =>
           journalLineEntity.validateExchangeRate({
-            amount: moneyValue.make(100.0, USD, false),
-            functionalCurrency: USD,
+            amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.USD, false),
+            functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: null,
           })
         ).not.toThrow();
@@ -196,8 +196,8 @@ describe('JournalLineItem Entity', () => {
       it('should throw if different currencies and exchange rate is null', () => {
         expect(() =>
           journalLineEntity.validateExchangeRate({
-            amount: moneyValue.make(100.0, EUR, false),
-            functionalCurrency: USD,
+            amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.EUR, false),
+            functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: null,
           })
         ).toThrow(AppError);
@@ -205,8 +205,8 @@ describe('JournalLineItem Entity', () => {
 
       it('should throw if exchange rate base does not match amount currency', () => {
         const invalidBaseRate = exchangeRateValue.make({
-          baseCurrencyCode: USD.code, // Mismatch: should be EUR
-          targetCurrencyCode: USD.code,
+          baseCurrencyCode: SYSTEM_CURRENCIES.USD.code, // Mismatch: should be SYSTEM_CURRENCIES.EUR
+          targetCurrencyCode: SYSTEM_CURRENCIES.USD.code,
           rate: 1.1,
           type: EExchangeRateType.Official,
           asOf: new Date('2026-04-14T00:00:00.000Z'),
@@ -215,8 +215,8 @@ describe('JournalLineItem Entity', () => {
 
         expect(() =>
           journalLineEntity.validateExchangeRate({
-            amount: moneyValue.make(100.0, EUR, false),
-            functionalCurrency: USD,
+            amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.EUR, false),
+            functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: invalidBaseRate,
           })
         ).toThrow(AppError);
@@ -224,8 +224,8 @@ describe('JournalLineItem Entity', () => {
 
       it('should throw if exchange rate target does not match functional currency', () => {
         const invalidTargetRate = exchangeRateValue.make({
-          baseCurrencyCode: EUR.code,
-          targetCurrencyCode: EUR.code, // Mismatch: should be USD
+          baseCurrencyCode: SYSTEM_CURRENCIES.EUR.code,
+          targetCurrencyCode: SYSTEM_CURRENCIES.EUR.code, // Mismatch: should be SYSTEM_CURRENCIES.USD
           rate: 1.1,
           type: EExchangeRateType.Official,
           asOf: new Date('2026-04-14T00:00:00.000Z'),
@@ -234,8 +234,8 @@ describe('JournalLineItem Entity', () => {
 
         expect(() =>
           journalLineEntity.validateExchangeRate({
-            amount: moneyValue.make(100.0, EUR, false),
-            functionalCurrency: USD,
+            amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.EUR, false),
+            functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: invalidTargetRate,
           })
         ).toThrow(AppError);

@@ -31,9 +31,7 @@ const moneyMapper = {
       throw validationError;
     }
 
-    const currency = SYSTEM_CURRENCIES.find(
-      (currency) => currency.code === money.currencyCode
-    );
+    const currency = SYSTEM_CURRENCIES[money.currencyCode];
 
     if (!currency) {
       throw validationError;
