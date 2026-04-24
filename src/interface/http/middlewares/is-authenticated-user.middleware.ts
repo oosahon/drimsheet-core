@@ -1,4 +1,5 @@
 import { RequestHandler } from 'express';
+import _ from 'lodash';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import httpHandlers from '../handlers';
@@ -10,7 +11,7 @@ export default function isAuthenticatedUserMiddleware(
     try {
       const { user } = requestContext.get();
 
-      if (!user) {
+      if (!user || _.isEmpty(user)) {
         throw new ErrorUnauthorized();
       }
       next();
