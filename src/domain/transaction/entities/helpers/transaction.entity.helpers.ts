@@ -8,7 +8,7 @@ import {
   UTransactionStatus,
   UTransactionType,
 } from '../../types/transaction.types';
-import { TMakeTransactionLineItemPayload } from '../transaction-line-item.entity';
+import { TMakeTransactionLineItemPayload } from '../transaction-line.entity';
 
 function generateReference(): string {
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

@@ -125,6 +125,17 @@ describe('JournalEntry Entity', () => {
       expect(entry.voidingEntryId).toBe(payload.voidingEntryId);
     });
 
+    it('should successfully create when optional fields like transactionId are absent', () => {
+      const payload: TMakePayload = {
+        ...validPayload,
+        transactionId: null,
+      };
+
+      const [entry] = journalEntryEntity.make(payload);
+
+      expect(entry.transactionId).toBeNull();
+    });
+
     it('should throw an AppError if accountingEntityId is invalid', () => {
       expect(() =>
         journalEntryEntity.make({
@@ -301,6 +312,24 @@ describe('JournalEntry Entity', () => {
         expect(() => journalEntryEntity.validateLine([item1, item2])).toThrow(
           AppError
         );
+      });
+    });
+
+    describe('getMemo', () => {
+      it('should return null if value is empty or null', () => {
+        // @ts-expect-error Testing undefined fallback at runtime
+        expect(journalEntryEntity.getMemo(undefined)).toBeNull();
+        expect(journalEntryEntity.getMemo(null)).toBeNull();
+        expect(journalEntryEntity.getMemo('')).toBeNull();
+      });
+
+      it('should throw an AppError if memo is too long', () => {
+        const longMemo = 'a'.repeat(101);
+        expect(() => journalEntryEntity.getMemo(longMemo)).toThrow(AppError);
+      });
+
+      it('should return trimmed memo', () => {
+        expect(journalEntryEntity.getMemo('  valid memo  ')).toBe('valid memo');
       });
     });
   });

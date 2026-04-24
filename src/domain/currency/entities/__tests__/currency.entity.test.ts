@@ -76,4 +76,32 @@ describe('Currency Domain Entity', () => {
       }
     });
   });
+
+  describe('normalizeCode', () => {
+    it('should return normalized code for a valid uppercase code', () => {
+      expect(currencyEntity.normalizeCode('USD')).toBe('USD');
+    });
+
+    it('should throw an AppError if the code is invalid format (e.g. lowercase)', () => {
+      expect(() => currencyEntity.normalizeCode('usd')).toThrow(AppError);
+    });
+  });
+
+  describe('getByCode', () => {
+    it('should return the currency if found in system currencies', () => {
+      const currency = currencyEntity.getByCode('USD');
+      expect(currency).toBeDefined();
+      expect(currency.code).toBe('USD');
+      expect(currency.name).toBe('United States Dollar');
+    });
+
+    it('should throw an AppError if currency code is an invalid format', () => {
+      expect(() => currencyEntity.getByCode('invalid')).toThrow(AppError);
+    });
+
+    it('should throw an AppError if currency format is valid but not found in system currencies', () => {
+      // AUD is a valid ISO currency but not in our SYSTEM_CURRENCIES
+      expect(() => currencyEntity.getByCode('AUD')).toThrow(AppError);
+    });
+  });
 });

@@ -11,7 +11,7 @@ import {
   UTransactionStatus,
   UTransactionType,
 } from '../../types/transaction.types';
-import { TMakeTransactionLineItemPayload } from '../transaction-line-item.entity';
+import { TMakeTransactionLineItemPayload } from '../transaction-line.entity';
 import transactionEntity from '../transaction.entity';
 
 type TMakeTransactionPayload = Parameters<typeof transactionEntity.make>[0];

@@ -26,8 +26,11 @@ function validateCounterpartyId(
 ) {
   const isTransfer = type === ETransactionType.Transfer;
 
-  if (isTransfer && counterPartyId) {
-    throw new AppError('Counterparty ID is not allowed for transfers');
+  if (isTransfer) {
+    if (counterPartyId) {
+      throw new AppError('Counterparty ID is not allowed for transfers');
+    }
+    return;
   }
 
   if (!counterPartyId) {

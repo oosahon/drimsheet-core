@@ -3,9 +3,9 @@ import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import { USD } from '../../../currency/config/currencies.config';
 import { ETransactionType } from '../../types/transaction.types';
-import transactionLineEntity from '../transaction-line-item.entity';
+import transactionLineEntity from '../transaction-line.entity';
 
-describe('Transaction Item Entity', () => {
+describe('Transaction Line Entity', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-15T00:00:00.000Z'));
@@ -100,7 +100,7 @@ describe('Transaction Item Entity', () => {
       ).toThrow(AppError);
     });
 
-    it('should throw an AppError if categoryId is invalid', () => {
+    it('should throw an AppError if counterPartyId is invalid', () => {
       const payload = {
         description: 'Pens',
         amount: moneyValue.make(50.0, USD, false),
@@ -119,6 +119,71 @@ describe('Transaction Item Entity', () => {
           payload
         )
       ).toThrow(AppError);
+    });
+
+    it('should throw an AppError if counterPartyId is missing for non-transfer', () => {
+      const payload = {
+        description: 'Pens',
+        amount: moneyValue.make(50.0, USD, false),
+        functionalAmount: moneyValue.make(50.0, USD, false),
+        targetAccountId: validAccountId,
+        counterPartyId: null,
+      };
+
+      expect(() =>
+        transactionLineEntity.make(
+          {
+            id: validTransactionId,
+            type: ETransactionType.Expense,
+            createdAt: transactionDate,
+          },
+          payload
+        )
+      ).toThrow(AppError);
+    });
+
+    it('should throw an AppError if counterPartyId is provided for a transfer', () => {
+      const payload = {
+        description: 'Transfer',
+        amount: moneyValue.make(50.0, USD, false),
+        functionalAmount: moneyValue.make(50.0, USD, false),
+        targetAccountId: validAccountId,
+        counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
+      };
+
+      expect(() =>
+        transactionLineEntity.make(
+          {
+            id: validTransactionId,
+            type: ETransactionType.Transfer,
+            createdAt: transactionDate,
+          },
+          payload
+        )
+      ).toThrow(AppError);
+    });
+
+    it('should successfully create a transaction item for a transfer without counterPartyId', () => {
+      const payload = {
+        description: 'Transfer',
+        amount: moneyValue.make(50.0, USD, false),
+        functionalAmount: moneyValue.make(50.0, USD, false),
+        targetAccountId: validAccountId,
+        counterPartyId: null,
+      };
+
+      const [item, events] = transactionLineEntity.make(
+        {
+          id: validTransactionId,
+          type: ETransactionType.Transfer,
+          createdAt: transactionDate,
+        },
+        payload
+      );
+
+      expect(item.counterPartyId).toBeNull();
+      expect(events).toHaveLength(1);
+      expect(events[0].type).toBe('domain:transaction:line:created');
     });
 
     it('should throw an AppError if amount is not a valid money object', () => {

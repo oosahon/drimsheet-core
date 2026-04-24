@@ -104,6 +104,24 @@ describe('JournalLineItem Entity', () => {
         journalLineEntity.make(validEntryPayload, invalidPayload)
       ).toThrow(AppError);
     });
+
+    it('should successfully create a journal line item for same currency without exchange rate', () => {
+      const sameCurrencyPayload = {
+        ...validPayload,
+        amount: moneyValue.make(100.0, USD, false),
+        functionalCurrency: USD,
+        exchangeRate: null,
+      };
+
+      const [lineItem] = journalLineEntity.make(
+        validEntryPayload,
+        sameCurrencyPayload
+      );
+
+      expect(lineItem.exchangeRate).toBeNull();
+      expect(lineItem.amount).toEqual(sameCurrencyPayload.amount);
+      expect(lineItem.functionalAmount).toEqual(sameCurrencyPayload.amount);
+    });
   });
 
   describe('Helpers', () => {
@@ -131,11 +149,96 @@ describe('JournalLineItem Entity', () => {
         );
       });
 
+      it('should return null if value is empty or null', () => {
+        expect(journalLineEntity.getDescription(null)).toBeNull();
+        expect(journalLineEntity.getDescription(undefined)).toBeNull();
+        expect(journalLineEntity.getDescription('')).toBeNull();
+      });
+
       it('should throw if description is too long', () => {
         const longDesc = 'a'.repeat(101);
         expect(() => journalLineEntity.getDescription(longDesc)).toThrow(
           AppError
         );
+      });
+    });
+
+    describe('validateExchangeRate', () => {
+      const validExchangeRate = exchangeRateValue.make({
+        baseCurrencyCode: EUR.code,
+        targetCurrencyCode: USD.code,
+        rate: 1.1,
+        type: EExchangeRateType.Official,
+        asOf: new Date('2026-04-14T00:00:00.000Z'),
+        source: 'Open Exchange Rates',
+      });
+
+      it('should throw if same currency but exchange rate is provided', () => {
+        expect(() =>
+          journalLineEntity.validateExchangeRate({
+            amount: moneyValue.make(100.0, USD, false),
+            functionalCurrency: USD,
+            exchangeRate: validExchangeRate,
+          })
+        ).toThrow(AppError);
+      });
+
+      it('should return if same currency and exchange rate is null', () => {
+        expect(() =>
+          journalLineEntity.validateExchangeRate({
+            amount: moneyValue.make(100.0, USD, false),
+            functionalCurrency: USD,
+            exchangeRate: null,
+          })
+        ).not.toThrow();
+      });
+
+      it('should throw if different currencies and exchange rate is null', () => {
+        expect(() =>
+          journalLineEntity.validateExchangeRate({
+            amount: moneyValue.make(100.0, EUR, false),
+            functionalCurrency: USD,
+            exchangeRate: null,
+          })
+        ).toThrow(AppError);
+      });
+
+      it('should throw if exchange rate base does not match amount currency', () => {
+        const invalidBaseRate = exchangeRateValue.make({
+          baseCurrencyCode: USD.code, // Mismatch: should be EUR
+          targetCurrencyCode: USD.code,
+          rate: 1.1,
+          type: EExchangeRateType.Official,
+          asOf: new Date('2026-04-14T00:00:00.000Z'),
+          source: 'Open Exchange Rates',
+        });
+
+        expect(() =>
+          journalLineEntity.validateExchangeRate({
+            amount: moneyValue.make(100.0, EUR, false),
+            functionalCurrency: USD,
+            exchangeRate: invalidBaseRate,
+          })
+        ).toThrow(AppError);
+      });
+
+      it('should throw if exchange rate target does not match functional currency', () => {
+        const invalidTargetRate = exchangeRateValue.make({
+          baseCurrencyCode: EUR.code,
+          targetCurrencyCode: EUR.code, // Mismatch: should be USD
+          rate: 1.1,
+          type: EExchangeRateType.Official,
+          asOf: new Date('2026-04-14T00:00:00.000Z'),
+          source: 'Open Exchange Rates',
+        });
+
+        expect(() =>
+          journalLineEntity.validateExchangeRate({
+            amount: moneyValue.make(100.0, EUR, false),
+            functionalCurrency: USD,
+            exchangeRate: invalidTargetRate,
+          })
+        ).toThrow(AppError);
       });
     });
   });

@@ -1,6 +1,10 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
+import {
+  AppError,
+  ErrorForbidden,
+  ErrorUnauthorized,
+} from '../../../../shared/value-objects/error';
 import { ICurrency } from '../../../currency/types/currency.types';
 import userEntity from '../../../user/entities/user.entity';
 import { IUser } from '../../../user/types/user.types';
@@ -11,6 +15,7 @@ import {
   UAccountingEntityType,
 } from '../../types/accounting-entity.types';
 import accountingEntityTypeEntity from '../accounting-entity.entity';
+import accountingEntityHelpers from '../helpers/accounting-entity.helpers';
 
 describe('Accounting Domain Entity', () => {
   let validUser: IUser;
@@ -295,6 +300,117 @@ describe('Accounting Domain Entity', () => {
       expect(() => accountingEntityTypeEntity.make(payload)).toThrow(
         'Invalid operating country code'
       );
+    });
+  });
+
+  describe('Helpers', () => {
+    describe('validateFiscalYearStart', () => {
+      it('should not throw for a valid fiscal year start', () => {
+        expect(() =>
+          accountingEntityHelpers.validateFiscalYearStart({ month: 1, day: 31 })
+        ).not.toThrow();
+      });
+
+      it('should throw if month is not an integer', () => {
+        expect(() =>
+          accountingEntityHelpers.validateFiscalYearStart({
+            month: 1.5,
+            day: 15,
+          })
+        ).toThrow(AppError);
+      });
+
+      it('should throw if day is not an integer', () => {
+        expect(() =>
+          accountingEntityHelpers.validateFiscalYearStart({
+            month: 1,
+            day: 15.5,
+          })
+        ).toThrow(AppError);
+      });
+    });
+
+    describe('validateType', () => {
+      it('should throw for an invalid type', () => {
+        expect(() =>
+          accountingEntityHelpers.validateType(
+            'invalid' as UAccountingEntityType
+          )
+        ).toThrow(AppError);
+      });
+    });
+
+    describe('validateName', () => {
+      it('should throw for a non-string or empty name', () => {
+        expect(() => accountingEntityHelpers.validateName(123 as any)).toThrow(
+          AppError
+        );
+        expect(() => accountingEntityHelpers.validateName('   ')).toThrow(
+          AppError
+        );
+      });
+    });
+
+    describe('validateOperatingCountryCode', () => {
+      it('should throw for an unsupported country code', () => {
+        expect(() =>
+          accountingEntityHelpers.validateOperatingCountryCode('XX')
+        ).toThrow(AppError);
+      });
+    });
+
+    describe('validateAccess', () => {
+      let mockAccountingEntity: IAccountingEntity;
+
+      beforeEach(() => {
+        mockAccountingEntity = {
+          id: '123' as TEntityId,
+          name: 'Test',
+          type: EAccountingEntityType.Company,
+          operatingCountryCode: 'NG',
+          ownerId: validUser.id as TEntityId,
+          functionalCurrency: validCurrency,
+          reportingCurrency: validCurrency,
+          fiscalYearStart: { month: 1, day: 1 },
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        };
+      });
+
+      it('should return undefined if access is granted', () => {
+        expect(() =>
+          accountingEntityHelpers.validateAccess(
+            mockAccountingEntity,
+            validUser
+          )
+        ).not.toThrow();
+      });
+
+      it('should throw ErrorUnauthorized if entity or user is missing', () => {
+        expect(() =>
+          accountingEntityHelpers.validateAccess(null as any, validUser)
+        ).toThrow(ErrorUnauthorized);
+        expect(() =>
+          accountingEntityHelpers.validateAccess(
+            mockAccountingEntity,
+            null as any
+          )
+        ).toThrow(ErrorUnauthorized);
+      });
+
+      it('should throw ErrorForbidden if user is not the owner', () => {
+        const otherUser: IUser = {
+          ...validUser,
+          id: 'different-uuid' as TEntityId,
+        };
+        expect(() =>
+          accountingEntityHelpers.validateAccess(
+            mockAccountingEntity,
+            otherUser
+          )
+        ).toThrow(ErrorForbidden);
+      });
     });
   });
 });

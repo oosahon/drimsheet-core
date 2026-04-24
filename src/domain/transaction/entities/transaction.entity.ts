@@ -11,7 +11,7 @@ import { ITransaction, ITransactionLine } from '../types/transaction.types';
 import helpers from './helpers/transaction.entity.helpers';
 import transactionLineEntity, {
   TMakeTransactionLineItemPayload,
-} from './transaction-line-item.entity';
+} from './transaction-line.entity';
 
 interface IMakePayload extends Pick<
   ITransaction,
