@@ -14,9 +14,9 @@ import {
 } from '../../../../shared/value-objects/error';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import setupNonPowerUserPostingAccountsUseCase from '../setup-non-power-user-posting-accounts.usecase';
+import makeSetupNonPowerUserPostingAccountsUseCase from '../setup-non-power-user-posting-accounts.usecase';
 
-describe('setupNonPowerUserPostingAccountsUseCase', () => {
+describe('makeSetupNonPowerUserPostingAccountsUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -72,7 +72,7 @@ describe('setupNonPowerUserPostingAccountsUseCase', () => {
 
     mockAccountingEntityRepo.findById.mockResolvedValue(mockAccountingEntity);
 
-    const usecase = setupNonPowerUserPostingAccountsUseCase(
+    const usecase = makeSetupNonPowerUserPostingAccountsUseCase(
       MockRequestContext,
       mockLedgerAccountRepo,
       mockAccountingEntityRepo,
@@ -98,7 +98,7 @@ describe('setupNonPowerUserPostingAccountsUseCase', () => {
   });
 
   it('should throw validation error if accountingEntityId is invalid', async () => {
-    const usecase = setupNonPowerUserPostingAccountsUseCase(
+    const usecase = makeSetupNonPowerUserPostingAccountsUseCase(
       MockRequestContext,
       mockLedgerAccountRepo,
       mockAccountingEntityRepo,
@@ -124,7 +124,7 @@ describe('setupNonPowerUserPostingAccountsUseCase', () => {
 
     mockAccountingEntityRepo.findById.mockResolvedValue(null);
 
-    const usecase = setupNonPowerUserPostingAccountsUseCase(
+    const usecase = makeSetupNonPowerUserPostingAccountsUseCase(
       MockRequestContext,
       mockLedgerAccountRepo,
       mockAccountingEntityRepo,
@@ -155,7 +155,7 @@ describe('setupNonPowerUserPostingAccountsUseCase', () => {
 
     mockAccountingEntityRepo.findById.mockResolvedValue(mockAccountingEntity);
 
-    const usecase = setupNonPowerUserPostingAccountsUseCase(
+    const usecase = makeSetupNonPowerUserPostingAccountsUseCase(
       MockRequestContext,
       mockLedgerAccountRepo,
       mockAccountingEntityRepo,

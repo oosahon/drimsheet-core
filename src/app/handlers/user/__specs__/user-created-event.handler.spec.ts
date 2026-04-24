@@ -3,7 +3,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import userCreatedEventHandler from '../user-created-event.handler';
+import makeUserCreatedEventHandler from '../user-created-event.handler';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
@@ -25,7 +25,7 @@ jest.mock('../../../usecases/user', () => ({
   },
 }));
 
-describe('userCreatedEventHandler', () => {
+describe('makeUserCreatedEventHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -52,7 +52,10 @@ describe('userCreatedEventHandler', () => {
   });
 
   it('should successfully handle Created event and send verification email if not verified', async () => {
-    const handler = userCreatedEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserCreatedEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent = getValidEvent();
 
     mockRequestContext.get.mockReturnValue({
@@ -79,7 +82,10 @@ describe('userCreatedEventHandler', () => {
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = userCreatedEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserCreatedEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent: IEvent<IUser> = {
       type: EUserEvents.Created,
       occurredAt: new Date(),
@@ -111,7 +117,10 @@ describe('userCreatedEventHandler', () => {
   });
 
   it('should successfully handle Created event and NOT send verification email if already verified', async () => {
-    const handler = userCreatedEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserCreatedEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent = getValidEvent();
     mockEvent.data = { ...validUserData, emailVerified: true };
 
@@ -131,7 +140,10 @@ describe('userCreatedEventHandler', () => {
   });
 
   it('should throw and report if event type is invalid', async () => {
-    const handler = userCreatedEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserCreatedEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent = getValidEvent();
     mockEvent.type = 'INVALID_EVENT' as keyof typeof EUserEvents;
 
@@ -147,7 +159,10 @@ describe('userCreatedEventHandler', () => {
   });
 
   it('should report an error if saveActivity fails', async () => {
-    const handler = userCreatedEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserCreatedEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent = getValidEvent();
 
     const error = new Error('DB Error');
@@ -163,7 +178,10 @@ describe('userCreatedEventHandler', () => {
   });
 
   it('should report an error if sendEmailVerificationEmail fails', async () => {
-    const handler = userCreatedEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserCreatedEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent = getValidEvent();
 
     const error = new Error('Email Error');

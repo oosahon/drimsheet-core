@@ -1,16 +1,16 @@
 import { EAccountingEntityEvents } from '../../../domain/accounting-entity/events/accounting-entity.events';
 import observability from '../../../infra/observability';
 import appContext from '../../context';
-import accountingEntityCreatedEventHandler from './accounting-entity-created-event.handler';
-import bootstrapIndividualAccountEntityPostingAccountsHandler from './bootstrap-individual-accounts-event.handler';
+import makeAccountingEntityCreatedEventHandler from './accounting-entity-created-event.handler';
+import makeBootstrapIndividualAccountEntityPostingAccountsHandler from './bootstrap-individual-accounts-event.handler';
 
 export const accountingEntityEventHandlers = {
-  created: accountingEntityCreatedEventHandler(
+  created: makeAccountingEntityCreatedEventHandler(
     observability.reporter,
     appContext.request
   ),
   bootstrapIndividualPostingAccounts:
-    bootstrapIndividualAccountEntityPostingAccountsHandler(
+    makeBootstrapIndividualAccountEntityPostingAccountsHandler(
       observability.reporter,
       appContext.request
     ),

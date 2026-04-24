@@ -18,9 +18,9 @@ import mockRequestContext, {
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
-import resetPasswordUseCase from '../reset-password.usecase';
+import makeResetPasswordUseCase from '../reset-password.usecase';
 
-describe('resetPasswordUseCase', () => {
+describe('makeResetPasswordUseCase', () => {
   const correlationId = 'test-corr-id';
   const idempotencyKey = 'idempotency-key';
 
@@ -46,7 +46,7 @@ describe('resetPasswordUseCase', () => {
   });
 
   const getUseCase = () =>
-    resetPasswordUseCase(
+    makeResetPasswordUseCase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,

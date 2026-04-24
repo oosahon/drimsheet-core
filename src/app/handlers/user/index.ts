@@ -1,28 +1,31 @@
 import { EUserEvents } from '../../../domain/user/events/user.events';
 import observability from '../../../infra/observability';
 import appContext from '../../context';
-import userPasswordResetEventHandler from './password-reset-event.handler';
-import userPasswordResetRequestedHandler from './password-reset-requested-event.handler';
-import userCreatedEventHandler from './user-created-event.handler';
-import userEmailVerifiedEventHandler from './user-email-verified-event.handler';
-import userLoggedInEventHandler from './user-logged-in-event.handler';
+import makeUserPasswordResetEventHandler from './password-reset-event.handler';
+import makeUserPasswordResetRequestedHandler from './password-reset-requested-event.handler';
+import makeUserCreatedEventHandler from './user-created-event.handler';
+import makeUserEmailVerifiedEventHandler from './user-email-verified-event.handler';
+import makeUserLoggedInEventHandler from './user-logged-in-event.handler';
 
 const userEventHandlers = {
-  created: userCreatedEventHandler(observability.reporter, appContext.request),
+  created: makeUserCreatedEventHandler(
+    observability.reporter,
+    appContext.request
+  ),
 
-  emailVerified: userEmailVerifiedEventHandler(
+  emailVerified: makeUserEmailVerifiedEventHandler(
     observability.reporter,
     appContext.request
   ),
-  loggedIn: userLoggedInEventHandler(
+  loggedIn: makeUserLoggedInEventHandler(
     observability.reporter,
     appContext.request
   ),
-  passwordResetRequested: userPasswordResetRequestedHandler(
+  passwordResetRequested: makeUserPasswordResetRequestedHandler(
     observability.reporter,
     appContext.request
   ),
-  passwordReset: userPasswordResetEventHandler(
+  passwordReset: makeUserPasswordResetEventHandler(
     observability.reporter,
     appContext.request
   ),

@@ -6,7 +6,7 @@ import IAccountingEntityRepo from '../../../../domain/accounting-entity/repos/ac
 import { IAccountingEntity } from '../../../../domain/accounting-entity/types/accounting-entity.types';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
-import requestContextInitMiddleware from '../request-context-init.middleware';
+import makeRequestContextInitMiddleware from '../request-context-init.middleware';
 
 let mockWebAppUrl = 'http://localhost:3000';
 let mockNodeEnv = 'test';
@@ -20,7 +20,7 @@ jest.mock('../../../../infra/config/vars.config', () => ({
   },
 }));
 
-describe('requestContextInitMiddleware', () => {
+describe('makeRequestContextInitMiddleware', () => {
   let mockRequestContext: jest.Mocked<IRequestContext>;
   let mockAccountingEntityRepo: jest.Mocked<IAccountingEntityRepo>;
   let mockAuthService: jest.Mocked<IAuthService>;
@@ -73,7 +73,7 @@ describe('requestContextInitMiddleware', () => {
   });
 
   it('should initialize request context with empty user and entity when no headers are provided', async () => {
-    const middleware = requestContextInitMiddleware(
+    const middleware = makeRequestContextInitMiddleware(
       mockRequestContext,
       mockAccountingEntityRepo,
       mockAuthService,
@@ -99,7 +99,7 @@ describe('requestContextInitMiddleware', () => {
       email: 'test@example.com',
     } as IUser);
 
-    const middleware = requestContextInitMiddleware(
+    const middleware = makeRequestContextInitMiddleware(
       mockRequestContext,
       mockAccountingEntityRepo,
       mockAuthService,
@@ -132,7 +132,7 @@ describe('requestContextInitMiddleware', () => {
       ownerId: 'user-id-123', // Matches user id
     } as IAccountingEntity);
 
-    const middleware = requestContextInitMiddleware(
+    const middleware = makeRequestContextInitMiddleware(
       mockRequestContext,
       mockAccountingEntityRepo,
       mockAuthService,
@@ -150,7 +150,7 @@ describe('requestContextInitMiddleware', () => {
 
   it('should implement client session methods correctly with undefined domain on localhost', async () => {
     mockWebAppUrl = 'http://localhost:3000'; // local
-    const middleware = requestContextInitMiddleware(
+    const middleware = makeRequestContextInitMiddleware(
       mockRequestContext,
       mockAccountingEntityRepo,
       mockAuthService,
@@ -198,7 +198,7 @@ describe('requestContextInitMiddleware', () => {
     mockWebAppUrl = 'https://production.purpleledger.app'; // production
     mockNodeEnv = 'production';
 
-    const middleware = requestContextInitMiddleware(
+    const middleware = makeRequestContextInitMiddleware(
       mockRequestContext,
       mockAccountingEntityRepo,
       mockAuthService,

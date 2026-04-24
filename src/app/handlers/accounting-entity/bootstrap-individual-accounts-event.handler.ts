@@ -6,7 +6,7 @@ import IReporter from '../../contracts/infra/reporter.contract';
 import accountingEntityUsecase from '../../usecases/accounting-entity';
 import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
 
-export default function bootstrapIndividualAccountEntityPostingAccountsHandler(
+export default function makeBootstrapIndividualAccountEntityPostingAccountsHandler(
   reporter: IReporter,
   requestContext: IRequestContext
 ) {

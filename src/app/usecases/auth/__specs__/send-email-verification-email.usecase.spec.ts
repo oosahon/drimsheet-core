@@ -11,9 +11,9 @@ import {
 } from '../../../../shared/value-objects/error';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import sendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
+import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 
-describe('sendEmailVerificationEmailUseCase', () => {
+describe('makeSendEmailVerificationEmailUseCase', () => {
   const correlationId = 'test-corr-id';
 
   beforeEach(() => {
@@ -24,7 +24,7 @@ describe('sendEmailVerificationEmailUseCase', () => {
   });
 
   it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
-    const usecase = sendEmailVerificationEmailUseCase(
+    const usecase = makeSendEmailVerificationEmailUseCase(
       mockRequestContext,
       mockLogger,
       mockAuthService,
@@ -41,7 +41,7 @@ describe('sendEmailVerificationEmailUseCase', () => {
     const userEmail = 'notfound@example.com';
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
-    const usecase = sendEmailVerificationEmailUseCase(
+    const usecase = makeSendEmailVerificationEmailUseCase(
       mockRequestContext,
       mockLogger,
       mockAuthService,
@@ -80,7 +80,7 @@ describe('sendEmailVerificationEmailUseCase', () => {
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
 
-    const usecase = sendEmailVerificationEmailUseCase(
+    const usecase = makeSendEmailVerificationEmailUseCase(
       mockRequestContext,
       mockLogger,
       mockAuthService,
@@ -126,7 +126,7 @@ describe('sendEmailVerificationEmailUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockAuthService.generateSignupToken.mockResolvedValue(token);
 
-    const usecase = sendEmailVerificationEmailUseCase(
+    const usecase = makeSendEmailVerificationEmailUseCase(
       mockRequestContext,
       mockLogger,
       mockAuthService,

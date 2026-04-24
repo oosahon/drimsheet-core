@@ -6,7 +6,7 @@ import IReporter from '../../contracts/infra/reporter.contract';
 import userUseCase from '../../usecases/user';
 import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
 
-function userEmailVerifiedEventHandler(
+function makeUserEmailVerifiedEventHandler(
   reporter: IReporter,
   requestContext: IRequestContext
 ) {
@@ -23,4 +23,4 @@ function userEmailVerifiedEventHandler(
   };
 }
 
-export default userEmailVerifiedEventHandler;
+export default makeUserEmailVerifiedEventHandler;

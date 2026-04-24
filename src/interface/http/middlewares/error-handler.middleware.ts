@@ -1,10 +1,10 @@
 import { ErrorRequestHandler } from 'express';
 import httpHandlers from '../handlers';
 
-const errorHandlerMiddleware = (): ErrorRequestHandler => {
+const makeErrorHandlerMiddleware = (): ErrorRequestHandler => {
   return (error, _req, res, _next) => {
     return httpHandlers.error(_req, res, error);
   };
 };
 
-export default errorHandlerMiddleware;
+export default makeErrorHandlerMiddleware;

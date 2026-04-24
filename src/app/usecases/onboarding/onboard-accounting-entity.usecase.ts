@@ -11,7 +11,7 @@ import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo
 import ledgerService from '../../../domain/ledger/services/ledger-bootstrap.service';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
-import userPreferencesService from '../../../domain/user/services/user-preferences.service';
+import makeUserPreferencesService from '../../../domain/user/services/user-preferences.service';
 import {
   EAppUsageModePreference,
   IUserPreferences,
@@ -48,7 +48,7 @@ const validationSchema = z.object({
   }),
 });
 
-export default function onboardAccountingEntityUseCase(
+export default function makeOnboardAccountingEntityUseCase(
   requestContext: IRequestContext,
   accountingEntityRepo: IAccountingEntityRepo,
   userPreferencesRepo: IUserPreferencesRepo,
@@ -62,7 +62,7 @@ export default function onboardAccountingEntityUseCase(
     const accountingEntityServiceFn =
       accountingEntityService(accountingEntityRepo);
     const userPreferencesServiceFn =
-      userPreferencesService(userPreferencesRepo);
+      makeUserPreferencesService(userPreferencesRepo);
     const ledgerServiceFn = ledgerService(ledgerAccountRepo);
 
     const { functionalCurrencyCode, reportingCurrencyCode } = payload;

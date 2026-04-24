@@ -3,7 +3,7 @@ import ILogger from '../../../app/contracts/infra/logger.contract';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
 import httpHandlers from '../handlers';
 
-export default function isOptionalAuthenticatedUserMiddleware(
+export default function makeIsOptionalAuthenticatedUserMiddleware(
   logger: ILogger,
   reporter: IReporter
 ): RequestHandler {

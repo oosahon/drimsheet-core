@@ -1,7 +1,7 @@
 import ICurrencyRepo from '../../../domain/currency/repos/currency.repo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 
-export default function getCurrenciesUseCase(
+export default function makeGetCurrenciesUseCase(
   currencyRepo: ICurrencyRepo,
   requestContext: IRequestContext
 ) {

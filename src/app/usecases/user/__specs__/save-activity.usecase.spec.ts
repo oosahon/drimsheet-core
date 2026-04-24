@@ -5,13 +5,13 @@ import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import saveUserActivityUseCase from '../save-activity.usecase';
+import makeSaveUserActivityUseCase from '../save-activity.usecase';
 
 jest.mock('../../../../domain/user/entities/user-activity.entity', () => ({
   make: jest.fn(),
 }));
 
-describe('saveUserActivityUseCase', () => {
+describe('makeSaveUserActivityUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -34,7 +34,7 @@ describe('saveUserActivityUseCase', () => {
     const mockActivityEntity = { id: 'activity-id' };
     (userActivityEntity.make as jest.Mock).mockReturnValue(mockActivityEntity);
 
-    const usecase = saveUserActivityUseCase(
+    const usecase = makeSaveUserActivityUseCase(
       MockRequestContext,
       mockUserActivityRepo
     );
@@ -71,7 +71,7 @@ describe('saveUserActivityUseCase', () => {
     const mockActivityEntity = { id: 'activity-id' };
     (userActivityEntity.make as jest.Mock).mockReturnValue(mockActivityEntity);
 
-    const usecase = saveUserActivityUseCase(
+    const usecase = makeSaveUserActivityUseCase(
       MockRequestContext,
       mockUserActivityRepo
     );

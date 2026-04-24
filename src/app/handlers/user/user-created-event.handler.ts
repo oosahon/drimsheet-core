@@ -7,7 +7,7 @@ import authUseCase from '../../usecases/auth';
 import userUseCase from '../../usecases/user';
 import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
 
-export default function userCreatedEventHandler(
+export default function makeUserCreatedEventHandler(
   reporter: IReporter,
   requestContext: IRequestContext
 ) {

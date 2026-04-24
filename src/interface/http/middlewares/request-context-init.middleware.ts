@@ -46,10 +46,10 @@ function handleClearRefreshToken(res: Response) {
  *
  * This middleware is used to initialize the request context
  */
-export default function requestContextInitMiddleware(
+export default function makeRequestContextInitMiddleware(
   requestContext: IRequestContext,
   accountingEntityRepo: IAccountingEntityRepo,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   userRepo: IUserRepo,
   logger: ILogger
 ): RequestHandler {
@@ -59,7 +59,7 @@ export default function requestContextInitMiddleware(
 
     const user = await getAuthUserFromRequest(
       req,
-      authService,
+      makeAuthService,
       logger,
       userRepo
     );

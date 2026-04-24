@@ -14,15 +14,15 @@ import {
 } from '../../../../shared/value-objects/error';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import signupWithEmailUsecase from '../signup-with-email.usecase';
+import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
 
-describe('signupWithEmailUsecase', () => {
+describe('makeSignupWithEmailUsecase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
-    const usecase = signupWithEmailUsecase(
+    const usecase = makeSignupWithEmailUsecase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
@@ -65,7 +65,7 @@ describe('signupWithEmailUsecase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
     mockAuthService.hashPassword.mockResolvedValue('hashed-password');
 
-    const usecase = signupWithEmailUsecase(
+    const usecase = makeSignupWithEmailUsecase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
@@ -137,7 +137,7 @@ describe('signupWithEmailUsecase', () => {
       id: 'existing-user-id',
     } as unknown as IUser);
 
-    const usecase = signupWithEmailUsecase(
+    const usecase = makeSignupWithEmailUsecase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
@@ -173,7 +173,7 @@ describe('signupWithEmailUsecase', () => {
 
     mockAuthService.isPermittedEmail.mockReturnValue(false);
 
-    const usecase = signupWithEmailUsecase(
+    const usecase = makeSignupWithEmailUsecase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,

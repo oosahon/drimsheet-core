@@ -3,7 +3,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import userPasswordResetEventHandler from '../password-reset-event.handler';
+import makeUserPasswordResetEventHandler from '../password-reset-event.handler';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
@@ -17,7 +17,7 @@ jest.mock('../../../usecases/user', () => ({
   },
 }));
 
-describe('userPasswordResetEventHandler', () => {
+describe('makeUserPasswordResetEventHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -44,7 +44,7 @@ describe('userPasswordResetEventHandler', () => {
   });
 
   it('should successfully handle PasswordReset event', async () => {
-    const handler = userPasswordResetEventHandler(
+    const handler = makeUserPasswordResetEventHandler(
       MockReporter,
       mockRequestContext
     );
@@ -68,7 +68,7 @@ describe('userPasswordResetEventHandler', () => {
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = userPasswordResetEventHandler(
+    const handler = makeUserPasswordResetEventHandler(
       MockReporter,
       mockRequestContext
     );
@@ -97,7 +97,7 @@ describe('userPasswordResetEventHandler', () => {
   });
 
   it('should throw and report if event type is invalid', async () => {
-    const handler = userPasswordResetEventHandler(
+    const handler = makeUserPasswordResetEventHandler(
       MockReporter,
       mockRequestContext
     );
@@ -115,7 +115,7 @@ describe('userPasswordResetEventHandler', () => {
   });
 
   it('should report an error if saveActivity fails', async () => {
-    const handler = userPasswordResetEventHandler(
+    const handler = makeUserPasswordResetEventHandler(
       MockReporter,
       mockRequestContext
     );

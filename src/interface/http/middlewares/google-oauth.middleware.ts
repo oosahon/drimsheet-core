@@ -3,14 +3,14 @@ import passport from 'passport';
 import { IUser } from '../../../domain/user/types/user.types';
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 
-export function initiateLoginWithGoogleMiddleware(): RequestHandler {
+export function makeInitiateLoginWithGoogleMiddleware(): RequestHandler {
   return passport.authenticate('google', {
     scope: ['profile', 'email'],
     session: false,
   });
 }
 
-export function completeLoginWithGoogleMiddleware(
+export function makeCompleteLoginWithGoogleMiddleware(
   handleGoogleCallback: (user: IUser) => Promise<string>
 ): RequestHandler {
   return async (req, res, next) => {

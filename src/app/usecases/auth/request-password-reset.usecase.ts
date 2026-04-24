@@ -12,10 +12,10 @@ import IEventBus from '../../contracts/infra/event-bus.contract';
 import ITransactionalEmailService from '../../contracts/infra/transactional-email-service.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
 
-export default function requestPasswordResetUseCase(
+export default function makeRequestPasswordResetUseCase(
   requestContext: IRequestContext,
   userRepo: IUserRepo,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   transactionEmailService: ITransactionalEmailService,
   eventBus: IEventBus,
   userAuthRepo: IUserAuthRepo
@@ -39,7 +39,7 @@ export default function requestPasswordResetUseCase(
       throw new ErrorBadRequest('You signed up with a different method');
     }
 
-    const resetToken = await authService.generatePasswordResetToken(user);
+    const resetToken = await makeAuthService.generatePasswordResetToken(user);
     const resetLink = `${WEB_APP_URL}/auth/reset-password?token=${resetToken}`;
 
     await transactionEmailService.sendPasswordResetLink({

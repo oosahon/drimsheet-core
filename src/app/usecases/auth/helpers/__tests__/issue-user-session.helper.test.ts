@@ -2,7 +2,7 @@ import userEntity from '../../../../../domain/user/entities/user.entity';
 import { IEvent } from '../../../../../shared/types/event.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../../contracts/app/request-context.contract';
-import issueUserSessionHelper from '../issue-user-session.helper';
+import makeIssueUserSessionHelper from '../issue-user-session.helper';
 
 import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
 import mockUserSessionRepo from '../../../../../infra/persistence/repos/__mocks__/user-session.repo.impl.mock';
@@ -17,7 +17,7 @@ jest.mock('../../../../../shared/utils/uuid-generator', () => ({
   default: jest.fn().mockReturnValue('mocked-uuid'),
 }));
 
-describe('issueUserSessionHelper', () => {
+describe('makeIssueUserSessionHelper', () => {
   const [mockUser] = userEntity.make({
     email: 'johndoe@example.com',
     emailVerified: true,
@@ -48,10 +48,10 @@ describe('issueUserSessionHelper', () => {
   });
 
   const runHelper = () =>
-    issueUserSessionHelper({
+    makeIssueUserSessionHelper({
       user: mockUser,
       reqContext: mockRequestContext,
-      authService: mockAuthService,
+      makeAuthService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,
       repoService: mockRepoService,

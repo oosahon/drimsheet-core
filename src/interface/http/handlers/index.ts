@@ -1,8 +1,8 @@
 import observability from '../../../infra/observability';
-import httpErrorHandler from './error.handler';
+import makeHttpErrorHandler from './error.handler';
 
 const httpHandlers = {
-  error: httpErrorHandler(observability.reporter),
+  error: makeHttpErrorHandler(observability.reporter),
 };
 
 export default httpHandlers;

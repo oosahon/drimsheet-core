@@ -18,9 +18,9 @@ import {
 } from '../../../../shared/value-objects/error';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import onboardAccountingEntityUseCase from '../onboard-accounting-entity.usecase';
+import makeOnboardAccountingEntityUseCase from '../onboard-accounting-entity.usecase';
 
-describe('onboardAccountingEntityUseCase', () => {
+describe('makeOnboardAccountingEntityUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -52,7 +52,7 @@ describe('onboardAccountingEntityUseCase', () => {
       user: mockUser,
     } as unknown as IRequestContextData);
 
-    const usecase = onboardAccountingEntityUseCase(
+    const usecase = makeOnboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
@@ -116,7 +116,7 @@ describe('onboardAccountingEntityUseCase', () => {
       user: mockUser,
     } as unknown as IRequestContextData);
 
-    const usecase = onboardAccountingEntityUseCase(
+    const usecase = makeOnboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
@@ -145,7 +145,7 @@ describe('onboardAccountingEntityUseCase', () => {
       correlationId: 'test-corr-id',
     } as unknown as IRequestContextData);
 
-    const usecase = onboardAccountingEntityUseCase(
+    const usecase = makeOnboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
@@ -165,7 +165,7 @@ describe('onboardAccountingEntityUseCase', () => {
       } as unknown as IUser,
     } as unknown as IRequestContextData);
 
-    const usecase = onboardAccountingEntityUseCase(
+    const usecase = makeOnboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
@@ -191,7 +191,7 @@ describe('onboardAccountingEntityUseCase', () => {
       } as unknown as IUser,
     } as unknown as IRequestContextData);
 
-    const usecase = onboardAccountingEntityUseCase(
+    const usecase = makeOnboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
@@ -209,7 +209,7 @@ describe('onboardAccountingEntityUseCase', () => {
   });
 
   it('should throw Zod error for unsupported operating country code', async () => {
-    const usecase = onboardAccountingEntityUseCase(
+    const usecase = makeOnboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,

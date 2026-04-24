@@ -5,7 +5,7 @@ import accountingEntityEntity from '../../../domain/accounting-entity/entities/a
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import httpHandlers from '../handlers';
 
-export default function isAuthenticatedUserMiddleware(
+export default function makeIsAuthenticatedUserMiddleware(
   requestContext: IRequestContext
 ): RequestHandler {
   return async (req, res, next) => {

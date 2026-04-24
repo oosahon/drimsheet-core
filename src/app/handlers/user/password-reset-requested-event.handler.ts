@@ -6,7 +6,7 @@ import IReporter from '../../contracts/infra/reporter.contract';
 import userUseCase from '../../usecases/user';
 import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
 
-export default function userPasswordResetRequestedHandler(
+export default function makeUserPasswordResetRequestedHandler(
   reporter: IReporter,
   requestContext: IRequestContext
 ) {

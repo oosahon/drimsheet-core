@@ -19,7 +19,7 @@ import {
 } from '../../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../../contracts/repos/user-auth.repo.contract';
 
-export default function googleOAuthHelper(
+export default function makeGoogleOAuthHelper(
   eventBus: IEventBus,
   requestContext: IRequestContext,
   userRepo: IUserRepo,

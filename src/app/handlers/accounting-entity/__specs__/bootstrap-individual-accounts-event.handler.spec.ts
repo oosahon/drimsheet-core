@@ -6,7 +6,7 @@ import {
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import bootstrapIndividualAccountEntityPostingAccountsHandler from '../bootstrap-individual-accounts-event.handler';
+import makeBootstrapIndividualAccountEntityPostingAccountsHandler from '../bootstrap-individual-accounts-event.handler';
 
 import { NAIRA } from '../../../../domain/currency/config/currencies.config';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
@@ -21,7 +21,7 @@ jest.mock('../../../usecases/accounting-entity', () => ({
   },
 }));
 
-describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
+describe('makeBootstrapIndividualAccountEntityPostingAccountsHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -59,7 +59,7 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
   });
 
   it('should successfully handle BootstrapIndividualPostingAccounts event', async () => {
-    const handler = bootstrapIndividualAccountEntityPostingAccountsHandler(
+    const handler = makeBootstrapIndividualAccountEntityPostingAccountsHandler(
       mockReporter,
       mockRequestContext
     );
@@ -85,7 +85,7 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = bootstrapIndividualAccountEntityPostingAccountsHandler(
+    const handler = makeBootstrapIndividualAccountEntityPostingAccountsHandler(
       mockReporter,
       mockRequestContext
     );
@@ -116,7 +116,7 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
   });
 
   it('should throw and report if event type is invalid', async () => {
-    const handler = bootstrapIndividualAccountEntityPostingAccountsHandler(
+    const handler = makeBootstrapIndividualAccountEntityPostingAccountsHandler(
       mockReporter,
       mockRequestContext
     );
@@ -137,7 +137,7 @@ describe('bootstrapIndividualAccountEntityPostingAccountsHandler', () => {
   });
 
   it('should report an error if setupNonPowerUserPostingAccounts fails', async () => {
-    const handler = bootstrapIndividualAccountEntityPostingAccountsHandler(
+    const handler = makeBootstrapIndividualAccountEntityPostingAccountsHandler(
       mockReporter,
       mockRequestContext
     );

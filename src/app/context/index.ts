@@ -1,7 +1,7 @@
-import requestContext from './request-context';
+import makeRequestContext from './request-context';
 
 const appContext = Object.freeze({
-  request: requestContext(),
+  request: makeRequestContext(),
 });
 
 export default appContext;

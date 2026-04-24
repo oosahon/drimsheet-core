@@ -5,9 +5,9 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import getUserPreferencesUseCase from '../get-preferences.usecase';
+import makeGetUserPreferencesUseCase from '../get-preferences.usecase';
 
-describe('getUserPreferencesUseCase', () => {
+describe('makeGetUserPreferencesUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -34,7 +34,7 @@ describe('getUserPreferencesUseCase', () => {
 
     mockUserPreferencesRepo.findById.mockResolvedValue(mockPreferences);
 
-    const usecase = getUserPreferencesUseCase(
+    const usecase = makeGetUserPreferencesUseCase(
       MockRequestContext,
       mockUserPreferencesRepo
     );
@@ -50,7 +50,7 @@ describe('getUserPreferencesUseCase', () => {
   it('should throw ErrorUnauthorized if user is not in request context', async () => {
     MockRequestContext.get.mockReturnValue({} as IRequestContextData);
 
-    const usecase = getUserPreferencesUseCase(
+    const usecase = makeGetUserPreferencesUseCase(
       MockRequestContext,
       mockUserPreferencesRepo
     );

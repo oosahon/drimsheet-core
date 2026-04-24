@@ -4,9 +4,9 @@ import mockAuthService from '../../../../infra/services/__mocks__/auth.service.m
 import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
-import logoutUseCase from '../logout.usecase';
+import makeLogoutUseCase from '../logout.usecase';
 
-describe('logoutUseCase', () => {
+describe('makeLogoutUseCase', () => {
   const correlationId = 'mock-correlation-id'; // This is what is defined in request-context.mock.ts
 
   const [mockUser] = userEntity.make({
@@ -27,7 +27,7 @@ describe('logoutUseCase', () => {
   });
 
   const getUseCase = () =>
-    logoutUseCase(mockRequestContext, mockAuthService, mockUserSessionRepo);
+    makeLogoutUseCase(mockRequestContext, mockAuthService, mockUserSessionRepo);
 
   it('should clear refresh token and delete session if valid refresh token is present', async () => {
     mockClientSession.getRefreshToken.mockReturnValue('valid-refresh-token');

@@ -36,7 +36,7 @@ export default function setupOAuth() {
             email: profile.emails?.[0].value || '',
           };
 
-          await authUseCase.googleOAuthHelper(gUser, done);
+          await authUseCase.makeGoogleOAuthHelper(gUser, done);
         } catch (error) {
           done(error as Error, false);
         }

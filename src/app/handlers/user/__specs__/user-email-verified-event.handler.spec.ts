@@ -3,7 +3,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import userEmailVerifiedEventHandler from '../user-email-verified-event.handler';
+import makeUserEmailVerifiedEventHandler from '../user-email-verified-event.handler';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
@@ -17,7 +17,7 @@ jest.mock('../../../usecases/user', () => ({
   },
 }));
 
-describe('userEmailVerifiedEventHandler', () => {
+describe('makeUserEmailVerifiedEventHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -44,7 +44,7 @@ describe('userEmailVerifiedEventHandler', () => {
   });
 
   it('should successfully handle EmailVerified event', async () => {
-    const handler = userEmailVerifiedEventHandler(
+    const handler = makeUserEmailVerifiedEventHandler(
       MockReporter,
       mockRequestContext
     );
@@ -68,7 +68,7 @@ describe('userEmailVerifiedEventHandler', () => {
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = userEmailVerifiedEventHandler(
+    const handler = makeUserEmailVerifiedEventHandler(
       MockReporter,
       mockRequestContext
     );
@@ -97,7 +97,7 @@ describe('userEmailVerifiedEventHandler', () => {
   });
 
   it('should throw if event type is invalid', async () => {
-    const handler = userEmailVerifiedEventHandler(
+    const handler = makeUserEmailVerifiedEventHandler(
       MockReporter,
       mockRequestContext
     );
@@ -112,7 +112,7 @@ describe('userEmailVerifiedEventHandler', () => {
   });
 
   it('should report an error if saveActivity fails', async () => {
-    const handler = userEmailVerifiedEventHandler(
+    const handler = makeUserEmailVerifiedEventHandler(
       MockReporter,
       mockRequestContext
     );
