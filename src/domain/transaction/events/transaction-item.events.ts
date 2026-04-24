@@ -1,31 +1,27 @@
 import { IEvent } from '../../../shared/types/event.types';
 import eventValue from '../../../shared/value-objects/event.vo';
-import {
-  ITransactionLineItem,
-  UTransactionType,
-} from '../types/transaction.types';
+import { ITransactionLine } from '../types/transaction.types';
 
-export const ETransactionItemEvent = {
-  TransactionItemCreated: 'domain:transaction:item:created',
+export const ETransactionLineEvent = {
+  TransactionLineCreated: 'domain:transaction:line:created',
 } as const;
 
-export const transactionLineItemEventDescriptions: Record<string, string> = {
-  [ETransactionItemEvent.TransactionItemCreated]:
-    'Created a new transaction item.',
+export const transactionLineEventDescriptions: Record<string, string> = {
+  [ETransactionLineEvent.TransactionLineCreated]:
+    'Created a new transaction line.',
 };
 
-function makeTransactionItemCreatedEvent(
-  payload: ITransactionLineItem,
-  transactionType: UTransactionType
-): Readonly<IEvent<ITransactionLineItem>> {
-  return eventValue.make<ITransactionLineItem>({
-    type: `domain:transaction:${transactionType}:item:created`,
+function makeTransactionLineCreatedEvent(
+  payload: ITransactionLine
+): Readonly<IEvent<ITransactionLine>> {
+  return eventValue.make<ITransactionLine>({
+    type: ETransactionLineEvent.TransactionLineCreated,
     data: payload,
   });
 }
 
-const transactionLineItemEvents = Object.freeze({
-  created: makeTransactionItemCreatedEvent,
+const transactionLineEvents = Object.freeze({
+  created: makeTransactionLineCreatedEvent,
 });
 
-export default transactionLineItemEvents;
+export default transactionLineEvents;

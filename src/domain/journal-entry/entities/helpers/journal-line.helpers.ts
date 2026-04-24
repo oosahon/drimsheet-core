@@ -12,7 +12,11 @@ function validateSide(side: UJournalSide) {
   }
 }
 
-function getDescription(value: string) {
+function getDescription(value?: string | null) {
+  if (!value) {
+    return null;
+  }
+
   return stringUtils.sanitizeAndValidate(value, {
     max: 100,
     min: 1,

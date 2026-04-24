@@ -23,8 +23,8 @@ export interface IJournalLine {
   exchangeRate: IExchangeRate | null; // if null, functionalAmount === amount
   functionalAmount: IMoney; // derived from amount and exchangeRate
   side: UJournalSide;
-  description?: string;
-  meta?: IJournalLineMeta;
+  description: string | null;
+  meta: IJournalLineMeta | null;
   version: number;
   createdAt: Date;
   updatedAt: Date;

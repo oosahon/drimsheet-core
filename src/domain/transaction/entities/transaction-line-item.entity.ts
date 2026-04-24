@@ -5,16 +5,16 @@ import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import { AppError } from '../../../shared/value-objects/error';
 import moneyValue from '../../../shared/value-objects/money.vo';
-import transactionLineItemEvents from '../events/transaction-item.events';
+import transactionLineEvents from '../events/transaction-item.events';
 import {
   ETransactionType,
   ITransaction,
-  ITransactionLineItem,
+  ITransactionLine,
   UTransactionType,
 } from '../types/transaction.types';
 
 export type TMakeTransactionLineItemPayload = TCreationOmits<
-  ITransactionLineItem,
+  ITransactionLine,
   'transactionId' | 'createdAt' | 'updatedAt' | 'deletedAt'
 >;
 
@@ -40,7 +40,7 @@ function validateCounterpartyId(
 function make(
   transactionDetails: TTransactionDetails,
   payload: TMakeTransactionLineItemPayload
-): TEntityWithEvents<ITransactionLineItem, ITransactionLineItem> {
+): TEntityWithEvents<ITransactionLine, ITransactionLine> {
   stringUtils.validateUUID(transactionDetails.id);
   stringUtils.validateUUID(payload.targetAccountId);
   validateCounterpartyId(transactionDetails.type, payload.counterPartyId);
@@ -48,7 +48,7 @@ function make(
   moneyValue.validate(payload.amount);
   moneyValue.validate(payload.functionalAmount);
 
-  const item: ITransactionLineItem = Object.freeze({
+  const item: ITransactionLine = Object.freeze({
     id: generateUUID(),
     description: payload.description,
     amount: payload.amount,
@@ -61,16 +61,13 @@ function make(
     deletedAt: null,
   });
 
-  const event = transactionLineItemEvents.created(
-    item,
-    transactionDetails.type
-  );
+  const event = transactionLineEvents.created(item);
 
   return [item, [event]];
 }
 
-const transactionLineItemEntity = Object.freeze({
+const transactionLineEntity = Object.freeze({
   make,
 });
 
-export default transactionLineItemEntity;
+export default transactionLineEntity;

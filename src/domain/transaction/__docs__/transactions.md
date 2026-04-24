@@ -25,7 +25,7 @@ The transaction header captures the core metadata of the financial event.
 - **`sourceAccountId`:** To simplify UX (mimicking standard "Spend/Receive Money" interfaces), a transaction explicitly defines a single source account at the header level.
 - **Concurrency:** Transactions natively employ Optimistic Concurrency Control via a `version` integer to prevent the Lost Update Problem over disconnected HTTP editing.
 
-### The Lines (`ITransactionLineItem`)
+### The Lines (`ITransactionLine`)
 
 The line items natively support the "Category" abstraction.
 
@@ -37,7 +37,7 @@ To ensure strict balancing predictability, the system enforces a **single curren
 
 1. The transaction header defines the global `amount` and the single `exchangeRate`.
 2. The header calculates and locks in the global `functionalAmount`.
-3. Every `ITransactionLineItem` maps its respective chunk of the `amount` and exactly mirrors the exchange calculation via its own `functionalAmount`.
+3. Every `ITransactionLine` maps its respective chunk of the `amount` and exactly mirrors the exchange calculation via its own `functionalAmount`.
 
 _(Cross-currency operations are supported conceptually through the system, but the individual `Transaction` entity remains confined to one transaction currency)._
 
@@ -50,7 +50,7 @@ Because the `Transaction` represents the source document originating financial i
 
 ## Tax Handling
 
-Taxes are strictly modeled as explicit items rather than dynamically calculated implicit properties. If a transaction represents an Expense that includes VAT, the total is split into multiple `ITransactionLineItem` lines:
+Taxes are strictly modeled as explicit items rather than dynamically calculated implicit properties. If a transaction represents an Expense that includes VAT, the total is split into multiple `ITransactionLine` lines:
 
 1. The base expense mapped to the relevant `accountId`/`categoryId`.
 2. The discrete tax amount mapped directly to a distinct tax expense `accountId`.

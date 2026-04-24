@@ -1,4 +1,5 @@
 import { IMoney } from '../../../../shared/types/money.types';
+import stringUtils from '../../../../shared/utils/string';
 import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import {
@@ -20,7 +21,7 @@ function isUniqueSequenceOrder(lineItems: IJournalLine[]) {
   return sequenceOrders.length === uniqueSequenceOrders.size;
 }
 
-function validateLineItems(lineItems: IJournalLine[]) {
+function validateLine(lineItems: IJournalLine[]) {
   if (!lineItems.length || lineItems.length < 2) {
     throw new AppError('Invalid line items', { cause: lineItems });
   }
@@ -56,10 +57,20 @@ function validateLineItems(lineItems: IJournalLine[]) {
   }
 }
 
+function getMemo(value: string | null) {
+  if (!value) return null;
+
+  return stringUtils.sanitizeAndValidate(value, {
+    max: 100,
+    min: 1,
+  });
+}
+
 const journalEntryEntityHelpers = Object.freeze({
   validateStatus,
-  validateLineItems,
+  validateLine,
   isUniqueSequenceOrder,
+  getMemo,
 });
 
 export default journalEntryEntityHelpers;

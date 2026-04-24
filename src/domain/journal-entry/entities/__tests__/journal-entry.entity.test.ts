@@ -275,7 +275,7 @@ describe('JournalEntry Entity', () => {
       });
     });
 
-    describe('validateLineItems', () => {
+    describe('validateLine', () => {
       it('throws an AppError for an invalid side', () => {
         const item1: IJournalLine = {
           id: '1' as TEntityId,
@@ -288,7 +288,7 @@ describe('JournalEntry Entity', () => {
           // @ts-expect-error Testing invalid side at runtime
           side: 'InvalidSide',
           description: 'test',
-          meta: undefined,
+          meta: null,
           version: 1,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -300,9 +300,9 @@ describe('JournalEntry Entity', () => {
           side: EJournalSide.Credit,
         };
 
-        expect(() =>
-          journalEntryEntity.validateLineItems([item1, item2])
-        ).toThrow(AppError);
+        expect(() => journalEntryEntity.validateLine([item1, item2])).toThrow(
+          AppError
+        );
       });
     });
   });

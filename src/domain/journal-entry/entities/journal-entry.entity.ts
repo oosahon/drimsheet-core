@@ -9,7 +9,7 @@ import { IJournalLine } from '../types/journal-line.types';
 import helpers from './helpers/journal-entry.entity.helpers';
 import journalLineEntity, {
   IMakePayload as IJournalLineMakePayload,
-} from './journal-line-item.entity';
+} from './journal-line.entity';
 
 interface IMakePayload extends Pick<
   IJournalEntry,
@@ -40,19 +40,14 @@ function make(
   const id = generateUUID();
   const timestamp = new Date();
 
-  const memo = stringUtils.sanitizeAndValidate(payload.memo, {
-    max: 100,
-    min: 1,
-  });
+  const memo = helpers.getMemo(payload.memo);
 
   const lineItemsWithEvents = payload.lineItems.map((item) =>
     journalLineEntity.make({ id, memo, createdAt: timestamp }, item)
   );
 
   const lineItems = lineItemsWithEvents.map(([item]) => item);
-  helpers.validateLineItems(lineItems);
-
-  const events = lineItemsWithEvents.flatMap(([, event]) => event);
+  helpers.validateLine(lineItems);
 
   const entry: IJournalEntry = {
     id,
@@ -70,6 +65,7 @@ function make(
     updatedAt: timestamp,
   };
 
+  const events = lineItemsWithEvents.flatMap(([, event]) => event);
   const entityEvent = journalEntryEvents.created(entry);
 
   return [Object.freeze(entry), [entityEvent, ...events]];

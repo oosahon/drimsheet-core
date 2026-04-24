@@ -7,9 +7,9 @@ import moneyValue from '../../../shared/value-objects/money.vo';
 import { ICurrency } from '../../currency/types/currency.types';
 import exchangeRateValue from '../../currency/value-objects/exchange-rate.vo';
 import transactionEvents from '../events/transaction.events';
-import { ITransaction, ITransactionLineItem } from '../types/transaction.types';
+import { ITransaction, ITransactionLine } from '../types/transaction.types';
 import helpers from './helpers/transaction.entity.helpers';
-import transactionLineItemEntity, {
+import transactionLineEntity, {
   TMakeTransactionLineItemPayload,
 } from './transaction-line-item.entity';
 
@@ -41,7 +41,7 @@ function getReference(reference?: string) {
 function make(
   payload: IMakePayload,
   itemsPayload: TMakeTransactionLineItemPayload[]
-): TEntityWithEvents<ITransaction, ITransaction | ITransactionLineItem> {
+): TEntityWithEvents<ITransaction, ITransaction | ITransactionLine> {
   stringUtils.validateUUID(payload.accountingEntityId);
   helpers.validateType(payload.type);
   helpers.validateStatus(payload.status);
@@ -56,7 +56,7 @@ function make(
   const timestamp = new Date();
 
   const itemsWithEvents = itemsPayload.map((item) => {
-    return transactionLineItemEntity.make(
+    return transactionLineEntity.make(
       { id, type: payload.type, createdAt: timestamp },
       item
     );

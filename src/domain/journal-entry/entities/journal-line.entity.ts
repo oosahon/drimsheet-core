@@ -8,7 +8,7 @@ import { ICurrency } from '../../currency/types/currency.types';
 import journalLineEvents from '../events/journal-line-item.events';
 import { IJournalEntry } from '../types/journal-entry.types';
 import { IJournalLine } from '../types/journal-line.types';
-import helpers from './helpers/journal-line-item.helpers';
+import helpers from './helpers/journal-line.helpers';
 
 export interface IMakePayload extends Pick<
   IJournalLine,
@@ -50,7 +50,7 @@ function make(
     functionalAmount,
     side: payload.side,
     description,
-    meta: undefined, // TODO: add meta when needed
+    meta: null, // TODO: add meta when needed
     version: 1,
     createdAt: entryPayload.createdAt,
     updatedAt: entryPayload.createdAt,

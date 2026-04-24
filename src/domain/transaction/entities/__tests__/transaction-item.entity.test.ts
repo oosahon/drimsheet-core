@@ -3,7 +3,7 @@ import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import { USD } from '../../../currency/config/currencies.config';
 import { ETransactionType } from '../../types/transaction.types';
-import transactionLineItemEntity from '../transaction-line-item.entity';
+import transactionLineEntity from '../transaction-line-item.entity';
 
 describe('Transaction Item Entity', () => {
   beforeEach(() => {
@@ -31,7 +31,7 @@ describe('Transaction Item Entity', () => {
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       };
 
-      const [item, events] = transactionLineItemEntity.make(
+      const [item, events] = transactionLineEntity.make(
         {
           id: validTransactionId,
           type: ETransactionType.Expense,
@@ -54,7 +54,7 @@ describe('Transaction Item Entity', () => {
       expect(Object.isFrozen(item)).toBe(true);
 
       expect(events).toHaveLength(1);
-      expect(events[0].type).toBe('domain:transaction:expense:item:created');
+      expect(events[0].type).toBe('domain:transaction:line:created');
       expect(events[0].data).toEqual(item);
     });
 
@@ -68,7 +68,7 @@ describe('Transaction Item Entity', () => {
       };
 
       expect(() =>
-        transactionLineItemEntity.make(
+        transactionLineEntity.make(
           {
             id: 'invalid-uuid' as TEntityId,
             type: ETransactionType.Expense,
@@ -89,7 +89,7 @@ describe('Transaction Item Entity', () => {
       };
 
       expect(() =>
-        transactionLineItemEntity.make(
+        transactionLineEntity.make(
           {
             id: validTransactionId,
             type: ETransactionType.Expense,
@@ -110,7 +110,7 @@ describe('Transaction Item Entity', () => {
       };
 
       expect(() =>
-        transactionLineItemEntity.make(
+        transactionLineEntity.make(
           {
             id: validTransactionId,
             type: ETransactionType.Expense,
@@ -125,7 +125,7 @@ describe('Transaction Item Entity', () => {
       const payload = {
         description: 'Pens',
         amount: { amount: 50, currency: USD } as unknown as Parameters<
-          typeof transactionLineItemEntity.make
+          typeof transactionLineEntity.make
         >[1]['amount'],
         functionalAmount: moneyValue.make(50.0, USD, false),
         targetAccountId: validAccountId,
@@ -133,7 +133,7 @@ describe('Transaction Item Entity', () => {
       };
 
       expect(() =>
-        transactionLineItemEntity.make(
+        transactionLineEntity.make(
           {
             id: validTransactionId,
             type: ETransactionType.Expense,
@@ -152,14 +152,14 @@ describe('Transaction Item Entity', () => {
           amount: 50,
           currency: USD,
         } as unknown as Parameters<
-          typeof transactionLineItemEntity.make
+          typeof transactionLineEntity.make
         >[1]['functionalAmount'],
         targetAccountId: validAccountId,
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       };
 
       expect(() =>
-        transactionLineItemEntity.make(
+        transactionLineEntity.make(
           {
             id: validTransactionId,
             type: ETransactionType.Expense,

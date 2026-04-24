@@ -4,7 +4,7 @@ import { AppError } from '../../../shared/value-objects/error';
 import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
 import { IExchangeRate } from '../../currency/types/exchange-rate.types';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
-import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line-item.entity';
+import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
 import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../journal-entry/types/journal-line.types';
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';

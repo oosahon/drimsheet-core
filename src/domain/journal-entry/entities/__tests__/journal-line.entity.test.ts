@@ -6,7 +6,7 @@ import { EExchangeRateType } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
-import journalLineEntity from '../journal-line-item.entity';
+import journalLineEntity from '../journal-line.entity';
 
 type TMakePayload = Parameters<typeof journalLineEntity.make>[1];
 type TEntryPayload = Parameters<typeof journalLineEntity.make>[0];
@@ -73,7 +73,7 @@ describe('JournalLineItem Entity', () => {
 
       expect(lineItem.side).toBe(EJournalSide.Debit);
       expect(lineItem.description).toBe('Line item description');
-      expect(lineItem.meta).toBeUndefined();
+      expect(lineItem.meta).toBeNull();
       expect(lineItem.createdAt).toEqual(validEntryPayload.createdAt);
       expect(lineItem.updatedAt).toEqual(validEntryPayload.createdAt);
 
@@ -136,10 +136,6 @@ describe('JournalLineItem Entity', () => {
         expect(() => journalLineEntity.getDescription(longDesc)).toThrow(
           AppError
         );
-      });
-
-      it('should throw if description is too short (empty)', () => {
-        expect(() => journalLineEntity.getDescription('')).toThrow(AppError);
       });
     });
   });

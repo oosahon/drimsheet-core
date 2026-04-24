@@ -27,7 +27,7 @@ export const ETransactionStatus = {
 export type UTransactionStatus =
   (typeof ETransactionStatus)[keyof typeof ETransactionStatus];
 
-export interface ITransactionLineItem {
+export interface ITransactionLine {
   id: TEntityId;
   transactionId: TEntityId;
   targetAccountId: TEntityId;
@@ -53,7 +53,7 @@ export interface ITransaction {
   reference: string;
   type: UTransactionType;
   status: UTransactionStatus;
-  items: ITransactionLineItem[];
+  items: ITransactionLine[];
   effectiveDate: Date;
   createdBy: TEntityId;
   sourceAccountId: TEntityId;
