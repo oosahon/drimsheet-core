@@ -270,11 +270,14 @@
             "type": "number",
             "format": "double"
           },
-          "currency": {
+          "currencyCode": {
             "type": "string"
+          },
+          "isMinorUnit": {
+            "type": "boolean"
           }
         },
-        "required": ["amount", "currency"],
+        "required": ["amount", "currencyCode", "isMinorUnit"],
         "type": "object",
         "additionalProperties": false
       },

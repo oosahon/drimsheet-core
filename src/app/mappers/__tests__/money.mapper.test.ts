@@ -19,7 +19,8 @@ describe('Money Mapper', () => {
 
   const moneyDto: IMoneyDto = {
     amount: 1000,
-    currency: 'USD',
+    currencyCode: 'USD',
+    isMinorUnit: true,
   };
 
   describe('toDto', () => {
@@ -40,19 +41,14 @@ describe('Money Mapper', () => {
     it('should throw AppError if currency is not found', () => {
       const invalidDto: IMoneyDto = {
         amount: 1000,
-        currency: 'XYZ',
+        currencyCode: 'XYZ',
+        isMinorUnit: true,
       };
 
       expect(() => moneyMapper.fromDto(invalidDto)).toThrow(AppError);
       expect(() => moneyMapper.fromDto(invalidDto)).toThrow(
         'Currency not found'
       );
-    });
-  });
-
-  describe('toInterface', () => {
-    it('should map domain money to interface representaton (DTO)', () => {
-      expect(moneyMapper.toInterface(moneyDomain)).toEqual(moneyDto);
     });
   });
 });

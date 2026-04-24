@@ -230,7 +230,8 @@ const models: TsoaRoute.Models = {
     dataType: 'refObject',
     properties: {
       amount: { dataType: 'double', required: true },
-      currency: { dataType: 'string', required: true },
+      currencyCode: { dataType: 'string', required: true },
+      isMinorUnit: { dataType: 'boolean', required: true },
     },
     additionalProperties: false,
   },

@@ -1,32 +1,44 @@
 import { SYSTEM_CURRENCIES } from '../../domain/currency/config/currencies.config';
+import currencyEntity from '../../domain/currency/entities/currency.entity';
 import { IMoney } from '../../shared/types/money.types';
-import { AppError } from '../../shared/value-objects/error';
+import { ErrorUnprocessableEntity } from '../../shared/value-objects/error';
+import moneyValue from '../../shared/value-objects/money.vo';
 import { IMoneyDto } from '../contracts/dto/money.dto';
 
 const moneyMapper = {
   toDto(money: IMoney): IMoneyDto {
     return {
       amount: Number(money.amount),
-      currency: money.currency.code,
+      currencyCode: money.currency.code,
+      isMinorUnit: true,
     };
   },
 
   fromDto(money: IMoneyDto): IMoney {
-    const currency = SYSTEM_CURRENCIES.find((c) => c.code === money.currency);
-    if (!currency) {
-      throw new AppError('Currency not found', { cause: money.currency });
-    }
-    return {
-      amount: BigInt(money.amount),
-      currency,
-    };
-  },
+    const isValid = currencyEntity.isValidCode(money.currencyCode);
 
-  toInterface(money: IMoney): IMoneyDto {
-    return {
-      amount: Number(money.amount),
-      currency: money.currency.code,
-    };
+    const validationError = new ErrorUnprocessableEntity(
+      [
+        {
+          field: 'currencyCode',
+          message: 'Invalid currency code',
+        },
+      ],
+      'Invalid currency provided.'
+    );
+
+    if (!isValid) {
+      throw validationError;
+    }
+
+    const currency = SYSTEM_CURRENCIES.find(
+      (currency) => currency.code === money.currencyCode
+    );
+
+    if (!currency) {
+      throw validationError;
+    }
+    return moneyValue.make(money.amount, currency, !!money.isMinorUnit);
   },
 
   toRepo(money: IMoney) {

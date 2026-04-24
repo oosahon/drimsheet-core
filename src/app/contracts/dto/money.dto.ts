@@ -8,11 +8,13 @@ const currencyCodeValidation = z.string().length(3, 'Invalid currency code');
 
 export interface IMoneyDto {
   amount: number;
-  currency: string;
+  currencyCode: string;
+  isMinorUnit: boolean;
 }
 export const moneyDtoValidation = z.object({
   amount: z.number().min(1, 'Amount is required'),
-  currency: currencyCodeValidation,
+  currencyCode: currencyCodeValidation,
+  isMinorUnit: z.boolean('Specify if amount is in minor unit.'),
 });
 
 export interface IExchangeRateDto extends Pick<
