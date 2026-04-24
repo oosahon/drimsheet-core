@@ -33,10 +33,7 @@ const middlewares = {
     observability.logger
   ),
 
-  errorHandler: errorHandlerMiddleware(
-    observability.logger,
-    observability.reporter
-  ),
+  errorHandler: errorHandlerMiddleware(),
 
   isAuthenticatedUser: isAuthenticatedUserMiddleware(appContext.request),
 

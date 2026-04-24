@@ -17,7 +17,7 @@ export default function requestLoggerMiddleware(
 
     const { correlationId } = requestContext.get();
 
-    res.on('finish', () => {
+    const handleFinish = () => {
       const duration = Math.round(performance.now() - start);
 
       const responseLog = {
@@ -55,7 +55,9 @@ export default function requestLoggerMiddleware(
       } else {
         logger.info(resTitle, responseLog);
       }
-    });
+    };
+
+    res.on('finish', handleFinish);
 
     next();
   };

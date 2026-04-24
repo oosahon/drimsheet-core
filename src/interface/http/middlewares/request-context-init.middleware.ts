@@ -1,26 +1,18 @@
-import { Request, RequestHandler, Response } from 'express';
+import { RequestHandler, Response } from 'express';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
 import IAuthService from '../../../app/contracts/infra/auth-service.contract';
 import ILogger from '../../../app/contracts/infra/logger.contract';
-import accountingEntityEntity from '../../../domain/accounting-entity/entities/accounting-entity.entity';
 import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import { IUser } from '../../../domain/user/types/user.types';
 import { NODE_ENV, WEB_APP_URL } from '../../../infra/config/vars.config';
-import { TEntityId } from '../../../shared/types/uuid';
-import stringUtils from '../../../shared/utils/string';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import { ErrorBadRequest } from '../../../shared/value-objects/error';
-import getHttpHeaderValue from '../helpers/get-http-header-value';
-
-function getCorrelationId(req: Request) {
-  return getHttpHeaderValue('x-correlation-id', req.headers) || generateUUID();
-}
-
-function getIdempotencyKey(req: Request) {
-  return getHttpHeaderValue('x-idempotency-key', req.headers);
-}
+import getAccountingEntityFromRequest from '../helpers/get-accounting-entity-from-request.helper';
+import getAuthUserFromRequest from '../helpers/get-auth-user-from-request.helper';
+import {
+  getCorrelationId,
+  getIdempotencyKey,
+} from '../helpers/get-http-header-value';
 
 function handleSetRefreshToken(res: Response, token: string) {
   const hostname = new URL(WEB_APP_URL).hostname;
@@ -49,55 +41,6 @@ function handleClearRefreshToken(res: Response) {
   });
 }
 
-async function getUser(
-  req: Request,
-  authService: IAuthService,
-  logger: ILogger
-) {
-  const bearerToken = getHttpHeaderValue('authorization', req.headers);
-
-  if (!bearerToken) return null;
-
-  const token = bearerToken.split(' ')[1];
-
-  if (!token) return null;
-
-  try {
-    const user = await authService.getAuthUser(token);
-    return user;
-  } catch (error) {
-    logger.error('An error occurred while decoding token', {
-      error,
-    });
-    return null;
-  }
-}
-
-async function getAccountingEntity(
-  req: Request,
-  repo: IAccountingEntityRepo,
-  userId?: TEntityId
-): Promise<IAccountingEntity> {
-  if (!userId) return {} as IAccountingEntity;
-
-  const id = getHttpHeaderValue('x-accounting-entity-id', req.headers);
-
-  if (!id) return {} as IAccountingEntity;
-
-  const isValidUUID = stringUtils.isUUID(id);
-
-  if (!isValidUUID) throw new ErrorBadRequest('Invalid accounting entity.');
-
-  const accountingEntity = await repo.findById(id as TEntityId, {
-    correlationId: getCorrelationId(req),
-  });
-
-  if (!accountingEntity)
-    throw new ErrorBadRequest('Accounting entity not found.');
-
-  return accountingEntity;
-}
-
 /**
  * DOMAIN: global
  *
@@ -114,31 +57,23 @@ export default function requestContextInitMiddleware(
     const correlationId = getCorrelationId(req);
     const idempotencyKey = getIdempotencyKey(req);
 
-    const authUser = await getUser(req, authService, logger);
-
-    const accountingEntity = await getAccountingEntity(
+    const user = await getAuthUserFromRequest(
       req,
-      accountingEntityRepo,
-      authUser?.id
+      authService,
+      logger,
+      userRepo
     );
 
-    let user = {} as IUser;
-
-    if (authUser) {
-      const existingUser = await userRepo.findById(authUser.id, {
-        correlationId,
-      });
-
-      if (existingUser) {
-        accountingEntityEntity.validateAccess(accountingEntity, existingUser);
-        user = existingUser;
-      }
-    }
+    const accountingEntity = await getAccountingEntityFromRequest(
+      req,
+      accountingEntityRepo,
+      user?.id
+    );
 
     requestContext.init(
       {
-        user,
-        accountingEntity,
+        user: user ?? ({} as IUser),
+        accountingEntity: accountingEntity ?? ({} as IAccountingEntity),
         correlationId,
         idempotencyKey: idempotencyKey || '',
         clientSession: {
