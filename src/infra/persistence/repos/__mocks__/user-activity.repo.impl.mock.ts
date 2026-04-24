@@ -1,7 +1,7 @@
 import IUserActivityRepo from '../../../../domain/user/repos/user-activity.repo';
 
-export const MockUserActivityRepo: jest.Mocked<IUserActivityRepo> = {
+const mockUserActivityRepo: jest.Mocked<IUserActivityRepo> = {
   save: jest.fn(),
 };
 
-export default MockUserActivityRepo;
+export default mockUserActivityRepo;

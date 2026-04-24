@@ -14,22 +14,22 @@ function validateStatus(status: UJournalEntryStatus) {
   }
 }
 
-function isUniqueSequenceOrder(lineItems: IJournalLine[]) {
-  const sequenceOrders = lineItems.map((item) => item.sequenceOrder);
+function isUniqueSequenceOrder(lines: IJournalLine[]) {
+  const sequenceOrders = lines.map((item) => item.sequenceOrder);
   const uniqueSequenceOrders = new Set(sequenceOrders);
 
   return sequenceOrders.length === uniqueSequenceOrders.size;
 }
 
-function validateLine(lineItems: IJournalLine[]) {
-  if (!lineItems.length || lineItems.length < 2) {
-    throw new AppError('Invalid line items', { cause: lineItems });
+function validateLine(lines: IJournalLine[]) {
+  if (!lines.length || lines.length < 2) {
+    throw new AppError('Invalid line items', { cause: lines });
   }
 
   const debits: IMoney[] = [];
   const credits: IMoney[] = [];
 
-  for (const item of lineItems) {
+  for (const item of lines) {
     if (item.side === EJournalSide.Debit) {
       debits.push(item.functionalAmount);
     } else if (item.side === EJournalSide.Credit) {
@@ -40,7 +40,7 @@ function validateLine(lineItems: IJournalLine[]) {
   }
 
   if (!debits.length || !credits.length) {
-    throw new AppError('Invalid line items', { cause: lineItems });
+    throw new AppError('Invalid line items', { cause: lines });
   }
 
   const totalDebits = moneyValue.add(...debits);
@@ -48,12 +48,12 @@ function validateLine(lineItems: IJournalLine[]) {
 
   if (!moneyValue.equals(totalDebits, totalCredits)) {
     throw new AppError('Total debits must equal total credits', {
-      cause: lineItems,
+      cause: lines,
     });
   }
 
-  if (!isUniqueSequenceOrder(lineItems)) {
-    throw new AppError('Sequence orders must be unique', { cause: lineItems });
+  if (!isUniqueSequenceOrder(lines)) {
+    throw new AppError('Sequence orders must be unique', { cause: lines });
   }
 }
 

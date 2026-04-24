@@ -14,7 +14,7 @@ import { ELedgerType, ILedgerAccount } from '../../ledger/types/ledger.types';
 interface IOpeningBalanceTransaction {
   accountingEntity: IAccountingEntity;
   account: ILedgerAccount;
-  exchangeRate: IExchangeRate;
+  exchangeRate: IExchangeRate | null;
   amount: IMoney;
 }
 
@@ -88,7 +88,7 @@ export default function makeAccountingService(
         voidingEntryId: null,
         memo: 'Opening balance',
         functionalCurrency: accountingEntity.functionalCurrency,
-        lineItems: [debitLinePayload, creditLinePayload],
+        lines: [debitLinePayload, creditLinePayload],
       });
 
       return journalEntry;

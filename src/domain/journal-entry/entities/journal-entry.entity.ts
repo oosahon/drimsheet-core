@@ -23,7 +23,7 @@ interface IMakePayload extends Pick<
   | 'memo'
 > {
   functionalCurrency: ICurrency;
-  lineItems: IJournalLineMakePayload[];
+  lines: IJournalLineMakePayload[];
 }
 
 function make(
@@ -42,18 +42,18 @@ function make(
 
   const memo = helpers.getMemo(payload.memo);
 
-  const lineItemsWithEvents = payload.lineItems.map((item) =>
+  const linesWithEvents = payload.lines.map((item) =>
     journalLineEntity.make({ id, memo, createdAt: timestamp }, item)
   );
 
-  const lineItems = lineItemsWithEvents.map(([item]) => item);
-  helpers.validateLine(lineItems);
+  const lines = linesWithEvents.map(([item]) => item);
+  helpers.validateLine(lines);
 
   const entry: IJournalEntry = {
     id,
     accountingEntityId: payload.accountingEntityId,
     transactionId: payload.transactionId,
-    lineItems,
+    lines,
     memo,
     status: payload.status,
     effectiveDate: payload.effectiveDate,
@@ -65,7 +65,7 @@ function make(
     updatedAt: timestamp,
   };
 
-  const events = lineItemsWithEvents.flatMap(([, event]) => event);
+  const events = linesWithEvents.flatMap(([, event]) => event);
   const entityEvent = journalEntryEvents.created(entry);
 
   return [Object.freeze(entry), [entityEvent, ...events]];

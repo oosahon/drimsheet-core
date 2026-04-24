@@ -1,9 +1,15 @@
 import { relations } from 'drizzle-orm/relations';
 import {
   accountingEntitiesInCore,
+  categoriesInCore,
+  categoryHistoryInAudit,
   currenciesInCore,
   currencyExchangeRatesInCore,
+  journalEntriesInCore,
+  journalLinesInCore,
   ledgerAccountsInCore,
+  transactionLinesInCore,
+  transactionsInCore,
   userActivitiesInAudit,
   userAuthInCore,
   userPreferencesInCore,
@@ -25,6 +31,8 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   accountingEntitiesInCores: many(accountingEntitiesInCore),
   ledgerAccountsInCores: many(ledgerAccountsInCore),
   userPreferencesInCores: many(userPreferencesInCore),
+  categoryHistoryInAudits: many(categoryHistoryInAudit),
+  transactionsInCores: many(transactionsInCore),
 }));
 
 export const userSessionsInCoreRelations = relations(
@@ -50,17 +58,17 @@ export const userActivitiesInAuditRelations = relations(
 export const currencyExchangeRatesInCoreRelations = relations(
   currencyExchangeRatesInCore,
   ({ one }) => ({
-    currenciesInCore_baseCurrencyCodeCode: one(currenciesInCore, {
-      fields: [currencyExchangeRatesInCore.baseCurrencyCodeCode],
+    currenciesInCore_baseCurrencyCode: one(currenciesInCore, {
+      fields: [currencyExchangeRatesInCore.baseCurrencyCode],
       references: [currenciesInCore.code],
       relationName:
-        'currencyExchangeRatesInCore_baseCurrencyCodeCode_currenciesInCore_code',
+        'currencyExchangeRatesInCore_baseCurrencyCode_currenciesInCore_code',
     }),
-    currenciesInCore_targetCurrencyCodeCode: one(currenciesInCore, {
-      fields: [currencyExchangeRatesInCore.targetCurrencyCodeCode],
+    currenciesInCore_targetCurrencyCode: one(currenciesInCore, {
+      fields: [currencyExchangeRatesInCore.targetCurrencyCode],
       references: [currenciesInCore.code],
       relationName:
-        'currencyExchangeRatesInCore_targetCurrencyCodeCode_currenciesInCore_code',
+        'currencyExchangeRatesInCore_targetCurrencyCode_currenciesInCore_code',
     }),
   })
 );
@@ -68,18 +76,18 @@ export const currencyExchangeRatesInCoreRelations = relations(
 export const currenciesInCoreRelations = relations(
   currenciesInCore,
   ({ many }) => ({
-    currencyExchangeRatesInCores_baseCurrencyCodeCode: many(
+    currencyExchangeRatesInCores_baseCurrencyCode: many(
       currencyExchangeRatesInCore,
       {
         relationName:
-          'currencyExchangeRatesInCore_baseCurrencyCodeCode_currenciesInCore_code',
+          'currencyExchangeRatesInCore_baseCurrencyCode_currenciesInCore_code',
       }
     ),
-    currencyExchangeRatesInCores_targetCurrencyCodeCode: many(
+    currencyExchangeRatesInCores_targetCurrencyCode: many(
       currencyExchangeRatesInCore,
       {
         relationName:
-          'currencyExchangeRatesInCore_targetCurrencyCodeCode_currenciesInCore_code',
+          'currencyExchangeRatesInCore_targetCurrencyCode_currenciesInCore_code',
       }
     ),
     accountingEntitiesInCores_functionalCurrencyCode: many(
@@ -97,6 +105,9 @@ export const currenciesInCoreRelations = relations(
       }
     ),
     ledgerAccountsInCores: many(ledgerAccountsInCore),
+    transactionsInCores: many(transactionsInCore),
+    transactionLinesInCores: many(transactionLinesInCore),
+    journalLinesInCores: many(journalLinesInCore),
   })
 );
 
@@ -120,6 +131,9 @@ export const accountingEntitiesInCoreRelations = relations(
         'accountingEntitiesInCore_reportingCurrencyCode_currenciesInCore_code',
     }),
     ledgerAccountsInCores: many(ledgerAccountsInCore),
+    categoriesInCores: many(categoriesInCore),
+    transactionsInCores: many(transactionsInCore),
+    journalEntriesInCores: many(journalEntriesInCore),
   })
 );
 
@@ -148,6 +162,10 @@ export const ledgerAccountsInCoreRelations = relations(
       fields: [ledgerAccountsInCore.createdBy],
       references: [usersInCore.id],
     }),
+    categoriesInCores: many(categoriesInCore),
+    transactionsInCores: many(transactionsInCore),
+    transactionLinesInCores: many(transactionLinesInCore),
+    journalLinesInCores: many(journalLinesInCore),
   })
 );
 
@@ -157,6 +175,120 @@ export const userPreferencesInCoreRelations = relations(
     usersInCore: one(usersInCore, {
       fields: [userPreferencesInCore.id],
       references: [usersInCore.id],
+    }),
+  })
+);
+
+export const categoriesInCoreRelations = relations(
+  categoriesInCore,
+  ({ one, many }) => ({
+    accountingEntitiesInCore: one(accountingEntitiesInCore, {
+      fields: [categoriesInCore.accountingEntityId],
+      references: [accountingEntitiesInCore.id],
+    }),
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [categoriesInCore.accountId],
+      references: [ledgerAccountsInCore.id],
+    }),
+    categoryHistoryInAudits: many(categoryHistoryInAudit),
+  })
+);
+
+export const categoryHistoryInAuditRelations = relations(
+  categoryHistoryInAudit,
+  ({ one }) => ({
+    categoriesInCore: one(categoriesInCore, {
+      fields: [categoryHistoryInAudit.categoryId],
+      references: [categoriesInCore.id],
+    }),
+    usersInCore: one(usersInCore, {
+      fields: [categoryHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const transactionsInCoreRelations = relations(
+  transactionsInCore,
+  ({ one, many }) => ({
+    accountingEntitiesInCore: one(accountingEntitiesInCore, {
+      fields: [transactionsInCore.accountingEntityId],
+      references: [accountingEntitiesInCore.id],
+    }),
+    usersInCore: one(usersInCore, {
+      fields: [transactionsInCore.createdBy],
+      references: [usersInCore.id],
+    }),
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [transactionsInCore.sourceAccountId],
+      references: [ledgerAccountsInCore.id],
+    }),
+    currenciesInCore: one(currenciesInCore, {
+      fields: [transactionsInCore.currencyCode],
+      references: [currenciesInCore.code],
+    }),
+    transactionLinesInCores: many(transactionLinesInCore),
+    journalEntriesInCores: many(journalEntriesInCore),
+  })
+);
+
+export const transactionLinesInCoreRelations = relations(
+  transactionLinesInCore,
+  ({ one }) => ({
+    transactionsInCore: one(transactionsInCore, {
+      fields: [transactionLinesInCore.transactionId],
+      references: [transactionsInCore.id],
+    }),
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [transactionLinesInCore.targetAccountId],
+      references: [ledgerAccountsInCore.id],
+    }),
+    currenciesInCore: one(currenciesInCore, {
+      fields: [transactionLinesInCore.currencyCode],
+      references: [currenciesInCore.code],
+    }),
+  })
+);
+
+export const journalEntriesInCoreRelations = relations(
+  journalEntriesInCore,
+  ({ one, many }) => ({
+    accountingEntitiesInCore: one(accountingEntitiesInCore, {
+      fields: [journalEntriesInCore.accountingEntityId],
+      references: [accountingEntitiesInCore.id],
+    }),
+    transactionsInCore: one(transactionsInCore, {
+      fields: [journalEntriesInCore.transactionId],
+      references: [transactionsInCore.id],
+    }),
+    journalEntriesInCore: one(journalEntriesInCore, {
+      fields: [journalEntriesInCore.voidingEntryId],
+      references: [journalEntriesInCore.id],
+      relationName:
+        'journalEntriesInCore_voidingEntryId_journalEntriesInCore_id',
+    }),
+    journalEntriesInCores: many(journalEntriesInCore, {
+      relationName:
+        'journalEntriesInCore_voidingEntryId_journalEntriesInCore_id',
+    }),
+    journalLinesInCores: many(journalLinesInCore),
+  })
+);
+
+export const journalLinesInCoreRelations = relations(
+  journalLinesInCore,
+  ({ one }) => ({
+    journalEntriesInCore: one(journalEntriesInCore, {
+      fields: [journalLinesInCore.entryId],
+      references: [journalEntriesInCore.id],
+    }),
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [journalLinesInCore.accountId],
+      references: [ledgerAccountsInCore.id],
+    }),
+    currenciesInCore: one(currenciesInCore, {
+      fields: [journalLinesInCore.currencyCode],
+      references: [currenciesInCore.code],
     }),
   })
 );

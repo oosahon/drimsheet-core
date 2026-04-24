@@ -18,11 +18,9 @@ function make(payload: TCreationOmits<IExchangeRate, 'currencyPair'>) {
 
   const currencyPair = `${baseCurrencyCode}/${targetCurrencyCode}`;
   const source = stringUtils.sanitizeAndValidate(payload.source, {
-    min: 3,
+    min: 1,
     max: 100,
   });
-
-  const timestamp = new Date();
 
   const exchangeRate: IExchangeRate = {
     currencyPair,
@@ -32,8 +30,7 @@ function make(payload: TCreationOmits<IExchangeRate, 'currencyPair'>) {
     asOf: payload.asOf,
     source,
     type: payload.type,
-    createdAt: timestamp,
-    updatedAt: timestamp,
+    createdAt: new Date(),
   };
 
   return Object.freeze(exchangeRate);

@@ -6,9 +6,9 @@ import {
 import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
+import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
-import { MockUserPreferencesRepo } from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
+import mockUserPreferencesRepo from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import {
@@ -25,7 +25,7 @@ describe('onboardAccountingEntityUseCase', () => {
     jest.clearAllMocks();
 
     mockAccountingEntityRepo.findByUserId.mockResolvedValue([]);
-    MockUserPreferencesRepo.findById.mockResolvedValue(null);
+    mockUserPreferencesRepo.findById.mockResolvedValue(null);
     mockRepoService.runInTransaction.mockImplementation(async (cb) => {
       await cb('mock-tx' as never);
     });
@@ -55,7 +55,7 @@ describe('onboardAccountingEntityUseCase', () => {
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -80,7 +80,7 @@ describe('onboardAccountingEntityUseCase', () => {
       correlationId,
     });
 
-    expect(MockUserPreferencesRepo.save).toHaveBeenCalledWith(
+    expect(mockUserPreferencesRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({
         appPreferences: expect.objectContaining({
           appUsageMode: validPayload.appUsageMode,
@@ -119,7 +119,7 @@ describe('onboardAccountingEntityUseCase', () => {
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -148,7 +148,7 @@ describe('onboardAccountingEntityUseCase', () => {
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -168,7 +168,7 @@ describe('onboardAccountingEntityUseCase', () => {
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -194,7 +194,7 @@ describe('onboardAccountingEntityUseCase', () => {
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -212,7 +212,7 @@ describe('onboardAccountingEntityUseCase', () => {
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus

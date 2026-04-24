@@ -50,7 +50,6 @@ function validate(exchangeRate: IExchangeRate) {
 
   validateType(exchangeRate.type);
   dateUtils.validateDate(exchangeRate.createdAt);
-  dateUtils.validateDate(exchangeRate.updatedAt);
 }
 
 const exchangeRateValueHelpers = Object.freeze({

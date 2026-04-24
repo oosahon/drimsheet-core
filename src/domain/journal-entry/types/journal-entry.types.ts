@@ -14,7 +14,7 @@ export interface IJournalEntry {
   id: TEntityId;
   accountingEntityId: TEntityId;
   transactionId: TEntityId | null; // non for manual entries and opening balances
-  lineItems: IJournalLine[];
+  lines: IJournalLine[];
   memo: string | null;
   status: UJournalEntryStatus;
   effectiveDate: Date; // the actual date the transaction occurred

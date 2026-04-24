@@ -10,7 +10,7 @@ export interface IPettyCashAccountCreationReq {
   name: string;
   openingBalance: IMoneyDto;
   isControlAccount: boolean;
-  exchangeRate: IExchangeRateDto;
+  exchangeRate: IExchangeRateDto | null;
   controlAccountCode?: string;
 }
 export const pettyCashCreationReqValidation = z.object({
@@ -20,6 +20,6 @@ export const pettyCashCreationReqValidation = z.object({
     .max(100, 'Name must be at most 100 characters long'),
   openingBalance: moneyDtoValidation,
   isControlAccount: z.boolean(),
-  exchangeRate: exchangeRateDtoValidation,
+  exchangeRate: exchangeRateDtoValidation.nullable(),
   controlAccountCode: z.string().optional(),
 });

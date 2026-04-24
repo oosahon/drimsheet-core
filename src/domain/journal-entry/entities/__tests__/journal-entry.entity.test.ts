@@ -38,7 +38,7 @@ describe('JournalEntry Entity', () => {
         postedAt: null,
         voidedAt: null,
         voidingEntryId: null,
-        lineItems: [
+        lines: [
           {
             accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
             sequenceOrder: 1,
@@ -78,38 +78,36 @@ describe('JournalEntry Entity', () => {
       expect(entry.createdAt).toEqual(new Date('2026-04-15T00:00:00.000Z'));
       expect(entry.updatedAt).toEqual(new Date('2026-04-15T00:00:00.000Z'));
 
-      expect(entry.lineItems).toHaveLength(2);
-      expect(entry.lineItems[0].entryId).toBe(entry.id);
-      expect(entry.lineItems[0].accountId).toBe(
-        validPayload.lineItems[0].accountId
-      );
-      expect(entry.lineItems[1].entryId).toBe(entry.id);
+      expect(entry.lines).toHaveLength(2);
+      expect(entry.lines[0].entryId).toBe(entry.id);
+      expect(entry.lines[0].accountId).toBe(validPayload.lines[0].accountId);
+      expect(entry.lines[1].entryId).toBe(entry.id);
 
       expect(events).toHaveLength(3);
       expect(events[0].type).toBe(EJournalEntryEvent.Created);
       expect(events[0].data).toEqual(entry);
       expect(events[1].type).toBe(EJournalLineItemEvent.Created);
-      expect(events[1].data).toEqual(entry.lineItems[0]);
+      expect(events[1].data).toEqual(entry.lines[0]);
       expect(events[2].type).toBe(EJournalLineItemEvent.Created);
-      expect(events[2].data).toEqual(entry.lineItems[1]);
+      expect(events[2].data).toEqual(entry.lines[1]);
 
       expect(Object.isFrozen(entry)).toBe(true);
     });
 
     it('should fall back to entry memo if line item description is absent', () => {
       const lineItemWithoutDesc = {
-        ...validPayload.lineItems[0],
+        ...validPayload.lines[0],
         description: undefined,
       };
 
       const payload: TMakePayload = {
         ...validPayload,
-        lineItems: [lineItemWithoutDesc, validPayload.lineItems[1]],
+        lines: [lineItemWithoutDesc, validPayload.lines[1]],
       };
 
       const [entry] = journalEntryEntity.make(payload);
 
-      expect(entry.lineItems[0].description).toBe('Test entry memo');
+      expect(entry.lines[0].description).toBe('Test entry memo');
     });
 
     it('should successfully create when optional dates and ids are provided', () => {
@@ -193,10 +191,10 @@ describe('JournalEntry Entity', () => {
     it('should throw an AppError if there are only debits or only credits', () => {
       const payload: TMakePayload = {
         ...validPayload,
-        lineItems: [
-          validPayload.lineItems[0],
+        lines: [
+          validPayload.lines[0],
           {
-            ...validPayload.lineItems[1],
+            ...validPayload.lines[1],
             side: EJournalSide.Debit,
           },
         ],
@@ -208,10 +206,10 @@ describe('JournalEntry Entity', () => {
     it('should throw an AppError if total debits do not equal total credits', () => {
       const payload: TMakePayload = {
         ...validPayload,
-        lineItems: [
-          validPayload.lineItems[0],
+        lines: [
+          validPayload.lines[0],
           {
-            ...validPayload.lineItems[1],
+            ...validPayload.lines[1],
             amount: moneyValue.make(50.0, USD, false),
           },
         ],
@@ -223,11 +221,11 @@ describe('JournalEntry Entity', () => {
     it('should throw an AppError if sequence orders are not unique', () => {
       const payload: TMakePayload = {
         ...validPayload,
-        lineItems: [
-          validPayload.lineItems[0],
+        lines: [
+          validPayload.lines[0],
           {
-            ...validPayload.lineItems[1],
-            sequenceOrder: validPayload.lineItems[0].sequenceOrder,
+            ...validPayload.lines[1],
+            sequenceOrder: validPayload.lines[0].sequenceOrder,
           },
         ],
       };
@@ -238,7 +236,7 @@ describe('JournalEntry Entity', () => {
     it('should throw an AppError if there are less than 2 line items', () => {
       const payload: TMakePayload = {
         ...validPayload,
-        lineItems: [validPayload.lineItems[0]],
+        lines: [validPayload.lines[0]],
       };
 
       expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
@@ -247,7 +245,7 @@ describe('JournalEntry Entity', () => {
     it('should throw an AppError if there are no line items', () => {
       const payload: TMakePayload = {
         ...validPayload,
-        lineItems: [],
+        lines: [],
       };
 
       expect(() => journalEntryEntity.make(payload)).toThrow(AppError);

@@ -28,6 +28,13 @@ const moneyMapper = {
       currency: money.currency.code,
     };
   },
+
+  toRepo(money: IMoney) {
+    return {
+      amount: Number(money.amount),
+      currencyCode: money.currency.code,
+    };
+  },
 };
 
 export default moneyMapper;

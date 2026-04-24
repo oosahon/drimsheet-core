@@ -1,6 +1,6 @@
 import userActivityEntity from '../../../../domain/user/entities/user-activity.entity';
 import { EUserEvents } from '../../../../domain/user/events/user.events';
-import { MockUserActivityRepo } from '../../../../infra/persistence/repos/__mocks__/user-activity.repo.impl.mock';
+import mockUserActivityRepo from '../../../../infra/persistence/repos/__mocks__/user-activity.repo.impl.mock';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
@@ -36,7 +36,7 @@ describe('saveUserActivityUseCase', () => {
 
     const usecase = saveUserActivityUseCase(
       MockRequestContext,
-      MockUserActivityRepo
+      mockUserActivityRepo
     );
 
     await usecase(userId, event);
@@ -48,7 +48,7 @@ describe('saveUserActivityUseCase', () => {
       description: 'Signed up to Purple Ledger.',
       meta: { correlationId },
     });
-    expect(MockUserActivityRepo.save).toHaveBeenCalledWith(mockActivityEntity, {
+    expect(mockUserActivityRepo.save).toHaveBeenCalledWith(mockActivityEntity, {
       correlationId,
     });
   });
@@ -73,7 +73,7 @@ describe('saveUserActivityUseCase', () => {
 
     const usecase = saveUserActivityUseCase(
       MockRequestContext,
-      MockUserActivityRepo
+      mockUserActivityRepo
     );
 
     await usecase(userId, event);
@@ -84,7 +84,7 @@ describe('saveUserActivityUseCase', () => {
       description: '',
       meta: { correlationId },
     });
-    expect(MockUserActivityRepo.save).toHaveBeenCalledWith(mockActivityEntity, {
+    expect(mockUserActivityRepo.save).toHaveBeenCalledWith(mockActivityEntity, {
       correlationId,
     });
   });

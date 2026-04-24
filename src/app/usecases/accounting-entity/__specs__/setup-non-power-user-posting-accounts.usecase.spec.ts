@@ -4,7 +4,7 @@ import {
 } from '../../../../domain/accounting-entity/types/accounting-entity.types';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
+import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import {

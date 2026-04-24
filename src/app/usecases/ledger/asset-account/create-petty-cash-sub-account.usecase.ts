@@ -2,6 +2,7 @@ import makeAccountingService from '../../../../domain/accounting/services/accoun
 import currencyEntity from '../../../../domain/currency/entities/currency.entity';
 import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
 import makeExchangeRateService from '../../../../domain/currency/services/exchange-rate.service';
+import { IExchangeRate } from '../../../../domain/currency/types/exchange-rate.types';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import makeAssetPostingAccountService from '../../../../domain/ledger/services/asset-account.service';
@@ -39,10 +40,14 @@ export default function makeCreatePettyCashSubAccountUseCase(
     const { correlationId, user, accountingEntity } = requestContext.get();
     const trace = { correlationId };
 
-    const exchangeRate = await exchangeRateService.getExchangeRate(
-      payload.exchangeRate,
-      trace
-    );
+    let exchangeRate: IExchangeRate | null = null;
+
+    if (payload.exchangeRate !== null) {
+      exchangeRate = await exchangeRateService.getExchangeRate(
+        payload.exchangeRate,
+        trace
+      );
+    }
 
     const accountPayload = {
       name: payload.name,

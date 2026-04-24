@@ -15,5 +15,4 @@ export interface IExchangeRate {
   asOf: Date;
   source: string;
   createdAt: Date;
-  updatedAt: Date;
 }
