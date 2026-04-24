@@ -10,14 +10,14 @@ import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
-import issueUserSessionHelper from './helpers/issue-user-session.helper';
+import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z.object({
   token: z.string(),
 });
 
-export default function verifyEmailAddressUseCase(
-  authService: IAuthService,
+export default function makeVerifyEmailAddressUseCase(
+  makeAuthService: IAuthService,
   userRepo: IUserRepo,
   requestContext: IRequestContext,
   eventBus: IEventBus,
@@ -29,7 +29,7 @@ export default function verifyEmailAddressUseCase(
 
     const { correlationId } = requestContext.get();
 
-    const decodedToken = await authService.verifySignupToken(token);
+    const decodedToken = await makeAuthService.verifySignupToken(token);
 
     if (!decodedToken) {
       throw new ErrorBadRequest('Invalid or expired verification token');
@@ -42,10 +42,10 @@ export default function verifyEmailAddressUseCase(
     }
 
     if (user.emailVerified) {
-      return issueUserSessionHelper({
+      return makeIssueUserSessionHelper({
         user,
         reqContext: requestContext,
-        authService,
+        makeAuthService,
         userSessionRepo,
         eventBus,
         repoService,
@@ -57,10 +57,10 @@ export default function verifyEmailAddressUseCase(
 
     await userRepo.save(updatedUser, { correlationId });
 
-    return issueUserSessionHelper({
+    return makeIssueUserSessionHelper({
       user: updatedUser,
       reqContext: requestContext,
-      authService,
+      makeAuthService,
       userSessionRepo,
       eventBus,
       repoService,

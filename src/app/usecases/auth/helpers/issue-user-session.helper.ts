@@ -14,17 +14,17 @@ import IUserSessionRepo from '../../../contracts/repos/user-session.repo.contrac
 export interface IIssueUserSessionDeps {
   user: IUser;
   reqContext: IRequestContext;
-  authService: IAuthService;
+  makeAuthService: IAuthService;
   userSessionRepo: IUserSessionRepo;
   eventBus: IEventBus;
   repoService: IRepoService;
   events: IEvent<unknown>[] | IEvent<unknown>;
 }
 
-export default async function issueUserSessionHelper({
+export default async function makeIssueUserSessionHelper({
   user,
   reqContext,
-  authService,
+  makeAuthService,
   userSessionRepo,
   eventBus,
   repoService,
@@ -32,8 +32,8 @@ export default async function issueUserSessionHelper({
 }: IIssueUserSessionDeps): Promise<IAccessToken> {
   const { correlationId, clientSession } = reqContext.get();
 
-  const accessToken = await authService.generateAccessToken(user);
-  const refreshToken = await authService.generateRefreshToken(user);
+  const accessToken = await makeAuthService.generateAccessToken(user);
+  const refreshToken = await makeAuthService.generateRefreshToken(user);
 
   const repoTransaction: TRepoTransactionFn = async (tx) => {
     const existingClientRefreshToken = clientSession.getRefreshToken();

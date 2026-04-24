@@ -6,7 +6,7 @@ import IReporter from '../../contracts/infra/reporter.contract';
 import userUseCase from '../../usecases/user';
 import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
 
-export default function accountingEntityCreatedEventHandler(
+export default function makeAccountingEntityCreatedEventHandler(
   reporter: IReporter,
   requestContext: IRequestContext
 ) {

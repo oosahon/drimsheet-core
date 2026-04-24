@@ -11,7 +11,7 @@ import { IEvent } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import IRequestContext from '../../contracts/app/request-context.contract';
 
-export default function saveUserActivityUseCase(
+export default function makeSaveUserActivityUseCase(
   requestContext: IRequestContext,
   userActivityRepo: IUserActivityRepo
 ) {

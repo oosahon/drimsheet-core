@@ -12,9 +12,9 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import verifyEmailAddressUseCase from '../verify-email.usecase';
+import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
-describe('verifyEmailAddressUseCase', () => {
+describe('makeVerifyEmailAddressUseCase', () => {
   const correlationId = 'test-corr-id';
 
   beforeEach(() => {
@@ -26,7 +26,7 @@ describe('verifyEmailAddressUseCase', () => {
   });
 
   it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
-    const usecase = verifyEmailAddressUseCase(
+    const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
       mockUserRepo,
       mockRequestContext,
@@ -58,7 +58,7 @@ describe('verifyEmailAddressUseCase', () => {
     mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
-    const usecase = verifyEmailAddressUseCase(
+    const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
       mockUserRepo,
       mockRequestContext,
@@ -113,7 +113,7 @@ describe('verifyEmailAddressUseCase', () => {
     const token = 'invalid-token';
     mockAuthService.verifySignupToken.mockResolvedValue(null);
 
-    const usecase = verifyEmailAddressUseCase(
+    const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
       mockUserRepo,
       mockRequestContext,
@@ -143,7 +143,7 @@ describe('verifyEmailAddressUseCase', () => {
     mockAuthService.verifySignupToken.mockResolvedValue(decodedToken as never);
     mockUserRepo.findById.mockResolvedValue(null);
 
-    const usecase = verifyEmailAddressUseCase(
+    const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
       mockUserRepo,
       mockRequestContext,
@@ -183,7 +183,7 @@ describe('verifyEmailAddressUseCase', () => {
     mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
-    const usecase = verifyEmailAddressUseCase(
+    const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
       mockUserRepo,
       mockRequestContext,

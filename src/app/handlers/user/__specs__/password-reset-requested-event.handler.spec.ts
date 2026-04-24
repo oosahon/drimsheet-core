@@ -3,7 +3,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import userPasswordResetRequestedHandler from '../password-reset-requested-event.handler';
+import makeUserPasswordResetRequestedHandler from '../password-reset-requested-event.handler';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
@@ -17,7 +17,7 @@ jest.mock('../../../usecases/user', () => ({
   },
 }));
 
-describe('userPasswordResetRequestedHandler', () => {
+describe('makeUserPasswordResetRequestedHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -44,7 +44,7 @@ describe('userPasswordResetRequestedHandler', () => {
   });
 
   it('should successfully handle RequestedPasswordReset event', async () => {
-    const handler = userPasswordResetRequestedHandler(
+    const handler = makeUserPasswordResetRequestedHandler(
       MockReporter,
       mockRequestContext
     );
@@ -68,7 +68,7 @@ describe('userPasswordResetRequestedHandler', () => {
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = userPasswordResetRequestedHandler(
+    const handler = makeUserPasswordResetRequestedHandler(
       MockReporter,
       mockRequestContext
     );
@@ -97,7 +97,7 @@ describe('userPasswordResetRequestedHandler', () => {
   });
 
   it('should throw and report if event type is invalid', async () => {
-    const handler = userPasswordResetRequestedHandler(
+    const handler = makeUserPasswordResetRequestedHandler(
       MockReporter,
       mockRequestContext
     );
@@ -115,7 +115,7 @@ describe('userPasswordResetRequestedHandler', () => {
   });
 
   it('should report an error if saveActivity fails', async () => {
-    const handler = userPasswordResetRequestedHandler(
+    const handler = makeUserPasswordResetRequestedHandler(
       MockReporter,
       mockRequestContext
     );

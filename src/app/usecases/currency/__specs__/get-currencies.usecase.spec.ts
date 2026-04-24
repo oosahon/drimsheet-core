@@ -2,7 +2,7 @@ import { ICurrency } from '../../../../domain/currency/types/currency.types';
 import mockCurrencyRepo from '../../../../infra/persistence/repos/__mocks__/currency.repo.impl.mock';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import getCurrenciesUseCase from '../get-currencies.usecase';
+import makeGetCurrenciesUseCase from '../get-currencies.usecase';
 
 /**
  * ========= USECASE TESTS =========
@@ -11,7 +11,7 @@ import getCurrenciesUseCase from '../get-currencies.usecase';
  *
  * This usecase is used to get all supported currencies
  */
-describe('getCurrenciesUseCase', () => {
+describe('makeGetCurrenciesUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -30,7 +30,10 @@ describe('getCurrenciesUseCase', () => {
 
     mockCurrencyRepo.findAll.mockResolvedValue(mockCurrencies);
 
-    const usecase = getCurrenciesUseCase(mockCurrencyRepo, MockRequestContext);
+    const usecase = makeGetCurrenciesUseCase(
+      mockCurrencyRepo,
+      MockRequestContext
+    );
     const result = await usecase();
 
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);

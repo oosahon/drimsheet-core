@@ -8,9 +8,9 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import oauthUsecase from '../oauth.usecase';
+import makeOauthUsecase from '../oauth.usecase';
 
-describe('oauthUsecase', () => {
+describe('makeOauthUsecase', () => {
   const correlationId = 'test-corr-id';
   const webAppUrl = 'http://localhost:3000';
 
@@ -34,7 +34,7 @@ describe('oauthUsecase', () => {
     }) as unknown as IUser;
 
   const getUseCase = () =>
-    oauthUsecase(
+    makeOauthUsecase(
       mockRequestContext,
       mockAuthService,
       mockEventBus,

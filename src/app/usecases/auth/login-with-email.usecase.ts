@@ -14,7 +14,7 @@ import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
-import issueUserSessionHelper from './helpers/issue-user-session.helper';
+import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z.object({
   email: z.email({ message: 'Email is required' }),
@@ -23,10 +23,10 @@ const validationSchema = z.object({
     .max(100, { message: 'Password must be at most 100 characters' }),
 });
 
-export default function loginWithEmailUseCase(
+export default function makeLoginWithEmailUseCase(
   reqContext: IRequestContext,
   userRepo: IUserRepo,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   eventBus: IEventBus,
   userAuthRepo: IUserAuthRepo,
   userSessionRepo: IUserSessionRepo,
@@ -71,7 +71,7 @@ export default function loginWithEmailUseCase(
       throw new ErrorBadRequest('You signed up with a different method.');
     }
 
-    const isValidPassword = await authService.comparePassword(
+    const isValidPassword = await makeAuthService.comparePassword(
       payload.password,
       userAuth.password
     );
@@ -91,10 +91,10 @@ export default function loginWithEmailUseCase(
       correlationId,
     });
 
-    return issueUserSessionHelper({
+    return makeIssueUserSessionHelper({
       user,
       reqContext,
-      authService,
+      makeAuthService,
       userSessionRepo,
       eventBus,
       repoService,

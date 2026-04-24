@@ -14,7 +14,7 @@ import {
 } from '../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
-import issueUserSessionHelper from './helpers/issue-user-session.helper';
+import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z
   .object({
@@ -38,10 +38,10 @@ const validationSchema = z
     path: ['confirmPassword'],
   });
 
-export default function resetPasswordUseCase(
+export default function makeResetPasswordUseCase(
   requestContext: IRequestContext,
   userRepo: IUserRepo,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   eventBus: IEventBus,
   userAuthRepo: IUserAuthRepo,
   userSessionRepo: IUserSessionRepo,
@@ -52,7 +52,7 @@ export default function resetPasswordUseCase(
 
     const { correlationId, idempotencyKey } = requestContext.get();
 
-    const tokenPayload = await authService.verifyPasswordResetToken(
+    const tokenPayload = await makeAuthService.verifyPasswordResetToken(
       payload.token
     );
 
@@ -76,7 +76,7 @@ export default function resetPasswordUseCase(
       throw new ErrorBadRequest('Invalid or expired password reset token');
     }
 
-    const passwordHash = await authService.hashPassword(payload.password);
+    const passwordHash = await makeAuthService.hashPassword(payload.password);
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
       await userAuthRepo.update(
@@ -93,10 +93,10 @@ export default function resetPasswordUseCase(
       idempotencyKey,
     });
 
-    return issueUserSessionHelper({
+    return makeIssueUserSessionHelper({
       user: existingUser,
       reqContext: requestContext,
-      authService,
+      makeAuthService,
       userSessionRepo,
       eventBus,
       repoService,

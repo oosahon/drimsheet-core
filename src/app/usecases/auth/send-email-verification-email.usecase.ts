@@ -13,10 +13,10 @@ const validationSchema = z.object({
   email: z.email(),
 });
 
-export default function sendEmailVerificationEmailUseCase(
+export default function makeSendEmailVerificationEmailUseCase(
   requestContext: IRequestContext,
   logger: ILogger,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   userRepo: IUserRepo,
   transactionalEmailService: ITransactionalEmailService
 ) {
@@ -44,7 +44,7 @@ export default function sendEmailVerificationEmailUseCase(
       return;
     }
 
-    const verificationToken = await authService.generateSignupToken({
+    const verificationToken = await makeAuthService.generateSignupToken({
       id: user.id,
     });
 

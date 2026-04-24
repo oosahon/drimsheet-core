@@ -15,9 +15,9 @@ import mockRequestContext, {
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
-import loginWithEmailUseCase from '../login-with-email.usecase';
+import makeLoginWithEmailUseCase from '../login-with-email.usecase';
 
-describe('loginWithEmailUseCase', () => {
+describe('makeLoginWithEmailUseCase', () => {
   const correlationId = 'test-corr-id';
 
   beforeEach(() => {
@@ -49,7 +49,7 @@ describe('loginWithEmailUseCase', () => {
     }) as unknown as IUserAuth;
 
   const getUseCase = () =>
-    loginWithEmailUseCase(
+    makeLoginWithEmailUseCase(
       mockRequestContext,
       mockUserRepo,
       mockAuthService,
@@ -65,7 +65,7 @@ describe('loginWithEmailUseCase', () => {
     const invalidPayload = {
       email: 'not-an-email',
       password: '',
-    } as unknown as Parameters<ReturnType<typeof loginWithEmailUseCase>>[0];
+    } as unknown as Parameters<ReturnType<typeof makeLoginWithEmailUseCase>>[0];
 
     await expect(usecase(invalidPayload)).rejects.toThrow(
       ErrorUnprocessableEntity

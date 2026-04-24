@@ -43,10 +43,10 @@ const validationSchema = z.object({
     }),
 });
 
-export default function signupWithEmailUsecase(
+export default function makeSignupWithEmailUsecase(
   requestContext: IRequestContext,
   userRepo: IUserRepo,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   eventBus: IEventBus,
   userAuthRepo: IUserAuthRepo,
   repoService: IRepoService
@@ -58,7 +58,7 @@ export default function signupWithEmailUsecase(
 
     const email = emailValue.make(payload.email);
 
-    const isPermittedEmail = authService.isPermittedEmail(email);
+    const isPermittedEmail = makeAuthService.isPermittedEmail(email);
 
     if (!isPermittedEmail) {
       throw new ErrorForbidden('Email is not permitted');
@@ -73,7 +73,7 @@ export default function signupWithEmailUsecase(
     }
 
     const password = passwordValue.make(payload.password);
-    const passwordHash = await authService.hashPassword(password);
+    const passwordHash = await makeAuthService.hashPassword(password);
 
     const [user, userEvents] = userEntity.make({
       firstName: payload.firstName,

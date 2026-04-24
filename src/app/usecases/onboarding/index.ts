@@ -2,10 +2,10 @@ import messaging from '../../../infra/messaging';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
 import appContext from '../../context';
-import onboardAccountingEntityUseCase from './onboard-accounting-entity.usecase';
+import makeOnboardAccountingEntityUseCase from './onboard-accounting-entity.usecase';
 
 const onboardingUseCases = {
-  onboardAccountingEntity: onboardAccountingEntityUseCase(
+  onboardAccountingEntity: makeOnboardAccountingEntityUseCase(
     appContext.request,
     repos.accountingEntity,
     repos.userPreferences,

@@ -4,7 +4,7 @@ import IRequestContext from '../../../app/contracts/app/request-context.contract
 import ILogger from '../../../app/contracts/infra/logger.contract';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
 
-export default function requestLoggerMiddleware(
+export default function makeRequestLoggerMiddleware(
   logger: ILogger,
   reporter: IReporter,
   requestContext: IRequestContext

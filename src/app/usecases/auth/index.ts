@@ -4,19 +4,19 @@ import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
 import appContext from '../../context';
-import googleOAuthHelper from './helpers/oauth-handler-google.helper';
-import loginWithEmailUseCase from './login-with-email.usecase';
-import logoutUseCase from './logout.usecase';
-import oauthUsecase from './oauth.usecase';
-import refreshAccessTokenUseCase from './refresh-access-token.usecase';
-import requestPasswordResetUseCase from './request-password-reset.usecase';
-import resetPasswordUseCase from './reset-password.usecase';
-import sendEmailVerificationEmailUseCase from './send-email-verification-email.usecase';
-import signupWithEmailUsecase from './signup-with-email.usecase';
-import verifyEmailAddressUseCase from './verify-email.usecase';
+import makeGoogleOAuthHelper from './helpers/oauth-handler-google.helper';
+import makeLoginWithEmailUseCase from './login-with-email.usecase';
+import makeLogoutUseCase from './logout.usecase';
+import makeOauthUsecase from './oauth.usecase';
+import makeRefreshAccessTokenUseCase from './refresh-access-token.usecase';
+import makeRequestPasswordResetUseCase from './request-password-reset.usecase';
+import makeResetPasswordUseCase from './reset-password.usecase';
+import makeSendEmailVerificationEmailUseCase from './send-email-verification-email.usecase';
+import makeSignupWithEmailUsecase from './signup-with-email.usecase';
+import makeVerifyEmailAddressUseCase from './verify-email.usecase';
 
 const authUseCase = {
-  signupWithEmail: signupWithEmailUsecase(
+  signupWithEmail: makeSignupWithEmailUsecase(
     appContext.request,
     repos.user,
     services.auth,
@@ -25,7 +25,7 @@ const authUseCase = {
     services.repo
   ),
 
-  sendEmailVerificationEmail: sendEmailVerificationEmailUseCase(
+  sendEmailVerificationEmail: makeSendEmailVerificationEmailUseCase(
     appContext.request,
     observability.logger,
     services.auth,
@@ -33,7 +33,7 @@ const authUseCase = {
     services.transactionalEmail
   ),
 
-  verifyEmail: verifyEmailAddressUseCase(
+  verifyEmail: makeVerifyEmailAddressUseCase(
     services.auth,
     repos.user,
     appContext.request,
@@ -42,7 +42,7 @@ const authUseCase = {
     services.repo
   ),
 
-  loginWithEmail: loginWithEmailUseCase(
+  loginWithEmail: makeLoginWithEmailUseCase(
     appContext.request,
     repos.user,
     services.auth,
@@ -52,7 +52,7 @@ const authUseCase = {
     services.repo
   ),
 
-  getPasswordResetLink: requestPasswordResetUseCase(
+  getPasswordResetLink: makeRequestPasswordResetUseCase(
     appContext.request,
     repos.user,
     services.auth,
@@ -61,7 +61,7 @@ const authUseCase = {
     repos.userAuth
   ),
 
-  resetPassword: resetPasswordUseCase(
+  resetPassword: makeResetPasswordUseCase(
     appContext.request,
     repos.user,
     services.auth,
@@ -71,7 +71,7 @@ const authUseCase = {
     services.repo
   ),
 
-  oAuth: oauthUsecase(
+  oAuth: makeOauthUsecase(
     appContext.request,
     services.auth,
     messaging.eventBus,
@@ -80,7 +80,7 @@ const authUseCase = {
     WEB_APP_URL
   ),
 
-  googleOAuthHelper: googleOAuthHelper(
+  makeGoogleOAuthHelper: makeGoogleOAuthHelper(
     messaging.eventBus,
     appContext.request,
     repos.user,
@@ -88,7 +88,7 @@ const authUseCase = {
     services.repo
   ),
 
-  refreshAccessToken: refreshAccessTokenUseCase(
+  refreshAccessToken: makeRefreshAccessTokenUseCase(
     appContext.request,
     repos.user,
     services.auth,
@@ -97,7 +97,11 @@ const authUseCase = {
     services.repo
   ),
 
-  logout: logoutUseCase(appContext.request, services.auth, repos.userSession),
+  logout: makeLogoutUseCase(
+    appContext.request,
+    services.auth,
+    repos.userSession
+  ),
 };
 
 export default authUseCase;

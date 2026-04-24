@@ -3,29 +3,29 @@ import authUseCase from '../../../app/usecases/auth';
 import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
-import errorHandlerMiddleware from './error-handler.middleware';
+import makeErrorHandlerMiddleware from './error-handler.middleware';
 import {
-  completeLoginWithGoogleMiddleware,
-  initiateLoginWithGoogleMiddleware,
+  makeCompleteLoginWithGoogleMiddleware,
+  makeInitiateLoginWithGoogleMiddleware,
 } from './google-oauth.middleware';
-import isAuthenticatedUserMiddleware from './is-authenticated-user.middleware';
-import isOptionalAuthenticatedUserMiddleware from './is-optional-authenticated-user.middleware';
-import requestContextInitMiddleware from './request-context-init.middleware';
-import requestLoggerMiddleware from './request-logger.middleware';
+import makeIsAuthenticatedUserMiddleware from './is-authenticated-user.middleware';
+import makeIsOptionalAuthenticatedUserMiddleware from './is-optional-authenticated-user.middleware';
+import makeRequestContextInitMiddleware from './request-context-init.middleware';
+import makeRequestLoggerMiddleware from './request-logger.middleware';
 
 const middlewares = {
-  initiateLoginWithGoogle: initiateLoginWithGoogleMiddleware(),
+  initiateLoginWithGoogle: makeInitiateLoginWithGoogleMiddleware(),
 
-  completeLoginWithGoogle: completeLoginWithGoogleMiddleware(
+  completeLoginWithGoogle: makeCompleteLoginWithGoogleMiddleware(
     authUseCase.oAuth.handleGoogleCallback
   ),
 
-  isOptionalAuthenticatedUser: isOptionalAuthenticatedUserMiddleware(
+  isOptionalAuthenticatedUser: makeIsOptionalAuthenticatedUserMiddleware(
     observability.logger,
     observability.reporter
   ),
 
-  requestContext: requestContextInitMiddleware(
+  requestContext: makeRequestContextInitMiddleware(
     appContext.request,
     repos.accountingEntity,
     services.auth,
@@ -33,11 +33,11 @@ const middlewares = {
     observability.logger
   ),
 
-  errorHandler: errorHandlerMiddleware(),
+  errorHandler: makeErrorHandlerMiddleware(),
 
-  isAuthenticatedUser: isAuthenticatedUserMiddleware(appContext.request),
+  isAuthenticatedUser: makeIsAuthenticatedUserMiddleware(appContext.request),
 
-  requestLogger: requestLoggerMiddleware(
+  requestLogger: makeRequestLoggerMiddleware(
     observability.logger,
     observability.reporter,
     appContext.request

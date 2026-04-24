@@ -2,7 +2,7 @@ import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.re
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
 
-export default function getUserPreferencesUseCase(
+export default function makeGetUserPreferencesUseCase(
   requestContext: IRequestContext,
   userPreferencesRepo: IUserPreferencesRepo
 ) {

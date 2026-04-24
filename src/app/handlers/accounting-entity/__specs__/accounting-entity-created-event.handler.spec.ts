@@ -6,7 +6,7 @@ import {
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import accountingEntityCreatedEventHandler from '../accounting-entity-created-event.handler';
+import makeAccountingEntityCreatedEventHandler from '../accounting-entity-created-event.handler';
 
 import { NAIRA } from '../../../../domain/currency/config/currencies.config';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
@@ -21,7 +21,7 @@ jest.mock('../../../usecases/user', () => ({
   },
 }));
 
-describe('accountingEntityCreatedEventHandler', () => {
+describe('makeAccountingEntityCreatedEventHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -59,7 +59,7 @@ describe('accountingEntityCreatedEventHandler', () => {
   });
 
   it('should successfully handle AccountingEntityCreated event', async () => {
-    const handler = accountingEntityCreatedEventHandler(
+    const handler = makeAccountingEntityCreatedEventHandler(
       mockReporter,
       mockRequestContext
     );
@@ -87,7 +87,7 @@ describe('accountingEntityCreatedEventHandler', () => {
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = accountingEntityCreatedEventHandler(
+    const handler = makeAccountingEntityCreatedEventHandler(
       mockReporter,
       mockRequestContext
     );
@@ -120,7 +120,7 @@ describe('accountingEntityCreatedEventHandler', () => {
   });
 
   it('should throw and report if event type is invalid', async () => {
-    const handler = accountingEntityCreatedEventHandler(
+    const handler = makeAccountingEntityCreatedEventHandler(
       mockReporter,
       mockRequestContext
     );
@@ -138,7 +138,7 @@ describe('accountingEntityCreatedEventHandler', () => {
   });
 
   it('should report an error if transaction fails', async () => {
-    const handler = accountingEntityCreatedEventHandler(
+    const handler = makeAccountingEntityCreatedEventHandler(
       mockReporter,
       mockRequestContext
     );

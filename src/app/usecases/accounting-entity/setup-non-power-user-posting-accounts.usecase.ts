@@ -19,7 +19,7 @@ const validationSchema = z.object({
   accountingEntityId: z.uuid(),
 });
 
-export default function setupNonPowerUserPostingAccountsUseCase(
+export default function makeSetupNonPowerUserPostingAccountsUseCase(
   requestContext: IRequestContext,
   ledgerAccountRepo: ILedgerAccountRepo,
   accountingEntityRepo: IAccountingEntityRepo,

@@ -7,7 +7,9 @@ import { ICacheStorage } from '../../app/contracts/infra/cache-storage.contract'
 import { NON_PROD_EMAIL_WHITELIST } from '../config/email-whitelist.config';
 import { JWT_SECRET_KEY, NODE_ENV } from '../config/vars.config';
 
-export default function authService(cacheStorage: ICacheStorage): IAuthService {
+export default function makeAuthService(
+  cacheStorage: ICacheStorage
+): IAuthService {
   const verifyAuthToken = (token: string) =>
     verify(token, JWT_SECRET_KEY) as IAuthTokenPayload & { type: string };
 

@@ -3,7 +3,7 @@ import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import accountingEntityMapper from '../../mappers/accounting-entity.mapper';
 
-export default function getAllAccountingEntitiesUseCase(
+export default function makeGetAllAccountingEntitiesUseCase(
   requestContext: IRequestContext,
   accountingEntityRepo: IAccountingEntityRepo
 ) {

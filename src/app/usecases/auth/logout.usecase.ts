@@ -2,9 +2,9 @@ import IRequestContext from '../../contracts/app/request-context.contract';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
 
-export default function logoutUseCase(
+export default function makeLogoutUseCase(
   reqContext: IRequestContext,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   userSessionRepo: IUserSessionRepo
 ) {
   return async () => {
@@ -14,7 +14,7 @@ export default function logoutUseCase(
 
     if (refreshToken) {
       try {
-        const decoded = authService.verifyRefreshToken(refreshToken);
+        const decoded = makeAuthService.verifyRefreshToken(refreshToken);
         if (decoded) {
           await userSessionRepo.delete(decoded.id, refreshToken, {
             correlationId,

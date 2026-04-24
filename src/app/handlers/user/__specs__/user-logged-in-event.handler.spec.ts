@@ -3,7 +3,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import userLoggedInEventHandler from '../user-logged-in-event.handler';
+import makeUserLoggedInEventHandler from '../user-logged-in-event.handler';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
@@ -17,7 +17,7 @@ jest.mock('../../../usecases/user', () => ({
   },
 }));
 
-describe('userLoggedInEventHandler', () => {
+describe('makeUserLoggedInEventHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -44,7 +44,10 @@ describe('userLoggedInEventHandler', () => {
   });
 
   it('should successfully handle LoggedIn event', async () => {
-    const handler = userLoggedInEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserLoggedInEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent = getValidEvent();
 
     mockRequestContext.get.mockReturnValue({
@@ -65,7 +68,10 @@ describe('userLoggedInEventHandler', () => {
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = userLoggedInEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserLoggedInEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent: IEvent<IUser> = {
       type: EUserEvents.LoggedIn,
       occurredAt: new Date(),
@@ -91,7 +97,10 @@ describe('userLoggedInEventHandler', () => {
   });
 
   it('should throw and report if event type is invalid', async () => {
-    const handler = userLoggedInEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserLoggedInEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent = getValidEvent();
     mockEvent.type = 'INVALID_EVENT' as keyof typeof EUserEvents;
 
@@ -106,7 +115,10 @@ describe('userLoggedInEventHandler', () => {
   });
 
   it('should report an error if saveActivity fails', async () => {
-    const handler = userLoggedInEventHandler(MockReporter, mockRequestContext);
+    const handler = makeUserLoggedInEventHandler(
+      MockReporter,
+      mockRequestContext
+    );
     const mockEvent = getValidEvent();
 
     const error = new Error('DB Error');

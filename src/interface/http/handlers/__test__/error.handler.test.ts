@@ -5,9 +5,9 @@ import {
   AppError,
   ErrorBadRequest,
 } from '../../../../shared/value-objects/error';
-import httpErrorHandler from '../error.handler';
+import makeHttpErrorHandler from '../error.handler';
 
-describe('httpErrorHandler', () => {
+describe('makeHttpErrorHandler', () => {
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
   let mockStatus: jest.Mock;
@@ -43,7 +43,7 @@ describe('httpErrorHandler', () => {
   });
 
   it('should clean sensitive data from request', () => {
-    const handler = httpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter);
     const error = new Error('Unknown error');
 
     handler(mockReq as Request, mockRes as Response, error);
@@ -59,7 +59,7 @@ describe('httpErrorHandler', () => {
   });
 
   it('should handle tsoa ValidateError', () => {
-    const handler = httpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter);
     const error = new ValidateError(
       {
         email: { message: 'Invalid email' },
@@ -82,7 +82,7 @@ describe('httpErrorHandler', () => {
   });
 
   it('should handle ApiError (e.g. ErrorBadRequest)', () => {
-    const handler = httpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter);
     const error = new ErrorBadRequest('Bad request occurred');
 
     handler(mockReq as Request, mockRes as Response, error);
@@ -96,7 +96,7 @@ describe('httpErrorHandler', () => {
   });
 
   it('should handle domain AppError', () => {
-    const handler = httpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter);
     const error = new AppError('Domain rule violated');
 
     handler(mockReq as Request, mockRes as Response, error);
@@ -110,7 +110,7 @@ describe('httpErrorHandler', () => {
   });
 
   it('should handle unknown errors and report them', () => {
-    const handler = httpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter);
     const error = new Error('Database connection failed');
 
     handler(mockReq as Request, mockRes as Response, error);

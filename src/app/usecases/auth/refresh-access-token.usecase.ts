@@ -5,12 +5,12 @@ import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
-import issueUserSessionHelper from './helpers/issue-user-session.helper';
+import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
-export default function refreshAccessTokenUseCase(
+export default function makeRefreshAccessTokenUseCase(
   reqContext: IRequestContext,
   userRepo: IUserRepo,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   eventBus: IEventBus,
   userSessionRepo: IUserSessionRepo,
   repoService: IRepoService
@@ -24,7 +24,7 @@ export default function refreshAccessTokenUseCase(
       throw new ErrorUnauthorized();
     }
 
-    const decoded = authService.verifyRefreshToken(refreshToken);
+    const decoded = makeAuthService.verifyRefreshToken(refreshToken);
 
     if (!decoded) {
       throw new ErrorUnauthorized();
@@ -46,10 +46,10 @@ export default function refreshAccessTokenUseCase(
       throw new ErrorUnauthorized();
     }
 
-    return issueUserSessionHelper({
+    return makeIssueUserSessionHelper({
       user,
       reqContext,
-      authService,
+      makeAuthService,
       userSessionRepo,
       eventBus,
       repoService,

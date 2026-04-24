@@ -7,10 +7,10 @@ import {
   EAppUsageModePreference,
   IUserPreferences,
 } from '../../types/user-preferences.types';
-import userPreferencesService from '../user-preferences.service';
+import makeUserPreferencesService from '../user-preferences.service';
 
-describe('userPreferencesService', () => {
-  const service = userPreferencesService(mockUserPreferencesRepo);
+describe('makeUserPreferencesService', () => {
+  const service = makeUserPreferencesService(mockUserPreferencesRepo);
   const userId = generateUUID();
   const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
 

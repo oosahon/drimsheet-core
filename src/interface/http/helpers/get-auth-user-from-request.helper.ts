@@ -9,7 +9,7 @@ import getHttpHeaderValue, { getCorrelationId } from './get-http-header-value';
 
 export default async function getAuthUserFromRequest(
   req: Request,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   logger: ILogger,
   userRepo: IUserRepo
 ): Promise<IUser | null> {
@@ -25,7 +25,7 @@ export default async function getAuthUserFromRequest(
   let authUser: IAuthTokenPayload | null = null;
 
   try {
-    authUser = await authService.getAuthUser(token);
+    authUser = await makeAuthService.getAuthUser(token);
   } catch (error) {
     logger.error('An error occurred while decoding token', {
       error,

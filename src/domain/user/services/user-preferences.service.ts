@@ -13,7 +13,7 @@ export interface IUserPreferencesService {
   ): Promise<TEntityWithEvents<IUserPreferences, IUserPreferences>>;
 }
 
-export default function userPreferencesService(
+export default function makeUserPreferencesService(
   repo: IUserPreferencesRepo
 ): IUserPreferencesService {
   return {

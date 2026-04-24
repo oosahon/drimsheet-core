@@ -4,11 +4,11 @@ import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
-import issueUserSessionHelper from './helpers/issue-user-session.helper';
+import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
-export default function oauthUsecase(
+export default function makeOauthUsecase(
   reqContext: IRequestContext,
-  authService: IAuthService,
+  makeAuthService: IAuthService,
   eventBus: IEventBus,
   userSessionRepo: IUserSessionRepo,
   repoService: IRepoService,
@@ -16,10 +16,10 @@ export default function oauthUsecase(
 ) {
   return {
     handleGoogleCallback: async (user: IUser): Promise<string> => {
-      const { accessToken } = await issueUserSessionHelper({
+      const { accessToken } = await makeIssueUserSessionHelper({
         user,
         reqContext,
-        authService,
+        makeAuthService,
         userSessionRepo,
         eventBus,
         repoService,

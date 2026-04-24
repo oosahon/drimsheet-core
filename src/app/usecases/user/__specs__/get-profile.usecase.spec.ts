@@ -4,13 +4,13 @@ import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import userMapper from '../../../mappers/user.mapper';
-import getAuthUserProfileUseCase from '../get-profile.usecase';
+import makeGetAuthUserProfileUseCase from '../get-profile.usecase';
 
 jest.mock('../../../mappers/user.mapper', () => ({
   toInterface: jest.fn(),
 }));
 
-describe('getAuthUserProfileUseCase', () => {
+describe('makeGetAuthUserProfileUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -28,7 +28,7 @@ describe('getAuthUserProfileUseCase', () => {
     const mappedUser = { id: 'test-user-id', email: 'test@example.com' };
     (userMapper.toInterface as jest.Mock).mockReturnValue(mappedUser);
 
-    const usecase = getAuthUserProfileUseCase(MockRequestContext);
+    const usecase = makeGetAuthUserProfileUseCase(MockRequestContext);
     const result = await usecase();
 
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
@@ -39,7 +39,7 @@ describe('getAuthUserProfileUseCase', () => {
   it('should throw ErrorUnauthorized if user is not in request context', async () => {
     MockRequestContext.get.mockReturnValue({} as IRequestContextData);
 
-    const usecase = getAuthUserProfileUseCase(MockRequestContext);
+    const usecase = makeGetAuthUserProfileUseCase(MockRequestContext);
 
     await expect(usecase()).rejects.toThrow(ErrorUnauthorized);
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);

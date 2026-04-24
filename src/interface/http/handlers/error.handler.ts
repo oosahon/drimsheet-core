@@ -14,7 +14,7 @@ export interface IApiError {
   cause?: any;
 }
 
-function httpErrorHandler(reporter: IReporter) {
+function makeHttpErrorHandler(reporter: IReporter) {
   return (req: Request, res: Response<IApiError>, error: any) => {
     delete req?.headers.authorization;
     // @ts-ignore
@@ -59,4 +59,4 @@ function httpErrorHandler(reporter: IReporter) {
   };
 }
 
-export default httpErrorHandler;
+export default makeHttpErrorHandler;

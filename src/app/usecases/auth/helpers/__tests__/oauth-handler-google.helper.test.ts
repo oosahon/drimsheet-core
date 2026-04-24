@@ -11,9 +11,9 @@ import {
   EAuthStrategy,
   IUserAuth,
 } from '../../../../contracts/infra/auth-service.contract';
-import googleOAuthHelper from '../oauth-handler-google.helper';
+import makeGoogleOAuthHelper from '../oauth-handler-google.helper';
 
-describe('googleOAuthHelper', () => {
+describe('makeGoogleOAuthHelper', () => {
   const correlationId = 'test-corr-id';
   const idempotencyKey = 'test-idemp-key';
 
@@ -47,7 +47,7 @@ describe('googleOAuthHelper', () => {
     }) as unknown as IUserAuth;
 
   const getHelper = () =>
-    googleOAuthHelper(
+    makeGoogleOAuthHelper(
       mockEventBus,
       mockRequestContext,
       mockUserRepo,
