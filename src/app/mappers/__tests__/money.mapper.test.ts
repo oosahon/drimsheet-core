@@ -47,7 +47,7 @@ describe('Money Mapper', () => {
 
       expect(() => moneyMapper.fromDto(invalidDto)).toThrow(AppError);
       expect(() => moneyMapper.fromDto(invalidDto)).toThrow(
-        'Currency not found'
+        'Invalid currency provided.'
       );
     });
   });
