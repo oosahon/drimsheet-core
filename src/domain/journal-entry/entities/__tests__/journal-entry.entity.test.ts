@@ -1,7 +1,7 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import { USD } from '../../../currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import { EJournalEntryEvent } from '../../events/journal-entry.events';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import {
@@ -34,7 +34,7 @@ describe('JournalEntry Entity', () => {
         status: EJournalEntryStatus.Draft,
         effectiveDate: new Date('2026-04-15T00:00:00.000Z'),
         memo: 'Test entry memo',
-        functionalCurrency: USD,
+        functionalCurrency: SYSTEM_CURRENCIES.USD,
         postedAt: null,
         voidedAt: null,
         voidingEntryId: null,
@@ -42,20 +42,20 @@ describe('JournalEntry Entity', () => {
           {
             accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
             sequenceOrder: 1,
-            amount: moneyValue.make(100.0, USD, false),
+            amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.USD, false),
             exchangeRate: null,
             side: EJournalSide.Debit,
             description: 'Line item 1',
-            functionalCurrency: USD,
+            functionalCurrency: SYSTEM_CURRENCIES.USD,
           },
           {
             accountId: 'e682fcb3-e6dc-54ed-9f7d-304c08c1b810' as TEntityId,
             sequenceOrder: 2,
-            amount: moneyValue.make(100.0, USD, false),
+            amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.USD, false),
             exchangeRate: null,
             side: EJournalSide.Credit,
             description: 'Line item 2',
-            functionalCurrency: USD,
+            functionalCurrency: SYSTEM_CURRENCIES.USD,
           },
         ],
       };
@@ -221,7 +221,7 @@ describe('JournalEntry Entity', () => {
           validPayload.lines[0],
           {
             ...validPayload.lines[1],
-            amount: moneyValue.make(50.0, USD, false),
+            amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
           },
         ],
       };
@@ -291,9 +291,9 @@ describe('JournalEntry Entity', () => {
           entryId: '2' as TEntityId,
           accountId: '3' as TEntityId,
           sequenceOrder: 1,
-          amount: moneyValue.make(100, USD, false),
+          amount: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
           exchangeRate: null,
-          functionalAmount: moneyValue.make(100, USD, false),
+          functionalAmount: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
           // @ts-expect-error Testing invalid side at runtime
           side: 'InvalidSide',
           description: 'test',

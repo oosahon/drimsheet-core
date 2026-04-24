@@ -12,7 +12,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import handleLedgerAccountCreatedEvent from '../ledger-account-created-event.handler';
 
-import { NAIRA } from '../../../../domain/currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
@@ -39,7 +39,7 @@ describe('handleLedgerAccountCreatedEvent', () => {
     isControlAccount: false,
     controlAccountId: null,
     name: 'Cash',
-    currency: NAIRA,
+    currency: SYSTEM_CURRENCIES.NGN,
     status: ELedgerAccountStatus.Active,
     contraAccountRule: EContraAccountRule.NotApplicable,
     adjunctAccountRule: EAdjunctAccountRule.NotApplicable,

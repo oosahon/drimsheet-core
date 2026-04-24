@@ -82,8 +82,8 @@ describe('Currency Domain Entity', () => {
       expect(currencyEntity.normalizeCode('USD')).toBe('USD');
     });
 
-    it('should throw an AppError if the code is invalid format (e.g. lowercase)', () => {
-      expect(() => currencyEntity.normalizeCode('usd')).toThrow(AppError);
+    it('should return normalized code for a lowercase code', () => {
+      expect(currencyEntity.normalizeCode('usd')).toBe('USD');
     });
   });
 
@@ -92,7 +92,7 @@ describe('Currency Domain Entity', () => {
       const currency = currencyEntity.getByCode('USD');
       expect(currency).toBeDefined();
       expect(currency.code).toBe('USD');
-      expect(currency.name).toBe('United States Dollar');
+      expect(currency.name).toBe('US Dollar');
     });
 
     it('should throw an AppError if currency code is an invalid format', () => {
@@ -100,8 +100,8 @@ describe('Currency Domain Entity', () => {
     });
 
     it('should throw an AppError if currency format is valid but not found in system currencies', () => {
-      // AUD is a valid ISO currency but not in our SYSTEM_CURRENCIES
-      expect(() => currencyEntity.getByCode('AUD')).toThrow(AppError);
+      // BBD is a valid ISO currency but not in our SYSTEM_CURRENCIES
+      expect(() => currencyEntity.getByCode('BBD')).toThrow(AppError);
     });
   });
 });

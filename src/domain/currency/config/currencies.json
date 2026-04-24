@@ -1,0 +1,359 @@
+[
+  {
+    "code": "USD",
+    "name": "US Dollar",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/us.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "GBP",
+    "name": "British Pound",
+    "symbol": "£",
+    "logo": "https://flagcdn.com/w320/gb.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "JPY",
+    "name": "Japanese Yen",
+    "symbol": "￥",
+    "logo": "https://flagcdn.com/w320/jp.png",
+    "minorUnit": 0
+  },
+  {
+    "code": "CNY",
+    "name": "Chinese Yuan",
+    "symbol": "¥",
+    "logo": "https://flagcdn.com/w320/cn.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "EUR",
+    "name": "Euro",
+    "symbol": "€",
+    "logo": "https://flagcdn.com/w320/eu.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "AUD",
+    "name": "Australian Dollar",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/au.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "CAD",
+    "name": "Canadian Dollar",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/ca.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "CHF",
+    "name": "Swiss Franc",
+    "symbol": "CHF",
+    "logo": "https://flagcdn.com/w320/ch.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "HKD",
+    "name": "Hong Kong Dollar",
+    "symbol": "HK$",
+    "logo": "https://flagcdn.com/w320/hk.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "SGD",
+    "name": "Singapore Dollar",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/sg.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "SEK",
+    "name": "Swedish Krona",
+    "symbol": "kr",
+    "logo": "https://flagcdn.com/w320/se.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "KRW",
+    "name": "South Korean Won",
+    "symbol": "₩",
+    "logo": "https://flagcdn.com/w320/kr.png",
+    "minorUnit": 0
+  },
+  {
+    "code": "NOK",
+    "name": "Norwegian Krone",
+    "symbol": "kr",
+    "logo": "https://flagcdn.com/w320/no.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "NZD",
+    "name": "New Zealand Dollar",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/nz.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "INR",
+    "name": "Indian Rupee",
+    "symbol": "₹",
+    "logo": "https://flagcdn.com/w320/in.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "MXN",
+    "name": "Mexican Peso",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/mx.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "TWD",
+    "name": "New Taiwan Dollar",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/tw.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "ZAR",
+    "name": "South African Rand",
+    "symbol": "R",
+    "logo": "https://flagcdn.com/w320/za.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "BRL",
+    "name": "Brazilian Real",
+    "symbol": "R$",
+    "logo": "https://flagcdn.com/w320/br.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "DKK",
+    "name": "Danish Krone",
+    "symbol": "kr.",
+    "logo": "https://flagcdn.com/w320/dk.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "PLN",
+    "name": "Polish Zloty",
+    "symbol": "zł",
+    "logo": "https://flagcdn.com/w320/pl.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "THB",
+    "name": "Thai Baht",
+    "symbol": "฿",
+    "logo": "https://flagcdn.com/w320/th.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "ILS",
+    "name": "Israeli New Shekel",
+    "symbol": "₪",
+    "logo": "https://flagcdn.com/w320/il.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "IDR",
+    "name": "Indonesian Rupiah",
+    "symbol": "Rp",
+    "logo": "https://flagcdn.com/w320/id.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "CZK",
+    "name": "Czech Koruna",
+    "symbol": "Kč",
+    "logo": "https://flagcdn.com/w320/cz.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "AED",
+    "name": "United Arab Emirates Dirham",
+    "symbol": "د.إ.",
+    "logo": "https://flagcdn.com/w320/ae.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "TRY",
+    "name": "Turkish Lira",
+    "symbol": "₺",
+    "logo": "https://flagcdn.com/w320/tr.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "HUF",
+    "name": "Hungarian Forint",
+    "symbol": "Ft",
+    "logo": "https://flagcdn.com/w320/hu.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "CLP",
+    "name": "Chilean Peso",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/cl.png",
+    "minorUnit": 0
+  },
+  {
+    "code": "SAR",
+    "name": "Saudi Riyal",
+    "symbol": "ر.س.",
+    "logo": "https://flagcdn.com/w320/sa.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "PHP",
+    "name": "Philippine Peso",
+    "symbol": "₱",
+    "logo": "https://flagcdn.com/w320/ph.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "MYR",
+    "name": "Malaysian Ringgit",
+    "symbol": "RM",
+    "logo": "https://flagcdn.com/w320/my.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "COP",
+    "name": "Colombian Peso",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/co.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "RUB",
+    "name": "Russian Ruble",
+    "symbol": "₽",
+    "logo": "https://flagcdn.com/w320/ru.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "RON",
+    "name": "Romanian Leu",
+    "symbol": "RON",
+    "logo": "https://flagcdn.com/w320/ro.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "NGN",
+    "name": "Nigerian Naira",
+    "symbol": "₦",
+    "logo": "https://flagcdn.com/w320/ng.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "EGP",
+    "name": "Egyptian Pound",
+    "symbol": "ج.م.",
+    "logo": "https://flagcdn.com/w320/eg.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "KES",
+    "name": "Kenyan Shilling",
+    "symbol": "Ksh",
+    "logo": "https://flagcdn.com/w320/ke.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "MAD",
+    "name": "Moroccan Dirham",
+    "symbol": "د.م.",
+    "logo": "https://flagcdn.com/w320/ma.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "GHS",
+    "name": "Ghanaian Cedi",
+    "symbol": "GH₵",
+    "logo": "https://flagcdn.com/w320/gh.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "TZS",
+    "name": "Tanzanian Shilling",
+    "symbol": "TSh",
+    "logo": "https://flagcdn.com/w320/tz.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "UGX",
+    "name": "Ugandan Shilling",
+    "symbol": "USh",
+    "logo": "https://flagcdn.com/w320/ug.png",
+    "minorUnit": 0
+  },
+  {
+    "code": "DZD",
+    "name": "Algerian Dinar",
+    "symbol": "د.ج.",
+    "logo": "https://flagcdn.com/w320/dz.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "XAF",
+    "name": "Central African CFA Franc",
+    "symbol": "FCFA",
+    "logo": "https://flagcdn.com/w320/cm.png",
+    "minorUnit": 0
+  },
+  {
+    "code": "XOF",
+    "name": "West African CFA Franc",
+    "symbol": "F CFA",
+    "logo": "https://flagcdn.com/w320/sn.png",
+    "minorUnit": 0
+  },
+  {
+    "code": "ARS",
+    "name": "Argentine Peso",
+    "symbol": "$",
+    "logo": "https://flagcdn.com/w320/ar.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "VND",
+    "name": "Vietnamese Dong",
+    "symbol": "₫",
+    "logo": "https://flagcdn.com/w320/vn.png",
+    "minorUnit": 0
+  },
+  {
+    "code": "PEN",
+    "name": "Peruvian Sol",
+    "symbol": "S/",
+    "logo": "https://flagcdn.com/w320/pe.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "PKR",
+    "name": "Pakistani Rupee",
+    "symbol": "Rs",
+    "logo": "https://flagcdn.com/w320/pk.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "BDT",
+    "name": "Bangladeshi Taka",
+    "symbol": "৳",
+    "logo": "https://flagcdn.com/w320/bd.png",
+    "minorUnit": 2
+  },
+  {
+    "code": "UAH",
+    "name": "Ukrainian Hryvnia",
+    "symbol": "₴",
+    "logo": "https://flagcdn.com/w320/ua.png",
+    "minorUnit": 2
+  }
+]

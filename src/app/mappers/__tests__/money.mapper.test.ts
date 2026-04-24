@@ -51,7 +51,7 @@ describe('Money Mapper', () => {
     it('should throw AppError if currency format is valid but not in system currencies', () => {
       const invalidDto: IMoneyDto = {
         amount: 1000,
-        currencyCode: 'AUD', // AUD is not in SYSTEM_CURRENCIES
+        currencyCode: 'BBD', // BBD is not in SYSTEM_CURRENCIES
         isMinorUnit: true,
       };
 

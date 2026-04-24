@@ -3,10 +3,7 @@ import {
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../../../../domain/accounting-entity/types/accounting-entity.types';
-import {
-  NAIRA,
-  USD,
-} from '../../../../../domain/currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
 import {
   EExchangeRateType,
   IExchangeRate,
@@ -47,8 +44,8 @@ describe('createPettyCashSubAccountUseCase', () => {
     id: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
-    functionalCurrency: NAIRA,
-    reportingCurrency: USD,
+    functionalCurrency: SYSTEM_CURRENCIES.NGN,
+    reportingCurrency: SYSTEM_CURRENCIES.USD,
   } as IAccountingEntity;
 
   const mockControlAccount = {
@@ -63,7 +60,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     isControlAccount: true,
     controlAccountId: null,
     name: 'Cash and Equivalents',
-    currency: NAIRA,
+    currency: SYSTEM_CURRENCIES.NGN,
     status: ELedgerAccountStatus.Active,
     contraAccountRule: EContraAccountRule.NotApplicable,
     adjunctAccountRule: EAdjunctAccountRule.NotApplicable,
@@ -86,7 +83,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     isControlAccount: false,
     controlAccountId: null,
     name: 'Opening Balance Equity',
-    currency: NAIRA,
+    currency: SYSTEM_CURRENCIES.NGN,
     status: ELedgerAccountStatus.Active,
     contraAccountRule: EContraAccountRule.NotApplicable,
     adjunctAccountRule: EAdjunctAccountRule.NotApplicable,

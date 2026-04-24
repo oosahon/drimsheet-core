@@ -1,7 +1,7 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import { EUR, USD } from '../../../currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import { EExchangeRateType } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import { ETransactionEvent } from '../../events/transaction.events';
@@ -41,8 +41,8 @@ describe('Transaction Entity', () => {
         createdBy: '4d8e10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
         sourceAccountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
         exchangeRate: exchangeRateValue.make({
-          baseCurrencyCode: USD.code,
-          targetCurrencyCode: USD.code,
+          baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+          targetCurrencyCode: SYSTEM_CURRENCIES.USD.code,
           rate: 1,
           type: EExchangeRateType.Official,
           asOf: new Date('2026-04-15T00:00:00.000Z'),
@@ -57,21 +57,21 @@ describe('Transaction Entity', () => {
           },
         ],
         notes: 'Office supplies',
-        functionalCurrency: USD,
+        functionalCurrency: SYSTEM_CURRENCIES.USD,
       };
 
       validItems = [
         {
           description: 'Pens',
-          amount: moneyValue.make(50.0, USD, false),
-          functionalAmount: moneyValue.make(50.0, USD, false),
+          amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
+          functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.USD, false),
           targetAccountId: '5a6b7c8d-9e0f-4a2b-8c4d-5e6f7a8b9c0d' as TEntityId,
           counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
         },
         {
           description: 'Paper',
-          amount: moneyValue.make(50.5, USD, false),
-          functionalAmount: moneyValue.make(50.5, USD, false),
+          amount: moneyValue.make(50.5, SYSTEM_CURRENCIES.USD, false),
+          functionalAmount: moneyValue.make(50.5, SYSTEM_CURRENCIES.USD, false),
           targetAccountId: '6b7c8d9e-0f1a-4b3c-8d5e-6f7a8b9c0d1e' as TEntityId,
           counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
         },
@@ -135,8 +135,8 @@ describe('Transaction Entity', () => {
     it('should throw an AppError if items have different currencies', () => {
       validItems.push({
         description: 'Eraser',
-        amount: moneyValue.make(50.0, EUR, false),
-        functionalAmount: moneyValue.make(50.0, EUR, false),
+        amount: moneyValue.make(50.0, SYSTEM_CURRENCIES.EUR, false),
+        functionalAmount: moneyValue.make(50.0, SYSTEM_CURRENCIES.EUR, false),
         targetAccountId: '5a6b7c8d-9e0f-4a2b-8c4d-5e6f7a8b9c0d' as TEntityId,
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       });

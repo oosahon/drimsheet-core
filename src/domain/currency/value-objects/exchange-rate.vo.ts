@@ -12,9 +12,12 @@ function make(payload: TCreationOmits<IExchangeRate, 'currencyPair'>) {
   const baseCurrencyCode = currencyEntity.normalizeCode(
     payload.baseCurrencyCode
   );
+  currencyEntity.validateCode(baseCurrencyCode);
+
   const targetCurrencyCode = currencyEntity.normalizeCode(
     payload.targetCurrencyCode
   );
+  currencyEntity.validateCode(targetCurrencyCode);
 
   const currencyPair = `${baseCurrencyCode}/${targetCurrencyCode}`;
   const source = stringUtils.sanitizeAndValidate(payload.source, {

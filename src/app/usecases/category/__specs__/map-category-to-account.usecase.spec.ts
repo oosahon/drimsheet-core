@@ -1,4 +1,4 @@
-import { NAIRA } from '../../../../domain/currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -33,7 +33,7 @@ describe('mapCategoryToAccountUseCase', () => {
     isControlAccount: false,
     controlAccountId: null,
     name: 'Operating Expense',
-    currency: NAIRA,
+    currency: SYSTEM_CURRENCIES.NGN,
     status: ELedgerAccountStatus.Active,
     contraAccountRule: EContraAccountRule.NotApplicable,
     adjunctAccountRule: EAdjunctAccountRule.NotApplicable,
