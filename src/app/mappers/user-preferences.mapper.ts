@@ -1,6 +1,6 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IUserPreferences } from '../../domain/user/types/user-preferences.types';
-import { userPreferencesInCore } from '../../infra/persistence/drizzle/schema';
+import { userPreferencesInCore } from '../../infra/config/drizzle/schema';
 import { TEntityId } from '../../shared/types/uuid';
 import { fromRepoDate, toRepoDate } from './date';
 

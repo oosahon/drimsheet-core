@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import userMapper from '../../../app/mappers/user.mapper';
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import { usersInCore as users } from '../drizzle/schema';
+import { usersInCore as users } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';
 
 const userRepo: IUserRepo = {

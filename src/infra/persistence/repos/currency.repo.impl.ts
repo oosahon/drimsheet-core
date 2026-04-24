@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import currencyMapper from '../../../app/mappers/currency.mapper';
 import ICurrencyRepo from '../../../domain/currency/repos/currency.repo';
-import { currenciesInCore as currencies } from '../drizzle/schema';
+import { currenciesInCore as currencies } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';
 
 const currencyRepo: ICurrencyRepo = {

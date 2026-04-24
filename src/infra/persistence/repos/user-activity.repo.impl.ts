@@ -1,6 +1,6 @@
 import userActivityMapper from '../../../app/mappers/user-activity.mapper';
 import IUserActivityRepo from '../../../domain/user/repos/user-activity.repo';
-import { userActivitiesInAudit } from '../drizzle/schema';
+import { userActivitiesInAudit } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';
 
 const userActivityRepo: IUserActivityRepo = {
