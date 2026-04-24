@@ -136,4 +136,94 @@ describe('numberUtils', () => {
       expect(() => numberUtils.toFactor('invalid')).toThrow(AppError);
     });
   });
+
+  describe('isNumber', () => {
+    it('returns true for a valid number', () => {
+      expect(numberUtils.isNumber(42)).toBe(true);
+      expect(numberUtils.isNumber(0)).toBe(true);
+      expect(numberUtils.isNumber(-42.5)).toBe(true);
+    });
+
+    it('returns false for NaN', () => {
+      expect(numberUtils.isNumber(NaN)).toBe(false);
+    });
+
+    it('returns false for non-number types', () => {
+      expect(numberUtils.isNumber('42')).toBe(false);
+      expect(numberUtils.isNumber(null)).toBe(false);
+      expect(numberUtils.isNumber(undefined)).toBe(false);
+      expect(numberUtils.isNumber({})).toBe(false);
+      expect(numberUtils.isNumber(42n)).toBe(false);
+    });
+  });
+
+  describe('validateNumber', () => {
+    it('does not throw for a valid number', () => {
+      expect(() => numberUtils.validateNumber(42)).not.toThrow();
+      expect(() => numberUtils.validateNumber('42.5')).not.toThrow();
+    });
+
+    it('throws AppError for an invalid number', () => {
+      expect(() => numberUtils.validateNumber('invalid')).toThrow(AppError);
+    });
+  });
+
+  describe('isInteger', () => {
+    it('returns true for an integer', () => {
+      expect(numberUtils.isInteger(42)).toBe(true);
+      expect(numberUtils.isInteger('42')).toBe(true);
+    });
+
+    it('returns false for a float', () => {
+      expect(numberUtils.isInteger(42.5)).toBe(false);
+      expect(numberUtils.isInteger('42.5')).toBe(false);
+    });
+  });
+
+  describe('validateInteger', () => {
+    it('does not throw for an integer', () => {
+      expect(() => numberUtils.validateInteger(42)).not.toThrow();
+      expect(() => numberUtils.validateInteger('42')).not.toThrow();
+    });
+
+    it('throws AppError for a float', () => {
+      expect(() => numberUtils.validateInteger(42.5)).toThrow(AppError);
+      expect(() => numberUtils.validateInteger('42.5')).toThrow(AppError);
+      expect(() => numberUtils.validateInteger('invalid')).toThrow(AppError);
+    });
+  });
+  describe('isPositiveNumber', () => {
+    it('returns true for positive numbers', () => {
+      expect(numberUtils.isPositiveNumber(42)).toBe(true);
+      expect(numberUtils.isPositiveNumber('42.5')).toBe(true);
+      expect(numberUtils.isPositiveNumber(42n)).toBe(true);
+    });
+
+    it('returns false for zero or negative numbers', () => {
+      expect(numberUtils.isPositiveNumber(0)).toBe(false);
+      expect(numberUtils.isPositiveNumber(-42)).toBe(false);
+      expect(numberUtils.isPositiveNumber('-42.5')).toBe(false);
+    });
+  });
+
+  describe('validatePositiveNumber', () => {
+    it('does not throw for positive numbers', () => {
+      expect(() => numberUtils.validatePositiveNumber(42)).not.toThrow();
+      expect(() => numberUtils.validatePositiveNumber('42.5')).not.toThrow();
+    });
+
+    it('throws AppError with default message for zero or negative numbers', () => {
+      expect(() => numberUtils.validatePositiveNumber(0)).toThrow(AppError);
+      expect(() => numberUtils.validatePositiveNumber(-42)).toThrow(AppError);
+      expect(() => numberUtils.validatePositiveNumber(0)).toThrow(
+        'Value must be greater than 0'
+      );
+    });
+
+    it('throws AppError with custom message', () => {
+      expect(() =>
+        numberUtils.validatePositiveNumber(0, 'Custom error')
+      ).toThrow('Custom error');
+    });
+  });
 });

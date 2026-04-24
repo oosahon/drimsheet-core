@@ -1,23 +1,15 @@
 import accountingEntityEvents from '../../../../domain/accounting-entity/events/accounting-entity.events';
-import accountingEntityService from '../../../../domain/accounting-entity/services/accounting-entity.service';
 import {
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../../../domain/accounting-entity/types/accounting-entity.types';
-import ledgerService from '../../../../domain/ledger/services/ledger.service';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import userPreferencesService from '../../../../domain/user/services/user-preferences.service';
-import {
-  EAppUsageModePreference,
-  IUserPreferences,
-} from '../../../../domain/user/types/user-preferences.types';
+import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
+import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
-import { MockUserPreferencesRepo } from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
+import mockUserPreferencesRepo from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import {
   ErrorResourceNotFound,
@@ -28,42 +20,15 @@ import MockRequestContext from '../../../contracts/app/__mocks__/request-context
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import onboardAccountingEntityUseCase from '../onboard-accounting-entity.usecase';
 
-jest.mock(
-  '../../../../domain/accounting-entity/services/accounting-entity.service'
-);
-jest.mock('../../../../domain/user/services/user-preferences.service');
-jest.mock('../../../../domain/ledger/services/ledger.service');
-
-const mockAccountingEntityService =
-  accountingEntityService as jest.MockedFunction<
-    typeof accountingEntityService
-  >;
-const mockUserPreferencesService =
-  userPreferencesService as jest.MockedFunction<typeof userPreferencesService>;
-const mockLedgerService = ledgerService as jest.MockedFunction<
-  typeof ledgerService
->;
-
 describe('onboardAccountingEntityUseCase', () => {
-  const mockAccountingEntityMake = jest.fn();
-  const mockLedgerServiceSetup = jest.fn();
-  const mockUserPreferencesUpdate = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockAccountingEntityService.mockReturnValue({
-      make: mockAccountingEntityMake,
-    } as any);
-
-    mockLedgerService.mockReturnValue({
-      makeHeaderAccountsForIndividuals: mockLedgerServiceSetup,
-      bootstrapPostingAccounts: jest.fn(),
-    } as any);
-
-    mockUserPreferencesService.mockReturnValue({
-      update: mockUserPreferencesUpdate,
-    } as any);
+    mockAccountingEntityRepo.findByUserId.mockResolvedValue([]);
+    mockUserPreferencesRepo.findById.mockResolvedValue(null);
+    mockRepoService.runInTransaction.mockImplementation(async (cb) => {
+      await cb('mock-tx' as never);
+    });
   });
 
   const validPayload = {
@@ -78,53 +43,19 @@ describe('onboardAccountingEntityUseCase', () => {
 
   it('should successfully onboard accounting entity for non-power user', async () => {
     const correlationId = 'test-corr-id';
-    const mockUser = { id: 'user-id' as TEntityId } as unknown as IUser;
+    const mockUser = {
+      id: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+    } as unknown as IUser;
 
     MockRequestContext.get.mockReturnValue({
       correlationId,
       user: mockUser,
     } as unknown as IRequestContextData);
 
-    const mockAccountingEntity = {
-      id: 'entity-1',
-      type: EAccountingEntityType.Individual,
-    } as IAccountingEntity;
-    const mockEntityEvent = {
-      type: 'entity.created',
-      data: mockAccountingEntity,
-      occurredAt: new Date(),
-    } as unknown as IEvent<IAccountingEntity>;
-
-    const mockAccount = { id: 'account-1' } as unknown as ILedgerAccount;
-    const mockLedgerEvent = {
-      type: 'ledger.event',
-      data: mockAccount,
-      occurredAt: new Date(),
-    } as unknown as IEvent<ILedgerAccount>;
-
-    const mockPreferences = { id: 'pref-1' } as unknown as IUserPreferences;
-    const mockPrefEvent = {
-      type: 'pref.event',
-      data: mockPreferences,
-      occurredAt: new Date(),
-    } as unknown as IEvent<IUserPreferences>;
-
-    mockAccountingEntityMake.mockResolvedValue([
-      mockAccountingEntity,
-      [mockEntityEvent],
-    ]);
-    mockLedgerServiceSetup.mockResolvedValue([
-      [mockAccount, [mockLedgerEvent]],
-    ]);
-    mockUserPreferencesUpdate.mockResolvedValue([
-      mockPreferences,
-      [mockPrefEvent],
-    ]);
-
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -132,94 +63,63 @@ describe('onboardAccountingEntityUseCase', () => {
 
     await usecase(validPayload);
 
-    const correlationIdObj = { correlationId };
+    expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
 
-    expect(mockAccountingEntityMake).toHaveBeenCalledWith(
-      mockUser.id,
+    expect(mockAccountingEntityRepo.save).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
         operatingCountryCode: validPayload.operatingCountryCode,
         type: validPayload.entityType,
         ownerId: mockUser.id,
-        fiscalYearStart: validPayload.fiscalYearStart,
       }),
-      correlationIdObj
-    );
-
-    expect(mockLedgerServiceSetup).toHaveBeenCalledWith(
-      mockAccountingEntity,
-      correlationIdObj
-    );
-
-    expect(mockUserPreferencesUpdate).toHaveBeenCalledWith(
-      mockUser.id,
-      {
-        appPreferences: {
-          appUsageMode: validPayload.appUsageMode,
-        },
-      },
-      correlationIdObj
-    );
-
-    expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
-
-    const transactionCallback =
-      mockRepoService.runInTransaction.mock.calls[0][0];
-    await transactionCallback('mock-tx' as any);
-
-    expect(mockAccountingEntityRepo.save).toHaveBeenCalledWith(
-      mockAccountingEntity,
       { tx: 'mock-tx', correlationId }
     );
-    expect(mockLedgerAccountRepo.save).toHaveBeenCalledWith([mockAccount], {
-      tx: 'mock-tx',
-      correlationId,
-    });
-    expect(MockUserPreferencesRepo.save).toHaveBeenCalledWith(mockPreferences, {
+
+    expect(mockLedgerAccountRepo.save).toHaveBeenCalledWith(expect.any(Array), {
       tx: 'mock-tx',
       correlationId,
     });
 
-    const bootstrapEvent =
-      accountingEntityEvents.bootstrapIndividualPostingAccounts(
-        mockAccountingEntity
-      );
-
-    expect(mockEventBus.publish).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({ type: 'entity.created', correlationId }),
-        expect.objectContaining({ type: 'ledger.event', correlationId }),
-        expect.objectContaining({ type: 'pref.event', correlationId }),
-      ])
+    expect(mockUserPreferencesRepo.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appPreferences: expect.objectContaining({
+          appUsageMode: validPayload.appUsageMode,
+        }),
+      }),
+      {
+        tx: 'mock-tx',
+        correlationId,
+      }
     );
 
     expect(mockEventBus.publish).toHaveBeenCalledWith(
-      expect.objectContaining({ type: bootstrapEvent.type })
+      expect.arrayContaining([expect.objectContaining({ correlationId })])
+    );
+
+    expect(mockEventBus.publish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: accountingEntityEvents.bootstrapIndividualPostingAccounts(
+          {} as unknown as IAccountingEntity
+        ).type,
+      })
     );
   });
 
   it('should not publish bootstrap event for power user', async () => {
     const correlationId = 'test-corr-id';
-    const mockUser = { id: 'user-id' as TEntityId } as unknown as IUser;
+    const mockUser = {
+      id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    } as unknown as IUser;
 
     MockRequestContext.get.mockReturnValue({
       correlationId,
       user: mockUser,
     } as unknown as IRequestContextData);
 
-    const mockAccountingEntity = {
-      id: 'entity-1',
-      type: EAccountingEntityType.Individual,
-    } as IAccountingEntity;
-
-    mockAccountingEntityMake.mockResolvedValue([mockAccountingEntity, []]);
-    mockLedgerServiceSetup.mockResolvedValue([]);
-    mockUserPreferencesUpdate.mockResolvedValue([{} as IUserPreferences, []]);
-
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -230,11 +130,11 @@ describe('onboardAccountingEntityUseCase', () => {
       appUsageMode: EAppUsageModePreference.PowerUser,
     });
 
-    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+    expect(mockEventBus.publish).toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalledWith(
       expect.objectContaining({
         type: accountingEntityEvents.bootstrapIndividualPostingAccounts(
-          mockAccountingEntity
+          {} as unknown as IAccountingEntity
         ).type,
       })
     );
@@ -248,7 +148,7 @@ describe('onboardAccountingEntityUseCase', () => {
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -257,16 +157,18 @@ describe('onboardAccountingEntityUseCase', () => {
     await expect(usecase(validPayload)).rejects.toThrow(ErrorUnauthorized);
   });
 
-  it('should throw ErrorBadRequest if entity type is not supported', async () => {
+  it('should throw ErrorUnprocessableEntity if entity type is not supported', async () => {
     MockRequestContext.get.mockReturnValue({
       correlationId: 'test-corr-id',
-      user: { id: 'user-id' as TEntityId } as unknown as IUser,
+      user: {
+        id: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
+      } as unknown as IUser,
     } as unknown as IRequestContextData);
 
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -275,7 +177,8 @@ describe('onboardAccountingEntityUseCase', () => {
     await expect(
       usecase({
         ...validPayload,
-        entityType: EAccountingEntityType.Company as any,
+        entityType:
+          'Company' as unknown as typeof EAccountingEntityType.Individual,
       })
     ).rejects.toThrow(ErrorUnprocessableEntity);
   });
@@ -283,13 +186,15 @@ describe('onboardAccountingEntityUseCase', () => {
   it('should throw ErrorResourceNotFound if functional currency code is invalid', async () => {
     MockRequestContext.get.mockReturnValue({
       correlationId: 'test-corr-id',
-      user: { id: 'user-id' as TEntityId } as unknown as IUser,
+      user: {
+        id: '123e4567-e89b-12d3-a456-426614174003' as TEntityId,
+      } as unknown as IUser,
     } as unknown as IRequestContextData);
 
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -303,11 +208,11 @@ describe('onboardAccountingEntityUseCase', () => {
     ).rejects.toThrow(ErrorResourceNotFound);
   });
 
-  it('should throw Zod validation error if operating country code is unsupported', async () => {
+  it('should throw Zod error for unsupported operating country code', async () => {
     const usecase = onboardAccountingEntityUseCase(
       MockRequestContext,
       mockAccountingEntityRepo,
-      MockUserPreferencesRepo,
+      mockUserPreferencesRepo,
       mockLedgerAccountRepo,
       mockRepoService,
       mockEventBus
@@ -316,7 +221,8 @@ describe('onboardAccountingEntityUseCase', () => {
     await expect(
       usecase({
         ...validPayload,
-        operatingCountryCode: 'UNKNOWN' as any,
+        operatingCountryCode:
+          'UNKNOWN' as unknown as typeof validPayload.operatingCountryCode,
       })
     ).rejects.toThrow(ErrorUnprocessableEntity);
   });

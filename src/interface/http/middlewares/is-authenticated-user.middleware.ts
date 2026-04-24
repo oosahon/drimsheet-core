@@ -1,38 +1,24 @@
 import { RequestHandler } from 'express';
+import _ from 'lodash';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
-import IAuthService from '../../../app/contracts/infra/auth-service.contract';
-import userMapper from '../../../app/mappers/user.mapper';
-import IUserRepo from '../../../domain/user/repos/user.repo';
+import accountingEntityEntity from '../../../domain/accounting-entity/entities/accounting-entity.entity';
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import httpHandlers from '../handlers';
 
 export default function isAuthenticatedUserMiddleware(
-  requestContext: IRequestContext,
-  userRepo: IUserRepo,
-  authService: IAuthService
+  requestContext: IRequestContext
 ): RequestHandler {
   return async (req, res, next) => {
     try {
-      const token = req.headers.authorization?.split(' ')[1];
-      const { correlationId } = requestContext.get();
+      const { user, accountingEntity } = requestContext.get();
 
-      if (!token || token === 'null' || token === 'undefined') {
+      if (_.isEmpty(user)) {
         throw new ErrorUnauthorized();
       }
 
-      const authUser = await authService.getAuthUser(token);
-
-      if (!authUser) {
-        throw new ErrorUnauthorized();
+      if (!_.isEmpty(accountingEntity)) {
+        accountingEntityEntity.validateAccess(accountingEntity, user);
       }
-
-      const user = await userRepo.findById(authUser.id, { correlationId });
-
-      if (!user?.emailVerified) {
-        throw new ErrorUnauthorized('error.email.unverified');
-      }
-
-      requestContext.set({ user: userMapper.toInterface(user) });
 
       next();
     } catch (error) {

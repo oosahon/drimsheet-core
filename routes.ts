@@ -12,6 +12,8 @@ import { CurrencyController } from './src/interface/http/controllers/currency.co
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './src/interface/http/controllers/auth.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { AssetAccountController } from './src/interface/http/controllers/asset-account.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { expressAuthentication } from './src/infra/config/tsoa-express-auth';
 import { AccountingEntityController } from './src/interface/http/controllers/account-entity.controller';
 // @ts-ignore - no great way to install types from subpackage
@@ -224,16 +226,71 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IMoneyDto: {
+    dataType: 'refObject',
+    properties: {
+      amount: { dataType: 'double', required: true },
+      currencyCode: { dataType: 'string', required: true },
+      isMinorUnit: { dataType: 'boolean', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UExchangeRateType: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['official'] },
+        { dataType: 'enum', enums: ['negotiated'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IExchangeRateDto: {
+    dataType: 'refObject',
+    properties: {
+      baseCurrencyCode: { dataType: 'string', required: true },
+      targetCurrencyCode: { dataType: 'string', required: true },
+      rate: { dataType: 'double', required: true },
+      type: { ref: 'UExchangeRateType', required: true },
+      asOf: { dataType: 'datetime', required: true },
+      source: { dataType: 'string', required: true },
+      id: { dataType: 'double' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPettyCashAccountCreationReq: {
+    dataType: 'refObject',
+    properties: {
+      name: { dataType: 'string', required: true },
+      openingBalance: { ref: 'IMoneyDto', required: true },
+      isControlAccount: { dataType: 'boolean', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRateDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      controlAccountCode: { dataType: 'string' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   'Pick_IAccountingEntity.Exclude_keyofIAccountingEntity.functionalCurrency-or-reportingCurrency__':
     {
       dataType: 'refAlias',
       type: {
         dataType: 'nestedObjectLiteral',
         nestedProperties: {
+          type: { ref: 'UAccountingEntityType', required: true },
           id: { ref: 'TEntityId', required: true },
           name: { dataType: 'string', required: true },
           operatingCountryCode: { dataType: 'string', required: true },
-          type: { ref: 'UAccountingEntityType', required: true },
           ownerId: { ref: 'TEntityId', required: true },
           fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
           createdAt: { dataType: 'datetime', required: true },
@@ -247,10 +304,10 @@ const models: TsoaRoute.Models = {
   IAccountingEntityRes: {
     dataType: 'refObject',
     properties: {
+      type: { ref: 'UAccountingEntityType', required: true },
       id: { ref: 'TEntityId', required: true },
       name: { dataType: 'string', required: true },
       operatingCountryCode: { dataType: 'string', required: true },
-      type: { ref: 'UAccountingEntityType', required: true },
       ownerId: { ref: 'TEntityId', required: true },
       fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
       createdAt: { dataType: 'datetime', required: true },
@@ -831,6 +888,55 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'logout',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAssetAccountController_createPettyCashSubAccount: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'IPettyCashAccountCreationReq',
+    },
+  };
+  app.post(
+    '/api/v1/asset-accounts',
+    ...fetchMiddlewares<RequestHandler>(AssetAccountController),
+    ...fetchMiddlewares<RequestHandler>(
+      AssetAccountController.prototype.createPettyCashSubAccount
+    ),
+
+    async function AssetAccountController_createPettyCashSubAccount(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAssetAccountController_createPettyCashSubAccount,
+          request,
+          response,
+        });
+
+        const controller = new AssetAccountController();
+
+        await templateService.apiHandler({
+          methodName: 'createPettyCashSubAccount',
           controller,
           response,
           next,

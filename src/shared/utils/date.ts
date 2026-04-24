@@ -31,6 +31,19 @@ function validateDateIsNotInTheFuture(date: Date | string | number) {
   }
 }
 
+function isInTheFuture(date: Date | string | number) {
+  return isValidDate(date) && dayjs(date).isAfter(dayjs());
+}
+
+function validateIsInTheFuture(date: Date | string | number) {
+  if (!isValidDate(date)) {
+    throw new AppError('Invalid date', { cause: date });
+  }
+  if (!isInTheFuture(date)) {
+    throw new AppError('Date is not in the future', { cause: date });
+  }
+}
+
 const dateUtils = Object.freeze({
   isValidDate,
   validateDate,
@@ -40,6 +53,9 @@ const dateUtils = Object.freeze({
 
   isNotInTheFuture,
   validateDateIsNotInTheFuture,
+
+  isInTheFuture,
+  validateIsInTheFuture,
 });
 
 export default dateUtils;

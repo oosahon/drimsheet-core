@@ -2,11 +2,11 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import assetAccountEvents from '../../events/asset-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
   IBankAccount,
-  IBankAccountMeta,
   ICashAndCashEquivalentAccount,
   IPettyCashAccount,
   IPettyCashAccountMeta,
@@ -19,12 +19,11 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/cash.entity.helpers';
 
-function getCode(predecessorCode: TCashLedgerCode): TCashLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TCashLedgerCode>(
-    '100',
-    predecessorCode
-  );
+interface IScopeDetails {
+  parentMaterializedPath: TCashLedgerCode;
+  precedingCode: TCashLedgerCode;
 }
 
 /**
@@ -45,7 +44,7 @@ function make(
     | 'behavior'
     | 'meta'
   >,
-  predecessorCode: TCashLedgerCode | null // null for the header account
+  scope: IScopeDetails | null // null for the header account
 ): TEntityWithEvents<
   ICashAndCashEquivalentAccount,
   ICashAndCashEquivalentAccount
@@ -54,10 +53,17 @@ function make(
     stringUtils.validateUUID(payload.controlAccountId);
   }
 
+  const code = helpers.getCode(scope?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    scope?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<ICashAndCashEquivalentAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '100000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
     type: ELedgerType.Asset,
     subType: EAssetSubType.CashAndCashEquivalent,
@@ -73,18 +79,27 @@ function make(
   });
 
   const event = assetAccountEvents.cashAndEquivalentCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 /**
  * Creates a new petty cash sub account.
  * @param payload petty cash creation payload
- * @param predecessorCode the ledger code of the most recent Cash and Cash Equivalent account.
+ * @param scope the ledger details of the most recent Cash and Cash Equivalent account.
  * @returns [ICashAndCashEquivalentAccount, ICashCreationEvent]
  */
 function makePettyCashAccount(
-  payload: TCreationOmits<IPettyCashAccount>,
-  predecessorCode: TCashLedgerCode
+  payload: Pick<
+    IPettyCashAccount,
+    | 'name'
+    | 'currency'
+    | 'isControlAccount'
+    | 'controlAccountId'
+    | 'createdBy'
+    | 'accountingEntityId'
+  >,
+  scope: IScopeDetails | null
 ): TEntityWithEvents<
   ICashAndCashEquivalentAccount,
   ICashAndCashEquivalentAccount
@@ -99,93 +114,24 @@ function makePettyCashAccount(
       accountingEntityId: payload.accountingEntityId,
       currency: payload.currency,
       createdBy: payload.createdBy,
-      isControlAccount: payload.isControlAccount,
+      isControlAccount: !!payload.isControlAccount,
       controlAccountId: payload.controlAccountId,
       behavior: EAssetAccountBehavior.PettyCash,
       meta,
     },
-    predecessorCode
+    scope
   );
-}
-
-function makeBankAccountMeta(meta: IBankAccountMeta) {
-  const bankName = stringUtils.sanitizeAndValidate(meta.bankName, {
-    min: 2,
-    max: 100,
-  });
-
-  const accountNumber = stringUtils.sanitizeAndValidate(meta.accountNumber, {
-    min: 6,
-    max: 34,
-  });
-
-  const accountName = stringUtils.sanitizeAndValidate(meta.accountName, {
-    min: 2,
-    max: 100,
-  });
-
-  let sortCode: string | null = null;
-  if (meta.sortCode) {
-    sortCode = stringUtils.sanitizeAndValidate(meta.sortCode, {
-      min: 6,
-      max: 6,
-    });
-  }
-
-  let swiftCode: string | null = null;
-  if (meta.swiftCode) {
-    swiftCode = stringUtils.sanitizeAndValidate(meta.swiftCode, {
-      min: 8,
-      max: 11,
-    });
-  }
-
-  let iban: string | null = null;
-  if (meta.iban) {
-    iban = stringUtils.sanitizeAndValidate(meta.iban, {
-      min: 15,
-      max: 34,
-    });
-  }
-
-  let routingNumber: string | null = null;
-  if (meta.routingNumber) {
-    routingNumber = stringUtils.sanitizeAndValidate(meta.routingNumber, {
-      min: 9,
-      max: 9,
-    });
-  }
-
-  let branchCode: string | null = null;
-  if (meta.branchCode) {
-    branchCode = stringUtils.sanitizeAndValidate(meta.branchCode, {
-      min: 1,
-      max: 10,
-    });
-  }
-
-  return Object.freeze<IBankAccountMeta>({
-    bankName,
-    accountNumber,
-    accountName,
-    sortCode,
-    swiftCode,
-    iban,
-    routingNumber,
-    branchCode,
-    lastReconciliationDate: null,
-  });
 }
 
 /**
  * Creates a new bank account sub account.
  * @param payload bank account creation payload
- * @param predecessorCode the ledger code of the most recent Cash and Cash Equivalent account.
+ * @param scope the ledger details of the most recent Cash and Cash Equivalent account.
  * @returns [ICashAndCashEquivalentAccount, ICashCreationEvent]
  */
 function makeBankAccount(
   payload: TCreationOmits<IBankAccount>,
-  predecessorCode: TCashLedgerCode
+  scope: IScopeDetails | null
 ): TEntityWithEvents<
   ICashAndCashEquivalentAccount,
   ICashAndCashEquivalentAccount
@@ -199,21 +145,18 @@ function makeBankAccount(
       isControlAccount: payload.isControlAccount,
       controlAccountId: payload.controlAccountId,
       behavior: EAssetAccountBehavior.Bank,
-      meta: makeBankAccountMeta(payload.meta),
+      meta: helpers.makeBankAccountMeta(payload.meta),
     },
-    predecessorCode
+    scope
   );
 }
 
 const cashAndEquivalentAccountEntity = Object.freeze({
   make,
-
   makePettyCashAccount,
-
-  makeBankAccountMeta,
   makeBankAccount,
 
-  getCode,
+  ...helpers,
 });
 
 export default cashAndEquivalentAccountEntity;

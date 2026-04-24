@@ -1,7 +1,10 @@
 import { sql } from 'drizzle-orm';
 import {
+  bigint,
+  bigserial,
   boolean,
   char,
+  date,
   foreignKey,
   integer,
   jsonb,
@@ -19,6 +22,10 @@ import {
 
 export const core = pgSchema('core');
 export const audit = pgSchema('audit');
+export const categoryHistoryActionTypeInAudit = audit.enum(
+  'category_history_action_type',
+  ['created', 'updated', 'archived', 'unarchived']
+);
 export const accountingEntityTypeInCore = core.enum('accounting_entity_type', [
   'individual',
   'sole_trader',
@@ -30,12 +37,26 @@ export const adjunctAccountRuleInCore = core.enum('adjunct_account_rule', [
   'adjunct_only',
   'adjunct_not_applicable',
 ]);
+export const categoryStatusInCore = core.enum('category_status', [
+  'active',
+  'archived',
+]);
 export const contraAccountRuleInCore = core.enum('contra_account_rule', [
   'contra_permitted',
   'contra_not_permitted',
   'contra_only',
   'contra_not_applicable',
 ]);
+export const exchangeRateTypeInCore = core.enum('exchange_rate_type', [
+  'official',
+  'negotiated',
+]);
+export const journalEntryStatusInCore = core.enum('journal_entry_status', [
+  'draft',
+  'posted',
+  'voided',
+]);
+export const journalSideInCore = core.enum('journal_side', ['debit', 'credit']);
 export const ledgerAccountStatusInCore = core.enum('ledger_account_status', [
   'active',
   'archived',
@@ -51,6 +72,22 @@ export const normalBalanceTypeInCore = core.enum('normal_balance_type', [
   'debit',
   'credit',
 ]);
+export const transactionStatusInCore = core.enum('transaction_status', [
+  'pending',
+  'posted',
+  'voided',
+  'archived',
+]);
+export const transactionTypesInCore = core.enum('transaction_types', [
+  'sale',
+  'purchase',
+  'credit_note',
+  'debit_note',
+  'expense',
+  'transfer',
+  'payment',
+  'receipt',
+]);
 
 export const pgmigrations = pgTable('pgmigrations', {
   id: serial().notNull(),
@@ -58,13 +95,18 @@ export const pgmigrations = pgTable('pgmigrations', {
   runOn: timestamp('run_on', { mode: 'string' }).notNull(),
 });
 
-export const seeds = pgTable('seeds', {
-  id: serial().notNull(),
-  fileName: varchar('file_name', { length: 250 }).notNull(),
-  createdAt: timestamp('created_at', {
-    withTimezone: true,
-    mode: 'string',
-  }).notNull(),
+export const exchangeRatesInCore = core.table('exchange_rates', {
+  id: bigserial({ mode: 'bigint' }).notNull(),
+  currencyPair: varchar('currency_pair', { length: 7 }).notNull(),
+  baseCurrencyCode: varchar('base_currency_code', { length: 3 }).notNull(),
+  targetCurrencyCode: varchar('target_currency_code', { length: 3 }).notNull(),
+  rate: numeric().notNull(),
+  type: exchangeRateTypeInCore().notNull(),
+  asOf: date('as_of').notNull(),
+  source: varchar({ length: 100 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
 });
 
 export const usersInCore = core.table('users', {
@@ -106,6 +148,15 @@ export const userAuthInCore = core.table(
     }).onDelete('cascade'),
   ]
 );
+
+export const seeds = pgTable('seeds', {
+  id: serial().notNull(),
+  fileName: varchar('file_name', { length: 250 }).notNull(),
+  createdAt: timestamp('created_at', {
+    withTimezone: true,
+    mode: 'string',
+  }).notNull(),
+});
 
 export const userSessionsInCore = core.table(
   'user_sessions',
@@ -256,6 +307,7 @@ export const ledgerAccountsInCore = core.table(
       .default(sql`uuid_generate_v4()`)
       .notNull(),
     code: varchar({ length: 6 }).notNull(),
+    materializedPath: varchar('materialized_path', { length: 100 }).notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     type: ledgerTypeInCore().notNull(),
     normalBalance: normalBalanceTypeInCore('normal_balance').notNull(),
@@ -323,5 +375,242 @@ export const userPreferencesInCore = core.table(
       foreignColumns: [usersInCore.id],
       name: 'user_preferences_id_fkey',
     }).onDelete('cascade'),
+  ]
+);
+
+export const categoriesInCore = core.table(
+  'categories',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    accountId: uuid('account_id').notNull(),
+    accountMaterializedPath: varchar('account_materialized_path', {
+      length: 100,
+    }).notNull(),
+    version: integer().default(1).notNull(),
+    status: categoryStatusInCore().notNull(),
+    name: varchar({ length: 100 }).notNull(),
+    isGrouping: boolean('is_grouping').default(false).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'categories_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.accountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'categories_account_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const categoryHistoryInAudit = audit.table(
+  'category_history',
+  {
+    id: bigserial({ mode: 'bigint' }).notNull(),
+    categoryId: uuid('category_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    action: categoryHistoryActionTypeInAudit().notNull(),
+    diff: jsonb().notNull(),
+    note: varchar({ length: 100 }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.categoryId],
+      foreignColumns: [categoriesInCore.id],
+      name: 'category_history_category_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'category_history_user_id_fkey',
+    }),
+  ]
+);
+
+export const transactionsInCore = core.table(
+  'transactions',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    reference: varchar({ length: 100 }).notNull(),
+    type: transactionTypesInCore().notNull(),
+    effectiveDate: date('effective_date').notNull(),
+    createdBy: uuid('created_by').notNull(),
+    sourceAccountId: uuid('source_account_id').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    amount: bigint({ mode: 'number' }).notNull(),
+    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    exchangeRate: jsonb('exchange_rate').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
+    notes: varchar({ length: 100 }),
+    version: integer().default(1).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'transactions_accounting_entity_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [usersInCore.id],
+      name: 'transactions_created_by_fkey',
+    }),
+    foreignKey({
+      columns: [table.sourceAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'transactions_source_account_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.currencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'transactions_currency_code_fkey',
+    }),
+  ]
+);
+
+export const transactionLinesInCore = core.table(
+  'transaction_lines',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    transactionId: uuid('transaction_id').notNull(),
+    targetAccountId: uuid('target_account_id').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    amount: bigint({ mode: 'number' }).notNull(),
+    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
+    description: varchar({ length: 100 }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.transactionId],
+      foreignColumns: [transactionsInCore.id],
+      name: 'transaction_lines_transaction_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.targetAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'transaction_lines_target_account_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.currencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'transaction_lines_currency_code_fkey',
+    }),
+  ]
+);
+
+export const journalEntriesInCore = core.table(
+  'journal_entries',
+  {
+    id: uuid().notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    transactionId: uuid('transaction_id'),
+    memo: varchar({ length: 100 }),
+    status: journalEntryStatusInCore().notNull(),
+    effectiveDate: date('effective_date').notNull(),
+    postedAt: timestamp('posted_at', { withTimezone: true, mode: 'string' }),
+    voidedAt: timestamp('voided_at', { withTimezone: true, mode: 'string' }),
+    voidingEntryId: uuid('voiding_entry_id'),
+    version: integer().default(1).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'journal_entries_accounting_entity_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.transactionId],
+      foreignColumns: [transactionsInCore.id],
+      name: 'journal_entries_transaction_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.voidingEntryId],
+      foreignColumns: [table.id],
+      name: 'journal_entries_voiding_entry_id_fkey',
+    }),
+  ]
+);
+
+export const journalLinesInCore = core.table(
+  'journal_lines',
+  {
+    id: uuid().notNull(),
+    entryId: uuid('entry_id').notNull(),
+    accountId: uuid('account_id').notNull(),
+    sequenceOrder: integer('sequence_order').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    amount: bigint({ mode: 'number' }).notNull(),
+    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    exchangeRate: jsonb('exchange_rate'),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
+    side: journalSideInCore().notNull(),
+    description: varchar({ length: 100 }),
+    meta: jsonb(),
+    version: integer().default(1).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.entryId],
+      foreignColumns: [journalEntriesInCore.id],
+      name: 'journal_lines_entry_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.accountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'journal_lines_account_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.currencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'journal_lines_currency_code_fkey',
+    }),
   ]
 );

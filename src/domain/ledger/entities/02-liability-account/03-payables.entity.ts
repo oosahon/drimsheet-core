@@ -2,6 +2,7 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import { AppError } from '../../../../shared/value-objects/error';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import liabilityAccountEvents from '../../events/liability-account.events';
 import { TPayablesLedgerCode } from '../../types/ledger-code.types';
 import {
@@ -21,18 +22,17 @@ import {
 } from '../../types/liability-account.types';
 import { ETaxType } from '../../types/tax.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/payables.entity.helpers';
 
-function getCode(predecessorCode: TPayablesLedgerCode): TPayablesLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TPayablesLedgerCode>(
-    '201',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TPayablesLedgerCode;
+  precedingCode: TPayablesLedgerCode;
 }
 
 /**
  * Creates a new payable header/sub account.
  * @param payload payable account creation payload
- * @param predecessorCode the ledger code of the most recent Payable account.
+ * @param parent the ledger code of the most recent Payable account.
  * @returns [IPayableAccount, IPayableCreationEvent]
  */
 function make(
@@ -49,16 +49,23 @@ function make(
     | 'contraAccountRule'
     | 'adjunctAccountRule'
   >,
-  predecessorCode: TPayablesLedgerCode | null // null for the header account
+  parent: IParentDetails | null // null for the header account
 ): TEntityWithEvents<IPayableAccount, IPayableAccount> {
   if (payload.controlAccountId) {
     stringUtils.validateUUID(payload.controlAccountId);
   }
 
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IPayableAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '201000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),
     type: ELedgerType.Liability,
     subType: ELiabilitySubType.Payable,
@@ -74,7 +81,8 @@ function make(
   });
 
   const event = liabilityAccountEvents.payableCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 function makeStatutoryPayableAccountMeta(meta: IStatutoryPayableAccountMeta) {
@@ -96,12 +104,12 @@ function makeStatutoryPayableAccountMeta(meta: IStatutoryPayableAccountMeta) {
 /**
  * Creates a new statutory payable sub account.
  * @param payload statutory payable creation payload
- * @param predecessorCode the ledger code of the most recent Payable account.
+ * @param parent the ledger code of the most recent Payable account.
  * @returns [IPayableAccount, IPayableCreationEvent]
  */
 function makeStatutoryPayableAccount(
   payload: TCreationOmits<IStatutoryPayableAccount>,
-  predecessorCode: TPayablesLedgerCode
+  parent: IParentDetails | null
 ): TEntityWithEvents<IPayableAccount, IPayableAccount> {
   return make(
     {
@@ -116,7 +124,7 @@ function makeStatutoryPayableAccount(
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
     },
-    predecessorCode
+    parent
   );
 }
 
@@ -133,12 +141,12 @@ function makeTradePayableAccountMeta(meta: ITradePayableAccountMeta) {
 /**
  * Creates a new trade payable sub account.
  * @param payload trade payable creation payload
- * @param predecessorCode the ledger code of the most recent Payable account.
+ * @param parent the ledger code of the most recent Payable account.
  * @returns [IPayableAccount, IPayableCreationEvent]
  */
 function makeTradePayableAccount(
   payload: TCreationOmits<ITradePayableAccount>,
-  predecessorCode: TPayablesLedgerCode
+  parent: IParentDetails | null
 ): TEntityWithEvents<IPayableAccount, IPayableAccount> {
   return make(
     {
@@ -153,7 +161,7 @@ function makeTradePayableAccount(
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
     },
-    predecessorCode
+    parent
   );
 }
 
@@ -166,7 +174,7 @@ const payableAccountEntity = Object.freeze({
   makeTradePayableAccountMeta,
   makeTradePayableAccount,
 
-  getCode,
+  ...helpers,
 });
 
 export default payableAccountEntity;

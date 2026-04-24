@@ -11,6 +11,7 @@ describe('Ledger Account Mapper', () => {
   const domainLedgerAccount: ILedgerAccount = {
     id: 'account-1' as TEntityId,
     code: '1000',
+    materializedPath: '1000',
     accountingEntityId: 'entity-1' as TEntityId,
     type: 'asset',
     normalBalance: 'debit',
@@ -38,6 +39,7 @@ describe('Ledger Account Mapper', () => {
   const repoModel: ILedgerAccountModel = {
     id: 'account-1',
     code: '1000',
+    materializedPath: '1000',
     accountingEntityId: 'entity-1',
     type: 'asset',
     normalBalance: 'debit',

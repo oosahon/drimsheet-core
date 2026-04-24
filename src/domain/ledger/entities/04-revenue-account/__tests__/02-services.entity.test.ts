@@ -1,5 +1,6 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { AppError } from '../../../../../shared/value-objects/error';
+import { TServicesLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -24,6 +25,11 @@ describe('Services Revenue Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '401000' as TServicesLedgerCode,
+    parentMaterializedPath: '401000' as TServicesLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -40,10 +46,28 @@ describe('Services Revenue Entity', () => {
       expect(servicesAccountEntity.getCode('401099')).toBe('401100');
     });
 
+    it('should return 401000 if predecessorCode is null', () => {
+      expect(servicesAccountEntity.getCode(null)).toBe('401000');
+    });
+
     it('should throw if predecessor code does not match header code', () => {
       expect(() => servicesAccountEntity.getCode('400000' as any)).toThrow(
         AppError
       );
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(servicesAccountEntity.getMaterializedPath('401000', null)).toBe(
+        '401000'
+      );
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        servicesAccountEntity.getMaterializedPath('401001', '401000')
+      ).toBe('401000.401001');
     });
   });
 
@@ -61,10 +85,11 @@ describe('Services Revenue Entity', () => {
     it('should successfully create a services account', () => {
       const [account, events] = servicesAccountEntity.make(
         validPayload,
-        '401000'
+        validParent
       );
 
       expect(account.code).toBe('401001');
+      expect(account.materializedPath).toBe('401000.401001');
       expect(account.type).toBe(ELedgerType.Revenue);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ERevenueSubType.Services);
@@ -84,19 +109,20 @@ describe('Services Revenue Entity', () => {
       expect(account.accountingEntityId).toBe(validUUID1);
       expect(account.createdBy).toBe(validUUID2);
       expect(account.currency).toEqual(validCurrency);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        servicesAccountEntity.make(invalidPayload, '401000')
+        servicesAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
     it('should use base code 401000 when predecessorCode is null', () => {
       const [account] = servicesAccountEntity.make(validPayload, null);
       expect(account.code).toBe('401000');
+      expect(account.materializedPath).toBe('401000');
     });
   });
 });

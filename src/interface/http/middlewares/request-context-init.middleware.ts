@@ -1,9 +1,45 @@
-import { RequestHandler } from 'express';
+import { RequestHandler, Response } from 'express';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
-import { UAccountingEntityType } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import IAuthService from '../../../app/contracts/infra/auth-service.contract';
+import ILogger from '../../../app/contracts/infra/logger.contract';
+import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
+import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import IUserRepo from '../../../domain/user/repos/user.repo';
+import { IUser } from '../../../domain/user/types/user.types';
 import { NODE_ENV, WEB_APP_URL } from '../../../infra/config/vars.config';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import getHttpHeaderValue from '../helpers/get-http-header-value';
+import getAccountingEntityFromRequest from '../helpers/get-accounting-entity-from-request.helper';
+import getAuthUserFromRequest from '../helpers/get-auth-user-from-request.helper';
+import {
+  getCorrelationId,
+  getIdempotencyKey,
+} from '../helpers/get-http-header-value';
+
+function handleSetRefreshToken(res: Response, token: string) {
+  const hostname = new URL(WEB_APP_URL).hostname;
+  const cookieDomain =
+    hostname === 'localhost' || hostname === '127.0.0.1' ? undefined : hostname;
+
+  res.cookie('refresh_token', token, {
+    httpOnly: true,
+    secure: NODE_ENV === 'production',
+    domain: cookieDomain,
+    sameSite: 'lax',
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  });
+}
+
+function handleClearRefreshToken(res: Response) {
+  const hostname = new URL(WEB_APP_URL).hostname;
+  const cookieDomain =
+    hostname === 'localhost' || hostname === '127.0.0.1' ? undefined : hostname;
+
+  res.clearCookie('refresh_token', {
+    httpOnly: true,
+    secure: NODE_ENV === 'production',
+    domain: cookieDomain,
+    sameSite: 'lax',
+  });
+}
 
 /**
  * DOMAIN: global
@@ -11,60 +47,41 @@ import getHttpHeaderValue from '../helpers/get-http-header-value';
  * This middleware is used to initialize the request context
  */
 export default function requestContextInitMiddleware(
-  requestContext: IRequestContext
+  requestContext: IRequestContext,
+  accountingEntityRepo: IAccountingEntityRepo,
+  authService: IAuthService,
+  userRepo: IUserRepo,
+  logger: ILogger
 ): RequestHandler {
-  return (req, res, next) => {
-    const correlationId =
-      getHttpHeaderValue('x-correlation-id', req.headers) || generateUUID();
-    const idempotencyKey = getHttpHeaderValue('x-idempotency-key', req.headers);
-    const accountingEntityType = getHttpHeaderValue(
-      'x-accounting-entity-type',
-      req.headers
+  return async (req, res, next) => {
+    const correlationId = getCorrelationId(req);
+    const idempotencyKey = getIdempotencyKey(req);
+
+    const user = await getAuthUserFromRequest(
+      req,
+      authService,
+      logger,
+      userRepo
     );
 
-    const { user = {} } = res.locals;
+    const accountingEntity = await getAccountingEntityFromRequest(
+      req,
+      accountingEntityRepo,
+      user?.id
+    );
 
     requestContext.init(
       {
-        user,
+        user: user ?? ({} as IUser),
+        accountingEntity: accountingEntity ?? ({} as IAccountingEntity),
         correlationId,
         idempotencyKey: idempotencyKey || '',
-        accountingEntityType: accountingEntityType as UAccountingEntityType,
         clientSession: {
-          setRefreshToken: (token: string) => {
-            const hostname = new URL(WEB_APP_URL).hostname;
-            const cookieDomain =
-              hostname === 'localhost' || hostname === '127.0.0.1'
-                ? undefined
-                : hostname;
-
-            res.cookie('refresh_token', token, {
-              httpOnly: true,
-              secure: NODE_ENV === 'production',
-              domain: cookieDomain,
-              sameSite: 'lax',
-              maxAge: 1000 * 60 * 60 * 24 * 7,
-            });
-          },
-
+          setRefreshToken: (token: string) => handleSetRefreshToken(res, token),
           getRefreshToken: () => {
             return req.cookies.refresh_token;
           },
-
-          clearRefreshToken: () => {
-            const hostname = new URL(WEB_APP_URL).hostname;
-            const cookieDomain =
-              hostname === 'localhost' || hostname === '127.0.0.1'
-                ? undefined
-                : hostname;
-
-            res.clearCookie('refresh_token', {
-              httpOnly: true,
-              secure: NODE_ENV === 'production',
-              domain: cookieDomain,
-              sameSite: 'lax',
-            });
-          },
+          clearRefreshToken: () => handleClearRefreshToken(res),
         },
       },
       next

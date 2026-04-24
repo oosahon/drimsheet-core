@@ -1,6 +1,7 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import expenseAccountEvents from '../../events/expense-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EExpenseSubType,
   IDirectCostsAccount,
@@ -13,14 +14,11 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/direct-costs.entity.helpers';
 
-function getCode(
-  predecessorCode: TDirectCostsLedgerCode
-): TDirectCostsLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TDirectCostsLedgerCode>(
-    '500',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TDirectCostsLedgerCode;
+  precedingCode: TDirectCostsLedgerCode;
 }
 
 function make(
@@ -35,16 +33,23 @@ function make(
     | 'controlAccountId'
     | 'meta'
   >,
-  predecessorCode: TDirectCostsLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IDirectCostsAccount, IDirectCostsAccount> {
   if (payload.controlAccountId) {
     stringUtils.validateUUID(payload.controlAccountId);
   }
 
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IDirectCostsAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '500000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
     type: ELedgerType.Expense,
     subType: EExpenseSubType.DirectCosts,
@@ -60,12 +65,13 @@ function make(
   });
 
   const event = expenseAccountEvents.directCostsCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const directCostsAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default directCostsAccountEntity;

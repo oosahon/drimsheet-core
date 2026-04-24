@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import expenseAccountEvents from '../../events/expense-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -13,14 +14,11 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/rent-and-utilities.entity.helpers';
 
-function getCode(
-  predecessorCode: TRentUtilitiesLedgerCode
-): TRentUtilitiesLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TRentUtilitiesLedgerCode>(
-    '502',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TRentUtilitiesLedgerCode;
+  precedingCode: TRentUtilitiesLedgerCode;
 }
 
 function make(
@@ -34,12 +32,19 @@ function make(
     | 'controlAccountId'
     | 'meta'
   >,
-  predecessorCode: TRentUtilitiesLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IRentUtilitiesAccount, IRentUtilitiesAccount> {
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IRentUtilitiesAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '502000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
     type: ELedgerType.Expense,
     subType: EExpenseSubType.RentAndUtilities,
@@ -55,12 +60,13 @@ function make(
   });
 
   const event = expenseAccountEvents.rentAndUtilitiesCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const rentAndUtilitiesAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default rentAndUtilitiesAccountEntity;

@@ -1,5 +1,5 @@
 import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
-import { MockUserPreferencesRepo } from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
+import mockUserPreferencesRepo from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { EUserEvents } from '../../events/user.events';
 import {
@@ -10,7 +10,7 @@ import {
 import userPreferencesService from '../user-preferences.service';
 
 describe('userPreferencesService', () => {
-  const service = userPreferencesService(MockUserPreferencesRepo);
+  const service = userPreferencesService(mockUserPreferencesRepo);
   const userId = generateUUID();
   const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
 
@@ -20,7 +20,7 @@ describe('userPreferencesService', () => {
 
   describe('update', () => {
     it('should create new preferences if none exist using provided payload', async () => {
-      MockUserPreferencesRepo.findById.mockResolvedValueOnce(null);
+      mockUserPreferencesRepo.findById.mockResolvedValueOnce(null);
 
       const payload = {
         appPreferences: {
@@ -31,7 +31,7 @@ describe('userPreferencesService', () => {
 
       const result = await service.update(userId, payload, mockOptions);
 
-      expect(MockUserPreferencesRepo.findById).toHaveBeenCalledWith(
+      expect(mockUserPreferencesRepo.findById).toHaveBeenCalledWith(
         userId,
         mockOptions
       );
@@ -45,7 +45,7 @@ describe('userPreferencesService', () => {
     });
 
     it('should use null for theme and appUsageMode if not provided in payload and existing is null', async () => {
-      MockUserPreferencesRepo.findById.mockResolvedValueOnce(null);
+      mockUserPreferencesRepo.findById.mockResolvedValueOnce(null);
 
       const result = await service.update(userId, {}, mockOptions);
 
@@ -66,7 +66,7 @@ describe('userPreferencesService', () => {
         },
       };
 
-      MockUserPreferencesRepo.findById.mockResolvedValueOnce(
+      mockUserPreferencesRepo.findById.mockResolvedValueOnce(
         existingPreferences
       );
 
@@ -95,7 +95,7 @@ describe('userPreferencesService', () => {
         },
       };
 
-      MockUserPreferencesRepo.findById.mockResolvedValueOnce(
+      mockUserPreferencesRepo.findById.mockResolvedValueOnce(
         existingPreferences
       );
 

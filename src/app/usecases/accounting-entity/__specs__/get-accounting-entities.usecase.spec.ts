@@ -1,7 +1,7 @@
 import { IAccountingEntity } from '../../../../domain/accounting-entity/types/accounting-entity.types';
 import { USD } from '../../../../domain/currency/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
+import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';

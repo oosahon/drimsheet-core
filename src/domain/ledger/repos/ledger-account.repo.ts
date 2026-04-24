@@ -23,7 +23,7 @@ export default interface ILedgerAccountRepo {
     accountingEntityId: TEntityId,
     type: ULedgerType,
     subType: string,
-    options: IRepoOptions
+    options: IRepoOptions<ILedgerAccount>
   ): Promise<ILedgerAccount[]>;
 
   findByBehavior(
@@ -31,4 +31,11 @@ export default interface ILedgerAccountRepo {
     behavior: string,
     options: IRepoOptions
   ): Promise<ILedgerAccount[]>;
+
+  findLatestBySubType(
+    accountingEntityId: TEntityId,
+    type: ULedgerType,
+    subType: string,
+    options: IRepoOptions
+  ): Promise<Pick<ILedgerAccount, 'id' | 'code' | 'materializedPath'> | null>;
 }

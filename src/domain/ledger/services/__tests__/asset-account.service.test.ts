@@ -1,128 +1,215 @@
 import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
-import {
-  EAccountingEntityType,
-  IAccountingEntity,
-} from '../../../accounting-entity/types/accounting-entity.types';
+import generateUUID from '../../../../shared/utils/uuid-generator';
+import { ErrorForbidden } from '../../../../shared/value-objects/error';
+import { IAccountingEntity } from '../../../accounting-entity/types/accounting-entity.types';
 import { ICurrency } from '../../../currency/types/currency.types';
-import {
-  IAssetLedgerAccount,
-  IReceivablesAccount,
-  IStatutoryReceivableAccount,
-} from '../../types/asset-account.types';
-import assetAccountService from '../asset-account.service';
+import { IUser } from '../../../user/types/user.types';
+import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
+import { TCashLedgerCode } from '../../types/ledger-code.types';
+import { ILedgerAccount } from '../../types/ledger.types';
+import makeAssetPostingAccountService from '../asset-account.service';
 
-describe('assetAccountService', () => {
-  const service = assetAccountService(mockLedgerAccountRepo);
-  const repoOptions: IRepoOptions = { correlationId: 'test-req' };
-  const accountingEntityId =
-    '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
-  const ownerId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
-
-  const accountingEntity = {
-    id: accountingEntityId,
-    ownerId,
-    type: EAccountingEntityType.Individual,
-    functionalCurrency: { code: 'USD' } as unknown as ICurrency,
-  } as unknown as IAccountingEntity;
-
-  const mockReceivablesAccount = {
-    id: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
-    code: '102000',
-  } as unknown as IReceivablesAccount;
-
-  const mockTradeReceivablesAccount = {
-    id: '123e4567-e89b-12d3-a456-426614174003' as TEntityId,
-    code: '102001',
-  } as unknown as IReceivablesAccount;
+describe('assetPostingAccountService', () => {
+  const service = makeAssetPostingAccountService(mockLedgerAccountRepo);
+  const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
 
   beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-03-15T00:00:00.000Z'));
     jest.clearAllMocks();
   });
 
-  describe('makeHeaderAccountsForIndividuals', () => {
-    it('should create all accounts when none exist', async () => {
-      mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
-
-      const result = await service.makeHeaderAccountsForIndividuals(
-        accountingEntity,
-        repoOptions
-      );
-
-      expect(result.length).toBe(4);
-      expect(result[0][0].name).toBe('Cash and Cash Equivalents');
-      expect(result[1][0].name).toBe('Receivables');
-      expect(result[2][0].name).toBe('Trade Receivables');
-      expect(result[3][0].name).toBe('Statutory Receivables');
-    });
-
-    it('should not create accounts if they already exist', async () => {
-      mockLedgerAccountRepo.findByCode.mockImplementation(async (code) => {
-        if (code === '100000') return {} as IAssetLedgerAccount;
-        if (code === '102000') return mockReceivablesAccount;
-        if (code === '102001') return mockTradeReceivablesAccount;
-        if (code === '102002') return {} as IAssetLedgerAccount;
-        return null;
-      });
-
-      const result = await service.makeHeaderAccountsForIndividuals(
-        accountingEntity,
-        repoOptions
-      );
-
-      expect(result.length).toBe(0);
-    });
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
-  describe('makePostingAccountsForIndividuals', () => {
-    const mockStatutoryReceivable = {
-      id: '123e4567-e89b-12d3-a456-426614174005' as TEntityId,
-      code: '102002',
-    } as unknown as IStatutoryReceivableAccount;
+  describe('makePettyCashSubAccount', () => {
+    const ownerId = generateUUID();
+    const entityId = generateUUID();
+    const controlAccountId = generateUUID();
+    const latestAccountId = generateUUID();
 
-    it('should create non-power user accounts', async () => {
-      mockLedgerAccountRepo.findBySubType.mockResolvedValue([]);
-      mockLedgerAccountRepo.findByBehavior.mockResolvedValue([
-        mockStatutoryReceivable,
-      ]);
+    const validUser = {
+      id: ownerId,
+    } as IUser;
 
-      const result = await service.makePostingAccountsForIndividuals(
-        accountingEntity,
-        repoOptions
-      );
+    const validAccountingEntity = {
+      id: entityId,
+      ownerId,
+    } as IAccountingEntity;
 
-      expect(result.length).toBe(2);
-      expect(result[0][0].name).toBe('Asset Suspense Account');
-      expect(result[1][0].name).toBe('Statutory Receivables (Default)');
-      expect(result[1][0].controlAccountId).toBe(mockStatutoryReceivable.id);
+    const validCurrency: ICurrency = {
+      code: 'USD',
+      name: 'US Dollar',
+      minorUnit: 2n,
+      symbol: '$',
+    };
+
+    const mockControlAccount = {
+      id: controlAccountId,
+      code: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+      materializedPath: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+    } as ILedgerAccount;
+
+    const mockLatestAccount = {
+      id: latestAccountId,
+      code: '100001' as TCashLedgerCode,
+      materializedPath:
+        `${ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER}.100001` as TCashLedgerCode,
+    } as ILedgerAccount;
+
+    const validPayload = {
+      name: 'Main Petty Cash',
+      currency: validCurrency,
+      isControlAccount: false,
+      user: validUser,
+      accountingEntity: validAccountingEntity,
+    };
+
+    describe('when valid payload is provided', () => {
+      it('should create a petty cash account successfully without an explicit control account code', async () => {
+        mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
+          mockControlAccount
+        );
+        mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(
+          mockLatestAccount
+        );
+
+        const [account, events] = await service.makePettyCashSubAccount(
+          validPayload,
+          mockOptions
+        );
+
+        expect(account.name).toBe('Main Petty Cash');
+        expect(account.accountingEntityId).toBe(entityId);
+        expect(account.controlAccountId).toBe(controlAccountId);
+        expect(account.code).toBe('100002');
+        expect(account.materializedPath).toBe(
+          `${mockLatestAccount.materializedPath}.100002`
+        );
+        expect(events.length).toBeGreaterThan(0);
+        expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
+          ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+          entityId,
+          mockOptions
+        );
+      });
+
+      it('should create a petty cash account successfully with an explicit control account code and no latest account', async () => {
+        mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
+          mockControlAccount
+        );
+        mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+
+        const payloadWithExplicitControlCode = {
+          ...validPayload,
+          controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+        };
+
+        const [account, events] = await service.makePettyCashSubAccount(
+          payloadWithExplicitControlCode,
+          mockOptions
+        );
+
+        expect(account.name).toBe('Main Petty Cash');
+        expect(account.code).toBe('100001');
+        expect(account.materializedPath).toBe(
+          `${mockControlAccount.materializedPath}.100001`
+        );
+        expect(events.length).toBeGreaterThan(0);
+        expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
+          ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+          entityId,
+          mockOptions
+        );
+      });
     });
 
-    it('should not create accounts if they already exist', async () => {
-      mockLedgerAccountRepo.findBySubType.mockResolvedValue([
-        {} as IAssetLedgerAccount,
-      ]);
-      mockLedgerAccountRepo.findByBehavior.mockResolvedValue([
-        mockStatutoryReceivable,
-        mockStatutoryReceivable,
-      ]);
+    describe('Service Logic Validations', () => {
+      it('should throw ErrorForbidden if user is not the owner of the accounting entity', async () => {
+        const payload = {
+          ...validPayload,
+          user: { ...validUser, id: generateUUID() },
+        };
 
-      const result = await service.makePostingAccountsForIndividuals(
-        accountingEntity,
-        repoOptions
-      );
+        await expect(
+          service.makePettyCashSubAccount(payload, mockOptions)
+        ).rejects.toThrow(ErrorForbidden);
+        await expect(
+          service.makePettyCashSubAccount(payload, mockOptions)
+        ).rejects.toThrow('Access denied.');
+      });
 
-      expect(result.length).toBe(0);
+      it('should throw AppError if control account is not found', async () => {
+        mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+
+        await expect(
+          service.makePettyCashSubAccount(validPayload, mockOptions)
+        ).rejects.toThrow('Control account not found');
+      });
     });
 
-    it('should throw AppError if statutory receivables header account not found', async () => {
-      mockLedgerAccountRepo.findBySubType.mockResolvedValue([]);
-      mockLedgerAccountRepo.findByBehavior.mockResolvedValue([]);
+    describe('Payload Validations (Domain bubbling)', () => {
+      beforeEach(() => {
+        mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
+        mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(
+          mockLatestAccount
+        );
+      });
 
-      await expect(
-        service.makePostingAccountsForIndividuals(accountingEntity, repoOptions)
-      ).rejects.toThrow(AppError);
+      it('should throw if name is invalid or empty', async () => {
+        const payload = {
+          ...validPayload,
+          name: ' ',
+        };
+
+        await expect(
+          service.makePettyCashSubAccount(payload, mockOptions)
+        ).rejects.toThrow('Invalid string');
+      });
+
+      it('should throw if accountingEntityId is an invalid UUID', async () => {
+        const payload = {
+          ...validPayload,
+          accountingEntity: {
+            ...validAccountingEntity,
+            id: 'invalid-uuid' as TEntityId,
+          },
+        };
+
+        await expect(
+          service.makePettyCashSubAccount(payload, mockOptions)
+        ).rejects.toThrow('Invalid UUID');
+      });
+
+      it('should throw if user.id (createdBy) is an invalid UUID', async () => {
+        // Must also set ownerId to the same invalid UUID so validateAccess passes
+        const payload = {
+          ...validPayload,
+          user: { ...validUser, id: 'invalid-uuid' as TEntityId },
+          accountingEntity: {
+            ...validAccountingEntity,
+            ownerId: 'invalid-uuid' as TEntityId,
+          },
+        };
+
+        await expect(
+          service.makePettyCashSubAccount(payload, mockOptions)
+        ).rejects.toThrow('Invalid UUID');
+      });
+
+      it('should throw if currency code is invalid', async () => {
+        const payload = {
+          ...validPayload,
+          currency: { ...validCurrency, code: 'INVALID' },
+        };
+
+        await expect(
+          service.makePettyCashSubAccount(payload, mockOptions)
+        ).rejects.toThrow('Invalid currency code');
+      });
     });
   });
 });

@@ -1,5 +1,5 @@
 import { ICurrency } from '../../../../domain/currency/types/currency.types';
-import { MockCurrencyRepo } from '../../../../infra/persistence/repos/__mocks__/currency.repo.impl.mock';
+import mockCurrencyRepo from '../../../../infra/persistence/repos/__mocks__/currency.repo.impl.mock';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import getCurrenciesUseCase from '../get-currencies.usecase';
@@ -28,13 +28,13 @@ describe('getCurrenciesUseCase', () => {
       { code: 'EUR', symbol: '€', name: 'Euro', minorUnit: 2n },
     ] as ICurrency[];
 
-    MockCurrencyRepo.findAll.mockResolvedValue(mockCurrencies);
+    mockCurrencyRepo.findAll.mockResolvedValue(mockCurrencies);
 
-    const usecase = getCurrenciesUseCase(MockCurrencyRepo, MockRequestContext);
+    const usecase = getCurrenciesUseCase(mockCurrencyRepo, MockRequestContext);
     const result = await usecase();
 
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
-    expect(MockCurrencyRepo.findAll).toHaveBeenCalledWith({ correlationId });
+    expect(mockCurrencyRepo.findAll).toHaveBeenCalledWith({ correlationId });
     expect(result).toEqual(
       mockCurrencies.map((c) => ({
         ...c,

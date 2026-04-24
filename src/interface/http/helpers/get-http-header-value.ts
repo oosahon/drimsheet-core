@@ -1,4 +1,6 @@
+import { Request } from 'express';
 import { IncomingHttpHeaders } from 'http';
+import generateUUID from '../../../shared/utils/uuid-generator';
 
 export default function getHttpHeaderValue(
   headerName: string,
@@ -6,4 +8,12 @@ export default function getHttpHeaderValue(
 ) {
   const headerValue = headers[headerName];
   return Array.isArray(headerValue) ? headerValue[0] : headerValue;
+}
+
+export function getCorrelationId(req: Request) {
+  return getHttpHeaderValue('x-correlation-id', req.headers) || generateUUID();
+}
+
+export function getIdempotencyKey(req: Request) {
+  return getHttpHeaderValue('x-idempotency-key', req.headers);
 }

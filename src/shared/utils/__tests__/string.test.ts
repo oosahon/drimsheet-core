@@ -14,9 +14,12 @@ describe('stringUtils', () => {
     });
 
     it('returns false for non-string values', () => {
-      expect(stringUtils.isNonEmptyString(null as any)).toBe(false);
-      expect(stringUtils.isNonEmptyString(123 as any)).toBe(false);
-      expect(stringUtils.isNonEmptyString({} as any)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isNonEmptyString(null)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isNonEmptyString(123)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isNonEmptyString({})).toBe(false);
     });
   });
 
@@ -25,6 +28,16 @@ describe('stringUtils', () => {
       expect(
         stringUtils.sanitizeAndValidate('hello', { min: 3, max: 10 })
       ).toBe('hello');
+    });
+
+    it('throws AppError if the value is not a string', () => {
+      expect(() =>
+        // @ts-expect-error testing invalid types
+        stringUtils.sanitizeAndValidate(123, {
+          min: 3,
+          max: 10,
+        })
+      ).toThrow(AppError);
     });
 
     it('throws AppError if the string is less than min length', () => {
@@ -104,6 +117,109 @@ describe('stringUtils', () => {
       expect(stringUtils.isNumeric('')).toBe(false);
       expect(stringUtils.isNumeric('-123')).toBe(false);
       expect(stringUtils.isNumeric('123.45')).toBe(false);
+    });
+  });
+
+  describe('isUrl', () => {
+    it('returns true for a valid URL', () => {
+      expect(stringUtils.isUrl('https://example.com')).toBe(true);
+      expect(stringUtils.isUrl('http://www.test.org/path?query=1')).toBe(true);
+    });
+
+    it('returns false for an invalid URL', () => {
+      expect(stringUtils.isUrl('not-a-url')).toBe(false);
+      expect(stringUtils.isUrl('htp://wrong-scheme')).toBe(false);
+      expect(stringUtils.isUrl('')).toBe(false);
+    });
+
+    it('returns false for non-string values', () => {
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isUrl(null)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isUrl(123)).toBe(false);
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isUrl({})).toBe(false);
+    });
+  });
+
+  describe('isStringWithinRange', () => {
+    it('returns true if string length is within min and max', () => {
+      expect(
+        stringUtils.isStringWithinRange('hello', { min: 3, max: 10 })
+      ).toBe(true);
+      expect(stringUtils.isStringWithinRange('123', { min: 3, max: 3 })).toBe(
+        true
+      );
+    });
+
+    it('returns false if value is not a string', () => {
+      // @ts-expect-error testing invalid types
+      expect(stringUtils.isStringWithinRange(123, { min: 3, max: 10 })).toBe(
+        false
+      );
+    });
+
+    it('returns false if string is shorter than min', () => {
+      expect(stringUtils.isStringWithinRange('hi', { min: 3, max: 10 })).toBe(
+        false
+      );
+    });
+
+    it('returns false if string is longer than max', () => {
+      expect(
+        stringUtils.isStringWithinRange('hello world', { min: 3, max: 10 })
+      ).toBe(false);
+    });
+
+    it('sanitizes the string if sanitize option is true', () => {
+      expect(
+        stringUtils.isStringWithinRange('  hi  ', {
+          min: 3,
+          max: 10,
+          sanitize: true,
+        })
+      ).toBe(false);
+      expect(
+        stringUtils.isStringWithinRange('  hello  ', {
+          min: 3,
+          max: 10,
+          sanitize: true,
+        })
+      ).toBe(true);
+      expect(
+        stringUtils.isStringWithinRange('  hello world  ', {
+          min: 3,
+          max: 10,
+          sanitize: true,
+        })
+      ).toBe(false);
+    });
+  });
+
+  describe('validateStringWithinRange', () => {
+    it('does not throw if string is within min and max', () => {
+      expect(() =>
+        stringUtils.validateStringWithinRange('hello', { min: 3, max: 10 })
+      ).not.toThrow();
+    });
+
+    it('throws AppError if value is not a string', () => {
+      expect(() =>
+        // @ts-expect-error testing invalid types
+        stringUtils.validateStringWithinRange(123, { min: 3, max: 10 })
+      ).toThrow(AppError);
+    });
+
+    it('throws AppError if string length is not within range', () => {
+      expect(() =>
+        stringUtils.validateStringWithinRange('hi', { min: 3, max: 10 })
+      ).toThrow(AppError);
+      expect(() =>
+        stringUtils.validateStringWithinRange('hello world', {
+          min: 3,
+          max: 10,
+        })
+      ).toThrow(AppError);
     });
   });
 });

@@ -79,11 +79,50 @@ function toFactor(value: string | number | bigint): IFactor {
   return { numerator, denominator };
 }
 
+function isNumber(value: unknown): boolean {
+  return typeof value === 'number' && !isNaN(value);
+}
+
+function validateNumber(value: string | number | bigint) {
+  toFloat(value);
+}
+
+function isInteger(value: string | number | bigint): boolean {
+  return Number.isInteger(toFloat(value));
+}
+
+function validateInteger(value: string | number | bigint) {
+  if (!isInteger(value)) {
+    throw new AppError('Value must not be a float', { cause: value });
+  }
+}
+
+function isPositiveNumber(value: string | number | bigint): boolean {
+  return toFloat(value) > 0;
+}
+
+function validatePositiveNumber(
+  value: string | number | bigint,
+  message?: string
+) {
+  if (!isPositiveNumber(value)) {
+    throw new AppError(message || 'Value must be greater than 0', {
+      cause: value,
+    });
+  }
+}
+
 const numberUtils = Object.freeze({
   toBigInt,
   toFloat,
   toNonNegativeNumber,
   toFactor,
+  isNumber,
+  validateNumber,
+  isInteger,
+  validateInteger,
+  isPositiveNumber,
+  validatePositiveNumber,
 });
 
 export default numberUtils;

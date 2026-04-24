@@ -1,11 +1,10 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-
 import mockUserAuthRepo from '../../../../infra/persistence/repos/__mocks__/user-auth.repo.impl.mock';
 import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/user-session.repo.impl.mock';
+import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
+import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import {
   ErrorBadRequest,

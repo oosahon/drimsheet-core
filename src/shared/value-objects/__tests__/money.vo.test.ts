@@ -416,4 +416,50 @@ describe('Money Value Object', () => {
       );
     });
   });
+
+  describe('convert', () => {
+    it('should convert money from one currency to another using a factor', () => {
+      const sourceMoney = money.make(1000, USD, true);
+      const factor = { numerator: 1500, denominator: 1 };
+
+      const result = money.convert(sourceMoney, factor, NGN);
+
+      expect(result.amount).toBe(BigInt(1500000));
+      expect(result.currency.code).toBe('NGN');
+      expect(Object.isFrozen(result)).toBe(true);
+    });
+
+    it('should truncate decimal results during conversion', () => {
+      const sourceMoney = money.make(1000, USD, true);
+      const factor = { numerator: 1, denominator: 3 };
+
+      const result = money.convert(sourceMoney, factor, NGN);
+
+      expect(result.amount).toBe(BigInt(333));
+      expect(result.currency.code).toBe('NGN');
+    });
+
+    it('should throw an error if the conversion factor is invalid', () => {
+      const sourceMoney = money.make(1000, USD, true);
+      const invalidFactor = { numerator: 1, denominator: 0 };
+
+      expect(() => money.convert(sourceMoney, invalidFactor, NGN)).toThrow(
+        new AppError('Please provide a valid factor', { cause: invalidFactor })
+      );
+    });
+
+    it('should throw an error if the target currency code is invalid', () => {
+      const sourceMoney = money.make(1000, USD, true);
+      const factor = { numerator: 1500, denominator: 1 };
+      const fakeCurrency = { ...NGN, code: 'FAKE' };
+
+      expect(() =>
+        money.convert(
+          sourceMoney,
+          factor,
+          fakeCurrency as unknown as typeof NGN
+        )
+      ).toThrow(new AppError('Invalid currency code', { cause: 'FAKE' }));
+    });
+  });
 });

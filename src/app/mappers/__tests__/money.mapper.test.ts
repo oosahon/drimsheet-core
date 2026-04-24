@@ -19,7 +19,8 @@ describe('Money Mapper', () => {
 
   const moneyDto: IMoneyDto = {
     amount: 1000,
-    currency: 'USD',
+    currencyCode: 'USD',
+    isMinorUnit: true,
   };
 
   describe('toDto', () => {
@@ -37,22 +38,34 @@ describe('Money Mapper', () => {
       expect(result.currency.code).toBe(moneyDomain.currency.code);
     });
 
-    it('should throw AppError if currency is not found', () => {
+    it('should throw AppError if currency code is an invalid format', () => {
       const invalidDto: IMoneyDto = {
         amount: 1000,
-        currency: 'XYZ',
+        currencyCode: 'usd', // lowercase is invalid format
+        isMinorUnit: true,
       };
 
       expect(() => moneyMapper.fromDto(invalidDto)).toThrow(AppError);
-      expect(() => moneyMapper.fromDto(invalidDto)).toThrow(
-        'Currency not found'
-      );
+    });
+
+    it('should throw AppError if currency format is valid but not in system currencies', () => {
+      const invalidDto: IMoneyDto = {
+        amount: 1000,
+        currencyCode: 'AUD', // AUD is not in SYSTEM_CURRENCIES
+        isMinorUnit: true,
+      };
+
+      expect(() => moneyMapper.fromDto(invalidDto)).toThrow(AppError);
     });
   });
 
-  describe('toInterface', () => {
-    it('should map domain money to interface representaton (DTO)', () => {
-      expect(moneyMapper.toInterface(moneyDomain)).toEqual(moneyDto);
+  describe('toRepo', () => {
+    it('should map domain money to a repo object', () => {
+      const repoObject = moneyMapper.toRepo(moneyDomain);
+      expect(repoObject).toEqual({
+        amount: 1000,
+        currencyCode: 'USD',
+      });
     });
   });
 });

@@ -1,6 +1,7 @@
 import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
-import { mockAccountingEntityRepo } from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
+import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
+import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { ErrorConflict } from '../../../../shared/value-objects/error';
 import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
@@ -139,6 +140,138 @@ describe('accountingEntityService', () => {
       expect(result[0].type).toBe(EAccountingEntityType.Company);
       expect(result[1]).toHaveLength(1);
       expect(result[1][0].type).toBe(EAccountingEntityEvents.Created);
+    });
+
+    it('should create a non-individual entity if none exists', async () => {
+      mockAccountingEntityRepo.findByUserId.mockResolvedValueOnce([]);
+
+      const payload: TCreationOmits<IAccountingEntity> = {
+        ...validBasePayload,
+        name: 'Acme Corp',
+        type: EAccountingEntityType.Company,
+      };
+
+      const result = await service.make(userId, payload, mockOptions);
+
+      expect(mockAccountingEntityRepo.findByUserId).toHaveBeenCalledWith(
+        userId,
+        mockOptions,
+        EAccountingEntityType.Company
+      );
+      expect(result[0].name).toBe('Acme Corp');
+      expect(result[0].type).toBe(EAccountingEntityType.Company);
+      expect(result[1]).toHaveLength(1);
+      expect(result[1][0].type).toBe(EAccountingEntityEvents.Created);
+    });
+
+    describe('Payload Validation', () => {
+      it('should throw if ownerId is an invalid UUID', async () => {
+        const payload: TCreationOmits<IAccountingEntity> = {
+          ...validBasePayload,
+          name: 'Acme Corp',
+          type: EAccountingEntityType.Company,
+          ownerId: 'invalid-uuid' as TEntityId,
+        };
+
+        await expect(
+          service.make(userId, payload, mockOptions)
+        ).rejects.toThrow('Invalid UUID');
+      });
+
+      it('should throw if name is empty or invalid', async () => {
+        const payload: TCreationOmits<IAccountingEntity> = {
+          ...validBasePayload,
+          name: '   ',
+          type: EAccountingEntityType.Company,
+        };
+
+        await expect(
+          service.make(userId, payload, mockOptions)
+        ).rejects.toThrow('Invalid accounting entity name');
+      });
+
+      it('should throw if operatingCountryCode is not supported', async () => {
+        const payload: TCreationOmits<IAccountingEntity> = {
+          ...validBasePayload,
+          name: 'Acme Corp',
+          type: EAccountingEntityType.Company,
+          operatingCountryCode: 'XX',
+        };
+
+        await expect(
+          service.make(userId, payload, mockOptions)
+        ).rejects.toThrow('Invalid operating country code');
+      });
+
+      it('should throw if functional currency code is invalid', async () => {
+        const payload: TCreationOmits<IAccountingEntity> = {
+          ...validBasePayload,
+          name: 'Acme Corp',
+          type: EAccountingEntityType.Company,
+          functionalCurrency: {
+            ...validBasePayload.functionalCurrency,
+            code: 'INVALID',
+          },
+        };
+
+        await expect(
+          service.make(userId, payload, mockOptions)
+        ).rejects.toThrow('Invalid currency code');
+      });
+
+      it('should throw if reporting currency code is invalid', async () => {
+        const payload: TCreationOmits<IAccountingEntity> = {
+          ...validBasePayload,
+          name: 'Acme Corp',
+          type: EAccountingEntityType.Company,
+          reportingCurrency: {
+            ...validBasePayload.reportingCurrency,
+            code: 'INVALID',
+          },
+        };
+
+        await expect(
+          service.make(userId, payload, mockOptions)
+        ).rejects.toThrow('Invalid currency code');
+      });
+
+      it('should throw if entity type is invalid', async () => {
+        const payload: TCreationOmits<IAccountingEntity> = {
+          ...validBasePayload,
+          name: 'Acme Corp',
+          type: 'INVALID_TYPE' as UAccountingEntityType,
+        };
+
+        await expect(
+          service.make(userId, payload, mockOptions)
+        ).rejects.toThrow('Invalid accounting entity type');
+      });
+
+      it('should throw if fiscal year month is invalid', async () => {
+        const payload: TCreationOmits<IAccountingEntity> = {
+          ...validBasePayload,
+          name: 'Acme Corp',
+          type: EAccountingEntityType.Company,
+          fiscalYearStart: { month: 13, day: 1 },
+        };
+
+        await expect(
+          service.make(userId, payload, mockOptions)
+        ).rejects.toThrow('Invalid fiscal year-end month');
+      });
+
+      it('should throw if fiscal year day is invalid', async () => {
+        const payload: TCreationOmits<IAccountingEntity> = {
+          ...validBasePayload,
+          name: 'Acme Corp',
+          type: EAccountingEntityType.Company,
+          fiscalYearStart: { month: 2, day: 30 },
+        };
+
+        await expect(
+          service.make(userId, payload, mockOptions)
+        ).rejects.toThrow('Invalid fiscal year-end day');
+      });
     });
   });
 });

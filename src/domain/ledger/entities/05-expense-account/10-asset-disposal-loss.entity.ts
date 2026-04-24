@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import expenseAccountEvents from '../../events/expense-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -13,14 +14,11 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/asset-disposal-loss.entity.helpers';
 
-function getCode(
-  predecessorCode: TAssetDisposalLossLedgerCode
-): TAssetDisposalLossLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TAssetDisposalLossLedgerCode>(
-    '510',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TAssetDisposalLossLedgerCode;
+  precedingCode: TAssetDisposalLossLedgerCode;
 }
 
 function make(
@@ -34,12 +32,19 @@ function make(
     | 'controlAccountId'
     | 'meta'
   >,
-  predecessorCode: TAssetDisposalLossLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IAssetDisposalLossAccount, IAssetDisposalLossAccount> {
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IAssetDisposalLossAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '510000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
     type: ELedgerType.Expense,
     subType: EExpenseSubType.LossOnAssetDisposal,
@@ -55,12 +60,13 @@ function make(
   });
 
   const event = expenseAccountEvents.assetDisposalLossCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const assetDisposalLossAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default assetDisposalLossAccountEntity;

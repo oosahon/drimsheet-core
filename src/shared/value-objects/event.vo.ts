@@ -49,7 +49,7 @@ function enrich<T>(
   });
 }
 
-function enrichAll<T>(
+function enrichAll<T = unknown>(
   events: IEvent<T>[],
   payload: { correlationId?: string; idempotencyKey?: string }
 ): IEvent<T>[] {

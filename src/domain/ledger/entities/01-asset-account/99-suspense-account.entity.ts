@@ -7,6 +7,7 @@
  */
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import assetAccountEvents from '../../events/asset-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -20,12 +21,11 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/suspense-account.entity.helpers';
 
-function getCode(predecessorCode: TAssetSuspenseLedgerCode) {
-  return ledgerAccountEntity.getSubLedgerCode<TAssetSuspenseLedgerCode>(
-    '199',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TAssetSuspenseLedgerCode;
+  precedingCode: TAssetSuspenseLedgerCode;
 }
 
 function make(
@@ -33,15 +33,22 @@ function make(
     IAssetSuspenseAccount,
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
-  predecessorCode?: TAssetSuspenseLedgerCode
+  parent: IParentDetails | null
 ): TEntityWithEvents<IAssetSuspenseAccount, IAssetSuspenseAccount> {
   const { name, createdBy, accountingEntityId, currency } = payload;
+
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
 
   const account = ledgerAccountEntity.make<IAssetSuspenseAccount>({
     name,
     accountingEntityId,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
-    code: predecessorCode ? getCode(predecessorCode) : '199000',
+    code,
+    materializedPath,
     type: ELedgerType.Asset,
     subType: EAssetSubType.Suspense,
     behavior: EAssetAccountBehavior.Default,
@@ -55,12 +62,13 @@ function make(
     createdBy,
   });
   const event = assetAccountEvents.suspenseCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const assetSuspenseAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default assetSuspenseAccountEntity;

@@ -1,6 +1,7 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import assetAccountEvents from '../../events/asset-account.events';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -16,20 +17,17 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/receivables.entity.helpers';
 
-function getCode(
-  predecessorCode: TReceivablesLedgerCode
-): TReceivablesLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TReceivablesLedgerCode>(
-    '102',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TReceivablesLedgerCode;
+  precedingCode: TReceivablesLedgerCode;
 }
 
 /**
  * Creates a new receivable header/sub account.
  * @param payload receivable account creation payload
- * @param predecessorCode the ledger code of the most recent Receivable account.
+ * @param parent the ledger details of the most recent Receivables account.
  * @returns [IReceivablesAccount, IAssetLedgerCreationEvent]
  */
 function make(
@@ -46,16 +44,23 @@ function make(
     | 'contraAccountRule'
     | 'adjunctAccountRule'
   >,
-  predecessorCode: TReceivablesLedgerCode | null // null for the header account
+  parent: IParentDetails | null // null for the header account
 ): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
   if (payload.controlAccountId) {
     stringUtils.validateUUID(payload.controlAccountId);
   }
 
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IReceivablesAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '102000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
     type: ELedgerType.Asset,
     subType: EAssetSubType.Receivables,
@@ -71,13 +76,14 @@ function make(
   });
 
   const event = assetAccountEvents.receivablesCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 /**
  * Creates a new statutory receivable sub account.
  * @param payload statutory receivable creation payload
- * @param predecessorCode the ledger code of the most recent Receivable account.
+ * @param parent the ledger details of the most recent Receivables account.
  * @returns [IReceivablesAccount, IAssetLedgerCreationEvent]
  */
 function makeStatutoryReceivableAccount(
@@ -90,7 +96,7 @@ function makeStatutoryReceivableAccount(
     | 'isControlAccount'
     | 'controlAccountId'
   >,
-  predecessorCode: TReceivablesLedgerCode
+  parent: IParentDetails | null
 ): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
   return make(
     {
@@ -105,14 +111,14 @@ function makeStatutoryReceivableAccount(
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
     },
-    predecessorCode
+    parent
   );
 }
 
 /**
  * Creates a new trade receivable sub account.
  * @param payload trade receivable creation payload
- * @param predecessorCode the ledger code of the most recent Receivable account.
+ * @param parent the ledger details of the most recent Receivables account.
  * @returns [IReceivablesAccount, IAssetLedgerCreationEvent]
  */
 function makeTradeReceivableAccount(
@@ -125,7 +131,7 @@ function makeTradeReceivableAccount(
     | 'isControlAccount'
     | 'controlAccountId'
   >,
-  predecessorCode: TReceivablesLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
   return make(
     {
@@ -140,18 +146,16 @@ function makeTradeReceivableAccount(
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
     },
-    predecessorCode
+    parent
   );
 }
 
 const receivablesAccountEntity = Object.freeze({
   make,
-
   makeStatutoryReceivableAccount,
-
   makeTradeReceivableAccount,
 
-  getCode,
+  ...helpers,
 });
 
 export default receivablesAccountEntity;

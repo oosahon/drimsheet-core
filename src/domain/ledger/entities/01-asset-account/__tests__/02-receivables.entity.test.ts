@@ -8,6 +8,7 @@ import {
   IStatutoryReceivableAccount,
   ITradeReceivableAccount,
 } from '../../../types/asset-account.types';
+import { TReceivablesLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -29,6 +30,11 @@ describe('Receivables Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '102000' as TReceivablesLedgerCode,
+    parentMaterializedPath: '102000' as TReceivablesLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -43,6 +49,24 @@ describe('Receivables Entity', () => {
     it('should generate the next sub-ledger code for receivables accounts', () => {
       expect(receivablesAccountEntity.getCode('102000')).toBe('102001');
       expect(receivablesAccountEntity.getCode('102099')).toBe('102100');
+    });
+
+    it('should return 102000 if predecessorCode is null', () => {
+      expect(receivablesAccountEntity.getCode(null)).toBe('102000');
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(receivablesAccountEntity.getMaterializedPath('102000', null)).toBe(
+        '102000'
+      );
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        receivablesAccountEntity.getMaterializedPath('102001', '102000')
+      ).toBe('102000.102001');
     });
   });
 
@@ -75,10 +99,11 @@ describe('Receivables Entity', () => {
     it('should successfully create a general receivables account', () => {
       const [account, events] = receivablesAccountEntity.make(
         validPayload,
-        '102000'
+        validParent
       );
 
       expect(account.code).toBe('102001');
+      expect(account.materializedPath).toBe('102000.102001');
       expect(account.type).toBe(ELedgerType.Asset);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
       expect(account.subType).toBe(EAssetSubType.Receivables);
@@ -93,7 +118,7 @@ describe('Receivables Entity', () => {
       expect(account.adjunctAccountRule).toBe(
         EAdjunctAccountRule.AdjunctPermitted
       );
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should validate controlAccountId when provided', () => {
@@ -103,18 +128,22 @@ describe('Receivables Entity', () => {
         controlAccountId: 'invalid' as unknown as TEntityId,
       };
       expect(() =>
-        receivablesAccountEntity.make(invalidPayload, '102000')
+        receivablesAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
     it('should skip controlAccountId validation when null', () => {
-      const [account] = receivablesAccountEntity.make(validPayload, '102000');
+      const [account] = receivablesAccountEntity.make(
+        validPayload,
+        validParent
+      );
       expect(account.controlAccountId).toBeNull();
     });
 
     it('should use base code 102000 when predecessorCode is null', () => {
       const [account] = receivablesAccountEntity.make(validPayload, null);
       expect(account.code).toBe('102000');
+      expect(account.materializedPath).toBe('102000');
     });
   });
 
@@ -140,10 +169,11 @@ describe('Receivables Entity', () => {
       const [account, events] =
         receivablesAccountEntity.makeStatutoryReceivableAccount(
           validStatutoryPayload,
-          '102000'
+          validParent
         );
 
       expect(account.code).toBe('102001');
+      expect(account.materializedPath).toBe('102000.102001');
       expect(account.type).toBe(ELedgerType.Asset);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
       expect(account.subType).toBe(EAssetSubType.Receivables);
@@ -156,7 +186,7 @@ describe('Receivables Entity', () => {
         EAdjunctAccountRule.AdjunctNotPermitted
       );
       expect(account.meta).toBeNull();
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -167,7 +197,7 @@ describe('Receivables Entity', () => {
       expect(() =>
         receivablesAccountEntity.makeStatutoryReceivableAccount(
           invalidPayload,
-          '102000'
+          validParent
         )
       ).toThrow(AppError);
     });
@@ -195,10 +225,11 @@ describe('Receivables Entity', () => {
       const [account, events] =
         receivablesAccountEntity.makeTradeReceivableAccount(
           validTradePayload,
-          '102000'
+          validParent
         );
 
       expect(account.code).toBe('102001');
+      expect(account.materializedPath).toBe('102000.102001');
       expect(account.type).toBe(ELedgerType.Asset);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
       expect(account.subType).toBe(EAssetSubType.Receivables);
@@ -211,7 +242,7 @@ describe('Receivables Entity', () => {
         EAdjunctAccountRule.AdjunctPermitted
       );
       expect(account.meta).toBeNull();
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -222,7 +253,7 @@ describe('Receivables Entity', () => {
       expect(() =>
         receivablesAccountEntity.makeTradeReceivableAccount(
           invalidPayload,
-          '102000'
+          validParent
         )
       ).toThrow(AppError);
     });

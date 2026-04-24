@@ -18,7 +18,7 @@ export interface IAccountingEntityService {
   ) => Promise<TEntityWithEvents<IAccountingEntity, IAccountingEntity>>;
 }
 
-export default function accountingEntityService(
+export default function makeAccountingEntityService(
   repo: IAccountingEntityRepo
 ): IAccountingEntityService {
   return {

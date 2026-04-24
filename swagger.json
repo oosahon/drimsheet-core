@@ -264,8 +264,102 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IMoneyDto": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "isMinorUnit": {
+            "type": "boolean"
+          }
+        },
+        "required": ["amount", "currencyCode", "isMinorUnit"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UExchangeRateType": {
+        "type": "string",
+        "enum": ["official", "negotiated"]
+      },
+      "IExchangeRateDto": {
+        "properties": {
+          "baseCurrencyCode": {
+            "type": "string"
+          },
+          "targetCurrencyCode": {
+            "type": "string"
+          },
+          "rate": {
+            "type": "number",
+            "format": "double"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UExchangeRateType"
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string"
+          },
+          "id": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "baseCurrencyCode",
+          "targetCurrencyCode",
+          "rate",
+          "type",
+          "asOf",
+          "source"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IPettyCashAccountCreationReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "openingBalance": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "isControlAccount": {
+            "type": "boolean"
+          },
+          "exchangeRate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IExchangeRateDto"
+              }
+            ],
+            "nullable": true
+          },
+          "controlAccountCode": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "openingBalance",
+          "isControlAccount",
+          "exchangeRate"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
       "Pick_IAccountingEntity.Exclude_keyofIAccountingEntity.functionalCurrency-or-reportingCurrency__": {
         "properties": {
+          "type": {
+            "$ref": "#/components/schemas/UAccountingEntityType"
+          },
           "id": {
             "$ref": "#/components/schemas/TEntityId"
           },
@@ -274,9 +368,6 @@
           },
           "operatingCountryCode": {
             "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/UAccountingEntityType"
           },
           "ownerId": {
             "$ref": "#/components/schemas/TEntityId"
@@ -298,10 +389,10 @@
           }
         },
         "required": [
+          "type",
           "id",
           "name",
           "operatingCountryCode",
-          "type",
           "ownerId",
           "fiscalYearStart",
           "createdAt",
@@ -313,6 +404,9 @@
       },
       "IAccountingEntityRes": {
         "properties": {
+          "type": {
+            "$ref": "#/components/schemas/UAccountingEntityType"
+          },
           "id": {
             "$ref": "#/components/schemas/TEntityId"
           },
@@ -321,9 +415,6 @@
           },
           "operatingCountryCode": {
             "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/UAccountingEntityType"
           },
           "ownerId": {
             "$ref": "#/components/schemas/TEntityId"
@@ -351,10 +442,10 @@
           }
         },
         "required": [
+          "type",
           "id",
           "name",
           "operatingCountryCode",
-          "type",
           "ownerId",
           "fiscalYearStart",
           "createdAt",
@@ -874,6 +965,50 @@
         "tags": ["Auth"],
         "security": [],
         "parameters": []
+      }
+    },
+    "/asset-accounts": {
+      "post": {
+        "operationId": "createPettyCashSubAccount",
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new petty cash sub account",
+        "tags": ["Asset Accounts"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IPettyCashAccountCreationReq"
+              }
+            }
+          }
+        }
       }
     },
     "/accounting-entities": {

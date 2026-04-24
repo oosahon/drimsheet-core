@@ -2,6 +2,7 @@ import { TCreationOmits } from '../../../../../shared/types/creation-omits.types
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { AppError } from '../../../../../shared/value-objects/error';
+import { TShortTermDebtLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -34,6 +35,11 @@ describe('Short Term Loan Liability Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '200000' as TShortTermDebtLedgerCode,
+    parentMaterializedPath: '200000' as TShortTermDebtLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -48,6 +54,24 @@ describe('Short Term Loan Liability Entity', () => {
     it('should generate the next sub-ledger code for short term debt accounts', () => {
       expect(shortTermLoanAccountEntity.getCode('200000')).toBe('200001');
       expect(shortTermLoanAccountEntity.getCode('200099')).toBe('200100');
+    });
+
+    it('should return 200000 if predecessorCode is null', () => {
+      expect(shortTermLoanAccountEntity.getCode(null)).toBe('200000');
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(
+        shortTermLoanAccountEntity.getMaterializedPath('200000', null)
+      ).toBe('200000');
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        shortTermLoanAccountEntity.getMaterializedPath('200001', '200000')
+      ).toBe('200000.200001');
     });
   });
 
@@ -76,10 +100,11 @@ describe('Short Term Loan Liability Entity', () => {
     it('should successfully create a short term debt control account', () => {
       const [account, events] = shortTermLoanAccountEntity.make(
         validPayload,
-        '200000'
+        validParent
       );
 
       expect(account.code).toBe('200001');
+      expect(account.materializedPath).toBe('200000.200001');
       expect(account.type).toBe(ELedgerType.Liability);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ELiabilitySubType.ShortTermDebt);
@@ -94,7 +119,7 @@ describe('Short Term Loan Liability Entity', () => {
       expect(account.adjunctAccountRule).toBe(
         EAdjunctAccountRule.AdjunctPermitted
       );
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should validate controlAccountId when provided', () => {
@@ -104,18 +129,22 @@ describe('Short Term Loan Liability Entity', () => {
         controlAccountId: 'invalid' as TEntityId,
       };
       expect(() =>
-        shortTermLoanAccountEntity.make(invalidPayload as any, '200000')
+        shortTermLoanAccountEntity.make(invalidPayload as any, validParent)
       ).toThrow(AppError);
     });
 
     it('should skip controlAccountId validation when null', () => {
-      const [account] = shortTermLoanAccountEntity.make(validPayload, '200000');
+      const [account] = shortTermLoanAccountEntity.make(
+        validPayload,
+        validParent
+      );
       expect(account.controlAccountId).toBeNull();
     });
 
     it('should use base code 200000 when predecessorCode is null', () => {
       const [account] = shortTermLoanAccountEntity.make(validPayload, null);
       expect(account.code).toBe('200000');
+      expect(account.materializedPath).toBe('200000');
     });
   });
 
@@ -191,10 +220,11 @@ describe('Short Term Loan Liability Entity', () => {
       const [account, events] =
         shortTermLoanAccountEntity.makeCreditCardAccount(
           validPayload,
-          '200000'
+          validParent
         );
 
       expect(account.code).toBe('200001');
+      expect(account.materializedPath).toBe('200000.200001');
       expect(account.type).toBe(ELedgerType.Liability);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ELiabilitySubType.ShortTermDebt);
@@ -207,7 +237,7 @@ describe('Short Term Loan Liability Entity', () => {
         EAdjunctAccountRule.AdjunctPermitted
       );
       expect(account.meta).toEqual(validMeta);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -218,7 +248,7 @@ describe('Short Term Loan Liability Entity', () => {
       expect(() =>
         shortTermLoanAccountEntity.makeCreditCardAccount(
           invalidPayload as any,
-          '200000'
+          validParent
         )
       ).toThrow(AppError);
     });
@@ -264,10 +294,11 @@ describe('Short Term Loan Liability Entity', () => {
     it('should successfully create an overdraft account', () => {
       const [account, events] = shortTermLoanAccountEntity.makeOverdraftAccount(
         validPayload,
-        '200000'
+        validParent
       );
 
       expect(account.code).toBe('200001');
+      expect(account.materializedPath).toBe('200000.200001');
       expect(account.type).toBe(ELedgerType.Liability);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ELiabilitySubType.ShortTermDebt);
@@ -280,7 +311,7 @@ describe('Short Term Loan Liability Entity', () => {
         EAdjunctAccountRule.AdjunctPermitted
       );
       expect(account.meta).toEqual(validMeta);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -291,7 +322,7 @@ describe('Short Term Loan Liability Entity', () => {
       expect(() =>
         shortTermLoanAccountEntity.makeOverdraftAccount(
           invalidPayload as any,
-          '200000'
+          validParent
         )
       ).toThrow(AppError);
     });
@@ -361,10 +392,11 @@ describe('Short Term Loan Liability Entity', () => {
       const [account, events] =
         shortTermLoanAccountEntity.makeShortTermLoanAccount(
           validPayload,
-          '200000'
+          validParent
         );
 
       expect(account.code).toBe('200001');
+      expect(account.materializedPath).toBe('200000.200001');
       expect(account.type).toBe(ELedgerType.Liability);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ELiabilitySubType.ShortTermDebt);
@@ -377,7 +409,7 @@ describe('Short Term Loan Liability Entity', () => {
         EAdjunctAccountRule.AdjunctPermitted
       );
       expect(account.meta).toEqual(validMeta);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -388,7 +420,7 @@ describe('Short Term Loan Liability Entity', () => {
       expect(() =>
         shortTermLoanAccountEntity.makeShortTermLoanAccount(
           invalidPayload as any,
-          '200000'
+          validParent
         )
       ).toThrow(AppError);
     });

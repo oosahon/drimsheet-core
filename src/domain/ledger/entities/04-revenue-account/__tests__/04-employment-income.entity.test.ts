@@ -1,5 +1,6 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { AppError } from '../../../../../shared/value-objects/error';
+import { TEmploymentIncomeLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -24,6 +25,11 @@ describe('Employment Income Revenue Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '403000' as TEmploymentIncomeLedgerCode,
+    parentMaterializedPath: '403000' as TEmploymentIncomeLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -40,10 +46,28 @@ describe('Employment Income Revenue Entity', () => {
       expect(employmentIncomeAccountEntity.getCode('403099')).toBe('403100');
     });
 
+    it('should return 403000 if predecessorCode is null', () => {
+      expect(employmentIncomeAccountEntity.getCode(null)).toBe('403000');
+    });
+
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         employmentIncomeAccountEntity.getCode('400000' as any)
       ).toThrow(AppError);
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(
+        employmentIncomeAccountEntity.getMaterializedPath('403000', null)
+      ).toBe('403000');
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        employmentIncomeAccountEntity.getMaterializedPath('403001', '403000')
+      ).toBe('403000.403001');
     });
   });
 
@@ -61,10 +85,11 @@ describe('Employment Income Revenue Entity', () => {
     it('should successfully create an employment income account', () => {
       const [account, events] = employmentIncomeAccountEntity.make(
         validPayload,
-        '403000'
+        validParent
       );
 
       expect(account.code).toBe('403001');
+      expect(account.materializedPath).toBe('403000.403001');
       expect(account.type).toBe(ELedgerType.Revenue);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ERevenueSubType.EmploymentIncome);
@@ -84,19 +109,20 @@ describe('Employment Income Revenue Entity', () => {
       expect(account.accountingEntityId).toBe(validUUID1);
       expect(account.createdBy).toBe(validUUID2);
       expect(account.currency).toEqual(validCurrency);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        employmentIncomeAccountEntity.make(invalidPayload, '403000')
+        employmentIncomeAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
     it('should use base code 403000 when predecessorCode is null', () => {
       const [account] = employmentIncomeAccountEntity.make(validPayload, null);
       expect(account.code).toBe('403000');
+      expect(account.materializedPath).toBe('403000');
     });
   });
 });

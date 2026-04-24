@@ -1,5 +1,6 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { AppError } from '../../../../../shared/value-objects/error';
+import { TGainOnAssetSaleLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -24,6 +25,11 @@ describe('Gain on Sale Revenue Entity', () => {
     minorUnit: 2n,
   };
 
+  const validParent = {
+    precedingCode: '405000' as TGainOnAssetSaleLedgerCode,
+    parentMaterializedPath: '405000' as TGainOnAssetSaleLedgerCode,
+  };
+
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
@@ -40,10 +46,28 @@ describe('Gain on Sale Revenue Entity', () => {
       expect(GainOnAssetSaleAccountEntity.getCode('405099')).toBe('405100');
     });
 
+    it('should return 405000 if predecessorCode is null', () => {
+      expect(GainOnAssetSaleAccountEntity.getCode(null)).toBe('405000');
+    });
+
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         GainOnAssetSaleAccountEntity.getCode('400000' as any)
       ).toThrow(AppError);
+    });
+  });
+
+  describe('getMaterializedPath', () => {
+    it('should return code if parentMaterializedPath is null', () => {
+      expect(
+        GainOnAssetSaleAccountEntity.getMaterializedPath('405000', null)
+      ).toBe('405000');
+    });
+
+    it('should return concatenated path if parentMaterializedPath is provided', () => {
+      expect(
+        GainOnAssetSaleAccountEntity.getMaterializedPath('405001', '405000')
+      ).toBe('405000.405001');
     });
   });
 
@@ -61,10 +85,11 @@ describe('Gain on Sale Revenue Entity', () => {
     it('should successfully create a gain on sale account', () => {
       const [account, events] = GainOnAssetSaleAccountEntity.make(
         validPayload,
-        '405000'
+        validParent
       );
 
       expect(account.code).toBe('405001');
+      expect(account.materializedPath).toBe('405000.405001');
       expect(account.type).toBe(ELedgerType.Revenue);
       expect(account.normalBalance).toBe(ENormalBalance.Credit);
       expect(account.subType).toBe(ERevenueSubType.GainOnAssetSale);
@@ -84,19 +109,20 @@ describe('Gain on Sale Revenue Entity', () => {
       expect(account.accountingEntityId).toBe(validUUID1);
       expect(account.createdBy).toBe(validUUID2);
       expect(account.currency).toEqual(validCurrency);
-      expect(events).toHaveLength(1);
+      expect(events).toHaveLength(2);
     });
 
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        GainOnAssetSaleAccountEntity.make(invalidPayload, '405000')
+        GainOnAssetSaleAccountEntity.make(invalidPayload, validParent)
       ).toThrow(AppError);
     });
 
     it('should use base code 405000 when predecessorCode is null', () => {
       const [account] = GainOnAssetSaleAccountEntity.make(validPayload, null);
       expect(account.code).toBe('405000');
+      expect(account.materializedPath).toBe('405000');
     });
   });
 });

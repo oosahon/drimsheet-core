@@ -1,6 +1,6 @@
 import { IUserPreferences } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { MockUserPreferencesRepo } from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
+import mockUserPreferencesRepo from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { ErrorUnauthorized } from '../../../../shared/value-objects/error';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
@@ -32,16 +32,16 @@ describe('getUserPreferencesUseCase', () => {
       updatedAt: new Date(),
     } as IUserPreferences;
 
-    MockUserPreferencesRepo.findById.mockResolvedValue(mockPreferences);
+    mockUserPreferencesRepo.findById.mockResolvedValue(mockPreferences);
 
     const usecase = getUserPreferencesUseCase(
       MockRequestContext,
-      MockUserPreferencesRepo
+      mockUserPreferencesRepo
     );
     const result = await usecase();
 
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
-    expect(MockUserPreferencesRepo.findById).toHaveBeenCalledWith(mockUser.id, {
+    expect(mockUserPreferencesRepo.findById).toHaveBeenCalledWith(mockUser.id, {
       correlationId,
     });
     expect(result).toEqual(mockPreferences);
@@ -52,11 +52,11 @@ describe('getUserPreferencesUseCase', () => {
 
     const usecase = getUserPreferencesUseCase(
       MockRequestContext,
-      MockUserPreferencesRepo
+      mockUserPreferencesRepo
     );
 
     await expect(usecase()).rejects.toThrow(ErrorUnauthorized);
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
-    expect(MockUserPreferencesRepo.findById).not.toHaveBeenCalled();
+    expect(mockUserPreferencesRepo.findById).not.toHaveBeenCalled();
   });
 });

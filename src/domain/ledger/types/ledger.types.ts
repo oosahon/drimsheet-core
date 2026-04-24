@@ -70,6 +70,7 @@ export interface IAdjustmentMetaData {
 export interface ILedgerAccount {
   id: TEntityId;
   code: string;
+  materializedPath: string;
   accountingEntityId: TEntityId;
   type: ULedgerType;
   normalBalance: UNormalBalance;

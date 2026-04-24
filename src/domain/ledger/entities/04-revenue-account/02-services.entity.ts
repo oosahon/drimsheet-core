@@ -1,4 +1,5 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import ledgerAccountEvents from '../../events/ledger-account.events';
 import revenueAccountEvents from '../../events/revenue-account.events';
 import { TServicesLedgerCode } from '../../types/ledger-code.types';
 import {
@@ -13,12 +14,11 @@ import {
   IServicesAccount,
 } from '../../types/revenue-account.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
+import helpers from './helpers/services.entity.helpers';
 
-function getCode(predecessorCode: TServicesLedgerCode): TServicesLedgerCode {
-  return ledgerAccountEntity.getSubLedgerCode<TServicesLedgerCode>(
-    '401',
-    predecessorCode
-  );
+interface IParentDetails {
+  parentMaterializedPath: TServicesLedgerCode;
+  precedingCode: TServicesLedgerCode;
 }
 
 function make(
@@ -32,12 +32,19 @@ function make(
     | 'controlAccountId'
     | 'meta'
   >,
-  predecessorCode: TServicesLedgerCode | null
+  parent: IParentDetails | null
 ): TEntityWithEvents<IServicesAccount, IServicesAccount> {
+  const code = helpers.getCode(parent?.precedingCode ?? null);
+  const materializedPath = helpers.getMaterializedPath(
+    code,
+    parent?.parentMaterializedPath ?? null
+  );
+
   const account = ledgerAccountEntity.make<IServicesAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    code: predecessorCode ? getCode(predecessorCode) : '401000',
+    code,
+    materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
     type: ELedgerType.Revenue,
     subType: ERevenueSubType.Services,
@@ -53,12 +60,13 @@ function make(
   });
 
   const event = revenueAccountEvents.servicesCreated(account);
-  return [account, [event]];
+  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
+  return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 const servicesAccountEntity = Object.freeze({
   make,
-  getCode,
+  ...helpers,
 });
 
 export default servicesAccountEntity;

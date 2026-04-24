@@ -26,3 +26,4 @@ The following architectural decision records (ADRs) capture the critical technic
 | [ADR-0010](./adrs/0010-system-bound-category-taxonomy.md)       | System-Bound Category Taxonomy                           | Accepted |
 | [ADR-0011](./adrs/0011-automated-adr-management.md)             | Automated ADR Management                                 | Accepted |
 | [ADR-0012](./adrs/0012-relational-contra-adjunct-accounts.md)   | Relational Contra & Adjunct Accounts                     | Accepted |
+| [ADR-0013](./adrs/0013-optimistic-concurrency-control.md)       | Optimistic Concurrency Control                           | Accepted |

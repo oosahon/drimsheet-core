@@ -14,6 +14,7 @@ const ledgerAccountMapper = {
     return {
       id: account.id,
       code: account.code,
+      materializedPath: account.materializedPath,
       accountingEntityId: account.accountingEntityId,
       type: account.type,
       normalBalance: account.normalBalance,
@@ -40,6 +41,7 @@ const ledgerAccountMapper = {
     return {
       id: model.id as TEntityId,
       code: model.code,
+      materializedPath: model.materializedPath,
       accountingEntityId: model.accountingEntityId as TEntityId,
       type: model.type,
       normalBalance: model.normalBalance,

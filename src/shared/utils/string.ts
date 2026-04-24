@@ -3,9 +3,10 @@ import { z } from 'zod';
 import { TEntityId } from '../types/uuid';
 import { AppError } from '../value-objects/error';
 
-interface ISanitizeOptions {
+interface IValidationOptions {
   min: number;
   max: number;
+  sanitize?: boolean;
 }
 
 function isString(value: string) {
@@ -16,9 +17,32 @@ function isNonEmptyString(value: string) {
   return isString(value) && value.trim().length > 0;
 }
 
-function sanitizeAndValidateString(value: string, options: ISanitizeOptions) {
+function isStringWithinRange(value: string, options: IValidationOptions) {
+  if (!isString(value)) {
+    return false;
+  }
   const schema = z.string().min(options.min).max(options.max);
-  const result = schema.safeParse(value);
+  const result = schema.safeParse(options.sanitize ? value.trim() : value);
+
+  if (!result.success) {
+    return false;
+  }
+
+  return true;
+}
+
+function validateStringWithinRange(value: string, options: IValidationOptions) {
+  if (!isStringWithinRange(value, options)) {
+    throw new AppError('Invalid string', { cause: value });
+  }
+}
+
+function sanitizeAndValidateString(value: string, options: IValidationOptions) {
+  if (!isString(value)) {
+    throw new AppError('Invalid string', { cause: value });
+  }
+  const schema = z.string().min(options.min).max(options.max);
+  const result = schema.safeParse(value.trim());
 
   if (!result.success) {
     throw new AppError('Invalid string', { cause: value });
@@ -41,6 +65,16 @@ function isNumeric(value: string) {
   return /^[0-9]+$/.test(value);
 }
 
+function isUrl(value: string) {
+  if (typeof value !== 'string') return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
 function toUUD(value: string): TEntityId {
   validateUUID(value);
   return value as TEntityId;
@@ -58,6 +92,9 @@ const stringUtils = Object.freeze({
   generateUUID,
   toUUD,
   isNumeric,
+  isUrl,
+  isStringWithinRange,
+  validateStringWithinRange,
 });
 
 export default stringUtils;

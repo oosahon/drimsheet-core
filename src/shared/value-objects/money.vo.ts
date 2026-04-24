@@ -256,6 +256,15 @@ function sortAscending(...args: IMoney[]) {
   return args.sort((a, b) => Number(a.amount - b.amount));
 }
 
+function convert(
+  money: IMoney,
+  factor: IFactor,
+  targetCurrencyCode: ICurrency
+) {
+  const amount = multiply(money, factor);
+  return make(amount.amount, targetCurrencyCode, true);
+}
+
 const moneyValue = Object.freeze({
   make,
   makeZeroAmount,
@@ -272,6 +281,7 @@ const moneyValue = Object.freeze({
   isLessThan,
   sortDescending,
   sortAscending,
+  convert,
 });
 
 export default moneyValue;
