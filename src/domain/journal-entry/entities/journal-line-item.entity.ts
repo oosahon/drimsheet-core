@@ -5,13 +5,13 @@ import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import { ICurrency } from '../../currency/types/currency.types';
-import journalLineItemEvents from '../events/journal-line-item.events';
+import journalLineEvents from '../events/journal-line-item.events';
 import { IJournalEntry } from '../types/journal-entry.types';
-import { IJournalLineItem } from '../types/journal-line-item.types';
+import { IJournalLine } from '../types/journal-line.types';
 import helpers from './helpers/journal-line-item.helpers';
 
 export interface IMakePayload extends Pick<
-  IJournalLineItem,
+  IJournalLine,
   'accountId' | 'sequenceOrder' | 'amount' | 'exchangeRate' | 'side'
 > {
   functionalCurrency: ICurrency;
@@ -21,7 +21,7 @@ export interface IMakePayload extends Pick<
 function make(
   entryPayload: Pick<IJournalEntry, 'id' | 'memo' | 'createdAt'>,
   payload: IMakePayload
-): TEntityWithEvents<IJournalLineItem, IJournalLineItem> {
+): TEntityWithEvents<IJournalLine, IJournalLine> {
   stringUtils.validateUUID(entryPayload.id);
   stringUtils.validateUUID(payload.accountId);
   numberUtils.validateInteger(payload.sequenceOrder);
@@ -40,7 +40,7 @@ function make(
     payload.description ?? entryPayload.memo
   );
 
-  const lineItem: IJournalLineItem = {
+  const lineItem: IJournalLine = {
     id: generateUUID(),
     entryId: entryPayload.id,
     accountId: payload.accountId,
@@ -56,15 +56,15 @@ function make(
     updatedAt: entryPayload.createdAt,
   };
 
-  const event = journalLineItemEvents.created(lineItem);
+  const event = journalLineEvents.created(lineItem);
 
   return [Object.freeze(lineItem), [event]];
 }
 
-const journalLineItemEntity = Object.freeze({
+const journalLineEntity = Object.freeze({
   make,
 
   ...helpers,
 });
 
-export default journalLineItemEntity;
+export default journalLineEntity;

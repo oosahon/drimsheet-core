@@ -5,14 +5,11 @@ import { EUR, USD } from '../../../currency/config/currencies.config';
 import { EExchangeRateType } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
-import {
-  EJournalSide,
-  UJournalSide,
-} from '../../types/journal-line-item.types';
-import journalLineItemEntity from '../journal-line-item.entity';
+import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
+import journalLineEntity from '../journal-line-item.entity';
 
-type TMakePayload = Parameters<typeof journalLineItemEntity.make>[1];
-type TEntryPayload = Parameters<typeof journalLineItemEntity.make>[0];
+type TMakePayload = Parameters<typeof journalLineEntity.make>[1];
+type TEntryPayload = Parameters<typeof journalLineEntity.make>[0];
 
 describe('JournalLineItem Entity', () => {
   beforeEach(() => {
@@ -55,7 +52,7 @@ describe('JournalLineItem Entity', () => {
     });
 
     it('should successfully create a journal line item with valid inputs', () => {
-      const [lineItem, events] = journalLineItemEntity.make(
+      const [lineItem, events] = journalLineEntity.make(
         validEntryPayload,
         validPayload
       );
@@ -89,7 +86,7 @@ describe('JournalLineItem Entity', () => {
         description: undefined,
       };
 
-      const [lineItem] = journalLineItemEntity.make(
+      const [lineItem] = journalLineEntity.make(
         validEntryPayload,
         payloadWithoutDesc
       );
@@ -104,7 +101,7 @@ describe('JournalLineItem Entity', () => {
       };
 
       expect(() =>
-        journalLineItemEntity.make(validEntryPayload, invalidPayload)
+        journalLineEntity.make(validEntryPayload, invalidPayload)
       ).toThrow(AppError);
     });
   });
@@ -113,38 +110,36 @@ describe('JournalLineItem Entity', () => {
     describe('validateSide', () => {
       it('should not throw for valid sides', () => {
         expect(() =>
-          journalLineItemEntity.validateSide(EJournalSide.Debit)
+          journalLineEntity.validateSide(EJournalSide.Debit)
         ).not.toThrow();
         expect(() =>
-          journalLineItemEntity.validateSide(EJournalSide.Credit)
+          journalLineEntity.validateSide(EJournalSide.Credit)
         ).not.toThrow();
       });
 
       it('should throw an AppError for an invalid side', () => {
         expect(() =>
-          journalLineItemEntity.validateSide('invalid' as UJournalSide)
+          journalLineEntity.validateSide('invalid' as UJournalSide)
         ).toThrow(AppError);
       });
     });
 
     describe('getDescription', () => {
       it('should return trimmed description', () => {
-        expect(journalLineItemEntity.getDescription('  test desc  ')).toBe(
+        expect(journalLineEntity.getDescription('  test desc  ')).toBe(
           'test desc'
         );
       });
 
       it('should throw if description is too long', () => {
         const longDesc = 'a'.repeat(101);
-        expect(() => journalLineItemEntity.getDescription(longDesc)).toThrow(
+        expect(() => journalLineEntity.getDescription(longDesc)).toThrow(
           AppError
         );
       });
 
       it('should throw if description is too short (empty)', () => {
-        expect(() => journalLineItemEntity.getDescription('')).toThrow(
-          AppError
-        );
+        expect(() => journalLineEntity.getDescription('')).toThrow(AppError);
       });
     });
   });

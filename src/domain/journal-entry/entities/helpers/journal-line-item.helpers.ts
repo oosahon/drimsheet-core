@@ -4,10 +4,7 @@ import { AppError } from '../../../../shared/value-objects/error';
 import { ICurrency } from '../../../currency/types/currency.types';
 import { IExchangeRate } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
-import {
-  EJournalSide,
-  UJournalSide,
-} from '../../types/journal-line-item.types';
+import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
 
 function validateSide(side: UJournalSide) {
   if (!Object.values(EJournalSide).includes(side)) {
@@ -71,10 +68,10 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
   exchangeRateValue.validate(exchangeRate);
 }
 
-const journalLineItemHelpers = Object.freeze({
+const journalLineHelpers = Object.freeze({
   validateSide,
   getDescription,
   validateExchangeRate,
 });
 
-export default journalLineItemHelpers;
+export default journalLineHelpers;

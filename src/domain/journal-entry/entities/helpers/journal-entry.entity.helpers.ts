@@ -5,10 +5,7 @@ import {
   EJournalEntryStatus,
   UJournalEntryStatus,
 } from '../../types/journal-entry.types';
-import {
-  EJournalSide,
-  IJournalLineItem,
-} from '../../types/journal-line-item.types';
+import { EJournalSide, IJournalLine } from '../../types/journal-line.types';
 
 function validateStatus(status: UJournalEntryStatus) {
   if (!Object.values(EJournalEntryStatus).includes(status)) {
@@ -16,14 +13,14 @@ function validateStatus(status: UJournalEntryStatus) {
   }
 }
 
-function isUniqueSequenceOrder(lineItems: IJournalLineItem[]) {
+function isUniqueSequenceOrder(lineItems: IJournalLine[]) {
   const sequenceOrders = lineItems.map((item) => item.sequenceOrder);
   const uniqueSequenceOrders = new Set(sequenceOrders);
 
   return sequenceOrders.length === uniqueSequenceOrders.size;
 }
 
-function validateLineItems(lineItems: IJournalLineItem[]) {
+function validateLineItems(lineItems: IJournalLine[]) {
   if (!lineItems.length || lineItems.length < 2) {
     throw new AppError('Invalid line items', { cause: lineItems });
   }

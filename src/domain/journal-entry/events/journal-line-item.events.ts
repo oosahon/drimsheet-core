@@ -1,5 +1,5 @@
 import eventValue from '../../../shared/value-objects/event.vo';
-import { IJournalLineItem } from '../types/journal-line-item.types';
+import { IJournalLine } from '../types/journal-line.types';
 
 export const EJournalLineItemEvent = {
   Created: 'domain:journal-line-item:created',
@@ -8,19 +8,19 @@ export const EJournalLineItemEvent = {
 export type UJournalLineItemEvent =
   (typeof EJournalLineItemEvent)[keyof typeof EJournalLineItemEvent];
 
-export const journalLineItemEventDescriptions: Record<string, string> = {
+export const journalLineEventDescriptions: Record<string, string> = {
   [EJournalLineItemEvent.Created]: 'Created a new journal line item.',
 };
 
-function makeJournalLineItemCreatedEvent(payload: IJournalLineItem) {
-  return eventValue.make<IJournalLineItem>({
+function makeJournalLineItemCreatedEvent(payload: IJournalLine) {
+  return eventValue.make<IJournalLine>({
     type: EJournalLineItemEvent.Created,
     data: payload,
   });
 }
 
-const journalLineItemEvents = Object.freeze({
+const journalLineEvents = Object.freeze({
   created: makeJournalLineItemCreatedEvent,
 });
 
-export default journalLineItemEvents;
+export default journalLineEvents;

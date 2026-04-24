@@ -9,12 +9,12 @@ export const EJournalSide = {
 
 export type UJournalSide = (typeof EJournalSide)[keyof typeof EJournalSide];
 
-interface IJournalLineItemMeta extends Record<
+interface IJournalLineMeta extends Record<
   string,
   string | object | boolean | null
 > {}
 
-export interface IJournalLineItem {
+export interface IJournalLine {
   id: TEntityId;
   entryId: TEntityId;
   accountId: TEntityId;
@@ -24,7 +24,7 @@ export interface IJournalLineItem {
   functionalAmount: IMoney; // derived from amount and exchangeRate
   side: UJournalSide;
   description?: string;
-  meta?: IJournalLineItemMeta;
+  meta?: IJournalLineMeta;
   version: number;
   createdAt: Date;
   updatedAt: Date;

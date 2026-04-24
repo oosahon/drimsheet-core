@@ -6,7 +6,7 @@ import { IExchangeRate } from '../../currency/types/exchange-rate.types';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
 import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line-item.entity';
 import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../journal-entry/types/journal-line-item.types';
+import { EJournalSide } from '../../journal-entry/types/journal-line.types';
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
 import { ELedgerType, ILedgerAccount } from '../../ledger/types/ledger.types';
@@ -85,7 +85,7 @@ export default function makeAccountingService(
         effectiveDate: timestamp,
         postedAt: timestamp,
         voidedAt: null,
-        voidedByJournalEntryId: null,
+        voidingEntryId: null,
         memo: 'Opening balance',
         functionalCurrency: accountingEntity.functionalCurrency,
         lineItems: [debitLinePayload, creditLinePayload],

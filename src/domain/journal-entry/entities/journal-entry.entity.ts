@@ -5,10 +5,10 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import { ICurrency } from '../../currency/types/currency.types';
 import journalEntryEvents from '../events/journal-entry.events';
 import { IJournalEntry } from '../types/journal-entry.types';
-import { IJournalLineItem } from '../types/journal-line-item.types';
+import { IJournalLine } from '../types/journal-line.types';
 import helpers from './helpers/journal-entry.entity.helpers';
-import journalLineItemEntity, {
-  IMakePayload as IJournalLineItemMakePayload,
+import journalLineEntity, {
+  IMakePayload as IJournalLineMakePayload,
 } from './journal-line-item.entity';
 
 interface IMakePayload extends Pick<
@@ -19,24 +19,23 @@ interface IMakePayload extends Pick<
   | 'effectiveDate'
   | 'postedAt'
   | 'voidedAt'
-  | 'voidedByJournalEntryId'
+  | 'voidingEntryId'
   | 'memo'
 > {
   functionalCurrency: ICurrency;
-  lineItems: IJournalLineItemMakePayload[];
+  lineItems: IJournalLineMakePayload[];
 }
 
 function make(
   payload: IMakePayload
-): TEntityWithEvents<IJournalEntry, IJournalEntry | IJournalLineItem> {
+): TEntityWithEvents<IJournalEntry, IJournalEntry | IJournalLine> {
   stringUtils.validateUUID(payload.accountingEntityId);
   if (payload.transactionId) stringUtils.validateUUID(payload.transactionId);
   helpers.validateStatus(payload.status);
   dateUtils.validateDate(payload.effectiveDate);
   if (payload.postedAt) dateUtils.validateDate(payload.postedAt);
   if (payload.voidedAt) dateUtils.validateDate(payload.voidedAt);
-  if (payload.voidedByJournalEntryId)
-    stringUtils.validateUUID(payload.voidedByJournalEntryId);
+  if (payload.voidingEntryId) stringUtils.validateUUID(payload.voidingEntryId);
 
   const id = generateUUID();
   const timestamp = new Date();
@@ -47,7 +46,7 @@ function make(
   });
 
   const lineItemsWithEvents = payload.lineItems.map((item) =>
-    journalLineItemEntity.make({ id, memo, createdAt: timestamp }, item)
+    journalLineEntity.make({ id, memo, createdAt: timestamp }, item)
   );
 
   const lineItems = lineItemsWithEvents.map(([item]) => item);
@@ -65,7 +64,7 @@ function make(
     effectiveDate: payload.effectiveDate,
     postedAt: payload.postedAt,
     voidedAt: payload.voidedAt,
-    voidedByJournalEntryId: payload.voidedByJournalEntryId,
+    voidingEntryId: payload.voidingEntryId,
     version: 1,
     createdAt: timestamp,
     updatedAt: timestamp,

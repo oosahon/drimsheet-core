@@ -8,10 +8,7 @@ import {
   EJournalEntryStatus,
   UJournalEntryStatus,
 } from '../../types/journal-entry.types';
-import {
-  EJournalSide,
-  IJournalLineItem,
-} from '../../types/journal-line-item.types';
+import { EJournalSide, IJournalLine } from '../../types/journal-line.types';
 import journalEntryEntity from '../journal-entry.entity';
 
 type TMakePayload = Parameters<typeof journalEntryEntity.make>[0];
@@ -40,7 +37,7 @@ describe('JournalEntry Entity', () => {
         functionalCurrency: USD,
         postedAt: null,
         voidedAt: null,
-        voidedByJournalEntryId: null,
+        voidingEntryId: null,
         lineItems: [
           {
             accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
@@ -76,7 +73,7 @@ describe('JournalEntry Entity', () => {
       expect(entry.effectiveDate).toEqual(validPayload.effectiveDate);
       expect(entry.postedAt).toBeNull();
       expect(entry.voidedAt).toBeNull();
-      expect(entry.voidedByJournalEntryId).toBeNull();
+      expect(entry.voidingEntryId).toBeNull();
       expect(entry.version).toBe(1);
       expect(entry.createdAt).toEqual(new Date('2026-04-15T00:00:00.000Z'));
       expect(entry.updatedAt).toEqual(new Date('2026-04-15T00:00:00.000Z'));
@@ -120,15 +117,14 @@ describe('JournalEntry Entity', () => {
         ...validPayload,
         postedAt: new Date('2026-04-16T00:00:00.000Z'),
         voidedAt: new Date('2026-04-17T00:00:00.000Z'),
-        voidedByJournalEntryId:
-          '4c6e83ef-2a1b-4c3d-8d9e-5e6f7a8b9c0d' as TEntityId,
+        voidingEntryId: '4c6e83ef-2a1b-4c3d-8d9e-5e6f7a8b9c0d' as TEntityId,
       };
 
       const [entry] = journalEntryEntity.make(payload);
 
       expect(entry.postedAt).toEqual(payload.postedAt);
       expect(entry.voidedAt).toEqual(payload.voidedAt);
-      expect(entry.voidedByJournalEntryId).toBe(payload.voidedByJournalEntryId);
+      expect(entry.voidingEntryId).toBe(payload.voidingEntryId);
     });
 
     it('should throw an AppError if accountingEntityId is invalid', () => {
@@ -149,11 +145,11 @@ describe('JournalEntry Entity', () => {
       ).toThrow(AppError);
     });
 
-    it('should throw an AppError if voidedByJournalEntryId is invalid', () => {
+    it('should throw an AppError if voidingEntryId is invalid', () => {
       expect(() =>
         journalEntryEntity.make({
           ...validPayload,
-          voidedByJournalEntryId: 'invalid' as TEntityId,
+          voidingEntryId: 'invalid' as TEntityId,
         })
       ).toThrow(AppError);
     });
@@ -281,7 +277,7 @@ describe('JournalEntry Entity', () => {
 
     describe('validateLineItems', () => {
       it('throws an AppError for an invalid side', () => {
-        const item1: IJournalLineItem = {
+        const item1: IJournalLine = {
           id: '1' as TEntityId,
           entryId: '2' as TEntityId,
           accountId: '3' as TEntityId,
@@ -297,7 +293,7 @@ describe('JournalEntry Entity', () => {
           createdAt: new Date(),
           updatedAt: new Date(),
         };
-        const item2: IJournalLineItem = {
+        const item2: IJournalLine = {
           ...item1,
           id: '4' as TEntityId,
           sequenceOrder: 2,
