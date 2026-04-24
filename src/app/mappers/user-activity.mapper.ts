@@ -1,6 +1,6 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IUserActivity } from '../../domain/user/types/user-activity.types';
-import { userActivitiesInAudit } from '../../infra/persistence/drizzle/schema';
+import { userActivitiesInAudit } from '../../infra/config/drizzle/schema';
 import { toRepoDate } from './date';
 
 interface IUserActivityModel extends InferSelectModel<

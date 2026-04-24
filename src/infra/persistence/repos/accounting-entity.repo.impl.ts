@@ -1,7 +1,10 @@
 import { and, eq, getTableColumns } from 'drizzle-orm';
 import accountingEntityMapper from '../../../app/mappers/accounting-entity.mapper';
 import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
-import { accountingEntitiesInCore, currenciesInCore } from '../drizzle/schema';
+import {
+  accountingEntitiesInCore,
+  currenciesInCore,
+} from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';
 
 const accountingEntityRepo: IAccountingEntityRepo = {

@@ -1,6 +1,6 @@
 import { InferSelectModel } from 'drizzle-orm';
 
-import { userAuthInCore } from '../../infra/persistence/drizzle/schema';
+import { userAuthInCore } from '../../infra/config/drizzle/schema';
 import { TEntityId } from '../../shared/types/uuid';
 import {
   IUserAuth,

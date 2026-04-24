@@ -3,7 +3,7 @@ import { POSTGRES_URL } from './src/infra/config/vars.config';
 
 export default defineConfig({
   dialect: 'postgresql',
-  out: './src/infra/persistence/drizzle',
+  out: './src/infra/config/drizzle',
   dbCredentials: {
     url: POSTGRES_URL,
   },

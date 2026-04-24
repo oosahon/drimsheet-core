@@ -4,7 +4,7 @@ import { IJournalLine } from '../../domain/journal-entry/types/journal-line.type
 import {
   journalEntriesInCore,
   journalLinesInCore,
-} from '../../infra/persistence/drizzle/schema';
+} from '../../infra/config/drizzle/schema';
 import { toRepoDate } from './date';
 import moneyMapper from './money.mapper';
 

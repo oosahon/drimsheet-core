@@ -3,7 +3,10 @@ import journalEntryMapper, {
   IJournalLineModel,
 } from '../../../app/mappers/journal-entry.mapper';
 import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
-import { journalEntriesInCore, journalLinesInCore } from '../drizzle/schema';
+import {
+  journalEntriesInCore,
+  journalLinesInCore,
+} from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';
 
 const journalEntryRepo: IJournalEntryRepo = {

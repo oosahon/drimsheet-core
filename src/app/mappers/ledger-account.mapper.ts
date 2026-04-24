@@ -1,6 +1,6 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { ILedgerAccount } from '../../domain/ledger/types/ledger.types';
-import { ledgerAccountsInCore } from '../../infra/persistence/drizzle/schema';
+import { ledgerAccountsInCore } from '../../infra/config/drizzle/schema';
 import { TEntityId } from '../../shared/types/uuid';
 import currencyMapper, { ICurrencyModel } from './currency.mapper';
 import { fromCommonRepoDates, toCommonRepoDates } from './date';

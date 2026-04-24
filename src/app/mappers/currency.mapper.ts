@@ -1,7 +1,7 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { SYSTEM_CURRENCIES } from '../../domain/currency/config/currencies.config';
 import { ICurrency } from '../../domain/currency/types/currency.types';
-import { currenciesInCore } from '../../infra/persistence/drizzle/schema';
+import { currenciesInCore } from '../../infra/config/drizzle/schema';
 
 export interface ICurrencyModel extends InferSelectModel<
   typeof currenciesInCore

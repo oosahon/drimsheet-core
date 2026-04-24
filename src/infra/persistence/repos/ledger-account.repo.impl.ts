@@ -1,7 +1,10 @@
 import { and, desc, eq, getTableColumns } from 'drizzle-orm';
 import ledgerAccountMapper from '../../../app/mappers/ledger-account.mapper';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import { currenciesInCore, ledgerAccountsInCore } from '../drizzle/schema';
+import {
+  currenciesInCore,
+  ledgerAccountsInCore,
+} from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';
 
 const ledgerAccountRepoImpl: ILedgerAccountRepo = {
