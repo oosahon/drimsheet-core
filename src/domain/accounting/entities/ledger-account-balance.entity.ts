@@ -1,16 +1,18 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
+import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { IMoney } from '../../../shared/types/money.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
-import { AppError } from '../../../shared/value-objects/error';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import {
-  ELedgerAccountBalanceEffect,
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
-  ULedgerAccountBalanceEffect,
+  INewLedgerAccountBalanceAndAdjustment,
 } from '../types/ledger-account-balance.types';
+import ledgerAccountBalanceEvents from './events/ledger-account-balance.events';
+import helpers from './helpers/ledger-account-balance.entity.helpers';
 
 interface IMakePayload extends Pick<
   ILedgerAccountBalance,
@@ -47,39 +49,64 @@ function make(payload: IMakePayload): ILedgerAccountBalance {
   });
 }
 
-function validateEffect(effect: ULedgerAccountBalanceEffect) {
-  if (!Object.values(ELedgerAccountBalanceEffect).includes(effect)) {
-    throw new AppError(`Invalid effect balance effect`, { cause: effect });
-  }
+function updateBalance(
+  existingBalance: ILedgerAccountBalance,
+  delta: IMoney
+): ILedgerAccountBalance {
+  moneyValue.validate(delta);
+
+  return Object.freeze({
+    ...existingBalance,
+    version: existingBalance.version + 1,
+    amount: moneyValue.add(existingBalance.amount, delta),
+    updatedAt: new Date(),
+  });
 }
 
 function makeAdjustment(
-  payload: TCreationOmits<ILedgerAccountBalanceAdjustment>
-): ILedgerAccountBalanceAdjustment {
+  existingBalance: ILedgerAccountBalance,
+  payload: TCreationOmits<ILedgerAccountBalanceAdjustment, 'effect'>
+): TEntityWithEvents<
+  INewLedgerAccountBalanceAndAdjustment,
+  INewLedgerAccountBalanceAndAdjustment
+> {
   stringUtils.validateUUID(payload.ledgerAccountId);
   moneyValue.validate(payload.amount);
   moneyValue.validate(payload.functionalAmount);
   stringUtils.validateUUID(payload.journalEntryId);
   if (payload.transactionId) stringUtils.validateUUID(payload.transactionId);
   stringUtils.validateUUID(payload.createdBy);
-  validateEffect(payload.effect);
 
-  return Object.freeze({
+  const effect = helpers.getEffectFromAmount(payload.amount);
+
+  const adjustment = Object.freeze({
     id: generateUUID(),
     ledgerAccountId: payload.ledgerAccountId,
     amount: payload.amount,
     functionalAmount: payload.functionalAmount,
     journalEntryId: payload.journalEntryId,
     transactionId: payload.transactionId,
-    effect: payload.effect,
+    effect,
     createdBy: payload.createdBy,
     createdAt: new Date(),
   });
+  const newBalance = updateBalance(existingBalance, payload.amount);
+
+  const data = Object.freeze({
+    adjustment,
+    newBalance,
+  });
+
+  const event = ledgerAccountBalanceEvents.makeAdjusted(data);
+
+  return [data, [event]];
 }
 
 const ledgerAccountBalanceEntity = Object.freeze({
   make,
   makeAdjustment,
+
+  ...helpers,
 });
 
 export default ledgerAccountBalanceEntity;

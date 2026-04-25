@@ -1,30 +1,28 @@
-import { ELedgerAccountEvent } from '../../../domain/ledger/events/ledger-account.events';
-import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
+import { EJournalEntryEvent } from '../../../domain/journal-entry/events/journal-entry.events';
+import { IJournalEntry } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IEvent } from '../../../shared/types/event.types';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IReporter from '../../contracts/infra/reporter.contract';
 import accountingUsecases from '../../usecases/accounting';
 import validateEventAndSetRequestContext from '../shared/validate-and-set-request-context';
 
-export default function makeLedgerAccountCreatedEventHandler(
+export default function makeJournalEntryCreatedEventHandler(
   reporter: IReporter,
   requestContext: IRequestContext
 ) {
-  return async (event: IEvent<ILedgerAccount>) => {
+  return async (event: IEvent<IJournalEntry>) => {
     try {
       validateEventAndSetRequestContext(
         requestContext,
         event,
-        ELedgerAccountEvent.Created
+        EJournalEntryEvent.Created
       );
 
-      const createBalance = accountingUsecases
-        .createLedgerAccountBalance(event.data)
+      const adjustBalance = accountingUsecases
+        .adjustBalanceAfterJournalEntry(event.data)
         .catch(reporter.report);
 
-      // TODO: create a 1:1 category map for the ledger account
-
-      await Promise.all([createBalance]);
+      await Promise.all([adjustBalance]);
     } catch (error) {
       reporter.report(error);
     }

@@ -72,10 +72,10 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
   exchangeRateValue.validate(exchangeRate);
 }
 
-const journalLineHelpers = Object.freeze({
+const journalLineEntityHelpers = Object.freeze({
   validateSide,
   getDescription,
   validateExchangeRate,
 });
 
-export default journalLineHelpers;
+export default journalLineEntityHelpers;

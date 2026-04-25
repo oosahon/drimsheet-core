@@ -1,3 +1,4 @@
+import { IMoney } from '../../types/money.types';
 import mockCurrencies from '../__mocks__/currencies.mock';
 import { AppError } from '../error';
 import money from '../money.vo';
@@ -218,7 +219,7 @@ describe('Money Value Object', () => {
     });
 
     it('should throw if amount is not a bigint', () => {
-      const m = { amount: 100, currency: USD } as any;
+      const m = { amount: 100, currency: USD } as unknown as IMoney;
       expect(() => money.validate(m)).toThrow(
         new AppError('Invalid amount', { cause: 100 })
       );
@@ -226,7 +227,10 @@ describe('Money Value Object', () => {
 
     it('should throw if currency code is invalid', () => {
       const fakeCurrency = { ...USD, code: 'FAKE' };
-      const m = { amount: BigInt(100), currency: fakeCurrency } as any;
+      const m = {
+        amount: BigInt(100),
+        currency: fakeCurrency,
+      } as unknown as IMoney;
       expect(() => money.validate(m)).toThrow(
         new AppError('Invalid currency code', { cause: 'FAKE' })
       );
@@ -460,6 +464,18 @@ describe('Money Value Object', () => {
           fakeCurrency as unknown as typeof NGN
         )
       ).toThrow(new AppError('Invalid currency code', { cause: 'FAKE' }));
+    });
+  });
+
+  describe('isZeroAmount', () => {
+    it('should return true if amount is zero', () => {
+      const m = money.makeZeroAmount(USD);
+      expect(money.isZeroAmount(m)).toBe(true);
+    });
+
+    it('should return false if amount is not zero', () => {
+      const m = money.make(100, USD, true);
+      expect(money.isZeroAmount(m)).toBe(false);
     });
   });
 });

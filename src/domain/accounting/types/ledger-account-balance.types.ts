@@ -32,3 +32,8 @@ export interface ILedgerAccountBalanceAdjustment {
   createdBy: TEntityId;
   createdAt: Date;
 }
+
+export interface INewLedgerAccountBalanceAndAdjustment {
+  newBalance: ILedgerAccountBalance;
+  adjustment: ILedgerAccountBalanceAdjustment;
+}

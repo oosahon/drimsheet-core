@@ -10,14 +10,22 @@ import {
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
-import handleLedgerAccountCreatedEvent from '../ledger-account-created-event.handler';
+import makeLedgerAccountCreatedEventHandler from '../ledger-account-created-event.handler';
 
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import accountingUsecases from '../../../usecases/accounting';
 
-describe('handleLedgerAccountCreatedEvent', () => {
+jest.mock('../../../usecases/accounting', () => ({
+  __esModule: true,
+  default: {
+    createLedgerAccountBalance: jest.fn(),
+  },
+}));
+
+describe('makeLedgerAccountCreatedEventHandler', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -61,7 +69,7 @@ describe('handleLedgerAccountCreatedEvent', () => {
   });
 
   it('should successfully handle LedgerAccountCreated event', async () => {
-    const handler = handleLedgerAccountCreatedEvent(
+    const handler = makeLedgerAccountCreatedEventHandler(
       mockReporter,
       mockRequestContext
     );
@@ -71,6 +79,10 @@ describe('handleLedgerAccountCreatedEvent', () => {
       correlationId: 'default-corr-id',
     } as IRequestContextData);
 
+    (
+      accountingUsecases.createLedgerAccountBalance as jest.Mock
+    ).mockResolvedValue(undefined);
+
     await handler(mockEvent);
 
     // Wait for detached promises
@@ -79,10 +91,13 @@ describe('handleLedgerAccountCreatedEvent', () => {
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: mockEvent.correlationId,
     });
+    expect(accountingUsecases.createLedgerAccountBalance).toHaveBeenCalledWith(
+      mockEvent.data
+    );
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = handleLedgerAccountCreatedEvent(
+    const handler = makeLedgerAccountCreatedEventHandler(
       mockReporter,
       mockRequestContext
     );
@@ -97,6 +112,10 @@ describe('handleLedgerAccountCreatedEvent', () => {
       correlationId: 'default-corr-id',
     } as IRequestContextData);
 
+    (
+      accountingUsecases.createLedgerAccountBalance as jest.Mock
+    ).mockResolvedValue(undefined);
+
     await handler(mockEvent);
 
     // Wait for detached promises
@@ -105,10 +124,13 @@ describe('handleLedgerAccountCreatedEvent', () => {
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: expect.any(String),
     });
+    expect(accountingUsecases.createLedgerAccountBalance).toHaveBeenCalledWith(
+      mockEvent.data
+    );
   });
 
   it('should throw and report if event type is invalid', async () => {
-    const handler = handleLedgerAccountCreatedEvent(
+    const handler = makeLedgerAccountCreatedEventHandler(
       mockReporter,
       mockRequestContext
     );
@@ -123,5 +145,8 @@ describe('handleLedgerAccountCreatedEvent', () => {
     expect((mockReporter.report.mock.calls[0][0] as AppError).message).toBe(
       'Event type does not match expected type'
     );
+    expect(
+      accountingUsecases.createLedgerAccountBalance
+    ).not.toHaveBeenCalled();
   });
 });

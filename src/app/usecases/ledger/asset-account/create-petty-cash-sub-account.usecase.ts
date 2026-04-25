@@ -85,8 +85,8 @@ export default function makeCreatePettyCashSubAccountUseCase(
     });
 
     const allEvents: IEvent<unknown>[] = [
-      ...journalEntryEvents,
       ...accountEvents,
+      ...journalEntryEvents,
     ];
 
     eventBus.publish(eventValue.enrichAll(allEvents, trace));
