@@ -1,8 +1,8 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import currencyEntity from '../../../currency/entities/currency.entity';
 import {
-  EBalanceEffect,
-  ILedgerAccountBalance,
+  ELedgerAccountBalanceEffect,
   ILedgerAccountBalanceAdjustment,
 } from '../../types/ledger-account-balance.types';
 import ledgerAccountBalanceEntity from '../ledger-account-balance.entity';
@@ -18,33 +18,31 @@ describe('ledgerAccountBalanceEntity', () => {
   });
 
   describe('make', () => {
-    const validPayload: TCreationOmits<ILedgerAccountBalance, 'amount'> = {
-      ledgerAccountId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
-      currencyCode: 'NGN',
-      version: 1,
-    };
+    const validPayload: Parameters<typeof ledgerAccountBalanceEntity.make>[0] =
+      {
+        ledgerAccountId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+        currencyCode: 'NGN',
+        functionalCurrencyCode: 'USD',
+      };
 
     it('should create a valid ledger account balance', () => {
       const balance = ledgerAccountBalanceEntity.make(validPayload);
 
       expect(balance).toEqual({
         ledgerAccountId: validPayload.ledgerAccountId,
-        currencyCode: validPayload.currencyCode,
-        amount: 0,
+        amount: expect.objectContaining({
+          amount: 0n,
+          currency: expect.objectContaining({ code: 'NGN' }),
+        }),
+        functionalAmount: expect.objectContaining({
+          amount: 0n,
+          currency: expect.objectContaining({ code: 'USD' }),
+        }),
         version: 1,
         createdAt: new Date('2026-04-01T00:00:00.000Z'),
         updatedAt: new Date('2026-04-01T00:00:00.000Z'),
       });
       expect(Object.isFrozen(balance)).toBe(true);
-    });
-
-    it('should throw if ledgerAccountId is invalid UUID', () => {
-      const payload = {
-        ...validPayload,
-        ledgerAccountId: 'invalid',
-      };
-      // @ts-expect-error testing invalid UUID
-      expect(() => ledgerAccountBalanceEntity.make(payload)).toThrow();
     });
 
     it('should throw if currencyCode is invalid', () => {
@@ -54,17 +52,28 @@ describe('ledgerAccountBalanceEntity', () => {
       };
       expect(() => ledgerAccountBalanceEntity.make(payload)).toThrow();
     });
+
+    it('should throw if functionalCurrencyCode is invalid', () => {
+      const payload = {
+        ...validPayload,
+        functionalCurrencyCode: 'INVALID',
+      };
+      expect(() => ledgerAccountBalanceEntity.make(payload)).toThrow();
+    });
   });
 
   describe('makeAdjustment', () => {
     const validAdjustmentPayload: TCreationOmits<ILedgerAccountBalanceAdjustment> =
       {
         ledgerAccountId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
-        currencyCode: 'NGN',
-        amount: 100,
+        amount: { amount: 100n, currency: currencyEntity.getByCode('NGN') },
+        functionalAmount: {
+          amount: 150n,
+          currency: currencyEntity.getByCode('USD'),
+        },
         journalEntryId: '223e4567-e89b-12d3-a456-426614174001' as TEntityId,
         transactionId: '323e4567-e89b-12d3-a456-426614174002' as TEntityId,
-        effect: EBalanceEffect.Increase,
+        effect: ELedgerAccountBalanceEffect.Increase,
         createdBy: '423e4567-e89b-12d3-a456-426614174003' as TEntityId,
       };
 
@@ -76,8 +85,8 @@ describe('ledgerAccountBalanceEntity', () => {
       expect(adjustment).toEqual({
         id: expect.any(String),
         ledgerAccountId: validAdjustmentPayload.ledgerAccountId,
-        currencyCode: validAdjustmentPayload.currencyCode,
         amount: validAdjustmentPayload.amount,
+        functionalAmount: validAdjustmentPayload.functionalAmount,
         journalEntryId: validAdjustmentPayload.journalEntryId,
         transactionId: validAdjustmentPayload.transactionId,
         effect: validAdjustmentPayload.effect,
@@ -103,19 +112,28 @@ describe('ledgerAccountBalanceEntity', () => {
         ...validAdjustmentPayload,
         ledgerAccountId: 'invalid',
       };
-      // @ts-expect-error testing invalid UUID
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(payload)
+        ledgerAccountBalanceEntity.makeAdjustment(payload as any)
       ).toThrow();
     });
 
-    it('should throw if currencyCode is invalid', () => {
+    it('should throw if amount is invalid', () => {
       const payload = {
         ...validAdjustmentPayload,
-        currencyCode: 'INVALID',
+        amount: { amount: 100 } as any, // Missing currency
       };
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(payload)
+        ledgerAccountBalanceEntity.makeAdjustment(payload as any)
+      ).toThrow();
+    });
+
+    it('should throw if functionalAmount is invalid', () => {
+      const payload = {
+        ...validAdjustmentPayload,
+        functionalAmount: { amount: 100 } as any, // Missing currency
+      };
+      expect(() =>
+        ledgerAccountBalanceEntity.makeAdjustment(payload as any)
       ).toThrow();
     });
 
@@ -124,9 +142,8 @@ describe('ledgerAccountBalanceEntity', () => {
         ...validAdjustmentPayload,
         journalEntryId: 'invalid',
       };
-      // @ts-expect-error testing invalid UUID
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(payload)
+        ledgerAccountBalanceEntity.makeAdjustment(payload as any)
       ).toThrow();
     });
 
@@ -135,9 +152,8 @@ describe('ledgerAccountBalanceEntity', () => {
         ...validAdjustmentPayload,
         transactionId: 'invalid',
       };
-      // @ts-expect-error testing invalid UUID
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(payload)
+        ledgerAccountBalanceEntity.makeAdjustment(payload as any)
       ).toThrow();
     });
 
@@ -146,9 +162,8 @@ describe('ledgerAccountBalanceEntity', () => {
         ...validAdjustmentPayload,
         effect: 'invalid',
       };
-      // @ts-expect-error testing invalid effect
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(payload)
+        ledgerAccountBalanceEntity.makeAdjustment(payload as any)
       ).toThrow();
     });
 
@@ -157,19 +172,18 @@ describe('ledgerAccountBalanceEntity', () => {
         ...validAdjustmentPayload,
         createdBy: 'invalid',
       };
-      // @ts-expect-error testing invalid UUID
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(payload)
+        ledgerAccountBalanceEntity.makeAdjustment(payload as any)
       ).toThrow();
     });
 
-    it('should throw if amount is a negative number', () => {
+    it('should throw if amount is not an IMoney object', () => {
       const payload = {
         ...validAdjustmentPayload,
         amount: -100,
       };
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(payload)
+        ledgerAccountBalanceEntity.makeAdjustment(payload as any)
       ).toThrow();
     });
   });

@@ -2,6 +2,7 @@ import accountingEntityRepo from './accounting-entity.repo.impl';
 import currencyRepo from './currency.repo.impl';
 import exchangeRateRepo from './exchange-rate.repo.impl';
 import journalEntryRepo from './journal-entry.repo.impl';
+import ledgerAccountBalanceRepoImpl from './ledger-account-balance.repo.impl';
 import ledgerAccountRepo from './ledger-account.repo.impl';
 import userActivityRepo from './user-activity.repo.impl';
 import userAuthRepo from './user-auth.repo.impl';
@@ -20,6 +21,7 @@ const repos = {
   userSession: userSessionRepo,
   journalEntry: journalEntryRepo,
   exchangeRate: exchangeRateRepo,
+  ledgerAccountBalance: ledgerAccountBalanceRepoImpl,
 };
 
 export default repos;

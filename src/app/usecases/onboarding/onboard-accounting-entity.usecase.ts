@@ -174,5 +174,9 @@ export default function makeOnboardAccountingEntityUseCase(
         )
       );
     }
+
+    requestContext.set({
+      accountingEntity,
+    });
   };
 }

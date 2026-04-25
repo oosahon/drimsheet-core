@@ -57,6 +57,10 @@ export const journalEntryStatusInCore = core.enum('journal_entry_status', [
   'voided',
 ]);
 export const journalSideInCore = core.enum('journal_side', ['debit', 'credit']);
+export const ledgerAccountBalanceEffectInCore = core.enum(
+  'ledger_account_balance_effect',
+  ['increase', 'decrease', 'noop']
+);
 export const ledgerAccountStatusInCore = core.enum('ledger_account_status', [
   'active',
   'archived',
@@ -95,18 +99,13 @@ export const pgmigrations = pgTable('pgmigrations', {
   runOn: timestamp('run_on', { mode: 'string' }).notNull(),
 });
 
-export const exchangeRatesInCore = core.table('exchange_rates', {
-  id: bigserial({ mode: 'bigint' }).notNull(),
-  currencyPair: varchar('currency_pair', { length: 7 }).notNull(),
-  baseCurrencyCode: varchar('base_currency_code', { length: 3 }).notNull(),
-  targetCurrencyCode: varchar('target_currency_code', { length: 3 }).notNull(),
-  rate: numeric().notNull(),
-  type: exchangeRateTypeInCore().notNull(),
-  asOf: date('as_of').notNull(),
-  source: varchar({ length: 100 }).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
+export const seeds = pgTable('seeds', {
+  id: serial().notNull(),
+  fileName: varchar('file_name', { length: 250 }).notNull(),
+  createdAt: timestamp('created_at', {
+    withTimezone: true,
+    mode: 'string',
+  }).notNull(),
 });
 
 export const usersInCore = core.table('users', {
@@ -148,15 +147,6 @@ export const userAuthInCore = core.table(
     }).onDelete('cascade'),
   ]
 );
-
-export const seeds = pgTable('seeds', {
-  id: serial().notNull(),
-  fileName: varchar('file_name', { length: 250 }).notNull(),
-  createdAt: timestamp('created_at', {
-    withTimezone: true,
-    mode: 'string',
-  }).notNull(),
-});
 
 export const userSessionsInCore = core.table(
   'user_sessions',
@@ -612,5 +602,117 @@ export const journalLinesInCore = core.table(
       foreignColumns: [currenciesInCore.code],
       name: 'journal_lines_currency_code_fkey',
     }),
+  ]
+);
+
+export const exchangeRatesInCore = core.table('exchange_rates', {
+  id: bigserial({ mode: 'bigint' }).notNull(),
+  currencyPair: varchar('currency_pair', { length: 7 }).notNull(),
+  baseCurrencyCode: varchar('base_currency_code', { length: 3 }).notNull(),
+  targetCurrencyCode: varchar('target_currency_code', { length: 3 }).notNull(),
+  rate: numeric().notNull(),
+  type: exchangeRateTypeInCore().notNull(),
+  asOf: date('as_of').notNull(),
+  source: varchar({ length: 100 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+});
+
+export const ledgerAccountBalancesInCore = core.table(
+  'ledger_account_balances',
+  {
+    ledgerAccountId: uuid('ledger_account_id').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    amount: bigint({ mode: 'number' }).default(0).notNull(),
+    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    functionalAmount: bigint('functional_amount', { mode: 'number' })
+      .default(0)
+      .notNull(),
+    functionalCurrencyCode: varchar('functional_currency_code', {
+      length: 3,
+    }).notNull(),
+    version: integer().default(1).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.ledgerAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'ledger_account_balances_ledger_account_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.currencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'ledger_account_balances_currency_code_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.functionalCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'ledger_account_balances_functional_currency_code_fkey',
+    }).onDelete('restrict'),
+  ]
+);
+
+export const ledgerAccountBalanceAdjustmentsInCore = core.table(
+  'ledger_account_balance_adjustments',
+  {
+    id: uuid().defaultRandom().notNull(),
+    ledgerAccountId: uuid('ledger_account_id').notNull(),
+    adjustmentType:
+      ledgerAccountBalanceEffectInCore('adjustment_type').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    amount: bigint({ mode: 'number' }).notNull(),
+    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
+    functionalCurrencyCode: varchar('functional_currency_code', {
+      length: 3,
+    }).notNull(),
+    journalEntryId: uuid('journal_entry_id').notNull(),
+    transactionId: uuid('transaction_id'),
+    effect: ledgerAccountBalanceEffectInCore().notNull(),
+    createdBy: uuid('created_by').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.ledgerAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'ledger_account_balance_adjustments_ledger_account_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.currencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'ledger_account_balance_adjustments_currency_code_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.functionalCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'ledger_account_balance_adjustment_functional_currency_code_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.journalEntryId],
+      foreignColumns: [journalEntriesInCore.id],
+      name: 'ledger_account_balance_adjustments_journal_entry_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.transactionId],
+      foreignColumns: [transactionsInCore.id],
+      name: 'ledger_account_balance_adjustments_transaction_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [usersInCore.id],
+      name: 'ledger_account_balance_adjustments_created_by_fkey',
+    }).onDelete('cascade'),
   ]
 );

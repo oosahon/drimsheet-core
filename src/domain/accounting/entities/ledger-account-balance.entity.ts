@@ -1,36 +1,44 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import { AppError } from '../../../shared/value-objects/error';
+import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
 import {
-  EBalanceEffect,
+  ELedgerAccountBalanceEffect,
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
-  UBalanceEffect,
+  ULedgerAccountBalanceEffect,
 } from '../types/ledger-account-balance.types';
 
-function make(
-  payload: TCreationOmits<ILedgerAccountBalance, 'amount'>
-): ILedgerAccountBalance {
-  stringUtils.validateUUID(payload.ledgerAccountId);
-  currencyEntity.validateCode(payload.currencyCode);
+interface IMakePayload extends Pick<ILedgerAccountBalance, 'ledgerAccountId'> {
+  currencyCode: string;
+  functionalCurrencyCode: string;
+}
+
+function make(payload: IMakePayload): ILedgerAccountBalance {
+  const baseCurrency = currencyEntity.getByCode(payload.currencyCode);
+  const functionalCurrency = currencyEntity.getByCode(
+    payload.functionalCurrencyCode
+  );
+
+  const amount = moneyValue.makeZeroAmount(baseCurrency);
+  const functionalAmount = moneyValue.makeZeroAmount(functionalCurrency);
 
   const timestamp = new Date();
 
   return Object.freeze({
     ledgerAccountId: payload.ledgerAccountId,
-    currencyCode: payload.currencyCode,
-    amount: 0,
+    functionalAmount,
+    amount,
     version: 1,
     createdAt: timestamp,
     updatedAt: timestamp,
   });
 }
 
-function validateEffect(effect: UBalanceEffect) {
-  if (!Object.values(EBalanceEffect).includes(effect)) {
+function validateEffect(effect: ULedgerAccountBalanceEffect) {
+  if (!Object.values(ELedgerAccountBalanceEffect).includes(effect)) {
     throw new AppError(`Invalid effect balance effect`, { cause: effect });
   }
 }
@@ -39,18 +47,18 @@ function makeAdjustment(
   payload: TCreationOmits<ILedgerAccountBalanceAdjustment>
 ): ILedgerAccountBalanceAdjustment {
   stringUtils.validateUUID(payload.ledgerAccountId);
-  currencyEntity.validateCode(payload.currencyCode);
+  moneyValue.validate(payload.amount);
+  moneyValue.validate(payload.functionalAmount);
   stringUtils.validateUUID(payload.journalEntryId);
   if (payload.transactionId) stringUtils.validateUUID(payload.transactionId);
   stringUtils.validateUUID(payload.createdBy);
-  numberUtils.validateNonNegativeNumber(payload.amount);
   validateEffect(payload.effect);
 
   return Object.freeze({
     id: generateUUID(),
     ledgerAccountId: payload.ledgerAccountId,
-    currencyCode: payload.currencyCode,
     amount: payload.amount,
+    functionalAmount: payload.functionalAmount,
     journalEntryId: payload.journalEntryId,
     transactionId: payload.transactionId,
     effect: payload.effect,

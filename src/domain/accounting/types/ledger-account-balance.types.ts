@@ -1,31 +1,32 @@
+import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
 
 export interface ILedgerAccountBalance {
   ledgerAccountId: TEntityId;
-  currencyCode: string;
-  amount: number;
+  amount: IMoney;
+  functionalAmount: IMoney;
   version: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export const EBalanceEffect = {
+export const ELedgerAccountBalanceEffect = {
   Increase: 'increase',
   Decrease: 'decrease',
-  NoChange: 'no_change',
+  Noop: 'noop',
 } as const;
 
-export type UBalanceEffect =
-  (typeof EBalanceEffect)[keyof typeof EBalanceEffect];
+export type ULedgerAccountBalanceEffect =
+  (typeof ELedgerAccountBalanceEffect)[keyof typeof ELedgerAccountBalanceEffect];
 
 export interface ILedgerAccountBalanceAdjustment {
   id: TEntityId;
   ledgerAccountId: TEntityId;
-  currencyCode: string;
-  amount: number;
+  amount: IMoney;
+  functionalAmount: IMoney;
   journalEntryId: TEntityId;
   transactionId: TEntityId | null;
-  effect: UBalanceEffect;
+  effect: ULedgerAccountBalanceEffect;
   createdBy: TEntityId;
   createdAt: Date;
 }
