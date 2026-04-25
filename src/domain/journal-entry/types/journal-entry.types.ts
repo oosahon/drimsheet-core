@@ -22,6 +22,7 @@ export interface IJournalEntry {
   voidedAt: Date | null;
   voidingEntryId: TEntityId | null;
   version: number;
+  createdBy: TEntityId;
   createdAt: Date;
   updatedAt: Date;
 }

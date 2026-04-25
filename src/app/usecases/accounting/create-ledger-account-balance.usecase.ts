@@ -1,12 +1,16 @@
-import ledgerAccountBalanceEntity from '../../../domain/accounting/entities/ledger-account-balance.entity';
 import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-account-balance.repo';
+import makeLedgerAccountBalanceService from '../../../domain/accounting/services/account-balance.service';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
+import ILogger from '../../contracts/infra/logger.contract';
 
 export default function makeCreateLedgerAccountBalanceUseCase(
   requestContext: IRequestContext,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
+  ledgerAccountRepo: ILedgerAccountRepo,
+  logger: ILogger
 ) {
   return async (ledgerAccount: ILedgerAccount) => {
     const { user, correlationId, accountingEntity } = requestContext.get();
@@ -15,16 +19,31 @@ export default function makeCreateLedgerAccountBalanceUseCase(
       throw new ErrorUnauthorized();
     }
 
-    const balance = ledgerAccountBalanceEntity.make({
-      ledgerAccountId: ledgerAccount.id,
-      accountingEntityId: accountingEntity.id,
-      accountMaterializedPath: ledgerAccount.materializedPath,
-      currencyCode: ledgerAccount.currency.code,
-      functionalCurrencyCode: accountingEntity.functionalCurrency.code,
-    });
+    const isExisting = await ledgerAccountBalanceRepo.findBalanceByAccountId(
+      ledgerAccount.id,
+      accountingEntity.id,
+      { correlationId }
+    );
+
+    if (isExisting) {
+      logger.info(
+        `Skipping creation of ledger account balance (${ledgerAccount.id}) because it already exists`,
+        { correlationId }
+      );
+      return;
+    }
+
+    const ledgerAccountBalanceService = makeLedgerAccountBalanceService(
+      ledgerAccountBalanceRepo,
+      ledgerAccountRepo
+    );
+
+    const balance = await ledgerAccountBalanceService.createBalance(
+      ledgerAccount,
+      accountingEntity.functionalCurrency,
+      { correlationId }
+    );
 
     await ledgerAccountBalanceRepo.create(balance, { correlationId });
-
-    return balance;
   };
 }

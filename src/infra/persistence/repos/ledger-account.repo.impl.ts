@@ -18,7 +18,21 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
     await dbQuery.insert(ledgerAccountsInCore).values(valuesArray);
   },
 
-  findById: async () => null,
+  findById: async (id, options) => {
+    const result = await getDbQuery(options)
+      .select({
+        ...getTableColumns(ledgerAccountsInCore),
+        currency: getTableColumns(currenciesInCore),
+      })
+      .from(ledgerAccountsInCore)
+      .innerJoin(
+        currenciesInCore,
+        eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
+      )
+      .where(eq(ledgerAccountsInCore.id, id));
+
+    return result.map(ledgerAccountMapper.toDomain)[0] ?? null;
+  },
 
   findByCode: async (code, accountingEntityId, options) => {
     const dbQuery = getDbQuery(options);

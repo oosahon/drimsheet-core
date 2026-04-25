@@ -1,5 +1,4 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { IMoney } from '../../../shared/types/money.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
@@ -11,7 +10,6 @@ import {
   ILedgerAccountBalanceAdjustment,
   INewLedgerAccountBalanceAndAdjustment,
 } from '../types/ledger-account-balance.types';
-import ledgerAccountBalanceEvents from './events/ledger-account-balance.events';
 import helpers from './helpers/ledger-account-balance.entity.helpers';
 
 interface IMakePayload extends Pick<
@@ -56,8 +54,8 @@ function updateBalance(
   moneyValue.validate(delta);
 
   return Object.freeze({
+    // balance version update is delegated to the repo's optimistic concurrency
     ...existingBalance,
-    version: existingBalance.version + 1,
     amount: moneyValue.add(existingBalance.amount, delta),
     updatedAt: new Date(),
   });
@@ -66,10 +64,7 @@ function updateBalance(
 function makeAdjustment(
   existingBalance: ILedgerAccountBalance,
   payload: TCreationOmits<ILedgerAccountBalanceAdjustment, 'effect'>
-): TEntityWithEvents<
-  INewLedgerAccountBalanceAndAdjustment,
-  INewLedgerAccountBalanceAndAdjustment
-> {
+): INewLedgerAccountBalanceAndAdjustment {
   stringUtils.validateUUID(payload.ledgerAccountId);
   moneyValue.validate(payload.amount);
   moneyValue.validate(payload.functionalAmount);
@@ -97,9 +92,7 @@ function makeAdjustment(
     newBalance,
   });
 
-  const event = ledgerAccountBalanceEvents.makeAdjusted(data);
-
-  return [data, [event]];
+  return data;
 }
 
 const ledgerAccountBalanceEntity = Object.freeze({

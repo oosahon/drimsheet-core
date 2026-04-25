@@ -20,8 +20,8 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-export const audit = pgSchema('audit');
 export const core = pgSchema('core');
+export const audit = pgSchema('audit');
 export const categoryHistoryActionTypeInAudit = audit.enum(
   'category_history_action_type',
   ['created', 'updated', 'archived', 'unarchived']
@@ -99,29 +99,6 @@ export const pgmigrations = pgTable('pgmigrations', {
   runOn: timestamp('run_on', { mode: 'string' }).notNull(),
 });
 
-export const userActivitiesInAudit = audit.table(
-  'user_activities',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    userId: uuid('user_id'),
-    eventKey: varchar('event_key', { length: 150 }).notNull(),
-    description: varchar({ length: 100 }).notNull(),
-    meta: jsonb(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'user_activities_user_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
 export const seeds = pgTable('seeds', {
   id: serial().notNull(),
   fileName: varchar('file_name', { length: 250 }).notNull(),
@@ -197,6 +174,29 @@ export const userSessionsInCore = core.table(
       columns: [table.userId],
       foreignColumns: [usersInCore.id],
       name: 'user_sessions_user_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const userActivitiesInAudit = audit.table(
+  'user_activities',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    userId: uuid('user_id'),
+    eventKey: varchar('event_key', { length: 150 }).notNull(),
+    description: varchar({ length: 100 }).notNull(),
+    meta: jsonb(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_activities_user_id_fkey',
     }).onDelete('cascade'),
   ]
 );
@@ -591,17 +591,17 @@ export const journalLinesInCore = core.table(
       columns: [table.entryId],
       foreignColumns: [journalEntriesInCore.id],
       name: 'journal_lines_entry_id_fkey',
-    }),
+    }).onDelete('cascade'),
     foreignKey({
       columns: [table.accountId],
       foreignColumns: [ledgerAccountsInCore.id],
       name: 'journal_lines_account_id_fkey',
-    }),
+    }).onDelete('cascade'),
     foreignKey({
       columns: [table.currencyCode],
       foreignColumns: [currenciesInCore.code],
       name: 'journal_lines_currency_code_fkey',
-    }),
+    }).onDelete('restrict'),
   ]
 );
 

@@ -19,20 +19,17 @@ import {
   usersInCore,
 } from './schema';
 
-export const userActivitiesInAuditRelations = relations(
-  userActivitiesInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userActivitiesInAudit.userId],
-      references: [usersInCore.id],
-    }),
-  })
-);
+export const userAuthInCoreRelations = relations(userAuthInCore, ({ one }) => ({
+  usersInCore: one(usersInCore, {
+    fields: [userAuthInCore.userId],
+    references: [usersInCore.id],
+  }),
+}));
 
 export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
-  userActivitiesInAudits: many(userActivitiesInAudit),
   userAuthInCores: many(userAuthInCore),
   userSessionsInCores: many(userSessionsInCore),
+  userActivitiesInAudits: many(userActivitiesInAudit),
   accountingEntitiesInCores: many(accountingEntitiesInCore),
   ledgerAccountsInCores: many(ledgerAccountsInCore),
   userPreferencesInCores: many(userPreferencesInCore),
@@ -43,18 +40,21 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   ),
 }));
 
-export const userAuthInCoreRelations = relations(userAuthInCore, ({ one }) => ({
-  usersInCore: one(usersInCore, {
-    fields: [userAuthInCore.userId],
-    references: [usersInCore.id],
-  }),
-}));
-
 export const userSessionsInCoreRelations = relations(
   userSessionsInCore,
   ({ one }) => ({
     usersInCore: one(usersInCore, {
       fields: [userSessionsInCore.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const userActivitiesInAuditRelations = relations(
+  userActivitiesInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [userActivitiesInAudit.userId],
       references: [usersInCore.id],
     }),
   })

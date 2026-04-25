@@ -1,5 +1,5 @@
-import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
+import { INewLedgerAccountBalanceAndAdjustmentModel } from '../../mappers/ledger-account-balance.mapper';
 
 export interface ITransactionalEmailPayload extends ICorrelationId {
   emails: string[];
@@ -10,7 +10,7 @@ export interface ITransactionalEmailPayload extends ICorrelationId {
 }
 
 export interface ILedgerAccountBalanceAdjustmentPayload
-  extends ICorrelationId, ILedgerAccount {}
+  extends ICorrelationId, INewLedgerAccountBalanceAndAdjustmentModel {}
 
 export interface IQueue {
   addTransactionalEmail(payload: ITransactionalEmailPayload): void;

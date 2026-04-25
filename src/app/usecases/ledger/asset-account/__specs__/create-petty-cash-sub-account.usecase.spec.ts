@@ -22,6 +22,7 @@ import { IUser } from '../../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
 import mockExchangeRateRepo from '../../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
 import mockJournalEntryRepo from '../../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
+import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
 import { TEntityId } from '../../../../../shared/types/uuid';
@@ -126,6 +127,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockRequestContext,
       mockEventBus,
       mockLedgerAccountRepo,
+      mockLedgerAccountBalanceRepo,
       mockRepoService,
       mockJournalEntryRepo,
       mockExchangeRateRepo
@@ -151,6 +153,7 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
     expect(mockLedgerAccountRepo.save).toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceRepo.create).toHaveBeenCalled();
     expect(mockJournalEntryRepo.save).toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalled();
   });

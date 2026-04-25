@@ -61,7 +61,12 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
 
       const updated = await tx
         .update(ledgerAccountBalancesInCore)
-        .set(ledgerAccountBalanceMapper.toRepo(newBalance))
+        .set(
+          ledgerAccountBalanceMapper.toRepo({
+            ...newBalance,
+            version: newBalance.version + 1,
+          })
+        )
         .where(
           and(
             eq(

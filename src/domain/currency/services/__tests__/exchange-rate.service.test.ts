@@ -47,6 +47,9 @@ describe('exchangeRateService', () => {
       it('should create and return a new exchange rate value object', async () => {
         const result = await service.getExchangeRate(validPayload, mockOptions);
 
+        expect(result).not.toBeNull();
+        if (!result) return;
+
         expect(result.currencyPair).toBe('USD/NGN');
         expect(result.baseCurrencyCode).toBe('USD');
         expect(result.targetCurrencyCode).toBe('NGN');
@@ -164,6 +167,13 @@ describe('exchangeRateService', () => {
           1,
           mockOptions
         );
+      });
+    });
+
+    describe('when payload is null', () => {
+      it('should return null', async () => {
+        const result = await service.getExchangeRate(null, mockOptions);
+        expect(result).toBeNull();
       });
     });
   });

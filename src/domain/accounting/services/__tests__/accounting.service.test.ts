@@ -37,7 +37,7 @@ describe('accountingService', () => {
     jest.useRealTimers();
   });
 
-  describe('recordOpeningBalanceTransaction', () => {
+  describe('createOpeningBalanceJournalEntry', () => {
     const entityId = generateUUID();
     const accountId = generateUUID();
     const equityAccountId = generateUUID();
@@ -56,6 +56,7 @@ describe('accountingService', () => {
       id: accountId,
       accountingEntityId: entityId,
       isControlAccount: false,
+      createdBy: generateUUID(),
     } as ILedgerAccount;
 
     const validEquityAccount = {
@@ -82,7 +83,7 @@ describe('accountingService', () => {
         ]);
 
         const [journalEntry, events] =
-          await service.recordOpeningBalanceTransaction(
+          await service.createOpeningBalanceJournalEntry(
             validPayload,
             mockOptions
           );
@@ -106,7 +107,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Cannot set opening balance on control account');
       });
 
@@ -114,7 +115,7 @@ describe('accountingService', () => {
         mockLedgerAccountRepo.findById.mockResolvedValueOnce(validAccount);
 
         await expect(
-          service.recordOpeningBalanceTransaction(validPayload, mockOptions)
+          service.createOpeningBalanceJournalEntry(validPayload, mockOptions)
         ).rejects.toThrow('Opening balance has already been set');
       });
 
@@ -123,7 +124,7 @@ describe('accountingService', () => {
         mockLedgerAccountRepo.findBySubType.mockResolvedValueOnce([]);
 
         await expect(
-          service.recordOpeningBalanceTransaction(validPayload, mockOptions)
+          service.createOpeningBalanceJournalEntry(validPayload, mockOptions)
         ).rejects.toThrow('Account type for opening balance is not configured');
       });
     });
@@ -143,7 +144,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Invalid UUID');
       });
 
@@ -157,7 +158,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Invalid UUID');
       });
 
@@ -168,7 +169,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Invalid amount');
       });
 
@@ -179,7 +180,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Exchange rate is not supported for same currency.');
       });
 
@@ -194,7 +195,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow(
           'Exchange rate is required for different currencies.'
         );
@@ -214,7 +215,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow("Exchange rate base doesn't match amount currency.");
       });
 
@@ -232,7 +233,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow(
           "Exchange rate target doesn't match functional currency."
         );
@@ -258,8 +259,8 @@ describe('accountingService', () => {
 
     const account: ILedgerAccount = {
       id: accountId,
-      code: '1000',
-      materializedPath: '1000',
+      code: '100000',
+      materializedPath: '100000',
       accountingEntityId: entityId,
       type: ELedgerType.Asset,
       normalBalance: ENormalBalance.Debit,

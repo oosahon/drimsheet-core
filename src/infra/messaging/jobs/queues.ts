@@ -48,9 +48,9 @@ const queue: IQueue = {
         'ledger-account-balance-adjustment',
         payload,
         {
-          jobId: `ledger-account-balance-adjustment_${payload.id}_${payload.correlationId}`,
-          removeOnComplete: true,
-          removeOnFail: 20,
+          jobId: `ledger-account-balance-adjustment_${payload.newBalance.ledgerAccountId}_${payload.correlationId}`,
+          removeOnComplete: false,
+          removeOnFail: false,
           attempts: 3,
           backoff: {
             type: 'exponential',

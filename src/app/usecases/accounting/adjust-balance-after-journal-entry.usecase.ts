@@ -1,6 +1,7 @@
-import ledgerAccountBalanceEntity from '../../../domain/accounting/entities/ledger-account-balance.entity';
 import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-account-balance.repo';
+import makeLedgerAccountBalanceService from '../../../domain/accounting/services/account-balance.service';
 import makeAccountingService from '../../../domain/accounting/services/accounting.service';
+import { INewLedgerAccountBalanceAndAdjustment } from '../../../domain/accounting/types/ledger-account-balance.types';
 import {
   EJournalEntryStatus,
   IJournalEntry,
@@ -8,23 +9,28 @@ import {
 import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { TEntityId } from '../../../shared/types/uuid';
-import { ErrorResourceNotFound } from '../../../shared/value-objects/error';
-import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import IEventBus from '../../contracts/infra/event-bus.contract';
+import { IQueue } from '../../contracts/infra/queues.contract';
+import ledgerAccountBalanceMapper from '../../mappers/ledger-account-balance.mapper';
 
 export default function makeAdjustBalanceAfterJournalEntryUseCase(
   requestContext: IRequestContext,
   ledgerAccountRepo: ILedgerAccountRepo,
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
-  eventBus: IEventBus
+  queue: IQueue
 ) {
-  const accountingService = makeAccountingService(ledgerAccountRepo);
+  const domainServices = {
+    accounting: makeAccountingService(ledgerAccountRepo),
+    accountBalance: makeLedgerAccountBalanceService(
+      ledgerAccountBalanceRepo,
+      ledgerAccountRepo
+    ),
+  };
 
   return async (journalEntry: IJournalEntry) => {
     if (journalEntry.status === EJournalEntryStatus.Draft) return;
 
-    const { correlationId, accountingEntity, user } = requestContext.get();
+    const { correlationId } = requestContext.get();
 
     const accountMap = new Map<TEntityId, IJournalLine[]>();
 
@@ -38,52 +44,35 @@ export default function makeAdjustBalanceAfterJournalEntryUseCase(
       }
     });
 
+    const allAdjustments: INewLedgerAccountBalanceAndAdjustment[] = [];
+
     const repoOptions = { correlationId };
+
     for (const [accountId, lines] of accountMap.entries()) {
-      const balance = await ledgerAccountBalanceRepo.findBalanceByAccountId(
-        accountId,
-        accountingEntity.id,
-        repoOptions
-      );
-
-      if (!balance) {
-        throw new ErrorResourceNotFound('Balance not found for account', {
-          correlationId,
-          accountId,
-          accountingEntityId: accountingEntity.id,
-        });
-      }
-
-      const { balanceDelta, functionalBalanceDelta } =
-        await accountingService.getBalanceEffectDelta(
+      const balanceEffectDelta =
+        await domainServices.accounting.getBalanceEffectDelta(
           accountId,
           lines,
           repoOptions
         );
 
-      const makeAdjustmentPayload = {
-        ledgerAccountId: accountId,
-        amount: balanceDelta,
-        functionalAmount: functionalBalanceDelta,
-        journalEntryId: journalEntry.id,
-        transactionId: journalEntry.transactionId,
-        createdBy: user.id,
-      };
-
-      const [newBalanceAndAdjustment, adjustmentEvents] =
-        ledgerAccountBalanceEntity.makeAdjustment(
-          balance,
-          makeAdjustmentPayload
+      const balanceAdjustments =
+        await domainServices.accountBalance.makeRecursiveAdjustments(
+          {
+            ...balanceEffectDelta,
+            journalEntry,
+          },
+          repoOptions
         );
 
-      await ledgerAccountBalanceRepo.adjustBalance(
-        newBalanceAndAdjustment,
-        repoOptions
-      );
-
-      eventBus.publish(
-        eventValue.enrichAll(adjustmentEvents, { correlationId })
-      );
+      allAdjustments.push(...balanceAdjustments);
     }
+
+    allAdjustments.forEach((adjustment) => {
+      queue.addLedgerAccountBalanceAdjustment({
+        correlationId,
+        ...ledgerAccountBalanceMapper.toRepoNewBalanceAndAdjustment(adjustment),
+      });
+    });
   };
 }

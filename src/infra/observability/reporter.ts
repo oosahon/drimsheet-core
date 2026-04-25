@@ -7,10 +7,19 @@ import logger from './logger';
 
 Sentry.init({ dsn: SENTRY_DSN, sendDefaultPii: true, environment: NODE_ENV });
 
+const getCorrelationId = () => {
+  try {
+    return appContext.request.get().correlationId;
+  } catch (error) {
+    logger.error(error);
+    return undefined;
+  }
+};
+
 const reporter: IReporter = {
   report(error, context) {
     try {
-      const correlationId = appContext.request.get().correlationId;
+      const correlationId = getCorrelationId();
       const parsedError = parseError(error);
 
       const loggerError = JSON.stringify({
@@ -21,19 +30,24 @@ const reporter: IReporter = {
 
       logger.error(loggerError);
 
-      if (NODE_ENV === 'local') return;
+      if (NODE_ENV === 'local') {
+        logger.error(error, { context });
+      }
 
       Sentry.captureException(error, {
         ...context,
         extra: { ...parsedError, correlationId },
       });
     } catch (error) {
+      if (NODE_ENV === 'local') {
+        logger.error(error, { context });
+      }
       logger.error(JSON.stringify(parseError(error)));
     }
   },
   reportAbuse(message, meta) {
     try {
-      const { correlationId } = appContext.request.get() || {};
+      const correlationId = getCorrelationId();
       const loggerError = JSON.stringify({
         level: 'warning',
         message,
@@ -50,6 +64,9 @@ const reporter: IReporter = {
         extra: { ...meta, correlationId },
       });
     } catch (error) {
+      if (NODE_ENV === 'local') {
+        logger.error(error);
+      }
       logger.error(JSON.stringify(parseError(error)));
     }
   },

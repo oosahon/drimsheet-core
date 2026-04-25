@@ -127,7 +127,7 @@ describe('ledgerAccountBalanceEntity', () => {
     };
 
     it('should create a valid ledger account balance adjustment', () => {
-      const [data, events] = ledgerAccountBalanceEntity.makeAdjustment(
+      const data = ledgerAccountBalanceEntity.makeAdjustment(
         existingBalance,
         validAdjustmentPayload
       );
@@ -148,7 +148,6 @@ describe('ledgerAccountBalanceEntity', () => {
 
       expect(newBalance).toEqual({
         ...existingBalance,
-        version: 2,
         amount: {
           amount: 100n,
           currency: currencyEntity.getByCode('NGN'),
@@ -156,8 +155,6 @@ describe('ledgerAccountBalanceEntity', () => {
         updatedAt: new Date('2026-04-01T00:00:00.000Z'),
       });
       expect(Object.isFrozen(newBalance)).toBe(true);
-
-      expect(events).toHaveLength(1);
     });
 
     it('should create a valid adjustment with transactionId as null', () => {
@@ -165,7 +162,7 @@ describe('ledgerAccountBalanceEntity', () => {
         ...validAdjustmentPayload,
         transactionId: null,
       };
-      const [data] = ledgerAccountBalanceEntity.makeAdjustment(
+      const data = ledgerAccountBalanceEntity.makeAdjustment(
         existingBalance,
         payload
       );

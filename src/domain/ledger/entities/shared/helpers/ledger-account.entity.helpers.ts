@@ -165,6 +165,18 @@ function getMaterializedPath<T extends string>(
   return `${parentMaterializedPath}.${code}` as T;
 }
 
+function getAncestryCodesFromMaterializedPath(materializePath: string) {
+  validateMaterializedPath(materializePath);
+
+  const codes = materializePath.split('.');
+
+  codes.forEach((code) => {
+    validateCode(code);
+  });
+
+  return codes;
+}
+
 const ledgerAccountEntityHelpers = Object.freeze({
   getNormalBalance,
   getContraBalance,
@@ -181,6 +193,7 @@ const ledgerAccountEntityHelpers = Object.freeze({
   getSubLedgerCode,
   validateMaterializedPath,
   getMaterializedPath,
+  getAncestryCodesFromMaterializedPath,
 });
 
 export default ledgerAccountEntityHelpers;

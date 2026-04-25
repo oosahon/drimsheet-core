@@ -18,6 +18,7 @@ export default function transactionalEmailWorker() {
         await mailer.send(emailPayload);
       } catch (error) {
         reporter.report(error, { job });
+        throw error;
       }
     },
     {

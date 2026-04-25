@@ -3,8 +3,6 @@ import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { AppError } from '../../../shared/value-objects/error';
 import moneyValue from '../../../shared/value-objects/money.vo';
-import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
-import { IExchangeRate } from '../../currency/types/exchange-rate.types';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
 import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
 import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
@@ -12,24 +10,22 @@ import {
   EJournalSide,
   IJournalLine,
 } from '../../journal-entry/types/journal-line.types';
+import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
-import { ELedgerType, ILedgerAccount } from '../../ledger/types/ledger.types';
+import { ELedgerType } from '../../ledger/types/ledger.types';
 import getBalanceEffectRule from '../rules/get-balance-effect.rule';
+import {
+  ILedgerAccountBalanceEffectDelta,
+  IOpeningBalanceTransaction,
+} from '../types/accounting.service.types';
 import { ELedgerAccountBalanceEffect } from '../types/ledger-account-balance.types';
-
-interface IOpeningBalanceTransaction {
-  accountingEntity: IAccountingEntity;
-  account: ILedgerAccount;
-  exchangeRate: IExchangeRate | null;
-  amount: IMoney;
-}
 
 export default function makeAccountingService(
   ledgerAccountRepo: ILedgerAccountRepo
 ) {
   return {
-    async recordOpeningBalanceTransaction(
+    async createOpeningBalanceJournalEntry(
       payload: IOpeningBalanceTransaction,
       repoOptions: IRepoOptions
     ) {
@@ -94,6 +90,7 @@ export default function makeAccountingService(
         voidedAt: null,
         voidingEntryId: null,
         memo: 'Opening balance',
+        createdBy: account.createdBy,
         functionalCurrency: accountingEntity.functionalCurrency,
         lines: [debitLinePayload, creditLinePayload],
       });
@@ -105,7 +102,7 @@ export default function makeAccountingService(
       accountId: TEntityId,
       journalLines: IJournalLine[],
       repoOptions: IRepoOptions
-    ) {
+    ): Promise<ILedgerAccountBalanceEffectDelta> {
       const account = await ledgerAccountRepo.findById(accountId, repoOptions);
 
       if (!account) {
@@ -172,6 +169,10 @@ export default function makeAccountingService(
       return {
         balanceDelta,
         functionalBalanceDelta,
+        affectedLedgerCodes:
+          ledgerAccountEntity.getAncestryCodesFromMaterializedPath(
+            account.materializedPath
+          ),
       };
     },
   };
