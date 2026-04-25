@@ -155,6 +155,10 @@ export default function makeOnboardAccountingEntityUseCase(
 
     await repoService.runInTransaction(repoTransaction);
 
+    requestContext.set({
+      accountingEntity,
+    });
+
     /**
      * Publish events
      */
@@ -174,9 +178,5 @@ export default function makeOnboardAccountingEntityUseCase(
         )
       );
     }
-
-    requestContext.set({
-      accountingEntity,
-    });
   };
 }

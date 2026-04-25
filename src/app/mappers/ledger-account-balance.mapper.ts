@@ -16,6 +16,8 @@ const ledgerAccountBalanceMapper = {
 
     return {
       ledgerAccountId: payload.ledgerAccountId,
+      accountingEntityId: payload.accountingEntityId,
+      accountMaterializedPath: payload.accountMaterializedPath,
       amount,
       currencyCode,
       functionalAmount,

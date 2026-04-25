@@ -21,6 +21,8 @@ describe('ledgerAccountBalanceEntity', () => {
     const validPayload: Parameters<typeof ledgerAccountBalanceEntity.make>[0] =
       {
         ledgerAccountId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+        accountingEntityId: '923e4567-e89b-12d3-a456-426614174000' as TEntityId,
+        accountMaterializedPath: '100000',
         currencyCode: 'NGN',
         functionalCurrencyCode: 'USD',
       };
@@ -30,6 +32,8 @@ describe('ledgerAccountBalanceEntity', () => {
 
       expect(balance).toEqual({
         ledgerAccountId: validPayload.ledgerAccountId,
+        accountingEntityId: validPayload.accountingEntityId,
+        accountMaterializedPath: validPayload.accountMaterializedPath,
         amount: expect.objectContaining({
           amount: 0n,
           currency: expect.objectContaining({ code: 'NGN' }),
@@ -43,6 +47,30 @@ describe('ledgerAccountBalanceEntity', () => {
         updatedAt: new Date('2026-04-01T00:00:00.000Z'),
       });
       expect(Object.isFrozen(balance)).toBe(true);
+    });
+
+    it('should throw if ledgerAccountId is invalid UUID', () => {
+      const payload = {
+        ...validPayload,
+        ledgerAccountId: 'invalid' as any,
+      };
+      expect(() => ledgerAccountBalanceEntity.make(payload)).toThrow();
+    });
+
+    it('should throw if accountingEntityId is invalid UUID', () => {
+      const payload = {
+        ...validPayload,
+        accountingEntityId: 'invalid' as any,
+      };
+      expect(() => ledgerAccountBalanceEntity.make(payload)).toThrow();
+    });
+
+    it('should throw if accountMaterializedPath is invalid', () => {
+      const payload = {
+        ...validPayload,
+        accountMaterializedPath: '123',
+      };
+      expect(() => ledgerAccountBalanceEntity.make(payload)).toThrow();
     });
 
     it('should throw if currencyCode is invalid', () => {

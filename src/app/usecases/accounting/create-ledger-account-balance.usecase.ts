@@ -17,6 +17,8 @@ export default function makeCreateLedgerAccountBalanceUseCase(
 
     const balance = ledgerAccountBalanceEntity.make({
       ledgerAccountId: ledgerAccount.id,
+      accountingEntityId: accountingEntity.id,
+      accountMaterializedPath: ledgerAccount.materializedPath,
       currencyCode: ledgerAccount.currency.code,
       functionalCurrencyCode: accountingEntity.functionalCurrency.code,
     });

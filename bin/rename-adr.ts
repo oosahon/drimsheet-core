@@ -1,6 +1,6 @@
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { execSync } from 'child_process';
 
 const ADRS_DIR = path.join(__dirname, '../docs/adrs');
 const INDEX_FILE = path.join(__dirname, '../docs/09_architecture_decisions.md');

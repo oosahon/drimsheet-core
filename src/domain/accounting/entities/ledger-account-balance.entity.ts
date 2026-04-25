@@ -4,6 +4,7 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import { AppError } from '../../../shared/value-objects/error';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
+import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import {
   ELedgerAccountBalanceEffect,
   ILedgerAccountBalance,
@@ -11,12 +12,19 @@ import {
   ULedgerAccountBalanceEffect,
 } from '../types/ledger-account-balance.types';
 
-interface IMakePayload extends Pick<ILedgerAccountBalance, 'ledgerAccountId'> {
+interface IMakePayload extends Pick<
+  ILedgerAccountBalance,
+  'ledgerAccountId' | 'accountingEntityId' | 'accountMaterializedPath'
+> {
   currencyCode: string;
   functionalCurrencyCode: string;
 }
 
 function make(payload: IMakePayload): ILedgerAccountBalance {
+  stringUtils.validateUUID(payload.ledgerAccountId);
+  stringUtils.validateUUID(payload.accountingEntityId);
+  ledgerAccountEntity.validateMaterializedPath(payload.accountMaterializedPath);
+
   const baseCurrency = currencyEntity.getByCode(payload.currencyCode);
   const functionalCurrency = currencyEntity.getByCode(
     payload.functionalCurrencyCode
@@ -29,8 +37,10 @@ function make(payload: IMakePayload): ILedgerAccountBalance {
 
   return Object.freeze({
     ledgerAccountId: payload.ledgerAccountId,
-    functionalAmount,
+    accountingEntityId: payload.accountingEntityId,
+    accountMaterializedPath: payload.accountMaterializedPath,
     amount,
+    functionalAmount,
     version: 1,
     createdAt: timestamp,
     updatedAt: timestamp,
