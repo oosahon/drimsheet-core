@@ -226,4 +226,40 @@ describe('numberUtils', () => {
       ).toThrow('Custom error');
     });
   });
+
+  describe('isNonNegativeNumber', () => {
+    it('returns true for zero and positive numbers', () => {
+      expect(numberUtils.isNonNegativeNumber(0)).toBe(true);
+      expect(numberUtils.isNonNegativeNumber(42)).toBe(true);
+      expect(numberUtils.isNonNegativeNumber('42.5')).toBe(true);
+    });
+
+    it('returns false for negative numbers', () => {
+      expect(numberUtils.isNonNegativeNumber(-42)).toBe(false);
+      expect(numberUtils.isNonNegativeNumber('-42.5')).toBe(false);
+    });
+  });
+
+  describe('validateNonNegativeNumber', () => {
+    it('does not throw for zero and positive numbers', () => {
+      expect(() => numberUtils.validateNonNegativeNumber(0)).not.toThrow();
+      expect(() => numberUtils.validateNonNegativeNumber(42)).not.toThrow();
+      expect(() => numberUtils.validateNonNegativeNumber('42.5')).not.toThrow();
+    });
+
+    it('throws AppError with default message for negative numbers', () => {
+      expect(() => numberUtils.validateNonNegativeNumber(-42)).toThrow(
+        AppError
+      );
+      expect(() => numberUtils.validateNonNegativeNumber(-42)).toThrow(
+        'Value must not be negative'
+      );
+    });
+
+    it('throws AppError with custom message', () => {
+      expect(() =>
+        numberUtils.validateNonNegativeNumber(-42, 'Custom negative error')
+      ).toThrow('Custom negative error');
+    });
+  });
 });

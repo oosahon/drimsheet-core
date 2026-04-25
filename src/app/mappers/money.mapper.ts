@@ -33,9 +33,6 @@ const moneyMapper = {
 
     const currency = SYSTEM_CURRENCIES[money.currencyCode];
 
-    if (!currency) {
-      throw validationError;
-    }
     return moneyValue.make(money.amount, currency, !!money.isMinorUnit);
   },
 
