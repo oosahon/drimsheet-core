@@ -2,8 +2,10 @@ import messaging from '../../../infra/messaging';
 import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import appContext from '../../context';
-import makeAdjustBalanceAfterJournalEntryUseCase from './adjust-balance-after-journal-entry.usecase';
+import makeAdjustLedgerAccountBalanceUseCase from './adjust-ledger-account-balance.usecase';
 import makeCreateLedgerAccountBalanceUseCase from './create-ledger-account-balance.usecase';
+import makeEnqueueBalanceAdjustment from './enqueue-balance-adjustments.usecase';
+import makeRecordOpeningBalanceUseCase from './record-opening-balance.usecase';
 
 const accountingUsecases = {
   createLedgerAccountBalance: makeCreateLedgerAccountBalanceUseCase(
@@ -13,8 +15,21 @@ const accountingUsecases = {
     observability.logger
   ),
 
-  adjustBalanceAfterJournalEntry: makeAdjustBalanceAfterJournalEntryUseCase(
+  enqueueBalanceAdjustment: makeEnqueueBalanceAdjustment(
     appContext.request,
+    repos.ledgerAccount,
+    messaging.queues
+  ),
+
+  recordOpeningBalance: makeRecordOpeningBalanceUseCase(
+    appContext.request,
+    repos.exchangeRate,
+    repos.ledgerAccount,
+    repos.journalEntry,
+    messaging.eventBus
+  ),
+
+  adjustLedgerAccountBalance: makeAdjustLedgerAccountBalanceUseCase(
     repos.ledgerAccount,
     repos.ledgerAccountBalance,
     messaging.queues

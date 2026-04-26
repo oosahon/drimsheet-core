@@ -33,6 +33,7 @@ export interface ILedgerAccountBalanceAdjustment {
   createdAt: Date;
 }
 
+// TODO: check if it is being used. Delete if not
 export interface INewLedgerAccountBalanceAndAdjustment {
   newBalance: ILedgerAccountBalance;
   adjustment: ILedgerAccountBalanceAdjustment;

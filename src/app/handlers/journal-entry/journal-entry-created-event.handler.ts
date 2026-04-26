@@ -18,11 +18,11 @@ export default function makeJournalEntryCreatedEventHandler(
         EJournalEntryEvent.Created
       );
 
-      const adjustBalance = accountingUsecases
-        .adjustBalanceAfterJournalEntry(event.data)
+      const enqueueBalanceAdjustment = accountingUsecases
+        .enqueueBalanceAdjustment(event.data)
         .catch(reporter.report);
 
-      await Promise.all([adjustBalance]);
+      await Promise.all([enqueueBalanceAdjustment]);
     } catch (error) {
       reporter.report(error);
     }

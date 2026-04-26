@@ -34,8 +34,7 @@ export default function makeCreateLedgerAccountBalanceUseCase(
     }
 
     const ledgerAccountBalanceService = makeLedgerAccountBalanceService(
-      ledgerAccountBalanceRepo,
-      ledgerAccountRepo
+      ledgerAccountBalanceRepo
     );
 
     const balance = await ledgerAccountBalanceService.createBalance(

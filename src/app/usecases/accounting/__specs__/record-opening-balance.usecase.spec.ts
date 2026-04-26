@@ -1,0 +1,180 @@
+import accountingEntityEntity from '../../../../domain/accounting-entity/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '../../../../domain/accounting-entity/types/accounting-entity.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
+import {
+  EExchangeRateType,
+  IExchangeRate,
+} from '../../../../domain/currency/types/exchange-rate.types';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
+import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities/03-equity-account/99-opening-balance-equity.entity';
+import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
+import { EEquitySubType } from '../../../../domain/ledger/types/equity-account.types';
+import { ELedgerType } from '../../../../domain/ledger/types/ledger.types';
+import { IUser } from '../../../../domain/user/types/user.types';
+import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockExchangeRateRepo from '../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
+import mockJournalEntryRepo from '../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import { TEntityId } from '../../../../shared/types/uuid';
+import mockRequestContext, {
+  mockClientSession,
+} from '../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import makeRecordOpeningBalanceUseCase from '../record-opening-balance.usecase';
+
+describe('recordOpeningBalanceUseCase', () => {
+  const correlationId = 'test-corr-id';
+
+  const mockUser: IUser = {
+    id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    email: 'test@example.com',
+    firstName: 'Test',
+    lastName: 'User',
+    emailVerified: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    deletedAt: null,
+  };
+
+  const [mockAccountingEntity] = accountingEntityEntity.make({
+    name: 'Test Accounting Entity',
+    operatingCountryCode: 'NG',
+    ownerId: mockUser.id,
+    type: EAccountingEntityType.Individual,
+    functionalCurrency: SYSTEM_CURRENCIES.NGN,
+    reportingCurrency: SYSTEM_CURRENCIES.USD,
+    fiscalYearStart: { month: 1, day: 1 },
+  });
+
+  const [mockAssetAccount] = cashAndEquivalentAccountEntity.make(
+    {
+      name: 'Cash',
+      accountingEntityId: mockAccountingEntity.id,
+      currency: SYSTEM_CURRENCIES.NGN,
+      isControlAccount: false,
+      controlAccountId: '123e4567-e89b-12d3-a456-426614174003' as TEntityId,
+      behavior: EAssetAccountBehavior.DefaultCash,
+      meta: null,
+      createdBy: mockUser.id,
+    },
+    { precedingCode: '100000', parentMaterializedPath: '100000' }
+  );
+
+  const [mockEquityAccount] = openingBalanceEquityLedgerEntity.make(
+    {
+      name: 'Opening Balance Equity',
+      accountingEntityId: mockAccountingEntity.id,
+      currency: SYSTEM_CURRENCIES.NGN,
+      createdBy: mockUser.id,
+    },
+    { precedingCode: '399000', parentMaterializedPath: '399000' }
+  );
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    mockRequestContext.get.mockReturnValue({
+      correlationId,
+      clientSession: mockClientSession,
+      user: mockUser,
+      accountingEntity: mockAccountingEntity,
+    } as unknown as IRequestContextData);
+
+    mockLedgerAccountRepo.findById
+      .mockResolvedValueOnce(mockAssetAccount) // For the use case
+      .mockResolvedValueOnce(null); // For the domain service
+    mockLedgerAccountRepo.findBySubType.mockResolvedValue([mockEquityAccount]);
+    mockExchangeRateRepo.getById.mockResolvedValue(null);
+  });
+
+  const getUseCase = () =>
+    makeRecordOpeningBalanceUseCase(
+      mockRequestContext,
+      mockExchangeRateRepo,
+      mockLedgerAccountRepo,
+      mockJournalEntryRepo,
+      mockEventBus
+    );
+
+  it('should successfully record opening balance', async () => {
+    const useCase = getUseCase();
+
+    const payload = {
+      accountId: mockAssetAccount.id,
+      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      exchangeRate: null,
+    };
+
+    await useCase(payload);
+
+    expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
+      mockAssetAccount.id,
+      { correlationId }
+    );
+    expect(mockLedgerAccountRepo.findBySubType).toHaveBeenCalledWith(
+      mockAccountingEntity.id,
+      ELedgerType.Equity,
+      EEquitySubType.OpeningBalance,
+      expect.any(Object)
+    );
+    expect(mockJournalEntryRepo.save).toHaveBeenCalled();
+    expect(mockEventBus.publish).toHaveBeenCalled();
+  });
+
+  it('should record opening balance with an exchange rate', async () => {
+    const useCase = getUseCase();
+
+    mockLedgerAccountRepo.findById
+      .mockReset()
+      .mockResolvedValueOnce(mockAssetAccount)
+      .mockResolvedValueOnce(null);
+
+    const mockExchangeRate: IExchangeRate = {
+      currencyPair: 'USD/NGN',
+      baseCurrencyCode: 'USD',
+      targetCurrencyCode: 'NGN',
+      rate: 1500,
+      type: EExchangeRateType.Official,
+      asOf: '2026-04-24T00:00:00.000Z' as unknown as Date,
+      source: 'test',
+      createdAt: new Date(),
+    };
+
+    mockExchangeRateRepo.getById.mockResolvedValue(mockExchangeRate);
+
+    const payload = {
+      accountId: mockAssetAccount.id,
+      amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
+      exchangeRate: {
+        id: 1,
+        baseCurrencyCode: 'USD',
+        targetCurrencyCode: 'NGN',
+        rate: 1500,
+        type: EExchangeRateType.Official,
+        asOf: '2026-04-24T00:00:00.000Z' as unknown as Date,
+        source: 'test',
+      },
+    };
+
+    await useCase(payload);
+
+    expect(mockExchangeRateRepo.getById).toHaveBeenCalledWith(1, {
+      correlationId,
+    });
+    expect(mockJournalEntryRepo.save).toHaveBeenCalled();
+  });
+
+  it('should throw ErrorResourceNotFound if the account is not found', async () => {
+    const useCase = getUseCase();
+
+    mockLedgerAccountRepo.findById.mockReset().mockResolvedValue(null);
+
+    const payload = {
+      accountId: mockAssetAccount.id,
+      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      exchangeRate: null,
+    };
+
+    await expect(useCase(payload)).rejects.toThrow('Account not found.');
+  });
+});

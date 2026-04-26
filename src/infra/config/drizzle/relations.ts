@@ -31,10 +31,11 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   userSessionsInCores: many(userSessionsInCore),
   userActivitiesInAudits: many(userActivitiesInAudit),
   accountingEntitiesInCores: many(accountingEntitiesInCore),
-  ledgerAccountsInCores: many(ledgerAccountsInCore),
   userPreferencesInCores: many(userPreferencesInCore),
+  ledgerAccountsInCores: many(ledgerAccountsInCore),
   categoryHistoryInAudits: many(categoryHistoryInAudit),
   transactionsInCores: many(transactionsInCore),
+  journalEntriesInCores: many(journalEntriesInCore),
   ledgerAccountBalanceAdjustmentsInCores: many(
     ledgerAccountBalanceAdjustmentsInCore
   ),
@@ -112,7 +113,13 @@ export const currenciesInCoreRelations = relations(
     ledgerAccountsInCores: many(ledgerAccountsInCore),
     transactionsInCores: many(transactionsInCore),
     transactionLinesInCores: many(transactionLinesInCore),
-    journalLinesInCores: many(journalLinesInCore),
+    journalLinesInCores_currencyCode: many(journalLinesInCore, {
+      relationName: 'journalLinesInCore_currencyCode_currenciesInCore_code',
+    }),
+    journalLinesInCores_functionalCurrencyCode: many(journalLinesInCore, {
+      relationName:
+        'journalLinesInCore_functionalCurrencyCode_currenciesInCore_code',
+    }),
     ledgerAccountBalancesInCores_currencyCode: many(
       ledgerAccountBalancesInCore,
       {
@@ -171,6 +178,16 @@ export const accountingEntitiesInCoreRelations = relations(
   })
 );
 
+export const userPreferencesInCoreRelations = relations(
+  userPreferencesInCore,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [userPreferencesInCore.id],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
 export const ledgerAccountsInCoreRelations = relations(
   ledgerAccountsInCore,
   ({ one, many }) => ({
@@ -204,16 +221,6 @@ export const ledgerAccountsInCoreRelations = relations(
     ledgerAccountBalanceAdjustmentsInCores: many(
       ledgerAccountBalanceAdjustmentsInCore
     ),
-  })
-);
-
-export const userPreferencesInCoreRelations = relations(
-  userPreferencesInCore,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userPreferencesInCore.id],
-      references: [usersInCore.id],
-    }),
   })
 );
 
@@ -312,6 +319,10 @@ export const journalEntriesInCoreRelations = relations(
       relationName:
         'journalEntriesInCore_voidingEntryId_journalEntriesInCore_id',
     }),
+    usersInCore: one(usersInCore, {
+      fields: [journalEntriesInCore.createdBy],
+      references: [usersInCore.id],
+    }),
     journalLinesInCores: many(journalLinesInCore),
     ledgerAccountBalanceAdjustmentsInCores: many(
       ledgerAccountBalanceAdjustmentsInCore
@@ -330,9 +341,16 @@ export const journalLinesInCoreRelations = relations(
       fields: [journalLinesInCore.accountId],
       references: [ledgerAccountsInCore.id],
     }),
-    currenciesInCore: one(currenciesInCore, {
+    currenciesInCore_currencyCode: one(currenciesInCore, {
       fields: [journalLinesInCore.currencyCode],
       references: [currenciesInCore.code],
+      relationName: 'journalLinesInCore_currencyCode_currenciesInCore_code',
+    }),
+    currenciesInCore_functionalCurrencyCode: one(currenciesInCore, {
+      fields: [journalLinesInCore.functionalCurrencyCode],
+      references: [currenciesInCore.code],
+      relationName:
+        'journalLinesInCore_functionalCurrencyCode_currenciesInCore_code',
     }),
   })
 );

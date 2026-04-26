@@ -1,12 +1,4 @@
-import { ICorrelationId } from '../../../shared/types/correlation-id.types';
-
-export interface ITransactionalEmailPayload extends ICorrelationId {
-  emails: string[];
-  subject: string;
-  html: string;
-  templateId?: string;
-  data?: Record<string, string>;
-}
+import { ITransactionalEmailDto } from '../dto/workers.dto';
 
 export enum ETransactionalEmailAgent {
   Notifications = 'notifications',
@@ -15,10 +7,10 @@ export enum ETransactionalEmailAgent {
 }
 
 export default interface ITransactionalEmailAgent {
-  send(payload: ITransactionalEmailPayload): Promise<void>;
+  send(payload: ITransactionalEmailDto): Promise<void>;
 }
 
-export interface IInternalMailer {
-  send(payload: Omit<ITransactionalEmailPayload, 'correlationId'>): void;
-  getEmail(email: string, subject: string): ITransactionalEmailPayload | null;
+export interface IInternalMailer extends ITransactionalEmailAgent {
+  send(payload: Omit<ITransactionalEmailDto, 'correlationId'>): Promise<void>;
+  getEmail(email: string, subject: string): ITransactionalEmailDto | null;
 }

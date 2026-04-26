@@ -1,14 +1,9 @@
-import ILedgerAccountBalanceRepo from '../../../../domain/accounting/repos/ledger-account-balance.repo';
-import makeLedgerAccountBalanceService from '../../../../domain/accounting/services/account-balance.service';
-import makeAccountingService from '../../../../domain/accounting/services/accounting.service';
 import currencyEntity from '../../../../domain/currency/entities/currency.entity';
 import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
-import makeExchangeRateService from '../../../../domain/currency/services/exchange-rate.service';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import makeAssetPostingAccountService from '../../../../domain/ledger/services/asset-account.service';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
-import { IEvent } from '../../../../shared/types/event.types';
 import zodValidationRunner from '../../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import IRequestContext from '../../../contracts/app/request-context.contract';
@@ -17,33 +12,21 @@ import {
   pettyCashCreationReqValidation,
 } from '../../../contracts/dto/asset-account.dto';
 import IEventBus from '../../../contracts/infra/event-bus.contract';
-import { IRepoService } from '../../../contracts/infra/repo.contract';
-import moneyMapper from '../../../mappers/money.mapper';
+import makeRecordOpeningBalanceUseCase from '../../accounting/record-opening-balance.usecase';
 
 export default function makeCreatePettyCashSubAccountUseCase(
   requestContext: IRequestContext,
   eventBus: IEventBus,
   ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
-  repoService: IRepoService,
   journalEntryRepo: IJournalEntryRepo,
   exchangeRateRepo: IExchangeRateRepo
 ) {
   const domainServices = {
     assetPostingAccount: makeAssetPostingAccountService(ledgerAccountRepo),
-    accounting: makeAccountingService(ledgerAccountRepo),
-    exchangeRate: makeExchangeRateService(exchangeRateRepo),
-    ledgerAccountBalance: makeLedgerAccountBalanceService(
-      ledgerAccountBalanceRepo,
-      ledgerAccountRepo
-    ),
   };
 
   return async (payload: IPettyCashAccountCreationReq) => {
     zodValidationRunner(pettyCashCreationReqValidation, payload);
-
-    const openingBalance = moneyMapper.fromDto(payload.openingBalance);
-    const currency = currencyEntity.getByCode(openingBalance.currency.code);
 
     const { correlationId, user, accountingEntity } = requestContext.get();
     const trace = { correlationId };
@@ -53,7 +36,7 @@ export default function makeCreatePettyCashSubAccountUseCase(
      */
     const accountPayload = {
       name: payload.name,
-      currency,
+      currency: currencyEntity.getByCode(payload.currencyCode),
       isControlAccount: payload.isControlAccount,
       user,
       accountingEntity,
@@ -66,56 +49,23 @@ export default function makeCreatePettyCashSubAccountUseCase(
         trace
       );
 
-    /**
-     * Create ledger account balance domain entity
-     */
-    const ledgerAccountBalance =
-      await domainServices.ledgerAccountBalance.createBalance(
-        account,
-        accountingEntity.functionalCurrency,
-        { correlationId }
+    await ledgerAccountRepo.save(account, trace);
+
+    eventBus.publish(eventValue.enrichAll(accountEvents, trace));
+
+    if (payload.openingBalance) {
+      const recordOpeningBalanceUseCase = makeRecordOpeningBalanceUseCase(
+        requestContext,
+        exchangeRateRepo,
+        ledgerAccountRepo,
+        journalEntryRepo,
+        eventBus
       );
 
-    /**
-     * Create opening balance journal entry
-     */
-    const exchangeRate = await domainServices.exchangeRate.getExchangeRate(
-      payload.exchangeRate,
-      trace
-    );
-
-    const openingBalancePayload = {
-      account,
-      amount: openingBalance,
-      accountingEntity,
-      exchangeRate,
-    };
-
-    const [journalEntries, journalEntryEvents] =
-      await domainServices.accounting.createOpeningBalanceJournalEntry(
-        openingBalancePayload,
-        trace
-      );
-
-    /**
-     * Save all domain entities in a single transaction
-     */
-    await repoService.runInTransaction(async (tx) => {
-      const options = { correlationId, tx };
-
-      await ledgerAccountRepo.save(account, options);
-      await ledgerAccountBalanceRepo.create(ledgerAccountBalance, options);
-      await journalEntryRepo.save(journalEntries, options);
-    });
-
-    /**
-     * Order events by creation time and publish
-     */
-    const allEvents: IEvent<unknown>[] = [
-      ...accountEvents,
-      ...journalEntryEvents,
-    ];
-
-    eventBus.publish(eventValue.enrichAll(allEvents, trace));
+      await recordOpeningBalanceUseCase({
+        ...payload.openingBalance,
+        accountId: account.id,
+      });
+    }
   };
 }

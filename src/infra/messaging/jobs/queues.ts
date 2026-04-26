@@ -1,5 +1,5 @@
 import { Queue } from 'bullmq';
-import { IQueue } from '../../../app/contracts/infra/queues.contract';
+import IQueue from '../../../app/contracts/infra/queues.contract';
 import { queueConnection } from '../../config/redis.config';
 import reporter from '../../observability/reporter';
 
@@ -27,7 +27,7 @@ export const ledgerAccountBalanceAdjustmentQueue = new Queue(
 const queue: IQueue = {
   async addTransactionalEmail(payload) {
     try {
-      return transactionalEmailQueue.add('transactional-email', payload, {
+      await transactionalEmailQueue.add('transactional-email', payload, {
         jobId: `transactional-email_${payload.correlationId}`,
         removeOnComplete: true,
         removeOnFail: 20,
@@ -44,12 +44,14 @@ const queue: IQueue = {
 
   async addLedgerAccountBalanceAdjustment(payload) {
     try {
-      return ledgerAccountBalanceAdjustmentQueue.add(
+      const jobId = `ledger-account-balance-adjustment_${payload.ledgerAccountId}_${payload.correlationId}`;
+
+      await ledgerAccountBalanceAdjustmentQueue.add(
         'ledger-account-balance-adjustment',
         payload,
         {
-          jobId: `ledger-account-balance-adjustment_${payload.newBalance.ledgerAccountId}_${payload.correlationId}`,
-          removeOnComplete: false,
+          jobId,
+          removeOnComplete: true,
           removeOnFail: false,
           attempts: 3,
           backoff: {

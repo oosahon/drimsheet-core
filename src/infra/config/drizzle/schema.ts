@@ -290,6 +290,28 @@ export const accountingEntitiesInCore = core.table(
   ]
 );
 
+export const userPreferencesInCore = core.table(
+  'user_preferences',
+  {
+    id: uuid().notNull(),
+    appPreferences: jsonb('app_preferences'),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.id],
+      foreignColumns: [usersInCore.id],
+      name: 'user_preferences_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
 export const ledgerAccountsInCore = core.table(
   'ledger_accounts',
   {
@@ -342,28 +364,6 @@ export const ledgerAccountsInCore = core.table(
       columns: [table.createdBy],
       foreignColumns: [usersInCore.id],
       name: 'ledger_accounts_created_by_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
-export const userPreferencesInCore = core.table(
-  'user_preferences',
-  {
-    id: uuid().notNull(),
-    appPreferences: jsonb('app_preferences'),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', {
-      withTimezone: true,
-      mode: 'string',
-    }).notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.id],
-      foreignColumns: [usersInCore.id],
-      name: 'user_preferences_id_fkey',
     }).onDelete('cascade'),
   ]
 );
@@ -536,6 +536,7 @@ export const journalEntriesInCore = core.table(
     voidedAt: timestamp('voided_at', { withTimezone: true, mode: 'string' }),
     voidingEntryId: uuid('voiding_entry_id'),
     version: integer().default(1).notNull(),
+    createdBy: uuid('created_by').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
       .notNull(),
@@ -559,6 +560,11 @@ export const journalEntriesInCore = core.table(
       foreignColumns: [table.id],
       name: 'journal_entries_voiding_entry_id_fkey',
     }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [usersInCore.id],
+      name: 'journal_entries_created_by_fkey',
+    }).onDelete('cascade'),
   ]
 );
 
@@ -575,6 +581,9 @@ export const journalLinesInCore = core.table(
     exchangeRate: jsonb('exchange_rate'),
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
+    functionalCurrencyCode: varchar('functional_currency_code', {
+      length: 3,
+    }).notNull(),
     side: journalSideInCore().notNull(),
     description: varchar({ length: 100 }),
     meta: jsonb(),
@@ -601,6 +610,11 @@ export const journalLinesInCore = core.table(
       columns: [table.currencyCode],
       foreignColumns: [currenciesInCore.code],
       name: 'journal_lines_currency_code_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.functionalCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'journal_lines_functional_currency_code_fkey',
     }).onDelete('restrict'),
   ]
 );

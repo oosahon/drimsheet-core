@@ -1,21 +1,18 @@
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
-import { INewLedgerAccountBalanceAndAdjustmentModel } from '../../mappers/ledger-account-balance.mapper';
+import {
+  ILedgerAccountBalanceAdjustmentDto,
+  ITransactionalEmailDto,
+} from '../dto/workers.dto';
 
-export interface ITransactionalEmailPayload extends ICorrelationId {
-  emails: string[];
-  subject: string;
-  html: string;
-  templateId?: string;
-  data?: Record<string, string>;
-}
+export type TWorkerRegistrar<WorkerType, PayloadType extends ICorrelationId> = (
+  name: string,
+  processor: (payload: PayloadType) => Promise<void>
+) => WorkerType;
 
-export interface ILedgerAccountBalanceAdjustmentPayload
-  extends ICorrelationId, INewLedgerAccountBalanceAndAdjustmentModel {}
-
-export interface IQueue {
-  addTransactionalEmail(payload: ITransactionalEmailPayload): void;
+export default interface IQueue {
+  addTransactionalEmail(payload: ITransactionalEmailDto): Promise<void>;
 
   addLedgerAccountBalanceAdjustment(
-    payload: ILedgerAccountBalanceAdjustmentPayload
-  ): void;
+    payload: ILedgerAccountBalanceAdjustmentDto
+  ): Promise<void>;
 }

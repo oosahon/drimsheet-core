@@ -1,7 +1,4 @@
-import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-account-balance.repo';
-import makeLedgerAccountBalanceService from '../../../domain/accounting/services/account-balance.service';
 import makeAccountingService from '../../../domain/accounting/services/accounting.service';
-import { INewLedgerAccountBalanceAndAdjustment } from '../../../domain/accounting/types/ledger-account-balance.types';
 import {
   EJournalEntryStatus,
   IJournalEntry,
@@ -10,21 +7,16 @@ import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.t
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { TEntityId } from '../../../shared/types/uuid';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import { IQueue } from '../../contracts/infra/queues.contract';
-import ledgerAccountBalanceMapper from '../../mappers/ledger-account-balance.mapper';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../contracts/dto/workers.dto';
+import IQueue from '../../contracts/infra/queues.contract';
 
-export default function makeAdjustBalanceAfterJournalEntryUseCase(
+export default function makeEnqueueBalanceAdjustmentsUseCase(
   requestContext: IRequestContext,
   ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   queue: IQueue
 ) {
   const domainServices = {
     accounting: makeAccountingService(ledgerAccountRepo),
-    accountBalance: makeLedgerAccountBalanceService(
-      ledgerAccountBalanceRepo,
-      ledgerAccountRepo
-    ),
   };
 
   return async (journalEntry: IJournalEntry) => {
@@ -44,7 +36,7 @@ export default function makeAdjustBalanceAfterJournalEntryUseCase(
       }
     });
 
-    const allAdjustments: INewLedgerAccountBalanceAndAdjustment[] = [];
+    const allAdjustments: ILedgerAccountBalanceAdjustmentDto[] = [];
 
     const repoOptions = { correlationId };
 
@@ -56,23 +48,23 @@ export default function makeAdjustBalanceAfterJournalEntryUseCase(
           repoOptions
         );
 
-      const balanceAdjustments =
-        await domainServices.accountBalance.makeRecursiveAdjustments(
-          {
-            ...balanceEffectDelta,
-            journalEntry,
-          },
-          repoOptions
-        );
-
-      allAdjustments.push(...balanceAdjustments);
+      allAdjustments.push({
+        journalEntry: {
+          id: journalEntry.id,
+          transactionId: journalEntry.transactionId,
+          createdBy: journalEntry.createdBy,
+        },
+        correlationId,
+        balanceDelta: balanceEffectDelta.balanceDelta,
+        functionalBalanceDelta: balanceEffectDelta.functionalBalanceDelta,
+        ledgerAccountId: accountId,
+      });
     }
 
-    allAdjustments.forEach((adjustment) => {
-      queue.addLedgerAccountBalanceAdjustment({
-        correlationId,
-        ...ledgerAccountBalanceMapper.toRepoNewBalanceAndAdjustment(adjustment),
-      });
-    });
+    await Promise.all(
+      allAdjustments.map((adjustment) =>
+        queue.addLedgerAccountBalanceAdjustment(adjustment)
+      )
+    );
   };
 }

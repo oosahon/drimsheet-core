@@ -4,7 +4,9 @@ import {
   IExchangeRate,
 } from '../../../domain/currency/types/exchange-rate.types';
 
-const currencyCodeValidation = z.string().length(3, 'Invalid currency code');
+export const currencyCodeValidation = z
+  .string()
+  .length(3, 'Invalid currency code');
 
 export interface IMoneyDto {
   amount: number;
