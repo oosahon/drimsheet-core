@@ -21,9 +21,9 @@ import mockRequestContext, {
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import IQueue from '../../../contracts/infra/queues.contract';
-import makeAdjustBalanceAfterJournalEntryUseCase from '../enqueue-balance-adjustments.usecase';
+import makeEnqueueBalanceAdjustmentsUseCase from '../enqueue-balance-adjustments.usecase';
 
-describe('adjustBalanceAfterJournalEntryUseCase', () => {
+describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
   const correlationId = 'test-corr-id';
 
   const mockUser: IUser = {
@@ -91,7 +91,7 @@ describe('adjustBalanceAfterJournalEntryUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeAdjustBalanceAfterJournalEntryUseCase(
+    makeEnqueueBalanceAdjustmentsUseCase(
       mockRequestContext,
       mockLedgerAccountRepo,
       mockQueue
@@ -152,15 +152,10 @@ describe('adjustBalanceAfterJournalEntryUseCase', () => {
       mockAssetAccount.id,
       { correlationId }
     );
-    expect(
-      mockLedgerAccountBalanceRepo.findBalanceByAccountId
-    ).toHaveBeenCalled();
     expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledWith(
       expect.objectContaining({
         correlationId,
-        adjustment: expect.objectContaining({
-          ledgerAccountId: mockAssetAccount.id,
-        }),
+        ledgerAccountId: mockAssetAccount.id,
       })
     );
   });

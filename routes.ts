@@ -251,32 +251,53 @@ const models: TsoaRoute.Models = {
   IExchangeRateDto: {
     dataType: 'refObject',
     properties: {
+      id: { dataType: 'double' },
       baseCurrencyCode: { dataType: 'string', required: true },
       targetCurrencyCode: { dataType: 'string', required: true },
       rate: { dataType: 'double', required: true },
       type: { ref: 'UExchangeRateType', required: true },
       asOf: { dataType: 'datetime', required: true },
       source: { dataType: 'string', required: true },
-      id: { dataType: 'double' },
     },
     additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  'Pick_IOpeningBalanceCreationReq.Exclude_keyofIOpeningBalanceCreationReq.accountId__':
+    {
+      dataType: 'refAlias',
+      type: {
+        dataType: 'nestedObjectLiteral',
+        nestedProperties: {
+          amount: { ref: 'IMoneyDto', required: true },
+          exchangeRate: { ref: 'IExchangeRateDto', required: true },
+        },
+        validators: {},
+      },
+    },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  'Omit_IOpeningBalanceCreationReq.accountId_': {
+    dataType: 'refAlias',
+    type: {
+      ref: 'Pick_IOpeningBalanceCreationReq.Exclude_keyofIOpeningBalanceCreationReq.accountId__',
+      validators: {},
+    },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IPettyCashAccountCreationReq: {
     dataType: 'refObject',
     properties: {
       name: { dataType: 'string', required: true },
-      openingBalance: { ref: 'IMoneyDto', required: true },
+      currencyCode: { dataType: 'string', required: true },
       isControlAccount: { dataType: 'boolean', required: true },
-      exchangeRate: {
+      controlAccountCode: { dataType: 'string' },
+      openingBalance: {
         dataType: 'union',
         subSchemas: [
-          { ref: 'IExchangeRateDto' },
+          { ref: 'Omit_IOpeningBalanceCreationReq.accountId_' },
           { dataType: 'enum', enums: [null] },
         ],
         required: true,
       },
-      controlAccountCode: { dataType: 'string' },
     },
     additionalProperties: false,
   },
