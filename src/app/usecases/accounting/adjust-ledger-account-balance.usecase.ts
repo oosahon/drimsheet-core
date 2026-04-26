@@ -3,18 +3,12 @@ import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-a
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import stringUtils from '../../../shared/utils/string';
 import { AppError } from '../../../shared/value-objects/error';
-import moneyValue from '../../../shared/value-objects/money.vo';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../contracts/dto/workers.dto';
 import IQueue from '../../contracts/infra/queues.contract';
+import moneyMapper from '../../mappers/money.mapper';
 
 const validate = (payload: ILedgerAccountBalanceAdjustmentDto) => {
-  const {
-    correlationId,
-    journalEntry,
-    balanceDelta,
-    functionalBalanceDelta,
-    ledgerAccountId,
-  } = payload;
+  const { correlationId, journalEntry, ledgerAccountId } = payload;
 
   stringUtils.validateIsNonEmptyString(correlationId, 'Invalid correlation ID');
   stringUtils.validateUUID(journalEntry.id, 'Invalid journal entry ID');
@@ -26,8 +20,6 @@ const validate = (payload: ILedgerAccountBalanceAdjustmentDto) => {
   }
   stringUtils.validateUUID(journalEntry.createdBy, 'Invalid created by ID');
   stringUtils.validateUUID(ledgerAccountId, 'Invalid account ID');
-  moneyValue.validate(balanceDelta);
-  moneyValue.validate(functionalBalanceDelta);
 };
 
 export default function makeAdjustLedgerAccountBalanceUseCase(
@@ -38,13 +30,12 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
   return async (payload: ILedgerAccountBalanceAdjustmentDto) => {
     validate(payload);
 
-    const {
-      correlationId,
-      journalEntry,
-      balanceDelta,
-      functionalBalanceDelta,
-      ledgerAccountId,
-    } = payload;
+    const { correlationId, journalEntry, ledgerAccountId } = payload;
+
+    const balanceDelta = moneyMapper.fromDto(payload.balanceDelta);
+    const functionalBalanceDelta = moneyMapper.fromDto(
+      payload.functionalBalanceDelta
+    );
 
     const repoOptions = { correlationId };
 
@@ -77,8 +68,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
      *  - only header accounts can control sub accounts of different currencies
      *  - header accounts are always in the functional currency.
      */
-    const isSameCurrency =
-      payload.balanceDelta.currency.code === account.currency.code;
+    const isSameCurrency = balanceDelta.currency.code === account.currency.code;
 
     const makeAdjustmentPayload = {
       ledgerAccountId: account.id,

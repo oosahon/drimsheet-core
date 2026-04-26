@@ -14,6 +14,7 @@ import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.ent
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
 import { ELedgerType } from '../../ledger/types/ledger.types';
+import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
 import getBalanceEffectRule from '../rules/get-balance-effect.rule';
 import {
   ILedgerAccountBalanceEffectDelta,
@@ -22,7 +23,8 @@ import {
 import { ELedgerAccountBalanceEffect } from '../types/ledger-account-balance.types';
 
 export default function makeAccountingService(
-  ledgerAccountRepo: ILedgerAccountRepo
+  ledgerAccountRepo: ILedgerAccountRepo,
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
 ) {
   return {
     async createOpeningBalanceJournalEntry(
@@ -36,12 +38,13 @@ export default function makeAccountingService(
         });
       }
 
-      const existingAccount = await ledgerAccountRepo.findById(
-        payload.account.id,
-        repoOptions
-      );
+      const [existingBalanceAdjustment] =
+        await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
+          payload.account.id,
+          { ...repoOptions, limit: 1 }
+        );
 
-      if (existingAccount) {
+      if (existingBalanceAdjustment) {
         throw new AppError('Opening balance has already been set', {
           cause: { accountId: payload.account.id },
         });

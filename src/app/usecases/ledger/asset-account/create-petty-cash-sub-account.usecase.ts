@@ -1,3 +1,4 @@
+import ILedgerAccountBalanceRepo from '../../../../domain/accounting/repos/ledger-account-balance.repo';
 import currencyEntity from '../../../../domain/currency/entities/currency.entity';
 import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
@@ -18,6 +19,7 @@ export default function makeCreatePettyCashSubAccountUseCase(
   requestContext: IRequestContext,
   eventBus: IEventBus,
   ledgerAccountRepo: ILedgerAccountRepo,
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   journalEntryRepo: IJournalEntryRepo,
   exchangeRateRepo: IExchangeRateRepo
 ) {
@@ -58,6 +60,7 @@ export default function makeCreatePettyCashSubAccountUseCase(
         requestContext,
         exchangeRateRepo,
         ledgerAccountRepo,
+        ledgerAccountBalanceRepo,
         journalEntryRepo,
         eventBus
       );

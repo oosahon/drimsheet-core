@@ -1,3 +1,4 @@
+import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-account-balance.repo';
 import makeAccountingService from '../../../domain/accounting/services/accounting.service';
 import {
   EJournalEntryStatus,
@@ -9,14 +10,19 @@ import { TEntityId } from '../../../shared/types/uuid';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../contracts/dto/workers.dto';
 import IQueue from '../../contracts/infra/queues.contract';
+import moneyMapper from '../../mappers/money.mapper';
 
 export default function makeEnqueueBalanceAdjustmentsUseCase(
   requestContext: IRequestContext,
   ledgerAccountRepo: ILedgerAccountRepo,
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   queue: IQueue
 ) {
   const domainServices = {
-    accounting: makeAccountingService(ledgerAccountRepo),
+    accounting: makeAccountingService(
+      ledgerAccountRepo,
+      ledgerAccountBalanceRepo
+    ),
   };
 
   return async (journalEntry: IJournalEntry) => {
@@ -55,8 +61,10 @@ export default function makeEnqueueBalanceAdjustmentsUseCase(
           createdBy: journalEntry.createdBy,
         },
         correlationId,
-        balanceDelta: balanceEffectDelta.balanceDelta,
-        functionalBalanceDelta: balanceEffectDelta.functionalBalanceDelta,
+        balanceDelta: moneyMapper.toDto(balanceEffectDelta.balanceDelta),
+        functionalBalanceDelta: moneyMapper.toDto(
+          balanceEffectDelta.functionalBalanceDelta
+        ),
         ledgerAccountId: accountId,
       });
     }

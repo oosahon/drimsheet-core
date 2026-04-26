@@ -18,6 +18,7 @@ const accountingUsecases = {
   enqueueBalanceAdjustment: makeEnqueueBalanceAdjustment(
     appContext.request,
     repos.ledgerAccount,
+    repos.ledgerAccountBalance,
     messaging.queues
   ),
 
@@ -25,6 +26,7 @@ const accountingUsecases = {
     appContext.request,
     repos.exchangeRate,
     repos.ledgerAccount,
+    repos.ledgerAccountBalance,
     repos.journalEntry,
     messaging.eventBus
   ),

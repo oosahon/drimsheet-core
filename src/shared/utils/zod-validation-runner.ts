@@ -12,8 +12,8 @@ function errorFormatter(errors: z.core.$ZodIssue[]): IApiValidationError[] {
 }
 
 export default function zodValidationRunner(
-  schema: z.ZodSchema<any>,
-  payload: any
+  schema: z.ZodSchema<unknown>,
+  payload: unknown
 ) {
   const result = schema.safeParse(payload);
 

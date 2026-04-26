@@ -1,3 +1,4 @@
+import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-account-balance.repo';
 import makeAccountingService from '../../../domain/accounting/services/accounting.service';
 import IExchangeRateRepo from '../../../domain/currency/repos/exchange-rate.repo';
 import makeExchangeRateService from '../../../domain/currency/services/exchange-rate.service';
@@ -19,11 +20,15 @@ export default function makeRecordOpeningBalanceUseCase(
   requestContext: IRequestContext,
   exchangeRateRepo: IExchangeRateRepo,
   ledgerAccountRepo: ILedgerAccountRepo,
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   journalEntryRepo: IJournalEntryRepo,
   eventBus: IEventBus
 ) {
   const domainServices = {
-    accounting: makeAccountingService(ledgerAccountRepo),
+    accounting: makeAccountingService(
+      ledgerAccountRepo,
+      ledgerAccountBalanceRepo
+    ),
     exchangeRate: makeExchangeRateService(exchangeRateRepo),
   };
 

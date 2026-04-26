@@ -8,6 +8,7 @@ const assetAccountUseCase = {
     appContext.request,
     messaging.eventBus,
     repos.ledgerAccount,
+    repos.ledgerAccountBalance,
     repos.journalEntry,
     repos.exchangeRate
   ),

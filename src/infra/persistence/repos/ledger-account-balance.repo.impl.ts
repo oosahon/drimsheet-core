@@ -91,6 +91,22 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
       }
     });
   },
+
+  async findAdjustmentsByAccountId(ledgerAccountId, options) {
+    const result = await getDbQuery(options)
+      .select()
+      .from(ledgerAccountBalanceAdjustmentsInCore)
+      .where(
+        and(
+          eq(
+            ledgerAccountBalanceAdjustmentsInCore.ledgerAccountId,
+            ledgerAccountId
+          )
+        )
+      );
+
+    return result.map(ledgerAccountBalanceMapper.fromRepoAdjustment);
+  },
 };
 
 export default ledgerAccountBalanceRepoImpl;

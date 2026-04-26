@@ -1,12 +1,12 @@
 import { IJournalEntry } from '../../../domain/journal-entry/types/journal-entry.types';
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
-import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { IMoneyDto } from './money.dto';
 
 export interface ILedgerAccountBalanceAdjustmentDto extends ICorrelationId {
   journalEntry: Pick<IJournalEntry, 'id' | 'transactionId' | 'createdBy'>;
-  balanceDelta: IMoney;
-  functionalBalanceDelta: IMoney;
+  balanceDelta: IMoneyDto;
+  functionalBalanceDelta: IMoneyDto;
   ledgerAccountId: TEntityId;
 }
 

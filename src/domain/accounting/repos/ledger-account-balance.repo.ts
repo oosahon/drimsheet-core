@@ -2,6 +2,7 @@ import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TEntityId } from '../../../shared/types/uuid';
 import {
   ILedgerAccountBalance,
+  ILedgerAccountBalanceAdjustment,
   INewLedgerAccountBalanceAndAdjustment,
 } from '../types/ledger-account-balance.types';
 
@@ -22,8 +23,8 @@ export default interface ILedgerAccountBalanceRepo {
     repoOptions: IRepoOptions
   ): Promise<ILedgerAccountBalance | null>;
 
-  // findAdjustmentsByAccountId(
-  //   ledgerAccountId: TEntityId,
-  //   repoOptions: IRepoOptions
-  // ): Promise<ILedgerAccountBalanceAdjustment[]>;
+  findAdjustmentsByAccountId(
+    ledgerAccountId: TEntityId,
+    repoOptions: IRepoOptions
+  ): Promise<ILedgerAccountBalanceAdjustment[]>;
 }
