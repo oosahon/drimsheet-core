@@ -1,15 +1,13 @@
-import {
-  IInternalMailer,
-  ITransactionalEmailPayload,
-} from '../../app/contracts/infra/transactional-email-agent.contract';
+import { ITransactionalEmailDto } from '../../app/contracts/dto/workers.dto';
+import { IInternalMailer } from '../../app/contracts/infra/transactional-email-agent.contract';
 
-const sentEmails: Map<string, ITransactionalEmailPayload> = new Map();
+const sentEmails: Map<string, ITransactionalEmailDto> = new Map();
 
 function getKey(emailAddress: string, subject: string) {
   return `${emailAddress}-${subject}`.toLowerCase();
 }
 
-function send(payload: Omit<ITransactionalEmailPayload, 'correlationId'>) {
+async function send(payload: Omit<ITransactionalEmailDto, 'correlationId'>) {
   sentEmails.set(getKey(payload.emails[0], payload.subject), {
     ...payload,
     correlationId: Date.now().toString(),

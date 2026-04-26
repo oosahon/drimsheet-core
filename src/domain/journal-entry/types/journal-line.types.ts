@@ -9,7 +9,7 @@ export const EJournalSide = {
 
 export type UJournalSide = (typeof EJournalSide)[keyof typeof EJournalSide];
 
-interface IJournalLineMeta extends Record<
+export interface IJournalLineMeta extends Record<
   string,
   string | object | boolean | null
 > {}

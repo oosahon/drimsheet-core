@@ -265,6 +265,10 @@ function convert(
   return make(amount.amount, targetCurrencyCode, true);
 }
 
+function isZeroAmount(money: IMoney) {
+  return money.amount === 0n;
+}
+
 const moneyValue = Object.freeze({
   make,
   makeZeroAmount,
@@ -282,6 +286,7 @@ const moneyValue = Object.freeze({
   sortDescending,
   sortAscending,
   convert,
+  isZeroAmount,
 });
 
 export default moneyValue;

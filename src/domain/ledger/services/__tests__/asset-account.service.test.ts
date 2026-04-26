@@ -87,7 +87,7 @@ describe('assetPostingAccountService', () => {
         expect(account.controlAccountId).toBe(controlAccountId);
         expect(account.code).toBe('100002');
         expect(account.materializedPath).toBe(
-          `${mockLatestAccount.materializedPath}.100002`
+          `${mockControlAccount.materializedPath}.100002`
         );
         expect(events.length).toBeGreaterThan(0);
         expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(

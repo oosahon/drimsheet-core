@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import journalEntryMapper, {
   IJournalEntryModel,
   IJournalLineModel,
@@ -27,6 +28,19 @@ const journalEntryRepo: IJournalEntryRepo = {
       await tx.insert(journalEntriesInCore).values(entries);
       await tx.insert(journalLinesInCore).values(lines);
     });
+  },
+
+  async findById(id, options) {
+    const response = await getDbQuery(
+      options
+    ).query.journalEntriesInCore.findFirst({
+      where: eq(journalEntriesInCore.id, id),
+      with: {
+        journalLinesInCores: true,
+      },
+    });
+
+    return response ? journalEntryMapper.toDomainEntry(response) : null;
   },
 };
 

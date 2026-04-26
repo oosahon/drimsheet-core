@@ -323,16 +323,10 @@
         "type": "object",
         "additionalProperties": false
       },
-      "IPettyCashAccountCreationReq": {
+      "IOpeningBalanceDto": {
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "openingBalance": {
+          "amount": {
             "$ref": "#/components/schemas/IMoneyDto"
-          },
-          "isControlAccount": {
-            "type": "boolean"
           },
           "exchangeRate": {
             "allOf": [
@@ -341,16 +335,40 @@
               }
             ],
             "nullable": true
+          }
+        },
+        "required": ["amount", "exchangeRate"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IPettyCashAccountCreationReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "isControlAccount": {
+            "type": "boolean"
           },
           "controlAccountCode": {
             "type": "string"
+          },
+          "openingBalance": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IOpeningBalanceDto"
+              }
+            ],
+            "nullable": true
           }
         },
         "required": [
           "name",
-          "openingBalance",
+          "currencyCode",
           "isControlAccount",
-          "exchangeRate"
+          "openingBalance"
         ],
         "type": "object",
         "additionalProperties": false

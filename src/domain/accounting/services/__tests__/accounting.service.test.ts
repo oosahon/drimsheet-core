@@ -1,30 +1,50 @@
 import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
+import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import { IMoney } from '../../../../shared/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../accounting-entity/types/accounting-entity.types';
-import { IExchangeRate } from '../../../currency/types/exchange-rate.types';
+import {
+  EExchangeRateType,
+  IExchangeRate,
+} from '../../../currency/types/exchange-rate.types';
 import { EJournalEntryStatus } from '../../../journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../journal-entry/types/journal-line.types';
-import { ILedgerAccount } from '../../../ledger/types/ledger.types';
+import {
+  EJournalSide,
+  IJournalLine,
+} from '../../../journal-entry/types/journal-line.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerAccountStatus,
+  ELedgerType,
+  ENormalBalance,
+  ILedgerAccount,
+} from '../../../ledger/types/ledger.types';
 import makeAccountingService from '../accounting.service';
 
 describe('accountingService', () => {
-  const service = makeAccountingService(mockLedgerAccountRepo);
+  const service = makeAccountingService(
+    mockLedgerAccountRepo,
+    mockLedgerAccountBalanceRepo
+  );
   const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
 
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-03-15T00:00:00.000Z'));
-    jest.clearAllMocks();
+    jest.resetAllMocks();
+    mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId.mockResolvedValue(
+      []
+    );
   });
 
   afterEach(() => {
     jest.useRealTimers();
   });
 
-  describe('recordOpeningBalanceTransaction', () => {
+  describe('createOpeningBalanceJournalEntry', () => {
     const entityId = generateUUID();
     const accountId = generateUUID();
     const equityAccountId = generateUUID();
@@ -43,6 +63,7 @@ describe('accountingService', () => {
       id: accountId,
       accountingEntityId: entityId,
       isControlAccount: false,
+      createdBy: generateUUID(),
     } as ILedgerAccount;
 
     const validEquityAccount = {
@@ -63,13 +84,12 @@ describe('accountingService', () => {
 
     describe('when valid payload is provided', () => {
       it('should return a journal entry successfully', async () => {
-        mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
         mockLedgerAccountRepo.findBySubType.mockResolvedValueOnce([
           validEquityAccount,
         ]);
 
         const [journalEntry, events] =
-          await service.recordOpeningBalanceTransaction(
+          await service.createOpeningBalanceJournalEntry(
             validPayload,
             mockOptions
           );
@@ -93,31 +113,31 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Cannot set opening balance on control account');
       });
 
       it('should throw if opening balance has already been set', async () => {
-        mockLedgerAccountRepo.findById.mockResolvedValueOnce(validAccount);
+        mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId.mockResolvedValueOnce(
+          [{ id: 'mock-adjustment' } as never]
+        );
 
         await expect(
-          service.recordOpeningBalanceTransaction(validPayload, mockOptions)
+          service.createOpeningBalanceJournalEntry(validPayload, mockOptions)
         ).rejects.toThrow('Opening balance has already been set');
       });
 
       it('should throw if equity account is not configured', async () => {
-        mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
         mockLedgerAccountRepo.findBySubType.mockResolvedValueOnce([]);
 
         await expect(
-          service.recordOpeningBalanceTransaction(validPayload, mockOptions)
+          service.createOpeningBalanceJournalEntry(validPayload, mockOptions)
         ).rejects.toThrow('Account type for opening balance is not configured');
       });
     });
 
     describe('Payload Validations (Domain bubbling)', () => {
       beforeEach(() => {
-        mockLedgerAccountRepo.findById.mockResolvedValue(null);
         mockLedgerAccountRepo.findBySubType.mockResolvedValue([
           validEquityAccount,
         ]);
@@ -130,7 +150,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Invalid UUID');
       });
 
@@ -144,7 +164,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Invalid UUID');
       });
 
@@ -155,7 +175,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Invalid amount');
       });
 
@@ -166,7 +186,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow('Exchange rate is not supported for same currency.');
       });
 
@@ -181,7 +201,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow(
           'Exchange rate is required for different currencies.'
         );
@@ -201,7 +221,7 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow("Exchange rate base doesn't match amount currency.");
       });
 
@@ -219,11 +239,203 @@ describe('accountingService', () => {
         };
 
         await expect(
-          service.recordOpeningBalanceTransaction(payload, mockOptions)
+          service.createOpeningBalanceJournalEntry(payload, mockOptions)
         ).rejects.toThrow(
           "Exchange rate target doesn't match functional currency."
         );
       });
+    });
+  });
+
+  describe('getBalanceEffectDelta', () => {
+    const accountId = generateUUID();
+    const entityId = generateUUID();
+    const currency = {
+      code: 'USD',
+      name: 'US Dollar',
+      minorUnit: 2n,
+      symbol: '$',
+    };
+    const functionalCurrency = {
+      code: 'EUR',
+      name: 'Euro',
+      minorUnit: 2n,
+      symbol: '€',
+    };
+
+    const account: ILedgerAccount = {
+      id: accountId,
+      code: '100000',
+      materializedPath: '100000',
+      accountingEntityId: entityId,
+      type: ELedgerType.Asset,
+      normalBalance: ENormalBalance.Debit,
+      subType: 'test',
+      behavior: 'test',
+      isControlAccount: false,
+      controlAccountId: null,
+      name: 'Test Account',
+      currency: currency,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      meta: null,
+      createdBy: generateUUID(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    };
+
+    const baseLine: IJournalLine = {
+      id: generateUUID(),
+      entryId: generateUUID(),
+      accountId: accountId,
+      sequenceOrder: 1,
+      amount: { amount: 1000n, currency },
+      exchangeRate: {
+        currencyPair: 'USD/EUR',
+        baseCurrencyCode: 'USD',
+        targetCurrencyCode: 'EUR',
+        rate: 0.85,
+        type: EExchangeRateType.Official,
+        asOf: new Date(),
+        source: 'test',
+        createdAt: new Date(),
+      },
+      functionalAmount: { amount: 850n, currency: functionalCurrency },
+      side: EJournalSide.Debit,
+      description: null,
+      meta: null,
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it('should throw if account is not found', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
+      await expect(
+        service.getBalanceEffectDelta(accountId, [baseLine], mockOptions)
+      ).rejects.toThrow('Account not found');
+    });
+
+    it('should throw if any line has a different accountId', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(account);
+      const invalidLine = { ...baseLine, accountId: generateUUID() };
+      await expect(
+        service.getBalanceEffectDelta(
+          accountId,
+          [baseLine, invalidLine],
+          mockOptions
+        )
+      ).rejects.toThrow(
+        'All lines must be associated with the same account, functional currency and currency'
+      );
+    });
+
+    it('should throw if any line has a different functional currency', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(account);
+      const invalidLine = {
+        ...baseLine,
+        functionalAmount: {
+          ...baseLine.functionalAmount,
+          currency: {
+            code: 'GBP',
+            name: 'British Pound',
+            minorUnit: 2n,
+            symbol: '£',
+          },
+        },
+      };
+      await expect(
+        service.getBalanceEffectDelta(
+          accountId,
+          [baseLine, invalidLine],
+          mockOptions
+        )
+      ).rejects.toThrow(
+        'All lines must be associated with the same account, functional currency and currency'
+      );
+    });
+
+    it('should throw if any line has a different amount currency than the account', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(account);
+      const invalidLine = {
+        ...baseLine,
+        amount: {
+          ...baseLine.amount,
+          currency: {
+            code: 'GBP',
+            name: 'British Pound',
+            minorUnit: 2n,
+            symbol: '£',
+          },
+        },
+      };
+      await expect(
+        service.getBalanceEffectDelta(
+          accountId,
+          [baseLine, invalidLine],
+          mockOptions
+        )
+      ).rejects.toThrow(
+        'All lines must be associated with the same account, functional currency and currency'
+      );
+    });
+
+    it('should correctly calculate balance delta for same normal balance side (increase)', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(account);
+      const line2 = {
+        ...baseLine,
+        amount: { amount: 500n, currency },
+        functionalAmount: { amount: 425n, currency: functionalCurrency },
+      };
+
+      const result = await service.getBalanceEffectDelta(
+        accountId,
+        [baseLine, line2],
+        mockOptions
+      );
+
+      expect(result.balanceDelta.amount).toBe(1500n);
+      expect(result.functionalBalanceDelta.amount).toBe(1275n);
+    });
+
+    it('should correctly calculate balance delta for opposite normal balance side (decrease)', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(account);
+      const line2 = {
+        ...baseLine,
+        side: EJournalSide.Credit,
+        amount: { amount: 500n, currency },
+        functionalAmount: { amount: 425n, currency: functionalCurrency },
+      };
+
+      const result = await service.getBalanceEffectDelta(
+        accountId,
+        [baseLine, line2],
+        mockOptions
+      );
+
+      expect(result.balanceDelta.amount).toBe(500n);
+      expect(result.functionalBalanceDelta.amount).toBe(425n);
+    });
+
+    it('should correctly calculate balance delta crossing zero (decrease)', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(account);
+      const line2 = {
+        ...baseLine,
+        side: EJournalSide.Credit,
+        amount: { amount: 1500n, currency },
+        functionalAmount: { amount: 1275n, currency: functionalCurrency },
+      };
+
+      const result = await service.getBalanceEffectDelta(
+        accountId,
+        [baseLine, line2],
+        mockOptions
+      );
+
+      expect(result.balanceDelta.amount).toBe(-500n);
+      expect(result.functionalBalanceDelta.amount).toBe(-425n);
     });
   });
 });

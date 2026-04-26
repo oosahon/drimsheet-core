@@ -7,6 +7,8 @@ import {
   currencyExchangeRatesInCore,
   journalEntriesInCore,
   journalLinesInCore,
+  ledgerAccountBalanceAdjustmentsInCore,
+  ledgerAccountBalancesInCore,
   ledgerAccountsInCore,
   transactionLinesInCore,
   transactionsInCore,
@@ -29,10 +31,14 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   userSessionsInCores: many(userSessionsInCore),
   userActivitiesInAudits: many(userActivitiesInAudit),
   accountingEntitiesInCores: many(accountingEntitiesInCore),
-  ledgerAccountsInCores: many(ledgerAccountsInCore),
   userPreferencesInCores: many(userPreferencesInCore),
+  ledgerAccountsInCores: many(ledgerAccountsInCore),
   categoryHistoryInAudits: many(categoryHistoryInAudit),
   transactionsInCores: many(transactionsInCore),
+  journalEntriesInCores: many(journalEntriesInCore),
+  ledgerAccountBalanceAdjustmentsInCores: many(
+    ledgerAccountBalanceAdjustmentsInCore
+  ),
 }));
 
 export const userSessionsInCoreRelations = relations(
@@ -107,7 +113,41 @@ export const currenciesInCoreRelations = relations(
     ledgerAccountsInCores: many(ledgerAccountsInCore),
     transactionsInCores: many(transactionsInCore),
     transactionLinesInCores: many(transactionLinesInCore),
-    journalLinesInCores: many(journalLinesInCore),
+    journalLinesInCores_currencyCode: many(journalLinesInCore, {
+      relationName: 'journalLinesInCore_currencyCode_currenciesInCore_code',
+    }),
+    journalLinesInCores_functionalCurrencyCode: many(journalLinesInCore, {
+      relationName:
+        'journalLinesInCore_functionalCurrencyCode_currenciesInCore_code',
+    }),
+    ledgerAccountBalancesInCores_currencyCode: many(
+      ledgerAccountBalancesInCore,
+      {
+        relationName:
+          'ledgerAccountBalancesInCore_currencyCode_currenciesInCore_code',
+      }
+    ),
+    ledgerAccountBalancesInCores_functionalCurrencyCode: many(
+      ledgerAccountBalancesInCore,
+      {
+        relationName:
+          'ledgerAccountBalancesInCore_functionalCurrencyCode_currenciesInCore_code',
+      }
+    ),
+    ledgerAccountBalanceAdjustmentsInCores_currencyCode: many(
+      ledgerAccountBalanceAdjustmentsInCore,
+      {
+        relationName:
+          'ledgerAccountBalanceAdjustmentsInCore_currencyCode_currenciesInCore_code',
+      }
+    ),
+    ledgerAccountBalanceAdjustmentsInCores_functionalCurrencyCode: many(
+      ledgerAccountBalanceAdjustmentsInCore,
+      {
+        relationName:
+          'ledgerAccountBalanceAdjustmentsInCore_functionalCurrencyCode_currenciesInCore_code',
+      }
+    ),
   })
 );
 
@@ -134,6 +174,17 @@ export const accountingEntitiesInCoreRelations = relations(
     categoriesInCores: many(categoriesInCore),
     transactionsInCores: many(transactionsInCore),
     journalEntriesInCores: many(journalEntriesInCore),
+    ledgerAccountBalancesInCores: many(ledgerAccountBalancesInCore),
+  })
+);
+
+export const userPreferencesInCoreRelations = relations(
+  userPreferencesInCore,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [userPreferencesInCore.id],
+      references: [usersInCore.id],
+    }),
   })
 );
 
@@ -166,16 +217,10 @@ export const ledgerAccountsInCoreRelations = relations(
     transactionsInCores: many(transactionsInCore),
     transactionLinesInCores: many(transactionLinesInCore),
     journalLinesInCores: many(journalLinesInCore),
-  })
-);
-
-export const userPreferencesInCoreRelations = relations(
-  userPreferencesInCore,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userPreferencesInCore.id],
-      references: [usersInCore.id],
-    }),
+    ledgerAccountBalancesInCores: many(ledgerAccountBalancesInCore),
+    ledgerAccountBalanceAdjustmentsInCores: many(
+      ledgerAccountBalanceAdjustmentsInCore
+    ),
   })
 );
 
@@ -229,6 +274,9 @@ export const transactionsInCoreRelations = relations(
     }),
     transactionLinesInCores: many(transactionLinesInCore),
     journalEntriesInCores: many(journalEntriesInCore),
+    ledgerAccountBalanceAdjustmentsInCores: many(
+      ledgerAccountBalanceAdjustmentsInCore
+    ),
   })
 );
 
@@ -271,7 +319,14 @@ export const journalEntriesInCoreRelations = relations(
       relationName:
         'journalEntriesInCore_voidingEntryId_journalEntriesInCore_id',
     }),
+    usersInCore: one(usersInCore, {
+      fields: [journalEntriesInCore.createdBy],
+      references: [usersInCore.id],
+    }),
     journalLinesInCores: many(journalLinesInCore),
+    ledgerAccountBalanceAdjustmentsInCores: many(
+      ledgerAccountBalanceAdjustmentsInCore
+    ),
   })
 );
 
@@ -286,9 +341,76 @@ export const journalLinesInCoreRelations = relations(
       fields: [journalLinesInCore.accountId],
       references: [ledgerAccountsInCore.id],
     }),
-    currenciesInCore: one(currenciesInCore, {
+    currenciesInCore_currencyCode: one(currenciesInCore, {
       fields: [journalLinesInCore.currencyCode],
       references: [currenciesInCore.code],
+      relationName: 'journalLinesInCore_currencyCode_currenciesInCore_code',
+    }),
+    currenciesInCore_functionalCurrencyCode: one(currenciesInCore, {
+      fields: [journalLinesInCore.functionalCurrencyCode],
+      references: [currenciesInCore.code],
+      relationName:
+        'journalLinesInCore_functionalCurrencyCode_currenciesInCore_code',
+    }),
+  })
+);
+
+export const ledgerAccountBalancesInCoreRelations = relations(
+  ledgerAccountBalancesInCore,
+  ({ one }) => ({
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [ledgerAccountBalancesInCore.ledgerAccountId],
+      references: [ledgerAccountsInCore.id],
+    }),
+    accountingEntitiesInCore: one(accountingEntitiesInCore, {
+      fields: [ledgerAccountBalancesInCore.accountingEntityId],
+      references: [accountingEntitiesInCore.id],
+    }),
+    currenciesInCore_currencyCode: one(currenciesInCore, {
+      fields: [ledgerAccountBalancesInCore.currencyCode],
+      references: [currenciesInCore.code],
+      relationName:
+        'ledgerAccountBalancesInCore_currencyCode_currenciesInCore_code',
+    }),
+    currenciesInCore_functionalCurrencyCode: one(currenciesInCore, {
+      fields: [ledgerAccountBalancesInCore.functionalCurrencyCode],
+      references: [currenciesInCore.code],
+      relationName:
+        'ledgerAccountBalancesInCore_functionalCurrencyCode_currenciesInCore_code',
+    }),
+  })
+);
+
+export const ledgerAccountBalanceAdjustmentsInCoreRelations = relations(
+  ledgerAccountBalanceAdjustmentsInCore,
+  ({ one }) => ({
+    ledgerAccountsInCore: one(ledgerAccountsInCore, {
+      fields: [ledgerAccountBalanceAdjustmentsInCore.ledgerAccountId],
+      references: [ledgerAccountsInCore.id],
+    }),
+    currenciesInCore_currencyCode: one(currenciesInCore, {
+      fields: [ledgerAccountBalanceAdjustmentsInCore.currencyCode],
+      references: [currenciesInCore.code],
+      relationName:
+        'ledgerAccountBalanceAdjustmentsInCore_currencyCode_currenciesInCore_code',
+    }),
+    currenciesInCore_functionalCurrencyCode: one(currenciesInCore, {
+      fields: [ledgerAccountBalanceAdjustmentsInCore.functionalCurrencyCode],
+      references: [currenciesInCore.code],
+      relationName:
+        'ledgerAccountBalanceAdjustmentsInCore_functionalCurrencyCode_currenciesInCore_code',
+    }),
+    journalEntriesInCore: one(journalEntriesInCore, {
+      fields: [ledgerAccountBalanceAdjustmentsInCore.journalEntryId],
+      references: [journalEntriesInCore.id],
+    }),
+    transactionsInCore: one(transactionsInCore, {
+      fields: [ledgerAccountBalanceAdjustmentsInCore.transactionId],
+      references: [transactionsInCore.id],
+    }),
+    usersInCore: one(usersInCore, {
+      fields: [ledgerAccountBalanceAdjustmentsInCore.createdBy],
+      references: [usersInCore.id],
     }),
   })
 );

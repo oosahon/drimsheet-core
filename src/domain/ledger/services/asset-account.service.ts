@@ -66,8 +66,7 @@ export default function makeAssetPostingAccountService(
       };
 
       const precedingCode = latest?.code ?? controlAccount.code;
-      const materializedPath =
-        latest?.materializedPath ?? controlAccount.materializedPath;
+      const materializedPath = controlAccount.materializedPath;
 
       const factoryContext = {
         precedingCode: precedingCode as TCashLedgerCode,

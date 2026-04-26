@@ -17,6 +17,12 @@ function isNonEmptyString(value: string) {
   return isString(value) && value.trim().length > 0;
 }
 
+function validateIsNonEmptyString(value: string, message?: string) {
+  if (!isNonEmptyString(value)) {
+    throw new AppError(message ?? 'Invalid string', { cause: value });
+  }
+}
+
 function isStringWithinRange(value: string, options: IValidationOptions) {
   if (!isString(value)) {
     return false;
@@ -55,9 +61,9 @@ function isUUID(value: string) {
   return z.uuid().safeParse(value).success;
 }
 
-function validateUUID(value: string) {
+function validateUUID(value: string, message?: string) {
   if (!isUUID(value)) {
-    throw new AppError('Invalid UUID', { cause: value });
+    throw new AppError(message ?? 'Invalid UUID', { cause: value });
   }
 }
 
@@ -88,6 +94,7 @@ const stringUtils = Object.freeze({
   sanitizeAndValidate: sanitizeAndValidateString,
   isUUID,
   isNonEmptyString,
+  validateIsNonEmptyString,
   validateUUID,
   generateUUID,
   toUUD,

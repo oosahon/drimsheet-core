@@ -7,7 +7,7 @@ import {
   ENormalBalance,
   ILedgerAccount,
 } from '../../../../domain/ledger/types/ledger.types';
-import MockLogger from '../../../../infra/observability/__mocks__/logger.mock';
+import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeMapCategoryToAccountUseCase from '../map-category-to-account.usecase';
 
@@ -45,14 +45,14 @@ describe('mapCategoryToAccountUseCase', () => {
     ...overrides,
   });
 
-  const usecase = makeMapCategoryToAccountUseCase(MockLogger);
+  const usecase = makeMapCategoryToAccountUseCase(mockLogger);
 
   it('should skip category mapping if account is a control account', async () => {
     const account = getBaseAccount({ isControlAccount: true });
 
     await usecase(account);
 
-    expect(MockLogger.warn).toHaveBeenCalledWith(
+    expect(mockLogger.warn).toHaveBeenCalledWith(
       `Skipping category mapping for control account ${account.id} with type ${account.type}`
     );
   });
@@ -62,7 +62,7 @@ describe('mapCategoryToAccountUseCase', () => {
 
     await usecase(account);
 
-    expect(MockLogger.warn).toHaveBeenCalledWith(
+    expect(mockLogger.warn).toHaveBeenCalledWith(
       `Skipping category mapping for account ${account.id} with type ${account.type}`
     );
   });
@@ -74,7 +74,7 @@ describe('mapCategoryToAccountUseCase', () => {
 
       await usecase(account);
 
-      expect(MockLogger.warn).not.toHaveBeenCalled();
+      expect(mockLogger.warn).not.toHaveBeenCalled();
     }
   );
 });

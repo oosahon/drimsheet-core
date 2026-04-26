@@ -1,13 +1,25 @@
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
+import {
+  ILedgerAccountBalanceAdjustmentDto,
+  ITransactionalEmailDto,
+} from '../dto/workers.dto';
 
-export interface ITransactionalEmailPayload extends ICorrelationId {
-  emails: string[];
-  subject: string;
-  html: string;
-  templateId?: string;
-  data?: Record<string, string>;
-}
+export const EQueueName = {
+  TransactionalEmail: 'transactional-email-queue',
+  LedgerAccountBalanceAdjustment: 'ledger-account-balance-adjustment-queue',
+} as const;
 
-export interface IQueue {
-  addTransactionalEmail(payload: ITransactionalEmailPayload): void;
+export type UQueueName = (typeof EQueueName)[keyof typeof EQueueName];
+
+export type TWorkerRegistrar<WorkerType, PayloadType extends ICorrelationId> = (
+  name: string,
+  processor: (payload: PayloadType) => Promise<void>
+) => WorkerType;
+
+export default interface IQueue {
+  addTransactionalEmail(payload: ITransactionalEmailDto): Promise<void>;
+
+  addLedgerAccountBalanceAdjustment(
+    payload: ILedgerAccountBalanceAdjustmentDto
+  ): Promise<void>;
 }

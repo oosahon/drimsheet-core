@@ -38,6 +38,7 @@ describe('JournalEntry Entity', () => {
         postedAt: null,
         voidedAt: null,
         voidingEntryId: null,
+        createdBy: '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d' as TEntityId,
         lines: [
           {
             accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
@@ -77,6 +78,7 @@ describe('JournalEntry Entity', () => {
       expect(entry.version).toBe(1);
       expect(entry.createdAt).toEqual(new Date('2026-04-15T00:00:00.000Z'));
       expect(entry.updatedAt).toEqual(new Date('2026-04-15T00:00:00.000Z'));
+      expect(entry.createdBy).toBe(validPayload.createdBy);
 
       expect(entry.lines).toHaveLength(2);
       expect(entry.lines[0].entryId).toBe(entry.id);

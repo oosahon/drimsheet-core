@@ -1,25 +1,39 @@
 import z from 'zod';
 import {
-  exchangeRateDtoValidation,
-  IExchangeRateDto,
-  IMoneyDto,
-  moneyDtoValidation,
-} from './money.dto';
+  IOpeningBalanceDto,
+  openingBalanceDtoValidation,
+} from './accounting.dto';
+import { currencyCodeValidation } from './money.dto';
 
 export interface IPettyCashAccountCreationReq {
   name: string;
-  openingBalance: IMoneyDto;
+  currencyCode: string;
   isControlAccount: boolean;
-  exchangeRate: IExchangeRateDto | null;
   controlAccountCode?: string;
+
+  openingBalance: IOpeningBalanceDto | null;
 }
-export const pettyCashCreationReqValidation = z.object({
-  name: z
-    .string()
-    .min(1, 'Name is required')
-    .max(100, 'Name must be at most 100 characters long'),
-  openingBalance: moneyDtoValidation,
-  isControlAccount: z.boolean(),
-  exchangeRate: exchangeRateDtoValidation.nullable(),
-  controlAccountCode: z.string().optional(),
-});
+export const pettyCashCreationReqValidation = z
+  .object({
+    name: z
+      .string()
+      .min(1, 'Name is required')
+      .max(100, 'Name must be at most 100 characters long'),
+    currencyCode: currencyCodeValidation,
+    isControlAccount: z.boolean(),
+    controlAccountCode: z.string().optional(),
+
+    openingBalance: openingBalanceDtoValidation.nullable(),
+  })
+  .refine(
+    (data) => {
+      if (data.openingBalance) {
+        return data.openingBalance.amount.currencyCode === data.currencyCode;
+      }
+      return true;
+    },
+    {
+      message: 'Opening balance currency must match account currency',
+      path: ['openingBalance', 'amount', 'currencyCode'],
+    }
+  );

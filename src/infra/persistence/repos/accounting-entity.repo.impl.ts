@@ -35,7 +35,7 @@ const accountingEntityRepo: IAccountingEntityRepo = {
       )
       .where(eq(accountingEntitiesInCore.id, id));
 
-    return accountingEntityMapper.toDomain(result);
+    return result ? accountingEntityMapper.toDomain(result) : null;
   },
 
   findByUserId: async (userId, options, type) => {

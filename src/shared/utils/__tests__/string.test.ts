@@ -23,6 +23,42 @@ describe('stringUtils', () => {
     });
   });
 
+  describe('validateIsNonEmptyString', () => {
+    it('does not throw for a non-empty string', () => {
+      expect(() => stringUtils.validateIsNonEmptyString('hello')).not.toThrow();
+    });
+
+    it('throws AppError for an empty or whitespace-only string', () => {
+      expect(() => stringUtils.validateIsNonEmptyString('')).toThrow(AppError);
+      expect(() => stringUtils.validateIsNonEmptyString('   ')).toThrow(
+        AppError
+      );
+    });
+
+    it('throws AppError with custom message', () => {
+      expect(() =>
+        stringUtils.validateIsNonEmptyString('', 'Custom error message')
+      ).toThrow(AppError);
+
+      try {
+        stringUtils.validateIsNonEmptyString('', 'Custom error message');
+      } catch (error) {
+        expect(error).toBeInstanceOf(AppError);
+        expect((error as AppError).message).toBe('Custom error message');
+        expect((error as AppError).cause).toEqual({ cause: '' });
+      }
+    });
+
+    it('throws AppError for non-string values', () => {
+      // @ts-expect-error testing invalid types
+      expect(() => stringUtils.validateIsNonEmptyString(null)).toThrow(
+        AppError
+      );
+      // @ts-expect-error testing invalid types
+      expect(() => stringUtils.validateIsNonEmptyString(123)).toThrow(AppError);
+    });
+  });
+
   describe('sanitizeAndValidate', () => {
     it('returns the string if it is within min and max length', () => {
       expect(

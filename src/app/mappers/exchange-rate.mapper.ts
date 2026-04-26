@@ -3,7 +3,7 @@ import { IExchangeRate } from '../../domain/currency/types/exchange-rate.types';
 import { exchangeRatesInCore } from '../../infra/config/drizzle/schema';
 import { fromRepoDate, toRepoDate } from './date';
 
-interface IExchangeRateModel extends InferSelectModel<
+export interface IExchangeRateModel extends InferSelectModel<
   typeof exchangeRatesInCore
 > {}
 

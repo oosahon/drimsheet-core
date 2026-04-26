@@ -21,6 +21,7 @@ interface IMakePayload extends Pick<
   | 'voidedAt'
   | 'voidingEntryId'
   | 'memo'
+  | 'createdBy'
 > {
   functionalCurrency: ICurrency;
   lines: IJournalLineMakePayload[];
@@ -30,6 +31,7 @@ function make(
   payload: IMakePayload
 ): TEntityWithEvents<IJournalEntry, IJournalEntry | IJournalLine> {
   stringUtils.validateUUID(payload.accountingEntityId);
+  stringUtils.validateUUID(payload.createdBy);
   if (payload.transactionId) stringUtils.validateUUID(payload.transactionId);
   helpers.validateStatus(payload.status);
   dateUtils.validateDate(payload.effectiveDate);
@@ -61,6 +63,7 @@ function make(
     voidedAt: payload.voidedAt,
     voidingEntryId: payload.voidingEntryId,
     version: 1,
+    createdBy: payload.createdBy,
     createdAt: timestamp,
     updatedAt: timestamp,
   };

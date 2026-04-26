@@ -262,12 +262,10 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IPettyCashAccountCreationReq: {
+  IOpeningBalanceDto: {
     dataType: 'refObject',
     properties: {
-      name: { dataType: 'string', required: true },
-      openingBalance: { ref: 'IMoneyDto', required: true },
-      isControlAccount: { dataType: 'boolean', required: true },
+      amount: { ref: 'IMoneyDto', required: true },
       exchangeRate: {
         dataType: 'union',
         subSchemas: [
@@ -276,7 +274,25 @@ const models: TsoaRoute.Models = {
         ],
         required: true,
       },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPettyCashAccountCreationReq: {
+    dataType: 'refObject',
+    properties: {
+      name: { dataType: 'string', required: true },
+      currencyCode: { dataType: 'string', required: true },
+      isControlAccount: { dataType: 'boolean', required: true },
       controlAccountCode: { dataType: 'string' },
+      openingBalance: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IOpeningBalanceDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
     },
     additionalProperties: false,
   },

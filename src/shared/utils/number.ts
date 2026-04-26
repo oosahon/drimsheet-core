@@ -112,6 +112,21 @@ function validatePositiveNumber(
   }
 }
 
+function isNonNegativeNumber(value: string | number | bigint): boolean {
+  return toFloat(value) >= 0;
+}
+
+function validateNonNegativeNumber(
+  value: string | number | bigint,
+  message?: string
+) {
+  if (!isNonNegativeNumber(value)) {
+    throw new AppError(message || 'Value must not be negative', {
+      cause: value,
+    });
+  }
+}
+
 const numberUtils = Object.freeze({
   toBigInt,
   toFloat,
@@ -123,6 +138,8 @@ const numberUtils = Object.freeze({
   validateInteger,
   isPositiveNumber,
   validatePositiveNumber,
+  isNonNegativeNumber,
+  validateNonNegativeNumber,
 });
 
 export default numberUtils;

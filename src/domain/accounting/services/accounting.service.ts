@@ -1,28 +1,33 @@
 import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { IMoney } from '../../../shared/types/money.types';
+import { TEntityId } from '../../../shared/types/uuid';
 import { AppError } from '../../../shared/value-objects/error';
-import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
-import { IExchangeRate } from '../../currency/types/exchange-rate.types';
+import moneyValue from '../../../shared/value-objects/money.vo';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
 import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
 import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../journal-entry/types/journal-line.types';
+import {
+  EJournalSide,
+  IJournalLine,
+} from '../../journal-entry/types/journal-line.types';
+import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
-import { ELedgerType, ILedgerAccount } from '../../ledger/types/ledger.types';
-
-interface IOpeningBalanceTransaction {
-  accountingEntity: IAccountingEntity;
-  account: ILedgerAccount;
-  exchangeRate: IExchangeRate | null;
-  amount: IMoney;
-}
+import { ELedgerType } from '../../ledger/types/ledger.types';
+import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
+import getBalanceEffectRule from '../rules/get-balance-effect.rule';
+import {
+  ILedgerAccountBalanceEffectDelta,
+  IOpeningBalanceTransaction,
+} from '../types/accounting.service.types';
+import { ELedgerAccountBalanceEffect } from '../types/ledger-account-balance.types';
 
 export default function makeAccountingService(
-  ledgerAccountRepo: ILedgerAccountRepo
+  ledgerAccountRepo: ILedgerAccountRepo,
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
 ) {
   return {
-    async recordOpeningBalanceTransaction(
+    async createOpeningBalanceJournalEntry(
       payload: IOpeningBalanceTransaction,
       repoOptions: IRepoOptions
     ) {
@@ -33,12 +38,13 @@ export default function makeAccountingService(
         });
       }
 
-      const existingAccount = await ledgerAccountRepo.findById(
-        payload.account.id,
-        repoOptions
-      );
+      const [existingBalanceAdjustment] =
+        await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
+          payload.account.id,
+          { ...repoOptions, limit: 1 }
+        );
 
-      if (existingAccount) {
+      if (existingBalanceAdjustment) {
         throw new AppError('Opening balance has already been set', {
           cause: { accountId: payload.account.id },
         });
@@ -87,11 +93,90 @@ export default function makeAccountingService(
         voidedAt: null,
         voidingEntryId: null,
         memo: 'Opening balance',
+        createdBy: account.createdBy,
         functionalCurrency: accountingEntity.functionalCurrency,
         lines: [debitLinePayload, creditLinePayload],
       });
 
       return journalEntry;
+    },
+
+    async getBalanceEffectDelta(
+      accountId: TEntityId,
+      journalLines: IJournalLine[],
+      repoOptions: IRepoOptions
+    ): Promise<ILedgerAccountBalanceEffectDelta> {
+      const account = await ledgerAccountRepo.findById(accountId, repoOptions);
+
+      if (!account) {
+        throw new AppError('Account not found', { cause: { accountId } });
+      }
+
+      const isSame = journalLines.every((line) => {
+        const prototype = journalLines[0];
+
+        const isSameAccount = line.accountId === accountId;
+
+        const isSameFunctionalCurrency =
+          line.functionalAmount.currency.code ===
+          prototype.functionalAmount.currency.code;
+
+        const isSameCurrencyAsAccount =
+          line.amount.currency.code === account.currency.code;
+
+        return (
+          isSameAccount && isSameFunctionalCurrency && isSameCurrencyAsAccount
+        );
+      });
+
+      if (!isSame) {
+        throw new AppError(
+          'All lines must be associated with the same account, functional currency and currency',
+          {
+            cause: journalLines.map((v) => ({
+              accountId: v.accountId,
+              functionalCurrency: v.functionalAmount.currency,
+              currency: v.amount.currency,
+            })),
+          }
+        );
+      }
+
+      let balanceDelta: IMoney = moneyValue.makeZeroAmount(account.currency);
+      let functionalBalanceDelta: IMoney = moneyValue.makeZeroAmount(
+        journalLines[0].functionalAmount.currency
+      );
+
+      for (const line of journalLines) {
+        const effect = getBalanceEffectRule({
+          accountType: account.type,
+          normalBalance: account.normalBalance,
+          journalSide: line.side,
+        });
+
+        if (effect === ELedgerAccountBalanceEffect.Increase) {
+          balanceDelta = moneyValue.add(balanceDelta, line.amount);
+          functionalBalanceDelta = moneyValue.add(
+            functionalBalanceDelta,
+            line.functionalAmount
+          );
+        } else {
+          balanceDelta = moneyValue.subtract(balanceDelta, line.amount);
+          functionalBalanceDelta = moneyValue.subtract(
+            functionalBalanceDelta,
+            line.functionalAmount
+          );
+        }
+      }
+
+      return {
+        balanceDelta,
+        functionalBalanceDelta,
+        affectedLedgerCodes:
+          ledgerAccountEntity.getAncestryCodesFromMaterializedPath(
+            account.materializedPath
+          ),
+      };
     },
   };
 }

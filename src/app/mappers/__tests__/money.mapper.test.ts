@@ -68,4 +68,12 @@ describe('Money Mapper', () => {
       });
     });
   });
+
+  describe('fromRepo', () => {
+    it('should map a repo object to domain money', () => {
+      const result = moneyMapper.fromRepo(1000, 'USD');
+      expect(result.amount).toStrictEqual(moneyDomain.amount);
+      expect(result.currency.code).toBe(moneyDomain.currency.code);
+    });
+  });
 });

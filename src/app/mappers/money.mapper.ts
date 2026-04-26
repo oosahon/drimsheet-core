@@ -14,6 +14,12 @@ const moneyMapper = {
     };
   },
 
+  fromRepo(amount: number, currencyCode: string): IMoney {
+    const currency = currencyEntity.getByCode(currencyCode);
+
+    return moneyValue.make(amount, currency, true);
+  },
+
   fromDto(money: IMoneyDto): IMoney {
     const isValid = currencyEntity.isValidCode(money.currencyCode);
 
@@ -33,9 +39,6 @@ const moneyMapper = {
 
     const currency = SYSTEM_CURRENCIES[money.currencyCode];
 
-    if (!currency) {
-      throw validationError;
-    }
     return moneyValue.make(money.amount, currency, !!money.isMinorUnit);
   },
 

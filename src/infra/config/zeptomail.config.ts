@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { ITransactionalEmailPayload } from '../../app/contracts/infra/transactional-email-agent.contract';
+import { ITransactionalEmailDto } from '../../app/contracts/dto/workers.dto';
 import {
   ZEPTO_TOKEN_NOREPLY,
   ZEPTO_TOKEN_NOTIFICATIONS,
@@ -14,7 +14,7 @@ interface IEmailSender {
 }
 
 async function sendEmail(
-  payload: Omit<ITransactionalEmailPayload, 'correlationId'>,
+  payload: Omit<ITransactionalEmailDto, 'correlationId'>,
   sender: IEmailSender
 ) {
   await axios.post(
@@ -44,7 +44,7 @@ async function sendEmail(
 
 function createSender(sender: IEmailSender) {
   return {
-    async send(payload: Omit<ITransactionalEmailPayload, 'correlationId'>) {
+    async send(payload: Omit<ITransactionalEmailDto, 'correlationId'>) {
       await sendEmail(payload, sender);
     },
   };

@@ -1,8 +1,8 @@
-import path from 'path';
-import fs from 'fs';
 import { eq } from 'drizzle-orm';
-import { db } from '../src/infra/persistence';
+import fs from 'fs';
+import path from 'path';
 import logger from '../src/infra/observability/logger';
+import { db } from '../src/infra/persistence';
 import { seeds } from '../src/infra/persistence/drizzle/schema';
 
 function getAllSeeds() {
