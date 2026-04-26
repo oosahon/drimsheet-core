@@ -54,9 +54,14 @@ function updateBalance(
   moneyValue.validate(delta);
 
   return Object.freeze({
-    // balance version update is delegated to the repo's optimistic concurrency
-    ...existingBalance,
+    ledgerAccountId: existingBalance.ledgerAccountId,
+    accountingEntityId: existingBalance.accountingEntityId,
+    accountMaterializedPath: existingBalance.accountMaterializedPath,
+    version: existingBalance.version, // version update delegated to repo implementation
+    createdAt: existingBalance.createdAt,
+
     amount: moneyValue.add(existingBalance.amount, delta),
+    functionalAmount: moneyValue.add(existingBalance.functionalAmount, delta),
     updatedAt: new Date(),
   });
 }
