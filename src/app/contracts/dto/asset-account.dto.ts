@@ -1,7 +1,7 @@
 import z from 'zod';
 import {
-  IOpeningBalanceCreationReq,
-  openingBalanceCreationReqValidation,
+  IOpeningBalanceDto,
+  openingBalanceDtoValidation,
 } from './accounting.dto';
 import { currencyCodeValidation } from './money.dto';
 
@@ -11,7 +11,7 @@ export interface IPettyCashAccountCreationReq {
   isControlAccount: boolean;
   controlAccountCode?: string;
 
-  openingBalance: Omit<IOpeningBalanceCreationReq, 'accountId'> | null;
+  openingBalance: IOpeningBalanceDto | null;
 }
 export const pettyCashCreationReqValidation = z
   .object({
@@ -23,9 +23,7 @@ export const pettyCashCreationReqValidation = z
     isControlAccount: z.boolean(),
     controlAccountCode: z.string().optional(),
 
-    openingBalance: openingBalanceCreationReqValidation
-      .omit({ accountId: true })
-      .nullable(),
+    openingBalance: openingBalanceDtoValidation.nullable(),
   })
   .refine(
     (data) => {

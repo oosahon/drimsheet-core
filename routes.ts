@@ -251,36 +251,31 @@ const models: TsoaRoute.Models = {
   IExchangeRateDto: {
     dataType: 'refObject',
     properties: {
-      id: { dataType: 'double' },
       baseCurrencyCode: { dataType: 'string', required: true },
       targetCurrencyCode: { dataType: 'string', required: true },
       rate: { dataType: 'double', required: true },
       type: { ref: 'UExchangeRateType', required: true },
       asOf: { dataType: 'datetime', required: true },
       source: { dataType: 'string', required: true },
+      id: { dataType: 'double' },
     },
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  'Pick_IOpeningBalanceCreationReq.Exclude_keyofIOpeningBalanceCreationReq.accountId__':
-    {
-      dataType: 'refAlias',
-      type: {
-        dataType: 'nestedObjectLiteral',
-        nestedProperties: {
-          amount: { ref: 'IMoneyDto', required: true },
-          exchangeRate: { ref: 'IExchangeRateDto', required: true },
-        },
-        validators: {},
+  IOpeningBalanceDto: {
+    dataType: 'refObject',
+    properties: {
+      amount: { ref: 'IMoneyDto', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRateDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
       },
     },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  'Omit_IOpeningBalanceCreationReq.accountId_': {
-    dataType: 'refAlias',
-    type: {
-      ref: 'Pick_IOpeningBalanceCreationReq.Exclude_keyofIOpeningBalanceCreationReq.accountId__',
-      validators: {},
-    },
+    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IPettyCashAccountCreationReq: {
@@ -293,7 +288,7 @@ const models: TsoaRoute.Models = {
       openingBalance: {
         dataType: 'union',
         subSchemas: [
-          { ref: 'Omit_IOpeningBalanceCreationReq.accountId_' },
+          { ref: 'IOpeningBalanceDto' },
           { dataType: 'enum', enums: [null] },
         ],
         required: true,

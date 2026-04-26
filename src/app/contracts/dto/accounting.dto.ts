@@ -6,13 +6,19 @@ import {
   moneyDtoValidation,
 } from './money.dto';
 
-export interface IOpeningBalanceCreationReq {
+export interface IOpeningBalanceDto {
   amount: IMoneyDto;
   exchangeRate: IExchangeRateDto | null;
-  accountId: string;
 }
-export const openingBalanceCreationReqValidation = z.object({
+export const openingBalanceDtoValidation = z.object({
   amount: moneyDtoValidation,
   exchangeRate: exchangeRateDtoValidation.nullable(),
+});
+export interface IOpeningBalanceCreationReq extends IOpeningBalanceDto {
+  accountId: string;
+}
+
+export const openingBalanceCreationReqValidation = z.object({
+  ...openingBalanceDtoValidation.shape,
   accountId: z.uuid('Invalid account ID'),
 });
