@@ -2,19 +2,20 @@ import {
   ILedgerAccountBalanceAdjustmentDto,
   ITransactionalEmailDto,
 } from '../../../app/contracts/dto/workers.dto';
+import { EQueueName } from '../../../app/contracts/infra/queues.contract';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
 import workers from '../../../app/handlers/queue/index';
 import { registerBullMQWorker } from '../../config/bullmq.config';
 
-function workerRegistrationV2(reporter: IReporter) {
+function workerRegistration(reporter: IReporter) {
   try {
     registerBullMQWorker<ITransactionalEmailDto>(
-      'transactional-email',
+      EQueueName.TransactionalEmail,
       workers.transactionalEmail
     );
 
     registerBullMQWorker<ILedgerAccountBalanceAdjustmentDto>(
-      'ledger-account-balance-adjustment',
+      EQueueName.LedgerAccountBalanceAdjustment,
       workers.ledgerAccountBalanceAdjustment
     );
   } catch (error) {
@@ -22,4 +23,4 @@ function workerRegistrationV2(reporter: IReporter) {
   }
 }
 
-export default workerRegistrationV2;
+export default workerRegistration;

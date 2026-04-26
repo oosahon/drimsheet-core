@@ -1,26 +1,14 @@
 import ledgerAccountBalanceEntity from '../../../domain/accounting/entities/ledger-account-balance.entity';
 import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import stringUtils from '../../../shared/utils/string';
+import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import { AppError } from '../../../shared/value-objects/error';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../contracts/dto/workers.dto';
+import {
+  ILedgerAccountBalanceAdjustmentDto,
+  ledgerAccountBalanceAdjustmentDtoSchema,
+} from '../../contracts/dto/workers.dto';
 import IQueue from '../../contracts/infra/queues.contract';
 import moneyMapper from '../../mappers/money.mapper';
-
-const validate = (payload: ILedgerAccountBalanceAdjustmentDto) => {
-  const { correlationId, journalEntry, ledgerAccountId } = payload;
-
-  stringUtils.validateIsNonEmptyString(correlationId, 'Invalid correlation ID');
-  stringUtils.validateUUID(journalEntry.id, 'Invalid journal entry ID');
-  if (journalEntry.transactionId) {
-    stringUtils.validateUUID(
-      journalEntry.transactionId,
-      'Invalid transaction ID'
-    );
-  }
-  stringUtils.validateUUID(journalEntry.createdBy, 'Invalid created by ID');
-  stringUtils.validateUUID(ledgerAccountId, 'Invalid account ID');
-};
 
 export default function makeAdjustLedgerAccountBalanceUseCase(
   ledgerAccountRepo: ILedgerAccountRepo,
@@ -28,7 +16,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
   queue: IQueue
 ) {
   return async (payload: ILedgerAccountBalanceAdjustmentDto) => {
-    validate(payload);
+    zodValidationRunner(ledgerAccountBalanceAdjustmentDtoSchema, payload);
 
     const { correlationId, journalEntry, ledgerAccountId } = payload;
 

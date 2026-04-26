@@ -1,5 +1,5 @@
 import eventBus from './event-bus';
-import queues from './jobs/queues';
+import queues from './queues';
 
 const messaging = {
   eventBus,

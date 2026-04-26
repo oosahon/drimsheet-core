@@ -1,4 +1,5 @@
 import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
+import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import { IMoney } from '../../../../shared/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -24,13 +25,19 @@ import {
 import makeAccountingService from '../accounting.service';
 
 describe('accountingService', () => {
-  const service = makeAccountingService(mockLedgerAccountRepo);
+  const service = makeAccountingService(
+    mockLedgerAccountRepo,
+    mockLedgerAccountBalanceRepo
+  );
   const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
 
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-03-15T00:00:00.000Z'));
-    jest.clearAllMocks();
+    jest.resetAllMocks();
+    mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId.mockResolvedValue(
+      []
+    );
   });
 
   afterEach(() => {
@@ -77,7 +84,6 @@ describe('accountingService', () => {
 
     describe('when valid payload is provided', () => {
       it('should return a journal entry successfully', async () => {
-        mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
         mockLedgerAccountRepo.findBySubType.mockResolvedValueOnce([
           validEquityAccount,
         ]);
@@ -112,7 +118,9 @@ describe('accountingService', () => {
       });
 
       it('should throw if opening balance has already been set', async () => {
-        mockLedgerAccountRepo.findById.mockResolvedValueOnce(validAccount);
+        mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId.mockResolvedValueOnce(
+          [{ id: 'mock-adjustment' } as never]
+        );
 
         await expect(
           service.createOpeningBalanceJournalEntry(validPayload, mockOptions)
@@ -120,7 +128,6 @@ describe('accountingService', () => {
       });
 
       it('should throw if equity account is not configured', async () => {
-        mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
         mockLedgerAccountRepo.findBySubType.mockResolvedValueOnce([]);
 
         await expect(
@@ -131,7 +138,6 @@ describe('accountingService', () => {
 
     describe('Payload Validations (Domain bubbling)', () => {
       beforeEach(() => {
-        mockLedgerAccountRepo.findById.mockResolvedValue(null);
         mockLedgerAccountRepo.findBySubType.mockResolvedValue([
           validEquityAccount,
         ]);

@@ -49,9 +49,11 @@ function make(payload: IMakePayload): ILedgerAccountBalance {
 
 function updateBalance(
   existingBalance: ILedgerAccountBalance,
-  delta: IMoney
+  delta: IMoney,
+  functionalDelta: IMoney
 ): ILedgerAccountBalance {
   moneyValue.validate(delta);
+  moneyValue.validate(functionalDelta);
 
   return Object.freeze({
     ledgerAccountId: existingBalance.ledgerAccountId,
@@ -61,7 +63,10 @@ function updateBalance(
     createdAt: existingBalance.createdAt,
 
     amount: moneyValue.add(existingBalance.amount, delta),
-    functionalAmount: moneyValue.add(existingBalance.functionalAmount, delta),
+    functionalAmount: moneyValue.add(
+      existingBalance.functionalAmount,
+      functionalDelta
+    ),
     updatedAt: new Date(),
   });
 }
@@ -90,7 +95,11 @@ function makeAdjustment(
     createdBy: payload.createdBy,
     createdAt: new Date(),
   });
-  const newBalance = updateBalance(existingBalance, payload.amount);
+  const newBalance = updateBalance(
+    existingBalance,
+    payload.amount,
+    payload.functionalAmount
+  );
 
   const data = Object.freeze({
     adjustment,

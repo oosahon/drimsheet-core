@@ -1,5 +1,5 @@
 import eventBus from '../../infra/messaging/event-bus';
-import registerWorkers from '../../infra/messaging/jobs/workers';
+import registerWorkers from '../../infra/messaging/workers';
 import observability from '../../infra/observability';
 import repos from '../../infra/persistence/repos';
 import setupServer from '../../infra/server';

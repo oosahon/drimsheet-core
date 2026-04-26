@@ -9,6 +9,7 @@ import { IUser } from '../../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
 import mockExchangeRateRepo from '../../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
 import mockJournalEntryRepo from '../../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
+import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import mockRequestContext, {
@@ -87,6 +88,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockRequestContext,
       mockEventBus,
       mockLedgerAccountRepo,
+      mockLedgerAccountBalanceRepo,
       mockJournalEntryRepo,
       mockExchangeRateRepo
     );
@@ -99,16 +101,29 @@ describe('createPettyCashSubAccountUseCase', () => {
     expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
       ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       mockAccountingEntity.id,
-      expect.any(Object)
+      { correlationId }
     );
 
-    expect(mockLedgerAccountRepo.save).toHaveBeenCalled();
-    expect(mockEventBus.publish).toHaveBeenCalled();
+    expect(mockLedgerAccountRepo.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: validPayload.name,
+        accountingEntityId: mockAccountingEntity.id,
+      }),
+      { correlationId }
+    );
+    expect(mockEventBus.publish).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          correlationId,
+        }),
+      ])
+    );
 
     expect(makeRecordOpeningBalanceUseCase).toHaveBeenCalledWith(
       mockRequestContext,
       mockExchangeRateRepo,
       mockLedgerAccountRepo,
+      mockLedgerAccountBalanceRepo,
       mockJournalEntryRepo,
       mockEventBus
     );
@@ -123,8 +138,20 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     await useCase({ ...validPayload, openingBalance: null });
 
-    expect(mockLedgerAccountRepo.save).toHaveBeenCalled();
-    expect(mockEventBus.publish).toHaveBeenCalled();
+    expect(mockLedgerAccountRepo.save).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: validPayload.name,
+        accountingEntityId: mockAccountingEntity.id,
+      }),
+      { correlationId }
+    );
+    expect(mockEventBus.publish).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          correlationId,
+        }),
+      ])
+    );
     expect(makeRecordOpeningBalanceUseCase).not.toHaveBeenCalled();
   });
 

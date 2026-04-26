@@ -4,7 +4,7 @@ import { ExpressAdapter } from '@bull-board/express';
 import {
   ledgerAccountBalanceAdjustmentQueue,
   transactionalEmailQueue,
-} from '../messaging/jobs/queues';
+} from '../messaging/queues';
 
 const bullMqServerAdapter = new ExpressAdapter();
 

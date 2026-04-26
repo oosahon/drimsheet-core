@@ -152,6 +152,10 @@ describe('ledgerAccountBalanceEntity', () => {
           amount: 100n,
           currency: currencyEntity.getByCode('NGN'),
         },
+        functionalAmount: {
+          amount: 150n,
+          currency: currencyEntity.getByCode('USD'),
+        },
         updatedAt: new Date('2026-04-01T00:00:00.000Z'),
       });
       expect(Object.isFrozen(newBalance)).toBe(true);

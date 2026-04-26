@@ -94,6 +94,7 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     makeEnqueueBalanceAdjustmentsUseCase(
       mockRequestContext,
       mockLedgerAccountRepo,
+      mockLedgerAccountBalanceRepo,
       mockQueue
     );
 
@@ -151,6 +152,75 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
       mockAssetAccount.id,
       { correlationId }
+    );
+    expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        correlationId,
+        ledgerAccountId: mockAssetAccount.id,
+      })
+    );
+  });
+
+  it('should group multiple journal lines for the same account before adjusting', async () => {
+    const useCase = getUseCase();
+
+    const mockJournalLine1: IJournalLine = {
+      id: '123e4567-e89b-12d3-a456-426614174005' as TEntityId,
+      accountId: mockAssetAccount.id,
+      amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+      functionalAmount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+      exchangeRate: null,
+      entryId: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
+      meta: null,
+      version: 1,
+      sequenceOrder: 1,
+      side: EJournalSide.Debit,
+      description: 'Test 1',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const mockJournalLine2: IJournalLine = {
+      id: '123e4567-e89b-12d3-a456-426614174007' as TEntityId,
+      accountId: mockAssetAccount.id,
+      amount: { amount: 500n, currency: SYSTEM_CURRENCIES.NGN },
+      functionalAmount: { amount: 500n, currency: SYSTEM_CURRENCIES.NGN },
+      exchangeRate: null,
+      entryId: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
+      meta: null,
+      version: 1,
+      sequenceOrder: 2,
+      side: EJournalSide.Credit,
+      description: 'Test 2',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    const mockJournalEntry: IJournalEntry = {
+      id: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
+      accountingEntityId: mockAccountingEntity.id,
+      transactionId: null,
+      status: EJournalEntryStatus.Posted,
+      effectiveDate: new Date(),
+      postedAt: new Date(),
+      voidedAt: null,
+      voidingEntryId: null,
+      memo: 'Test memo',
+      version: 1,
+      createdBy: mockUser.id,
+      lines: [mockJournalLine1, mockJournalLine2],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    await useCase(mockJournalEntry);
+
+    expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
+      mockAssetAccount.id,
+      { correlationId }
+    );
+    expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledTimes(
+      1
     );
     expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledWith(
       expect.objectContaining({
