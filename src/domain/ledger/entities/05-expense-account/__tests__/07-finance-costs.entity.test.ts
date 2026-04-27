@@ -78,6 +78,8 @@ describe('Finance Costs Expense Entity', () => {
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
+      | 'accountingContextId'
+      | 'accountingContextId'
       | 'currency'
       | 'isControlAccount'
       | 'controlAccountId'
@@ -85,6 +87,7 @@ describe('Finance Costs Expense Entity', () => {
     > = {
       name: 'Interest on Short Term Loans',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: false,

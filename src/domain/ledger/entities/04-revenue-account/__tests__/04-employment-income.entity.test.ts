@@ -75,6 +75,7 @@ describe('Employment Income Revenue Entity', () => {
     const validPayload = {
       name: 'Salary - ACME Corp',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: false,

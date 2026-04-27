@@ -51,6 +51,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -83,6 +85,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Company,
         functionalCurrency: validCurrency,
@@ -99,6 +103,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: 'INVALID_TYPE' as UAccountingEntityType,
         functionalCurrency: validCurrency,
@@ -116,6 +122,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: 'invalid-uuid' as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -132,6 +140,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: invalidCurrency,
@@ -148,6 +158,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -167,6 +179,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.SoleTrader,
         functionalCurrency: invalidCurrency,
@@ -181,6 +195,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -195,6 +211,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -209,6 +227,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -223,6 +243,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -237,6 +259,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Company,
         functionalCurrency: validCurrency,
@@ -253,6 +277,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Company,
         functionalCurrency: validCurrency,
@@ -267,6 +293,8 @@ describe('Accounting Domain Entity', () => {
       const payload1: TCreationOmits<IAccountingEntity> = {
         name: '   ',
         operatingCountryCode: 'NG',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -290,6 +318,8 @@ describe('Accounting Domain Entity', () => {
       const payload: TCreationOmits<IAccountingEntity> = {
         name: 'Test Entity',
         operatingCountryCode: 'INVALID_COUNTRY',
+        accountingContextId:
+          '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
         ownerId: validUser.id as TEntityId,
         type: EAccountingEntityType.Individual,
         functionalCurrency: validCurrency,
@@ -368,6 +398,8 @@ describe('Accounting Domain Entity', () => {
           name: 'Test',
           type: EAccountingEntityType.Company,
           operatingCountryCode: 'NG',
+          accountingContextId:
+            '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
           ownerId: validUser.id as TEntityId,
           functionalCurrency: validCurrency,
           reportingCurrency: validCurrency,

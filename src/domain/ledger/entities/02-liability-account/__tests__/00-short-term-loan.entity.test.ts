@@ -81,6 +81,8 @@ describe('Short Term Loan Liability Entity', () => {
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
+      | 'accountingContextId'
+      | 'accountingContextId'
       | 'currency'
       | 'isControlAccount'
       | 'controlAccountId'
@@ -89,6 +91,7 @@ describe('Short Term Loan Liability Entity', () => {
     > = {
       name: 'Short Term Debts',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: true,
@@ -209,6 +212,7 @@ describe('Short Term Loan Liability Entity', () => {
     const validPayload: TCreationOmits<ICreditCardAccount> = {
       name: 'Office Credit Card',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,
@@ -284,6 +288,7 @@ describe('Short Term Loan Liability Entity', () => {
     const validPayload: TCreationOmits<IOverdraftAccount> = {
       name: 'Main Overdraft',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,
@@ -381,6 +386,7 @@ describe('Short Term Loan Liability Entity', () => {
     const validPayload: TCreationOmits<IShortTermLoanAccount> = {
       name: 'Payday Loan',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,

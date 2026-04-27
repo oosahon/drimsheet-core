@@ -75,6 +75,7 @@ describe('Gain on Sale Revenue Entity', () => {
     const validPayload = {
       name: 'Gain on Sale of Property',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: false,

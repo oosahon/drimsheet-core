@@ -63,6 +63,7 @@ export default function makeAssetPostingAccountService(
         createdBy: payload.user.id,
         controlAccountId: controlAccount.id,
         accountingEntityId: payload.accountingEntity.id,
+        accountingContextId: payload.accountingEntity.accountingContextId,
       };
 
       const precedingCode = latest?.code ?? controlAccount.code;

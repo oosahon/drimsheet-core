@@ -17,6 +17,7 @@ describe('equityAccountService', () => {
   const ownerId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 
   const accountingEntity = {
+    accountingContextId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
     id: accountingEntityId,
     ownerId,
     type: EAccountingEntityType.Individual,

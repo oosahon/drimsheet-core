@@ -27,6 +27,8 @@ function make(
     | 'name'
     | 'createdBy'
     | 'accountingEntityId'
+    | 'accountingContextId'
+    | 'accountingContextId'
     | 'currency'
     | 'behavior'
     | 'isControlAccount'
@@ -48,6 +50,7 @@ function make(
   const account = ledgerAccountEntity.make<IDirectCostsAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
+    accountingContextId: payload.accountingContextId,
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),

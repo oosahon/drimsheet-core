@@ -75,6 +75,7 @@ describe('Opening Balance Equity Entity', () => {
     const validPayload = {
       name: 'System Opening Balances',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       currency: validCurrency,
       createdBy: validUUID2,
     };

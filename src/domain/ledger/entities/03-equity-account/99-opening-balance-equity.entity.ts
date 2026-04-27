@@ -24,7 +24,12 @@ interface IParentDetails {
 function make(
   payload: Pick<
     IOpeningBalanceEquityAccount,
-    'name' | 'createdBy' | 'accountingEntityId' | 'currency'
+    | 'name'
+    | 'createdBy'
+    | 'accountingEntityId'
+    | 'accountingContextId'
+    | 'accountingContextId'
+    | 'currency'
   >,
   parent: IParentDetails | null
 ): TEntityWithEvents<
@@ -40,6 +45,7 @@ function make(
   const account = ledgerAccountEntity.make<IOpeningBalanceEquityAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
+    accountingContextId: payload.accountingContextId,
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Equity),

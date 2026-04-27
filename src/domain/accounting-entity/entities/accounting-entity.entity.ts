@@ -11,6 +11,7 @@ function make(
   payload: TCreationOmits<IAccountingEntity>
 ): TEntityWithEvents<IAccountingEntity, IAccountingEntity> {
   stringUtils.validateUUID(payload.ownerId);
+  stringUtils.validateUUID(payload.accountingContextId);
   helpers.validateName(payload.name);
   helpers.validateOperatingCountryCode(payload.operatingCountryCode);
   currencyEntity.validateCode(payload.functionalCurrency.code);
@@ -24,6 +25,7 @@ function make(
     id: generateUUID(),
     name: payload.name.trim(),
     operatingCountryCode: payload.operatingCountryCode,
+    accountingContextId: payload.accountingContextId,
     ownerId: payload.ownerId,
     type: payload.type,
     functionalCurrency: payload.functionalCurrency,

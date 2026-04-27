@@ -27,6 +27,7 @@ describe('accountingEntityService', () => {
       'type' | 'name'
     > = {
       operatingCountryCode: 'NG',
+      accountingContextId: generateUUID() as TEntityId,
       ownerId: generateUUID(),
       functionalCurrency: {
         code: 'NGN',
@@ -49,6 +50,7 @@ describe('accountingEntityService', () => {
       return {
         id: generateUUID(),
         name: 'Existing Entity',
+        accountingContextId: generateUUID() as TEntityId,
         operatingCountryCode: 'NG',
         type,
         ownerId: generateUUID(),

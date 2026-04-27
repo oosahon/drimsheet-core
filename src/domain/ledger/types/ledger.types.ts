@@ -72,6 +72,7 @@ export interface ILedgerAccount {
   code: string;
   materializedPath: string;
   accountingEntityId: TEntityId;
+  accountingContextId: TEntityId;
   type: ULedgerType;
   normalBalance: UNormalBalance;
   subType: string;

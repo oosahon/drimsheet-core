@@ -38,6 +38,7 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
   };
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
+    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     name: 'Test Accounting Entity',
     operatingCountryCode: 'NG',
     ownerId: mockUser.id,
@@ -49,6 +50,7 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
 
   const [mockAssetAccount] = cashAndEquivalentAccountEntity.make(
     {
+      accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
       name: 'Cash',
       accountingEntityId: mockAccountingEntity.id,
       currency: SYSTEM_CURRENCIES.NGN,

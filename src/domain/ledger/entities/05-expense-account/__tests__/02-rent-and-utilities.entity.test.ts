@@ -79,6 +79,8 @@ describe('Rent and Utilities Expense Entity', () => {
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
+      | 'accountingContextId'
+      | 'accountingContextId'
       | 'currency'
       | 'isControlAccount'
       | 'controlAccountId'
@@ -86,6 +88,7 @@ describe('Rent and Utilities Expense Entity', () => {
     > = {
       name: 'Office Rent',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: false,

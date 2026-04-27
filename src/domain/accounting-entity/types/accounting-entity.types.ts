@@ -28,6 +28,7 @@ export interface IAccountingEntity {
   id: TEntityId;
   name: string;
   operatingCountryCode: string;
+  accountingContextId: TEntityId;
   type: UAccountingEntityType;
   ownerId: TEntityId;
   functionalCurrency: ICurrency;

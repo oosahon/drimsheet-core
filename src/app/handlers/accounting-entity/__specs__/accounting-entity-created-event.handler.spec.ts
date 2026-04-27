@@ -30,6 +30,7 @@ describe('makeAccountingEntityCreatedEventHandler', () => {
   const validOwnerId = '00000000-0000-0000-0000-000000000002' as TEntityId;
 
   const validAccountEntityData: IAccountingEntity = {
+    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     id: validEntityId,
     name: 'John Doe',
     operatingCountryCode: 'NG',

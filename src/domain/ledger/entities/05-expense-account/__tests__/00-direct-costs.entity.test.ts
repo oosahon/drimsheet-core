@@ -78,6 +78,8 @@ describe('Direct Costs Expense Entity', () => {
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
+      | 'accountingContextId'
+      | 'accountingContextId'
       | 'currency'
       | 'behavior'
       | 'isControlAccount'
@@ -86,6 +88,7 @@ describe('Direct Costs Expense Entity', () => {
     > = {
       name: 'Cost of Goods Sold',
       accountingEntityId: validUUID1,
+      accountingContextId: validUUID1,
       currency: validCurrency,
       behavior: EExpenseAccountBehavior.COGS,
       createdBy: validUUID2,

@@ -1,5 +1,6 @@
 import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
+import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import ledgerAccountEntity from '../../../ledger/entities/shared/ledger-account.entity';
@@ -33,6 +34,7 @@ describe('account-balance.service', () => {
   const createdBy = generateUUID();
 
   const ledgerAccount = ledgerAccountEntity.make({
+    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     code: '100000',
     materializedPath: '100000',
     accountingEntityId: accountingEntityId,

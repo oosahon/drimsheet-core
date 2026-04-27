@@ -34,6 +34,7 @@ export default function makeEquityAccountBootstrapService(
       const {
         ownerId,
         id: accountingEntityId,
+        accountingContextId,
         functionalCurrency,
       } = accountingEntity;
       const equityAccounts: TEntityWithEvents<
@@ -59,6 +60,7 @@ export default function makeEquityAccountBootstrapService(
             name: 'Retained Earnings',
             createdBy: ownerId,
             accountingEntityId,
+            accountingContextId,
             currency: functionalCurrency,
           },
           null
@@ -81,6 +83,7 @@ export default function makeEquityAccountBootstrapService(
               name: 'Opening Balance Equity',
               createdBy: ownerId,
               accountingEntityId,
+              accountingContextId,
               currency: functionalCurrency,
             },
             null

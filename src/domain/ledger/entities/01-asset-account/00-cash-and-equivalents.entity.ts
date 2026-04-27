@@ -38,6 +38,8 @@ function make(
     | 'name'
     | 'createdBy'
     | 'accountingEntityId'
+    | 'accountingContextId'
+    | 'accountingContextId'
     | 'currency'
     | 'isControlAccount'
     | 'controlAccountId'
@@ -62,6 +64,7 @@ function make(
   const account = ledgerAccountEntity.make<ICashAndCashEquivalentAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
+    accountingContextId: payload.accountingContextId,
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
@@ -98,6 +101,8 @@ function makePettyCashAccount(
     | 'controlAccountId'
     | 'createdBy'
     | 'accountingEntityId'
+    | 'accountingContextId'
+    | 'accountingContextId'
   >,
   scope: IScopeDetails | null
 ): TEntityWithEvents<
@@ -112,6 +117,7 @@ function makePettyCashAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
+      accountingContextId: payload.accountingContextId,
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: !!payload.isControlAccount,
@@ -140,6 +146,7 @@ function makeBankAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
+      accountingContextId: payload.accountingContextId,
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,

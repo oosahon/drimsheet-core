@@ -21,6 +21,7 @@ import {
 } from '../../../domain/user/types/user-preferences.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { IEvent } from '../../../shared/types/event.types';
+import generateUUID from '../../../shared/utils/uuid-generator';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import {
   ErrorResourceNotFound,
@@ -101,6 +102,7 @@ export default function makeOnboardAccountingEntityUseCase(
     const accountingEntityCreatePayload: TCreationOmits<IAccountingEntity> = {
       name: payload.name,
       operatingCountryCode: payload.operatingCountryCode,
+      accountingContextId: generateUUID(),
       type: payload.entityType,
       ownerId: user.id,
       functionalCurrency,

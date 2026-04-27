@@ -9,6 +9,7 @@ describe('Accounting Entity Mapper', () => {
   const updatedAt = new Date('2026-04-10T12:30:00Z');
 
   const domainEntity: IAccountingEntity = {
+    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     id: 'entity-1' as TEntityId,
     ownerId: 'user-1' as TEntityId,
     name: 'Purple Ledger Corp',
@@ -40,6 +41,7 @@ describe('Accounting Entity Mapper', () => {
     ownerId: 'user-1',
     name: 'Purple Ledger Corp',
     operatingCountryCode: 'US',
+    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279',
     functionalCurrencyCode: 'USD',
     reportingCurrencyCode: 'USD',
     type: 'company',
