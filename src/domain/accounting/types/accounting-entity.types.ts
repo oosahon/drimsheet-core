@@ -1,4 +1,4 @@
-import { IDiff } from '../../../shared/types/diff.types';
+import { IAuditTrail } from '../../../shared/types/autit-trail.types';
 import { TEntityId } from '../../../shared/types/uuid';
 
 export const EAccountingEntityType = {
@@ -19,19 +19,15 @@ export interface IAccountingEntity {
   updatedAt: Date;
 }
 
-export const EAccountingEntityHistoryAction = {
+export const EAccountingEntityAuditTrailAction = {
   Created: 'created',
   Updated: 'updated',
 } as const;
 
-export type UAccountingEntityHistoryAction =
-  (typeof EAccountingEntityHistoryAction)[keyof typeof EAccountingEntityHistoryAction];
+export type UAccountingEntityAuditTrailAction =
+  (typeof EAccountingEntityAuditTrailAction)[keyof typeof EAccountingEntityAuditTrailAction];
 
-export interface IAccountingEntityHistory {
-  id: TEntityId;
+export interface IAccountingEntityAuditTrail extends IAuditTrail<IAccountingEntity> {
   accountingEntityId: TEntityId;
-  userId: TEntityId;
-  action: UAccountingEntityHistoryAction;
-  diff: IDiff<IAccountingEntity>;
-  createdAt: Date;
+  action: UAccountingEntityAuditTrailAction;
 }
