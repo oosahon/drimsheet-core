@@ -22,10 +22,10 @@ import {
   ENormalBalance,
   ILedgerAccount,
 } from '../../../ledger/types/ledger.types';
-import makeAccountingService from '../accounting.service';
+import makeBookkeepingService from '../bookkeeping.service';
 
 describe('accountingService', () => {
-  const service = makeAccountingService(
+  const service = makeBookkeepingService(
     mockLedgerAccountRepo,
     mockLedgerAccountBalanceRepo
   );

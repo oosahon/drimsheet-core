@@ -4,7 +4,7 @@ import moneyValue from '../../../../shared/value-objects/money.vo';
 import {
   ELedgerAccountBalanceEffect,
   ULedgerAccountBalanceEffect,
-} from '../../types/ledger-account-balance.types';
+} from '../../../bookkeeping/types/ledger-account-balance.types';
 
 function validateEffectType(effect: ULedgerAccountBalanceEffect) {
   if (!Object.values(ELedgerAccountBalanceEffect).includes(effect)) {

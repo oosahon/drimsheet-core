@@ -1,12 +1,12 @@
+import {
+  ELedgerAccountBalanceEffect,
+  ULedgerAccountBalanceEffect,
+} from '../../bookkeeping/types/ledger-account-balance.types';
 import journalLineEntity from '../../journal-entry/entities/journal-line.entity';
 import { UJournalSide } from '../../journal-entry/types/journal-line.types';
 import ledgerAccountEntityHelpers from '../../ledger/entities/shared/helpers/ledger-account.entity.helpers';
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import { ULedgerType, UNormalBalance } from '../../ledger/types/ledger.types';
-import {
-  ELedgerAccountBalanceEffect,
-  ULedgerAccountBalanceEffect,
-} from '../types/ledger-account-balance.types';
 
 interface IPayload {
   accountType: ULedgerType;

@@ -1,5 +1,5 @@
-import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-account-balance.repo';
-import makeAccountingService from '../../../domain/accounting/services/accounting.service';
+import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
+import makeBookkeepingService from '../../../domain/bookkeeping/services/bookkeeping.service';
 import IExchangeRateRepo from '../../../domain/currency/repos/exchange-rate.repo';
 import makeExchangeRateService from '../../../domain/currency/services/exchange-rate.service';
 import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
@@ -25,7 +25,7 @@ export default function makeRecordOpeningBalanceUseCase(
   eventBus: IEventBus
 ) {
   const domainServices = {
-    accounting: makeAccountingService(
+    accounting: makeBookkeepingService(
       ledgerAccountRepo,
       ledgerAccountBalanceRepo
     ),

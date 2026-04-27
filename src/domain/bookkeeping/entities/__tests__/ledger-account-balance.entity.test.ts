@@ -1,6 +1,7 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { IMoney } from '../../../../shared/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import ledgerAccountBalanceAdjustmentEntityHelpers from '../../../accounting/entities/helpers/ledger-account-balance-adjustment.entity.helper';
 import currencyEntity from '../../../currency/entities/currency.entity';
 import { IJournalLine } from '../../../journal-entry/types/journal-line.types';
 import {
@@ -8,7 +9,6 @@ import {
   ILedgerAccountBalanceAdjustment,
   ULedgerAccountBalanceEffect,
 } from '../../types/ledger-account-balance.types';
-import ledgerAccountBalanceAdjustmentEntityHelpers from '../helpers/ledger-account-balance-adjustment.entity.helper';
 import ledgerAccountBalanceEntity from '../ledger-account-balance.entity';
 
 describe('ledgerAccountBalanceEntity', () => {

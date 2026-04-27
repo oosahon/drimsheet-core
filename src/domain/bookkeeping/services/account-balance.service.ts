@@ -1,8 +1,8 @@
 import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
+import ILedgerAccountBalanceRepo from '../../bookkeeping/repos/ledger-account-balance.repo';
 import { ICurrency } from '../../currency/types/currency.types';
 import { ILedgerAccount } from '../../ledger/types/ledger.types';
 import ledgerAccountBalanceEntity from '../entities/ledger-account-balance.entity';
-import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
 
 export default function makeLedgerAccountBalanceService(
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo

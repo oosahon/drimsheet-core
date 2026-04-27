@@ -3,6 +3,10 @@ import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { AppError } from '../../../shared/value-objects/error';
 import moneyValue from '../../../shared/value-objects/money.vo';
+import {
+  ILedgerAccountBalanceEffectDelta,
+  IOpeningBalanceTransaction,
+} from '../../accounting/types/accounting.service.types';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
 import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
 import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
@@ -16,13 +20,9 @@ import { EEquitySubType } from '../../ledger/types/equity-account.types';
 import { ELedgerType } from '../../ledger/types/ledger.types';
 import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
 import getBalanceEffectRule from '../rules/get-balance-effect.rule';
-import {
-  ILedgerAccountBalanceEffectDelta,
-  IOpeningBalanceTransaction,
-} from '../types/accounting.service.types';
 import { ELedgerAccountBalanceEffect } from '../types/ledger-account-balance.types';
 
-export default function makeAccountingService(
+export default function makeBookkeepingService(
   ledgerAccountRepo: ILedgerAccountRepo,
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
 ) {

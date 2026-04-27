@@ -1,6 +1,6 @@
 import accountingEntityEntity from '../../../../domain/accounting-entity/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting-entity/types/accounting-entity.types';
-import ledgerAccountBalanceEntity from '../../../../domain/accounting/entities/ledger-account-balance.entity';
+import ledgerAccountBalanceEntity from '../../../../domain/bookkeeping/entities/ledger-account-balance.entity';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';

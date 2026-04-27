@@ -1,5 +1,5 @@
-import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-account-balance.repo';
-import makeAccountingService from '../../../domain/accounting/services/accounting.service';
+import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
+import makeBookkeepingService from '../../../domain/bookkeeping/services/bookkeeping.service';
 import {
   EJournalEntryStatus,
   IJournalEntry,
@@ -19,7 +19,7 @@ export default function makeEnqueueBalanceAdjustmentsUseCase(
   queue: IQueue
 ) {
   const domainServices = {
-    accounting: makeAccountingService(
+    accounting: makeBookkeepingService(
       ledgerAccountRepo,
       ledgerAccountBalanceRepo
     ),

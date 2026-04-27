@@ -1,5 +1,5 @@
-import ILedgerAccountBalanceRepo from '../../../domain/accounting/repos/ledger-account-balance.repo';
-import makeLedgerAccountBalanceService from '../../../domain/accounting/services/account-balance.service';
+import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
+import makeLedgerAccountBalanceService from '../../../domain/bookkeeping/services/account-balance.service';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import { ErrorUnauthorized } from '../../../shared/value-objects/error';

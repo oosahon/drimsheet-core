@@ -1,9 +1,9 @@
+import { ELedgerAccountBalanceEffect } from '../../../bookkeeping/types/ledger-account-balance.types';
 import { EJournalSide } from '../../../journal-entry/types/journal-line.types';
 import {
   ELedgerType,
   ENormalBalance,
 } from '../../../ledger/types/ledger.types';
-import { ELedgerAccountBalanceEffect } from '../../types/ledger-account-balance.types';
 import getBalanceEffectRule from '../get-balance-effect.rule';
 
 describe('getBalanceEffectRule', () => {

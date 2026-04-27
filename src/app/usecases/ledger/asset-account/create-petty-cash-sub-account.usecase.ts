@@ -1,4 +1,4 @@
-import ILedgerAccountBalanceRepo from '../../../../domain/accounting/repos/ledger-account-balance.repo';
+import ILedgerAccountBalanceRepo from '../../../../domain/bookkeeping/repos/ledger-account-balance.repo';
 import currencyEntity from '../../../../domain/currency/entities/currency.entity';
 import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
@@ -13,7 +13,7 @@ import {
   pettyCashCreationReqValidation,
 } from '../../../contracts/dto/asset-account.dto';
 import IEventBus from '../../../contracts/infra/event-bus.contract';
-import makeRecordOpeningBalanceUseCase from '../../accounting/record-opening-balance.usecase';
+import makeRecordOpeningBalanceUseCase from '../../bookkeeping/record-opening-balance.usecase';
 
 export default function makeCreatePettyCashSubAccountUseCase(
   requestContext: IRequestContext,

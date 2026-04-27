@@ -7,7 +7,7 @@ import makeCreateLedgerAccountBalanceUseCase from './create-ledger-account-balan
 import makeEnqueueBalanceAdjustment from './enqueue-balance-adjustments.usecase';
 import makeRecordOpeningBalanceUseCase from './record-opening-balance.usecase';
 
-const accountingUsecases = {
+const bookkeepingUseCases = {
   createLedgerAccountBalance: makeCreateLedgerAccountBalanceUseCase(
     appContext.request,
     repos.ledgerAccountBalance,
@@ -38,4 +38,4 @@ const accountingUsecases = {
   ),
 };
 
-export default accountingUsecases;
+export default bookkeepingUseCases;

@@ -16,10 +16,10 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../../contracts/app/request-context.contract';
-import makeRecordOpeningBalanceUseCase from '../../../accounting/record-opening-balance.usecase';
+import makeRecordOpeningBalanceUseCase from '../../../bookkeeping/record-opening-balance.usecase';
 import makeCreatePettyCashSubAccountUseCase from '../create-petty-cash-sub-account.usecase';
 
-jest.mock('../../../accounting/record-opening-balance.usecase');
+jest.mock('../../../bookkeeping/record-opening-balance.usecase');
 
 const mockRecordOpeningBalanceUseCase = jest.fn();
 
