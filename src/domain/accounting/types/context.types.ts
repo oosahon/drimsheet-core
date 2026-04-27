@@ -5,7 +5,9 @@ import { UJurisdictionCode } from '../config/jurisdictions.config';
 
 export interface IAccountingContext {
   id: TEntityId;
-  accountEntityId: TEntityId;
+  name: string;
+  description: string | null;
+  accountingEntityId: TEntityId;
   functionalCurrencyCode: UCurrencyCode;
   jurisdictionCode: UJurisdictionCode;
   accountingStandardCode: UAccountingStandardCode;
@@ -18,7 +20,9 @@ export interface IAccountingContext {
 
 export interface IReportingContext {
   id: TEntityId;
-  accountEntityId: TEntityId;
+  name: string;
+  description: string | null;
+  accountingEntityId: TEntityId;
   reportingCurrencyCode: UCurrencyCode;
   accountingContextId: TEntityId;
   currentReportingPeriodId: TEntityId;

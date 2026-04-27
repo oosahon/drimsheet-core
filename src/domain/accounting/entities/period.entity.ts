@@ -6,27 +6,23 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import { AppError } from '../../../shared/value-objects/error';
 import periodEvents from '../events/period.events';
 import {
-  EPeriodMeasurement,
   EPeriodStatus,
+  EPeriodUnit,
   IAccountingPeriod,
   IFiscalYear,
   IReportingPeriod,
-  UPeriodMeasurement,
   UPeriodStatus,
+  UPeriodUnit,
 } from '../types/period.types';
 
-function isValidMeasurement(
-  measurement: unknown
-): measurement is UPeriodMeasurement {
-  return Object.values(EPeriodMeasurement).includes(
-    measurement as UPeriodMeasurement
-  );
+function isValidMeasurement(unit: unknown): unit is UPeriodUnit {
+  return Object.values(EPeriodUnit).includes(unit as UPeriodUnit);
 }
 
-function validateMeasurement(measurement: unknown) {
-  if (!isValidMeasurement(measurement)) {
-    throw new AppError('Invalid period measurement', {
-      cause: measurement as Record<string, unknown>,
+function validateMeasurement(unit: unknown) {
+  if (!isValidMeasurement(unit)) {
+    throw new AppError('Invalid period unit', {
+      cause: unit as Record<string, unknown>,
     });
   }
 }
@@ -73,7 +69,7 @@ function makeFiscalYear(
     id: generateUUID(),
     name,
     accountingEntityId: payload.accountingEntityId,
-    measurement: EPeriodMeasurement.Month,
+    unit: EPeriodUnit.Month,
     count: 12,
     startDate: payload.startDate,
     endDate: payload.endDate,
@@ -93,7 +89,7 @@ function makeAccountingPeriod(
     | 'name'
     | 'accountingEntityId'
     | 'fiscalYearId'
-    | 'measurement'
+    | 'unit'
     | 'count'
     | 'startDate'
     | 'endDate'
@@ -108,7 +104,7 @@ function makeAccountingPeriod(
   stringUtils.validateUUID(payload.accountingEntityId);
   stringUtils.validateUUID(payload.fiscalYearId);
 
-  validateMeasurement(payload.measurement);
+  validateMeasurement(payload.unit);
 
   numberUtils.validatePositiveNumber(payload.count, 'Invalid period count');
 
@@ -130,7 +126,7 @@ function makeAccountingPeriod(
     name,
     accountingEntityId: payload.accountingEntityId,
     fiscalYearId: payload.fiscalYearId,
-    measurement: payload.measurement,
+    unit: payload.unit,
     count: payload.count,
     startDate: payload.startDate,
     endDate: payload.endDate,
@@ -150,7 +146,7 @@ function makeReportingPeriod(
     | 'name'
     | 'accountingEntityId'
     | 'fiscalYearId'
-    | 'measurement'
+    | 'unit'
     | 'count'
     | 'startDate'
     | 'endDate'
@@ -164,7 +160,7 @@ function makeReportingPeriod(
   stringUtils.validateUUID(payload.accountingEntityId);
   stringUtils.validateUUID(payload.fiscalYearId);
 
-  validateMeasurement(payload.measurement);
+  validateMeasurement(payload.unit);
 
   numberUtils.validatePositiveNumber(payload.count, 'Invalid period count');
 
@@ -177,15 +173,18 @@ function makeReportingPeriod(
     'Start date must be before end date'
   );
 
+  const timestamp = new Date();
+
   const entity = Object.freeze({
     id: generateUUID(),
     name,
     accountingEntityId: payload.accountingEntityId,
     fiscalYearId: payload.fiscalYearId,
-    measurement: payload.measurement,
+    unit: payload.unit,
     count: payload.count,
     startDate: payload.startDate,
     endDate: payload.endDate,
+    updatedAt: timestamp,
   });
 
   const events = periodEvents.reportingPeriodCreated(entity);

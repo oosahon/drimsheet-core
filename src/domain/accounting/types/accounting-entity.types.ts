@@ -1,4 +1,4 @@
-import { IAuditTrail } from '../../../shared/types/autit-trail.types';
+import { IAuditTrail } from '../../../shared/types/audit-trail.types';
 import { TEntityId } from '../../../shared/types/uuid';
 
 export const EAccountingEntityType = {

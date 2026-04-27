@@ -1,7 +1,7 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import { AppError } from '../../../../shared/value-objects/error';
 import { EPeriodEvents } from '../../events/period.events';
-import { EPeriodMeasurement, EPeriodStatus } from '../../types/period.types';
+import { EPeriodStatus, EPeriodUnit } from '../../types/period.types';
 import periodEntity from '../period.entity';
 
 describe('periodEntity', () => {
@@ -15,25 +15,23 @@ describe('periodEntity', () => {
   });
 
   describe('isValidMeasurement', () => {
-    it('returns true for a valid measurement', () => {
-      expect(periodEntity.isValidMeasurement(EPeriodMeasurement.Month)).toBe(
-        true
-      );
+    it('returns true for a valid unit', () => {
+      expect(periodEntity.isValidMeasurement(EPeriodUnit.Month)).toBe(true);
     });
 
-    it('returns false for an invalid measurement', () => {
+    it('returns false for an invalid unit', () => {
       expect(periodEntity.isValidMeasurement('invalid')).toBe(false);
     });
   });
 
   describe('validateMeasurement', () => {
-    it('does not throw for a valid measurement', () => {
+    it('does not throw for a valid unit', () => {
       expect(() =>
-        periodEntity.validateMeasurement(EPeriodMeasurement.Month)
+        periodEntity.validateMeasurement(EPeriodUnit.Month)
       ).not.toThrow();
     });
 
-    it('throws AppError for an invalid measurement', () => {
+    it('throws AppError for an invalid unit', () => {
       expect(() => periodEntity.validateMeasurement('invalid')).toThrow(
         AppError
       );
@@ -79,7 +77,7 @@ describe('periodEntity', () => {
       expect(entity.startDate).toBe(validPayload.startDate);
       expect(entity.endDate).toBe(validPayload.endDate);
       expect(entity.status).toBe(validPayload.status);
-      expect(entity.measurement).toBe(EPeriodMeasurement.Month);
+      expect(entity.unit).toBe(EPeriodUnit.Month);
       expect(entity.count).toBe(12);
       expect(entity.closedAt).toBeNull();
       expect(entity.updatedAt).toEqual(new Date('2026-04-01T00:00:00.000Z'));
@@ -156,7 +154,7 @@ describe('periodEntity', () => {
       name: 'Q1 2026',
       accountingEntityId: '98402eb7-ec79-436f-b258-00a4fb9a572a' as TEntityId,
       fiscalYearId: '12302eb7-ec79-436f-b258-00a4fb9a5123' as TEntityId,
-      measurement: EPeriodMeasurement.Quarter,
+      unit: EPeriodUnit.Quarter,
       count: 1,
       startDate: new Date('2026-01-01T00:00:00.000Z'),
       endDate: new Date('2026-03-31T23:59:59.999Z'),
@@ -169,7 +167,7 @@ describe('periodEntity', () => {
       expect(entity.name).toBe(validPayload.name);
       expect(entity.accountingEntityId).toBe(validPayload.accountingEntityId);
       expect(entity.fiscalYearId).toBe(validPayload.fiscalYearId);
-      expect(entity.measurement).toBe(validPayload.measurement);
+      expect(entity.unit).toBe(validPayload.unit);
       expect(entity.count).toBe(validPayload.count);
       expect(entity.startDate).toBe(validPayload.startDate);
       expect(entity.endDate).toBe(validPayload.endDate);
@@ -185,9 +183,9 @@ describe('periodEntity', () => {
       expect(events[0].data).toBe(entity);
     });
 
-    it('throws AppError if measurement is invalid', () => {
-      const invalidPayload = { ...validPayload, measurement: 'invalid' };
-      // @ts-expect-error testing invalid measurement
+    it('throws AppError if unit is invalid', () => {
+      const invalidPayload = { ...validPayload, unit: 'invalid' };
+      // @ts-expect-error testing invalid unit
       expect(() => periodEntity.makeAccountingPeriod(invalidPayload)).toThrow(
         AppError
       );
@@ -227,7 +225,7 @@ describe('periodEntity', () => {
       name: 'January 2026',
       accountingEntityId: '98402eb7-ec79-436f-b258-00a4fb9a572a' as TEntityId,
       fiscalYearId: '12302eb7-ec79-436f-b258-00a4fb9a5123' as TEntityId,
-      measurement: EPeriodMeasurement.Month,
+      unit: EPeriodUnit.Month,
       count: 1,
       startDate: new Date('2026-01-01T00:00:00.000Z'),
       endDate: new Date('2026-01-31T23:59:59.999Z'),
@@ -239,10 +237,11 @@ describe('periodEntity', () => {
       expect(entity.name).toBe(validPayload.name);
       expect(entity.accountingEntityId).toBe(validPayload.accountingEntityId);
       expect(entity.fiscalYearId).toBe(validPayload.fiscalYearId);
-      expect(entity.measurement).toBe(validPayload.measurement);
+      expect(entity.unit).toBe(validPayload.unit);
       expect(entity.count).toBe(validPayload.count);
       expect(entity.startDate).toBe(validPayload.startDate);
       expect(entity.endDate).toBe(validPayload.endDate);
+      expect(entity.updatedAt).toEqual(new Date('2026-04-01T00:00:00.000Z'));
       expect(entity.id).toBeDefined();
 
       expect(Object.isFrozen(entity)).toBe(true);
@@ -252,9 +251,9 @@ describe('periodEntity', () => {
       expect(events[0].data).toBe(entity);
     });
 
-    it('throws AppError if measurement is invalid', () => {
-      const invalidPayload = { ...validPayload, measurement: 'invalid' };
-      // @ts-expect-error testing invalid measurement
+    it('throws AppError if unit is invalid', () => {
+      const invalidPayload = { ...validPayload, unit: 'invalid' };
+      // @ts-expect-error testing invalid unit
       expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow(
         AppError
       );

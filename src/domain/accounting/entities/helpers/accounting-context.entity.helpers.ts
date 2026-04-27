@@ -1,3 +1,4 @@
+import stringUtils from '../../../../shared/utils/string';
 import { AppError } from '../../../../shared/value-objects/error';
 import {
   SYSTEM_ACCOUNTING_STANDARDS,
@@ -36,11 +37,21 @@ function validateAccountingStandardCode(code: unknown) {
   }
 }
 
+function getDescription(description: string | null) {
+  return description != null
+    ? stringUtils.sanitizeAndValidate(description, {
+        min: 1,
+        max: 255,
+      })
+    : null;
+}
+
 const accountingContextEntityHelpers = Object.freeze({
   isValidJurisdictionCode,
   validateJurisdictionCode,
   isValidAccountingStandardCode,
   validateAccountingStandardCode,
+  getDescription,
 });
 
 export default accountingContextEntityHelpers;

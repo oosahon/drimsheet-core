@@ -5,27 +5,31 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import currencyEntity from '../../currency/entities/currency.entity';
 import accountingContextEvents from '../events/accounting-context.events';
 import { IAccountingContext } from '../types/context.types';
-import accountingContextEntityHelpers from './helpers/accounting-context.entity.helpers';
+import helpers from './helpers/accounting-context.entity.helpers';
 
 function make(
   payload: TCreationOmits<IAccountingContext, 'closedAt'>
 ): TEntityWithEvents<IAccountingContext, IAccountingContext> {
-  stringUtils.validateUUID(payload.accountEntityId);
+  stringUtils.validateUUID(payload.accountingEntityId);
   currencyEntity.validateCode(payload.functionalCurrencyCode);
-  accountingContextEntityHelpers.validateJurisdictionCode(
-    payload.jurisdictionCode
-  );
-  accountingContextEntityHelpers.validateAccountingStandardCode(
-    payload.accountingStandardCode
-  );
+  helpers.validateJurisdictionCode(payload.jurisdictionCode);
+  helpers.validateAccountingStandardCode(payload.accountingStandardCode);
   stringUtils.validateUUID(payload.fiscalYearId);
   stringUtils.validateUUID(payload.currentAccountingPeriodId);
+
+  const name = stringUtils.sanitizeAndValidate(payload.name, {
+    min: 1,
+    max: 150,
+  });
+  const description = helpers.getDescription(payload.description);
 
   const timestamp = new Date();
 
   const entity: IAccountingContext = Object.freeze({
     id: generateUUID(),
-    accountEntityId: payload.accountEntityId,
+    name,
+    description,
+    accountingEntityId: payload.accountingEntityId,
     functionalCurrencyCode: payload.functionalCurrencyCode,
     jurisdictionCode: payload.jurisdictionCode,
     accountingStandardCode: payload.accountingStandardCode,
@@ -44,7 +48,7 @@ function make(
 const accountingContextEntity = Object.freeze({
   make,
 
-  ...accountingContextEntityHelpers,
+  ...helpers,
 });
 
 export default accountingContextEntity;

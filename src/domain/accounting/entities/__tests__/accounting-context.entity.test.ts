@@ -13,7 +13,9 @@ describe('accountingContextEntity', () => {
   });
 
   const validPayload = {
-    accountEntityId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+    name: 'Primary Ledger',
+    description: 'The primary US GAAP ledger',
+    accountingEntityId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
     functionalCurrencyCode: 'NGN',
     jurisdictionCode: 'NG',
     accountingStandardCode: 'IFRS',
@@ -94,7 +96,9 @@ describe('accountingContextEntity', () => {
 
       expect(entity).toEqual({
         id: expect.any(String),
-        accountEntityId: validPayload.accountEntityId,
+        name: validPayload.name,
+        description: validPayload.description,
+        accountingEntityId: validPayload.accountingEntityId,
         functionalCurrencyCode: validPayload.functionalCurrencyCode,
         jurisdictionCode: validPayload.jurisdictionCode,
         accountingStandardCode: validPayload.accountingStandardCode,
@@ -113,10 +117,10 @@ describe('accountingContextEntity', () => {
       });
     });
 
-    it('throws AppError if accountEntityId is invalid', () => {
+    it('throws AppError if accountingEntityId is invalid', () => {
       const invalidPayload = {
         ...validPayload,
-        accountEntityId: 'invalid-uuid',
+        accountingEntityId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
       expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
@@ -177,6 +181,38 @@ describe('accountingContextEntity', () => {
       expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
         AppError
       );
+    });
+
+    it('throws AppError if name is invalid', () => {
+      const invalidPayload = {
+        ...validPayload,
+        name: '',
+      };
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
+        AppError
+      );
+    });
+
+    it('throws AppError if description is invalid', () => {
+      const invalidPayload = {
+        ...validPayload,
+        description: '',
+      };
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
+        AppError
+      );
+    });
+
+    it('creates a valid accounting context entity with a null description', () => {
+      const validPayloadWithNullDescription = {
+        ...validPayload,
+        description: null,
+      };
+      const [entity] = accountingContextEntity.make(
+        validPayloadWithNullDescription
+      );
+
+      expect(entity.description).toBeNull();
     });
   });
 });

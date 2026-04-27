@@ -4,23 +4,21 @@ import { TEntityId } from '../../../shared/types/uuid';
 /**
  * ================== Reusable Period Types ==================
  */
-export const EPeriodMeasurement = {
+export const EPeriodUnit = {
   Day: 'day',
   Week: 'week',
   Month: 'month',
   Quarter: 'quarter',
-  HalfYear: 'half_year',
   Year: 'year',
 } as const;
 
-export type UPeriodMeasurement =
-  (typeof EPeriodMeasurement)[keyof typeof EPeriodMeasurement];
+export type UPeriodUnit = (typeof EPeriodUnit)[keyof typeof EPeriodUnit];
 
 export interface IPeriod {
   id: TEntityId;
   name: string;
   accountingEntityId: TEntityId;
-  measurement: UPeriodMeasurement;
+  unit: UPeriodUnit;
   count: number;
   startDate: Date;
   endDate: Date;
@@ -46,9 +44,6 @@ export interface IPeriodHistory<T extends IPeriod> {
   createdAt: Date;
 }
 
-/**
- * ================== Accounting Period ==================
- */
 export const EPeriodStatus = {
   Pending: 'pending',
   Open: 'open',
@@ -58,6 +53,9 @@ export const EPeriodStatus = {
 
 export type UPeriodStatus = (typeof EPeriodStatus)[keyof typeof EPeriodStatus];
 
+/**
+ * ================== Accounting Period ==================
+ */
 export interface IAccountingPeriod extends IPeriod {
   status: UPeriodStatus;
   fiscalYearId: TEntityId;
@@ -70,13 +68,14 @@ export interface IAccountingPeriod extends IPeriod {
  */
 export interface IReportingPeriod extends IPeriod {
   fiscalYearId: TEntityId;
+  updatedAt: Date;
 }
 
 /**
  * ================== Fiscal Year ==================
  */
 export interface IFiscalYear extends IPeriod {
-  measurement: typeof EPeriodMeasurement.Month;
+  unit: typeof EPeriodUnit.Month;
   status: UPeriodStatus;
   closedAt: Date | null;
   updatedAt: Date;
