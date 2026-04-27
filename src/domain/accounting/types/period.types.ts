@@ -18,6 +18,7 @@ export type UPeriodMeasurement =
 
 export interface IPeriod {
   id: TEntityId;
+  name: string;
   accountingEntityId: TEntityId;
   measurement: UPeriodMeasurement;
   count: number;

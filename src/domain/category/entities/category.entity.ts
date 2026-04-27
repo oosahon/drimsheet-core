@@ -115,6 +115,7 @@ const categoryEntity = Object.freeze({
   make,
   update,
   makeHistory,
+  ...helpers,
 });
 
 export default categoryEntity;

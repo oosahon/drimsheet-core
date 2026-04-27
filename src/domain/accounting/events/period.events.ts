@@ -1,0 +1,47 @@
+import eventValue from '../../../shared/value-objects/event.vo';
+import {
+  IAccountingPeriod,
+  IFiscalYear,
+  IReportingPeriod,
+} from '../types/period.types';
+
+export const EPeriodEvents = {
+  FiscalYearCreated: 'domain:accounting:period:fiscal-year:created',
+  AccountingPeriodCreated: 'domain:accounting:period:accounting-period:created',
+  ReportingPeriodCreated: 'domain:accounting:period:reporting-period:created',
+} as const;
+
+export const periodEventDescriptions: Record<string, string> = {
+  [EPeriodEvents.FiscalYearCreated]: 'Created a fiscal year.',
+  [EPeriodEvents.AccountingPeriodCreated]: 'Created an accounting period.',
+  [EPeriodEvents.ReportingPeriodCreated]: 'Created a reporting period.',
+};
+
+function makeFiscalYearCreatedEvent(params: IFiscalYear) {
+  return eventValue.make<IFiscalYear>({
+    type: EPeriodEvents.FiscalYearCreated,
+    data: params,
+  });
+}
+
+function makeAccountingPeriodCreatedEvent(params: IAccountingPeriod) {
+  return eventValue.make<IAccountingPeriod>({
+    type: EPeriodEvents.AccountingPeriodCreated,
+    data: params,
+  });
+}
+
+function makeReportingPeriodCreatedEvent(params: IReportingPeriod) {
+  return eventValue.make<IReportingPeriod>({
+    type: EPeriodEvents.ReportingPeriodCreated,
+    data: params,
+  });
+}
+
+const periodEvents = Object.freeze({
+  fiscalYearCreated: makeFiscalYearCreatedEvent,
+  accountingPeriodCreated: makeAccountingPeriodCreatedEvent,
+  reportingPeriodCreated: makeReportingPeriodCreatedEvent,
+});
+
+export default periodEvents;

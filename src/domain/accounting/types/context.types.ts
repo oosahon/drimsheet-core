@@ -10,7 +10,7 @@ export interface IAccountingContext {
   jurisdictionCode: UJurisdictionCode;
   accountingStandardCode: UAccountingStandardCode;
   fiscalYearId: TEntityId;
-  currentPeriodId: TEntityId;
+  currentAccountingPeriodId: TEntityId;
   createdAt: Date;
   updatedAt: Date;
   closedAt: Date | null;
@@ -21,7 +21,7 @@ export interface IReportingContext {
   accountEntityId: TEntityId;
   reportingCurrencyCode: UCurrencyCode;
   accountingContextId: TEntityId;
-  currentPeriodId: TEntityId;
+  currentReportingPeriodId: TEntityId;
   createdAt: Date;
   updatedAt: Date;
   closedAt: Date | null;
