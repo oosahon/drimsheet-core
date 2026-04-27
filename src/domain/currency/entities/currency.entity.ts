@@ -1,8 +1,8 @@
 import { AppError } from '../../../shared/value-objects/error';
-import { SYSTEM_CURRENCIES } from '../config/currencies.config';
+import { SYSTEM_CURRENCIES, UCurrencyCode } from '../config/currencies.config';
 
 function isValidCurrencyCode(code: string): boolean {
-  return !!SYSTEM_CURRENCIES[code];
+  return code in SYSTEM_CURRENCIES;
 }
 
 function normalizeCode(code: string) {
@@ -21,7 +21,7 @@ function validateCurrencyCode(code: string) {
 
 function getByCode(code: string) {
   const normalizedCode = normalizeCode(code);
-  const currency = SYSTEM_CURRENCIES[normalizedCode];
+  const currency = SYSTEM_CURRENCIES[normalizedCode as UCurrencyCode];
   if (!currency) {
     throw new AppError('Invalid currency code', { cause: code });
   }

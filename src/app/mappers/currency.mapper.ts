@@ -1,5 +1,8 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { SYSTEM_CURRENCIES } from '../../domain/currency/config/currencies.config';
+import {
+  SYSTEM_CURRENCIES,
+  UCurrencyCode,
+} from '../../domain/currency/config/currencies.config';
 import { ICurrency } from '../../domain/currency/types/currency.types';
 import { currenciesInCore } from '../../infra/config/drizzle/schema';
 
@@ -25,7 +28,7 @@ const currencyMapper = {
   },
 
   fromInterface(code: string): ICurrency | undefined {
-    return SYSTEM_CURRENCIES[code];
+    return SYSTEM_CURRENCIES[code as UCurrencyCode];
   },
 };
 
