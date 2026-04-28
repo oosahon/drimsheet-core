@@ -89,6 +89,7 @@ describe('makeHttpErrorHandler', () => {
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
+      name: 'ApiError',
       message: 'Bad request occurred',
       cause: undefined,
     });
@@ -103,6 +104,7 @@ describe('makeHttpErrorHandler', () => {
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
+      name: 'AppError',
       message: 'Domain rule violated',
       cause: undefined,
     });

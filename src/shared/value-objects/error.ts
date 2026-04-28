@@ -3,28 +3,30 @@ export interface IApiValidationError {
   message: string;
 }
 
-export class DomainError<Keys extends string> extends Error {
-  errorKey: keyof Keys;
-  cause?: Record<string, unknown>;
-
-  constructor(
-    errorKey: keyof Keys,
-    message: string,
-    cause?: Record<string, unknown>
-  ) {
-    super(message);
-    this.errorKey = errorKey;
-    this.cause = cause;
-  }
-}
-
 export class AppError extends Error {
   message: string;
   cause?: Record<string, unknown>;
 
   constructor(message: string, cause?: Record<string, unknown>) {
     super(message);
+    this.name = this.constructor.name;
     this.message = message;
+    this.cause = cause;
+  }
+}
+
+export class DomainError<Keys extends string> extends Error {
+  errorKey: Keys;
+  cause?: Record<string, unknown>;
+
+  constructor(
+    errorKey: Keys,
+    message: string,
+    cause?: Record<string, unknown>
+  ) {
+    super(message);
+    this.name = this.constructor.name;
+    this.errorKey = errorKey;
     this.cause = cause;
   }
 }
@@ -104,15 +106,27 @@ export function parseError(error: unknown) {
   if (error instanceof ApiError) {
     return {
       type: 'api',
+      name: error.name,
       message: error.message,
       cause: error.cause,
       code: error.code,
     };
   }
 
+  if (error instanceof DomainError) {
+    return {
+      type: 'domain',
+      name: error.name,
+      errorKey: error.errorKey,
+      message: error.message,
+      cause: error.cause,
+    };
+  }
+
   if (error instanceof AppError) {
     return {
       type: 'domain',
+      name: error.name,
       message: error.message,
       cause: error.cause,
     };
@@ -120,6 +134,7 @@ export function parseError(error: unknown) {
 
   return {
     type: 'unknown',
+    name: (error as Error).name ?? 'Error',
     message: (error as Error).message ?? 'Unknown error',
     cause: error,
   };

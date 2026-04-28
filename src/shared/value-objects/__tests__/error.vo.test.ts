@@ -175,6 +175,7 @@ describe('Error Value Objects', () => {
 
       expect(parsed).toEqual({
         type: 'api',
+        name: 'ApiError',
         message: 'Server crashed',
         cause: cause,
         code: 500,
@@ -188,6 +189,7 @@ describe('Error Value Objects', () => {
 
       expect(parsed).toEqual({
         type: 'domain',
+        name: 'AppError',
         message: 'App crashed',
         cause: cause,
       });
@@ -199,6 +201,7 @@ describe('Error Value Objects', () => {
 
       expect(parsed).toEqual({
         type: 'unknown',
+        name: 'Error',
         message: 'Standard error',
         cause: genericError,
       });
@@ -208,6 +211,7 @@ describe('Error Value Objects', () => {
 
       expect(parsedString).toEqual({
         type: 'unknown',
+        name: 'Error',
         message: 'Unknown error',
         cause: stringError,
       });
