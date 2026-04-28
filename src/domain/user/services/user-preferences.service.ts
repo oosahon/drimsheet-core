@@ -1,41 +1,37 @@
-import { TEntityWithEvents } from '../../../shared/types/event.types';
-import { IRepoOptions } from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
 import userPreferencesEntity from '../entities/user-preferences.entity';
 import IUserPreferencesRepo from '../repos/user-preferences.repo';
-import { IUserPreferences } from '../types/user-preferences.types';
+import IUserPreferencesService from '../types/user-preferences.service.types';
 
-export interface IUserPreferencesService {
-  update(
-    userId: TEntityId,
-    payload: Partial<IUserPreferences>,
-    options: IRepoOptions
-  ): Promise<TEntityWithEvents<IUserPreferences, IUserPreferences>>;
+type TUpdate = IUserPreferencesService['update'];
+
+/**
+ * Updates user preferences
+ * @param userId - The ID of the user to update
+ * @param payload - The preferences to update
+ * @param options - Options for the update operation
+ */
+function makeUpdate(repo: IUserPreferencesRepo): TUpdate {
+  return async (userId, payload, options) => {
+    const existing = await repo.findById(userId, options);
+    return userPreferencesEntity.make(userId, {
+      appPreferences: {
+        theme:
+          payload.appPreferences?.theme ??
+          existing?.appPreferences?.theme ??
+          null,
+        appUsageMode:
+          payload.appPreferences?.appUsageMode ??
+          existing?.appPreferences?.appUsageMode ??
+          null,
+      },
+    });
+  };
 }
 
 export default function makeUserPreferencesService(
   repo: IUserPreferencesRepo
 ): IUserPreferencesService {
-  return {
-    async update(userId, payload, options) {
-      const existing = await repo.findById(userId, options);
-
-      const theme =
-        payload.appPreferences?.theme ??
-        existing?.appPreferences?.theme ??
-        null;
-
-      const appUsageMode =
-        payload.appPreferences?.appUsageMode ??
-        existing?.appPreferences?.appUsageMode ??
-        null;
-
-      return userPreferencesEntity.make(userId, {
-        appPreferences: {
-          theme,
-          appUsageMode,
-        },
-      });
-    },
-  };
+  return Object.freeze({
+    update: makeUpdate(repo),
+  });
 }

@@ -6,7 +6,7 @@ import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo
 import ledgerService from '../../../domain/ledger/services/ledger-bootstrap.service';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
-import makeUserPreferencesService from '../../../domain/user/services/user-preferences.service';
+import IUserPreferencesService from '../../../domain/user/types/user-preferences.service.types';
 import {
   EAppUsageModePreference,
   IUserPreferences,
@@ -37,16 +37,16 @@ export default function makeOnboardAccountingEntityUseCase(
   accountingEntityRepo: IAccountingEntityRepo,
   userPreferencesRepo: IUserPreferencesRepo,
   ledgerAccountRepo: ILedgerAccountRepo,
+  userPreferencesService: IUserPreferencesService,
   repoService: IRepoService,
   eventBus: IEventBus
 ) {
   return async (payload: IAccountingEntityOnboardingReq) => {
     zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
+    // TODO: replace this service
     const accountingEntityServiceFn =
       accountingEntityService(accountingEntityRepo);
-    const userPreferencesServiceFn =
-      makeUserPreferencesService(userPreferencesRepo);
     const ledgerServiceFn = ledgerService(ledgerAccountRepo);
 
     const { functionalCurrencyCode, reportingCurrencyCode } = payload;
@@ -120,7 +120,7 @@ export default function makeOnboardAccountingEntityUseCase(
       },
     };
     const [updatedPreference, preferencesEvents] =
-      await userPreferencesServiceFn.update(
+      await userPreferencesService.update(
         user.id,
         userPreferencesCreatePayload,
         correlationIdObj

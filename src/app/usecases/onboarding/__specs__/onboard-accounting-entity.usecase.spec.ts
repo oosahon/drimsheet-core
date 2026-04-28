@@ -3,13 +3,18 @@ import {
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../../../domain/accounting-entity/types/accounting-entity.types';
-import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
+import {
+  EAppUsageModePreference,
+  IUserPreferences,
+} from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockUserPreferencesRepo from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
+import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
+import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import {
   ErrorResourceNotFound,
@@ -26,6 +31,10 @@ describe('makeOnboardAccountingEntityUseCase', () => {
 
     mockAccountingEntityRepo.findByUserId.mockResolvedValue([]);
     mockUserPreferencesRepo.findById.mockResolvedValue(null);
+    mockDomainServices.userPreferences.update.mockResolvedValue([
+      { id: 'mock-pref-id' } as unknown as IUserPreferences,
+      [{ type: 'mock-event' } as unknown as IEvent<IUserPreferences>],
+    ]);
     mockRepoService.runInTransaction.mockImplementation(async (cb) => {
       await cb('mock-tx' as never);
     });
@@ -57,6 +66,7 @@ describe('makeOnboardAccountingEntityUseCase', () => {
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
       mockLedgerAccountRepo,
+      mockDomainServices.userPreferences,
       mockRepoService,
       mockEventBus
     );
@@ -80,12 +90,18 @@ describe('makeOnboardAccountingEntityUseCase', () => {
       correlationId,
     });
 
-    expect(mockUserPreferencesRepo.save).toHaveBeenCalledWith(
+    expect(mockDomainServices.userPreferences.update).toHaveBeenCalledWith(
+      mockUser.id,
       expect.objectContaining({
         appPreferences: expect.objectContaining({
           appUsageMode: validPayload.appUsageMode,
         }),
       }),
+      expect.objectContaining({ correlationId })
+    );
+
+    expect(mockUserPreferencesRepo.save).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'mock-pref-id' }),
       {
         tx: 'mock-tx',
         correlationId,
@@ -121,6 +137,7 @@ describe('makeOnboardAccountingEntityUseCase', () => {
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
       mockLedgerAccountRepo,
+      mockDomainServices.userPreferences,
       mockRepoService,
       mockEventBus
     );
@@ -150,6 +167,7 @@ describe('makeOnboardAccountingEntityUseCase', () => {
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
       mockLedgerAccountRepo,
+      mockDomainServices.userPreferences,
       mockRepoService,
       mockEventBus
     );
@@ -170,6 +188,7 @@ describe('makeOnboardAccountingEntityUseCase', () => {
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
       mockLedgerAccountRepo,
+      mockDomainServices.userPreferences,
       mockRepoService,
       mockEventBus
     );
@@ -196,6 +215,7 @@ describe('makeOnboardAccountingEntityUseCase', () => {
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
       mockLedgerAccountRepo,
+      mockDomainServices.userPreferences,
       mockRepoService,
       mockEventBus
     );
@@ -214,6 +234,7 @@ describe('makeOnboardAccountingEntityUseCase', () => {
       mockAccountingEntityRepo,
       mockUserPreferencesRepo,
       mockLedgerAccountRepo,
+      mockDomainServices.userPreferences,
       mockRepoService,
       mockEventBus
     );

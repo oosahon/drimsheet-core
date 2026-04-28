@@ -1,6 +1,7 @@
 import {
   ApiError,
   AppError,
+  DomainError,
   ErrorBadRequest,
   ErrorConflict,
   ErrorForbidden,
@@ -28,6 +29,30 @@ describe('Error Value Objects', () => {
       const error = new AppError('Test error mechanism', cause);
       expect(error.message).toBe('Test error mechanism');
       expect(error.cause).toBe(cause);
+    });
+  });
+
+  describe('DomainError', () => {
+    it('creates a DomainError with errorKey, message, and cause', () => {
+      const cause = { detail: 'Domain specific issue' };
+      const error = new DomainError(
+        'TEST_ERROR',
+        'Test domain error message',
+        cause
+      );
+      expect(error).toBeInstanceOf(DomainError);
+      expect(error).toBeInstanceOf(Error);
+      expect(error.name).toBe('DomainError');
+      expect(error.errorKey).toBe('TEST_ERROR');
+      expect(error.message).toBe('Test domain error message');
+      expect(error.cause).toBe(cause);
+    });
+
+    it('creates a DomainError without cause', () => {
+      const error = new DomainError('TEST_ERROR', 'Test domain error message');
+      expect(error.errorKey).toBe('TEST_ERROR');
+      expect(error.message).toBe('Test domain error message');
+      expect(error.cause).toBeUndefined();
     });
   });
 
@@ -168,6 +193,24 @@ describe('Error Value Objects', () => {
   });
 
   describe('parseError', () => {
+    it('parses a DomainError correctly', () => {
+      const cause = { reason: 'invalid state' };
+      const domainError = new DomainError(
+        'DOMAIN_ISSUE',
+        'Domain issue occurred',
+        cause
+      );
+      const parsed = parseError(domainError);
+
+      expect(parsed).toEqual({
+        type: 'domain',
+        name: 'DomainError',
+        errorKey: 'DOMAIN_ISSUE',
+        message: 'Domain issue occurred',
+        cause: cause,
+      });
+    });
+
     it('parses an ApiError correctly', () => {
       const cause = { detail: 'issue' };
       const apiError = new ApiError(500, 'Server crashed', cause);
