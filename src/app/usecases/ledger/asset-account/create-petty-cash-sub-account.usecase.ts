@@ -43,7 +43,10 @@ export default function makeCreatePettyCashSubAccountUseCase(
     };
 
     const [account, accountEvents] =
-      await assetAccountService.createPettyCashAccount(accountPayload, trace);
+      await assetAccountService.createPettyCashSubAccount(
+        accountPayload,
+        trace
+      );
 
     await ledgerAccountRepo.save(account, trace);
 

@@ -16,7 +16,7 @@ interface IMakePettyCashPayload {
 }
 
 export default interface IAssetAccountService {
-  createPettyCashAccount(
+  createPettyCashSubAccount(
     payload: IMakePettyCashPayload,
     repoOptions: IRepoOptions
   ): Promise<

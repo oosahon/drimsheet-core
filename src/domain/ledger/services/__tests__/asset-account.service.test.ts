@@ -27,7 +27,7 @@ describe('assetAccountService', () => {
     jest.useRealTimers();
   });
 
-  describe('createPettyCashAccount', () => {
+  describe('createPettyCashSubAccount', () => {
     const ownerId = generateUUID();
     const entityId = generateUUID();
     const controlAccountId = generateUUID();
@@ -75,7 +75,7 @@ describe('assetAccountService', () => {
           mockLatestAccount
         );
 
-        const [account, events] = await service.createPettyCashAccount(
+        const [account, events] = await service.createPettyCashSubAccount(
           validPayload,
           mockOptions
         );
@@ -109,7 +109,7 @@ describe('assetAccountService', () => {
           controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
         };
 
-        const [account, events] = await service.createPettyCashAccount(
+        const [account, events] = await service.createPettyCashSubAccount(
           payloadWithExplicitControlCode,
           mockOptions
         );
@@ -133,7 +133,7 @@ describe('assetAccountService', () => {
         mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
         await expect(
-          service.createPettyCashAccount(validPayload, mockOptions)
+          service.createPettyCashSubAccount(validPayload, mockOptions)
         ).rejects.toThrow('Control account not found');
       });
     });
@@ -153,7 +153,7 @@ describe('assetAccountService', () => {
         };
 
         await expect(
-          service.createPettyCashAccount(payload, mockOptions)
+          service.createPettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid string');
       });
 
@@ -167,7 +167,7 @@ describe('assetAccountService', () => {
         };
 
         await expect(
-          service.createPettyCashAccount(payload, mockOptions)
+          service.createPettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid UUID');
       });
 
@@ -182,7 +182,7 @@ describe('assetAccountService', () => {
         };
 
         await expect(
-          service.createPettyCashAccount(payload, mockOptions)
+          service.createPettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid UUID');
       });
 
@@ -193,7 +193,7 @@ describe('assetAccountService', () => {
         };
 
         await expect(
-          service.createPettyCashAccount(payload, mockOptions)
+          service.createPettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid currency code');
       });
     });

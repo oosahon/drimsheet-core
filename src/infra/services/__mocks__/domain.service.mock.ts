@@ -16,7 +16,7 @@ const accountingEntity: jest.Mocked<IAccountingEntityService> = {
 };
 
 const assetAccount: jest.Mocked<IAssetAccountService> = {
-  createPettyCashAccount: jest.fn(),
+  createPettyCashSubAccount: jest.fn(),
 };
 
 const exchangeRate: jest.Mocked<IExchangeRateService> = {

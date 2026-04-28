@@ -8,14 +8,24 @@ import { EAssetSubType } from '../types/asset-account.types';
 import { TCashLedgerCode } from '../types/ledger-code.types';
 import { ELedgerType } from '../types/ledger.types';
 
-type TCreatePettyCashAccount = IAssetAccountService['createPettyCashAccount'];
+type TCreatePettyCashSubAccount =
+  IAssetAccountService['createPettyCashSubAccount'];
 
-function makeCreatePettyCashAccount(
+export default function makeAssetAccountService(
   repo: ILedgerAccountRepo,
-  accountingService: IAccountingEntityService
-): TCreatePettyCashAccount {
-  return async (payload, repoOptions) => {
-    accountingService.validateAccess(payload.accountingEntity, payload.userId);
+  accountingEntityService: IAccountingEntityService
+) {
+  /**
+   * Create a new petty cash account
+   */
+  const createPettyCashSubAccount: TCreatePettyCashSubAccount = async (
+    payload,
+    repoOptions
+  ) => {
+    accountingEntityService.validateAccess(
+      payload.accountingEntity,
+      payload.userId
+    );
 
     const controlAccountLedgerCode =
       payload.controlAccountCode ??
@@ -62,16 +72,8 @@ function makeCreatePettyCashAccount(
       factoryContext
     );
   };
-}
 
-export default function makeAssetAccountService(
-  repo: ILedgerAccountRepo,
-  accountingEntityService: IAccountingEntityService
-) {
   return Object.freeze({
-    createPettyCashAccount: makeCreatePettyCashAccount(
-      repo,
-      accountingEntityService
-    ),
+    createPettyCashSubAccount,
   });
 }
