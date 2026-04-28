@@ -1,5 +1,5 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
 import { EReportingContextEvents } from '../../events/reporting-context.events';
 import reportingContextEntity from '../reporting-context.entity';
 

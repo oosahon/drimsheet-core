@@ -134,7 +134,7 @@ describe('assetAccountService', () => {
 
         await expect(
           service.createPettyCashSubAccount(validPayload, mockOptions)
-        ).rejects.toThrow('Control account not found');
+        ).rejects.toThrow('ledger_error_control_account_not_found');
       });
     });
 

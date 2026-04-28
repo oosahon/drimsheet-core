@@ -1,7 +1,7 @@
-import { AppError } from '../../../shared/value-objects/error';
 import IAccountingEntityService from '../../accounting/types/accounting-entity.service.types';
 import { ASSET_LEDGER_CODES } from '../config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../entities/01-asset-account/00-cash-and-equivalents.entity';
+import error from '../errors';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import IAssetAccountService from '../types/asset-account.service.types';
 import { EAssetSubType } from '../types/asset-account.types';
@@ -38,7 +38,7 @@ export default function makeAssetAccountService(
     );
 
     if (!controlAccount) {
-      throw new AppError('Control account not found', {
+      throw new error.ControlAccountNotFound({
         cause: { controlAccountLedgerCode },
       });
     }

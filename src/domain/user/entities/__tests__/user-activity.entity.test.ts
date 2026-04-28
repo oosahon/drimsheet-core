@@ -1,6 +1,6 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import { AppError } from '../../../../shared/value-objects/error';
 import { IUserActivity } from '../../types/user-activity.types';
 import userActivityEntity from '../user-activity.entity';
 

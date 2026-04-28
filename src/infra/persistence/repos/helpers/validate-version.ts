@@ -1,6 +1,6 @@
+import { AppError } from '../../../../shared/errors/error';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import numberUtils from '../../../../shared/utils/number';
-import { AppError } from '../../../../shared/value-objects/error';
 
 export default function validateVersionInOptions(options: IRepoOptions) {
   if (!options.expectedVersion) {

@@ -1,4 +1,4 @@
-import { AppError } from '../../value-objects/error';
+import { AppError } from '../../errors/error';
 import stringUtils from '../string';
 
 describe('stringUtils', () => {

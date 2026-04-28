@@ -1,9 +1,9 @@
+import { AppError } from '../../../shared/errors/error';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
-import { AppError } from '../../../shared/value-objects/error';
 import periodEvents from '../events/period.events';
 import {
   EPeriodStatus,

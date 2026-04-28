@@ -1,5 +1,5 @@
+import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { AppError } from '../../../../../shared/value-objects/error';
 import { TServicesLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,

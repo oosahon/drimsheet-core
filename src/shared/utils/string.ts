@@ -1,7 +1,7 @@
 import { v7 as uuid } from 'uuid';
 import { z } from 'zod';
+import { AppError } from '../errors/error';
 import { TEntityId } from '../types/uuid';
-import { AppError } from '../value-objects/error';
 
 interface IValidationOptions {
   min: number;

@@ -20,7 +20,7 @@ interface IConfig {
   ) => string | undefined | Promise<string | undefined>;
 }
 
-import { ErrorTooManyRequests } from '../../shared/value-objects/error';
+import { ErrorTooManyRequests } from '../../shared/errors/error';
 import reporter from '../observability/reporter';
 
 export function configureRateLimiter(config: IConfig) {

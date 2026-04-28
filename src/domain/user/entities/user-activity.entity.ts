@@ -1,7 +1,7 @@
+import { AppError } from '../../../shared/errors/error';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
-import { AppError } from '../../../shared/value-objects/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import { IUserActivity } from '../types/user-activity.types';
 

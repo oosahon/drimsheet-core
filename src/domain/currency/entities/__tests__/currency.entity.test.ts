@@ -1,4 +1,4 @@
-import { AppError } from '../../../../shared/value-objects/error';
+import { AppError } from '../../../../shared/errors/error';
 import currencyEntity from '../currency.entity';
 
 describe('Currency Domain Entity', () => {

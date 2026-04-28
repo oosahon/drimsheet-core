@@ -6,7 +6,7 @@ import {
   ErrorUnprocessableEntity,
   IApiValidationError,
   parseError,
-} from '../../../shared/value-objects/error';
+} from '../../../shared/errors/error';
 
 export interface IApiError {
   message: string;

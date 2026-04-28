@@ -1,6 +1,6 @@
+import { AppError } from '../errors/error';
 import { IEvent, IEventEnrichmentPayload } from '../types/event.types';
 import stringUtils from '../utils/string';
-import { AppError } from './error';
 
 /**
  * Enriches an event with correlation and idempotency keys.

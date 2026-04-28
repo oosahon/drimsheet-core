@@ -1,6 +1,6 @@
+import { AppError } from '../../../../shared/errors/error';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
 import { ULedgerType } from '../../types/ledger.types';
 

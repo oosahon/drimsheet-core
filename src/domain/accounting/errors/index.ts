@@ -1,4 +1,4 @@
-import { DomainError } from '../../../shared/value-objects/error';
+import { DomainError } from '../../../shared/errors/error';
 import { EAccountingError, UAccountingError } from './types';
 
 class AccountingError extends DomainError<UAccountingError> {

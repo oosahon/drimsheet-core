@@ -1,4 +1,4 @@
-import { AppError } from '../../../shared/value-objects/error';
+import { AppError } from '../../../shared/errors/error';
 import { SYSTEM_CURRENCIES, UCurrencyCode } from '../config/currencies.config';
 
 function isValidCurrencyCode(code: string): boolean {

@@ -1,5 +1,5 @@
+import { AppError } from '../../../../shared/errors/error';
 import stringUtils from '../../../../shared/utils/string';
-import { AppError } from '../../../../shared/value-objects/error';
 import {
   SYSTEM_ACCOUNTING_STANDARDS,
   UAccountingStandardCode,

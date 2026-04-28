@@ -1,4 +1,4 @@
-import { AppError } from '../../../../shared/value-objects/error';
+import { AppError } from '../../../../shared/errors/error';
 import firstOrLastName from '../first-or-last-name.vo';
 
 describe('FirstOrLastName Value Object', () => {

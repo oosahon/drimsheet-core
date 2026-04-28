@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { AppError } from '../value-objects/error';
+import { AppError } from '../errors/error';
 
 function isValidDate(date: Date | string | number) {
   return dayjs(date).isValid();

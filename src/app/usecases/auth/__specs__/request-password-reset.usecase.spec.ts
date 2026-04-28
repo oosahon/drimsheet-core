@@ -6,8 +6,8 @@ import mockUserAuthRepo from '../../../../infra/persistence/repos/__mocks__/user
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
+import { ErrorBadRequest } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { ErrorBadRequest } from '../../../../shared/value-objects/error';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
+import { ErrorBadRequest } from '../../../shared/errors/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import { ErrorBadRequest } from '../../../shared/value-objects/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { IAccessToken, IResetPasswordReq } from '../../contracts/dto/auth.dto';

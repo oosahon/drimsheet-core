@@ -1,6 +1,6 @@
 import _ from 'lodash';
+import { AppError } from '../../../shared/errors/error';
 import generateDiff from '../../../shared/utils/diff-generator';
-import { AppError } from '../../../shared/value-objects/error';
 import IExchangeRateRepo from '../repos/exchange-rate.repo';
 import IExchangeRateService from '../types/exchange-rate.service.types';
 import exchangeRateValue from '../value-objects/exchange-rate.vo';

@@ -12,7 +12,7 @@ import {
   ErrorUnauthorized,
   ErrorUnprocessableEntity,
   parseError,
-} from '../error';
+} from './error';
 
 describe('Error Value Objects', () => {
   describe('AppError', () => {

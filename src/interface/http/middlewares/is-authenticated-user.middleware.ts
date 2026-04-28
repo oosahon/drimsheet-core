@@ -5,7 +5,7 @@ import IAccountingEntityService from '../../../domain/accounting/types/accountin
 import {
   ErrorForbidden,
   ErrorUnauthorized,
-} from '../../../shared/value-objects/error';
+} from '../../../shared/errors/error';
 import httpHandlers from '../handlers';
 
 export default function makeIsAuthenticatedUserMiddleware(

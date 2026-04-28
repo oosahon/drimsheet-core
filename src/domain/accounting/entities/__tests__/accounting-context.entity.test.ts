@@ -1,5 +1,5 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
 import { EAccountingContextEvents } from '../../events/accounting-context.events';
 import accountingContextEntity from '../accounting-context.entity';
 

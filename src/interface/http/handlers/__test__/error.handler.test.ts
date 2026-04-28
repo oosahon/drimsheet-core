@@ -1,10 +1,7 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
-import {
-  AppError,
-  ErrorBadRequest,
-} from '../../../../shared/value-objects/error';
+import { AppError, ErrorBadRequest } from '../../../../shared/errors/error';
 import makeHttpErrorHandler from '../error.handler';
 
 describe('makeHttpErrorHandler', () => {

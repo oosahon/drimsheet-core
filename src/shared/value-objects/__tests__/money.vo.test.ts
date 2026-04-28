@@ -1,6 +1,6 @@
+import { AppError } from '../../errors/error';
 import { IMoney } from '../../types/money.types';
 import mockCurrencies from '../__mocks__/currencies.mock';
-import { AppError } from '../error';
 import money from '../money.vo';
 
 describe('Money Value Object', () => {

@@ -3,7 +3,7 @@ import IAccountBalanceService from '../../../domain/bookkeeping/types/account-ba
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
-import { ErrorUnauthorized } from '../../../shared/value-objects/error';
+import { ErrorUnauthorized } from '../../../shared/errors/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import ILogger from '../../contracts/infra/logger.contract';
 

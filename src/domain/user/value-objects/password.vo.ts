@@ -1,4 +1,4 @@
-import { AppError } from '../../../shared/value-objects/error';
+import { AppError } from '../../../shared/errors/error';
 
 function make(input: unknown): string {
   if (typeof input !== 'string') {

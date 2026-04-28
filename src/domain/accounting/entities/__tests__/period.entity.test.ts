@@ -1,5 +1,5 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
 import { EPeriodEvents } from '../../events/period.events';
 import { EPeriodStatus, EPeriodUnit } from '../../types/period.types';
 import periodEntity from '../period.entity';

@@ -1,4 +1,4 @@
-import { AppError } from '../../value-objects/error';
+import { AppError } from '../../errors/error';
 import numberUtils from '../number';
 
 describe('numberUtils', () => {

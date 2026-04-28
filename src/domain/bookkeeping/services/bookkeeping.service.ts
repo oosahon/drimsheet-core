@@ -1,5 +1,5 @@
+import { AppError } from '../../../shared/errors/error';
 import { IMoney } from '../../../shared/types/money.types';
-import { AppError } from '../../../shared/value-objects/error';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import { SYSTEM_CURRENCIES } from '../../currency/config/currencies.config';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';

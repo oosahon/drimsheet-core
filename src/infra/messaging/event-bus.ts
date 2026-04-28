@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import IEventBus from '../../app/contracts/infra/event-bus.contract';
-import { AppError } from '../../shared/value-objects/error';
+import { AppError } from '../../shared/errors/error';
 import reporter from '../observability/reporter';
 
 const emitter = new EventEmitter();

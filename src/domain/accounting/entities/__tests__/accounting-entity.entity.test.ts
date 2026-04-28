@@ -1,6 +1,6 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import { AppError } from '../../../../shared/value-objects/error';
 import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
 import {
   EAccountingEntityAuditTrailAction,

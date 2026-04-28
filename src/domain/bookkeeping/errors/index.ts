@@ -1,4 +1,4 @@
-import { DomainError } from '../../../shared/value-objects/error';
+import { DomainError } from '../../../shared/errors/error';
 import { EBookkeepingError, UBookkeepingError } from './types';
 
 class BookkeepingError extends DomainError<UBookkeepingError> {

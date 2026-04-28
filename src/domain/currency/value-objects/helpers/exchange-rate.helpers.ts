@@ -1,7 +1,7 @@
+import { AppError } from '../../../../shared/errors/error';
 import dateUtils from '../../../../shared/utils/date';
 import numberUtils from '../../../../shared/utils/number';
 import stringUtils from '../../../../shared/utils/string';
-import { AppError } from '../../../../shared/value-objects/error';
 import currencyEntity from '../../entities/currency.entity';
 import {
   EExchangeRateType,
