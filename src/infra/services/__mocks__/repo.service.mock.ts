@@ -1,7 +1,5 @@
-import {
-  IRepoService,
-  ITransactionContext,
-} from '../../../app/contracts/infra/repo.contract';
+import { IRepoService } from '../../../app/contracts/infra/repo.contract';
+import { ITransactionContext } from '../../../shared/types/repo.types';
 
 const mockRepoService = {
   runInTransaction: jest.fn(

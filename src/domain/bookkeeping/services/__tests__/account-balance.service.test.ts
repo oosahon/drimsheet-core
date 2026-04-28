@@ -1,5 +1,5 @@
-import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
+import { IRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import ledgerAccountEntity from '../../../ledger/entities/shared/ledger-account.entity';

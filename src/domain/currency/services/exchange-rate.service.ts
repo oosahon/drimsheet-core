@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
+import { IRepoOptions } from '../../../shared/types/repo.types';
 import generateDiff from '../../../shared/utils/diff-generator';
 import { AppError } from '../../../shared/value-objects/error';
 import IExchangeRateRepo from '../repos/exchange-rate.repo';

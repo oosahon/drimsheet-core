@@ -1,4 +1,4 @@
-import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
+import { IRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { IUserPreferences } from '../types/user-preferences.types';
 

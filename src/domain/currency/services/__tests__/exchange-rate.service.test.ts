@@ -1,5 +1,5 @@
-import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import mockExchangeRateRepo from '../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
+import { IRepoOptions } from '../../../../shared/types/repo.types';
 import {
   EExchangeRateType,
   IExchangeRate,

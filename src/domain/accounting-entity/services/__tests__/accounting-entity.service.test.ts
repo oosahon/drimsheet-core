@@ -1,6 +1,6 @@
-import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
+import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { ErrorConflict } from '../../../../shared/value-objects/error';

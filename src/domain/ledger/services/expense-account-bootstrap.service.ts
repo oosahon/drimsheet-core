@@ -1,5 +1,5 @@
-import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { IRepoOptions } from '../../../shared/types/repo.types';
 import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
 import { EXPENSE_LEDGER_CODES } from '../config/expense-codes.config';
 import directCostsAccountEntity from '../entities/05-expense-account/00-direct-costs.entity';

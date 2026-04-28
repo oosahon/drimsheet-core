@@ -1,4 +1,4 @@
-import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
+import { IRepoOptions } from '../../../shared/types/repo.types';
 import { AppError } from '../../../shared/value-objects/error';
 import accountingEntityEntity from '../../accounting-entity/entities/accounting-entity.entity';
 import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';

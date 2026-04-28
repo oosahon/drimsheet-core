@@ -1,4 +1,4 @@
-import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
+import { IRepoOptions } from '../../../shared/types/repo.types';
 import ILedgerAccountBalanceRepo from '../../bookkeeping/repos/ledger-account-balance.repo';
 import { ICurrency } from '../../currency/types/currency.types';
 import { ILedgerAccount } from '../../ledger/types/ledger.types';

@@ -1,5 +1,5 @@
-import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { IRepoOptions } from '../../../shared/types/repo.types';
 import { AppError } from '../../../shared/value-objects/error';
 import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
 import { LIABILITY_LEDGER_CODES } from '../config/liability-codes.config';

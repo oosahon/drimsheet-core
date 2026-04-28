@@ -1,7 +1,5 @@
-import {
-  IRepoService,
-  ITransactionContext,
-} from '../../app/contracts/infra/repo.contract';
+import { IRepoService } from '../../app/contracts/infra/repo.contract';
+import { ITransactionContext } from '../../shared/types/repo.types';
 import { postgres } from '../config/postgres.config';
 
 const repoService: IRepoService = {

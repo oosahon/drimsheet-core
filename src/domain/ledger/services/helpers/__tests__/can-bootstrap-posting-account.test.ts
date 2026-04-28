@@ -1,5 +1,5 @@
-import { IRepoOptions } from '../../../../../app/contracts/infra/repo.contract';
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import { IRepoOptions } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import { AppError } from '../../../../../shared/value-objects/error';
 import {

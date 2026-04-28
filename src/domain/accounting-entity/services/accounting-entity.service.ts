@@ -1,6 +1,6 @@
-import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { IRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { ErrorConflict } from '../../../shared/value-objects/error';
 import accountingEntityEntity from '../entities/accounting-entity.entity';
