@@ -4,7 +4,6 @@ import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
-import { ICurrency } from '../../../currency/types/currency.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import { TCashLedgerCode } from '../../types/ledger-code.types';
 import { ILedgerAccount } from '../../types/ledger.types';
@@ -38,7 +37,7 @@ describe('assetAccountService', () => {
       ownerId,
     } as IAccountingEntity;
 
-    const validCurrency: ICurrency = {
+    const validCurrency: any = {
       code: 'USD',
       name: 'US Dollar',
       minorUnit: 2n,

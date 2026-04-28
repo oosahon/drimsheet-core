@@ -14,6 +14,7 @@ describe('Accounting Entity Mapper', () => {
     name: 'Purple Ledger Corp',
     type: 'private_company',
     functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
     createdAt,
     updatedAt,
   };
@@ -24,6 +25,7 @@ describe('Accounting Entity Mapper', () => {
     name: 'Purple Ledger Corp',
     type: 'private_company',
     functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
   };

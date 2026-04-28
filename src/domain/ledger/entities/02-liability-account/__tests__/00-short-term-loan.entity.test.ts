@@ -28,7 +28,7 @@ describe('Short Term Loan Liability Entity', () => {
   const validUUID2 = generateUUID();
   const validUUID3 = generateUUID();
 
-  const validCurrency = {
+  const validCurrency: any = {
     code: 'USD',
     name: 'US Dollar',
     symbol: '$',

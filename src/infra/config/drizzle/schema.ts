@@ -207,39 +207,6 @@ export const userActivitiesInAudit = audit.table(
   ]
 );
 
-export const accountingEntitiesInCore = core.table(
-  'accounting_entities',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    type: accountingEntityTypeInCore().notNull(),
-    name: varchar({ length: 255 }).notNull(),
-    ownerId: uuid('owner_id').notNull(),
-    functionalCurrencyCode: varchar('functional_currency_code', {
-      length: 3,
-    }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.ownerId],
-      foreignColumns: [usersInCore.id],
-      name: 'accounting_entities_owner_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.functionalCurrencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'accounting_entities_functional_currency_code_fkey',
-    }),
-  ]
-);
-
 export const currenciesInCore = core.table('currencies', {
   code: varchar({ length: 3 }).notNull(),
   symbol: varchar({ length: 5 }).notNull(),
@@ -274,6 +241,72 @@ export const jurisdictionsInCore = core.table(
       foreignColumns: [currenciesInCore.code],
       name: 'jurisdictions_currency_code_fkey',
     }).onDelete('restrict'),
+  ]
+);
+
+export const accountingEntitiesInCore = core.table(
+  'accounting_entities',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    type: accountingEntityTypeInCore().notNull(),
+    name: varchar({ length: 255 }).notNull(),
+    ownerId: uuid('owner_id').notNull(),
+    functionalCurrencyCode: varchar('functional_currency_code', {
+      length: 3,
+    }).notNull(),
+    jurisdictionCode: varchar('jurisdiction_code', { length: 2 }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.ownerId],
+      foreignColumns: [usersInCore.id],
+      name: 'accounting_entities_owner_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.functionalCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'accounting_entities_functional_currency_code_fkey',
+    }),
+    foreignKey({
+      columns: [table.jurisdictionCode],
+      foreignColumns: [jurisdictionsInCore.code],
+      name: 'accounting_entities_jurisdiction_code_fkey',
+    }),
+  ]
+);
+
+export const fiscalYearsInCore = core.table(
+  'fiscal_years',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    name: varchar({ length: 150 }).notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    unit: fiscalYearPeriodUnitInCore().notNull(),
+    count: smallint().notNull(),
+    startDate: date('start_date').notNull(),
+    endDate: date('end_date').notNull(),
+    status: periodStatusInCore().notNull(),
+    closedAt: timestamp('closed_at', { withTimezone: true, mode: 'string' }),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'fiscal_years_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
   ]
 );
 
@@ -325,33 +358,6 @@ export const accountingStandardsInCore = core.table('accounting_standards', {
   deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
 });
 
-export const fiscalYearsInCore = core.table(
-  'fiscal_years',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    name: varchar({ length: 150 }).notNull(),
-    accountingEntityId: uuid('accounting_entity_id').notNull(),
-    unit: fiscalYearPeriodUnitInCore().notNull(),
-    count: smallint().notNull(),
-    startDate: date('start_date').notNull(),
-    endDate: date('end_date').notNull(),
-    status: periodStatusInCore().notNull(),
-    closedAt: timestamp('closed_at', { withTimezone: true, mode: 'string' }),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.accountingEntityId],
-      foreignColumns: [accountingEntitiesInCore.id],
-      name: 'fiscal_years_accounting_entity_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
 export const accountingPeriodsInCore = core.table(
   'accounting_periods',
   {
@@ -394,7 +400,6 @@ export const accountingContextsInCore = core.table(
     name: varchar({ length: 150 }).notNull(),
     description: varchar({ length: 255 }),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
-    jurisdictionCode: varchar('jurisdiction_code', { length: 2 }).notNull(),
     accountingStandardCode: varchar('accounting_standard_code', {
       length: 15,
     }).notNull(),
@@ -414,11 +419,6 @@ export const accountingContextsInCore = core.table(
       foreignColumns: [accountingEntitiesInCore.id],
       name: 'accounting_contexts_accounting_entity_id_fkey',
     }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.jurisdictionCode],
-      foreignColumns: [jurisdictionsInCore.code],
-      name: 'accounting_contexts_jurisdiction_code_fkey',
-    }).onDelete('restrict'),
     foreignKey({
       columns: [table.accountingStandardCode],
       foreignColumns: [accountingStandardsInCore.code],

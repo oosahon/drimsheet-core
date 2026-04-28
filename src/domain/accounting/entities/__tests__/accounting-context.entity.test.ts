@@ -16,41 +16,11 @@ describe('accountingContextEntity', () => {
     name: 'Primary Ledger',
     description: 'The primary US GAAP ledger',
     accountingEntityId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
-    jurisdictionCode: 'NG',
     accountingStandardCode: 'IFRS',
     fiscalYearId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     currentAccountingPeriodId:
       '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
   } as const;
-
-  describe('isValidJurisdictionCode', () => {
-    it('returns true for a valid jurisdiction code', () => {
-      expect(accountingContextEntity.isValidJurisdictionCode('NG')).toBe(true);
-      expect(accountingContextEntity.isValidJurisdictionCode('US')).toBe(true);
-    });
-
-    it('returns false for an invalid jurisdiction code', () => {
-      expect(accountingContextEntity.isValidJurisdictionCode('INVALID')).toBe(
-        false
-      );
-      expect(accountingContextEntity.isValidJurisdictionCode(123)).toBe(false);
-      expect(accountingContextEntity.isValidJurisdictionCode(null)).toBe(false);
-    });
-  });
-
-  describe('validateJurisdictionCode', () => {
-    it('does not throw for a valid jurisdiction code', () => {
-      expect(() =>
-        accountingContextEntity.validateJurisdictionCode('NG')
-      ).not.toThrow();
-    });
-
-    it('throws AppError for an invalid jurisdiction code', () => {
-      expect(() =>
-        accountingContextEntity.validateJurisdictionCode('INVALID')
-      ).toThrow(AppError);
-    });
-  });
 
   describe('isValidAccountingStandardCode', () => {
     it('returns true for a valid accounting standard code', () => {
@@ -98,7 +68,6 @@ describe('accountingContextEntity', () => {
         name: validPayload.name,
         description: validPayload.description,
         accountingEntityId: validPayload.accountingEntityId,
-        jurisdictionCode: validPayload.jurisdictionCode,
         accountingStandardCode: validPayload.accountingStandardCode,
         fiscalYearId: validPayload.fiscalYearId,
         currentAccountingPeriodId: validPayload.currentAccountingPeriodId,
@@ -121,17 +90,6 @@ describe('accountingContextEntity', () => {
         accountingEntityId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
-    });
-
-    it('throws AppError if jurisdictionCode is invalid', () => {
-      const invalidPayload = {
-        ...validPayload,
-        jurisdictionCode: 'INVALID',
-      };
-      // @ts-expect-error testing invalid jurisdictionCode
       expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
         AppError
       );

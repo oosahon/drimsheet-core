@@ -27,7 +27,7 @@ describe('Payable Liability Entity', () => {
   const validUUID3 = generateUUID();
   const validUUID4 = generateUUID();
 
-  const validCurrency = {
+  const validCurrency: any = {
     code: 'USD',
     name: 'US Dollar',
     symbol: '$',

@@ -37,6 +37,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
     functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
   });
 
   const [mockControlAccount] = cashAndEquivalentAccountEntity.make(

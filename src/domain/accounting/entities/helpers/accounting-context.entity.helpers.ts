@@ -4,22 +4,6 @@ import {
   SYSTEM_ACCOUNTING_STANDARDS,
   UAccountingStandardCode,
 } from '../../config/accounting-standards.config';
-import {
-  SYSTEM_JURISDICTIONS,
-  UJurisdictionCode,
-} from '../../config/jurisdictions.config';
-
-function isValidJurisdictionCode(code: unknown): code is UJurisdictionCode {
-  return Object.keys(SYSTEM_JURISDICTIONS).includes(code as UJurisdictionCode);
-}
-
-function validateJurisdictionCode(code: unknown) {
-  if (!isValidJurisdictionCode(code)) {
-    throw new AppError('Invalid jurisdiction code', {
-      cause: code as Record<string, unknown>,
-    });
-  }
-}
 
 function isValidAccountingStandardCode(
   code: unknown
@@ -47,8 +31,6 @@ function getDescription(description: string | null) {
 }
 
 const accountingContextEntityHelpers = Object.freeze({
-  isValidJurisdictionCode,
-  validateJurisdictionCode,
   isValidAccountingStandardCode,
   validateAccountingStandardCode,
   getDescription,

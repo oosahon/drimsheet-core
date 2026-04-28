@@ -6,8 +6,7 @@ import { IAccountingEntity } from './accounting-entity.types';
 
 export default interface IAccountingEntityService {
   create(
-    userId: TEntityId,
-    payload: TCreationOmits<IAccountingEntity>,
+    payload: TCreationOmits<IAccountingEntity> & { userId: TEntityId },
     repoOptions: IRepoOptions
   ): Promise<TEntityWithEvents<IAccountingEntity, IAccountingEntity>>;
 

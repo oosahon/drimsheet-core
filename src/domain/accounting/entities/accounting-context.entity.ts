@@ -10,7 +10,6 @@ function make(
   payload: TCreationOmits<IAccountingContext, 'closedAt'>
 ): TEntityWithEvents<IAccountingContext, IAccountingContext> {
   stringUtils.validateUUID(payload.accountingEntityId);
-  helpers.validateJurisdictionCode(payload.jurisdictionCode);
   helpers.validateAccountingStandardCode(payload.accountingStandardCode);
   stringUtils.validateUUID(payload.fiscalYearId);
   stringUtils.validateUUID(payload.currentAccountingPeriodId);
@@ -28,7 +27,6 @@ function make(
     name,
     description,
     accountingEntityId: payload.accountingEntityId,
-    jurisdictionCode: payload.jurisdictionCode,
     accountingStandardCode: payload.accountingStandardCode,
     fiscalYearId: payload.fiscalYearId,
     currentAccountingPeriodId: payload.currentAccountingPeriodId,

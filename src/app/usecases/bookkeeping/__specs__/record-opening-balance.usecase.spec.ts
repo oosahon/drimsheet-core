@@ -39,6 +39,7 @@ describe('recordOpeningBalanceUseCase', () => {
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
     functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
   });
 
   const [mockAssetAccount] = cashAndEquivalentAccountEntity.make(

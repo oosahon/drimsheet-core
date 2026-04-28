@@ -1,5 +1,9 @@
 import { AppError } from '../../../../shared/errors/error';
 import {
+  SYSTEM_JURISDICTIONS,
+  UJurisdictionCode,
+} from '../../config/jurisdictions.config';
+import {
   EAccountingEntityAuditTrailAction,
   EAccountingEntityType,
   UAccountingEntityAuditTrailAction,
@@ -12,7 +16,21 @@ function isValidType(type: UAccountingEntityType) {
 
 function validateType(type: UAccountingEntityType) {
   if (!isValidType(type)) {
-    throw new AppError('Invalid accounting entity type', { cause: type });
+    throw new AppError('Invalid accounting entity type', {
+      cause: type as any,
+    });
+  }
+}
+
+function isValidJurisdictionCode(code: unknown): code is UJurisdictionCode {
+  return Object.keys(SYSTEM_JURISDICTIONS).includes(code as UJurisdictionCode);
+}
+
+function validateJurisdictionCode(code: unknown) {
+  if (!isValidJurisdictionCode(code)) {
+    throw new AppError('Invalid jurisdiction code', {
+      cause: code as Record<string, unknown>,
+    });
   }
 }
 
@@ -31,6 +49,9 @@ function validateAuditTrailAction(action: UAccountingEntityAuditTrailAction) {
 const accountingEntityHelpers = Object.freeze({
   isValidType,
   validateType,
+
+  isValidJurisdictionCode,
+  validateJurisdictionCode,
 
   isValidAuditTrailAction,
   validateAuditTrailAction,

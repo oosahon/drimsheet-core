@@ -3,7 +3,7 @@ import { IAccountingEntity } from '../../domain/accounting/types/accounting-enti
 import { UCurrencyCode } from '../../domain/currency/config/currencies.config';
 import { accountingEntitiesInCore } from '../../infra/config/drizzle/schema';
 import { TEntityId } from '../../shared/types/uuid';
-import { IAccountingEntityRes } from '../contracts/dto/accounting-entity.dto';
+export type IAccountingEntityRes = any; // TODO: define in dto
 
 export interface IAccountingEntityModel extends InferSelectModel<
   typeof accountingEntitiesInCore
@@ -17,6 +17,7 @@ const accountingEntityMapper = {
       name: entity.name,
       type: entity.type,
       functionalCurrencyCode: entity.functionalCurrencyCode,
+      jurisdictionCode: entity.jurisdictionCode,
       createdAt: entity.createdAt.toISOString(),
       updatedAt: entity.updatedAt.toISOString(),
     };
@@ -29,6 +30,7 @@ const accountingEntityMapper = {
       name: payload.name,
       type: payload.type,
       functionalCurrencyCode: payload.functionalCurrencyCode as UCurrencyCode,
+      jurisdictionCode: payload.jurisdictionCode as any,
       createdAt: new Date(payload.createdAt),
       updatedAt: new Date(payload.updatedAt),
     });

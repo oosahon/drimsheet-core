@@ -11,9 +11,9 @@ type TValidateAccess = IAccountingEntityService['validateAccess'];
 export default function makeAccountingEntityService(
   repo: IAccountingEntityRepo
 ): IAccountingEntityService {
-  const create: TCreate = async (userId, payload, repoOptions) => {
+  const create: TCreate = async (payload, repoOptions) => {
     const existingEntities = await repo.findByUserId(
-      userId,
+      payload.userId,
       repoOptions,
       payload.type
     );

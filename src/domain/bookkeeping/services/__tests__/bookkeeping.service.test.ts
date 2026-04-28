@@ -69,9 +69,8 @@ describe('bookkeepingService', () => {
       currency: {
         code: 'NGN',
         name: 'Nigerian Naira',
-        minorUnit: 2n,
         symbol: '₦',
-      },
+      } as any,
     };
 
     const validPayload = {
@@ -194,7 +193,12 @@ describe('bookkeepingService', () => {
           ...validPayload,
           amount: {
             ...validAmount,
-            currency: { code: 'EUR', name: 'Euro', minorUnit: 2n, symbol: '€' },
+            currency: {
+              code: 'EUR',
+              name: 'Euro',
+              minorUnit: 2n,
+              symbol: '€',
+            } as any,
           },
           exchangeRate: null,
         };
@@ -211,7 +215,12 @@ describe('bookkeepingService', () => {
           ...validPayload,
           amount: {
             ...validAmount,
-            currency: { code: 'EUR', name: 'Euro', minorUnit: 2n, symbol: '€' },
+            currency: {
+              code: 'EUR',
+              name: 'Euro',
+              minorUnit: 2n,
+              symbol: '€',
+            } as any,
           },
           exchangeRate: {
             baseCurrencyCode: 'GBP',
@@ -229,7 +238,12 @@ describe('bookkeepingService', () => {
           ...validPayload,
           amount: {
             ...validAmount,
-            currency: { code: 'EUR', name: 'Euro', minorUnit: 2n, symbol: '€' },
+            currency: {
+              code: 'EUR',
+              name: 'Euro',
+              minorUnit: 2n,
+              symbol: '€',
+            } as any,
           },
           exchangeRate: {
             baseCurrencyCode: 'EUR',
@@ -254,13 +268,13 @@ describe('bookkeepingService', () => {
       name: 'US Dollar',
       minorUnit: 2n,
       symbol: '$',
-    };
+    } as any;
     const functionalCurrency = {
       code: 'EUR',
       name: 'Euro',
       minorUnit: 2n,
       symbol: '€',
-    };
+    } as any;
 
     const account: ILedgerAccount = {
       id: accountId,
@@ -342,7 +356,7 @@ describe('bookkeepingService', () => {
             name: 'British Pound',
             minorUnit: 2n,
             symbol: '£',
-          },
+          } as any,
         },
       };
       await expect(
@@ -367,7 +381,7 @@ describe('bookkeepingService', () => {
             name: 'British Pound',
             minorUnit: 2n,
             symbol: '£',
-          },
+          } as any,
         },
       };
       await expect(

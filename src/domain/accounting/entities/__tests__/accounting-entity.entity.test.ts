@@ -22,6 +22,7 @@ describe('accountingEntityEntity', () => {
       type: EAccountingEntityType.Individual,
       ownerId: generateUUID(),
       functionalCurrencyCode: 'NGN',
+      jurisdictionCode: 'NG',
     };
   });
 
@@ -38,6 +39,10 @@ describe('accountingEntityEntity', () => {
       expect(entity.name).toBe(validPayload.name);
       expect(entity.type).toBe(validPayload.type);
       expect(entity.ownerId).toBe(validPayload.ownerId);
+      expect(entity.functionalCurrencyCode).toBe(
+        validPayload.functionalCurrencyCode
+      );
+      expect(entity.jurisdictionCode).toBe(validPayload.jurisdictionCode);
       expect(entity.createdAt).toEqual(MOCK_DATE);
       expect(entity.updatedAt).toEqual(MOCK_DATE);
 
@@ -129,6 +134,37 @@ describe('accountingEntityEntity', () => {
         expect(() =>
           // @ts-expect-error testing invalid argument
           accountingEntityEntity.validateType('invalid-type')
+        ).toThrow(AppError);
+      });
+    });
+
+    describe('isValidJurisdictionCode', () => {
+      it('returns true for a valid jurisdiction code', () => {
+        expect(accountingEntityEntity.isValidJurisdictionCode('NG')).toBe(true);
+        expect(accountingEntityEntity.isValidJurisdictionCode('US')).toBe(true);
+      });
+
+      it('returns false for an invalid jurisdiction code', () => {
+        expect(accountingEntityEntity.isValidJurisdictionCode('INVALID')).toBe(
+          false
+        );
+        expect(accountingEntityEntity.isValidJurisdictionCode(123)).toBe(false);
+        expect(accountingEntityEntity.isValidJurisdictionCode(null)).toBe(
+          false
+        );
+      });
+    });
+
+    describe('validateJurisdictionCode', () => {
+      it('does not throw for a valid jurisdiction code', () => {
+        expect(() =>
+          accountingEntityEntity.validateJurisdictionCode('NG')
+        ).not.toThrow();
+      });
+
+      it('throws AppError for an invalid jurisdiction code', () => {
+        expect(() =>
+          accountingEntityEntity.validateJurisdictionCode('INVALID')
         ).toThrow(AppError);
       });
     });
