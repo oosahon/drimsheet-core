@@ -75,6 +75,7 @@ describe('Retained Earning Entity', () => {
     const validPayload = {
       name: 'Retained Earnings',
       accountingEntityId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
     };

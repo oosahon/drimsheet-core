@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import accountingEntitySupportedCountries from '../../../domain/accounting-entity/config/supported-countries.config';
 import accountingEntityEvents from '../../../domain/accounting-entity/events/accounting-entity.events';
 import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
 import accountingEntityService from '../../../domain/accounting-entity/services/accounting-entity.service';
@@ -7,6 +6,10 @@ import {
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import {
+  SYSTEM_JURISDICTIONS,
+  UJurisdictionCode,
+} from '../../../domain/accounting/config/jurisdictions.config';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import ledgerService from '../../../domain/ledger/services/ledger-bootstrap.service';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
@@ -18,6 +21,7 @@ import {
 } from '../../../domain/user/types/user-preferences.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { IEvent } from '../../../shared/types/event.types';
+import generateUUID from '../../../shared/utils/uuid-generator';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import {
   ErrorResourceNotFound,
@@ -36,7 +40,10 @@ import currencyMapper from '../../mappers/currency.mapper';
 const validationSchema = z.object({
   name: z.string(),
   operatingCountryCode: z.enum(
-    accountingEntitySupportedCountries.map((v) => v.code),
+    Object.keys(SYSTEM_JURISDICTIONS) as [
+      UJurisdictionCode,
+      ...UJurisdictionCode[],
+    ],
     'Unsupported operating country code'
   ),
   entityType: z.enum([EAccountingEntityType.Individual]),
@@ -95,6 +102,7 @@ export default function makeOnboardAccountingEntityUseCase(
     const accountingEntityCreatePayload: TCreationOmits<IAccountingEntity> = {
       name: payload.name,
       operatingCountryCode: payload.operatingCountryCode,
+      accountingContextId: generateUUID(),
       type: payload.entityType,
       ownerId: user.id,
       functionalCurrency,

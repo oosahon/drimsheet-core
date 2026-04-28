@@ -43,6 +43,7 @@ function make(
   const account = ledgerAccountEntity.make<IGainOnAssetSaleAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
+
     code,
     materializedPath,
     type: ELedgerType.Revenue,

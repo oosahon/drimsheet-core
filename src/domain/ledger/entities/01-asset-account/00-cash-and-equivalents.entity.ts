@@ -62,6 +62,7 @@ function make(
   const account = ledgerAccountEntity.make<ICashAndCashEquivalentAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
+
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
@@ -112,6 +113,7 @@ function makePettyCashAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: !!payload.isControlAccount,
@@ -140,6 +142,7 @@ function makeBankAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,

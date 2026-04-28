@@ -251,6 +251,7 @@ export const accountingEntitiesInCore = core.table(
       .notNull(),
     type: accountingEntityTypeInCore().notNull(),
     name: varchar({ length: 255 }).notNull(),
+    accountingContextId: uuid('accounting_context_id').notNull(),
     operatingCountryCode: varchar('operating_country_code', {
       length: 2,
     }).notNull(),

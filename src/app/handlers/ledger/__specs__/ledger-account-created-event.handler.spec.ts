@@ -16,9 +16,9 @@ import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import accountingUsecases from '../../../usecases/accounting';
+import bookkeepingUseCases from '../../../usecases/bookkeeping';
 
-jest.mock('../../../usecases/accounting', () => ({
+jest.mock('../../../usecases/bookkeeping', () => ({
   __esModule: true,
   default: {
     createLedgerAccountBalance: jest.fn(),
@@ -80,7 +80,7 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
     } as IRequestContextData);
 
     (
-      accountingUsecases.createLedgerAccountBalance as jest.Mock
+      bookkeepingUseCases.createLedgerAccountBalance as jest.Mock
     ).mockResolvedValue(undefined);
 
     await handler(mockEvent);
@@ -91,7 +91,7 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: mockEvent.correlationId,
     });
-    expect(accountingUsecases.createLedgerAccountBalance).toHaveBeenCalledWith(
+    expect(bookkeepingUseCases.createLedgerAccountBalance).toHaveBeenCalledWith(
       mockEvent.data
     );
   });
@@ -113,7 +113,7 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
     } as IRequestContextData);
 
     (
-      accountingUsecases.createLedgerAccountBalance as jest.Mock
+      bookkeepingUseCases.createLedgerAccountBalance as jest.Mock
     ).mockResolvedValue(undefined);
 
     await handler(mockEvent);
@@ -124,7 +124,7 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: expect.any(String),
     });
-    expect(accountingUsecases.createLedgerAccountBalance).toHaveBeenCalledWith(
+    expect(bookkeepingUseCases.createLedgerAccountBalance).toHaveBeenCalledWith(
       mockEvent.data
     );
   });
@@ -146,7 +146,7 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
       'Event type does not match expected type'
     );
     expect(
-      accountingUsecases.createLedgerAccountBalance
+      bookkeepingUseCases.createLedgerAccountBalance
     ).not.toHaveBeenCalled();
   });
 });

@@ -16,10 +16,10 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../../contracts/app/request-context.contract';
-import makeRecordOpeningBalanceUseCase from '../../../accounting/record-opening-balance.usecase';
+import makeRecordOpeningBalanceUseCase from '../../../bookkeeping/record-opening-balance.usecase';
 import makeCreatePettyCashSubAccountUseCase from '../create-petty-cash-sub-account.usecase';
 
-jest.mock('../../../accounting/record-opening-balance.usecase');
+jest.mock('../../../bookkeeping/record-opening-balance.usecase');
 
 const mockRecordOpeningBalanceUseCase = jest.fn();
 
@@ -36,6 +36,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     operatingCountryCode: 'NG',
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
+    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     functionalCurrency: SYSTEM_CURRENCIES.NGN,
     reportingCurrency: SYSTEM_CURRENCIES.USD,
     fiscalYearStart: { month: 1, day: 1 },

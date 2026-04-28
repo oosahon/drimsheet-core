@@ -154,11 +154,9 @@ export interface IPayableAccount extends ILiabilityLedgerAccount {
     | typeof EAdjunctAccountRule.AdjunctNotPermitted;
 }
 
-import { UTaxType } from './tax.types';
-
 export interface IStatutoryPayableAccountMeta {
   taxAuthority: string;
-  taxType: UTaxType;
+  taxType: string;
 }
 
 export interface IStatutoryPayableAccount extends IPayableAccount {

@@ -86,6 +86,7 @@ describe('Cash and Cash Equivalent Entity', () => {
     > = {
       name: 'Cash and Cash Equivalents',
       accountingEntityId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: true,
@@ -271,6 +272,7 @@ describe('Cash and Cash Equivalent Entity', () => {
     const validPettyCashPayload: TCreationOmits<IPettyCashAccount> = {
       name: 'Main Office Petty Cash',
       accountingEntityId: validUUID1,
+
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,
@@ -331,6 +333,7 @@ describe('Cash and Cash Equivalent Entity', () => {
     const validBankPayload: TCreationOmits<IBankAccount> = {
       name: 'Operations Bank Account',
       accountingEntityId: validUUID1,
+
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,

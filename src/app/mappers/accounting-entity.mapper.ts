@@ -22,6 +22,7 @@ const accountingEntityMapper = {
       ownerId: entity.ownerId,
       name: entity.name,
       operatingCountryCode: entity.operatingCountryCode,
+      accountingContextId: entity.accountingContextId,
       functionalCurrencyCode: entity.functionalCurrency.code,
       reportingCurrencyCode: entity.reportingCurrency.code,
       type: entity.type,
@@ -33,6 +34,7 @@ const accountingEntityMapper = {
 
   toDomain(payload: IAccountingEntitySelectModel): IAccountingEntity {
     return Object.freeze({
+      accountingContextId: payload.accountingContextId as TEntityId,
       id: payload.id as TEntityId,
       ownerId: payload.ownerId as TEntityId,
       name: payload.name,

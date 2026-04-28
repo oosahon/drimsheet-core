@@ -125,4 +125,84 @@ describe('dateUtils', () => {
       );
     });
   });
+
+  describe('isGreaterThan', () => {
+    it('returns true if the first date is strictly after the second date', () => {
+      const date1 = new Date('2026-04-10');
+      const date2 = new Date('2026-04-09');
+      expect(dateUtils.isGreaterThan(date1, date2)).toBe(true);
+    });
+
+    it('returns false if the first date is before or equal to the second date', () => {
+      const date1 = new Date('2026-04-09');
+      const date2 = new Date('2026-04-10');
+      const date3 = new Date('2026-04-09');
+      expect(dateUtils.isGreaterThan(date1, date2)).toBe(false);
+      expect(dateUtils.isGreaterThan(date1, date3)).toBe(false);
+    });
+  });
+
+  describe('validateGreaterThan', () => {
+    it('does not throw if the first date is strictly after the second date', () => {
+      const date1 = new Date('2026-04-10');
+      const date2 = new Date('2026-04-09');
+      expect(() => dateUtils.validateGreaterThan(date1, date2)).not.toThrow();
+    });
+
+    it('throws AppError if the first date is before or equal to the second date', () => {
+      const date1 = new Date('2026-04-09');
+      const date2 = new Date('2026-04-10');
+      expect(() => dateUtils.validateGreaterThan(date1, date2)).toThrow(
+        AppError
+      );
+    });
+
+    it('throws AppError if any date is invalid', () => {
+      expect(() =>
+        dateUtils.validateGreaterThan('invalid', new Date())
+      ).toThrow(AppError);
+      expect(() =>
+        dateUtils.validateGreaterThan(new Date(), 'invalid')
+      ).toThrow(AppError);
+    });
+  });
+
+  describe('isLessThan', () => {
+    it('returns true if the first date is strictly before the second date', () => {
+      const date1 = new Date('2026-04-09');
+      const date2 = new Date('2026-04-10');
+      expect(dateUtils.isLessThan(date1, date2)).toBe(true);
+    });
+
+    it('returns false if the first date is after or equal to the second date', () => {
+      const date1 = new Date('2026-04-10');
+      const date2 = new Date('2026-04-09');
+      const date3 = new Date('2026-04-10');
+      expect(dateUtils.isLessThan(date1, date2)).toBe(false);
+      expect(dateUtils.isLessThan(date1, date3)).toBe(false);
+    });
+  });
+
+  describe('validateLessThan', () => {
+    it('does not throw if the first date is strictly before the second date', () => {
+      const date1 = new Date('2026-04-09');
+      const date2 = new Date('2026-04-10');
+      expect(() => dateUtils.validateLessThan(date1, date2)).not.toThrow();
+    });
+
+    it('throws AppError if the first date is after or equal to the second date', () => {
+      const date1 = new Date('2026-04-10');
+      const date2 = new Date('2026-04-09');
+      expect(() => dateUtils.validateLessThan(date1, date2)).toThrow(AppError);
+    });
+
+    it('throws AppError if any date is invalid', () => {
+      expect(() => dateUtils.validateLessThan('invalid', new Date())).toThrow(
+        AppError
+      );
+      expect(() => dateUtils.validateLessThan(new Date(), 'invalid')).toThrow(
+        AppError
+      );
+    });
+  });
 });

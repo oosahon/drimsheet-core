@@ -66,6 +66,7 @@ describe('makeSetupNonPowerUserPostingAccountsUseCase', () => {
     const mockAccountingEntity = {
       id: accountingEntityId,
       ownerId: '223e4567-e89b-12d3-a456-426614174000' as TEntityId,
+      accountingContextId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
       type: EAccountingEntityType.Individual,
       functionalCurrency: { code: 'USD' },
     } as unknown as IAccountingEntity;
@@ -149,6 +150,7 @@ describe('makeSetupNonPowerUserPostingAccountsUseCase', () => {
     const mockAccountingEntity = {
       id: accountingEntityId,
       ownerId: '223e4567-e89b-12d3-a456-426614174000' as TEntityId,
+      accountingContextId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
       type: EAccountingEntityType.Company,
       functionalCurrency: { code: 'USD' },
     } as unknown as IAccountingEntity;

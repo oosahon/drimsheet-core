@@ -75,6 +75,7 @@ describe('Services Revenue Entity', () => {
     const validPayload = {
       name: 'Consulting Services',
       accountingEntityId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: false,

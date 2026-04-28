@@ -40,6 +40,7 @@ function make(
   const account = ledgerAccountEntity.make<IOpeningBalanceEquityAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
+
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Equity),

@@ -39,6 +39,7 @@ function make(
   const account = ledgerAccountEntity.make<ILiabilitySuspenseAccount>({
     name,
     accountingEntityId,
+
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),

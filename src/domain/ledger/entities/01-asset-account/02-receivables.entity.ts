@@ -59,6 +59,7 @@ function make(
   const account = ledgerAccountEntity.make<IReceivablesAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
+
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
@@ -102,6 +103,7 @@ function makeStatutoryReceivableAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,
@@ -137,6 +139,7 @@ function makeTradeReceivableAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,

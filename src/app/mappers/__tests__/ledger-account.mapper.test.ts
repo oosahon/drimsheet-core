@@ -13,6 +13,7 @@ describe('Ledger Account Mapper', () => {
     code: '1000',
     materializedPath: '1000',
     accountingEntityId: 'entity-1' as TEntityId,
+
     type: 'asset',
     normalBalance: 'debit',
     subType: 'CASH_AND_CASH_EQUIVALENTS',
@@ -41,6 +42,7 @@ describe('Ledger Account Mapper', () => {
     code: '1000',
     materializedPath: '1000',
     accountingEntityId: 'entity-1',
+
     type: 'asset',
     normalBalance: 'debit',
     subType: 'CASH_AND_CASH_EQUIVALENTS',

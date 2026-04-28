@@ -43,6 +43,7 @@ function make(
   const account = ledgerAccountEntity.make<IAssetDisposalLossAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
+
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),

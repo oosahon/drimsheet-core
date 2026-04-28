@@ -1,4 +1,7 @@
-import { SYSTEM_CURRENCIES } from '../../domain/currency/config/currencies.config';
+import {
+  SYSTEM_CURRENCIES,
+  UCurrencyCode,
+} from '../../domain/currency/config/currencies.config';
 import currencyEntity from '../../domain/currency/entities/currency.entity';
 import { IMoney } from '../../shared/types/money.types';
 import { ErrorUnprocessableEntity } from '../../shared/value-objects/error';
@@ -37,7 +40,7 @@ const moneyMapper = {
       throw validationError;
     }
 
-    const currency = SYSTEM_CURRENCIES[money.currencyCode];
+    const currency = SYSTEM_CURRENCIES[money.currencyCode as UCurrencyCode];
 
     return moneyValue.make(money.amount, currency, !!money.isMinorUnit);
   },

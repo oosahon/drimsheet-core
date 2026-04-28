@@ -90,6 +90,7 @@ describe('Payable Liability Entity', () => {
     > = {
       name: 'Payables',
       accountingEntityId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: true,
@@ -187,11 +188,11 @@ describe('Payable Liability Entity', () => {
       expect(meta.taxType).toBe('value_added_tax');
     });
 
-    it('should throw AppError if taxType is invalid', () => {
+    it('should throw AppError if taxType is too short', () => {
       expect(() =>
         payableAccountEntity.makeStatutoryPayableAccountMeta({
           ...validMeta,
-          taxType: 'invalid_tax_type' as any,
+          taxType: 'a',
         })
       ).toThrow(AppError);
     });
@@ -206,6 +207,7 @@ describe('Payable Liability Entity', () => {
     const validPayload: TCreationOmits<IStatutoryPayableAccount> = {
       name: 'Personal Income Tax',
       accountingEntityId: validUUID1,
+
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,
@@ -291,6 +293,7 @@ describe('Payable Liability Entity', () => {
     const validPayload: TCreationOmits<ITradePayableAccount> = {
       name: 'Counterparty Invoice #001',
       accountingEntityId: validUUID1,
+
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,

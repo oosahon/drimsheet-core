@@ -3,8 +3,8 @@ import {
   ErrorForbidden,
   ErrorUnauthorized,
 } from '../../../../shared/value-objects/error';
+import { SYSTEM_JURISDICTIONS } from '../../../accounting/config/jurisdictions.config';
 import { IUser } from '../../../user/types/user.types';
-import accountingEntitySupportedCountries from '../../config/supported-countries.config';
 import {
   EAccountingEntityType,
   IAccountingEntity,
@@ -60,7 +60,7 @@ function validateName(name: string) {
 }
 
 function validateOperatingCountryCode(operatingCountryCode: string) {
-  const supported = accountingEntitySupportedCountries.find(
+  const supported = Object.values(SYSTEM_JURISDICTIONS).find(
     (c) => c.code === operatingCountryCode
   );
   if (!supported) {

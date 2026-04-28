@@ -20,10 +20,15 @@ export interface IFiscalYearStart {
   day: number;
 }
 
+/**
+ * TODO:
+ *  - add accounting context
+ */
 export interface IAccountingEntity {
   id: TEntityId;
   name: string;
   operatingCountryCode: string;
+  accountingContextId: TEntityId;
   type: UAccountingEntityType;
   ownerId: TEntityId;
   functionalCurrency: ICurrency;

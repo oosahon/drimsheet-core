@@ -370,7 +370,7 @@ const ZAR: ICurrency = {
   minorUnit: 2n,
 };
 
-export const SYSTEM_CURRENCIES: Record<string, ICurrency> = Object.freeze({
+export const SYSTEM_CURRENCIES = Object.freeze({
   AED,
   ARS,
   AUD,
@@ -423,3 +423,5 @@ export const SYSTEM_CURRENCIES: Record<string, ICurrency> = Object.freeze({
   XOF,
   ZAR,
 });
+
+export type UCurrencyCode = keyof typeof SYSTEM_CURRENCIES;

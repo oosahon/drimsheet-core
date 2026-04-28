@@ -75,6 +75,7 @@ describe('Asset Suspense Account Entity', () => {
     const validSuspensePayload = {
       name: 'General Operational Suspense',
       accountingEntityId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
     };

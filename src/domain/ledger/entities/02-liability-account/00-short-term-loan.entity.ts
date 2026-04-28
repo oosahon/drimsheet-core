@@ -62,6 +62,7 @@ function make(
   const account = ledgerAccountEntity.make<IShortTermDebtAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
+
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),
@@ -115,6 +116,7 @@ function makeCreditCardAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,
@@ -148,6 +150,7 @@ function makeOverdraftAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,
@@ -185,6 +188,7 @@ function makeShortTermLoanAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,

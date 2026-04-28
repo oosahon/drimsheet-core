@@ -85,6 +85,7 @@ describe('Tax Expense Entity', () => {
     > = {
       name: 'Corporate Income Tax',
       accountingEntityId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: false,

@@ -44,6 +44,51 @@ function validateIsInTheFuture(date: Date | string | number) {
   }
 }
 
+function isGreaterThan(
+  date: Date | string | number,
+  dateToCompare: Date | string | number
+) {
+  return dayjs(date).isAfter(dayjs(dateToCompare));
+}
+
+function validateGreaterThan(
+  date: Date | string | number,
+  dateToCompare: Date | string | number,
+  message?: string
+) {
+  if (!isValidDate(date) || !isValidDate(dateToCompare)) {
+    throw new AppError('Invalid date');
+  }
+  if (!isGreaterThan(date, dateToCompare)) {
+    throw new AppError(
+      message || 'Date is not greater than the comparison date',
+      { cause: { date, dateToCompare } }
+    );
+  }
+}
+
+function isLessThan(
+  date: Date | string | number,
+  dateToCompare: Date | string | number
+) {
+  return dayjs(date).isBefore(dayjs(dateToCompare));
+}
+
+function validateLessThan(
+  date: Date | string | number,
+  dateToCompare: Date | string | number,
+  message?: string
+) {
+  if (!isValidDate(date) || !isValidDate(dateToCompare)) {
+    throw new AppError('Invalid date');
+  }
+  if (!isLessThan(date, dateToCompare)) {
+    throw new AppError(message || 'Date is not less than the comparison date', {
+      cause: { date, dateToCompare },
+    });
+  }
+}
+
 const dateUtils = Object.freeze({
   isValidDate,
   validateDate,
@@ -56,6 +101,12 @@ const dateUtils = Object.freeze({
 
   isInTheFuture,
   validateIsInTheFuture,
+
+  isGreaterThan,
+  validateGreaterThan,
+
+  isLessThan,
+  validateLessThan,
 });
 
 export default dateUtils;

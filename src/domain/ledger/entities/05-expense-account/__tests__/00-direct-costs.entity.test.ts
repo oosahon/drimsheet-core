@@ -86,6 +86,7 @@ describe('Direct Costs Expense Entity', () => {
     > = {
       name: 'Cost of Goods Sold',
       accountingEntityId: validUUID1,
+
       currency: validCurrency,
       behavior: EExpenseAccountBehavior.COGS,
       createdBy: validUUID2,

@@ -51,6 +51,7 @@ export default function makeAssetAccountBootstrapService(
       const {
         ownerId,
         id: accountingEntityId,
+
         functionalCurrency,
       } = accountingEntity;
       const assetAccounts: TEntityWithEvents<
@@ -78,6 +79,7 @@ export default function makeAssetAccountBootstrapService(
             name: 'Cash and Cash Equivalents',
             createdBy: ownerId,
             accountingEntityId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -104,6 +106,7 @@ export default function makeAssetAccountBootstrapService(
             name: 'Receivables',
             createdBy: ownerId,
             accountingEntityId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -134,6 +137,7 @@ export default function makeAssetAccountBootstrapService(
               name: 'Trade Receivables',
               createdBy: ownerId,
               accountingEntityId,
+
               currency: functionalCurrency,
               isControlAccount: true,
               controlAccountId: existingReceivables.id,
@@ -163,6 +167,7 @@ export default function makeAssetAccountBootstrapService(
               name: 'Statutory Receivables',
               createdBy: ownerId,
               accountingEntityId,
+
               currency: functionalCurrency,
               isControlAccount: true,
               controlAccountId: existingReceivables.id,
@@ -190,6 +195,7 @@ export default function makeAssetAccountBootstrapService(
       const {
         ownerId,
         id: accountingEntityId,
+
         functionalCurrency,
       } = accountingEntity;
       const assetAccounts: TEntityWithEvents<
@@ -211,6 +217,7 @@ export default function makeAssetAccountBootstrapService(
         const account = assetSuspenseAccountEntity.make(
           {
             accountingEntityId,
+
             currency: functionalCurrency,
             name: 'Asset Suspense Account',
             createdBy: ownerId,
@@ -241,6 +248,7 @@ export default function makeAssetAccountBootstrapService(
             name: 'Statutory Receivables (Default)',
             createdBy: ownerId,
             accountingEntityId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: existingStatutoryReceivables[0].id,

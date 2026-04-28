@@ -75,6 +75,7 @@ describe('Unrealized Gains Revenue Entity', () => {
     const validPayload = {
       name: 'Unrealized Gains - Crypto',
       accountingEntityId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: false,

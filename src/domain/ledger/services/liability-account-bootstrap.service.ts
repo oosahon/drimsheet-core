@@ -54,6 +54,7 @@ export default function makeLiabilityAccountBootstrapService(
       const {
         ownerId,
         id: accountingEntityId,
+
         functionalCurrency,
       } = accountingEntity;
       const liabilityAccounts: TEntityWithEvents<
@@ -80,6 +81,7 @@ export default function makeLiabilityAccountBootstrapService(
             name: 'Short Term Loans',
             createdBy: ownerId,
             accountingEntityId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -106,6 +108,7 @@ export default function makeLiabilityAccountBootstrapService(
             name: 'Payables',
             createdBy: ownerId,
             accountingEntityId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -135,6 +138,7 @@ export default function makeLiabilityAccountBootstrapService(
             name: 'Trade Payables',
             createdBy: ownerId,
             accountingEntityId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: existingPayables.id,
@@ -167,6 +171,7 @@ export default function makeLiabilityAccountBootstrapService(
             name: 'Statutory Payables',
             createdBy: ownerId,
             accountingEntityId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: existingPayables.id,
@@ -198,6 +203,7 @@ export default function makeLiabilityAccountBootstrapService(
       const {
         ownerId,
         id: accountingEntityId,
+
         functionalCurrency,
       } = accountingEntity;
       const liabilityAccounts: TEntityWithEvents<
@@ -219,6 +225,7 @@ export default function makeLiabilityAccountBootstrapService(
         const account = liabilitySuspenseAccountEntity.make(
           {
             accountingEntityId,
+
             currency: functionalCurrency,
             name: 'Liability Suspense Account',
             createdBy: ownerId,
@@ -249,6 +256,7 @@ export default function makeLiabilityAccountBootstrapService(
             name: 'Statutory Payables (Default)',
             createdBy: ownerId,
             accountingEntityId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: existingStatutoryPayables[0].id,

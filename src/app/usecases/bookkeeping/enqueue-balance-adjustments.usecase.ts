@@ -1,0 +1,78 @@
+import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
+import makeBookkeepingService from '../../../domain/bookkeeping/services/bookkeeping.service';
+import {
+  EJournalEntryStatus,
+  IJournalEntry,
+} from '../../../domain/journal-entry/types/journal-entry.types';
+import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.types';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import { TEntityId } from '../../../shared/types/uuid';
+import IRequestContext from '../../contracts/app/request-context.contract';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../contracts/dto/workers.dto';
+import IQueue from '../../contracts/infra/queues.contract';
+import moneyMapper from '../../mappers/money.mapper';
+
+export default function makeEnqueueBalanceAdjustmentsUseCase(
+  requestContext: IRequestContext,
+  ledgerAccountRepo: ILedgerAccountRepo,
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
+  queue: IQueue
+) {
+  const domainServices = {
+    accounting: makeBookkeepingService(
+      ledgerAccountRepo,
+      ledgerAccountBalanceRepo
+    ),
+  };
+
+  return async (journalEntry: IJournalEntry) => {
+    if (journalEntry.status === EJournalEntryStatus.Draft) return;
+
+    const { correlationId } = requestContext.get();
+
+    const accountMap = new Map<TEntityId, IJournalLine[]>();
+
+    journalEntry.lines.forEach((line) => {
+      const accountLines = accountMap.get(line.accountId);
+
+      if (accountLines) {
+        accountLines.push(line);
+      } else {
+        accountMap.set(line.accountId, [line]);
+      }
+    });
+
+    const allAdjustments: ILedgerAccountBalanceAdjustmentDto[] = [];
+
+    const repoOptions = { correlationId };
+
+    for (const [accountId, lines] of accountMap.entries()) {
+      const balanceEffectDelta =
+        await domainServices.accounting.getBalanceEffectDelta(
+          accountId,
+          lines,
+          repoOptions
+        );
+
+      allAdjustments.push({
+        journalEntry: {
+          id: journalEntry.id,
+          transactionId: journalEntry.transactionId,
+          createdBy: journalEntry.createdBy,
+        },
+        correlationId,
+        balanceDelta: moneyMapper.toDto(balanceEffectDelta.balanceDelta),
+        functionalBalanceDelta: moneyMapper.toDto(
+          balanceEffectDelta.functionalBalanceDelta
+        ),
+        ledgerAccountId: accountId,
+      });
+    }
+
+    await Promise.all(
+      allAdjustments.map((adjustment) =>
+        queue.addLedgerAccountBalanceAdjustment(adjustment)
+      )
+    );
+  };
+}

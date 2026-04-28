@@ -85,6 +85,7 @@ describe('Asset Disposal Loss Entity', () => {
     > = {
       name: 'Loss on Disposal of Machinery',
       accountingEntityId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: false,
