@@ -80,8 +80,6 @@ describe('Payable Liability Entity', () => {
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
-      | 'accountingContextId'
-      | 'accountingContextId'
       | 'currency'
       | 'isControlAccount'
       | 'controlAccountId'
@@ -92,7 +90,7 @@ describe('Payable Liability Entity', () => {
     > = {
       name: 'Payables',
       accountingEntityId: validUUID1,
-      accountingContextId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: true,
@@ -209,7 +207,7 @@ describe('Payable Liability Entity', () => {
     const validPayload: TCreationOmits<IStatutoryPayableAccount> = {
       name: 'Personal Income Tax',
       accountingEntityId: validUUID1,
-      accountingContextId: validUUID1,
+
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,
@@ -295,7 +293,7 @@ describe('Payable Liability Entity', () => {
     const validPayload: TCreationOmits<ITradePayableAccount> = {
       name: 'Counterparty Invoice #001',
       accountingEntityId: validUUID1,
-      accountingContextId: validUUID1,
+
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,

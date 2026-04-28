@@ -49,7 +49,7 @@ export default function makeRevenueAccountBootstrapService(
       const {
         ownerId,
         id: accountingEntityId,
-        accountingContextId,
+
         functionalCurrency,
       } = accountingEntity;
       const revenueAccounts: TEntityWithEvents<
@@ -78,7 +78,7 @@ export default function makeRevenueAccountBootstrapService(
             name: 'Services',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -103,7 +103,7 @@ export default function makeRevenueAccountBootstrapService(
             name: 'Employment Income',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -129,7 +129,7 @@ export default function makeRevenueAccountBootstrapService(
               name: 'Gain on Sale of Assets',
               createdBy: ownerId,
               accountingEntityId,
-              accountingContextId,
+
               currency: functionalCurrency,
               isControlAccount: true,
               controlAccountId: null,
@@ -154,7 +154,7 @@ export default function makeRevenueAccountBootstrapService(
             name: 'Unrealized Gain',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -181,7 +181,7 @@ export default function makeRevenueAccountBootstrapService(
       const {
         ownerId,
         id: accountingEntityId,
-        accountingContextId,
+
         functionalCurrency,
       } = accountingEntity;
       const revenueAccounts: TEntityWithEvents<
@@ -213,7 +213,7 @@ export default function makeRevenueAccountBootstrapService(
             name: 'Services (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: servicesControl.id,
@@ -251,7 +251,7 @@ export default function makeRevenueAccountBootstrapService(
             name: 'Employment Income (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: empControl.id,
@@ -289,7 +289,7 @@ export default function makeRevenueAccountBootstrapService(
             name: 'Gain on Sale of Assets (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: gainControl.id,
@@ -329,7 +329,7 @@ export default function makeRevenueAccountBootstrapService(
             name: 'Unrealized Gains (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: unrealizedControl.id,

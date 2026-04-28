@@ -28,7 +28,6 @@ describe('Ledger Account Shared Entity', () => {
     code: '101001',
     materializedPath: '101001',
     accountingEntityId: validUUID1,
-    accountingContextId: validUUID1,
     type: ELedgerType.Asset,
     subType: 'cash',
     behavior: 'bank',

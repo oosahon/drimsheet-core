@@ -38,11 +38,11 @@ describe('recordOpeningBalanceUseCase', () => {
   };
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
-    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     name: 'Test Accounting Entity',
     operatingCountryCode: 'NG',
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
+    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     functionalCurrency: SYSTEM_CURRENCIES.NGN,
     reportingCurrency: SYSTEM_CURRENCIES.USD,
     fiscalYearStart: { month: 1, day: 1 },
@@ -50,7 +50,6 @@ describe('recordOpeningBalanceUseCase', () => {
 
   const [mockAssetAccount] = cashAndEquivalentAccountEntity.make(
     {
-      accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
       name: 'Cash',
       accountingEntityId: mockAccountingEntity.id,
       currency: SYSTEM_CURRENCIES.NGN,
@@ -65,7 +64,6 @@ describe('recordOpeningBalanceUseCase', () => {
 
   const [mockEquityAccount] = openingBalanceEquityLedgerEntity.make(
     {
-      accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
       name: 'Opening Balance Equity',
       accountingEntityId: mockAccountingEntity.id,
       currency: SYSTEM_CURRENCIES.NGN,

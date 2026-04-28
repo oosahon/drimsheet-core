@@ -31,17 +31,11 @@ interface IParentDetails {
 function make(
   payload: Pick<
     IAssetSuspenseAccount,
-    | 'name'
-    | 'createdBy'
-    | 'accountingEntityId'
-    | 'accountingContextId'
-    | 'accountingContextId'
-    | 'currency'
+    'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
   parent: IParentDetails | null
 ): TEntityWithEvents<IAssetSuspenseAccount, IAssetSuspenseAccount> {
-  const { name, createdBy, accountingEntityId, accountingContextId, currency } =
-    payload;
+  const { name, createdBy, accountingEntityId, currency } = payload;
 
   const code = helpers.getCode(parent?.precedingCode ?? null);
   const materializedPath = helpers.getMaterializedPath(
@@ -52,7 +46,7 @@ function make(
   const account = ledgerAccountEntity.make<IAssetSuspenseAccount>({
     name,
     accountingEntityId,
-    accountingContextId,
+
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
     code,
     materializedPath,

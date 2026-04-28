@@ -36,8 +36,6 @@ function make(
     | 'name'
     | 'createdBy'
     | 'accountingEntityId'
-    | 'accountingContextId'
-    | 'accountingContextId'
     | 'currency'
     | 'isControlAccount'
     | 'controlAccountId'
@@ -61,7 +59,7 @@ function make(
   const account = ledgerAccountEntity.make<IReceivablesAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    accountingContextId: payload.accountingContextId,
+
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
@@ -95,8 +93,6 @@ function makeStatutoryReceivableAccount(
     | 'name'
     | 'createdBy'
     | 'accountingEntityId'
-    | 'accountingContextId'
-    | 'accountingContextId'
     | 'currency'
     | 'isControlAccount'
     | 'controlAccountId'
@@ -107,7 +103,7 @@ function makeStatutoryReceivableAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
-      accountingContextId: payload.accountingContextId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,
@@ -132,8 +128,6 @@ function makeTradeReceivableAccount(
     ITradeReceivableAccount,
     | 'name'
     | 'accountingEntityId'
-    | 'accountingContextId'
-    | 'accountingContextId'
     | 'currency'
     | 'createdBy'
     | 'isControlAccount'
@@ -145,7 +139,7 @@ function makeTradeReceivableAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
-      accountingContextId: payload.accountingContextId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,

@@ -41,8 +41,6 @@ function make(
     | 'name'
     | 'createdBy'
     | 'accountingEntityId'
-    | 'accountingContextId'
-    | 'accountingContextId'
     | 'currency'
     | 'isControlAccount'
     | 'controlAccountId'
@@ -66,7 +64,7 @@ function make(
   const account = ledgerAccountEntity.make<IPayableAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
-    accountingContextId: payload.accountingContextId,
+
     code,
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),
@@ -118,7 +116,7 @@ function makeStatutoryPayableAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
-      accountingContextId: payload.accountingContextId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,
@@ -156,7 +154,7 @@ function makeTradePayableAccount(
     {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
-      accountingContextId: payload.accountingContextId,
+
       currency: payload.currency,
       createdBy: payload.createdBy,
       isControlAccount: payload.isControlAccount,

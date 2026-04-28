@@ -56,7 +56,7 @@ export default function makeExpenseAccountBootstrapService(
       const {
         ownerId,
         id: accountingEntityId,
-        accountingContextId,
+
         functionalCurrency,
       } = accountingEntity;
       const expenseAccounts: TEntityWithEvents<
@@ -87,7 +87,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Direct Costs',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             behavior: EExpenseAccountBehavior.DefaultDirectCost,
             isControlAccount: true,
@@ -113,7 +113,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Rent and Utilities',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -138,7 +138,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Finance Costs',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -163,7 +163,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Tax Expense',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -188,7 +188,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Unrealized Loss',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -213,7 +213,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Asset Disposal Loss',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: true,
             controlAccountId: null,
@@ -242,7 +242,7 @@ export default function makeExpenseAccountBootstrapService(
       const {
         ownerId,
         id: accountingEntityId,
-        accountingContextId,
+
         functionalCurrency,
       } = accountingEntity;
       const expenseAccounts: TEntityWithEvents<
@@ -274,7 +274,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Direct Costs (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             behavior: EExpenseAccountBehavior.DefaultDirectCost,
             isControlAccount: false,
@@ -312,7 +312,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Rent and Utilities (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: rentControl.id,
@@ -351,7 +351,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Finance Costs (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: financeControl.id,
@@ -388,7 +388,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Tax Expense (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: taxControl.id,
@@ -427,7 +427,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Unrealized Loss (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: unrealizedControl.id,
@@ -467,7 +467,7 @@ export default function makeExpenseAccountBootstrapService(
             name: 'Asset Disposal Loss (Default)',
             createdBy: ownerId,
             accountingEntityId,
-            accountingContextId,
+
             currency: functionalCurrency,
             isControlAccount: false,
             controlAccountId: disposalControl.id,

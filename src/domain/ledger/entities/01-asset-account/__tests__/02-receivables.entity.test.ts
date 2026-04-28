@@ -76,8 +76,6 @@ describe('Receivables Entity', () => {
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
-      | 'accountingContextId'
-      | 'accountingContextId'
       | 'currency'
       | 'isControlAccount'
       | 'controlAccountId'
@@ -88,7 +86,7 @@ describe('Receivables Entity', () => {
     > = {
       name: 'Receivables Control',
       accountingEntityId: validUUID1,
-      accountingContextId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: true,
@@ -155,8 +153,6 @@ describe('Receivables Entity', () => {
       IStatutoryReceivableAccount,
       | 'name'
       | 'accountingEntityId'
-      | 'accountingContextId'
-      | 'accountingContextId'
       | 'currency'
       | 'createdBy'
       | 'isControlAccount'
@@ -164,7 +160,7 @@ describe('Receivables Entity', () => {
     > = {
       name: 'VAT Receivable',
       accountingEntityId: validUUID1,
-      accountingContextId: validUUID1,
+
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,
@@ -214,8 +210,6 @@ describe('Receivables Entity', () => {
       ITradeReceivableAccount,
       | 'name'
       | 'accountingEntityId'
-      | 'accountingContextId'
-      | 'accountingContextId'
       | 'currency'
       | 'createdBy'
       | 'isControlAccount'
@@ -223,7 +217,7 @@ describe('Receivables Entity', () => {
     > = {
       name: 'Trade Receivable - Client A',
       accountingEntityId: validUUID1,
-      accountingContextId: validUUID1,
+
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,

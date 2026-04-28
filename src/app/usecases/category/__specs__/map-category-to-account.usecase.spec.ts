@@ -22,7 +22,6 @@ describe('mapCategoryToAccountUseCase', () => {
     '323e4567-e89b-12d3-a456-426614174000' as TEntityId;
 
   const getBaseAccount = (overrides = {}): ILedgerAccount => ({
-    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     id: validLedgerAccountId,
     code: '100000',
     materializedPath: '100000',

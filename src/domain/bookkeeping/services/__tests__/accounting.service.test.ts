@@ -264,7 +264,6 @@ describe('accountingService', () => {
     };
 
     const account: ILedgerAccount = {
-      accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
       id: accountId,
       code: '100000',
       materializedPath: '100000',

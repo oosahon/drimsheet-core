@@ -78,8 +78,6 @@ describe('Asset Disposal Loss Entity', () => {
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
-      | 'accountingContextId'
-      | 'accountingContextId'
       | 'currency'
       | 'isControlAccount'
       | 'controlAccountId'
@@ -87,7 +85,7 @@ describe('Asset Disposal Loss Entity', () => {
     > = {
       name: 'Loss on Disposal of Machinery',
       accountingEntityId: validUUID1,
-      accountingContextId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
       isControlAccount: false,

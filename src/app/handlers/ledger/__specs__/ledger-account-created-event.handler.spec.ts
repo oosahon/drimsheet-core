@@ -36,7 +36,6 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
     '00000000-0000-0000-0000-000000000003' as TEntityId;
 
   const validLedgerAccountData: ILedgerAccount = {
-    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     id: validLedgerAccountId,
     code: '1000',
     materializedPath: '1000',

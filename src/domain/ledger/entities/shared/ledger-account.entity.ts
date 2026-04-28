@@ -10,7 +10,6 @@ function make<T extends ILedgerAccount>(
 ): Readonly<T> {
   helpers.validateCode(payload.code);
   stringUtils.validateUUID(payload.accountingEntityId);
-  stringUtils.validateUUID(payload.accountingContextId);
   helpers.validateType(payload.type);
 
   if (payload.controlAccountId) {
@@ -38,7 +37,6 @@ function make<T extends ILedgerAccount>(
     id: generateUUID(),
     code: payload.code,
     accountingEntityId: payload.accountingEntityId,
-    accountingContextId: payload.accountingContextId,
     type: payload.type,
     materializedPath: payload.materializedPath,
     normalBalance: payload.normalBalance,

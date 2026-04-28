@@ -75,7 +75,7 @@ describe('Asset Suspense Account Entity', () => {
     const validSuspensePayload = {
       name: 'General Operational Suspense',
       accountingEntityId: validUUID1,
-      accountingContextId: validUUID1,
+
       currency: validCurrency,
       createdBy: validUUID2,
     };
@@ -119,7 +119,6 @@ describe('Asset Suspense Account Entity', () => {
       const invalidPayload2 = {
         ...validSuspensePayload,
         accountingEntityId: 'invalid' as any,
-        accountingContextId: 'invalid' as any,
       };
       expect(() =>
         assetSuspenseAccountEntity.make(invalidPayload2, validParent)
