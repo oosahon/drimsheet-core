@@ -11,6 +11,7 @@ import mockExchangeRateRepo from '../../../../../infra/persistence/repos/__mocks
 import mockJournalEntryRepo from '../../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
 import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockDomainServices from '../../../../../infra/services/__mocks__/domain.service.mock';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
@@ -86,6 +87,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockLedgerAccountRepo,
       mockLedgerAccountBalanceRepo,
       mockJournalEntryRepo,
+      mockDomainServices.assetAccount,
       mockExchangeRateRepo
     );
 

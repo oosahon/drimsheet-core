@@ -1,12 +1,12 @@
 import makeAccountingEntityService from '../../domain/accounting/services/accounting-entity.service';
-import makeAssetPostingAccountService from '../../domain/ledger/services/asset-account.service';
+import makeAssetAccountService from '../../domain/ledger/services/asset-account.service';
 import makeUserPreferencesService from '../../domain/user/services/user-preferences.service';
 import repos from '../persistence/repos';
 
 const userPreferences = makeUserPreferencesService(repos.userPreferences);
 const accountingEntity = makeAccountingEntityService(repos.accountingEntity);
 
-const assetPostingAccount = makeAssetPostingAccountService(
+const assetAccount = makeAssetAccountService(
   repos.ledgerAccount,
   accountingEntity
 );
@@ -14,7 +14,7 @@ const assetPostingAccount = makeAssetPostingAccountService(
 const domainServices = Object.freeze({
   userPreferences,
   accountingEntity,
-  assetPostingAccount,
+  assetAccount,
 });
 
 export default domainServices;

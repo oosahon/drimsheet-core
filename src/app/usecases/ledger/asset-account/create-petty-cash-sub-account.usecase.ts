@@ -3,8 +3,8 @@ import currencyEntity from '../../../../domain/currency/entities/currency.entity
 import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+import IAssetAccountService from '../../../../domain/ledger/types/asset-account.service.types';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
-import domainServices from '../../../../infra/services/domain.service';
 import zodValidationRunner from '../../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import IRequestContext from '../../../contracts/app/request-context.contract';
@@ -21,6 +21,7 @@ export default function makeCreatePettyCashSubAccountUseCase(
   ledgerAccountRepo: ILedgerAccountRepo,
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   journalEntryRepo: IJournalEntryRepo,
+  assetAccountService: IAssetAccountService,
   exchangeRateRepo: IExchangeRateRepo
 ) {
   return async (payload: IPettyCashAccountCreationReq) => {
@@ -36,17 +37,13 @@ export default function makeCreatePettyCashSubAccountUseCase(
       name: payload.name,
       currency: currencyEntity.getByCode(payload.currencyCode),
       isControlAccount: payload.isControlAccount,
-      user,
+      userId: user.id,
       accountingEntity,
       controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
     };
 
     const [account, accountEvents] =
-      // TODO: use dependency injection
-      await domainServices.assetPostingAccount.makePettyCashSubAccount(
-        accountPayload,
-        trace
-      );
+      await assetAccountService.createPettyCashAccount(accountPayload, trace);
 
     await ledgerAccountRepo.save(account, trace);
 

@@ -1,4 +1,5 @@
 import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
+import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
 import IUserPreferencesService from '../../../domain/user/types/user-preferences.service.types';
 
 const userPreferences: jest.Mocked<IUserPreferencesService> = {
@@ -11,9 +12,14 @@ const accountingEntity: jest.Mocked<IAccountingEntityService> = {
   validateAccess: jest.fn(),
 };
 
+const assetAccount: jest.Mocked<IAssetAccountService> = {
+  createPettyCashAccount: jest.fn(),
+};
+
 const mockDomainServices = Object.freeze({
   userPreferences,
   accountingEntity,
+  assetAccount,
 });
 
 export default mockDomainServices;

@@ -3,17 +3,15 @@ import mockDomainServices from '../../../../infra/services/__mocks__/domain.serv
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import { ErrorForbidden } from '../../../../shared/value-objects/error';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import { ICurrency } from '../../../currency/types/currency.types';
-import { IUser } from '../../../user/types/user.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import { TCashLedgerCode } from '../../types/ledger-code.types';
 import { ILedgerAccount } from '../../types/ledger.types';
-import makeAssetPostingAccountService from '../asset-account.service';
+import makeAssetAccountService from '../asset-account.service';
 
-describe('assetPostingAccountService', () => {
-  const service = makeAssetPostingAccountService(
+describe('assetAccountService', () => {
+  const service = makeAssetAccountService(
     mockLedgerAccountRepo,
     mockDomainServices.accountingEntity
   );
@@ -29,15 +27,11 @@ describe('assetPostingAccountService', () => {
     jest.useRealTimers();
   });
 
-  describe('makePettyCashSubAccount', () => {
+  describe('createPettyCashAccount', () => {
     const ownerId = generateUUID();
     const entityId = generateUUID();
     const controlAccountId = generateUUID();
     const latestAccountId = generateUUID();
-
-    const validUser = {
-      id: ownerId,
-    } as IUser;
 
     const validAccountingEntity = {
       id: entityId,
@@ -68,7 +62,7 @@ describe('assetPostingAccountService', () => {
       name: 'Main Petty Cash',
       currency: validCurrency,
       isControlAccount: false,
-      user: validUser,
+      userId: ownerId,
       accountingEntity: validAccountingEntity,
     };
 
@@ -81,7 +75,7 @@ describe('assetPostingAccountService', () => {
           mockLatestAccount
         );
 
-        const [account, events] = await service.makePettyCashSubAccount(
+        const [account, events] = await service.createPettyCashAccount(
           validPayload,
           mockOptions
         );
@@ -99,6 +93,9 @@ describe('assetPostingAccountService', () => {
           entityId,
           mockOptions
         );
+        expect(
+          mockDomainServices.accountingEntity.validateAccess
+        ).toHaveBeenCalledWith(validAccountingEntity, ownerId);
       });
 
       it('should create a petty cash account successfully with an explicit control account code and no latest account', async () => {
@@ -112,7 +109,7 @@ describe('assetPostingAccountService', () => {
           controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
         };
 
-        const [account, events] = await service.makePettyCashSubAccount(
+        const [account, events] = await service.createPettyCashAccount(
           payloadWithExplicitControlCode,
           mockOptions
         );
@@ -132,25 +129,11 @@ describe('assetPostingAccountService', () => {
     });
 
     describe('Service Logic Validations', () => {
-      it('should throw ErrorForbidden if user is not the owner of the accounting entity', async () => {
-        const payload = {
-          ...validPayload,
-          user: { ...validUser, id: generateUUID() },
-        };
-
-        await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
-        ).rejects.toThrow(ErrorForbidden);
-        await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
-        ).rejects.toThrow('Access denied.');
-      });
-
       it('should throw AppError if control account is not found', async () => {
         mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
         await expect(
-          service.makePettyCashSubAccount(validPayload, mockOptions)
+          service.createPettyCashAccount(validPayload, mockOptions)
         ).rejects.toThrow('Control account not found');
       });
     });
@@ -170,7 +153,7 @@ describe('assetPostingAccountService', () => {
         };
 
         await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
+          service.createPettyCashAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid string');
       });
 
@@ -184,15 +167,14 @@ describe('assetPostingAccountService', () => {
         };
 
         await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
+          service.createPettyCashAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid UUID');
       });
 
-      it('should throw if user.id (createdBy) is an invalid UUID', async () => {
-        // Must also set ownerId to the same invalid UUID so validateAccess passes
+      it('should throw if userId (createdBy) is an invalid UUID', async () => {
         const payload = {
           ...validPayload,
-          user: { ...validUser, id: 'invalid-uuid' as TEntityId },
+          userId: 'invalid-uuid' as TEntityId,
           accountingEntity: {
             ...validAccountingEntity,
             ownerId: 'invalid-uuid' as TEntityId,
@@ -200,7 +182,7 @@ describe('assetPostingAccountService', () => {
         };
 
         await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
+          service.createPettyCashAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid UUID');
       });
 
@@ -211,7 +193,7 @@ describe('assetPostingAccountService', () => {
         };
 
         await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
+          service.createPettyCashAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid currency code');
       });
     });
