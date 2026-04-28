@@ -4,14 +4,16 @@ import IUserPreferencesService from '../types/user-preferences.service.types';
 
 type TUpdate = IUserPreferencesService['update'];
 
-/**
- * Updates user preferences
- * @param userId - The ID of the user to update
- * @param payload - The preferences to update
- * @param options - Options for the update operation
- */
-function makeUpdate(repo: IUserPreferencesRepo): TUpdate {
-  return async (userId, payload, options) => {
+export default function makeUserPreferencesService(
+  repo: IUserPreferencesRepo
+): IUserPreferencesService {
+  /**
+   * Updates user preferences
+   * @param userId - The ID of the user to update
+   * @param payload - The preferences to update
+   * @param options - Options for the update operation
+   */
+  const update: TUpdate = async (userId, payload, options) => {
     const existing = await repo.findById(userId, options);
     return userPreferencesEntity.make(userId, {
       appPreferences: {
@@ -26,12 +28,8 @@ function makeUpdate(repo: IUserPreferencesRepo): TUpdate {
       },
     });
   };
-}
 
-export default function makeUserPreferencesService(
-  repo: IUserPreferencesRepo
-): IUserPreferencesService {
   return Object.freeze({
-    update: makeUpdate(repo),
+    update,
   });
 }

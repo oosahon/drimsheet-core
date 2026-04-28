@@ -8,8 +8,10 @@ type TCreate = IAccountingEntityService['create'];
 type TGrantUserAccess = IAccountingEntityService['grantUserAccess'];
 type TValidateAccess = IAccountingEntityService['validateAccess'];
 
-function makeCreate(repo: IAccountingEntityRepo): TCreate {
-  return async (userId, payload, repoOptions) => {
+export default function makeAccountingEntityService(
+  repo: IAccountingEntityRepo
+): IAccountingEntityService {
+  const create: TCreate = async (userId, payload, repoOptions) => {
     const existingEntities = await repo.findByUserId(
       userId,
       repoOptions,
@@ -26,23 +28,19 @@ function makeCreate(repo: IAccountingEntityRepo): TCreate {
 
     return accountingEntityEntity.make(payload);
   };
-}
 
-const grantUserAccess: TGrantUserAccess = (accountingEntity, userId) => {
-  return accountingEntity.ownerId === userId;
-};
+  const grantUserAccess: TGrantUserAccess = (accountingEntity, userId) => {
+    return accountingEntity.ownerId === userId;
+  };
 
-const validateAccess: TValidateAccess = (accountingEntity, userId) => {
-  if (!grantUserAccess(accountingEntity, userId)) {
-    throw new errors.UnauthorizedUserAccess();
-  }
-};
+  const validateAccess: TValidateAccess = (accountingEntity, userId) => {
+    if (!grantUserAccess(accountingEntity, userId)) {
+      throw new errors.UnauthorizedUserAccess();
+    }
+  };
 
-export default function makeAccountingEntityService(
-  repo: IAccountingEntityRepo
-): IAccountingEntityService {
   return Object.freeze({
-    create: makeCreate(repo),
+    create,
     grantUserAccess,
     validateAccess,
   });

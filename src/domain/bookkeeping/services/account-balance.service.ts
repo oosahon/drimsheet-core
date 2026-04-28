@@ -7,10 +7,10 @@ import IAccountBalanceService from '../types/account-balance.service.types';
 
 type TCreateBalance = IAccountBalanceService['createBalance'];
 
-function makeCreateBalance(
+export default function makeLedgerAccountBalanceService(
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
-): TCreateBalance {
-  return async (
+): IAccountBalanceService {
+  const createBalance: TCreateBalance = async (
     ledgerAccount: ILedgerAccount,
     functionalCurrency: ICurrency,
     repoOptions: IRepoOptions
@@ -33,12 +33,8 @@ function makeCreateBalance(
 
     return balance;
   };
-}
 
-export default function makeLedgerAccountBalanceService(
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
-): IAccountBalanceService {
   return Object.freeze({
-    createBalance: makeCreateBalance(ledgerAccountBalanceRepo),
+    createBalance,
   });
 }

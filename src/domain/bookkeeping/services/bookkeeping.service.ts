@@ -19,87 +19,90 @@ type TCreateOpeningBalanceJournalEntry =
   IBookkeepingService['createOpeningBalanceJournalEntry'];
 type TGetBalanceEffectDelta = IBookkeepingService['getBalanceEffectDelta'];
 
-function makeCreateOpeningBalanceJournalEntry(
+export default function makeBookkeepingService(
   ledgerAccountRepo: ILedgerAccountRepo,
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
-): TCreateOpeningBalanceJournalEntry {
-  return async (payload, repoOptions) => {
-    const { account, amount, accountingEntity, exchangeRate } = payload;
-    if (account.isControlAccount) {
-      throw new AppError('Cannot set opening balance on control account', {
-        cause: { accountId: account.id },
-      });
-    }
+): IBookkeepingService {
+  const createOpeningBalanceJournalEntry: TCreateOpeningBalanceJournalEntry =
+    async (payload, repoOptions) => {
+      const { account, amount, accountingEntity, exchangeRate } = payload;
+      if (account.isControlAccount) {
+        throw new AppError('Cannot set opening balance on control account', {
+          cause: { accountId: account.id },
+        });
+      }
 
-    const [existingBalanceAdjustment] =
-      await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
-        payload.account.id,
-        { ...repoOptions, limit: 1 }
+      const [existingBalanceAdjustment] =
+        await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
+          payload.account.id,
+          { ...repoOptions, limit: 1 }
+        );
+
+      if (existingBalanceAdjustment) {
+        throw new AppError('Opening balance has already been set', {
+          cause: { accountId: payload.account.id },
+        });
+      }
+
+      const [equityAccount] = await ledgerAccountRepo.findBySubType(
+        account.accountingEntityId,
+        ELedgerType.Equity,
+        EEquitySubType.OpeningBalance,
+        repoOptions
       );
 
-    if (existingBalanceAdjustment) {
-      throw new AppError('Opening balance has already been set', {
-        cause: { accountId: payload.account.id },
+      if (!equityAccount) {
+        throw new AppError(
+          'Account type for opening balance is not configured'
+        );
+      }
+
+      const debitLinePayload: IJournalLineMakePayload = {
+        accountId: account.id,
+        // TODO: use current reporting context currency
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        amount,
+        exchangeRate,
+        sequenceOrder: 1,
+        side: EJournalSide.Debit,
+        description: 'Opening balance',
+      };
+
+      const creditLinePayload: IJournalLineMakePayload = {
+        accountId: equityAccount.id,
+        // TODO: use current reporting context currency
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        amount,
+        exchangeRate,
+        sequenceOrder: 2,
+        side: EJournalSide.Credit,
+      };
+
+      const timestamp = new Date();
+
+      const journalEntry = journalEntryEntity.make({
+        accountingEntityId: account.accountingEntityId,
+        transactionId: null,
+        status: EJournalEntryStatus.Posted,
+        effectiveDate: timestamp,
+        postedAt: timestamp,
+        voidedAt: null,
+        voidingEntryId: null,
+        memo: 'Opening balance',
+        createdBy: account.createdBy,
+        // TODO: use current reporting context currency
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        lines: [debitLinePayload, creditLinePayload],
       });
-    }
 
-    const [equityAccount] = await ledgerAccountRepo.findBySubType(
-      account.accountingEntityId,
-      ELedgerType.Equity,
-      EEquitySubType.OpeningBalance,
-      repoOptions
-    );
-
-    if (!equityAccount) {
-      throw new AppError('Account type for opening balance is not configured');
-    }
-
-    const debitLinePayload: IJournalLineMakePayload = {
-      accountId: account.id,
-      // TODO: use current reporting context currency
-      functionalCurrency: SYSTEM_CURRENCIES.NGN,
-      amount,
-      exchangeRate,
-      sequenceOrder: 1,
-      side: EJournalSide.Debit,
-      description: 'Opening balance',
+      return journalEntry;
     };
 
-    const creditLinePayload: IJournalLineMakePayload = {
-      accountId: equityAccount.id,
-      // TODO: use current reporting context currency
-      functionalCurrency: SYSTEM_CURRENCIES.NGN,
-      amount,
-      exchangeRate,
-      sequenceOrder: 2,
-      side: EJournalSide.Credit,
-    };
-
-    const timestamp = new Date();
-
-    const journalEntry = journalEntryEntity.make({
-      accountingEntityId: account.accountingEntityId,
-      transactionId: null,
-      status: EJournalEntryStatus.Posted,
-      effectiveDate: timestamp,
-      postedAt: timestamp,
-      voidedAt: null,
-      voidingEntryId: null,
-      memo: 'Opening balance',
-      createdBy: account.createdBy,
-      // TODO: use current reporting context currency
-      functionalCurrency: SYSTEM_CURRENCIES.NGN,
-      lines: [debitLinePayload, creditLinePayload],
-    });
-
-    return journalEntry;
-  };
-}
-
-function makeGetBalanceEffectDelta(
-  ledgerAccountRepo: ILedgerAccountRepo
-): TGetBalanceEffectDelta {
-  return async (accountId, journalLines, repoOptions) => {
+  const getBalanceEffectDelta: TGetBalanceEffectDelta = async (
+    accountId,
+    journalLines,
+    repoOptions
+  ) => {
     const account = await ledgerAccountRepo.findById(accountId, repoOptions);
 
     if (!account) {
@@ -172,17 +175,9 @@ function makeGetBalanceEffectDelta(
         ),
     };
   };
-}
 
-export default function makeBookkeepingService(
-  ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
-): IBookkeepingService {
   return Object.freeze({
-    createOpeningBalanceJournalEntry: makeCreateOpeningBalanceJournalEntry(
-      ledgerAccountRepo,
-      ledgerAccountBalanceRepo
-    ),
-    getBalanceEffectDelta: makeGetBalanceEffectDelta(ledgerAccountRepo),
+    createOpeningBalanceJournalEntry,
+    getBalanceEffectDelta,
   });
 }

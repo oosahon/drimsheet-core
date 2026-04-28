@@ -8,10 +8,13 @@ import exchangeRateValue from '../value-objects/exchange-rate.vo';
 type TGetOfficialExchangeRate = IExchangeRateService['getOfficialExchangeRate'];
 type TGetExchangeRate = IExchangeRateService['getExchangeRate'];
 
-function makeGetOfficialExchangeRate(
+export default function makeExchangeRateService(
   repo: IExchangeRateRepo
-): TGetOfficialExchangeRate {
-  return async (payload, repoOptions) => {
+): IExchangeRateService {
+  const getOfficialExchangeRate: TGetOfficialExchangeRate = async (
+    payload,
+    repoOptions
+  ) => {
     const { id, ...data } = payload;
 
     if (!id) {
@@ -41,24 +44,16 @@ function makeGetOfficialExchangeRate(
 
     return existing;
   };
-}
 
-function makeGetExchangeRate(repo: IExchangeRateRepo): TGetExchangeRate {
-  const getOfficialExchangeRate = makeGetOfficialExchangeRate(repo);
-
-  return async (payload, repoOptions) => {
+  const getExchangeRate: TGetExchangeRate = async (payload, repoOptions) => {
     if (payload === null) {
       return null;
     }
     return getOfficialExchangeRate(payload, repoOptions);
   };
-}
 
-export default function makeExchangeRateService(
-  repo: IExchangeRateRepo
-): IExchangeRateService {
   return Object.freeze({
-    getOfficialExchangeRate: makeGetOfficialExchangeRate(repo),
-    getExchangeRate: makeGetExchangeRate(repo),
+    getOfficialExchangeRate,
+    getExchangeRate,
   });
 }
