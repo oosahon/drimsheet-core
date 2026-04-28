@@ -9,10 +9,10 @@ const assetAccountUseCase = {
     appContext.request,
     messaging.eventBus,
     repos.ledgerAccount,
-    repos.ledgerAccountBalance,
     repos.journalEntry,
     domainServices.assetAccount,
-    repos.exchangeRate
+    domainServices.bookkeeping,
+    domainServices.exchangeRate
   ),
 };
 

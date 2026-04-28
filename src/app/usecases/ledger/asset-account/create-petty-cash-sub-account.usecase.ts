@@ -1,6 +1,6 @@
-import ILedgerAccountBalanceRepo from '../../../../domain/bookkeeping/repos/ledger-account-balance.repo';
+import IBookkeepingService from '../../../../domain/bookkeeping/types/bookkeeping.service.types';
 import currencyEntity from '../../../../domain/currency/entities/currency.entity';
-import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
+import IExchangeRateService from '../../../../domain/currency/types/exchange-rate.service.types';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import IAssetAccountService from '../../../../domain/ledger/types/asset-account.service.types';
@@ -19,10 +19,10 @@ export default function makeCreatePettyCashSubAccountUseCase(
   requestContext: IRequestContext,
   eventBus: IEventBus,
   ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   journalEntryRepo: IJournalEntryRepo,
   assetAccountService: IAssetAccountService,
-  exchangeRateRepo: IExchangeRateRepo
+  bookkeepingService: IBookkeepingService,
+  exchangeRateService: IExchangeRateService
 ) {
   return async (payload: IPettyCashAccountCreationReq) => {
     zodValidationRunner(pettyCashCreationReqValidation, payload);
@@ -52,11 +52,11 @@ export default function makeCreatePettyCashSubAccountUseCase(
     if (payload.openingBalance) {
       const recordOpeningBalanceUseCase = makeRecordOpeningBalanceUseCase(
         requestContext,
-        exchangeRateRepo,
         ledgerAccountRepo,
-        ledgerAccountBalanceRepo,
         journalEntryRepo,
-        eventBus
+        eventBus,
+        bookkeepingService,
+        exchangeRateService
       );
 
       await recordOpeningBalanceUseCase({

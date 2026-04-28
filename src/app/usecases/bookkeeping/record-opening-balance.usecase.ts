@@ -1,7 +1,5 @@
-import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
-import makeBookkeepingService from '../../../domain/bookkeeping/services/bookkeeping.service';
-import IExchangeRateRepo from '../../../domain/currency/repos/exchange-rate.repo';
-import makeExchangeRateService from '../../../domain/currency/services/exchange-rate.service';
+import IBookkeepingService from '../../../domain/bookkeeping/types/bookkeeping.service.types';
+import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
 import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { TEntityId } from '../../../shared/types/uuid';
@@ -18,20 +16,12 @@ import moneyMapper from '../../mappers/money.mapper';
 
 export default function makeRecordOpeningBalanceUseCase(
   requestContext: IRequestContext,
-  exchangeRateRepo: IExchangeRateRepo,
   ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   journalEntryRepo: IJournalEntryRepo,
-  eventBus: IEventBus
+  eventBus: IEventBus,
+  bookkeepingService: IBookkeepingService,
+  exchangeRateService: IExchangeRateService
 ) {
-  const domainServices = {
-    accounting: makeBookkeepingService(
-      ledgerAccountRepo,
-      ledgerAccountBalanceRepo
-    ),
-    exchangeRate: makeExchangeRateService(exchangeRateRepo),
-  };
-
   return async (payload: IOpeningBalanceCreationReq) => {
     zodValidationRunner(openingBalanceCreationReqValidation, payload);
 
@@ -46,7 +36,7 @@ export default function makeRecordOpeningBalanceUseCase(
     if (!account) throw new ErrorResourceNotFound('Account not found.');
 
     const amount = moneyMapper.fromDto(payload.amount);
-    const exchangeRate = await domainServices.exchangeRate.getExchangeRate(
+    const exchangeRate = await exchangeRateService.getExchangeRate(
       payload.exchangeRate,
       trace
     );
@@ -59,7 +49,7 @@ export default function makeRecordOpeningBalanceUseCase(
     };
 
     const [journalEntries, journalEntryEvents] =
-      await domainServices.accounting.createOpeningBalanceJournalEntry(
+      await bookkeepingService.createOpeningBalanceJournalEntry(
         openingBalancePayload,
         trace
       );

@@ -24,7 +24,7 @@ import {
 } from '../../../ledger/types/ledger.types';
 import makeBookkeepingService from '../bookkeeping.service';
 
-describe('accountingService', () => {
+describe('bookkeepingService', () => {
   const service = makeBookkeepingService(
     mockLedgerAccountRepo,
     mockLedgerAccountBalanceRepo

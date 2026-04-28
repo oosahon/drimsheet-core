@@ -1,5 +1,5 @@
 import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
-import makeLedgerAccountBalanceService from '../../../domain/bookkeeping/services/account-balance.service';
+import IAccountBalanceService from '../../../domain/bookkeeping/types/account-balance.service.types';
 import { SYSTEM_CURRENCIES } from '../../../domain/currency/config/currencies.config';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
@@ -11,7 +11,8 @@ export default function makeCreateLedgerAccountBalanceUseCase(
   requestContext: IRequestContext,
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   ledgerAccountRepo: ILedgerAccountRepo,
-  logger: ILogger
+  logger: ILogger,
+  accountBalanceService: IAccountBalanceService
 ) {
   return async (ledgerAccount: ILedgerAccount) => {
     const { user, correlationId, accountingEntity } = requestContext.get();
@@ -34,11 +35,7 @@ export default function makeCreateLedgerAccountBalanceUseCase(
       return;
     }
 
-    const ledgerAccountBalanceService = makeLedgerAccountBalanceService(
-      ledgerAccountBalanceRepo
-    );
-
-    const balance = await ledgerAccountBalanceService.createBalance(
+    const balance = await accountBalanceService.createBalance(
       ledgerAccount,
       // TODO: use accounting entity's functional currency
       SYSTEM_CURRENCIES.NGN,

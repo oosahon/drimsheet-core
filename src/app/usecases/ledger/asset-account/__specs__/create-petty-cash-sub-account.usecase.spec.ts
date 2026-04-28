@@ -8,9 +8,7 @@ import { EAssetAccountBehavior } from '../../../../../domain/ledger/types/asset-
 import { TCashLedgerCode } from '../../../../../domain/ledger/types/ledger-code.types';
 import { IUser } from '../../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
-import mockExchangeRateRepo from '../../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
 import mockJournalEntryRepo from '../../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
-import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockDomainServices from '../../../../../infra/services/__mocks__/domain.service.mock';
 import { TEntityId } from '../../../../../shared/types/uuid';
@@ -108,10 +106,10 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockRequestContext,
       mockEventBus,
       mockLedgerAccountRepo,
-      mockLedgerAccountBalanceRepo,
       mockJournalEntryRepo,
       mockDomainServices.assetAccount,
-      mockExchangeRateRepo
+      mockDomainServices.bookkeeping,
+      mockDomainServices.exchangeRate
     );
 
   it('should successfully create a petty cash sub-account and record opening balance', async () => {
@@ -150,11 +148,11 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     expect(makeRecordOpeningBalanceUseCase).toHaveBeenCalledWith(
       mockRequestContext,
-      mockExchangeRateRepo,
       mockLedgerAccountRepo,
-      mockLedgerAccountBalanceRepo,
       mockJournalEntryRepo,
-      mockEventBus
+      mockEventBus,
+      mockDomainServices.bookkeeping,
+      mockDomainServices.exchangeRate
     );
     expect(mockRecordOpeningBalanceUseCase).toHaveBeenCalledWith({
       ...validPayload.openingBalance,

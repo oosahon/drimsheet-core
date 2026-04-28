@@ -1,24 +1,17 @@
 import _ from 'lodash';
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { IRepoOptions } from '../../../shared/types/repo.types';
 import generateDiff from '../../../shared/utils/diff-generator';
 import { AppError } from '../../../shared/value-objects/error';
 import IExchangeRateRepo from '../repos/exchange-rate.repo';
-import { IExchangeRate } from '../types/exchange-rate.types';
+import IExchangeRateService from '../types/exchange-rate.service.types';
 import exchangeRateValue from '../value-objects/exchange-rate.vo';
 
-interface IGetExchangeRatePayload extends TCreationOmits<
-  IExchangeRate,
-  'currencyPair'
-> {
-  id?: number;
-}
+type TGetOfficialExchangeRate = IExchangeRateService['getOfficialExchangeRate'];
+type TGetExchangeRate = IExchangeRateService['getExchangeRate'];
 
-export default function makeExchangeRateService(repo: IExchangeRateRepo) {
-  const getOfficialExchangeRate = async (
-    payload: IGetExchangeRatePayload,
-    repoOptions: IRepoOptions
-  ) => {
+function makeGetOfficialExchangeRate(
+  repo: IExchangeRateRepo
+): TGetOfficialExchangeRate {
+  return async (payload, repoOptions) => {
     const { id, ...data } = payload;
 
     if (!id) {
@@ -48,19 +41,24 @@ export default function makeExchangeRateService(repo: IExchangeRateRepo) {
 
     return existing;
   };
+}
 
-  const getExchangeRate = async (
-    payload: IGetExchangeRatePayload | null,
-    repoOptions: IRepoOptions
-  ) => {
+function makeGetExchangeRate(repo: IExchangeRateRepo): TGetExchangeRate {
+  const getOfficialExchangeRate = makeGetOfficialExchangeRate(repo);
+
+  return async (payload, repoOptions) => {
     if (payload === null) {
       return null;
     }
     return getOfficialExchangeRate(payload, repoOptions);
   };
+}
 
-  return {
-    getOfficialExchangeRate,
-    getExchangeRate,
-  };
+export default function makeExchangeRateService(
+  repo: IExchangeRateRepo
+): IExchangeRateService {
+  return Object.freeze({
+    getOfficialExchangeRate: makeGetOfficialExchangeRate(repo),
+    getExchangeRate: makeGetExchangeRate(repo),
+  });
 }

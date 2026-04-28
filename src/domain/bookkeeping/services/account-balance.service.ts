@@ -3,11 +3,14 @@ import ILedgerAccountBalanceRepo from '../../bookkeeping/repos/ledger-account-ba
 import { ICurrency } from '../../currency/types/currency.types';
 import { ILedgerAccount } from '../../ledger/types/ledger.types';
 import ledgerAccountBalanceEntity from '../entities/ledger-account-balance.entity';
+import IAccountBalanceService from '../types/account-balance.service.types';
 
-export default function makeLedgerAccountBalanceService(
+type TCreateBalance = IAccountBalanceService['createBalance'];
+
+function makeCreateBalance(
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
-) {
-  const createBalance = async (
+): TCreateBalance {
+  return async (
     ledgerAccount: ILedgerAccount,
     functionalCurrency: ICurrency,
     repoOptions: IRepoOptions
@@ -30,8 +33,12 @@ export default function makeLedgerAccountBalanceService(
 
     return balance;
   };
+}
 
-  return {
-    createBalance,
-  };
+export default function makeLedgerAccountBalanceService(
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
+): IAccountBalanceService {
+  return Object.freeze({
+    createBalance: makeCreateBalance(ledgerAccountBalanceRepo),
+  });
 }

@@ -8,6 +8,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
@@ -60,6 +61,17 @@ describe('createLedgerAccountBalanceUseCase', () => {
     } as unknown as IRequestContextData);
 
     mockLedgerAccountBalanceRepo.findBalanceByAccountId.mockResolvedValue(null);
+
+    const mockNewBalance = ledgerAccountBalanceEntity.make({
+      ledgerAccountId: mockAssetAccount.id,
+      accountingEntityId: mockAccountingEntity.id,
+      accountMaterializedPath: mockAssetAccount.materializedPath,
+      currencyCode: SYSTEM_CURRENCIES.NGN.code,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    });
+    mockDomainServices.accountBalance.createBalance.mockResolvedValue(
+      mockNewBalance
+    );
   });
 
   const getUseCase = () =>
@@ -67,7 +79,8 @@ describe('createLedgerAccountBalanceUseCase', () => {
       mockRequestContext,
       mockLedgerAccountBalanceRepo,
       mockLedgerAccountRepo,
-      mockLogger
+      mockLogger,
+      mockDomainServices.accountBalance
     );
 
   it('should successfully create a ledger account balance', async () => {
