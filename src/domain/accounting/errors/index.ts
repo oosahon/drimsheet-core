@@ -1,28 +1,13 @@
-import { DomainError } from '../../../shared/errors/error';
-import { EAccountingError, UAccountingError } from './types';
+import { DomainError, TErrorCause } from '../../../shared/errors/error';
 
-class AccountingError extends DomainError<UAccountingError> {
-  constructor(key: UAccountingError, cause?: Record<string, unknown>) {
+type TAccountingErrorKeyPrefix = `accounting_error_${string}`;
+
+export class AccountingError<
+  K extends TAccountingErrorKeyPrefix,
+> extends DomainError<K> {
+  constructor(key: K, cause?: TErrorCause) {
     super(key, key, cause);
   }
 }
 
-class DuplicateAccountingEntity extends AccountingError {
-  constructor(cause?: Record<string, unknown>) {
-    super(EAccountingError.DuplicateAccountingEntity, cause);
-  }
-}
-
-class UnauthorizedUserAccess extends AccountingError {
-  constructor(cause?: Record<string, unknown>) {
-    super(EAccountingError.UnauthorizedUserAccess, cause);
-  }
-}
-
-const accountingError = Object.freeze({
-  Error: AccountingError,
-  DuplicateAccountingEntity,
-  UnauthorizedUserAccess,
-});
-
-export default accountingError;
+export default AccountingError;

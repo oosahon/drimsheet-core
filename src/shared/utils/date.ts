@@ -89,6 +89,83 @@ function validateLessThan(
   }
 }
 
+function getDaysDistance(date1: Date, date2: Date) {
+  validateDate(date1);
+  validateDate(date2);
+
+  return dayjs(date2).diff(dayjs(date1), 'day');
+}
+
+function getWeekDistance(date1: Date, date2: Date) {
+  validateDate(date1);
+  validateDate(date2);
+
+  return dayjs(date2).diff(dayjs(date1), 'week');
+}
+
+function getMonthDistance(date1: Date, date2: Date) {
+  validateDate(date1);
+  validateDate(date2);
+
+  return dayjs(date2).diff(dayjs(date1), 'month');
+}
+
+function getQuarterDistance(date1: Date, date2: Date) {
+  validateDate(date1);
+  validateDate(date2);
+
+  return dayjs(date2).diff(dayjs(date1), 'quarter');
+}
+
+function getYearDistance(date1: Date, date2: Date) {
+  validateDate(date1);
+  validateDate(date2);
+
+  return dayjs(date2).diff(dayjs(date1), 'year');
+}
+
+function addDaysToDate(date: Date | string | number, days: number) {
+  validateDate(date);
+  return dayjs(date).add(days, 'day').toDate();
+}
+
+function addWeeksToDate(date: Date | string | number, weeks: number) {
+  validateDate(date);
+  return dayjs(date).add(weeks, 'week').toDate();
+}
+
+function addMonthsToDate(date: Date | string | number, months: number) {
+  validateDate(date);
+  return dayjs(date).add(months, 'month').toDate();
+}
+
+function addQuartersToDate(date: Date | string | number, quarters: number) {
+  validateDate(date);
+  return dayjs(date)
+    .add(quarters * 3, 'month')
+    .toDate();
+}
+
+function addYearsToDate(date: Date | string | number, years: number) {
+  validateDate(date);
+  return dayjs(date).add(years, 'year').toDate();
+}
+
+function isWithinRange(
+  date: Date | string | number,
+  startDate: Date | string | number,
+  endDate: Date | string | number
+) {
+  const target = dayjs(date);
+  const start = dayjs(startDate);
+  const end = dayjs(endDate);
+
+  return (
+    (target.isAfter(start) || target.isSame(start)) &&
+    (target.isBefore(end) || target.isSame(end))
+  );
+}
+
 const dateUtils = Object.freeze({
   isValidDate,
   validateDate,
@@ -107,6 +184,20 @@ const dateUtils = Object.freeze({
 
   isLessThan,
   validateLessThan,
+
+  getMonthDistance,
+  getWeekDistance,
+  getQuarterDistance,
+  getDaysDistance,
+  getYearDistance,
+
+  addDaysToDate,
+  addWeeksToDate,
+  addMonthsToDate,
+  addQuartersToDate,
+  addYearsToDate,
+
+  isWithinRange,
 });
 
 export default dateUtils;

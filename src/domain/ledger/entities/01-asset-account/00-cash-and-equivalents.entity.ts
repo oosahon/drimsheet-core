@@ -84,6 +84,27 @@ function make(
   return [account, [ledgerAccountCreatedEvent, event]];
 }
 
+function makeHeader(
+  payload: Pick<
+    ICashAndCashEquivalentAccount,
+    'name' | 'createdBy' | 'accountingEntityId' | 'currency'
+  >
+) {
+  return make(
+    {
+      name: payload.name,
+      createdBy: payload.createdBy,
+      accountingEntityId: payload.accountingEntityId,
+      currency: payload.currency,
+      isControlAccount: true,
+      controlAccountId: null,
+      behavior: EAssetAccountBehavior.DefaultCash,
+      meta: null,
+    },
+    null
+  );
+}
+
 /**
  * Creates a new petty cash sub account.
  * @param payload petty cash creation payload
@@ -156,6 +177,7 @@ function makeBankAccount(
 
 const cashAndEquivalentAccountEntity = Object.freeze({
   make,
+  makeHeader,
   makePettyCashAccount,
   makeBankAccount,
 

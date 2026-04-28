@@ -1,38 +1,29 @@
-import accountingEntityEntity from '../entities/accounting-entity.entity';
-import errors from '../errors';
+import errors from '../errors/accounting-entity.errors';
 import IAccountingEntityRepo from '../repos/accounting-entity.repo';
 import IAccountingEntityService from '../types/accounting-entity.service.types';
-import { EAccountingEntityType } from '../types/accounting-entity.types';
 
-type TCreate = IAccountingEntityService['create'];
 type TGrantUserAccess = IAccountingEntityService['grantUserAccess'];
 type TValidateAccess = IAccountingEntityService['validateAccess'];
 
 export default function makeAccountingEntityService(
   repo: IAccountingEntityRepo
 ): IAccountingEntityService {
-  const create: TCreate = async (payload, repoOptions) => {
-    const existingEntities = await repo.findByUserId(
-      payload.userId,
-      repoOptions,
-      payload.type
-    );
-
-    const isDuplicateIndividual =
-      payload.type === EAccountingEntityType.Individual &&
-      existingEntities.length > 0;
-
-    if (isDuplicateIndividual) {
-      throw new errors.DuplicateAccountingEntity();
-    }
-
-    return accountingEntityEntity.make(payload);
-  };
-
+  /**
+   * Grants a user access to an accounting entity
+   * @param accountingEntity
+   * @param userId
+   * @returns boolean
+   */
   const grantUserAccess: TGrantUserAccess = (accountingEntity, userId) => {
     return accountingEntity.ownerId === userId;
   };
 
+  /**
+   *
+   * @param accountingEntity
+   * @param userId
+   * @throws {errors.UnauthorizedUserAccess}
+   */
   const validateAccess: TValidateAccess = (accountingEntity, userId) => {
     if (!grantUserAccess(accountingEntity, userId)) {
       throw new errors.UnauthorizedUserAccess();
@@ -40,7 +31,6 @@ export default function makeAccountingEntityService(
   };
 
   return Object.freeze({
-    create,
     grantUserAccess,
     validateAccess,
   });

@@ -4,6 +4,14 @@ import {
   SYSTEM_ACCOUNTING_STANDARDS,
   UAccountingStandardCode,
 } from '../../config/accounting-standards.config';
+import {
+  SYSTEM_JURISDICTIONS,
+  UJurisdictionCode,
+} from '../../config/jurisdictions.config';
+import accountingStandardError from '../../errors/accounting-standard.error';
+import jurisdictionError from '../../errors/jurisdiction.errors';
+import { UAccountingEntityType } from '../../types/accounting-entity.types';
+import accountingEntityHelpers from './accounting-entity.entity.helpers';
 
 function isValidAccountingStandardCode(
   code: unknown
@@ -30,10 +38,75 @@ function getDescription(description: string | null) {
     : null;
 }
 
+function getJurisdiction(code: string) {
+  if (!code) {
+    throw new jurisdictionError.InvalidJurisdiction();
+  }
+
+  const jurisdiction = SYSTEM_JURISDICTIONS[code as UJurisdictionCode];
+
+  if (!jurisdiction) {
+    throw new jurisdictionError.InvalidJurisdiction();
+  }
+
+  return jurisdiction;
+}
+
+function validateStandardCode(code: UAccountingStandardCode) {
+  if (!code) {
+    throw new accountingStandardError.InvalidStandard();
+  }
+
+  const standard = SYSTEM_ACCOUNTING_STANDARDS[code];
+
+  if (!standard) {
+    throw new accountingStandardError.InvalidStandard();
+  }
+}
+
+function validateStandardCodeAndJurisdiction(
+  code: UAccountingStandardCode,
+  jurisdiction: string,
+  accountingEntityType: UAccountingEntityType
+) {
+  accountingEntityHelpers.validateType(accountingEntityType);
+
+  const jurisdictionObj = getJurisdiction(jurisdiction);
+
+  const availableStandards =
+    jurisdictionObj.accountingStandards[accountingEntityType];
+
+  if (!availableStandards) {
+    throw new accountingStandardError.InvalidStandard();
+  }
+
+  const isIncluded = availableStandards.includes(code);
+
+  if (!isIncluded) {
+    throw new accountingStandardError.InvalidStandard();
+  }
+}
+
+function getStandard(code: UAccountingStandardCode) {
+  const standard = SYSTEM_ACCOUNTING_STANDARDS[code];
+
+  if (!standard) {
+    throw new accountingStandardError.InvalidStandard();
+  }
+
+  return standard;
+}
+
 const accountingContextEntityHelpers = Object.freeze({
   isValidAccountingStandardCode,
   validateAccountingStandardCode,
   getDescription,
+
+  validateStandardCode,
+  getJurisdiction,
+  validateStandardCodeAndJurisdiction,
+
+  getStandard,
 });
 
 export default accountingContextEntityHelpers;

@@ -1,5 +1,9 @@
 import z from 'zod';
 import {
+  SYSTEM_ACCOUNTING_STANDARDS,
+  UAccountingStandardCode,
+} from '../../../domain/accounting/config/accounting-standards.config';
+import {
   SYSTEM_JURISDICTIONS,
   UJurisdictionCode,
 } from '../../../domain/accounting/config/jurisdictions.config';
@@ -7,7 +11,10 @@ import {
   EAccountingEntityType,
   UAccountingEntityType,
 } from '../../../domain/accounting/types/accounting-entity.types';
-import { IFiscalYear } from '../../../domain/accounting/types/period.types';
+import {
+  EPeriodUnit,
+  UPeriodUnit,
+} from '../../../domain/accounting/types/period.types';
 import { UAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
 import { currencyCodeValidation } from './money.dto';
 import { userAppUsageModePreferenceValidation } from './user.dto';
@@ -35,6 +42,17 @@ export const accountingEntityTypeValidation = z.enum(
 );
 
 /**
+ * Accounting standard code validation schema
+ */
+export const accountingStandardCodeValidation = z.enum(
+  Object.keys(SYSTEM_ACCOUNTING_STANDARDS) as [
+    UAccountingStandardCode,
+    ...UAccountingStandardCode[],
+  ],
+  'Unsupported accounting standard code'
+);
+
+/**
  * Period day validation schema
  */
 export const periodDayValidation = z.number().min(1).max(31);
@@ -43,6 +61,10 @@ export const periodDayValidation = z.number().min(1).max(31);
  * Period month validation schema
  */
 export const periodMonthValidation = z.number().min(1).max(12);
+
+export const periodUnitValidation = z.enum(
+  Object.values(EPeriodUnit) as [UPeriodUnit, ...UPeriodUnit[]]
+);
 
 /**
  * Fiscal year creation DTO
@@ -60,24 +82,40 @@ export const fiscalYearCreationDtoSchema = z.object({
   endDate: z.date(),
 });
 
+export interface IPeriodCreationDto {
+  unit: UPeriodUnit;
+  count: number;
+}
+
+export const periodCreationDtoSchema = z.object({
+  unit: periodUnitValidation,
+  count: z.number(),
+});
+
 /**
  * Accounting entity onboarding DTO
  */
 export interface IAccountingEntityOnboardingDto {
   name: string;
   entityType: UAccountingEntityType;
-  operatingCountryCode: string;
+  jurisdictionCode: string;
+  accountingStandardCode: string;
   functionalCurrencyCode: string;
   reportingCurrencyCode: string;
-  fiscalYearStart: IFiscalYear;
+  fiscalYear: IFiscalYearCreationDto;
+  accountingPeriod: IPeriodCreationDto;
+  reportingPeriod: IPeriodCreationDto;
   appUsageMode: UAppUsageModePreference;
 }
 export const accountingEntityOnboardingDtoSchema = z.object({
   name: z.string(),
-  operatingCountryCode: jurisdictionCodeValidation,
   entityType: accountingEntityTypeValidation,
+  jurisdictionCode: jurisdictionCodeValidation,
+  accountingStandardCode: accountingStandardCodeValidation,
   functionalCurrencyCode: currencyCodeValidation,
   reportingCurrencyCode: currencyCodeValidation,
-  fiscalYearStart: fiscalYearCreationDtoSchema,
+  fiscalYear: fiscalYearCreationDtoSchema,
+  accountingPeriod: periodCreationDtoSchema,
+  reportingPeriod: periodCreationDtoSchema,
   appUsageMode: userAppUsageModePreferenceValidation,
 });
