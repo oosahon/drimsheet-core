@@ -11,14 +11,14 @@ export const EAppThemePreference = {
   System: 'system',
 } as const;
 
-export type UAppUsageMode =
+export type UAppUsageModePreference =
   (typeof EAppUsageModePreference)[keyof typeof EAppUsageModePreference];
 export type UAppThemePreference =
   (typeof EAppThemePreference)[keyof typeof EAppThemePreference];
 
 export interface IUserAppPreferences {
   theme?: UAppThemePreference | null;
-  appUsageMode?: UAppUsageMode | null;
+  appUsageMode?: UAppUsageModePreference | null;
 }
 
 export interface IUserPreferences {

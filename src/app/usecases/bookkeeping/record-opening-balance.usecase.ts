@@ -12,7 +12,7 @@ import IRequestContext from '../../contracts/app/request-context.contract';
 import {
   IOpeningBalanceCreationReq,
   openingBalanceCreationReqValidation,
-} from '../../contracts/dto/accounting.dto';
+} from '../../contracts/dto/bookkeeping.dto';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import moneyMapper from '../../mappers/money.mapper';
 

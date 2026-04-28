@@ -1,24 +1,28 @@
 import z from 'zod';
 import {
-  exchangeRateDtoValidation,
-  IExchangeRateDto,
-  IMoneyDto,
-  moneyDtoValidation,
-} from './money.dto';
+  SYSTEM_JURISDICTIONS,
+  UJurisdictionCode,
+} from '../../../domain/accounting/config/jurisdictions.config';
+import {
+  EAccountingEntityType,
+  UAccountingEntityType,
+} from '../../../domain/accounting/types/accounting-entity.types';
 
-export interface IOpeningBalanceDto {
-  amount: IMoneyDto;
-  exchangeRate: IExchangeRateDto | null;
-}
-export const openingBalanceDtoValidation = z.object({
-  amount: moneyDtoValidation,
-  exchangeRate: exchangeRateDtoValidation.nullable(),
-});
-export interface IOpeningBalanceCreationReq extends IOpeningBalanceDto {
-  accountId: string;
-}
+export const jurisdictionCodeValidation = z.enum(
+  Object.keys(SYSTEM_JURISDICTIONS) as [
+    UJurisdictionCode,
+    ...UJurisdictionCode[],
+  ],
+  'Unsupported operating country code'
+);
 
-export const openingBalanceCreationReqValidation = z.object({
-  ...openingBalanceDtoValidation.shape,
-  accountId: z.uuid('Invalid account ID'),
-});
+export const accountingEntityTypeValidation = z.enum(
+  Object.values(EAccountingEntityType) as [
+    UAccountingEntityType,
+    ...UAccountingEntityType[],
+  ],
+  'Unsupported accounting entity type'
+);
+
+export const periodMonthValidation = z.number().min(1).max(12);
+export const periodDayValidation = z.number().min(1).max(31);

@@ -3,6 +3,21 @@ export interface IApiValidationError {
   message: string;
 }
 
+export class DomainError<Keys extends string> extends Error {
+  errorKey: keyof Keys;
+  cause?: Record<string, unknown>;
+
+  constructor(
+    errorKey: keyof Keys,
+    message: string,
+    cause?: Record<string, unknown>
+  ) {
+    super(message);
+    this.errorKey = errorKey;
+    this.cause = cause;
+  }
+}
+
 export class AppError extends Error {
   message: string;
   cause?: Record<string, unknown>;

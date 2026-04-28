@@ -1,15 +1,7 @@
-import { z } from 'zod';
 import accountingEntityEvents from '../../../domain/accounting-entity/events/accounting-entity.events';
 import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
 import accountingEntityService from '../../../domain/accounting-entity/services/accounting-entity.service';
-import {
-  EAccountingEntityType,
-  IAccountingEntity,
-} from '../../../domain/accounting-entity/types/accounting-entity.types';
-import {
-  SYSTEM_JURISDICTIONS,
-  UJurisdictionCode,
-} from '../../../domain/accounting/config/jurisdictions.config';
+import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import ledgerService from '../../../domain/ledger/services/ledger-bootstrap.service';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
@@ -29,31 +21,16 @@ import {
 } from '../../../shared/value-objects/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import { IAccountingEntityOnboardingReq } from '../../contracts/dto/onboarding.dto';
+import {
+  accountingEntityOnboardingDtoSchema,
+  IAccountingEntityOnboardingReq,
+} from '../../contracts/dto/onboarding.dto';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../contracts/infra/repo.contract';
 import currencyMapper from '../../mappers/currency.mapper';
-
-const validationSchema = z.object({
-  name: z.string(),
-  operatingCountryCode: z.enum(
-    Object.keys(SYSTEM_JURISDICTIONS) as [
-      UJurisdictionCode,
-      ...UJurisdictionCode[],
-    ],
-    'Unsupported operating country code'
-  ),
-  entityType: z.enum([EAccountingEntityType.Individual]),
-  functionalCurrencyCode: z.string().length(3),
-  reportingCurrencyCode: z.string().length(3),
-  fiscalYearStart: z.object({
-    month: z.number().min(1).max(12),
-    day: z.number().min(1).max(31),
-  }),
-});
 
 export default function makeOnboardAccountingEntityUseCase(
   requestContext: IRequestContext,
@@ -64,7 +41,7 @@ export default function makeOnboardAccountingEntityUseCase(
   eventBus: IEventBus
 ) {
   return async (payload: IAccountingEntityOnboardingReq) => {
-    zodValidationRunner(validationSchema, payload);
+    zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
     const accountingEntityServiceFn =
       accountingEntityService(accountingEntityRepo);

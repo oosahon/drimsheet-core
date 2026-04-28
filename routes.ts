@@ -64,7 +64,7 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UAppUsageMode: {
+  UAppUsageModePreference: {
     dataType: 'refAlias',
     type: {
       dataType: 'union',
@@ -89,7 +89,7 @@ const models: TsoaRoute.Models = {
       appUsageMode: {
         dataType: 'union',
         subSchemas: [
-          { ref: 'UAppUsageMode' },
+          { ref: 'UAppUsageModePreference' },
           { dataType: 'enum', enums: [null] },
         ],
       },
@@ -183,7 +183,7 @@ const models: TsoaRoute.Models = {
       functionalCurrencyCode: { dataType: 'string', required: true },
       reportingCurrencyCode: { dataType: 'string', required: true },
       fiscalYearStart: { ref: 'IFiscalYearStart', required: true },
-      appUsageMode: { ref: 'UAppUsageMode', required: true },
+      appUsageMode: { ref: 'UAppUsageModePreference', required: true },
     },
     additionalProperties: false,
   },
