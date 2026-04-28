@@ -70,8 +70,30 @@ function make(
   return [account, [ledgerAccountCreatedEvent, event]];
 }
 
+function makeHeader(
+  payload: Pick<
+    IDirectCostsAccount,
+    'name' | 'createdBy' | 'accountingEntityId' | 'currency' | 'behavior'
+  >
+) {
+  return make(
+    {
+      name: payload.name,
+      createdBy: payload.createdBy,
+      accountingEntityId: payload.accountingEntityId,
+      currency: payload.currency,
+      behavior: payload.behavior,
+      isControlAccount: true,
+      controlAccountId: null,
+      meta: null,
+    },
+    null
+  );
+}
+
 const directCostsAccountEntity = Object.freeze({
   make,
+  makeHeader,
   ...helpers,
 });
 

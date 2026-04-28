@@ -1,5 +1,4 @@
 import { AppError } from '../../../../../shared/errors/error';
-import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { TShortTermDebtLedgerCode } from '../../../types/ledger-code.types';
@@ -13,12 +12,9 @@ import {
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
-  ICreditCardAccount,
   ICreditCardAccountMeta,
-  IOverdraftAccount,
   IOverdraftAccountMeta,
   IShortTermDebtAccount,
-  IShortTermLoanAccount,
   IShortTermLoanAccountMeta,
 } from '../../../types/liability-account.types';
 import shortTermLoanAccountEntity from '../00-short-term-loan.entity';
@@ -207,7 +203,9 @@ describe('Short Term Loan Liability Entity', () => {
       lastReconciliationDate: null,
     };
 
-    const validPayload: TCreationOmits<ICreditCardAccount> = {
+    const validPayload: Parameters<
+      typeof shortTermLoanAccountEntity.makeCreditCardAccount
+    >[0] = {
       name: 'Office Credit Card',
       accountingEntityId: validUUID1,
 
@@ -216,7 +214,7 @@ describe('Short Term Loan Liability Entity', () => {
       currency: validCurrency,
       meta: validMeta,
       createdBy: validUUID2,
-    } as TCreationOmits<ICreditCardAccount>;
+    };
 
     it('should successfully create a credit card account', () => {
       const [account, events] =
@@ -283,7 +281,9 @@ describe('Short Term Loan Liability Entity', () => {
       linkedBankAccountId: validUUID1,
     };
 
-    const validPayload: TCreationOmits<IOverdraftAccount> = {
+    const validPayload: Parameters<
+      typeof shortTermLoanAccountEntity.makeOverdraftAccount
+    >[0] = {
       name: 'Main Overdraft',
       accountingEntityId: validUUID1,
 
@@ -292,7 +292,7 @@ describe('Short Term Loan Liability Entity', () => {
       currency: validCurrency,
       meta: validMeta,
       createdBy: validUUID2,
-    } as TCreationOmits<IOverdraftAccount>;
+    };
 
     it('should successfully create an overdraft account', () => {
       const [account, events] = shortTermLoanAccountEntity.makeOverdraftAccount(
@@ -381,7 +381,9 @@ describe('Short Term Loan Liability Entity', () => {
       maturityDate: new Date('2026-12-31T00:00:00.000Z'),
     };
 
-    const validPayload: TCreationOmits<IShortTermLoanAccount> = {
+    const validPayload: Parameters<
+      typeof shortTermLoanAccountEntity.makeShortTermLoanAccount
+    >[0] = {
       name: 'Payday Loan',
       accountingEntityId: validUUID1,
 
@@ -390,7 +392,7 @@ describe('Short Term Loan Liability Entity', () => {
       currency: validCurrency,
       meta: validMeta,
       createdBy: validUUID2,
-    } as TCreationOmits<IShortTermLoanAccount>;
+    };
 
     it('should successfully create a short term loan account', () => {
       const [account, events] =

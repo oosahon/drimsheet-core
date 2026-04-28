@@ -164,7 +164,7 @@ export interface IStatutoryPayableAccount extends IPayableAccount {
   behavior: typeof EPayableBehavior.TaxPayable;
   contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
-  meta: IStatutoryPayableAccountMeta;
+  meta: IStatutoryPayableAccountMeta | null;
 }
 
 export interface ITradePayableAccountMeta {
@@ -175,7 +175,7 @@ export interface ITradePayableAccountMeta {
 export interface ITradePayableAccount extends IPayableAccount {
   controlAccountId: TEntityId;
   behavior: typeof EPayableBehavior.TradePayable;
-  meta: ITradePayableAccountMeta;
+  meta: ITradePayableAccountMeta | null;
 }
 
 /**

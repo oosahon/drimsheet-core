@@ -1,4 +1,3 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import ledgerAccountEvents from '../../events/ledger-account.events';
@@ -84,6 +83,27 @@ function make(
   return [account, [ledgerAccountCreatedEvent, event]];
 }
 
+function makeHeader(
+  payload: Pick<
+    IShortTermDebtAccount,
+    'name' | 'createdBy' | 'accountingEntityId' | 'currency'
+  >
+) {
+  return make(
+    {
+      name: payload.name,
+      createdBy: payload.createdBy,
+      accountingEntityId: payload.accountingEntityId,
+      currency: payload.currency,
+      isControlAccount: true,
+      controlAccountId: null,
+      behavior: ELiabilityAccountBehavior.DefaultShortTermDebt,
+      meta: null,
+    },
+    null
+  );
+}
+
 function makeCreditCardAccountMeta(meta: ICreditCardAccountMeta) {
   const cardIssuer = stringUtils.sanitizeAndValidate(meta.cardIssuer, {
     min: 2,
@@ -109,7 +129,16 @@ function makeCreditCardAccountMeta(meta: ICreditCardAccountMeta) {
  * @returns [IShortTermDebtAccount, IShortTermDebtCreationEvent]
  */
 function makeCreditCardAccount(
-  payload: TCreationOmits<ICreditCardAccount>,
+  payload: Pick<
+    ICreditCardAccount,
+    | 'name'
+    | 'createdBy'
+    | 'accountingEntityId'
+    | 'currency'
+    | 'isControlAccount'
+    | 'controlAccountId'
+    | 'meta'
+  >,
   parent: IParentDetails | null
 ): TEntityWithEvents<IShortTermDebtAccount, IShortTermDebtAccount> {
   return make(
@@ -143,7 +172,16 @@ function makeOverdraftAccountMeta(meta: IOverdraftAccountMeta) {
  * @returns [IShortTermDebtAccount, IShortTermDebtCreationEvent]
  */
 function makeOverdraftAccount(
-  payload: TCreationOmits<IOverdraftAccount>,
+  payload: Pick<
+    IOverdraftAccount,
+    | 'name'
+    | 'createdBy'
+    | 'accountingEntityId'
+    | 'currency'
+    | 'isControlAccount'
+    | 'controlAccountId'
+    | 'meta'
+  >,
   parent: IParentDetails | null
 ): TEntityWithEvents<IShortTermDebtAccount, IShortTermDebtAccount> {
   return make(
@@ -181,7 +219,16 @@ function makeShortTermLoanAccountMeta(meta: IShortTermLoanAccountMeta) {
  * @returns [IShortTermDebtAccount, IShortTermDebtCreationEvent]
  */
 function makeShortTermLoanAccount(
-  payload: TCreationOmits<IShortTermLoanAccount>,
+  payload: Pick<
+    IShortTermLoanAccount,
+    | 'name'
+    | 'createdBy'
+    | 'accountingEntityId'
+    | 'currency'
+    | 'isControlAccount'
+    | 'controlAccountId'
+    | 'meta'
+  >,
   parent: IParentDetails | null
 ): TEntityWithEvents<IShortTermDebtAccount, IShortTermDebtAccount> {
   return make(
@@ -202,6 +249,7 @@ function makeShortTermLoanAccount(
 
 const shortTermLoanAccountEntity = Object.freeze({
   make,
+  makeHeader,
 
   makeCreditCardAccountMeta,
   makeCreditCardAccount,

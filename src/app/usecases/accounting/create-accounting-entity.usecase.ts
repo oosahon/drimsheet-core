@@ -31,6 +31,10 @@ import {
 } from '../../contracts/infra/repo.contract';
 import currencyMapper from '../../mappers/currency.mapper';
 import makeSetupAssetHeaderAccountsUseCase from '../ledger/asset-account/setup-asset-header-accounts.usecase';
+import makeSetupEquityHeaderAccountsUseCase from '../ledger/equity-account/setup-equity-header-accounts.usecase';
+import makeSetupExpenseHeaderAccountsUseCase from '../ledger/expense-account/setup-expense-header-accounts.usecase';
+import makeSetupLiabilityHeaderAccountsUseCase from '../ledger/liability-account/setup-liability-header-accounts.usecase';
+import makeSetupRevenueHeaderAccountsUseCase from '../ledger/revenue-account/setup-revenue-header-accounts.usecase';
 
 async function validate(payload: IAccountingEntityOnboardingDto) {
   zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
@@ -62,6 +66,20 @@ export default function createAccountingEntityUseCase(
     requestContext,
     ledgerAccountRepo
   );
+
+  const setupLiabilityHeaderAccountsUseCase =
+    makeSetupLiabilityHeaderAccountsUseCase(requestContext, ledgerAccountRepo);
+
+  const setupEquityHeaderAccountsUseCase = makeSetupEquityHeaderAccountsUseCase(
+    requestContext,
+    ledgerAccountRepo
+  );
+
+  const setupRevenueHeaderAccountsUseCase =
+    makeSetupRevenueHeaderAccountsUseCase(requestContext, ledgerAccountRepo);
+
+  const setupExpenseHeaderAccountsUseCase =
+    makeSetupExpenseHeaderAccountsUseCase(requestContext, ledgerAccountRepo);
 
   return async (payload: IAccountingEntityOnboardingDto) => {
     validate(payload);
@@ -162,6 +180,30 @@ export default function createAccountingEntityUseCase(
     const { accounts: assetAccounts, events: assetAccountEvents } =
       await setupAssetHeaderAccountsUseCase(accountingEntity);
 
+    // =============== Liability Accounts ===============
+    const { accounts: liabilityAccounts, events: liabilityAccountEvents } =
+      await setupLiabilityHeaderAccountsUseCase(accountingEntity);
+
+    // =============== Equity Accounts ===============
+    const { accounts: equityAccounts, events: equityAccountEvents } =
+      await setupEquityHeaderAccountsUseCase(accountingEntity);
+
+    // =============== Revenue Accounts ===============
+    const { accounts: revenueAccounts, events: revenueAccountEvents } =
+      await setupRevenueHeaderAccountsUseCase(accountingEntity);
+
+    // =============== Expense Accounts ===============
+    const { accounts: expenseAccounts, events: expenseAccountEvents } =
+      await setupExpenseHeaderAccountsUseCase(accountingEntity);
+
+    const ledgerAccounts = [
+      ...assetAccounts,
+      ...liabilityAccounts,
+      ...equityAccounts,
+      ...revenueAccounts,
+      ...expenseAccounts,
+    ];
+
     // =============== Save domain entities ===============
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const options = { correlationId, tx };
@@ -172,7 +214,7 @@ export default function createAccountingEntityUseCase(
       await accountingContextRepo.save(accountingContext, options);
       await reportingPeriodRepo.save(reportingPeriods, options);
       await reportingContextRepo.save(reportingContext, options);
-      await ledgerAccountRepo.save(assetAccounts, options);
+      await ledgerAccountRepo.save(ledgerAccounts, options);
     };
 
     await repoService.runInTransaction(transactionFn);
@@ -186,6 +228,10 @@ export default function createAccountingEntityUseCase(
       ...eventValue.enrichAll(reportingPeriodsEvents, trace),
       ...eventValue.enrichAll(reportingContextEvents, trace),
       ...eventValue.enrichAll(assetAccountEvents, trace),
+      ...eventValue.enrichAll(liabilityAccountEvents, trace),
+      ...eventValue.enrichAll(equityAccountEvents, trace),
+      ...eventValue.enrichAll(revenueAccountEvents, trace),
+      ...eventValue.enrichAll(expenseAccountEvents, trace),
     ];
 
     eventBus.publish(allEvents);
