@@ -32,15 +32,15 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group     | Code Block | Entity File                                                                                       | Status         |
-| ----------------- | ---------- | ------------------------------------------------------------------------------------------------- | -------------- |
-| Sales             | `400xxx`   | —                                                                                                 | 🔲 Types only  |
-| Services          | `401xxx`   | [`02-services.entity.ts`](../entities/04-revenue-account/02-services.entity.ts)                   | ✅ Implemented |
-| Subscriptions     | `402xxx`   | —                                                                                                 | 🔲 Types only  |
-| Employment Income | `403xxx`   | [`04-employment-income.entity.ts`](../entities/04-revenue-account/04-employment-income.entity.ts) | ✅ Implemented |
-| Interest Income   | `404xxx`   | —                                                                                                 | 🔲 Types only  |
-| Gain on Sale      | `405xxx`   | [`06-gain-on-sale.entity.ts`](../entities/04-revenue-account/06-gain-on-sale.entity.ts)           | ✅ Implemented |
-| Unrealized Gains  | `406xxx`   | [`07-unrealized-gain.entity.ts`](../entities/04-revenue-account/07-unrealized-gain.entity.ts)     | ✅ Implemented |
+| Account Group     | Code Block | Entity File                                                                                                 | Status         |
+| ----------------- | ---------- | ----------------------------------------------------------------------------------------------------------- | -------------- |
+| Sales             | `400xxx`   | —                                                                                                           | 🔲 Types only  |
+| Services          | `401xxx`   | [`02-services.entity.ts`](../../ledger/entities/04-revenue-account/02-services.entity.ts)                   | ✅ Implemented |
+| Subscriptions     | `402xxx`   | —                                                                                                           | 🔲 Types only  |
+| Employment Income | `403xxx`   | [`04-employment-income.entity.ts`](../../ledger/entities/04-revenue-account/04-employment-income.entity.ts) | ✅ Implemented |
+| Interest Income   | `404xxx`   | —                                                                                                           | 🔲 Types only  |
+| Gain on Sale      | `405xxx`   | [`06-gain-on-sale.entity.ts`](../../ledger/entities/04-revenue-account/06-gain-on-sale.entity.ts)           | ✅ Implemented |
+| Unrealized Gains  | `406xxx`   | [`07-unrealized-gain.entity.ts`](../../ledger/entities/04-revenue-account/07-unrealized-gain.entity.ts)     | ✅ Implemented |
 
 > [!NOTE]
 > Entity files are named by their COA prefix (e.g. `02-` = `401xxx`, `04-` = `403xxx`) to make it explicit which accounts have been implemented and which are pending.
@@ -56,7 +56,7 @@ The following table shows the behaviors of different revenue account classes:
 - **Main reporting hierarchy**: Operating Revenues / Sales
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../types/revenue-account.types.ts).\
+> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../../ledger/types/revenue-account.types.ts).\
 > Not in scope for individual MVP (individuals don't sell goods).
 
 #### Behaviors
@@ -79,7 +79,7 @@ The following table shows the behaviors of different revenue account classes:
 
 #### Entity Details
 
-The `Services` entity ([`02-services.entity.ts`](../entities/04-revenue-account/02-services.entity.ts)) creates accounts with:
+The `Services` entity ([`02-services.entity.ts`](../../ledger/entities/04-revenue-account/02-services.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'services'` / `subType: 'services'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -92,7 +92,7 @@ The `Services` entity ([`02-services.entity.ts`](../entities/04-revenue-account/
 - **Main reporting hierarchy**: Operating Revenues / Subscriptions
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../types/revenue-account.types.ts).\
+> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../../ledger/types/revenue-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -115,7 +115,7 @@ The `Services` entity ([`02-services.entity.ts`](../entities/04-revenue-account/
 
 #### Entity Details
 
-The `EmploymentIncome` entity ([`04-employment-income.entity.ts`](../entities/04-revenue-account/04-employment-income.entity.ts)) creates accounts with:
+The `EmploymentIncome` entity ([`04-employment-income.entity.ts`](../../ledger/entities/04-revenue-account/04-employment-income.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'employment_income'` / `subType: 'employment_income'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -130,7 +130,7 @@ The `EmploymentIncome` entity ([`04-employment-income.entity.ts`](../entities/04
 - **Main reporting hierarchy**: Non-Operating Revenues / Interest Income
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../types/revenue-account.types.ts).\
+> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../../ledger/types/revenue-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -153,7 +153,7 @@ The `EmploymentIncome` entity ([`04-employment-income.entity.ts`](../entities/04
 
 #### Entity Details
 
-The `GainOnAssetSale` entity ([`06-gain-on-sale.entity.ts`](../entities/04-revenue-account/06-gain-on-sale.entity.ts)) creates accounts with:
+The `GainOnAssetSale` entity ([`06-gain-on-sale.entity.ts`](../../ledger/entities/04-revenue-account/06-gain-on-sale.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'gain_on_asset_sale'` / `subType: 'gain_on_asset_sale'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -173,7 +173,7 @@ The `GainOnAssetSale` entity ([`06-gain-on-sale.entity.ts`](../entities/04-reven
 
 #### Entity Details
 
-The `UnrealizedGain` entity ([`07-unrealized-gain.entity.ts`](../entities/04-revenue-account/07-unrealized-gain.entity.ts)) creates accounts with:
+The `UnrealizedGain` entity ([`07-unrealized-gain.entity.ts`](../../ledger/entities/04-revenue-account/07-unrealized-gain.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'unrealized_gains'` / `subType: 'unrealized_gains'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -202,3 +202,13 @@ For the individual MVP, the following revenue accounts will be bootstrapped:
 
 > [!NOTE]
 > All revenue ledgers are automatically cleared and closed out to `RetainedEarnings (301000)` at the end of the financial/accounting period.
+> \n
+
+<figure>
+<img src="./assets/4-coa-revenues.svg" alt="Revenues Chart of Accounts" style="max-width: 100%; width: auto; max-height: 600px;">
+<figcaption>
+
+_Figure: View the mermaid sourcecode here: _[_4-coa-revenues.mermaid_](./assets/4-coa-revenues.mermaid)
+
+</figcaption>
+</figure>

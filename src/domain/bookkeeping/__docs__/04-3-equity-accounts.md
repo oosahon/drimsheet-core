@@ -20,12 +20,12 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group          | Code Block | Entity File                                                                                    | Status         |
-| ---------------------- | ---------- | ---------------------------------------------------------------------------------------------- | -------------- |
-| Capital                | `300xxx`   | —                                                                                              | 🔲 Types only  |
-| Retained Earnings      | `301xxx`   | [`01-retained-earning.entity.ts`](../entities/03-equity-account/01-retained-earning.entity.ts) | ✅ Implemented |
-| Reserves               | `302xxx`   | —                                                                                              | 🔲 Types only  |
-| Opening Balance Equity | `399xxx`   | [`99-opening-balance.equity.ts`](../entities/03-equity-account/99-opening-balance.equity.ts)   | ✅ Implemented |
+| Account Group          | Code Block | Entity File                                                                                              | Status         |
+| ---------------------- | ---------- | -------------------------------------------------------------------------------------------------------- | -------------- |
+| Capital                | `300xxx`   | —                                                                                                        | 🔲 Types only  |
+| Retained Earnings      | `301xxx`   | [`01-retained-earning.entity.ts`](../../ledger/entities/03-equity-account/01-retained-earning.entity.ts) | ✅ Implemented |
+| Reserves               | `302xxx`   | —                                                                                                        | 🔲 Types only  |
+| Opening Balance Equity | `399xxx`   | [`99-opening-balance.equity.ts`](../../ledger/entities/03-equity-account/99-opening-balance.equity.ts)   | ✅ Implemented |
 
 > [!NOTE]
 > Entity files are named by their COA prefix (e.g. `01-` = `301xxx`, `99-` = `399xxx`) to make it explicit which accounts have been implemented and which are pending.
@@ -39,7 +39,7 @@ The following table shows the behaviors of different equity account classes
 - **Main reporting hierarchy**: Equity / Capital
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`equity-account.types.ts`](../types/equity-account.types.ts).\
+> Entity implementation pending. Types defined in [`equity-account.types.ts`](../../ledger/types/equity-account.types.ts).\
 > Capital is **not relevant** for individual accounting entities — there is no concept of owner's equity in personal finance. The type exists for sole trader/company use.
 
 #### Behaviors
@@ -62,7 +62,7 @@ The following table shows the behaviors of different equity account classes
 
 #### Entity Details
 
-The `RetainedEarnings` entity ([`01-retained-earning.entity.ts`](../entities/03-equity-account/01-retained-earning.entity.ts)) creates accounts with:
+The `RetainedEarnings` entity ([`01-retained-earning.entity.ts`](../../ledger/entities/03-equity-account/01-retained-earning.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'retained_earnings'` / `subType: 'retained_earnings'`
 - `isControlAccount: false` / `controlAccountId: null`
@@ -76,7 +76,7 @@ The `RetainedEarnings` entity ([`01-retained-earning.entity.ts`](../entities/03-
 - **Main reporting hierarchy**: Equity / Reserves
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`equity-account.types.ts`](../types/equity-account.types.ts) with behavior: `RevaluationReserve`.\
+> Entity implementation pending. Types defined in [`equity-account.types.ts`](../../ledger/types/equity-account.types.ts) with behavior: `RevaluationReserve`.\
 > Reserves are **not** bootstrapped for individuals. The type exists for power users or on-demand creation when an individual revalues PPE or long-term investments.
 
 #### Behaviors
@@ -99,7 +99,7 @@ The `RetainedEarnings` entity ([`01-retained-earning.entity.ts`](../entities/03-
 
 #### Entity Details
 
-The `OpeningBalanceEquity` entity ([`99-opening-balance.equity.ts`](../entities/03-equity-account/99-opening-balance.equity.ts)) creates accounts with:
+The `OpeningBalanceEquity` entity ([`99-opening-balance.equity.ts`](../../ledger/entities/03-equity-account/99-opening-balance.equity.ts)) creates accounts with:
 
 - Fixed `behavior: 'opening_balance_equity'` / `subType: 'opening_balance'`
 - `isControlAccount: false` / `controlAccountId: null`
@@ -127,3 +127,13 @@ For the individual MVP, the following equity accounts will be bootstrapped:
 
 > [!NOTE]
 > All asset and liability bootstrapped accounts will automatically post their initial balances against the Opening Balance Equity (`399000`) account.
+> \n
+
+<figure>
+<img src="./assets/3-coa-equities.svg" alt="Equities Chart of Accounts" style="max-width: 100%; width: auto; max-height: 600px;">
+<figcaption>
+
+_Figure: View the mermaid sourcecode here: _[_3-coa-equities.mermaid_](./assets/3-coa-equities.mermaid)
+
+</figcaption>
+</figure>

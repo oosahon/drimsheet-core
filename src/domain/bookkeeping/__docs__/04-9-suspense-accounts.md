@@ -27,7 +27,7 @@ In the Asset ledger, a suspense account typically carries a debit balance. It re
 - Uncategorized credit transactions during bank reconciliation
 - Uncleared/unidentified outgoing payments
 
-**Entity**: [`99-suspense-account.entity.ts`](../entities/01-asset-account/99-suspense-account.entity.ts)
+**Entity**: [`99-suspense-account.entity.ts`](../../ledger/entities/01-asset-account/99-suspense-account.entity.ts)
 
 ## Liability Suspense Accounts (299xxx)
 
@@ -36,11 +36,11 @@ In the Liability ledger, a suspense account typically carries a credit balance. 
 - Uncategorized debit transactions during bank reconciliation
 - Uncleared/unidentified incoming payments
 
-**Entity**: [`99-suspense-account.entity.ts`](../entities/02-liability-account/99-suspense-account.entity.ts)
+**Entity**: [`99-suspense-account.entity.ts`](../../ledger/entities/02-liability-account/99-suspense-account.entity.ts)
 
 ## Shared Architecture
 
-Both asset and liability suspense accounts share a common base interface defined in [`suspense-account.types.ts`](../types/suspense-account.types.ts):
+Both asset and liability suspense accounts share a common base interface defined in [`suspense-account.types.ts`](../../ledger/types/suspense-account.types.ts):
 
 | Property             | Value                     |
 | -------------------- | ------------------------- |

@@ -35,25 +35,34 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group             | Code Block | Entity File                                                                                           | Status         |
-| ------------------------- | ---------- | ----------------------------------------------------------------------------------------------------- | -------------- |
-| Cash and Cash Equivalents | `100xxx`   | [`00-cash-and-equivalents.entity.ts`](../entities/01-asset-account/00-cash-and-equivalents.entity.ts) | ✅ Implemented |
-| Short Term Investments    | `101xxx`   | —                                                                                                     | 🔲 Types only  |
-| Receivables               | `102xxx`   | [`02-receivables.entity.ts`](../entities/01-asset-account/02-receivables.entity.ts)                   | ✅ Implemented |
-| Inventories               | `103xxx`   | —                                                                                                     | 🔲 Types only  |
-| Accrued Income            | `104xxx`   | —                                                                                                     | 🔲 Types only  |
-| Prepayments               | `105xxx`   | —                                                                                                     | 🔲 Types only  |
-| Long Term Investments     | `106xxx`   | —                                                                                                     | 🔲 Types only  |
-| PPE                       | `107xxx`   | —                                                                                                     | 🔲 Types only  |
-| Intangible Assets         | `108xxx`   | —                                                                                                     | 🔲 Types only  |
-| Right-of-Use Assets       | `109xxx`   | —                                                                                                     | 🔲 Types only  |
-| Goodwill                  | `110xxx`   | —                                                                                                     | 🔲 Types only  |
-| Suspense                  | `199xxx`   | [`99-suspense-account.entity.ts`](../entities/01-asset-account/99-suspense-account.entity.ts)         | ✅ Implemented |
+| Account Group             | Code Block | Entity File                                                                                                     | Status         |
+| ------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------- | -------------- |
+| Cash and Cash Equivalents | `100xxx`   | [`00-cash-and-equivalents.entity.ts`](../../ledger/entities/01-asset-account/00-cash-and-equivalents.entity.ts) | ✅ Implemented |
+| Short Term Investments    | `101xxx`   | —                                                                                                               | 🔲 Types only  |
+| Receivables               | `102xxx`   | [`02-receivables.entity.ts`](../../ledger/entities/01-asset-account/02-receivables.entity.ts)                   | ✅ Implemented |
+| Inventories               | `103xxx`   | —                                                                                                               | 🔲 Types only  |
+| Accrued Income            | `104xxx`   | —                                                                                                               | 🔲 Types only  |
+| Prepayments               | `105xxx`   | —                                                                                                               | 🔲 Types only  |
+| Long Term Investments     | `106xxx`   | —                                                                                                               | 🔲 Types only  |
+| PPE                       | `107xxx`   | —                                                                                                               | 🔲 Types only  |
+| Intangible Assets         | `108xxx`   | —                                                                                                               | 🔲 Types only  |
+| Right-of-Use Assets       | `109xxx`   | —                                                                                                               | 🔲 Types only  |
+| Goodwill                  | `110xxx`   | —                                                                                                               | 🔲 Types only  |
+| Suspense                  | `199xxx`   | [`99-suspense-account.entity.ts`](../../ledger/entities/01-asset-account/99-suspense-account.entity.ts)         | ✅ Implemented |
 
 > [!NOTE]
 > Entity files are named by their COA prefix (e.g. `00-` = `100xxx`, `02-` = `102xxx`) to make it explicit which accounts have been implemented and which are pending.
 
 The following table shows the behaviors of different asset account classes
+
+<figure>
+<img src="./assets/1-coa-assets.svg" alt="Assets Chart of Accounts" style="max-width: 100%; width: auto; max-height: 600px;">
+<figcaption>
+
+_Figure: View the mermaid sourcecode here: _[_1-coa-assets.mermaid_](./assets/1-coa-assets.mermaid)
+
+</figcaption>
+</figure>
 
 ## Current Assets
 
@@ -72,7 +81,7 @@ The following table shows the behaviors of different asset account classes
 
 #### Entity Details
 
-The `CashAndCashEquivalents` entity ([`00-cash-and-equivalents.entity.ts`](../entities/01-asset-account/00-cash-and-equivalents.entity.ts)) exposes:
+The `CashAndCashEquivalents` entity ([`00-cash-and-equivalents.entity.ts`](../../ledger/entities/01-asset-account/00-cash-and-equivalents.entity.ts)) exposes:
 
 - `make()` — base factory accepting a `behavior` parameter
 - `makeBankAccount()` — validates `IBankAccountMeta` (bankName, accountNumber, accountName, sortCode, swiftCode, iban, routingNumber, branchCode)
@@ -85,7 +94,7 @@ The `CashAndCashEquivalents` entity ([`00-cash-and-equivalents.entity.ts`](../en
 - **Main reporting hierarchy**: Current Assets / Short Term Investments
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts) with behaviors: `StockAndETFs`, `Bonds`.
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../../ledger/types/asset-account.types.ts) with behaviors: `StockAndETFs`, `Bonds`.
 
 #### Behaviors
 
@@ -112,10 +121,10 @@ The `CashAndCashEquivalents` entity ([`00-cash-and-equivalents.entity.ts`](../en
 
 #### Entity Details
 
-The `Receivables` entity ([`02-receivables.entity.ts`](../entities/01-asset-account/02-receivables.entity.ts)) exposes:
+The `Receivables` entity ([`02-receivables.entity.ts`](../../ledger/entities/01-asset-account/02-receivables.entity.ts)) exposes:
 
 - `make()` — base factory accepting `behavior`, `contraAccountRule`, and `adjunctAccountRule` parameters
-- `makeStatutoryReceivableAccount()` — validates `IStatutoryReceivableAccountMeta` (taxAuthority, taxType per [`tax.types.ts`](../types/tax.types.ts))
+- `makeStatutoryReceivableAccount()` — validates `IStatutoryReceivableAccountMeta` (taxAuthority, taxType per [`tax.types.ts`](../../ledger/types/tax.types.ts))
 - `makeTradeReceivableAccount()` — validates `ITradeReceivableAccountMeta` (counterpartyId, invoiceId)
 
 ### Inventories
@@ -133,7 +142,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../entities/01-asset-acco
 - **Main reporting hierarchy**: Current Assets / Accrued Income
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts).
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../../ledger/types/asset-account.types.ts).
 
 #### Behaviors
 
@@ -148,7 +157,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../entities/01-asset-acco
 - **Main reporting hierarchy**: Current Assets / Prepayments
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts).
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../../ledger/types/asset-account.types.ts).
 
 #### Behaviors
 
@@ -165,7 +174,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../entities/01-asset-acco
 - **Main reporting hierarchy**: Non-Current Assets / Long Term Investments
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts).
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../../ledger/types/asset-account.types.ts).
 
 #### Behaviors
 
@@ -182,7 +191,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../entities/01-asset-acco
 - **Main reporting hierarchy**: Non-Current Assets / Property, Plant & Equipment
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts).
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../../ledger/types/asset-account.types.ts).
 
 > [!NOTE]
 > **Sub-class automation:**
@@ -208,11 +217,11 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../entities/01-asset-acco
 ## Suspense Accounts:
 
 - **Ledger codes**: 199xxx
-- **Description**: See [Suspense Accounts](./99-suspense-accounts.md) for more information.
+- **Description**: See [Suspense Accounts](./04-9-suspense-accounts.md) for more information.
 
 #### Entity Details
 
-The `AssetSuspense` entity ([`99-suspense-account.entity.ts`](../entities/01-asset-account/99-suspense-account.entity.ts)) creates accounts with:
+The `AssetSuspense` entity ([`99-suspense-account.entity.ts`](../../ledger/entities/01-asset-account/99-suspense-account.entity.ts)) creates accounts with:
 
 - `subType: 'suspense'` / `behavior: 'default'`
 - `isControlAccount: false` / `controlAccountId: null`

@@ -1,7 +1,6 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
-import { AppError } from '../../../../shared/value-objects/error';
 import ledgerAccountEvents from '../../events/ledger-account.events';
 import liabilityAccountEvents from '../../events/liability-account.events';
 import { TPayablesLedgerCode } from '../../types/ledger-code.types';
@@ -20,7 +19,6 @@ import {
   ITradePayableAccount,
   ITradePayableAccountMeta,
 } from '../../types/liability-account.types';
-import { ETaxType } from '../../types/tax.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 import helpers from './helpers/payables.entity.helpers';
 
@@ -92,13 +90,14 @@ function makeStatutoryPayableAccountMeta(meta: IStatutoryPayableAccountMeta) {
     max: 100,
   });
 
-  if (!Object.values(ETaxType).includes(meta.taxType)) {
-    throw new AppError('Invalid tax type provided', { cause: meta.taxType });
-  }
+  const taxType = stringUtils.sanitizeAndValidate(meta.taxType, {
+    min: 2,
+    max: 50,
+  });
 
   return Object.freeze<IStatutoryPayableAccountMeta>({
     taxAuthority,
-    taxType: meta.taxType,
+    taxType,
   });
 }
 

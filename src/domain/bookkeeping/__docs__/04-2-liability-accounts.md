@@ -32,21 +32,30 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group     | Code Block | Entity File                                                                                       | Status         |
-| ----------------- | ---------- | ------------------------------------------------------------------------------------------------- | -------------- |
-| Short Term Debts  | `200xxx`   | [`00-short-term-loan.entity.ts`](../entities/02-liability-account/00-short-term-loan.entity.ts)   | ✅ Implemented |
-| Payables          | `201xxx`   | [`03-payables.entity.ts`](../entities/02-liability-account/03-payables.entity.ts)                 | ✅ Implemented |
-| Accrued Expenses  | `202xxx`   | —                                                                                                 | 🔲 Types only  |
-| Deferred Revenues | `203xxx`   | —                                                                                                 | 🔲 Types only  |
-| Long Term Loans   | `204xxx`   | —                                                                                                 | 🔲 Types only  |
-| Lease Liabilities | `205xxx`   | —                                                                                                 | 🔲 Types only  |
-| Provisions        | `206xxx`   | —                                                                                                 | 🔲 Types only  |
-| Suspense          | `299xxx`   | [`99-suspense-account.entity.ts`](../entities/02-liability-account/99-suspense-account.entity.ts) | ✅ Implemented |
+| Account Group     | Code Block | Entity File                                                                                                 | Status         |
+| ----------------- | ---------- | ----------------------------------------------------------------------------------------------------------- | -------------- |
+| Short Term Debts  | `200xxx`   | [`00-short-term-loan.entity.ts`](../../ledger/entities/02-liability-account/00-short-term-loan.entity.ts)   | ✅ Implemented |
+| Payables          | `201xxx`   | [`03-payables.entity.ts`](../../ledger/entities/02-liability-account/03-payables.entity.ts)                 | ✅ Implemented |
+| Accrued Expenses  | `202xxx`   | —                                                                                                           | 🔲 Types only  |
+| Deferred Revenues | `203xxx`   | —                                                                                                           | 🔲 Types only  |
+| Long Term Loans   | `204xxx`   | —                                                                                                           | 🔲 Types only  |
+| Lease Liabilities | `205xxx`   | —                                                                                                           | 🔲 Types only  |
+| Provisions        | `206xxx`   | —                                                                                                           | 🔲 Types only  |
+| Suspense          | `299xxx`   | [`99-suspense-account.entity.ts`](../../ledger/entities/02-liability-account/99-suspense-account.entity.ts) | ✅ Implemented |
 
 > [!NOTE]
 > Entity files are named by their COA prefix (e.g. `00-` = `200xxx`, `03-` = `201xxx`) to make it explicit which accounts have been implemented and which are pending.
 
 The following table shows the behaviors of different liability account classes
+
+<figure>
+<img src="./assets/2-coa-liabilities.svg" alt="Liabilities Chart of Accounts" style="max-width: 100%; width: auto; max-height: 600px;">
+<figcaption>
+
+_Figure: View the mermaid sourcecode here: _[_2-coa-liabilities.mermaid_](./assets/2-coa-liabilities.mermaid)
+
+</figcaption>
+</figure>
 
 ## Current Liabilities
 
@@ -66,7 +75,7 @@ The following table shows the behaviors of different liability account classes
 
 #### Entity Details
 
-The `ShortTermLoan` entity ([`00-short-term-loan.entity.ts`](../entities/02-liability-account/00-short-term-loan.entity.ts)) exposes:
+The `ShortTermLoan` entity ([`00-short-term-loan.entity.ts`](../../ledger/entities/02-liability-account/00-short-term-loan.entity.ts)) exposes:
 
 - `make()` — base factory accepting a `behavior` parameter
 - `makeCreditCardAccount()` — validates `ICreditCardAccountMeta` (cardIssuer, lastFourDigits)
@@ -90,13 +99,14 @@ All short-term debt sub-types have `contraAccountRule: 'contra_permitted'` and `
 
 #### Entity Details
 
-The `Payables` entity ([`03-payables.entity.ts`](../entities/02-liability-account/03-payables.entity.ts)) exposes:
+The `Payables` entity ([`03-payables.entity.ts`](../../ledger/entities/02-liability-account/03-payables.entity.ts)) exposes:
 
 - `make()` — base factory accepting `behavior`, `contraAccountRule`, and `adjunctAccountRule` parameters
-- `makeStatutoryPayableAccount()` — validates `IStatutoryPayableAccountMeta` (taxAuthority, taxType per [`tax.types.ts`](../types/tax.types.ts)); forces `ContraNotPermitted` and `AdjunctNotPermitted`
+- `makeStatutoryPayableAccount()` — validates `IStatutoryPayableAccountMeta` (taxAuthority, taxType); forces `ContraNotPermitted` and `AdjunctNotPermitted`
 - `makeTradePayableAccount()` — validates `ITradePayableAccountMeta` (counterpartyId, invoiceId); permits contra and adjunct
 
-Tax types are validated against the shared `ETaxType` enum (Nigerian Tax Act 2025): VAT, WHT, PAYE, CIT, PIT, Development Levy, Stamp Duty, Other Deductions.
+> [!NOTE]
+> The ledger accepts any generic string for `taxType` in `IStatutoryPayableAccountMeta`. Specific tax policies and validation (e.g., Nigerian Tax Act types) are handled by the Accounting domain.
 
 ### Accrued Expenses
 
@@ -123,7 +133,7 @@ Tax types are validated against the shared `ETaxType` enum (Nigerian Tax Act 202
 - **Main reporting hierarchy**: Non-Current Liabilities / Long Term Loans
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`liability-account.types.ts`](../types/liability-account.types.ts) with behaviors: `Mortgage`, `OtherLongTermLoan`.
+> Entity implementation pending. Types defined in [`liability-account.types.ts`](../../ledger/types/liability-account.types.ts) with behaviors: `Mortgage`, `OtherLongTermLoan`.
 
 #### Behaviors
 
@@ -143,11 +153,11 @@ Tax types are validated against the shared `ETaxType` enum (Nigerian Tax Act 202
 ## Suspense Accounts:
 
 - **Ledger codes**: 299xxx
-- **Description**: See [Suspense Accounts](./99-suspense-accounts.md) for more information.
+- **Description**: See [Suspense Accounts](./04-9-suspense-accounts.md) for more information.
 
 #### Entity Details
 
-The `LiabilitySuspense` entity ([`99-suspense-account.entity.ts`](../entities/02-liability-account/99-suspense-account.entity.ts)) creates accounts with:
+The `LiabilitySuspense` entity ([`99-suspense-account.entity.ts`](../../ledger/entities/02-liability-account/99-suspense-account.entity.ts)) creates accounts with:
 
 - `subType: 'suspense'` / `behavior: 'default'`
 - `isControlAccount: false` / `controlAccountId: null`

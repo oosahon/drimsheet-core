@@ -43,21 +43,21 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group               | Code Block | Entity File                                                                                           | Status         |
-| --------------------------- | ---------- | ----------------------------------------------------------------------------------------------------- | -------------- |
-| Direct Costs                | `500xxx`   | [`00-direct-costs.entity.ts`](../entities/05-expense-account/00-direct-costs.entity.ts)               | ✅ Implemented |
-| Payroll & Personnel         | `501xxx`   | —                                                                                                     | 🔲 Types only  |
-| Rent & Utilities            | `502xxx`   | [`03-rent-and-utilities.entity.ts`](../entities/05-expense-account/03-rent-and-utilities.entity.ts)   | ✅ Implemented |
-| Admin & General             | `503xxx`   | —                                                                                                     | 🔲 Types only  |
-| Marketing & Selling         | `504xxx`   | —                                                                                                     | 🔲 Types only  |
-| Research & Development      | `505xxx`   | —                                                                                                     | 🔲 Types only  |
-| Depreciation & Amortization | `506xxx`   | —                                                                                                     | 🔲 Types only  |
-| Interest & Finance Charges  | `507xxx`   | [`07-finance-costs.entity.ts`](../entities/05-expense-account/07-finance-costs.entity.ts)             | ✅ Implemented |
-| Income Tax Expense          | `508xxx`   | [`08-tax-expense.entity.ts`](../entities/05-expense-account/08-tax-expense.entity.ts)                 | ✅ Implemented |
-| Unrealized Loss             | `509xxx`   | [`09-unrealized-loss.entity.ts`](../entities/05-expense-account/09-unrealized-loss.entity.ts)         | ✅ Implemented |
-| Loss on Asset Disposal      | `510xxx`   | [`10-asset-disposal-loss.entity.ts`](../entities/05-expense-account/10-asset-disposal-loss.entity.ts) | ✅ Implemented |
-| Impairment Losses           | `511xxx`   | —                                                                                                     | 🔲 Types only  |
-| Other Losses                | `512xxx`   | —                                                                                                     | 🔲 Types only  |
+| Account Group               | Code Block | Entity File                                                                                                     | Status         |
+| --------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------- | -------------- |
+| Direct Costs                | `500xxx`   | [`00-direct-costs.entity.ts`](../../ledger/entities/05-expense-account/00-direct-costs.entity.ts)               | ✅ Implemented |
+| Payroll & Personnel         | `501xxx`   | —                                                                                                               | 🔲 Types only  |
+| Rent & Utilities            | `502xxx`   | [`03-rent-and-utilities.entity.ts`](../../ledger/entities/05-expense-account/03-rent-and-utilities.entity.ts)   | ✅ Implemented |
+| Admin & General             | `503xxx`   | —                                                                                                               | 🔲 Types only  |
+| Marketing & Selling         | `504xxx`   | —                                                                                                               | 🔲 Types only  |
+| Research & Development      | `505xxx`   | —                                                                                                               | 🔲 Types only  |
+| Depreciation & Amortization | `506xxx`   | —                                                                                                               | 🔲 Types only  |
+| Interest & Finance Charges  | `507xxx`   | [`07-finance-costs.entity.ts`](../../ledger/entities/05-expense-account/07-finance-costs.entity.ts)             | ✅ Implemented |
+| Income Tax Expense          | `508xxx`   | [`08-tax-expense.entity.ts`](../../ledger/entities/05-expense-account/08-tax-expense.entity.ts)                 | ✅ Implemented |
+| Unrealized Loss             | `509xxx`   | [`09-unrealized-loss.entity.ts`](../../ledger/entities/05-expense-account/09-unrealized-loss.entity.ts)         | ✅ Implemented |
+| Loss on Asset Disposal      | `510xxx`   | [`10-asset-disposal-loss.entity.ts`](../../ledger/entities/05-expense-account/10-asset-disposal-loss.entity.ts) | ✅ Implemented |
+| Impairment Losses           | `511xxx`   | —                                                                                                               | 🔲 Types only  |
+| Other Losses                | `512xxx`   | —                                                                                                               | 🔲 Types only  |
 
 > [!NOTE]
 > Entity files are named by their COA prefix (e.g. `00-` = `500xxx`, `03-` = `502xxx`, `07-` = `507xxx`) to make it explicit which accounts have been implemented and which are pending.
@@ -82,7 +82,7 @@ Direct costs are directly attributable to the production of goods or delivery of
 
 #### Entity Details
 
-The `DirectCosts` entity ([`00-direct-costs.entity.ts`](../entities/05-expense-account/00-direct-costs.entity.ts)) creates accounts with:
+The `DirectCosts` entity ([`00-direct-costs.entity.ts`](../../ledger/entities/05-expense-account/00-direct-costs.entity.ts)) creates accounts with:
 
 - `subType: 'direct_costs'` — accepts `behavior` via payload (COGS, Cost of Services, Cost of Revenue)
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -99,7 +99,7 @@ OPEX are the day-to-day costs incurred to maintain business operations, distinct
 - **Main reporting hierarchy**: Operating Expenses / Payroll & Personnel
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../../ledger/types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -122,7 +122,7 @@ OPEX are the day-to-day costs incurred to maintain business operations, distinct
 
 #### Entity Details
 
-The `RentAndUtilities` entity ([`03-rent-and-utilities.entity.ts`](../entities/05-expense-account/03-rent-and-utilities.entity.ts)) creates accounts with:
+The `RentAndUtilities` entity ([`03-rent-and-utilities.entity.ts`](../../ledger/entities/05-expense-account/03-rent-and-utilities.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'rent_and_utilities'` / `subType: 'rent_and_utilities'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -135,7 +135,7 @@ The `RentAndUtilities` entity ([`03-rent-and-utilities.entity.ts`](../entities/0
 - **Main reporting hierarchy**: Operating Expenses / Admin & General
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../../ledger/types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -151,7 +151,7 @@ The `RentAndUtilities` entity ([`03-rent-and-utilities.entity.ts`](../entities/0
 - **Main reporting hierarchy**: Operating Expenses / Marketing & Selling
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../../ledger/types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -167,7 +167,7 @@ The `RentAndUtilities` entity ([`03-rent-and-utilities.entity.ts`](../entities/0
 - **Main reporting hierarchy**: Operating Expenses / Research & Development
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../../ledger/types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -183,7 +183,7 @@ The `RentAndUtilities` entity ([`03-rent-and-utilities.entity.ts`](../entities/0
 - **Main reporting hierarchy**: Operating Expenses / Depreciation & Amortization
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../../ledger/types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -210,7 +210,7 @@ Expenses incurred outside the central operations of the entity.
 
 #### Entity Details
 
-The `FinanceCosts` entity ([`07-finance-costs.entity.ts`](../entities/05-expense-account/07-finance-costs.entity.ts)) creates accounts with:
+The `FinanceCosts` entity ([`07-finance-costs.entity.ts`](../../ledger/entities/05-expense-account/07-finance-costs.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'finance_costs'` / `subType: 'interest_and_finance_charges'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -232,7 +232,7 @@ The `FinanceCosts` entity ([`07-finance-costs.entity.ts`](../entities/05-expense
 
 #### Entity Details
 
-The `TaxExpense` entity ([`08-tax-expense.entity.ts`](../entities/05-expense-account/08-tax-expense.entity.ts)) creates accounts with:
+The `TaxExpense` entity ([`08-tax-expense.entity.ts`](../../ledger/entities/05-expense-account/08-tax-expense.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'tax_expense'` / `subType: 'income_tax_expense'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -256,7 +256,7 @@ Distinct charges resulting from adverse market shifts or asset devaluation, isol
 
 #### Entity Details
 
-The `UnrealizedLoss` entity ([`09-unrealized-loss.entity.ts`](../entities/05-expense-account/09-unrealized-loss.entity.ts)) creates accounts with:
+The `UnrealizedLoss` entity ([`09-unrealized-loss.entity.ts`](../../ledger/entities/05-expense-account/09-unrealized-loss.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'unrealized_loss'` / `subType: 'unrealized_loss'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -276,7 +276,7 @@ The `UnrealizedLoss` entity ([`09-unrealized-loss.entity.ts`](../entities/05-exp
 
 #### Entity Details
 
-The `AssetDisposalLoss` entity ([`10-asset-disposal-loss.entity.ts`](../entities/05-expense-account/10-asset-disposal-loss.entity.ts)) creates accounts with:
+The `AssetDisposalLoss` entity ([`10-asset-disposal-loss.entity.ts`](../../ledger/entities/05-expense-account/10-asset-disposal-loss.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'asset_disposal_loss'` / `subType: 'loss_on_asset_disposal'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -289,7 +289,7 @@ The `AssetDisposalLoss` entity ([`10-asset-disposal-loss.entity.ts`](../entities
 - **Main reporting hierarchy**: Losses & Adjustments / Impairment Losses
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../../ledger/types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -305,7 +305,7 @@ The `AssetDisposalLoss` entity ([`10-asset-disposal-loss.entity.ts`](../entities
 - **Main reporting hierarchy**: Losses & Adjustments / Other Losses
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../../ledger/types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -348,3 +348,13 @@ For the individual MVP, the following expense accounts will be bootstrapped:
 
 > [!NOTE]
 > All expense ledgers are automatically cleared and closed out to `RetainedEarnings (301000)` at the end of the financial/accounting period.
+> \n
+
+<figure>
+<img src="./assets/5-coa-expenses.svg" alt="Expenses Chart of Accounts" style="max-width: 100%; width: auto; max-height: 600px;">
+<figcaption>
+
+_Figure: View the mermaid sourcecode here: _[_5-coa-expenses.mermaid_](./assets/5-coa-expenses.mermaid)
+
+</figcaption>
+</figure>

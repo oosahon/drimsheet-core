@@ -1,4 +1,4 @@
-# Reporting For Individuals
+# Individual Reporting
 
 ## Table of Contents
 

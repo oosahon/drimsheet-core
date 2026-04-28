@@ -188,11 +188,11 @@ describe('Payable Liability Entity', () => {
       expect(meta.taxType).toBe('value_added_tax');
     });
 
-    it('should throw AppError if taxType is invalid', () => {
+    it('should throw AppError if taxType is too short', () => {
       expect(() =>
         payableAccountEntity.makeStatutoryPayableAccountMeta({
           ...validMeta,
-          taxType: 'invalid_tax_type' as any,
+          taxType: 'a',
         })
       ).toThrow(AppError);
     });
