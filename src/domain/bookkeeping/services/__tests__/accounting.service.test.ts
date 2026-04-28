@@ -4,7 +4,7 @@ import { IMoney } from '../../../../shared/types/money.types';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IAccountingEntity } from '../../../accounting-entity/types/accounting-entity.types';
+import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import {
   EExchangeRateType,
   IExchangeRate,
@@ -51,12 +51,6 @@ describe('accountingService', () => {
 
     const validAccountingEntity = {
       id: entityId,
-      functionalCurrency: {
-        code: 'USD',
-        name: 'US Dollar',
-        minorUnit: 2n,
-        symbol: '$',
-      },
     } as IAccountingEntity;
 
     const validAccount = {

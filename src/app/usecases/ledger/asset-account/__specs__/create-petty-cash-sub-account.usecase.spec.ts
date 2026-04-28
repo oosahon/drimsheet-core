@@ -1,6 +1,6 @@
 import { IPettyCashAccountCreationReq } from '../../../../../app/contracts/dto/asset-account.dto';
-import accountingEntityEntity from '../../../../../domain/accounting-entity/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../../domain/accounting-entity/types/accounting-entity.types';
+import accountingEntityEntity from '../../../../../domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '../../../../../domain/accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
 import { ASSET_LEDGER_CODES } from '../../../../../domain/ledger/config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
@@ -33,13 +33,8 @@ describe('createPettyCashSubAccountUseCase', () => {
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
     name: 'Test Accounting Entity',
-    operatingCountryCode: 'NG',
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
-    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
-    functionalCurrency: SYSTEM_CURRENCIES.NGN,
-    reportingCurrency: SYSTEM_CURRENCIES.USD,
-    fiscalYearStart: { month: 1, day: 1 },
   });
 
   const [mockControlAccount] = cashAndEquivalentAccountEntity.make(

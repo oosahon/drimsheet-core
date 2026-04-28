@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import IAccountingEntityRepo from '../../../../domain/accounting-entity/repos/accounting-entity.repo';
-import { IAccountingEntity } from '../../../../domain/accounting-entity/types/accounting-entity.types';
+import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
+import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { ErrorBadRequest } from '../../../../shared/value-objects/error';
 import getAccountingEntityFromRequest from '../get-accounting-entity-from-request.helper';

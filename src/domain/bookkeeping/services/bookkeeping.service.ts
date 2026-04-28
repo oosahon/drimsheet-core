@@ -7,6 +7,7 @@ import {
   ILedgerAccountBalanceEffectDelta,
   IOpeningBalanceTransaction,
 } from '../../accounting/types/accounting.service.types';
+import { SYSTEM_CURRENCIES } from '../../currency/config/currencies.config';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
 import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
 import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
@@ -65,7 +66,8 @@ export default function makeBookkeepingService(
 
       const debitLinePayload: IJournalLineMakePayload = {
         accountId: account.id,
-        functionalCurrency: accountingEntity.functionalCurrency,
+        // TODO: use current reporting context currency
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
         amount,
         exchangeRate,
         sequenceOrder: 1,
@@ -75,7 +77,8 @@ export default function makeBookkeepingService(
 
       const creditLinePayload: IJournalLineMakePayload = {
         accountId: equityAccount.id,
-        functionalCurrency: accountingEntity.functionalCurrency,
+        // TODO: use current reporting context currency
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
         amount,
         exchangeRate,
         sequenceOrder: 2,
@@ -94,7 +97,8 @@ export default function makeBookkeepingService(
         voidingEntryId: null,
         memo: 'Opening balance',
         createdBy: account.createdBy,
-        functionalCurrency: accountingEntity.functionalCurrency,
+        // TODO: use current reporting context currency
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
         lines: [debitLinePayload, creditLinePayload],
       });
 

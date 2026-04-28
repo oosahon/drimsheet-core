@@ -1,5 +1,5 @@
-import { EAccountingEntityEvents } from '../../../domain/accounting-entity/events/accounting-entity.events';
-import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import { EAccountingEntityEvents } from '../../../domain/accounting/events/accounting-entity.events';
+import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import { IEvent } from '../../../shared/types/event.types';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IReporter from '../../contracts/infra/reporter.contract';

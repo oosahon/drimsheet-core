@@ -1,4 +1,4 @@
-import { UAccountingEntityType } from '../../accounting-entity/types/accounting-entity.types';
+import { UAccountingEntityType } from '../../accounting/types/accounting-entity.types';
 import { ICurrency } from '../../currency/types/currency.types';
 import { UAccountingStandardCode } from '../config/accounting-standards.config';
 

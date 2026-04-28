@@ -1,5 +1,5 @@
 import { DomainError } from '../../../shared/value-objects/error';
-import { EBookkeepingError, UBookkeepingError } from '../types/error.types';
+import { EBookkeepingError, UBookkeepingError } from './types';
 
 class BookkeepingError extends DomainError<UBookkeepingError> {
   constructor(key: UBookkeepingError, cause?: Record<string, unknown>) {

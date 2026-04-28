@@ -1,7 +1,7 @@
 import { IRepoOptions } from '../../../shared/types/repo.types';
 import { AppError } from '../../../shared/value-objects/error';
-import accountingEntityEntity from '../../accounting-entity/entities/accounting-entity.entity';
-import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
+import IAccountingEntityService from '../../accounting/types/accounting-entity.service.types';
+import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
 import { ICurrency } from '../../currency/types/currency.types';
 import { IUser } from '../../user/types/user.types';
 import { ASSET_LEDGER_CODES } from '../config/asset-codes.config';
@@ -21,16 +21,17 @@ interface IMakePettyCashAccountPayload {
 }
 
 export default function makeAssetPostingAccountService(
-  repo: ILedgerAccountRepo
+  repo: ILedgerAccountRepo,
+  accountingEntityService: IAccountingEntityService
 ) {
   return {
     async makePettyCashSubAccount(
       payload: IMakePettyCashAccountPayload,
       repoOptions: IRepoOptions
     ) {
-      accountingEntityEntity.validateAccess(
+      accountingEntityService.validateAccess(
         payload.accountingEntity,
-        payload.user
+        payload.user.id
       );
 
       const controlAccountLedgerCode =

@@ -1,10 +1,7 @@
-import { and, eq, getTableColumns } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import accountingEntityMapper from '../../../app/mappers/accounting-entity.mapper';
-import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
-import {
-  accountingEntitiesInCore,
-  currenciesInCore,
-} from '../../config/drizzle/schema';
+import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
+import { accountingEntitiesInCore } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';
 
 const accountingEntityRepo: IAccountingEntityRepo = {
@@ -20,19 +17,8 @@ const accountingEntityRepo: IAccountingEntityRepo = {
     const query = getDbQuery(options);
 
     const [result] = await query
-      .select({
-        ...getTableColumns(accountingEntitiesInCore),
-        functionalCurrency: getTableColumns(currenciesInCore),
-        reportingCurrency: getTableColumns(currenciesInCore),
-      })
+      .select()
       .from(accountingEntitiesInCore)
-      .innerJoin(
-        currenciesInCore,
-        eq(
-          accountingEntitiesInCore.functionalCurrencyCode,
-          currenciesInCore.code
-        )
-      )
       .where(eq(accountingEntitiesInCore.id, id));
 
     return result ? accountingEntityMapper.toDomain(result) : null;
@@ -48,19 +34,8 @@ const accountingEntityRepo: IAccountingEntityRepo = {
     }
 
     const results = await query
-      .select({
-        ...getTableColumns(accountingEntitiesInCore),
-        functionalCurrency: getTableColumns(currenciesInCore),
-        reportingCurrency: getTableColumns(currenciesInCore),
-      })
+      .select()
       .from(accountingEntitiesInCore)
-      .innerJoin(
-        currenciesInCore,
-        eq(
-          accountingEntitiesInCore.functionalCurrencyCode,
-          currenciesInCore.code
-        )
-      )
       .where(and(...whereClause));
 
     return results.map(accountingEntityMapper.toDomain);

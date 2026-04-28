@@ -1,7 +1,7 @@
 import { IMoney } from '../../../shared/types/money.types';
-import { IAccountingEntity } from '../../accounting-entity/types/accounting-entity.types';
 import { IExchangeRate } from '../../currency/types/exchange-rate.types';
 import { ILedgerAccount } from '../../ledger/types/ledger.types';
+import { IAccountingEntity } from './accounting-entity.types';
 
 export interface IOpeningBalanceTransaction {
   accountingEntity: IAccountingEntity;

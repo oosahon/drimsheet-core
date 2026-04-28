@@ -1,9 +1,3 @@
-import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 
-export interface IAccountingEntityRes extends Omit<
-  IAccountingEntity,
-  'functionalCurrency' | 'reportingCurrency'
-> {
-  functionalCurrency: string;
-  reportingCurrency: string;
-}
+export interface IAccountingEntityRes extends IAccountingEntity {}

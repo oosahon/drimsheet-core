@@ -3,8 +3,8 @@ import currencyEntity from '../../../../domain/currency/entities/currency.entity
 import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
-import makeAssetPostingAccountService from '../../../../domain/ledger/services/asset-account.service';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
+import domainServices from '../../../../infra/services/domain.service';
 import zodValidationRunner from '../../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import IRequestContext from '../../../contracts/app/request-context.contract';
@@ -23,10 +23,6 @@ export default function makeCreatePettyCashSubAccountUseCase(
   journalEntryRepo: IJournalEntryRepo,
   exchangeRateRepo: IExchangeRateRepo
 ) {
-  const domainServices = {
-    assetPostingAccount: makeAssetPostingAccountService(ledgerAccountRepo),
-  };
-
   return async (payload: IPettyCashAccountCreationReq) => {
     zodValidationRunner(pettyCashCreationReqValidation, payload);
 
@@ -46,6 +42,7 @@ export default function makeCreatePettyCashSubAccountUseCase(
     };
 
     const [account, accountEvents] =
+      // TODO: use dependency injection
       await domainServices.assetPostingAccount.makePettyCashSubAccount(
         accountPayload,
         trace

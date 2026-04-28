@@ -1,8 +1,6 @@
 import z from 'zod';
-import {
-  IFiscalYearStart,
-  UAccountingEntityType,
-} from '../../../domain/accounting-entity/types/accounting-entity.types';
+import { UAccountingEntityType } from '../../../domain/accounting/types/accounting-entity.types';
+import { IFiscalYear } from '../../../domain/accounting/types/period.types';
 import { UAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
 import {
   accountingEntityTypeValidation,
@@ -19,7 +17,7 @@ export interface IAccountingEntityOnboardingReq {
   operatingCountryCode: string;
   functionalCurrencyCode: string;
   reportingCurrencyCode: string;
-  fiscalYearStart: IFiscalYearStart;
+  fiscalYearStart: IFiscalYear;
   appUsageMode: UAppUsageModePreference;
 }
 

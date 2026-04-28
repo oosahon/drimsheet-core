@@ -1,9 +1,10 @@
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { ErrorForbidden } from '../../../../shared/value-objects/error';
-import { IAccountingEntity } from '../../../accounting-entity/types/accounting-entity.types';
+import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import { ICurrency } from '../../../currency/types/currency.types';
 import { IUser } from '../../../user/types/user.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
@@ -12,7 +13,10 @@ import { ILedgerAccount } from '../../types/ledger.types';
 import makeAssetPostingAccountService from '../asset-account.service';
 
 describe('assetPostingAccountService', () => {
-  const service = makeAssetPostingAccountService(mockLedgerAccountRepo);
+  const service = makeAssetPostingAccountService(
+    mockLedgerAccountRepo,
+    mockDomainServices.accountingEntity
+  );
   const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
 
   beforeEach(() => {
