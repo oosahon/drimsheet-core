@@ -66,7 +66,12 @@ describe('accountingService', () => {
 
     const validAmount: IMoney = {
       amount: 1000n,
-      currency: { code: 'USD', name: 'US Dollar', minorUnit: 2n, symbol: '$' },
+      currency: {
+        code: 'NGN',
+        name: 'Nigerian Naira',
+        minorUnit: 2n,
+        symbol: '₦',
+      },
     };
 
     const validPayload = {

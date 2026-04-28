@@ -5,6 +5,7 @@ import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currenc
 import { ASSET_LEDGER_CODES } from '../../../../../domain/ledger/config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../../domain/ledger/types/asset-account.types';
+import { TCashLedgerCode } from '../../../../../domain/ledger/types/ledger-code.types';
 import { IUser } from '../../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
 import mockExchangeRateRepo from '../../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
@@ -13,6 +14,7 @@ import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockDomainServices from '../../../../../infra/services/__mocks__/domain.service.mock';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import { AppError } from '../../../../../shared/value-objects/error';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../contracts/app/__mocks__/request-context.mock';
@@ -63,6 +65,23 @@ describe('createPettyCashSubAccountUseCase', () => {
     controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
   };
 
+  const [mockPettyCashAccount, mockEvents] =
+    cashAndEquivalentAccountEntity.makePettyCashAccount(
+      {
+        name: validPayload.name,
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        createdBy: mockUser.id,
+        controlAccountId: mockControlAccount.id,
+        accountingEntityId: mockAccountingEntity.id,
+      },
+      {
+        precedingCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+        parentMaterializedPath:
+          mockControlAccount.materializedPath as TCashLedgerCode,
+      }
+    );
+
   beforeEach(() => {
     jest.clearAllMocks();
     (makeRecordOpeningBalanceUseCase as jest.Mock).mockReturnValue(
@@ -78,6 +97,10 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(null);
+    mockDomainServices.assetAccount.createPettyCashAccount.mockResolvedValue([
+      mockPettyCashAccount,
+      mockEvents,
+    ]);
   });
 
   const getUseCase = () =>
@@ -96,9 +119,17 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     await useCase(validPayload);
 
-    expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
-      ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
-      mockAccountingEntity.id,
+    expect(
+      mockDomainServices.assetAccount.createPettyCashAccount
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: validPayload.name,
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        userId: mockUser.id,
+        accountingEntity: mockAccountingEntity,
+        controlAccountCode: validPayload.controlAccountCode,
+      }),
       { correlationId }
     );
 
@@ -156,7 +187,9 @@ describe('createPettyCashSubAccountUseCase', () => {
   it('should throw an error if the control account is not found', async () => {
     const useCase = getUseCase();
 
-    mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
+    mockDomainServices.assetAccount.createPettyCashAccount.mockRejectedValue(
+      new AppError('Control account not found')
+    );
 
     await expect(useCase(validPayload)).rejects.toThrow(
       'Control account not found'
@@ -188,6 +221,10 @@ describe('createPettyCashSubAccountUseCase', () => {
       user: anotherUser,
       accountingEntity: mockAccountingEntity,
     } as unknown as IRequestContextData);
+
+    mockDomainServices.assetAccount.createPettyCashAccount.mockRejectedValue(
+      new AppError('Access denied.')
+    );
 
     await expect(useCase(validPayload)).rejects.toThrow('Access denied.');
   });
