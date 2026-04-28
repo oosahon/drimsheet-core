@@ -2,6 +2,7 @@ import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import currencyEntity from '../../currency/entities/currency.entity';
 import accountingEntityEvents from '../events/accounting-entity.events';
 import { IAccountingEntity } from '../types/accounting-entity.types';
 import helpers from './helpers/accounting-entity.entity.helpers';
@@ -11,6 +12,7 @@ function make(
 ): TEntityWithEvents<IAccountingEntity, IAccountingEntity> {
   helpers.validateType(payload.type);
   stringUtils.validateUUID(payload.ownerId);
+  currencyEntity.validateCode(payload.functionalCurrencyCode);
 
   const name = stringUtils.sanitizeAndValidate(payload.name, {
     min: 1,
@@ -24,6 +26,7 @@ function make(
     name,
     type: payload.type,
     ownerId: payload.ownerId,
+    functionalCurrencyCode: payload.functionalCurrencyCode,
     createdAt: timestamp,
     updatedAt: timestamp,
   });

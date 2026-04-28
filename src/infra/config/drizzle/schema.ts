@@ -19,8 +19,8 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-export const audit = pgSchema('audit');
 export const core = pgSchema('core');
+export const audit = pgSchema('audit');
 export const categoryHistoryActionTypeInAudit = audit.enum(
   'category_history_action_type',
   ['created', 'updated', 'archived', 'unarchived']
@@ -113,279 +113,6 @@ export const pgmigrations = pgTable('pgmigrations', {
   name: varchar({ length: 255 }).notNull(),
   runOn: timestamp('run_on', { mode: 'string' }).notNull(),
 });
-
-export const categoryHistoryInAudit = audit.table(
-  'category_history',
-  {
-    id: bigserial({ mode: 'bigint' }).notNull(),
-    categoryId: uuid('category_id').notNull(),
-    userId: uuid('user_id').notNull(),
-    action: categoryHistoryActionTypeInAudit().notNull(),
-    diff: jsonb().notNull(),
-    note: varchar({ length: 100 }),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.categoryId],
-      foreignColumns: [categoriesInCore.id],
-      name: 'category_history_category_id_fkey',
-    }),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'category_history_user_id_fkey',
-    }),
-  ]
-);
-
-export const userPreferencesInCore = core.table(
-  'user_preferences',
-  {
-    id: uuid().notNull(),
-    appPreferences: jsonb('app_preferences'),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', {
-      withTimezone: true,
-      mode: 'string',
-    }).notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.id],
-      foreignColumns: [usersInCore.id],
-      name: 'user_preferences_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
-export const categoriesInCore = core.table(
-  'categories',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    accountingEntityId: uuid('accounting_entity_id').notNull(),
-    accountId: uuid('account_id').notNull(),
-    accountMaterializedPath: varchar('account_materialized_path', {
-      length: 100,
-    }).notNull(),
-    version: integer().default(1).notNull(),
-    status: categoryStatusInCore().notNull(),
-    name: varchar({ length: 100 }).notNull(),
-    isGrouping: boolean('is_grouping').default(false).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.accountingEntityId],
-      foreignColumns: [accountingEntitiesInCore.id],
-      name: 'categories_accounting_entity_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.accountId],
-      foreignColumns: [ledgerAccountsInCore.id],
-      name: 'categories_account_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
-export const transactionsInCore = core.table(
-  'transactions',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    accountingEntityId: uuid('accounting_entity_id').notNull(),
-    reference: varchar({ length: 100 }).notNull(),
-    type: transactionTypesInCore().notNull(),
-    effectiveDate: date('effective_date').notNull(),
-    createdBy: uuid('created_by').notNull(),
-    sourceAccountId: uuid('source_account_id').notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    amount: bigint({ mode: 'number' }).notNull(),
-    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
-    exchangeRate: jsonb('exchange_rate').notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
-    notes: varchar({ length: 100 }),
-    version: integer().default(1).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.accountingEntityId],
-      foreignColumns: [accountingEntitiesInCore.id],
-      name: 'transactions_accounting_entity_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.createdBy],
-      foreignColumns: [usersInCore.id],
-      name: 'transactions_created_by_fkey',
-    }),
-    foreignKey({
-      columns: [table.sourceAccountId],
-      foreignColumns: [ledgerAccountsInCore.id],
-      name: 'transactions_source_account_id_fkey',
-    }),
-    foreignKey({
-      columns: [table.currencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'transactions_currency_code_fkey',
-    }),
-  ]
-);
-
-export const transactionLinesInCore = core.table(
-  'transaction_lines',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    transactionId: uuid('transaction_id').notNull(),
-    targetAccountId: uuid('target_account_id').notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    amount: bigint({ mode: 'number' }).notNull(),
-    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
-    description: varchar({ length: 100 }),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.transactionId],
-      foreignColumns: [transactionsInCore.id],
-      name: 'transaction_lines_transaction_id_fkey',
-    }),
-    foreignKey({
-      columns: [table.targetAccountId],
-      foreignColumns: [ledgerAccountsInCore.id],
-      name: 'transaction_lines_target_account_id_fkey',
-    }),
-    foreignKey({
-      columns: [table.currencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'transaction_lines_currency_code_fkey',
-    }),
-  ]
-);
-
-export const journalEntriesInCore = core.table(
-  'journal_entries',
-  {
-    id: uuid().notNull(),
-    accountingEntityId: uuid('accounting_entity_id').notNull(),
-    transactionId: uuid('transaction_id'),
-    memo: varchar({ length: 100 }),
-    status: journalEntryStatusInCore().notNull(),
-    effectiveDate: date('effective_date').notNull(),
-    postedAt: timestamp('posted_at', { withTimezone: true, mode: 'string' }),
-    voidedAt: timestamp('voided_at', { withTimezone: true, mode: 'string' }),
-    voidingEntryId: uuid('voiding_entry_id'),
-    version: integer().default(1).notNull(),
-    createdBy: uuid('created_by').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.accountingEntityId],
-      foreignColumns: [accountingEntitiesInCore.id],
-      name: 'journal_entries_accounting_entity_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.transactionId],
-      foreignColumns: [transactionsInCore.id],
-      name: 'journal_entries_transaction_id_fkey',
-    }),
-    foreignKey({
-      columns: [table.voidingEntryId],
-      foreignColumns: [table.id],
-      name: 'journal_entries_voiding_entry_id_fkey',
-    }),
-    foreignKey({
-      columns: [table.createdBy],
-      foreignColumns: [usersInCore.id],
-      name: 'journal_entries_created_by_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
-export const journalLinesInCore = core.table(
-  'journal_lines',
-  {
-    id: uuid().notNull(),
-    entryId: uuid('entry_id').notNull(),
-    accountId: uuid('account_id').notNull(),
-    sequenceOrder: integer('sequence_order').notNull(),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    amount: bigint({ mode: 'number' }).notNull(),
-    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
-    exchangeRate: jsonb('exchange_rate'),
-    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
-    functionalCurrencyCode: varchar('functional_currency_code', {
-      length: 3,
-    }).notNull(),
-    side: journalSideInCore().notNull(),
-    description: varchar({ length: 100 }),
-    meta: jsonb(),
-    version: integer().default(1).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.entryId],
-      foreignColumns: [journalEntriesInCore.id],
-      name: 'journal_lines_entry_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.accountId],
-      foreignColumns: [ledgerAccountsInCore.id],
-      name: 'journal_lines_account_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.currencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'journal_lines_currency_code_fkey',
-    }).onDelete('restrict'),
-    foreignKey({
-      columns: [table.functionalCurrencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'journal_lines_functional_currency_code_fkey',
-    }).onDelete('restrict'),
-  ]
-);
 
 export const usersInCore = core.table('users', {
   id: uuid()
@@ -489,6 +216,9 @@ export const accountingEntitiesInCore = core.table(
     type: accountingEntityTypeInCore().notNull(),
     name: varchar({ length: 255 }).notNull(),
     ownerId: uuid('owner_id').notNull(),
+    functionalCurrencyCode: varchar('functional_currency_code', {
+      length: 3,
+    }).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
       .notNull(),
@@ -502,6 +232,11 @@ export const accountingEntitiesInCore = core.table(
       foreignColumns: [usersInCore.id],
       name: 'accounting_entities_owner_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.functionalCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'accounting_entities_functional_currency_code_fkey',
+    }),
   ]
 );
 
@@ -659,9 +394,6 @@ export const accountingContextsInCore = core.table(
     name: varchar({ length: 150 }).notNull(),
     description: varchar({ length: 255 }),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
-    functionalCurrencyCode: varchar('functional_currency_code', {
-      length: 3,
-    }).notNull(),
     jurisdictionCode: varchar('jurisdiction_code', { length: 2 }).notNull(),
     accountingStandardCode: varchar('accounting_standard_code', {
       length: 15,
@@ -682,11 +414,6 @@ export const accountingContextsInCore = core.table(
       foreignColumns: [accountingEntitiesInCore.id],
       name: 'accounting_contexts_accounting_entity_id_fkey',
     }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.functionalCurrencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'accounting_contexts_functional_currency_code_fkey',
-    }).onDelete('restrict'),
     foreignKey({
       columns: [table.jurisdictionCode],
       foreignColumns: [jurisdictionsInCore.code],
@@ -879,6 +606,279 @@ export const ledgerAccountsInCore = core.table(
       foreignColumns: [usersInCore.id],
       name: 'ledger_accounts_created_by_fkey',
     }).onDelete('cascade'),
+  ]
+);
+
+export const userPreferencesInCore = core.table(
+  'user_preferences',
+  {
+    id: uuid().notNull(),
+    appPreferences: jsonb('app_preferences'),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.id],
+      foreignColumns: [usersInCore.id],
+      name: 'user_preferences_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const categoriesInCore = core.table(
+  'categories',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    accountId: uuid('account_id').notNull(),
+    accountMaterializedPath: varchar('account_materialized_path', {
+      length: 100,
+    }).notNull(),
+    version: integer().default(1).notNull(),
+    status: categoryStatusInCore().notNull(),
+    name: varchar({ length: 100 }).notNull(),
+    isGrouping: boolean('is_grouping').default(false).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'categories_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.accountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'categories_account_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const categoryHistoryInAudit = audit.table(
+  'category_history',
+  {
+    id: bigserial({ mode: 'bigint' }).notNull(),
+    categoryId: uuid('category_id').notNull(),
+    userId: uuid('user_id').notNull(),
+    action: categoryHistoryActionTypeInAudit().notNull(),
+    diff: jsonb().notNull(),
+    note: varchar({ length: 100 }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.categoryId],
+      foreignColumns: [categoriesInCore.id],
+      name: 'category_history_category_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'category_history_user_id_fkey',
+    }),
+  ]
+);
+
+export const transactionsInCore = core.table(
+  'transactions',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    reference: varchar({ length: 100 }).notNull(),
+    type: transactionTypesInCore().notNull(),
+    effectiveDate: date('effective_date').notNull(),
+    createdBy: uuid('created_by').notNull(),
+    sourceAccountId: uuid('source_account_id').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    amount: bigint({ mode: 'number' }).notNull(),
+    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    exchangeRate: jsonb('exchange_rate').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
+    notes: varchar({ length: 100 }),
+    version: integer().default(1).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'transactions_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [usersInCore.id],
+      name: 'transactions_created_by_fkey',
+    }),
+    foreignKey({
+      columns: [table.sourceAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'transactions_source_account_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.currencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'transactions_currency_code_fkey',
+    }),
+  ]
+);
+
+export const transactionLinesInCore = core.table(
+  'transaction_lines',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    transactionId: uuid('transaction_id').notNull(),
+    targetAccountId: uuid('target_account_id').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    amount: bigint({ mode: 'number' }).notNull(),
+    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
+    description: varchar({ length: 100 }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.transactionId],
+      foreignColumns: [transactionsInCore.id],
+      name: 'transaction_lines_transaction_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.targetAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'transaction_lines_target_account_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.currencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'transaction_lines_currency_code_fkey',
+    }),
+  ]
+);
+
+export const journalEntriesInCore = core.table(
+  'journal_entries',
+  {
+    id: uuid().notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    transactionId: uuid('transaction_id'),
+    memo: varchar({ length: 100 }),
+    status: journalEntryStatusInCore().notNull(),
+    effectiveDate: date('effective_date').notNull(),
+    postedAt: timestamp('posted_at', { withTimezone: true, mode: 'string' }),
+    voidedAt: timestamp('voided_at', { withTimezone: true, mode: 'string' }),
+    voidingEntryId: uuid('voiding_entry_id'),
+    version: integer().default(1).notNull(),
+    createdBy: uuid('created_by').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'journal_entries_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.transactionId],
+      foreignColumns: [transactionsInCore.id],
+      name: 'journal_entries_transaction_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.voidingEntryId],
+      foreignColumns: [table.id],
+      name: 'journal_entries_voiding_entry_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [usersInCore.id],
+      name: 'journal_entries_created_by_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const journalLinesInCore = core.table(
+  'journal_lines',
+  {
+    id: uuid().notNull(),
+    entryId: uuid('entry_id').notNull(),
+    accountId: uuid('account_id').notNull(),
+    sequenceOrder: integer('sequence_order').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    amount: bigint({ mode: 'number' }).notNull(),
+    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    exchangeRate: jsonb('exchange_rate'),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    functionalAmount: bigint('functional_amount', { mode: 'number' }).notNull(),
+    functionalCurrencyCode: varchar('functional_currency_code', {
+      length: 3,
+    }).notNull(),
+    side: journalSideInCore().notNull(),
+    description: varchar({ length: 100 }),
+    meta: jsonb(),
+    version: integer().default(1).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.entryId],
+      foreignColumns: [journalEntriesInCore.id],
+      name: 'journal_lines_entry_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.accountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'journal_lines_account_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.currencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'journal_lines_currency_code_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.functionalCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'journal_lines_functional_currency_code_fkey',
+    }).onDelete('restrict'),
   ]
 );
 

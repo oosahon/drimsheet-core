@@ -16,7 +16,6 @@ describe('accountingContextEntity', () => {
     name: 'Primary Ledger',
     description: 'The primary US GAAP ledger',
     accountingEntityId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
-    functionalCurrencyCode: 'NGN',
     jurisdictionCode: 'NG',
     accountingStandardCode: 'IFRS',
     fiscalYearId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
@@ -99,7 +98,6 @@ describe('accountingContextEntity', () => {
         name: validPayload.name,
         description: validPayload.description,
         accountingEntityId: validPayload.accountingEntityId,
-        functionalCurrencyCode: validPayload.functionalCurrencyCode,
         jurisdictionCode: validPayload.jurisdictionCode,
         accountingStandardCode: validPayload.accountingStandardCode,
         fiscalYearId: validPayload.fiscalYearId,
@@ -123,17 +121,6 @@ describe('accountingContextEntity', () => {
         accountingEntityId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
-    });
-
-    it('throws AppError if functionalCurrencyCode is invalid', () => {
-      const invalidPayload = {
-        ...validPayload,
-        functionalCurrencyCode: 'INVALID',
-      };
-      // @ts-expect-error testing invalid functionalCurrencyCode
       expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
         AppError
       );

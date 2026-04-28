@@ -1,5 +1,6 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IAccountingEntity } from '../../domain/accounting/types/accounting-entity.types';
+import { UCurrencyCode } from '../../domain/currency/config/currencies.config';
 import { accountingEntitiesInCore } from '../../infra/config/drizzle/schema';
 import { TEntityId } from '../../shared/types/uuid';
 import { IAccountingEntityRes } from '../contracts/dto/accounting-entity.dto';
@@ -15,6 +16,7 @@ const accountingEntityMapper = {
       ownerId: entity.ownerId,
       name: entity.name,
       type: entity.type,
+      functionalCurrencyCode: entity.functionalCurrencyCode,
       createdAt: entity.createdAt.toISOString(),
       updatedAt: entity.updatedAt.toISOString(),
     };
@@ -26,6 +28,7 @@ const accountingEntityMapper = {
       ownerId: payload.ownerId as TEntityId,
       name: payload.name,
       type: payload.type,
+      functionalCurrencyCode: payload.functionalCurrencyCode as UCurrencyCode,
       createdAt: new Date(payload.createdAt),
       updatedAt: new Date(payload.updatedAt),
     });

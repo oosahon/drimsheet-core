@@ -13,6 +13,7 @@ describe('Accounting Entity Mapper', () => {
     ownerId: 'user-1' as TEntityId,
     name: 'Purple Ledger Corp',
     type: 'private_company',
+    functionalCurrencyCode: 'NGN',
     createdAt,
     updatedAt,
   };
@@ -22,6 +23,7 @@ describe('Accounting Entity Mapper', () => {
     ownerId: 'user-1',
     name: 'Purple Ledger Corp',
     type: 'private_company',
+    functionalCurrencyCode: 'NGN',
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
   };

@@ -21,6 +21,7 @@ describe('accountingEntityEntity', () => {
       name: 'Test Accounting Entity',
       type: EAccountingEntityType.Individual,
       ownerId: generateUUID(),
+      functionalCurrencyCode: 'NGN',
     };
   });
 

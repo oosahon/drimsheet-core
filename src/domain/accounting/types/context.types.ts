@@ -8,7 +8,6 @@ export interface IAccountingContext {
   name: string;
   description: string | null;
   accountingEntityId: TEntityId;
-  functionalCurrencyCode: UCurrencyCode;
   jurisdictionCode: UJurisdictionCode;
   accountingStandardCode: UAccountingStandardCode;
   fiscalYearId: TEntityId;
