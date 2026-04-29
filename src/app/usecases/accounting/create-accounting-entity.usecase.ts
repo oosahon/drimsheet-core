@@ -253,5 +253,7 @@ export default function createAccountingEntityUseCase(
     ];
 
     eventBus.publish(allEvents);
+
+    return accountingEntity;
   };
 }

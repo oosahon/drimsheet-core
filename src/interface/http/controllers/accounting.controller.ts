@@ -23,7 +23,7 @@ export class AccountingController extends Controller {
    */
   @Post('/accounting-entity')
   @OperationId('createAccountingEntity')
-  @SuccessResponse('200')
+  @SuccessResponse('201')
   @Response<IApiError>('400')
   @Response<IApiError>('401')
   @Response<IApiError>('409')

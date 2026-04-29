@@ -112,7 +112,7 @@ export class AuthController extends Controller {
    * Start the Google OAuth flow.
    * Redirects the user to Google for authentication.
    */
-  @Get('oauth/google')
+  @Get('google')
   @OperationId('loginWithGoogle')
   @Middlewares(middlewares.initiateLoginWithGoogle)
   public loginWithGoogle() {
@@ -123,7 +123,7 @@ export class AuthController extends Controller {
    * Google OAuth callback.
    * Exchanges the Google user profile for an auth token and redirects to the client.
    */
-  @Get('oauth/google/callback')
+  @Get('google/callback')
   @OperationId('loginWithGoogleCallback')
   @Middlewares(middlewares.completeLoginWithGoogle)
   public async loginWithGoogleCallback() {

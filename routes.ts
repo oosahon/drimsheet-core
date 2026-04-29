@@ -283,89 +283,6 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IFiscalYearCreationDto: {
-    dataType: 'refObject',
-    properties: {
-      startDate: { dataType: 'datetime', required: true },
-      endDate: { dataType: 'datetime', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UPeriodUnit: {
-    dataType: 'refAlias',
-    type: {
-      dataType: 'union',
-      subSchemas: [
-        { dataType: 'enum', enums: ['day'] },
-        { dataType: 'enum', enums: ['week'] },
-        { dataType: 'enum', enums: ['month'] },
-        { dataType: 'enum', enums: ['quarter'] },
-        { dataType: 'enum', enums: ['year'] },
-      ],
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IPeriodCreationDto: {
-    dataType: 'refObject',
-    properties: {
-      unit: { ref: 'UPeriodUnit', required: true },
-      count: { dataType: 'double', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IAccountingEntityCreationDto: {
-    dataType: 'refObject',
-    properties: {
-      name: { dataType: 'string', required: true },
-      entityType: { ref: 'UAccountingEntityType', required: true },
-      jurisdictionCode: { dataType: 'string', required: true },
-      accountingStandardCode: { dataType: 'string', required: true },
-      functionalCurrencyCode: { dataType: 'string', required: true },
-      reportingCurrencyCode: { dataType: 'string', required: true },
-      fiscalYear: { ref: 'IFiscalYearCreationDto', required: true },
-      accountingPeriod: { ref: 'IPeriodCreationDto', required: true },
-      reportingPeriod: { ref: 'IPeriodCreationDto', required: true },
-      appUsageMode: { ref: 'UAppUsageModePreference', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IAccountingStandardDto: {
-    dataType: 'refObject',
-    properties: {
-      individual: {
-        dataType: 'array',
-        array: { dataType: 'string' },
-        required: true,
-      },
-      sole_trader: {
-        dataType: 'array',
-        array: { dataType: 'string' },
-        required: true,
-      },
-      private_company: {
-        dataType: 'array',
-        array: { dataType: 'string' },
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IJurisdictionDto: {
-    dataType: 'refObject',
-    properties: {
-      code: { dataType: 'string', required: true },
-      name: { dataType: 'string', required: true },
-      currencyCode: { dataType: 'string', required: true },
-      accountingStandards: { ref: 'IAccountingStandardDto', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   UCurrencyCode: {
     dataType: 'refAlias',
     type: {
@@ -523,6 +440,89 @@ const models: TsoaRoute.Models = {
       jurisdictionCode: { ref: 'UJurisdictionCode', required: true },
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IFiscalYearCreationDto: {
+    dataType: 'refObject',
+    properties: {
+      startDate: { dataType: 'datetime', required: true },
+      endDate: { dataType: 'datetime', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UPeriodUnit: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['day'] },
+        { dataType: 'enum', enums: ['week'] },
+        { dataType: 'enum', enums: ['month'] },
+        { dataType: 'enum', enums: ['quarter'] },
+        { dataType: 'enum', enums: ['year'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPeriodCreationDto: {
+    dataType: 'refObject',
+    properties: {
+      unit: { ref: 'UPeriodUnit', required: true },
+      count: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IAccountingEntityCreationDto: {
+    dataType: 'refObject',
+    properties: {
+      name: { dataType: 'string', required: true },
+      entityType: { ref: 'UAccountingEntityType', required: true },
+      jurisdictionCode: { dataType: 'string', required: true },
+      accountingStandardCode: { dataType: 'string', required: true },
+      functionalCurrencyCode: { dataType: 'string', required: true },
+      reportingCurrencyCode: { dataType: 'string', required: true },
+      fiscalYear: { ref: 'IFiscalYearCreationDto', required: true },
+      accountingPeriod: { ref: 'IPeriodCreationDto', required: true },
+      reportingPeriod: { ref: 'IPeriodCreationDto', required: true },
+      appUsageMode: { ref: 'UAppUsageModePreference', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IAccountingStandardDto: {
+    dataType: 'refObject',
+    properties: {
+      individual: {
+        dataType: 'array',
+        array: { dataType: 'string' },
+        required: true,
+      },
+      sole_trader: {
+        dataType: 'array',
+        array: { dataType: 'string' },
+        required: true,
+      },
+      private_company: {
+        dataType: 'array',
+        array: { dataType: 'string' },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJurisdictionDto: {
+    dataType: 'refObject',
+    properties: {
+      code: { dataType: 'string', required: true },
+      name: { dataType: 'string', required: true },
+      currencyCode: { dataType: 'string', required: true },
+      accountingStandards: { ref: 'IAccountingStandardDto', required: true },
     },
     additionalProperties: false,
   },
@@ -897,7 +897,7 @@ export function RegisterRoutes(app: Router) {
     TsoaRoute.ParameterSchema
   > = {};
   app.get(
-    '/api/v1/auth/oauth/google',
+    '/api/v1/auth/google',
     ...fetchMiddlewares<RequestHandler>(AuthController),
     ...fetchMiddlewares<RequestHandler>(
       AuthController.prototype.loginWithGoogle
@@ -939,7 +939,7 @@ export function RegisterRoutes(app: Router) {
     TsoaRoute.ParameterSchema
   > = {};
   app.get(
-    '/api/v1/auth/oauth/google/callback',
+    '/api/v1/auth/google/callback',
     ...fetchMiddlewares<RequestHandler>(AuthController),
     ...fetchMiddlewares<RequestHandler>(
       AuthController.prototype.loginWithGoogleCallback
@@ -1146,7 +1146,7 @@ export function RegisterRoutes(app: Router) {
           response,
           next,
           validatedArgs,
-          successStatus: 200,
+          successStatus: 201,
         });
       } catch (err) {
         return next(err);

@@ -341,133 +341,6 @@
         "type": "string",
         "enum": ["individual", "sole_trader", "private_company"]
       },
-      "IFiscalYearCreationDto": {
-        "description": "Fiscal year creation DTO",
-        "properties": {
-          "startDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date-time"
-          }
-        },
-        "required": ["startDate", "endDate"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "UPeriodUnit": {
-        "type": "string",
-        "enum": ["day", "week", "month", "quarter", "year"]
-      },
-      "IPeriodCreationDto": {
-        "properties": {
-          "unit": {
-            "$ref": "#/components/schemas/UPeriodUnit"
-          },
-          "count": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "required": ["unit", "count"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "IAccountingEntityCreationDto": {
-        "description": "Accounting entity onboarding DTO",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "entityType": {
-            "$ref": "#/components/schemas/UAccountingEntityType"
-          },
-          "jurisdictionCode": {
-            "type": "string"
-          },
-          "accountingStandardCode": {
-            "type": "string"
-          },
-          "functionalCurrencyCode": {
-            "type": "string"
-          },
-          "reportingCurrencyCode": {
-            "type": "string"
-          },
-          "fiscalYear": {
-            "$ref": "#/components/schemas/IFiscalYearCreationDto"
-          },
-          "accountingPeriod": {
-            "$ref": "#/components/schemas/IPeriodCreationDto"
-          },
-          "reportingPeriod": {
-            "$ref": "#/components/schemas/IPeriodCreationDto"
-          },
-          "appUsageMode": {
-            "$ref": "#/components/schemas/UAppUsageModePreference"
-          }
-        },
-        "required": [
-          "name",
-          "entityType",
-          "jurisdictionCode",
-          "accountingStandardCode",
-          "functionalCurrencyCode",
-          "reportingCurrencyCode",
-          "fiscalYear",
-          "accountingPeriod",
-          "reportingPeriod",
-          "appUsageMode"
-        ],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "IAccountingStandardDto": {
-        "properties": {
-          "individual": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "sole_trader": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "private_company": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["individual", "sole_trader", "private_company"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "IJurisdictionDto": {
-        "properties": {
-          "code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "currencyCode": {
-            "type": "string"
-          },
-          "accountingStandards": {
-            "$ref": "#/components/schemas/IAccountingStandardDto"
-          }
-        },
-        "required": ["code", "name", "currencyCode", "accountingStandards"],
-        "type": "object",
-        "additionalProperties": false
-      },
       "UCurrencyCode": {
         "type": "string",
         "enum": [
@@ -645,6 +518,133 @@
           "createdAt",
           "updatedAt"
         ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IFiscalYearCreationDto": {
+        "description": "Fiscal year creation DTO",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["startDate", "endDate"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UPeriodUnit": {
+        "type": "string",
+        "enum": ["day", "week", "month", "quarter", "year"]
+      },
+      "IPeriodCreationDto": {
+        "properties": {
+          "unit": {
+            "$ref": "#/components/schemas/UPeriodUnit"
+          },
+          "count": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["unit", "count"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IAccountingEntityCreationDto": {
+        "description": "Accounting entity onboarding DTO",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "entityType": {
+            "$ref": "#/components/schemas/UAccountingEntityType"
+          },
+          "jurisdictionCode": {
+            "type": "string"
+          },
+          "accountingStandardCode": {
+            "type": "string"
+          },
+          "functionalCurrencyCode": {
+            "type": "string"
+          },
+          "reportingCurrencyCode": {
+            "type": "string"
+          },
+          "fiscalYear": {
+            "$ref": "#/components/schemas/IFiscalYearCreationDto"
+          },
+          "accountingPeriod": {
+            "$ref": "#/components/schemas/IPeriodCreationDto"
+          },
+          "reportingPeriod": {
+            "$ref": "#/components/schemas/IPeriodCreationDto"
+          },
+          "appUsageMode": {
+            "$ref": "#/components/schemas/UAppUsageModePreference"
+          }
+        },
+        "required": [
+          "name",
+          "entityType",
+          "jurisdictionCode",
+          "accountingStandardCode",
+          "functionalCurrencyCode",
+          "reportingCurrencyCode",
+          "fiscalYear",
+          "accountingPeriod",
+          "reportingPeriod",
+          "appUsageMode"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IAccountingStandardDto": {
+        "properties": {
+          "individual": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sole_trader": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "private_company": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["individual", "sole_trader", "private_company"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IJurisdictionDto": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "accountingStandards": {
+            "$ref": "#/components/schemas/IAccountingStandardDto"
+          }
+        },
+        "required": ["code", "name", "currencyCode", "accountingStandards"],
         "type": "object",
         "additionalProperties": false
       }
@@ -1011,7 +1011,7 @@
         }
       }
     },
-    "/auth/oauth/google": {
+    "/auth/google": {
       "get": {
         "operationId": "loginWithGoogle",
         "responses": {
@@ -1025,7 +1025,7 @@
         "parameters": []
       }
     },
-    "/auth/oauth/google/callback": {
+    "/auth/google/callback": {
       "get": {
         "operationId": "loginWithGoogleCallback",
         "responses": {
@@ -1142,8 +1142,15 @@
       "post": {
         "operationId": "createAccountingEntity",
         "responses": {
-          "200": {
-            "description": ""
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IAccountingEntity"
+                }
+              }
+            }
           },
           "400": {
             "description": "",
