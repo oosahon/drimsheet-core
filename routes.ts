@@ -355,6 +355,167 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UCurrencyCode: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'enum',
+      enums: [
+        'AED',
+        'ARS',
+        'AUD',
+        'BDT',
+        'BRL',
+        'CAD',
+        'CHF',
+        'CLP',
+        'CNY',
+        'COP',
+        'CZK',
+        'DKK',
+        'DZD',
+        'EGP',
+        'EUR',
+        'GBP',
+        'GHS',
+        'HKD',
+        'HUF',
+        'IDR',
+        'ILS',
+        'INR',
+        'JPY',
+        'KES',
+        'KRW',
+        'MAD',
+        'MXN',
+        'MYR',
+        'NGN',
+        'NOK',
+        'NZD',
+        'PEN',
+        'PHP',
+        'PKR',
+        'PLN',
+        'RON',
+        'RUB',
+        'SAR',
+        'SEK',
+        'SGD',
+        'THB',
+        'TRY',
+        'TWD',
+        'TZS',
+        'UAH',
+        'UGX',
+        'USD',
+        'VND',
+        'XAF',
+        'XOF',
+        'ZAR',
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UJurisdictionCode: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'enum',
+      enums: [
+        'AD',
+        'AE',
+        'AR',
+        'AT',
+        'AU',
+        'BD',
+        'BE',
+        'BR',
+        'CA',
+        'CH',
+        'CI',
+        'CL',
+        'CM',
+        'CN',
+        'CO',
+        'CY',
+        'CZ',
+        'DE',
+        'DK',
+        'DZ',
+        'EE',
+        'EG',
+        'ES',
+        'FI',
+        'FR',
+        'GB',
+        'GH',
+        'GR',
+        'HK',
+        'HR',
+        'HU',
+        'ID',
+        'IE',
+        'IL',
+        'IN',
+        'IT',
+        'JP',
+        'KE',
+        'KR',
+        'LT',
+        'LU',
+        'LV',
+        'MA',
+        'MC',
+        'MT',
+        'MX',
+        'MY',
+        'NG',
+        'NL',
+        'NO',
+        'NZ',
+        'PE',
+        'PH',
+        'PK',
+        'PL',
+        'PT',
+        'RO',
+        'RU',
+        'SA',
+        'SE',
+        'SG',
+        'SI',
+        'SK',
+        'SM',
+        'SN',
+        'TH',
+        'TR',
+        'TW',
+        'TZ',
+        'UA',
+        'UG',
+        'US',
+        'VA',
+        'VN',
+        'ZA',
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IAccountingEntity: {
+    dataType: 'refObject',
+    properties: {
+      id: { ref: 'TEntityId', required: true },
+      name: { dataType: 'string', required: true },
+      type: { ref: 'UAccountingEntityType', required: true },
+      ownerId: { ref: 'TEntityId', required: true },
+      functionalCurrencyCode: { ref: 'UCurrencyCode', required: true },
+      jurisdictionCode: { ref: 'UJurisdictionCode', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
 const templateService = new ExpressTemplateService(models, {
   noImplicitAdditionalProperties: 'throw-on-extras',
@@ -1014,6 +1175,48 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'getJurisdictions',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAccountingController_getUserAccountingEntities: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {};
+  app.get(
+    '/api/v1/accounting/accounting-entities',
+    ...fetchMiddlewares<RequestHandler>(AccountingController),
+    ...fetchMiddlewares<RequestHandler>(
+      AccountingController.prototype.getUserAccountingEntities
+    ),
+
+    async function AccountingController_getUserAccountingEntities(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAccountingController_getUserAccountingEntities,
+          request,
+          response,
+        });
+
+        const controller = new AccountingController();
+
+        await templateService.apiHandler({
+          methodName: 'getUserAccountingEntities',
           controller,
           response,
           next,

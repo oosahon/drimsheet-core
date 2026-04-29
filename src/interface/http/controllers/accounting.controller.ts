@@ -44,4 +44,18 @@ export class AccountingController extends Controller {
   public async getJurisdictions() {
     return await accountingUsecases.getJurisdictions();
   }
+
+  /**
+   * Get user accounting entities
+   */
+  @Get('/accounting-entities')
+  @OperationId('getUserAccountingEntities')
+  @SuccessResponse('200')
+  @Response<IApiError>('400')
+  @Response<IApiError>('401')
+  @Response<IApiError>('409')
+  @Middlewares(middlewares.isAuthenticatedUser)
+  public async getUserAccountingEntities() {
+    return await accountingUsecases.getUserAccountingEntities();
+  }
 }

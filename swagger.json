@@ -447,6 +447,186 @@
         "required": ["code", "name", "currencyCode", "accountingStandards"],
         "type": "object",
         "additionalProperties": false
+      },
+      "UCurrencyCode": {
+        "type": "string",
+        "enum": [
+          "AED",
+          "ARS",
+          "AUD",
+          "BDT",
+          "BRL",
+          "CAD",
+          "CHF",
+          "CLP",
+          "CNY",
+          "COP",
+          "CZK",
+          "DKK",
+          "DZD",
+          "EGP",
+          "EUR",
+          "GBP",
+          "GHS",
+          "HKD",
+          "HUF",
+          "IDR",
+          "ILS",
+          "INR",
+          "JPY",
+          "KES",
+          "KRW",
+          "MAD",
+          "MXN",
+          "MYR",
+          "NGN",
+          "NOK",
+          "NZD",
+          "PEN",
+          "PHP",
+          "PKR",
+          "PLN",
+          "RON",
+          "RUB",
+          "SAR",
+          "SEK",
+          "SGD",
+          "THB",
+          "TRY",
+          "TWD",
+          "TZS",
+          "UAH",
+          "UGX",
+          "USD",
+          "VND",
+          "XAF",
+          "XOF",
+          "ZAR"
+        ],
+        "nullable": false
+      },
+      "UJurisdictionCode": {
+        "type": "string",
+        "enum": [
+          "AD",
+          "AE",
+          "AR",
+          "AT",
+          "AU",
+          "BD",
+          "BE",
+          "BR",
+          "CA",
+          "CH",
+          "CI",
+          "CL",
+          "CM",
+          "CN",
+          "CO",
+          "CY",
+          "CZ",
+          "DE",
+          "DK",
+          "DZ",
+          "EE",
+          "EG",
+          "ES",
+          "FI",
+          "FR",
+          "GB",
+          "GH",
+          "GR",
+          "HK",
+          "HR",
+          "HU",
+          "ID",
+          "IE",
+          "IL",
+          "IN",
+          "IT",
+          "JP",
+          "KE",
+          "KR",
+          "LT",
+          "LU",
+          "LV",
+          "MA",
+          "MC",
+          "MT",
+          "MX",
+          "MY",
+          "NG",
+          "NL",
+          "NO",
+          "NZ",
+          "PE",
+          "PH",
+          "PK",
+          "PL",
+          "PT",
+          "RO",
+          "RU",
+          "SA",
+          "SE",
+          "SG",
+          "SI",
+          "SK",
+          "SM",
+          "SN",
+          "TH",
+          "TR",
+          "TW",
+          "TZ",
+          "UA",
+          "UG",
+          "US",
+          "VA",
+          "VN",
+          "ZA"
+        ],
+        "nullable": false
+      },
+      "IAccountingEntity": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UAccountingEntityType"
+          },
+          "ownerId": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "functionalCurrencyCode": {
+            "$ref": "#/components/schemas/UCurrencyCode"
+          },
+          "jurisdictionCode": {
+            "$ref": "#/components/schemas/UJurisdictionCode"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "ownerId",
+          "functionalCurrencyCode",
+          "jurisdictionCode",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "additionalProperties": false
       }
     },
     "securitySchemes": {
@@ -1090,6 +1270,60 @@
           }
         },
         "description": "Get jurisdictions",
+        "tags": ["Accounting"],
+        "security": [],
+        "parameters": []
+      }
+    },
+    "/accounting/accounting-entities": {
+      "get": {
+        "operationId": "getUserAccountingEntities",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IAccountingEntity"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IApiError"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get user accounting entities",
         "tags": ["Accounting"],
         "security": [],
         "parameters": []
