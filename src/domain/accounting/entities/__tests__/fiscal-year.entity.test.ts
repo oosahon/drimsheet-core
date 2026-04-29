@@ -100,4 +100,67 @@ describe('fiscalYearEntity', () => {
       );
     });
   });
+
+  describe('helpers', () => {
+    describe('validateStartAndEndDate', () => {
+      it('throws InvalidDateRange if duration is less than 1 month', () => {
+        expect(() =>
+          fiscalYearEntity.validateStartAndEndDate({
+            startDate: new Date('2026-05-01T00:00:00.000Z'),
+            endDate: new Date('2026-05-15T00:00:00.000Z'),
+          })
+        ).toThrow(periodErrors.InvalidDateRange);
+      });
+
+      it('throws InvalidDateRange if duration is greater than 23 months', () => {
+        expect(() =>
+          fiscalYearEntity.validateStartAndEndDate({
+            startDate: new Date('2026-05-01T00:00:00.000Z'),
+            endDate: new Date('2028-06-01T00:00:00.000Z'),
+          })
+        ).toThrow(periodErrors.InvalidDateRange);
+      });
+    });
+
+    describe('deriveName', () => {
+      it('returns the provided name sanitized and validated', () => {
+        const name = fiscalYearEntity.deriveName(
+          new Date('2026-01-01T00:00:00.000Z'),
+          new Date('2026-12-31T23:59:59.999Z'),
+          '  Custom FY 2026  '
+        );
+        expect(name).toBe('Custom FY 2026');
+      });
+
+      it('validates dates by default when name is not provided', () => {
+        expect(() =>
+          fiscalYearEntity.deriveName(
+            new Date('2026-05-01T00:00:00.000Z'),
+            new Date('2026-05-15T00:00:00.000Z'),
+            null
+          )
+        ).toThrow(periodErrors.InvalidDateRange);
+      });
+
+      it('returns single year string when start and end years are the same', () => {
+        const name = fiscalYearEntity.deriveName(
+          new Date('2026-05-01T00:00:00.000Z'),
+          new Date('2026-11-01T00:00:00.000Z'),
+          null,
+          false
+        );
+        expect(name).toBe('2026');
+      });
+
+      it('returns start and end year string when start and end years differ', () => {
+        const name = fiscalYearEntity.deriveName(
+          new Date('2026-01-01T00:00:00.000Z'),
+          new Date('2027-03-31T23:59:59.999Z'),
+          null,
+          false
+        );
+        expect(name).toBe('2026 - 2027');
+      });
+    });
+  });
 });

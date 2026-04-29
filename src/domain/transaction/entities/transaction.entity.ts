@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import dateUtils from '../../../shared/utils/date';
+import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
@@ -62,8 +63,8 @@ function make(
     );
   });
 
-  const items = itemsWithEvents.map((i) => i[0]);
-  const itemsEvents = itemsWithEvents.flatMap((i) => i[1]);
+  const { entities: items, events: itemsEvents } =
+    getEntitiesAndEvents(itemsWithEvents);
 
   const amount = moneyValue.add(...items.map((i) => i.amount));
   const exchangeRate = numberUtils.toFloat(payload.exchangeRate.rate);

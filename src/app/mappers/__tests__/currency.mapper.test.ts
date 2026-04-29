@@ -43,4 +43,29 @@ describe('Currency Mapper', () => {
       );
     });
   });
+
+  describe('fromInterface', () => {
+    it('should map a valid currency code to a domain currency', () => {
+      const code = 'USD';
+
+      const expectedDomainCurrency: ICurrency = {
+        code: 'USD',
+        symbol: '$',
+        name: 'US Dollar',
+        minorUnit: 2n,
+      };
+
+      expect(currencyMapper.fromInterface(code)).toEqual(
+        expectedDomainCurrency
+      );
+    });
+
+    it('should throw an error for an invalid currency code', () => {
+      const invalidCode = 'INVALID_CODE';
+
+      expect(() => currencyMapper.fromInterface(invalidCode)).toThrow(
+        'Currency INVALID_CODE does not exist'
+      );
+    });
+  });
 });

@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
+import periodEvents from '../events/period.events';
 import { IFiscalYear } from '../types/fiscal-year.types';
 import { IAccountingPeriod, IReportingPeriod } from '../types/period.types';
 import periodHelpers from './helpers/period.helpers';
@@ -13,7 +14,7 @@ interface IMakePayload extends Pick<
 
 function make(
   payload: IMakePayload
-): TEntityWithEvents<IReportingPeriod[], IReportingPeriod[]> {
+): TEntityWithEvents<IReportingPeriod, IReportingPeriod>[] {
   stringUtils.validateUUID(payload.accountingEntityId);
   periodHelpers.validateUnit(payload.unit);
 
@@ -42,7 +43,10 @@ function make(
       })
   );
 
-  return [reportingPeriods, []];
+  return reportingPeriods.map((period) => [
+    period,
+    [periodEvents.reportingPeriodCreated(period)],
+  ]);
 }
 
 const reportingPeriodEntity = Object.freeze({

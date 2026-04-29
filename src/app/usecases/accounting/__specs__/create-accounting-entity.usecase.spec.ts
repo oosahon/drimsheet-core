@@ -157,4 +157,27 @@ describe('createAccountingEntityUseCase', () => {
 
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
+
+  it('successfully creates accounting entity when fiscal year is in the future', async () => {
+    const useCase = getUseCase();
+
+    const futurePayload: IAccountingEntityOnboardingDto = {
+      ...validPayload,
+      fiscalYear: {
+        startDate: new Date('2030-01-01T00:00:00.000Z'),
+        endDate: new Date('2030-12-31T23:59:59.999Z'),
+      },
+    };
+
+    await useCase(futurePayload);
+
+    expect(mockAccountingEntityRepo.findByUserId).toHaveBeenCalledWith(
+      mockUserId,
+      { correlationId },
+      EAccountingEntityType.Individual
+    );
+
+    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
+    expect(mockAccountingEntityRepo.save).toHaveBeenCalled();
+  });
 });

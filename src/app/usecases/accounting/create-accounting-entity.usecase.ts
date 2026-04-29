@@ -23,6 +23,7 @@ import ILiabilityAccountService from '../../../domain/ledger/types/liability-acc
 import IRevenueAccountService from '../../../domain/ledger/types/revenue-account.service.types';
 import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
 import { ErrorBadRequest, ErrorConflict } from '../../../shared/errors/error';
+import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
@@ -117,13 +118,15 @@ export default function createAccountingEntityUseCase(
     });
 
     // =============== Accounting Periods ===============
-    const [accountingPeriods, accountingPeriodsEvents] =
-      accountingPeriodEntity.make({
-        accountingEntityId: accountingEntity.id,
-        unit: payload.accountingPeriod.unit,
-        count: payload.accountingPeriod.count,
-        fiscalYear: fiscalYear,
-      });
+    const accountingPeriodsData = accountingPeriodEntity.make({
+      accountingEntityId: accountingEntity.id,
+      unit: payload.accountingPeriod.unit,
+      count: payload.accountingPeriod.count,
+      fiscalYear: fiscalYear,
+    });
+
+    const { entities: accountingPeriods, events: accountingPeriodsEvents } =
+      getEntitiesAndEvents(accountingPeriodsData);
 
     // =============== Accounting Context ===============
     const currentAccountingPeriod =
@@ -141,13 +144,15 @@ export default function createAccountingEntityUseCase(
       });
 
     // =============== Reporting Periods ===============
-    const [reportingPeriods, reportingPeriodsEvents] =
-      reportingPeriodEntity.make({
-        accountingEntityId: accountingEntity.id,
-        unit: payload.reportingPeriod.unit,
-        count: payload.reportingPeriod.count,
-        fiscalYear: fiscalYear,
-      });
+    const reportingPeriodsData = reportingPeriodEntity.make({
+      accountingEntityId: accountingEntity.id,
+      unit: payload.reportingPeriod.unit,
+      count: payload.reportingPeriod.count,
+      fiscalYear: fiscalYear,
+    });
+
+    const { entities: reportingPeriods, events: reportingPeriodsEvents } =
+      getEntitiesAndEvents(reportingPeriodsData);
 
     // =============== Reporting Context ===============
     const currentReportingPeriod =

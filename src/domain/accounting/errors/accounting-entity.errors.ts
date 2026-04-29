@@ -4,7 +4,6 @@ import { TErrorCause } from '../../../shared/errors/error';
 type TErrorKeyPrefix = `accounting_error_accounting_entity_${string}`;
 
 const EErrorKeys = {
-  Duplicate: 'accounting_error_accounting_entity_duplicate',
   Unauthorized: 'accounting_error_accounting_entity_unauthorized',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
@@ -16,12 +15,6 @@ class AccountingEntityError extends AccountingError<UAccountingEntityError> {
   }
 }
 
-class DuplicateAccountingEntityError extends AccountingEntityError {
-  constructor(cause?: TErrorCause) {
-    super(EErrorKeys.Duplicate, cause);
-  }
-}
-
 class UnauthorizedUserAccessError extends AccountingEntityError {
   constructor(cause?: TErrorCause) {
     super(EErrorKeys.Unauthorized, cause);
@@ -30,7 +23,6 @@ class UnauthorizedUserAccessError extends AccountingEntityError {
 
 const accountingEntityError = Object.freeze({
   Error: AccountingEntityError,
-  DuplicateAccountingEntity: DuplicateAccountingEntityError,
   UnauthorizedUserAccess: UnauthorizedUserAccessError,
 });
 

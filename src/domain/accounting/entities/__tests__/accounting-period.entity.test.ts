@@ -1,5 +1,6 @@
 import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
+import getEntitiesAndEvents from '../../../../shared/utils/get-entities-and-events';
 import periodErrors from '../../errors/period.errors';
 import { IFiscalYear } from '../../types/fiscal-year.types';
 import { EPeriodStatus, EPeriodUnit } from '../../types/period.types';
@@ -35,7 +36,8 @@ describe('accountingPeriodEntity', () => {
     };
 
     it('creates an array of valid accounting period entities', () => {
-      const [entities, events] = accountingPeriodEntity.make(validPayload);
+      const result = accountingPeriodEntity.make(validPayload);
+      const { entities, events } = getEntitiesAndEvents(result);
 
       // A 12 month fiscal year split into 1-quarter periods = 4 periods
       expect(entities.length).toBe(4);
@@ -60,8 +62,11 @@ describe('accountingPeriodEntity', () => {
 
       expect(Object.isFrozen(firstEntity)).toBe(true);
 
-      // Currently accountingPeriodEntity.make returns an empty events array
-      expect(events.length).toBe(0);
+      // It returns one accountingPeriodCreated event for each period
+      expect(events.length).toBe(4);
+      expect(events[0].type).toBe(
+        'domain:accounting:period:accounting-period:created'
+      );
     });
 
     it('throws InvalidPeriodUnitError if unit is invalid', () => {
