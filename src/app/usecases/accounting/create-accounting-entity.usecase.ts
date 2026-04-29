@@ -37,7 +37,7 @@ import {
 } from '../../contracts/infra/repo.contract';
 import currencyMapper from '../../mappers/currency.mapper';
 
-async function validate(payload: IAccountingEntityOnboardingDto) {
+function validate(payload: IAccountingEntityOnboardingDto) {
   zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
   if (payload.entityType !== EAccountingEntityType.Individual) {

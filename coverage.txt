@@ -1,0 +1,43 @@
+-------------------------------------------|---------|----------|---------|---------|-------------------
+File                                       | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------------------------------|---------|----------|---------|---------|-------------------
+All files                                  |   73.25 |    81.81 |   85.96 |   73.09 |                   
+ accounting                                |       0 |        0 |       0 |       0 |                   
+  create-accounting-entity.usecase.ts      |       0 |        0 |       0 |       0 | 3-248             
+ auth                                      |   82.52 |    84.61 |    90.9 |   82.52 |                   
+  index.ts                                 |       0 |      100 |     100 |       0 | 1-107             
+  login-with-email.usecase.ts              |     100 |      100 |     100 |     100 |                   
+  logout.usecase.ts                        |     100 |      100 |     100 |     100 |                   
+  oauth.usecase.ts                         |     100 |      100 |     100 |     100 |                   
+  refresh-access-token.usecase.ts          |       0 |        0 |       0 |       0 | 2-49              
+  request-password-reset.usecase.ts        |     100 |      100 |     100 |     100 |                   
+  reset-password.usecase.ts                |     100 |      100 |     100 |     100 |                   
+  send-email-verification-email.usecase.ts |     100 |      100 |     100 |     100 |                   
+  signup-with-email.usecase.ts             |     100 |      100 |     100 |     100 |                   
+  verify-email.usecase.ts                  |     100 |      100 |     100 |     100 |                   
+ auth/helpers                              |     100 |      100 |     100 |     100 |                   
+  issue-user-session.helper.ts             |     100 |      100 |     100 |     100 |                   
+  oauth-handler-google.helper.ts           |     100 |      100 |     100 |     100 |                   
+ bookkeeping                               |   87.64 |      100 |     100 |   87.35 |                   
+  adjust-ledger-account-balance.usecase.ts |     100 |      100 |     100 |     100 |                   
+  create-ledger-account-balance.usecase.ts |     100 |      100 |     100 |     100 |                   
+  enqueue-balance-adjustments.usecase.ts   |     100 |      100 |     100 |     100 |                   
+  index.ts                                 |       0 |      100 |     100 |       0 | 1-42              
+  record-opening-balance.usecase.ts        |     100 |      100 |     100 |     100 |                   
+ category                                  |     100 |      100 |     100 |     100 |                   
+  map-category-to-account.usecase.ts       |     100 |      100 |     100 |     100 |                   
+ currency                                  |   54.54 |      100 |     100 |      50 |                   
+  get-currencies.usecase.ts                |     100 |      100 |     100 |     100 |                   
+  index.ts                                 |       0 |      100 |     100 |       0 | 1-9               
+ internal                                  |       0 |        0 |       0 |       0 |                   
+  get-sent-email.usecase.ts                |       0 |        0 |       0 |       0 | 1-14              
+  index.ts                                 |       0 |      100 |     100 |       0 | 1-8               
+ ledger/asset-account                      |   70.83 |      100 |     100 |   70.83 |                   
+  create-petty-cash-sub-account.usecase.ts |     100 |      100 |     100 |     100 |                   
+  index.ts                                 |       0 |      100 |     100 |       0 | 1-19              
+ user                                      |   81.57 |      100 |     100 |   81.57 |                   
+  get-preferences.usecase.ts               |     100 |      100 |     100 |     100 |                   
+  get-profile.usecase.ts                   |     100 |      100 |     100 |     100 |                   
+  index.ts                                 |       0 |      100 |     100 |       0 | 1-21              
+  save-activity.usecase.ts                 |     100 |      100 |     100 |     100 |                   
+-------------------------------------------|---------|----------|---------|---------|-------------------

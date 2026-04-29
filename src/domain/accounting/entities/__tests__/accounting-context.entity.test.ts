@@ -95,8 +95,8 @@ describe('accountingContextEntity', () => {
     });
 
     it('throws InvalidStandard if code is invalid', () => {
-      // @ts-expect-error testing invalid standard code
       expect(() =>
+        // @ts-expect-error testing invalid standard code
         accountingContextEntity.validateStandardCode('INVALID_CODE')
       ).toThrow(accountingStandardError.InvalidStandard);
     });
