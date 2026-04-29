@@ -723,7 +723,7 @@
     },
     "/currencies": {
       "get": {
-        "operationId": "getCurrencies",
+        "operationId": "getAll",
         "responses": {
           "200": {
             "description": "",

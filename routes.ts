@@ -614,18 +614,16 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsCurrencyController_getCurrencies: Record<
+  const argsCurrencyController_getAll: Record<
     string,
     TsoaRoute.ParameterSchema
   > = {};
   app.get(
     '/api/v1/currencies',
     ...fetchMiddlewares<RequestHandler>(CurrencyController),
-    ...fetchMiddlewares<RequestHandler>(
-      CurrencyController.prototype.getCurrencies
-    ),
+    ...fetchMiddlewares<RequestHandler>(CurrencyController.prototype.getAll),
 
-    async function CurrencyController_getCurrencies(
+    async function CurrencyController_getAll(
       request: ExRequest,
       response: ExResponse,
       next: any
@@ -635,7 +633,7 @@ export function RegisterRoutes(app: Router) {
       let validatedArgs: any[] = [];
       try {
         validatedArgs = templateService.getValidatedArgs({
-          args: argsCurrencyController_getCurrencies,
+          args: argsCurrencyController_getAll,
           request,
           response,
         });
@@ -643,7 +641,7 @@ export function RegisterRoutes(app: Router) {
         const controller = new CurrencyController();
 
         await templateService.apiHandler({
-          methodName: 'getCurrencies',
+          methodName: 'getAll',
           controller,
           response,
           next,
