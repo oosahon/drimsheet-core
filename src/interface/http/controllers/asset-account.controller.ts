@@ -14,8 +14,8 @@ import assetAccountUseCase from '../../../app/usecases/ledger/asset-account';
 import { IApiError } from '../handlers/error.handler';
 import middlewares from '../middlewares';
 
-@Route('asset-accounts')
-@Tags('Asset Accounts')
+@Route('ledger/asset-accounts')
+@Tags('Ledger', 'Asset Account')
 export class AssetAccountController extends Controller {
   /**
    * Create a new petty cash sub account

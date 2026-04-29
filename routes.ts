@@ -10,8 +10,10 @@ import { CurrencyController } from './src/interface/http/controllers/currency.co
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './src/interface/http/controllers/auth.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { expressAuthentication } from './src/infra/config/tsoa-express-auth';
 import { AssetAccountController } from './src/interface/http/controllers/asset-account.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { expressAuthentication } from './src/infra/config/tsoa-express-auth';
+import { AccountingController } from './src/interface/http/controllers/accounting.controller';
 // @ts-ignore - no great way to install types from subpackage
 import type {
   Request as ExRequest,
@@ -253,6 +255,102 @@ const models: TsoaRoute.Models = {
         ],
         required: true,
       },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UAccountingEntityType: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['individual'] },
+        { dataType: 'enum', enums: ['sole_trader'] },
+        { dataType: 'enum', enums: ['private_company'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IFiscalYearCreationDto: {
+    dataType: 'refObject',
+    properties: {
+      startDate: { dataType: 'datetime', required: true },
+      endDate: { dataType: 'datetime', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UPeriodUnit: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['day'] },
+        { dataType: 'enum', enums: ['week'] },
+        { dataType: 'enum', enums: ['month'] },
+        { dataType: 'enum', enums: ['quarter'] },
+        { dataType: 'enum', enums: ['year'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPeriodCreationDto: {
+    dataType: 'refObject',
+    properties: {
+      unit: { ref: 'UPeriodUnit', required: true },
+      count: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IAccountingEntityCreationDto: {
+    dataType: 'refObject',
+    properties: {
+      name: { dataType: 'string', required: true },
+      entityType: { ref: 'UAccountingEntityType', required: true },
+      jurisdictionCode: { dataType: 'string', required: true },
+      accountingStandardCode: { dataType: 'string', required: true },
+      functionalCurrencyCode: { dataType: 'string', required: true },
+      reportingCurrencyCode: { dataType: 'string', required: true },
+      fiscalYear: { ref: 'IFiscalYearCreationDto', required: true },
+      accountingPeriod: { ref: 'IPeriodCreationDto', required: true },
+      reportingPeriod: { ref: 'IPeriodCreationDto', required: true },
+      appUsageMode: { ref: 'UAppUsageModePreference', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IAccountingStandardDto: {
+    dataType: 'refObject',
+    properties: {
+      individual: {
+        dataType: 'array',
+        array: { dataType: 'string' },
+        required: true,
+      },
+      sole_trader: {
+        dataType: 'array',
+        array: { dataType: 'string' },
+        required: true,
+      },
+      private_company: {
+        dataType: 'array',
+        array: { dataType: 'string' },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJurisdictionDto: {
+    dataType: 'refObject',
+    properties: {
+      code: { dataType: 'string', required: true },
+      name: { dataType: 'string', required: true },
+      currencyCode: { dataType: 'string', required: true },
+      accountingStandards: { ref: 'IAccountingStandardDto', required: true },
     },
     additionalProperties: false,
   },
@@ -629,7 +727,7 @@ export function RegisterRoutes(app: Router) {
     TsoaRoute.ParameterSchema
   > = {};
   app.get(
-    '/api/v1/auth/google',
+    '/api/v1/auth/oauth/google',
     ...fetchMiddlewares<RequestHandler>(AuthController),
     ...fetchMiddlewares<RequestHandler>(
       AuthController.prototype.loginWithGoogle
@@ -671,7 +769,7 @@ export function RegisterRoutes(app: Router) {
     TsoaRoute.ParameterSchema
   > = {};
   app.get(
-    '/api/v1/auth/google/callback',
+    '/api/v1/auth/oauth/google/callback',
     ...fetchMiddlewares<RequestHandler>(AuthController),
     ...fetchMiddlewares<RequestHandler>(
       AuthController.prototype.loginWithGoogleCallback
@@ -788,7 +886,7 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsAssetAccountController_createPettyCashSubAccount: Record<
+  const argsAssetAccountController_makePettyCashSubAccount: Record<
     string,
     TsoaRoute.ParameterSchema
   > = {
@@ -800,13 +898,13 @@ export function RegisterRoutes(app: Router) {
     },
   };
   app.post(
-    '/api/v1/asset-accounts',
+    '/api/v1/ledger/asset-accounts',
     ...fetchMiddlewares<RequestHandler>(AssetAccountController),
     ...fetchMiddlewares<RequestHandler>(
       AssetAccountController.prototype.makePettyCashSubAccount
     ),
 
-    async function AssetAccountController_createPettyCashSubAccount(
+    async function AssetAccountController_makePettyCashSubAccount(
       request: ExRequest,
       response: ExResponse,
       next: any
@@ -816,7 +914,7 @@ export function RegisterRoutes(app: Router) {
       let validatedArgs: any[] = [];
       try {
         validatedArgs = templateService.getValidatedArgs({
-          args: argsAssetAccountController_createPettyCashSubAccount,
+          args: argsAssetAccountController_makePettyCashSubAccount,
           request,
           response,
         });
@@ -825,6 +923,97 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'makePettyCashSubAccount',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAccountingController_createAccountingEntity: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'IAccountingEntityCreationDto',
+    },
+  };
+  app.post(
+    '/api/v1/accounting/accounting-entity',
+    ...fetchMiddlewares<RequestHandler>(AccountingController),
+    ...fetchMiddlewares<RequestHandler>(
+      AccountingController.prototype.createAccountingEntity
+    ),
+
+    async function AccountingController_createAccountingEntity(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAccountingController_createAccountingEntity,
+          request,
+          response,
+        });
+
+        const controller = new AccountingController();
+
+        await templateService.apiHandler({
+          methodName: 'createAccountingEntity',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAccountingController_getJurisdictions: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {};
+  app.get(
+    '/api/v1/accounting/jurisdictions',
+    ...fetchMiddlewares<RequestHandler>(AccountingController),
+    ...fetchMiddlewares<RequestHandler>(
+      AccountingController.prototype.getJurisdictions
+    ),
+
+    async function AccountingController_getJurisdictions(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAccountingController_getJurisdictions,
+          request,
+          response,
+        });
+
+        const controller = new AccountingController();
+
+        await templateService.apiHandler({
+          methodName: 'getJurisdictions',
           controller,
           response,
           next,

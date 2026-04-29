@@ -119,3 +119,16 @@ export const accountingEntityOnboardingDtoSchema = z.object({
   reportingPeriod: periodCreationDtoSchema,
   appUsageMode: userAppUsageModePreferenceValidation,
 });
+
+export interface IAccountingStandardDto {
+  [EAccountingEntityType.Individual]: string[];
+  [EAccountingEntityType.SoleTrader]: string[];
+  [EAccountingEntityType.PrivateCompany]: string[];
+}
+
+export interface IJurisdictionDto {
+  code: string;
+  name: string;
+  currencyCode: string;
+  accountingStandards: IAccountingStandardDto;
+}

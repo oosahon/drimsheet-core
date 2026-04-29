@@ -4,6 +4,7 @@ import services from '../../../infra/services';
 import domainServices from '../../../infra/services/domain.service';
 import appContext from '../../context';
 import makeCreateAccountingEntityUseCase from './create-accounting-entity.usecase';
+import makeGetJurisdictionsUseCase from './get-jurisdictions.usecase';
 
 const accountingUsecases = Object.freeze({
   createAccountingEntity: makeCreateAccountingEntityUseCase(
@@ -23,6 +24,8 @@ const accountingUsecases = Object.freeze({
     domainServices.revenueAccount,
     domainServices.expenseAccount
   ),
+
+  getJurisdictions: makeGetJurisdictionsUseCase(),
 });
 
 export default accountingUsecases;

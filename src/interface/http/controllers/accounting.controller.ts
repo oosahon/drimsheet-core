@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Middlewares,
   OperationId,
   Post,
@@ -20,7 +21,7 @@ export class AccountingController extends Controller {
   /**
    * Create a new accounting entity
    */
-  @Post('/')
+  @Post('/accounting-entity')
   @OperationId('createAccountingEntity')
   @SuccessResponse('200')
   @Response<IApiError>('400')
@@ -32,5 +33,15 @@ export class AccountingController extends Controller {
     @Body() body: IAccountingEntityCreationDto
   ) {
     return await accountingUsecases.createAccountingEntity(body);
+  }
+
+  /**
+   * Get jurisdictions
+   */
+  @Get('/jurisdictions')
+  @OperationId('getJurisdictions')
+  @SuccessResponse('200')
+  public async getJurisdictions() {
+    return await accountingUsecases.getJurisdictions();
   }
 }
