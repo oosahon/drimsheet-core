@@ -23,6 +23,7 @@ export interface IReportingContext {
   reportingCurrencyCode: UCurrencyCode;
   accountingContextId: TEntityId;
   currentReportingPeriodId: TEntityId;
+  accountingStandardCode: UAccountingStandardCode;
   createdAt: Date;
   updatedAt: Date;
   closedAt: Date | null;

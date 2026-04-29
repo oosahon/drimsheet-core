@@ -14,6 +14,7 @@ function make(
   currencyEntity.validateCode(payload.reportingCurrencyCode);
   stringUtils.validateUUID(payload.accountingContextId);
   stringUtils.validateUUID(payload.currentReportingPeriodId);
+  helpers.validateAccountingStandardCode(payload.accountingStandardCode);
 
   const name = stringUtils.sanitizeAndValidate(payload.name, {
     min: 1,
@@ -31,6 +32,7 @@ function make(
     reportingCurrencyCode: payload.reportingCurrencyCode,
     accountingContextId: payload.accountingContextId,
     currentReportingPeriodId: payload.currentReportingPeriodId,
+    accountingStandardCode: payload.accountingStandardCode,
     createdAt: timestamp,
     updatedAt: timestamp,
     closedAt: null,

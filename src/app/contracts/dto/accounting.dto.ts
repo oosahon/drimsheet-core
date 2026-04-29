@@ -95,7 +95,7 @@ export const periodCreationDtoSchema = z.object({
 /**
  * Accounting entity onboarding DTO
  */
-export interface IAccountingEntityOnboardingDto {
+export interface IAccountingEntityCreationDto {
   name: string;
   entityType: UAccountingEntityType;
   jurisdictionCode: string;

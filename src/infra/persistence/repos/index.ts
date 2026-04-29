@@ -1,9 +1,14 @@
+import accountingContextRepo from './accounting-context.repo.impl';
 import accountingEntityRepo from './accounting-entity.repo.impl';
+import accountingPeriodRepo from './accounting-period.repo.impl';
 import currencyRepo from './currency.repo.impl';
 import exchangeRateRepo from './exchange-rate.repo.impl';
+import fiscalYearRepo from './fiscal-year.repo.impl';
 import journalEntryRepo from './journal-entry.repo.impl';
 import ledgerAccountBalanceRepoImpl from './ledger-account-balance.repo.impl';
 import ledgerAccountRepo from './ledger-account.repo.impl';
+import reportingContextRepo from './reporting-context.repo.impl';
+import reportingPeriodRepo from './reporting-period.repo.impl';
 import userActivityRepo from './user-activity.repo.impl';
 import userAuthRepo from './user-auth.repo.impl';
 import userPreferencesRepo from './user-preferences.repo.impl';
@@ -22,6 +27,11 @@ const repos = {
   journalEntry: journalEntryRepo,
   exchangeRate: exchangeRateRepo,
   ledgerAccountBalance: ledgerAccountBalanceRepoImpl,
+  fiscalYear: fiscalYearRepo,
+  accountingPeriod: accountingPeriodRepo,
+  accountingContext: accountingContextRepo,
+  reportingPeriod: reportingPeriodRepo,
+  reportingContext: reportingContextRepo,
 };
 
 export default repos;

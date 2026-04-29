@@ -29,7 +29,7 @@ import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import {
   accountingEntityOnboardingDtoSchema,
-  IAccountingEntityOnboardingDto,
+  IAccountingEntityCreationDto,
 } from '../../contracts/dto/accounting.dto';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import {
@@ -38,7 +38,7 @@ import {
 } from '../../contracts/infra/repo.contract';
 import currencyMapper from '../../mappers/currency.mapper';
 
-function validate(payload: IAccountingEntityOnboardingDto) {
+function validate(payload: IAccountingEntityCreationDto) {
   zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
   if (payload.entityType !== EAccountingEntityType.Individual) {
@@ -69,7 +69,7 @@ export default function createAccountingEntityUseCase(
   revenueAccountService: IRevenueAccountService,
   expenseAccountService: IExpenseAccountService
 ) {
-  return async (payload: IAccountingEntityOnboardingDto) => {
+  return async (payload: IAccountingEntityCreationDto) => {
     validate(payload);
 
     const { user, correlationId } = requestContext.get();
@@ -166,6 +166,8 @@ export default function createAccountingEntityUseCase(
         reportingCurrencyCode: reportingCurrency.code,
         accountingContextId: accountingContext.id,
         currentReportingPeriodId: currentReportingPeriod.id,
+        accountingStandardCode:
+          accountingStandard.code as UAccountingStandardCode,
       });
 
     const shouldBootstrapPostingAccounts =
@@ -251,7 +253,5 @@ export default function createAccountingEntityUseCase(
     ];
 
     eventBus.publish(allEvents);
-
-    // =============== Bootstrap posting accounts ===============
   };
 }

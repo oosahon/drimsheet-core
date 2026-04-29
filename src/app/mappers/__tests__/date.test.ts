@@ -3,6 +3,7 @@ import {
   fromRepoDate,
   toCommonRepoDates,
   toRepoDate,
+  toRepoDateOnly,
 } from '../date';
 
 describe('Date Mappers', () => {
@@ -10,6 +11,13 @@ describe('Date Mappers', () => {
     it('should convert Date to ISO string', () => {
       const date = new Date('2026-03-14T10:00:00.000Z');
       expect(toRepoDate(date)).toBe('2026-03-14T10:00:00.000Z');
+    });
+  });
+
+  describe('toRepoDateOnly', () => {
+    it('should convert Date to YYYY-MM-DD string', () => {
+      const date = new Date('2026-03-14T10:00:00.000Z');
+      expect(toRepoDateOnly(date)).toBe('2026-03-14');
     });
   });
 

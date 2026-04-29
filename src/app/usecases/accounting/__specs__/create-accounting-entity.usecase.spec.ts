@@ -6,7 +6,7 @@ import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
 import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IAccountingEntityOnboardingDto } from '../../../contracts/dto/accounting.dto';
+import { IAccountingEntityCreationDto } from '../../../contracts/dto/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
 
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
@@ -52,7 +52,7 @@ describe('createAccountingEntityUseCase', () => {
       mockExpenseAccountService
     );
 
-  const validPayload: IAccountingEntityOnboardingDto = {
+  const validPayload: IAccountingEntityCreationDto = {
     name: 'Test Business',
     entityType: EAccountingEntityType.Individual,
     accountingStandardCode: 'US_GAAP',
@@ -161,7 +161,7 @@ describe('createAccountingEntityUseCase', () => {
   it('successfully creates accounting entity when fiscal year is in the future', async () => {
     const useCase = getUseCase();
 
-    const futurePayload: IAccountingEntityOnboardingDto = {
+    const futurePayload: IAccountingEntityCreationDto = {
       ...validPayload,
       fiscalYear: {
         startDate: new Date('2030-01-01T00:00:00.000Z'),
