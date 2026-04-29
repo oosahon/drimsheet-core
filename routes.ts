@@ -150,6 +150,17 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ICurrencyDto: {
+    dataType: 'refObject',
+    properties: {
+      code: { dataType: 'string', required: true },
+      symbol: { dataType: 'string', required: true },
+      name: { dataType: 'string', required: true },
+      minorUnit: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IUserSignupReq: {
     dataType: 'refObject',
     properties: {
