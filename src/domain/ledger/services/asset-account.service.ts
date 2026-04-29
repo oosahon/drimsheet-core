@@ -3,13 +3,16 @@ import currencyEntity from '../../currency/entities/currency.entity';
 import { ASSET_LEDGER_CODES } from '../config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../entities/01-asset-account/00-cash-and-equivalents.entity';
 import receivablesAccountEntity from '../entities/01-asset-account/02-receivables.entity';
+import assetSuspenseAccountEntity from '../entities/01-asset-account/99-suspense-account.entity';
 import error from '../errors';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import IAssetAccountService from '../types/asset-account.service.types';
 import {
+  EAssetAccountBehavior,
   EAssetSubType,
   IAssetLedgerAccount,
   IReceivablesAccount,
+  IStatutoryReceivableAccount,
 } from '../types/asset-account.types';
 import {
   TAssetLedgerCode,
@@ -23,6 +26,9 @@ type TBootstrapHeaders = IAssetAccountService['bootstrapHeaderAccounts'];
 type TCreatePettyCashSubAccount =
   IAssetAccountService['makePettyCashSubAccount'];
 
+type TBootstrapIndividualPostingAccounts =
+  IAssetAccountService['bootstrapIndividualPostingAccounts'];
+
 export default function makeAssetAccountService(
   repo: ILedgerAccountRepo
 ): IAssetAccountService {
@@ -35,7 +41,8 @@ export default function makeAssetAccountService(
    */
   const bootstrapHeaderAccounts: TBootstrapHeaders = async (
     accountingEntity,
-    repoOptions
+    repoOptions,
+    shouldBootstrapPostingAccounts
   ) => {
     const accountingEntityId = accountingEntity.id;
     const functionalCurrency = currencyEntity.getByCode(
@@ -131,6 +138,8 @@ export default function makeAssetAccountService(
       statutoryReceivablesCode
     );
 
+    let statutoryReceivablesHeader: IStatutoryReceivableAccount;
+
     if (!isExistingStatutoryReceivables) {
       const statutoryReceivables =
         receivablesAccountEntity.makeStatutoryReceivableAccount(
@@ -149,7 +158,22 @@ export default function makeAssetAccountService(
               existingReceivablesHeader.materializedPath as TReceivablesLedgerCode,
           }
         );
+      statutoryReceivablesHeader =
+        statutoryReceivables[0] as IStatutoryReceivableAccount;
       allAccounts.push(statutoryReceivables);
+    } else {
+      statutoryReceivablesHeader =
+        isExistingStatutoryReceivables as IStatutoryReceivableAccount;
+    }
+
+    if (shouldBootstrapPostingAccounts) {
+      const postingAccountsWithEvents =
+        await bootstrapIndividualPostingAccounts(
+          accountingEntity,
+          { statutoryReceivablesHeader },
+          repoOptions
+        );
+      allAccounts.push(...postingAccountsWithEvents);
     }
 
     const accounts: IAssetLedgerAccount[] = [];
@@ -216,8 +240,87 @@ export default function makeAssetAccountService(
     );
   };
 
+  /**
+   * Sets up the following asset accounts for a non-power user:
+   *  - Asset Suspense Account: 199000
+   *  - Default statutory receivable account: 102003
+   */
+  const bootstrapIndividualPostingAccounts: TBootstrapIndividualPostingAccounts =
+    async (accountingEntity, headers, repoOptions) => {
+      const {
+        ownerId,
+        id: accountingEntityId,
+        functionalCurrencyCode,
+      } = accountingEntity;
+
+      const functionalCurrency = currencyEntity.getByCode(
+        functionalCurrencyCode
+      );
+
+      const assetAccounts: TEntityWithEvents<
+        IAssetLedgerAccount,
+        IAssetLedgerAccount
+      >[] = [];
+
+      /**
+       * Suspense account
+       */
+      const existingSuspense = await repo.findBySubType(
+        accountingEntityId,
+        ELedgerType.Asset,
+        EAssetSubType.Suspense,
+        repoOptions
+      );
+
+      if (!existingSuspense.length) {
+        const account = assetSuspenseAccountEntity.make(
+          {
+            accountingEntityId,
+            currency: functionalCurrency,
+            name: 'Asset Suspense Account',
+            createdBy: ownerId,
+          },
+          null
+        );
+        assetAccounts.push(account);
+      }
+
+      /**
+       * Statutory receivables
+       */
+      const existingStatutoryReceivables = (await repo.findByBehavior(
+        accountingEntityId,
+        EAssetAccountBehavior.StatutoryReceivable,
+        repoOptions
+      )) as IStatutoryReceivableAccount[];
+
+      // Since the header is also a statutory receivable, if length is 1, only the header exists
+      if (existingStatutoryReceivables.length === 1) {
+        const account = receivablesAccountEntity.makeStatutoryReceivableAccount(
+          {
+            name: 'Statutory Receivables (Default)',
+            createdBy: ownerId,
+            accountingEntityId,
+            currency: functionalCurrency,
+            isControlAccount: false,
+            controlAccountId: headers.statutoryReceivablesHeader.id,
+          },
+          {
+            precedingCode: headers.statutoryReceivablesHeader
+              .code as TReceivablesLedgerCode,
+            parentMaterializedPath: headers.statutoryReceivablesHeader
+              .materializedPath as TReceivablesLedgerCode,
+          }
+        );
+        assetAccounts.push(account);
+      }
+
+      return assetAccounts;
+    };
+
   return Object.freeze({
     bootstrapHeaderAccounts,
     makePettyCashSubAccount,
+    bootstrapIndividualPostingAccounts,
   });
 }

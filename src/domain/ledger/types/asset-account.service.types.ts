@@ -6,6 +6,7 @@ import { ICurrency } from '../../currency/types/currency.types';
 import {
   IAssetLedgerAccount,
   ICashAndCashEquivalentAccount,
+  IStatutoryReceivableAccount,
 } from './asset-account.types';
 import { TCashLedgerCode } from './ledger-code.types';
 
@@ -21,11 +22,18 @@ interface IMakePettyCashPayload {
 export default interface IAssetAccountService {
   bootstrapHeaderAccounts(
     accountingEntity: IAccountingEntity,
-    repoOptions: IRepoOptions
+    repoOptions: IRepoOptions,
+    shouldBootstrapPostingAccounts?: boolean
   ): Promise<{
     accounts: IAssetLedgerAccount[];
     events: IEvent<IAssetLedgerAccount>[];
   }>;
+
+  bootstrapIndividualPostingAccounts(
+    accountingEntity: IAccountingEntity,
+    headers: { statutoryReceivablesHeader: IStatutoryReceivableAccount },
+    repoOptions: IRepoOptions
+  ): Promise<TEntityWithEvents<IAssetLedgerAccount, IAssetLedgerAccount>[]>;
 
   makePettyCashSubAccount(
     payload: IMakePettyCashPayload,

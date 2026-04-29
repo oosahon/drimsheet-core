@@ -3,18 +3,25 @@ import currencyEntity from '../../currency/entities/currency.entity';
 import { LIABILITY_LEDGER_CODES } from '../config/liability-codes.config';
 import shortTermLoanAccountEntity from '../entities/02-liability-account/00-short-term-loan.entity';
 import payableAccountEntity from '../entities/02-liability-account/03-payables.entity';
+import liabilitySuspenseAccountEntity from '../entities/02-liability-account/99-suspense-account.entity';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import {
   TLiabilityLedgerCode,
   TPayablesLedgerCode,
 } from '../types/ledger-code.types';
+import { ELedgerType } from '../types/ledger.types';
 import ILiabilityAccountService from '../types/liability-account.service.types';
 import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
   ILiabilityLedgerAccount,
   IPayableAccount,
+  IStatutoryPayableAccount,
 } from '../types/liability-account.types';
 
 type TBootstrapHeaders = ILiabilityAccountService['bootstrapHeaderAccounts'];
+type TBootstrapIndividualPostingAccounts =
+  ILiabilityAccountService['bootstrapIndividualPostingAccounts'];
 
 export default function makeLiabilityAccountService(
   repo: ILedgerAccountRepo
@@ -28,7 +35,8 @@ export default function makeLiabilityAccountService(
    */
   const bootstrapHeaderAccounts: TBootstrapHeaders = async (
     accountingEntity,
-    repoOptions
+    repoOptions,
+    shouldBootstrapPostingAccounts
   ) => {
     const accountingEntityId = accountingEntity.id;
     const functionalCurrency = currencyEntity.getByCode(
@@ -126,6 +134,8 @@ export default function makeLiabilityAccountService(
       statutoryPayablesCode
     );
 
+    let statutoryPayablesHeader: IStatutoryPayableAccount;
+
     if (!isExistingStatutoryPayables) {
       const statutoryPayables =
         payableAccountEntity.makeStatutoryPayableAccount(
@@ -144,7 +154,22 @@ export default function makeLiabilityAccountService(
               existingPayablesHeader.materializedPath as TPayablesLedgerCode,
           }
         );
+      statutoryPayablesHeader =
+        statutoryPayables[0] as IStatutoryPayableAccount;
       allAccounts.push(statutoryPayables);
+    } else {
+      statutoryPayablesHeader =
+        isExistingStatutoryPayables as IStatutoryPayableAccount;
+    }
+
+    if (shouldBootstrapPostingAccounts) {
+      const postingAccountsWithEvents =
+        await bootstrapIndividualPostingAccounts(
+          accountingEntity,
+          { statutoryPayablesHeader },
+          repoOptions
+        );
+      allAccounts.push(...postingAccountsWithEvents);
     }
 
     const accounts: ILiabilityLedgerAccount[] = [];
@@ -158,7 +183,82 @@ export default function makeLiabilityAccountService(
     return { accounts, events };
   };
 
+  const bootstrapIndividualPostingAccounts: TBootstrapIndividualPostingAccounts =
+    async (accountingEntity, headers, repoOptions) => {
+      const {
+        ownerId,
+        id: accountingEntityId,
+        functionalCurrencyCode,
+      } = accountingEntity;
+
+      const functionalCurrency = currencyEntity.getByCode(
+        functionalCurrencyCode
+      );
+
+      const liabilityAccounts: TEntityWithEvents<
+        ILiabilityLedgerAccount,
+        ILiabilityLedgerAccount
+      >[] = [];
+
+      /**
+       * Suspense account
+       */
+      const existingSuspense = await repo.findBySubType(
+        accountingEntityId,
+        ELedgerType.Liability,
+        ELiabilitySubType.Suspense,
+        repoOptions
+      );
+
+      if (!existingSuspense.length) {
+        const account = liabilitySuspenseAccountEntity.make(
+          {
+            accountingEntityId,
+            currency: functionalCurrency,
+            name: 'Liability Suspense Account',
+            createdBy: ownerId,
+          },
+          null
+        );
+        liabilityAccounts.push(account);
+      }
+
+      /**
+       * Statutory Payables
+       */
+      const existingStatutoryPayables = (await repo.findByBehavior(
+        accountingEntityId,
+        ELiabilityAccountBehavior.TaxPayable,
+        repoOptions
+      )) as IStatutoryPayableAccount[];
+
+      // Since the header is also a statutory payable, if length is 1, only the header exists
+      if (existingStatutoryPayables.length === 1) {
+        const account = payableAccountEntity.makeStatutoryPayableAccount(
+          {
+            name: 'Statutory Payables (Default)',
+            createdBy: ownerId,
+            accountingEntityId,
+            currency: functionalCurrency,
+            isControlAccount: false,
+            controlAccountId: headers.statutoryPayablesHeader.id,
+            meta: null,
+          },
+          {
+            precedingCode: headers.statutoryPayablesHeader
+              .code as TPayablesLedgerCode,
+            parentMaterializedPath: headers.statutoryPayablesHeader
+              .materializedPath as TPayablesLedgerCode,
+          }
+        );
+        liabilityAccounts.push(account);
+      }
+
+      return liabilityAccounts;
+    };
+
   return Object.freeze({
     bootstrapHeaderAccounts,
+    bootstrapIndividualPostingAccounts,
   });
 }

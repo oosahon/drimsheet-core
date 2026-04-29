@@ -1,5 +1,4 @@
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
-import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
@@ -10,10 +9,7 @@ import { ILedgerAccount } from '../../types/ledger.types';
 import makeAssetAccountService from '../asset-account.service';
 
 describe('assetAccountService', () => {
-  const service = makeAssetAccountService(
-    mockLedgerAccountRepo,
-    mockDomainServices.accountingEntity
-  );
+  const service = makeAssetAccountService(mockLedgerAccountRepo);
   const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
 
   beforeEach(() => {
@@ -92,9 +88,6 @@ describe('assetAccountService', () => {
           entityId,
           mockOptions
         );
-        expect(
-          mockDomainServices.accountingEntity.validateAccess
-        ).toHaveBeenCalledWith(validAccountingEntity, ownerId);
       });
 
       it('should create a petty cash account successfully with an explicit control account code and no latest account', async () => {
@@ -195,6 +188,47 @@ describe('assetAccountService', () => {
           service.makePettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid currency code');
       });
+    });
+  });
+
+  describe('bootstrapHeaderAccounts', () => {
+    const ownerId = generateUUID();
+    const entityId = generateUUID();
+
+    const validAccountingEntity = {
+      id: entityId,
+      ownerId,
+      functionalCurrencyCode: 'USD',
+    } as IAccountingEntity;
+
+    it('should bootstrap posting accounts when shouldBootstrapPostingAccounts is true', async () => {
+      mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
+      mockLedgerAccountRepo.findBySubType.mockResolvedValue([]);
+      mockLedgerAccountRepo.findByBehavior.mockResolvedValue([
+        {
+          id: generateUUID(),
+          code: '102002',
+          materializedPath: '102000.102002',
+        } as any,
+      ]);
+
+      const { accounts, events } = await service.bootstrapHeaderAccounts(
+        validAccountingEntity,
+        mockOptions,
+        true
+      );
+
+      const suspenseAccount = accounts.find(
+        (a: any) => a.name === 'Asset Suspense Account'
+      );
+      const statutoryReceivablesDefault = accounts.find(
+        (a: any) => a.name === 'Statutory Receivables (Default)'
+      );
+
+      expect(suspenseAccount).toBeDefined();
+      expect(statutoryReceivablesDefault).toBeDefined();
+      expect(accounts.length).toBeGreaterThan(0);
+      expect(events.length).toBeGreaterThan(0);
     });
   });
 });

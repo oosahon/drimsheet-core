@@ -21,6 +21,7 @@ import IEquityAccountService from '../../../domain/ledger/types/equity-account.s
 import IExpenseAccountService from '../../../domain/ledger/types/expense-account.service.types';
 import ILiabilityAccountService from '../../../domain/ledger/types/liability-account.service.types';
 import IRevenueAccountService from '../../../domain/ledger/types/revenue-account.service.types';
+import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
 import { ErrorBadRequest, ErrorConflict } from '../../../shared/errors/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
@@ -162,18 +163,25 @@ export default function createAccountingEntityUseCase(
         currentReportingPeriodId: currentReportingPeriod.id,
       });
 
+    const shouldBootstrapPostingAccounts =
+      payload.entityType === EAccountingEntityType.Individual &&
+      payload.appUsageMode === EAppUsageModePreference.NonPowerUser;
+
     // =============== Asset Accounts ===============
+
     const { accounts: assetAccounts, events: assetAccountEvents } =
       await assetAccountService.bootstrapHeaderAccounts(
         accountingEntity,
-        trace
+        trace,
+        shouldBootstrapPostingAccounts
       );
 
     // =============== Liability Accounts ===============
     const { accounts: liabilityAccounts, events: liabilityAccountEvents } =
       await liabilityAccountService.bootstrapHeaderAccounts(
         accountingEntity,
-        trace
+        trace,
+        shouldBootstrapPostingAccounts
       );
 
     // =============== Equity Accounts ===============
@@ -187,14 +195,16 @@ export default function createAccountingEntityUseCase(
     const { accounts: revenueAccounts, events: revenueAccountEvents } =
       await revenueAccountService.bootstrapHeaderAccounts(
         accountingEntity,
-        trace
+        trace,
+        shouldBootstrapPostingAccounts
       );
 
     // =============== Expense Accounts ===============
     const { accounts: expenseAccounts, events: expenseAccountEvents } =
       await expenseAccountService.bootstrapHeaderAccounts(
         accountingEntity,
-        trace
+        trace,
+        shouldBootstrapPostingAccounts
       );
 
     const ledgerAccounts = [

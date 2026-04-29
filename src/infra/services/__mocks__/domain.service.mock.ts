@@ -21,10 +21,12 @@ const accountingEntity: jest.Mocked<IAccountingEntityService> = {
 const assetAccount: jest.Mocked<IAssetAccountService> = {
   bootstrapHeaderAccounts: jest.fn(),
   makePettyCashSubAccount: jest.fn(),
+  bootstrapIndividualPostingAccounts: jest.fn(),
 };
 
 const liabilityAccount: jest.Mocked<ILiabilityAccountService> = {
   bootstrapHeaderAccounts: jest.fn(),
+  bootstrapIndividualPostingAccounts: jest.fn(),
 };
 
 const equityAccount: jest.Mocked<IEquityAccountService> = {
@@ -33,10 +35,12 @@ const equityAccount: jest.Mocked<IEquityAccountService> = {
 
 const revenueAccount: jest.Mocked<IRevenueAccountService> = {
   bootstrapHeaderAccounts: jest.fn(),
+  bootstrapIndividualPostingAccounts: jest.fn(),
 };
 
 const expenseAccount: jest.Mocked<IExpenseAccountService> = {
   bootstrapHeaderAccounts: jest.fn(),
+  bootstrapIndividualPostingAccounts: jest.fn(),
 };
 
 const exchangeRate: jest.Mocked<IExchangeRateService> = {
