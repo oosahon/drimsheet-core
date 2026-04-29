@@ -132,8 +132,8 @@ export function parseError(error: unknown) {
 
   return {
     type: 'unknown',
-    name: (error as Error).name ?? 'Error',
-    message: (error as Error).message ?? 'Unknown error',
+    name: (error as Error)?.name ?? 'Error',
+    message: (error as Error)?.message ?? 'Unknown error',
     cause: error,
   };
 }

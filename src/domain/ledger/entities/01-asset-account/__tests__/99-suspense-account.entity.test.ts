@@ -110,6 +110,18 @@ describe('Asset Suspense Account Entity', () => {
       expect(events).toHaveLength(2);
     });
 
+    it('should successfully create a suspense account when parent is null', () => {
+      const [account, events] = assetSuspenseAccountEntity.make(
+        validSuspensePayload,
+        null
+      );
+
+      expect(account.code).toBe('199000');
+      expect(account.materializedPath).toBe('199000');
+      expect(account.type).toBe(ELedgerType.Asset);
+      expect(events).toHaveLength(2);
+    });
+
     it('should throw if the payload values are invalid', () => {
       const invalidPayload = { ...validSuspensePayload, name: 'A' }; // Too short
       expect(() =>
