@@ -803,7 +803,7 @@ export function RegisterRoutes(app: Router) {
     '/api/v1/asset-accounts',
     ...fetchMiddlewares<RequestHandler>(AssetAccountController),
     ...fetchMiddlewares<RequestHandler>(
-      AssetAccountController.prototype.createPettyCashSubAccount
+      AssetAccountController.prototype.makePettyCashSubAccount
     ),
 
     async function AssetAccountController_createPettyCashSubAccount(
@@ -824,7 +824,7 @@ export function RegisterRoutes(app: Router) {
         const controller = new AssetAccountController();
 
         await templateService.apiHandler({
-          methodName: 'createPettyCashSubAccount',
+          methodName: 'makePettyCashSubAccount',
           controller,
           response,
           next,

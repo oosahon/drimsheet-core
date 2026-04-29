@@ -1,30 +1,27 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import currencyEntity from '../../../../domain/currency/entities/currency.entity';
-import { EXPENSE_LEDGER_CODES } from '../../../../domain/ledger/config/expense-codes.config';
-import directCostsAccountEntity from '../../../../domain/ledger/entities/05-expense-account/00-direct-costs.entity';
-import rentAndUtilitiesAccountEntity from '../../../../domain/ledger/entities/05-expense-account/02-rent-and-utilities.entity';
-import financeCostsAccountEntity from '../../../../domain/ledger/entities/05-expense-account/07-finance-costs.entity';
-import taxExpenseAccountEntity from '../../../../domain/ledger/entities/05-expense-account/08-tax-expense.entity';
-import unrealizedLossAccountEntity from '../../../../domain/ledger/entities/05-expense-account/09-unrealized-loss.entity';
-import assetDisposalLossAccountEntity from '../../../../domain/ledger/entities/05-expense-account/10-asset-disposal-loss.entity';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import currencyEntity from '../../currency/entities/currency.entity';
+import { EXPENSE_LEDGER_CODES } from '../config/expense-codes.config';
+import directCostsAccountEntity from '../entities/05-expense-account/00-direct-costs.entity';
+import rentAndUtilitiesAccountEntity from '../entities/05-expense-account/02-rent-and-utilities.entity';
+import financeCostsAccountEntity from '../entities/05-expense-account/07-finance-costs.entity';
+import taxExpenseAccountEntity from '../entities/05-expense-account/08-tax-expense.entity';
+import unrealizedLossAccountEntity from '../entities/05-expense-account/09-unrealized-loss.entity';
+import assetDisposalLossAccountEntity from '../entities/05-expense-account/10-asset-disposal-loss.entity';
+import ILedgerAccountRepo from '../repos/ledger-account.repo';
+import IExpenseAccountService from '../types/expense-account.service.types';
 import {
   EExpenseAccountBehavior,
   IExpenseLedgerAccount,
-} from '../../../../domain/ledger/types/expense-account.types';
-import { TExpenseLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
-import {
-  IEvent,
-  TEntityWithEvents,
-} from '../../../../shared/types/event.types';
-import IRequestContext from '../../../contracts/app/request-context.contract';
+} from '../types/expense-account.types';
+import { TExpenseLedgerCode } from '../types/ledger-code.types';
 
-export default function makeSetupExpenseHeaderAccountsUseCase(
-  requestContext: IRequestContext,
-  ledgerAccountRepo: ILedgerAccountRepo
-) {
+type TBootstrapHeaders = IExpenseAccountService['bootstrapHeaderAccounts'];
+
+export default function makeExpenseAccountService(
+  repo: ILedgerAccountRepo
+): IExpenseAccountService {
   /**
-   * Sets up the following expense accounts for an individual:
+   * Bootstraps header expense accounts for a new accounting entity
    *  - Direct Costs:            500000
    *  - Rent and Utilities:      502000
    *  - Finance Costs:           507000
@@ -32,23 +29,23 @@ export default function makeSetupExpenseHeaderAccountsUseCase(
    *  - Unrealized Loss:         509000
    *  - Asset Disposal Loss:     510000
    */
-  return async (accountingEntity: IAccountingEntity) => {
-    const { user, correlationId } = requestContext.get();
+  const bootstrapHeaderAccounts: TBootstrapHeaders = async (
+    accountingEntity,
+    repoOptions
+  ) => {
     const accountingEntityId = accountingEntity.id;
-    const createdBy = user.id;
     const functionalCurrency = currencyEntity.getByCode(
       accountingEntity.functionalCurrencyCode
     );
-
-    const trace = { correlationId };
+    const createdBy = accountingEntity.ownerId;
 
     const getExistingAccounts = async <T extends IExpenseLedgerAccount>(
       code: TExpenseLedgerCode
     ) => {
-      return (await ledgerAccountRepo.findByCode(
+      return (await repo.findByCode(
         code,
         accountingEntityId,
-        trace
+        repoOptions
       )) as T | null;
     };
 
@@ -164,4 +161,8 @@ export default function makeSetupExpenseHeaderAccountsUseCase(
 
     return { accounts, events };
   };
+
+  return Object.freeze({
+    bootstrapHeaderAccounts,
+  });
 }

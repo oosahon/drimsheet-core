@@ -16,6 +16,11 @@ import IReportingPeriodRepo from '../../../domain/accounting/repos/reporting-per
 import { EAccountingEntityType } from '../../../domain/accounting/types/accounting-entity.types';
 import { EPeriodStatus } from '../../../domain/accounting/types/period.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
+import IEquityAccountService from '../../../domain/ledger/types/equity-account.service.types';
+import IExpenseAccountService from '../../../domain/ledger/types/expense-account.service.types';
+import ILiabilityAccountService from '../../../domain/ledger/types/liability-account.service.types';
+import IRevenueAccountService from '../../../domain/ledger/types/revenue-account.service.types';
 import { ErrorBadRequest, ErrorConflict } from '../../../shared/errors/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
@@ -30,11 +35,6 @@ import {
   TRepoTransactionFn,
 } from '../../contracts/infra/repo.contract';
 import currencyMapper from '../../mappers/currency.mapper';
-import makeSetupAssetHeaderAccountsUseCase from '../ledger/asset-account/setup-asset-header-accounts.usecase';
-import makeSetupEquityHeaderAccountsUseCase from '../ledger/equity-account/setup-equity-header-accounts.usecase';
-import makeSetupExpenseHeaderAccountsUseCase from '../ledger/expense-account/setup-expense-header-accounts.usecase';
-import makeSetupLiabilityHeaderAccountsUseCase from '../ledger/liability-account/setup-liability-header-accounts.usecase';
-import makeSetupRevenueHeaderAccountsUseCase from '../ledger/revenue-account/setup-revenue-header-accounts.usecase';
 
 async function validate(payload: IAccountingEntityOnboardingDto) {
   zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
@@ -60,27 +60,13 @@ export default function createAccountingEntityUseCase(
   reportingPeriodRepo: IReportingPeriodRepo,
   reportingContextRepo: IReportingContextRepo,
   ledgerAccountRepo: ILedgerAccountRepo,
-  eventBus: IEventBus
+  eventBus: IEventBus,
+  assetAccountService: IAssetAccountService,
+  liabilityAccountService: ILiabilityAccountService,
+  equityAccountService: IEquityAccountService,
+  revenueAccountService: IRevenueAccountService,
+  expenseAccountService: IExpenseAccountService
 ) {
-  const setupAssetHeaderAccountsUseCase = makeSetupAssetHeaderAccountsUseCase(
-    requestContext,
-    ledgerAccountRepo
-  );
-
-  const setupLiabilityHeaderAccountsUseCase =
-    makeSetupLiabilityHeaderAccountsUseCase(requestContext, ledgerAccountRepo);
-
-  const setupEquityHeaderAccountsUseCase = makeSetupEquityHeaderAccountsUseCase(
-    requestContext,
-    ledgerAccountRepo
-  );
-
-  const setupRevenueHeaderAccountsUseCase =
-    makeSetupRevenueHeaderAccountsUseCase(requestContext, ledgerAccountRepo);
-
-  const setupExpenseHeaderAccountsUseCase =
-    makeSetupExpenseHeaderAccountsUseCase(requestContext, ledgerAccountRepo);
-
   return async (payload: IAccountingEntityOnboardingDto) => {
     validate(payload);
 
@@ -178,23 +164,38 @@ export default function createAccountingEntityUseCase(
 
     // =============== Asset Accounts ===============
     const { accounts: assetAccounts, events: assetAccountEvents } =
-      await setupAssetHeaderAccountsUseCase(accountingEntity);
+      await assetAccountService.bootstrapHeaderAccounts(
+        accountingEntity,
+        trace
+      );
 
     // =============== Liability Accounts ===============
     const { accounts: liabilityAccounts, events: liabilityAccountEvents } =
-      await setupLiabilityHeaderAccountsUseCase(accountingEntity);
+      await liabilityAccountService.bootstrapHeaderAccounts(
+        accountingEntity,
+        trace
+      );
 
     // =============== Equity Accounts ===============
     const { accounts: equityAccounts, events: equityAccountEvents } =
-      await setupEquityHeaderAccountsUseCase(accountingEntity);
+      await equityAccountService.bootstrapHeaderAccounts(
+        accountingEntity,
+        trace
+      );
 
     // =============== Revenue Accounts ===============
     const { accounts: revenueAccounts, events: revenueAccountEvents } =
-      await setupRevenueHeaderAccountsUseCase(accountingEntity);
+      await revenueAccountService.bootstrapHeaderAccounts(
+        accountingEntity,
+        trace
+      );
 
     // =============== Expense Accounts ===============
     const { accounts: expenseAccounts, events: expenseAccountEvents } =
-      await setupExpenseHeaderAccountsUseCase(accountingEntity);
+      await expenseAccountService.bootstrapHeaderAccounts(
+        accountingEntity,
+        trace
+      );
 
     const ledgerAccounts = [
       ...assetAccounts,

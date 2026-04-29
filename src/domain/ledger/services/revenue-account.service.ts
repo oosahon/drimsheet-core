@@ -1,47 +1,44 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import currencyEntity from '../../../../domain/currency/entities/currency.entity';
-import { REVENUE_LEDGER_CODES } from '../../../../domain/ledger/config/revenue-codes.config';
-import servicesAccountEntity from '../../../../domain/ledger/entities/04-revenue-account/02-services.entity';
-import employmentIncomeAccountEntity from '../../../../domain/ledger/entities/04-revenue-account/04-employment-income.entity';
-import GainOnAssetSaleAccountEntity from '../../../../domain/ledger/entities/04-revenue-account/06-gain-on-sale.entity';
-import unrealizedGainAccountEntity from '../../../../domain/ledger/entities/04-revenue-account/07-unrealized-gain.entity';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
-import { TRevenueLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
-import { IRevenueLedgerAccount } from '../../../../domain/ledger/types/revenue-account.types';
-import {
-  IEvent,
-  TEntityWithEvents,
-} from '../../../../shared/types/event.types';
-import IRequestContext from '../../../contracts/app/request-context.contract';
+import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import currencyEntity from '../../currency/entities/currency.entity';
+import { REVENUE_LEDGER_CODES } from '../config/revenue-codes.config';
+import servicesAccountEntity from '../entities/04-revenue-account/02-services.entity';
+import employmentIncomeAccountEntity from '../entities/04-revenue-account/04-employment-income.entity';
+import GainOnAssetSaleAccountEntity from '../entities/04-revenue-account/06-gain-on-sale.entity';
+import unrealizedGainAccountEntity from '../entities/04-revenue-account/07-unrealized-gain.entity';
+import ILedgerAccountRepo from '../repos/ledger-account.repo';
+import { TRevenueLedgerCode } from '../types/ledger-code.types';
+import IRevenueAccountService from '../types/revenue-account.service.types';
+import { IRevenueLedgerAccount } from '../types/revenue-account.types';
 
-export default function makeSetupRevenueHeaderAccountsUseCase(
-  requestContext: IRequestContext,
-  ledgerAccountRepo: ILedgerAccountRepo
-) {
+type TBootstrapHeaders = IRevenueAccountService['bootstrapHeaderAccounts'];
+
+export default function makeRevenueAccountService(
+  repo: ILedgerAccountRepo
+): IRevenueAccountService {
   /**
-   * Sets up the following revenue accounts for an individual:
+   * Bootstraps header revenue accounts for a new accounting entity
    *  - Services:                401000
    *  - Employment Income:       403000
    *  - Gain on Sale of Assets:  405000
    *  - Unrealized Gain:         406000
    */
-  return async (accountingEntity: IAccountingEntity) => {
-    const { user, correlationId } = requestContext.get();
+  const bootstrapHeaderAccounts: TBootstrapHeaders = async (
+    accountingEntity,
+    repoOptions
+  ) => {
     const accountingEntityId = accountingEntity.id;
-    const createdBy = user.id;
     const functionalCurrency = currencyEntity.getByCode(
       accountingEntity.functionalCurrencyCode
     );
-
-    const trace = { correlationId };
+    const createdBy = accountingEntity.ownerId;
 
     const getExistingAccounts = async <T extends IRevenueLedgerAccount>(
       code: TRevenueLedgerCode
     ) => {
-      return (await ledgerAccountRepo.findByCode(
+      return (await repo.findByCode(
         code,
         accountingEntityId,
-        trace
+        repoOptions
       )) as T | null;
     };
 
@@ -126,4 +123,8 @@ export default function makeSetupRevenueHeaderAccountsUseCase(
 
     return { accounts, events };
   };
+
+  return Object.freeze({
+    bootstrapHeaderAccounts,
+  });
 }

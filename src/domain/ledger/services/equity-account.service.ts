@@ -1,43 +1,40 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import currencyEntity from '../../../../domain/currency/entities/currency.entity';
-import { EQUITY_LEDGER_CODES } from '../../../../domain/ledger/config/equity-codes.config';
-import retainedEarningAccountEntity from '../../../../domain/ledger/entities/03-equity-account/01-retained-earning.entity';
-import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities/03-equity-account/99-opening-balance-equity.entity';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
-import { IEquityLedgerAccount } from '../../../../domain/ledger/types/equity-account.types';
-import { TEquityLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
-import {
-  IEvent,
-  TEntityWithEvents,
-} from '../../../../shared/types/event.types';
-import IRequestContext from '../../../contracts/app/request-context.contract';
+import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import currencyEntity from '../../currency/entities/currency.entity';
+import { EQUITY_LEDGER_CODES } from '../config/equity-codes.config';
+import retainedEarningAccountEntity from '../entities/03-equity-account/01-retained-earning.entity';
+import openingBalanceEquityLedgerEntity from '../entities/03-equity-account/99-opening-balance-equity.entity';
+import ILedgerAccountRepo from '../repos/ledger-account.repo';
+import IEquityAccountService from '../types/equity-account.service.types';
+import { IEquityLedgerAccount } from '../types/equity-account.types';
+import { TEquityLedgerCode } from '../types/ledger-code.types';
 
-export default function makeSetupEquityHeaderAccountsUseCase(
-  requestContext: IRequestContext,
-  ledgerAccountRepo: ILedgerAccountRepo
-) {
+type TBootstrapHeaders = IEquityAccountService['bootstrapHeaderAccounts'];
+
+export default function makeEquityAccountService(
+  repo: ILedgerAccountRepo
+): IEquityAccountService {
   /**
-   * Sets up the following equity accounts for an individual:
+   * Bootstraps header equity accounts for a new accounting entity
    *  - Retained Earnings:         301000
    *  - Opening Balance Equity:    399000
    */
-  return async (accountingEntity: IAccountingEntity) => {
-    const { user, correlationId } = requestContext.get();
+  const bootstrapHeaderAccounts: TBootstrapHeaders = async (
+    accountingEntity,
+    repoOptions
+  ) => {
     const accountingEntityId = accountingEntity.id;
-    const createdBy = user.id;
     const functionalCurrency = currencyEntity.getByCode(
       accountingEntity.functionalCurrencyCode
     );
-
-    const trace = { correlationId };
+    const createdBy = accountingEntity.ownerId;
 
     const getExistingAccounts = async <T extends IEquityLedgerAccount>(
       code: TEquityLedgerCode
     ) => {
-      return (await ledgerAccountRepo.findByCode(
+      return (await repo.findByCode(
         code,
         accountingEntityId,
-        trace
+        repoOptions
       )) as T | null;
     };
 
@@ -98,4 +95,8 @@ export default function makeSetupEquityHeaderAccountsUseCase(
 
     return { accounts, events };
   };
+
+  return Object.freeze({
+    bootstrapHeaderAccounts,
+  });
 }

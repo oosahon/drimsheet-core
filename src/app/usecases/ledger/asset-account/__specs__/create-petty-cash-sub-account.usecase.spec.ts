@@ -97,9 +97,10 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(null);
-    mockDomainServices.assetAccount.createPettyCashSubAccount.mockResolvedValue(
-      [mockPettyCashAccount, mockEvents]
-    );
+    mockDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue([
+      mockPettyCashAccount,
+      mockEvents,
+    ]);
   });
 
   const getUseCase = () =>
@@ -119,7 +120,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     await useCase(validPayload);
 
     expect(
-      mockDomainServices.assetAccount.createPettyCashSubAccount
+      mockDomainServices.assetAccount.makePettyCashSubAccount
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
@@ -186,7 +187,7 @@ describe('createPettyCashSubAccountUseCase', () => {
   it('should throw an error if the control account is not found', async () => {
     const useCase = getUseCase();
 
-    mockDomainServices.assetAccount.createPettyCashSubAccount.mockRejectedValue(
+    mockDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
       new AppError('Control account not found')
     );
 
@@ -221,7 +222,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IRequestContextData);
 
-    mockDomainServices.assetAccount.createPettyCashSubAccount.mockRejectedValue(
+    mockDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
       new AppError('Access denied.')
     );
 

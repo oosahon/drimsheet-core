@@ -1,51 +1,48 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import currencyEntity from '../../../../domain/currency/entities/currency.entity';
-import { LIABILITY_LEDGER_CODES } from '../../../../domain/ledger/config/liability-codes.config';
-import shortTermLoanAccountEntity from '../../../../domain/ledger/entities/02-liability-account/00-short-term-loan.entity';
-import payableAccountEntity from '../../../../domain/ledger/entities/02-liability-account/03-payables.entity';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import currencyEntity from '../../currency/entities/currency.entity';
+import { LIABILITY_LEDGER_CODES } from '../config/liability-codes.config';
+import shortTermLoanAccountEntity from '../entities/02-liability-account/00-short-term-loan.entity';
+import payableAccountEntity from '../entities/02-liability-account/03-payables.entity';
+import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import {
   TLiabilityLedgerCode,
   TPayablesLedgerCode,
-} from '../../../../domain/ledger/types/ledger-code.types';
+} from '../types/ledger-code.types';
+import ILiabilityAccountService from '../types/liability-account.service.types';
 import {
   ILiabilityLedgerAccount,
   IPayableAccount,
-} from '../../../../domain/ledger/types/liability-account.types';
-import {
-  IEvent,
-  TEntityWithEvents,
-} from '../../../../shared/types/event.types';
-import IRequestContext from '../../../contracts/app/request-context.contract';
+} from '../types/liability-account.types';
 
-export default function makeSetupLiabilityHeaderAccountsUseCase(
-  requestContext: IRequestContext,
-  ledgerAccountRepo: ILedgerAccountRepo
-) {
+type TBootstrapHeaders = ILiabilityAccountService['bootstrapHeaderAccounts'];
+
+export default function makeLiabilityAccountService(
+  repo: ILedgerAccountRepo
+): ILiabilityAccountService {
   /**
-   * Sets up the following liability accounts for an individual:
+   * Bootstraps header liability accounts for a new accounting entity
    *  - Short Term Debt:              200000
    *  - Payables:                     201000
    *    - Trade Payables:             201001
    *    - Statutory Payables:         201002
    */
-  return async (accountingEntity: IAccountingEntity) => {
-    const { user, correlationId } = requestContext.get();
+  const bootstrapHeaderAccounts: TBootstrapHeaders = async (
+    accountingEntity,
+    repoOptions
+  ) => {
     const accountingEntityId = accountingEntity.id;
-    const createdBy = user.id;
     const functionalCurrency = currencyEntity.getByCode(
       accountingEntity.functionalCurrencyCode
     );
-
-    const trace = { correlationId };
+    const createdBy = accountingEntity.ownerId;
 
     const getExistingAccounts = async <T extends ILiabilityLedgerAccount>(
       code: TLiabilityLedgerCode
     ) => {
-      return (await ledgerAccountRepo.findByCode(
+      return (await repo.findByCode(
         code,
         accountingEntityId,
-        trace
+        repoOptions
       )) as T | null;
     };
 
@@ -160,4 +157,8 @@ export default function makeSetupLiabilityHeaderAccountsUseCase(
 
     return { accounts, events };
   };
+
+  return Object.freeze({
+    bootstrapHeaderAccounts,
+  });
 }

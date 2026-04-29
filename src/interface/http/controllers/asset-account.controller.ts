@@ -21,14 +21,14 @@ export class AssetAccountController extends Controller {
    * Create a new petty cash sub account
    */
   @Post('/')
-  @OperationId('createPettyCashSubAccount')
+  @OperationId('makePettyCashSubAccount')
   @SuccessResponse('200')
   @Response<IApiError>('400')
   @Response<IApiError>('422')
   @Middlewares(middlewares.isAuthenticatedUser)
-  public async createPettyCashSubAccount(
+  public async makePettyCashSubAccount(
     @Body() body: IPettyCashAccountCreationReq
   ) {
-    return await assetAccountUseCase.createPettyCashSubAccount(body);
+    return await assetAccountUseCase.makePettyCashSubAccount(body);
   }
 }

@@ -3,6 +3,10 @@ import IAccountBalanceService from '../../../domain/bookkeeping/types/account-ba
 import IBookkeepingService from '../../../domain/bookkeeping/types/bookkeeping.service.types';
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
 import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
+import IEquityAccountService from '../../../domain/ledger/types/equity-account.service.types';
+import IExpenseAccountService from '../../../domain/ledger/types/expense-account.service.types';
+import ILiabilityAccountService from '../../../domain/ledger/types/liability-account.service.types';
+import IRevenueAccountService from '../../../domain/ledger/types/revenue-account.service.types';
 import IUserPreferencesService from '../../../domain/user/types/user-preferences.service.types';
 
 const userPreferences: jest.Mocked<IUserPreferencesService> = {
@@ -10,13 +14,29 @@ const userPreferences: jest.Mocked<IUserPreferencesService> = {
 };
 
 const accountingEntity: jest.Mocked<IAccountingEntityService> = {
-  create: jest.fn(),
   grantUserAccess: jest.fn(),
   validateAccess: jest.fn(),
 };
 
 const assetAccount: jest.Mocked<IAssetAccountService> = {
-  createPettyCashSubAccount: jest.fn(),
+  bootstrapHeaderAccounts: jest.fn(),
+  makePettyCashSubAccount: jest.fn(),
+};
+
+const liabilityAccount: jest.Mocked<ILiabilityAccountService> = {
+  bootstrapHeaderAccounts: jest.fn(),
+};
+
+const equityAccount: jest.Mocked<IEquityAccountService> = {
+  bootstrapHeaderAccounts: jest.fn(),
+};
+
+const revenueAccount: jest.Mocked<IRevenueAccountService> = {
+  bootstrapHeaderAccounts: jest.fn(),
+};
+
+const expenseAccount: jest.Mocked<IExpenseAccountService> = {
+  bootstrapHeaderAccounts: jest.fn(),
 };
 
 const exchangeRate: jest.Mocked<IExchangeRateService> = {
@@ -37,6 +57,10 @@ const mockDomainServices = Object.freeze({
   userPreferences,
   accountingEntity,
   assetAccount,
+  liabilityAccount,
+  equityAccount,
+  revenueAccount,
+  expenseAccount,
   exchangeRate,
   bookkeeping,
   accountBalance,

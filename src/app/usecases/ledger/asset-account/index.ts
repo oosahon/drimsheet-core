@@ -5,7 +5,7 @@ import appContext from '../../../context';
 import makeCreatePettyCashSubAccountUseCase from './create-petty-cash-sub-account.usecase';
 
 const assetAccountUseCase = {
-  createPettyCashSubAccount: makeCreatePettyCashSubAccountUseCase(
+  makePettyCashSubAccount: makeCreatePettyCashSubAccountUseCase(
     appContext.request,
     messaging.eventBus,
     repos.ledgerAccount,
