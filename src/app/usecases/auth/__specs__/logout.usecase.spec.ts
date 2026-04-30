@@ -4,6 +4,7 @@ import mockAuthService from '../../../../infra/services/__mocks__/auth.service.m
 import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
+import authError from '../../../errors/auth.errors';
 import makeLogoutUseCase from '../logout.usecase';
 
 describe('makeLogoutUseCase', () => {
@@ -59,7 +60,9 @@ describe('makeLogoutUseCase', () => {
 
   it('should clear cookie and ignore delete if refresh token is invalid', async () => {
     mockClientSession.getRefreshToken.mockReturnValue('invalid-refresh-token');
-    mockAuthService.verifyRefreshToken.mockReturnValue(null); // Return null
+    mockAuthService.verifyRefreshToken.mockImplementation(() => {
+      throw new authError.InvalidToken();
+    });
 
     const usecase = getUseCase();
     await usecase();

@@ -7,11 +7,11 @@ import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.rep
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { ErrorBadRequest } from '../../../../shared/utils/error';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
+import authError from '../../../errors/auth.errors';
 import makeRequestPasswordResetUseCase from '../request-password-reset.usecase';
 
 describe('makeRequestPasswordResetUseCase', () => {
@@ -151,10 +151,7 @@ describe('makeRequestPasswordResetUseCase', () => {
       mockUserAuthRepo
     );
 
-    await expect(usecase(userEmail)).rejects.toThrow(ErrorBadRequest);
-    await expect(usecase(userEmail)).rejects.toThrow(
-      'You signed up with a different method'
-    );
+    await expect(usecase(userEmail)).rejects.toThrow(authError.WrongStrategy);
 
     expect(mockAuthService.generatePasswordResetToken).not.toHaveBeenCalled();
     expect(

@@ -46,9 +46,15 @@ function makeHttpErrorHandler(reporter: IReporter) {
     const isKnownError = type === 'api' || type === 'domain';
 
     if (isKnownError) {
-      const { code = 400, ...body } = parsedError;
+      const isAuthError =
+        'errorKey' in parsedError &&
+        typeof parsedError.errorKey === 'string' &&
+        parsedError.errorKey.startsWith('app_error_auth_');
 
-      return res.status(code).json(body);
+      const defaultCode = isAuthError ? 401 : 400;
+      const { code = defaultCode, ...body } = parsedError;
+
+      return res.status(code as number).json(body);
     }
 
     reporter.report(error);

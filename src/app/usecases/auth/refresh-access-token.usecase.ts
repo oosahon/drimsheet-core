@@ -26,10 +26,6 @@ export default function makeRefreshAccessTokenUseCase(
 
     const decoded = makeAuthService.verifyRefreshToken(refreshToken);
 
-    if (!decoded) {
-      throw new ErrorUnauthorized();
-    }
-
     const user = await userRepo.findById(decoded.id, { correlationId });
 
     if (!user) {

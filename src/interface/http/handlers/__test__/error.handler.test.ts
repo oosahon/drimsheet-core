@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
-import { AppError, ErrorBadRequest } from '../../../../shared/utils/error';
+import {
+  AppError,
+  DomainError,
+  ErrorBadRequest,
+} from '../../../../shared/utils/error';
 import makeHttpErrorHandler from '../error.handler';
 
 describe('makeHttpErrorHandler', () => {
@@ -103,6 +107,48 @@ describe('makeHttpErrorHandler', () => {
     expect(mockJson).toHaveBeenCalledWith({
       name: 'AppError',
       message: 'Domain rule violated',
+      cause: undefined,
+    });
+    expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('should handle auth DomainError and return 401', () => {
+    const handler = makeHttpErrorHandler(mockReporter);
+    class MockAuthError extends DomainError<'app_error_auth_test'> {
+      constructor() {
+        super('app_error_auth_test', 'Auth failed');
+      }
+    }
+    const error = new MockAuthError();
+
+    handler(mockReq as Request, mockRes as Response, error);
+
+    expect(mockStatus).toHaveBeenCalledWith(401);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'MockAuthError',
+      errorKey: 'app_error_auth_test',
+      message: 'Auth failed',
+      cause: undefined,
+    });
+    expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('should handle non-auth DomainError and return 400', () => {
+    const handler = makeHttpErrorHandler(mockReporter);
+    class MockDomainError extends DomainError<'app_error_other_test'> {
+      constructor() {
+        super('app_error_other_test', 'Other domain error');
+      }
+    }
+    const error = new MockDomainError();
+
+    handler(mockReq as Request, mockRes as Response, error);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'MockDomainError',
+      errorKey: 'app_error_other_test',
+      message: 'Other domain error',
       cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();

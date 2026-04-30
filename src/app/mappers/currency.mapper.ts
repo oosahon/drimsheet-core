@@ -3,9 +3,9 @@ import {
   SYSTEM_CURRENCIES,
   UCurrencyCode,
 } from '../../domain/currency/config/currencies.config';
+import currencyEntity from '../../domain/currency/entities/currency.entity';
 import { ICurrency } from '../../domain/currency/types/currency.types';
 import { currenciesInCore } from '../../infra/config/drizzle/schema';
-import { ErrorBadRequest } from '../../shared/utils/error';
 
 export interface ICurrencyModel extends InferSelectModel<
   typeof currenciesInCore
@@ -29,13 +29,9 @@ const currencyMapper = {
   },
 
   fromInterface(code: string): ICurrency {
-    const currency = SYSTEM_CURRENCIES[code as UCurrencyCode];
+    currencyEntity.validateCode(code);
 
-    if (!currency) {
-      throw new ErrorBadRequest(`Currency ${code} does not exist`);
-    }
-
-    return currency;
+    return SYSTEM_CURRENCIES[code as UCurrencyCode];
   },
 };
 

@@ -6,15 +6,13 @@ import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/u
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import {
-  ErrorBadRequest,
-  ErrorUnprocessableEntity,
-} from '../../../../shared/utils/error';
+import { ErrorUnprocessableEntity } from '../../../../shared/utils/error';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
+import authError from '../../../errors/auth.errors';
 import makeLoginWithEmailUseCase from '../login-with-email.usecase';
 
 describe('makeLoginWithEmailUseCase', () => {
@@ -129,31 +127,29 @@ describe('makeLoginWithEmailUseCase', () => {
     expect(result).toEqual({ accessToken: 'auth-token' });
   });
 
-  it('should throw ErrorBadRequest if user does not exist', async () => {
+  it('should throw authError.InvalidCredentials if user does not exist', async () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
     const usecase = getUseCase();
 
-    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
     await expect(usecase(validPayload)).rejects.toThrow(
-      'Invalid email or password'
+      authError.InvalidCredentials
     );
     expect(mockAuthService.comparePassword).not.toHaveBeenCalled();
   });
 
-  it('should throw ErrorBadRequest if userAuth record is not found', async () => {
+  it('should throw authError.InvalidCredentials if userAuth record is not found', async () => {
     mockUserRepo.findByEmail.mockResolvedValue(getMockUser());
     mockUserAuthRepo.findByUserId.mockResolvedValue(null);
 
     const usecase = getUseCase();
 
-    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
     await expect(usecase(validPayload)).rejects.toThrow(
-      'Invalid email or password'
+      authError.InvalidCredentials
     );
   });
 
-  it('should throw ErrorBadRequest if max login attempts reached', async () => {
+  it('should throw authError.AccountLocked if max login attempts reached', async () => {
     mockUserRepo.findByEmail.mockResolvedValue(getMockUser());
     mockUserAuthRepo.findByUserId.mockResolvedValue(
       getMockUserAuth({ failedLoginAttempts: 5 })
@@ -161,13 +157,12 @@ describe('makeLoginWithEmailUseCase', () => {
 
     const usecase = getUseCase();
 
-    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
     await expect(usecase(validPayload)).rejects.toThrow(
-      'Account locked due to too many failed login attempts. Please reset your password.'
+      authError.AccountLocked
     );
   });
 
-  it('should throw ErrorBadRequest and increment failed attempts if user has no password set', async () => {
+  it('should throw authError.WrongStrategy and increment failed attempts if user has no password set', async () => {
     const mockUser = getMockUser();
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(
@@ -176,8 +171,9 @@ describe('makeLoginWithEmailUseCase', () => {
 
     const usecase = getUseCase();
 
-    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
-    await expect(usecase(validPayload)).rejects.toThrow('.');
+    await expect(usecase(validPayload)).rejects.toThrow(
+      authError.WrongStrategy
+    );
     expect(mockAuthService.comparePassword).not.toHaveBeenCalled();
     expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
       mockUser.id,
@@ -185,7 +181,7 @@ describe('makeLoginWithEmailUseCase', () => {
     );
   });
 
-  it('should throw ErrorBadRequest and increment failed attempts if strategy does not include email', async () => {
+  it('should throw authError.WrongStrategy and increment failed attempts if strategy does not include email', async () => {
     const mockUser = getMockUser();
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(
@@ -194,9 +190,8 @@ describe('makeLoginWithEmailUseCase', () => {
 
     const usecase = getUseCase();
 
-    await expect(usecase(validPayload)).rejects.toThrow(ErrorBadRequest);
     await expect(usecase(validPayload)).rejects.toThrow(
-      'You signed up with a different method.'
+      authError.WrongStrategy
     );
     expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
       mockUser.id,
@@ -204,7 +199,7 @@ describe('makeLoginWithEmailUseCase', () => {
     );
   });
 
-  it('should throw ErrorBadRequest and increment failed attempts if password does not match', async () => {
+  it('should throw authError.InvalidCredentials and increment failed attempts if password does not match', async () => {
     const mockUser = getMockUser();
     const payload = { ...validPayload, password: 'WrongPassword!' };
 
@@ -214,8 +209,9 @@ describe('makeLoginWithEmailUseCase', () => {
 
     const usecase = getUseCase();
 
-    await expect(usecase(payload)).rejects.toThrow(ErrorBadRequest);
-    await expect(usecase(payload)).rejects.toThrow('Invalid email or password');
+    await expect(usecase(payload)).rejects.toThrow(
+      authError.InvalidCredentials
+    );
     expect(mockAuthService.comparePassword).toHaveBeenCalledWith(
       payload.password,
       'hashed-password'

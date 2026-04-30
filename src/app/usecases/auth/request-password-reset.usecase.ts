@@ -2,7 +2,6 @@ import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import { WEB_APP_URL } from '../../../infra/config/vars.config';
-import { ErrorBadRequest } from '../../../shared/utils/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IAuthService, {
@@ -11,6 +10,7 @@ import IAuthService, {
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import ITransactionalEmailService from '../../contracts/infra/transactional-email-service.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
+import authError from '../../errors/auth.errors';
 
 export default function makeRequestPasswordResetUseCase(
   requestContext: IRequestContext,
@@ -36,7 +36,7 @@ export default function makeRequestPasswordResetUseCase(
     });
 
     if (!userAuth || !userAuth.strategy.includes(EAuthStrategy.Email)) {
-      throw new ErrorBadRequest('You signed up with a different method');
+      throw new authError.WrongStrategy();
     }
 
     const resetToken = await makeAuthService.generatePasswordResetToken(user);

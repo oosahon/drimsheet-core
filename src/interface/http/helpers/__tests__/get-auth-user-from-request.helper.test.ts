@@ -52,7 +52,7 @@ describe('getAuthUserFromRequest', () => {
     expect(result).toBeNull();
   });
 
-  it('should log error and return null if decoding token fails', async () => {
+  it('should propagate error if decoding token fails', async () => {
     mockReq.headers = {
       authorization: 'Bearer invalid-token',
       'x-correlation-id': 'corr-123',
@@ -60,35 +60,14 @@ describe('getAuthUserFromRequest', () => {
     const error = new Error('Token expired');
     mockAuthService.getAuthUser.mockRejectedValue(error);
 
-    const result = await getAuthUserFromRequest(
-      mockReq as Request,
-      mockAuthService,
-      mockLogger,
-      mockUserRepo
-    );
-
-    expect(mockLogger.error).toHaveBeenCalledWith(
-      'An error occurred while decoding token',
-      {
-        error,
-        correlationId: 'corr-123',
-      }
-    );
-    expect(result).toBeNull();
-  });
-
-  it('should return null if decoded auth user is null', async () => {
-    mockReq.headers = { authorization: 'Bearer valid-token' };
-    mockAuthService.getAuthUser.mockResolvedValue(null as any);
-
-    const result = await getAuthUserFromRequest(
-      mockReq as Request,
-      mockAuthService,
-      mockLogger,
-      mockUserRepo
-    );
-
-    expect(result).toBeNull();
+    await expect(
+      getAuthUserFromRequest(
+        mockReq as Request,
+        mockAuthService,
+        mockLogger,
+        mockUserRepo
+      )
+    ).rejects.toThrow(error);
   });
 
   it('should return user from repo if token decoding succeeds', async () => {

@@ -2,6 +2,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { ErrorUnauthorized } from '../../../../shared/utils/error';
 import { IUserSession } from '../../../contracts/infra/auth-service.contract';
+import authError from '../../../errors/auth.errors';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 
@@ -64,10 +65,12 @@ describe('refreshAccessTokenUseCase', () => {
     await expect(useCase()).rejects.toThrow(ErrorUnauthorized);
   });
 
-  it('throws ErrorUnauthorized if auth service returns null for token', async () => {
-    mockAuthService.verifyRefreshToken.mockReturnValue(null);
+  it('propagates AuthError if refresh token is invalid', async () => {
+    mockAuthService.verifyRefreshToken.mockImplementation(() => {
+      throw new authError.InvalidToken();
+    });
     const useCase = getUseCase();
-    await expect(useCase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(useCase()).rejects.toThrow(authError.Error);
   });
 
   it('throws ErrorUnauthorized if user is not found', async () => {

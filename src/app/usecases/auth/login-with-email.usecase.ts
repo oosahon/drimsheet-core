@@ -2,7 +2,6 @@ import z from 'zod';
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
-import { ErrorBadRequest } from '../../../shared/utils/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
@@ -14,6 +13,7 @@ import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
+import authError from '../../errors/auth.errors';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z.object({
@@ -42,7 +42,7 @@ export default function makeLoginWithEmailUseCase(
     const user = await userRepo.findByEmail(email, { correlationId });
 
     if (!user) {
-      throw new ErrorBadRequest('Invalid email or password');
+      throw new authError.InvalidCredentials();
     }
 
     const userAuth = await userAuthRepo.findByUserId(user.id, {
@@ -50,15 +50,13 @@ export default function makeLoginWithEmailUseCase(
     });
 
     if (!userAuth) {
-      throw new ErrorBadRequest('Invalid email or password');
+      throw new authError.InvalidCredentials();
     }
 
     const MAX_LOGIN_ATTEMPTS = 5;
 
     if (userAuth.failedLoginAttempts >= MAX_LOGIN_ATTEMPTS) {
-      throw new ErrorBadRequest(
-        'Account locked due to too many failed login attempts. Please reset your password.'
-      );
+      throw new authError.AccountLocked();
     }
 
     if (
@@ -68,7 +66,7 @@ export default function makeLoginWithEmailUseCase(
       await userAuthRepo.incrementFailedLoginAttempts(user.id, {
         correlationId,
       });
-      throw new ErrorBadRequest('You signed up with a different method.');
+      throw new authError.WrongStrategy();
     }
 
     const isValidPassword = await makeAuthService.comparePassword(
@@ -80,7 +78,7 @@ export default function makeLoginWithEmailUseCase(
       await userAuthRepo.incrementFailedLoginAttempts(user.id, {
         correlationId,
       });
-      throw new ErrorBadRequest('Invalid email or password');
+      throw new authError.InvalidCredentials();
     }
 
     if (userAuth.failedLoginAttempts > 0) {

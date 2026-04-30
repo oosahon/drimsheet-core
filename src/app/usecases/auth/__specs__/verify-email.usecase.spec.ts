@@ -4,14 +4,12 @@ import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/u
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import {
-  ErrorBadRequest,
-  ErrorUnprocessableEntity,
-} from '../../../../shared/utils/error';
+import { ErrorUnprocessableEntity } from '../../../../shared/utils/error';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import authError from '../../../errors/auth.errors';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
 describe('makeVerifyEmailAddressUseCase', () => {
@@ -109,9 +107,11 @@ describe('makeVerifyEmailAddressUseCase', () => {
     });
   });
 
-  it('should throw ErrorUnauthorized if token is invalid or expired', async () => {
+  it('should propagate AuthError if token is invalid or expired', async () => {
     const token = 'invalid-token';
-    mockAuthService.verifySignupToken.mockResolvedValue(null);
+    mockAuthService.verifySignupToken.mockRejectedValue(
+      new authError.InvalidToken()
+    );
 
     const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
@@ -122,10 +122,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
       mockRepoService
     );
 
-    await expect(usecase(token)).rejects.toThrow(ErrorBadRequest);
-    await expect(usecase(token)).rejects.toThrow(
-      'Invalid or expired verification token'
-    );
+    await expect(usecase(token)).rejects.toThrow(authError.Error);
 
     expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).not.toHaveBeenCalled();
@@ -152,10 +149,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
       mockRepoService
     );
 
-    await expect(usecase(token)).rejects.toThrow(ErrorBadRequest);
-    await expect(usecase(token)).rejects.toThrow(
-      'Invalid or expired verification token'
-    );
+    await expect(usecase(token)).rejects.toThrow(authError.InvalidToken);
 
     expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
