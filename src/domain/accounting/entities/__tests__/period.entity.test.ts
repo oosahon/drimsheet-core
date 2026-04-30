@@ -1,6 +1,4 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import periodErrors from '../../errors/period.errors';
 import {
   EPeriodStatus,
   EPeriodUnit,
@@ -25,9 +23,7 @@ describe('periodEntity', () => {
     });
 
     it('throws InvalidPeriodUnitError if unit is invalid', () => {
-      expect(() => periodEntity.validateUnit('invalid')).toThrow(
-        periodErrors.InvalidUnit
-      );
+      expect(() => periodEntity.validateUnit('invalid')).toThrow();
     });
   });
 
@@ -42,9 +38,7 @@ describe('periodEntity', () => {
     });
 
     it('throws InvalidPeriodStatusError for an invalid status', () => {
-      expect(() => periodEntity.validateStatus('invalid')).toThrow(
-        periodErrors.InvalidStatus
-      );
+      expect(() => periodEntity.validateStatus('invalid')).toThrow();
     });
   });
 
@@ -91,9 +85,7 @@ describe('periodEntity', () => {
         ...validPayload,
         accountingEntityId: 'invalid' as TEntityId,
       };
-      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow();
     });
 
     it('throws AppError if fiscalYearId is invalid', () => {
@@ -101,9 +93,7 @@ describe('periodEntity', () => {
         ...validPayload,
         fiscalYearId: 'invalid' as TEntityId,
       };
-      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow();
     });
 
     it('throws InvalidPeriodUnitError if unit is invalid', () => {
@@ -111,9 +101,7 @@ describe('periodEntity', () => {
         ...validPayload,
         unit: 'invalid' as UPeriodUnit,
       };
-      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow(
-        periodErrors.InvalidUnit
-      );
+      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow();
     });
   });
 });

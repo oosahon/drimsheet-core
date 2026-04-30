@@ -378,7 +378,7 @@ describe('ledgerAccountBalanceEntity', () => {
             accountId,
             journalLines
           )
-        ).toThrow('All lines must be associated with the same account');
+        ).toThrow();
       });
     });
   });

@@ -1,8 +1,8 @@
-import { AppError } from '../../../../shared/errors/error';
 import dateUtils from '../../../../shared/utils/date';
 import numberUtils from '../../../../shared/utils/number';
 import stringUtils from '../../../../shared/utils/string';
 import currencyEntity from '../../entities/currency.entity';
+import exchangeRateError from '../../errors/exchange-rate.errors';
 import {
   EExchangeRateType,
   IExchangeRate,
@@ -11,7 +11,7 @@ import {
 
 function validateType(value: UExchangeRateType) {
   if (!Object.values(EExchangeRateType).includes(value)) {
-    throw new AppError('Invalid exchange rate type', { cause: value });
+    throw new exchangeRateError.InvalidType({ cause: value });
   }
 }
 
@@ -32,7 +32,7 @@ function validateCurrencyPair(
     base === params.baseCurrencyCode && target === params.targetCurrencyCode;
 
   if (!itMatches) {
-    throw new AppError('Invalid currency pair', { cause: params });
+    throw new exchangeRateError.InvalidPair({ cause: params });
   }
 
   currencyEntity.validateCode(base);

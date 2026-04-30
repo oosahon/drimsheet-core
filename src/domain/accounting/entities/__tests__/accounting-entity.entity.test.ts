@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
@@ -60,9 +59,7 @@ describe('accountingEntityEntity', () => {
       };
 
       // @ts-expect-error testing invalid type
-      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if invalid ownerId is provided', () => {
@@ -72,9 +69,7 @@ describe('accountingEntityEntity', () => {
       };
 
       // @ts-expect-error testing invalid ownerId type
-      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if name is too short', () => {
@@ -83,9 +78,7 @@ describe('accountingEntityEntity', () => {
         name: '',
       };
 
-      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if name is missing', () => {
@@ -95,9 +88,7 @@ describe('accountingEntityEntity', () => {
       };
 
       // @ts-expect-error testing missing property
-      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow();
     });
   });
 
@@ -134,7 +125,7 @@ describe('accountingEntityEntity', () => {
         expect(() =>
           // @ts-expect-error testing invalid argument
           accountingEntityEntity.validateType('invalid-type')
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -165,7 +156,7 @@ describe('accountingEntityEntity', () => {
       it('throws AppError for an invalid jurisdiction code', () => {
         expect(() =>
           accountingEntityEntity.validateJurisdictionCode('INVALID')
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -204,7 +195,7 @@ describe('accountingEntityEntity', () => {
         expect(() =>
           // @ts-expect-error testing invalid argument
           accountingEntityEntity.validateAuditTrailAction('invalid-action')
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
   });

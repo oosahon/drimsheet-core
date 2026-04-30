@@ -1,8 +1,8 @@
-import { AppError } from '../../../shared/errors/error';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import eventValue from '../../../shared/value-objects/event.vo';
+import userActivityError from '../errors/user-activity.errors';
 import { IUserActivity } from '../types/user-activity.types';
 
 function make(payload: TCreationOmits<IUserActivity>) {
@@ -16,7 +16,7 @@ function make(payload: TCreationOmits<IUserActivity>) {
   });
 
   if (payload.meta && typeof payload.meta !== 'object') {
-    throw new AppError('Meta must be an object', { cause: payload.meta });
+    throw new userActivityError.InvalidMeta({ cause: payload.meta });
   }
 
   const userActivity: IUserActivity = Object.freeze({

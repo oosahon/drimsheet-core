@@ -1,8 +1,8 @@
-import { AppError } from '../../../shared/errors/error';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
+import userPreferencesError from '../errors/user-preferences.errors';
 import userEvents from '../events/user.events';
 import {
   EAppThemePreference,
@@ -20,13 +20,13 @@ function makeAppPreferences(appPreferences: IUserAppPreferences) {
     !Object.values(EAppUsageModePreference).includes(appUsageMode);
 
   if (isInvalidTheme) {
-    throw new AppError('Invalid app preferences', {
+    throw new userPreferencesError.InvalidAppPreferences({
       cause: appPreferences,
     });
   }
 
   if (isInvalidUsageMode) {
-    throw new AppError('Invalid app preferences', {
+    throw new userPreferencesError.InvalidAppPreferences({
       cause: appPreferences,
     });
   }

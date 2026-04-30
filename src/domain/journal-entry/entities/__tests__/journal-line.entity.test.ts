@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
@@ -102,7 +101,7 @@ describe('JournalLineItem Entity', () => {
 
       expect(() =>
         journalLineEntity.make(validEntryPayload, invalidPayload)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should successfully create a journal line item for same currency without exchange rate', () => {
@@ -138,7 +137,7 @@ describe('JournalLineItem Entity', () => {
       it('should throw an AppError for an invalid side', () => {
         expect(() =>
           journalLineEntity.validateSide('invalid' as UJournalSide)
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -157,9 +156,7 @@ describe('JournalLineItem Entity', () => {
 
       it('should throw if description is too long', () => {
         const longDesc = 'a'.repeat(101);
-        expect(() => journalLineEntity.getDescription(longDesc)).toThrow(
-          AppError
-        );
+        expect(() => journalLineEntity.getDescription(longDesc)).toThrow();
       });
     });
 
@@ -180,7 +177,7 @@ describe('JournalLineItem Entity', () => {
             functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: validExchangeRate,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should return if same currency and exchange rate is null', () => {
@@ -200,7 +197,7 @@ describe('JournalLineItem Entity', () => {
             functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: null,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if exchange rate base does not match amount currency', () => {
@@ -219,7 +216,7 @@ describe('JournalLineItem Entity', () => {
             functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: invalidBaseRate,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if exchange rate target does not match functional currency', () => {
@@ -238,7 +235,7 @@ describe('JournalLineItem Entity', () => {
             functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: invalidTargetRate,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
   });

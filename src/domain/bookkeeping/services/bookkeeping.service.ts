@@ -1,4 +1,3 @@
-import { AppError } from '../../../shared/errors/error';
 import { IMoney } from '../../../shared/types/money.types';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
@@ -9,6 +8,7 @@ import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.ent
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
 import { ELedgerType } from '../../ledger/types/ledger.types';
+import bookkeepingError from '../errors/bookkeeping.errors';
 import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
 import journalEntryRules from '../rules/journal-entry.rule';
 import IBookkeepingService from '../types/bookkeeping.service.types';
@@ -26,7 +26,7 @@ export default function makeBookkeepingService(
     async (payload, repoOptions) => {
       const { account, amount, accountingEntity, exchangeRate } = payload;
       if (account.isControlAccount) {
-        throw new AppError('Cannot set opening balance on control account', {
+        throw new bookkeepingError.ControlAccountOpeningBalanceNotAllowed({
           cause: { accountId: account.id },
         });
       }
@@ -42,7 +42,7 @@ export default function makeBookkeepingService(
         );
 
       if (existingBalanceAdjustment) {
-        throw new AppError('Opening balance has already been set', {
+        throw new bookkeepingError.ExistingOpeningBalance({
           cause: { accountId: payload.account.id },
         });
       }
@@ -55,9 +55,7 @@ export default function makeBookkeepingService(
       );
 
       if (!equityAccount) {
-        throw new AppError(
-          'Account type for opening balance is not configured'
-        );
+        throw new bookkeepingError.UnconfiguredOpeningBalanceAccount();
       }
 
       const { targetAccountSide, equityAccountSide } =
@@ -113,11 +111,11 @@ export default function makeBookkeepingService(
     const account = await ledgerAccountRepo.findById(accountId, repoOptions);
 
     if (!account) {
-      throw new AppError('Account not found', { cause: { accountId } });
+      throw new bookkeepingError.AccountNotFound({ cause: { accountId } });
     }
 
     if (!journalLines || journalLines.length === 0) {
-      throw new AppError('Journal lines cannot be empty', {
+      throw new bookkeepingError.EmptyJournalLines({
         cause: { accountId },
       });
     }
@@ -140,16 +138,13 @@ export default function makeBookkeepingService(
     });
 
     if (!isSame) {
-      throw new AppError(
-        'All lines must be associated with the same account, functional currency and currency',
-        {
-          cause: journalLines.map((v) => ({
-            accountId: v.accountId,
-            functionalCurrency: v.functionalAmount.currency,
-            currency: v.amount.currency,
-          })),
-        }
-      );
+      throw new bookkeepingError.MismatchedJournalLines({
+        cause: journalLines.map((v) => ({
+          accountId: v.accountId,
+          functionalCurrency: v.functionalAmount.currency,
+          currency: v.amount.currency,
+        })),
+      });
     }
 
     let balanceDelta: IMoney = moneyValue.makeZeroAmount(account.currency);

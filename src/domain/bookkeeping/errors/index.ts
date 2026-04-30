@@ -1,21 +1,11 @@
-import { DomainError } from '../../../shared/errors/error';
-import { EBookkeepingError, UBookkeepingError } from './types';
+import { DomainError, TErrorCause } from '../../../shared/errors/error';
 
-class BookkeepingError extends DomainError<UBookkeepingError> {
-  constructor(key: UBookkeepingError, cause?: Record<string, unknown>) {
+type TErrorPrefix = `bookkeeping_error_${string}`;
+
+export class BookkeepingError<K extends TErrorPrefix> extends DomainError<K> {
+  constructor(key: K, cause?: TErrorCause) {
     super(key, key, cause);
   }
 }
 
-class AccountingEntityNotFound extends BookkeepingError {
-  constructor(cause?: Record<string, unknown>) {
-    super(EBookkeepingError.AccountingEntityNotFound, cause);
-  }
-}
-
-const bookkeepingError = Object.freeze({
-  Error: BookkeepingError,
-  AccountingEntityNotFound,
-});
-
-export default bookkeepingError;
+export default BookkeepingError;

@@ -1,10 +1,10 @@
-import { AppError } from '../../../shared/errors/error';
+import userValueObjectError from '../errors/user-value-object.errors';
 
 export type FirstOrLastName = string & { readonly __brand: unique symbol };
 
 function make(input: unknown): FirstOrLastName {
   if (typeof input !== 'string') {
-    throw new AppError('Name must be a string', {
+    throw new userValueObjectError.InvalidType({
       cause: input,
     });
   }
@@ -12,13 +12,13 @@ function make(input: unknown): FirstOrLastName {
   const normalized = input.trim().replace(/\s+/g, ' ').normalize('NFC');
 
   if (normalized.length < 1) {
-    throw new AppError('Name is too short', {
+    throw new userValueObjectError.TooShort({
       cause: input,
     });
   }
 
   if (normalized.length > 128) {
-    throw new AppError('Name is too long', {
+    throw new userValueObjectError.TooLong({
       cause: input,
     });
   }
@@ -27,7 +27,7 @@ function make(input: unknown): FirstOrLastName {
   const hasLetterRegex = /[\p{L}]/u;
 
   if (!validCharsRegex.test(normalized) || !hasLetterRegex.test(normalized)) {
-    throw new AppError('Name is invalid', {
+    throw new userValueObjectError.InvalidFormat({
       cause: input,
     });
   }

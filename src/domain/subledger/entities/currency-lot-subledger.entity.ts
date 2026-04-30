@@ -1,4 +1,3 @@
-import { AppError } from '../../../shared/errors/error';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
@@ -8,6 +7,7 @@ import {
   EAdjustmentType,
   UAdjustmentType,
 } from '../../ledger/types/ledger.types';
+import currencyLotError from '../errors/currency-lot-subledger.errors';
 import currencyLotEvents from '../events/currency-lot.events';
 import {
   ICurrencyLot,
@@ -17,7 +17,7 @@ import {
 
 function validateAdjustmentType(adjustmentType: UAdjustmentType) {
   if (!Object.values(EAdjustmentType).includes(adjustmentType)) {
-    throw new AppError('Invalid adjustment type', { cause: adjustmentType });
+    throw new currencyLotError.InvalidAdjustmentType({ cause: adjustmentType });
   }
 }
 

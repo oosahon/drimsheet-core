@@ -40,13 +40,13 @@ function getDescription(description: string | null) {
 
 function getJurisdiction(code: string) {
   if (!code) {
-    throw new jurisdictionError.InvalidJurisdiction();
+    throw new jurisdictionError.Invalid();
   }
 
   const jurisdiction = SYSTEM_JURISDICTIONS[code as UJurisdictionCode];
 
   if (!jurisdiction) {
-    throw new jurisdictionError.InvalidJurisdiction();
+    throw new jurisdictionError.Invalid();
   }
 
   return jurisdiction;
@@ -54,13 +54,13 @@ function getJurisdiction(code: string) {
 
 function validateStandardCode(code: UAccountingStandardCode) {
   if (!code) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 
   const standard = SYSTEM_ACCOUNTING_STANDARDS[code];
 
   if (!standard) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 }
 
@@ -77,13 +77,13 @@ function validateStandardCodeAndJurisdiction(
     jurisdictionObj.accountingStandards[accountingEntityType];
 
   if (!availableStandards) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 
   const isIncluded = availableStandards.includes(code);
 
   if (!isIncluded) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 }
 
@@ -91,7 +91,7 @@ function getStandard(code: UAccountingStandardCode) {
   const standard = SYSTEM_ACCOUNTING_STANDARDS[code];
 
   if (!standard) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 
   return standard;

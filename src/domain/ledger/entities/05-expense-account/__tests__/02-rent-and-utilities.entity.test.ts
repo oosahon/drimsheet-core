@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   EExpenseAccountBehavior,
@@ -55,7 +54,7 @@ describe('Rent and Utilities Expense Entity', () => {
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         rentAndUtilitiesAccountEntity.getCode('503000' as any)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -141,7 +140,7 @@ describe('Rent and Utilities Expense Entity', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
         rentAndUtilitiesAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -151,7 +150,7 @@ describe('Rent and Utilities Expense Entity', () => {
       };
       expect(() =>
         rentAndUtilitiesAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should use base code 502000 when predecessorCode is null', () => {

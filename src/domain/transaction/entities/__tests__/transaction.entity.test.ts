@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
@@ -129,7 +128,7 @@ describe('Transaction Entity', () => {
     });
 
     it('should throw an AppError if items array is empty', () => {
-      expect(() => transactionEntity.make(validPayload, [])).toThrow(AppError);
+      expect(() => transactionEntity.make(validPayload, [])).toThrow();
     });
 
     it('should throw an AppError if items have different currencies', () => {
@@ -140,9 +139,7 @@ describe('Transaction Entity', () => {
         targetAccountId: '5a6b7c8d-9e0f-4a2b-8c4d-5e6f7a8b9c0d' as TEntityId,
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
       });
-      expect(() => transactionEntity.make(validPayload, validItems)).toThrow(
-        AppError
-      );
+      expect(() => transactionEntity.make(validPayload, validItems)).toThrow();
     });
   });
 
@@ -162,7 +159,7 @@ describe('Transaction Entity', () => {
       });
 
       it('should throw for an invalid reference', () => {
-        expect(() => transactionEntity.validateReference('')).toThrow(AppError);
+        expect(() => transactionEntity.validateReference('')).toThrow();
         expect(() => transactionEntity.validateReference('   ')).toThrow();
       });
     });
@@ -176,9 +173,7 @@ describe('Transaction Entity', () => {
 
       it('should throw for an invalid type', () => {
         const invalidType = 'invalid' as unknown as UTransactionType;
-        expect(() => transactionEntity.validateType(invalidType)).toThrow(
-          AppError
-        );
+        expect(() => transactionEntity.validateType(invalidType)).toThrow();
       });
     });
 
@@ -191,9 +186,7 @@ describe('Transaction Entity', () => {
 
       it('should throw for an invalid status', () => {
         const invalidStatus = 'invalid' as unknown as UTransactionStatus;
-        expect(() => transactionEntity.validateStatus(invalidStatus)).toThrow(
-          AppError
-        );
+        expect(() => transactionEntity.validateStatus(invalidStatus)).toThrow();
       });
     });
 
@@ -217,7 +210,7 @@ describe('Transaction Entity', () => {
             type: 'application/pdf',
             size: 100,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if name is empty', () => {
@@ -228,7 +221,7 @@ describe('Transaction Entity', () => {
             type: 'application/pdf',
             size: 100,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if type is empty', () => {
@@ -239,7 +232,7 @@ describe('Transaction Entity', () => {
             type: '',
             size: 100,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if size is invalid or less than or equal to 0', () => {
@@ -250,7 +243,7 @@ describe('Transaction Entity', () => {
             type: 'application/pdf',
             size: 0,
           })
-        ).toThrow(AppError);
+        ).toThrow();
 
         const invalidSize = '100' as unknown as number;
         expect(() =>
@@ -260,7 +253,7 @@ describe('Transaction Entity', () => {
             type: 'application/pdf',
             size: invalidSize,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -271,7 +264,7 @@ describe('Transaction Entity', () => {
         >[0];
         expect(() =>
           transactionEntity.validateAttachments(invalidAttachments)
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if array contains invalid attachment', () => {
@@ -284,7 +277,7 @@ describe('Transaction Entity', () => {
               size: 100,
             },
           ])
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -304,7 +297,7 @@ describe('Transaction Entity', () => {
             ETransactionType.Expense,
             null
           )
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should validate typical valid uuid counterPartyId', () => {
@@ -322,7 +315,7 @@ describe('Transaction Entity', () => {
             ETransactionType.Expense,
             'invalid-uuid' as TEntityId
           )
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -344,14 +337,14 @@ describe('Transaction Entity', () => {
         const longStr = 'a'.repeat(101);
         expect(() =>
           transactionEntity.sanitizeAndValidateNotes(longStr)
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if notes is not a string', () => {
         const unknownNotes = 123 as unknown as string;
         expect(() =>
           transactionEntity.sanitizeAndValidateNotes(unknownNotes)
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
   });

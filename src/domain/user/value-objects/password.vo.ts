@@ -1,8 +1,8 @@
-import { AppError } from '../../../shared/errors/error';
+import userValueObjectError from '../errors/user-value-object.errors';
 
 function make(input: unknown): string {
   if (typeof input !== 'string') {
-    throw new AppError('Password must be a string', {
+    throw new userValueObjectError.InvalidType({
       cause: input,
     });
   }
@@ -10,13 +10,13 @@ function make(input: unknown): string {
   const normalized = input.trim();
 
   if (normalized.length < 8) {
-    throw new AppError('Password is too short', {
+    throw new userValueObjectError.TooShort({
       cause: input,
     });
   }
 
   if (normalized.length > 128) {
-    throw new AppError('Password is too long', {
+    throw new userValueObjectError.TooLong({
       cause: input,
     });
   }
@@ -24,7 +24,7 @@ function make(input: unknown): string {
   const complexityRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9\s])/;
 
   if (!complexityRegex.test(normalized)) {
-    throw new AppError('Password is too easy', {
+    throw new userValueObjectError.InvalidFormat({
       cause: input,
     });
   }

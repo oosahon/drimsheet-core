@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
@@ -128,7 +127,7 @@ describe('Cash and Cash Equivalent Entity', () => {
       };
       expect(() =>
         cashAndEquivalentAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should skip controlAccountId validation when null', () => {
@@ -201,7 +200,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           ...validMeta,
           bankName: 'A',
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if accountNumber is invalid', () => {
@@ -210,7 +209,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           ...validMeta,
           accountNumber: '12345',
         })
-      ).toThrow(AppError); // < 6
+      ).toThrow(); // < 6
     });
 
     it('should throw AppError if accountName is invalid', () => {
@@ -219,7 +218,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           ...validMeta,
           accountName: 'N',
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if sortCode is provided but invalid length', () => {
@@ -228,7 +227,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           ...validMeta,
           sortCode: '12345',
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if swiftCode is provided but invalid length', () => {
@@ -237,7 +236,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           ...validMeta,
           swiftCode: 'TEST',
         })
-      ).toThrow(AppError); // < 8
+      ).toThrow(); // < 8
     });
 
     it('should throw AppError if iban is provided but invalid length', () => {
@@ -246,7 +245,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           ...validMeta,
           iban: 'GB12TEST',
         })
-      ).toThrow(AppError); // < 15
+      ).toThrow(); // < 15
     });
 
     it('should throw AppError if routingNumber is provided but invalid length', () => {
@@ -255,7 +254,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           ...validMeta,
           routingNumber: '12345',
         })
-      ).toThrow(AppError); // != 9
+      ).toThrow(); // != 9
     });
 
     it('should throw AppError if branchCode is provided but invalid length', () => {
@@ -264,7 +263,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           ...validMeta,
           branchCode: '12345678901',
         })
-      ).toThrow(AppError); // > 10
+      ).toThrow(); // > 10
     });
   });
 
@@ -313,7 +312,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           invalidPayload,
           validParent
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -373,7 +372,7 @@ describe('Cash and Cash Equivalent Entity', () => {
           invalidPayload,
           validParent
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 });

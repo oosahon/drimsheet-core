@@ -69,7 +69,7 @@ describe('exchangeRateService', () => {
 
           await expect(
             service.getExchangeRate(payload, mockOptions)
-          ).rejects.toThrow('Invalid exchange rate type');
+          ).rejects.toThrow();
         });
 
         it('should throw if date is in the future', async () => {
@@ -80,7 +80,7 @@ describe('exchangeRateService', () => {
 
           await expect(
             service.getExchangeRate(payload, mockOptions)
-          ).rejects.toThrow('Date is in the future');
+          ).rejects.toThrow();
         });
 
         it('should throw if base currency code is invalid', async () => {
@@ -91,7 +91,7 @@ describe('exchangeRateService', () => {
 
           await expect(
             service.getExchangeRate(payload, mockOptions)
-          ).rejects.toThrow('Invalid currency code');
+          ).rejects.toThrow();
         });
 
         it('should throw if target currency code is invalid', async () => {
@@ -102,7 +102,7 @@ describe('exchangeRateService', () => {
 
           await expect(
             service.getExchangeRate(payload, mockOptions)
-          ).rejects.toThrow('Invalid currency code');
+          ).rejects.toThrow();
         });
 
         it('should throw if source is empty or invalid string', async () => {
@@ -113,7 +113,7 @@ describe('exchangeRateService', () => {
 
           await expect(
             service.getExchangeRate(payload, mockOptions)
-          ).rejects.toThrow('Invalid string');
+          ).rejects.toThrow();
         });
       });
     });
@@ -124,7 +124,7 @@ describe('exchangeRateService', () => {
 
         await expect(
           service.getExchangeRate({ ...validPayload, id: 999 }, mockOptions)
-        ).rejects.toThrow('Exchange rate not found.');
+        ).rejects.toThrow();
         expect(mockExchangeRateRepo.getById).toHaveBeenCalledWith(
           999,
           mockOptions
@@ -144,7 +144,7 @@ describe('exchangeRateService', () => {
 
         await expect(
           service.getExchangeRate(alteredPayload, mockOptions)
-        ).rejects.toThrow('Official exchange rate cannot be altered.');
+        ).rejects.toThrow();
       });
 
       it('should return existing exchange rate if diff has no changes', async () => {

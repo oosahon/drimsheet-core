@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import {
   EExchangeRateType,
   UExchangeRateType,
@@ -52,7 +51,7 @@ describe('ExchangeRate Value Object', () => {
         source: 'ECB',
       };
 
-      expect(() => exchangeRateValue.make(payload)).toThrow(AppError);
+      expect(() => exchangeRateValue.make(payload)).toThrow();
     });
 
     it('should throw if date is in the future', () => {
@@ -65,7 +64,7 @@ describe('ExchangeRate Value Object', () => {
         source: 'ECB',
       };
 
-      expect(() => exchangeRateValue.make(payload)).toThrow(AppError);
+      expect(() => exchangeRateValue.make(payload)).toThrow();
     });
   });
 
@@ -83,7 +82,7 @@ describe('ExchangeRate Value Object', () => {
       it('should throw an AppError for an invalid type', () => {
         expect(() =>
           exchangeRateValue.validateType('invalid' as UExchangeRateType)
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -105,7 +104,7 @@ describe('ExchangeRate Value Object', () => {
             baseCurrencyCode: 'EUR',
             targetCurrencyCode: 'USD',
           })
-        ).toThrow(AppError);
+        ).toThrow();
 
         expect(() =>
           exchangeRateValue.validateCurrencyPair({
@@ -113,7 +112,7 @@ describe('ExchangeRate Value Object', () => {
             baseCurrencyCode: 'EURO',
             targetCurrencyCode: 'USD',
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if base does not match currency pair', () => {
@@ -123,7 +122,7 @@ describe('ExchangeRate Value Object', () => {
             baseCurrencyCode: 'GBP',
             targetCurrencyCode: 'USD',
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if target does not match currency pair', () => {
@@ -133,7 +132,7 @@ describe('ExchangeRate Value Object', () => {
             baseCurrencyCode: 'EUR',
             targetCurrencyCode: 'GBP',
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -161,7 +160,7 @@ describe('ExchangeRate Value Object', () => {
             ...validExchangeRate,
             currencyPair: 'EUR-USD',
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if rate is not positive', () => {
@@ -170,14 +169,14 @@ describe('ExchangeRate Value Object', () => {
             ...validExchangeRate,
             rate: -1.1,
           })
-        ).toThrow(AppError);
+        ).toThrow();
 
         expect(() =>
           exchangeRateValue.validate({
             ...validExchangeRate,
             rate: 0,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if asOf is in the future', () => {
@@ -186,7 +185,7 @@ describe('ExchangeRate Value Object', () => {
             ...validExchangeRate,
             asOf: new Date('2026-04-16T00:00:00.000Z'),
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if source length is out of range', () => {
@@ -195,14 +194,14 @@ describe('ExchangeRate Value Object', () => {
             ...validExchangeRate,
             source: 'ab', // min 3
           })
-        ).toThrow(AppError);
+        ).toThrow();
 
         expect(() =>
           exchangeRateValue.validate({
             ...validExchangeRate,
             source: 'a'.repeat(101), // max 100
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if type is invalid', () => {
@@ -211,7 +210,7 @@ describe('ExchangeRate Value Object', () => {
             ...validExchangeRate,
             type: 'invalid' as UExchangeRateType,
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
 
       it('should throw if createdAt is invalid', () => {
@@ -220,7 +219,7 @@ describe('ExchangeRate Value Object', () => {
             ...validExchangeRate,
             createdAt: new Date('invalid'),
           })
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
   });

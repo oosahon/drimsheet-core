@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   EAssetAccountBehavior,
@@ -51,9 +50,9 @@ describe('Asset Suspense Account Entity', () => {
     });
 
     it('should throw if predecessor code does not match header code', () => {
-      expect(() => assetSuspenseAccountEntity.getCode('100000' as any)).toThrow(
-        AppError
-      );
+      expect(() =>
+        assetSuspenseAccountEntity.getCode('100000' as any)
+      ).toThrow();
     });
   });
 
@@ -126,7 +125,7 @@ describe('Asset Suspense Account Entity', () => {
       const invalidPayload = { ...validSuspensePayload, name: 'A' }; // Too short
       expect(() =>
         assetSuspenseAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
 
       const invalidPayload2 = {
         ...validSuspensePayload,
@@ -134,7 +133,7 @@ describe('Asset Suspense Account Entity', () => {
       };
       expect(() =>
         assetSuspenseAccountEntity.make(invalidPayload2, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 });

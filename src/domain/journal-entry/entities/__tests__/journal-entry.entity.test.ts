@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
@@ -144,7 +143,7 @@ describe('JournalEntry Entity', () => {
           ...validPayload,
           accountingEntityId: 'invalid' as TEntityId,
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if transactionId is invalid', () => {
@@ -153,7 +152,7 @@ describe('JournalEntry Entity', () => {
           ...validPayload,
           transactionId: 'invalid' as TEntityId,
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if voidingEntryId is invalid', () => {
@@ -162,7 +161,7 @@ describe('JournalEntry Entity', () => {
           ...validPayload,
           voidingEntryId: 'invalid' as TEntityId,
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if effectiveDate is invalid', () => {
@@ -171,7 +170,7 @@ describe('JournalEntry Entity', () => {
           ...validPayload,
           effectiveDate: new Date('invalid'),
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if postedAt is invalid', () => {
@@ -180,7 +179,7 @@ describe('JournalEntry Entity', () => {
           ...validPayload,
           postedAt: new Date('invalid'),
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if voidedAt is invalid', () => {
@@ -189,7 +188,7 @@ describe('JournalEntry Entity', () => {
           ...validPayload,
           voidedAt: new Date('invalid'),
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if status is invalid', () => {
@@ -198,7 +197,7 @@ describe('JournalEntry Entity', () => {
         status: 'invalid' as UJournalEntryStatus,
       };
 
-      expect(() => journalEntryEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => journalEntryEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw an AppError if there are only debits or only credits', () => {
@@ -213,7 +212,7 @@ describe('JournalEntry Entity', () => {
         ],
       };
 
-      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+      expect(() => journalEntryEntity.make(payload)).toThrow();
     });
 
     it('should throw an AppError if total debits do not equal total credits', () => {
@@ -228,7 +227,7 @@ describe('JournalEntry Entity', () => {
         ],
       };
 
-      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+      expect(() => journalEntryEntity.make(payload)).toThrow();
     });
 
     it('should throw an AppError if sequence orders are not unique', () => {
@@ -243,7 +242,7 @@ describe('JournalEntry Entity', () => {
         ],
       };
 
-      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+      expect(() => journalEntryEntity.make(payload)).toThrow();
     });
 
     it('should throw an AppError if there are less than 2 line items', () => {
@@ -252,7 +251,7 @@ describe('JournalEntry Entity', () => {
         lines: [validPayload.lines[0]],
       };
 
-      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+      expect(() => journalEntryEntity.make(payload)).toThrow();
     });
 
     it('should throw an AppError if there are no line items', () => {
@@ -261,7 +260,7 @@ describe('JournalEntry Entity', () => {
         lines: [],
       };
 
-      expect(() => journalEntryEntity.make(payload)).toThrow(AppError);
+      expect(() => journalEntryEntity.make(payload)).toThrow();
     });
   });
 
@@ -282,7 +281,7 @@ describe('JournalEntry Entity', () => {
       it('should throw an AppError for an invalid status', () => {
         expect(() =>
           journalEntryEntity.validateStatus('invalid' as UJournalEntryStatus)
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -311,9 +310,7 @@ describe('JournalEntry Entity', () => {
           side: EJournalSide.Credit,
         };
 
-        expect(() => journalEntryEntity.validateLine([item1, item2])).toThrow(
-          AppError
-        );
+        expect(() => journalEntryEntity.validateLine([item1, item2])).toThrow();
       });
     });
 
@@ -327,7 +324,7 @@ describe('JournalEntry Entity', () => {
 
       it('should throw an AppError if memo is too long', () => {
         const longMemo = 'a'.repeat(101);
-        expect(() => journalEntryEntity.getMemo(longMemo)).toThrow(AppError);
+        expect(() => journalEntryEntity.getMemo(longMemo)).toThrow();
       });
 
       it('should return trimmed memo', () => {

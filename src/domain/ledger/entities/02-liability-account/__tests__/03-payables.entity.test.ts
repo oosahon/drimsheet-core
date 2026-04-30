@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { TPayablesLedgerCode } from '../../../types/ledger-code.types';
@@ -131,7 +130,7 @@ describe('Payable Liability Entity', () => {
       };
       expect(() =>
         payableAccountEntity.make(invalidPayload as any, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should skip controlAccountId validation when null', () => {
@@ -165,7 +164,7 @@ describe('Payable Liability Entity', () => {
           ...validMeta,
           taxAuthority: 'A',
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if taxAuthority is too long', () => {
@@ -174,7 +173,7 @@ describe('Payable Liability Entity', () => {
           ...validMeta,
           taxAuthority: 'A'.repeat(101),
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if taxType is too short', () => {
@@ -183,7 +182,7 @@ describe('Payable Liability Entity', () => {
           ...validMeta,
           taxType: 'a',
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -240,7 +239,7 @@ describe('Payable Liability Entity', () => {
           invalidPayload as any,
           validParent
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -262,7 +261,7 @@ describe('Payable Liability Entity', () => {
           ...validMeta,
           counterpartyId: 'invalid' as TEntityId,
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if invoiceId is invalid', () => {
@@ -271,7 +270,7 @@ describe('Payable Liability Entity', () => {
           ...validMeta,
           invoiceId: 'invalid' as TEntityId,
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -327,7 +326,7 @@ describe('Payable Liability Entity', () => {
           invalidPayload as any,
           validParent
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 });

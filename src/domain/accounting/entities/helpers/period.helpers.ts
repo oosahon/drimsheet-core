@@ -54,7 +54,7 @@ function validateStartAndEndDate(
   );
 
   if (endDateIsInThePast) {
-    throw new errors.EndDateIsInThePast();
+    throw new errors.PastEndDate();
   }
 }
 

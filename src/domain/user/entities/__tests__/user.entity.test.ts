@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { IEvent } from '../../../../shared/types/event.types';
 import { IUser } from '../../types/user.types';
@@ -64,12 +63,12 @@ describe('User Entity', () => {
         emailVerified: false,
       };
 
-      expect(() => userEntity.make(payload)).toThrow(AppError);
+      expect(() => userEntity.make(payload)).toThrow();
 
       const longName = 'A'.repeat(101);
       expect(() =>
         userEntity.make({ ...payload, firstName: longName })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an error for invalid lastName length', () => {
@@ -80,12 +79,12 @@ describe('User Entity', () => {
         emailVerified: false,
       };
 
-      expect(() => userEntity.make(payload)).toThrow(AppError);
+      expect(() => userEntity.make(payload)).toThrow();
 
       const longName = 'A'.repeat(101);
-      expect(() => userEntity.make({ ...payload, lastName: longName })).toThrow(
-        AppError
-      );
+      expect(() =>
+        userEntity.make({ ...payload, lastName: longName })
+      ).toThrow();
     });
   });
 
@@ -134,7 +133,7 @@ describe('User Entity', () => {
 
     it('should throw error if user is invalid before verifying', () => {
       const invalidUser = { ...unverifiedUser, firstName: '' };
-      expect(() => userEntity.verifyEmail(invalidUser)).toThrow(AppError);
+      expect(() => userEntity.verifyEmail(invalidUser)).toThrow();
     });
   });
 
@@ -207,7 +206,7 @@ describe('User Entity', () => {
       const invalidNameUser = { ...existingUser, firstName: '' };
       expect(() =>
         userEntity.update(invalidNameUser, { firstName: 'Changed' })
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 });

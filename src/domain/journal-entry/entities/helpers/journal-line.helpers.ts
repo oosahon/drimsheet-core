@@ -1,14 +1,14 @@
-import { AppError } from '../../../../shared/errors/error';
 import { IMoney } from '../../../../shared/types/money.types';
 import stringUtils from '../../../../shared/utils/string';
 import { ICurrency } from '../../../currency/types/currency.types';
 import { IExchangeRate } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
+import journalLineError from '../../errors/journal-line.errors';
 import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
 
 function validateSide(side: UJournalSide) {
   if (!Object.values(EJournalSide).includes(side)) {
-    throw new AppError('Invalid side', { cause: side });
+    throw new journalLineError.InvalidSide({ cause: side });
   }
 }
 
@@ -36,7 +36,7 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
   const isNullExchangeRate = exchangeRate === null;
 
   if (isSameCurrency && !isNullExchangeRate) {
-    throw new AppError('Exchange rate is not supported for same currency.', {
+    throw new journalLineError.UnsupportedExchangeRate({
       cause: exchangeRate,
     });
   }
@@ -46,14 +46,14 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
   }
 
   if (isNullExchangeRate) {
-    throw new AppError('Exchange rate is required for different currencies.', {
+    throw new journalLineError.MissingExchangeRate({
       cause: exchangeRate,
     });
   }
 
   const isValidBase = amount.currency.code === exchangeRate.baseCurrencyCode;
   if (!isValidBase) {
-    throw new AppError("Exchange rate base doesn't match amount currency.", {
+    throw new journalLineError.MismatchedExchangeRateBase({
       cause: exchangeRate,
     });
   }
@@ -61,12 +61,9 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
   const isValidTarget =
     exchangeRate.targetCurrencyCode === functionalCurrency.code;
   if (!isValidTarget) {
-    throw new AppError(
-      "Exchange rate target doesn't match functional currency.",
-      {
-        cause: exchangeRate,
-      }
-    );
+    throw new journalLineError.MismatchedExchangeRateTarget({
+      cause: exchangeRate,
+    });
   }
 
   exchangeRateValue.validate(exchangeRate);

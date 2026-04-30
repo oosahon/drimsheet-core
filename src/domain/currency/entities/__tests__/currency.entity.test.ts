@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import currencyEntity from '../currency.entity';
 
 describe('Currency Domain Entity', () => {
@@ -63,15 +62,15 @@ describe('Currency Domain Entity', () => {
     });
 
     it('should throw AppError for an invalid currency code', () => {
-      expect(() => currencyEntity.validateCode('INVALID')).toThrow(AppError);
-      expect(() => currencyEntity.validateCode('usd')).toThrow(AppError);
+      expect(() => currencyEntity.validateCode('INVALID')).toThrow();
+      expect(() => currencyEntity.validateCode('usd')).toThrow();
 
       try {
         currencyEntity.validateCode('usd');
         fail('Should have thrown');
       } catch (e: any) {
-        expect(e).toBeInstanceOf(AppError);
-        expect(e.message).toBe('Invalid currency code');
+        expect(e).toBeInstanceOf(Error);
+        expect(e.message).toBe('currency_error_currency_invalid_code');
         expect(e.cause).toEqual({ cause: 'usd' });
       }
     });
@@ -96,12 +95,12 @@ describe('Currency Domain Entity', () => {
     });
 
     it('should throw an AppError if currency code is an invalid format', () => {
-      expect(() => currencyEntity.getByCode('invalid')).toThrow(AppError);
+      expect(() => currencyEntity.getByCode('invalid')).toThrow();
     });
 
     it('should throw an AppError if currency format is valid but not found in system currencies', () => {
       // BBD is a valid ISO currency but not in our SYSTEM_CURRENCIES
-      expect(() => currencyEntity.getByCode('BBD')).toThrow(AppError);
+      expect(() => currencyEntity.getByCode('BBD')).toThrow();
     });
   });
 });

@@ -1,5 +1,5 @@
 import { AccountingError } from '.';
-import { TErrorCause } from '../../../shared/errors/error';
+import { getMappedErrors, TErrorCause } from '../../../shared/errors/error';
 
 type TErrorKeyPrefix = `accounting_error_accounting_entity_${string}`;
 
@@ -15,15 +15,9 @@ class AccountingEntityError extends AccountingError<UAccountingEntityError> {
   }
 }
 
-class UnauthorizedUserAccessError extends AccountingEntityError {
-  constructor(cause?: TErrorCause) {
-    super(EErrorKeys.Unauthorized, cause);
-  }
-}
-
 const accountingEntityError = Object.freeze({
   Error: AccountingEntityError,
-  UnauthorizedUserAccess: UnauthorizedUserAccessError,
+  ...getMappedErrors(EErrorKeys, AccountingEntityError),
 });
 
 export default accountingEntityError;

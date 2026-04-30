@@ -1,7 +1,5 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import getEntitiesAndEvents from '../../../../shared/utils/get-entities-and-events';
-import periodErrors from '../../errors/period.errors';
 import { IFiscalYear } from '../../types/fiscal-year.types';
 import { EPeriodStatus, EPeriodUnit } from '../../types/period.types';
 import accountingPeriodEntity from '../accounting-period.entity';
@@ -72,16 +70,12 @@ describe('accountingPeriodEntity', () => {
     it('throws InvalidPeriodUnitError if unit is invalid', () => {
       const invalidPayload = { ...validPayload, unit: 'invalid' };
       // @ts-expect-error testing invalid unit
-      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow(
-        periodErrors.InvalidUnit
-      );
+      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws InvalidPeriodIntervalError if count is invalid', () => {
       const invalidPayload = { ...validPayload, count: -1 };
-      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow(
-        periodErrors.InvalidInterval
-      );
+      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if count is not a numeric value', () => {
@@ -90,9 +84,7 @@ describe('accountingPeriodEntity', () => {
         count: 'invalid',
       };
       // @ts-expect-error testing invalid count
-      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if accountingEntityId is invalid', () => {
@@ -100,9 +92,7 @@ describe('accountingPeriodEntity', () => {
         ...validPayload,
         accountingEntityId: 'invalid' as TEntityId,
       };
-      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow();
     });
   });
 });

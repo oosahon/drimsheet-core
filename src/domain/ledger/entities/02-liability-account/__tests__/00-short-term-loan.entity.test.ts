@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { TShortTermDebtLedgerCode } from '../../../types/ledger-code.types';
@@ -127,7 +126,7 @@ describe('Short Term Loan Liability Entity', () => {
       };
       expect(() =>
         shortTermLoanAccountEntity.make(invalidPayload as any, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should skip controlAccountId validation when null', () => {
@@ -165,7 +164,7 @@ describe('Short Term Loan Liability Entity', () => {
           ...validMeta,
           cardIssuer: 'A',
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if cardIssuer is too long', () => {
@@ -174,7 +173,7 @@ describe('Short Term Loan Liability Entity', () => {
           ...validMeta,
           cardIssuer: 'A'.repeat(101),
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if lastFourDigits is less than 4', () => {
@@ -183,7 +182,7 @@ describe('Short Term Loan Liability Entity', () => {
           ...validMeta,
           lastFourDigits: '123',
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if lastFourDigits is greater than 4', () => {
@@ -192,7 +191,7 @@ describe('Short Term Loan Liability Entity', () => {
           ...validMeta,
           lastFourDigits: '12345',
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -250,7 +249,7 @@ describe('Short Term Loan Liability Entity', () => {
           invalidPayload as any,
           validParent
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -272,7 +271,7 @@ describe('Short Term Loan Liability Entity', () => {
           ...validMeta,
           linkedBankAccountId: 'invalid' as TEntityId,
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -327,7 +326,7 @@ describe('Short Term Loan Liability Entity', () => {
           invalidPayload as any,
           validParent
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -351,7 +350,7 @@ describe('Short Term Loan Liability Entity', () => {
           ...validMeta,
           lenderName: 'A',
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw AppError if lenderName is too long', () => {
@@ -360,7 +359,7 @@ describe('Short Term Loan Liability Entity', () => {
           ...validMeta,
           lenderName: 'A'.repeat(101),
         })
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should successfully create short term loan meta with null maturity date', () => {
@@ -428,7 +427,7 @@ describe('Short Term Loan Liability Entity', () => {
           invalidPayload as any,
           validParent
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 });

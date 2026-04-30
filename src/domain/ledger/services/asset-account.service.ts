@@ -4,7 +4,7 @@ import { ASSET_LEDGER_CODES } from '../config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../entities/01-asset-account/00-cash-and-equivalents.entity';
 import receivablesAccountEntity from '../entities/01-asset-account/02-receivables.entity';
 import assetSuspenseAccountEntity from '../entities/01-asset-account/99-suspense-account.entity';
-import error from '../errors';
+import assetAccountError from '../errors/asset-account.errors';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import IAssetAccountService from '../types/asset-account.service.types';
 import {
@@ -205,7 +205,7 @@ export default function makeAssetAccountService(
     );
 
     if (!controlAccount) {
-      throw new error.ControlAccountNotFound({
+      throw new assetAccountError.ControlAccountNotFound({
         cause: { controlAccountLedgerCode },
       });
     }

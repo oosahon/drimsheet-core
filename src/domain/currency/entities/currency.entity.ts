@@ -1,5 +1,5 @@
-import { AppError } from '../../../shared/errors/error';
 import { SYSTEM_CURRENCIES, UCurrencyCode } from '../config/currencies.config';
+import currencyError from '../errors/currency.errors';
 
 function isValidCurrencyCode(code: string): boolean {
   return code in SYSTEM_CURRENCIES;
@@ -15,7 +15,7 @@ function isValidMinorUnit(minorUnit: number): boolean {
 
 function validateCurrencyCode(code: string) {
   if (!isValidCurrencyCode(code)) {
-    throw new AppError('Invalid currency code', { cause: code });
+    throw new currencyError.InvalidCode({ cause: code });
   }
 }
 
@@ -23,7 +23,7 @@ function getByCode(code: string) {
   const normalizedCode = normalizeCode(code);
   const currency = SYSTEM_CURRENCIES[normalizedCode as UCurrencyCode];
   if (!currency) {
-    throw new AppError('Invalid currency code', { cause: code });
+    throw new currencyError.InvalidCode({ cause: code });
   }
 
   return currency;

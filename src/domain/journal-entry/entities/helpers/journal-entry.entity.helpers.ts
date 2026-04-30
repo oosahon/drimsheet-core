@@ -1,7 +1,7 @@
-import { AppError } from '../../../../shared/errors/error';
 import { IMoney } from '../../../../shared/types/money.types';
 import stringUtils from '../../../../shared/utils/string';
 import moneyValue from '../../../../shared/value-objects/money.vo';
+import journalEntryError from '../../errors/journal-entry.errors';
 import {
   EJournalEntryStatus,
   UJournalEntryStatus,
@@ -10,7 +10,7 @@ import { EJournalSide, IJournalLine } from '../../types/journal-line.types';
 
 function validateStatus(status: UJournalEntryStatus) {
   if (!Object.values(EJournalEntryStatus).includes(status)) {
-    throw new AppError('Invalid status', { cause: status });
+    throw new journalEntryError.InvalidStatus({ cause: status });
   }
 }
 
@@ -23,7 +23,7 @@ function isUniqueSequenceOrder(lines: IJournalLine[]) {
 
 function validateLine(lines: IJournalLine[]) {
   if (!lines.length || lines.length < 2) {
-    throw new AppError('Invalid line items', { cause: lines });
+    throw new journalEntryError.InvalidLineItems({ cause: lines });
   }
 
   const debits: IMoney[] = [];
@@ -35,25 +35,25 @@ function validateLine(lines: IJournalLine[]) {
     } else if (item.side === EJournalSide.Credit) {
       credits.push(item.functionalAmount);
     } else {
-      throw new AppError('Invalid journal line item', { cause: item });
+      throw new journalEntryError.InvalidJournalLineItem({ cause: item });
     }
   }
 
   if (!debits.length || !credits.length) {
-    throw new AppError('Invalid line items', { cause: lines });
+    throw new journalEntryError.InvalidLineItems({ cause: lines });
   }
 
   const totalDebits = moneyValue.add(...debits);
   const totalCredits = moneyValue.add(...credits);
 
   if (!moneyValue.equals(totalDebits, totalCredits)) {
-    throw new AppError('Total debits must equal total credits', {
+    throw new journalEntryError.UnbalancedJournalEntry({
       cause: lines,
     });
   }
 
   if (!isUniqueSequenceOrder(lines)) {
-    throw new AppError('Sequence orders must be unique', { cause: lines });
+    throw new journalEntryError.DuplicateSequenceOrders({ cause: lines });
   }
 }
 

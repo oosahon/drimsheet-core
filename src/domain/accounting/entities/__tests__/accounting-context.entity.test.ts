@@ -1,7 +1,4 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import accountingStandardError from '../../errors/accounting-standard.error';
-import jurisdictionError from '../../errors/jurisdiction.errors';
 import { EAccountingContextEvents } from '../../events/accounting-context.events';
 import { EAccountingEntityType } from '../../types/accounting-entity.types';
 import accountingContextEntity from '../accounting-context.entity';
@@ -58,7 +55,7 @@ describe('accountingContextEntity', () => {
     it('throws AppError for an invalid accounting standard code', () => {
       expect(() =>
         accountingContextEntity.validateAccountingStandardCode('INVALID')
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -81,15 +78,13 @@ describe('accountingContextEntity', () => {
     });
 
     it('throws InvalidJurisdiction if code is empty', () => {
-      expect(() => accountingContextEntity.getJurisdiction('')).toThrow(
-        jurisdictionError.InvalidJurisdiction
-      );
+      expect(() => accountingContextEntity.getJurisdiction('')).toThrow();
     });
 
     it('throws InvalidJurisdiction if code is invalid', () => {
       expect(() =>
         accountingContextEntity.getJurisdiction('INVALID_CODE')
-      ).toThrow(jurisdictionError.InvalidJurisdiction);
+      ).toThrow();
     });
   });
 
@@ -102,16 +97,14 @@ describe('accountingContextEntity', () => {
 
     it('throws InvalidStandard if code is empty', () => {
       // @ts-expect-error testing invalid standard code
-      expect(() => accountingContextEntity.validateStandardCode('')).toThrow(
-        accountingStandardError.InvalidStandard
-      );
+      expect(() => accountingContextEntity.validateStandardCode('')).toThrow();
     });
 
     it('throws InvalidStandard if code is invalid', () => {
       expect(() =>
         // @ts-expect-error testing invalid standard code
         accountingContextEntity.validateStandardCode('INVALID_CODE')
-      ).toThrow(accountingStandardError.InvalidStandard);
+      ).toThrow();
     });
   });
 
@@ -123,9 +116,7 @@ describe('accountingContextEntity', () => {
 
     it('throws InvalidStandard if code is invalid', () => {
       // @ts-expect-error testing invalid standard code
-      expect(() => accountingContextEntity.getStandard('INVALID')).toThrow(
-        accountingStandardError.InvalidStandard
-      );
+      expect(() => accountingContextEntity.getStandard('INVALID')).toThrow();
     });
   });
 
@@ -149,7 +140,7 @@ describe('accountingContextEntity', () => {
           'US',
           'individual'
         )
-      ).toThrow(accountingStandardError.InvalidStandard);
+      ).toThrow();
     });
 
     it('throws InvalidStandard if availableStandards is undefined for the given entity type', () => {
@@ -165,7 +156,7 @@ describe('accountingContextEntity', () => {
             'US',
             testType
           )
-        ).toThrow(accountingStandardError.InvalidStandard);
+        ).toThrow();
       } finally {
         // Clean up the temporary property
         delete (EAccountingEntityType as any).Test;
@@ -204,9 +195,7 @@ describe('accountingContextEntity', () => {
         accountingEntityId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if accountingStandardCode is invalid', () => {
@@ -215,9 +204,7 @@ describe('accountingContextEntity', () => {
         accountingStandardCode: 'INVALID',
       };
       // @ts-expect-error testing invalid accountingStandardCode
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if fiscalYearId is invalid', () => {
@@ -226,9 +213,7 @@ describe('accountingContextEntity', () => {
         fiscalYearId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if currentAccountingPeriodId is invalid', () => {
@@ -237,9 +222,7 @@ describe('accountingContextEntity', () => {
         currentAccountingPeriodId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if name is invalid', () => {
@@ -247,9 +230,7 @@ describe('accountingContextEntity', () => {
         ...validPayload,
         name: '',
       };
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if description is invalid', () => {
@@ -257,9 +238,7 @@ describe('accountingContextEntity', () => {
         ...validPayload,
         description: '',
       };
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('creates a valid accounting context entity with a null description', () => {

@@ -137,3 +137,24 @@ export function parseError(error: unknown) {
     cause: error,
   };
 }
+
+export function getMappedErrors<
+  TKeys extends Record<string, string>,
+  TBase extends new (key: TKeys[keyof TKeys], cause?: TErrorCause) => Error,
+>(keys: TKeys, BaseClass: TBase) {
+  type GeneratedClass = new (cause?: TErrorCause) => InstanceType<TBase>;
+  type SafeBase = new (key: string, cause?: TErrorCause) => Error;
+
+  return Object.entries(keys).reduce(
+    (acc, [key, value]) => {
+      acc[key as keyof TKeys] =
+        class extends (BaseClass as unknown as SafeBase) {
+          constructor(cause?: TErrorCause) {
+            super(value, cause);
+          }
+        } as unknown as GeneratedClass;
+      return acc;
+    },
+    {} as Record<keyof TKeys, GeneratedClass>
+  );
+}

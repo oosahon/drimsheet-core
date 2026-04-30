@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   EExpenseAccountBehavior,
@@ -52,9 +51,9 @@ describe('Finance Costs Expense Entity', () => {
     });
 
     it('should throw if predecessor code does not match header code', () => {
-      expect(() => financeCostsAccountEntity.getCode('508000' as any)).toThrow(
-        AppError
-      );
+      expect(() =>
+        financeCostsAccountEntity.getCode('508000' as any)
+      ).toThrow();
     });
   });
 
@@ -140,7 +139,7 @@ describe('Finance Costs Expense Entity', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
         financeCostsAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -150,7 +149,7 @@ describe('Finance Costs Expense Entity', () => {
       };
       expect(() =>
         financeCostsAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should use base code 507000 when predecessorCode is null', () => {

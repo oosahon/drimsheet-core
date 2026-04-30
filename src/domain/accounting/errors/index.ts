@@ -1,10 +1,8 @@
 import { DomainError, TErrorCause } from '../../../shared/errors/error';
 
-type TAccountingErrorKeyPrefix = `accounting_error_${string}`;
+type TErrorPrefix = `accounting_error_${string}`;
 
-export class AccountingError<
-  K extends TAccountingErrorKeyPrefix,
-> extends DomainError<K> {
+export class AccountingError<K extends TErrorPrefix> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, key, cause);
   }
