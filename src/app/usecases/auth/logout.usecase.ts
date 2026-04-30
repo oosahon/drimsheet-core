@@ -15,12 +15,14 @@ export default function makeLogoutUseCase(
     const refreshToken = clientSession.getRefreshToken();
 
     if (refreshToken) {
-      const decoded = makeAuthService.verifyRefreshToken(refreshToken);
-      await userSessionRepo
-        .delete(decoded.id, refreshToken, {
+      try {
+        const decoded = makeAuthService.verifyRefreshToken(refreshToken);
+        await userSessionRepo.delete(decoded.id, refreshToken, {
           correlationId,
-        })
-        .catch(logger.error); // caught to always clear the cookie
+        });
+      } catch (error) {
+        logger.error(error as Error);
+      }
     }
 
     clientSession.clearRefreshToken();

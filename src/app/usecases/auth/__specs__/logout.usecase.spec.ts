@@ -4,6 +4,7 @@ import mockAuthService from '../../../../infra/services/__mocks__/auth.service.m
 import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
+import mockLogger from '../../../contracts/infra/__mocks__/logger.contract.mock';
 import authError from '../../../errors/auth.errors';
 import makeLogoutUseCase from '../logout.usecase';
 
@@ -28,7 +29,12 @@ describe('makeLogoutUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeLogoutUseCase(mockRequestContext, mockAuthService, mockUserSessionRepo);
+    makeLogoutUseCase(
+      mockRequestContext,
+      mockAuthService,
+      mockUserSessionRepo,
+      mockLogger
+    );
 
   it('should clear refresh token and delete session if valid refresh token is present', async () => {
     mockClientSession.getRefreshToken.mockReturnValue('valid-refresh-token');
