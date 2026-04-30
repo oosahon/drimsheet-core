@@ -22,21 +22,21 @@ function generateReference(): string {
 function validateReference(reference: string) {
   const isValid = stringUtils.isNonEmptyString(reference);
   if (!isValid) {
-    throw new transactionError.InvalidReference({ cause: reference });
+    throw new transactionError.InvalidReference({ reference });
   }
 }
 
 function validateType(type: UTransactionType) {
   const isValid = Object.values(ETransactionType).includes(type);
   if (!isValid) {
-    throw new transactionError.InvalidType({ cause: type });
+    throw new transactionError.InvalidType({ type });
   }
 }
 
 function validateStatus(status: UTransactionStatus) {
   const isValid = Object.values(ETransactionStatus).includes(status);
   if (!isValid) {
-    throw new transactionError.InvalidStatus({ cause: status });
+    throw new transactionError.InvalidStatus({ status });
   }
 }
 
@@ -49,14 +49,14 @@ function validateAttachment(attachment: ITransactionAttachment) {
     attachment.size > 0;
 
   if (!isValid) {
-    throw new transactionError.InvalidAttachment({ cause: attachment });
+    throw new transactionError.InvalidAttachment({ attachment });
   }
 }
 
 function validateAttachments(attachments: ITransactionAttachment[]) {
   const isValid = Array.isArray(attachments);
   if (!isValid) {
-    throw new transactionError.InvalidAttachments({ cause: attachments });
+    throw new transactionError.InvalidAttachments({ attachments });
   }
 
   for (const attachment of attachments) {
@@ -74,7 +74,7 @@ function validateCounterpartyId(
     if (isTransfer) return;
 
     throw new transactionError.MissingCounterpartyId({
-      cause: counterPartyId,
+      counterPartyId,
     });
   }
 
@@ -90,7 +90,7 @@ function sanitizeAndValidateNotes(notes: string | null | undefined) {
 function validateItemsPayload(items: TMakeTransactionLineItemPayload[]) {
   if (items.length === 0) {
     throw new transactionError.InsufficientTransactionItems({
-      cause: items,
+      items,
     });
   }
 }

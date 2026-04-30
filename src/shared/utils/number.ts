@@ -4,37 +4,37 @@ import { IFactor } from '../types/number.types';
 function toBigInt(value: string | number | bigint, error?: Error) {
   if (typeof value === 'number') {
     if (isNaN(value)) {
-      throw error || new numberError.InvalidValue({ cause: value });
+      throw error || new numberError.InvalidValue({ value });
     }
     if (!Number.isInteger(value)) {
-      throw error || new numberError.InvalidFloat({ cause: value });
+      throw error || new numberError.InvalidFloat({ value });
     }
   } else if (typeof value === 'string') {
     const trimmed = value.trim();
     if (trimmed === '') {
-      throw error || new numberError.InvalidValue({ cause: value });
+      throw error || new numberError.InvalidValue({ value });
     }
     if (trimmed.includes('.')) {
-      throw error || new numberError.InvalidFloat({ cause: value });
+      throw error || new numberError.InvalidFloat({ value });
     }
   }
 
   try {
     return BigInt(value);
   } catch (err) {
-    throw error || new numberError.InvalidValue({ cause: value });
+    throw error || new numberError.InvalidValue({ value });
   }
 }
 
 function toFloat(value: string | number | bigint, error?: Error) {
   if (typeof value === 'string' && value.trim() === '') {
-    throw error || new numberError.InvalidValue({ cause: value });
+    throw error || new numberError.InvalidValue({ value });
   }
 
   const number = Number(value);
 
   if (isNaN(number)) {
-    throw error || new numberError.InvalidValue({ cause: value });
+    throw error || new numberError.InvalidValue({ value });
   }
 
   return number;
@@ -44,7 +44,7 @@ function toNonNegativeNumber(value: string | number | bigint, error?: Error) {
   const number = toFloat(value, error);
 
   if (number < 0) {
-    throw error || new numberError.NegativeValue({ cause: value });
+    throw error || new numberError.NegativeValue({ value });
   }
 
   return number;
@@ -54,7 +54,7 @@ function toFactor(value: string | number | bigint, error?: Error): IFactor {
   const number = toFloat(value, error);
 
   if (!Number.isFinite(number)) {
-    throw error || new numberError.InvalidValue({ cause: value });
+    throw error || new numberError.InvalidValue({ value });
   }
 
   const numStr = number.toString();
@@ -93,7 +93,7 @@ function isInteger(value: string | number | bigint): boolean {
 
 function validateInteger(value: string | number | bigint, error?: Error) {
   if (!isInteger(value)) {
-    throw error || new numberError.InvalidFloat({ cause: value });
+    throw error || new numberError.InvalidFloat({ value });
   }
 }
 
@@ -106,7 +106,7 @@ function validatePositiveNumber(
   error?: Error
 ) {
   if (!isPositiveNumber(value)) {
-    throw error || new numberError.NonPositiveValue({ cause: value });
+    throw error || new numberError.NonPositiveValue({ value });
   }
 }
 
@@ -119,7 +119,7 @@ function validateNonNegativeNumber(
   error?: Error
 ) {
   if (!isNonNegativeNumber(value)) {
-    throw error || new numberError.NegativeValue({ cause: value });
+    throw error || new numberError.NegativeValue({ value });
   }
 }
 

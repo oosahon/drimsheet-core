@@ -8,7 +8,7 @@ import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
 
 function validateSide(side: UJournalSide) {
   if (!Object.values(EJournalSide).includes(side)) {
-    throw new journalLineError.InvalidSide({ cause: side });
+    throw new journalLineError.InvalidSide({ side });
   }
 }
 
@@ -37,7 +37,7 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
 
   if (isSameCurrency && !isNullExchangeRate) {
     throw new journalLineError.UnsupportedExchangeRate({
-      cause: exchangeRate,
+      exchangeRate,
     });
   }
 
@@ -47,14 +47,14 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
 
   if (isNullExchangeRate) {
     throw new journalLineError.MissingExchangeRate({
-      cause: exchangeRate,
+      exchangeRate,
     });
   }
 
   const isValidBase = amount.currency.code === exchangeRate.baseCurrencyCode;
   if (!isValidBase) {
     throw new journalLineError.MismatchedExchangeRateBase({
-      cause: exchangeRate,
+      exchangeRate,
     });
   }
 
@@ -62,7 +62,7 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
     exchangeRate.targetCurrencyCode === functionalCurrency.code;
   if (!isValidTarget) {
     throw new journalLineError.MismatchedExchangeRateTarget({
-      cause: exchangeRate,
+      exchangeRate,
     });
   }
 

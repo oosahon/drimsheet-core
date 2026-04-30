@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/utils/error';
 import stringUtils from '../../../../shared/utils/string';
 import {
   SYSTEM_ACCOUNTING_STANDARDS,
@@ -23,9 +22,7 @@ function isValidAccountingStandardCode(
 
 function validateAccountingStandardCode(code: unknown) {
   if (!isValidAccountingStandardCode(code)) {
-    throw new AppError('Invalid accounting standard code', {
-      cause: code as Record<string, unknown>,
-    });
+    throw new accountingStandardError.Invalid({ code });
   }
 }
 

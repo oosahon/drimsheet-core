@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import IEventBus from '../../app/contracts/infra/event-bus.contract';
-import { AppError } from '../../shared/utils/error';
+import eventError from '../../shared/errors/event.errors';
 import reporter from '../observability/reporter';
 
 const emitter = new EventEmitter();
@@ -8,7 +8,7 @@ const emitter = new EventEmitter();
 const validateEventType = (eventType: string) => {
   const isValid = eventType.startsWith('domain:');
   if (!isValid) {
-    throw new AppError('Invalid event type', { cause: eventType });
+    throw new eventError.InvalidType({ eventType });
   }
 };
 

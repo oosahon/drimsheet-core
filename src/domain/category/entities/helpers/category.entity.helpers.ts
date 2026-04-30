@@ -1,5 +1,5 @@
-import { AppError } from '../../../../shared/utils/error';
 import stringUtils from '../../../../shared/utils/string';
+import categoryError from '../../errors/category.errors';
 import {
   ECategoryHistoryAction,
   ECategoryStatus,
@@ -9,7 +9,7 @@ import {
 
 function validateStatus(status: UCategoryStatus) {
   if (!Object.values(ECategoryStatus).includes(status)) {
-    throw new AppError(`Invalid category status: ${status}`);
+    throw new categoryError.InvalidStatus({ status });
   }
 }
 
@@ -31,7 +31,7 @@ function getHistoryNote(note: string | null) {
 
 function validateHistoryAction(action: UCategoryHistoryAction) {
   if (!Object.values(ECategoryHistoryAction).includes(action)) {
-    throw new AppError(`Invalid category history action: ${action}`);
+    throw new categoryError.InvalidHistoryAction({ action });
   }
 }
 

@@ -30,7 +30,7 @@ export default function makeSendEmailVerificationEmailUseCase(
     });
 
     if (!user) {
-      throw new AppError('User not found', { cause: { userEmail } });
+      throw new AppError('User not found', { userEmail });
     }
 
     if (user.emailVerified) {

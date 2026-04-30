@@ -24,7 +24,7 @@ export default function makeExchangeRateService(
     const existing = await repo.getById(id, repoOptions);
 
     if (!existing) {
-      throw new exchangeRateError.NotFound({ cause: id });
+      throw new exchangeRateError.NotFound({ id });
     }
 
     const comparison = _.omit(existing, [
@@ -38,7 +38,7 @@ export default function makeExchangeRateService(
 
     if (diff.hasChanges) {
       throw new exchangeRateError.UpdateNotPermitted({
-        cause: diff,
+        diff,
       });
     }
 

@@ -1,13 +1,13 @@
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/utils/error';
 import { IJournalLine } from '../../../journal-entry/types/journal-line.types';
+import ledgerAccountBalanceAdjustmentError from '../../errors/ledger-account-balance-adjustment.errors';
 
 function validateAccountId(accountId: TEntityId, journalLines: IJournalLine[]) {
   const isTheSame = journalLines.every((line) => line.accountId === accountId);
 
   if (!isTheSame) {
-    throw new AppError('All lines must be associated with the same account', {
-      cause: journalLines.map((v) => ({ accountId: v.accountId, id: v.id })),
+    throw new ledgerAccountBalanceAdjustmentError.MixedAccountIds({
+      lines: journalLines.map((v) => ({ accountId: v.accountId, id: v.id })),
     });
   }
 }

@@ -13,6 +13,8 @@ const EErrorKeys = {
     'transaction_error_transaction_missing_counterparty_id',
   InsufficientTransactionItems:
     'transaction_error_transaction_insufficient_transaction_items',
+  CounterpartyIdNotAllowed:
+    'transaction_error_transaction_counterparty_id_not_allowed',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type USpecificTransactionError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

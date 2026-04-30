@@ -16,7 +16,7 @@ function make(payload: TCreationOmits<IUserActivity>) {
   });
 
   if (payload.meta && typeof payload.meta !== 'object') {
-    throw new userActivityError.InvalidMeta({ cause: payload.meta });
+    throw new userActivityError.InvalidMeta({ meta: payload.meta });
   }
 
   const userActivity: IUserActivity = Object.freeze({

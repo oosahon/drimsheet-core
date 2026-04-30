@@ -17,7 +17,7 @@ import {
 
 function validateAdjustmentType(adjustmentType: UAdjustmentType) {
   if (!Object.values(EAdjustmentType).includes(adjustmentType)) {
-    throw new currencyLotError.InvalidAdjustmentType({ cause: adjustmentType });
+    throw new currencyLotError.InvalidAdjustmentType({ adjustmentType });
   }
 }
 

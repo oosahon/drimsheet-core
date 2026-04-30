@@ -28,7 +28,8 @@ function getNormalizedMinorUnit(amount: bigint | number, currency: ICurrency) {
 
   if (!Number.isSafeInteger(normalizedAmount)) {
     throw new moneyError.NonNormalizableAmount({
-      cause: { amount, currency },
+      amount,
+      currency,
     });
   }
 
@@ -46,7 +47,7 @@ function make(
   const isValidCurrencyCode = currencyEntity.isValidCode(currency.code);
 
   if (!isValidCurrencyCode) {
-    throw new moneyError.InvalidCurrencyCode({ cause: currency.code });
+    throw new moneyError.InvalidCurrencyCode({ currencyCode: currency.code });
   }
 
   if (
@@ -54,7 +55,7 @@ function make(
     typeof amount === 'number' &&
     !Number.isSafeInteger(amount)
   ) {
-    throw new moneyError.FractionalMinorUnit({ cause: amount });
+    throw new moneyError.FractionalMinorUnit({ amount });
   }
 
   const computedAmount = isInMinorUnit
@@ -93,7 +94,7 @@ function add(...args: IMoney[]): IMoney {
 
   if (!isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
-      cause: args,
+      args,
     });
   }
 
@@ -113,7 +114,7 @@ function subtract(...args: IMoney[]): IMoney {
 
   if (!isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
-      cause: args,
+      args,
     });
   }
 
@@ -129,7 +130,7 @@ function subtract(...args: IMoney[]): IMoney {
  */
 function multiply(money: IMoney, factor: IFactor): IMoney {
   if (!isValidFactor(factor)) {
-    throw new moneyError.InvalidFactor({ cause: factor });
+    throw new moneyError.InvalidFactor({ factor });
   }
 
   const result =
@@ -145,11 +146,11 @@ function divide(
   divisor: IFactor
 ): { value: IMoney; remainder: IMoney } {
   if (divisor.numerator === 0) {
-    throw new moneyError.DivisionByZero({ cause: divisor });
+    throw new moneyError.DivisionByZero({ divisor });
   }
 
   if (!isValidFactor(divisor)) {
-    throw new moneyError.InvalidFactor({ cause: divisor });
+    throw new moneyError.InvalidFactor({ divisor });
   }
 
   const numerator = BigInt(divisor.denominator);
@@ -166,11 +167,13 @@ function divide(
 
 function validate(money: IMoney) {
   if (typeof money.amount !== 'bigint') {
-    throw new moneyError.InvalidAmount({ cause: money.amount });
+    throw new moneyError.InvalidAmount({ amount: money.amount });
   }
 
   if (!currencyEntity.isValidCode(money.currency.code)) {
-    throw new moneyError.InvalidCurrencyCode({ cause: money.currency.code });
+    throw new moneyError.InvalidCurrencyCode({
+      currencyCode: money.currency.code,
+    });
   }
 }
 
@@ -187,7 +190,7 @@ function min(...args: IMoney[]) {
 
   if (!isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
-      cause: args,
+      args,
     });
   }
 
@@ -201,7 +204,7 @@ function max(...args: IMoney[]) {
 
   if (!isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
-      cause: args,
+      args,
     });
   }
 
@@ -211,7 +214,8 @@ function max(...args: IMoney[]) {
 function isGreaterThan(money: IMoney, other: IMoney) {
   if (!isSameCurrency(money, other)) {
     throw new moneyError.CurrencyMismatch({
-      cause: [money, other],
+      money,
+      other,
     });
   }
 
@@ -221,7 +225,8 @@ function isGreaterThan(money: IMoney, other: IMoney) {
 function isLessThan(money: IMoney, other: IMoney) {
   if (!isSameCurrency(money, other)) {
     throw new moneyError.CurrencyMismatch({
-      cause: [money, other],
+      money,
+      other,
     });
   }
 
@@ -235,7 +240,7 @@ function sortDescending(...args: IMoney[]) {
 
   if (!isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
-      cause: args,
+      args,
     });
   }
 
@@ -249,7 +254,7 @@ function sortAscending(...args: IMoney[]) {
 
   if (!isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
-      cause: args,
+      args,
     });
   }
 

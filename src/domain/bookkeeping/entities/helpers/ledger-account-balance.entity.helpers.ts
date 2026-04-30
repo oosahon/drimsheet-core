@@ -8,7 +8,7 @@ import ledgerAccountBalanceError from '../../errors/ledger-account-balance.error
 
 function validateEffectType(effect: ULedgerAccountBalanceEffect) {
   if (!Object.values(ELedgerAccountBalanceEffect).includes(effect)) {
-    throw new ledgerAccountBalanceError.InvalidBalanceEffect({ cause: effect });
+    throw new ledgerAccountBalanceError.InvalidBalanceEffect({ effect });
   }
 }
 

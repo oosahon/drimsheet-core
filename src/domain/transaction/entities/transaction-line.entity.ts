@@ -1,10 +1,10 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
-import { AppError } from '../../../shared/utils/error';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
+import transactionError from '../errors/transaction.errors';
 import transactionLineEvents from '../events/transaction-item.events';
 import {
   ETransactionType,
@@ -28,13 +28,13 @@ function validateCounterpartyId(
 
   if (isTransfer) {
     if (counterPartyId) {
-      throw new AppError('Counterparty ID is not allowed for transfers');
+      throw new transactionError.CounterpartyIdNotAllowed();
     }
     return;
   }
 
   if (!counterPartyId) {
-    throw new AppError('Counterparty ID is required.');
+    throw new transactionError.MissingCounterpartyId();
   }
 
   stringUtils.validateUUID(counterPartyId);

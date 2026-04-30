@@ -10,7 +10,7 @@ import { EJournalSide, IJournalLine } from '../../types/journal-line.types';
 
 function validateStatus(status: UJournalEntryStatus) {
   if (!Object.values(EJournalEntryStatus).includes(status)) {
-    throw new journalEntryError.InvalidStatus({ cause: status });
+    throw new journalEntryError.InvalidStatus({ status });
   }
 }
 
@@ -23,7 +23,7 @@ function isUniqueSequenceOrder(lines: IJournalLine[]) {
 
 function validateLine(lines: IJournalLine[]) {
   if (!lines.length || lines.length < 2) {
-    throw new journalEntryError.InvalidLineItems({ cause: lines });
+    throw new journalEntryError.InvalidLineItems({ lines });
   }
 
   const debits: IMoney[] = [];
@@ -35,12 +35,12 @@ function validateLine(lines: IJournalLine[]) {
     } else if (item.side === EJournalSide.Credit) {
       credits.push(item.functionalAmount);
     } else {
-      throw new journalEntryError.InvalidJournalLineItem({ cause: item });
+      throw new journalEntryError.InvalidJournalLineItem({ item });
     }
   }
 
   if (!debits.length || !credits.length) {
-    throw new journalEntryError.InvalidLineItems({ cause: lines });
+    throw new journalEntryError.InvalidLineItems({ lines });
   }
 
   const totalDebits = moneyValue.add(...debits);
@@ -48,12 +48,12 @@ function validateLine(lines: IJournalLine[]) {
 
   if (!moneyValue.equals(totalDebits, totalCredits)) {
     throw new journalEntryError.UnbalancedJournalEntry({
-      cause: lines,
+      lines,
     });
   }
 
   if (!isUniqueSequenceOrder(lines)) {
-    throw new journalEntryError.DuplicateSequenceOrders({ cause: lines });
+    throw new journalEntryError.DuplicateSequenceOrders({ lines });
   }
 }
 

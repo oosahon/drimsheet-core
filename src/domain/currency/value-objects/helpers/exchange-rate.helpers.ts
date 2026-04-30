@@ -11,7 +11,7 @@ import {
 
 function validateType(value: UExchangeRateType) {
   if (!Object.values(EExchangeRateType).includes(value)) {
-    throw new exchangeRateError.InvalidType({ cause: value });
+    throw new exchangeRateError.InvalidType({ value });
   }
 }
 
@@ -32,7 +32,7 @@ function validateCurrencyPair(
     base === params.baseCurrencyCode && target === params.targetCurrencyCode;
 
   if (!itMatches) {
-    throw new exchangeRateError.InvalidPair({ cause: params });
+    throw new exchangeRateError.InvalidPair({ params });
   }
 
   currencyEntity.validateCode(base);

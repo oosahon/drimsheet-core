@@ -27,7 +27,7 @@ export default function makeBookkeepingService(
       const { account, amount, accountingEntity, exchangeRate } = payload;
       if (account.isControlAccount) {
         throw new bookkeepingError.ControlAccountOpeningBalanceNotAllowed({
-          cause: { accountId: account.id },
+          accountId: account.id,
         });
       }
 
@@ -43,7 +43,7 @@ export default function makeBookkeepingService(
 
       if (existingBalanceAdjustment) {
         throw new bookkeepingError.ExistingOpeningBalance({
-          cause: { accountId: payload.account.id },
+          accountId: payload.account.id,
         });
       }
 

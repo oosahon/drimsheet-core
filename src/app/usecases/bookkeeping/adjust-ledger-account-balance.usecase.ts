@@ -34,7 +34,8 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
 
     if (!account) {
       throw new AppError('Account not found', {
-        cause: { ledgerAccountId, correlationId },
+        ledgerAccountId,
+        correlationId,
       });
     }
 
@@ -47,7 +48,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
 
     if (!existingBalance) {
       throw new AppError('Balance not found for account', {
-        cause: { accountId: account.id },
+        accountId: account.id,
       });
     }
 

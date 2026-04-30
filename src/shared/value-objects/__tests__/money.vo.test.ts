@@ -23,7 +23,7 @@ describe('Money Value Object', () => {
 
     it('should throw an error if minor unit is fractional', () => {
       expect(() => money.make(10.5, NGN, true)).toThrow(
-        new moneyError.FractionalMinorUnit({ cause: 10.5 })
+        new moneyError.FractionalMinorUnit({ amount: 10.5 })
       );
     });
 
@@ -45,7 +45,7 @@ describe('Money Value Object', () => {
     it('should throw an error for an invalid currency code', () => {
       const fakeCurrency: any = { ...NGN, code: 'FAKE' };
       expect(() => money.make(100, fakeCurrency, true)).toThrow(
-        new moneyError.InvalidCurrencyCode({ cause: 'FAKE' })
+        new moneyError.InvalidCurrencyCode({ currencyCode: 'FAKE' })
       );
     });
 
@@ -102,7 +102,7 @@ describe('Money Value Object', () => {
       const m2 = money.make(BigInt(100), USD, true);
       expect(() => money.add(m1, m2)).toThrow(
         new moneyError.CurrencyMismatch({
-          cause: [m1, m2],
+          args: [m1, m2],
         })
       );
     });
@@ -128,7 +128,7 @@ describe('Money Value Object', () => {
       const m2 = money.make(BigInt(100), USD, true);
       expect(() => money.subtract(m1, m2)).toThrow(
         new moneyError.CurrencyMismatch({
-          cause: [m1, m2],
+          args: [m1, m2],
         })
       );
     });
@@ -157,7 +157,7 @@ describe('Money Value Object', () => {
         money.multiply(m1, { numerator: 1, denominator: 0 })
       ).toThrow(
         new moneyError.InvalidFactor({
-          cause: { numerator: 1, denominator: 0 },
+          factor: { numerator: 1, denominator: 0 },
         })
       );
 
@@ -165,7 +165,7 @@ describe('Money Value Object', () => {
         money.multiply(m1, { numerator: 1.5, denominator: 2 })
       ).toThrow(
         new moneyError.InvalidFactor({
-          cause: { numerator: 1.5, denominator: 2 },
+          factor: { numerator: 1.5, denominator: 2 },
         })
       );
     });
@@ -194,7 +194,7 @@ describe('Money Value Object', () => {
 
       expect(() => money.divide(m1, { numerator: 0, denominator: 1 })).toThrow(
         new moneyError.DivisionByZero({
-          cause: { numerator: 0, denominator: 1 },
+          divisor: { numerator: 0, denominator: 1 },
         })
       );
     });
@@ -204,7 +204,7 @@ describe('Money Value Object', () => {
 
       expect(() => money.divide(m1, { numerator: 1, denominator: 0 })).toThrow(
         new moneyError.InvalidFactor({
-          cause: { numerator: 1, denominator: 0 },
+          divisor: { numerator: 1, denominator: 0 },
         })
       );
     });
@@ -219,7 +219,7 @@ describe('Money Value Object', () => {
     it('should throw if amount is not a bigint', () => {
       const m = { amount: 100, currency: USD } as unknown as IMoney;
       expect(() => money.validate(m)).toThrow(
-        new moneyError.InvalidAmount({ cause: 100 })
+        new moneyError.InvalidAmount({ amount: 100 })
       );
     });
 
@@ -230,7 +230,7 @@ describe('Money Value Object', () => {
         currency: fakeCurrency,
       } as unknown as IMoney;
       expect(() => money.validate(m)).toThrow(
-        new moneyError.InvalidCurrencyCode({ cause: 'FAKE' })
+        new moneyError.InvalidCurrencyCode({ currencyCode: 'FAKE' })
       );
     });
   });
@@ -274,7 +274,7 @@ describe('Money Value Object', () => {
       const m2 = money.make(100, USD, true);
       expect(() => money.min(m1, m2)).toThrow(
         new moneyError.CurrencyMismatch({
-          cause: [m1, m2],
+          args: [m1, m2],
         })
       );
     });
@@ -299,7 +299,7 @@ describe('Money Value Object', () => {
       const m2 = money.make(100, USD, true);
       expect(() => money.max(m1, m2)).toThrow(
         new moneyError.CurrencyMismatch({
-          cause: [m1, m2],
+          args: [m1, m2],
         })
       );
     });
@@ -325,7 +325,8 @@ describe('Money Value Object', () => {
       const m2 = money.make(100, USD, true);
       expect(() => money.isGreaterThan(m1, m2)).toThrow(
         new moneyError.CurrencyMismatch({
-          cause: [m1, m2],
+          money: m1,
+          other: m2,
         })
       );
     });
@@ -351,7 +352,8 @@ describe('Money Value Object', () => {
       const m2 = money.make(100, USD, true);
       expect(() => money.isLessThan(m1, m2)).toThrow(
         new moneyError.CurrencyMismatch({
-          cause: [m1, m2],
+          money: m1,
+          other: m2,
         })
       );
     });
@@ -380,7 +382,7 @@ describe('Money Value Object', () => {
       const m2 = money.make(100, USD, true);
       expect(() => money.sortDescending(m1, m2)).toThrow(
         new moneyError.CurrencyMismatch({
-          cause: [m1, m2],
+          args: [m1, m2],
         })
       );
     });
@@ -409,7 +411,7 @@ describe('Money Value Object', () => {
       const m2 = money.make(100, USD, true);
       expect(() => money.sortAscending(m1, m2)).toThrow(
         new moneyError.CurrencyMismatch({
-          cause: [m1, m2],
+          args: [m1, m2],
         })
       );
     });
@@ -442,7 +444,7 @@ describe('Money Value Object', () => {
       const invalidFactor = { numerator: 1, denominator: 0 };
 
       expect(() => money.convert(sourceMoney, invalidFactor, NGN)).toThrow(
-        new moneyError.InvalidFactor({ cause: invalidFactor })
+        new moneyError.InvalidFactor({ factor: invalidFactor })
       );
     });
 
@@ -457,7 +459,7 @@ describe('Money Value Object', () => {
           factor,
           fakeCurrency as unknown as typeof NGN
         )
-      ).toThrow(new moneyError.InvalidCurrencyCode({ cause: 'FAKE' }));
+      ).toThrow(new moneyError.InvalidCurrencyCode({ currencyCode: 'FAKE' }));
     });
   });
 

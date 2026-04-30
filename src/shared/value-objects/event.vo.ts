@@ -18,7 +18,7 @@ function enrich<T>(
 
   if (isOverwritingCorrelationId) {
     throw new eventError.CorrelationIdOverwrite({
-      cause: payload,
+      payload,
     });
   }
 
@@ -28,7 +28,7 @@ function enrich<T>(
 
   if (isOverwritingIdempotencyKey) {
     throw new eventError.IdempotencyKeyOverwrite({
-      cause: payload,
+      payload,
     });
   }
 
@@ -82,13 +82,13 @@ function validateEnrichmentPayload(payload: IEventEnrichmentPayload) {
     payload.correlationId !== undefined &&
     typeof payload.correlationId !== 'string'
   ) {
-    throw new eventError.InvalidCorrelationId({ cause: payload });
+    throw new eventError.InvalidCorrelationId({ payload });
   }
   if (
     payload.idempotencyKey !== undefined &&
     typeof payload.idempotencyKey !== 'string'
   ) {
-    throw new eventError.InvalidIdempotencyKey({ cause: payload });
+    throw new eventError.InvalidIdempotencyKey({ payload });
   }
 }
 
@@ -101,7 +101,7 @@ function validate<T = object>(
   payload: Omit<IEvent<T>, 'occurredAt' | 'enrichedAt'>
 ) {
   if (!stringUtils.isNonEmptyString(payload.type)) {
-    throw new eventError.MissingEventType({ cause: payload });
+    throw new eventError.MissingEventType({ payload });
   }
 
   stringUtils.sanitizeAndValidate(payload.type, {
@@ -110,7 +110,7 @@ function validate<T = object>(
   });
 
   if (payload.data === undefined || payload.data === null) {
-    throw new eventError.MissingEventData({ cause: payload });
+    throw new eventError.MissingEventData({ payload });
   }
 
   validateEnrichmentPayload(payload);
@@ -119,14 +119,15 @@ function validate<T = object>(
 function validateEventTypeMatch(event: IEvent<unknown>, expectedType: string) {
   if (event.type !== expectedType) {
     throw new eventError.EventTypeMismatch({
-      cause: { eventType: event.type, expectedType },
+      eventType: event.type,
+      expectedType,
     });
   }
 }
 
 function validateKey(key: string) {
   if (!stringUtils.isNonEmptyString(key)) {
-    throw new eventError.MissingKey({ cause: key });
+    throw new eventError.MissingKey({ key });
   }
 
   const isDomainEvent = key.startsWith('domain');
@@ -134,7 +135,7 @@ function validateKey(key: string) {
   const isInfrastructureEvent = key.startsWith('infra');
 
   if (!isDomainEvent && !isApplicationEvent && !isInfrastructureEvent) {
-    throw new eventError.InvalidKey({ cause: key });
+    throw new eventError.InvalidKey({ key });
   }
 }
 

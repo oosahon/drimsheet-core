@@ -3,7 +3,7 @@ import userValueObjectError from '../errors/user-value-object.errors';
 function make(input: unknown): string {
   if (typeof input !== 'string') {
     throw new userValueObjectError.InvalidType({
-      cause: input,
+      input,
     });
   }
 
@@ -11,13 +11,13 @@ function make(input: unknown): string {
 
   if (normalized.length < 8) {
     throw new userValueObjectError.TooShort({
-      cause: input,
+      input,
     });
   }
 
   if (normalized.length > 128) {
     throw new userValueObjectError.TooLong({
-      cause: input,
+      input,
     });
   }
 
@@ -25,7 +25,7 @@ function make(input: unknown): string {
 
   if (!complexityRegex.test(normalized)) {
     throw new userValueObjectError.InvalidFormat({
-      cause: input,
+      input,
     });
   }
 

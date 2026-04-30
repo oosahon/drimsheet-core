@@ -13,6 +13,7 @@ const EErrorKeys = {
   EventTypeMismatch: 'value_error_event_event_type_mismatch',
   MissingKey: 'value_error_event_missing_key',
   InvalidKey: 'value_error_event_invalid_key',
+  InvalidType: 'value_error_event_invalid_type',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type USpecificEventError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

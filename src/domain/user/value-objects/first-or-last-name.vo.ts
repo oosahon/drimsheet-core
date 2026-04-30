@@ -5,7 +5,7 @@ export type FirstOrLastName = string & { readonly __brand: unique symbol };
 function make(input: unknown): FirstOrLastName {
   if (typeof input !== 'string') {
     throw new userValueObjectError.InvalidType({
-      cause: input,
+      input,
     });
   }
 
@@ -13,13 +13,13 @@ function make(input: unknown): FirstOrLastName {
 
   if (normalized.length < 1) {
     throw new userValueObjectError.TooShort({
-      cause: input,
+      input,
     });
   }
 
   if (normalized.length > 128) {
     throw new userValueObjectError.TooLong({
-      cause: input,
+      input,
     });
   }
 
@@ -28,7 +28,7 @@ function make(input: unknown): FirstOrLastName {
 
   if (!validCharsRegex.test(normalized) || !hasLetterRegex.test(normalized)) {
     throw new userValueObjectError.InvalidFormat({
-      cause: input,
+      input,
     });
   }
 

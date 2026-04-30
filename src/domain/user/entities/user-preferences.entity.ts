@@ -21,13 +21,13 @@ function makeAppPreferences(appPreferences: IUserAppPreferences) {
 
   if (isInvalidTheme) {
     throw new userPreferencesError.InvalidAppPreferences({
-      cause: appPreferences,
+      appPreferences,
     });
   }
 
   if (isInvalidUsageMode) {
     throw new userPreferencesError.InvalidAppPreferences({
-      cause: appPreferences,
+      appPreferences,
     });
   }
 

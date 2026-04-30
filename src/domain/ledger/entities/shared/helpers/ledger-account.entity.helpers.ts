@@ -24,7 +24,7 @@ function getNormalBalance(type: ULedgerType): UNormalBalance {
     case ELedgerType.Revenue:
       return ENormalBalance.Credit;
     default:
-      throw new ledgerAccountError.InvalidType({ cause: type });
+      throw new ledgerAccountError.InvalidType({ type });
   }
 }
 
@@ -36,70 +36,70 @@ function getContraBalance(normalBalance: UNormalBalance): UNormalBalance {
       return ENormalBalance.Debit;
     default:
       throw new ledgerAccountError.InvalidNormalBalance({
-        cause: normalBalance,
+        normalBalance,
       });
   }
 }
 
 function validateCode(code: string) {
   if (!/^[1-5][0-9]{5}$/.test(code)) {
-    throw new ledgerAccountError.InvalidCode({ cause: code });
+    throw new ledgerAccountError.InvalidCode({ code });
   }
 }
 
 function validateType(type: ULedgerType) {
   if (!Object.values(ELedgerType).includes(type)) {
-    throw new ledgerAccountError.InvalidType({ cause: type });
+    throw new ledgerAccountError.InvalidType({ type });
   }
 }
 
 function validateStatus(status: ULedgerAccountStatus) {
   if (!Object.values(ELedgerAccountStatus).includes(status)) {
-    throw new ledgerAccountError.InvalidStatus({ cause: status });
+    throw new ledgerAccountError.InvalidStatus({ status });
   }
 }
 
 function validateContraRule(rule: UContraAccountRule) {
   if (!Object.values(EContraAccountRule).includes(rule)) {
-    throw new ledgerAccountError.InvalidContraRule({ cause: rule });
+    throw new ledgerAccountError.InvalidContraRule({ rule });
   }
 }
 
 function validateAdjunctRule(rule: UAdjunctAccountRule) {
   if (!Object.values(EAdjunctAccountRule).includes(rule)) {
-    throw new ledgerAccountError.InvalidAdjunctRule({ cause: rule });
+    throw new ledgerAccountError.InvalidAdjunctRule({ rule });
   }
 }
 
 function validateNormalBalance(normalBalance: UNormalBalance) {
   if (!Object.values(ENormalBalance).includes(normalBalance)) {
-    throw new ledgerAccountError.InvalidNormalBalance({ cause: normalBalance });
+    throw new ledgerAccountError.InvalidNormalBalance({ normalBalance });
   }
 }
 
 function validateSubType(subType: string) {
   if (!stringUtils.isNonEmptyString(subType)) {
-    throw new ledgerAccountError.InvalidSubType({ cause: subType });
+    throw new ledgerAccountError.InvalidSubType({ subType });
   }
 }
 
 function validateBehavior(behavior: string) {
   if (!stringUtils.isNonEmptyString(behavior)) {
-    throw new ledgerAccountError.InvalidBehavior({ cause: behavior });
+    throw new ledgerAccountError.InvalidBehavior({ behavior });
   }
 }
 
 function validateIsControlAccount(isControlAccount: boolean) {
   if (typeof isControlAccount !== 'boolean') {
     throw new ledgerAccountError.InvalidControlAccountStatus({
-      cause: isControlAccount,
+      isControlAccount,
     });
   }
 }
 
 function validateMeta(meta: unknown) {
   if (meta !== null && typeof meta !== 'object') {
-    throw new ledgerAccountError.InvalidMeta({ cause: meta });
+    throw new ledgerAccountError.InvalidMeta({ meta });
   }
 }
 
@@ -108,7 +108,7 @@ function getSubLedgerCode<T extends string>(
   predecessorCode: T
 ): T {
   if (!/^[1-5][0-9]{2}$/.test(headerCode)) {
-    throw new ledgerAccountError.InvalidHeaderCode({ cause: headerCode });
+    throw new ledgerAccountError.InvalidHeaderCode({ headerCode });
   }
 
   const code = predecessorCode.substring(3);
@@ -116,13 +116,13 @@ function getSubLedgerCode<T extends string>(
     !predecessorCode.startsWith(headerCode) || code.length !== 3;
   if (isInvalidPredecessorCode) {
     throw new ledgerAccountError.InvalidPredecessorCode({
-      cause: predecessorCode,
+      predecessorCode,
     });
   }
 
   if (code === '999') {
     throw new ledgerAccountError.MaximumLimitReached({
-      cause: predecessorCode,
+      predecessorCode,
     });
   }
 
@@ -141,7 +141,7 @@ function validateMaterializedPath(materializedPath: string) {
 
   if (!isValid) {
     throw new ledgerAccountError.InvalidMaterializedPath({
-      cause: materializedPath,
+      materializedPath,
     });
   }
 }
@@ -162,7 +162,7 @@ function getMaterializedPath<T extends string>(
 
   if (!isValidParent) {
     throw new ledgerAccountError.InvalidParentMaterializedPath({
-      cause: parentMaterializedPath,
+      parentMaterializedPath,
     });
   }
 

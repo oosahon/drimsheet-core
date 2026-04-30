@@ -1,8 +1,8 @@
-import { AppError } from '../../../../shared/utils/error';
 import {
   SYSTEM_JURISDICTIONS,
   UJurisdictionCode,
 } from '../../config/jurisdictions.config';
+import accountingEntityError from '../../errors/accounting-entity.errors';
 import {
   EAccountingEntityAuditTrailAction,
   EAccountingEntityType,
@@ -16,9 +16,7 @@ function isValidType(type: UAccountingEntityType) {
 
 function validateType(type: UAccountingEntityType) {
   if (!isValidType(type)) {
-    throw new AppError('Invalid accounting entity type', {
-      cause: type as any,
-    });
+    throw new accountingEntityError.InvalidType({ type });
   }
 }
 
@@ -28,9 +26,7 @@ function isValidJurisdictionCode(code: unknown): code is UJurisdictionCode {
 
 function validateJurisdictionCode(code: unknown) {
   if (!isValidJurisdictionCode(code)) {
-    throw new AppError('Invalid jurisdiction code', {
-      cause: code as Record<string, unknown>,
-    });
+    throw new accountingEntityError.InvalidJurisdictionCode({ code });
   }
 }
 
@@ -40,9 +36,7 @@ function isValidAuditTrailAction(action: UAccountingEntityAuditTrailAction) {
 
 function validateAuditTrailAction(action: UAccountingEntityAuditTrailAction) {
   if (!isValidAuditTrailAction(action)) {
-    throw new AppError('Invalid accounting entity audit trail action', {
-      cause: action,
-    });
+    throw new accountingEntityError.InvalidAuditTrailAction({ action });
   }
 }
 

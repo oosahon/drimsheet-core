@@ -206,7 +206,7 @@ export default function makeAssetAccountService(
 
     if (!controlAccount) {
       throw new assetAccountError.ControlAccountNotFound({
-        cause: { controlAccountLedgerCode },
+        controlAccountLedgerCode,
       });
     }
 

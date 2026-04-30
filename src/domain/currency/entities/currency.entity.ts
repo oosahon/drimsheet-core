@@ -15,7 +15,7 @@ function isValidMinorUnit(minorUnit: number): boolean {
 
 function validateCurrencyCode(code: string) {
   if (!isValidCurrencyCode(code)) {
-    throw new currencyError.InvalidCode({ cause: code });
+    throw new currencyError.InvalidCode({ code });
   }
 }
 
@@ -23,7 +23,7 @@ function getByCode(code: string) {
   const normalizedCode = normalizeCode(code);
   const currency = SYSTEM_CURRENCIES[normalizedCode as UCurrencyCode];
   if (!currency) {
-    throw new currencyError.InvalidCode({ cause: code });
+    throw new currencyError.InvalidCode({ code });
   }
 
   return currency;
