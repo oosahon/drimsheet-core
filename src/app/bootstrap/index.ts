@@ -5,8 +5,8 @@ import repos from '../../infra/persistence/repos';
 import setupServer from '../../infra/server';
 import services from '../../infra/services';
 import eventsRegistry from '../event-registry';
-import { bootstrapAccountingContext } from './accounting-context';
-import bootstrapCurrencies from './setup-currencies';
+import { bootstrapAccountingContext } from './accounting-context.bootstrap';
+import bootstrapCurrencies from './setup-currencies.bootstrap';
 
 async function bootstraper() {
   try {

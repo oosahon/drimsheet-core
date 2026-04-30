@@ -114,36 +114,6 @@ export const pgmigrations = pgTable('pgmigrations', {
   runOn: timestamp('run_on', { mode: 'string' }).notNull(),
 });
 
-export const userSessionsInCore = core.table(
-  'user_sessions',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    userId: uuid('user_id').notNull(),
-    refreshToken: text('refresh_token').notNull(),
-    lastLoginAt: timestamp('last_login_at', {
-      withTimezone: true,
-      mode: 'string',
-    }),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    uniqueIndex('user_sessions_user_id_refresh_token_unique_index').using(
-      'btree',
-      table.userId.asc().nullsLast().op('text_ops'),
-      table.refreshToken.asc().nullsLast().op('text_ops')
-    ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'user_sessions_user_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
 export const usersInCore = core.table('users', {
   id: uuid()
     .default(sql`uuid_generate_v4()`)
@@ -180,6 +150,36 @@ export const userAuthInCore = core.table(
       columns: [table.userId],
       foreignColumns: [usersInCore.id],
       name: 'user_auth_user_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const userSessionsInCore = core.table(
+  'user_sessions',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .notNull(),
+    userId: uuid('user_id').notNull(),
+    refreshToken: text('refresh_token').notNull(),
+    lastLoginAt: timestamp('last_login_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('user_sessions_user_id_refresh_token_unique_index').using(
+      'btree',
+      table.userId.asc().nullsLast().op('text_ops'),
+      table.refreshToken.asc().nullsLast().op('text_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_sessions_user_id_fkey',
     }).onDelete('cascade'),
   ]
 );
@@ -313,9 +313,6 @@ export const fiscalYearsInCore = core.table(
 export const jurisdictionAccountingStandardsInCore = core.table(
   'jurisdiction_accounting_standards',
   {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
     jurisdictionCode: varchar('jurisdiction_code', { length: 2 }).notNull(),
     accountingStandardCode: varchar('accounting_standard_code', {
       length: 15,
