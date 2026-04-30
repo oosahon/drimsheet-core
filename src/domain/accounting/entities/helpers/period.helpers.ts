@@ -91,6 +91,8 @@ function getIntervals(
     throw new errors.InvalidInterval();
   }
 
+  const intervalSize = Math.floor(distance / count);
+
   const adderMaps = {
     [EPeriodUnit.Day]: dateUtils.addDaysToDate,
     [EPeriodUnit.Week]: dateUtils.addWeeksToDate,
@@ -105,23 +107,20 @@ function getIntervals(
 
   let startOfInterval = startDate;
 
-  while (dateUtils.isLessThan(startOfInterval, endDate)) {
-    const nextEndDate = adder(startOfInterval, count);
-
-    if (!dateUtils.isLessThan(nextEndDate, endDate)) {
+  for (let i = 0; i < count; i++) {
+    if (i === count - 1) {
       intervals.push({
         startDate: startOfInterval,
         endDate,
       });
-      break;
+    } else {
+      const nextEndDate = adder(startOfInterval, intervalSize);
+      intervals.push({
+        startDate: startOfInterval,
+        endDate: nextEndDate,
+      });
+      startOfInterval = nextEndDate;
     }
-
-    intervals.push({
-      startDate: startOfInterval,
-      endDate: nextEndDate,
-    });
-
-    startOfInterval = nextEndDate;
   }
 
   return intervals;

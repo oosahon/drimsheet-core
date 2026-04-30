@@ -6,7 +6,7 @@ function isValidCurrencyCode(code: string): boolean {
 }
 
 function normalizeCode(code: string) {
-  return code?.trim().toUpperCase();
+  return code.trim().toUpperCase();
 }
 
 function isValidMinorUnit(minorUnit: number): boolean {

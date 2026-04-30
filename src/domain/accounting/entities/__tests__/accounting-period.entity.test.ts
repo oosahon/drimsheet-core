@@ -31,7 +31,7 @@ describe('accountingPeriodEntity', () => {
     const validPayload = {
       accountingEntityId: '98402eb7-ec79-436f-b258-00a4fb9a572a' as TEntityId,
       unit: EPeriodUnit.Quarter,
-      count: 1,
+      count: 4,
       fiscalYear: validFiscalYear,
     };
 

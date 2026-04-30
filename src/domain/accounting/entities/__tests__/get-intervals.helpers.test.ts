@@ -74,17 +74,127 @@ describe('Period Helpers - getIntervals', () => {
   });
 
   describe('Interval Generation', () => {
-    it('generates exact multiple intervals correctly (e.g. 2 months evenly divisible by 1 month)', () => {
+    it('generates exact multiple intervals correctly (e.g. 12 month period into 12 intervals)', () => {
       const startDate = new Date(`${futureYear}-01-01T00:00:00.000Z`);
-      const endDate = new Date(`${futureYear}-03-01T00:00:00.000Z`);
+      const endDate = new Date(`${futureYear + 1}-01-01T00:00:00.000Z`); // 12 months later
 
       const intervals = periodHelpers.getIntervals({
         startDate,
         endDate,
         unit: EPeriodUnit.Month,
-        count: 1,
+        count: 12,
       });
 
+      expect(intervals).toHaveLength(12);
+
+      // Interval 1: Jan -> Feb
+      expect(intervals[0].startDate).toEqual(
+        new Date(`${futureYear}-01-01T00:00:00.000Z`)
+      );
+      expect(intervals[0].endDate).toEqual(
+        new Date(`${futureYear}-02-01T00:00:00.000Z`)
+      );
+
+      // Interval 12: Dec -> Jan (next year)
+      expect(intervals[11].startDate).toEqual(
+        new Date(`${futureYear}-12-01T00:00:00.000Z`)
+      );
+      expect(intervals[11].endDate).toEqual(
+        new Date(`${futureYear + 1}-01-01T00:00:00.000Z`)
+      );
+    });
+
+    it('generates intervals correctly when count is smaller (e.g. 12 month period into 6 intervals -> bimonthly)', () => {
+      const startDate = new Date(`${futureYear}-01-01T00:00:00.000Z`);
+      const endDate = new Date(`${futureYear + 1}-01-01T00:00:00.000Z`); // 12 months later
+
+      const intervals = periodHelpers.getIntervals({
+        startDate,
+        endDate,
+        unit: EPeriodUnit.Month,
+        count: 6,
+      });
+
+      expect(intervals).toHaveLength(6);
+
+      // Interval 1: Jan -> Mar
+      expect(intervals[0].startDate).toEqual(
+        new Date(`${futureYear}-01-01T00:00:00.000Z`)
+      );
+      expect(intervals[0].endDate).toEqual(
+        new Date(`${futureYear}-03-01T00:00:00.000Z`)
+      );
+
+      // Interval 2: Mar -> May
+      expect(intervals[1].startDate).toEqual(
+        new Date(`${futureYear}-03-01T00:00:00.000Z`)
+      );
+      expect(intervals[1].endDate).toEqual(
+        new Date(`${futureYear}-05-01T00:00:00.000Z`)
+      );
+    });
+
+    it('generates intervals with a final partial period when range is not perfectly divisible (e.g. 11 months into 4 intervals)', () => {
+      const startDate = new Date(`${futureYear}-01-01T00:00:00.000Z`);
+      const endDate = new Date(`${futureYear}-12-01T00:00:00.000Z`); // 11 months total
+
+      const intervals = periodHelpers.getIntervals({
+        startDate,
+        endDate,
+        unit: EPeriodUnit.Month,
+        count: 4,
+      });
+
+      // Math.floor(11 / 4) = 2 months per interval.
+      // 4 intervals total: 2m, 2m, 2m, 5m (remainder)
+      expect(intervals).toHaveLength(4);
+
+      // Interval 1: Jan -> Mar (2 months)
+      expect(intervals[0].startDate).toEqual(
+        new Date(`${futureYear}-01-01T00:00:00.000Z`)
+      );
+      expect(intervals[0].endDate).toEqual(
+        new Date(`${futureYear}-03-01T00:00:00.000Z`)
+      );
+
+      // Interval 2: Mar -> May (2 months)
+      expect(intervals[1].startDate).toEqual(
+        new Date(`${futureYear}-03-01T00:00:00.000Z`)
+      );
+      expect(intervals[1].endDate).toEqual(
+        new Date(`${futureYear}-05-01T00:00:00.000Z`)
+      );
+
+      // Interval 3: May -> Jul (2 months)
+      expect(intervals[2].startDate).toEqual(
+        new Date(`${futureYear}-05-01T00:00:00.000Z`)
+      );
+      expect(intervals[2].endDate).toEqual(
+        new Date(`${futureYear}-07-01T00:00:00.000Z`)
+      );
+
+      // Interval 4: Jul -> Dec (5 months remainder)
+      expect(intervals[3].startDate).toEqual(
+        new Date(`${futureYear}-07-01T00:00:00.000Z`)
+      );
+      expect(intervals[3].endDate).toEqual(
+        new Date(`${futureYear}-12-01T00:00:00.000Z`)
+      );
+    });
+
+    it('generates exactly `count` intervals even if there is remainder days (e.g. 2.5 months into 2 intervals)', () => {
+      const startDate = new Date(`${futureYear}-01-01T00:00:00.000Z`);
+      const endDate = new Date(`${futureYear}-03-15T00:00:00.000Z`); // 2.5 months
+
+      const intervals = periodHelpers.getIntervals({
+        startDate,
+        endDate,
+        unit: EPeriodUnit.Month,
+        count: 2,
+      });
+
+      // Math.floor(2 / 2) = 1 month per interval
+      // 2 intervals: 1m, 1.5m
       expect(intervals).toHaveLength(2);
 
       expect(intervals[0].startDate).toEqual(
@@ -98,96 +208,13 @@ describe('Period Helpers - getIntervals', () => {
         new Date(`${futureYear}-02-01T00:00:00.000Z`)
       );
       expect(intervals[1].endDate).toEqual(
-        new Date(`${futureYear}-03-01T00:00:00.000Z`)
-      );
-    });
-
-    it('generates intervals with a final partial period when range is not perfectly divisible (e.g. quarters remainder)', () => {
-      const startDate = new Date(`${futureYear}-02-01T00:00:00.000Z`);
-      const endDate = new Date(`${futureYear}-12-31T00:00:00.000Z`); // 11 months total
-
-      const intervals = periodHelpers.getIntervals({
-        startDate,
-        endDate,
-        unit: EPeriodUnit.Quarter, // 3 months
-        count: 1,
-      });
-
-      // 11 months / 3 months = 3 full quarters + 2 months remainder -> 4 intervals
-      expect(intervals).toHaveLength(4);
-
-      // Interval 1: Feb 1 -> May 1
-      expect(intervals[0].startDate).toEqual(
-        new Date(`${futureYear}-02-01T00:00:00.000Z`)
-      );
-      expect(intervals[0].endDate).toEqual(
-        new Date(`${futureYear}-05-01T00:00:00.000Z`)
-      );
-
-      // Interval 2: May 1 -> Aug 1
-      expect(intervals[1].startDate).toEqual(
-        new Date(`${futureYear}-05-01T00:00:00.000Z`)
-      );
-      expect(intervals[1].endDate).toEqual(
-        new Date(`${futureYear}-08-01T00:00:00.000Z`)
-      );
-
-      // Interval 3: Aug 1 -> Nov 1
-      expect(intervals[2].startDate).toEqual(
-        new Date(`${futureYear}-08-01T00:00:00.000Z`)
-      );
-      expect(intervals[2].endDate).toEqual(
-        new Date(`${futureYear}-11-01T00:00:00.000Z`)
-      );
-
-      // Interval 4: Nov 1 -> Dec 31 (capped at endDate)
-      expect(intervals[3].startDate).toEqual(
-        new Date(`${futureYear}-11-01T00:00:00.000Z`)
-      );
-      expect(intervals[3].endDate).toEqual(
-        new Date(`${futureYear}-12-31T00:00:00.000Z`)
-      );
-    });
-
-    it('generates partial final periods correctly even if total distance is an exact multiple of the unit but there is remainder days', () => {
-      const startDate = new Date(`${futureYear}-01-01T00:00:00.000Z`);
-      const endDate = new Date(`${futureYear}-03-15T00:00:00.000Z`);
-
-      const intervals = periodHelpers.getIntervals({
-        startDate,
-        endDate,
-        unit: EPeriodUnit.Month,
-        count: 1,
-      });
-
-      // 2 months + 14 days -> 3 intervals
-      expect(intervals).toHaveLength(3);
-
-      expect(intervals[0].startDate).toEqual(
-        new Date(`${futureYear}-01-01T00:00:00.000Z`)
-      );
-      expect(intervals[0].endDate).toEqual(
-        new Date(`${futureYear}-02-01T00:00:00.000Z`)
-      );
-
-      expect(intervals[1].startDate).toEqual(
-        new Date(`${futureYear}-02-01T00:00:00.000Z`)
-      );
-      expect(intervals[1].endDate).toEqual(
-        new Date(`${futureYear}-03-01T00:00:00.000Z`)
-      );
-
-      expect(intervals[2].startDate).toEqual(
-        new Date(`${futureYear}-03-01T00:00:00.000Z`)
-      );
-      expect(intervals[2].endDate).toEqual(
         new Date(`${futureYear}-03-15T00:00:00.000Z`)
       );
     });
 
-    it('generates days intervals correctly', () => {
+    it('generates days intervals correctly (e.g. 6 days inclusive into 2 intervals)', () => {
       const startDate = new Date(`${futureYear}-01-01T00:00:00.000Z`);
-      const endDate = new Date(`${futureYear}-01-06T00:00:00.000Z`);
+      const endDate = new Date(`${futureYear}-01-06T00:00:00.000Z`); // 6 days inclusive
 
       const intervals = periodHelpers.getIntervals({
         startDate,
@@ -196,44 +223,26 @@ describe('Period Helpers - getIntervals', () => {
         count: 2,
       });
 
-      // 5 days distance, 2 days interval -> 3 intervals
-      expect(intervals).toHaveLength(3);
+      // Math.floor(6 / 2) = 3 days per interval
+      // 2 intervals: 3 days, 3 days (inclusive logic makes them overlap on boundaries)
+      expect(intervals).toHaveLength(2);
 
+      expect(intervals[0].startDate).toEqual(
+        new Date(`${futureYear}-01-01T00:00:00.000Z`)
+      );
       expect(intervals[0].endDate).toEqual(
-        new Date(`${futureYear}-01-03T00:00:00.000Z`)
+        new Date(`${futureYear}-01-04T00:00:00.000Z`)
+      );
+
+      expect(intervals[1].startDate).toEqual(
+        new Date(`${futureYear}-01-04T00:00:00.000Z`)
       );
       expect(intervals[1].endDate).toEqual(
-        new Date(`${futureYear}-01-05T00:00:00.000Z`)
-      );
-      expect(intervals[2].endDate).toEqual(
         new Date(`${futureYear}-01-06T00:00:00.000Z`)
-      ); // capped
-    });
-
-    it('generates weeks intervals correctly', () => {
-      const startDate = new Date(`${futureYear}-01-01T00:00:00.000Z`);
-      const endDate = new Date(`${futureYear}-01-22T00:00:00.000Z`); // 3 weeks
-
-      const intervals = periodHelpers.getIntervals({
-        startDate,
-        endDate,
-        unit: EPeriodUnit.Week,
-        count: 1,
-      });
-
-      expect(intervals).toHaveLength(3);
-      expect(intervals[0].endDate).toEqual(
-        new Date(`${futureYear}-01-08T00:00:00.000Z`)
-      );
-      expect(intervals[1].endDate).toEqual(
-        new Date(`${futureYear}-01-15T00:00:00.000Z`)
-      );
-      expect(intervals[2].endDate).toEqual(
-        new Date(`${futureYear}-01-22T00:00:00.000Z`)
       );
     });
 
-    it('generates years intervals correctly', () => {
+    it('generates years intervals correctly (e.g. 5.5 years into 3 intervals)', () => {
       const startDate = new Date(`${futureYear}-01-01T00:00:00.000Z`);
       const endDate = new Date(`${futureYear + 5}-06-01T00:00:00.000Z`); // 5.5 years
 
@@ -241,20 +250,33 @@ describe('Period Helpers - getIntervals', () => {
         startDate,
         endDate,
         unit: EPeriodUnit.Year,
-        count: 2,
+        count: 3,
       });
 
-      // 2 years + 2 years + 1.5 years -> 3 intervals
+      // Math.floor(5 / 3) = 1 year per interval
+      // 3 intervals: 1 year, 1 year, 3.5 years
       expect(intervals).toHaveLength(3);
+
+      expect(intervals[0].startDate).toEqual(
+        new Date(`${futureYear}-01-01T00:00:00.000Z`)
+      );
       expect(intervals[0].endDate).toEqual(
-        new Date(`${futureYear + 2}-01-01T00:00:00.000Z`)
+        new Date(`${futureYear + 1}-01-01T00:00:00.000Z`)
+      );
+
+      expect(intervals[1].startDate).toEqual(
+        new Date(`${futureYear + 1}-01-01T00:00:00.000Z`)
       );
       expect(intervals[1].endDate).toEqual(
-        new Date(`${futureYear + 4}-01-01T00:00:00.000Z`)
+        new Date(`${futureYear + 2}-01-01T00:00:00.000Z`)
+      );
+
+      expect(intervals[2].startDate).toEqual(
+        new Date(`${futureYear + 2}-01-01T00:00:00.000Z`)
       );
       expect(intervals[2].endDate).toEqual(
         new Date(`${futureYear + 5}-06-01T00:00:00.000Z`)
-      ); // capped
+      );
     });
   });
 });

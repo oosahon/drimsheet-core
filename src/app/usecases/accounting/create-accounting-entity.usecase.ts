@@ -237,6 +237,8 @@ export default function createAccountingEntityUseCase(
 
     await repoService.runInTransaction(transactionFn);
 
+    await requestContext.set({ accountingEntity });
+
     // =============== Publish events ===============
     const allEvents = [
       ...eventValue.enrichAll(accountingEntityEvents, trace),
