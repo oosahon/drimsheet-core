@@ -9,10 +9,10 @@ function validateStartAndEndDate(
 ) {
   periodHelpers.validateStartAndEndDate(payload);
 
-  const monthDistance = dateUtils.getMonthDistance(
-    payload.startDate,
-    payload.endDate
-  );
+  const monthDistance = dateUtils.getMonthDistance({
+    start: payload.startDate,
+    end: payload.endDate,
+  });
 
   const isInvalidDistance = monthDistance > 23 || monthDistance < 1;
 

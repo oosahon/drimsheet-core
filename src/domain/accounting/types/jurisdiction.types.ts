@@ -8,3 +8,9 @@ export interface IJurisdiction {
   currency: ICurrency;
   accountingStandards: Record<UAccountingEntityType, UAccountingStandardCode[]>;
 }
+
+export interface IJurisdictionAccountingStandard {
+  jurisdictionCode: string;
+  accountingStandardCode: string;
+  accountingEntityType: string;
+}

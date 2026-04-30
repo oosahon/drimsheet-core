@@ -85,7 +85,7 @@ function getIntervals(
 
   const distanceFn = distanceMaps[unit];
 
-  let distance = distanceFn(startDate, endDate);
+  let distance = distanceFn({ start: startDate, end: endDate });
 
   if (distance < count) {
     throw new errors.InvalidInterval();

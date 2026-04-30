@@ -214,23 +214,25 @@ describe('dateUtils', () => {
     const date5 = new Date('2025-01-01');
 
     it('getDaysDistance returns correct number of days', () => {
-      expect(dateUtils.getDaysDistance(date1, date2)).toBe(14);
+      expect(dateUtils.getDaysDistance({ start: date1, end: date2 })).toBe(15);
     });
 
     it('getWeekDistance returns correct number of weeks', () => {
-      expect(dateUtils.getWeekDistance(date1, date2)).toBe(2);
+      expect(dateUtils.getWeekDistance({ start: date1, end: date2 })).toBe(2);
     });
 
     it('getMonthDistance returns correct number of months', () => {
-      expect(dateUtils.getMonthDistance(date1, date3)).toBe(1);
+      expect(dateUtils.getMonthDistance({ start: date1, end: date3 })).toBe(1);
     });
 
     it('getQuarterDistance returns correct number of quarters', () => {
-      expect(dateUtils.getQuarterDistance(date1, date4)).toBe(1);
+      expect(dateUtils.getQuarterDistance({ start: date1, end: date4 })).toBe(
+        1
+      );
     });
 
     it('getYearDistance returns correct number of years', () => {
-      expect(dateUtils.getYearDistance(date1, date5)).toBe(1);
+      expect(dateUtils.getYearDistance({ start: date1, end: date5 })).toBe(1);
     });
   });
 

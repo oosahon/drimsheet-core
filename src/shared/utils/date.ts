@@ -1,6 +1,11 @@
 import dayjs from 'dayjs';
 import { AppError } from '../errors/error';
 
+export interface IStartAndEndDates {
+  start: Date;
+  end: Date;
+}
+
 function isValidDate(date: Date | string | number) {
   return dayjs(date).isValid();
 }
@@ -89,39 +94,41 @@ function validateLessThan(
   }
 }
 
-function getDaysDistance(date1: Date, date2: Date) {
-  validateDate(date1);
-  validateDate(date2);
+function getDaysDistance({ start, end }: IStartAndEndDates) {
+  validateDate(start);
+  validateDate(end);
 
-  return dayjs(date2).diff(dayjs(date1), 'day');
+  return Math.round(dayjs(end).add(1, 'day').diff(dayjs(start), 'day', true));
 }
 
-function getWeekDistance(date1: Date, date2: Date) {
-  validateDate(date1);
-  validateDate(date2);
+function getWeekDistance({ start, end }: IStartAndEndDates) {
+  validateDate(start);
+  validateDate(end);
 
-  return dayjs(date2).diff(dayjs(date1), 'week');
+  return Math.round(dayjs(end).add(1, 'day').diff(dayjs(start), 'week', true));
 }
 
-function getMonthDistance(date1: Date, date2: Date) {
-  validateDate(date1);
-  validateDate(date2);
+function getMonthDistance({ start, end }: IStartAndEndDates) {
+  validateDate(start);
+  validateDate(end);
 
-  return dayjs(date2).diff(dayjs(date1), 'month');
+  return Math.round(dayjs(end).add(1, 'day').diff(dayjs(start), 'month', true));
 }
 
-function getQuarterDistance(date1: Date, date2: Date) {
-  validateDate(date1);
-  validateDate(date2);
+function getQuarterDistance({ start, end }: IStartAndEndDates) {
+  validateDate(start);
+  validateDate(end);
 
-  return dayjs(date2).diff(dayjs(date1), 'quarter');
+  return Math.round(
+    dayjs(end).add(1, 'day').diff(dayjs(start), 'quarter', true)
+  );
 }
 
-function getYearDistance(date1: Date, date2: Date) {
-  validateDate(date1);
-  validateDate(date2);
+function getYearDistance({ start, end }: IStartAndEndDates) {
+  validateDate(start);
+  validateDate(end);
 
-  return dayjs(date2).diff(dayjs(date1), 'year');
+  return Math.round(dayjs(end).add(1, 'day').diff(dayjs(start), 'year', true));
 }
 
 function addDaysToDate(date: Date | string | number, days: number) {

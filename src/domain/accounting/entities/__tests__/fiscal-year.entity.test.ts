@@ -107,7 +107,7 @@ describe('fiscalYearEntity', () => {
         expect(() =>
           fiscalYearEntity.validateStartAndEndDate({
             startDate: new Date('2026-05-01T00:00:00.000Z'),
-            endDate: new Date('2026-05-15T00:00:00.000Z'),
+            endDate: new Date('2026-05-10T00:00:00.000Z'),
           })
         ).toThrow(periodErrors.InvalidDateRange);
       });
@@ -136,7 +136,7 @@ describe('fiscalYearEntity', () => {
         expect(() =>
           fiscalYearEntity.deriveName(
             new Date('2026-05-01T00:00:00.000Z'),
-            new Date('2026-05-15T00:00:00.000Z'),
+            new Date('2026-05-10T00:00:00.000Z'),
             null
           )
         ).toThrow(periodErrors.InvalidDateRange);
