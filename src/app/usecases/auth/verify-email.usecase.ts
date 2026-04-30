@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import { ErrorBadRequest } from '../../../shared/errors/error';
+import { ErrorBadRequest } from '../../../shared/utils/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';

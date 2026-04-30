@@ -1,5 +1,5 @@
 import { BookkeepingError } from '.';
-import { getMappedErrors, TErrorCause } from '../../../shared/errors/error';
+import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
 
 type TErrorKeyPrefix = `bookkeeping_error_ledger_account_balance_${string}`;
 

@@ -2,10 +2,7 @@ import { RequestHandler } from 'express';
 import _ from 'lodash';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
 import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
-import {
-  ErrorForbidden,
-  ErrorUnauthorized,
-} from '../../../shared/errors/error';
+import { ErrorForbidden, ErrorUnauthorized } from '../../../shared/utils/error';
 import httpHandlers from '../handlers';
 
 export default function makeIsAuthenticatedUserMiddleware(

@@ -1,5 +1,5 @@
 import { LedgerError } from '.';
-import { getMappedErrors, TErrorCause } from '../../../shared/errors/error';
+import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
 
 type TErrorKeyPrefix = `ledger_error_ledger_account_${string}`;
 

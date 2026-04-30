@@ -1,5 +1,5 @@
 import { JournalEntryError } from '.';
-import { getMappedErrors, TErrorCause } from '../../../shared/errors/error';
+import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
 
 type TErrorKeyPrefix = `journal_entry_error_journal_entry_${string}`;
 

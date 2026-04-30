@@ -1,4 +1,4 @@
-import { DomainError, TErrorCause } from '../../../shared/errors/error';
+import { DomainError, TErrorCause } from '../../../shared/utils/error';
 
 type TErrorPrefix = `journal_entry_error_${string}`;
 

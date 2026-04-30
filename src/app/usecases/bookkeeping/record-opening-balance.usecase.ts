@@ -2,8 +2,8 @@ import IBookkeepingService from '../../../domain/bookkeeping/types/bookkeeping.s
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
 import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import { ErrorResourceNotFound } from '../../../shared/errors/error';
 import { TEntityId } from '../../../shared/types/uuid';
+import { ErrorResourceNotFound } from '../../../shared/utils/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';

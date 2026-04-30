@@ -29,7 +29,7 @@ function makeReportingPeriod(
 
   helpers.validateUnit(payload.unit);
 
-  numberUtils.validatePositiveNumber(payload.count, 'Invalid period count');
+  numberUtils.validatePositiveNumber(payload.count);
 
   dateUtils.validateDate(payload.startDate);
   dateUtils.validateDate(payload.endDate);

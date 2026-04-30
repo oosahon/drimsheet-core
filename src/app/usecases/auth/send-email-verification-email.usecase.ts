@@ -2,7 +2,7 @@ import { z } from 'zod';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import { WEB_APP_URL } from '../../../infra/config/vars.config';
-import { AppError } from '../../../shared/errors/error';
+import { AppError } from '../../../shared/utils/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IAuthService from '../../contracts/infra/auth-service.contract';

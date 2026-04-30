@@ -5,7 +5,7 @@ import {
 } from '../../domain/currency/config/currencies.config';
 import { ICurrency } from '../../domain/currency/types/currency.types';
 import { currenciesInCore } from '../../infra/config/drizzle/schema';
-import { ErrorBadRequest } from '../../shared/errors/error';
+import { ErrorBadRequest } from '../../shared/utils/error';
 
 export interface ICurrencyModel extends InferSelectModel<
   typeof currenciesInCore

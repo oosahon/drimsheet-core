@@ -1,7 +1,7 @@
 import Sentry from '@sentry/node';
 import appContext from '../../app/context';
 import IReporter from '../../app/contracts/infra/reporter.contract';
-import { parseError } from '../../shared/errors/error';
+import { parseError } from '../../shared/utils/error';
 import { NODE_ENV, SENTRY_DSN } from '../config/vars.config';
 import logger from './logger';
 

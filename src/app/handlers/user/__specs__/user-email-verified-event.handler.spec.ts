@@ -1,6 +1,6 @@
 import { EUserEvents } from '../../../../domain/user/events/user.events';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { AppError } from '../../../../shared/errors/error';
+import eventError from '../../../../shared/errors/event.errors';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeUserEmailVerifiedEventHandler from '../user-email-verified-event.handler';
@@ -104,9 +104,8 @@ describe('makeUserEmailVerifiedEventHandler', () => {
     const mockEvent = getValidEvent();
     mockEvent.type = 'INVALID_EVENT' as keyof typeof EUserEvents;
 
-    await expect(handler(mockEvent)).rejects.toThrow(AppError);
     await expect(handler(mockEvent)).rejects.toThrow(
-      'Event type does not match expected type'
+      eventError.EventTypeMismatch
     );
     expect(userUseCase.saveActivity).not.toHaveBeenCalled();
   });

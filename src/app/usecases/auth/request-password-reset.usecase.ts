@@ -2,7 +2,7 @@ import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import { WEB_APP_URL } from '../../../infra/config/vars.config';
-import { ErrorBadRequest } from '../../../shared/errors/error';
+import { ErrorBadRequest } from '../../../shared/utils/error';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IAuthService, {

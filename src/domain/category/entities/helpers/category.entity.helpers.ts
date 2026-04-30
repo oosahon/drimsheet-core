@@ -1,4 +1,4 @@
-import { AppError } from '../../../../shared/errors/error';
+import { AppError } from '../../../../shared/utils/error';
 import stringUtils from '../../../../shared/utils/string';
 import {
   ECategoryHistoryAction,

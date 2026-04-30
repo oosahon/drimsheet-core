@@ -1,6 +1,6 @@
 import { IUser } from '../../../../domain/user/types/user.types';
-import { ErrorUnauthorized } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { ErrorUnauthorized } from '../../../../shared/utils/error';
 import { IUserSession } from '../../../contracts/infra/auth-service.contract';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';

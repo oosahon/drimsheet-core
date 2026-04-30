@@ -1,6 +1,6 @@
 import { ICurrency } from '../../../domain/currency/types/currency.types';
-import { AppError } from '../../../shared/errors/error';
 import { IMoney } from '../../../shared/types/money.types';
+import { AppError } from '../../../shared/utils/error';
 import { IMoneyDto } from '../../contracts/dto/money.dto';
 import moneyMapper from '../money.mapper';
 

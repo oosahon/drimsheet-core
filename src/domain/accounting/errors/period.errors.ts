@@ -1,5 +1,5 @@
 import { AccountingError } from '.';
-import { getMappedErrors, TErrorCause } from '../../../shared/errors/error';
+import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
 
 type TErrorKeyPrefix = `accounting_error_period_${string}`;
 

@@ -1,6 +1,6 @@
 import { v7 as uuid } from 'uuid';
 import { z } from 'zod';
-import { AppError } from '../errors/error';
+import stringError from '../errors/string.errors';
 import { TEntityId } from '../types/uuid';
 
 interface IValidationOptions {
@@ -17,9 +17,9 @@ function isNonEmptyString(value: string) {
   return isString(value) && value.trim().length > 0;
 }
 
-function validateIsNonEmptyString(value: string, message?: string) {
+function validateIsNonEmptyString(value: string, error?: Error) {
   if (!isNonEmptyString(value)) {
-    throw new AppError(message ?? 'Invalid string', { cause: value });
+    throw error || new stringError.InvalidString({ cause: value });
   }
 }
 
@@ -37,21 +37,29 @@ function isStringWithinRange(value: string, options: IValidationOptions) {
   return true;
 }
 
-function validateStringWithinRange(value: string, options: IValidationOptions) {
+function validateStringWithinRange(
+  value: string,
+  options: IValidationOptions,
+  error?: Error
+) {
   if (!isStringWithinRange(value, options)) {
-    throw new AppError('Invalid string', { cause: value });
+    throw error || new stringError.InvalidString({ cause: value });
   }
 }
 
-function sanitizeAndValidateString(value: string, options: IValidationOptions) {
+function sanitizeAndValidateString(
+  value: string,
+  options: IValidationOptions,
+  error?: Error
+) {
   if (!isString(value)) {
-    throw new AppError('Invalid string', { cause: value });
+    throw error || new stringError.InvalidString({ cause: value });
   }
   const schema = z.string().min(options.min).max(options.max);
   const result = schema.safeParse(value.trim());
 
   if (!result.success) {
-    throw new AppError('Invalid string', { cause: value });
+    throw error || new stringError.InvalidString({ cause: value });
   }
 
   return result.data;
@@ -61,9 +69,9 @@ function isUUID(value: string) {
   return z.uuid().safeParse(value).success;
 }
 
-function validateUUID(value: string, message?: string) {
+function validateUUID(value: string, error?: Error) {
   if (!isUUID(value)) {
-    throw new AppError(message ?? 'Invalid UUID', { cause: value });
+    throw error || new stringError.InvalidUUID({ cause: value });
   }
 }
 
@@ -81,8 +89,8 @@ function isUrl(value: string) {
   }
 }
 
-function toUUD(value: string): TEntityId {
-  validateUUID(value);
+function toUUD(value: string, error?: Error): TEntityId {
+  validateUUID(value, error);
   return value as TEntityId;
 }
 

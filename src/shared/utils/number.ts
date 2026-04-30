@@ -1,60 +1,60 @@
-import { AppError } from '../errors/error';
+import numberError from '../errors/number.errors';
 import { IFactor } from '../types/number.types';
 
-function toBigInt(value: string | number | bigint) {
+function toBigInt(value: string | number | bigint, error?: Error) {
   if (typeof value === 'number') {
     if (isNaN(value)) {
-      throw new AppError('Invalid value', { cause: value });
+      throw error || new numberError.InvalidValue({ cause: value });
     }
     if (!Number.isInteger(value)) {
-      throw new AppError('Value must not be a float', { cause: value });
+      throw error || new numberError.InvalidFloat({ cause: value });
     }
   } else if (typeof value === 'string') {
     const trimmed = value.trim();
     if (trimmed === '') {
-      throw new AppError('Invalid value', { cause: value });
+      throw error || new numberError.InvalidValue({ cause: value });
     }
     if (trimmed.includes('.')) {
-      throw new AppError('Value must not be a float', { cause: value });
+      throw error || new numberError.InvalidFloat({ cause: value });
     }
   }
 
   try {
     return BigInt(value);
-  } catch (error) {
-    throw new AppError('Invalid value', { cause: value });
+  } catch (err) {
+    throw error || new numberError.InvalidValue({ cause: value });
   }
 }
 
-function toFloat(value: string | number | bigint) {
+function toFloat(value: string | number | bigint, error?: Error) {
   if (typeof value === 'string' && value.trim() === '') {
-    throw new AppError('Invalid value', { cause: value });
+    throw error || new numberError.InvalidValue({ cause: value });
   }
 
   const number = Number(value);
 
   if (isNaN(number)) {
-    throw new AppError('Invalid value', { cause: value });
+    throw error || new numberError.InvalidValue({ cause: value });
   }
 
   return number;
 }
 
-function toNonNegativeNumber(value: string | number | bigint) {
-  const number = toFloat(value);
+function toNonNegativeNumber(value: string | number | bigint, error?: Error) {
+  const number = toFloat(value, error);
 
   if (number < 0) {
-    throw new AppError('Value must not be negative', { cause: value });
+    throw error || new numberError.NegativeValue({ cause: value });
   }
 
   return number;
 }
 
-function toFactor(value: string | number | bigint): IFactor {
-  const number = toFloat(value);
+function toFactor(value: string | number | bigint, error?: Error): IFactor {
+  const number = toFloat(value, error);
 
   if (!Number.isFinite(number)) {
-    throw new AppError('Invalid value', { cause: value });
+    throw error || new numberError.InvalidValue({ cause: value });
   }
 
   const numStr = number.toString();
@@ -83,17 +83,17 @@ function isNumber(value: unknown): boolean {
   return typeof value === 'number' && !isNaN(value);
 }
 
-function validateNumber(value: string | number | bigint) {
-  toFloat(value);
+function validateNumber(value: string | number | bigint, error?: Error) {
+  toFloat(value, error);
 }
 
 function isInteger(value: string | number | bigint): boolean {
   return Number.isInteger(toFloat(value));
 }
 
-function validateInteger(value: string | number | bigint) {
+function validateInteger(value: string | number | bigint, error?: Error) {
   if (!isInteger(value)) {
-    throw new AppError('Value must not be a float', { cause: value });
+    throw error || new numberError.InvalidFloat({ cause: value });
   }
 }
 
@@ -103,12 +103,10 @@ function isPositiveNumber(value: string | number | bigint): boolean {
 
 function validatePositiveNumber(
   value: string | number | bigint,
-  message?: string
+  error?: Error
 ) {
   if (!isPositiveNumber(value)) {
-    throw new AppError(message || 'Value must be greater than 0', {
-      cause: value,
-    });
+    throw error || new numberError.NonPositiveValue({ cause: value });
   }
 }
 
@@ -118,12 +116,10 @@ function isNonNegativeNumber(value: string | number | bigint): boolean {
 
 function validateNonNegativeNumber(
   value: string | number | bigint,
-  message?: string
+  error?: Error
 ) {
   if (!isNonNegativeNumber(value)) {
-    throw new AppError(message || 'Value must not be negative', {
-      cause: value,
-    });
+    throw error || new numberError.NegativeValue({ cause: value });
   }
 }
 

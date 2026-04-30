@@ -1,6 +1,6 @@
 import { IUser } from '../../../../domain/user/types/user.types';
-import { ErrorUnauthorized } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { ErrorUnauthorized } from '../../../../shared/utils/error';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import userMapper from '../../../mappers/user.mapper';

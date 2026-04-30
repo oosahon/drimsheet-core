@@ -1,8 +1,8 @@
 import { Request } from 'express';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { ErrorBadRequest } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { ErrorBadRequest } from '../../../../shared/utils/error';
 import getAccountingEntityFromRequest from '../get-accounting-entity-from-request.helper';
 
 describe('getAccountingEntityFromRequest', () => {

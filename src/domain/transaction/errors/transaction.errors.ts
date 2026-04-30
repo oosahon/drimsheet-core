@@ -1,5 +1,5 @@
 import { TransactionError } from '.';
-import { getMappedErrors, TErrorCause } from '../../../shared/errors/error';
+import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
 
 type TErrorKeyPrefix = `transaction_error_transaction_${string}`;
 

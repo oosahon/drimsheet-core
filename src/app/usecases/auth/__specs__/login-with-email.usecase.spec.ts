@@ -9,7 +9,7 @@ import mockRepoService from '../../../../infra/services/__mocks__/repo.service.m
 import {
   ErrorBadRequest,
   ErrorUnprocessableEntity,
-} from '../../../../shared/errors/error';
+} from '../../../../shared/utils/error';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';

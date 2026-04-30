@@ -7,7 +7,7 @@ import {
   ENormalBalance,
   ILedgerAccount,
 } from '../../../../domain/ledger/types/ledger.types';
-import { AppError } from '../../../../shared/errors/error';
+import eventError from '../../../../shared/errors/event.errors';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeLedgerAccountCreatedEventHandler from '../ledger-account-created-event.handler';
@@ -141,10 +141,10 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
     await handler(mockEvent);
 
     expect(mockReporter.report).toHaveBeenCalledTimes(1);
-    expect(mockReporter.report.mock.calls[0][0]).toBeInstanceOf(AppError);
-    expect((mockReporter.report.mock.calls[0][0] as AppError).message).toBe(
-      'Event type does not match expected type'
+    expect(mockReporter.report.mock.calls[0][0]).toBeInstanceOf(
+      eventError.EventTypeMismatch
     );
+
     expect(
       bookkeepingUseCases.createLedgerAccountBalance
     ).not.toHaveBeenCalled();

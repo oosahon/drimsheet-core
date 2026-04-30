@@ -41,7 +41,7 @@ function validateCurrencyPair(
 
 function validate(exchangeRate: IExchangeRate) {
   validateCurrencyPair(exchangeRate);
-  numberUtils.validatePositiveNumber(exchangeRate.rate, 'Invalid rate');
+  numberUtils.validatePositiveNumber(exchangeRate.rate);
   dateUtils.validateDateIsNotInTheFuture(exchangeRate.asOf);
   stringUtils.validateStringWithinRange(exchangeRate.source, {
     min: 3,

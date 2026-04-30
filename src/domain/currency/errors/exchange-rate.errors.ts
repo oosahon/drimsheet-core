@@ -1,5 +1,5 @@
 import { CurrencyError } from '.';
-import { getMappedErrors, TErrorCause } from '../../../shared/errors/error';
+import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
 
 type TErrorKeyPrefix = `currency_error_exchange_rate_${string}`;
 

@@ -1,7 +1,7 @@
 import ledgerAccountBalanceEntity from '../../../domain/bookkeeping/entities/ledger-account-balance.entity';
 import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import { AppError } from '../../../shared/errors/error';
+import { AppError } from '../../../shared/utils/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import {
   ILedgerAccountBalanceAdjustmentDto,

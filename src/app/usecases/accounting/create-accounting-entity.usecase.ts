@@ -22,7 +22,7 @@ import IExpenseAccountService from '../../../domain/ledger/types/expense-account
 import ILiabilityAccountService from '../../../domain/ledger/types/liability-account.service.types';
 import IRevenueAccountService from '../../../domain/ledger/types/revenue-account.service.types';
 import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
-import { ErrorBadRequest, ErrorConflict } from '../../../shared/errors/error';
+import { ErrorBadRequest, ErrorConflict } from '../../../shared/utils/error';
 import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';

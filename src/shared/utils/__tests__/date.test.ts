@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import { AppError } from '../../errors/error';
 import dateUtils from '../date';
+import { AppError } from '../error';
 
 describe('dateUtils', () => {
   describe('isValidDate', () => {

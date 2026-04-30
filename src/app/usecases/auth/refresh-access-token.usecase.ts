@@ -1,5 +1,5 @@
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import { ErrorUnauthorized } from '../../../shared/errors/error';
+import { ErrorUnauthorized } from '../../../shared/utils/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';

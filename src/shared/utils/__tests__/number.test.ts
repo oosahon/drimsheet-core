@@ -1,4 +1,4 @@
-import { AppError } from '../../errors/error';
+import numberError from '../../errors/number.errors';
 import numberUtils from '../number';
 
 describe('numberUtils', () => {
@@ -7,33 +7,41 @@ describe('numberUtils', () => {
       expect(numberUtils.toBigInt(42)).toBe(42n);
     });
 
-    it('throws AppError if the number is NaN', () => {
-      expect(() => numberUtils.toBigInt(NaN)).toThrow(AppError);
+    it('throws InvalidValue if the number is NaN', () => {
+      expect(() => numberUtils.toBigInt(NaN)).toThrow(numberError.InvalidValue);
     });
 
-    it('throws AppError if the number is a float', () => {
-      expect(() => numberUtils.toBigInt(42.5)).toThrow(AppError);
+    it('throws InvalidFloat if the number is a float', () => {
+      expect(() => numberUtils.toBigInt(42.5)).toThrow(
+        numberError.InvalidFloat
+      );
     });
 
     it('returns a BigInt for a valid integer string', () => {
       expect(numberUtils.toBigInt('42')).toBe(42n);
     });
 
-    it('throws AppError if the string is empty or whitespace', () => {
-      expect(() => numberUtils.toBigInt('')).toThrow(AppError);
-      expect(() => numberUtils.toBigInt('   ')).toThrow(AppError);
+    it('throws InvalidValue if the string is empty or whitespace', () => {
+      expect(() => numberUtils.toBigInt('')).toThrow(numberError.InvalidValue);
+      expect(() => numberUtils.toBigInt('   ')).toThrow(
+        numberError.InvalidValue
+      );
     });
 
-    it('throws AppError if the string contains a dot (float)', () => {
-      expect(() => numberUtils.toBigInt('42.5')).toThrow(AppError);
+    it('throws InvalidFloat if the string contains a dot (float)', () => {
+      expect(() => numberUtils.toBigInt('42.5')).toThrow(
+        numberError.InvalidFloat
+      );
     });
 
     it('returns a BigInt when passed a BigInt', () => {
       expect(numberUtils.toBigInt(42n)).toBe(42n);
     });
 
-    it('throws AppError if BigInt parsing fails', () => {
-      expect(() => numberUtils.toBigInt('invalid')).toThrow(AppError);
+    it('throws InvalidValue if BigInt parsing fails', () => {
+      expect(() => numberUtils.toBigInt('invalid')).toThrow(
+        numberError.InvalidValue
+      );
     });
   });
 
@@ -50,13 +58,17 @@ describe('numberUtils', () => {
       expect(numberUtils.toFloat(42n)).toBe(42);
     });
 
-    it('throws AppError if the string is empty or whitespace', () => {
-      expect(() => numberUtils.toFloat('')).toThrow(AppError);
-      expect(() => numberUtils.toFloat('   ')).toThrow(AppError);
+    it('throws InvalidValue if the string is empty or whitespace', () => {
+      expect(() => numberUtils.toFloat('')).toThrow(numberError.InvalidValue);
+      expect(() => numberUtils.toFloat('   ')).toThrow(
+        numberError.InvalidValue
+      );
     });
 
-    it('throws AppError if the value cannot be parsed to a number (NaN)', () => {
-      expect(() => numberUtils.toFloat('invalid')).toThrow(AppError);
+    it('throws InvalidValue if the value cannot be parsed to a number (NaN)', () => {
+      expect(() => numberUtils.toFloat('invalid')).toThrow(
+        numberError.InvalidValue
+      );
     });
   });
 
@@ -67,9 +79,13 @@ describe('numberUtils', () => {
       expect(numberUtils.toNonNegativeNumber('42.5')).toBe(42.5);
     });
 
-    it('throws AppError if the number is negative', () => {
-      expect(() => numberUtils.toNonNegativeNumber(-42)).toThrow(AppError);
-      expect(() => numberUtils.toNonNegativeNumber('-42.5')).toThrow(AppError);
+    it('throws NegativeValue if the number is negative', () => {
+      expect(() => numberUtils.toNonNegativeNumber(-42)).toThrow(
+        numberError.NegativeValue
+      );
+      expect(() => numberUtils.toNonNegativeNumber('-42.5')).toThrow(
+        numberError.NegativeValue
+      );
     });
   });
 
@@ -126,14 +142,22 @@ describe('numberUtils', () => {
       });
     });
 
-    it('throws AppError for Infinity or -Infinity', () => {
-      expect(() => numberUtils.toFactor(Infinity)).toThrow(AppError);
-      expect(() => numberUtils.toFactor(-Infinity)).toThrow(AppError);
-      expect(() => numberUtils.toFactor('Infinity')).toThrow(AppError);
+    it('throws InvalidValue for Infinity or -Infinity', () => {
+      expect(() => numberUtils.toFactor(Infinity)).toThrow(
+        numberError.InvalidValue
+      );
+      expect(() => numberUtils.toFactor(-Infinity)).toThrow(
+        numberError.InvalidValue
+      );
+      expect(() => numberUtils.toFactor('Infinity')).toThrow(
+        numberError.InvalidValue
+      );
     });
 
-    it('throws AppError for unparsable factors', () => {
-      expect(() => numberUtils.toFactor('invalid')).toThrow(AppError);
+    it('throws InvalidValue for unparsable factors', () => {
+      expect(() => numberUtils.toFactor('invalid')).toThrow(
+        numberError.InvalidValue
+      );
     });
   });
 
@@ -163,8 +187,10 @@ describe('numberUtils', () => {
       expect(() => numberUtils.validateNumber('42.5')).not.toThrow();
     });
 
-    it('throws AppError for an invalid number', () => {
-      expect(() => numberUtils.validateNumber('invalid')).toThrow(AppError);
+    it('throws InvalidValue for an invalid number', () => {
+      expect(() => numberUtils.validateNumber('invalid')).toThrow(
+        numberError.InvalidValue
+      );
     });
   });
 
@@ -186,10 +212,19 @@ describe('numberUtils', () => {
       expect(() => numberUtils.validateInteger('42')).not.toThrow();
     });
 
-    it('throws AppError for a float', () => {
-      expect(() => numberUtils.validateInteger(42.5)).toThrow(AppError);
-      expect(() => numberUtils.validateInteger('42.5')).toThrow(AppError);
-      expect(() => numberUtils.validateInteger('invalid')).toThrow(AppError);
+    it('throws InvalidFloat for a float', () => {
+      expect(() => numberUtils.validateInteger(42.5)).toThrow(
+        numberError.InvalidFloat
+      );
+      expect(() => numberUtils.validateInteger('42.5')).toThrow(
+        numberError.InvalidFloat
+      );
+    });
+
+    it('throws InvalidValue for invalid format', () => {
+      expect(() => numberUtils.validateInteger('invalid')).toThrow(
+        numberError.InvalidValue
+      );
     });
   });
   describe('isPositiveNumber', () => {
@@ -212,18 +247,20 @@ describe('numberUtils', () => {
       expect(() => numberUtils.validatePositiveNumber('42.5')).not.toThrow();
     });
 
-    it('throws AppError with default message for zero or negative numbers', () => {
-      expect(() => numberUtils.validatePositiveNumber(0)).toThrow(AppError);
-      expect(() => numberUtils.validatePositiveNumber(-42)).toThrow(AppError);
+    it('throws NonPositiveValue for zero or negative numbers', () => {
       expect(() => numberUtils.validatePositiveNumber(0)).toThrow(
-        'Value must be greater than 0'
+        numberError.NonPositiveValue
+      );
+      expect(() => numberUtils.validatePositiveNumber(-42)).toThrow(
+        numberError.NonPositiveValue
       );
     });
 
-    it('throws AppError with custom message', () => {
-      expect(() =>
-        numberUtils.validatePositiveNumber(0, 'Custom error')
-      ).toThrow('Custom error');
+    it('throws custom error object if provided', () => {
+      const customError = new Error('Custom error');
+      expect(() => numberUtils.validatePositiveNumber(0, customError)).toThrow(
+        customError
+      );
     });
   });
 
@@ -247,19 +284,17 @@ describe('numberUtils', () => {
       expect(() => numberUtils.validateNonNegativeNumber('42.5')).not.toThrow();
     });
 
-    it('throws AppError with default message for negative numbers', () => {
+    it('throws NegativeValue for negative numbers', () => {
       expect(() => numberUtils.validateNonNegativeNumber(-42)).toThrow(
-        AppError
-      );
-      expect(() => numberUtils.validateNonNegativeNumber(-42)).toThrow(
-        'Value must not be negative'
+        numberError.NegativeValue
       );
     });
 
-    it('throws AppError with custom message', () => {
+    it('throws custom error object if provided', () => {
+      const customError = new Error('Custom negative error');
       expect(() =>
-        numberUtils.validateNonNegativeNumber(-42, 'Custom negative error')
-      ).toThrow('Custom negative error');
+        numberUtils.validateNonNegativeNumber(-42, customError)
+      ).toThrow(customError);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { SubledgerError } from '.';
-import { getMappedErrors, TErrorCause } from '../../../shared/errors/error';
+import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
 
 type TErrorKeyPrefix = `subledger_error_currency_lot_subledger_${string}`;
 
