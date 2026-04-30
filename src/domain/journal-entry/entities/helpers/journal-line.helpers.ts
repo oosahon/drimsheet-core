@@ -1,6 +1,6 @@
+import { AppError } from '../../../../shared/errors/error';
 import { IMoney } from '../../../../shared/types/money.types';
 import stringUtils from '../../../../shared/utils/string';
-import { AppError } from '../../../../shared/value-objects/error';
 import { ICurrency } from '../../../currency/types/currency.types';
 import { IExchangeRate } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';

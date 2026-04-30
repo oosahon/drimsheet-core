@@ -70,13 +70,3 @@ export interface IReportingPeriod extends IPeriod {
   fiscalYearId: TEntityId;
   updatedAt: Date;
 }
-
-/**
- * ================== Fiscal Year ==================
- */
-export interface IFiscalYear extends IPeriod {
-  unit: typeof EPeriodUnit.Month;
-  status: UPeriodStatus;
-  closedAt: Date | null;
-  updatedAt: Date;
-}

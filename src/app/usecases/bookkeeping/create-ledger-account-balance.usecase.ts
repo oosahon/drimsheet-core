@@ -1,8 +1,9 @@
 import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
-import makeLedgerAccountBalanceService from '../../../domain/bookkeeping/services/account-balance.service';
+import IAccountBalanceService from '../../../domain/bookkeeping/types/account-balance.service.types';
+import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
-import { ErrorUnauthorized } from '../../../shared/value-objects/error';
+import { ErrorUnauthorized } from '../../../shared/errors/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import ILogger from '../../contracts/infra/logger.contract';
 
@@ -10,7 +11,8 @@ export default function makeCreateLedgerAccountBalanceUseCase(
   requestContext: IRequestContext,
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   ledgerAccountRepo: ILedgerAccountRepo,
-  logger: ILogger
+  logger: ILogger,
+  accountBalanceService: IAccountBalanceService
 ) {
   return async (ledgerAccount: ILedgerAccount) => {
     const { user, correlationId, accountingEntity } = requestContext.get();
@@ -33,13 +35,13 @@ export default function makeCreateLedgerAccountBalanceUseCase(
       return;
     }
 
-    const ledgerAccountBalanceService = makeLedgerAccountBalanceService(
-      ledgerAccountBalanceRepo
+    const functionalCurrency = currencyEntity.getByCode(
+      accountingEntity.functionalCurrencyCode
     );
 
-    const balance = await ledgerAccountBalanceService.createBalance(
+    const balance = await accountBalanceService.createBalance(
       ledgerAccount,
-      accountingEntity.functionalCurrency,
+      functionalCurrency,
       { correlationId }
     );
 

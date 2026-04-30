@@ -1,5 +1,5 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
 import { EReportingContextEvents } from '../../events/reporting-context.events';
 import reportingContextEntity from '../reporting-context.entity';
 
@@ -20,6 +20,7 @@ describe('reportingContextEntity', () => {
     accountingContextId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     currentReportingPeriodId:
       '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
+    accountingStandardCode: 'IFRS',
   } as const;
 
   describe('make', () => {
@@ -34,6 +35,7 @@ describe('reportingContextEntity', () => {
         reportingCurrencyCode: validPayload.reportingCurrencyCode,
         accountingContextId: validPayload.accountingContextId,
         currentReportingPeriodId: validPayload.currentReportingPeriodId,
+        accountingStandardCode: validPayload.accountingStandardCode,
         createdAt: new Date('2024-01-01T00:00:00Z'),
         updatedAt: new Date('2024-01-01T00:00:00Z'),
         closedAt: null,

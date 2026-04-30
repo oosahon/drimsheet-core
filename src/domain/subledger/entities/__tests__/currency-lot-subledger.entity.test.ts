@@ -1,7 +1,6 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
-import { ICurrency } from '../../../currency/types/currency.types';
 import { EAdjustmentType } from '../../../ledger/types/ledger.types';
 import { ECurrencyLotEvent } from '../../events/currency-lot.events';
 import {
@@ -12,8 +11,8 @@ import {
 import currencyLotSubledgerEntity from '../currency-lot-subledger.entity';
 
 describe('Currency Lot Subledger Entity', () => {
-  let validCurrencyUSD: ICurrency;
-  let validCurrencyEUR: ICurrency;
+  let validCurrencyUSD: any;
+  let validCurrencyEUR: any;
 
   beforeEach(() => {
     jest.useFakeTimers();

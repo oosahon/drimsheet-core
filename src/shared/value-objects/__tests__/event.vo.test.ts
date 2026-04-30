@@ -1,4 +1,4 @@
-import { AppError } from '../error';
+import { AppError } from '../../errors/error';
 import eventValue from '../event.vo';
 
 describe('event.vo', () => {

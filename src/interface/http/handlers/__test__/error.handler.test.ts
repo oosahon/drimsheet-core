@@ -1,10 +1,7 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
-import {
-  AppError,
-  ErrorBadRequest,
-} from '../../../../shared/value-objects/error';
+import { AppError, ErrorBadRequest } from '../../../../shared/errors/error';
 import makeHttpErrorHandler from '../error.handler';
 
 describe('makeHttpErrorHandler', () => {
@@ -89,6 +86,7 @@ describe('makeHttpErrorHandler', () => {
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
+      name: 'ApiError',
       message: 'Bad request occurred',
       cause: undefined,
     });
@@ -103,6 +101,7 @@ describe('makeHttpErrorHandler', () => {
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
+      name: 'AppError',
       message: 'Domain rule violated',
       cause: undefined,
     });

@@ -1,5 +1,5 @@
+import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { AppError } from '../../../../../shared/value-objects/error';
 import { TUnrealizedGainLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -18,7 +18,7 @@ describe('Unrealized Gains Revenue Entity', () => {
   const validUUID1 = generateUUID();
   const validUUID2 = generateUUID();
 
-  const validCurrency = {
+  const validCurrency: any = {
     code: 'USD',
     name: 'US Dollar',
     symbol: '$',

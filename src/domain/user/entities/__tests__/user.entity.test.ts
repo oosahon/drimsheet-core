@@ -1,6 +1,6 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { IEvent } from '../../../../shared/types/event.types';
-import { AppError } from '../../../../shared/value-objects/error';
 import { IUser } from '../../types/user.types';
 import userEntity from '../user.entity';
 

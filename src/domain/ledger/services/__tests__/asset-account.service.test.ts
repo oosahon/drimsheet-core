@@ -1,18 +1,15 @@
-import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import { ErrorForbidden } from '../../../../shared/value-objects/error';
-import { IAccountingEntity } from '../../../accounting-entity/types/accounting-entity.types';
-import { ICurrency } from '../../../currency/types/currency.types';
-import { IUser } from '../../../user/types/user.types';
+import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import { TCashLedgerCode } from '../../types/ledger-code.types';
 import { ILedgerAccount } from '../../types/ledger.types';
-import makeAssetPostingAccountService from '../asset-account.service';
+import makeAssetAccountService from '../asset-account.service';
 
-describe('assetPostingAccountService', () => {
-  const service = makeAssetPostingAccountService(mockLedgerAccountRepo);
+describe('assetAccountService', () => {
+  const service = makeAssetAccountService(mockLedgerAccountRepo);
   const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
 
   beforeEach(() => {
@@ -31,16 +28,12 @@ describe('assetPostingAccountService', () => {
     const controlAccountId = generateUUID();
     const latestAccountId = generateUUID();
 
-    const validUser = {
-      id: ownerId,
-    } as IUser;
-
     const validAccountingEntity = {
       id: entityId,
       ownerId,
     } as IAccountingEntity;
 
-    const validCurrency: ICurrency = {
+    const validCurrency: any = {
       code: 'USD',
       name: 'US Dollar',
       minorUnit: 2n,
@@ -64,7 +57,7 @@ describe('assetPostingAccountService', () => {
       name: 'Main Petty Cash',
       currency: validCurrency,
       isControlAccount: false,
-      user: validUser,
+      userId: ownerId,
       accountingEntity: validAccountingEntity,
     };
 
@@ -128,26 +121,12 @@ describe('assetPostingAccountService', () => {
     });
 
     describe('Service Logic Validations', () => {
-      it('should throw ErrorForbidden if user is not the owner of the accounting entity', async () => {
-        const payload = {
-          ...validPayload,
-          user: { ...validUser, id: generateUUID() },
-        };
-
-        await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
-        ).rejects.toThrow(ErrorForbidden);
-        await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
-        ).rejects.toThrow('Access denied.');
-      });
-
       it('should throw AppError if control account is not found', async () => {
         mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
         await expect(
           service.makePettyCashSubAccount(validPayload, mockOptions)
-        ).rejects.toThrow('Control account not found');
+        ).rejects.toThrow('ledger_error_control_account_not_found');
       });
     });
 
@@ -184,11 +163,10 @@ describe('assetPostingAccountService', () => {
         ).rejects.toThrow('Invalid UUID');
       });
 
-      it('should throw if user.id (createdBy) is an invalid UUID', async () => {
-        // Must also set ownerId to the same invalid UUID so validateAccess passes
+      it('should throw if userId (createdBy) is an invalid UUID', async () => {
         const payload = {
           ...validPayload,
-          user: { ...validUser, id: 'invalid-uuid' as TEntityId },
+          userId: 'invalid-uuid' as TEntityId,
           accountingEntity: {
             ...validAccountingEntity,
             ownerId: 'invalid-uuid' as TEntityId,
@@ -210,6 +188,118 @@ describe('assetPostingAccountService', () => {
           service.makePettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow('Invalid currency code');
       });
+    });
+  });
+
+  describe('bootstrapHeaderAccounts', () => {
+    const ownerId = generateUUID();
+    const entityId = generateUUID();
+
+    const validAccountingEntity = {
+      id: entityId,
+      ownerId,
+      functionalCurrencyCode: 'USD',
+    } as IAccountingEntity;
+
+    it('should bootstrap posting accounts when shouldBootstrapPostingAccounts is true', async () => {
+      mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
+      mockLedgerAccountRepo.findBySubType.mockResolvedValue([]);
+      mockLedgerAccountRepo.findByBehavior.mockResolvedValue([
+        {
+          id: generateUUID(),
+          code: '102002',
+          materializedPath: '102000.102002',
+        } as any,
+      ]);
+
+      const { accounts, events } = await service.bootstrapHeaderAccounts(
+        validAccountingEntity,
+        mockOptions,
+        true
+      );
+
+      const suspenseAccount = accounts.find(
+        (a: any) => a.name === 'Asset Suspense Account'
+      );
+      const statutoryReceivablesDefault = accounts.find(
+        (a: any) => a.name === 'Statutory Receivables (Default)'
+      );
+
+      expect(suspenseAccount).toBeDefined();
+      expect(statutoryReceivablesDefault).toBeDefined();
+      expect(accounts.length).toBeGreaterThan(0);
+      expect(events.length).toBeGreaterThan(0);
+    });
+
+    it('should not recreate header accounts if they already exist (partial bootstrap)', async () => {
+      const mockExistingHeader = {
+        id: generateUUID(),
+        code: '100000',
+        materializedPath: '100000',
+      } as any;
+      mockLedgerAccountRepo.findByCode.mockResolvedValue(mockExistingHeader);
+
+      const { accounts, events } = await service.bootstrapHeaderAccounts(
+        validAccountingEntity,
+        mockOptions,
+        false
+      );
+
+      // If they all exist, no accounts are created here and shouldBootstrapPostingAccounts is false
+      expect(accounts.length).toBe(0);
+      expect(events.length).toBe(0);
+    });
+
+    it('should not bootstrap posting accounts if shouldBootstrapPostingAccounts is false', async () => {
+      mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
+
+      const { accounts, events } = await service.bootstrapHeaderAccounts(
+        validAccountingEntity,
+        mockOptions,
+        false
+      );
+
+      const suspenseAccount = accounts.find(
+        (a: any) => a.name === 'Asset Suspense Account'
+      );
+
+      expect(suspenseAccount).toBeUndefined();
+      // Should still create the 4 header accounts:
+      // Cash, Receivables, Trade Receivables, Statutory Receivables
+      expect(accounts.length).toBe(4);
+    });
+    it('should not recreate individual posting accounts if they already exist', async () => {
+      mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
+
+      // Mock existing Suspense account
+      mockLedgerAccountRepo.findBySubType.mockResolvedValue([
+        { id: generateUUID(), name: 'Asset Suspense Account' } as any,
+      ]);
+
+      // Mock existing Statutory Receivables (Header + Default = length 2)
+      mockLedgerAccountRepo.findByBehavior.mockResolvedValue([
+        { id: generateUUID(), name: 'Statutory Receivables Header' } as any,
+        { id: generateUUID(), name: 'Statutory Receivables (Default)' } as any,
+      ]);
+
+      const { accounts, events } = await service.bootstrapHeaderAccounts(
+        validAccountingEntity,
+        mockOptions,
+        true
+      );
+
+      // Should only contain the 4 headers (Cash, Receivables, Trade Receivables, Statutory Receivables Header)
+      // because individual posting accounts already exist
+      expect(accounts.length).toBe(4);
+      const suspenseAccount = accounts.find(
+        (a: any) => a.name === 'Asset Suspense Account'
+      );
+      const statutoryReceivablesDefault = accounts.find(
+        (a: any) => a.name === 'Statutory Receivables (Default)'
+      );
+
+      expect(suspenseAccount).toBeUndefined();
+      expect(statutoryReceivablesDefault).toBeUndefined();
     });
   });
 });

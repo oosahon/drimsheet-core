@@ -1,4 +1,4 @@
-import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import accountingEntityMapper, {
   IAccountingEntityModel,
@@ -9,57 +9,25 @@ describe('Accounting Entity Mapper', () => {
   const updatedAt = new Date('2026-04-10T12:30:00Z');
 
   const domainEntity: IAccountingEntity = {
-    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
     id: 'entity-1' as TEntityId,
     ownerId: 'user-1' as TEntityId,
     name: 'Purple Ledger Corp',
-    operatingCountryCode: 'US',
-    functionalCurrency: {
-      code: 'USD',
-      symbol: '$',
-      name: 'US Dollar',
-      minorUnit: 2n,
-    },
-    reportingCurrency: {
-      code: 'USD',
-      symbol: '$',
-      name: 'US Dollar',
-      minorUnit: 2n,
-    },
-    type: 'company',
-    fiscalYearStart: {
-      month: 1,
-      day: 1,
-    },
+    type: 'private_company',
+    functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
     createdAt,
     updatedAt,
-    deletedAt: null,
   };
 
   const repoModel: IAccountingEntityModel = {
     id: 'entity-1',
     ownerId: 'user-1',
     name: 'Purple Ledger Corp',
-    operatingCountryCode: 'US',
-    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279',
-    functionalCurrencyCode: 'USD',
-    reportingCurrencyCode: 'USD',
-    type: 'company',
-    fiscalYearStartMonth: 1,
-    fiscalYearStartDay: 1,
+    type: 'private_company',
+    functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
-    deletedAt: null,
-  };
-
-  const currencyRepoModel = {
-    code: 'USD',
-    symbol: '$',
-    name: 'US Dollar',
-    minorUnit: 2,
-    createdAt: createdAt.toISOString(),
-    updatedAt: updatedAt.toISOString(),
-    deletedAt: null,
   };
 
   describe('toRepo', () => {
@@ -70,13 +38,7 @@ describe('Accounting Entity Mapper', () => {
 
   describe('toDomain', () => {
     it('should map a repo model to a domain accounting entity', () => {
-      const payload: Parameters<typeof accountingEntityMapper.toDomain>[0] = {
-        ...repoModel,
-        functionalCurrency: currencyRepoModel,
-        reportingCurrency: currencyRepoModel,
-      };
-
-      expect(accountingEntityMapper.toDomain(payload)).toEqual(domainEntity);
+      expect(accountingEntityMapper.toDomain(repoModel)).toEqual(domainEntity);
     });
   });
 
@@ -85,8 +47,8 @@ describe('Accounting Entity Mapper', () => {
       const interfaceEntity = accountingEntityMapper.toInterface(domainEntity);
 
       expect(interfaceEntity.id).toBe(domainEntity.id);
-      expect(interfaceEntity.functionalCurrency).toBe('USD');
-      expect(interfaceEntity.reportingCurrency).toBe('USD');
+      expect(interfaceEntity.type).toBe('private_company');
+      expect(interfaceEntity.name).toBe('Purple Ledger Corp');
     });
   });
 });

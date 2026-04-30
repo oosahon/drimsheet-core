@@ -65,8 +65,29 @@ function make(
   return [account, [ledgerAccountCreatedEvent, event]];
 }
 
+function makeHeader(
+  payload: Pick<
+    IAssetDisposalLossAccount,
+    'name' | 'createdBy' | 'accountingEntityId' | 'currency'
+  >
+) {
+  return make(
+    {
+      name: payload.name,
+      createdBy: payload.createdBy,
+      accountingEntityId: payload.accountingEntityId,
+      currency: payload.currency,
+      isControlAccount: true,
+      controlAccountId: null,
+      meta: null,
+    },
+    null
+  );
+}
+
 const assetDisposalLossAccountEntity = Object.freeze({
   make,
+  makeHeader,
   ...helpers,
 });
 

@@ -1,7 +1,6 @@
-import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
+import { AppError } from '../../../../../shared/errors/error';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { AppError } from '../../../../../shared/value-objects/error';
 import { TPayablesLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -14,9 +13,7 @@ import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
   IPayableAccount,
-  IStatutoryPayableAccount,
   IStatutoryPayableAccountMeta,
-  ITradePayableAccount,
   ITradePayableAccountMeta,
 } from '../../../types/liability-account.types';
 import payableAccountEntity from '../03-payables.entity';
@@ -27,7 +24,7 @@ describe('Payable Liability Entity', () => {
   const validUUID3 = generateUUID();
   const validUUID4 = generateUUID();
 
-  const validCurrency = {
+  const validCurrency: any = {
     code: 'USD',
     name: 'US Dollar',
     symbol: '$',
@@ -180,14 +177,6 @@ describe('Payable Liability Entity', () => {
       ).toThrow(AppError);
     });
 
-    it('should preserve the taxType value as-is', () => {
-      const meta = payableAccountEntity.makeStatutoryPayableAccountMeta({
-        ...validMeta,
-        taxType: 'value_added_tax',
-      });
-      expect(meta.taxType).toBe('value_added_tax');
-    });
-
     it('should throw AppError if taxType is too short', () => {
       expect(() =>
         payableAccountEntity.makeStatutoryPayableAccountMeta({
@@ -204,7 +193,9 @@ describe('Payable Liability Entity', () => {
       taxType: 'personal_income_tax',
     };
 
-    const validPayload: TCreationOmits<IStatutoryPayableAccount> = {
+    const validPayload: Parameters<
+      typeof payableAccountEntity.makeStatutoryPayableAccount
+    >[0] = {
       name: 'Personal Income Tax',
       accountingEntityId: validUUID1,
 
@@ -213,7 +204,7 @@ describe('Payable Liability Entity', () => {
       currency: validCurrency,
       meta: validMeta,
       createdBy: validUUID2,
-    } as TCreationOmits<IStatutoryPayableAccount>;
+    };
 
     it('should successfully create a statutory payable account', () => {
       const [account, events] =
@@ -290,7 +281,9 @@ describe('Payable Liability Entity', () => {
       invoiceId: validUUID4,
     };
 
-    const validPayload: TCreationOmits<ITradePayableAccount> = {
+    const validPayload: Parameters<
+      typeof payableAccountEntity.makeTradePayableAccount
+    >[0] = {
       name: 'Counterparty Invoice #001',
       accountingEntityId: validUUID1,
 
@@ -299,7 +292,7 @@ describe('Payable Liability Entity', () => {
       currency: validCurrency,
       meta: validMeta,
       createdBy: validUUID2,
-    } as TCreationOmits<ITradePayableAccount>;
+    };
 
     it('should successfully create a trade payable account', () => {
       const [account, events] = payableAccountEntity.makeTradePayableAccount(

@@ -1,5 +1,5 @@
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
-import { ErrorUnauthorized } from '../../../shared/value-objects/error';
+import { ErrorUnauthorized } from '../../../shared/errors/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
 
 export default function makeGetUserPreferencesUseCase(

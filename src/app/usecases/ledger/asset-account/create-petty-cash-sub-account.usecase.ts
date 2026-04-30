@@ -1,9 +1,9 @@
-import ILedgerAccountBalanceRepo from '../../../../domain/bookkeeping/repos/ledger-account-balance.repo';
+import IBookkeepingService from '../../../../domain/bookkeeping/types/bookkeeping.service.types';
 import currencyEntity from '../../../../domain/currency/entities/currency.entity';
-import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
+import IExchangeRateService from '../../../../domain/currency/types/exchange-rate.service.types';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
-import makeAssetPostingAccountService from '../../../../domain/ledger/services/asset-account.service';
+import IAssetAccountService from '../../../../domain/ledger/types/asset-account.service.types';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import zodValidationRunner from '../../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../../shared/value-objects/event.vo';
@@ -19,14 +19,11 @@ export default function makeCreatePettyCashSubAccountUseCase(
   requestContext: IRequestContext,
   eventBus: IEventBus,
   ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   journalEntryRepo: IJournalEntryRepo,
-  exchangeRateRepo: IExchangeRateRepo
+  assetAccountService: IAssetAccountService,
+  bookkeepingService: IBookkeepingService,
+  exchangeRateService: IExchangeRateService
 ) {
-  const domainServices = {
-    assetPostingAccount: makeAssetPostingAccountService(ledgerAccountRepo),
-  };
-
   return async (payload: IPettyCashAccountCreationReq) => {
     zodValidationRunner(pettyCashCreationReqValidation, payload);
 
@@ -40,16 +37,13 @@ export default function makeCreatePettyCashSubAccountUseCase(
       name: payload.name,
       currency: currencyEntity.getByCode(payload.currencyCode),
       isControlAccount: payload.isControlAccount,
-      user,
+      userId: user.id,
       accountingEntity,
       controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
     };
 
     const [account, accountEvents] =
-      await domainServices.assetPostingAccount.makePettyCashSubAccount(
-        accountPayload,
-        trace
-      );
+      await assetAccountService.makePettyCashSubAccount(accountPayload, trace);
 
     await ledgerAccountRepo.save(account, trace);
 
@@ -58,11 +52,11 @@ export default function makeCreatePettyCashSubAccountUseCase(
     if (payload.openingBalance) {
       const recordOpeningBalanceUseCase = makeRecordOpeningBalanceUseCase(
         requestContext,
-        exchangeRateRepo,
         ledgerAccountRepo,
-        ledgerAccountBalanceRepo,
         journalEntryRepo,
-        eventBus
+        eventBus,
+        bookkeepingService,
+        exchangeRateService
       );
 
       await recordOpeningBalanceUseCase({

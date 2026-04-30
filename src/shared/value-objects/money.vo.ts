@@ -1,8 +1,8 @@
 import currencyEntity from '../../domain/currency/entities/currency.entity';
 import { ICurrency } from '../../domain/currency/types/currency.types';
+import { AppError } from '../errors/error';
 import { IMoney } from '../types/money.types';
 import { IFactor } from '../types/number.types';
-import { AppError } from './error';
 
 // TODO (i18n): translate error messages
 

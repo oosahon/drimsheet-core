@@ -1,16 +1,18 @@
 import messaging from '../../../../infra/messaging';
 import repos from '../../../../infra/persistence/repos';
+import domainServices from '../../../../infra/services/domain.service';
 import appContext from '../../../context';
 import makeCreatePettyCashSubAccountUseCase from './create-petty-cash-sub-account.usecase';
 
 const assetAccountUseCase = {
-  createPettyCashSubAccount: makeCreatePettyCashSubAccountUseCase(
+  makePettyCashSubAccount: makeCreatePettyCashSubAccountUseCase(
     appContext.request,
     messaging.eventBus,
     repos.ledgerAccount,
-    repos.ledgerAccountBalance,
     repos.journalEntry,
-    repos.exchangeRate
+    domainServices.assetAccount,
+    domainServices.bookkeeping,
+    domainServices.exchangeRate
   ),
 };
 

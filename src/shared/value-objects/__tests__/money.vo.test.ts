@@ -1,6 +1,6 @@
+import { AppError } from '../../errors/error';
 import { IMoney } from '../../types/money.types';
 import mockCurrencies from '../__mocks__/currencies.mock';
-import { AppError } from '../error';
 import money from '../money.vo';
 
 describe('Money Value Object', () => {
@@ -43,7 +43,7 @@ describe('Money Value Object', () => {
     });
 
     it('should throw an error for an invalid currency code', () => {
-      const fakeCurrency = { ...NGN, code: 'FAKE' };
+      const fakeCurrency: any = { ...NGN, code: 'FAKE' };
       expect(() => money.make(100, fakeCurrency, true)).toThrow(
         new AppError('Invalid currency code', { cause: 'FAKE' })
       );

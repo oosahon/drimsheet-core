@@ -1,6 +1,6 @@
+import { AppError } from '../../../../shared/errors/error';
 import { IMoney } from '../../../../shared/types/money.types';
 import stringUtils from '../../../../shared/utils/string';
-import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import {
   EJournalEntryStatus,

@@ -1,8 +1,5 @@
 import z from 'zod';
-import {
-  ErrorUnprocessableEntity,
-  IApiValidationError,
-} from '../value-objects/error';
+import { ErrorUnprocessableEntity, IApiValidationError } from '../errors/error';
 
 function errorFormatter(errors: z.core.$ZodIssue[]): IApiValidationError[] {
   return errors.map((err) => ({

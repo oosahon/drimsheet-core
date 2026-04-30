@@ -1,5 +1,5 @@
+import { AppError } from '../errors/error';
 import { IFactor } from '../types/number.types';
-import { AppError } from '../value-objects/error';
 
 function toBigInt(value: string | number | bigint) {
   if (typeof value === 'number') {

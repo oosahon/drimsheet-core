@@ -3,6 +3,7 @@ import authUseCase from '../../../app/usecases/auth';
 import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
+import domainServices from '../../../infra/services/domain.service';
 import makeErrorHandlerMiddleware from './error-handler.middleware';
 import {
   makeCompleteLoginWithGoogleMiddleware,
@@ -35,7 +36,10 @@ const middlewares = {
 
   errorHandler: makeErrorHandlerMiddleware(),
 
-  isAuthenticatedUser: makeIsAuthenticatedUserMiddleware(appContext.request),
+  isAuthenticatedUser: makeIsAuthenticatedUserMiddleware(
+    appContext.request,
+    domainServices.accountingEntity
+  ),
 
   requestLogger: makeRequestLoggerMiddleware(
     observability.logger,

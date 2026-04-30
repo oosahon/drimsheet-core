@@ -1,4 +1,4 @@
-import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
+import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { postgres } from '../../../config/postgres.config';
 
 export default function getDbQuery(options: IRepoOptions) {

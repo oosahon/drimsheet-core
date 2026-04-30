@@ -1,9 +1,9 @@
 import { Request } from 'express';
-import IAccountingEntityRepo from '../../../domain/accounting-entity/repos/accounting-entity.repo';
-import { IAccountingEntity } from '../../../domain/accounting-entity/types/accounting-entity.types';
+import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
+import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
+import { ErrorBadRequest } from '../../../shared/errors/error';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
-import { ErrorBadRequest } from '../../../shared/value-objects/error';
 import getHttpHeaderValue, { getCorrelationId } from './get-http-header-value';
 
 export default async function getAccountingEntityFromRequest(

@@ -81,6 +81,29 @@ function make(
   return [account, [ledgerAccountCreatedEvent, event]];
 }
 
+function makeHeader(
+  payload: Pick<
+    IReceivablesAccount,
+    'name' | 'createdBy' | 'accountingEntityId' | 'currency'
+  >
+) {
+  return make(
+    {
+      name: payload.name,
+      createdBy: payload.createdBy,
+      accountingEntityId: payload.accountingEntityId,
+      currency: payload.currency,
+      isControlAccount: true,
+      controlAccountId: null,
+      behavior: EAssetAccountBehavior.DefaultReceivables,
+      contraAccountRule: EContraAccountRule.ContraPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+      meta: null,
+    },
+    null
+  );
+}
+
 /**
  * Creates a new statutory receivable sub account.
  * @param payload statutory receivable creation payload
@@ -155,6 +178,7 @@ function makeTradeReceivableAccount(
 
 const receivablesAccountEntity = Object.freeze({
   make,
+  makeHeader,
   makeStatutoryReceivableAccount,
   makeTradeReceivableAccount,
 

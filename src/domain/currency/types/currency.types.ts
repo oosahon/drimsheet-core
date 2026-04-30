@@ -1,5 +1,7 @@
+import { UCurrencyCode } from '../config/currencies.config';
+
 export interface ICurrency {
-  code: string;
+  code: UCurrencyCode;
   symbol: string;
   name: string;
   minorUnit: bigint;

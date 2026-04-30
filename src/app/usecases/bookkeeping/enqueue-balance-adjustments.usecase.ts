@@ -1,11 +1,9 @@
-import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
-import makeBookkeepingService from '../../../domain/bookkeeping/services/bookkeeping.service';
+import IBookkeepingService from '../../../domain/bookkeeping/types/bookkeeping.service.types';
 import {
   EJournalEntryStatus,
   IJournalEntry,
 } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.types';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { TEntityId } from '../../../shared/types/uuid';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../contracts/dto/workers.dto';
@@ -14,17 +12,9 @@ import moneyMapper from '../../mappers/money.mapper';
 
 export default function makeEnqueueBalanceAdjustmentsUseCase(
   requestContext: IRequestContext,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
-  queue: IQueue
+  queue: IQueue,
+  bookkeepingService: IBookkeepingService
 ) {
-  const domainServices = {
-    accounting: makeBookkeepingService(
-      ledgerAccountRepo,
-      ledgerAccountBalanceRepo
-    ),
-  };
-
   return async (journalEntry: IJournalEntry) => {
     if (journalEntry.status === EJournalEntryStatus.Draft) return;
 
@@ -47,12 +37,11 @@ export default function makeEnqueueBalanceAdjustmentsUseCase(
     const repoOptions = { correlationId };
 
     for (const [accountId, lines] of accountMap.entries()) {
-      const balanceEffectDelta =
-        await domainServices.accounting.getBalanceEffectDelta(
-          accountId,
-          lines,
-          repoOptions
-        );
+      const balanceEffectDelta = await bookkeepingService.getBalanceEffectDelta(
+        accountId,
+        lines,
+        repoOptions
+      );
 
       allAdjustments.push({
         journalEntry: {

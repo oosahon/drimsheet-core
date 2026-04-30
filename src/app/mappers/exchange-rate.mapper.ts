@@ -1,10 +1,10 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IExchangeRate } from '../../domain/currency/types/exchange-rate.types';
-import { exchangeRatesInCore } from '../../infra/config/drizzle/schema';
+import { currencyExchangeRatesInCore } from '../../infra/config/drizzle/schema';
 import { fromRepoDate, toRepoDate } from './date';
 
 export interface IExchangeRateModel extends InferSelectModel<
-  typeof exchangeRatesInCore
+  typeof currencyExchangeRatesInCore
 > {}
 
 const exchangeRateMapper = {

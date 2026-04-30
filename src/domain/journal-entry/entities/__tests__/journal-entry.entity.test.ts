@@ -1,5 +1,5 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import { EJournalEntryEvent } from '../../events/journal-entry.events';

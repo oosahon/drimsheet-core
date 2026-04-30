@@ -1,5 +1,5 @@
-import accountingEntityEntity from '../../../../domain/accounting-entity/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting-entity/types/accounting-entity.types';
+import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import {
   EExchangeRateType,
@@ -8,14 +8,11 @@ import {
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities/03-equity-account/99-opening-balance-equity.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
-import { EEquitySubType } from '../../../../domain/ledger/types/equity-account.types';
-import { ELedgerType } from '../../../../domain/ledger/types/ledger.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockExchangeRateRepo from '../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
 import mockJournalEntryRepo from '../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
-import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
@@ -39,13 +36,10 @@ describe('recordOpeningBalanceUseCase', () => {
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
     name: 'Test Accounting Entity',
-    operatingCountryCode: 'NG',
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
-    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
-    functionalCurrency: SYSTEM_CURRENCIES.NGN,
-    reportingCurrency: SYSTEM_CURRENCIES.USD,
-    fiscalYearStart: { month: 1, day: 1 },
+    functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
   });
 
   const [mockAssetAccount] = cashAndEquivalentAccountEntity.make(
@@ -82,24 +76,22 @@ describe('recordOpeningBalanceUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IRequestContextData);
 
-    mockLedgerAccountRepo.findById
-      .mockResolvedValueOnce(mockAssetAccount) // For the use case
-      .mockResolvedValueOnce(null); // For the domain service
-    mockLedgerAccountRepo.findBySubType.mockResolvedValue([mockEquityAccount]);
-    mockExchangeRateRepo.getById.mockResolvedValue(null);
-    mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId.mockResolvedValue(
-      []
+    mockLedgerAccountRepo.findById.mockResolvedValueOnce(mockAssetAccount);
+
+    mockDomainServices.bookkeeping.createOpeningBalanceJournalEntry.mockResolvedValue(
+      [{ id: 'mock-journal-entry-id' } as any, []]
     );
+    mockDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(null);
   });
 
   const getUseCase = () =>
     makeRecordOpeningBalanceUseCase(
       mockRequestContext,
-      mockExchangeRateRepo,
       mockLedgerAccountRepo,
-      mockLedgerAccountBalanceRepo,
       mockJournalEntryRepo,
-      mockEventBus
+      mockEventBus,
+      mockDomainServices.bookkeeping,
+      mockDomainServices.exchangeRate
     );
 
   it('should successfully record opening balance', async () => {
@@ -117,10 +109,13 @@ describe('recordOpeningBalanceUseCase', () => {
       mockAssetAccount.id,
       { correlationId }
     );
-    expect(mockLedgerAccountRepo.findBySubType).toHaveBeenCalledWith(
-      mockAccountingEntity.id,
-      ELedgerType.Equity,
-      EEquitySubType.OpeningBalance,
+    expect(
+      mockDomainServices.bookkeeping.createOpeningBalanceJournalEntry
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        account: mockAssetAccount,
+        accountingEntity: mockAccountingEntity,
+      }),
       { correlationId }
     );
     expect(mockJournalEntryRepo.save).toHaveBeenCalled();
@@ -132,8 +127,7 @@ describe('recordOpeningBalanceUseCase', () => {
 
     mockLedgerAccountRepo.findById
       .mockReset()
-      .mockResolvedValueOnce(mockAssetAccount)
-      .mockResolvedValueOnce(null);
+      .mockResolvedValueOnce(mockAssetAccount);
 
     const mockExchangeRate: IExchangeRate = {
       currencyPair: 'USD/NGN',
@@ -146,7 +140,9 @@ describe('recordOpeningBalanceUseCase', () => {
       createdAt: new Date(),
     };
 
-    mockExchangeRateRepo.getById.mockResolvedValue(mockExchangeRate);
+    mockDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
+      mockExchangeRate
+    );
 
     const payload = {
       accountId: mockAssetAccount.id,
@@ -164,9 +160,9 @@ describe('recordOpeningBalanceUseCase', () => {
 
     await useCase(payload);
 
-    expect(mockExchangeRateRepo.getById).toHaveBeenCalledWith(1, {
-      correlationId,
-    });
+    expect(
+      mockDomainServices.exchangeRate.getExchangeRate
+    ).toHaveBeenCalledWith(payload.exchangeRate, { correlationId });
     expect(mockJournalEntryRepo.save).toHaveBeenCalled();
   });
 

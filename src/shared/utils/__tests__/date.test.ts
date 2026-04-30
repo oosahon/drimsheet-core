@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { AppError } from '../../value-objects/error';
+import { AppError } from '../../errors/error';
 import dateUtils from '../date';
 
 describe('dateUtils', () => {
@@ -203,6 +203,100 @@ describe('dateUtils', () => {
       expect(() => dateUtils.validateLessThan(new Date(), 'invalid')).toThrow(
         AppError
       );
+    });
+  });
+
+  describe('Distance functions', () => {
+    const date1 = new Date('2024-01-01');
+    const date2 = new Date('2024-01-15');
+    const date3 = new Date('2024-02-01');
+    const date4 = new Date('2024-04-01');
+    const date5 = new Date('2025-01-01');
+
+    it('getDaysDistance returns correct number of days', () => {
+      expect(dateUtils.getDaysDistance({ start: date1, end: date2 })).toBe(15);
+    });
+
+    it('getWeekDistance returns correct number of weeks', () => {
+      expect(dateUtils.getWeekDistance({ start: date1, end: date2 })).toBe(2);
+    });
+
+    it('getMonthDistance returns correct number of months', () => {
+      expect(dateUtils.getMonthDistance({ start: date1, end: date3 })).toBe(1);
+    });
+
+    it('getQuarterDistance returns correct number of quarters', () => {
+      expect(dateUtils.getQuarterDistance({ start: date1, end: date4 })).toBe(
+        1
+      );
+    });
+
+    it('getYearDistance returns correct number of years', () => {
+      expect(dateUtils.getYearDistance({ start: date1, end: date5 })).toBe(1);
+    });
+  });
+
+  describe('Adder functions', () => {
+    const baseDate = new Date('2024-01-01');
+
+    it('addDaysToDate adds correct days', () => {
+      const result = dateUtils.addDaysToDate(baseDate, 10);
+      expect(result.toISOString().startsWith('2024-01-11')).toBe(true);
+    });
+
+    it('addWeeksToDate adds correct weeks', () => {
+      const result = dateUtils.addWeeksToDate(baseDate, 2);
+      expect(result.toISOString().startsWith('2024-01-15')).toBe(true);
+    });
+
+    it('addMonthsToDate adds correct months', () => {
+      const result = dateUtils.addMonthsToDate(baseDate, 2);
+      expect(result.toISOString().startsWith('2024-03-01')).toBe(true);
+    });
+
+    it('addQuartersToDate adds correct quarters (3 months each)', () => {
+      const result = dateUtils.addQuartersToDate(baseDate, 1);
+      expect(result.toISOString().startsWith('2024-04-01')).toBe(true);
+    });
+
+    it('addYearsToDate adds correct years', () => {
+      const result = dateUtils.addYearsToDate(baseDate, 2);
+      expect(result.toISOString().startsWith('2026-01-01')).toBe(true);
+    });
+  });
+
+  describe('isWithinRange', () => {
+    const startDate = new Date('2024-01-01');
+    const endDate = new Date('2024-12-31');
+
+    it('returns true if date is exactly the start date', () => {
+      expect(
+        dateUtils.isWithinRange(new Date('2024-01-01'), startDate, endDate)
+      ).toBe(true);
+    });
+
+    it('returns true if date is exactly the end date', () => {
+      expect(
+        dateUtils.isWithinRange(new Date('2024-12-31'), startDate, endDate)
+      ).toBe(true);
+    });
+
+    it('returns true if date is strictly between start and end dates', () => {
+      expect(
+        dateUtils.isWithinRange(new Date('2024-06-15'), startDate, endDate)
+      ).toBe(true);
+    });
+
+    it('returns false if date is before the start date', () => {
+      expect(
+        dateUtils.isWithinRange(new Date('2023-12-31'), startDate, endDate)
+      ).toBe(false);
+    });
+
+    it('returns false if date is after the end date', () => {
+      expect(
+        dateUtils.isWithinRange(new Date('2025-01-01'), startDate, endDate)
+      ).toBe(false);
     });
   });
 });

@@ -1,12 +1,16 @@
 import { RequestHandler } from 'express';
 import _ from 'lodash';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
-import accountingEntityEntity from '../../../domain/accounting-entity/entities/accounting-entity.entity';
-import { ErrorUnauthorized } from '../../../shared/value-objects/error';
+import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
+import {
+  ErrorForbidden,
+  ErrorUnauthorized,
+} from '../../../shared/errors/error';
 import httpHandlers from '../handlers';
 
 export default function makeIsAuthenticatedUserMiddleware(
-  requestContext: IRequestContext
+  requestContext: IRequestContext,
+  accountingEntityService: IAccountingEntityService
 ): RequestHandler {
   return async (req, res, next) => {
     try {
@@ -17,7 +21,14 @@ export default function makeIsAuthenticatedUserMiddleware(
       }
 
       if (!_.isEmpty(accountingEntity)) {
-        accountingEntityEntity.validateAccess(accountingEntity, user);
+        const canAccessEntity = accountingEntityService.grantUserAccess(
+          accountingEntity,
+          user.id
+        );
+
+        if (!canAccessEntity) {
+          throw new ErrorForbidden();
+        }
       }
 
       next();

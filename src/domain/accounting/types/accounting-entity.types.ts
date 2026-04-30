@@ -1,5 +1,7 @@
 import { IAuditTrail } from '../../../shared/types/audit-trail.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { UCurrencyCode } from '../../currency/config/currencies.config';
+import { UJurisdictionCode } from '../config/jurisdictions.config';
 
 export const EAccountingEntityType = {
   Individual: 'individual',
@@ -15,6 +17,8 @@ export interface IAccountingEntity {
   name: string;
   type: UAccountingEntityType;
   ownerId: TEntityId;
+  functionalCurrencyCode: UCurrencyCode;
+  jurisdictionCode: UJurisdictionCode;
   createdAt: Date;
   updatedAt: Date;
 }

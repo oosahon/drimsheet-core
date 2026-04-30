@@ -1,5 +1,5 @@
 import { NODE_ENV } from '../../../infra/config/vars.config';
-import { ErrorForbidden } from '../../../shared/value-objects/error';
+import { ErrorForbidden } from '../../../shared/errors/error';
 import { ITransactionalEmailDto } from '../../contracts/dto/workers.dto';
 import { IInternalMailer } from '../../contracts/infra/transactional-email-agent.contract';
 

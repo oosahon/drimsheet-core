@@ -1,5 +1,5 @@
-import accountingEntityEntity from '../../../../domain/accounting-entity/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting-entity/types/accounting-entity.types';
+import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import ledgerAccountBalanceEntity from '../../../../domain/bookkeeping/entities/ledger-account-balance.entity';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
@@ -8,6 +8,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
@@ -31,13 +32,10 @@ describe('createLedgerAccountBalanceUseCase', () => {
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
     name: 'Test Accounting Entity',
-    operatingCountryCode: 'NG',
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
-    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
-    functionalCurrency: SYSTEM_CURRENCIES.NGN,
-    reportingCurrency: SYSTEM_CURRENCIES.USD,
-    fiscalYearStart: { month: 1, day: 1 },
+    functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
   });
 
   const [mockAssetAccount] = cashAndEquivalentAccountEntity.make(
@@ -65,6 +63,17 @@ describe('createLedgerAccountBalanceUseCase', () => {
     } as unknown as IRequestContextData);
 
     mockLedgerAccountBalanceRepo.findBalanceByAccountId.mockResolvedValue(null);
+
+    const mockNewBalance = ledgerAccountBalanceEntity.make({
+      ledgerAccountId: mockAssetAccount.id,
+      accountingEntityId: mockAccountingEntity.id,
+      accountMaterializedPath: mockAssetAccount.materializedPath,
+      currencyCode: SYSTEM_CURRENCIES.NGN.code,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    });
+    mockDomainServices.accountBalance.createBalance.mockResolvedValue(
+      mockNewBalance
+    );
   });
 
   const getUseCase = () =>
@@ -72,7 +81,8 @@ describe('createLedgerAccountBalanceUseCase', () => {
       mockRequestContext,
       mockLedgerAccountBalanceRepo,
       mockLedgerAccountRepo,
-      mockLogger
+      mockLogger,
+      mockDomainServices.accountBalance
     );
 
   it('should successfully create a ledger account balance', async () => {

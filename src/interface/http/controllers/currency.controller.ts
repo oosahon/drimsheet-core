@@ -17,10 +17,10 @@ export class CurrencyController extends Controller {
    * Gets all system currencies
    */
   @Get('/')
-  @OperationId('getCurrencies')
+  @OperationId('getAll')
   @SuccessResponse('200')
   @Middlewares(middlewares.isOptionalAuthenticatedUser)
-  public async getCurrencies() {
+  public async getAll() {
     return currencyUseCase.getAll();
   }
 }

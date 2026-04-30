@@ -1,15 +1,12 @@
 import { TEntityId } from '../../../shared/types/uuid';
 import { UCurrencyCode } from '../../currency/config/currencies.config';
 import { UAccountingStandardCode } from '../config/accounting-standards.config';
-import { UJurisdictionCode } from '../config/jurisdictions.config';
 
 export interface IAccountingContext {
   id: TEntityId;
   name: string;
   description: string | null;
   accountingEntityId: TEntityId;
-  functionalCurrencyCode: UCurrencyCode;
-  jurisdictionCode: UJurisdictionCode;
   accountingStandardCode: UAccountingStandardCode;
   fiscalYearId: TEntityId;
   currentAccountingPeriodId: TEntityId;
@@ -26,6 +23,7 @@ export interface IReportingContext {
   reportingCurrencyCode: UCurrencyCode;
   accountingContextId: TEntityId;
   currentReportingPeriodId: TEntityId;
+  accountingStandardCode: UAccountingStandardCode;
   createdAt: Date;
   updatedAt: Date;
   closedAt: Date | null;

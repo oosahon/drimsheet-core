@@ -3,8 +3,8 @@ import {
   UCurrencyCode,
 } from '../../domain/currency/config/currencies.config';
 import currencyEntity from '../../domain/currency/entities/currency.entity';
+import { ErrorUnprocessableEntity } from '../../shared/errors/error';
 import { IMoney } from '../../shared/types/money.types';
-import { ErrorUnprocessableEntity } from '../../shared/value-objects/error';
 import moneyValue from '../../shared/value-objects/money.vo';
 import { IMoneyDto } from '../contracts/dto/money.dto';
 

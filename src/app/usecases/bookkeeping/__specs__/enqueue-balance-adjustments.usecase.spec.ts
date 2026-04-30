@@ -1,5 +1,5 @@
-import accountingEntityEntity from '../../../../domain/accounting-entity/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting-entity/types/accounting-entity.types';
+import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import ledgerAccountBalanceEntity from '../../../../domain/bookkeeping/entities/ledger-account-balance.entity';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import {
@@ -13,8 +13,7 @@ import {
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
@@ -39,13 +38,10 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
     name: 'Test Accounting Entity',
-    operatingCountryCode: 'NG',
     ownerId: mockUser.id,
     type: EAccountingEntityType.Individual,
-    accountingContextId: 'd3b07384-d113-433c-99bc-3b10b07a6279' as TEntityId,
-    functionalCurrency: SYSTEM_CURRENCIES.NGN,
-    reportingCurrency: SYSTEM_CURRENCIES.USD,
-    fiscalYearStart: { month: 1, day: 1 },
+    functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
   });
 
   const [mockAssetAccount] = cashAndEquivalentAccountEntity.make(
@@ -84,19 +80,21 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IRequestContextData);
 
-    mockLedgerAccountRepo.findById.mockResolvedValue(mockAssetAccount);
-    mockLedgerAccountRepo.findByCode.mockResolvedValue(mockAssetAccount);
-    mockLedgerAccountBalanceRepo.findBalanceByAccountId.mockResolvedValue(
-      mockExistingBalance
-    );
+    mockDomainServices.bookkeeping.getBalanceEffectDelta.mockResolvedValue({
+      balanceDelta: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+      functionalBalanceDelta: {
+        amount: 1000n,
+        currency: SYSTEM_CURRENCIES.NGN,
+      },
+      affectedLedgerCodes: ['100000'],
+    });
   });
 
   const getUseCase = () =>
     makeEnqueueBalanceAdjustmentsUseCase(
       mockRequestContext,
-      mockLedgerAccountRepo,
-      mockLedgerAccountBalanceRepo,
-      mockQueue
+      mockQueue,
+      mockDomainServices.bookkeeping
     );
 
   it('should return early if journal entry is draft', async () => {
@@ -108,7 +106,9 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
 
     await useCase(mockJournalEntry);
 
-    expect(mockLedgerAccountRepo.findById).not.toHaveBeenCalled();
+    expect(
+      mockDomainServices.bookkeeping.getBalanceEffectDelta
+    ).not.toHaveBeenCalled();
     expect(mockQueue.addLedgerAccountBalanceAdjustment).not.toHaveBeenCalled();
   });
 
@@ -150,10 +150,11 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
 
     await useCase(mockJournalEntry);
 
-    expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
-      mockAssetAccount.id,
-      { correlationId }
-    );
+    expect(
+      mockDomainServices.bookkeeping.getBalanceEffectDelta
+    ).toHaveBeenCalledWith(mockAssetAccount.id, expect.any(Array), {
+      correlationId,
+    });
     expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledWith(
       expect.objectContaining({
         correlationId,
@@ -216,10 +217,11 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
 
     await useCase(mockJournalEntry);
 
-    expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
-      mockAssetAccount.id,
-      { correlationId }
-    );
+    expect(
+      mockDomainServices.bookkeeping.getBalanceEffectDelta
+    ).toHaveBeenCalledWith(mockAssetAccount.id, expect.any(Array), {
+      correlationId,
+    });
     expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledTimes(
       1
     );

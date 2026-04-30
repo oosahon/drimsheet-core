@@ -1,5 +1,5 @@
+import { IRepoOptions } from '../../../shared/types/repo.types';
 import { IUserSession } from '../infra/auth-service.contract';
-import { IRepoOptions } from '../infra/repo.contract';
 
 export default interface IUserSessionRepo {
   save(userSession: IUserSession, options: IRepoOptions): Promise<void>;

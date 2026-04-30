@@ -6,12 +6,12 @@ import mockUserAuthRepo from '../../../../infra/persistence/repos/__mocks__/user
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import { IEvent } from '../../../../shared/types/event.types';
 import {
   ErrorConflict,
   ErrorForbidden,
   ErrorUnprocessableEntity,
-} from '../../../../shared/value-objects/error';
+} from '../../../../shared/errors/error';
+import { IEvent } from '../../../../shared/types/event.types';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import makeSignupWithEmailUsecase from '../signup-with-email.usecase';

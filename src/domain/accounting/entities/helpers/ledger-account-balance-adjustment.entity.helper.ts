@@ -1,5 +1,5 @@
+import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/value-objects/error';
 import { IJournalLine } from '../../../journal-entry/types/journal-line.types';
 
 function validateAccountId(accountId: TEntityId, journalLines: IJournalLine[]) {

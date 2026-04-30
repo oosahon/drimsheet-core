@@ -1,5 +1,5 @@
-import { EAccountingEntityType } from '../../accounting-entity/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../currency/config/currencies.config';
+import { EAccountingEntityType } from '../types/accounting-entity.types';
 import { IJurisdiction } from '../types/jurisdiction.types';
 
 const AD: IJurisdiction = {
@@ -9,7 +9,7 @@ const AD: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -20,7 +20,7 @@ const AE: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -31,7 +31,7 @@ const AR: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -42,7 +42,7 @@ const AT: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -53,7 +53,7 @@ const AU: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['AASB'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -64,7 +64,7 @@ const BD: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -75,7 +75,7 @@ const BE: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -86,7 +86,7 @@ const BR: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -97,7 +97,7 @@ const CA: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['ASPE'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -108,7 +108,7 @@ const CH: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SWISS_GAAP_FER'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -119,7 +119,7 @@ const CI: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SYSCOHADA'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -130,7 +130,7 @@ const CL: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -141,7 +141,7 @@ const CM: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SYSCOHADA'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -152,7 +152,7 @@ const CN: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['CAS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -163,7 +163,7 @@ const CO: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -174,7 +174,7 @@ const CY: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -185,7 +185,7 @@ const CZ: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -196,7 +196,7 @@ const DE: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['HGB'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -207,7 +207,7 @@ const DK: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -218,7 +218,7 @@ const DZ: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SCF'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -229,7 +229,7 @@ const EE: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -240,7 +240,7 @@ const EG: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['EAS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -251,7 +251,7 @@ const ES: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PGC'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -262,7 +262,7 @@ const FI: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -273,7 +273,7 @@ const FR: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PCG'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -284,7 +284,7 @@ const GB: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['UK_GAAP'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -295,7 +295,7 @@ const GH: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -306,7 +306,7 @@ const GR: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -317,7 +317,7 @@ const HK: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['HKFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -328,7 +328,7 @@ const HR: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -339,7 +339,7 @@ const HU: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -350,7 +350,7 @@ const ID: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PSAK'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -361,7 +361,7 @@ const IE: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -372,7 +372,7 @@ const IL: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['ISRAELI_GAAP'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -383,7 +383,7 @@ const IN: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IND_AS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -394,7 +394,7 @@ const IT: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['OIC'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -405,7 +405,7 @@ const JP: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['J_GAAP'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -416,7 +416,7 @@ const KE: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -427,7 +427,7 @@ const KR: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['K_IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -438,7 +438,7 @@ const LT: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -449,7 +449,7 @@ const LU: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -460,7 +460,7 @@ const LV: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -471,7 +471,7 @@ const MA: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['CGNC'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -482,7 +482,7 @@ const MC: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PCG'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -493,7 +493,7 @@ const MT: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -504,7 +504,7 @@ const MX: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['NIF'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -515,7 +515,7 @@ const MY: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['MFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -526,7 +526,7 @@ const NG: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -537,7 +537,7 @@ const NL: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['RJ'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -548,7 +548,7 @@ const NO: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -559,7 +559,7 @@ const NZ: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['NZ_IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -570,7 +570,7 @@ const PE: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -581,7 +581,7 @@ const PH: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -592,7 +592,7 @@ const PK: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -603,7 +603,7 @@ const PL: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -614,7 +614,7 @@ const PT: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -625,7 +625,7 @@ const RO: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -636,7 +636,7 @@ const RU: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['RAS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -647,7 +647,7 @@ const SA: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -658,7 +658,7 @@ const SE: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -669,7 +669,7 @@ const SG: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -680,7 +680,7 @@ const SI: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -691,7 +691,7 @@ const SK: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -702,7 +702,7 @@ const SM: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['OIC'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -713,7 +713,7 @@ const SN: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SYSCOHADA'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -724,7 +724,7 @@ const TH: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['THAI_FRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -735,7 +735,7 @@ const TR: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['TFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -746,7 +746,7 @@ const TW: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['TIFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -757,7 +757,7 @@ const TZ: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -768,7 +768,7 @@ const UA: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -779,7 +779,7 @@ const UG: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -790,7 +790,7 @@ const US: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['US_GAAP'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -801,7 +801,7 @@ const VA: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['OIC'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -812,7 +812,7 @@ const VN: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['VAS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 
@@ -823,7 +823,7 @@ const ZA: IJurisdiction = {
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
-    [EAccountingEntityType.Company]: [],
+    [EAccountingEntityType.PrivateCompany]: [],
   },
 };
 

@@ -1,4 +1,3 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import ledgerAccountEvents from '../../events/ledger-account.events';
@@ -84,7 +83,34 @@ function make(
   return [account, [ledgerAccountCreatedEvent, event]];
 }
 
-function makeStatutoryPayableAccountMeta(meta: IStatutoryPayableAccountMeta) {
+function makeHeader(
+  payload: Pick<
+    IPayableAccount,
+    'name' | 'createdBy' | 'accountingEntityId' | 'currency'
+  >
+) {
+  return make(
+    {
+      name: payload.name,
+      createdBy: payload.createdBy,
+      accountingEntityId: payload.accountingEntityId,
+      currency: payload.currency,
+      isControlAccount: true,
+      controlAccountId: null,
+      behavior: ELiabilityAccountBehavior.DefaultPayable,
+      contraAccountRule: EContraAccountRule.ContraPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+      meta: null,
+    },
+    null
+  );
+}
+
+function makeStatutoryPayableAccountMeta(
+  meta: IStatutoryPayableAccountMeta | null
+): IStatutoryPayableAccountMeta | null {
+  if (!meta) return null;
+
   const taxAuthority = stringUtils.sanitizeAndValidate(meta.taxAuthority, {
     min: 2,
     max: 100,
@@ -108,7 +134,16 @@ function makeStatutoryPayableAccountMeta(meta: IStatutoryPayableAccountMeta) {
  * @returns [IPayableAccount, IPayableCreationEvent]
  */
 function makeStatutoryPayableAccount(
-  payload: TCreationOmits<IStatutoryPayableAccount>,
+  payload: Pick<
+    IStatutoryPayableAccount,
+    | 'name'
+    | 'createdBy'
+    | 'accountingEntityId'
+    | 'currency'
+    | 'isControlAccount'
+    | 'controlAccountId'
+    | 'meta'
+  >,
   parent: IParentDetails | null
 ): TEntityWithEvents<IPayableAccount, IPayableAccount> {
   return make(
@@ -129,7 +164,11 @@ function makeStatutoryPayableAccount(
   );
 }
 
-function makeTradePayableAccountMeta(meta: ITradePayableAccountMeta) {
+function makeTradePayableAccountMeta(
+  meta: ITradePayableAccountMeta | null
+): ITradePayableAccountMeta | null {
+  if (!meta) return null;
+
   stringUtils.validateUUID(meta.counterpartyId);
   stringUtils.validateUUID(meta.invoiceId);
 
@@ -146,7 +185,16 @@ function makeTradePayableAccountMeta(meta: ITradePayableAccountMeta) {
  * @returns [IPayableAccount, IPayableCreationEvent]
  */
 function makeTradePayableAccount(
-  payload: TCreationOmits<ITradePayableAccount>,
+  payload: Pick<
+    ITradePayableAccount,
+    | 'name'
+    | 'accountingEntityId'
+    | 'currency'
+    | 'createdBy'
+    | 'isControlAccount'
+    | 'controlAccountId'
+    | 'meta'
+  >,
   parent: IParentDetails | null
 ): TEntityWithEvents<IPayableAccount, IPayableAccount> {
   return make(
@@ -169,6 +217,7 @@ function makeTradePayableAccount(
 
 const payableAccountEntity = Object.freeze({
   make,
+  makeHeader,
 
   makeStatutoryPayableAccountMeta,
   makeStatutoryPayableAccount,

@@ -1,0 +1,264 @@
+import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import currencyEntity from '../../currency/entities/currency.entity';
+import { LIABILITY_LEDGER_CODES } from '../config/liability-codes.config';
+import shortTermLoanAccountEntity from '../entities/02-liability-account/00-short-term-loan.entity';
+import payableAccountEntity from '../entities/02-liability-account/03-payables.entity';
+import liabilitySuspenseAccountEntity from '../entities/02-liability-account/99-suspense-account.entity';
+import ILedgerAccountRepo from '../repos/ledger-account.repo';
+import {
+  TLiabilityLedgerCode,
+  TPayablesLedgerCode,
+} from '../types/ledger-code.types';
+import { ELedgerType } from '../types/ledger.types';
+import ILiabilityAccountService from '../types/liability-account.service.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
+  ILiabilityLedgerAccount,
+  IPayableAccount,
+  IStatutoryPayableAccount,
+} from '../types/liability-account.types';
+
+type TBootstrapHeaders = ILiabilityAccountService['bootstrapHeaderAccounts'];
+type TBootstrapIndividualPostingAccounts =
+  ILiabilityAccountService['bootstrapIndividualPostingAccounts'];
+
+export default function makeLiabilityAccountService(
+  repo: ILedgerAccountRepo
+): ILiabilityAccountService {
+  /**
+   * Bootstraps header liability accounts for a new accounting entity
+   *  - Short Term Debt:              200000
+   *  - Payables:                     201000
+   *    - Trade Payables:             201001
+   *    - Statutory Payables:         201002
+   */
+  const bootstrapHeaderAccounts: TBootstrapHeaders = async (
+    accountingEntity,
+    repoOptions,
+    shouldBootstrapPostingAccounts
+  ) => {
+    const accountingEntityId = accountingEntity.id;
+    const functionalCurrency = currencyEntity.getByCode(
+      accountingEntity.functionalCurrencyCode
+    );
+    const createdBy = accountingEntity.ownerId;
+
+    const getExistingAccounts = async <T extends ILiabilityLedgerAccount>(
+      code: TLiabilityLedgerCode
+    ) => {
+      return (await repo.findByCode(
+        code,
+        accountingEntityId,
+        repoOptions
+      )) as T | null;
+    };
+
+    const allAccounts: TEntityWithEvents<
+      ILiabilityLedgerAccount,
+      ILiabilityLedgerAccount
+    >[] = [];
+
+    /**
+     * ==================== Short Term Debt ====================
+     */
+    const shortTermDebtHeaderCode =
+      LIABILITY_LEDGER_CODES.SHORT_TERM_DEBT.HEADER;
+    const existingShortTermDebtHeader = await getExistingAccounts(
+      shortTermDebtHeaderCode
+    );
+
+    const stdPayload = {
+      name: 'Short Term Debt',
+      createdBy,
+      accountingEntityId,
+      currency: functionalCurrency,
+    };
+
+    if (!existingShortTermDebtHeader) {
+      const std = shortTermLoanAccountEntity.makeHeader(stdPayload);
+      allAccounts.push(std);
+    }
+
+    /**
+     * ==================== Payables ====================
+     */
+    const payablesHeaderCode = LIABILITY_LEDGER_CODES.PAYABLES.HEADER;
+    let existingPayablesHeader =
+      await getExistingAccounts<IPayableAccount>(payablesHeaderCode);
+
+    if (!existingPayablesHeader) {
+      const payables = payableAccountEntity.makeHeader({
+        name: 'Payables',
+        createdBy,
+        accountingEntityId,
+        currency: functionalCurrency,
+      });
+      existingPayablesHeader = payables[0];
+      allAccounts.push(payables);
+    }
+
+    /**
+     * ==================== Trade Payables ====================
+     */
+    const tradePayablesCode = LIABILITY_LEDGER_CODES.PAYABLES.TRADE;
+    let existingTradePayables =
+      await getExistingAccounts<IPayableAccount>(tradePayablesCode);
+
+    if (!existingTradePayables) {
+      const tradePayables = payableAccountEntity.makeTradePayableAccount(
+        {
+          name: 'Trade Payables',
+          createdBy,
+          accountingEntityId,
+          currency: functionalCurrency,
+          isControlAccount: true,
+          controlAccountId: existingPayablesHeader.id,
+          meta: null,
+        },
+        {
+          precedingCode: existingPayablesHeader.code as TPayablesLedgerCode,
+          parentMaterializedPath:
+            existingPayablesHeader.materializedPath as TPayablesLedgerCode,
+        }
+      );
+      existingTradePayables = tradePayables[0];
+      allAccounts.push(tradePayables);
+    }
+
+    /**
+     * ==================== Statutory Payables ====================
+     */
+    const statutoryPayablesCode = LIABILITY_LEDGER_CODES.PAYABLES.STATUTORY;
+    const isExistingStatutoryPayables = await getExistingAccounts(
+      statutoryPayablesCode
+    );
+
+    let statutoryPayablesHeader: IStatutoryPayableAccount;
+
+    if (!isExistingStatutoryPayables) {
+      const statutoryPayables =
+        payableAccountEntity.makeStatutoryPayableAccount(
+          {
+            name: 'Statutory Payables',
+            createdBy,
+            accountingEntityId,
+            currency: functionalCurrency,
+            isControlAccount: true,
+            controlAccountId: existingPayablesHeader.id,
+            meta: null,
+          },
+          {
+            precedingCode: existingTradePayables.code as TPayablesLedgerCode,
+            parentMaterializedPath:
+              existingPayablesHeader.materializedPath as TPayablesLedgerCode,
+          }
+        );
+      statutoryPayablesHeader =
+        statutoryPayables[0] as IStatutoryPayableAccount;
+      allAccounts.push(statutoryPayables);
+    } else {
+      statutoryPayablesHeader =
+        isExistingStatutoryPayables as IStatutoryPayableAccount;
+    }
+
+    if (shouldBootstrapPostingAccounts) {
+      const postingAccountsWithEvents =
+        await bootstrapIndividualPostingAccounts(
+          accountingEntity,
+          { statutoryPayablesHeader },
+          repoOptions
+        );
+      allAccounts.push(...postingAccountsWithEvents);
+    }
+
+    const accounts: ILiabilityLedgerAccount[] = [];
+    const events: IEvent<ILiabilityLedgerAccount>[] = [];
+
+    for (const [account, accountEvents] of allAccounts) {
+      accounts.push(account);
+      events.push(...accountEvents);
+    }
+
+    return { accounts, events };
+  };
+
+  const bootstrapIndividualPostingAccounts: TBootstrapIndividualPostingAccounts =
+    async (accountingEntity, headers, repoOptions) => {
+      const {
+        ownerId,
+        id: accountingEntityId,
+        functionalCurrencyCode,
+      } = accountingEntity;
+
+      const functionalCurrency = currencyEntity.getByCode(
+        functionalCurrencyCode
+      );
+
+      const liabilityAccounts: TEntityWithEvents<
+        ILiabilityLedgerAccount,
+        ILiabilityLedgerAccount
+      >[] = [];
+
+      /**
+       * Suspense account
+       */
+      const existingSuspense = await repo.findBySubType(
+        accountingEntityId,
+        ELedgerType.Liability,
+        ELiabilitySubType.Suspense,
+        repoOptions
+      );
+
+      if (!existingSuspense.length) {
+        const account = liabilitySuspenseAccountEntity.make(
+          {
+            accountingEntityId,
+            currency: functionalCurrency,
+            name: 'Liability Suspense Account',
+            createdBy: ownerId,
+          },
+          null
+        );
+        liabilityAccounts.push(account);
+      }
+
+      /**
+       * Statutory Payables
+       */
+      const existingStatutoryPayables = (await repo.findByBehavior(
+        accountingEntityId,
+        ELiabilityAccountBehavior.TaxPayable,
+        repoOptions
+      )) as IStatutoryPayableAccount[];
+
+      // Since the header is also a statutory payable, if length is 1, only the header exists
+      if (existingStatutoryPayables.length === 1) {
+        const account = payableAccountEntity.makeStatutoryPayableAccount(
+          {
+            name: 'Statutory Payables (Default)',
+            createdBy: ownerId,
+            accountingEntityId,
+            currency: functionalCurrency,
+            isControlAccount: false,
+            controlAccountId: headers.statutoryPayablesHeader.id,
+            meta: null,
+          },
+          {
+            precedingCode: headers.statutoryPayablesHeader
+              .code as TPayablesLedgerCode,
+            parentMaterializedPath: headers.statutoryPayablesHeader
+              .materializedPath as TPayablesLedgerCode,
+          }
+        );
+        liabilityAccounts.push(account);
+      }
+
+      return liabilityAccounts;
+    };
+
+  return Object.freeze({
+    bootstrapHeaderAccounts,
+    bootstrapIndividualPostingAccounts,
+  });
+}

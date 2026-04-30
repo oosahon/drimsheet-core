@@ -1,19 +1,14 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IAccountingEntity } from '../../domain/accounting-entity/types/accounting-entity.types';
+import { UJurisdictionCode } from '../../domain/accounting/config/jurisdictions.config';
+import { IAccountingEntity } from '../../domain/accounting/types/accounting-entity.types';
+import { UCurrencyCode } from '../../domain/currency/config/currencies.config';
 import { accountingEntitiesInCore } from '../../infra/config/drizzle/schema';
 import { TEntityId } from '../../shared/types/uuid';
-import { IAccountingEntityRes } from '../contracts/dto/accounting-entity.dto';
-import currencyMapper, { ICurrencyModel } from './currency.mapper';
-import { fromCommonRepoDates, toCommonRepoDates } from './date';
+export type IAccountingEntityRes = IAccountingEntity;
 
 export interface IAccountingEntityModel extends InferSelectModel<
   typeof accountingEntitiesInCore
 > {}
-
-interface IAccountingEntitySelectModel extends IAccountingEntityModel {
-  functionalCurrency: ICurrencyModel;
-  reportingCurrency: ICurrencyModel;
-}
 
 const accountingEntityMapper = {
   toRepo(entity: IAccountingEntity): IAccountingEntityModel {
@@ -21,40 +16,30 @@ const accountingEntityMapper = {
       id: entity.id,
       ownerId: entity.ownerId,
       name: entity.name,
-      operatingCountryCode: entity.operatingCountryCode,
-      accountingContextId: entity.accountingContextId,
-      functionalCurrencyCode: entity.functionalCurrency.code,
-      reportingCurrencyCode: entity.reportingCurrency.code,
       type: entity.type,
-      fiscalYearStartMonth: entity.fiscalYearStart.month,
-      fiscalYearStartDay: entity.fiscalYearStart.day,
-      ...toCommonRepoDates(entity),
+      functionalCurrencyCode: entity.functionalCurrencyCode,
+      jurisdictionCode: entity.jurisdictionCode,
+      createdAt: entity.createdAt.toISOString(),
+      updatedAt: entity.updatedAt.toISOString(),
     };
   },
 
-  toDomain(payload: IAccountingEntitySelectModel): IAccountingEntity {
+  toDomain(payload: IAccountingEntityModel): IAccountingEntity {
     return Object.freeze({
-      accountingContextId: payload.accountingContextId as TEntityId,
       id: payload.id as TEntityId,
       ownerId: payload.ownerId as TEntityId,
       name: payload.name,
-      operatingCountryCode: payload.operatingCountryCode,
-      functionalCurrency: currencyMapper.toDomain(payload.functionalCurrency),
-      reportingCurrency: currencyMapper.toDomain(payload.reportingCurrency),
       type: payload.type,
-      fiscalYearStart: Object.freeze({
-        month: payload.fiscalYearStartMonth,
-        day: payload.fiscalYearStartDay,
-      }),
-      ...fromCommonRepoDates(payload),
+      functionalCurrencyCode: payload.functionalCurrencyCode as UCurrencyCode,
+      jurisdictionCode: payload.jurisdictionCode as UJurisdictionCode,
+      createdAt: new Date(payload.createdAt),
+      updatedAt: new Date(payload.updatedAt),
     });
   },
 
   toInterface(payload: IAccountingEntity): IAccountingEntityRes {
     return {
       ...payload,
-      functionalCurrency: payload.functionalCurrency.code,
-      reportingCurrency: payload.reportingCurrency.code,
     };
   },
 };

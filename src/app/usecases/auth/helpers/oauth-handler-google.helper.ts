@@ -4,7 +4,7 @@ import emailValue from '../../../../domain/user/value-objects/email.vo';
 import {
   ErrorBadRequest,
   ErrorInternalServerError,
-} from '../../../../shared/value-objects/error';
+} from '../../../../shared/errors/error';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import IRequestContext from '../../../contracts/app/request-context.contract';
 import {

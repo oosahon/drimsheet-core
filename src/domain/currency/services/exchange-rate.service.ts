@@ -1,23 +1,19 @@
 import _ from 'lodash';
-import { IRepoOptions } from '../../../app/contracts/infra/repo.contract';
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
+import { AppError } from '../../../shared/errors/error';
 import generateDiff from '../../../shared/utils/diff-generator';
-import { AppError } from '../../../shared/value-objects/error';
 import IExchangeRateRepo from '../repos/exchange-rate.repo';
-import { IExchangeRate } from '../types/exchange-rate.types';
+import IExchangeRateService from '../types/exchange-rate.service.types';
 import exchangeRateValue from '../value-objects/exchange-rate.vo';
 
-interface IGetExchangeRatePayload extends TCreationOmits<
-  IExchangeRate,
-  'currencyPair'
-> {
-  id?: number;
-}
+type TGetOfficialExchangeRate = IExchangeRateService['getOfficialExchangeRate'];
+type TGetExchangeRate = IExchangeRateService['getExchangeRate'];
 
-export default function makeExchangeRateService(repo: IExchangeRateRepo) {
-  const getOfficialExchangeRate = async (
-    payload: IGetExchangeRatePayload,
-    repoOptions: IRepoOptions
+export default function makeExchangeRateService(
+  repo: IExchangeRateRepo
+): IExchangeRateService {
+  const getOfficialExchangeRate: TGetOfficialExchangeRate = async (
+    payload,
+    repoOptions
   ) => {
     const { id, ...data } = payload;
 
@@ -49,18 +45,15 @@ export default function makeExchangeRateService(repo: IExchangeRateRepo) {
     return existing;
   };
 
-  const getExchangeRate = async (
-    payload: IGetExchangeRatePayload | null,
-    repoOptions: IRepoOptions
-  ) => {
+  const getExchangeRate: TGetExchangeRate = async (payload, repoOptions) => {
     if (payload === null) {
       return null;
     }
     return getOfficialExchangeRate(payload, repoOptions);
   };
 
-  return {
+  return Object.freeze({
     getOfficialExchangeRate,
     getExchangeRate,
-  };
+  });
 }

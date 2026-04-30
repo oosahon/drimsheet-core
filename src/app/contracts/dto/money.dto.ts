@@ -44,3 +44,17 @@ export const exchangeRateDtoValidation = z.object({
     .min(2, 'Invalid source: must be at least 2 characters')
     .max(100, 'Invalid source: must be at most 100 characters'),
 });
+
+export interface ICurrencyDto {
+  code: string;
+  symbol: string;
+  name: string;
+  minorUnit: number;
+}
+
+export const currencyDtoValidation = z.object({
+  code: currencyCodeValidation,
+  symbol: z.string(),
+  name: z.string(),
+  minorUnit: z.number(),
+});

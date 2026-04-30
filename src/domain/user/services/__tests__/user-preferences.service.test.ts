@@ -1,5 +1,5 @@
-import { IRepoOptions } from '../../../../app/contracts/infra/repo.contract';
 import mockUserPreferencesRepo from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
+import { IRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { EUserEvents } from '../../events/user.events';
 import {
