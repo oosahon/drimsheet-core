@@ -8,7 +8,7 @@ import eventsRegistry from '../event-registry';
 import { bootstrapAccountingContext } from './accounting-context';
 import bootstrapCurrencies from './setup-currencies';
 
-async function bootstrap() {
+async function bootstraper() {
   try {
     await bootstrapCurrencies(repos.currency, observability.logger);
     await bootstrapAccountingContext(
@@ -19,12 +19,8 @@ async function bootstrap() {
       services.repo
     );
 
-    const serverCallback = async () => {
-      registerWorkers(observability.reporter);
-      eventsRegistry(eventBus);
-    };
-
-    setupServer(serverCallback);
+    registerWorkers(observability.reporter);
+    eventsRegistry(eventBus);
   } catch (error) {
     observability.logger.error(error, 'Failed to bootstrap');
     observability.reporter.report(error);
@@ -32,4 +28,8 @@ async function bootstrap() {
   }
 }
 
-bootstrap();
+function main() {
+  setupServer(bootstraper);
+}
+
+main();
