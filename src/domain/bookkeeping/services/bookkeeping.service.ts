@@ -1,7 +1,7 @@
 import { AppError } from '../../../shared/errors/error';
 import { IMoney } from '../../../shared/types/money.types';
 import moneyValue from '../../../shared/value-objects/money.vo';
-import { SYSTEM_CURRENCIES } from '../../currency/config/currencies.config';
+import currencyEntity from '../../currency/entities/currency.entity';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
 import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
 import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
@@ -32,6 +32,10 @@ export default function makeBookkeepingService(
         });
       }
 
+      const functionalCurrency = currencyEntity.getByCode(
+        accountingEntity.functionalCurrencyCode
+      );
+
       const [existingBalanceAdjustment] =
         await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
           payload.account.id,
@@ -60,7 +64,7 @@ export default function makeBookkeepingService(
       const debitLinePayload: IJournalLineMakePayload = {
         accountId: account.id,
         // TODO: use current reporting context currency
-        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        functionalCurrency,
         amount,
         exchangeRate,
         sequenceOrder: 1,
@@ -71,7 +75,7 @@ export default function makeBookkeepingService(
       const creditLinePayload: IJournalLineMakePayload = {
         accountId: equityAccount.id,
         // TODO: use current reporting context currency
-        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        functionalCurrency,
         amount,
         exchangeRate,
         sequenceOrder: 2,
@@ -90,8 +94,7 @@ export default function makeBookkeepingService(
         voidingEntryId: null,
         memo: 'Opening balance',
         createdBy: account.createdBy,
-        // TODO: use current reporting context currency
-        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        functionalCurrency,
         lines: [debitLinePayload, creditLinePayload],
       });
 
