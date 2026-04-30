@@ -1,4 +1,4 @@
-# Error Handling Rules
+# Creating Errors
 
 This repository enforces strict, context-bounded error handling. Errors must be defined within their specific domains and contexts, adhering to the standard structure outlined below.
 
@@ -12,20 +12,16 @@ This repository enforces strict, context-bounded error handling. Errors must be 
 Every context error file must define the following standard types and constants:
 
 - **`TErrorKeyPrefix`**: A template literal type ensuring all string error keys follow a standard naming convention:
-
   ```typescript
   type TErrorKeyPrefix = `<domain>_error_<context>_${string}`;
   // Example: `accounting_error_period_${string}`
   ```
-
 - **`EErrorKeys`**: A constant object containing all error keys for the context, satisfying the `TErrorKeyPrefix`.
-
   ```typescript
   const EErrorKeys = {
     SpecificReason: 'domain_error_context_specific_reason',
   } as const satisfies Record<string, TErrorKeyPrefix>;
   ```
-
 - **`U<Context>Error`**: A union type extracting the valid string keys from `EErrorKeys`.
   ```typescript
   type UPeriodError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
@@ -86,3 +82,30 @@ const periodError = Object.freeze({
 
 export default periodError;
 ```
+
+## Naming Convention
+
+When defining errors classes and their associated keys, you must follow this naming convention to ensure consistency and clarity across the codebase.
+
+## Core Rule: Name the Fault, Not the Rule
+
+- **Errors are System Faults:** Error names must represent the actual system fault or invalid state, not the validation rule itself.
+- **Read Like Names, Not Descriptions:** Error keys and class names should read like nouns or specific names representing the fault.
+
+### Examples of the Convention
+
+Instead of naming what the value _should not_ be or what the validation _checked_, name what the invalid value actually _is_.
+
+- ❌ **Incorrect:** `NotFloat` (Describes the validation rule: "It must not be a float")
+- ✅ **Correct:** `InvalidFloat` (Names the fault: "The provided value is an invalid float")
+- ❌ **Incorrect:** `NotNegative` (Describes the rule)
+- ✅ **Correct:** `NegativeValue` (Names the fault)
+- ❌ **Incorrect:** `NotPositive` (Describes the rule)
+- ✅ **Correct:** `NonPositiveValue` (Names the fault)
+
+## Implementation Details
+
+When implementing errors using the project's standard error factory (`getMappedErrors`):
+
+1. Apply this naming convention to the `EErrorKeys` constant keys.
+2. Ensure the string value of the error key mirrors the name (e.g., `value_error_number_negative_value` for `NegativeValue`).
