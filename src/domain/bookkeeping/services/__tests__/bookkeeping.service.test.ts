@@ -51,12 +51,14 @@ describe('bookkeepingService', () => {
 
     const validAccountingEntity = {
       id: entityId,
+      functionalCurrencyCode: 'NGN',
     } as IAccountingEntity;
 
     const validAccount = {
       id: accountId,
       accountingEntityId: entityId,
       isControlAccount: false,
+      normalBalance: ENormalBalance.Debit,
       createdBy: generateUUID(),
     } as ILedgerAccount;
 
@@ -81,7 +83,7 @@ describe('bookkeepingService', () => {
     };
 
     describe('when valid payload is provided', () => {
-      it('should return a journal entry successfully', async () => {
+      it('should return a journal entry successfully for an account with Debit normal balance', async () => {
         mockLedgerAccountRepo.findBySubType.mockResolvedValueOnce([
           validEquityAccount,
         ]);
@@ -99,6 +101,32 @@ describe('bookkeepingService', () => {
         expect(journalEntry.lines[0].side).toBe(EJournalSide.Debit);
         expect(journalEntry.lines[1].accountId).toBe(equityAccountId);
         expect(journalEntry.lines[1].side).toBe(EJournalSide.Credit);
+        expect(events.length).toBeGreaterThan(0);
+      });
+
+      it('should return a journal entry successfully for an account with Credit normal balance', async () => {
+        mockLedgerAccountRepo.findBySubType.mockResolvedValueOnce([
+          validEquityAccount,
+        ]);
+
+        const payload = {
+          ...validPayload,
+          account: {
+            ...validAccount,
+            normalBalance: ENormalBalance.Credit,
+          },
+        };
+
+        const [journalEntry, events] =
+          await service.createOpeningBalanceJournalEntry(payload, mockOptions);
+
+        expect(journalEntry.accountingEntityId).toBe(entityId);
+        expect(journalEntry.status).toBe(EJournalEntryStatus.Posted);
+        expect(journalEntry.lines).toHaveLength(2);
+        expect(journalEntry.lines[0].accountId).toBe(accountId);
+        expect(journalEntry.lines[0].side).toBe(EJournalSide.Credit);
+        expect(journalEntry.lines[1].accountId).toBe(equityAccountId);
+        expect(journalEntry.lines[1].side).toBe(EJournalSide.Debit);
         expect(events.length).toBeGreaterThan(0);
       });
     });
@@ -329,6 +357,13 @@ describe('bookkeepingService', () => {
       await expect(
         service.getBalanceEffectDelta(accountId, [baseLine], mockOptions)
       ).rejects.toThrow('Account not found');
+    });
+
+    it('should throw if journal lines array is empty', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(account);
+      await expect(
+        service.getBalanceEffectDelta(accountId, [], mockOptions)
+      ).rejects.toThrow('Journal lines cannot be empty');
     });
 
     it('should throw if any line has a different accountId', async () => {

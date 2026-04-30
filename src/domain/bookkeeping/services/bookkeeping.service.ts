@@ -5,13 +5,12 @@ import currencyEntity from '../../currency/entities/currency.entity';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
 import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
 import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../journal-entry/types/journal-line.types';
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
 import { ELedgerType } from '../../ledger/types/ledger.types';
 import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
-import getBalanceEffectRule from '../rules/get-balance-effect.rule';
+import journalEntryRules from '../rules/journal-entry.rule';
 import IBookkeepingService from '../types/bookkeeping.service.types';
 import { ELedgerAccountBalanceEffect } from '../types/ledger-account-balance.types';
 
@@ -61,6 +60,11 @@ export default function makeBookkeepingService(
         );
       }
 
+      const { targetAccountSide, equityAccountSide } =
+        journalEntryRules.getOpeningBalanceSides({
+          normalBalance: account.normalBalance,
+        });
+
       const debitLinePayload: IJournalLineMakePayload = {
         accountId: account.id,
         // TODO: use current reporting context currency
@@ -68,7 +72,7 @@ export default function makeBookkeepingService(
         amount,
         exchangeRate,
         sequenceOrder: 1,
-        side: EJournalSide.Debit,
+        side: targetAccountSide,
         description: 'Opening balance',
       };
 
@@ -79,7 +83,7 @@ export default function makeBookkeepingService(
         amount,
         exchangeRate,
         sequenceOrder: 2,
-        side: EJournalSide.Credit,
+        side: equityAccountSide,
       };
 
       const timestamp = new Date();
@@ -110,6 +114,12 @@ export default function makeBookkeepingService(
 
     if (!account) {
       throw new AppError('Account not found', { cause: { accountId } });
+    }
+
+    if (!journalLines || journalLines.length === 0) {
+      throw new AppError('Journal lines cannot be empty', {
+        cause: { accountId },
+      });
     }
 
     const isSame = journalLines.every((line) => {
@@ -148,7 +158,7 @@ export default function makeBookkeepingService(
     );
 
     for (const line of journalLines) {
-      const effect = getBalanceEffectRule({
+      const effect = journalEntryRules.getBalanceEffect({
         accountType: account.type,
         normalBalance: account.normalBalance,
         journalSide: line.side,
