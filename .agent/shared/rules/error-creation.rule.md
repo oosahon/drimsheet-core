@@ -44,7 +44,7 @@ Every context error file must define the following standard types and constants:
 All errors must be aggregated and exported as a frozen object to prevent mutation.
 
 - **No Redundant Suffixes**: The keys within this frozen object **must not** have a redundant `Error` suffix.
-- **Base Error Mapping**: The base context error class should typically be mapped to the key `Error`.
+- **Extendable Base Mapping**: For root-level context errors (e.g. `BookkeepingError`) that need to be extended by sub-context error files, expose the class under the `Base` key (e.g., `Base: BookkeepingError`). This allows other files to extend `[Context]Error.Base` without relying on named exports.
 
 ### Example Implementation (`period.errors.ts`)
 
@@ -109,3 +109,16 @@ When implementing errors using the project's standard error factory (`getMappedE
 
 1. Apply this naming convention to the `EErrorKeys` constant keys.
 2. Ensure the string value of the error key mirrors the name (e.g., `value_error_number_negative_value` for `NegativeValue`).
+
+## Exports
+
+- Only default exports should be supported. Never use named exports.
+- When sub-context errors need to inherit from a root context error (e.g., `BookkeepingError`), import the default frozen object from the root context file and extend its `Base` property.
+
+```typescript
+import bookkeepingError from './bookkeeping.error';
+
+class LedgerAccountBalanceError extends bookkeepingError.Base<ULedgerAccountBalanceError> {
+  // ...
+}
+```

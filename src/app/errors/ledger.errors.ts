@@ -19,7 +19,7 @@ class LedgerAppError extends AppError<ULedgerError> {
 }
 
 const ledgerAppError = Object.freeze({
-  Error: LedgerAppError,
+  Base: LedgerAppError,
   ...errorUtils.getMappedErrors(EErrorKeys, LedgerAppError),
 });
 

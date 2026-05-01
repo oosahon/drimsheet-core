@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import { AccountingError } from './accounting.error';
+import AccountingError from './accounting.error';
 
 type TErrorKeyPrefix = `accounting_error_period_${string}`;
 
@@ -21,7 +21,7 @@ class PeriodError extends AccountingError<UPeriodError> {
 }
 
 const periodError = Object.freeze({
-  Error: PeriodError,
+  Base: PeriodError,
   ...errorUtils.getMappedErrors(EErrorKeys, PeriodError),
 });
 

@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import { UserError } from './user.error';
+import userError from './user.error';
 
 type TErrorKeyPrefix = `user_error_user_value_object_${string}`;
 
@@ -13,14 +13,14 @@ const EErrorKeys = {
 
 type UUserValueObjectError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class UserValueObjectError extends UserError<UUserValueObjectError> {
+class UserValueObjectError extends userError.Base<UUserValueObjectError> {
   constructor(key: UUserValueObjectError, cause?: TErrorCause) {
     super(key, cause);
   }
 }
 
 const userValueObjectError = Object.freeze({
-  Error: UserValueObjectError,
+  Base: UserValueObjectError,
   ...errorUtils.getMappedErrors(EErrorKeys, UserValueObjectError),
 });
 

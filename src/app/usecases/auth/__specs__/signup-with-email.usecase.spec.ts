@@ -143,7 +143,7 @@ describe('makeSignupWithEmailUsecase', () => {
     );
 
     await expect(usecase(payload)).rejects.toThrow(httpError.Conflict);
-    await expect(usecase(payload)).rejects.toThrow('http_error_conflict');
+    await expect(usecase(payload)).rejects.toThrow('app_error_http_conflict');
 
     const email = emailValue.make(payload.email);
     expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);
@@ -177,7 +177,7 @@ describe('makeSignupWithEmailUsecase', () => {
     );
 
     await expect(usecase(payload)).rejects.toThrow(httpError.Forbidden);
-    await expect(usecase(payload)).rejects.toThrow('http_error_forbidden');
+    await expect(usecase(payload)).rejects.toThrow('app_error_http_forbidden');
 
     const email = emailValue.make(payload.email);
     expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);

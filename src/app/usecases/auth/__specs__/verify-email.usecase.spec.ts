@@ -122,7 +122,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
       mockRepoService
     );
 
-    await expect(usecase(token)).rejects.toThrow(authError.Error);
+    await expect(usecase(token)).rejects.toThrow(authError.Base);
 
     expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).not.toHaveBeenCalled();

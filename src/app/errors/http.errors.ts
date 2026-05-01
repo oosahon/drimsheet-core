@@ -4,18 +4,18 @@ import {
   TErrorCause,
 } from '../../shared/types/error.types';
 
-type TErrorKeyPrefix = `http_error_${string}`;
+type TErrorKeyPrefix = `app_error_http_${string}`;
 
 const EErrorKeys = {
-  BadRequest: 'http_error_bad_request',
-  Unauthorized: 'http_error_unauthorized',
-  PaymentRequired: 'http_error_payment_required',
-  Forbidden: 'http_error_forbidden',
-  ResourceNotFound: 'http_error_resource_not_found',
-  Conflict: 'http_error_conflict',
-  UnprocessableEntity: 'http_error_unprocessable_entity',
-  TooManyRequests: 'http_error_too_many_requests',
-  InternalServerError: 'http_error_internal_server_error',
+  BadRequest: 'app_error_http_bad_request',
+  Unauthorized: 'app_error_http_unauthorized',
+  PaymentRequired: 'app_error_http_payment_required',
+  Forbidden: 'app_error_http_forbidden',
+  ResourceNotFound: 'app_error_http_resource_not_found',
+  Conflict: 'app_error_http_conflict',
+  UnprocessableEntity: 'app_error_http_unprocessable_entity',
+  TooManyRequests: 'app_error_http_too_many_requests',
+  InternalServerError: 'app_error_http_internal_server_error',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UHttpError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
@@ -89,7 +89,7 @@ class InternalServerError extends HttpError {
 }
 
 const httpError = Object.freeze({
-  Error: HttpError,
+  Base: HttpError,
   BadRequest,
   Unauthorized,
   PaymentRequired,

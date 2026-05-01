@@ -26,7 +26,7 @@ class AuthError extends AppError<UErrorKeys> {
 }
 
 const authError = Object.freeze({
-  Error: AuthError,
+  Base: AuthError,
   ...errorUtils.getMappedErrors(EErrorKeys, AuthError),
 });
 

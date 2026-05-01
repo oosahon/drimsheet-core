@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import { UserError } from './user.error';
+import userError from './user.error';
 
 type TErrorKeyPrefix = `user_error_user_preferences_${string}`;
 
@@ -10,14 +10,14 @@ const EErrorKeys = {
 
 type UUserPreferencesError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class UserPreferencesError extends UserError<UUserPreferencesError> {
+class UserPreferencesError extends userError.Base<UUserPreferencesError> {
   constructor(key: UUserPreferencesError, cause?: TErrorCause) {
     super(key, cause);
   }
 }
 
 const userPreferencesError = Object.freeze({
-  Error: UserPreferencesError,
+  Base: UserPreferencesError,
   ...errorUtils.getMappedErrors(EErrorKeys, UserPreferencesError),
 });
 

@@ -13,16 +13,14 @@ const EErrorKeys = {
   LaterOrEqual: 'value_error_date_later_or_equal',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
-type UDateError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
-
-class DateError extends ValueError<UDateError> {
-  constructor(key: UDateError, cause?: TErrorCause) {
+class DateError extends ValueError<TErrorKeyPrefix> {
+  constructor(key: TErrorKeyPrefix, cause?: TErrorCause) {
     super(key, cause);
   }
 }
 
 const dateError = Object.freeze({
-  Error: DateError,
+  Base: DateError,
   ...errorUtils.getMappedErrors(EErrorKeys, DateError),
 });
 

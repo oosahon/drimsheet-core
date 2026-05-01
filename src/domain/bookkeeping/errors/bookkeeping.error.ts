@@ -4,7 +4,7 @@ import errorUtils from '../../../shared/utils/error';
 
 type TErrorPrefix = `bookkeeping_error_${string}`;
 
-export class BookkeepingError<K extends TErrorPrefix> extends DomainError<K> {
+class BookkeepingError<K extends TErrorPrefix> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
   }
@@ -21,17 +21,9 @@ const EErrorKeys = {
   MismatchedJournalLines: 'bookkeeping_error_mismatched_journal_lines',
 } as const satisfies Record<string, TErrorPrefix>;
 
-type USpecificBookkeepingError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
-
-class SpecificBookkeepingError extends BookkeepingError<USpecificBookkeepingError> {
-  constructor(key: USpecificBookkeepingError, cause?: TErrorCause) {
-    super(key, cause);
-  }
-}
-
 const bookkeepingError = Object.freeze({
-  Error: SpecificBookkeepingError,
-  ...errorUtils.getMappedErrors(EErrorKeys, SpecificBookkeepingError),
+  Base: BookkeepingError,
+  ...errorUtils.getMappedErrors(EErrorKeys, BookkeepingError),
 });
 
 export default bookkeepingError;

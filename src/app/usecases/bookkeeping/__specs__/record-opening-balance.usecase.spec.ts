@@ -178,7 +178,7 @@ describe('recordOpeningBalanceUseCase', () => {
     };
 
     await expect(useCase(payload)).rejects.toThrow(
-      'http_error_resource_not_found'
+      'app_error_http_resource_not_found'
     );
   });
 });

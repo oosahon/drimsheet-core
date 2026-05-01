@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import { JournalEntryError } from './journal-entry.error';
+import journalEntryError from './journal-entry.error';
 
 type TErrorKeyPrefix = `journal_entry_error_journal_line_${string}`;
 
@@ -17,14 +17,14 @@ const EErrorKeys = {
 
 type UJournalLineError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class JournalLineError extends JournalEntryError<UJournalLineError> {
+class JournalLineError extends journalEntryError.Base<UJournalLineError> {
   constructor(key: UJournalLineError, cause?: TErrorCause) {
     super(key, cause);
   }
 }
 
 const journalLineError = Object.freeze({
-  Error: JournalLineError,
+  Base: JournalLineError,
   ...errorUtils.getMappedErrors(EErrorKeys, JournalLineError),
 });
 

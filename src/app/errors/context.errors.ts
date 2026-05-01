@@ -20,7 +20,7 @@ class ContextError extends AppError<UContextError> {
 }
 
 const contextError = Object.freeze({
-  Error: ContextError,
+  Base: ContextError,
   ...errorUtils.getMappedErrors(EErrorKeys, ContextError),
 });
 

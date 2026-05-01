@@ -72,7 +72,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockStatus).toHaveBeenCalledWith(422);
     expect(mockJson).toHaveBeenCalledWith({
       cause: undefined,
-      errorKey: 'http_error_unprocessable_entity',
+      errorKey: 'app_error_http_unprocessable_entity',
       validationErrors: [
         { field: 'email', message: 'Invalid email' },
         { field: 'age', message: 'Must be a number' },
@@ -90,8 +90,8 @@ describe('makeHttpErrorHandler', () => {
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'HttpError',
-      errorKey: 'http_error_bad_request',
-      message: 'http_error_bad_request',
+      errorKey: 'app_error_http_bad_request',
+      message: 'app_error_http_bad_request',
       cause: null,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
@@ -99,15 +99,15 @@ describe('makeHttpErrorHandler', () => {
 
   it('should handle domain AppError', () => {
     const handler = makeHttpErrorHandler(mockReporter);
-    const error = new AppError('Domain rule violated');
+    const error = new AppError('app_error_domain_rule_violated' as any);
 
     handler(mockReq as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'AppError',
-      errorKey: 'Domain rule violated',
-      message: 'Domain rule violated',
+      errorKey: 'app_error_domain_rule_violated',
+      message: 'app_error_domain_rule_violated',
       cause: null,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
@@ -164,7 +164,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockReporter.report).toHaveBeenCalledWith(error);
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
-      message: 'http_error_internal_server_error',
+      message: 'app_error_http_internal_server_error',
     });
   });
 });

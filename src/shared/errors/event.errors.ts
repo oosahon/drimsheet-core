@@ -27,7 +27,7 @@ class EventError extends ValueError<UEventError> {
 }
 
 const eventError = Object.freeze({
-  Error: EventError,
+  Base: EventError,
   ...errorUtils.getMappedErrors(EErrorKeys, EventError),
 });
 

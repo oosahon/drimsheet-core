@@ -25,7 +25,7 @@ class MoneyError extends ValueError<UMoneyError> {
 }
 
 const moneyError = Object.freeze({
-  Error: MoneyError,
+  Base: MoneyError,
   ...errorUtils.getMappedErrors(EErrorKeys, MoneyError),
 });
 

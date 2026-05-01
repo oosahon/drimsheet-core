@@ -188,11 +188,11 @@ describe('createPettyCashSubAccountUseCase', () => {
     const useCase = getUseCase();
 
     mockDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
-      new AppError('Control account not found')
+      new AppError('app_error_control_account_not_found' as any)
     );
 
     await expect(useCase(validPayload)).rejects.toThrow(
-      'Control account not found'
+      'app_error_control_account_not_found'
     );
   });
 
@@ -223,9 +223,11 @@ describe('createPettyCashSubAccountUseCase', () => {
     } as unknown as IRequestContextData);
 
     mockDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
-      new AppError('Access denied.')
+      new AppError('app_error_access_denied' as any)
     );
 
-    await expect(useCase(validPayload)).rejects.toThrow('Access denied.');
+    await expect(useCase(validPayload)).rejects.toThrow(
+      'app_error_access_denied'
+    );
   });
 });

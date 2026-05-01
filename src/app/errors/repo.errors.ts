@@ -19,7 +19,7 @@ class RepoError extends AppError<URepoError> {
 }
 
 const repoError = Object.freeze({
-  Error: RepoError,
+  Base: RepoError,
   ...errorUtils.getMappedErrors(EErrorKeys, RepoError),
 });
 

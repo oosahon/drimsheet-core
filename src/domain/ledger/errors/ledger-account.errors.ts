@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import { LedgerError } from './ledger.error';
+import LedgerError from './ledger.error';
 
 type TErrorKeyPrefix = `ledger_error_ledger_account_${string}`;
 
@@ -35,7 +35,7 @@ class LedgerAccountError extends LedgerError<ULedgerAccountError> {
 }
 
 const ledgerAccountError = Object.freeze({
-  Error: LedgerAccountError,
+  Base: LedgerAccountError,
   ...errorUtils.getMappedErrors(EErrorKeys, LedgerAccountError),
 });
 

@@ -4,7 +4,7 @@ import errorUtils from '../../../shared/utils/error';
 
 type TErrorPrefix = `transaction_error_${string}`;
 
-export class TransactionError<K extends TErrorPrefix> extends DomainError<K> {
+class TransactionError<K extends TErrorPrefix> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
   }
@@ -22,17 +22,9 @@ const EErrorKeys = {
   CounterpartyIdNotAllowed: 'transaction_error_counterparty_id_not_allowed',
 } as const satisfies Record<string, TErrorPrefix>;
 
-type USpecificTransactionError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
-
-class SpecificTransactionError extends TransactionError<USpecificTransactionError> {
-  constructor(key: USpecificTransactionError, cause?: TErrorCause) {
-    super(key, cause);
-  }
-}
-
 const transactionError = Object.freeze({
-  Error: SpecificTransactionError,
-  ...errorUtils.getMappedErrors(EErrorKeys, SpecificTransactionError),
+  Base: TransactionError,
+  ...errorUtils.getMappedErrors(EErrorKeys, TransactionError),
 });
 
 export default transactionError;

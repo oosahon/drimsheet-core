@@ -9,17 +9,15 @@ const EErrorKeys = {
   InvalidUUID: 'value_error_string_invalid_uuid',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
-type USpecificStringError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
-
-class SpecificStringError extends ValueError<USpecificStringError> {
-  constructor(key: USpecificStringError, cause?: TErrorCause) {
+class StringError extends ValueError<TErrorKeyPrefix> {
+  constructor(key: TErrorKeyPrefix, cause?: TErrorCause) {
     super(key, cause);
   }
 }
 
 const stringError = Object.freeze({
-  Error: SpecificStringError,
-  ...errorUtils.getMappedErrors(EErrorKeys, SpecificStringError),
+  Base: StringError,
+  ...errorUtils.getMappedErrors(EErrorKeys, StringError),
 });
 
 export default stringError;

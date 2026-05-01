@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import { CurrencyError } from './currency.error';
+import currencyError from './currency.error';
 
 type TErrorKeyPrefix = `currency_error_exchange_rate_${string}`;
 
@@ -13,14 +13,14 @@ const EErrorKeys = {
 
 type UExchangeRateError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class ExchangeRateError extends CurrencyError<UExchangeRateError> {
+class ExchangeRateError extends currencyError.Base<UExchangeRateError> {
   constructor(key: UExchangeRateError, cause?: TErrorCause) {
     super(key, cause);
   }
 }
 
 const exchangeRateError = Object.freeze({
-  Error: ExchangeRateError,
+  Base: ExchangeRateError,
   ...errorUtils.getMappedErrors(EErrorKeys, ExchangeRateError),
 });
 

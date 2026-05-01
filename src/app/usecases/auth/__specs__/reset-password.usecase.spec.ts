@@ -71,7 +71,7 @@ describe('makeResetPasswordUseCase', () => {
     const usecase = getUseCase();
     const payload = getValidPayload();
 
-    await expect(usecase(payload)).rejects.toThrow(authError.Error);
+    await expect(usecase(payload)).rejects.toThrow(authError.Base);
   });
 
   it('should throw an error if user cannot be found in DB', async () => {

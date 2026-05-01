@@ -54,7 +54,7 @@ describe('makeGetUserPreferencesUseCase', () => {
       mockUserPreferencesRepo
     );
 
-    await expect(usecase()).rejects.toThrow('http_error_unauthorized');
+    await expect(usecase()).rejects.toThrow('app_error_http_unauthorized');
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(mockUserPreferencesRepo.findById).not.toHaveBeenCalled();
   });
