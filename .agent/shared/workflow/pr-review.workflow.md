@@ -34,11 +34,11 @@ Report actual bugs, logic errors, or regressions introduced by the changes. For 
 - Base your review strictly on the provided code diffs and repository context.
 - Prioritize providing actionable feedback.
 
-## Related Skills
+## Mandatory Skills
 
 - [Contributor Skill](../skills/contributor.skill.md)
 - [PR Reviewer Skill](../skills/pr-reviewer.skill.md)
 
-## Related Rules
+## Mandatory Rules
 
 - [PR Review Rules](../rules/pr-review.rule.md)

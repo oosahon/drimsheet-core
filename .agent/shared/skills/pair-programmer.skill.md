@@ -10,12 +10,12 @@
 
 If the skills provided to you do not fully clarify your understanding about what I want, ask me.
 
-## Related Skills
+## Mandatory Skills
 
 - [Contributor](./contributor.skill.md)
 - [Error Handling](./error-handling.skill.md)
 - [Testing](./testing.skill.md)
 
-## Related Rules
+## Mandatory Rules
 
 - [Artifact Creation Rules](./../rules/artifact-creation.rule.md)

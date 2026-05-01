@@ -11,12 +11,12 @@ yarn test --coverage
 
 ```
 
-## Related Skills
+## Mandatory Skills
 
 - [Error Handling](./error-handling.skill.md)
 - [Pair Programmer](./pair-programmer.skill.md)
 
-## Related Rules
+## Mandatory Rules
 
 - [Testing](../rules/testing.rule.md)
 - [Artifact Creation Rules](../rules/artifact-creation.rule.md)
