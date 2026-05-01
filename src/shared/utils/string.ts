@@ -19,7 +19,7 @@ function isNonEmptyString(value: string) {
 
 function validateIsNonEmptyString(value: string, error?: Error) {
   if (!isNonEmptyString(value)) {
-    throw error || new stringError.InvalidString({ cause: value });
+    throw error || new stringError.InvalidString({ value });
   }
 }
 
@@ -43,7 +43,7 @@ function validateStringWithinRange(
   error?: Error
 ) {
   if (!isStringWithinRange(value, options)) {
-    throw error || new stringError.InvalidString({ cause: value });
+    throw error || new stringError.InvalidString({ value });
   }
 }
 
@@ -53,13 +53,13 @@ function sanitizeAndValidateString(
   error?: Error
 ) {
   if (!isString(value)) {
-    throw error || new stringError.InvalidString({ cause: value });
+    throw error || new stringError.InvalidString({ value });
   }
   const schema = z.string().min(options.min).max(options.max);
   const result = schema.safeParse(value.trim());
 
   if (!result.success) {
-    throw error || new stringError.InvalidString({ cause: value });
+    throw error || new stringError.InvalidString({ value });
   }
 
   return result.data;
@@ -71,7 +71,7 @@ function isUUID(value: string) {
 
 function validateUUID(value: string, error?: Error) {
   if (!isUUID(value)) {
-    throw error || new stringError.InvalidUUID({ cause: value });
+    throw error || new stringError.InvalidUUID({ value });
   }
 }
 

@@ -22,14 +22,14 @@ Every context error file must define the following standard types and constants:
     SpecificReason: 'domain_error_context_specific_reason',
   } as const satisfies Record<string, TErrorKeyPrefix>;
   ```
-- **`U<Context>Error`**: A union type extracting the valid string keys from `EErrorKeys`.
+- **`U<Context>Error`**: A union type extracting the valid string keys from `EErrorKeys`. Use the specific context name, for example `<Domain|Value>Error`. If another entity within the same context extends it, it should be named `<EntityName|ValueObjectName>Error`. **Never** use prefixes like `USpecific...`.
   ```typescript
   type UPeriodError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
   ```
 
 ## 3. Error Classes
 
-- **Base Context Error**: There must be a base error class for the specific context extending the domain's base error (e.g., `AccountingError`).
+- **Base Context Error**: There must be a base error class for the specific context extending the domain's base error (e.g., `AccountingError`). The class name should follow the `<Domain|Value>Error` or `<EntityName|ValueObjectName>Error` pattern matching the union type. **Never** use names like `Specific...Error`.
   ```typescript
   class PeriodError extends AccountingError<UPeriodError> {
     constructor(key: UPeriodError, cause?: TErrorCause) {

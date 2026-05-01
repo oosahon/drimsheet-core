@@ -17,18 +17,18 @@ const EErrorKeys = {
   InvalidType: 'value_error_event_invalid_type',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
-type USpecificEventError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
+type UEventError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class SpecificEventError extends ValueError<USpecificEventError> {
-  constructor(key: USpecificEventError, cause?: TErrorCause) {
+class EventError extends ValueError<UEventError> {
+  constructor(key: UEventError, cause?: TErrorCause) {
     super(key, cause);
     this.name = 'EventError';
   }
 }
 
 const eventError = Object.freeze({
-  Error: SpecificEventError,
-  ...errorUtils.getMappedErrors(EErrorKeys, SpecificEventError),
+  Error: EventError,
+  ...errorUtils.getMappedErrors(EErrorKeys, EventError),
 });
 
 export default eventError;

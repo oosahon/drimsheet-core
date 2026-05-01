@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import AppError from '../errors/app.error';
+import dateError from '../errors/date.errors';
 
 export interface IStartAndEndDates {
   start: Date;
@@ -10,9 +10,9 @@ function isValidDate(date: Date | string | number) {
   return dayjs(date).isValid();
 }
 
-function validateDate(date: Date | string | number) {
+function validateDate(date: Date | string | number, error?: Error) {
   if (!isValidDate(date)) {
-    throw new AppError('Invalid date', { cause: date });
+    throw error || new dateError.Invalid({ date });
   }
 }
 
@@ -20,9 +20,12 @@ function isNotInThePast(date: Date | string | number) {
   return dayjs(date).isAfter(dayjs());
 }
 
-function validateDateIsNotInThePast(date: Date | string | number) {
+function validateDateIsNotInThePast(
+  date: Date | string | number,
+  error?: Error
+) {
   if (!isNotInThePast(date)) {
-    throw new AppError('Date is in the past', { cause: date });
+    throw error || new dateError.Past({ date });
   }
 }
 
@@ -30,9 +33,12 @@ function isNotInTheFuture(date: Date | string | number) {
   return dayjs(date).isBefore(dayjs());
 }
 
-function validateDateIsNotInTheFuture(date: Date | string | number) {
+function validateDateIsNotInTheFuture(
+  date: Date | string | number,
+  error?: Error
+) {
   if (!isNotInTheFuture(date)) {
-    throw new AppError('Date is in the future', { cause: date });
+    throw error || new dateError.Future({ date });
   }
 }
 
@@ -40,12 +46,12 @@ function isInTheFuture(date: Date | string | number) {
   return isValidDate(date) && dayjs(date).isAfter(dayjs());
 }
 
-function validateIsInTheFuture(date: Date | string | number) {
+function validateIsInTheFuture(date: Date | string | number, error?: Error) {
   if (!isValidDate(date)) {
-    throw new AppError('Invalid date', { cause: date });
+    throw error || new dateError.Invalid({ date });
   }
   if (!isInTheFuture(date)) {
-    throw new AppError('Date is not in the future', { cause: date });
+    throw error || new dateError.PastOrPresent({ date });
   }
 }
 
@@ -59,16 +65,13 @@ function isGreaterThan(
 function validateGreaterThan(
   date: Date | string | number,
   dateToCompare: Date | string | number,
-  message?: string
+  error?: Error
 ) {
   if (!isValidDate(date) || !isValidDate(dateToCompare)) {
-    throw new AppError('Invalid date');
+    throw error || new dateError.Invalid();
   }
   if (!isGreaterThan(date, dateToCompare)) {
-    throw new AppError(
-      message || 'Date is not greater than the comparison date',
-      { cause: { date, dateToCompare } }
-    );
+    throw error || new dateError.EarlierOrEqual({ date, dateToCompare });
   }
 }
 
@@ -82,15 +85,13 @@ function isLessThan(
 function validateLessThan(
   date: Date | string | number,
   dateToCompare: Date | string | number,
-  message?: string
+  error?: Error
 ) {
   if (!isValidDate(date) || !isValidDate(dateToCompare)) {
-    throw new AppError('Invalid date');
+    throw error || new dateError.Invalid();
   }
   if (!isLessThan(date, dateToCompare)) {
-    throw new AppError(message || 'Date is not less than the comparison date', {
-      cause: { date, dateToCompare },
-    });
+    throw error || new dateError.LaterOrEqual({ date, dateToCompare });
   }
 }
 

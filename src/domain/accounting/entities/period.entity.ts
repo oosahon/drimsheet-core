@@ -3,6 +3,7 @@ import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import periodError from '../errors/period.errors';
 import periodEvents from '../events/period.events';
 import { IReportingPeriod } from '../types/period.types';
 import helpers from './helpers/period.helpers';
@@ -37,7 +38,10 @@ function makeReportingPeriod(
   dateUtils.validateGreaterThan(
     payload.endDate,
     payload.startDate,
-    'Start date must be before end date'
+    new periodError.InvalidDateRange({
+      startDate: payload.startDate,
+      endDate: payload.endDate,
+    })
   );
 
   const timestamp = new Date();

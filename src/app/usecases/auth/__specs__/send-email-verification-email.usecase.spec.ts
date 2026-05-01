@@ -4,10 +4,10 @@ import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
-import AppError from '../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import authError from '../../../errors/auth.errors';
 import httpError from '../../../errors/http.errors';
 import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 
@@ -47,8 +47,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
       mockTransactionalEmailService
     );
 
-    await expect(usecase(userEmail)).rejects.toThrow(AppError);
-    await expect(usecase(userEmail)).rejects.toThrow('User not found');
+    await expect(usecase(userEmail)).rejects.toThrow(authError.UserNotFound);
 
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(
       emailValue.normalize(userEmail),
