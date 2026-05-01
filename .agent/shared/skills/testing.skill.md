@@ -19,3 +19,4 @@ yarn test --coverage
 ## Related Rules
 
 - [Testing](../rules/testing.rule.md)
+- [Artifact Creation Rules](../rules/artifact-creation.rule.md)

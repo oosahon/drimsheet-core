@@ -87,6 +87,21 @@ export default periodError;
 
 When defining errors classes and their associated keys, you must follow this naming convention to ensure consistency and clarity across the codebase.
 
+### Naming App Error
+
+Use the following convention: `<Domain><Entity><Error>`
+
+The error key values follows some common keyword patterns so that the http layer can map them to the correct http status codes.
+Here are some of the keywords and how they map:
+
+- `*_not_found` -> 404 Not Found
+- `*_conflict` -> 409 Conflict
+- `*_unauthorized` -> 401 Unauthorized
+- `*_forbidden` -> 403 Forbidden
+- `*_too_many_requests` -> 429 Too Many Requests
+- `*_validation_error` -> 422 Unprocessable Entity
+- `*_internal_server_error` -> 500 Internal Server Error
+
 ## Core Rule: Name the Fault, Not the Rule
 
 - **Errors are System Faults:** Error names must represent the actual system fault or invalid state, not the validation rule itself.

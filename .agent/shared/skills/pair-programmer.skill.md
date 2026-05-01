@@ -13,3 +13,9 @@ If the skills provided to you do not fully clarify your understanding about what
 ## Related Skills
 
 - [Contributor](./contributor.skill.md)
+- [Error Handling](./error-handling.skill.md)
+- [Testing](./testing.skill.md)
+
+## Related Rules
+
+- [Artifact Creation Rules](./../rules/artifact-creation.rule.md)
