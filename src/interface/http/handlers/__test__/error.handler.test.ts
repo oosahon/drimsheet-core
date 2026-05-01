@@ -167,4 +167,25 @@ describe('makeHttpErrorHandler', () => {
       message: 'http_error_internal_server_error',
     });
   });
+
+  it('should handle domain error with no errorKey and fallback to Unknown error', () => {
+    const handler = makeHttpErrorHandler(mockReporter);
+    class MockNoKeyError extends DomainError<any> {
+      constructor() {
+        super('' as any);
+      }
+    }
+    const error = new MockNoKeyError();
+
+    handler(mockReq as Request, mockRes as Response, error);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'MockNoKeyError',
+      errorKey: '',
+      message: 'Unknown error',
+      cause: null,
+    });
+    expect(mockReporter.report).not.toHaveBeenCalled();
+  });
 });

@@ -255,6 +255,34 @@ describe('dateUtils', () => {
     it('getYearDistance returns correct number of years', () => {
       expect(dateUtils.getYearDistance({ start: date1, end: date5 })).toBe(1);
     });
+
+    it('throws error for invalid dates in all distance functions', () => {
+      const invalidDate = 'invalid-date' as any;
+      const validDate = new Date();
+
+      expect(() =>
+        dateUtils.getDaysDistance({ start: invalidDate, end: validDate })
+      ).toThrow('Invalid dates');
+      expect(() =>
+        dateUtils.getDaysDistance({ start: validDate, end: invalidDate })
+      ).toThrow('Invalid dates');
+
+      expect(() =>
+        dateUtils.getWeekDistance({ start: invalidDate, end: validDate })
+      ).toThrow('Invalid dates');
+
+      expect(() =>
+        dateUtils.getMonthDistance({ start: invalidDate, end: validDate })
+      ).toThrow('Invalid dates');
+
+      expect(() =>
+        dateUtils.getQuarterDistance({ start: invalidDate, end: validDate })
+      ).toThrow('Invalid dates');
+
+      expect(() =>
+        dateUtils.getYearDistance({ start: invalidDate, end: validDate })
+      ).toThrow('Invalid dates');
+    });
   });
 
   describe('Adder functions', () => {
@@ -283,6 +311,26 @@ describe('dateUtils', () => {
     it('addYearsToDate adds correct years', () => {
       const result = dateUtils.addYearsToDate(baseDate, 2);
       expect(result.toISOString().startsWith('2026-01-01')).toBe(true);
+    });
+
+    it('throws error for invalid dates in all adder functions', () => {
+      const invalidDate = 'invalid-date' as any;
+
+      expect(() => dateUtils.addDaysToDate(invalidDate, 1)).toThrow(
+        'Invalid date'
+      );
+      expect(() => dateUtils.addWeeksToDate(invalidDate, 1)).toThrow(
+        'Invalid date'
+      );
+      expect(() => dateUtils.addMonthsToDate(invalidDate, 1)).toThrow(
+        'Invalid date'
+      );
+      expect(() => dateUtils.addQuartersToDate(invalidDate, 1)).toThrow(
+        'Invalid date'
+      );
+      expect(() => dateUtils.addYearsToDate(invalidDate, 1)).toThrow(
+        'Invalid date'
+      );
     });
   });
 

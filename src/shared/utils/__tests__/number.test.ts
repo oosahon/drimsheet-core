@@ -304,4 +304,24 @@ describe('numberUtils', () => {
       ).toThrow(TestError);
     });
   });
+
+  describe('number validations catch blocks', () => {
+    const throwObj = {
+      valueOf: () => {
+        throw new Error('test error');
+      },
+    };
+
+    it('returns false in catch block for isInteger', () => {
+      expect(numberUtils.isInteger(throwObj as any)).toBe(false);
+    });
+
+    it('returns false in catch block for isPositiveNumber', () => {
+      expect(numberUtils.isPositiveNumber(throwObj as any)).toBe(false);
+    });
+
+    it('returns false in catch block for isNonNegativeNumber', () => {
+      expect(numberUtils.isNonNegativeNumber(throwObj as any)).toBe(false);
+    });
+  });
 });

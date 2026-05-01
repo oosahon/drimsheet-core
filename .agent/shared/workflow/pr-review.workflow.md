@@ -2,8 +2,6 @@
 
 When requested to review a Pull Request or a set of branch changes, you must strictly follow this reporting format. Your goal is to provide a comprehensive, constructive, and highly accurate analysis of the code changes.
 
-**IMPORTANT: You must output the final report under the `## Agent Feedback` heading in the `pr-review-report.md` file. DO NOT overwrite the entire file or modify the original ticket details at the top of the file. Simply append or insert your report under the existing `## Agent Feedback` heading.**
-
 ## Reporting Format
 
 Generate the PR review report using the exact headings below:
@@ -21,12 +19,6 @@ Highlight positive aspects of the changes. Focus on:
 
 Identify areas for enhancement that aren't strictly bugs but affect code quality, maintainability, or long-term stability. Focus on:
 
-- **Use of `any`**: You MUST always flag the use of the `any` keyword in TypeScript. Strict typing should be enforced.
-- **Uncovered Test Cases**: You MUST always flag untested edge cases, missing unit tests, or logic that lacks sufficient coverage.
-- Code duplication or opportunities for abstraction.
-- Magic strings, hardcoded values, or unused/dead code.
-- Non-adherence to established project rules or repository patterns.
-
 ### 3. Bugs and their severity
 
 Report actual bugs, logic errors, or regressions introduced by the changes. For each bug, provide:
@@ -41,3 +33,12 @@ Report actual bugs, logic errors, or regressions introduced by the changes. For 
 - Be concise but thorough.
 - Base your review strictly on the provided code diffs and repository context.
 - Prioritize providing actionable feedback.
+
+## Related Skills
+
+- [Contributor Skill](../skills/contributor.skill.md)
+- [PR Reviewer Skill](../skills/pr-reviewer.skill.md)
+
+## Related Rules
+
+- [PR Review Rules](../rules/pr-review.rule.md)

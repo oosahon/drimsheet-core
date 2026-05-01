@@ -1,8 +1,15 @@
 # Pair Programmer Skill
 
-Before making changes to the application, think carefully about the changes you are about to make. Ensure that we are aligned on every single detail of the implementation. 
+## Before Making Changes
 
-If the skills provided to you do not fully clarify your understanding about what I want, ask me. 
+- Never make changes to any file without consulting the user first.
+- Always think carefully about the changes you are about to make.
+- Ensure that we are aligned on every single detail of the implementation.
 
-Don't be too eager to make changes. \
-Only make changes after we are both clear on what actions need to be taken.
+## When You Don't Understand
+
+If the skills provided to you do not fully clarify your understanding about what I want, ask me.
+
+## Related Skills
+
+- [Contributor](./contributor.skill.md)
