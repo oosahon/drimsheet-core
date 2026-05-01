@@ -11,7 +11,7 @@ import {
   openingBalanceCreationReqValidation,
 } from '../../contracts/dto/bookkeeping.dto';
 import IEventBus from '../../contracts/infra/event-bus.contract';
-import appError from '../../errors/app.error';
+import ledgerAppError from '../../errors/ledger.error';
 import moneyMapper from '../../mappers/money.mapper';
 
 export default function makeRecordOpeningBalanceUseCase(
@@ -33,7 +33,7 @@ export default function makeRecordOpeningBalanceUseCase(
       trace
     );
 
-    if (!account) throw new appError.ResourceNotFound();
+    if (!account) throw new ledgerAppError.AccountNotFound();
 
     const amount = moneyMapper.fromDto(payload.amount);
     const exchangeRate = await exchangeRateService.getExchangeRate(
