@@ -2,6 +2,7 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import stringUtils from '../../../../shared/utils/string';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import currencyEntity from '../../../currency/entities/currency.entity';
+import ledgerError from '../../errors/ledger.error';
 import { ILedgerAccount } from '../../types/ledger.types';
 import helpers from './helpers/ledger-account.entity.helpers';
 
@@ -9,11 +10,17 @@ function make<T extends ILedgerAccount>(
   payload: TCreationOmits<T>
 ): Readonly<T> {
   helpers.validateCode(payload.code);
-  stringUtils.validateUUID(payload.accountingEntityId);
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    ledgerError.InvalidValue
+  );
   helpers.validateType(payload.type);
 
   if (payload.controlAccountId) {
-    stringUtils.validateUUID(payload.controlAccountId);
+    stringUtils.validateUUID(
+      payload.controlAccountId,
+      ledgerError.InvalidValue
+    );
   }
 
   currencyEntity.validateCode(payload.currency.code);
@@ -21,7 +28,7 @@ function make<T extends ILedgerAccount>(
 
   helpers.validateContraRule(payload.contraAccountRule);
   helpers.validateAdjunctRule(payload.adjunctAccountRule);
-  stringUtils.validateUUID(payload.createdBy);
+  stringUtils.validateUUID(payload.createdBy, ledgerError.InvalidValue);
 
   helpers.validateSubType(payload.subType);
   helpers.validateBehavior(payload.behavior);
@@ -44,7 +51,11 @@ function make<T extends ILedgerAccount>(
     behavior: payload.behavior,
     isControlAccount: !!payload.isControlAccount,
     controlAccountId: payload.controlAccountId,
-    name: stringUtils.sanitizeAndValidate(payload.name, { min: 2, max: 100 }),
+    name: stringUtils.sanitizeAndValidate(
+      payload.name,
+      { min: 2, max: 100 },
+      ledgerError.InvalidValue
+    ),
     currency: payload.currency,
     status: payload.status,
     contraAccountRule: payload.contraAccountRule,

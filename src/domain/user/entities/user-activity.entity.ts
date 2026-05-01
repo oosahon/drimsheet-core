@@ -3,17 +3,22 @@ import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import eventValue from '../../../shared/value-objects/event.vo';
 import userActivityError from '../errors/user-activity.error';
+import userError from '../errors/user.error';
 import { IUserActivity } from '../types/user-activity.types';
 
 function make(payload: TCreationOmits<IUserActivity>) {
-  stringUtils.validateUUID(payload.userId);
+  stringUtils.validateUUID(payload.userId, userError.InvalidValue);
 
   eventValue.validateKey(payload.eventKey);
 
-  const description = stringUtils.sanitizeAndValidate(payload.description, {
-    min: 1,
-    max: 100,
-  });
+  const description = stringUtils.sanitizeAndValidate(
+    payload.description,
+    {
+      min: 1,
+      max: 100,
+    },
+    userError.InvalidValue
+  );
 
   if (payload.meta && typeof payload.meta !== 'object') {
     throw new userActivityError.InvalidMeta({ meta: payload.meta });

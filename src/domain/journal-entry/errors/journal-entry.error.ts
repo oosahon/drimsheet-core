@@ -11,6 +11,7 @@ class JournalEntryError<K extends TErrorPrefix> extends DomainError<K> {
 }
 
 const EErrorKeys = {
+  InvalidValue: 'journal_entry_error_invalid_value',
   InvalidStatus: 'journal_entry_error_invalid_status',
   InvalidLineItems: 'journal_entry_error_invalid_line_items',
   InvalidJournalLineItem: 'journal_entry_error_invalid_journal_line_item',

@@ -1,6 +1,13 @@
 import dayjs from 'dayjs';
-import dateError from '../../errors/date.error';
+import DomainError from '../../errors/domain.error';
+
 import dateUtils from '../date';
+
+class TestError extends DomainError<'test_error'> {
+  constructor(cause?: any) {
+    super('test_error', cause);
+  }
+}
 
 describe('dateUtils', () => {
   describe('isValidDate', () => {
@@ -28,12 +35,14 @@ describe('dateUtils', () => {
 
   describe('validateDate', () => {
     it('does not throw for a valid date', () => {
-      expect(() => dateUtils.validateDate('2026-03-14')).not.toThrow();
+      expect(() =>
+        dateUtils.validateDate('2026-03-14', TestError)
+      ).not.toThrow();
     });
 
-    it('throws dateError.Invalid for an invalid date', () => {
-      expect(() => dateUtils.validateDate('invalid-date')).toThrow(
-        dateError.Invalid
+    it('throws TestError for an invalid date', () => {
+      expect(() => dateUtils.validateDate('invalid-date', TestError)).toThrow(
+        TestError
       );
     });
   });
@@ -54,15 +63,15 @@ describe('dateUtils', () => {
     it('does not throw for a future date', () => {
       const futureDate = dayjs().add(1, 'day').toDate();
       expect(() =>
-        dateUtils.validateDateIsNotInThePast(futureDate)
+        dateUtils.validateDateIsNotInThePast(futureDate, TestError)
       ).not.toThrow();
     });
 
-    it('throws dateError.Past for a past date', () => {
+    it('throws TestError for a past date', () => {
       const pastDate = dayjs().subtract(1, 'day').toDate();
-      expect(() => dateUtils.validateDateIsNotInThePast(pastDate)).toThrow(
-        dateError.Past
-      );
+      expect(() =>
+        dateUtils.validateDateIsNotInThePast(pastDate, TestError)
+      ).toThrow(TestError);
     });
   });
 
@@ -82,15 +91,15 @@ describe('dateUtils', () => {
     it('does not throw for a past date', () => {
       const pastDate = dayjs().subtract(1, 'day').toDate();
       expect(() =>
-        dateUtils.validateDateIsNotInTheFuture(pastDate)
+        dateUtils.validateDateIsNotInTheFuture(pastDate, TestError)
       ).not.toThrow();
     });
 
-    it('throws dateError.Future for a future date', () => {
+    it('throws TestError for a future date', () => {
       const futureDate = dayjs().add(1, 'day').toDate();
-      expect(() => dateUtils.validateDateIsNotInTheFuture(futureDate)).toThrow(
-        dateError.Future
-      );
+      expect(() =>
+        dateUtils.validateDateIsNotInTheFuture(futureDate, TestError)
+      ).toThrow(TestError);
     });
   });
 
@@ -113,20 +122,22 @@ describe('dateUtils', () => {
   describe('validateIsInTheFuture', () => {
     it('does not throw for a future date', () => {
       const futureDate = dayjs().add(1, 'day').toDate();
-      expect(() => dateUtils.validateIsInTheFuture(futureDate)).not.toThrow();
+      expect(() =>
+        dateUtils.validateIsInTheFuture(futureDate, TestError)
+      ).not.toThrow();
     });
 
-    it('throws dateError.PastOrPresent for a past date', () => {
+    it('throws TestError for a past date', () => {
       const pastDate = dayjs().subtract(1, 'day').toDate();
-      expect(() => dateUtils.validateIsInTheFuture(pastDate)).toThrow(
-        dateError.PastOrPresent
-      );
+      expect(() =>
+        dateUtils.validateIsInTheFuture(pastDate, TestError)
+      ).toThrow(TestError);
     });
 
-    it('throws dateError.Invalid for an invalid date', () => {
-      expect(() => dateUtils.validateIsInTheFuture('invalid')).toThrow(
-        dateError.Invalid
-      );
+    it('throws TestError for an invalid date', () => {
+      expect(() =>
+        dateUtils.validateIsInTheFuture('invalid', TestError)
+      ).toThrow(TestError);
     });
   });
 
@@ -150,24 +161,26 @@ describe('dateUtils', () => {
     it('does not throw if the first date is strictly after the second date', () => {
       const date1 = new Date('2026-04-10');
       const date2 = new Date('2026-04-09');
-      expect(() => dateUtils.validateGreaterThan(date1, date2)).not.toThrow();
+      expect(() =>
+        dateUtils.validateGreaterThan(date1, date2, TestError)
+      ).not.toThrow();
     });
 
-    it('throws dateError.EarlierOrEqual if the first date is before or equal to the second date', () => {
+    it('throws TestError if the first date is before or equal to the second date', () => {
       const date1 = new Date('2026-04-09');
       const date2 = new Date('2026-04-10');
-      expect(() => dateUtils.validateGreaterThan(date1, date2)).toThrow(
-        dateError.EarlierOrEqual
-      );
+      expect(() =>
+        dateUtils.validateGreaterThan(date1, date2, TestError)
+      ).toThrow(TestError);
     });
 
-    it('throws dateError.Invalid if any date is invalid', () => {
+    it('throws TestError if any date is invalid', () => {
       expect(() =>
-        dateUtils.validateGreaterThan('invalid', new Date())
-      ).toThrow(dateError.Invalid);
+        dateUtils.validateGreaterThan('invalid', new Date(), TestError)
+      ).toThrow(TestError);
       expect(() =>
-        dateUtils.validateGreaterThan(new Date(), 'invalid')
-      ).toThrow(dateError.Invalid);
+        dateUtils.validateGreaterThan(new Date(), 'invalid', TestError)
+      ).toThrow(TestError);
     });
   });
 
@@ -191,24 +204,26 @@ describe('dateUtils', () => {
     it('does not throw if the first date is strictly before the second date', () => {
       const date1 = new Date('2026-04-09');
       const date2 = new Date('2026-04-10');
-      expect(() => dateUtils.validateLessThan(date1, date2)).not.toThrow();
+      expect(() =>
+        dateUtils.validateLessThan(date1, date2, TestError)
+      ).not.toThrow();
     });
 
-    it('throws dateError.LaterOrEqual if the first date is after or equal to the second date', () => {
+    it('throws TestError if the first date is after or equal to the second date', () => {
       const date1 = new Date('2026-04-10');
       const date2 = new Date('2026-04-09');
-      expect(() => dateUtils.validateLessThan(date1, date2)).toThrow(
-        dateError.LaterOrEqual
+      expect(() => dateUtils.validateLessThan(date1, date2, TestError)).toThrow(
+        TestError
       );
     });
 
-    it('throws dateError.Invalid if any date is invalid', () => {
-      expect(() => dateUtils.validateLessThan('invalid', new Date())).toThrow(
-        dateError.Invalid
-      );
-      expect(() => dateUtils.validateLessThan(new Date(), 'invalid')).toThrow(
-        dateError.Invalid
-      );
+    it('throws TestError if any date is invalid', () => {
+      expect(() =>
+        dateUtils.validateLessThan('invalid', new Date(), TestError)
+      ).toThrow(TestError);
+      expect(() =>
+        dateUtils.validateLessThan(new Date(), 'invalid', TestError)
+      ).toThrow(TestError);
     });
   });
 

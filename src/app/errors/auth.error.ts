@@ -5,6 +5,7 @@ import errorUtils from '../../shared/utils/error';
 type TErrorKeyPrefix = `app_error_auth_${string}`;
 
 const EErrorKeys = {
+  InvalidValue: 'app_error_auth_invalid_value',
   ExpiredToken: 'app_error_auth_expired_token',
   InvalidToken: 'app_error_auth_invalid_token',
   MalformedToken: 'app_error_auth_malformed_token',

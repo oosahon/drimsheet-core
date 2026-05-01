@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import dateError from '../errors/date.error';
+import { TErrorConstructor } from '../types/error.types';
 
 export interface IStartAndEndDates {
   start: Date;
@@ -10,9 +10,12 @@ function isValidDate(date: Date | string | number) {
   return dayjs(date).isValid();
 }
 
-function validateDate(date: Date | string | number, error?: Error) {
+function validateDate<T extends Error>(
+  date: Date | string | number,
+  ErrorClass: TErrorConstructor<T>
+) {
   if (!isValidDate(date)) {
-    throw error || new dateError.Invalid({ date });
+    throw new ErrorClass({ date });
   }
 }
 
@@ -20,12 +23,12 @@ function isNotInThePast(date: Date | string | number) {
   return dayjs(date).isAfter(dayjs());
 }
 
-function validateDateIsNotInThePast(
+function validateDateIsNotInThePast<T extends Error>(
   date: Date | string | number,
-  error?: Error
+  ErrorClass: TErrorConstructor<T>
 ) {
   if (!isNotInThePast(date)) {
-    throw error || new dateError.Past({ date });
+    throw new ErrorClass({ date });
   }
 }
 
@@ -33,12 +36,12 @@ function isNotInTheFuture(date: Date | string | number) {
   return dayjs(date).isBefore(dayjs());
 }
 
-function validateDateIsNotInTheFuture(
+function validateDateIsNotInTheFuture<T extends Error>(
   date: Date | string | number,
-  error?: Error
+  ErrorClass: TErrorConstructor<T>
 ) {
   if (!isNotInTheFuture(date)) {
-    throw error || new dateError.Future({ date });
+    throw new ErrorClass({ date });
   }
 }
 
@@ -46,12 +49,15 @@ function isInTheFuture(date: Date | string | number) {
   return isValidDate(date) && dayjs(date).isAfter(dayjs());
 }
 
-function validateIsInTheFuture(date: Date | string | number, error?: Error) {
+function validateIsInTheFuture<T extends Error>(
+  date: Date | string | number,
+  ErrorClass: TErrorConstructor<T>
+) {
   if (!isValidDate(date)) {
-    throw error || new dateError.Invalid({ date });
+    throw new ErrorClass({ date });
   }
   if (!isInTheFuture(date)) {
-    throw error || new dateError.PastOrPresent({ date });
+    throw new ErrorClass({ date });
   }
 }
 
@@ -62,16 +68,16 @@ function isGreaterThan(
   return dayjs(date).isAfter(dayjs(dateToCompare));
 }
 
-function validateGreaterThan(
+function validateGreaterThan<T extends Error>(
   date: Date | string | number,
   dateToCompare: Date | string | number,
-  error?: Error
+  ErrorClass: TErrorConstructor<T>
 ) {
   if (!isValidDate(date) || !isValidDate(dateToCompare)) {
-    throw error || new dateError.Invalid();
+    throw new ErrorClass({ date, dateToCompare });
   }
   if (!isGreaterThan(date, dateToCompare)) {
-    throw error || new dateError.EarlierOrEqual({ date, dateToCompare });
+    throw new ErrorClass({ date, dateToCompare });
   }
 }
 
@@ -82,80 +88,75 @@ function isLessThan(
   return dayjs(date).isBefore(dayjs(dateToCompare));
 }
 
-function validateLessThan(
+function validateLessThan<T extends Error>(
   date: Date | string | number,
   dateToCompare: Date | string | number,
-  error?: Error
+  ErrorClass: TErrorConstructor<T>
 ) {
   if (!isValidDate(date) || !isValidDate(dateToCompare)) {
-    throw error || new dateError.Invalid();
+    throw new ErrorClass({ date, dateToCompare });
   }
   if (!isLessThan(date, dateToCompare)) {
-    throw error || new dateError.LaterOrEqual({ date, dateToCompare });
+    throw new ErrorClass({ date, dateToCompare });
   }
 }
 
 function getDaysDistance({ start, end }: IStartAndEndDates) {
-  validateDate(start);
-  validateDate(end);
-
+  if (!isValidDate(start) || !isValidDate(end))
+    throw new Error('Invalid dates');
   return Math.round(dayjs(end).add(1, 'day').diff(dayjs(start), 'day', true));
 }
 
 function getWeekDistance({ start, end }: IStartAndEndDates) {
-  validateDate(start);
-  validateDate(end);
-
+  if (!isValidDate(start) || !isValidDate(end))
+    throw new Error('Invalid dates');
   return Math.round(dayjs(end).add(1, 'day').diff(dayjs(start), 'week', true));
 }
 
 function getMonthDistance({ start, end }: IStartAndEndDates) {
-  validateDate(start);
-  validateDate(end);
-
+  if (!isValidDate(start) || !isValidDate(end))
+    throw new Error('Invalid dates');
   return Math.round(dayjs(end).add(1, 'day').diff(dayjs(start), 'month', true));
 }
 
 function getQuarterDistance({ start, end }: IStartAndEndDates) {
-  validateDate(start);
-  validateDate(end);
-
+  if (!isValidDate(start) || !isValidDate(end))
+    throw new Error('Invalid dates');
   return Math.round(
     dayjs(end).add(1, 'day').diff(dayjs(start), 'quarter', true)
   );
 }
 
 function getYearDistance({ start, end }: IStartAndEndDates) {
-  validateDate(start);
-  validateDate(end);
-
+  if (!isValidDate(start) || !isValidDate(end))
+    throw new Error('Invalid dates');
   return Math.round(dayjs(end).add(1, 'day').diff(dayjs(start), 'year', true));
 }
 
 function addDaysToDate(date: Date | string | number, days: number) {
-  validateDate(date);
+  if (!isValidDate(date)) throw new Error('Invalid date');
   return dayjs(date).add(days, 'day').toDate();
 }
 
 function addWeeksToDate(date: Date | string | number, weeks: number) {
-  validateDate(date);
+  if (!isValidDate(date)) throw new Error('Invalid date');
   return dayjs(date).add(weeks, 'week').toDate();
 }
 
 function addMonthsToDate(date: Date | string | number, months: number) {
-  validateDate(date);
+  if (!isValidDate(date)) throw new Error('Invalid date');
   return dayjs(date).add(months, 'month').toDate();
 }
 
 function addQuartersToDate(date: Date | string | number, quarters: number) {
-  validateDate(date);
+  if (!isValidDate(date)) throw new Error('Invalid date');
   return dayjs(date)
     .add(quarters * 3, 'month')
     .toDate();
 }
 
 function addYearsToDate(date: Date | string | number, years: number) {
-  validateDate(date);
+  if (!isValidDate(date)) throw new Error('Invalid date');
   return dayjs(date).add(years, 'year').toDate();
 }
 

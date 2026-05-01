@@ -3,6 +3,7 @@ import { TEntityWithEvents } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import currencyEntity from '../../currency/entities/currency.entity';
+import accountingError from '../errors/accounting.error';
 import reportingContextEvents from '../events/reporting-context.events';
 import { IReportingContext } from '../types/context.types';
 import helpers from './helpers/accounting-context.entity.helpers';
@@ -10,16 +11,29 @@ import helpers from './helpers/accounting-context.entity.helpers';
 function make(
   payload: TCreationOmits<IReportingContext, 'closedAt'>
 ): TEntityWithEvents<IReportingContext, IReportingContext> {
-  stringUtils.validateUUID(payload.accountingEntityId);
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    accountingError.InvalidValue
+  );
   currencyEntity.validateCode(payload.reportingCurrencyCode);
-  stringUtils.validateUUID(payload.accountingContextId);
-  stringUtils.validateUUID(payload.currentReportingPeriodId);
+  stringUtils.validateUUID(
+    payload.accountingContextId,
+    accountingError.InvalidValue
+  );
+  stringUtils.validateUUID(
+    payload.currentReportingPeriodId,
+    accountingError.InvalidValue
+  );
   helpers.validateAccountingStandardCode(payload.accountingStandardCode);
 
-  const name = stringUtils.sanitizeAndValidate(payload.name, {
-    min: 1,
-    max: 150,
-  });
+  const name = stringUtils.sanitizeAndValidate(
+    payload.name,
+    {
+      min: 1,
+      max: 150,
+    },
+    accountingError.InvalidValue
+  );
   const description = helpers.getDescription(payload.description);
 
   const timestamp = new Date();

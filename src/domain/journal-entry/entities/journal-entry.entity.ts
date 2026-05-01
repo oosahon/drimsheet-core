@@ -3,6 +3,7 @@ import dateUtils from '../../../shared/utils/date';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import { ICurrency } from '../../currency/types/currency.types';
+import journalEntryError from '../errors/journal-entry.error';
 import journalEntryEvents from '../events/journal-entry.events';
 import { IJournalEntry } from '../types/journal-entry.types';
 import { IJournalLine } from '../types/journal-line.types';
@@ -30,14 +31,27 @@ interface IMakePayload extends Pick<
 function make(
   payload: IMakePayload
 ): TEntityWithEvents<IJournalEntry, IJournalEntry | IJournalLine> {
-  stringUtils.validateUUID(payload.accountingEntityId);
-  stringUtils.validateUUID(payload.createdBy);
-  if (payload.transactionId) stringUtils.validateUUID(payload.transactionId);
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    journalEntryError.InvalidValue
+  );
+  stringUtils.validateUUID(payload.createdBy, journalEntryError.InvalidValue);
+  if (payload.transactionId)
+    stringUtils.validateUUID(
+      payload.transactionId,
+      journalEntryError.InvalidValue
+    );
   helpers.validateStatus(payload.status);
-  dateUtils.validateDate(payload.effectiveDate);
-  if (payload.postedAt) dateUtils.validateDate(payload.postedAt);
-  if (payload.voidedAt) dateUtils.validateDate(payload.voidedAt);
-  if (payload.voidingEntryId) stringUtils.validateUUID(payload.voidingEntryId);
+  dateUtils.validateDate(payload.effectiveDate, journalEntryError.InvalidValue);
+  if (payload.postedAt)
+    dateUtils.validateDate(payload.postedAt, journalEntryError.InvalidValue);
+  if (payload.voidedAt)
+    dateUtils.validateDate(payload.voidedAt, journalEntryError.InvalidValue);
+  if (payload.voidingEntryId)
+    stringUtils.validateUUID(
+      payload.voidingEntryId,
+      journalEntryError.InvalidValue
+    );
 
   const id = generateUUID();
   const timestamp = new Date();

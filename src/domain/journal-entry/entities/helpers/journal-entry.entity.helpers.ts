@@ -60,10 +60,14 @@ function validateLine(lines: IJournalLine[]) {
 function getMemo(value: string | null) {
   if (!value) return null;
 
-  return stringUtils.sanitizeAndValidate(value, {
-    max: 100,
-    min: 1,
-  });
+  return stringUtils.sanitizeAndValidate(
+    value,
+    {
+      max: 100,
+      min: 1,
+    },
+    journalEntryError.InvalidValue
+  );
 }
 
 const journalEntryEntityHelpers = Object.freeze({

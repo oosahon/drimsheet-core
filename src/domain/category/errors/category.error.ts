@@ -11,6 +11,7 @@ class CategoryError<K extends TErrorPrefix> extends DomainError<K> {
 }
 
 const EErrorKeys = {
+  InvalidValue: 'category_error_invalid_value',
   InvalidStatus: 'category_error_invalid_status',
   InvalidHistoryAction: 'category_error_invalid_history_action',
 } as const satisfies Record<string, TErrorPrefix>;

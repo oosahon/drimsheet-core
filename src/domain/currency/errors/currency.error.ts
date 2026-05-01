@@ -11,6 +11,7 @@ class CurrencyError<K extends TErrorPrefix> extends DomainError<K> {
 }
 
 const EErrorKeys = {
+  InvalidValue: 'currency_error_invalid_value',
   InvalidCode: 'currency_error_invalid_code',
 } as const satisfies Record<string, TErrorPrefix>;
 

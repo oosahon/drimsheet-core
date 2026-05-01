@@ -3,6 +3,7 @@ import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
 import userPreferencesError from '../errors/user-preferences.error';
+import userError from '../errors/user.error';
 import userEvents from '../events/user.events';
 import {
   EAppThemePreference,
@@ -41,7 +42,7 @@ function make(
   userId: TEntityId,
   payload: TCreationOmits<IUserPreferences>
 ): TEntityWithEvents<IUserPreferences, IUserPreferences> {
-  stringUtils.validateUUID(userId);
+  stringUtils.validateUUID(userId, userError.InvalidValue);
 
   const timestamp = new Date();
 

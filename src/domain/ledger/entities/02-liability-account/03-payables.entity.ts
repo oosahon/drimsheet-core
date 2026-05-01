@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
+import ledgerError from '../../errors/ledger.error';
 import ledgerAccountEvents from '../../events/ledger-account.events';
 import liabilityAccountEvents from '../../events/liability-account.events';
 import { TPayablesLedgerCode } from '../../types/ledger-code.types';
@@ -49,7 +50,10 @@ function make(
   parent: IParentDetails | null // null for the header account
 ): TEntityWithEvents<IPayableAccount, IPayableAccount> {
   if (payload.controlAccountId) {
-    stringUtils.validateUUID(payload.controlAccountId);
+    stringUtils.validateUUID(
+      payload.controlAccountId,
+      ledgerError.InvalidValue
+    );
   }
 
   const code = helpers.getCode(parent?.precedingCode ?? null);
@@ -111,15 +115,23 @@ function makeStatutoryPayableAccountMeta(
 ): IStatutoryPayableAccountMeta | null {
   if (!meta) return null;
 
-  const taxAuthority = stringUtils.sanitizeAndValidate(meta.taxAuthority, {
-    min: 2,
-    max: 100,
-  });
+  const taxAuthority = stringUtils.sanitizeAndValidate(
+    meta.taxAuthority,
+    {
+      min: 2,
+      max: 100,
+    },
+    ledgerError.InvalidValue
+  );
 
-  const taxType = stringUtils.sanitizeAndValidate(meta.taxType, {
-    min: 2,
-    max: 50,
-  });
+  const taxType = stringUtils.sanitizeAndValidate(
+    meta.taxType,
+    {
+      min: 2,
+      max: 50,
+    },
+    ledgerError.InvalidValue
+  );
 
   return Object.freeze<IStatutoryPayableAccountMeta>({
     taxAuthority,
@@ -169,8 +181,8 @@ function makeTradePayableAccountMeta(
 ): ITradePayableAccountMeta | null {
   if (!meta) return null;
 
-  stringUtils.validateUUID(meta.counterpartyId);
-  stringUtils.validateUUID(meta.invoiceId);
+  stringUtils.validateUUID(meta.counterpartyId, ledgerError.InvalidValue);
+  stringUtils.validateUUID(meta.invoiceId, ledgerError.InvalidValue);
 
   return Object.freeze<ITradePayableAccountMeta>({
     counterpartyId: meta.counterpartyId,

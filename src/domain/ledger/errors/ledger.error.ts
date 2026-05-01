@@ -1,12 +1,26 @@
 import DomainError from '../../../shared/errors/domain.error';
 import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 
 type TErrorPrefix = `ledger_error_${string}`;
 
-class LedgerError<K extends TErrorPrefix> extends DomainError<K> {
+const EErrorKeys = {
+  InvalidValue: 'ledger_error_invalid_value',
+} as const satisfies Record<string, TErrorPrefix>;
+
+type ULedgerError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
+
+class LedgerError<
+  K extends TErrorPrefix = ULedgerError,
+> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
   }
 }
 
-export default LedgerError;
+const ledgerError = Object.freeze({
+  Base: LedgerError,
+  ...errorUtils.getMappedErrors(EErrorKeys, LedgerError),
+});
+
+export default ledgerError;

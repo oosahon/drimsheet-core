@@ -7,5 +7,8 @@ export default function validateVersionInOptions(options: IRepoOptions) {
     throw new repoError.VersionRequired();
   }
 
-  numberUtils.validateNonNegativeNumber(options.expectedVersion);
+  numberUtils.validatePositiveNumber(
+    options.expectedVersion,
+    repoError.VersionRequired
+  );
 }

@@ -3,6 +3,7 @@ import { TEntityWithEvents } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import currencyEntity from '../../currency/entities/currency.entity';
+import accountingError from '../errors/accounting.error';
 import accountingEntityEvents from '../events/accounting-entity.events';
 import { IAccountingEntity } from '../types/accounting-entity.types';
 import helpers from './helpers/accounting-entity.entity.helpers';
@@ -11,14 +12,18 @@ function make(
   payload: TCreationOmits<IAccountingEntity>
 ): TEntityWithEvents<IAccountingEntity, IAccountingEntity> {
   helpers.validateType(payload.type);
-  stringUtils.validateUUID(payload.ownerId);
+  stringUtils.validateUUID(payload.ownerId, accountingError.InvalidValue);
   currencyEntity.validateCode(payload.functionalCurrencyCode);
   helpers.validateJurisdictionCode(payload.jurisdictionCode);
 
-  const name = stringUtils.sanitizeAndValidate(payload.name, {
-    min: 1,
-    max: 100,
-  });
+  const name = stringUtils.sanitizeAndValidate(
+    payload.name,
+    {
+      min: 1,
+      max: 100,
+    },
+    accountingError.InvalidValue
+  );
 
   const timestamp = new Date();
 

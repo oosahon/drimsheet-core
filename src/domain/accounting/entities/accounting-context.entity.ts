@@ -2,6 +2,7 @@ import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import accountingError from '../errors/accounting.error';
 import accountingContextEvents from '../events/accounting-context.events';
 import { IAccountingContext } from '../types/context.types';
 import helpers from './helpers/accounting-context.entity.helpers';
@@ -9,15 +10,25 @@ import helpers from './helpers/accounting-context.entity.helpers';
 function make(
   payload: TCreationOmits<IAccountingContext, 'closedAt'>
 ): TEntityWithEvents<IAccountingContext, IAccountingContext> {
-  stringUtils.validateUUID(payload.accountingEntityId);
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    accountingError.InvalidValue
+  );
   helpers.validateAccountingStandardCode(payload.accountingStandardCode);
-  stringUtils.validateUUID(payload.fiscalYearId);
-  stringUtils.validateUUID(payload.currentAccountingPeriodId);
+  stringUtils.validateUUID(payload.fiscalYearId, accountingError.InvalidValue);
+  stringUtils.validateUUID(
+    payload.currentAccountingPeriodId,
+    accountingError.InvalidValue
+  );
 
-  const name = stringUtils.sanitizeAndValidate(payload.name, {
-    min: 1,
-    max: 150,
-  });
+  const name = stringUtils.sanitizeAndValidate(
+    payload.name,
+    {
+      min: 1,
+      max: 150,
+    },
+    accountingError.InvalidValue
+  );
   const description = helpers.getDescription(payload.description);
 
   const timestamp = new Date();

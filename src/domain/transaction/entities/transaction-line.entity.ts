@@ -37,15 +37,21 @@ function validateCounterpartyId(
     throw new transactionError.MissingCounterpartyId();
   }
 
-  stringUtils.validateUUID(counterPartyId);
+  stringUtils.validateUUID(counterPartyId, transactionError.InvalidValue);
 }
 
 function make(
   transactionDetails: TTransactionDetails,
   payload: TMakeTransactionLineItemPayload
 ): TEntityWithEvents<ITransactionLine, ITransactionLine> {
-  stringUtils.validateUUID(transactionDetails.id);
-  stringUtils.validateUUID(payload.targetAccountId);
+  stringUtils.validateUUID(
+    transactionDetails.id,
+    transactionError.InvalidValue
+  );
+  stringUtils.validateUUID(
+    payload.targetAccountId,
+    transactionError.InvalidValue
+  );
   validateCounterpartyId(transactionDetails.type, payload.counterPartyId);
 
   moneyValue.validate(payload.amount);

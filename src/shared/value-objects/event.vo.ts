@@ -34,10 +34,14 @@ function enrich<T>(
 
   validateEnrichmentPayload(payload);
 
-  const type = stringUtils.sanitizeAndValidate(event.type, {
-    min: 1,
-    max: 255,
-  });
+  const type = stringUtils.sanitizeAndValidate(
+    event.type,
+    {
+      min: 1,
+      max: 255,
+    },
+    eventError.InvalidValue
+  );
 
   return Object.freeze({
     type,
@@ -104,10 +108,14 @@ function validate<T = object>(
     throw new eventError.MissingEventType({ payload });
   }
 
-  stringUtils.sanitizeAndValidate(payload.type, {
-    min: 1,
-    max: 255,
-  });
+  stringUtils.sanitizeAndValidate(
+    payload.type,
+    {
+      min: 1,
+      max: 255,
+    },
+    eventError.InvalidValue
+  );
 
   if (payload.data === undefined || payload.data === null) {
     throw new eventError.MissingEventData({ payload });

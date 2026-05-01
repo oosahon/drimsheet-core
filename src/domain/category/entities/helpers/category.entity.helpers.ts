@@ -14,19 +14,27 @@ function validateStatus(status: UCategoryStatus) {
 }
 
 function sanitizeName(name: string) {
-  return stringUtils.sanitizeAndValidate(name, {
-    min: 1,
-    max: 100,
-  });
+  return stringUtils.sanitizeAndValidate(
+    name,
+    {
+      min: 1,
+      max: 100,
+    },
+    categoryError.InvalidValue
+  );
 }
 
 function getHistoryNote(note: string | null) {
   if (!note) return null;
 
-  return stringUtils.sanitizeAndValidate(note, {
-    min: 1,
-    max: 100,
-  });
+  return stringUtils.sanitizeAndValidate(
+    note,
+    {
+      min: 1,
+      max: 100,
+    },
+    categoryError.InvalidValue
+  );
 }
 
 function validateHistoryAction(action: UCategoryHistoryAction) {

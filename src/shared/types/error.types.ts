@@ -6,3 +6,7 @@ export interface IApiValidationError {
 }
 
 export type TErrorKeys<K> = Readonly<Record<string, K>>;
+
+export type TErrorConstructor<T extends Error = Error> = new (
+  cause?: TErrorCause
+) => T;

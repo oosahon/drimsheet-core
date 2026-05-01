@@ -11,6 +11,7 @@ class BookkeepingError<K extends TErrorPrefix> extends DomainError<K> {
 }
 
 const EErrorKeys = {
+  InvalidValue: 'bookkeeping_error_invalid_value',
   ControlAccountOpeningBalanceNotAllowed:
     'bookkeeping_error_control_account_opening_balance_not_allowed',
   ExistingOpeningBalance: 'bookkeeping_error_existing_opening_balance',

@@ -2,6 +2,7 @@ import dateUtils from '../../../../shared/utils/date';
 import numberUtils from '../../../../shared/utils/number';
 import stringUtils from '../../../../shared/utils/string';
 import currencyEntity from '../../entities/currency.entity';
+import currencyError from '../../errors/currency.error';
 import exchangeRateError from '../../errors/exchange-rate.error';
 import {
   EExchangeRateType,
@@ -21,10 +22,14 @@ function validateCurrencyPair(
     'currencyPair' | 'baseCurrencyCode' | 'targetCurrencyCode'
   >
 ) {
-  stringUtils.validateStringWithinRange(params.currencyPair, {
-    min: 7,
-    max: 7,
-  });
+  stringUtils.validateStringWithinRange(
+    params.currencyPair,
+    {
+      min: 7,
+      max: 7,
+    },
+    currencyError.InvalidValue
+  );
 
   const [base, target] = params.currencyPair.split('/');
 
@@ -41,15 +46,25 @@ function validateCurrencyPair(
 
 function validate(exchangeRate: IExchangeRate) {
   validateCurrencyPair(exchangeRate);
-  numberUtils.validatePositiveNumber(exchangeRate.rate);
-  dateUtils.validateDateIsNotInTheFuture(exchangeRate.asOf);
-  stringUtils.validateStringWithinRange(exchangeRate.source, {
-    min: 3,
-    max: 100,
-  });
+  numberUtils.validatePositiveNumber(
+    exchangeRate.rate,
+    currencyError.InvalidValue
+  );
+  dateUtils.validateDateIsNotInTheFuture(
+    exchangeRate.asOf,
+    currencyError.InvalidValue
+  );
+  stringUtils.validateStringWithinRange(
+    exchangeRate.source,
+    {
+      min: 3,
+      max: 100,
+    },
+    currencyError.InvalidValue
+  );
 
   validateType(exchangeRate.type);
-  dateUtils.validateDate(exchangeRate.createdAt);
+  dateUtils.validateDate(exchangeRate.createdAt, currencyError.InvalidValue);
 }
 
 const exchangeRateValueHelpers = Object.freeze({

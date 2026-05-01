@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import AccountingError from './accounting.error';
+import accountingError from './accounting.error';
 
 type TErrorKeyPrefix = `accounting_error_period_${string}`;
 
@@ -14,7 +14,7 @@ const EErrorKeys = {
 
 type UPeriodError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class PeriodError extends AccountingError<UPeriodError> {
+class PeriodError extends accountingError.Base<UPeriodError> {
   constructor(key: UPeriodError, cause?: TErrorCause) {
     super(key, cause);
   }

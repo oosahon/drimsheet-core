@@ -4,13 +4,17 @@ import errorUtils from '../../../shared/utils/error';
 
 type TErrorPrefix = `user_error_${string}`;
 
-class UserError<K extends TErrorPrefix> extends DomainError<K> {
+const EErrorKeys = {
+  InvalidValue: 'user_error_invalid_value',
+} as const satisfies Record<string, TErrorPrefix>;
+
+type UUserError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
+
+class UserError<K extends TErrorPrefix = UUserError> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
   }
 }
-
-const EErrorKeys = {} as const satisfies Record<string, TErrorPrefix>;
 
 const userError = Object.freeze({
   Base: UserError,

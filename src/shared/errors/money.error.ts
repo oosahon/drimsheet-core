@@ -1,23 +1,24 @@
 import { TErrorCause } from '../types/error.types';
 import errorUtils from '../utils/error';
-import { ValueError } from './value.error';
+import DomainError from './domain.error';
 
-type TErrorKeyPrefix = `value_error_money_${string}`;
+type TErrorKeyPrefix = `money_error_${string}`;
 
 const EErrorKeys = {
-  NonNormalizableAmount: 'value_error_money_non_normalizable_amount',
-  InvalidCurrencyCode: 'value_error_money_invalid_currency_code',
-  FractionalMinorUnit: 'value_error_money_fractional_minor_unit',
-  MissingArguments: 'value_error_money_missing_arguments',
-  CurrencyMismatch: 'value_error_money_currency_mismatch',
-  InvalidFactor: 'value_error_money_invalid_factor',
-  DivisionByZero: 'value_error_money_division_by_zero',
-  InvalidAmount: 'value_error_money_invalid_amount',
+  InvalidValue: 'money_error_invalid_value',
+  NonNormalizableAmount: 'money_error_non_normalizable_amount',
+  InvalidCurrencyCode: 'money_error_invalid_currency_code',
+  FractionalMinorUnit: 'money_error_fractional_minor_unit',
+  MissingArguments: 'money_error_missing_arguments',
+  CurrencyMismatch: 'money_error_currency_mismatch',
+  InvalidFactor: 'money_error_invalid_factor',
+  DivisionByZero: 'money_error_division_by_zero',
+  InvalidAmount: 'money_error_invalid_amount',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UMoneyError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class MoneyError extends ValueError<UMoneyError> {
+class MoneyError extends DomainError<UMoneyError> {
   constructor(key: UMoneyError, cause?: TErrorCause) {
     super(key, cause);
     this.name = 'MoneyError';

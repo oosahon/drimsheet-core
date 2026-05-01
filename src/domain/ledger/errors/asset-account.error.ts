@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import LedgerError from './ledger.error';
+import ledgerError from './ledger.error';
 
 type TErrorKeyPrefix = `ledger_error_asset_account_${string}`;
 
@@ -11,7 +11,7 @@ const EErrorKeys = {
 
 type UAssetAccountError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class AssetAccountError extends LedgerError<UAssetAccountError> {
+class AssetAccountError extends ledgerError.Base<UAssetAccountError> {
   constructor(key: UAssetAccountError, cause?: TErrorCause) {
     super(key, cause);
   }

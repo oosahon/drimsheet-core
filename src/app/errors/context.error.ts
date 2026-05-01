@@ -5,6 +5,7 @@ import errorUtils from '../../shared/utils/error';
 type TErrorKeyPrefix = `app_error_context_${string}`;
 
 const EErrorKeys = {
+  InvalidValue: 'app_error_context_invalid_value',
   ContextNotFound: 'app_error_context_context_not_found',
   CorrelationIdRequired: 'app_error_context_correlation_id_required',
   StoreNotFound: 'app_error_context_store_not_found',

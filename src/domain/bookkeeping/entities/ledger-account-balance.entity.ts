@@ -5,6 +5,7 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
+import bookkeepingError from '../errors/bookkeeping.error';
 import {
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
@@ -21,8 +22,14 @@ interface IMakePayload extends Pick<
 }
 
 function make(payload: IMakePayload): ILedgerAccountBalance {
-  stringUtils.validateUUID(payload.ledgerAccountId);
-  stringUtils.validateUUID(payload.accountingEntityId);
+  stringUtils.validateUUID(
+    payload.ledgerAccountId,
+    bookkeepingError.InvalidValue
+  );
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    bookkeepingError.InvalidValue
+  );
   ledgerAccountEntity.validateMaterializedPath(payload.accountMaterializedPath);
 
   const baseCurrency = currencyEntity.getByCode(payload.currencyCode);
@@ -75,12 +82,22 @@ function makeAdjustment(
   existingBalance: ILedgerAccountBalance,
   payload: TCreationOmits<ILedgerAccountBalanceAdjustment, 'effect'>
 ): INewLedgerAccountBalanceAndAdjustment {
-  stringUtils.validateUUID(payload.ledgerAccountId);
+  stringUtils.validateUUID(
+    payload.ledgerAccountId,
+    bookkeepingError.InvalidValue
+  );
   moneyValue.validate(payload.amount);
   moneyValue.validate(payload.functionalAmount);
-  stringUtils.validateUUID(payload.journalEntryId);
-  if (payload.transactionId) stringUtils.validateUUID(payload.transactionId);
-  stringUtils.validateUUID(payload.createdBy);
+  stringUtils.validateUUID(
+    payload.journalEntryId,
+    bookkeepingError.InvalidValue
+  );
+  if (payload.transactionId)
+    stringUtils.validateUUID(
+      payload.transactionId,
+      bookkeepingError.InvalidValue
+    );
+  stringUtils.validateUUID(payload.createdBy, bookkeepingError.InvalidValue);
 
   const effect = helpers.getEffectFromAmount(payload.amount);
 

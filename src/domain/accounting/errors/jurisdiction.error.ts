@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import AccountingError from './accounting.error';
+import accountingError from './accounting.error';
 
 type TErrorKeyPrefix = `accounting_error_jurisdiction_${string}`;
 
@@ -10,7 +10,7 @@ const EErrorKeys = {
 
 type UJurisdictionError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class JurisdictionError extends AccountingError<UJurisdictionError> {
+class JurisdictionError extends accountingError.Base<UJurisdictionError> {
   constructor(key: UJurisdictionError, cause?: TErrorCause) {
     super(key, cause);
   }

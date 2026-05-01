@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import SubledgerError from './subledger.error';
+import subledgerError from './subledger.error';
 
 type TErrorKeyPrefix = `subledger_error_currency_lot_subledger_${string}`;
 
@@ -11,7 +11,7 @@ const EErrorKeys = {
 
 type UCurrencyLotSubledgerError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class CurrencyLotSubledgerError extends SubledgerError<UCurrencyLotSubledgerError> {
+class CurrencyLotSubledgerError extends subledgerError.Base<UCurrencyLotSubledgerError> {
   constructor(key: UCurrencyLotSubledgerError, cause?: TErrorCause) {
     super(key, cause);
   }

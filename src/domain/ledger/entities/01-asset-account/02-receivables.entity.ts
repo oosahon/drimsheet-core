@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
+import ledgerError from '../../errors/ledger.error';
 import assetAccountEvents from '../../events/asset-account.events';
 import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
@@ -47,7 +48,10 @@ function make(
   parent: IParentDetails | null // null for the header account
 ): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
   if (payload.controlAccountId) {
-    stringUtils.validateUUID(payload.controlAccountId);
+    stringUtils.validateUUID(
+      payload.controlAccountId,
+      ledgerError.InvalidValue
+    );
   }
 
   const code = helpers.getCode(parent?.precedingCode ?? null);

@@ -5,6 +5,7 @@ import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import { ICurrency } from '../../currency/types/currency.types';
+import journalEntryError from '../errors/journal-entry.error';
 import journalLineEvents from '../events/journal-line-item.events';
 import { IJournalEntry } from '../types/journal-entry.types';
 import { IJournalLine } from '../types/journal-line.types';
@@ -22,18 +23,27 @@ function make(
   entryPayload: Pick<IJournalEntry, 'id' | 'memo' | 'createdAt'>,
   payload: IMakePayload
 ): TEntityWithEvents<IJournalLine, IJournalLine> {
-  stringUtils.validateUUID(entryPayload.id);
-  stringUtils.validateUUID(payload.accountId);
-  numberUtils.validateInteger(payload.sequenceOrder);
+  stringUtils.validateUUID(entryPayload.id, journalEntryError.InvalidValue);
+  stringUtils.validateUUID(payload.accountId, journalEntryError.InvalidValue);
+  numberUtils.validateInteger(
+    payload.sequenceOrder,
+    journalEntryError.InvalidValue
+  );
   moneyValue.validate(payload.amount);
 
   helpers.validateExchangeRate(payload);
   helpers.validateSide(payload.side);
-  dateUtils.validateDate(entryPayload.createdAt);
+  dateUtils.validateDate(
+    entryPayload.createdAt,
+    journalEntryError.InvalidValue
+  );
 
   const functionalAmount = moneyValue.convert(
     payload.amount,
-    numberUtils.toFactor(payload.exchangeRate?.rate ?? 1),
+    numberUtils.toFactor(
+      payload.exchangeRate?.rate ?? 1,
+      journalEntryError.InvalidValue
+    ),
     payload.functionalCurrency
   );
   const description = helpers.getDescription(

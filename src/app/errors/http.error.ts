@@ -7,6 +7,7 @@ import {
 type TErrorKeyPrefix = `http_error_${string}`;
 
 const EErrorKeys = {
+  InvalidValue: 'http_error_invalid_value',
   BadRequest: 'http_error_bad_request',
   Unauthorized: 'http_error_unauthorized',
   PaymentRequired: 'http_error_payment_required',

@@ -1,5 +1,12 @@
-import stringError from '../../errors/string.error';
+import DomainError from '../../errors/domain.error';
+
 import stringUtils from '../string';
+
+class TestError extends DomainError<'test_error'> {
+  constructor(cause?: any) {
+    super('test_error', cause);
+  }
+}
 
 describe('stringUtils', () => {
   describe('isNonEmptyString', () => {
@@ -25,64 +32,74 @@ describe('stringUtils', () => {
 
   describe('validateIsNonEmptyString', () => {
     it('does not throw for a non-empty string', () => {
-      expect(() => stringUtils.validateIsNonEmptyString('hello')).not.toThrow();
+      expect(() =>
+        stringUtils.validateIsNonEmptyString('hello', TestError)
+      ).not.toThrow();
     });
 
     it('throws InvalidString for an empty or whitespace-only string', () => {
-      expect(() => stringUtils.validateIsNonEmptyString('')).toThrow(
-        stringError.InvalidString
+      expect(() => stringUtils.validateIsNonEmptyString('', TestError)).toThrow(
+        TestError
       );
-      expect(() => stringUtils.validateIsNonEmptyString('   ')).toThrow(
-        stringError.InvalidString
-      );
+      expect(() =>
+        stringUtils.validateIsNonEmptyString('   ', TestError)
+      ).toThrow(TestError);
     });
 
     it('throws custom error object if provided', () => {
-      const customError = new Error('Custom error message');
-      expect(() =>
-        stringUtils.validateIsNonEmptyString('', customError)
-      ).toThrow(customError);
+      expect(() => stringUtils.validateIsNonEmptyString('', TestError)).toThrow(
+        TestError
+      );
     });
 
     it('throws InvalidString for non-string values', () => {
-      // @ts-expect-error testing invalid types
-      expect(() => stringUtils.validateIsNonEmptyString(null)).toThrow(
-        stringError.InvalidString
-      );
-      // @ts-expect-error testing invalid types
-      expect(() => stringUtils.validateIsNonEmptyString(123)).toThrow(
-        stringError.InvalidString
-      );
+      expect(() =>
+        // @ts-expect-error testing invalid types
+        stringUtils.validateIsNonEmptyString(null, TestError)
+      ).toThrow(TestError);
+
+      expect(() =>
+        // @ts-expect-error testing invalid types
+        stringUtils.validateIsNonEmptyString(123, TestError)
+      ).toThrow(TestError);
     });
   });
 
   describe('sanitizeAndValidate', () => {
     it('returns the string if it is within min and max length', () => {
       expect(
-        stringUtils.sanitizeAndValidate('hello', { min: 3, max: 10 })
+        stringUtils.sanitizeAndValidate('hello', { min: 3, max: 10 }, TestError)
       ).toBe('hello');
     });
 
     it('throws InvalidString if the value is not a string', () => {
       expect(() =>
-        // @ts-expect-error testing invalid types
-        stringUtils.sanitizeAndValidate(123, {
-          min: 3,
-          max: 10,
-        })
-      ).toThrow(stringError.InvalidString);
+        stringUtils.sanitizeAndValidate(
+          // @ts-expect-error testing invalid types
+          123,
+          {
+            min: 3,
+            max: 10,
+          },
+          TestError
+        )
+      ).toThrow(TestError);
     });
 
     it('throws InvalidString if the string is less than min length', () => {
       expect(() =>
-        stringUtils.sanitizeAndValidate('hi', { min: 3, max: 10 })
-      ).toThrow(stringError.InvalidString);
+        stringUtils.sanitizeAndValidate('hi', { min: 3, max: 10 }, TestError)
+      ).toThrow(TestError);
     });
 
     it('throws InvalidString if the string is greater than max length', () => {
       expect(() =>
-        stringUtils.sanitizeAndValidate('hello world', { min: 3, max: 10 })
-      ).toThrow(stringError.InvalidString);
+        stringUtils.sanitizeAndValidate(
+          'hello world',
+          { min: 3, max: 10 },
+          TestError
+        )
+      ).toThrow(TestError);
     });
   });
 
@@ -117,12 +134,14 @@ describe('stringUtils', () => {
   describe('validateUUID', () => {
     it('does not throw for a valid UUID', () => {
       const validUUID = stringUtils.generateUUID();
-      expect(() => stringUtils.validateUUID(validUUID)).not.toThrow();
+      expect(() =>
+        stringUtils.validateUUID(validUUID, TestError)
+      ).not.toThrow();
     });
 
     it('throws InvalidUUID for an invalid UUID', () => {
-      expect(() => stringUtils.validateUUID('invalid-uuid')).toThrow(
-        stringError.InvalidUUID
+      expect(() => stringUtils.validateUUID('invalid-uuid', TestError)).toThrow(
+        TestError
       );
     });
   });
@@ -130,12 +149,12 @@ describe('stringUtils', () => {
   describe('toUUD', () => {
     it('returns the UUID if valid', () => {
       const validUUID = stringUtils.generateUUID();
-      expect(stringUtils.toUUD(validUUID)).toBe(validUUID);
+      expect(stringUtils.toUUD(validUUID, TestError)).toBe(validUUID);
     });
 
     it('throws InvalidUUID if the UUID is invalid', () => {
-      expect(() => stringUtils.toUUD('invalid-uuid')).toThrow(
-        stringError.InvalidUUID
+      expect(() => stringUtils.toUUD('invalid-uuid', TestError)).toThrow(
+        TestError
       );
     });
   });
@@ -236,27 +255,43 @@ describe('stringUtils', () => {
   describe('validateStringWithinRange', () => {
     it('does not throw if string is within min and max', () => {
       expect(() =>
-        stringUtils.validateStringWithinRange('hello', { min: 3, max: 10 })
+        stringUtils.validateStringWithinRange(
+          'hello',
+          { min: 3, max: 10 },
+          TestError
+        )
       ).not.toThrow();
     });
 
     it('throws InvalidString if value is not a string', () => {
       expect(() =>
-        // @ts-expect-error testing invalid types
-        stringUtils.validateStringWithinRange(123, { min: 3, max: 10 })
-      ).toThrow(stringError.InvalidString);
+        stringUtils.validateStringWithinRange(
+          // @ts-expect-error testing invalid types
+          123,
+          { min: 3, max: 10 },
+          TestError
+        )
+      ).toThrow(TestError);
     });
 
     it('throws InvalidString if string length is not within range', () => {
       expect(() =>
-        stringUtils.validateStringWithinRange('hi', { min: 3, max: 10 })
-      ).toThrow(stringError.InvalidString);
+        stringUtils.validateStringWithinRange(
+          'hi',
+          { min: 3, max: 10 },
+          TestError
+        )
+      ).toThrow(TestError);
       expect(() =>
-        stringUtils.validateStringWithinRange('hello world', {
-          min: 3,
-          max: 10,
-        })
-      ).toThrow(stringError.InvalidString);
+        stringUtils.validateStringWithinRange(
+          'hello world',
+          {
+            min: 3,
+            max: 10,
+          },
+          TestError
+        )
+      ).toThrow(TestError);
     });
   });
 });

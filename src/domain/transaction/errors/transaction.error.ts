@@ -11,6 +11,7 @@ class TransactionError<K extends TErrorPrefix> extends DomainError<K> {
 }
 
 const EErrorKeys = {
+  InvalidValue: 'transaction_error_invalid_value',
   InvalidReference: 'transaction_error_invalid_reference',
   InvalidType: 'transaction_error_invalid_type',
   InvalidStatus: 'transaction_error_invalid_status',

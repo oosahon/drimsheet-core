@@ -26,7 +26,9 @@ function extractKeys(filePath: string): string[] {
 
   let propMatch;
   while ((propMatch = propRegex.exec(block)) !== null) {
-    keys.push(propMatch[1]);
+    const key = propMatch[1];
+
+    keys.push(key);
   }
   return keys;
 }

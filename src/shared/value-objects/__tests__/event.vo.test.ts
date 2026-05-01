@@ -1,5 +1,5 @@
 import eventError from '../../errors/event.error';
-import stringError from '../../errors/string.error';
+
 import eventValue from '../event.vo';
 
 describe('event.vo', () => {
@@ -27,7 +27,7 @@ describe('event.vo', () => {
     it('throws error if type exceeds max length', () => {
       const longType = 'a'.repeat(256);
       expect(() => eventValue.make({ type: longType, data: {} })).toThrow(
-        stringError.InvalidString
+        eventError.InvalidValue
       );
     });
 

@@ -78,13 +78,17 @@ function validateCounterpartyId(
     });
   }
 
-  stringUtils.validateUUID(counterPartyId);
+  stringUtils.validateUUID(counterPartyId, transactionError.InvalidValue);
 }
 
 function sanitizeAndValidateNotes(notes: string | null | undefined) {
   if (!notes) return null;
 
-  return stringUtils.sanitizeAndValidate(notes, { min: 1, max: 100 });
+  return stringUtils.sanitizeAndValidate(
+    notes,
+    { min: 1, max: 100 },
+    transactionError.InvalidValue
+  );
 }
 
 function validateItemsPayload(items: TMakeTransactionLineItemPayload[]) {

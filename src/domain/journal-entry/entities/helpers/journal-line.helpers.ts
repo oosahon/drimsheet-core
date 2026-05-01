@@ -3,6 +3,7 @@ import stringUtils from '../../../../shared/utils/string';
 import { ICurrency } from '../../../currency/types/currency.types';
 import { IExchangeRate } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
+import journalEntryError from '../../errors/journal-entry.error';
 import journalLineError from '../../errors/journal-line.error';
 import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
 
@@ -17,10 +18,14 @@ function getDescription(value?: string | null) {
     return null;
   }
 
-  return stringUtils.sanitizeAndValidate(value, {
-    max: 100,
-    min: 1,
-  });
+  return stringUtils.sanitizeAndValidate(
+    value,
+    {
+      max: 100,
+      min: 1,
+    },
+    journalEntryError.InvalidValue
+  );
 }
 
 interface IValidateExchangeRatePayload {

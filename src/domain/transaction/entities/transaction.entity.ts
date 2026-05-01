@@ -7,6 +7,7 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import { ICurrency } from '../../currency/types/currency.types';
 import exchangeRateValue from '../../currency/value-objects/exchange-rate.vo';
+import transactionError from '../errors/transaction.error';
 import transactionEvents from '../events/transaction.events';
 import { ITransaction, ITransactionLine } from '../types/transaction.types';
 import helpers from './helpers/transaction.entity.helpers';
@@ -33,7 +34,11 @@ interface IMakePayload extends Pick<
 function getReference(reference?: string) {
   if (reference) {
     return stringUtils
-      .sanitizeAndValidate(reference, { min: 3, max: 100 })
+      .sanitizeAndValidate(
+        reference,
+        { min: 3, max: 100 },
+        transactionError.InvalidReference
+      )
       .toUpperCase();
   }
   return helpers.generateReference();
@@ -43,12 +48,18 @@ function make(
   payload: IMakePayload,
   itemsPayload: TMakeTransactionLineItemPayload[]
 ): TEntityWithEvents<ITransaction, ITransaction | ITransactionLine> {
-  stringUtils.validateUUID(payload.accountingEntityId);
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    transactionError.InvalidValue
+  );
   helpers.validateType(payload.type);
   helpers.validateStatus(payload.status);
-  dateUtils.validateDate(payload.effectiveDate);
-  stringUtils.validateUUID(payload.createdBy);
-  stringUtils.validateUUID(payload.sourceAccountId);
+  dateUtils.validateDate(payload.effectiveDate, transactionError.InvalidValue);
+  stringUtils.validateUUID(payload.createdBy, transactionError.InvalidValue);
+  stringUtils.validateUUID(
+    payload.sourceAccountId,
+    transactionError.InvalidValue
+  );
   helpers.validateAttachments(payload.attachments);
   helpers.validateItemsPayload(itemsPayload);
   exchangeRateValue.validate(payload.exchangeRate);
@@ -67,10 +78,13 @@ function make(
     getEntitiesAndEvents(itemsWithEvents);
 
   const amount = moneyValue.add(...items.map((i) => i.amount));
-  const exchangeRate = numberUtils.toFloat(payload.exchangeRate.rate);
+  const exchangeRate = numberUtils.toFloat(
+    payload.exchangeRate.rate,
+    transactionError.InvalidValue
+  );
   const functionalAmount = moneyValue.convert(
     amount,
-    numberUtils.toFactor(exchangeRate),
+    numberUtils.toFactor(exchangeRate, transactionError.InvalidValue),
     payload.functionalCurrency
   );
   const notes = helpers.sanitizeAndValidateNotes(payload.notes);

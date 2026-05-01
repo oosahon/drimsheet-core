@@ -1,5 +1,6 @@
 import dateUtils from '../../../../shared/utils/date';
 import numberUtils from '../../../../shared/utils/number';
+import accountingError from '../../errors/accounting.error';
 import errors from '../../errors/period.error';
 import {
   EPeriodStatus,
@@ -72,8 +73,8 @@ function getIntervals(
     throw new errors.InvalidInterval();
   }
 
-  dateUtils.validateDate(startDate);
-  dateUtils.validateDate(endDate);
+  dateUtils.validateDate(startDate, accountingError.InvalidValue);
+  dateUtils.validateDate(endDate, accountingError.InvalidValue);
 
   const distanceMaps = {
     [EPeriodUnit.Day]: dateUtils.getDaysDistance,

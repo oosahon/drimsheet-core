@@ -1,5 +1,6 @@
 import dateUtils from '../../../../shared/utils/date';
 import stringUtils from '../../../../shared/utils/string';
+import accountingError from '../../errors/accounting.error';
 import periodError from '../../errors/period.error';
 import { IFiscalYear } from '../../types/fiscal-year.types';
 import periodHelpers from './period.helpers';
@@ -28,7 +29,11 @@ function deriveName(
   validate = true
 ) {
   if (name) {
-    return stringUtils.sanitizeAndValidate(name, { min: 1, max: 100 });
+    return stringUtils.sanitizeAndValidate(
+      name,
+      { min: 1, max: 100 },
+      accountingError.InvalidValue
+    );
   }
 
   if (validate) {

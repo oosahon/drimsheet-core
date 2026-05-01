@@ -108,7 +108,17 @@ Instead of naming what the value _should not_ be or what the validation _checked
 When implementing errors using the project's standard error factory (`getMappedErrors`):
 
 1. Apply this naming convention to the `EErrorKeys` constant keys.
-2. Ensure the string value of the error key mirrors the name (e.g., `value_error_number_negative_value` for `NegativeValue`).
+2. Ensure the string value of the error key mirrors the name (e.g., `error_number_negative_value` for `NegativeValue`).
+
+## Handling Shared/Value Errors
+
+Generic utility errors (such as those prefixed with `error_`) are internal low-level faults that lack business context and are impossible to accurately translate on the frontend (e.g., `error_date_later_or_equal`).
+
+**Crucial Rule:** Generic `error_*` keys must **never** bubble up to the client.
+When a domain entity or service utilizes a shared validation utility (like `dateUtils`), it must always inject a domain-specific error providing proper context.
+
+- ❌ **Incorrect:** `dateUtils.validateLessThan(endDate, startDate);` (Throws generic `error_date_later_or_equal`)
+- ✅ **Correct:** `dateUtils.validateLessThan(endDate, startDate, new PeriodError.InvalidDateRange({ startDate, endDate }));`
 
 ## Exports
 

@@ -1,6 +1,6 @@
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
-import AccountingError from './accounting.error';
+import accountingError from './accounting.error';
 
 type TErrorKeyPrefix =
   `accounting_error_ledger_account_balance_adjustment_${string}`;
@@ -13,7 +13,7 @@ const EErrorKeys = {
 type ULedgerAccountBalanceAdjustmentError =
   (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class LedgerAccountBalanceAdjustmentError extends AccountingError<ULedgerAccountBalanceAdjustmentError> {
+class LedgerAccountBalanceAdjustmentError extends accountingError.Base<ULedgerAccountBalanceAdjustmentError> {
   constructor(key: ULedgerAccountBalanceAdjustmentError, cause?: TErrorCause) {
     super(key, cause);
   }
