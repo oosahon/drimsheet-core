@@ -11,8 +11,8 @@ import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock
 import mockJournalEntryRepo from '../../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockDomainServices from '../../../../../infra/services/__mocks__/domain.service.mock';
+import AppError from '../../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../../shared/types/uuid';
-import { AppError } from '../../../../../shared/utils/error';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../contracts/app/__mocks__/request-context.mock';

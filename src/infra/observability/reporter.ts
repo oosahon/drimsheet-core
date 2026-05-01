@@ -1,7 +1,7 @@
 import Sentry from '@sentry/node';
 import appContext from '../../app/context';
 import IReporter from '../../app/contracts/infra/reporter.contract';
-import { parseError } from '../../shared/utils/error';
+import errorUtils from '../../shared/utils/error';
 import { NODE_ENV, SENTRY_DSN } from '../config/vars.config';
 import logger from './logger';
 
@@ -20,7 +20,7 @@ const reporter: IReporter = {
   report(error, context) {
     try {
       const correlationId = getCorrelationId();
-      const parsedError = parseError(error);
+      const parsedError = errorUtils.parseError(error);
 
       const loggerError = JSON.stringify({
         ...parsedError,
@@ -42,7 +42,7 @@ const reporter: IReporter = {
       if (NODE_ENV === 'local') {
         logger.error(error, { context });
       }
-      logger.error(JSON.stringify(parseError(error)));
+      logger.error(JSON.stringify(errorUtils.parseError(error)));
     }
   },
   reportAbuse(message, meta) {
@@ -67,7 +67,7 @@ const reporter: IReporter = {
       if (NODE_ENV === 'local') {
         logger.error(error);
       }
-      logger.error(JSON.stringify(parseError(error)));
+      logger.error(JSON.stringify(errorUtils.parseError(error)));
     }
   },
 };

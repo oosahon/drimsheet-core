@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { AccountingError } from './accounting.error';
 
 type TErrorKeyPrefix = `accounting_error_jurisdiction_${string}`;
@@ -17,7 +18,7 @@ class JurisdictionError extends AccountingError<UJurisdictionError> {
 
 const jurisdictionError = Object.freeze({
   Error: JurisdictionError,
-  ...getMappedErrors(EErrorKeys, JurisdictionError),
+  ...errorUtils.getMappedErrors(EErrorKeys, JurisdictionError),
 });
 
 export default jurisdictionError;

@@ -1,4 +1,6 @@
-import { AppError, DomainError, parseError } from '../error';
+import AppError from '../../errors/app.error';
+import DomainError from '../../errors/domain.error';
+import errorUtils from '../error';
 
 describe('Error Value Objects', () => {
   describe('AppError', () => {
@@ -37,11 +39,11 @@ describe('Error Value Objects', () => {
     });
   });
 
-  describe('parseError', () => {
+  describe('errorUtils.parseError', () => {
     it('parses a DomainError correctly', () => {
       const cause = { reason: 'invalid state' };
       const domainError = new DomainError('DOMAIN_ISSUE', cause);
-      const parsed = parseError(domainError);
+      const parsed = errorUtils.parseError(domainError);
 
       expect(parsed).toEqual({
         type: 'domain',
@@ -55,7 +57,7 @@ describe('Error Value Objects', () => {
     it('parses an AppError correctly', () => {
       const cause = { detail: 'some cause' };
       const appError = new AppError('app_error_crashed', cause);
-      const parsed = parseError(appError);
+      const parsed = errorUtils.parseError(appError);
 
       expect(parsed).toEqual({
         type: 'domain',
@@ -68,7 +70,7 @@ describe('Error Value Objects', () => {
 
     it('parses an unknown error correctly if it is not a DomainError', () => {
       const genericError = new Error('Standard error');
-      const parsed = parseError(genericError);
+      const parsed = errorUtils.parseError(genericError);
 
       expect(parsed).toEqual({
         type: 'unknown',
@@ -79,7 +81,7 @@ describe('Error Value Objects', () => {
       });
 
       const stringError = 'String error';
-      const parsedString = parseError(stringError);
+      const parsedString = errorUtils.parseError(stringError);
 
       expect(parsedString).toEqual({
         type: 'unknown',

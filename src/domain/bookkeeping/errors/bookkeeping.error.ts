@@ -1,8 +1,6 @@
-import {
-  DomainError,
-  getMappedErrors,
-  TErrorCause,
-} from '../../../shared/utils/error';
+import DomainError from '../../../shared/errors/domain.error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 
 type TErrorPrefix = `bookkeeping_error_${string}`;
 
@@ -33,7 +31,7 @@ class SpecificBookkeepingError extends BookkeepingError<USpecificBookkeepingErro
 
 const bookkeepingError = Object.freeze({
   Error: SpecificBookkeepingError,
-  ...getMappedErrors(EErrorKeys, SpecificBookkeepingError),
+  ...errorUtils.getMappedErrors(EErrorKeys, SpecificBookkeepingError),
 });
 
 export default bookkeepingError;

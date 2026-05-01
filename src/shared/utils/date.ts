@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { AppError } from './error';
+import AppError from '../errors/app.error';
 
 export interface IStartAndEndDates {
   start: Date;

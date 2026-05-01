@@ -1,4 +1,5 @@
-import { DomainError, TErrorCause } from '../../../shared/utils/error';
+import DomainError from '../../../shared/errors/domain.error';
+import { TErrorCause } from '../../../shared/types/error.types';
 
 type TErrorPrefix = `subledger_error_${string}`;
 

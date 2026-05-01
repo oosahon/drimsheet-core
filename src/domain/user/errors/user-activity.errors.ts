@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { UserError } from './user.error';
 
 type TErrorKeyPrefix = `user_error_user_activity_${string}`;
@@ -17,7 +18,7 @@ class UserActivityError extends UserError<UUserActivityError> {
 
 const userActivityError = Object.freeze({
   Error: UserActivityError,
-  ...getMappedErrors(EErrorKeys, UserActivityError),
+  ...errorUtils.getMappedErrors(EErrorKeys, UserActivityError),
 });
 
 export default userActivityError;

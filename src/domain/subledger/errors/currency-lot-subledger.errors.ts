@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { SubledgerError } from './subledger.error';
 
 type TErrorKeyPrefix = `subledger_error_currency_lot_subledger_${string}`;
@@ -18,7 +19,7 @@ class CurrencyLotSubledgerError extends SubledgerError<UCurrencyLotSubledgerErro
 
 const currencyLotSubledgerError = Object.freeze({
   Error: CurrencyLotSubledgerError,
-  ...getMappedErrors(EErrorKeys, CurrencyLotSubledgerError),
+  ...errorUtils.getMappedErrors(EErrorKeys, CurrencyLotSubledgerError),
 });
 
 export default currencyLotSubledgerError;

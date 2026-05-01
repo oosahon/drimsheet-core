@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { UserError } from './user.error';
 
 type TErrorKeyPrefix = `user_error_user_preferences_${string}`;
@@ -17,7 +18,7 @@ class UserPreferencesError extends UserError<UUserPreferencesError> {
 
 const userPreferencesError = Object.freeze({
   Error: UserPreferencesError,
-  ...getMappedErrors(EErrorKeys, UserPreferencesError),
+  ...errorUtils.getMappedErrors(EErrorKeys, UserPreferencesError),
 });
 
 export default userPreferencesError;

@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../utils/error';
+import { TErrorCause } from '../types/error.types';
+import errorUtils from '../utils/error';
 import { ValueError } from './value.errors';
 
 type TErrorKeyPrefix = `value_error_string_${string}`;
@@ -18,7 +19,7 @@ class SpecificStringError extends ValueError<USpecificStringError> {
 
 const stringError = Object.freeze({
   Error: SpecificStringError,
-  ...getMappedErrors(EErrorKeys, SpecificStringError),
+  ...errorUtils.getMappedErrors(EErrorKeys, SpecificStringError),
 });
 
 export default stringError;

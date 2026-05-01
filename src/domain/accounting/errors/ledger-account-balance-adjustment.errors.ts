@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { AccountingError } from './accounting.error';
 
 type TErrorKeyPrefix =
@@ -20,7 +21,10 @@ class LedgerAccountBalanceAdjustmentError extends AccountingError<ULedgerAccount
 
 const ledgerAccountBalanceAdjustmentError = Object.freeze({
   Error: LedgerAccountBalanceAdjustmentError,
-  ...getMappedErrors(EErrorKeys, LedgerAccountBalanceAdjustmentError),
+  ...errorUtils.getMappedErrors(
+    EErrorKeys,
+    LedgerAccountBalanceAdjustmentError
+  ),
 });
 
 export default ledgerAccountBalanceAdjustmentError;

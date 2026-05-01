@@ -1,8 +1,6 @@
-import {
-  DomainError,
-  getMappedErrors,
-  TErrorCause,
-} from '../../../shared/utils/error';
+import DomainError from '../../../shared/errors/domain.error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 
 type TErrorPrefix = `transaction_error_${string}`;
 
@@ -34,7 +32,7 @@ class SpecificTransactionError extends TransactionError<USpecificTransactionErro
 
 const transactionError = Object.freeze({
   Error: SpecificTransactionError,
-  ...getMappedErrors(EErrorKeys, SpecificTransactionError),
+  ...errorUtils.getMappedErrors(EErrorKeys, SpecificTransactionError),
 });
 
 export default transactionError;

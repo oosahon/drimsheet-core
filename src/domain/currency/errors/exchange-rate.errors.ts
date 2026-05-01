@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { CurrencyError } from './currency.error';
 
 type TErrorKeyPrefix = `currency_error_exchange_rate_${string}`;
@@ -20,7 +21,7 @@ class ExchangeRateError extends CurrencyError<UExchangeRateError> {
 
 const exchangeRateError = Object.freeze({
   Error: ExchangeRateError,
-  ...getMappedErrors(EErrorKeys, ExchangeRateError),
+  ...errorUtils.getMappedErrors(EErrorKeys, ExchangeRateError),
 });
 
 export default exchangeRateError;

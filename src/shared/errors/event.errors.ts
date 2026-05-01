@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../utils/error';
+import { TErrorCause } from '../types/error.types';
+import errorUtils from '../utils/error';
 import { ValueError } from './value.errors';
 
 type TErrorKeyPrefix = `value_error_event_${string}`;
@@ -27,7 +28,7 @@ class SpecificEventError extends ValueError<USpecificEventError> {
 
 const eventError = Object.freeze({
   Error: SpecificEventError,
-  ...getMappedErrors(EErrorKeys, SpecificEventError),
+  ...errorUtils.getMappedErrors(EErrorKeys, SpecificEventError),
 });
 
 export default eventError;

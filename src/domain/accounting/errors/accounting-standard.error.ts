@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { AccountingError } from './accounting.error';
 
 type TErrorKeyPrefix = `accounting_error_standard_${string}`;
@@ -17,7 +18,7 @@ class AccountingStandardError extends AccountingError<UAccountingStandardError> 
 
 const accountingStandardError = Object.freeze({
   Error: AccountingStandardError,
-  ...getMappedErrors(EErrorKeys, AccountingStandardError),
+  ...errorUtils.getMappedErrors(EErrorKeys, AccountingStandardError),
 });
 
 export default accountingStandardError;

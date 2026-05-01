@@ -6,9 +6,9 @@ import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/u
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
+import AppError from '../../../../shared/errors/app.error';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { AppError } from '../../../../shared/utils/error';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import mockRequestContext, {
   mockClientSession,

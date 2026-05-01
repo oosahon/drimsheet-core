@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { UserError } from './user.error';
 
 type TErrorKeyPrefix = `user_error_user_value_object_${string}`;
@@ -20,7 +21,7 @@ class UserValueObjectError extends UserError<UUserValueObjectError> {
 
 const userValueObjectError = Object.freeze({
   Error: UserValueObjectError,
-  ...getMappedErrors(EErrorKeys, UserValueObjectError),
+  ...errorUtils.getMappedErrors(EErrorKeys, UserValueObjectError),
 });
 
 export default userValueObjectError;

@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { JournalEntryError } from './journal-entry.error';
 
 type TErrorKeyPrefix = `journal_entry_error_journal_line_${string}`;
@@ -24,7 +25,7 @@ class JournalLineError extends JournalEntryError<UJournalLineError> {
 
 const journalLineError = Object.freeze({
   Error: JournalLineError,
-  ...getMappedErrors(EErrorKeys, JournalLineError),
+  ...errorUtils.getMappedErrors(EErrorKeys, JournalLineError),
 });
 
 export default journalLineError;

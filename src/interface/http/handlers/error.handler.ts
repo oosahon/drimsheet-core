@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
 import httpError from '../../../app/errors/http.errors';
-import { IApiValidationError, parseError } from '../../../shared/utils/error';
+import { IApiValidationError } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 
 export interface IApiError {
   message: string;
@@ -37,7 +38,7 @@ function makeHttpErrorHandler(reporter: IReporter) {
       return res.status(code).json(body);
     }
 
-    const { type, ...parsedError } = parseError(error);
+    const { type, ...parsedError } = errorUtils.parseError(error);
 
     const isKnownError = type === 'api' || type === 'domain';
 

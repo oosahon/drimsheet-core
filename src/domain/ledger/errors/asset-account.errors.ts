@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { LedgerError } from './ledger.error';
 
 type TErrorKeyPrefix = `ledger_error_asset_account_${string}`;
@@ -18,7 +19,7 @@ class AssetAccountError extends LedgerError<UAssetAccountError> {
 
 const assetAccountError = Object.freeze({
   Error: AssetAccountError,
-  ...getMappedErrors(EErrorKeys, AssetAccountError),
+  ...errorUtils.getMappedErrors(EErrorKeys, AssetAccountError),
 });
 
 export default assetAccountError;

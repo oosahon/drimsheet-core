@@ -1,29 +1,7 @@
-export type TErrorCause = Record<string, unknown>;
+import DomainError from '../errors/domain.error';
+import { TErrorCause } from '../types/error.types';
 
-export interface IApiValidationError {
-  field: string;
-  message: string;
-}
-
-export class DomainError<K extends string> extends Error {
-  errorKey: K;
-  cause?: TErrorCause;
-
-  constructor(errorKey: K, cause?: TErrorCause) {
-    super(errorKey);
-    this.name = this.constructor.name;
-    this.errorKey = errorKey;
-    this.cause = cause;
-  }
-}
-
-export class AppError<K extends string> extends DomainError<K> {
-  constructor(errorKey: K, cause?: TErrorCause) {
-    super(errorKey, cause);
-  }
-}
-
-export function parseError(err: unknown) {
+function parseError(err: unknown) {
   const errorType = err instanceof DomainError ? 'domain' : 'unknown';
   const error = err as InstanceType<typeof DomainError>;
 
@@ -36,7 +14,7 @@ export function parseError(err: unknown) {
   };
 }
 
-export function getMappedErrors<
+function getMappedErrors<
   TKeys extends Record<string, string>,
   TBase extends new (key: TKeys[keyof TKeys], cause?: TErrorCause) => Error,
 >(keys: TKeys, BaseClass: TBase) {
@@ -56,3 +34,10 @@ export function getMappedErrors<
     {} as Record<keyof TKeys, GeneratedClass>
   );
 }
+
+const errorUtils = Object.freeze({
+  parseError,
+  getMappedErrors,
+});
+
+export default errorUtils;

@@ -1,8 +1,6 @@
-import {
-  DomainError,
-  getMappedErrors,
-  TErrorCause,
-} from '../../../shared/utils/error';
+import DomainError from '../../../shared/errors/domain.error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 
 type TErrorPrefix = `journal_entry_error_${string}`;
 
@@ -30,7 +28,7 @@ class SpecificJournalEntryError extends JournalEntryError<USpecificJournalEntryE
 
 const journalEntryError = Object.freeze({
   Error: SpecificJournalEntryError,
-  ...getMappedErrors(EErrorKeys, SpecificJournalEntryError),
+  ...errorUtils.getMappedErrors(EErrorKeys, SpecificJournalEntryError),
 });
 
 export default journalEntryError;

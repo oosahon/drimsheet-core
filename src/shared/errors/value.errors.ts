@@ -1,4 +1,5 @@
-import { DomainError, TErrorCause } from '../utils/error';
+import { TErrorCause } from '../types/error.types';
+import DomainError from './domain.error';
 
 type TValueErrorPrefix = `value_error_${string}`;
 

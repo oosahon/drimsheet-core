@@ -1,8 +1,6 @@
-import {
-  DomainError,
-  getMappedErrors,
-  TErrorCause,
-} from '../../../shared/utils/error';
+import DomainError from '../../../shared/errors/domain.error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 
 type TErrorPrefix = `category_error_${string}`;
 
@@ -27,7 +25,7 @@ class SpecificCategoryError extends CategoryError<USpecificCategoryError> {
 
 const categoryError = Object.freeze({
   Error: SpecificCategoryError,
-  ...getMappedErrors(EErrorKeys, SpecificCategoryError),
+  ...errorUtils.getMappedErrors(EErrorKeys, SpecificCategoryError),
 });
 
 export default categoryError;

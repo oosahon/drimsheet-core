@@ -1,8 +1,6 @@
-import {
-  DomainError,
-  getMappedErrors,
-  TErrorCause,
-} from '../../../shared/utils/error';
+import DomainError from '../../../shared/errors/domain.error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 
 type TErrorPrefix = `user_error_${string}`;
 
@@ -24,7 +22,7 @@ class SpecificUserError extends UserError<USpecificUserError> {
 
 const userError = Object.freeze({
   Error: SpecificUserError,
-  ...getMappedErrors(EErrorKeys, SpecificUserError),
+  ...errorUtils.getMappedErrors(EErrorKeys, SpecificUserError),
 });
 
 export default userError;

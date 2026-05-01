@@ -1,8 +1,6 @@
-import {
-  AppError,
-  getMappedErrors,
-  TErrorCause,
-} from '../../shared/utils/error';
+import AppError from '../../shared/errors/app.error';
+import { TErrorCause } from '../../shared/types/error.types';
+import errorUtils from '../../shared/utils/error';
 
 type TErrorKeyPrefix = `app_error_auth_${string}`;
 
@@ -15,6 +13,7 @@ const EErrorKeys = {
   AccountLocked: 'app_error_auth_account_locked',
   WrongStrategy: 'app_error_auth_wrong_strategy',
   EmailRequired: 'app_error_auth_email_required',
+  UserNotFound: 'app_error_auth_user_not_found',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UErrorKeys = (typeof EErrorKeys)[keyof typeof EErrorKeys];
@@ -28,7 +27,7 @@ class AuthError extends AppError<UErrorKeys> {
 
 const authError = Object.freeze({
   Error: AuthError,
-  ...getMappedErrors(EErrorKeys, AuthError),
+  ...errorUtils.getMappedErrors(EErrorKeys, AuthError),
 });
 
 export default authError;

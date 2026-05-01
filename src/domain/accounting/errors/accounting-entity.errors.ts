@@ -1,4 +1,5 @@
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
 import { AccountingError } from './accounting.error';
 
 type TErrorKeyPrefix = `accounting_error_accounting_entity_${string}`;
@@ -22,7 +23,7 @@ class AccountingEntityError extends AccountingError<UAccountingEntityError> {
 
 const accountingEntityError = Object.freeze({
   Error: AccountingEntityError,
-  ...getMappedErrors(EErrorKeys, AccountingEntityError),
+  ...errorUtils.getMappedErrors(EErrorKeys, AccountingEntityError),
 });
 
 export default accountingEntityError;

@@ -1,8 +1,8 @@
+import AppError from '../../shared/errors/app.error';
 import {
-  AppError,
   IApiValidationError,
   TErrorCause,
-} from '../../shared/utils/error';
+} from '../../shared/types/error.types';
 
 type TErrorKeyPrefix = `http_error_${string}`;
 
