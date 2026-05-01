@@ -1,18 +1,26 @@
 import { sign } from 'jsonwebtoken';
 import { ICacheStorage } from '../../../app/contracts/infra/cache-storage.contract';
+import IVarsConfig from '../../../app/contracts/infra/vars-config.contract';
 import authError from '../../../app/errors/auth.error';
 import { TEntityId } from '../../../shared/types/uuid';
-import { JWT_SECRET_KEY } from '../../config/vars.config';
 import { makeMockCacheStorage } from '../../persistence/cache/__mocks__/cache-storage.impl.mock';
 import makeAuthService from '../auth.service';
 
 describe('makeAuthService', () => {
   let cacheStorage: ICacheStorage;
   let authService: ReturnType<typeof makeAuthService>;
+  let varsConfig: IVarsConfig;
 
   beforeEach(() => {
     cacheStorage = makeMockCacheStorage();
-    authService = makeAuthService(cacheStorage);
+    varsConfig = {
+      JWT_SECRET_KEY: 'test-secret-key',
+      NODE_ENV: 'test',
+    } as IVarsConfig;
+
+    authService = makeAuthService(cacheStorage, varsConfig, [
+      'osahonoboite@gmail.com',
+    ]);
   });
 
   describe('hashPassword & comparePassword', () => {
@@ -144,7 +152,7 @@ describe('makeAuthService', () => {
       // Manually sign an expired token
       const expiredToken = sign(
         { id: userId, type: 'access' },
-        JWT_SECRET_KEY,
+        varsConfig.JWT_SECRET_KEY,
         {
           expiresIn: '-1s',
         }
@@ -211,41 +219,32 @@ describe('makeAuthService', () => {
 
   describe('isPermittedEmail', () => {
     it('should return true for any email in test environments', () => {
-      // Assuming NODE_ENV is set to 'test' or 'local' by vars.config.ts in test env
       expect(authService.isPermittedEmail('random@email.com')).toBe(true);
     });
 
     it('should return true for any email in production environment', () => {
-      const varsConfig = require('../../config/vars.config');
-      const originalEnv = varsConfig.NODE_ENV;
-      Object.defineProperty(varsConfig, 'NODE_ENV', {
-        value: 'production',
-        configurable: true,
-      });
+      const prodAuthService = makeAuthService(
+        cacheStorage,
+        { ...varsConfig, NODE_ENV: 'production' },
+        ['osahonoboite@gmail.com']
+      );
 
-      expect(authService.isPermittedEmail('random@email.com')).toBe(true);
-
-      Object.defineProperty(varsConfig, 'NODE_ENV', {
-        value: originalEnv,
-        configurable: true,
-      });
+      expect(prodAuthService.isPermittedEmail('random@email.com')).toBe(true);
     });
 
-    it('should use NON_PROD_EMAIL_WHITELIST in staging environment', () => {
-      const varsConfig = require('../../config/vars.config');
-      const originalEnv = varsConfig.NODE_ENV;
-      Object.defineProperty(varsConfig, 'NODE_ENV', {
-        value: 'staging',
-        configurable: true,
-      });
+    it('should use nonProdEmailWhitelist in staging environment', () => {
+      const stagingAuthService = makeAuthService(
+        cacheStorage,
+        { ...varsConfig, NODE_ENV: 'staging' },
+        ['osahonoboite@gmail.com']
+      );
 
-      expect(authService.isPermittedEmail('osahonoboite@gmail.com')).toBe(true);
-      expect(authService.isPermittedEmail('random@email.com')).toBe(false);
-
-      Object.defineProperty(varsConfig, 'NODE_ENV', {
-        value: originalEnv,
-        configurable: true,
-      });
+      expect(
+        stagingAuthService.isPermittedEmail('osahonoboite@gmail.com')
+      ).toBe(true);
+      expect(stagingAuthService.isPermittedEmail('random@email.com')).toBe(
+        false
+      );
     });
   });
 });

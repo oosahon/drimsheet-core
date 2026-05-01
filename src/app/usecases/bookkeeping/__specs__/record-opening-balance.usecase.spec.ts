@@ -18,6 +18,7 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import ledgerAppError from '../../../errors/ledger.error';
 import makeRecordOpeningBalanceUseCase from '../record-opening-balance.usecase';
 
 describe('recordOpeningBalanceUseCase', () => {
@@ -178,7 +179,7 @@ describe('recordOpeningBalanceUseCase', () => {
     };
 
     await expect(useCase(payload)).rejects.toThrow(
-      'app_error_resource_not_found'
+      ledgerAppError.AccountNotFound
     );
   });
 });

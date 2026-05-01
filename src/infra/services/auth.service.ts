@@ -10,12 +10,13 @@ import IAuthService, {
   IAuthTokenPayload,
 } from '../../app/contracts/infra/auth-service.contract';
 import { ICacheStorage } from '../../app/contracts/infra/cache-storage.contract';
+import IVarsConfig from '../../app/contracts/infra/vars-config.contract';
 import authError from '../../app/errors/auth.error';
-import { NON_PROD_EMAIL_WHITELIST } from '../config/email-whitelist.config';
-import { JWT_SECRET_KEY, NODE_ENV } from '../config/vars.config';
 
 export default function makeAuthService(
-  cacheStorage: ICacheStorage
+  cacheStorage: ICacheStorage,
+  varsConfig: IVarsConfig,
+  nonProdEmailWhitelist: string[]
 ): IAuthService {
   const handleJwtError = (err: unknown): never => {
     if (err instanceof TokenExpiredError) {
@@ -32,7 +33,7 @@ export default function makeAuthService(
 
   const verifyAuthToken = (token: string) => {
     try {
-      return verify(token, JWT_SECRET_KEY) as IAuthTokenPayload & {
+      return verify(token, varsConfig.JWT_SECRET_KEY) as IAuthTokenPayload & {
         type: string;
       };
     } catch (err) {
@@ -54,7 +55,7 @@ export default function makeAuthService(
         id,
         type: 'signup',
       },
-      JWT_SECRET_KEY,
+      varsConfig.JWT_SECRET_KEY,
       { expiresIn: '1day' }
     );
 
@@ -95,7 +96,7 @@ export default function makeAuthService(
     id,
   }) => {
     const ttlSeconds = 60 * 15; // 15 minutes
-    const token = sign({ id, type: 'access' }, JWT_SECRET_KEY, {
+    const token = sign({ id, type: 'access' }, varsConfig.JWT_SECRET_KEY, {
       expiresIn: ttlSeconds,
     });
 
@@ -111,7 +112,7 @@ export default function makeAuthService(
         id,
         type: 'refresh',
       },
-      JWT_SECRET_KEY,
+      varsConfig.JWT_SECRET_KEY,
       { expiresIn: ttlSeconds }
     );
 
@@ -136,7 +137,7 @@ export default function makeAuthService(
           id,
           type: 'reset',
         },
-        JWT_SECRET_KEY,
+        varsConfig.JWT_SECRET_KEY,
         { expiresIn: ttlSeconds }
       );
       await cacheStorage.set(`app:auth:reset-token:${id}`, token, ttlSeconds);
@@ -176,10 +177,11 @@ export default function makeAuthService(
   };
 
   const isPermittedEmail: IAuthService['isPermittedEmail'] = (email) => {
-    if (NODE_ENV === 'local' || NODE_ENV === 'test') return true;
+    if (varsConfig.NODE_ENV === 'local' || varsConfig.NODE_ENV === 'test')
+      return true;
 
-    const isProd = NODE_ENV === 'production';
-    return isProd ? true : NON_PROD_EMAIL_WHITELIST.includes(email);
+    const isProd = varsConfig.NODE_ENV === 'production';
+    return isProd ? true : nonProdEmailWhitelist.includes(email);
   };
 
   return Object.freeze({

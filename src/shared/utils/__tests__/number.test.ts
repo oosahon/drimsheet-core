@@ -203,6 +203,11 @@ describe('numberUtils', () => {
       expect(numberUtils.isInteger(42.5)).toBe(false);
       expect(numberUtils.isInteger('42.5')).toBe(false);
     });
+
+    it('returns false for an empty or whitespace string', () => {
+      expect(numberUtils.isInteger('')).toBe(false);
+      expect(numberUtils.isInteger('   ')).toBe(false);
+    });
   });
 
   describe('validateInteger', () => {
@@ -237,6 +242,11 @@ describe('numberUtils', () => {
       expect(numberUtils.isPositiveNumber(0)).toBe(false);
       expect(numberUtils.isPositiveNumber(-42)).toBe(false);
       expect(numberUtils.isPositiveNumber('-42.5')).toBe(false);
+    });
+
+    it('returns false for an empty or whitespace string', () => {
+      expect(numberUtils.isPositiveNumber('')).toBe(false);
+      expect(numberUtils.isPositiveNumber('   ')).toBe(false);
     });
   });
 
@@ -276,6 +286,11 @@ describe('numberUtils', () => {
     it('returns false for negative numbers', () => {
       expect(numberUtils.isNonNegativeNumber(-42)).toBe(false);
       expect(numberUtils.isNonNegativeNumber('-42.5')).toBe(false);
+    });
+
+    it('returns false for an empty or whitespace string', () => {
+      expect(numberUtils.isNonNegativeNumber('')).toBe(false);
+      expect(numberUtils.isNonNegativeNumber('   ')).toBe(false);
     });
   });
 

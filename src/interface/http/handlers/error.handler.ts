@@ -45,7 +45,7 @@ function makeHttpErrorHandler(reporter: IReporter) {
       const errRes = new appError.UnprocessableEntity(validationErrors);
 
       return res
-        .status(errorKeyToStatusCode[errRes.errorKey] || 422)
+        .status(errorKeyToStatusCode[errRes.errorKey] as number)
         .json(httpErrorParser.toHttp(errRes, validationErrors));
     }
 
@@ -58,7 +58,7 @@ function makeHttpErrorHandler(reporter: IReporter) {
       reporter.report(error);
       const serverError = new appError.InternalServerError();
       return res
-        .status(errorKeyToStatusCode[serverError.errorKey] || 500)
+        .status(errorKeyToStatusCode[serverError.errorKey] as number)
         .json(httpErrorParser.toHttp(serverError));
     }
 
