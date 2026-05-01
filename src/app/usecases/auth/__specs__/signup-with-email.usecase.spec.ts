@@ -1,4 +1,3 @@
-import userValueObjectError from '../../../../domain/user/errors/user-value-object.error';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../../domain/user/value-objects/password.vo';
@@ -37,7 +36,7 @@ describe('makeSignupWithEmailUsecase', () => {
     } as any;
 
     await expect(usecase(invalidPayload)).rejects.toThrow(
-      userValueObjectError.Base
+      appError.UnprocessableEntity
     );
   });
 
