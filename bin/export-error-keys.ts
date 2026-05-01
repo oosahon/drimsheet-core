@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -53,6 +54,7 @@ function main() {
 
   const outputPath = path.join(exportsDir, 'error-keys.json');
   fs.writeFileSync(outputPath, JSON.stringify(sortedKeys, null, 2), 'utf8');
+  execSync(`npx prettier --write ${outputPath}`, { stdio: 'inherit' });
   console.log(
     `✅ Successfully exported ${sortedKeys.length} error keys to exports/error-keys.json`
   );
