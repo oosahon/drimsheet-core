@@ -3,6 +3,8 @@ import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import accountingError from '../errors/accounting.error';
+import periodError from '../errors/period.error';
 import periodEvents from '../events/period.events';
 import { IReportingPeriod } from '../types/period.types';
 import helpers from './helpers/period.helpers';
@@ -19,25 +21,35 @@ function makeReportingPeriod(
     | 'endDate'
   >
 ): TEntityWithEvents<IReportingPeriod, IReportingPeriod> {
-  const name = stringUtils.sanitizeAndValidate(payload.name, {
-    min: 1,
-    max: 100,
-  });
+  const name = stringUtils.sanitizeAndValidate(
+    payload.name,
+    {
+      min: 1,
+      max: 100,
+    },
+    accountingError.InvalidValue
+  );
 
-  stringUtils.validateUUID(payload.accountingEntityId);
-  stringUtils.validateUUID(payload.fiscalYearId);
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    accountingError.InvalidValue
+  );
+  stringUtils.validateUUID(payload.fiscalYearId, accountingError.InvalidValue);
 
   helpers.validateUnit(payload.unit);
 
-  numberUtils.validatePositiveNumber(payload.count, 'Invalid period count');
+  numberUtils.validatePositiveNumber(
+    payload.count,
+    accountingError.InvalidValue
+  );
 
-  dateUtils.validateDate(payload.startDate);
-  dateUtils.validateDate(payload.endDate);
+  dateUtils.validateDate(payload.startDate, accountingError.InvalidValue);
+  dateUtils.validateDate(payload.endDate, accountingError.InvalidValue);
 
   dateUtils.validateGreaterThan(
     payload.endDate,
     payload.startDate,
-    'Start date must be before end date'
+    periodError.InvalidDateRange
   );
 
   const timestamp = new Date();

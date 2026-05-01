@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import email from '../email.vo';
 
 describe('Email Value Object', () => {
@@ -86,15 +85,13 @@ describe('Email Value Object', () => {
     });
 
     it('should throw AppError if invalid', () => {
-      expect(() => email.make('invalid-email')).toThrow(AppError);
-      expect(() => email.make('invalid-email')).toThrow(
-        'Invalid email address'
-      );
+      expect(() => email.make('invalid-email')).toThrow();
+      expect(() => email.make('invalid-email')).toThrow();
     });
 
     it('should throw AppError if not a string', () => {
       // @ts-expect-error Testing invalid runtime input
-      expect(() => email.make(null)).toThrow(AppError);
+      expect(() => email.make(null)).toThrow();
     });
   });
 

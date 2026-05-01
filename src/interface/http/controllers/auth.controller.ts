@@ -16,9 +16,9 @@ import {
   IResetPasswordReq,
   IUserSignupReq,
 } from '../../../app/contracts/dto/auth.dto';
+import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
 import authUseCase from '../../../app/usecases/auth';
 import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
-import { IApiError } from '../handlers/error.handler';
 import middlewares from '../middlewares';
 
 const rateLimiter = {
@@ -47,8 +47,8 @@ export class AuthController extends Controller {
   @Post('/signup-with-email')
   @OperationId('signupWithEmail')
   @SuccessResponse('201')
-  @Response<IApiError>('400')
-  @Response<IApiError>('422')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('422')
   @Middlewares(rateLimiter.default)
   public async signupWithEmail(@Body() body: IUserSignupReq) {
     return await authUseCase.signupWithEmail(body);
@@ -61,8 +61,8 @@ export class AuthController extends Controller {
   @Post('signup/complete')
   @OperationId('verifyEmail')
   @SuccessResponse('200')
-  @Response<IApiError>('400')
-  @Response<IApiError>('422')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('422')
   @Middlewares(rateLimiter.default)
   public async verifyEmail(@Query() token: string) {
     return await authUseCase.verifyEmail(token);
@@ -74,8 +74,8 @@ export class AuthController extends Controller {
   @Post('/login-with-email')
   @OperationId('loginWithEmail')
   @SuccessResponse('200')
-  @Response<IApiError>('400')
-  @Response<IApiError>('422')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('422')
   @Middlewares(rateLimiter.default)
   public async loginWithEmail(@Body() body: IEmailLoginReq) {
     return await authUseCase.loginWithEmail(body);
@@ -89,8 +89,8 @@ export class AuthController extends Controller {
   @OperationId('getPasswordResetLink')
   @Middlewares(rateLimiter.getPasswordResetLink)
   @SuccessResponse('200')
-  @Response<IApiError>('400')
-  @Response<IApiError>('422')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('422')
   public async getPasswordResetLink(@Body() payload: { email: string }) {
     return await authUseCase.getPasswordResetLink(payload.email);
   }
@@ -102,8 +102,8 @@ export class AuthController extends Controller {
   @Post('reset-password')
   @OperationId('resetPassword')
   @SuccessResponse('200')
-  @Response<IApiError>('400')
-  @Response<IApiError>('422')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('422')
   public async resetPassword(@Body() payload: IResetPasswordReq) {
     return await authUseCase.resetPassword(payload);
   }
@@ -136,8 +136,8 @@ export class AuthController extends Controller {
   @Post('refresh-access-token')
   @OperationId('refreshAccessToken')
   @SuccessResponse('200')
-  @Response<IApiError>('400')
-  @Response<IApiError>('422')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('422')
   public async refreshAccessToken() {
     return await authUseCase.refreshAccessToken();
   }

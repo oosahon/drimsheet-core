@@ -10,8 +10,8 @@ import {
   Tags,
 } from 'tsoa';
 import { IPettyCashAccountCreationReq } from '../../../app/contracts/dto/asset-account.dto';
+import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
 import assetAccountUseCase from '../../../app/usecases/ledger/asset-account';
-import { IApiError } from '../handlers/error.handler';
 import middlewares from '../middlewares';
 
 @Route('ledger/asset-accounts')
@@ -23,8 +23,8 @@ export class AssetAccountController extends Controller {
   @Post('/')
   @OperationId('makePettyCashSubAccount')
   @SuccessResponse('200')
-  @Response<IApiError>('400')
-  @Response<IApiError>('422')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('422')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async makePettyCashSubAccount(
     @Body() body: IPettyCashAccountCreationReq

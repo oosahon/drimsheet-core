@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
+import accountingError from '../errors/accounting.error';
 import periodEvents from '../events/period.events';
 import { IFiscalYear } from '../types/fiscal-year.types';
 import { EPeriodStatus, IAccountingPeriod } from '../types/period.types';
@@ -15,7 +16,10 @@ interface IMakePayload extends Pick<
 function make(
   payload: IMakePayload
 ): TEntityWithEvents<IAccountingPeriod, IAccountingPeriod>[] {
-  stringUtils.validateUUID(payload.accountingEntityId);
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    accountingError.InvalidValue
+  );
   periodHelpers.validateUnit(payload.unit);
 
   const intervals = periodHelpers.getIntervals({

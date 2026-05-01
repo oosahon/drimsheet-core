@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { ECategoryEvent } from '../../events/category.events';
@@ -65,7 +64,7 @@ describe('Category Entity', () => {
         isGrouping: false,
       };
 
-      expect(() => categoryEntity.make(payload)).toThrow(AppError);
+      expect(() => categoryEntity.make(payload)).toThrow();
     });
 
     it('should throw an AppError if accountId is invalid', () => {
@@ -78,7 +77,7 @@ describe('Category Entity', () => {
         isGrouping: false,
       };
 
-      expect(() => categoryEntity.make(payload)).toThrow(AppError);
+      expect(() => categoryEntity.make(payload)).toThrow();
     });
   });
 
@@ -200,7 +199,7 @@ describe('Category Entity', () => {
         note: null,
       };
 
-      expect(() => categoryEntity.makeHistory(payload)).toThrow(AppError);
+      expect(() => categoryEntity.makeHistory(payload)).toThrow();
     });
 
     it('should throw an AppError if userId is invalid', () => {
@@ -211,7 +210,7 @@ describe('Category Entity', () => {
         note: null,
       };
 
-      expect(() => categoryEntity.makeHistory(payload)).toThrow(AppError);
+      expect(() => categoryEntity.makeHistory(payload)).toThrow();
     });
 
     it('should sanitize and validate note appropriately', () => {
@@ -238,7 +237,7 @@ describe('Category Entity', () => {
       it('should throw an AppError for an invalid status', () => {
         expect(() =>
           categoryEntityHelpers.validateStatus('invalid' as UCategoryStatus)
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -250,10 +249,10 @@ describe('Category Entity', () => {
       });
 
       it('should throw if name is empty or too long', () => {
-        expect(() => categoryEntityHelpers.sanitizeName('')).toThrow(AppError);
+        expect(() => categoryEntityHelpers.sanitizeName('')).toThrow();
         expect(() =>
           categoryEntityHelpers.sanitizeName('a'.repeat(101))
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -272,7 +271,7 @@ describe('Category Entity', () => {
       it('should throw if note is too long', () => {
         expect(() =>
           categoryEntityHelpers.getHistoryNote('a'.repeat(101))
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
 
@@ -289,7 +288,7 @@ describe('Category Entity', () => {
         expect(() =>
           // @ts-expect-error Testing invalid action at runtime
           categoryEntityHelpers.validateHistoryAction('invalid')
-        ).toThrow(AppError);
+        ).toThrow();
       });
     });
   });

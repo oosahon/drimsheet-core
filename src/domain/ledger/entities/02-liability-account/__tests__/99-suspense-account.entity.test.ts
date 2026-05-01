@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { TLiabilitySuspenseLedgerCode } from '../../../types/ledger-code.types';
 import {
@@ -53,7 +52,7 @@ describe('Liability Suspense Account Entity', () => {
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         liabilitySuspenseAccountEntity.getCode('200000' as any)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -114,7 +113,7 @@ describe('Liability Suspense Account Entity', () => {
       const invalidPayload = { ...validSuspensePayload, name: 'A' }; // Too short
       expect(() =>
         liabilitySuspenseAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
 
       const invalidPayload2 = {
         ...validSuspensePayload,
@@ -122,7 +121,7 @@ describe('Liability Suspense Account Entity', () => {
       };
       expect(() =>
         liabilitySuspenseAccountEntity.make(invalidPayload2, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 });

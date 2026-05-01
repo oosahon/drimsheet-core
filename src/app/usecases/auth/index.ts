@@ -100,7 +100,8 @@ const authUseCase = {
   logout: makeLogoutUseCase(
     appContext.request,
     services.auth,
-    repos.userSession
+    repos.userSession,
+    observability.logger
   ),
 };
 

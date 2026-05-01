@@ -115,15 +115,31 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IApiError: {
+  'Record_string.unknown_': {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'nestedObjectLiteral',
+      nestedProperties: {},
+      additionalProperties: { dataType: 'any' },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TErrorCause: {
+    dataType: 'refAlias',
+    type: { ref: 'Record_string.unknown_', validators: {} },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IHttpErrorDto: {
     dataType: 'refObject',
     properties: {
-      message: { dataType: 'string', required: true },
+      name: { dataType: 'string', required: true },
+      errorKey: { dataType: 'string', required: true },
       validationErrors: {
         dataType: 'array',
         array: { dataType: 'refObject', ref: 'IApiValidationError' },
       },
-      cause: { dataType: 'any' },
+      cause: { ref: 'TErrorCause' },
     },
     additionalProperties: false,
   },

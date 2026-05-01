@@ -6,7 +6,6 @@ import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/u
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import { AppError, ErrorBadRequest } from '../../../../shared/errors/error';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
@@ -15,6 +14,8 @@ import mockRequestContext, {
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
+import appError from '../../../errors/app.error';
+import authError from '../../../errors/auth.error';
 import makeResetPasswordUseCase from '../reset-password.usecase';
 
 describe('makeResetPasswordUseCase', () => {
@@ -59,18 +60,20 @@ describe('makeResetPasswordUseCase', () => {
     const payload = getValidPayload();
     payload.confirmPassword = 'DifferentPassword1!';
 
-    await expect(usecase(payload)).rejects.toThrow(AppError);
+    await expect(usecase(payload)).rejects.toThrow(
+      appError.UnprocessableEntity
+    );
   });
 
-  it('should throw an error if the reset token is invalid or expired', async () => {
-    mockAuthService.verifyPasswordResetToken.mockResolvedValue(null);
+  it('should propagate AuthError if the reset token is invalid or expired', async () => {
+    mockAuthService.verifyPasswordResetToken.mockRejectedValue(
+      new authError.InvalidToken()
+    );
 
     const usecase = getUseCase();
     const payload = getValidPayload();
 
-    await expect(usecase(payload)).rejects.toThrow(
-      new ErrorBadRequest('Invalid or expired password reset token')
-    );
+    await expect(usecase(payload)).rejects.toThrow(authError.Base);
   });
 
   it('should throw an error if user cannot be found in DB', async () => {
@@ -82,9 +85,7 @@ describe('makeResetPasswordUseCase', () => {
     const usecase = getUseCase();
     const payload = getValidPayload();
 
-    await expect(usecase(payload)).rejects.toThrow(
-      new ErrorBadRequest('Invalid or expired password reset token')
-    );
+    await expect(usecase(payload)).rejects.toThrow(authError.InvalidToken);
   });
 
   it('should throw an error if the user auth record cannot be found in DB', async () => {
@@ -97,9 +98,7 @@ describe('makeResetPasswordUseCase', () => {
     const usecase = getUseCase();
     const payload = getValidPayload();
 
-    await expect(usecase(payload)).rejects.toThrow(
-      new ErrorBadRequest('Invalid or expired password reset token')
-    );
+    await expect(usecase(payload)).rejects.toThrow(authError.InvalidToken);
   });
 
   it('should successfully update the password and broadcast the event', async () => {

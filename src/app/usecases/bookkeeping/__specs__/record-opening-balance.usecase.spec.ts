@@ -18,6 +18,7 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import ledgerAppError from '../../../errors/ledger.error';
 import makeRecordOpeningBalanceUseCase from '../record-opening-balance.usecase';
 
 describe('recordOpeningBalanceUseCase', () => {
@@ -177,6 +178,8 @@ describe('recordOpeningBalanceUseCase', () => {
       exchangeRate: null,
     };
 
-    await expect(useCase(payload)).rejects.toThrow('Account not found.');
+    await expect(useCase(payload)).rejects.toThrow(
+      ledgerAppError.AccountNotFound
+    );
   });
 });

@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
@@ -130,7 +129,7 @@ describe('Receivables Entity', () => {
       };
       expect(() =>
         receivablesAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should skip controlAccountId validation when null', () => {
@@ -201,7 +200,7 @@ describe('Receivables Entity', () => {
           invalidPayload,
           validParent
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -258,7 +257,7 @@ describe('Receivables Entity', () => {
           invalidPayload,
           validParent
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 });

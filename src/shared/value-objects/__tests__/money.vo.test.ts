@@ -1,12 +1,12 @@
-import { AppError } from '../../errors/error';
+import { SYSTEM_CURRENCIES } from '../../../domain/currency/config/currencies.config';
+import moneyError from '../../errors/money.error';
 import { IMoney } from '../../types/money.types';
-import mockCurrencies from '../__mocks__/currencies.mock';
 import money from '../money.vo';
 
 describe('Money Value Object', () => {
-  const NGN = mockCurrencies.NGN;
-  const USD = mockCurrencies.USD;
-  const JPY = mockCurrencies.JPY;
+  const NGN = SYSTEM_CURRENCIES.NGN;
+  const USD = SYSTEM_CURRENCIES.USD;
+  const JPY = SYSTEM_CURRENCIES.JPY;
 
   describe('make', () => {
     it('should create money from minor units correctly', () => {
@@ -23,7 +23,7 @@ describe('Money Value Object', () => {
 
     it('should throw an error if minor unit is fractional', () => {
       expect(() => money.make(10.5, NGN, true)).toThrow(
-        new AppError('Provide a non-fractional amount', { cause: 10.5 })
+        new moneyError.FractionalMinorUnit({ amount: 10.5 })
       );
     });
 
@@ -45,12 +45,14 @@ describe('Money Value Object', () => {
     it('should throw an error for an invalid currency code', () => {
       const fakeCurrency: any = { ...NGN, code: 'FAKE' };
       expect(() => money.make(100, fakeCurrency, true)).toThrow(
-        new AppError('Invalid currency code', { cause: 'FAKE' })
+        new moneyError.InvalidCurrencyCode({ currencyCode: 'FAKE' })
       );
     });
 
-    it('should throw AppError on unsafe integer normalizations', () => {
-      expect(() => money.make(Infinity, NGN, false)).toThrow(AppError);
+    it('should throw NonNormalizableAmount on unsafe integer normalizations', () => {
+      expect(() => money.make(Infinity, NGN, false)).toThrow(
+        moneyError.NonNormalizableAmount
+      );
     });
   });
 
@@ -92,17 +94,15 @@ describe('Money Value Object', () => {
     });
 
     it('should throw if no arguments are provided', () => {
-      expect(() => money.add()).toThrow(
-        new AppError('Provide at least one parameter for addition')
-      );
+      expect(() => money.add()).toThrow(new moneyError.MissingArguments());
     });
 
     it('should throw if mixed currencies are provided', () => {
       const m1 = money.make(BigInt(100), NGN, true);
       const m2 = money.make(BigInt(100), USD, true);
       expect(() => money.add(m1, m2)).toThrow(
-        new AppError('Please provide money objects with the same currency', {
-          cause: [m1, m2],
+        new moneyError.CurrencyMismatch({
+          args: [m1, m2],
         })
       );
     });
@@ -120,17 +120,15 @@ describe('Money Value Object', () => {
     });
 
     it('should throw if no arguments are provided', () => {
-      expect(() => money.subtract()).toThrow(
-        new AppError('Provide at least one parameter for subtraction')
-      );
+      expect(() => money.subtract()).toThrow(new moneyError.MissingArguments());
     });
 
     it('should throw if mixed currencies are provided', () => {
       const m1 = money.make(BigInt(100), NGN, true);
       const m2 = money.make(BigInt(100), USD, true);
       expect(() => money.subtract(m1, m2)).toThrow(
-        new AppError('Please provide money objects with the same currency', {
-          cause: [m1, m2],
+        new moneyError.CurrencyMismatch({
+          args: [m1, m2],
         })
       );
     });
@@ -158,16 +156,16 @@ describe('Money Value Object', () => {
       expect(() =>
         money.multiply(m1, { numerator: 1, denominator: 0 })
       ).toThrow(
-        new AppError('Please provide a valid factor', {
-          cause: { numerator: 1, denominator: 0 },
+        new moneyError.InvalidFactor({
+          factor: { numerator: 1, denominator: 0 },
         })
       );
 
       expect(() =>
         money.multiply(m1, { numerator: 1.5, denominator: 2 })
       ).toThrow(
-        new AppError('Please provide a valid factor', {
-          cause: { numerator: 1.5, denominator: 2 },
+        new moneyError.InvalidFactor({
+          factor: { numerator: 1.5, denominator: 2 },
         })
       );
     });
@@ -195,8 +193,8 @@ describe('Money Value Object', () => {
       const m1 = money.make(BigInt(100), USD, true);
 
       expect(() => money.divide(m1, { numerator: 0, denominator: 1 })).toThrow(
-        new AppError('Cannot divide by zero', {
-          cause: { numerator: 0, denominator: 1 },
+        new moneyError.DivisionByZero({
+          divisor: { numerator: 0, denominator: 1 },
         })
       );
     });
@@ -205,8 +203,8 @@ describe('Money Value Object', () => {
       const m1 = money.make(BigInt(100), USD, true);
 
       expect(() => money.divide(m1, { numerator: 1, denominator: 0 })).toThrow(
-        new AppError('Please provide a valid factor', {
-          cause: { numerator: 1, denominator: 0 },
+        new moneyError.InvalidFactor({
+          divisor: { numerator: 1, denominator: 0 },
         })
       );
     });
@@ -221,7 +219,7 @@ describe('Money Value Object', () => {
     it('should throw if amount is not a bigint', () => {
       const m = { amount: 100, currency: USD } as unknown as IMoney;
       expect(() => money.validate(m)).toThrow(
-        new AppError('Invalid amount', { cause: 100 })
+        new moneyError.InvalidAmount({ amount: 100 })
       );
     });
 
@@ -232,7 +230,7 @@ describe('Money Value Object', () => {
         currency: fakeCurrency,
       } as unknown as IMoney;
       expect(() => money.validate(m)).toThrow(
-        new AppError('Invalid currency code', { cause: 'FAKE' })
+        new moneyError.InvalidCurrencyCode({ currencyCode: 'FAKE' })
       );
     });
   });
@@ -268,17 +266,15 @@ describe('Money Value Object', () => {
     });
 
     it('should throw if no arguments are provided', () => {
-      expect(() => money.min()).toThrow(
-        new AppError('Provide at least one parameter for minimum')
-      );
+      expect(() => money.min()).toThrow(new moneyError.MissingArguments());
     });
 
     it('should throw if mixed currencies are provided', () => {
       const m1 = money.make(100, NGN, true);
       const m2 = money.make(100, USD, true);
       expect(() => money.min(m1, m2)).toThrow(
-        new AppError('Please provide money objects with the same currency', {
-          cause: [m1, m2],
+        new moneyError.CurrencyMismatch({
+          args: [m1, m2],
         })
       );
     });
@@ -295,17 +291,15 @@ describe('Money Value Object', () => {
     });
 
     it('should throw if no arguments are provided', () => {
-      expect(() => money.max()).toThrow(
-        new AppError('Provide at least one parameter for maximum')
-      );
+      expect(() => money.max()).toThrow(new moneyError.MissingArguments());
     });
 
     it('should throw if mixed currencies are provided', () => {
       const m1 = money.make(100, NGN, true);
       const m2 = money.make(100, USD, true);
       expect(() => money.max(m1, m2)).toThrow(
-        new AppError('Please provide money objects with the same currency', {
-          cause: [m1, m2],
+        new moneyError.CurrencyMismatch({
+          args: [m1, m2],
         })
       );
     });
@@ -330,8 +324,9 @@ describe('Money Value Object', () => {
       const m1 = money.make(100, NGN, true);
       const m2 = money.make(100, USD, true);
       expect(() => money.isGreaterThan(m1, m2)).toThrow(
-        new AppError('Please provide money objects with the same currency', {
-          cause: [m1, m2],
+        new moneyError.CurrencyMismatch({
+          money: m1,
+          other: m2,
         })
       );
     });
@@ -356,8 +351,9 @@ describe('Money Value Object', () => {
       const m1 = money.make(100, NGN, true);
       const m2 = money.make(100, USD, true);
       expect(() => money.isLessThan(m1, m2)).toThrow(
-        new AppError('Please provide money objects with the same currency', {
-          cause: [m1, m2],
+        new moneyError.CurrencyMismatch({
+          money: m1,
+          other: m2,
         })
       );
     });
@@ -377,7 +373,7 @@ describe('Money Value Object', () => {
 
     it('should throw if no arguments are provided', () => {
       expect(() => money.sortDescending()).toThrow(
-        new AppError('Provide at least one parameter for sorting')
+        new moneyError.MissingArguments()
       );
     });
 
@@ -385,8 +381,8 @@ describe('Money Value Object', () => {
       const m1 = money.make(100, NGN, true);
       const m2 = money.make(100, USD, true);
       expect(() => money.sortDescending(m1, m2)).toThrow(
-        new AppError('Please provide money objects with the same currency', {
-          cause: [m1, m2],
+        new moneyError.CurrencyMismatch({
+          args: [m1, m2],
         })
       );
     });
@@ -406,7 +402,7 @@ describe('Money Value Object', () => {
 
     it('should throw if no arguments are provided', () => {
       expect(() => money.sortAscending()).toThrow(
-        new AppError('Provide at least one parameter for sorting')
+        new moneyError.MissingArguments()
       );
     });
 
@@ -414,8 +410,8 @@ describe('Money Value Object', () => {
       const m1 = money.make(100, NGN, true);
       const m2 = money.make(100, USD, true);
       expect(() => money.sortAscending(m1, m2)).toThrow(
-        new AppError('Please provide money objects with the same currency', {
-          cause: [m1, m2],
+        new moneyError.CurrencyMismatch({
+          args: [m1, m2],
         })
       );
     });
@@ -448,7 +444,7 @@ describe('Money Value Object', () => {
       const invalidFactor = { numerator: 1, denominator: 0 };
 
       expect(() => money.convert(sourceMoney, invalidFactor, NGN)).toThrow(
-        new AppError('Please provide a valid factor', { cause: invalidFactor })
+        new moneyError.InvalidFactor({ factor: invalidFactor })
       );
     });
 
@@ -463,7 +459,7 @@ describe('Money Value Object', () => {
           factor,
           fakeCurrency as unknown as typeof NGN
         )
-      ).toThrow(new AppError('Invalid currency code', { cause: 'FAKE' }));
+      ).toThrow(new moneyError.InvalidCurrencyCode({ currencyCode: 'FAKE' }));
     });
   });
 

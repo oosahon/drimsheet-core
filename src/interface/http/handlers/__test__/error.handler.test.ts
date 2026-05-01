@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
+import appError from '../../../../app/errors/app.error';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
-import { AppError, ErrorBadRequest } from '../../../../shared/errors/error';
+import DomainError from '../../../../shared/errors/domain.error';
 import makeHttpErrorHandler from '../error.handler';
 
 describe('makeHttpErrorHandler', () => {
@@ -69,7 +70,9 @@ describe('makeHttpErrorHandler', () => {
 
     expect(mockStatus).toHaveBeenCalledWith(422);
     expect(mockJson).toHaveBeenCalledWith({
+      name: 'UnprocessableEntity',
       cause: undefined,
+      errorKey: 'app_error_unprocessable',
       validationErrors: [
         { field: 'email', message: 'Invalid email' },
         { field: 'age', message: 'Must be a number' },
@@ -78,16 +81,16 @@ describe('makeHttpErrorHandler', () => {
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
-  it('should handle ApiError (e.g. ErrorBadRequest)', () => {
+  it('should handle AppError (e.g. appError.BadRequest)', () => {
     const handler = makeHttpErrorHandler(mockReporter);
-    const error = new ErrorBadRequest('Bad request occurred');
+    const error = new appError.BadRequest();
 
     handler(mockReq as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
-      name: 'ApiError',
-      message: 'Bad request occurred',
+      name: 'BadRequest',
+      errorKey: 'app_error_bad_request',
       cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
@@ -95,14 +98,55 @@ describe('makeHttpErrorHandler', () => {
 
   it('should handle domain AppError', () => {
     const handler = makeHttpErrorHandler(mockReporter);
-    const error = new AppError('Domain rule violated');
+    const error = new appError.Base('app_error_domain_rule_violated');
 
     handler(mockReq as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'AppError',
-      message: 'Domain rule violated',
+      errorKey: 'app_error_domain_rule_violated',
+      cause: undefined,
+    });
+    expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('should handle auth DomainError and return 401', () => {
+    const handler = makeHttpErrorHandler(mockReporter);
+    class MockAuthError extends DomainError<'auth_error_test'> {
+      constructor() {
+        super('auth_error_test');
+        this.name = 'AuthError';
+      }
+    }
+    const error = new MockAuthError();
+
+    handler(mockReq as Request, mockRes as Response, error);
+
+    expect(mockStatus).toHaveBeenCalledWith(401);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'AuthError',
+      errorKey: 'auth_error_test',
+      cause: undefined,
+    });
+    expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('should handle non-auth DomainError and return 400', () => {
+    const handler = makeHttpErrorHandler(mockReporter);
+    class MockDomainError extends DomainError<'app_error_other_test'> {
+      constructor() {
+        super('app_error_other_test');
+      }
+    }
+    const error = new MockDomainError();
+
+    handler(mockReq as Request, mockRes as Response, error);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'MockDomainError',
+      errorKey: 'app_error_other_test',
       cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
@@ -110,14 +154,36 @@ describe('makeHttpErrorHandler', () => {
 
   it('should handle unknown errors and report them', () => {
     const handler = makeHttpErrorHandler(mockReporter);
-    const error = new Error('Database connection failed');
+    const error = new Error('Internal Server Error');
 
     handler(mockReq as Request, mockRes as Response, error);
 
     expect(mockReporter.report).toHaveBeenCalledWith(error);
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
-      message: 'Database connection failed',
+      name: 'InternalServerError',
+      errorKey: 'app_error_internal_server_error',
+      cause: undefined,
     });
+  });
+
+  it('should handle domain error with no errorKey and fallback to Unknown error', () => {
+    const handler = makeHttpErrorHandler(mockReporter);
+    class MockNoKeyError extends DomainError<any> {
+      constructor() {
+        super('' as any);
+      }
+    }
+    const error = new MockNoKeyError();
+
+    handler(mockReq as Request, mockRes as Response, error);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'MockNoKeyError',
+      errorKey: '',
+      cause: undefined,
+    });
+    expect(mockReporter.report).not.toHaveBeenCalled();
   });
 });

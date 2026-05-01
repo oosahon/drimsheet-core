@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import { ErrorBadRequest } from '../../../shared/errors/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
@@ -10,6 +9,7 @@ import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
+import authError from '../../errors/auth.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z.object({
@@ -31,14 +31,10 @@ export default function makeVerifyEmailAddressUseCase(
 
     const decodedToken = await makeAuthService.verifySignupToken(token);
 
-    if (!decodedToken) {
-      throw new ErrorBadRequest('Invalid or expired verification token');
-    }
-
     const user = await userRepo.findById(decodedToken.id, { correlationId });
 
     if (!user) {
-      throw new ErrorBadRequest('Invalid or expired verification token');
+      throw new authError.InvalidToken();
     }
 
     if (user.emailVerified) {

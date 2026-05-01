@@ -1,6 +1,6 @@
 import { IUser } from '../../../domain/user/types/user.types';
-import { ErrorUnauthorized } from '../../../shared/errors/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
+import appError from '../../errors/app.error';
 import userMapper from '../../mappers/user.mapper';
 
 export default function makeGetAuthUserProfileUseCase(
@@ -10,7 +10,7 @@ export default function makeGetAuthUserProfileUseCase(
     const { user } = requestContext.get();
 
     if (!user) {
-      throw new ErrorUnauthorized();
+      throw new appError.Unauthorized();
     }
 
     return userMapper.toInterface(user);

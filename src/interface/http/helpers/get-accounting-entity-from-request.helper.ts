@@ -1,7 +1,7 @@
 import { Request } from 'express';
+import appError from '../../../app/errors/app.error';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
-import { ErrorBadRequest } from '../../../shared/errors/error';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
 import getHttpHeaderValue, { getCorrelationId } from './get-http-header-value';
@@ -19,7 +19,7 @@ export default async function getAccountingEntityFromRequest(
 
   const isValidUUID = stringUtils.isUUID(id);
 
-  if (!isValidUUID) throw new ErrorBadRequest('Invalid accounting entity.');
+  if (!isValidUUID) throw new appError.BadRequest();
 
   const accountingEntity = await repo.findById(id as TEntityId, {
     correlationId: getCorrelationId(req),

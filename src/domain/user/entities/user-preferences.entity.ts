@@ -1,8 +1,9 @@
-import { AppError } from '../../../shared/errors/error';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
+import userPreferencesError from '../errors/user-preferences.error';
+import userError from '../errors/user.error';
 import userEvents from '../events/user.events';
 import {
   EAppThemePreference,
@@ -20,14 +21,14 @@ function makeAppPreferences(appPreferences: IUserAppPreferences) {
     !Object.values(EAppUsageModePreference).includes(appUsageMode);
 
   if (isInvalidTheme) {
-    throw new AppError('Invalid app preferences', {
-      cause: appPreferences,
+    throw new userPreferencesError.InvalidAppPreferences({
+      appPreferences,
     });
   }
 
   if (isInvalidUsageMode) {
-    throw new AppError('Invalid app preferences', {
-      cause: appPreferences,
+    throw new userPreferencesError.InvalidAppPreferences({
+      appPreferences,
     });
   }
 
@@ -41,7 +42,7 @@ function make(
   userId: TEntityId,
   payload: TCreationOmits<IUserPreferences>
 ): TEntityWithEvents<IUserPreferences, IUserPreferences> {
-  stringUtils.validateUUID(userId);
+  stringUtils.validateUUID(userId, userError.InvalidValue);
 
   const timestamp = new Date();
 

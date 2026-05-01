@@ -33,7 +33,7 @@ export default interface IAuthService {
 
   generateSignupToken(user: IAuthTokenPayload): Promise<string>;
 
-  verifySignupToken(token: string): Promise<IAuthTokenPayload | null>;
+  verifySignupToken(token: string): Promise<IAuthTokenPayload>;
 
   comparePassword(
     passwordString: string,
@@ -44,15 +44,15 @@ export default interface IAuthService {
 
   generateRefreshToken(userData: IAuthTokenPayload): Promise<string>;
 
-  verifyRefreshToken(token: string): IAuthTokenPayload | null;
+  verifyRefreshToken(token: string): IAuthTokenPayload;
 
   generatePasswordResetToken(payload: IAuthTokenPayload): Promise<string>;
 
-  verifyPasswordResetToken(token: string): Promise<IAuthTokenPayload | null>;
+  verifyPasswordResetToken(token: string): Promise<IAuthTokenPayload>;
 
   verifyAuthToken(token: string): IAuthTokenPayload;
 
-  getAuthUser(token: string): Promise<IAuthTokenPayload | null>;
+  getAuthUser(token: string): Promise<IAuthTokenPayload>;
 
   isPermittedEmail(email: string): boolean;
 }

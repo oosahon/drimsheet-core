@@ -1,4 +1,4 @@
-import { AppError } from '../errors/error';
+import eventError from '../errors/event.error';
 import { IEvent, IEventEnrichmentPayload } from '../types/event.types';
 import stringUtils from '../utils/string';
 
@@ -17,8 +17,8 @@ function enrich<T>(
     payload.correlationId !== event.correlationId;
 
   if (isOverwritingCorrelationId) {
-    throw new AppError('Correlation ID cannot be overwritten', {
-      cause: payload,
+    throw new eventError.CorrelationIdOverwrite({
+      payload,
     });
   }
 
@@ -27,17 +27,21 @@ function enrich<T>(
     payload.idempotencyKey !== event.idempotencyKey;
 
   if (isOverwritingIdempotencyKey) {
-    throw new AppError('Idempotency key cannot be overwritten', {
-      cause: payload,
+    throw new eventError.IdempotencyKeyOverwrite({
+      payload,
     });
   }
 
   validateEnrichmentPayload(payload);
 
-  const type = stringUtils.sanitizeAndValidate(event.type, {
-    min: 1,
-    max: 255,
-  });
+  const type = stringUtils.sanitizeAndValidate(
+    event.type,
+    {
+      min: 1,
+      max: 255,
+    },
+    eventError.InvalidValue
+  );
 
   return Object.freeze({
     type,
@@ -82,13 +86,13 @@ function validateEnrichmentPayload(payload: IEventEnrichmentPayload) {
     payload.correlationId !== undefined &&
     typeof payload.correlationId !== 'string'
   ) {
-    throw new AppError('Correlation ID must be a string', { cause: payload });
+    throw new eventError.InvalidCorrelationId({ payload });
   }
   if (
     payload.idempotencyKey !== undefined &&
     typeof payload.idempotencyKey !== 'string'
   ) {
-    throw new AppError('Idempotency key must be a string', { cause: payload });
+    throw new eventError.InvalidIdempotencyKey({ payload });
   }
 }
 
@@ -101,16 +105,20 @@ function validate<T = object>(
   payload: Omit<IEvent<T>, 'occurredAt' | 'enrichedAt'>
 ) {
   if (!stringUtils.isNonEmptyString(payload.type)) {
-    throw new AppError('Event type is required', { cause: payload });
+    throw new eventError.MissingEventType({ payload });
   }
 
-  stringUtils.sanitizeAndValidate(payload.type, {
-    min: 1,
-    max: 255,
-  });
+  stringUtils.sanitizeAndValidate(
+    payload.type,
+    {
+      min: 1,
+      max: 255,
+    },
+    eventError.InvalidValue
+  );
 
   if (payload.data === undefined || payload.data === null) {
-    throw new AppError('Event data is required', { cause: payload });
+    throw new eventError.MissingEventData({ payload });
   }
 
   validateEnrichmentPayload(payload);
@@ -118,15 +126,16 @@ function validate<T = object>(
 
 function validateEventTypeMatch(event: IEvent<unknown>, expectedType: string) {
   if (event.type !== expectedType) {
-    throw new AppError('Event type does not match expected type', {
-      cause: { eventType: event.type, expectedType },
+    throw new eventError.EventTypeMismatch({
+      eventType: event.type,
+      expectedType,
     });
   }
 }
 
 function validateKey(key: string) {
   if (!stringUtils.isNonEmptyString(key)) {
-    throw new AppError('Key is required', { cause: key });
+    throw new eventError.MissingKey({ key });
   }
 
   const isDomainEvent = key.startsWith('domain');
@@ -134,7 +143,7 @@ function validateKey(key: string) {
   const isInfrastructureEvent = key.startsWith('infra');
 
   if (!isDomainEvent && !isApplicationEvent && !isInfrastructureEvent) {
-    throw new AppError('Invalid event key', { cause: key });
+    throw new eventError.InvalidKey({ key });
   }
 }
 

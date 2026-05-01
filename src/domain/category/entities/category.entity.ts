@@ -4,6 +4,7 @@ import generateDiff from '../../../shared/utils/diff-generator';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
+import categoryError from '../errors/category.error';
 import categoryEvents from '../events/category.events';
 import { ICategory, ICategoryHistory } from '../types/category.types';
 import helpers from './helpers/category.entity.helpers';
@@ -19,8 +20,11 @@ interface IMakeHistoryLogPayload extends Pick<
 function make(
   payload: TCreationOmits<ICategory, 'version'>
 ): TEntityWithEvents<ICategory, ICategory> {
-  stringUtils.validateUUID(payload.accountingEntityId);
-  stringUtils.validateUUID(payload.accountId);
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    categoryError.InvalidValue
+  );
+  stringUtils.validateUUID(payload.accountId, categoryError.InvalidValue);
   ledgerAccountEntity.validateMaterializedPath(payload.accountMaterializedPath);
   helpers.validateStatus(payload.status);
 
@@ -91,8 +95,8 @@ function update(
 function makeHistory(
   payload: IMakeHistoryLogPayload
 ): Readonly<ICategoryHistory> {
-  stringUtils.validateUUID(payload.current.id);
-  stringUtils.validateUUID(payload.userId);
+  stringUtils.validateUUID(payload.current.id, categoryError.InvalidValue);
+  stringUtils.validateUUID(payload.userId, categoryError.InvalidValue);
   helpers.validateHistoryAction(payload.action);
 
   const note = helpers.getHistoryNote(payload.note);

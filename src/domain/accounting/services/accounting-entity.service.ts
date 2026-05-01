@@ -1,4 +1,4 @@
-import errors from '../errors/accounting-entity.errors';
+import errors from '../errors/accounting-entity.error';
 import IAccountingEntityRepo from '../repos/accounting-entity.repo';
 import IAccountingEntityService from '../types/accounting-entity.service.types';
 
@@ -26,7 +26,7 @@ export default function makeAccountingEntityService(
    */
   const validateAccess: TValidateAccess = (accountingEntity, userId) => {
     if (!grantUserAccess(accountingEntity, userId)) {
-      throw new errors.UnauthorizedUserAccess();
+      throw new errors.Unauthorized();
     }
   };
 

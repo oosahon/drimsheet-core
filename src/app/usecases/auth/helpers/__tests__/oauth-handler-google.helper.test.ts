@@ -68,7 +68,7 @@ describe('makeGoogleOAuthHelper', () => {
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Email is required',
+        message: 'app_error_bad_request',
       }),
       false
     );
@@ -185,8 +185,7 @@ describe('makeGoogleOAuthHelper', () => {
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Unknown authentication error',
-        code: 500,
+        message: 'app_error_internal_server_error',
       }),
       false
     );

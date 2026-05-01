@@ -1,9 +1,8 @@
-import { z } from 'zod';
+import z from 'zod';
 import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../domain/user/value-objects/password.vo';
-import { ErrorConflict, ErrorForbidden } from '../../../shared/errors/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
@@ -17,6 +16,7 @@ import {
   TRepoTransactionFn,
 } from '../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
+import appError from '../../errors/app.error';
 
 const validationSchema = z.object({
   firstName: z
@@ -58,7 +58,7 @@ export default function makeSignupWithEmailUsecase(
     const isPermittedEmail = makeAuthService.isPermittedEmail(email);
 
     if (!isPermittedEmail) {
-      throw new ErrorForbidden('Email is not permitted');
+      throw new appError.Forbidden();
     }
 
     const existingUser = await userRepo.findByEmail(email, {
@@ -66,7 +66,7 @@ export default function makeSignupWithEmailUsecase(
     });
 
     if (existingUser) {
-      throw new ErrorConflict('An account with this email already exists');
+      throw new appError.Conflict();
     }
 
     const password = passwordValue.make(payload.password);

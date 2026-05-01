@@ -1,6 +1,6 @@
 import currencyEntity from '../../domain/currency/entities/currency.entity';
 import { ICurrency } from '../../domain/currency/types/currency.types';
-import { AppError } from '../errors/error';
+import moneyError from '../errors/money.error';
 import { IMoney } from '../types/money.types';
 import { IFactor } from '../types/number.types';
 
@@ -27,8 +27,9 @@ function getNormalizedMinorUnit(amount: bigint | number, currency: ICurrency) {
   );
 
   if (!Number.isSafeInteger(normalizedAmount)) {
-    throw new AppError('Provide normalizable amount', {
-      cause: { amount, currency },
+    throw new moneyError.NonNormalizableAmount({
+      amount,
+      currency,
     });
   }
 
@@ -46,7 +47,7 @@ function make(
   const isValidCurrencyCode = currencyEntity.isValidCode(currency.code);
 
   if (!isValidCurrencyCode) {
-    throw new AppError('Invalid currency code', { cause: currency.code });
+    throw new moneyError.InvalidCurrencyCode({ currencyCode: currency.code });
   }
 
   if (
@@ -54,7 +55,7 @@ function make(
     typeof amount === 'number' &&
     !Number.isSafeInteger(amount)
   ) {
-    throw new AppError('Provide a non-fractional amount', { cause: amount });
+    throw new moneyError.FractionalMinorUnit({ amount });
   }
 
   const computedAmount = isInMinorUnit
@@ -88,12 +89,12 @@ function isSameCurrency(...args: IMoney[]) {
  */
 function add(...args: IMoney[]): IMoney {
   if (!args.length) {
-    throw new AppError('Provide at least one parameter for addition');
+    throw new moneyError.MissingArguments();
   }
 
   if (!isSameCurrency(...args)) {
-    throw new AppError('Please provide money objects with the same currency', {
-      cause: args,
+    throw new moneyError.CurrencyMismatch({
+      args,
     });
   }
 
@@ -108,12 +109,12 @@ function add(...args: IMoney[]): IMoney {
  */
 function subtract(...args: IMoney[]): IMoney {
   if (!args.length) {
-    throw new AppError('Provide at least one parameter for subtraction');
+    throw new moneyError.MissingArguments();
   }
 
   if (!isSameCurrency(...args)) {
-    throw new AppError('Please provide money objects with the same currency', {
-      cause: args,
+    throw new moneyError.CurrencyMismatch({
+      args,
     });
   }
 
@@ -129,7 +130,7 @@ function subtract(...args: IMoney[]): IMoney {
  */
 function multiply(money: IMoney, factor: IFactor): IMoney {
   if (!isValidFactor(factor)) {
-    throw new AppError('Please provide a valid factor', { cause: factor });
+    throw new moneyError.InvalidFactor({ factor });
   }
 
   const result =
@@ -145,11 +146,11 @@ function divide(
   divisor: IFactor
 ): { value: IMoney; remainder: IMoney } {
   if (divisor.numerator === 0) {
-    throw new AppError('Cannot divide by zero', { cause: divisor });
+    throw new moneyError.DivisionByZero({ divisor });
   }
 
   if (!isValidFactor(divisor)) {
-    throw new AppError('Please provide a valid factor', { cause: divisor });
+    throw new moneyError.InvalidFactor({ divisor });
   }
 
   const numerator = BigInt(divisor.denominator);
@@ -166,11 +167,13 @@ function divide(
 
 function validate(money: IMoney) {
   if (typeof money.amount !== 'bigint') {
-    throw new AppError('Invalid amount', { cause: money.amount });
+    throw new moneyError.InvalidAmount({ amount: money.amount });
   }
 
   if (!currencyEntity.isValidCode(money.currency.code)) {
-    throw new AppError('Invalid currency code', { cause: money.currency.code });
+    throw new moneyError.InvalidCurrencyCode({
+      currencyCode: money.currency.code,
+    });
   }
 }
 
@@ -182,12 +185,12 @@ function equals(money: IMoney, other: IMoney) {
 
 function min(...args: IMoney[]) {
   if (!args.length) {
-    throw new AppError('Provide at least one parameter for minimum');
+    throw new moneyError.MissingArguments();
   }
 
   if (!isSameCurrency(...args)) {
-    throw new AppError('Please provide money objects with the same currency', {
-      cause: args,
+    throw new moneyError.CurrencyMismatch({
+      args,
     });
   }
 
@@ -196,12 +199,12 @@ function min(...args: IMoney[]) {
 
 function max(...args: IMoney[]) {
   if (!args.length) {
-    throw new AppError('Provide at least one parameter for maximum');
+    throw new moneyError.MissingArguments();
   }
 
   if (!isSameCurrency(...args)) {
-    throw new AppError('Please provide money objects with the same currency', {
-      cause: args,
+    throw new moneyError.CurrencyMismatch({
+      args,
     });
   }
 
@@ -210,8 +213,9 @@ function max(...args: IMoney[]) {
 
 function isGreaterThan(money: IMoney, other: IMoney) {
   if (!isSameCurrency(money, other)) {
-    throw new AppError('Please provide money objects with the same currency', {
-      cause: [money, other],
+    throw new moneyError.CurrencyMismatch({
+      money,
+      other,
     });
   }
 
@@ -220,8 +224,9 @@ function isGreaterThan(money: IMoney, other: IMoney) {
 
 function isLessThan(money: IMoney, other: IMoney) {
   if (!isSameCurrency(money, other)) {
-    throw new AppError('Please provide money objects with the same currency', {
-      cause: [money, other],
+    throw new moneyError.CurrencyMismatch({
+      money,
+      other,
     });
   }
 
@@ -230,12 +235,12 @@ function isLessThan(money: IMoney, other: IMoney) {
 
 function sortDescending(...args: IMoney[]) {
   if (!args.length) {
-    throw new AppError('Provide at least one parameter for sorting');
+    throw new moneyError.MissingArguments();
   }
 
   if (!isSameCurrency(...args)) {
-    throw new AppError('Please provide money objects with the same currency', {
-      cause: args,
+    throw new moneyError.CurrencyMismatch({
+      args,
     });
   }
 
@@ -244,12 +249,12 @@ function sortDescending(...args: IMoney[]) {
 
 function sortAscending(...args: IMoney[]) {
   if (!args.length) {
-    throw new AppError('Provide at least one parameter for sorting');
+    throw new moneyError.MissingArguments();
   }
 
   if (!isSameCurrency(...args)) {
-    throw new AppError('Please provide money objects with the same currency', {
-      cause: args,
+    throw new moneyError.CurrencyMismatch({
+      args,
     });
   }
 

@@ -1,7 +1,7 @@
-import { AppError } from '../../../../shared/errors/error';
 import { IMoney } from '../../../../shared/types/money.types';
 import stringUtils from '../../../../shared/utils/string';
 import moneyValue from '../../../../shared/value-objects/money.vo';
+import journalEntryError from '../../errors/journal-entry.error';
 import {
   EJournalEntryStatus,
   UJournalEntryStatus,
@@ -10,7 +10,7 @@ import { EJournalSide, IJournalLine } from '../../types/journal-line.types';
 
 function validateStatus(status: UJournalEntryStatus) {
   if (!Object.values(EJournalEntryStatus).includes(status)) {
-    throw new AppError('Invalid status', { cause: status });
+    throw new journalEntryError.InvalidStatus({ status });
   }
 }
 
@@ -23,7 +23,7 @@ function isUniqueSequenceOrder(lines: IJournalLine[]) {
 
 function validateLine(lines: IJournalLine[]) {
   if (!lines.length || lines.length < 2) {
-    throw new AppError('Invalid line items', { cause: lines });
+    throw new journalEntryError.InvalidLineItems({ lines });
   }
 
   const debits: IMoney[] = [];
@@ -35,35 +35,39 @@ function validateLine(lines: IJournalLine[]) {
     } else if (item.side === EJournalSide.Credit) {
       credits.push(item.functionalAmount);
     } else {
-      throw new AppError('Invalid journal line item', { cause: item });
+      throw new journalEntryError.InvalidJournalLineItem({ item });
     }
   }
 
   if (!debits.length || !credits.length) {
-    throw new AppError('Invalid line items', { cause: lines });
+    throw new journalEntryError.InvalidLineItems({ lines });
   }
 
   const totalDebits = moneyValue.add(...debits);
   const totalCredits = moneyValue.add(...credits);
 
   if (!moneyValue.equals(totalDebits, totalCredits)) {
-    throw new AppError('Total debits must equal total credits', {
-      cause: lines,
+    throw new journalEntryError.UnbalancedJournalEntry({
+      lines,
     });
   }
 
   if (!isUniqueSequenceOrder(lines)) {
-    throw new AppError('Sequence orders must be unique', { cause: lines });
+    throw new journalEntryError.DuplicateSequenceOrders({ lines });
   }
 }
 
 function getMemo(value: string | null) {
   if (!value) return null;
 
-  return stringUtils.sanitizeAndValidate(value, {
-    max: 100,
-    min: 1,
-  });
+  return stringUtils.sanitizeAndValidate(
+    value,
+    {
+      max: 100,
+      min: 1,
+    },
+    journalEntryError.InvalidValue
+  );
 }
 
 const journalEntryEntityHelpers = Object.freeze({

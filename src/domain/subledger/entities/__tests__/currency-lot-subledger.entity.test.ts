@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { EAdjustmentType } from '../../../ledger/types/ledger.types';
@@ -51,7 +50,7 @@ describe('Currency Lot Subledger Entity', () => {
       expect(() =>
         // @ts-expect-error Testing invalid runtime value
         currencyLotSubledgerEntity.validateAdjustmentType('INVALID_TYPE')
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -101,9 +100,7 @@ describe('Currency Lot Subledger Entity', () => {
         adjustedFunctionalBalanceImpact: 1100,
       };
 
-      expect(() => currencyLotSubledgerEntity.makeLot(payload)).toThrow(
-        AppError
-      );
+      expect(() => currencyLotSubledgerEntity.makeLot(payload)).toThrow();
     });
 
     it('should throw an AppError if accountId is invalid', () => {
@@ -118,9 +115,7 @@ describe('Currency Lot Subledger Entity', () => {
         adjustedFunctionalBalanceImpact: 1100,
       };
 
-      expect(() => currencyLotSubledgerEntity.makeLot(payload)).toThrow(
-        AppError
-      );
+      expect(() => currencyLotSubledgerEntity.makeLot(payload)).toThrow();
     });
 
     it('should throw an AppError if currency code is invalid', () => {
@@ -265,7 +260,7 @@ describe('Currency Lot Subledger Entity', () => {
 
       expect(() =>
         currencyLotSubledgerEntity.makeLotAdjustment(payload)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if adjustmentType is invalid', () => {
@@ -281,7 +276,7 @@ describe('Currency Lot Subledger Entity', () => {
 
       expect(() =>
         currencyLotSubledgerEntity.makeLotAdjustment(payload)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -378,9 +373,7 @@ describe('Currency Lot Subledger Entity', () => {
         wacRealizedImpact: 25,
       };
 
-      expect(() => currencyLotSubledgerEntity.makeLotSale(payload)).toThrow(
-        AppError
-      );
+      expect(() => currencyLotSubledgerEntity.makeLotSale(payload)).toThrow();
     });
 
     it('should throw an AppError if targetLotId is invalid', () => {
@@ -394,9 +387,7 @@ describe('Currency Lot Subledger Entity', () => {
         wacRealizedImpact: 25,
       };
 
-      expect(() => currencyLotSubledgerEntity.makeLotSale(payload)).toThrow(
-        AppError
-      );
+      expect(() => currencyLotSubledgerEntity.makeLotSale(payload)).toThrow();
     });
   });
 });

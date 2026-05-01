@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import { AppError } from '../../../shared/errors/error';
 import generateDiff from '../../../shared/utils/diff-generator';
+import exchangeRateError from '../errors/exchange-rate.error';
 import IExchangeRateRepo from '../repos/exchange-rate.repo';
 import IExchangeRateService from '../types/exchange-rate.service.types';
 import exchangeRateValue from '../value-objects/exchange-rate.vo';
@@ -24,7 +24,7 @@ export default function makeExchangeRateService(
     const existing = await repo.getById(id, repoOptions);
 
     if (!existing) {
-      throw new AppError('Exchange rate not found.', { cause: id });
+      throw new exchangeRateError.NotFound({ id });
     }
 
     const comparison = _.omit(existing, [
@@ -37,8 +37,8 @@ export default function makeExchangeRateService(
     const diff = generateDiff(comparison, data);
 
     if (diff.hasChanges) {
-      throw new AppError('Official exchange rate cannot be altered.', {
-        cause: diff,
+      throw new exchangeRateError.UpdateNotPermitted({
+        diff,
       });
     }
 

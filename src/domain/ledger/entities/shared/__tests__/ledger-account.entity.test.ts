@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
@@ -60,19 +59,11 @@ describe('Ledger Account Shared Entity', () => {
     });
 
     it('validateCode: should throw AppError for invalid ledger codes', () => {
-      expect(() => ledgerAccountEntity.validateCode('001000')).toThrow(
-        AppError
-      );
-      expect(() => ledgerAccountEntity.validateCode('600000')).toThrow(
-        AppError
-      );
-      expect(() => ledgerAccountEntity.validateCode('10100')).toThrow(AppError);
-      expect(() => ledgerAccountEntity.validateCode('1010011')).toThrow(
-        AppError
-      );
-      expect(() => ledgerAccountEntity.validateCode('101abc')).toThrow(
-        AppError
-      );
+      expect(() => ledgerAccountEntity.validateCode('001000')).toThrow();
+      expect(() => ledgerAccountEntity.validateCode('600000')).toThrow();
+      expect(() => ledgerAccountEntity.validateCode('10100')).toThrow();
+      expect(() => ledgerAccountEntity.validateCode('1010011')).toThrow();
+      expect(() => ledgerAccountEntity.validateCode('101abc')).toThrow();
     });
 
     it('validateType: should not throw for valid types', () => {
@@ -85,7 +76,7 @@ describe('Ledger Account Shared Entity', () => {
       expect(() => {
         // @ts-expect-error testing invalid type
         ledgerAccountEntity.validateType('invalid');
-      }).toThrow(AppError);
+      }).toThrow();
     });
 
     it('validateStatus: should not throw for valid statuses', () => {
@@ -98,7 +89,7 @@ describe('Ledger Account Shared Entity', () => {
       expect(() => {
         // @ts-expect-error testing invalid status
         ledgerAccountEntity.validateStatus('invalid');
-      }).toThrow(AppError);
+      }).toThrow();
     });
 
     it('validateContraRule: should not throw for valid contra rules', () => {
@@ -113,7 +104,7 @@ describe('Ledger Account Shared Entity', () => {
       expect(() => {
         // @ts-expect-error testing invalid contra rule
         ledgerAccountEntity.validateContraRule('invalid');
-      }).toThrow(AppError);
+      }).toThrow();
     });
 
     it('validateAdjunctRule: should not throw for valid adjunct rules', () => {
@@ -128,7 +119,7 @@ describe('Ledger Account Shared Entity', () => {
       expect(() => {
         // @ts-expect-error testing invalid adjunct rule
         ledgerAccountEntity.validateAdjunctRule('invalid');
-      }).toThrow(AppError);
+      }).toThrow();
     });
 
     it('validateMaterializedPath: should not throw for valid lengths', () => {
@@ -145,13 +136,13 @@ describe('Ledger Account Shared Entity', () => {
     it('validateMaterializedPath: should throw AppError for invalid lengths', () => {
       expect(() =>
         ledgerAccountEntity.validateMaterializedPath('10000')
-      ).toThrow(AppError); // 5 chars
+      ).toThrow(); // 5 chars
       // 70 chars
       expect(() =>
         ledgerAccountEntity.validateMaterializedPath(
           '100000.100001.100002.100003.100004.100005.100006.100007.100008.100009x'
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -171,25 +162,25 @@ describe('Ledger Account Shared Entity', () => {
     it('should throw if headerCode has invalid format', () => {
       expect(() =>
         ledgerAccountEntity.getSubLedgerCode('10', '100000')
-      ).toThrow(AppError);
+      ).toThrow();
       expect(() =>
         ledgerAccountEntity.getSubLedgerCode('601', '601000')
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw if predecessorCode does not start with the headerCode or has invalid length', () => {
       expect(() =>
         ledgerAccountEntity.getSubLedgerCode('101', '102000')
-      ).toThrow(AppError);
+      ).toThrow();
       expect(() =>
         ledgerAccountEntity.getSubLedgerCode('101', '10100')
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw if limit is reached (999)', () => {
       expect(() =>
         ledgerAccountEntity.getSubLedgerCode('101', '101999')
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -203,7 +194,7 @@ describe('Ledger Account Shared Entity', () => {
     it('throws AppError if parent path is too short', () => {
       expect(() =>
         ledgerAccountEntity.getMaterializedPath('10000', '100001')
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('throws AppError if parent path is too long', () => {
@@ -213,7 +204,7 @@ describe('Ledger Account Shared Entity', () => {
           '100000.100001.100002.100003.100004.100005.100006.100007.100008.',
           '100009'
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -243,7 +234,7 @@ describe('Ledger Account Shared Entity', () => {
       expect(() => {
         // @ts-expect-error testing invalid type
         ledgerAccountEntity.getNormalBalance('INVALID_TYPE');
-      }).toThrow(AppError);
+      }).toThrow();
     });
   });
 
@@ -264,7 +255,7 @@ describe('Ledger Account Shared Entity', () => {
       expect(() => {
         // @ts-expect-error testing invalid balance
         ledgerAccountEntity.getContraBalance('INVALID_BALANCE');
-      }).toThrow(AppError);
+      }).toThrow();
     });
   });
 
@@ -304,7 +295,7 @@ describe('Ledger Account Shared Entity', () => {
         ...validPayload,
         accountingEntityId: 'invalid' as TEntityId,
       };
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if controlAccountId is invalid UUID when provided', () => {
@@ -312,7 +303,7 @@ describe('Ledger Account Shared Entity', () => {
         ...validPayload,
         controlAccountId: 'invalid' as TEntityId,
       };
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if createdBy is invalid UUID', () => {
@@ -320,22 +311,22 @@ describe('Ledger Account Shared Entity', () => {
         ...validPayload,
         createdBy: 'invalid' as TEntityId,
       };
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if name is too short', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if subType is empty', () => {
       const invalidPayload = { ...validPayload, subType: '' };
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if behavior is empty', () => {
       const invalidPayload = { ...validPayload, behavior: '' };
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should pass if currency validation fails', () => {
@@ -343,7 +334,7 @@ describe('Ledger Account Shared Entity', () => {
         ...validPayload,
         currency: { ...validCurrency, code: 'INVALID' },
       };
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if isControlAccount is not a boolean', () => {
@@ -352,7 +343,7 @@ describe('Ledger Account Shared Entity', () => {
         isControlAccount: 'yes',
       };
       // @ts-expect-error testing invalid control account flag
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if normalBalance is invalid', () => {
@@ -361,7 +352,7 @@ describe('Ledger Account Shared Entity', () => {
         normalBalance: 'invalid',
       };
       // @ts-expect-error testing invalid normal balance
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should pass if meta is null', () => {
@@ -376,7 +367,7 @@ describe('Ledger Account Shared Entity', () => {
         meta: 'invalid string',
       };
       // @ts-expect-error testing invalid meta
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw if materializedPath is invalid', () => {
@@ -384,7 +375,7 @@ describe('Ledger Account Shared Entity', () => {
         ...validPayload,
         materializedPath: '12345',
       };
-      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
   });
 });

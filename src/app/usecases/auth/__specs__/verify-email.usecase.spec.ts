@@ -4,14 +4,12 @@ import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/u
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import {
-  ErrorBadRequest,
-  ErrorUnprocessableEntity,
-} from '../../../../shared/errors/error';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import appError from '../../../errors/app.error';
+import authError from '../../../errors/auth.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
 describe('makeVerifyEmailAddressUseCase', () => {
@@ -25,7 +23,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     } as unknown as IRequestContextData);
   });
 
-  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+  it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
       mockUserRepo,
@@ -36,7 +34,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     );
 
     await expect(usecase(123 as unknown as string)).rejects.toThrow(
-      ErrorUnprocessableEntity
+      appError.UnprocessableEntity
     );
   });
 
@@ -109,9 +107,11 @@ describe('makeVerifyEmailAddressUseCase', () => {
     });
   });
 
-  it('should throw ErrorUnauthorized if token is invalid or expired', async () => {
+  it('should propagate AuthError if token is invalid or expired', async () => {
     const token = 'invalid-token';
-    mockAuthService.verifySignupToken.mockResolvedValue(null);
+    mockAuthService.verifySignupToken.mockRejectedValue(
+      new authError.InvalidToken()
+    );
 
     const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
@@ -122,10 +122,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
       mockRepoService
     );
 
-    await expect(usecase(token)).rejects.toThrow(ErrorBadRequest);
-    await expect(usecase(token)).rejects.toThrow(
-      'Invalid or expired verification token'
-    );
+    await expect(usecase(token)).rejects.toThrow(authError.Base);
 
     expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).not.toHaveBeenCalled();
@@ -133,7 +130,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
-  it('should throw ErrorUnauthorized if user is not found', async () => {
+  it('should throw appError.Unauthorized if user is not found', async () => {
     const token = 'valid-token';
     const decodedToken = {
       id: '123e4567-e89b-12d3-a456-426614174000',
@@ -152,10 +149,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
       mockRepoService
     );
 
-    await expect(usecase(token)).rejects.toThrow(ErrorBadRequest);
-    await expect(usecase(token)).rejects.toThrow(
-      'Invalid or expired verification token'
-    );
+    await expect(usecase(token)).rejects.toThrow(authError.InvalidToken);
 
     expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {

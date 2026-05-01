@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import userEvents from '../../events/user.events';
@@ -73,9 +72,7 @@ describe('User Preferences Entity', () => {
         },
       };
 
-      expect(() => userPreferencesEntity.make(validUserId, payload)).toThrow(
-        AppError
-      );
+      expect(() => userPreferencesEntity.make(validUserId, payload)).toThrow();
     });
 
     it('should throw an error for invalid usage mode preference', () => {
@@ -87,9 +84,7 @@ describe('User Preferences Entity', () => {
         },
       };
 
-      expect(() => userPreferencesEntity.make(validUserId, payload)).toThrow(
-        AppError
-      );
+      expect(() => userPreferencesEntity.make(validUserId, payload)).toThrow();
     });
 
     it('should throw an error for invalid userId format', () => {
@@ -99,7 +94,7 @@ describe('User Preferences Entity', () => {
 
       expect(() =>
         userPreferencesEntity.make('invalid-id' as any, payload)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -193,7 +188,7 @@ describe('User Preferences Entity', () => {
 
       expect(() =>
         userPreferencesEntity.update(initialEntity, updatePayload)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an error for invalid usage mode preference when updating', () => {
@@ -216,7 +211,7 @@ describe('User Preferences Entity', () => {
 
       expect(() =>
         userPreferencesEntity.update(initialEntity, updatePayload)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 });

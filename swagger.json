@@ -89,9 +89,21 @@
         "type": "object",
         "additionalProperties": false
       },
-      "IApiError": {
+      "Record_string.unknown_": {
+        "properties": {},
+        "additionalProperties": {},
+        "type": "object",
+        "description": "Construct a type with a set of properties K of type T"
+      },
+      "TErrorCause": {
+        "$ref": "#/components/schemas/Record_string.unknown_"
+      },
+      "IHttpErrorDto": {
         "properties": {
-          "message": {
+          "name": {
+            "type": "string"
+          },
+          "errorKey": {
             "type": "string"
           },
           "validationErrors": {
@@ -100,9 +112,11 @@
             },
             "type": "array"
           },
-          "cause": {}
+          "cause": {
+            "$ref": "#/components/schemas/TErrorCause"
+          }
         },
-        "required": ["message"],
+        "required": ["name", "errorKey"],
         "type": "object",
         "additionalProperties": false
       },
@@ -690,7 +704,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -725,7 +739,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -777,7 +791,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -787,7 +801,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -828,7 +842,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -838,7 +852,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -878,7 +892,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -888,7 +902,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -922,7 +936,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -932,7 +946,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -979,7 +993,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -989,7 +1003,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1058,7 +1072,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1068,7 +1082,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1106,7 +1120,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1116,7 +1130,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1157,7 +1171,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1167,7 +1181,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1177,7 +1191,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1187,7 +1201,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1255,7 +1269,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1265,7 +1279,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -1275,7 +1289,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IApiError"
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }

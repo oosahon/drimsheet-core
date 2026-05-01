@@ -1,5 +1,6 @@
 import { TEntityWithEvents } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
+import ledgerError from '../../errors/ledger.error';
 import ledgerAccountEvents from '../../events/ledger-account.events';
 import liabilityAccountEvents from '../../events/liability-account.events';
 import { TShortTermDebtLedgerCode } from '../../types/ledger-code.types';
@@ -49,7 +50,10 @@ function make(
   parent: IParentDetails | null // null for the header account
 ): TEntityWithEvents<IShortTermDebtAccount, IShortTermDebtAccount> {
   if (payload.controlAccountId) {
-    stringUtils.validateUUID(payload.controlAccountId);
+    stringUtils.validateUUID(
+      payload.controlAccountId,
+      ledgerError.InvalidValue
+    );
   }
 
   const code = helpers.getCode(parent?.precedingCode ?? null);
@@ -105,15 +109,23 @@ function makeHeader(
 }
 
 function makeCreditCardAccountMeta(meta: ICreditCardAccountMeta) {
-  const cardIssuer = stringUtils.sanitizeAndValidate(meta.cardIssuer, {
-    min: 2,
-    max: 100,
-  });
+  const cardIssuer = stringUtils.sanitizeAndValidate(
+    meta.cardIssuer,
+    {
+      min: 2,
+      max: 100,
+    },
+    ledgerError.InvalidValue
+  );
 
-  const lastFourDigits = stringUtils.sanitizeAndValidate(meta.lastFourDigits, {
-    min: 4,
-    max: 4,
-  });
+  const lastFourDigits = stringUtils.sanitizeAndValidate(
+    meta.lastFourDigits,
+    {
+      min: 4,
+      max: 4,
+    },
+    ledgerError.InvalidValue
+  );
 
   return Object.freeze<ICreditCardAccountMeta>({
     cardIssuer,
@@ -158,7 +170,7 @@ function makeCreditCardAccount(
 }
 
 function makeOverdraftAccountMeta(meta: IOverdraftAccountMeta) {
-  stringUtils.validateUUID(meta.linkedBankAccountId);
+  stringUtils.validateUUID(meta.linkedBankAccountId, ledgerError.InvalidValue);
 
   return Object.freeze<IOverdraftAccountMeta>({
     linkedBankAccountId: meta.linkedBankAccountId,
@@ -201,10 +213,14 @@ function makeOverdraftAccount(
 }
 
 function makeShortTermLoanAccountMeta(meta: IShortTermLoanAccountMeta) {
-  const lenderName = stringUtils.sanitizeAndValidate(meta.lenderName, {
-    min: 2,
-    max: 100,
-  });
+  const lenderName = stringUtils.sanitizeAndValidate(
+    meta.lenderName,
+    {
+      min: 2,
+      max: 100,
+    },
+    ledgerError.InvalidValue
+  );
 
   return Object.freeze<IShortTermLoanAccountMeta>({
     lenderName,

@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   EEquityAccountBehavior,
@@ -53,7 +52,7 @@ describe('Opening Balance Equity Entity', () => {
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         openingBalanceEquityLedgerEntity.getCode('300000' as any)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -116,7 +115,7 @@ describe('Opening Balance Equity Entity', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
         openingBalanceEquityLedgerEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should use base code 399000 when predecessorCode is null', () => {

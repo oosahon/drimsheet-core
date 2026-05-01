@@ -1,6 +1,6 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import stringUtils from '../../../../shared/utils/string';
+import transactionError from '../../errors/transaction.error';
 import {
   ETransactionStatus,
   ETransactionType,
@@ -22,21 +22,21 @@ function generateReference(): string {
 function validateReference(reference: string) {
   const isValid = stringUtils.isNonEmptyString(reference);
   if (!isValid) {
-    throw new AppError('Invalid transaction reference', { cause: reference });
+    throw new transactionError.InvalidReference({ reference });
   }
 }
 
 function validateType(type: UTransactionType) {
   const isValid = Object.values(ETransactionType).includes(type);
   if (!isValid) {
-    throw new AppError('Invalid transaction type', { cause: type });
+    throw new transactionError.InvalidType({ type });
   }
 }
 
 function validateStatus(status: UTransactionStatus) {
   const isValid = Object.values(ETransactionStatus).includes(status);
   if (!isValid) {
-    throw new AppError('Invalid transaction status', { cause: status });
+    throw new transactionError.InvalidStatus({ status });
   }
 }
 
@@ -49,14 +49,14 @@ function validateAttachment(attachment: ITransactionAttachment) {
     attachment.size > 0;
 
   if (!isValid) {
-    throw new AppError('Invalid attachment', { cause: attachment });
+    throw new transactionError.InvalidAttachment({ attachment });
   }
 }
 
 function validateAttachments(attachments: ITransactionAttachment[]) {
   const isValid = Array.isArray(attachments);
   if (!isValid) {
-    throw new AppError('Attachments must be an array', { cause: attachments });
+    throw new transactionError.InvalidAttachments({ attachments });
   }
 
   for (const attachment of attachments) {
@@ -73,24 +73,28 @@ function validateCounterpartyId(
   if (!counterPartyId) {
     if (isTransfer) return;
 
-    throw new AppError('Counterparty ID is required for non-transfers', {
-      cause: counterPartyId,
+    throw new transactionError.MissingCounterpartyId({
+      counterPartyId,
     });
   }
 
-  stringUtils.validateUUID(counterPartyId);
+  stringUtils.validateUUID(counterPartyId, transactionError.InvalidValue);
 }
 
 function sanitizeAndValidateNotes(notes: string | null | undefined) {
   if (!notes) return null;
 
-  return stringUtils.sanitizeAndValidate(notes, { min: 1, max: 100 });
+  return stringUtils.sanitizeAndValidate(
+    notes,
+    { min: 1, max: 100 },
+    transactionError.InvalidValue
+  );
 }
 
 function validateItemsPayload(items: TMakeTransactionLineItemPayload[]) {
   if (items.length === 0) {
-    throw new AppError('Transaction must have at least one item', {
-      cause: items,
+    throw new transactionError.InsufficientTransactionItems({
+      items,
     });
   }
 }

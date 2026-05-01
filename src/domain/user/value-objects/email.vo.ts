@@ -1,8 +1,8 @@
-import { AppError } from '../../../shared/errors/error';
+import userValueObjectError from '../errors/user-value-object.error';
 
 function normalize(input: string): string {
   if (typeof input !== 'string') {
-    throw new AppError('Invalid email address');
+    throw new userValueObjectError.InvalidType();
   }
   return input.trim().toLowerCase();
 }
@@ -40,7 +40,7 @@ function isValid(email: string): boolean {
 
 function validate(email: string) {
   if (!isValid(email)) {
-    throw new AppError('Invalid email address');
+    throw new userValueObjectError.InvalidFormat();
   }
 }
 

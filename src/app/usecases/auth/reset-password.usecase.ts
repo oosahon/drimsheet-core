@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import { ErrorBadRequest } from '../../../shared/errors/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
@@ -14,6 +13,7 @@ import {
 } from '../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
+import authError from '../../errors/auth.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z
@@ -56,16 +56,12 @@ export default function makeResetPasswordUseCase(
       payload.token
     );
 
-    if (!tokenPayload) {
-      throw new ErrorBadRequest('Invalid or expired password reset token');
-    }
-
     const existingUser = await userRepo.findById(tokenPayload.id, {
       correlationId,
     });
 
     if (!existingUser) {
-      throw new ErrorBadRequest('Invalid or expired password reset token');
+      throw new authError.InvalidToken();
     }
 
     const existingUserAuth = await userAuthRepo.findByUserId(existingUser.id, {
@@ -73,7 +69,7 @@ export default function makeResetPasswordUseCase(
     });
 
     if (!existingUserAuth) {
-      throw new ErrorBadRequest('Invalid or expired password reset token');
+      throw new authError.InvalidToken();
     }
 
     const passwordHash = await makeAuthService.hashPassword(payload.password);

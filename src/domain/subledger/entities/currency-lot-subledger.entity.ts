@@ -1,4 +1,3 @@
-import { AppError } from '../../../shared/errors/error';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
@@ -8,6 +7,8 @@ import {
   EAdjustmentType,
   UAdjustmentType,
 } from '../../ledger/types/ledger.types';
+import currencyLotError from '../errors/currency-lot-subledger.error';
+import subledgerError from '../errors/subledger.error';
 import currencyLotEvents from '../events/currency-lot.events';
 import {
   ICurrencyLot,
@@ -17,15 +18,15 @@ import {
 
 function validateAdjustmentType(adjustmentType: UAdjustmentType) {
   if (!Object.values(EAdjustmentType).includes(adjustmentType)) {
-    throw new AppError('Invalid adjustment type', { cause: adjustmentType });
+    throw new currencyLotError.InvalidAdjustmentType({ adjustmentType });
   }
 }
 
 function makeLot(
   payload: TCreationOmits<ICurrencyLot>
 ): TEntityWithEvents<ICurrencyLot, ICurrencyLot> {
-  stringUtils.validateUUID(payload.journalEntryId);
-  stringUtils.validateUUID(payload.accountId);
+  stringUtils.validateUUID(payload.journalEntryId, subledgerError.InvalidValue);
+  stringUtils.validateUUID(payload.accountId, subledgerError.InvalidValue);
   currencyEntity.validateCode(payload.currency.code);
   currencyEntity.validateCode(payload.functionalCurrency.code);
 
@@ -77,7 +78,7 @@ function updateLot(
 function makeLotAdjustment(
   payload: TCreationOmits<ICurrencyLotAdjustment>
 ): TEntityWithEvents<ICurrencyLotAdjustment, ICurrencyLotAdjustment> {
-  stringUtils.validateUUID(payload.targetLotId);
+  stringUtils.validateUUID(payload.targetLotId, subledgerError.InvalidValue);
   validateAdjustmentType(payload.adjustmentType);
 
   const timestamp = new Date();
@@ -123,8 +124,8 @@ function updateLotAdjustment(
 function makeLotSale(
   payload: TCreationOmits<ICurrencyLotSale>
 ): TEntityWithEvents<ICurrencyLotSale, ICurrencyLotSale> {
-  stringUtils.validateUUID(payload.journalEntryId);
-  stringUtils.validateUUID(payload.targetLotId);
+  stringUtils.validateUUID(payload.journalEntryId, subledgerError.InvalidValue);
+  stringUtils.validateUUID(payload.targetLotId, subledgerError.InvalidValue);
 
   const timestamp = new Date();
 

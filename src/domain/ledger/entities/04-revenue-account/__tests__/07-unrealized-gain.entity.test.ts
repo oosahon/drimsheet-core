@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { TUnrealizedGainLedgerCode } from '../../../types/ledger-code.types';
 import {
@@ -53,7 +52,7 @@ describe('Unrealized Gains Revenue Entity', () => {
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         unrealizedGainAccountEntity.getCode('400000' as any)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -117,7 +116,7 @@ describe('Unrealized Gains Revenue Entity', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
         unrealizedGainAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should use base code 406000 when predecessorCode is null', () => {

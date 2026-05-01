@@ -1,6 +1,6 @@
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
-import { ErrorUnauthorized } from '../../../shared/errors/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
+import appError from '../../errors/app.error';
 
 export default function makeGetUserPreferencesUseCase(
   requestContext: IRequestContext,
@@ -10,7 +10,7 @@ export default function makeGetUserPreferencesUseCase(
     const { correlationId, user } = requestContext.get();
 
     if (!user) {
-      throw new ErrorUnauthorized();
+      throw new appError.Unauthorized();
     }
 
     const preferences = await userPreferencesRepo.findById(user.id, {

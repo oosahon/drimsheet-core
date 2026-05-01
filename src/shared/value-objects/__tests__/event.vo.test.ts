@@ -1,4 +1,5 @@
-import { AppError } from '../../errors/error';
+import eventError from '../../errors/event.error';
+
 import eventValue from '../event.vo';
 
 describe('event.vo', () => {
@@ -18,23 +19,25 @@ describe('event.vo', () => {
     });
 
     it('throws error if type is empty or missing', () => {
-      expect(() => eventValue.make({ type: '', data: {} })).toThrow(AppError);
+      expect(() => eventValue.make({ type: '', data: {} })).toThrow(
+        eventError.MissingEventType
+      );
     });
 
     it('throws error if type exceeds max length', () => {
       const longType = 'a'.repeat(256);
       expect(() => eventValue.make({ type: longType, data: {} })).toThrow(
-        AppError
+        eventError.InvalidValue
       );
     });
 
     it('throws error if data is missing', () => {
       expect(() =>
         eventValue.make({ type: 'TestEvent', data: null as any })
-      ).toThrow(AppError);
+      ).toThrow(eventError.MissingEventData);
       expect(() =>
         eventValue.make({ type: 'TestEvent', data: undefined as any })
-      ).toThrow(AppError);
+      ).toThrow(eventError.MissingEventData);
     });
 
     it('creates event with correlationId and idempotencyKey', () => {
@@ -57,7 +60,7 @@ describe('event.vo', () => {
           data: {},
           correlationId: 123 as any,
         })
-      ).toThrow(AppError);
+      ).toThrow(eventError.InvalidCorrelationId);
     });
   });
 
@@ -84,7 +87,7 @@ describe('event.vo', () => {
 
       expect(() =>
         eventValue.enrich(event, { correlationId: validUUID2 })
-      ).toThrow('Correlation ID cannot be overwritten');
+      ).toThrow(eventError.CorrelationIdOverwrite);
     });
 
     it('throws error if trying to overwrite existing idempotencyKey', () => {
@@ -96,7 +99,7 @@ describe('event.vo', () => {
 
       expect(() =>
         eventValue.enrich(event, { idempotencyKey: validUUID2 })
-      ).toThrow('Idempotency key cannot be overwritten');
+      ).toThrow(eventError.IdempotencyKeyOverwrite);
     });
 
     it('allows enrichment with same existing values (idempotent)', () => {
@@ -120,10 +123,10 @@ describe('event.vo', () => {
       const event = eventValue.make({ type: 'TestEvent', data: {} });
       expect(() =>
         eventValue.enrich(event, { correlationId: 123 as any })
-      ).toThrow(AppError);
+      ).toThrow(eventError.InvalidCorrelationId);
       expect(() =>
         eventValue.enrich(event, { idempotencyKey: 123 as any })
-      ).toThrow(AppError);
+      ).toThrow(eventError.InvalidIdempotencyKey);
     });
   });
 
@@ -139,7 +142,7 @@ describe('event.vo', () => {
       const event = eventValue.make({ type: 'TestEvent', data: {} });
       expect(() =>
         eventValue.validateEventTypeMatch(event, 'OtherEvent')
-      ).toThrow(AppError);
+      ).toThrow(eventError.EventTypeMismatch);
     });
   });
 

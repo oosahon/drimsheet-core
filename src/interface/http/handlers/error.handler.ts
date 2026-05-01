@@ -1,21 +1,34 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
+import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
-import {
-  ErrorInternalServerError,
-  ErrorUnprocessableEntity,
-  IApiValidationError,
-  parseError,
-} from '../../../shared/errors/error';
+import appError from '../../../app/errors/app.error';
+import errorUtils from '../../../shared/utils/error';
+import httpErrorParser from '../helpers/http-error-parser';
 
-export interface IApiError {
-  message: string;
-  validationErrors?: IApiValidationError[];
-  cause?: any;
+const errorKeyToStatusCode: Record<string, number> = {
+  app_error_invalid_value: 400,
+  app_error_bad_request: 400,
+  app_error_unauthorized: 401,
+  app_error_payment_required: 402,
+  app_error_forbidden: 403,
+  app_error_resource_not_found: 404,
+  app_error_conflict: 409,
+  app_error_unprocessable: 422,
+  app_error_too_many_requests: 429,
+  app_error_internal_server_error: 500,
+};
+
+function getStatusCodeFromError(error: any): number {
+  if (error.name === 'AuthError') return 401;
+  if (error.errorKey && errorKeyToStatusCode[error.errorKey]) {
+    return errorKeyToStatusCode[error.errorKey];
+  }
+  return 400; // default for domain errors and others
 }
 
 function makeHttpErrorHandler(reporter: IReporter) {
-  return (req: Request, res: Response<IApiError>, error: any) => {
+  return (req: Request, res: Response<IHttpErrorDto>, error: unknown) => {
     delete req?.headers.authorization;
     // @ts-ignore
     delete req?.file?.buffer;
@@ -28,34 +41,32 @@ function makeHttpErrorHandler(reporter: IReporter) {
       });
 
     if (error instanceof ValidateError) {
-      const validationErrors = Object.entries(error.fields).map(
-        ([key, value]) => ({
-          field: key,
-          message: value.message,
-        })
-      );
-      const { code, name, ...body } = new ErrorUnprocessableEntity(
-        validationErrors
-      );
+      const validationErrors = httpErrorParser.parseTsoaValidationError(error);
+      const errRes = new appError.UnprocessableEntity(validationErrors);
 
-      return res.status(code).json(body);
+      return res
+        .status(errorKeyToStatusCode[errRes.errorKey] as number)
+        .json(httpErrorParser.toHttp(errRes, validationErrors));
     }
 
-    const { type, ...parsedError } = parseError(error);
+    const parsedError = errorUtils.parseError(error);
 
-    const isKnownError = type === 'api' || type === 'domain';
+    const isUnknownError =
+      parsedError.name === 'UnknownError' || parsedError.name === 'Error';
 
-    if (isKnownError) {
-      const { code = 400, ...body } = parsedError;
-
-      return res.status(code).json(body);
+    if (isUnknownError) {
+      reporter.report(error);
+      const serverError = new appError.InternalServerError();
+      return res
+        .status(errorKeyToStatusCode[serverError.errorKey] as number)
+        .json(httpErrorParser.toHttp(serverError));
     }
 
-    reporter.report(error);
-    const serverError = new ErrorInternalServerError(error.message);
-    return res.status(serverError.code).json({
-      message: serverError.message,
-    });
+    const statusCode = getStatusCodeFromError(parsedError);
+
+    return res
+      .status(statusCode)
+      .json(httpErrorParser.fromParsedError(parsedError));
   };
 }
 

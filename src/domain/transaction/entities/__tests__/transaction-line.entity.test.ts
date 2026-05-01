@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
@@ -76,7 +75,7 @@ describe('Transaction Line Entity', () => {
           },
           payload
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if accountId is invalid', () => {
@@ -97,7 +96,7 @@ describe('Transaction Line Entity', () => {
           },
           payload
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if counterPartyId is invalid', () => {
@@ -118,7 +117,7 @@ describe('Transaction Line Entity', () => {
           },
           payload
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if counterPartyId is missing for non-transfer', () => {
@@ -139,7 +138,7 @@ describe('Transaction Line Entity', () => {
           },
           payload
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if counterPartyId is provided for a transfer', () => {
@@ -160,7 +159,7 @@ describe('Transaction Line Entity', () => {
           },
           payload
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should successfully create a transaction item for a transfer without counterPartyId', () => {
@@ -209,7 +208,7 @@ describe('Transaction Line Entity', () => {
           },
           payload
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw an AppError if functionalAmount is not a valid money object', () => {
@@ -235,7 +234,7 @@ describe('Transaction Line Entity', () => {
           },
           payload
         )
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 });

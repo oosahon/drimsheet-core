@@ -1,7 +1,7 @@
 import { IUser } from '../../../../domain/user/types/user.types';
-import { ErrorUnauthorized } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IUserSession } from '../../../contracts/infra/auth-service.contract';
+import authError from '../../../errors/auth.error';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 
@@ -58,28 +58,30 @@ describe('refreshAccessTokenUseCase', () => {
     });
   });
 
-  it('throws ErrorUnauthorized if refresh token is missing', async () => {
+  it('throws appError.Unauthorized if refresh token is missing', async () => {
     mockClientSession.getRefreshToken.mockReturnValue(undefined);
     const useCase = getUseCase();
-    await expect(useCase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(useCase()).rejects.toThrow('app_error_unauthorized');
   });
 
-  it('throws ErrorUnauthorized if auth service returns null for token', async () => {
-    mockAuthService.verifyRefreshToken.mockReturnValue(null);
+  it('propagates AuthError if refresh token is invalid', async () => {
+    mockAuthService.verifyRefreshToken.mockImplementation(() => {
+      throw new authError.InvalidToken();
+    });
     const useCase = getUseCase();
-    await expect(useCase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(useCase()).rejects.toThrow(authError.Base);
   });
 
-  it('throws ErrorUnauthorized if user is not found', async () => {
+  it('throws appError.Unauthorized if user is not found', async () => {
     mockUserRepo.findById.mockResolvedValue(null);
     const useCase = getUseCase();
-    await expect(useCase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(useCase()).rejects.toThrow('app_error_unauthorized');
   });
 
-  it('throws ErrorUnauthorized if session is not found in DB', async () => {
+  it('throws appError.Unauthorized if session is not found in DB', async () => {
     mockUserSessionRepo.findByRefreshToken.mockResolvedValue(null);
     const useCase = getUseCase();
-    await expect(useCase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(useCase()).rejects.toThrow('app_error_unauthorized');
   });
 
   it('successfully returns the new user session', async () => {

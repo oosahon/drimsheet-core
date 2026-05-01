@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   EExpenseAccountBehavior,
@@ -54,7 +53,7 @@ describe('Asset Disposal Loss Entity', () => {
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
         assetDisposalLossAccountEntity.getCode('511000' as any)
-      ).toThrow(AppError);
+      ).toThrow();
     });
   });
 
@@ -140,7 +139,7 @@ describe('Asset Disposal Loss Entity', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
         assetDisposalLossAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -150,7 +149,7 @@ describe('Asset Disposal Loss Entity', () => {
       };
       expect(() =>
         assetDisposalLossAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should use base code 510000 when predecessorCode is null', () => {

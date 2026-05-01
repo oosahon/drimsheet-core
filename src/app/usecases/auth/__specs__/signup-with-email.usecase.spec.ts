@@ -6,14 +6,10 @@ import mockUserAuthRepo from '../../../../infra/persistence/repos/__mocks__/user
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import {
-  ErrorConflict,
-  ErrorForbidden,
-  ErrorUnprocessableEntity,
-} from '../../../../shared/errors/error';
 import { IEvent } from '../../../../shared/types/event.types';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import appError from '../../../errors/app.error';
 import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
 
 describe('makeSignupWithEmailUsecase', () => {
@@ -21,7 +17,7 @@ describe('makeSignupWithEmailUsecase', () => {
     jest.clearAllMocks();
   });
 
-  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+  it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeSignupWithEmailUsecase(
       mockRequestContext,
       mockUserRepo,
@@ -40,7 +36,7 @@ describe('makeSignupWithEmailUsecase', () => {
     } as any;
 
     await expect(usecase(invalidPayload)).rejects.toThrow(
-      ErrorUnprocessableEntity
+      appError.UnprocessableEntity
     );
   });
 
@@ -117,7 +113,7 @@ describe('makeSignupWithEmailUsecase', () => {
     });
   });
 
-  it('should throw ErrorConflict if user already exists', async () => {
+  it('should throw appError.Conflict if user already exists', async () => {
     const correlationId = 'test-corr-id';
     mockRequestContext.get.mockReturnValue({
       correlationId,
@@ -146,10 +142,8 @@ describe('makeSignupWithEmailUsecase', () => {
       mockRepoService
     );
 
-    await expect(usecase(payload)).rejects.toThrow(ErrorConflict);
-    await expect(usecase(payload)).rejects.toThrow(
-      'An account with this email already exists'
-    );
+    await expect(usecase(payload)).rejects.toThrow(appError.Conflict);
+    await expect(usecase(payload)).rejects.toThrow('app_error_conflict');
 
     const email = emailValue.make(payload.email);
     expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);
@@ -157,7 +151,7 @@ describe('makeSignupWithEmailUsecase', () => {
     expect(mockAuthService.hashPassword).not.toHaveBeenCalled();
   });
 
-  it('should throw ErrorForbidden if email is not permitted', async () => {
+  it('should throw appError.Forbidden if email is not permitted', async () => {
     const correlationId = 'test-corr-id';
     mockRequestContext.get.mockReturnValue({
       correlationId,
@@ -182,8 +176,8 @@ describe('makeSignupWithEmailUsecase', () => {
       mockRepoService
     );
 
-    await expect(usecase(payload)).rejects.toThrow(ErrorForbidden);
-    await expect(usecase(payload)).rejects.toThrow('Email is not permitted');
+    await expect(usecase(payload)).rejects.toThrow(appError.Forbidden);
+    await expect(usecase(payload)).rejects.toThrow('app_error_forbidden');
 
     const email = emailValue.make(payload.email);
     expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);

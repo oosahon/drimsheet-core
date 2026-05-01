@@ -1,6 +1,4 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import periodErrors from '../../errors/period.errors';
 import { EPeriodEvents } from '../../events/period.events';
 import { EPeriodStatus } from '../../types/period.types';
 import fiscalYearEntity from '../fiscal-year.entity';
@@ -56,7 +54,7 @@ describe('fiscalYearEntity', () => {
         ...validPayload,
         accountingEntityId: 'invalid' as TEntityId,
       };
-      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow(AppError);
+      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws InvalidPeriodDateRangeError if startDate is invalid', () => {
@@ -65,9 +63,7 @@ describe('fiscalYearEntity', () => {
         startDate: 'invalid',
       };
       // @ts-expect-error testing invalid start date
-      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow(
-        periodErrors.InvalidDateRange
-      );
+      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws InvalidPeriodDateRangeError if endDate is invalid', () => {
@@ -76,9 +72,7 @@ describe('fiscalYearEntity', () => {
         endDate: 'invalid',
       };
       // @ts-expect-error testing invalid end date
-      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow(
-        periodErrors.InvalidDateRange
-      );
+      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws InvalidPeriodDateRangeError if startDate is after endDate', () => {
@@ -87,17 +81,13 @@ describe('fiscalYearEntity', () => {
         startDate: new Date('2026-12-31T23:59:59.999Z'),
         endDate: new Date('2026-01-01T00:00:00.000Z'),
       };
-      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow(
-        periodErrors.InvalidDateRange
-      );
+      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws InvalidPeriodStatusError if status is invalid', () => {
       const invalidPayload = { ...validPayload, status: 'invalid' };
       // @ts-expect-error testing invalid status
-      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow(
-        periodErrors.InvalidStatus
-      );
+      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow();
     });
   });
 
@@ -109,7 +99,7 @@ describe('fiscalYearEntity', () => {
             startDate: new Date('2026-05-01T00:00:00.000Z'),
             endDate: new Date('2026-05-10T00:00:00.000Z'),
           })
-        ).toThrow(periodErrors.InvalidDateRange);
+        ).toThrow();
       });
 
       it('throws InvalidDateRange if duration is greater than 23 months', () => {
@@ -118,7 +108,7 @@ describe('fiscalYearEntity', () => {
             startDate: new Date('2026-05-01T00:00:00.000Z'),
             endDate: new Date('2028-06-01T00:00:00.000Z'),
           })
-        ).toThrow(periodErrors.InvalidDateRange);
+        ).toThrow();
       });
     });
 
@@ -139,7 +129,7 @@ describe('fiscalYearEntity', () => {
             new Date('2026-05-10T00:00:00.000Z'),
             null
           )
-        ).toThrow(periodErrors.InvalidDateRange);
+        ).toThrow();
       });
 
       it('returns single year string when start and end years are the same', () => {

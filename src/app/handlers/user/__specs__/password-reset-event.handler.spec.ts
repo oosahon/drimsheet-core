@@ -1,6 +1,6 @@
 import { EUserEvents } from '../../../../domain/user/events/user.events';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { AppError } from '../../../../shared/errors/error';
+import eventError from '../../../../shared/errors/event.error';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeUserPasswordResetEventHandler from '../password-reset-event.handler';
@@ -107,10 +107,10 @@ describe('makeUserPasswordResetEventHandler', () => {
     await handler(mockEvent);
 
     expect(MockReporter.report).toHaveBeenCalledTimes(1);
-    expect(MockReporter.report.mock.calls[0][0]).toBeInstanceOf(AppError);
-    expect((MockReporter.report.mock.calls[0][0] as AppError).message).toBe(
-      'Event type does not match expected type'
+    expect(MockReporter.report.mock.calls[0][0]).toBeInstanceOf(
+      eventError.EventTypeMismatch
     );
+
     expect(userUseCase.saveActivity).not.toHaveBeenCalled();
   });
 

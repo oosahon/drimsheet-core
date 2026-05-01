@@ -119,9 +119,7 @@ describe('createAccountingEntityUseCase', () => {
       entityType: EAccountingEntityType.PrivateCompany,
     };
 
-    await expect(useCase(payload)).rejects.toThrow(
-      'Unsupported accounting entity type'
-    );
+    await expect(useCase(payload)).rejects.toThrow('app_error_bad_request');
   });
 
   it('throws ErrorConflict if accounting entity already exists', async () => {
@@ -130,9 +128,7 @@ describe('createAccountingEntityUseCase', () => {
     ] as unknown as IAccountingEntity[]);
     const useCase = getUseCase();
 
-    await expect(useCase(validPayload)).rejects.toThrow(
-      'Accounting entity already exists'
-    );
+    await expect(useCase(validPayload)).rejects.toThrow('app_error_conflict');
   });
 
   it('successfully creates accounting entity and related domain objects', async () => {

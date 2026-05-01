@@ -4,21 +4,30 @@ import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import userEvents from '../events/user.events';
 
+import userError from '../errors/user.error';
 import { IUser } from '../types/user.types';
 import emailValue from '../value-objects/email.vo';
 
 function validate(user: IUser) {
-  stringUtils.validateUUID(user.id);
+  stringUtils.validateUUID(user.id, userError.InvalidValue);
 
-  stringUtils.sanitizeAndValidate(user.firstName, {
-    min: 1,
-    max: 100,
-  });
+  stringUtils.sanitizeAndValidate(
+    user.firstName,
+    {
+      min: 1,
+      max: 100,
+    },
+    userError.InvalidValue
+  );
 
-  stringUtils.sanitizeAndValidate(user.lastName, {
-    min: 1,
-    max: 100,
-  });
+  stringUtils.sanitizeAndValidate(
+    user.lastName,
+    {
+      min: 1,
+      max: 100,
+    },
+    userError.InvalidValue
+  );
 
   emailValue.validate(user.email);
 }
@@ -30,15 +39,23 @@ const userHelpers = Object.freeze({
 function make(payload: TCreationOmits<IUser>): TEntityWithEvents<IUser, IUser> {
   const timestamp = new Date();
 
-  const firstName = stringUtils.sanitizeAndValidate(payload.firstName, {
-    min: 1,
-    max: 100,
-  });
+  const firstName = stringUtils.sanitizeAndValidate(
+    payload.firstName,
+    {
+      min: 1,
+      max: 100,
+    },
+    userError.InvalidValue
+  );
 
-  const lastName = stringUtils.sanitizeAndValidate(payload.lastName, {
-    min: 1,
-    max: 100,
-  });
+  const lastName = stringUtils.sanitizeAndValidate(
+    payload.lastName,
+    {
+      min: 1,
+      max: 100,
+    },
+    userError.InvalidValue
+  );
 
   const user: IUser = Object.freeze({
     id: generateUUID(),
@@ -85,7 +102,8 @@ function update(
     {
       min: 1,
       max: 100,
-    }
+    },
+    userError.InvalidValue
   );
 
   const lastName = stringUtils.sanitizeAndValidate(
@@ -93,7 +111,8 @@ function update(
     {
       min: 1,
       max: 100,
-    }
+    },
+    userError.InvalidValue
   );
 
   const isUnchanged =

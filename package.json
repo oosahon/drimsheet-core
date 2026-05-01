@@ -29,6 +29,7 @@
     "adr:rename": "tsx bin/rename-adr.ts",
     "adr:sync": "tsx bin/sync-adr.ts",
     "mjml:build": "tsx bin/mjml-to-ts.ts",
+    "export:errors": "tsx bin/export-error-keys.ts",
     "db:migrate": "tsx ./node_modules/.bin/node-pg-migrate -j ts -m ./submodules/migrations -d POSTGRES_URL"
   },
   "lint-staged": {

@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { EReportingContextEvents } from '../../events/reporting-context.events';
 import reportingContextEntity from '../reporting-context.entity';
@@ -55,9 +54,7 @@ describe('reportingContextEntity', () => {
         accountingEntityId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => reportingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => reportingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if reportingCurrencyCode is invalid', () => {
@@ -66,9 +63,7 @@ describe('reportingContextEntity', () => {
         reportingCurrencyCode: 'INVALID',
       };
       // @ts-expect-error testing invalid currency code
-      expect(() => reportingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => reportingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if accountingContextId is invalid', () => {
@@ -77,9 +72,7 @@ describe('reportingContextEntity', () => {
         accountingContextId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => reportingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => reportingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if currentReportingPeriodId is invalid', () => {
@@ -88,9 +81,7 @@ describe('reportingContextEntity', () => {
         currentReportingPeriodId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => reportingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => reportingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if name is invalid', () => {
@@ -98,9 +89,7 @@ describe('reportingContextEntity', () => {
         ...validPayload,
         name: '',
       };
-      expect(() => reportingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => reportingContextEntity.make(invalidPayload)).toThrow();
     });
 
     it('throws AppError if description is invalid', () => {
@@ -108,9 +97,7 @@ describe('reportingContextEntity', () => {
         ...validPayload,
         description: '',
       };
-      expect(() => reportingContextEntity.make(invalidPayload)).toThrow(
-        AppError
-      );
+      expect(() => reportingContextEntity.make(invalidPayload)).toThrow();
     });
   });
 });

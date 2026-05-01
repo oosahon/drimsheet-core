@@ -9,8 +9,8 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
+import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
 import userUseCase from '../../../app/usecases/user';
-import { IApiError } from '../handlers/error.handler';
 import middlewares from '../middlewares';
 
 @Route('users')
@@ -22,7 +22,7 @@ export class UserController extends Controller {
   @Get('/preferences')
   @OperationId('getUserPreferences')
   @SuccessResponse('200')
-  @Response<IApiError>('401')
+  @Response<IHttpErrorDto>('401')
   @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getCurrencies() {
@@ -35,7 +35,7 @@ export class UserController extends Controller {
   @Get('/profile')
   @OperationId('getAuthUserProfile')
   @SuccessResponse('200')
-  @Response<IApiError>('401')
+  @Response<IHttpErrorDto>('401')
   @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getAuthUserProfile() {

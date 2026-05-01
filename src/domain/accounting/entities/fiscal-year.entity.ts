@@ -1,6 +1,7 @@
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import accountingError from '../errors/accounting.error';
 import periodEvents from '../events/period.events';
 import { IFiscalYear } from '../types/fiscal-year.types';
 import { EPeriodUnit } from '../types/period.types';
@@ -18,7 +19,10 @@ function make(
 ): TEntityWithEvents<IFiscalYear, IFiscalYear> {
   fiscalYearHelpers.validateStatus(payload.status);
   fiscalYearHelpers.validateStartAndEndDate(payload);
-  stringUtils.validateUUID(payload.accountingEntityId);
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    accountingError.InvalidValue
+  );
 
   const name = fiscalYearHelpers.deriveName(
     payload.startDate,

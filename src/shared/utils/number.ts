@@ -1,60 +1,72 @@
-import { AppError } from '../errors/error';
+import { TErrorConstructor } from '../types/error.types';
 import { IFactor } from '../types/number.types';
 
-function toBigInt(value: string | number | bigint) {
+function toBigInt<T extends Error>(
+  value: string | number | bigint,
+  ErrorClass: TErrorConstructor<T>
+) {
   if (typeof value === 'number') {
     if (isNaN(value)) {
-      throw new AppError('Invalid value', { cause: value });
+      throw new ErrorClass({ value });
     }
     if (!Number.isInteger(value)) {
-      throw new AppError('Value must not be a float', { cause: value });
+      throw new ErrorClass({ value });
     }
   } else if (typeof value === 'string') {
     const trimmed = value.trim();
     if (trimmed === '') {
-      throw new AppError('Invalid value', { cause: value });
+      throw new ErrorClass({ value });
     }
     if (trimmed.includes('.')) {
-      throw new AppError('Value must not be a float', { cause: value });
+      throw new ErrorClass({ value });
     }
   }
 
   try {
     return BigInt(value);
-  } catch (error) {
-    throw new AppError('Invalid value', { cause: value });
+  } catch (err) {
+    throw new ErrorClass({ value });
   }
 }
 
-function toFloat(value: string | number | bigint) {
+function toFloat<T extends Error>(
+  value: string | number | bigint,
+  ErrorClass: TErrorConstructor<T>
+) {
   if (typeof value === 'string' && value.trim() === '') {
-    throw new AppError('Invalid value', { cause: value });
+    throw new ErrorClass({ value });
   }
 
   const number = Number(value);
 
   if (isNaN(number)) {
-    throw new AppError('Invalid value', { cause: value });
+    throw new ErrorClass({ value });
   }
 
   return number;
 }
 
-function toNonNegativeNumber(value: string | number | bigint) {
-  const number = toFloat(value);
+function toNonNegativeNumber<T extends Error>(
+  value: string | number | bigint,
+  ErrorClass: TErrorConstructor<T>
+) {
+  const number = toFloat(value, ErrorClass);
 
   if (number < 0) {
-    throw new AppError('Value must not be negative', { cause: value });
+    throw new ErrorClass({ value });
   }
 
   return number;
 }
 
-function toFactor(value: string | number | bigint): IFactor {
-  const number = toFloat(value);
+function toFactor<T extends Error>(
+  value: string | number | bigint,
+  ErrorClass: TErrorConstructor<T>
+): IFactor {
+  const number = toFloat(value, ErrorClass);
 
   if (!Number.isFinite(number)) {
-    throw new AppError('Invalid value', { cause: value });
+    throw new ErrorClass({ value });
   }
 
   const numStr = number.toString();
@@ -83,47 +95,73 @@ function isNumber(value: unknown): boolean {
   return typeof value === 'number' && !isNaN(value);
 }
 
-function validateNumber(value: string | number | bigint) {
-  toFloat(value);
+function validateNumber<T extends Error>(
+  value: string | number | bigint,
+  ErrorClass: TErrorConstructor<T>
+) {
+  toFloat(value, ErrorClass);
 }
 
 function isInteger(value: string | number | bigint): boolean {
-  return Number.isInteger(toFloat(value));
+  try {
+    if (typeof value === 'string' && value.trim() === '') {
+      return false;
+    }
+    const num = Number(value);
+    return Number.isInteger(num);
+  } catch (error) {
+    return false;
+  }
 }
 
-function validateInteger(value: string | number | bigint) {
+function validateInteger<T extends Error>(
+  value: string | number | bigint,
+  ErrorClass: TErrorConstructor<T>
+) {
   if (!isInteger(value)) {
-    throw new AppError('Value must not be a float', { cause: value });
+    throw new ErrorClass({ value });
   }
 }
 
 function isPositiveNumber(value: string | number | bigint): boolean {
-  return toFloat(value) > 0;
+  try {
+    if (typeof value === 'string' && value.trim() === '') {
+      return false;
+    }
+    const num = Number(value);
+    return !isNaN(num) && num > 0;
+  } catch (error) {
+    return false;
+  }
 }
 
-function validatePositiveNumber(
+function validatePositiveNumber<T extends Error>(
   value: string | number | bigint,
-  message?: string
+  ErrorClass: TErrorConstructor<T>
 ) {
   if (!isPositiveNumber(value)) {
-    throw new AppError(message || 'Value must be greater than 0', {
-      cause: value,
-    });
+    throw new ErrorClass({ value });
   }
 }
 
 function isNonNegativeNumber(value: string | number | bigint): boolean {
-  return toFloat(value) >= 0;
+  try {
+    if (typeof value === 'string' && value.trim() === '') {
+      return false;
+    }
+    const num = Number(value);
+    return !isNaN(num) && num >= 0;
+  } catch (error) {
+    return false;
+  }
 }
 
-function validateNonNegativeNumber(
+function validateNonNegativeNumber<T extends Error>(
   value: string | number | bigint,
-  message?: string
+  ErrorClass: TErrorConstructor<T>
 ) {
   if (!isNonNegativeNumber(value)) {
-    throw new AppError(message || 'Value must not be negative', {
-      cause: value,
-    });
+    throw new ErrorClass({ value });
   }
 }
 

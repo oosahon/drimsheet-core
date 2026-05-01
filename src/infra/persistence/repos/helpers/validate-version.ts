@@ -1,14 +1,14 @@
-import { AppError } from '../../../../shared/errors/error';
+import repoError from '../../../../shared/errors/repo.error';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import numberUtils from '../../../../shared/utils/number';
 
 export default function validateVersionInOptions(options: IRepoOptions) {
   if (!options.expectedVersion) {
-    throw new AppError('Version is required for update', { cause: options });
+    throw new repoError.VersionRequired();
   }
 
-  numberUtils.validateNonNegativeNumber(
+  numberUtils.validatePositiveNumber(
     options.expectedVersion,
-    'Entity version cannot be negative'
+    repoError.VersionRequired
   );
 }

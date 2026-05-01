@@ -1,168 +1,201 @@
 import bcrypt from 'bcryptjs';
-import { sign, verify } from 'jsonwebtoken';
+import {
+  JsonWebTokenError,
+  NotBeforeError,
+  sign,
+  TokenExpiredError,
+  verify,
+} from 'jsonwebtoken';
 import IAuthService, {
   IAuthTokenPayload,
 } from '../../app/contracts/infra/auth-service.contract';
 import { ICacheStorage } from '../../app/contracts/infra/cache-storage.contract';
-import { NON_PROD_EMAIL_WHITELIST } from '../config/email-whitelist.config';
-import { JWT_SECRET_KEY, NODE_ENV } from '../config/vars.config';
+import IVarsConfig from '../../app/contracts/infra/vars-config.contract';
+import authError from '../../app/errors/auth.error';
 
 export default function makeAuthService(
-  cacheStorage: ICacheStorage
+  cacheStorage: ICacheStorage,
+  varsConfig: IVarsConfig,
+  nonProdEmailWhitelist: string[]
 ): IAuthService {
-  const verifyAuthToken = (token: string) =>
-    verify(token, JWT_SECRET_KEY) as IAuthTokenPayload & { type: string };
+  const handleJwtError = (err: unknown): never => {
+    if (err instanceof TokenExpiredError) {
+      throw new authError.ExpiredToken();
+    }
+    if (err instanceof NotBeforeError) {
+      throw new authError.InvalidToken();
+    }
+    if (err instanceof JsonWebTokenError) {
+      throw new authError.MalformedToken();
+    }
+    throw new authError.InvalidToken();
+  };
 
-  return {
-    hashPassword: async (password) => {
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(password, salt);
-      return hash;
-    },
+  const verifyAuthToken = (token: string) => {
+    try {
+      return verify(token, varsConfig.JWT_SECRET_KEY) as IAuthTokenPayload & {
+        type: string;
+      };
+    } catch (err) {
+      return handleJwtError(err);
+    }
+  };
 
-    async generateSignupToken({ id }) {
-      const token = sign(
-        {
-          id,
-          type: 'signup',
-        },
-        JWT_SECRET_KEY,
-        { expiresIn: '1day' }
-      );
+  const hashPassword: IAuthService['hashPassword'] = async (password) => {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    return hash;
+  };
 
-      await cacheStorage.set(
-        `app:auth:signup-token:${id}`,
-        token,
-        60 * 60 * 24
-      );
-      return token;
-    },
+  const generateSignupToken: IAuthService['generateSignupToken'] = async ({
+    id,
+  }) => {
+    const token = sign(
+      {
+        id,
+        type: 'signup',
+      },
+      varsConfig.JWT_SECRET_KEY,
+      { expiresIn: '1day' }
+    );
 
-    async verifySignupToken(token) {
-      try {
-        const decoded = verifyAuthToken(token);
+    await cacheStorage.set(`app:auth:signup-token:${id}`, token, 60 * 60 * 24);
+    return token;
+  };
 
-        if (decoded.type !== 'signup') return null;
+  const verifySignupToken: IAuthService['verifySignupToken'] = async (
+    token
+  ) => {
+    const decoded = verifyAuthToken(token);
 
-        const cachedToken = await cacheStorage.get<string>(
-          `app:auth:signup-token:${decoded.id}`
-        );
+    if (decoded.type !== 'signup') {
+      throw new authError.InvalidToken();
+    }
 
-        if (!cachedToken) {
-          return null;
-        }
+    const cachedToken = await cacheStorage.get<string>(
+      `app:auth:signup-token:${decoded.id}`
+    );
 
-        const isValid = cachedToken === token ? decoded : null;
+    if (!cachedToken || cachedToken !== token) {
+      throw new authError.InvalidToken();
+    }
 
-        if (isValid) {
-          await cacheStorage.del(`app:auth:signup-token:${decoded.id}`);
-        }
+    await cacheStorage.del(`app:auth:signup-token:${decoded.id}`);
 
-        return isValid;
-      } catch (err) {
-        return null;
-      }
-    },
+    return decoded;
+  };
 
-    comparePassword: async (passwordString, hashedPassword) => {
-      return await bcrypt.compare(passwordString, hashedPassword);
-    },
+  const comparePassword: IAuthService['comparePassword'] = async (
+    passwordString,
+    hashedPassword
+  ) => {
+    return await bcrypt.compare(passwordString, hashedPassword);
+  };
 
-    generateAccessToken: async ({ id }) => {
-      const ttlSeconds = 60 * 15; // 15 minutes
-      const token = sign({ id, type: 'access' }, JWT_SECRET_KEY, {
-        expiresIn: ttlSeconds,
-      });
+  const generateAccessToken: IAuthService['generateAccessToken'] = async ({
+    id,
+  }) => {
+    const ttlSeconds = 60 * 15; // 15 minutes
+    const token = sign({ id, type: 'access' }, varsConfig.JWT_SECRET_KEY, {
+      expiresIn: ttlSeconds,
+    });
 
-      return token;
-    },
+    return token;
+  };
 
-    generateRefreshToken: async ({ id }) => {
-      const ttlSeconds = 60 * 60 * 24 * 15; // 15 days
-      const token = sign(
-        {
-          id,
-          type: 'refresh',
-        },
-        JWT_SECRET_KEY,
-        { expiresIn: ttlSeconds }
-      );
+  const generateRefreshToken: IAuthService['generateRefreshToken'] = async ({
+    id,
+  }) => {
+    const ttlSeconds = 60 * 60 * 24 * 15; // 15 days
+    const token = sign(
+      {
+        id,
+        type: 'refresh',
+      },
+      varsConfig.JWT_SECRET_KEY,
+      { expiresIn: ttlSeconds }
+    );
 
-      return token;
-    },
+    return token;
+  };
 
-    verifyRefreshToken(token) {
-      try {
-        const { type, ...decoded } = verifyAuthToken(token);
+  const verifyRefreshToken: IAuthService['verifyRefreshToken'] = (token) => {
+    const { type, ...decoded } = verifyAuthToken(token);
 
-        if (type !== 'refresh') return null;
+    if (type !== 'refresh') {
+      throw new authError.InvalidToken();
+    }
 
-        return decoded;
-      } catch (err) {
-        return null;
-      }
-    },
+    return decoded;
+  };
 
-    async generatePasswordResetToken({ id }) {
+  const generatePasswordResetToken: IAuthService['generatePasswordResetToken'] =
+    async ({ id }) => {
       const ttlSeconds = 2 * 60 * 60; // 2 hours
       const token = sign(
         {
           id,
           type: 'reset',
         },
-        JWT_SECRET_KEY,
+        varsConfig.JWT_SECRET_KEY,
         { expiresIn: ttlSeconds }
       );
       await cacheStorage.set(`app:auth:reset-token:${id}`, token, ttlSeconds);
 
       return token;
-    },
+    };
 
-    async verifyPasswordResetToken(token) {
-      try {
-        const decoded = verifyAuthToken(token);
+  const verifyPasswordResetToken: IAuthService['verifyPasswordResetToken'] =
+    async (token) => {
+      const decoded = verifyAuthToken(token);
 
-        if (decoded.type !== 'reset') return null;
-
-        const cachedToken = await cacheStorage.get<string>(
-          `app:auth:reset-token:${decoded.id}`
-        );
-
-        if (!cachedToken) {
-          return null;
-        }
-
-        const isValid = cachedToken === token ? decoded : null;
-
-        if (isValid) {
-          await cacheStorage.del(`app:auth:reset-token:${decoded.id}`);
-        }
-
-        return isValid;
-      } catch (err) {
-        return null;
+      if (decoded.type !== 'reset') {
+        throw new authError.InvalidToken();
       }
-    },
 
-    verifyAuthToken,
+      const cachedToken = await cacheStorage.get<string>(
+        `app:auth:reset-token:${decoded.id}`
+      );
 
-    async getAuthUser(token: string) {
-      try {
-        const decoded = verifyAuthToken(token);
-
-        if (decoded.type !== 'access') return null;
-
-        return decoded;
-      } catch (err) {
-        return null;
+      if (!cachedToken || cachedToken !== token) {
+        throw new authError.InvalidToken();
       }
-    },
 
-    isPermittedEmail(email: string) {
-      if (NODE_ENV === 'local' || NODE_ENV === 'test') return true;
+      await cacheStorage.del(`app:auth:reset-token:${decoded.id}`);
 
-      const isProd = NODE_ENV === 'production';
-      return isProd ? true : NON_PROD_EMAIL_WHITELIST.includes(email);
-    },
+      return decoded;
+    };
+
+  const getAuthUser: IAuthService['getAuthUser'] = async (token) => {
+    const decoded = verifyAuthToken(token);
+
+    if (decoded.type !== 'access') {
+      throw new authError.InvalidToken();
+    }
+
+    return decoded;
   };
+
+  const isPermittedEmail: IAuthService['isPermittedEmail'] = (email) => {
+    if (varsConfig.NODE_ENV === 'local' || varsConfig.NODE_ENV === 'test')
+      return true;
+
+    const isProd = varsConfig.NODE_ENV === 'production';
+    return isProd ? true : nonProdEmailWhitelist.includes(email);
+  };
+
+  return Object.freeze({
+    hashPassword,
+    generateSignupToken,
+    verifySignupToken,
+    comparePassword,
+    generateAccessToken,
+    generateRefreshToken,
+    verifyRefreshToken,
+    generatePasswordResetToken,
+    verifyPasswordResetToken,
+    verifyAuthToken,
+    getAuthUser,
+    isPermittedEmail,
+  });
 }

@@ -1,3 +1,4 @@
+import currencyError from '../../../domain/currency/errors/currency.error';
 import { ICurrency } from '../../../domain/currency/types/currency.types';
 import currencyMapper, { ICurrencyModel } from '../currency.mapper';
 
@@ -64,7 +65,7 @@ describe('Currency Mapper', () => {
       const invalidCode = 'INVALID_CODE';
 
       expect(() => currencyMapper.fromInterface(invalidCode)).toThrow(
-        'Currency INVALID_CODE does not exist'
+        currencyError.InvalidCode
       );
     });
   });

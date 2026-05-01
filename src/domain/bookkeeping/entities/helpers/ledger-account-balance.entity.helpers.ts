@@ -1,14 +1,14 @@
-import { AppError } from '../../../../shared/errors/error';
 import { IMoney } from '../../../../shared/types/money.types';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import {
   ELedgerAccountBalanceEffect,
   ULedgerAccountBalanceEffect,
 } from '../../../bookkeeping/types/ledger-account-balance.types';
+import ledgerAccountBalanceError from '../../errors/ledger-account-balance.error';
 
 function validateEffectType(effect: ULedgerAccountBalanceEffect) {
   if (!Object.values(ELedgerAccountBalanceEffect).includes(effect)) {
-    throw new AppError(`Invalid effect balance effect`, { cause: effect });
+    throw new ledgerAccountBalanceError.InvalidBalanceEffect({ effect });
   }
 }
 

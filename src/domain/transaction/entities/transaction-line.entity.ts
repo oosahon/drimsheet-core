@@ -1,10 +1,10 @@
-import { AppError } from '../../../shared/errors/error';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
+import transactionError from '../errors/transaction.error';
 import transactionLineEvents from '../events/transaction-item.events';
 import {
   ETransactionType,
@@ -28,24 +28,30 @@ function validateCounterpartyId(
 
   if (isTransfer) {
     if (counterPartyId) {
-      throw new AppError('Counterparty ID is not allowed for transfers');
+      throw new transactionError.CounterpartyIdNotAllowed();
     }
     return;
   }
 
   if (!counterPartyId) {
-    throw new AppError('Counterparty ID is required.');
+    throw new transactionError.MissingCounterpartyId();
   }
 
-  stringUtils.validateUUID(counterPartyId);
+  stringUtils.validateUUID(counterPartyId, transactionError.InvalidValue);
 }
 
 function make(
   transactionDetails: TTransactionDetails,
   payload: TMakeTransactionLineItemPayload
 ): TEntityWithEvents<ITransactionLine, ITransactionLine> {
-  stringUtils.validateUUID(transactionDetails.id);
-  stringUtils.validateUUID(payload.targetAccountId);
+  stringUtils.validateUUID(
+    transactionDetails.id,
+    transactionError.InvalidValue
+  );
+  stringUtils.validateUUID(
+    payload.targetAccountId,
+    transactionError.InvalidValue
+  );
   validateCounterpartyId(transactionDetails.type, payload.counterPartyId);
 
   moneyValue.validate(payload.amount);

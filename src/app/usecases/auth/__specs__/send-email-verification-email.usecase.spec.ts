@@ -4,13 +4,11 @@ import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
-import {
-  AppError,
-  ErrorUnprocessableEntity,
-} from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import appError from '../../../errors/app.error';
+import authError from '../../../errors/auth.error';
 import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 
 describe('makeSendEmailVerificationEmailUseCase', () => {
@@ -23,7 +21,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     } as IRequestContextData);
   });
 
-  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+  it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeSendEmailVerificationEmailUseCase(
       mockRequestContext,
       mockLogger,
@@ -33,7 +31,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     );
 
     await expect(usecase('invalid-email')).rejects.toThrow(
-      ErrorUnprocessableEntity
+      appError.UnprocessableEntity
     );
   });
 
@@ -49,8 +47,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
       mockTransactionalEmailService
     );
 
-    await expect(usecase(userEmail)).rejects.toThrow(AppError);
-    await expect(usecase(userEmail)).rejects.toThrow('User not found');
+    await expect(usecase(userEmail)).rejects.toThrow(authError.UserNotFound);
 
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(
       emailValue.normalize(userEmail),

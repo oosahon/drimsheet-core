@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import stringUtils from '../../../../shared/utils/string';
 import {
   SYSTEM_ACCOUNTING_STANDARDS,
@@ -9,7 +8,8 @@ import {
   UJurisdictionCode,
 } from '../../config/jurisdictions.config';
 import accountingStandardError from '../../errors/accounting-standard.error';
-import jurisdictionError from '../../errors/jurisdiction.errors';
+import accountingError from '../../errors/accounting.error';
+import jurisdictionError from '../../errors/jurisdiction.error';
 import { UAccountingEntityType } from '../../types/accounting-entity.types';
 import accountingEntityHelpers from './accounting-entity.entity.helpers';
 
@@ -23,30 +23,32 @@ function isValidAccountingStandardCode(
 
 function validateAccountingStandardCode(code: unknown) {
   if (!isValidAccountingStandardCode(code)) {
-    throw new AppError('Invalid accounting standard code', {
-      cause: code as Record<string, unknown>,
-    });
+    throw new accountingStandardError.Invalid({ code });
   }
 }
 
 function getDescription(description: string | null) {
   return description != null
-    ? stringUtils.sanitizeAndValidate(description, {
-        min: 1,
-        max: 255,
-      })
+    ? stringUtils.sanitizeAndValidate(
+        description,
+        {
+          min: 1,
+          max: 255,
+        },
+        accountingError.InvalidValue
+      )
     : null;
 }
 
 function getJurisdiction(code: string) {
   if (!code) {
-    throw new jurisdictionError.InvalidJurisdiction();
+    throw new jurisdictionError.Invalid();
   }
 
   const jurisdiction = SYSTEM_JURISDICTIONS[code as UJurisdictionCode];
 
   if (!jurisdiction) {
-    throw new jurisdictionError.InvalidJurisdiction();
+    throw new jurisdictionError.Invalid();
   }
 
   return jurisdiction;
@@ -54,13 +56,13 @@ function getJurisdiction(code: string) {
 
 function validateStandardCode(code: UAccountingStandardCode) {
   if (!code) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 
   const standard = SYSTEM_ACCOUNTING_STANDARDS[code];
 
   if (!standard) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 }
 
@@ -77,13 +79,13 @@ function validateStandardCodeAndJurisdiction(
     jurisdictionObj.accountingStandards[accountingEntityType];
 
   if (!availableStandards) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 
   const isIncluded = availableStandards.includes(code);
 
   if (!isIncluded) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 }
 
@@ -91,7 +93,7 @@ function getStandard(code: UAccountingStandardCode) {
   const standard = SYSTEM_ACCOUNTING_STANDARDS[code];
 
   if (!standard) {
-    throw new accountingStandardError.InvalidStandard();
+    throw new accountingStandardError.Invalid();
   }
 
   return standard;

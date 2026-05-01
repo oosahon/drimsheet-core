@@ -1,7 +1,6 @@
 import { IUserPreferences } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockUserPreferencesRepo from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
-import { ErrorUnauthorized } from '../../../../shared/errors/error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
@@ -47,7 +46,7 @@ describe('makeGetUserPreferencesUseCase', () => {
     expect(result).toEqual(mockPreferences);
   });
 
-  it('should throw ErrorUnauthorized if user is not in request context', async () => {
+  it('should throw appError.Unauthorized if user is not in request context', async () => {
     MockRequestContext.get.mockReturnValue({} as IRequestContextData);
 
     const usecase = makeGetUserPreferencesUseCase(
@@ -55,7 +54,7 @@ describe('makeGetUserPreferencesUseCase', () => {
       mockUserPreferencesRepo
     );
 
-    await expect(usecase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(usecase()).rejects.toThrow('app_error_unauthorized');
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(mockUserPreferencesRepo.findById).not.toHaveBeenCalled();
   });

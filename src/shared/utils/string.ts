@@ -1,6 +1,6 @@
 import { v7 as uuid } from 'uuid';
 import { z } from 'zod';
-import { AppError } from '../errors/error';
+import { TErrorConstructor } from '../types/error.types';
 import { TEntityId } from '../types/uuid';
 
 interface IValidationOptions {
@@ -17,9 +17,12 @@ function isNonEmptyString(value: string) {
   return isString(value) && value.trim().length > 0;
 }
 
-function validateIsNonEmptyString(value: string, message?: string) {
+function validateIsNonEmptyString<T extends Error>(
+  value: string,
+  ErrorClass: TErrorConstructor<T>
+) {
   if (!isNonEmptyString(value)) {
-    throw new AppError(message ?? 'Invalid string', { cause: value });
+    throw new ErrorClass({ value });
   }
 }
 
@@ -37,21 +40,29 @@ function isStringWithinRange(value: string, options: IValidationOptions) {
   return true;
 }
 
-function validateStringWithinRange(value: string, options: IValidationOptions) {
+function validateStringWithinRange<T extends Error>(
+  value: string,
+  options: IValidationOptions,
+  ErrorClass: TErrorConstructor<T>
+) {
   if (!isStringWithinRange(value, options)) {
-    throw new AppError('Invalid string', { cause: value });
+    throw new ErrorClass({ value });
   }
 }
 
-function sanitizeAndValidateString(value: string, options: IValidationOptions) {
+function sanitizeAndValidateString<T extends Error>(
+  value: string,
+  options: IValidationOptions,
+  ErrorClass: TErrorConstructor<T>
+) {
   if (!isString(value)) {
-    throw new AppError('Invalid string', { cause: value });
+    throw new ErrorClass({ value });
   }
   const schema = z.string().min(options.min).max(options.max);
   const result = schema.safeParse(value.trim());
 
   if (!result.success) {
-    throw new AppError('Invalid string', { cause: value });
+    throw new ErrorClass({ value });
   }
 
   return result.data;
@@ -61,9 +72,12 @@ function isUUID(value: string) {
   return z.uuid().safeParse(value).success;
 }
 
-function validateUUID(value: string, message?: string) {
+function validateUUID<T extends Error>(
+  value: string,
+  ErrorClass: TErrorConstructor<T>
+) {
   if (!isUUID(value)) {
-    throw new AppError(message ?? 'Invalid UUID', { cause: value });
+    throw new ErrorClass({ value });
   }
 }
 
@@ -81,8 +95,11 @@ function isUrl(value: string) {
   }
 }
 
-function toUUD(value: string): TEntityId {
-  validateUUID(value);
+function toUUD<T extends Error>(
+  value: string,
+  ErrorClass: TErrorConstructor<T>
+): TEntityId {
+  validateUUID(value, ErrorClass);
   return value as TEntityId;
 }
 

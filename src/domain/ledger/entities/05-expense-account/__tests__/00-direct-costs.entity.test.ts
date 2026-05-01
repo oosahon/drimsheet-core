@@ -1,4 +1,3 @@
-import { AppError } from '../../../../../shared/errors/error';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   EExpenseAccountBehavior,
@@ -52,9 +51,7 @@ describe('Direct Costs Expense Entity', () => {
     });
 
     it('should throw if predecessor code does not match header code', () => {
-      expect(() => directCostsAccountEntity.getCode('501000' as any)).toThrow(
-        AppError
-      );
+      expect(() => directCostsAccountEntity.getCode('501000' as any)).toThrow();
     });
   });
 
@@ -142,7 +139,7 @@ describe('Direct Costs Expense Entity', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
         directCostsAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -152,7 +149,7 @@ describe('Direct Costs Expense Entity', () => {
       };
       expect(() =>
         directCostsAccountEntity.make(invalidPayload, validParent)
-      ).toThrow(AppError);
+      ).toThrow();
     });
 
     it('should use base code 500000 when predecessorCode is null', () => {

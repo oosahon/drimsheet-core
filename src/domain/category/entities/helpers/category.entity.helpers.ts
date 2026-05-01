@@ -1,5 +1,5 @@
-import { AppError } from '../../../../shared/errors/error';
 import stringUtils from '../../../../shared/utils/string';
+import categoryError from '../../errors/category.error';
 import {
   ECategoryHistoryAction,
   ECategoryStatus,
@@ -9,29 +9,37 @@ import {
 
 function validateStatus(status: UCategoryStatus) {
   if (!Object.values(ECategoryStatus).includes(status)) {
-    throw new AppError(`Invalid category status: ${status}`);
+    throw new categoryError.InvalidStatus({ status });
   }
 }
 
 function sanitizeName(name: string) {
-  return stringUtils.sanitizeAndValidate(name, {
-    min: 1,
-    max: 100,
-  });
+  return stringUtils.sanitizeAndValidate(
+    name,
+    {
+      min: 1,
+      max: 100,
+    },
+    categoryError.InvalidValue
+  );
 }
 
 function getHistoryNote(note: string | null) {
   if (!note) return null;
 
-  return stringUtils.sanitizeAndValidate(note, {
-    min: 1,
-    max: 100,
-  });
+  return stringUtils.sanitizeAndValidate(
+    note,
+    {
+      min: 1,
+      max: 100,
+    },
+    categoryError.InvalidValue
+  );
 }
 
 function validateHistoryAction(action: UCategoryHistoryAction) {
   if (!Object.values(ECategoryHistoryAction).includes(action)) {
-    throw new AppError(`Invalid category history action: ${action}`);
+    throw new categoryError.InvalidHistoryAction({ action });
   }
 }
 

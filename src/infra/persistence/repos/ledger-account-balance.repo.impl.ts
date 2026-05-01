@@ -1,7 +1,7 @@
 import { and, eq, getTableColumns, or } from 'drizzle-orm';
 import ledgerAccountBalanceMapper from '../../../app/mappers/ledger-account-balance.mapper';
 import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
-import { AppError } from '../../../shared/errors/error';
+import repoError from '../../../shared/errors/repo.error';
 import {
   currenciesInCore,
   ledgerAccountBalanceAdjustmentsInCore,
@@ -82,11 +82,9 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
         );
 
       if (updated.rowCount === 0) {
-        throw new AppError('Failed to update ledger account balance', {
-          cause: {
-            ledgerAccountId: newBalance.ledgerAccountId,
-            version: options.expectedVersion,
-          },
+        throw new repoError.VersionNotFound({
+          id: payload.newBalance.ledgerAccountId,
+          version: options.expectedVersion,
         });
       }
     });

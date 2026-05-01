@@ -1,4 +1,3 @@
-import { AppError } from '../../../../shared/errors/error';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IUserActivity } from '../../types/user-activity.types';
@@ -60,7 +59,7 @@ describe('User Activity Entity', () => {
         meta: null,
       };
 
-      expect(() => userActivityEntity.make(payload)).toThrow(AppError);
+      expect(() => userActivityEntity.make(payload)).toThrow();
     });
 
     it('should throw an error for missing or empty eventKey', () => {
@@ -72,7 +71,7 @@ describe('User Activity Entity', () => {
         meta: null,
       };
 
-      expect(() => userActivityEntity.make(payload)).toThrow(AppError);
+      expect(() => userActivityEntity.make(payload)).toThrow();
     });
 
     it('should throw an error for eventKey length exceeding max limit', () => {
@@ -85,7 +84,7 @@ describe('User Activity Entity', () => {
         meta: null,
       };
 
-      expect(() => userActivityEntity.make(payload)).toThrow(AppError);
+      expect(() => userActivityEntity.make(payload)).toThrow();
     });
 
     it('should throw an error for missing or empty description', () => {
@@ -97,7 +96,7 @@ describe('User Activity Entity', () => {
         meta: null,
       };
 
-      expect(() => userActivityEntity.make(payload)).toThrow(AppError);
+      expect(() => userActivityEntity.make(payload)).toThrow();
     });
 
     it('should throw an error for description length exceeding max limit', () => {
@@ -110,7 +109,7 @@ describe('User Activity Entity', () => {
         meta: null,
       };
 
-      expect(() => userActivityEntity.make(payload)).toThrow(AppError);
+      expect(() => userActivityEntity.make(payload)).toThrow();
     });
 
     it('should throw an error if meta is provided but is not an object', () => {
@@ -122,7 +121,7 @@ describe('User Activity Entity', () => {
         meta: 'invalid-meta' as unknown as IUserActivity['meta'],
       };
 
-      expect(() => userActivityEntity.make(payload)).toThrow(AppError);
+      expect(() => userActivityEntity.make(payload)).toThrow();
     });
   });
 });

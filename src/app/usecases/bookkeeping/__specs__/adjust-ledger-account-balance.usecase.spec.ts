@@ -10,6 +10,7 @@ import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__
 import { TEntityId } from '../../../../shared/types/uuid';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../../contracts/dto/workers.dto';
 import IQueue from '../../../contracts/infra/queues.contract';
+import ledgerAppError from '../../../errors/ledger.error';
 import makeAdjustLedgerAccountBalanceUseCase from '../adjust-ledger-account-balance.usecase';
 
 describe('makeAdjustLedgerAccountBalanceUseCase', () => {
@@ -229,7 +230,9 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
 
     mockLedgerAccountRepo.findById.mockReset().mockResolvedValue(null);
 
-    await expect(useCase(validPayload)).rejects.toThrow('Account not found');
+    await expect(useCase(validPayload)).rejects.toThrow(
+      ledgerAppError.AccountNotFound
+    );
   });
 
   it('should throw AppError if balance is not found for account', async () => {
@@ -240,7 +243,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
       .mockResolvedValue(null);
 
     await expect(useCase(validPayload)).rejects.toThrow(
-      'Balance not found for account'
+      ledgerAppError.BalanceNotFound
     );
   });
 

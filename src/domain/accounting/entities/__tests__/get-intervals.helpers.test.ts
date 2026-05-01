@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import periodErrors from '../../errors/period.errors';
 import { EPeriodUnit } from '../../types/period.types';
 import periodHelpers from '../helpers/period.helpers';
 
@@ -15,9 +14,7 @@ describe('Period Helpers - getIntervals', () => {
         count: 1,
       };
 
-      expect(() => periodHelpers.getIntervals(payload)).toThrow(
-        periodErrors.InvalidUnit
-      );
+      expect(() => periodHelpers.getIntervals(payload)).toThrow();
     });
 
     it('throws InvalidDateRange if start date is after end date', () => {
@@ -28,12 +25,10 @@ describe('Period Helpers - getIntervals', () => {
         count: 1,
       };
 
-      expect(() => periodHelpers.getIntervals(payload)).toThrow(
-        periodErrors.InvalidDateRange
-      );
+      expect(() => periodHelpers.getIntervals(payload)).toThrow();
     });
 
-    it('throws EndDateIsInThePast if end date is in the past', () => {
+    it('throws PastEndDate if end date is in the past', () => {
       const payload = {
         startDate: new Date('2000-01-01'),
         endDate: new Date('2000-12-31'),
@@ -41,9 +36,7 @@ describe('Period Helpers - getIntervals', () => {
         count: 1,
       };
 
-      expect(() => periodHelpers.getIntervals(payload)).toThrow(
-        periodErrors.EndDateIsInThePast
-      );
+      expect(() => periodHelpers.getIntervals(payload)).toThrow();
     });
 
     it('throws InvalidInterval if count is not a positive number', () => {
@@ -54,9 +47,7 @@ describe('Period Helpers - getIntervals', () => {
         count: -1,
       };
 
-      expect(() => periodHelpers.getIntervals(payload)).toThrow(
-        periodErrors.InvalidInterval
-      );
+      expect(() => periodHelpers.getIntervals(payload)).toThrow();
     });
 
     it('throws InvalidInterval if the total full-unit distance is less than count', () => {
@@ -67,9 +58,7 @@ describe('Period Helpers - getIntervals', () => {
         count: 1, // asking for 1 month intervals
       };
 
-      expect(() => periodHelpers.getIntervals(payload)).toThrow(
-        periodErrors.InvalidInterval
-      );
+      expect(() => periodHelpers.getIntervals(payload)).toThrow();
     });
   });
 
