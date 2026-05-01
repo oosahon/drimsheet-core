@@ -20,7 +20,7 @@ interface IConfig {
   ) => string | undefined | Promise<string | undefined>;
 }
 
-import { ErrorTooManyRequests } from '../../shared/utils/error';
+import httpError from '../../app/errors/http.errors';
 import reporter from '../observability/reporter';
 
 export function configureRateLimiter(config: IConfig) {
@@ -50,11 +50,10 @@ export function configureRateLimiter(config: IConfig) {
         });
       }
 
-      throw new ErrorTooManyRequests(options.message, {
-        cause: {
-          used: rateLimitInfo.used,
-          limit: rateLimitInfo.limit,
-        },
+      throw new httpError.TooManyRequests({
+        used: rateLimitInfo.used,
+        limit: rateLimitInfo.limit,
+        message: options.message,
       });
     },
   });

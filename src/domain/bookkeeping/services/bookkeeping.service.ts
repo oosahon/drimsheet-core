@@ -8,7 +8,7 @@ import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.ent
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
 import { ELedgerType } from '../../ledger/types/ledger.types';
-import bookkeepingError from '../errors/bookkeeping.errors';
+import bookkeepingError from '../errors/bookkeeping.error';
 import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
 import journalEntryRules from '../rules/journal-entry.rule';
 import IBookkeepingService from '../types/bookkeeping.service.types';

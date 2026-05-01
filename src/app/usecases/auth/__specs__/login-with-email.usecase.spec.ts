@@ -6,13 +6,13 @@ import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/u
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import { ErrorUnprocessableEntity } from '../../../../shared/utils/error';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
 import authError from '../../../errors/auth.errors';
+import httpError from '../../../errors/http.errors';
 import makeLoginWithEmailUseCase from '../login-with-email.usecase';
 
 describe('makeLoginWithEmailUseCase', () => {
@@ -57,7 +57,7 @@ describe('makeLoginWithEmailUseCase', () => {
       mockRepoService
     );
 
-  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+  it('should throw httpError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = getUseCase();
 
     const invalidPayload = {
@@ -66,7 +66,7 @@ describe('makeLoginWithEmailUseCase', () => {
     } as unknown as Parameters<ReturnType<typeof makeLoginWithEmailUseCase>>[0];
 
     await expect(usecase(invalidPayload)).rejects.toThrow(
-      ErrorUnprocessableEntity
+      httpError.UnprocessableEntity
     );
   });
 

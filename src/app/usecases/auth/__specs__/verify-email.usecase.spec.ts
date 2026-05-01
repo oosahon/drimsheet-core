@@ -4,12 +4,12 @@ import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/u
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import { ErrorUnprocessableEntity } from '../../../../shared/utils/error';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import authError from '../../../errors/auth.errors';
+import httpError from '../../../errors/http.errors';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
 describe('makeVerifyEmailAddressUseCase', () => {
@@ -23,7 +23,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     } as unknown as IRequestContextData);
   });
 
-  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+  it('should throw httpError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
       mockUserRepo,
@@ -34,7 +34,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     );
 
     await expect(usecase(123 as unknown as string)).rejects.toThrow(
-      ErrorUnprocessableEntity
+      httpError.UnprocessableEntity
     );
   });
 
@@ -130,7 +130,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
-  it('should throw ErrorUnauthorized if user is not found', async () => {
+  it('should throw httpError.Unauthorized if user is not found', async () => {
     const token = 'valid-token';
     const decodedToken = {
       id: '123e4567-e89b-12d3-a456-426614174000',

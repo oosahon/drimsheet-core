@@ -14,18 +14,18 @@ const EErrorKeys = {
   InvalidAmount: 'value_error_money_invalid_amount',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
-type USpecificMoneyError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
+type UMoneyError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class SpecificMoneyError extends ValueError<USpecificMoneyError> {
-  constructor(key: USpecificMoneyError, cause?: TErrorCause) {
+class MoneyError extends ValueError<UMoneyError> {
+  constructor(key: UMoneyError, cause?: TErrorCause) {
     super(key, cause);
     this.name = 'MoneyError';
   }
 }
 
 const moneyError = Object.freeze({
-  Error: SpecificMoneyError,
-  ...getMappedErrors(EErrorKeys, SpecificMoneyError),
+  Error: MoneyError,
+  ...getMappedErrors(EErrorKeys, MoneyError),
 });
 
 export default moneyError;

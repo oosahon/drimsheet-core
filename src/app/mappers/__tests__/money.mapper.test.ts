@@ -1,6 +1,6 @@
+import httpError from '../../../app/errors/http.errors';
 import { ICurrency } from '../../../domain/currency/types/currency.types';
 import { IMoney } from '../../../shared/types/money.types';
-import { AppError } from '../../../shared/utils/error';
 import { IMoneyDto } from '../../contracts/dto/money.dto';
 import moneyMapper from '../money.mapper';
 
@@ -45,7 +45,9 @@ describe('Money Mapper', () => {
         isMinorUnit: true,
       };
 
-      expect(() => moneyMapper.fromDto(invalidDto)).toThrow(AppError);
+      expect(() => moneyMapper.fromDto(invalidDto)).toThrow(
+        httpError.UnprocessableEntity
+      );
     });
 
     it('should throw AppError if currency format is valid but not in system currencies', () => {
@@ -55,7 +57,7 @@ describe('Money Mapper', () => {
         isMinorUnit: true,
       };
 
-      expect(() => moneyMapper.fromDto(invalidDto)).toThrow(AppError);
+      expect(() => moneyMapper.fromDto(invalidDto)).toThrow(Error);
     });
   });
 

@@ -1,5 +1,6 @@
 import z from 'zod';
-import { ErrorUnprocessableEntity, IApiValidationError } from './error';
+import httpError from '../../app/errors/http.errors';
+import { IApiValidationError } from './error';
 
 function errorFormatter(errors: z.core.$ZodIssue[]): IApiValidationError[] {
   return errors.map((err) => ({
@@ -16,6 +17,6 @@ export default function zodValidationRunner(
 
   if (!result.success) {
     const validationErrors = errorFormatter(result.error.issues);
-    throw new ErrorUnprocessableEntity(validationErrors);
+    throw new httpError.UnprocessableEntity(validationErrors);
   }
 }

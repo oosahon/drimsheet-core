@@ -1,6 +1,6 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import stringUtils from '../../../../shared/utils/string';
-import transactionError from '../../errors/transaction.errors';
+import transactionError from '../../errors/transaction.error';
 import {
   ETransactionStatus,
   ETransactionType,

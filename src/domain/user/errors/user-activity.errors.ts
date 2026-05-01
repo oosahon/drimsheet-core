@@ -1,5 +1,5 @@
-import { UserError } from '.';
 import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import { UserError } from './user.error';
 
 type TErrorKeyPrefix = `user_error_user_activity_${string}`;
 

@@ -177,6 +177,8 @@ describe('recordOpeningBalanceUseCase', () => {
       exchangeRate: null,
     };
 
-    await expect(useCase(payload)).rejects.toThrow('Account not found.');
+    await expect(useCase(payload)).rejects.toThrow(
+      'http_error_resource_not_found'
+    );
   });
 });

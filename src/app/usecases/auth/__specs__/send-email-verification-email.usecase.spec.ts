@@ -5,12 +5,10 @@ import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.rep
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
-import {
-  AppError,
-  ErrorUnprocessableEntity,
-} from '../../../../shared/utils/error';
+import { AppError } from '../../../../shared/utils/error';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import httpError from '../../../errors/http.errors';
 import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 
 describe('makeSendEmailVerificationEmailUseCase', () => {
@@ -23,7 +21,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     } as IRequestContextData);
   });
 
-  it('should throw ErrorUnprocessableEntity if payload is invalid', async () => {
+  it('should throw httpError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeSendEmailVerificationEmailUseCase(
       mockRequestContext,
       mockLogger,
@@ -33,7 +31,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     );
 
     await expect(usecase('invalid-email')).rejects.toThrow(
-      ErrorUnprocessableEntity
+      httpError.UnprocessableEntity
     );
   });
 

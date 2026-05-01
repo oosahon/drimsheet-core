@@ -1,6 +1,5 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { ErrorUnauthorized } from '../../../../shared/utils/error';
 import { IUserSession } from '../../../contracts/infra/auth-service.contract';
 import authError from '../../../errors/auth.errors';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
@@ -59,10 +58,10 @@ describe('refreshAccessTokenUseCase', () => {
     });
   });
 
-  it('throws ErrorUnauthorized if refresh token is missing', async () => {
+  it('throws httpError.Unauthorized if refresh token is missing', async () => {
     mockClientSession.getRefreshToken.mockReturnValue(undefined);
     const useCase = getUseCase();
-    await expect(useCase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(useCase()).rejects.toThrow('http_error_unauthorized');
   });
 
   it('propagates AuthError if refresh token is invalid', async () => {
@@ -73,16 +72,16 @@ describe('refreshAccessTokenUseCase', () => {
     await expect(useCase()).rejects.toThrow(authError.Error);
   });
 
-  it('throws ErrorUnauthorized if user is not found', async () => {
+  it('throws httpError.Unauthorized if user is not found', async () => {
     mockUserRepo.findById.mockResolvedValue(null);
     const useCase = getUseCase();
-    await expect(useCase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(useCase()).rejects.toThrow('http_error_unauthorized');
   });
 
-  it('throws ErrorUnauthorized if session is not found in DB', async () => {
+  it('throws httpError.Unauthorized if session is not found in DB', async () => {
     mockUserSessionRepo.findByRefreshToken.mockResolvedValue(null);
     const useCase = getUseCase();
-    await expect(useCase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(useCase()).rejects.toThrow('http_error_unauthorized');
   });
 
   it('successfully returns the new user session', async () => {

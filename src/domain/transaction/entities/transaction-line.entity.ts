@@ -4,7 +4,7 @@ import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
-import transactionError from '../errors/transaction.errors';
+import transactionError from '../errors/transaction.error';
 import transactionLineEvents from '../events/transaction-item.events';
 import {
   ETransactionType,

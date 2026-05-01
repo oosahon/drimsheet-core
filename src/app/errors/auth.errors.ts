@@ -1,5 +1,5 @@
 import {
-  DomainError,
+  AppError,
   getMappedErrors,
   TErrorCause,
 } from '../../shared/utils/error';
@@ -17,18 +17,18 @@ const EErrorKeys = {
   EmailRequired: 'app_error_auth_email_required',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
-type USpecificAuthError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
+type UErrorKeys = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class SpecificAuthError extends DomainError<USpecificAuthError> {
-  constructor(key: USpecificAuthError, cause?: TErrorCause) {
-    super(key, 'Authentication failed', cause);
+class AuthError extends AppError<UErrorKeys> {
+  constructor(key: UErrorKeys, cause?: TErrorCause) {
+    super(key, cause);
     this.name = 'AuthError';
   }
 }
 
 const authError = Object.freeze({
-  Error: SpecificAuthError,
-  ...getMappedErrors(EErrorKeys, SpecificAuthError),
+  Error: AuthError,
+  ...getMappedErrors(EErrorKeys, AuthError),
 });
 
 export default authError;

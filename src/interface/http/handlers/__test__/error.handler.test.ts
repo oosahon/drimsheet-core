@@ -1,11 +1,8 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
+import httpError from '../../../../app/errors/http.errors';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
-import {
-  AppError,
-  DomainError,
-  ErrorBadRequest,
-} from '../../../../shared/utils/error';
+import { AppError, DomainError } from '../../../../shared/utils/error';
 import makeHttpErrorHandler from '../error.handler';
 
 describe('makeHttpErrorHandler', () => {
@@ -74,6 +71,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockStatus).toHaveBeenCalledWith(422);
     expect(mockJson).toHaveBeenCalledWith({
       cause: undefined,
+      errorKey: 'http_error_unprocessable_entity',
       validationErrors: [
         { field: 'email', message: 'Invalid email' },
         { field: 'age', message: 'Must be a number' },
@@ -82,17 +80,18 @@ describe('makeHttpErrorHandler', () => {
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
-  it('should handle ApiError (e.g. ErrorBadRequest)', () => {
+  it('should handle ApiError (e.g. httpError.BadRequest)', () => {
     const handler = makeHttpErrorHandler(mockReporter);
-    const error = new ErrorBadRequest('Bad request occurred');
+    const error = new httpError.BadRequest();
 
     handler(mockReq as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
-      name: 'ApiError',
-      message: 'Bad request occurred',
-      cause: undefined,
+      name: 'HttpError',
+      errorKey: 'http_error_bad_request',
+      message: 'http_error_bad_request',
+      cause: null,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
@@ -106,8 +105,9 @@ describe('makeHttpErrorHandler', () => {
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'AppError',
+      errorKey: 'Domain rule violated',
       message: 'Domain rule violated',
-      cause: undefined,
+      cause: null,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
@@ -116,7 +116,7 @@ describe('makeHttpErrorHandler', () => {
     const handler = makeHttpErrorHandler(mockReporter);
     class MockAuthError extends DomainError<'app_error_auth_test'> {
       constructor() {
-        super('app_error_auth_test', 'Auth failed');
+        super('app_error_auth_test');
       }
     }
     const error = new MockAuthError();
@@ -127,8 +127,8 @@ describe('makeHttpErrorHandler', () => {
     expect(mockJson).toHaveBeenCalledWith({
       name: 'MockAuthError',
       errorKey: 'app_error_auth_test',
-      message: 'Auth failed',
-      cause: undefined,
+      message: 'app_error_auth_test',
+      cause: null,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
@@ -137,7 +137,7 @@ describe('makeHttpErrorHandler', () => {
     const handler = makeHttpErrorHandler(mockReporter);
     class MockDomainError extends DomainError<'app_error_other_test'> {
       constructor() {
-        super('app_error_other_test', 'Other domain error');
+        super('app_error_other_test');
       }
     }
     const error = new MockDomainError();
@@ -148,22 +148,22 @@ describe('makeHttpErrorHandler', () => {
     expect(mockJson).toHaveBeenCalledWith({
       name: 'MockDomainError',
       errorKey: 'app_error_other_test',
-      message: 'Other domain error',
-      cause: undefined,
+      message: 'app_error_other_test',
+      cause: null,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
   it('should handle unknown errors and report them', () => {
     const handler = makeHttpErrorHandler(mockReporter);
-    const error = new Error('Database connection failed');
+    const error = new Error('Internal Server Error');
 
     handler(mockReq as Request, mockRes as Response, error);
 
     expect(mockReporter.report).toHaveBeenCalledWith(error);
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
-      message: 'Database connection failed',
+      message: 'http_error_internal_server_error',
     });
   });
 });

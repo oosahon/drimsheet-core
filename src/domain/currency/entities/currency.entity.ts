@@ -1,5 +1,5 @@
 import { SYSTEM_CURRENCIES, UCurrencyCode } from '../config/currencies.config';
-import currencyError from '../errors/currency.errors';
+import currencyError from '../errors/currency.error';
 
 function isValidCurrencyCode(code: string): boolean {
   return code in SYSTEM_CURRENCIES;

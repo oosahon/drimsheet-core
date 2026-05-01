@@ -1,10 +1,6 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
-import {
-  ErrorBadRequest,
-  ErrorInternalServerError,
-} from '../../../../shared/utils/error';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import IRequestContext from '../../../contracts/app/request-context.contract';
 import {
@@ -18,6 +14,7 @@ import {
   TRepoTransactionFn,
 } from '../../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../../contracts/repos/user-auth.repo.contract';
+import httpError from '../../../errors/http.errors';
 
 export default function makeGoogleOAuthHelper(
   eventBus: IEventBus,
@@ -29,7 +26,7 @@ export default function makeGoogleOAuthHelper(
   return async (profile: IOAuthProfile, done: TOAuthDoneCallback) => {
     try {
       if (!profile.email) {
-        const error = new ErrorBadRequest('Email is required');
+        const error = new httpError.BadRequest();
         return done(error, false);
       }
 
@@ -88,10 +85,7 @@ export default function makeGoogleOAuthHelper(
       if (error instanceof Error) {
         return done(error, false);
       }
-      return done(
-        new ErrorInternalServerError('Unknown authentication error'),
-        false
-      );
+      return done(new httpError.InternalServerError(), false);
     }
   };
 }

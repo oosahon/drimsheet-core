@@ -3,7 +3,6 @@ import IExchangeRateService from '../../../domain/currency/types/exchange-rate.s
 import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { TEntityId } from '../../../shared/types/uuid';
-import { ErrorResourceNotFound } from '../../../shared/utils/error';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
@@ -12,6 +11,7 @@ import {
   openingBalanceCreationReqValidation,
 } from '../../contracts/dto/bookkeeping.dto';
 import IEventBus from '../../contracts/infra/event-bus.contract';
+import httpError from '../../errors/http.errors';
 import moneyMapper from '../../mappers/money.mapper';
 
 export default function makeRecordOpeningBalanceUseCase(
@@ -33,7 +33,7 @@ export default function makeRecordOpeningBalanceUseCase(
       trace
     );
 
-    if (!account) throw new ErrorResourceNotFound('Account not found.');
+    if (!account) throw new httpError.ResourceNotFound();
 
     const amount = moneyMapper.fromDto(payload.amount);
     const exchangeRate = await exchangeRateService.getExchangeRate(

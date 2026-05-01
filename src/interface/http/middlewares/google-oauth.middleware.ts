@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import passport from 'passport';
+import httpError from '../../../app/errors/http.errors';
 import { IUser } from '../../../domain/user/types/user.types';
-import { ErrorUnauthorized } from '../../../shared/utils/error';
 
 export function makeInitiateLoginWithGoogleMiddleware(): RequestHandler {
   return passport.authenticate('google', {
@@ -20,7 +20,7 @@ export function makeCompleteLoginWithGoogleMiddleware(
       async (err: unknown, user?: IUser | false) => {
         try {
           if (err || !user) {
-            return next(new ErrorUnauthorized('unauthorized'));
+            return next(new httpError.Unauthorized());
           }
 
           const redirectUrl = await handleGoogleCallback(user);

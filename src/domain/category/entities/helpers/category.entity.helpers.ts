@@ -1,5 +1,5 @@
 import stringUtils from '../../../../shared/utils/string';
-import categoryError from '../../errors/category.errors';
+import categoryError from '../../errors/category.error';
 import {
   ECategoryHistoryAction,
   ECategoryStatus,

@@ -1,12 +1,8 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
-import {
-  ErrorInternalServerError,
-  ErrorUnprocessableEntity,
-  IApiValidationError,
-  parseError,
-} from '../../../shared/utils/error';
+import httpError from '../../../app/errors/http.errors';
+import { IApiValidationError, parseError } from '../../../shared/utils/error';
 
 export interface IApiError {
   message: string;
@@ -34,7 +30,7 @@ function makeHttpErrorHandler(reporter: IReporter) {
           message: value.message,
         })
       );
-      const { code, name, ...body } = new ErrorUnprocessableEntity(
+      const { code, name, ...body } = new httpError.UnprocessableEntity(
         validationErrors
       );
 
@@ -52,13 +48,21 @@ function makeHttpErrorHandler(reporter: IReporter) {
         parsedError.errorKey.startsWith('app_error_auth_');
 
       const defaultCode = isAuthError ? 401 : 400;
-      const { code = defaultCode, ...body } = parsedError;
+      const rawError = parsedError._raw as any;
+      const code = rawError?.code || defaultCode;
+
+      const body = {
+        name: parsedError.name,
+        errorKey: parsedError.errorKey,
+        message: parsedError.errorKey || 'Unknown error',
+        cause: parsedError.cause,
+      };
 
       return res.status(code as number).json(body);
     }
 
     reporter.report(error);
-    const serverError = new ErrorInternalServerError(error.message);
+    const serverError = new httpError.InternalServerError();
     return res.status(serverError.code).json({
       message: serverError.message,
     });

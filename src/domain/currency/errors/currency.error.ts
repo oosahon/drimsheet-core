@@ -1,11 +1,20 @@
-import { CurrencyError } from '.';
-import { getMappedErrors, TErrorCause } from '../../../shared/utils/error';
+import {
+  DomainError,
+  getMappedErrors,
+  TErrorCause,
+} from '../../../shared/utils/error';
 
-type TErrorKeyPrefix = `currency_error_currency_${string}`;
+type TErrorPrefix = `currency_error_${string}`;
+
+export class CurrencyError<K extends TErrorPrefix> extends DomainError<K> {
+  constructor(key: K, cause?: TErrorCause) {
+    super(key, cause);
+  }
+}
 
 const EErrorKeys = {
-  InvalidCode: 'currency_error_currency_invalid_code',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InvalidCode: 'currency_error_invalid_code',
+} as const satisfies Record<string, TErrorPrefix>;
 
 type USpecificCurrencyError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

@@ -1,8 +1,8 @@
 import { RequestHandler } from 'express';
 import _ from 'lodash';
 import IRequestContext from '../../../app/contracts/app/request-context.contract';
+import httpError from '../../../app/errors/http.errors';
 import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
-import { ErrorForbidden, ErrorUnauthorized } from '../../../shared/utils/error';
 import httpHandlers from '../handlers';
 
 export default function makeIsAuthenticatedUserMiddleware(
@@ -14,7 +14,7 @@ export default function makeIsAuthenticatedUserMiddleware(
       const { user, accountingEntity } = requestContext.get();
 
       if (_.isEmpty(user)) {
-        throw new ErrorUnauthorized();
+        throw new httpError.Unauthorized();
       }
 
       if (!_.isEmpty(accountingEntity)) {
@@ -24,7 +24,7 @@ export default function makeIsAuthenticatedUserMiddleware(
         );
 
         if (!canAccessEntity) {
-          throw new ErrorForbidden();
+          throw new httpError.Forbidden();
         }
       }
 

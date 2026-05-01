@@ -8,4 +8,6 @@ When throwing errors, particularly validation errors, it might be important to s
 
 If no existing error within the bounded context currently fits the error scenario you have faced, create a new error. To understand how to create errors, see [How to create errors](../rules/error-creation.rule.md).
 
-##
+## Related Skills
+
+- [Pair Programmer Skill](./pair-programmer.skill.md)

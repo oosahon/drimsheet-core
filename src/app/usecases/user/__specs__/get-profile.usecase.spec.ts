@@ -1,6 +1,5 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { ErrorUnauthorized } from '../../../../shared/utils/error';
 import MockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import userMapper from '../../../mappers/user.mapper';
@@ -36,12 +35,12 @@ describe('makeGetAuthUserProfileUseCase', () => {
     expect(result).toEqual(mappedUser);
   });
 
-  it('should throw ErrorUnauthorized if user is not in request context', async () => {
+  it('should throw httpError.Unauthorized if user is not in request context', async () => {
     MockRequestContext.get.mockReturnValue({} as IRequestContextData);
 
     const usecase = makeGetAuthUserProfileUseCase(MockRequestContext);
 
-    await expect(usecase()).rejects.toThrow(ErrorUnauthorized);
+    await expect(usecase()).rejects.toThrow('http_error_unauthorized');
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(userMapper.toInterface).not.toHaveBeenCalled();
   });

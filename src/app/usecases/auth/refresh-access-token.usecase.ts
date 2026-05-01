@@ -1,10 +1,10 @@
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import { ErrorUnauthorized } from '../../../shared/utils/error';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
+import httpError from '../../errors/http.errors';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 export default function makeRefreshAccessTokenUseCase(
@@ -21,7 +21,7 @@ export default function makeRefreshAccessTokenUseCase(
     const refreshToken = clientSession.getRefreshToken();
 
     if (!refreshToken) {
-      throw new ErrorUnauthorized();
+      throw new httpError.Unauthorized();
     }
 
     const decoded = makeAuthService.verifyRefreshToken(refreshToken);
@@ -29,7 +29,7 @@ export default function makeRefreshAccessTokenUseCase(
     const user = await userRepo.findById(decoded.id, { correlationId });
 
     if (!user) {
-      throw new ErrorUnauthorized();
+      throw new httpError.Unauthorized();
     }
 
     const existingRefreshToken = await userSessionRepo.findByRefreshToken(
@@ -39,7 +39,7 @@ export default function makeRefreshAccessTokenUseCase(
     );
 
     if (!existingRefreshToken) {
-      throw new ErrorUnauthorized();
+      throw new httpError.Unauthorized();
     }
 
     return makeIssueUserSessionHelper({

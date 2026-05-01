@@ -1,7 +1,7 @@
 import { IMoney } from '../../../../shared/types/money.types';
 import stringUtils from '../../../../shared/utils/string';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import journalEntryError from '../../errors/journal-entry.errors';
+import journalEntryError from '../../errors/journal-entry.error';
 import {
   EJournalEntryStatus,
   UJournalEntryStatus,

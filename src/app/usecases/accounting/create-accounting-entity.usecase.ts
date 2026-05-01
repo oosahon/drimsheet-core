@@ -22,7 +22,6 @@ import IExpenseAccountService from '../../../domain/ledger/types/expense-account
 import ILiabilityAccountService from '../../../domain/ledger/types/liability-account.service.types';
 import IRevenueAccountService from '../../../domain/ledger/types/revenue-account.service.types';
 import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
-import { ErrorBadRequest, ErrorConflict } from '../../../shared/utils/error';
 import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
@@ -36,13 +35,14 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../contracts/infra/repo.contract';
+import httpError from '../../errors/http.errors';
 import currencyMapper from '../../mappers/currency.mapper';
 
 function validate(payload: IAccountingEntityCreationDto) {
   zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
   if (payload.entityType !== EAccountingEntityType.Individual) {
-    throw new ErrorBadRequest('Unsupported accounting entity type');
+    throw new httpError.BadRequest();
   }
 
   accountingContextEntity.validateStandardCodeAndJurisdiction(
@@ -82,7 +82,7 @@ export default function createAccountingEntityUseCase(
     );
 
     if (existing.length > 0) {
-      throw new ErrorConflict('Accounting entity already exists');
+      throw new httpError.Conflict();
     }
 
     /**

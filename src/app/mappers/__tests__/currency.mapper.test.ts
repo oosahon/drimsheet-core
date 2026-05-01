@@ -1,4 +1,4 @@
-import currencyError from '../../../domain/currency/errors/currency.errors';
+import currencyError from '../../../domain/currency/errors/currency.error';
 import { ICurrency } from '../../../domain/currency/types/currency.types';
 import currencyMapper, { ICurrencyModel } from '../currency.mapper';
 
