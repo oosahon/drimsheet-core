@@ -40,7 +40,7 @@ describe('makeGetAuthUserProfileUseCase', () => {
 
     const usecase = makeGetAuthUserProfileUseCase(MockRequestContext);
 
-    await expect(usecase()).rejects.toThrow('app_error_http_unauthorized');
+    await expect(usecase()).rejects.toThrow('http_error_unauthorized');
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(userMapper.toInterface).not.toHaveBeenCalled();
   });

@@ -6,7 +6,6 @@ import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/u
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import AppError from '../../../../shared/errors/app.error';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
@@ -16,6 +15,7 @@ import mockRequestContext, {
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
 import authError from '../../../errors/auth.errors';
+import httpError from '../../../errors/http.errors';
 import makeResetPasswordUseCase from '../reset-password.usecase';
 
 describe('makeResetPasswordUseCase', () => {
@@ -60,7 +60,9 @@ describe('makeResetPasswordUseCase', () => {
     const payload = getValidPayload();
     payload.confirmPassword = 'DifferentPassword1!';
 
-    await expect(usecase(payload)).rejects.toThrow(AppError);
+    await expect(usecase(payload)).rejects.toThrow(
+      httpError.UnprocessableEntity
+    );
   });
 
   it('should propagate AuthError if the reset token is invalid or expired', async () => {

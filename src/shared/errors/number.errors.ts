@@ -4,12 +4,12 @@ import { ValueError } from './value.errors';
 
 type TErrorKeyPrefix = `value_error_number_${string}`;
 
-const EErrorKeys: TErrorKeys<TErrorKeyPrefix> = {
+const EErrorKeys = {
   InvalidValue: 'value_error_number_invalid_value',
   InvalidFloat: 'value_error_number_invalid_float',
   NegativeValue: 'value_error_number_negative_value',
   NonPositiveValue: 'value_error_number_non_positive_value',
-};
+} as const satisfies TErrorKeys<TErrorKeyPrefix>;
 
 class NumberError extends ValueError<TErrorKeyPrefix> {
   constructor(key: TErrorKeyPrefix, cause?: TErrorCause) {

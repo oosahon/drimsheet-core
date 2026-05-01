@@ -4,13 +4,13 @@ import DomainError from './domain.error';
 
 type TErrorPrefix = `repo_error_${string}`;
 
-const EErrorKeys: TErrorKeys<TErrorPrefix> = {
+const EErrorKeys = {
   VersionNotFound: 'repo_error_version_not_found',
   VersionRequired: 'repo_error_version_required',
-};
+} as const satisfies TErrorKeys<TErrorPrefix>;
 
-class RepoError<K extends TErrorPrefix> extends DomainError<K> {
-  constructor(key: K, cause?: TErrorCause) {
+class RepoError extends DomainError<TErrorPrefix> {
+  constructor(key: TErrorPrefix, cause?: TErrorCause) {
     super(key, cause);
   }
 }

@@ -231,7 +231,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     mockLedgerAccountRepo.findById.mockReset().mockResolvedValue(null);
 
     await expect(useCase(validPayload)).rejects.toThrow(
-      ledgerAppError.NotFound
+      ledgerAppError.AccountNotFound
     );
   });
 

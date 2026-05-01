@@ -33,7 +33,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
     );
 
     if (!account) {
-      throw new ledgerAppError.NotFound();
+      throw new ledgerAppError.AccountNotFound();
     }
 
     const existingBalance =

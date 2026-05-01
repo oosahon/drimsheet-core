@@ -6,7 +6,7 @@ describe('HTTP Errors', () => {
     const error = new httpError.BadRequest(cause);
     expect(error).toBeInstanceOf(httpError.BadRequest);
     expect(error.code).toBe(400);
-    expect(error.message).toBe('app_error_http_bad_request');
+    expect(error.message).toBe('http_error_bad_request');
     expect(error.cause).toBe(cause);
   });
 
@@ -14,19 +14,19 @@ describe('HTTP Errors', () => {
     const error = new httpError.Unauthorized();
     expect(error).toBeInstanceOf(httpError.Unauthorized);
     expect(error.code).toBe(401);
-    expect(error.message).toBe('app_error_http_unauthorized');
+    expect(error.message).toBe('http_error_unauthorized');
 
     const error2 = new httpError.Unauthorized();
     expect(error2).toBeInstanceOf(httpError.Unauthorized);
     expect(error2.code).toBe(401);
-    expect(error2.message).toBe('app_error_http_unauthorized');
+    expect(error2.message).toBe('http_error_unauthorized');
   });
 
   it('httpError.PaymentRequired sets code to 402', () => {
     const error = new httpError.PaymentRequired();
     expect(error).toBeInstanceOf(httpError.PaymentRequired);
     expect(error.code).toBe(402);
-    expect(error.message).toBe('app_error_http_payment_required');
+    expect(error.message).toBe('http_error_payment_required');
   });
 
   it('httpError.Forbidden sets code to 403', () => {
@@ -34,32 +34,32 @@ describe('HTTP Errors', () => {
     const error = new httpError.Forbidden(cause);
     expect(error).toBeInstanceOf(httpError.Forbidden);
     expect(error.code).toBe(403);
-    expect(error.message).toBe('app_error_http_forbidden');
+    expect(error.message).toBe('http_error_forbidden');
     expect(error.cause).toBe(cause);
 
     const errorWithoutMessage = new httpError.Forbidden();
-    expect(errorWithoutMessage.message).toBe('app_error_http_forbidden');
+    expect(errorWithoutMessage.message).toBe('http_error_forbidden');
   });
 
   it('httpError.ResourceNotFound sets code to 404', () => {
     const error = new httpError.ResourceNotFound();
     expect(error).toBeInstanceOf(httpError.ResourceNotFound);
     expect(error.code).toBe(404);
-    expect(error.message).toBe('app_error_http_resource_not_found');
+    expect(error.message).toBe('http_error_resource_not_found');
   });
 
   it('httpError.Conflict sets code to 409', () => {
     const error = new httpError.Conflict();
     expect(error).toBeInstanceOf(httpError.Conflict);
     expect(error.code).toBe(409);
-    expect(error.message).toBe('app_error_http_conflict');
+    expect(error.message).toBe('http_error_conflict');
   });
 
   it('httpError.InternalServerError sets code to 500', () => {
     const error = new httpError.InternalServerError();
     expect(error).toBeInstanceOf(httpError.InternalServerError);
     expect(error.code).toBe(500);
-    expect(error.message).toBe('app_error_http_internal_server_error');
+    expect(error.message).toBe('http_error_internal_server_error');
   });
 
   it('httpError.TooManyRequests sets code to 429', () => {
@@ -67,7 +67,7 @@ describe('HTTP Errors', () => {
     const error = new httpError.TooManyRequests(cause);
     expect(error).toBeInstanceOf(httpError.TooManyRequests);
     expect(error.code).toBe(429);
-    expect(error.message).toBe('app_error_http_too_many_requests');
+    expect(error.message).toBe('http_error_too_many_requests');
     expect(error.cause).toBe(cause);
   });
 
@@ -75,7 +75,7 @@ describe('HTTP Errors', () => {
     const error = new httpError.TooManyRequests();
     expect(error).toBeInstanceOf(httpError.TooManyRequests);
     expect(error.code).toBe(429);
-    expect(error.message).toBe('app_error_http_too_many_requests');
+    expect(error.message).toBe('http_error_too_many_requests');
     expect(error.cause).toBeUndefined();
   });
 
@@ -86,7 +86,7 @@ describe('HTTP Errors', () => {
       const error = new httpError.UnprocessableEntity(validationErrors);
       expect(error).toBeInstanceOf(httpError.UnprocessableEntity);
       expect(error.code).toBe(422);
-      expect(error.message).toBe('app_error_http_unprocessable_entity'); // Fallback check
+      expect(error.message).toBe('http_error_unprocessable_entity'); // Fallback check
       expect(error.validationErrors).toBe(validationErrors);
       expect(error.cause).toBeUndefined();
     });
@@ -95,7 +95,7 @@ describe('HTTP Errors', () => {
       const cause = { original: 'Bad data' };
       const error = new httpError.UnprocessableEntity(validationErrors, cause);
       expect(error.code).toBe(422);
-      expect(error.message).toBe('app_error_http_unprocessable_entity');
+      expect(error.message).toBe('http_error_unprocessable_entity');
       expect(error.validationErrors).toBe(validationErrors);
       expect(error.cause).toBe(cause);
     });

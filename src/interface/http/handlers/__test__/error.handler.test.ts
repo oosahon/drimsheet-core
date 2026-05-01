@@ -72,7 +72,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockStatus).toHaveBeenCalledWith(422);
     expect(mockJson).toHaveBeenCalledWith({
       cause: undefined,
-      errorKey: 'app_error_http_unprocessable_entity',
+      errorKey: 'http_error_unprocessable_entity',
       validationErrors: [
         { field: 'email', message: 'Invalid email' },
         { field: 'age', message: 'Must be a number' },
@@ -90,8 +90,8 @@ describe('makeHttpErrorHandler', () => {
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'HttpError',
-      errorKey: 'app_error_http_bad_request',
-      message: 'app_error_http_bad_request',
+      errorKey: 'http_error_bad_request',
+      message: 'http_error_bad_request',
       cause: null,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
@@ -164,7 +164,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockReporter.report).toHaveBeenCalledWith(error);
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
-      message: 'app_error_http_internal_server_error',
+      message: 'http_error_internal_server_error',
     });
   });
 });

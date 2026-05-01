@@ -21,7 +21,7 @@ describe('getSentEmail', () => {
     const useCase = getSentEmail(mockInternalMailer);
 
     await expect(useCase('test@test.com', 'subject')).rejects.toThrow(
-      'app_error_http_forbidden'
+      'http_error_forbidden'
     );
   });
 

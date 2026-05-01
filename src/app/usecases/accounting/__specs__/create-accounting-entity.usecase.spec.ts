@@ -119,9 +119,7 @@ describe('createAccountingEntityUseCase', () => {
       entityType: EAccountingEntityType.PrivateCompany,
     };
 
-    await expect(useCase(payload)).rejects.toThrow(
-      'app_error_http_bad_request'
-    );
+    await expect(useCase(payload)).rejects.toThrow('http_error_bad_request');
   });
 
   it('throws ErrorConflict if accounting entity already exists', async () => {
@@ -130,9 +128,7 @@ describe('createAccountingEntityUseCase', () => {
     ] as unknown as IAccountingEntity[]);
     const useCase = getUseCase();
 
-    await expect(useCase(validPayload)).rejects.toThrow(
-      'app_error_http_conflict'
-    );
+    await expect(useCase(validPayload)).rejects.toThrow('http_error_conflict');
   });
 
   it('successfully creates accounting entity and related domain objects', async () => {

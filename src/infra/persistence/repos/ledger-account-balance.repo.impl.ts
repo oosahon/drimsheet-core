@@ -1,7 +1,7 @@
 import { and, eq, getTableColumns, or } from 'drizzle-orm';
-import repoError from '../../../app/errors/repo.errors';
 import ledgerAccountBalanceMapper from '../../../app/mappers/ledger-account-balance.mapper';
 import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
+import repoError from '../../../shared/errors/repo.error';
 import {
   currenciesInCore,
   ledgerAccountBalanceAdjustmentsInCore,
