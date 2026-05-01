@@ -5,7 +5,7 @@ This repository enforces strict, context-bounded error handling. Errors must be 
 ## 1. Context Boundaries
 
 - **Encapsulation**: Domains must only throw their own errors. Cross-domain error throwing is prohibited unless specifically utilizing a shared validation or service from another context.
-- **Organization**: Errors should be grouped by context (e.g., `period.errors.ts`, `accounting-entity.errors.ts`) within a domain's `errors` directory.
+- **Organization**: Errors should be grouped by context (e.g., `period.error.ts`, `accounting-entity.error.ts`) within a domain's `errors` directory.
 
 ## 2. Standard Types and Constants
 
@@ -46,7 +46,7 @@ All errors must be aggregated and exported as a frozen object to prevent mutatio
 - **No Redundant Suffixes**: The keys within this frozen object **must not** have a redundant `Error` suffix.
 - **Extendable Base Mapping**: For root-level context errors (e.g. `BookkeepingError`) that need to be extended by sub-context error files, expose the class under the `Base` key (e.g., `Base: BookkeepingError`). This allows other files to extend `[Context]Error.Base` without relying on named exports.
 
-### Example Implementation (`period.errors.ts`)
+### Example Implementation (`period.error.ts`)
 
 ```typescript
 import { AccountingError } from '.';
