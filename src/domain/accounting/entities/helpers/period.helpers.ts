@@ -1,6 +1,6 @@
 import dateUtils from '../../../../shared/utils/date';
 import numberUtils from '../../../../shared/utils/number';
-import errors from '../../errors/period.errors';
+import errors from '../../errors/period.error';
 import {
   EPeriodStatus,
   EPeriodUnit,

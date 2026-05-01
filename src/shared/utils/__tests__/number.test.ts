@@ -1,4 +1,4 @@
-import numberError from '../../errors/number.errors';
+import numberError from '../../errors/number.error';
 import numberUtils from '../number';
 
 describe('numberUtils', () => {

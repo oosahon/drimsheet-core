@@ -1,5 +1,5 @@
-import eventError from '../../errors/event.errors';
-import stringError from '../../errors/string.errors';
+import eventError from '../../errors/event.error';
+import stringError from '../../errors/string.error';
 import eventValue from '../event.vo';
 
 describe('event.vo', () => {

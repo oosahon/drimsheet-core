@@ -16,7 +16,7 @@ import {
   TRepoTransactionFn,
 } from '../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
-import httpError from '../../errors/http.errors';
+import httpError from '../../errors/http.error';
 
 const validationSchema = z.object({
   firstName: z

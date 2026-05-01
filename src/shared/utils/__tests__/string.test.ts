@@ -1,4 +1,4 @@
-import stringError from '../../errors/string.errors';
+import stringError from '../../errors/string.error';
 import stringUtils from '../string';
 
 describe('stringUtils', () => {

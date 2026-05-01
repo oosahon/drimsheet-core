@@ -1,6 +1,6 @@
 import { v7 as uuid } from 'uuid';
 import { z } from 'zod';
-import stringError from '../errors/string.errors';
+import stringError from '../errors/string.error';
 import { TEntityId } from '../types/uuid';
 
 interface IValidationOptions {

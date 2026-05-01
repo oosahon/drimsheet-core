@@ -7,7 +7,7 @@ import IRequestContext from '../../contracts/app/request-context.contract';
 import IAuthService from '../../contracts/infra/auth-service.contract';
 import ILogger from '../../contracts/infra/logger.contract';
 import ITransactionalEmailService from '../../contracts/infra/transactional-email-service.contract';
-import authError from '../../errors/auth.errors';
+import authError from '../../errors/auth.error';
 
 const validationSchema = z.object({
   email: z.email(),

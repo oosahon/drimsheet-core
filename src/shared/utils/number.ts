@@ -1,4 +1,4 @@
-import numberError from '../errors/number.errors';
+import numberError from '../errors/number.error';
 import { IFactor } from '../types/number.types';
 
 function toBigInt(value: string | number | bigint, error?: Error) {

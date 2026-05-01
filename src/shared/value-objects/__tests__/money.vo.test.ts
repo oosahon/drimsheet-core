@@ -1,5 +1,5 @@
 import { SYSTEM_CURRENCIES } from '../../../domain/currency/config/currencies.config';
-import moneyError from '../../errors/money.errors';
+import moneyError from '../../errors/money.error';
 import { IMoney } from '../../types/money.types';
 import money from '../money.vo';
 

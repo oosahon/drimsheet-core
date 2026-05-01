@@ -10,7 +10,7 @@ import IAuthService, {
   IAuthTokenPayload,
 } from '../../app/contracts/infra/auth-service.contract';
 import { ICacheStorage } from '../../app/contracts/infra/cache-storage.contract';
-import authError from '../../app/errors/auth.errors';
+import authError from '../../app/errors/auth.error';
 import { NON_PROD_EMAIL_WHITELIST } from '../config/email-whitelist.config';
 import { JWT_SECRET_KEY, NODE_ENV } from '../config/vars.config';
 

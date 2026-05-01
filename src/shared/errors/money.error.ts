@@ -1,6 +1,6 @@
 import { TErrorCause } from '../types/error.types';
 import errorUtils from '../utils/error';
-import { ValueError } from './value.errors';
+import { ValueError } from './value.error';
 
 type TErrorKeyPrefix = `value_error_money_${string}`;
 

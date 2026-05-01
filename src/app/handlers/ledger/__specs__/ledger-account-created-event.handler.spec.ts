@@ -7,7 +7,7 @@ import {
   ENormalBalance,
   ILedgerAccount,
 } from '../../../../domain/ledger/types/ledger.types';
-import eventError from '../../../../shared/errors/event.errors';
+import eventError from '../../../../shared/errors/event.error';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeLedgerAccountCreatedEventHandler from '../ledger-account-created-event.handler';

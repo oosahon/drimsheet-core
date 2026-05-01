@@ -10,7 +10,7 @@ import IAuthService, {
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import ITransactionalEmailService from '../../contracts/infra/transactional-email-service.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
-import authError from '../../errors/auth.errors';
+import authError from '../../errors/auth.error';
 
 export default function makeRequestPasswordResetUseCase(
   requestContext: IRequestContext,

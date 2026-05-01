@@ -4,7 +4,7 @@ import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
-import httpError from '../../errors/http.errors';
+import httpError from '../../errors/http.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 export default function makeRefreshAccessTokenUseCase(

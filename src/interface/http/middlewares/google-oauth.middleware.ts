@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import passport from 'passport';
-import httpError from '../../../app/errors/http.errors';
+import httpError from '../../../app/errors/http.error';
 import { IUser } from '../../../domain/user/types/user.types';
 
 export function makeInitiateLoginWithGoogleMiddleware(): RequestHandler {

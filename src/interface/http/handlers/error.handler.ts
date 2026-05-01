@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
-import httpError from '../../../app/errors/http.errors';
+import httpError from '../../../app/errors/http.error';
 import { IApiValidationError } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
 

@@ -1,5 +1,5 @@
 import stringUtils from '../../../../../shared/utils/string';
-import ledgerAccountError from '../../../errors/ledger-account.errors';
+import ledgerAccountError from '../../../errors/ledger-account.error';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,

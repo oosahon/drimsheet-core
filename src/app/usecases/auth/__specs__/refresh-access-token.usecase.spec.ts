@@ -1,7 +1,7 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IUserSession } from '../../../contracts/infra/auth-service.contract';
-import authError from '../../../errors/auth.errors';
+import authError from '../../../errors/auth.error';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 

@@ -6,7 +6,7 @@ import currencyEntity from '../../domain/currency/entities/currency.entity';
 import { IMoney } from '../../shared/types/money.types';
 import moneyValue from '../../shared/value-objects/money.vo';
 import { IMoneyDto } from '../contracts/dto/money.dto';
-import httpError from '../errors/http.errors';
+import httpError from '../errors/http.error';
 
 const moneyMapper = {
   toDto(money: IMoney): IMoneyDto {

@@ -20,7 +20,7 @@ interface IConfig {
   ) => string | undefined | Promise<string | undefined>;
 }
 
-import httpError from '../../app/errors/http.errors';
+import httpError from '../../app/errors/http.error';
 import reporter from '../observability/reporter';
 
 export function configureRateLimiter(config: IConfig) {

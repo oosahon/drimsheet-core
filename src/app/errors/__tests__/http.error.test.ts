@@ -1,4 +1,4 @@
-import httpError from '../http.errors';
+import httpError from '../http.error';
 
 describe('HTTP Errors', () => {
   it('httpError.BadRequest sets code to 400', () => {

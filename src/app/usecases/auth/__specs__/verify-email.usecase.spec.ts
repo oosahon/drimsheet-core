@@ -8,8 +8,8 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import authError from '../../../errors/auth.errors';
-import httpError from '../../../errors/http.errors';
+import authError from '../../../errors/auth.error';
+import httpError from '../../../errors/http.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
 describe('makeVerifyEmailAddressUseCase', () => {

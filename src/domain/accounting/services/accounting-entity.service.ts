@@ -1,4 +1,4 @@
-import errors from '../errors/accounting-entity.errors';
+import errors from '../errors/accounting-entity.error';
 import IAccountingEntityRepo from '../repos/accounting-entity.repo';
 import IAccountingEntityService from '../types/accounting-entity.service.types';
 

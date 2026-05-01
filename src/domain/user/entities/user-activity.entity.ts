@@ -2,7 +2,7 @@ import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import eventValue from '../../../shared/value-objects/event.vo';
-import userActivityError from '../errors/user-activity.errors';
+import userActivityError from '../errors/user-activity.error';
 import { IUserActivity } from '../types/user-activity.types';
 
 function make(payload: TCreationOmits<IUserActivity>) {

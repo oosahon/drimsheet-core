@@ -1,4 +1,4 @@
-import eventError from '../errors/event.errors';
+import eventError from '../errors/event.error';
 import { IEvent, IEventEnrichmentPayload } from '../types/event.types';
 import stringUtils from '../utils/string';
 

@@ -5,7 +5,7 @@ import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import ILogger from '../../contracts/infra/logger.contract';
-import httpError from '../../errors/http.errors';
+import httpError from '../../errors/http.error';
 
 export default function makeCreateLedgerAccountBalanceUseCase(
   requestContext: IRequestContext,

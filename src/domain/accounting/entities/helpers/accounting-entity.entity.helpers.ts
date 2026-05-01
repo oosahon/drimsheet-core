@@ -2,7 +2,7 @@ import {
   SYSTEM_JURISDICTIONS,
   UJurisdictionCode,
 } from '../../config/jurisdictions.config';
-import accountingEntityError from '../../errors/accounting-entity.errors';
+import accountingEntityError from '../../errors/accounting-entity.error';
 import {
   EAccountingEntityAuditTrailAction,
   EAccountingEntityType,

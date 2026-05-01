@@ -35,7 +35,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../contracts/infra/repo.contract';
-import httpError from '../../errors/http.errors';
+import httpError from '../../errors/http.error';
 import currencyMapper from '../../mappers/currency.mapper';
 
 function validate(payload: IAccountingEntityCreationDto) {

@@ -8,7 +8,7 @@ import {
   UJurisdictionCode,
 } from '../../config/jurisdictions.config';
 import accountingStandardError from '../../errors/accounting-standard.error';
-import jurisdictionError from '../../errors/jurisdiction.errors';
+import jurisdictionError from '../../errors/jurisdiction.error';
 import { UAccountingEntityType } from '../../types/accounting-entity.types';
 import accountingEntityHelpers from './accounting-entity.entity.helpers';
 

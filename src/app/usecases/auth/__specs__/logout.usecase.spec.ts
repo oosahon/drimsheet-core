@@ -5,7 +5,7 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import mockLogger from '../../../contracts/infra/__mocks__/logger.contract.mock';
-import authError from '../../../errors/auth.errors';
+import authError from '../../../errors/auth.error';
 import makeLogoutUseCase from '../logout.usecase';
 
 describe('makeLogoutUseCase', () => {

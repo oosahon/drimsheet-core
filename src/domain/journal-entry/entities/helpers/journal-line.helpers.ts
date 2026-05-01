@@ -3,7 +3,7 @@ import stringUtils from '../../../../shared/utils/string';
 import { ICurrency } from '../../../currency/types/currency.types';
 import { IExchangeRate } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
-import journalLineError from '../../errors/journal-line.errors';
+import journalLineError from '../../errors/journal-line.error';
 import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
 
 function validateSide(side: UJournalSide) {

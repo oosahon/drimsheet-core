@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import dateError from '../../errors/date.errors';
+import dateError from '../../errors/date.error';
 import dateUtils from '../date';
 
 describe('dateUtils', () => {

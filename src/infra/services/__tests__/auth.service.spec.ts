@@ -1,6 +1,6 @@
 import { sign } from 'jsonwebtoken';
 import { ICacheStorage } from '../../../app/contracts/infra/cache-storage.contract';
-import authError from '../../../app/errors/auth.errors';
+import authError from '../../../app/errors/auth.error';
 import { TEntityId } from '../../../shared/types/uuid';
 import { JWT_SECRET_KEY } from '../../config/vars.config';
 import { makeMockCacheStorage } from '../../persistence/cache/__mocks__/cache-storage.impl.mock';

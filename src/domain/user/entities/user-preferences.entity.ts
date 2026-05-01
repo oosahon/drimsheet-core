@@ -2,7 +2,7 @@ import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
-import userPreferencesError from '../errors/user-preferences.errors';
+import userPreferencesError from '../errors/user-preferences.error';
 import userEvents from '../events/user.events';
 import {
   EAppThemePreference,

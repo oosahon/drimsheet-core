@@ -4,7 +4,7 @@ import {
   ELedgerAccountBalanceEffect,
   ULedgerAccountBalanceEffect,
 } from '../../../bookkeeping/types/ledger-account-balance.types';
-import ledgerAccountBalanceError from '../../errors/ledger-account-balance.errors';
+import ledgerAccountBalanceError from '../../errors/ledger-account-balance.error';
 
 function validateEffectType(effect: ULedgerAccountBalanceEffect) {
   if (!Object.values(ELedgerAccountBalanceEffect).includes(effect)) {

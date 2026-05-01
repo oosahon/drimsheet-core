@@ -14,8 +14,8 @@ import mockRequestContext, {
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
-import authError from '../../../errors/auth.errors';
-import httpError from '../../../errors/http.errors';
+import authError from '../../../errors/auth.error';
+import httpError from '../../../errors/http.error';
 import makeResetPasswordUseCase from '../reset-password.usecase';
 
 describe('makeResetPasswordUseCase', () => {

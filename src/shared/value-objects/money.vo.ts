@@ -1,6 +1,6 @@
 import currencyEntity from '../../domain/currency/entities/currency.entity';
 import { ICurrency } from '../../domain/currency/types/currency.types';
-import moneyError from '../errors/money.errors';
+import moneyError from '../errors/money.error';
 import { IMoney } from '../types/money.types';
 import { IFactor } from '../types/number.types';
 

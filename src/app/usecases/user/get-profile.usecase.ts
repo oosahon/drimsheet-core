@@ -1,6 +1,6 @@
 import { IUser } from '../../../domain/user/types/user.types';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import httpError from '../../errors/http.errors';
+import httpError from '../../errors/http.error';
 import userMapper from '../../mappers/user.mapper';
 
 export default function makeGetAuthUserProfileUseCase(

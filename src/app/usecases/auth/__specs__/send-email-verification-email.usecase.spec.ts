@@ -7,8 +7,8 @@ import mockTransactionalEmailService from '../../../../infra/services/__mocks__/
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import authError from '../../../errors/auth.errors';
-import httpError from '../../../errors/http.errors';
+import authError from '../../../errors/auth.error';
+import httpError from '../../../errors/http.error';
 import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 
 describe('makeSendEmailVerificationEmailUseCase', () => {

@@ -11,7 +11,7 @@ import {
   openingBalanceCreationReqValidation,
 } from '../../contracts/dto/bookkeeping.dto';
 import IEventBus from '../../contracts/infra/event-bus.contract';
-import httpError from '../../errors/http.errors';
+import httpError from '../../errors/http.error';
 import moneyMapper from '../../mappers/money.mapper';
 
 export default function makeRecordOpeningBalanceUseCase(

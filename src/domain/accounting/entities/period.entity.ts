@@ -3,7 +3,7 @@ import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
-import periodError from '../errors/period.errors';
+import periodError from '../errors/period.error';
 import periodEvents from '../events/period.events';
 import { IReportingPeriod } from '../types/period.types';
 import helpers from './helpers/period.helpers';

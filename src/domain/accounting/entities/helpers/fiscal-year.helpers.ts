@@ -1,6 +1,6 @@
 import dateUtils from '../../../../shared/utils/date';
 import stringUtils from '../../../../shared/utils/string';
-import periodError from '../../errors/period.errors';
+import periodError from '../../errors/period.error';
 import { IFiscalYear } from '../../types/fiscal-year.types';
 import periodHelpers from './period.helpers';
 

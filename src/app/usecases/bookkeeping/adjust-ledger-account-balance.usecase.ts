@@ -7,7 +7,7 @@ import {
   ledgerAccountBalanceAdjustmentDtoSchema,
 } from '../../contracts/dto/workers.dto';
 import IQueue from '../../contracts/infra/queues.contract';
-import ledgerAppError from '../../errors/ledger.errors';
+import ledgerAppError from '../../errors/ledger.error';
 import moneyMapper from '../../mappers/money.mapper';
 
 export default function makeAdjustLedgerAccountBalanceUseCase(

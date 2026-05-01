@@ -9,7 +9,7 @@ import mockRepoService from '../../../../infra/services/__mocks__/repo.service.m
 import { IEvent } from '../../../../shared/types/event.types';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import httpError from '../../../errors/http.errors';
+import httpError from '../../../errors/http.error';
 import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
 
 describe('makeSignupWithEmailUsecase', () => {

@@ -1,4 +1,4 @@
-import userValueObjectError from '../errors/user-value-object.errors';
+import userValueObjectError from '../errors/user-value-object.error';
 
 function make(input: unknown): string {
   if (typeof input !== 'string') {

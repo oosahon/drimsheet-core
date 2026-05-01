@@ -7,7 +7,7 @@ import {
   EAdjustmentType,
   UAdjustmentType,
 } from '../../ledger/types/ledger.types';
-import currencyLotError from '../errors/currency-lot-subledger.errors';
+import currencyLotError from '../errors/currency-lot-subledger.error';
 import currencyLotEvents from '../events/currency-lot.events';
 import {
   ICurrencyLot,

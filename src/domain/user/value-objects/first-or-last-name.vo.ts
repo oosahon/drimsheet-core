@@ -1,4 +1,4 @@
-import userValueObjectError from '../errors/user-value-object.errors';
+import userValueObjectError from '../errors/user-value-object.error';
 
 export type FirstOrLastName = string & { readonly __brand: unique symbol };
 

@@ -11,7 +11,7 @@ import eventValue from '../../../../shared/value-objects/event.vo';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
-import authError from '../../../errors/auth.errors';
+import authError from '../../../errors/auth.error';
 import makeRequestPasswordResetUseCase from '../request-password-reset.usecase';
 
 describe('makeRequestPasswordResetUseCase', () => {

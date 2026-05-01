@@ -1,6 +1,6 @@
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import httpError from '../../errors/http.errors';
+import httpError from '../../errors/http.error';
 
 export default function makeGetUserPreferencesUseCase(
   requestContext: IRequestContext,
