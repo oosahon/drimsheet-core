@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import passport from 'passport';
-import httpError from '../../../app/errors/http.error';
+import appError from '../../../app/errors/app.error';
 import { IUser } from '../../../domain/user/types/user.types';
 
 export function makeInitiateLoginWithGoogleMiddleware(): RequestHandler {
@@ -20,7 +20,7 @@ export function makeCompleteLoginWithGoogleMiddleware(
       async (err: unknown, user?: IUser | false) => {
         try {
           if (err || !user) {
-            return next(new httpError.Unauthorized());
+            return next(new appError.Unauthorized());
           }
 
           const redirectUrl = await handleGoogleCallback(user);

@@ -10,7 +10,7 @@ import mockRepoService from '../../../../infra/services/__mocks__/repo.service.m
 import { IEvent } from '../../../../shared/types/event.types';
 import mockRequestContext from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
-import httpError from '../../../errors/http.error';
+import appError from '../../../errors/app.error';
 import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
 
 describe('makeSignupWithEmailUsecase', () => {
@@ -18,7 +18,7 @@ describe('makeSignupWithEmailUsecase', () => {
     jest.clearAllMocks();
   });
 
-  it('should throw httpError.UnprocessableEntity if payload is invalid', async () => {
+  it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeSignupWithEmailUsecase(
       mockRequestContext,
       mockUserRepo,
@@ -114,7 +114,7 @@ describe('makeSignupWithEmailUsecase', () => {
     });
   });
 
-  it('should throw httpError.Conflict if user already exists', async () => {
+  it('should throw appError.Conflict if user already exists', async () => {
     const correlationId = 'test-corr-id';
     mockRequestContext.get.mockReturnValue({
       correlationId,
@@ -143,8 +143,8 @@ describe('makeSignupWithEmailUsecase', () => {
       mockRepoService
     );
 
-    await expect(usecase(payload)).rejects.toThrow(httpError.Conflict);
-    await expect(usecase(payload)).rejects.toThrow('http_error_conflict');
+    await expect(usecase(payload)).rejects.toThrow(appError.Conflict);
+    await expect(usecase(payload)).rejects.toThrow('app_error_conflict');
 
     const email = emailValue.make(payload.email);
     expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);
@@ -152,7 +152,7 @@ describe('makeSignupWithEmailUsecase', () => {
     expect(mockAuthService.hashPassword).not.toHaveBeenCalled();
   });
 
-  it('should throw httpError.Forbidden if email is not permitted', async () => {
+  it('should throw appError.Forbidden if email is not permitted', async () => {
     const correlationId = 'test-corr-id';
     mockRequestContext.get.mockReturnValue({
       correlationId,
@@ -177,8 +177,8 @@ describe('makeSignupWithEmailUsecase', () => {
       mockRepoService
     );
 
-    await expect(usecase(payload)).rejects.toThrow(httpError.Forbidden);
-    await expect(usecase(payload)).rejects.toThrow('http_error_forbidden');
+    await expect(usecase(payload)).rejects.toThrow(appError.Forbidden);
+    await expect(usecase(payload)).rejects.toThrow('app_error_forbidden');
 
     const email = emailValue.make(payload.email);
     expect(mockAuthService.isPermittedEmail).toHaveBeenCalledWith(email);

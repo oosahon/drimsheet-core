@@ -1,4 +1,5 @@
 import { IPettyCashAccountCreationReq } from '../../../../../app/contracts/dto/asset-account.dto';
+import appError from '../../../../../app/errors/app.error';
 import accountingEntityEntity from '../../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../../domain/accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
@@ -11,7 +12,6 @@ import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock
 import mockJournalEntryRepo from '../../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockDomainServices from '../../../../../infra/services/__mocks__/domain.service.mock';
-import AppError from '../../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
@@ -188,7 +188,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     const useCase = getUseCase();
 
     mockDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
-      new AppError('app_error_control_account_not_found' as any)
+      new appError.Base('app_error_control_account_not_found')
     );
 
     await expect(useCase(validPayload)).rejects.toThrow(
@@ -223,7 +223,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     } as unknown as IRequestContextData);
 
     mockDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
-      new AppError('app_error_access_denied' as any)
+      new appError.Base('app_error_access_denied')
     );
 
     await expect(useCase(validPayload)).rejects.toThrow(

@@ -2,9 +2,30 @@ import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
-import httpError from '../../../app/errors/http.error';
+import appError from '../../../app/errors/app.error';
 import errorUtils from '../../../shared/utils/error';
 import httpErrorParser from '../helpers/http-error-parser';
+
+const errorKeyToStatusCode: Record<string, number> = {
+  app_error_invalid_value: 400,
+  app_error_bad_request: 400,
+  app_error_unauthorized: 401,
+  app_error_payment_required: 402,
+  app_error_forbidden: 403,
+  app_error_resource_not_found: 404,
+  app_error_conflict: 409,
+  app_error_unprocessable: 422,
+  app_error_too_many_requests: 429,
+  app_error_internal_server_error: 500,
+};
+
+function getStatusCodeFromError(error: any): number {
+  if (error.name === 'AuthError') return 401;
+  if (error.errorKey && errorKeyToStatusCode[error.errorKey]) {
+    return errorKeyToStatusCode[error.errorKey];
+  }
+  return 400; // default for domain errors and others
+}
 
 function makeHttpErrorHandler(reporter: IReporter) {
   return (req: Request, res: Response<IHttpErrorDto>, error: unknown) => {
@@ -21,10 +42,10 @@ function makeHttpErrorHandler(reporter: IReporter) {
 
     if (error instanceof ValidateError) {
       const validationErrors = httpErrorParser.parseTsoaValidationError(error);
-      const errRes = new httpError.UnprocessableEntity(validationErrors);
+      const errRes = new appError.UnprocessableEntity(validationErrors);
 
       return res
-        .status(errRes.code)
+        .status(errorKeyToStatusCode[errRes.errorKey] || 422)
         .json(httpErrorParser.toHttp(errRes, validationErrors));
     }
 
@@ -35,15 +56,13 @@ function makeHttpErrorHandler(reporter: IReporter) {
 
     if (isUnknownError) {
       reporter.report(error);
-      const serverError = new httpError.InternalServerError();
+      const serverError = new appError.InternalServerError();
       return res
-        .status(serverError.code)
+        .status(errorKeyToStatusCode[serverError.errorKey] || 500)
         .json(httpErrorParser.toHttp(serverError));
     }
 
-    const isAuthError = parsedError.name === 'AuthError';
-
-    const statusCode = isAuthError ? 401 : 400;
+    const statusCode = getStatusCodeFromError(parsedError);
 
     return res
       .status(statusCode)

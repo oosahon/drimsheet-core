@@ -1,4 +1,4 @@
-import httpError from '../../../app/errors/http.error';
+import appError from '../../../app/errors/app.error';
 import { ICurrency } from '../../../domain/currency/types/currency.types';
 import { IMoney } from '../../../shared/types/money.types';
 import { IMoneyDto } from '../../contracts/dto/money.dto';
@@ -46,7 +46,7 @@ describe('Money Mapper', () => {
       };
 
       expect(() => moneyMapper.fromDto(invalidDto)).toThrow(
-        httpError.UnprocessableEntity
+        appError.UnprocessableEntity
       );
     });
 

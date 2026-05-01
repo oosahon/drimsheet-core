@@ -1,12 +1,12 @@
-import AppError from '../../errors/app.error';
+import appError from '../../../app/errors/app.error';
 import DomainError from '../../errors/domain.error';
 import errorUtils from '../error';
 
 describe('Error Value Objects', () => {
   describe('AppError', () => {
     it('creates an AppError without cause', () => {
-      const error = new AppError('app_error_test');
-      expect(error).toBeInstanceOf(AppError);
+      const error = new appError.Base('app_error_test');
+      expect(error).toBeInstanceOf(appError.Base);
       expect(error).toBeInstanceOf(DomainError);
       expect(error).toBeInstanceOf(Error);
       expect(error.errorKey).toBe('app_error_test');
@@ -15,7 +15,7 @@ describe('Error Value Objects', () => {
 
     it('creates an AppError with cause', () => {
       const cause = { detail: 'Something went wrong' };
-      const error = new AppError('app_error_test', cause);
+      const error = new appError.Base('app_error_test', cause);
       expect(error.errorKey).toBe('app_error_test');
       expect(error.cause).toBe(cause);
     });
@@ -55,14 +55,14 @@ describe('Error Value Objects', () => {
 
     it('parses an AppError correctly', () => {
       const cause = { detail: 'some cause' };
-      const appError = new AppError('app_error_crashed', cause);
-      const parsed = errorUtils.parseError(appError);
+      const testError = new appError.Base('app_error_crashed', cause);
+      const parsed = errorUtils.parseError(testError);
 
       expect(parsed).toEqual({
         name: 'AppError',
         errorKey: 'app_error_crashed',
         cause: cause,
-        _raw: appError,
+        _raw: testError,
       });
     });
 

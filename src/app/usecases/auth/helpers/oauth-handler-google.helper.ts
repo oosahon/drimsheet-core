@@ -14,7 +14,7 @@ import {
   TRepoTransactionFn,
 } from '../../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../../contracts/repos/user-auth.repo.contract';
-import httpError from '../../../errors/http.error';
+import appError from '../../../errors/app.error';
 
 export default function makeGoogleOAuthHelper(
   eventBus: IEventBus,
@@ -26,7 +26,7 @@ export default function makeGoogleOAuthHelper(
   return async (profile: IOAuthProfile, done: TOAuthDoneCallback) => {
     try {
       if (!profile.email) {
-        const error = new httpError.BadRequest();
+        const error = new appError.BadRequest();
         return done(error, false);
       }
 
@@ -85,7 +85,7 @@ export default function makeGoogleOAuthHelper(
       if (error instanceof Error) {
         return done(error, false);
       }
-      return done(new httpError.InternalServerError(), false);
+      return done(new appError.InternalServerError(), false);
     }
   };
 }

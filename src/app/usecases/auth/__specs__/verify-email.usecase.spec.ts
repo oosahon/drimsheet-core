@@ -8,8 +8,8 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
+import appError from '../../../errors/app.error';
 import authError from '../../../errors/auth.error';
-import httpError from '../../../errors/http.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
 describe('makeVerifyEmailAddressUseCase', () => {
@@ -23,7 +23,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     } as unknown as IRequestContextData);
   });
 
-  it('should throw httpError.UnprocessableEntity if payload is invalid', async () => {
+  it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeVerifyEmailAddressUseCase(
       mockAuthService,
       mockUserRepo,
@@ -34,7 +34,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     );
 
     await expect(usecase(123 as unknown as string)).rejects.toThrow(
-      httpError.UnprocessableEntity
+      appError.UnprocessableEntity
     );
   });
 
@@ -130,7 +130,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
-  it('should throw httpError.Unauthorized if user is not found', async () => {
+  it('should throw appError.Unauthorized if user is not found', async () => {
     const token = 'valid-token';
     const decodedToken = {
       id: '123e4567-e89b-12d3-a456-426614174000',

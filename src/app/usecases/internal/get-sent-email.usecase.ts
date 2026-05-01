@@ -1,7 +1,7 @@
 import { NODE_ENV } from '../../../infra/config/vars.config';
 import { ITransactionalEmailDto } from '../../contracts/dto/workers.dto';
 import { IInternalMailer } from '../../contracts/infra/transactional-email-agent.contract';
-import httpError from '../../errors/http.error';
+import appError from '../../errors/app.error';
 
 export default function getSentEmail(internalMailer: IInternalMailer) {
   return async (
@@ -9,7 +9,7 @@ export default function getSentEmail(internalMailer: IInternalMailer) {
     subject: string
   ): Promise<ITransactionalEmailDto | null> => {
     if (NODE_ENV !== 'test') {
-      throw new httpError.Forbidden();
+      throw new appError.Forbidden();
     }
     return internalMailer.getEmail(email, subject);
   };

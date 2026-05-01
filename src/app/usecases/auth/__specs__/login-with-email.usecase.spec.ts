@@ -11,8 +11,8 @@ import mockRequestContext, {
 } from '../../../contracts/app/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../contracts/app/request-context.contract';
 import { IUserAuth } from '../../../contracts/infra/auth-service.contract';
+import appError from '../../../errors/app.error';
 import authError from '../../../errors/auth.error';
-import httpError from '../../../errors/http.error';
 import makeLoginWithEmailUseCase from '../login-with-email.usecase';
 
 describe('makeLoginWithEmailUseCase', () => {
@@ -57,7 +57,7 @@ describe('makeLoginWithEmailUseCase', () => {
       mockRepoService
     );
 
-  it('should throw httpError.UnprocessableEntity if payload is invalid', async () => {
+  it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = getUseCase();
 
     const invalidPayload = {
@@ -66,7 +66,7 @@ describe('makeLoginWithEmailUseCase', () => {
     } as unknown as Parameters<ReturnType<typeof makeLoginWithEmailUseCase>>[0];
 
     await expect(usecase(invalidPayload)).rejects.toThrow(
-      httpError.UnprocessableEntity
+      appError.UnprocessableEntity
     );
   });
 

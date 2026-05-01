@@ -133,7 +133,7 @@ describe('createLedgerAccountBalanceUseCase', () => {
     } as unknown as IRequestContextData);
 
     await expect(useCase(mockAssetAccount)).rejects.toThrow(
-      'http_error_unauthorized'
+      'app_error_unauthorized'
     );
   });
 });

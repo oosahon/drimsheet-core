@@ -6,7 +6,7 @@ import currencyEntity from '../../domain/currency/entities/currency.entity';
 import { IMoney } from '../../shared/types/money.types';
 import moneyValue from '../../shared/value-objects/money.vo';
 import { IMoneyDto } from '../contracts/dto/money.dto';
-import httpError from '../errors/http.error';
+import appError from '../errors/app.error';
 
 const moneyMapper = {
   toDto(money: IMoney): IMoneyDto {
@@ -26,7 +26,7 @@ const moneyMapper = {
     const isValid = currencyEntity.isValidCode(money.currencyCode);
 
     if (!isValid) {
-      throw new httpError.UnprocessableEntity([
+      throw new appError.UnprocessableEntity([
         {
           field: 'currencyCode',
           message: 'Invalid currency code',

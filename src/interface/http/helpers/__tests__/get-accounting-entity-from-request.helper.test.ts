@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import httpError from '../../../../app/errors/http.error';
+import appError from '../../../../app/errors/app.error';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -40,11 +40,11 @@ describe('getAccountingEntityFromRequest', () => {
     expect(result).toBeNull();
   });
 
-  it('should throw httpError.BadRequest if x-accounting-entity-id is not a valid UUID', async () => {
+  it('should throw appError.BadRequest if x-accounting-entity-id is not a valid UUID', async () => {
     mockReq.headers = { 'x-accounting-entity-id': 'invalid-uuid' };
     await expect(
       getAccountingEntityFromRequest(mockReq as Request, mockRepo, validUserId)
-    ).rejects.toThrow(httpError.BadRequest);
+    ).rejects.toThrow(appError.BadRequest);
   });
 
   it('should return null if accounting entity is not found by repo', async () => {

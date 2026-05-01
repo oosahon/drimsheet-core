@@ -35,12 +35,12 @@ describe('makeGetAuthUserProfileUseCase', () => {
     expect(result).toEqual(mappedUser);
   });
 
-  it('should throw httpError.Unauthorized if user is not in request context', async () => {
+  it('should throw appError.Unauthorized if user is not in request context', async () => {
     MockRequestContext.get.mockReturnValue({} as IRequestContextData);
 
     const usecase = makeGetAuthUserProfileUseCase(MockRequestContext);
 
-    await expect(usecase()).rejects.toThrow('http_error_unauthorized');
+    await expect(usecase()).rejects.toThrow('app_error_unauthorized');
     expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(userMapper.toInterface).not.toHaveBeenCalled();
   });

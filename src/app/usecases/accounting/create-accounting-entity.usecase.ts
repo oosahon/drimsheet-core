@@ -35,14 +35,14 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../contracts/infra/repo.contract';
-import httpError from '../../errors/http.error';
+import appError from '../../errors/app.error';
 import currencyMapper from '../../mappers/currency.mapper';
 
 function validate(payload: IAccountingEntityCreationDto) {
   zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
   if (payload.entityType !== EAccountingEntityType.Individual) {
-    throw new httpError.BadRequest();
+    throw new appError.BadRequest();
   }
 
   accountingContextEntity.validateStandardCodeAndJurisdiction(
@@ -82,7 +82,7 @@ export default function createAccountingEntityUseCase(
     );
 
     if (existing.length > 0) {
-      throw new httpError.Conflict();
+      throw new appError.Conflict();
     }
 
     /**

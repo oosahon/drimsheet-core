@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import httpError from '../../../app/errors/http.error';
+import appError from '../../../app/errors/app.error';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import { TEntityId } from '../../../shared/types/uuid';
@@ -19,7 +19,7 @@ export default async function getAccountingEntityFromRequest(
 
   const isValidUUID = stringUtils.isUUID(id);
 
-  if (!isValidUUID) throw new httpError.BadRequest();
+  if (!isValidUUID) throw new appError.BadRequest();
 
   const accountingEntity = await repo.findById(id as TEntityId, {
     correlationId: getCorrelationId(req),

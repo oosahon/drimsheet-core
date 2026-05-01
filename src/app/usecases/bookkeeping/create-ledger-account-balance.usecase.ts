@@ -5,7 +5,7 @@ import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import ILogger from '../../contracts/infra/logger.contract';
-import httpError from '../../errors/http.error';
+import appError from '../../errors/app.error';
 
 export default function makeCreateLedgerAccountBalanceUseCase(
   requestContext: IRequestContext,
@@ -18,7 +18,7 @@ export default function makeCreateLedgerAccountBalanceUseCase(
     const { user, correlationId, accountingEntity } = requestContext.get();
 
     if (!user || !accountingEntity) {
-      throw new httpError.Unauthorized();
+      throw new appError.Unauthorized();
     }
 
     const isExisting = await ledgerAccountBalanceRepo.findBalanceByAccountId(

@@ -14,7 +14,7 @@ import {
   TRepoTransactionFn,
 } from '../../contracts/infra/repo.contract';
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
-import httpError from '../../errors/http.error';
+import appError from '../../errors/app.error';
 
 // const validationSchema = z.object({
 //   firstName: z
@@ -56,7 +56,7 @@ export default function makeSignupWithEmailUsecase(
     const isPermittedEmail = makeAuthService.isPermittedEmail(email);
 
     if (!isPermittedEmail) {
-      throw new httpError.Forbidden();
+      throw new appError.Forbidden();
     }
 
     const existingUser = await userRepo.findByEmail(email, {
@@ -64,7 +64,7 @@ export default function makeSignupWithEmailUsecase(
     });
 
     if (existingUser) {
-      throw new httpError.Conflict();
+      throw new appError.Conflict();
     }
 
     const password = passwordValue.make(payload.password);

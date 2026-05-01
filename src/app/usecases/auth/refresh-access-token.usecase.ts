@@ -4,7 +4,7 @@ import IAuthService from '../../contracts/infra/auth-service.contract';
 import IEventBus from '../../contracts/infra/event-bus.contract';
 import { IRepoService } from '../../contracts/infra/repo.contract';
 import IUserSessionRepo from '../../contracts/repos/user-session.repo.contract';
-import httpError from '../../errors/http.error';
+import appError from '../../errors/app.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 export default function makeRefreshAccessTokenUseCase(
@@ -21,7 +21,7 @@ export default function makeRefreshAccessTokenUseCase(
     const refreshToken = clientSession.getRefreshToken();
 
     if (!refreshToken) {
-      throw new httpError.Unauthorized();
+      throw new appError.Unauthorized();
     }
 
     const decoded = makeAuthService.verifyRefreshToken(refreshToken);
@@ -29,7 +29,7 @@ export default function makeRefreshAccessTokenUseCase(
     const user = await userRepo.findById(decoded.id, { correlationId });
 
     if (!user) {
-      throw new httpError.Unauthorized();
+      throw new appError.Unauthorized();
     }
 
     const existingRefreshToken = await userSessionRepo.findByRefreshToken(
@@ -39,7 +39,7 @@ export default function makeRefreshAccessTokenUseCase(
     );
 
     if (!existingRefreshToken) {
-      throw new httpError.Unauthorized();
+      throw new appError.Unauthorized();
     }
 
     return makeIssueUserSessionHelper({

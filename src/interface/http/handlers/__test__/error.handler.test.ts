@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
-import httpError from '../../../../app/errors/http.error';
+import appError from '../../../../app/errors/app.error';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
-import AppError from '../../../../shared/errors/app.error';
 import DomainError from '../../../../shared/errors/domain.error';
 import makeHttpErrorHandler from '../error.handler';
 
@@ -73,7 +72,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockJson).toHaveBeenCalledWith({
       name: 'UnprocessableEntity',
       cause: undefined,
-      errorKey: 'http_error_unprocessable_entity',
+      errorKey: 'app_error_unprocessable',
       validationErrors: [
         { field: 'email', message: 'Invalid email' },
         { field: 'age', message: 'Must be a number' },
@@ -82,16 +81,16 @@ describe('makeHttpErrorHandler', () => {
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
-  it('should handle ApiError (e.g. httpError.BadRequest)', () => {
+  it('should handle AppError (e.g. appError.BadRequest)', () => {
     const handler = makeHttpErrorHandler(mockReporter);
-    const error = new httpError.BadRequest();
+    const error = new appError.BadRequest();
 
     handler(mockReq as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'BadRequest',
-      errorKey: 'http_error_bad_request',
+      errorKey: 'app_error_bad_request',
       cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
@@ -99,7 +98,7 @@ describe('makeHttpErrorHandler', () => {
 
   it('should handle domain AppError', () => {
     const handler = makeHttpErrorHandler(mockReporter);
-    const error = new AppError('app_error_domain_rule_violated' as any);
+    const error = new appError.Base('app_error_domain_rule_violated');
 
     handler(mockReq as Request, mockRes as Response, error);
 
@@ -163,7 +162,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'InternalServerError',
-      errorKey: 'http_error_internal_server_error',
+      errorKey: 'app_error_internal_server_error',
       cause: undefined,
     });
   });

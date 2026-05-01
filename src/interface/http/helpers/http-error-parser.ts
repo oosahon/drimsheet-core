@@ -1,6 +1,6 @@
 import { ValidateError } from 'tsoa';
 import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
-import httpError from '../../../app/errors/http.error';
+import appError from '../../../app/errors/app.error';
 import {
   IApiValidationError,
   IParsedError,
@@ -14,12 +14,12 @@ function parseTsoaValidationError(error: ValidateError) {
 }
 
 function toHttp(
-  error: InstanceType<typeof httpError.Base>,
+  error: InstanceType<typeof appError.Base>,
   validationErrors?: IApiValidationError[]
 ): IHttpErrorDto {
   return {
     name: error.name,
-    errorKey: error.errorKey,
+    errorKey: error.errorKey as string, // Cast to string since UAppError might not perfectly match HTTP expected keys without cast depending on types, or just let it map. Actually IParsedError handles it.
     cause: error.cause,
     validationErrors,
   };

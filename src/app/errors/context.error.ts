@@ -1,6 +1,6 @@
-import AppError from '../../shared/errors/app.error';
 import { TErrorCause } from '../../shared/types/error.types';
 import errorUtils from '../../shared/utils/error';
+import appError from './app.error';
 
 type TErrorKeyPrefix = `app_error_context_${string}`;
 
@@ -13,7 +13,7 @@ const EErrorKeys = {
 
 type UContextError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class ContextError extends AppError<UContextError> {
+class ContextError extends appError.Base<UContextError> {
   constructor(key: UContextError, cause?: TErrorCause) {
     super(key, cause);
     this.name = 'ContextError';
