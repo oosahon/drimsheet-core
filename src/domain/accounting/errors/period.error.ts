@@ -17,6 +17,7 @@ type UPeriodError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class PeriodError extends accountingError.Base<UPeriodError> {
   constructor(key: UPeriodError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'PeriodError';
   }
 }
 

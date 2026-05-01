@@ -20,6 +20,7 @@ type UJournalLineError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class JournalLineError extends journalEntryError.Base<UJournalLineError> {
   constructor(key: UJournalLineError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'JournalLineError';
   }
 }
 

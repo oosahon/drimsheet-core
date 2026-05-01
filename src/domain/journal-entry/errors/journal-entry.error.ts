@@ -7,6 +7,7 @@ type TErrorPrefix = `journal_entry_error_${string}`;
 class JournalEntryError<K extends TErrorPrefix> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'JournalEntryError';
   }
 }
 

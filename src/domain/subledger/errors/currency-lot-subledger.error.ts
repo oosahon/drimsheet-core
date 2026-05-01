@@ -14,6 +14,7 @@ type UCurrencyLotSubledgerError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class CurrencyLotSubledgerError extends subledgerError.Base<UCurrencyLotSubledgerError> {
   constructor(key: UCurrencyLotSubledgerError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'CurrencyLotSubledgerError';
   }
 }
 

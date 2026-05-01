@@ -1,9 +1,7 @@
-import { z } from 'zod';
 import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../domain/user/value-objects/password.vo';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IRequestContext from '../../contracts/app/request-context.contract';
 import { IUserSignupReq } from '../../contracts/dto/auth.dto';
@@ -18,27 +16,27 @@ import {
 import IUserAuthRepo from '../../contracts/repos/user-auth.repo.contract';
 import httpError from '../../errors/http.error';
 
-const validationSchema = z.object({
-  firstName: z
-    .string()
-    .min(1, { message: 'First name is required' })
-    .max(100, { message: 'First name must be at most 100 characters' }),
-  lastName: z
-    .string()
-    .min(1, { message: 'Last name is required' })
-    .max(100, { message: 'Last name must be at most 100 characters' }),
-  email: z.email(),
-  password: z
-    .string({ message: 'Password is required' })
-    .min(8, { message: 'Password must be at least 8 characters' })
-    .max(100, { message: 'Password must be at most 50 characters' })
-    .regex(/(?=.*[0-9])/, {
-      message: 'Password must contain at least one number',
-    })
-    .regex(/(?=.*[^A-Za-z0-9])/, {
-      message: 'Password must contain at least one special character',
-    }),
-});
+// const validationSchema = z.object({
+//   firstName: z
+//     .string()
+//     .min(1, { message: 'First name is required' })
+//     .max(100, { message: 'First name must be at most 100 characters' }),
+//   lastName: z
+//     .string()
+//     .min(1, { message: 'Last name is required' })
+//     .max(100, { message: 'Last name must be at most 100 characters' }),
+//   email: z.email(),
+//   password: z
+//     .string({ message: 'Password is required' })
+//     .min(8, { message: 'Password must be at least 8 characters' })
+//     .max(100, { message: 'Password must be at most 50 characters' })
+//     .regex(/(?=.*[0-9])/, {
+//       message: 'Password must contain at least one number',
+//     })
+//     .regex(/(?=.*[^A-Za-z0-9])/, {
+//       message: 'Password must contain at least one special character',
+//     }),
+// });
 
 export default function makeSignupWithEmailUsecase(
   requestContext: IRequestContext,
@@ -49,7 +47,7 @@ export default function makeSignupWithEmailUsecase(
   repoService: IRepoService
 ) {
   return async (payload: IUserSignupReq) => {
-    zodValidationRunner(validationSchema, payload);
+    // zodValidationRunner(validationSchema, payload);
 
     const { correlationId, idempotencyKey } = requestContext.get();
 

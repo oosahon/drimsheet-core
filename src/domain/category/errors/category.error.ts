@@ -7,6 +7,7 @@ type TErrorPrefix = `category_error_${string}`;
 class CategoryError<K extends TErrorPrefix> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'CategoryError';
   }
 }
 

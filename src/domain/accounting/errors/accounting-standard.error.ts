@@ -13,6 +13,7 @@ type UAccountingStandardError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class AccountingStandardError extends accountingError.Base<UAccountingStandardError> {
   constructor(key: UAccountingStandardError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'AccountingStandardError';
   }
 }
 

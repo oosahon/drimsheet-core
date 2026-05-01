@@ -14,6 +14,7 @@ type ULedgerAccountBalanceError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class LedgerAccountBalanceError extends bookkeepingError.Base<ULedgerAccountBalanceError> {
   constructor(key: ULedgerAccountBalanceError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'LedgerAccountBalanceError';
   }
 }
 

@@ -35,36 +35,42 @@ class HttpError extends DomainError<UHttpError> {
 class BadRequest extends HttpError {
   constructor(cause?: TErrorCause) {
     super(EErrorKeys.BadRequest, 400, cause);
+    this.name = 'BadRequest';
   }
 }
 
 class Unauthorized extends HttpError {
   constructor(cause?: TErrorCause) {
     super(EErrorKeys.Unauthorized, 401, cause);
+    this.name = 'Unauthorized';
   }
 }
 
 class PaymentRequired extends HttpError {
   constructor(cause?: TErrorCause) {
     super(EErrorKeys.PaymentRequired, 402, cause);
+    this.name = 'PaymentRequired';
   }
 }
 
 class Forbidden extends HttpError {
   constructor(cause?: TErrorCause) {
     super(EErrorKeys.Forbidden, 403, cause);
+    this.name = 'Forbidden';
   }
 }
 
 class ResourceNotFound extends HttpError {
   constructor(cause?: TErrorCause) {
     super(EErrorKeys.ResourceNotFound, 404, cause);
+    this.name = 'ResourceNotFound';
   }
 }
 
 class Conflict extends HttpError {
   constructor(cause?: TErrorCause) {
     super(EErrorKeys.Conflict, 409, cause);
+    this.name = 'Conflict';
   }
 }
 
@@ -73,6 +79,7 @@ class UnprocessableEntity extends HttpError {
 
   constructor(validationErrors: IApiValidationError[], cause?: TErrorCause) {
     super(EErrorKeys.UnprocessableEntity, 422, cause);
+    this.name = 'UnprocessableEntity';
     this.validationErrors = validationErrors;
   }
 }
@@ -80,12 +87,14 @@ class UnprocessableEntity extends HttpError {
 class TooManyRequests extends HttpError {
   constructor(cause?: TErrorCause) {
     super(EErrorKeys.TooManyRequests, 429, cause);
+    this.name = 'TooManyRequests';
   }
 }
 
 class InternalServerError extends HttpError {
   constructor(cause?: TErrorCause) {
     super(EErrorKeys.InternalServerError, 500, cause);
+    this.name = 'InternalServerError';
   }
 }
 

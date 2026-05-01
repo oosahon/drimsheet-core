@@ -15,6 +15,7 @@ class SubledgerError<
 > extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'SubledgerError';
   }
 }
 

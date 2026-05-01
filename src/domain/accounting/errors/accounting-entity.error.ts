@@ -18,6 +18,7 @@ type UAccountingEntityError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class AccountingEntityError extends accountingError.Base<UAccountingEntityError> {
   constructor(key: UAccountingEntityError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'AccountingEntityError';
   }
 }
 

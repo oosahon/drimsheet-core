@@ -46,7 +46,6 @@ describe('Error Value Objects', () => {
       const parsed = errorUtils.parseError(domainError);
 
       expect(parsed).toEqual({
-        type: 'domain',
         name: 'DomainError',
         errorKey: 'DOMAIN_ISSUE',
         cause: cause,
@@ -60,7 +59,6 @@ describe('Error Value Objects', () => {
       const parsed = errorUtils.parseError(appError);
 
       expect(parsed).toEqual({
-        type: 'domain',
         name: 'AppError',
         errorKey: 'app_error_crashed',
         cause: cause,
@@ -73,10 +71,9 @@ describe('Error Value Objects', () => {
       const parsed = errorUtils.parseError(genericError);
 
       expect(parsed).toEqual({
-        type: 'unknown',
         name: 'Error',
-        errorKey: null,
-        cause: null,
+        errorKey: undefined,
+        cause: undefined,
         _raw: genericError,
       });
 
@@ -84,10 +81,9 @@ describe('Error Value Objects', () => {
       const parsedString = errorUtils.parseError(stringError);
 
       expect(parsedString).toEqual({
-        type: 'unknown',
         name: 'UnknownError',
-        errorKey: null,
-        cause: null,
+        errorKey: undefined,
+        cause: undefined,
         _raw: stringError,
       });
     });

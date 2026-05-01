@@ -104,6 +104,9 @@ function validateNumber<T extends Error>(
 
 function isInteger(value: string | number | bigint): boolean {
   try {
+    if (typeof value === 'string' && value.trim() === '') {
+      return false;
+    }
     const num = Number(value);
     return Number.isInteger(num);
   } catch (error) {
@@ -122,6 +125,9 @@ function validateInteger<T extends Error>(
 
 function isPositiveNumber(value: string | number | bigint): boolean {
   try {
+    if (typeof value === 'string' && value.trim() === '') {
+      return false;
+    }
     const num = Number(value);
     return !isNaN(num) && num > 0;
   } catch (error) {
@@ -140,6 +146,9 @@ function validatePositiveNumber<T extends Error>(
 
 function isNonNegativeNumber(value: string | number | bigint): boolean {
   try {
+    if (typeof value === 'string' && value.trim() === '') {
+      return false;
+    }
     const num = Number(value);
     return !isNaN(num) && num >= 0;
   } catch (error) {

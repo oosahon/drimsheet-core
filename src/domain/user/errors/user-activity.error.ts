@@ -13,6 +13,7 @@ type UUserActivityError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class UserActivityError extends userError.Base<UUserActivityError> {
   constructor(key: UUserActivityError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'UserActivityError';
   }
 }
 

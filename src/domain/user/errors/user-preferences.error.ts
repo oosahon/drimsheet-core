@@ -13,6 +13,7 @@ type UUserPreferencesError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class UserPreferencesError extends userError.Base<UUserPreferencesError> {
   constructor(key: UUserPreferencesError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'UserPreferencesError';
   }
 }
 

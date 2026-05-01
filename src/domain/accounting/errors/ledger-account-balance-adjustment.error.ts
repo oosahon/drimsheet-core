@@ -16,6 +16,7 @@ type ULedgerAccountBalanceAdjustmentError =
 class LedgerAccountBalanceAdjustmentError extends accountingError.Base<ULedgerAccountBalanceAdjustmentError> {
   constructor(key: ULedgerAccountBalanceAdjustmentError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'LedgerAccountBalanceAdjustmentError';
   }
 }
 

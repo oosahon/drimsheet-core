@@ -71,6 +71,7 @@ describe('makeHttpErrorHandler', () => {
 
     expect(mockStatus).toHaveBeenCalledWith(422);
     expect(mockJson).toHaveBeenCalledWith({
+      name: 'UnprocessableEntity',
       cause: undefined,
       errorKey: 'http_error_unprocessable_entity',
       validationErrors: [
@@ -89,10 +90,9 @@ describe('makeHttpErrorHandler', () => {
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
-      name: 'HttpError',
+      name: 'BadRequest',
       errorKey: 'http_error_bad_request',
-      message: 'http_error_bad_request',
-      cause: null,
+      cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
@@ -107,17 +107,17 @@ describe('makeHttpErrorHandler', () => {
     expect(mockJson).toHaveBeenCalledWith({
       name: 'AppError',
       errorKey: 'app_error_domain_rule_violated',
-      message: 'app_error_domain_rule_violated',
-      cause: null,
+      cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
   it('should handle auth DomainError and return 401', () => {
     const handler = makeHttpErrorHandler(mockReporter);
-    class MockAuthError extends DomainError<'app_error_auth_test'> {
+    class MockAuthError extends DomainError<'auth_error_test'> {
       constructor() {
-        super('app_error_auth_test');
+        super('auth_error_test');
+        this.name = 'AuthError';
       }
     }
     const error = new MockAuthError();
@@ -126,10 +126,9 @@ describe('makeHttpErrorHandler', () => {
 
     expect(mockStatus).toHaveBeenCalledWith(401);
     expect(mockJson).toHaveBeenCalledWith({
-      name: 'MockAuthError',
-      errorKey: 'app_error_auth_test',
-      message: 'app_error_auth_test',
-      cause: null,
+      name: 'AuthError',
+      errorKey: 'auth_error_test',
+      cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
@@ -149,8 +148,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockJson).toHaveBeenCalledWith({
       name: 'MockDomainError',
       errorKey: 'app_error_other_test',
-      message: 'app_error_other_test',
-      cause: null,
+      cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
@@ -164,7 +162,9 @@ describe('makeHttpErrorHandler', () => {
     expect(mockReporter.report).toHaveBeenCalledWith(error);
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
-      message: 'http_error_internal_server_error',
+      name: 'InternalServerError',
+      errorKey: 'http_error_internal_server_error',
+      cause: undefined,
     });
   });
 
@@ -183,8 +183,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockJson).toHaveBeenCalledWith({
       name: 'MockNoKeyError',
       errorKey: '',
-      message: 'Unknown error',
-      cause: null,
+      cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });

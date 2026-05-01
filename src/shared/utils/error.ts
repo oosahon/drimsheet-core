@@ -1,15 +1,13 @@
 import DomainError from '../errors/domain.error';
-import { TErrorCause } from '../types/error.types';
+import { IParsedError, TErrorCause } from '../types/error.types';
 
-function parseError(err: unknown) {
-  const errorType = err instanceof DomainError ? 'domain' : 'unknown';
+function parseError(err: unknown): IParsedError {
   const error = err as InstanceType<typeof DomainError>;
 
   return {
-    type: errorType,
-    name: error?.name ?? 'UnknownError',
-    cause: error?.cause ?? null,
-    errorKey: error.errorKey ?? null,
+    name: error.name || 'UnknownError',
+    cause: error.cause,
+    errorKey: error.errorKey,
     _raw: err,
   };
 }

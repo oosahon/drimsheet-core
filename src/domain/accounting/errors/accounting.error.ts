@@ -15,6 +15,7 @@ class AccountingError<
 > extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'AccountingError';
   }
 }
 

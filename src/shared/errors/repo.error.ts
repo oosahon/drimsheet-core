@@ -12,6 +12,7 @@ const EErrorKeys = {
 class RepoError extends DomainError<TErrorPrefix> {
   constructor(key: TErrorPrefix, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'RepoError';
   }
 }
 

@@ -16,6 +16,7 @@ type UExchangeRateError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class ExchangeRateError extends currencyError.Base<UExchangeRateError> {
   constructor(key: UExchangeRateError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'ExchangeRateError';
   }
 }
 

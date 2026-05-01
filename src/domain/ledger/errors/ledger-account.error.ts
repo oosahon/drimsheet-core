@@ -31,6 +31,7 @@ type ULedgerAccountError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class LedgerAccountError extends ledgerError.Base<ULedgerAccountError> {
   constructor(key: ULedgerAccountError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'LedgerAccountError';
   }
 }
 

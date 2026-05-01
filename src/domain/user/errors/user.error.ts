@@ -13,6 +13,7 @@ type UUserError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class UserError<K extends TErrorPrefix = UUserError> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'UserError';
   }
 }
 

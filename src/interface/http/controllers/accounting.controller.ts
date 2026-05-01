@@ -11,8 +11,8 @@ import {
   Tags,
 } from 'tsoa';
 import { IAccountingEntityCreationDto } from '../../../app/contracts/dto/accounting.dto';
+import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
 import accountingUsecases from '../../../app/usecases/accounting';
-import { IApiError } from '../handlers/error.handler';
 import middlewares from '../middlewares';
 
 @Route('accounting')
@@ -24,10 +24,10 @@ export class AccountingController extends Controller {
   @Post('/accounting-entity')
   @OperationId('createAccountingEntity')
   @SuccessResponse('201')
-  @Response<IApiError>('400')
-  @Response<IApiError>('401')
-  @Response<IApiError>('409')
-  @Response<IApiError>('422')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('409')
+  @Response<IHttpErrorDto>('422')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async createAccountingEntity(
     @Body() body: IAccountingEntityCreationDto
@@ -51,9 +51,9 @@ export class AccountingController extends Controller {
   @Get('/accounting-entities')
   @OperationId('getUserAccountingEntities')
   @SuccessResponse('200')
-  @Response<IApiError>('400')
-  @Response<IApiError>('401')
-  @Response<IApiError>('409')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('409')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getUserAccountingEntities() {
     return await accountingUsecases.getUserAccountingEntities();

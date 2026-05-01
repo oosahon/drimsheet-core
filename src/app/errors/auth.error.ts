@@ -1,25 +1,25 @@
-import AppError from '../../shared/errors/app.error';
+import DomainError from '../../shared/errors/domain.error';
 import { TErrorCause } from '../../shared/types/error.types';
 import errorUtils from '../../shared/utils/error';
 
-type TErrorKeyPrefix = `app_error_auth_${string}`;
+type TErrorKeyPrefix = `auth_error_${string}`;
 
 const EErrorKeys = {
-  InvalidValue: 'app_error_auth_invalid_value',
-  ExpiredToken: 'app_error_auth_expired_token',
-  InvalidToken: 'app_error_auth_invalid_token',
-  MalformedToken: 'app_error_auth_malformed_token',
-  MissingToken: 'app_error_auth_missing_token',
-  InvalidCredentials: 'app_error_auth_invalid_credentials',
-  AccountLocked: 'app_error_auth_account_locked',
-  WrongStrategy: 'app_error_auth_wrong_strategy',
-  EmailRequired: 'app_error_auth_email_required',
-  UserNotFound: 'app_error_auth_user_not_found',
+  InvalidValue: 'auth_error_invalid_value',
+  ExpiredToken: 'auth_error_expired_token',
+  InvalidToken: 'auth_error_invalid_token',
+  MalformedToken: 'auth_error_malformed_token',
+  MissingToken: 'auth_error_missing_token',
+  InvalidCredentials: 'auth_error_invalid_credentials',
+  AccountLocked: 'auth_error_account_locked',
+  WrongStrategy: 'auth_error_wrong_strategy',
+  EmailRequired: 'auth_error_email_required',
+  UserNotFound: 'auth_error_user_not_found',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UErrorKeys = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class AuthError extends AppError<UErrorKeys> {
+class AuthError extends DomainError<UErrorKeys> {
   constructor(key: UErrorKeys, cause?: TErrorCause) {
     super(key, cause);
     this.name = 'AuthError';

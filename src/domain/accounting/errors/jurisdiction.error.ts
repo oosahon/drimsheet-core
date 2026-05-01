@@ -13,6 +13,7 @@ type UJurisdictionError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class JurisdictionError extends accountingError.Base<UJurisdictionError> {
   constructor(key: UJurisdictionError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'JurisdictionError';
   }
 }
 

@@ -7,6 +7,7 @@ type TErrorPrefix = `bookkeeping_error_${string}`;
 class BookkeepingError<K extends TErrorPrefix> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'BookkeepingError';
   }
 }
 

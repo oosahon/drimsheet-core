@@ -14,6 +14,7 @@ type UAssetAccountError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class AssetAccountError extends ledgerError.Base<UAssetAccountError> {
   constructor(key: UAssetAccountError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'AssetAccountError';
   }
 }
 

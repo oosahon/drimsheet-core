@@ -16,6 +16,7 @@ type UUserValueObjectError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 class UserValueObjectError extends userError.Base<UUserValueObjectError> {
   constructor(key: UUserValueObjectError, cause?: TErrorCause) {
     super(key, cause);
+    this.name = 'UserValueObjectError';
   }
 }
 
