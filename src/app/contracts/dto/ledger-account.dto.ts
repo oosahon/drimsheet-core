@@ -5,6 +5,9 @@ import {
   ELedgerAccountSortBy,
   ULedgerAccountSortBy,
 } from '../../../domain/ledger/repos/ledger-account.repo';
+import { EAssetSubType } from '../../../domain/ledger/types/asset-account.types';
+import { EEquitySubType } from '../../../domain/ledger/types/equity-account.types';
+import { EExpenseSubType } from '../../../domain/ledger/types/expense-account.types';
 import {
   ELedgerType,
   UAdjunctAccountRule,
@@ -13,6 +16,8 @@ import {
   ULedgerType,
   UNormalBalance,
 } from '../../../domain/ledger/types/ledger.types';
+import { ELiabilitySubType } from '../../../domain/ledger/types/liability-account.types';
+import { ERevenueSubType } from '../../../domain/ledger/types/revenue-account.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import appError from '../../errors/app.error';
 import { IMoneyDto } from './money.dto';
@@ -39,9 +44,27 @@ export const ledgerAccountOrderByValidationSchema = z.enum(
   invalidTypeKey
 );
 
+export const ELedgerAccountSubType = {
+  ...EAssetSubType,
+  ...ELiabilitySubType,
+  ...EEquitySubType,
+  ...ERevenueSubType,
+  ...EExpenseSubType,
+} as const;
+
+export type ULedgerAccountSubType =
+  (typeof ELedgerAccountSubType)[keyof typeof ELedgerAccountSubType];
+
+export const ledgerAccountSubTypeValidation = z.enum(
+  Object.values(ELedgerAccountSubType) as [
+    ULedgerAccountSubType,
+    ...ULedgerAccountSubType[],
+  ],
+  invalidTypeKey
+);
 export interface IGetLedgerAccountsQuery extends IPaginationDto {
   type?: ULedgerType;
-  subType?: string;
+  subType?: ULedgerAccountSubType;
   behavior?: string;
   isControlAccount?: boolean;
   orderBy?: ULedgerAccountSortBy;
@@ -50,7 +73,7 @@ export interface IGetLedgerAccountsQuery extends IPaginationDto {
 export const getLedgerAccountQueryValidationSchema = z.object({
   ..._.omit(paginationQueryValidationSchema.shape, ['orderBy']),
   type: ledgerAccountTypeValidation.optional(),
-  subType: z.string(defaultErrorKey).optional(),
+  subType: ledgerAccountSubTypeValidation.optional(),
   behavior: z.string(defaultErrorKey).optional(),
   isControlAccount: z.boolean(defaultErrorKey).optional(),
   orderBy: ledgerAccountOrderByValidationSchema.optional(),

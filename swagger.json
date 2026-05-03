@@ -350,6 +350,54 @@
         "type": "object",
         "additionalProperties": false
       },
+      "ULedgerAccountSubType": {
+        "type": "string",
+        "enum": [
+          "cash_and_cash_equivalent",
+          "short_term_investment",
+          "receivables",
+          "inventory",
+          "accrued_income",
+          "prepayments",
+          "long_term_investment",
+          "property_plant_and_equipment",
+          "intangible_assets",
+          "right_of_use_assets",
+          "goodwill",
+          "suspense",
+          "short_term_debt",
+          "payable",
+          "accrued_expense",
+          "deferred_revenue",
+          "long_term_loan",
+          "lease_liability",
+          "provision",
+          "capital",
+          "retained_earnings",
+          "reserve",
+          "opening_balance",
+          "sales",
+          "services",
+          "subscriptions",
+          "employment_income",
+          "interest_income",
+          "gain_on_asset_sale",
+          "unrealized_gains",
+          "direct_costs",
+          "payroll_and_personnel",
+          "rent_and_utilities",
+          "admin_and_general",
+          "marketing_and_selling",
+          "research_and_development",
+          "depreciation_and_amortization",
+          "interest_and_finance_charges",
+          "income_tax_expense",
+          "unrealized_loss",
+          "loss_on_asset_disposal",
+          "impairment_losses",
+          "other_losses"
+        ]
+      },
       "ULedgerAccountSortBy": {
         "type": "string",
         "enum": ["accountName", "createdAt", "balance"]
@@ -400,7 +448,7 @@
             "$ref": "#/components/schemas/ULedgerType"
           },
           "subType": {
-            "type": "string"
+            "$ref": "#/components/schemas/ULedgerAccountSubType"
           },
           "behavior": {
             "type": "string"
@@ -1080,7 +1128,7 @@
             "name": "subType",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/ULedgerAccountSubType"
             }
           },
           {

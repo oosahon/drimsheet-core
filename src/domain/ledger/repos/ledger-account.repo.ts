@@ -1,7 +1,12 @@
 import { IPaginatedResponse } from '../../../shared/types/pagination.types';
 import { IRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { UAssetSubType } from '../types/asset-account.types';
+import { UEquitySubType } from '../types/equity-account.types';
+import { UExpenseSubType } from '../types/expense-account.types';
 import { ILedgerAccount, ULedgerType } from '../types/ledger.types';
+import { ULiabilitySubType } from '../types/liability-account.types';
+import { URevenueSubType } from '../types/revenue-account.types';
 
 export const ELedgerAccountSortBy = {
   AccountName: 'accountName',
@@ -17,7 +22,12 @@ export interface IFindAllLedgerAccountsOptions extends Omit<
   'orderBy'
 > {
   type?: ULedgerType;
-  subType?: string;
+  subType?:
+    | UAssetSubType
+    | ULiabilitySubType
+    | UEquitySubType
+    | URevenueSubType
+    | UExpenseSubType;
   behavior?: string;
   isControlAccount?: boolean;
   orderBy?: ULedgerAccountSortBy;
