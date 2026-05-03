@@ -1,3 +1,4 @@
+import paginationError from '../errors/pagination.error';
 import {
   EPaginationSortDirection,
   IPaginatedResponse,
@@ -5,19 +6,31 @@ import {
   IPaginationResponseMeta,
   UPaginationSortDirection,
 } from '../types/pagination.types';
+import numberUtils from '../utils/number';
 
 function getLimit(limit?: number): number {
-  if (limit && limit > 200) return 200;
-  return limit ?? 20;
+  if (!limit) return 20;
+
+  numberUtils.validateInteger(limit, paginationError.InvalidLimit);
+
+  return limit > 200 ? 200 : limit;
 }
 
 function getOffset(offset?: number): number {
-  if (offset && offset > 2000) return 2000;
-  return offset ?? 0;
+  if (!offset) return 0;
+
+  numberUtils.validateInteger(offset, paginationError.InvalidOffset);
+
+  return offset > 2000 ? 2000 : offset;
 }
 
 function getPage(limit: number, offset: number): number {
-  return offset / limit + 1;
+  numberUtils.validateNonNegativeNumber(limit, paginationError.InvalidLimit);
+  numberUtils.validateNonNegativeNumber(offset, paginationError.InvalidOffset);
+
+  const page = offset / limit + 1;
+
+  return page;
 }
 
 function getResponseMeta(
