@@ -5,6 +5,7 @@ const mockLedgerAccountBalanceRepo: jest.Mocked<ILedgerAccountBalanceRepo> = {
   adjustBalance: jest.fn(),
   findBalanceByAccountId: jest.fn(),
   findAdjustmentsByAccountId: jest.fn(),
+  findAllByAccountIds: jest.fn(),
 };
 
 export default mockLedgerAccountBalanceRepo;

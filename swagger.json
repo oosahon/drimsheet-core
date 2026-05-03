@@ -164,6 +164,232 @@
         "type": "object",
         "additionalProperties": false
       },
+      "ULedgerType": {
+        "type": "string",
+        "enum": ["asset", "liability", "revenue", "expense", "equity"]
+      },
+      "UNormalBalance": {
+        "type": "string",
+        "enum": ["debit", "credit"]
+      },
+      "ULedgerAccountStatus": {
+        "type": "string",
+        "enum": ["active", "archived"]
+      },
+      "UContraAccountRule": {
+        "type": "string",
+        "enum": [
+          "contra_permitted",
+          "contra_not_permitted",
+          "contra_only",
+          "contra_not_applicable"
+        ]
+      },
+      "UAdjunctAccountRule": {
+        "type": "string",
+        "enum": [
+          "adjunct_permitted",
+          "adjunct_not_permitted",
+          "adjunct_only",
+          "adjunct_not_applicable"
+        ]
+      },
+      "Record_string.string_": {
+        "properties": {},
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object",
+        "description": "Construct a type with a set of properties K of type T"
+      },
+      "IMoneyDto": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "isMinorUnit": {
+            "type": "boolean"
+          }
+        },
+        "required": ["amount", "currencyCode", "isMinorUnit"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ILedgerAccountDto": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "code": {
+            "type": "string"
+          },
+          "materializedPath": {
+            "type": "string"
+          },
+          "accountingEntityId": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ULedgerType"
+          },
+          "normalBalance": {
+            "$ref": "#/components/schemas/UNormalBalance"
+          },
+          "subType": {
+            "type": "string"
+          },
+          "behavior": {
+            "type": "string"
+          },
+          "isControlAccount": {
+            "type": "boolean"
+          },
+          "controlAccountId": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ULedgerAccountStatus"
+          },
+          "contraAccountRule": {
+            "$ref": "#/components/schemas/UContraAccountRule"
+          },
+          "adjunctAccountRule": {
+            "$ref": "#/components/schemas/UAdjunctAccountRule"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/Record_string.string_"
+          },
+          "createdBy": {
+            "$ref": "#/components/schemas/TEntityId"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "balance": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "functionalBalance": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          }
+        },
+        "required": [
+          "id",
+          "code",
+          "materializedPath",
+          "accountingEntityId",
+          "type",
+          "normalBalance",
+          "subType",
+          "behavior",
+          "isControlAccount",
+          "name",
+          "status",
+          "contraAccountRule",
+          "adjunctAccountRule",
+          "createdBy",
+          "createdAt",
+          "updatedAt",
+          "balance",
+          "functionalBalance"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IPaginationResponseMeta": {
+        "properties": {
+          "page": {
+            "type": "number",
+            "format": "double"
+          },
+          "limit": {
+            "type": "number",
+            "format": "double"
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalPages": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["page", "limit", "total", "totalPages"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IPaginatedResponse_ILedgerAccountDto_": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ILedgerAccountDto"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/IPaginationResponseMeta"
+          }
+        },
+        "required": ["data", "meta"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UPaginationSortDirection": {
+        "type": "string",
+        "enum": ["asc", "desc"]
+      },
+      "IGetLedgerAccountsQuery": {
+        "properties": {
+          "limit": {
+            "type": "number",
+            "format": "double"
+          },
+          "offset": {
+            "type": "number",
+            "format": "double"
+          },
+          "orderBy": {
+            "type": "string",
+            "enum": ["accountName", "createdAt", "balance"]
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/UPaginationSortDirection"
+          },
+          "search": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/ULedgerType"
+          },
+          "subType": {
+            "type": "string"
+          },
+          "behavior": {
+            "type": "string"
+          },
+          "isControlAccount": {
+            "type": "boolean"
+          }
+        },
+        "type": "object",
+        "additionalProperties": false
+      },
       "ICurrencyDto": {
         "properties": {
           "code": {
@@ -239,23 +465,6 @@
           }
         },
         "required": ["token", "password", "confirmPassword"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "IMoneyDto": {
-        "properties": {
-          "amount": {
-            "type": "number",
-            "format": "double"
-          },
-          "currencyCode": {
-            "type": "string"
-          },
-          "isMinorUnit": {
-            "type": "boolean"
-          }
-        },
-        "required": ["amount", "currencyCode", "isMinorUnit"],
         "type": "object",
         "additionalProperties": false
       },
@@ -755,6 +964,131 @@
         "parameters": []
       }
     },
+    "/ledger/accounts": {
+      "get": {
+        "operationId": "getLedgerAccounts",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPaginatedResponse_ILedgerAccountDto_"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get paginated ledger accounts with optional filters",
+        "tags": ["Ledger Accounts"],
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDirection",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UPaginationSortDirection"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ULedgerType"
+            }
+          },
+          {
+            "in": "query",
+            "name": "subType",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "behavior",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "isControlAccount",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["accountName", "createdAt", "balance"]
+            }
+          }
+        ]
+      }
+    },
     "/currencies": {
       "get": {
         "operationId": "getAll",
@@ -1137,7 +1471,7 @@
           }
         },
         "description": "Create a new petty cash sub account",
-        "tags": ["Ledger", "Asset Account"],
+        "tags": ["Ledger Accounts", "Asset Account"],
         "security": [],
         "parameters": [],
         "requestBody": {

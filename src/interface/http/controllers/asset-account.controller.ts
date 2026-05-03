@@ -15,7 +15,7 @@ import assetAccountUseCase from '../../../app/usecases/ledger/asset-account';
 import middlewares from '../middlewares';
 
 @Route('ledger/asset-accounts')
-@Tags('Ledger', 'Asset Account')
+@Tags('Ledger Accounts', 'Asset Account')
 export class AssetAccountController extends Controller {
   /**
    * Create a new petty cash sub account

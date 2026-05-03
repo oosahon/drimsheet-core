@@ -13,10 +13,10 @@ yarn test --coverage
 
 ## Mandatory Skills
 
-- [Error Handling](./error-handling.skill.md)
-- [Pair Programmer](./pair-programmer.skill.md)
+- ALWAYS USE [Error Handling](./error-handling.skill.md)
+- ALWAYS USE [Pair Programmer](./pair-programmer.skill.md)
 
 ## Mandatory Rules
 
-- [Testing](../rules/testing.rule.md)
-- [Artifact Creation Rules](../rules/artifact-creation.rule.md)
+- ALWAYS USE [Testing](../rules/testing.rule.md)
+- ALWAYS USE [Artifact Creation Rules](../rules/artifact-creation.rule.md)

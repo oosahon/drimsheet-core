@@ -6,6 +6,8 @@ import { ExpressTemplateService, fetchMiddlewares } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UserController } from './src/interface/http/controllers/user.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { LedgerAccountController } from './src/interface/http/controllers/ledger-accounts.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CurrencyController } from './src/interface/http/controllers/currency.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './src/interface/http/controllers/auth.controller';
@@ -166,6 +168,180 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ULedgerType: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['asset'] },
+        { dataType: 'enum', enums: ['liability'] },
+        { dataType: 'enum', enums: ['revenue'] },
+        { dataType: 'enum', enums: ['expense'] },
+        { dataType: 'enum', enums: ['equity'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UNormalBalance: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['debit'] },
+        { dataType: 'enum', enums: ['credit'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ULedgerAccountStatus: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['active'] },
+        { dataType: 'enum', enums: ['archived'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UContraAccountRule: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['contra_permitted'] },
+        { dataType: 'enum', enums: ['contra_not_permitted'] },
+        { dataType: 'enum', enums: ['contra_only'] },
+        { dataType: 'enum', enums: ['contra_not_applicable'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UAdjunctAccountRule: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['adjunct_permitted'] },
+        { dataType: 'enum', enums: ['adjunct_not_permitted'] },
+        { dataType: 'enum', enums: ['adjunct_only'] },
+        { dataType: 'enum', enums: ['adjunct_not_applicable'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  'Record_string.string_': {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'nestedObjectLiteral',
+      nestedProperties: {},
+      additionalProperties: { dataType: 'string' },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IMoneyDto: {
+    dataType: 'refObject',
+    properties: {
+      amount: { dataType: 'double', required: true },
+      currencyCode: { dataType: 'string', required: true },
+      isMinorUnit: { dataType: 'boolean', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ILedgerAccountDto: {
+    dataType: 'refObject',
+    properties: {
+      id: { ref: 'TEntityId', required: true },
+      code: { dataType: 'string', required: true },
+      materializedPath: { dataType: 'string', required: true },
+      accountingEntityId: { ref: 'TEntityId', required: true },
+      type: { ref: 'ULedgerType', required: true },
+      normalBalance: { ref: 'UNormalBalance', required: true },
+      subType: { dataType: 'string', required: true },
+      behavior: { dataType: 'string', required: true },
+      isControlAccount: { dataType: 'boolean', required: true },
+      controlAccountId: { ref: 'TEntityId' },
+      name: { dataType: 'string', required: true },
+      status: { ref: 'ULedgerAccountStatus', required: true },
+      contraAccountRule: { ref: 'UContraAccountRule', required: true },
+      adjunctAccountRule: { ref: 'UAdjunctAccountRule', required: true },
+      meta: { ref: 'Record_string.string_' },
+      createdBy: { ref: 'TEntityId', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+      deletedAt: { dataType: 'datetime' },
+      balance: { ref: 'IMoneyDto', required: true },
+      functionalBalance: { ref: 'IMoneyDto', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaginationResponseMeta: {
+    dataType: 'refObject',
+    properties: {
+      page: { dataType: 'double', required: true },
+      limit: { dataType: 'double', required: true },
+      total: { dataType: 'double', required: true },
+      totalPages: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaginatedResponse_ILedgerAccountDto_: {
+    dataType: 'refObject',
+    properties: {
+      data: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'ILedgerAccountDto' },
+        required: true,
+      },
+      meta: { ref: 'IPaginationResponseMeta', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UPaginationSortDirection: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['asc'] },
+        { dataType: 'enum', enums: ['desc'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IGetLedgerAccountsQuery: {
+    dataType: 'refObject',
+    properties: {
+      limit: { dataType: 'double' },
+      offset: { dataType: 'double' },
+      orderBy: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'enum', enums: ['accountName'] },
+          { dataType: 'enum', enums: ['createdAt'] },
+          { dataType: 'enum', enums: ['balance'] },
+        ],
+      },
+      sortDirection: { ref: 'UPaginationSortDirection' },
+      search: { dataType: 'string' },
+      type: { ref: 'ULedgerType' },
+      subType: { dataType: 'string' },
+      behavior: { dataType: 'string' },
+      isControlAccount: { dataType: 'boolean' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ICurrencyDto: {
     dataType: 'refObject',
     properties: {
@@ -211,16 +387,6 @@ const models: TsoaRoute.Models = {
       token: { dataType: 'string', required: true },
       password: { dataType: 'string', required: true },
       confirmPassword: { dataType: 'string', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IMoneyDto: {
-    dataType: 'refObject',
-    properties: {
-      amount: { dataType: 'double', required: true },
-      currencyCode: { dataType: 'string', required: true },
-      isMinorUnit: { dataType: 'boolean', required: true },
     },
     additionalProperties: false,
   },
@@ -629,6 +795,55 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'getAuthUserProfile',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsLedgerAccountController_getLedgerAccounts: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    query: {
+      in: 'queries',
+      name: 'query',
+      required: true,
+      ref: 'IGetLedgerAccountsQuery',
+    },
+  };
+  app.get(
+    '/api/v1/ledger/accounts',
+    ...fetchMiddlewares<RequestHandler>(LedgerAccountController),
+    ...fetchMiddlewares<RequestHandler>(
+      LedgerAccountController.prototype.getLedgerAccounts
+    ),
+
+    async function LedgerAccountController_getLedgerAccounts(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsLedgerAccountController_getLedgerAccounts,
+          request,
+          response,
+        });
+
+        const controller = new LedgerAccountController();
+
+        await templateService.apiHandler({
+          methodName: 'getLedgerAccounts',
           controller,
           response,
           next,

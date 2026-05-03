@@ -18,6 +18,11 @@
   - This rule applies to every service, use case, or handler that uses dependency injection.
 - **Creating Missing Mocks**: If a mock does not exist for a repository, create one by following the **"Mock Completeness"** rule outlined in `.agent/shared/rules/repo-implementation.rule.md`.
 
+## Reusable factories
+
+- Never hardcode entities or value objects. Always use the `make` method of the respective entity or factory.
+- When working with currencies, never hardcode the currency. Always use one of the systems currencies in `src/domain/currency/config/currency.config.ts`.
+
 ## Prototype Test Examples
 
 When writing tests, refer to the following files as standard prototypes:

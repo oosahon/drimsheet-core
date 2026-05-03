@@ -1,4 +1,5 @@
-import { and, eq, getTableColumns, or } from 'drizzle-orm';
+import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import ledgerAccountBalanceMapper from '../../../app/mappers/ledger-account-balance.mapper';
 import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
 import repoError from '../../../shared/errors/repo.error';
@@ -9,6 +10,11 @@ import {
 } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';
 import validateVersionInOptions from './helpers/validate-version';
+
+const functionalCurrenciesInCore = alias(
+  currenciesInCore,
+  'functional_currencies'
+);
 
 const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
   async create(payload, options) {
@@ -26,17 +32,18 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
       .select({
         ...getTableColumns(ledgerAccountBalancesInCore),
         currency: getTableColumns(currenciesInCore),
-        functionalCurrency: getTableColumns(currenciesInCore),
+        functionalCurrency: getTableColumns(functionalCurrenciesInCore),
       })
       .from(ledgerAccountBalancesInCore)
       .innerJoin(
         currenciesInCore,
-        or(
-          eq(ledgerAccountBalancesInCore.currencyCode, currenciesInCore.code),
-          eq(
-            ledgerAccountBalancesInCore.functionalCurrencyCode,
-            currenciesInCore.code
-          )
+        eq(ledgerAccountBalancesInCore.currencyCode, currenciesInCore.code)
+      )
+      .innerJoin(
+        functionalCurrenciesInCore,
+        eq(
+          ledgerAccountBalancesInCore.functionalCurrencyCode,
+          functionalCurrenciesInCore.code
         )
       )
       .where(
@@ -104,6 +111,38 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
       );
 
     return result.map(ledgerAccountBalanceMapper.fromRepoAdjustment);
+  },
+
+  async findAllByAccountIds(accountingEntityId, ledgerAccountIds, options) {
+    const result = await getDbQuery(options)
+      .select({
+        ...getTableColumns(ledgerAccountBalancesInCore),
+        currency: getTableColumns(currenciesInCore),
+        functionalCurrency: getTableColumns(functionalCurrenciesInCore),
+      })
+      .from(ledgerAccountBalancesInCore)
+      .innerJoin(
+        currenciesInCore,
+        eq(ledgerAccountBalancesInCore.currencyCode, currenciesInCore.code)
+      )
+      .innerJoin(
+        functionalCurrenciesInCore,
+        eq(
+          ledgerAccountBalancesInCore.functionalCurrencyCode,
+          functionalCurrenciesInCore.code
+        )
+      )
+      .where(
+        and(
+          eq(
+            ledgerAccountBalancesInCore.accountingEntityId,
+            accountingEntityId
+          ),
+          inArray(ledgerAccountBalancesInCore.ledgerAccountId, ledgerAccountIds)
+        )
+      );
+
+    return result.map(ledgerAccountBalanceMapper.toDomain);
   },
 };
 
