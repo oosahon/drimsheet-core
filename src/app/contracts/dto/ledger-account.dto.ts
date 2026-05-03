@@ -37,6 +37,7 @@ export interface IGetLedgerAccountsQuery extends IPaginationDto {
   subType?: string;
   behavior?: string;
   isControlAccount?: boolean;
+  orderBy: 'accountName' | 'createdAt' | 'balance';
 }
 
 export const getLedgerAccountQueryValidationSchema = z.object({

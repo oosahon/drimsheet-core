@@ -3,12 +3,15 @@ import { IRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { ILedgerAccount, ULedgerType } from '../types/ledger.types';
 
-export interface IFindAllLedgerAccountsOptions extends IRepoOptions {
+export interface IFindAllLedgerAccountsOptions extends Omit<
+  IRepoOptions,
+  'orderBy'
+> {
   type?: ULedgerType;
   subType?: string;
   behavior?: string;
   isControlAccount?: boolean;
-  sortBy?: 'accountName' | 'createdAt' | 'balance';
+  orderBy?: 'accountName' | 'createdAt' | 'balance';
 }
 
 export default interface ILedgerAccountRepo {

@@ -11,6 +11,7 @@ import { TCreationOmits } from '../../../../../shared/types/creation-omits.types
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import moneyValue from '../../../../../shared/value-objects/money.vo';
 import mockRequestContext from '../../../../contracts/app/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../../contracts/app/request-context.contract';
 import { IGetLedgerAccountsQuery } from '../../../../contracts/dto/ledger-account.dto';
 import makeGetLedgerAccountsUsecase from '../get-ledger-accounts.usecase';
 
@@ -108,6 +109,7 @@ describe('makeGetLedgerAccountsUsecase', () => {
   const validQuery: IGetLedgerAccountsQuery = {
     offset: 0,
     limit: 10,
+    orderBy: 'accountName',
   };
 
   beforeEach(() => {
@@ -115,7 +117,7 @@ describe('makeGetLedgerAccountsUsecase', () => {
     mockRequestContext.get.mockReturnValue({
       correlationId,
       accountingEntity,
-    } as unknown as ReturnType<typeof mockRequestContext.get>);
+    } as IRequestContextData);
   });
 
   it('throws ZodError for invalid query', async () => {

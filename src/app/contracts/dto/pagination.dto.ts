@@ -20,7 +20,7 @@ const invalidLimitKey = new InvalidLimit().errorKey;
 const invalidOffsetKey = new InvalidOffset().errorKey;
 const invalidSearchKey = new InvalidSearch().errorKey;
 
-export const paginationsortDirectionValidationSchema = z.enum(
+export const paginationSortDirectionValidationSchema = z.enum(
   Object.values(EPaginationSortDirection) as [
     UPaginationSortDirection,
     ...UPaginationSortDirection[],
@@ -34,6 +34,6 @@ export const paginationQueryValidationSchema = z.object({
   limit: z.number(invalidLimitKey).max(200, invalidLimitKey).optional(),
   offset: z.number(invalidOffsetKey).max(2000, invalidOffsetKey).optional(),
   orderBy: z.string(InvalidOrderByKey).optional(),
-  sortDirection: paginationsortDirectionValidationSchema.optional(),
+  sortDirection: paginationSortDirectionValidationSchema.optional(),
   search: z.string(invalidSearchKey).optional(),
 });
