@@ -307,6 +307,19 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ULedgerAccountSortBy: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['accountName'] },
+        { dataType: 'enum', enums: ['createdAt'] },
+        { dataType: 'enum', enums: ['balance'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   UPaginationSortDirection: {
     dataType: 'refAlias',
     type: {
@@ -319,22 +332,28 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  'Pick_IPaginationParams.Exclude_keyofIPaginationParams.offset__': {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'nestedObjectLiteral',
+      nestedProperties: {
+        limit: { dataType: 'double' },
+        orderBy: { dataType: 'string' },
+        sortDirection: { ref: 'UPaginationSortDirection' },
+        search: { dataType: 'string' },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IGetLedgerAccountsQuery: {
     dataType: 'refObject',
     properties: {
       limit: { dataType: 'double' },
-      offset: { dataType: 'double' },
-      orderBy: {
-        dataType: 'union',
-        subSchemas: [
-          { dataType: 'enum', enums: ['accountName'] },
-          { dataType: 'enum', enums: ['createdAt'] },
-          { dataType: 'enum', enums: ['balance'] },
-        ],
-        required: true,
-      },
+      orderBy: { ref: 'ULedgerAccountSortBy' },
       sortDirection: { ref: 'UPaginationSortDirection' },
       search: { dataType: 'string' },
+      page: { dataType: 'double' },
       type: { ref: 'ULedgerType' },
       subType: { dataType: 'string' },
       behavior: { dataType: 'string' },

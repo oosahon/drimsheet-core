@@ -350,9 +350,32 @@
         "type": "object",
         "additionalProperties": false
       },
+      "ULedgerAccountSortBy": {
+        "type": "string",
+        "enum": ["accountName", "createdAt", "balance"]
+      },
       "UPaginationSortDirection": {
         "type": "string",
         "enum": ["asc", "desc"]
+      },
+      "Pick_IPaginationParams.Exclude_keyofIPaginationParams.offset__": {
+        "properties": {
+          "limit": {
+            "type": "number",
+            "format": "double"
+          },
+          "orderBy": {
+            "type": "string"
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/UPaginationSortDirection"
+          },
+          "search": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "description": "From T, pick a set of properties whose keys are in the union K"
       },
       "IGetLedgerAccountsQuery": {
         "properties": {
@@ -360,19 +383,18 @@
             "type": "number",
             "format": "double"
           },
-          "offset": {
-            "type": "number",
-            "format": "double"
-          },
           "orderBy": {
-            "type": "string",
-            "enum": ["accountName", "createdAt", "balance"]
+            "$ref": "#/components/schemas/ULedgerAccountSortBy"
           },
           "sortDirection": {
             "$ref": "#/components/schemas/UPaginationSortDirection"
           },
           "search": {
             "type": "string"
+          },
+          "page": {
+            "type": "number",
+            "format": "double"
           },
           "type": {
             "$ref": "#/components/schemas/ULedgerType"
@@ -387,7 +409,6 @@
             "type": "boolean"
           }
         },
-        "required": ["orderBy"],
         "type": "object",
         "additionalProperties": false
       },
@@ -1015,15 +1036,6 @@
           },
           {
             "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
-              "format": "double",
-              "type": "number"
-            }
-          },
-          {
-            "in": "query",
             "name": "orderBy",
             "required": false,
             "schema": {
@@ -1044,6 +1056,15 @@
             "required": false,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
             }
           },
           {
@@ -1081,10 +1102,9 @@
           {
             "in": "query",
             "name": "orderBy",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "string",
-              "enum": ["accountName", "createdAt", "balance"]
+              "$ref": "#/components/schemas/ULedgerAccountSortBy"
             }
           }
         ]
