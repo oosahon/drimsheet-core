@@ -107,7 +107,7 @@ describe('makeGetLedgerAccountsUsecase', () => {
   };
 
   const validQuery: IGetLedgerAccountsQuery = {
-    offset: 0,
+    page: 1,
     limit: 10,
     orderBy: 'accountName',
   };
@@ -123,7 +123,7 @@ describe('makeGetLedgerAccountsUsecase', () => {
   it('throws ZodError for invalid query', async () => {
     const useCase = getUseCase();
     const invalidQuery = {
-      offset: -1, // Invalid offset
+      page: 0, // Invalid: page must be >= 1
     } as IGetLedgerAccountsQuery;
 
     await expect(useCase(invalidQuery)).rejects.toThrow();

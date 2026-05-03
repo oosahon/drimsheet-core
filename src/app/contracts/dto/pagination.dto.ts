@@ -17,7 +17,7 @@ const {
 const InvalidSortDirectionKey = new InvalidSortDirection().errorKey;
 const InvalidOrderByKey = new InvalidOrderBy().errorKey;
 const invalidLimitKey = new InvalidLimit().errorKey;
-const invalidOffsetKey = new InvalidOffset().errorKey;
+const invalidPageKey = new InvalidOffset().errorKey;
 const invalidSearchKey = new InvalidSearch().errorKey;
 
 export const paginationSortDirectionValidationSchema = z.enum(
@@ -28,11 +28,13 @@ export const paginationSortDirectionValidationSchema = z.enum(
   InvalidSortDirectionKey
 );
 
-export interface IPaginationDto extends IPaginationParams {}
+export interface IPaginationDto extends Omit<IPaginationParams, 'offset'> {
+  page?: number;
+}
 
 export const paginationQueryValidationSchema = z.object({
   limit: z.number(invalidLimitKey).max(200, invalidLimitKey).optional(),
-  offset: z.number(invalidOffsetKey).max(2000, invalidOffsetKey).optional(),
+  page: z.number(invalidPageKey).min(1, invalidPageKey).optional(),
   orderBy: z.string(InvalidOrderByKey).optional(),
   sortDirection: paginationSortDirectionValidationSchema.optional(),
   search: z.string(invalidSearchKey).optional(),

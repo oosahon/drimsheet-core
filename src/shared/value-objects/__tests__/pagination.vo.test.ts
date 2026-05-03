@@ -3,12 +3,12 @@ import paginationValue from '../pagination.vo';
 
 describe('paginationValue', () => {
   describe('getLimit', () => {
-    it('should return the default limit of 20 when no limit is provided', () => {
-      expect(paginationValue.getLimit()).toBe(20);
+    it('should return the default limit of 10 when no limit is provided', () => {
+      expect(paginationValue.getLimit()).toBe(10);
     });
 
-    it('should return the default limit of 20 when limit is 0 (falsy)', () => {
-      expect(paginationValue.getLimit(0)).toBe(20);
+    it('should return the default limit of 10 when limit is 0 (falsy)', () => {
+      expect(paginationValue.getLimit(0)).toBe(10);
     });
 
     it('should return the provided limit when it is a valid integer', () => {
@@ -80,10 +80,10 @@ describe('paginationValue', () => {
     it('should return correct metadata with default limit and offset', () => {
       const meta = paginationValue.getResponseMeta(100, {});
 
-      expect(meta.limit).toBe(20);
+      expect(meta.limit).toBe(10);
       expect(meta.page).toBe(1);
       expect(meta.total).toBe(100);
-      expect(meta.totalPages).toBe(5);
+      expect(meta.totalPages).toBe(10);
     });
 
     it('should return correct metadata with custom limit and offset', () => {
@@ -106,9 +106,9 @@ describe('paginationValue', () => {
     });
 
     it('should round totalPages up when there is a remainder', () => {
-      const meta = paginationValue.getResponseMeta(21, { limit: 20 });
+      const meta = paginationValue.getResponseMeta(21, { limit: 10 });
 
-      expect(meta.totalPages).toBe(2);
+      expect(meta.totalPages).toBe(3);
     });
 
     it('should return a frozen object', () => {
@@ -164,6 +164,31 @@ describe('paginationValue', () => {
       expect(
         paginationValue.getSortDirection(EPaginationSortDirection.Desc)
       ).toBe(EPaginationSortDirection.Desc);
+    });
+  });
+
+  describe('pageToOffset', () => {
+    it('should return 0 when page is 1', () => {
+      expect(paginationValue.pageToOffset(1, 10)).toBe(0);
+    });
+
+    it('should return the correct offset for a given page and limit', () => {
+      expect(paginationValue.pageToOffset(2, 10)).toBe(10);
+      expect(paginationValue.pageToOffset(3, 10)).toBe(20);
+      expect(paginationValue.pageToOffset(4, 20)).toBe(60);
+    });
+
+    it('should default to page 1 (offset 0) when page is undefined', () => {
+      expect(paginationValue.pageToOffset(undefined, 10)).toBe(0);
+    });
+
+    it('should default to page 1 (offset 0) when page is 0 (falsy)', () => {
+      expect(paginationValue.pageToOffset(0, 10)).toBe(0);
+    });
+
+    it('should use the default limit of 10 when limit is not provided', () => {
+      // page=2, default limit=10 → offset = (2-1)*10 = 10
+      expect(paginationValue.pageToOffset(2)).toBe(10);
     });
   });
 });

@@ -9,7 +9,7 @@ import {
 import numberUtils from '../utils/number';
 
 function getLimit(limit?: number): number {
-  if (!limit) return 20;
+  if (!limit) return 10;
 
   numberUtils.validateInteger(limit, paginationError.InvalidLimit);
 
@@ -28,9 +28,16 @@ function getPage(limit: number, offset: number): number {
   numberUtils.validateNonNegativeNumber(limit, paginationError.InvalidLimit);
   numberUtils.validateNonNegativeNumber(offset, paginationError.InvalidOffset);
 
-  const page = offset / limit + 1;
+  const page = Math.floor(offset / limit) + 1;
 
   return page;
+}
+
+function pageToOffset(page?: number, limit?: number): number {
+  const resolvedPage = page && page > 0 ? page : 1;
+  const resolvedLimit = getLimit(limit);
+
+  return (resolvedPage - 1) * resolvedLimit;
 }
 
 function getResponseMeta(
@@ -72,6 +79,7 @@ const paginationValue = Object.freeze({
   getLimit,
   getOffset,
   getPage,
+  pageToOffset,
   getResponseMeta,
   getPaginatedResponse,
   getSortDirection,

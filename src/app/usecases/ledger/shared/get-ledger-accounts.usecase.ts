@@ -6,6 +6,7 @@ import ILedgerAccountRepo, {
 import { IPaginatedResponse } from '../../../../shared/types/pagination.types';
 import zodValidationRunner from '../../../../shared/utils/zod-validation-runner';
 import moneyValue from '../../../../shared/value-objects/money.vo';
+import paginationValue from '../../../../shared/value-objects/pagination.vo';
 import IRequestContext from '../../../contracts/app/request-context.contract';
 import {
   getLedgerAccountQueryValidationSchema,
@@ -28,8 +29,10 @@ export default function makeGetLedgerAccountsUsecase(
     const { correlationId, accountingEntity } = requestContext.get();
 
     const trace = { correlationId };
+    const offset = paginationValue.pageToOffset(query.page, query.limit);
     const accountRepoOptions: IFindAllLedgerAccountsOptions = {
       ...query,
+      offset,
       ...trace,
     };
 

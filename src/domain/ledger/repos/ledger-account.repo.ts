@@ -3,6 +3,15 @@ import { IRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { ILedgerAccount, ULedgerType } from '../types/ledger.types';
 
+export const ELedgerAccountSortBy = {
+  AccountName: 'accountName',
+  CreatedAt: 'createdAt',
+  Balance: 'balance',
+} as const;
+
+export type ULedgerAccountSortBy =
+  (typeof ELedgerAccountSortBy)[keyof typeof ELedgerAccountSortBy];
+
 export interface IFindAllLedgerAccountsOptions extends Omit<
   IRepoOptions,
   'orderBy'
@@ -11,7 +20,7 @@ export interface IFindAllLedgerAccountsOptions extends Omit<
   subType?: string;
   behavior?: string;
   isControlAccount?: boolean;
-  orderBy?: 'accountName' | 'createdAt' | 'balance';
+  orderBy?: ULedgerAccountSortBy;
 }
 
 export default interface ILedgerAccountRepo {

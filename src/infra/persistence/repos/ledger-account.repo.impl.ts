@@ -1,6 +1,8 @@
 import { and, desc, eq, getTableColumns, ilike, or, sql } from 'drizzle-orm';
 import ledgerAccountMapper from '../../../app/mappers/ledger-account.mapper';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import ILedgerAccountRepo, {
+  ELedgerAccountSortBy,
+} from '../../../domain/ledger/repos/ledger-account.repo';
 import paginationValue from '../../../shared/value-objects/pagination.vo';
 import {
   currenciesInCore,
@@ -181,9 +183,9 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
     );
 
     let orderByClause;
-    if (options.orderBy === 'accountName') {
+    if (options.orderBy === ELedgerAccountSortBy.AccountName) {
       orderByClause = direction(ledgerAccountsInCore.name);
-    } else if (options.orderBy === 'balance') {
+    } else if (options.orderBy === ELedgerAccountSortBy.Balance) {
       orderByClause = direction(ledgerAccountBalancesInCore.functionalAmount);
     } else {
       orderByClause = direction(ledgerAccountsInCore.createdAt);
@@ -203,7 +205,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
         eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
       );
 
-    if (options.orderBy === 'balance') {
+    if (options.orderBy === ELedgerAccountSortBy.Balance) {
       baseQuery = baseQuery.leftJoin(
         ledgerAccountBalancesInCore,
         eq(ledgerAccountsInCore.id, ledgerAccountBalancesInCore.ledgerAccountId)

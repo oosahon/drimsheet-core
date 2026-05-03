@@ -2,6 +2,10 @@ import _ from 'lodash';
 import z from 'zod';
 import ledgerAccountError from '../../../domain/ledger/errors/ledger-account.error';
 import {
+  ELedgerAccountSortBy,
+  ULedgerAccountSortBy,
+} from '../../../domain/ledger/repos/ledger-account.repo';
+import {
   ELedgerType,
   UAdjunctAccountRule,
   UContraAccountRule,
@@ -28,7 +32,10 @@ export const ledgerAccountTypeValidation = z.enum(
 );
 
 export const ledgerAccountOrderByValidationSchema = z.enum(
-  ['accountName', 'createdAt', 'balance'],
+  Object.values(ELedgerAccountSortBy) as [
+    ULedgerAccountSortBy,
+    ...ULedgerAccountSortBy[],
+  ],
   invalidTypeKey
 );
 
@@ -37,7 +44,7 @@ export interface IGetLedgerAccountsQuery extends IPaginationDto {
   subType?: string;
   behavior?: string;
   isControlAccount?: boolean;
-  orderBy: 'accountName' | 'createdAt' | 'balance';
+  orderBy?: ULedgerAccountSortBy;
 }
 
 export const getLedgerAccountQueryValidationSchema = z.object({
