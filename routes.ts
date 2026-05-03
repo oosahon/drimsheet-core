@@ -331,6 +331,7 @@ const models: TsoaRoute.Models = {
           { dataType: 'enum', enums: ['createdAt'] },
           { dataType: 'enum', enums: ['balance'] },
         ],
+        required: true,
       },
       sortDirection: { ref: 'UPaginationSortDirection' },
       search: { dataType: 'string' },

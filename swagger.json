@@ -387,6 +387,7 @@
             "type": "boolean"
           }
         },
+        "required": ["orderBy"],
         "type": "object",
         "additionalProperties": false
       },
@@ -1080,7 +1081,7 @@
           {
             "in": "query",
             "name": "orderBy",
-            "required": false,
+            "required": true,
             "schema": {
               "type": "string",
               "enum": ["accountName", "createdAt", "balance"]
