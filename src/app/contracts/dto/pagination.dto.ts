@@ -33,7 +33,11 @@ export interface IPaginationDto extends Omit<IPaginationParams, 'offset'> {
 }
 
 export const paginationQueryValidationSchema = z.object({
-  limit: z.number(invalidLimitKey).max(200, invalidLimitKey).optional(),
+  limit: z
+    .number(invalidLimitKey)
+    .min(1, invalidLimitKey)
+    .max(200, invalidLimitKey)
+    .optional(),
   page: z.number(invalidPageKey).min(1, invalidPageKey).optional(),
   orderBy: z.string(InvalidOrderByKey).optional(),
   sortDirection: paginationSortDirectionValidationSchema.optional(),
