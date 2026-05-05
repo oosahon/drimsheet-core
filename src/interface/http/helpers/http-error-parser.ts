@@ -30,6 +30,7 @@ function fromParsedError(error: IParsedError): IHttpErrorDto {
     name: error.name,
     errorKey: error.errorKey,
     cause: error.cause,
+    validationErrors: error.validationErrors,
   };
 }
 

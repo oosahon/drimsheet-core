@@ -28,6 +28,7 @@ import {
 
 // =========== error keys start ===========
 const invalidTypeKey = new ledgerAccountError.InvalidType().errorKey;
+const invalidSubTypeKey = new ledgerAccountError.InvalidSubType().errorKey;
 const defaultErrorKey = new appError.UnprocessableEntity([]).errorKey;
 // =========== error keys end ===========
 
@@ -41,7 +42,7 @@ export const ledgerAccountOrderByValidationSchema = z.enum(
     ULedgerAccountSortBy,
     ...ULedgerAccountSortBy[],
   ],
-  invalidTypeKey
+  { message: invalidTypeKey }
 );
 
 export const ELedgerAccountSubType = {
@@ -60,7 +61,7 @@ export const ledgerAccountSubTypeValidation = z.enum(
     ULedgerAccountSubType,
     ...ULedgerAccountSubType[],
   ],
-  invalidTypeKey
+  { message: invalidSubTypeKey }
 );
 export interface IGetLedgerAccountsQuery extends IPaginationDto {
   type?: ULedgerType;
@@ -86,7 +87,7 @@ export interface ILedgerAccountDto {
   accountingEntityId: TEntityId;
   type: ULedgerType;
   normalBalance: UNormalBalance;
-  subType: string;
+  subType: any;
   behavior: string;
   isControlAccount: boolean;
   controlAccountId?: TEntityId;
