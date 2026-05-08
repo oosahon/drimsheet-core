@@ -80,6 +80,7 @@
   "journal_entry_error_journal_line_unsupported_exchange_rate",
   "journal_entry_error_unbalanced_journal_entry",
   "ledger_error_asset_account_control_account_not_found",
+  "ledger_error_invalid_id",
   "ledger_error_invalid_value",
   "ledger_error_ledger_account_invalid_adjunct_rule",
   "ledger_error_ledger_account_invalid_behavior",
