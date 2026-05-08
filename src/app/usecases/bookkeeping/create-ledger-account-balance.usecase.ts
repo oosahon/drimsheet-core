@@ -21,7 +21,7 @@ export default function makeCreateLedgerAccountBalanceUseCase(
       throw new appError.Unauthorized();
     }
 
-    const isExisting = await ledgerAccountBalanceRepo.findBalanceByAccountId(
+    const isExisting = await ledgerAccountBalanceRepo.findByAccountId(
       ledgerAccount.id,
       accountingEntity.id,
       { correlationId }

@@ -25,7 +25,7 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
     await query.insert(ledgerAccountBalancesInCore).values(values);
   },
 
-  async findBalanceByAccountId(ledgerAccountId, accountingEntityId, options) {
+  async findByAccountId(ledgerAccountId, accountingEntityId, options) {
     const query = getDbQuery(options);
 
     const [result] = await query

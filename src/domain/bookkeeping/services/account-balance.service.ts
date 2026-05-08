@@ -15,7 +15,7 @@ export default function makeLedgerAccountBalanceService(
     functionalCurrency: ICurrency,
     repoOptions: IRepoOptions
   ) => {
-    const existing = await ledgerAccountBalanceRepo.findBalanceByAccountId(
+    const existing = await ledgerAccountBalanceRepo.findByAccountId(
       ledgerAccount.id,
       ledgerAccount.accountingEntityId,
       repoOptions

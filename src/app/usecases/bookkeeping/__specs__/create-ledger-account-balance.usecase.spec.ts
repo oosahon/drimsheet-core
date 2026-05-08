@@ -62,7 +62,7 @@ describe('createLedgerAccountBalanceUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IRequestContextData);
 
-    mockLedgerAccountBalanceRepo.findBalanceByAccountId.mockResolvedValue(null);
+    mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValue(null);
 
     const mockNewBalance = ledgerAccountBalanceEntity.make({
       ledgerAccountId: mockAssetAccount.id,
@@ -90,11 +90,13 @@ describe('createLedgerAccountBalanceUseCase', () => {
 
     await useCase(mockAssetAccount);
 
-    expect(
-      mockLedgerAccountBalanceRepo.findBalanceByAccountId
-    ).toHaveBeenCalledWith(mockAssetAccount.id, mockAccountingEntity.id, {
-      correlationId,
-    });
+    expect(mockLedgerAccountBalanceRepo.findByAccountId).toHaveBeenCalledWith(
+      mockAssetAccount.id,
+      mockAccountingEntity.id,
+      {
+        correlationId,
+      }
+    );
     expect(mockLedgerAccountBalanceRepo.create).toHaveBeenCalled();
   });
 
@@ -109,7 +111,7 @@ describe('createLedgerAccountBalanceUseCase', () => {
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
     });
 
-    mockLedgerAccountBalanceRepo.findBalanceByAccountId.mockResolvedValue(
+    mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValue(
       mockExistingBalance
     );
 

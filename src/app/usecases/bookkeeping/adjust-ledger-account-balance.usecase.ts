@@ -36,12 +36,11 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
       throw new ledgerAppError.AccountNotFound();
     }
 
-    const existingBalance =
-      await ledgerAccountBalanceRepo.findBalanceByAccountId(
-        account.id,
-        account.accountingEntityId,
-        repoOptions
-      );
+    const existingBalance = await ledgerAccountBalanceRepo.findByAccountId(
+      account.id,
+      account.accountingEntityId,
+      repoOptions
+    );
 
     if (!existingBalance) {
       throw new ledgerAppError.BalanceNotFound();
