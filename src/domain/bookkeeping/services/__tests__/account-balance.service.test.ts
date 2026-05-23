@@ -63,7 +63,7 @@ describe('account-balance.service', () => {
         functionalCurrencyCode: ngn.code,
       });
 
-      mockLedgerAccountBalanceRepo.findBalanceByAccountId.mockResolvedValueOnce(
+      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(
         existingBalance
       );
 
@@ -73,9 +73,7 @@ describe('account-balance.service', () => {
         repoOptions
       );
 
-      expect(
-        mockLedgerAccountBalanceRepo.findBalanceByAccountId
-      ).toHaveBeenCalledWith(
+      expect(mockLedgerAccountBalanceRepo.findByAccountId).toHaveBeenCalledWith(
         ledgerAccount.id,
         ledgerAccount.accountingEntityId,
         repoOptions
@@ -84,9 +82,7 @@ describe('account-balance.service', () => {
     });
 
     it('should create and return new balance if it does not exist', async () => {
-      mockLedgerAccountBalanceRepo.findBalanceByAccountId.mockResolvedValueOnce(
-        null
-      );
+      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(null);
 
       const result = await service.createBalance(
         ledgerAccount,

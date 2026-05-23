@@ -3,8 +3,9 @@ import ILedgerAccountBalanceRepo from '../../../../domain/bookkeeping/repos/ledg
 const mockLedgerAccountBalanceRepo: jest.Mocked<ILedgerAccountBalanceRepo> = {
   create: jest.fn(),
   adjustBalance: jest.fn(),
-  findBalanceByAccountId: jest.fn(),
+  findByAccountId: jest.fn(),
   findAdjustmentsByAccountId: jest.fn(),
+  findAllByAccountIds: jest.fn(),
 };
 
 export default mockLedgerAccountBalanceRepo;

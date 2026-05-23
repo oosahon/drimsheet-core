@@ -5,6 +5,7 @@ import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-en
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import IAssetAccountService from '../../../../domain/ledger/types/asset-account.service.types';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
+import { IEvent } from '../../../../shared/types/event.types';
 import zodValidationRunner from '../../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import IRequestContext from '../../../contracts/app/request-context.contract';
@@ -13,7 +14,8 @@ import {
   pettyCashCreationReqValidation,
 } from '../../../contracts/dto/asset-account.dto';
 import IEventBus from '../../../contracts/infra/event-bus.contract';
-import makeRecordOpeningBalanceUseCase from '../../bookkeeping/record-opening-balance.usecase';
+import { IRepoService } from '../../../contracts/infra/repo.contract';
+import moneyMapper from '../../../mappers/money.mapper';
 
 export default function makeCreatePettyCashSubAccountUseCase(
   requestContext: IRequestContext,
@@ -22,7 +24,8 @@ export default function makeCreatePettyCashSubAccountUseCase(
   journalEntryRepo: IJournalEntryRepo,
   assetAccountService: IAssetAccountService,
   bookkeepingService: IBookkeepingService,
-  exchangeRateService: IExchangeRateService
+  exchangeRateService: IExchangeRateService,
+  repoService: IRepoService
 ) {
   return async (payload: IPettyCashAccountCreationReq) => {
     zodValidationRunner(pettyCashCreationReqValidation, payload);
@@ -30,9 +33,6 @@ export default function makeCreatePettyCashSubAccountUseCase(
     const { correlationId, user, accountingEntity } = requestContext.get();
     const trace = { correlationId };
 
-    /**
-     * Create petty cash domain entity
-     */
     const accountPayload = {
       name: payload.name,
       currency: currencyEntity.getByCode(payload.currencyCode),
@@ -45,24 +45,40 @@ export default function makeCreatePettyCashSubAccountUseCase(
     const [account, accountEvents] =
       await assetAccountService.makePettyCashSubAccount(accountPayload, trace);
 
-    await ledgerAccountRepo.save(account, trace);
+    if (!payload.openingBalance) {
+      await ledgerAccountRepo.save(account, trace);
+      eventBus.publish(eventValue.enrichAll(accountEvents, trace));
+      return;
+    }
 
-    eventBus.publish(eventValue.enrichAll(accountEvents, trace));
+    const openingBalanceAmount = moneyMapper.fromDto(
+      payload.openingBalance.amount
+    );
+    const exchangeRate = await exchangeRateService.getExchangeRate(
+      payload.openingBalance.exchangeRate,
+      trace
+    );
 
-    if (payload.openingBalance) {
-      const recordOpeningBalanceUseCase = makeRecordOpeningBalanceUseCase(
-        requestContext,
-        ledgerAccountRepo,
-        journalEntryRepo,
-        eventBus,
-        bookkeepingService,
-        exchangeRateService
+    const openingBalancePayload = {
+      account,
+      amount: openingBalanceAmount,
+      accountingEntity,
+      exchangeRate,
+    };
+
+    const [journalEntries, journalEvents] =
+      await bookkeepingService.createOpeningBalanceJournalEntry(
+        openingBalancePayload,
+        trace
       );
 
-      await recordOpeningBalanceUseCase({
-        ...payload.openingBalance,
-        accountId: account.id,
-      });
-    }
+    await repoService.runInTransaction(async (tx) => {
+      const repoOptions = { tx, correlationId };
+      await ledgerAccountRepo.save(account, repoOptions);
+      await journalEntryRepo.save(journalEntries, repoOptions);
+    });
+
+    const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];
+    eventBus.publish(eventValue.enrichAll(allEvents, trace));
   };
 }

@@ -87,7 +87,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     jest.clearAllMocks();
 
     mockLedgerAccountRepo.findById.mockResolvedValue(mockAssetAccount);
-    mockLedgerAccountBalanceRepo.findBalanceByAccountId.mockResolvedValue(
+    mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValue(
       mockExistingBalance
     );
   });
@@ -124,9 +124,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
       mockAssetAccount.id,
       { correlationId }
     );
-    expect(
-      mockLedgerAccountBalanceRepo.findBalanceByAccountId
-    ).toHaveBeenCalledWith(
+    expect(mockLedgerAccountBalanceRepo.findByAccountId).toHaveBeenCalledWith(
       mockAssetAccount.id,
       mockAssetAccount.accountingEntityId,
       { correlationId }
@@ -150,7 +148,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     mockLedgerAccountRepo.findById
       .mockReset()
       .mockResolvedValue(mockAssetAccountWithControl);
-    mockLedgerAccountBalanceRepo.findBalanceByAccountId
+    mockLedgerAccountBalanceRepo.findByAccountId
       .mockReset()
       .mockResolvedValue(mockExistingBalanceWithControl);
 
@@ -193,7 +191,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     mockLedgerAccountRepo.findById
       .mockReset()
       .mockResolvedValue(mockAssetAccount); // NGN account
-    mockLedgerAccountBalanceRepo.findBalanceByAccountId
+    mockLedgerAccountBalanceRepo.findByAccountId
       .mockReset()
       .mockResolvedValue(mockExistingBalance); // NGN balance
 
@@ -238,7 +236,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
   it('should throw AppError if balance is not found for account', async () => {
     const useCase = getUseCase();
 
-    mockLedgerAccountBalanceRepo.findBalanceByAccountId
+    mockLedgerAccountBalanceRepo.findByAccountId
       .mockReset()
       .mockResolvedValue(null);
 

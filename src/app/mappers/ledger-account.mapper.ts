@@ -1,9 +1,12 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { ILedgerAccount } from '../../domain/ledger/types/ledger.types';
 import { ledgerAccountsInCore } from '../../infra/config/drizzle/schema';
+import { IMoney } from '../../shared/types/money.types';
 import { TEntityId } from '../../shared/types/uuid';
+import { ILedgerAccountDto } from '../contracts/dto/ledger-account.dto';
 import currencyMapper, { ICurrencyModel } from './currency.mapper';
 import { fromCommonRepoDates, toCommonRepoDates } from './date';
+import moneyMapper from './money.mapper';
 
 export interface ILedgerAccountModel extends InferSelectModel<
   typeof ledgerAccountsInCore
@@ -59,6 +62,36 @@ const ledgerAccountMapper = {
       meta: model.meta as object | null,
       createdBy: model.createdBy as TEntityId,
       ...fromCommonRepoDates(model),
+    };
+  },
+
+  toDto(
+    payload: ILedgerAccount,
+    balance: IMoney,
+    functionalBalance: IMoney
+  ): ILedgerAccountDto {
+    return {
+      id: payload.id,
+      code: payload.code,
+      materializedPath: payload.materializedPath,
+      accountingEntityId: payload.accountingEntityId,
+      type: payload.type,
+      normalBalance: payload.normalBalance,
+      subType: payload.subType,
+      behavior: payload.behavior,
+      isControlAccount: payload.isControlAccount,
+      controlAccountId: payload.controlAccountId ?? undefined,
+      name: payload.name,
+      status: payload.status,
+      contraAccountRule: payload.contraAccountRule,
+      adjunctAccountRule: payload.adjunctAccountRule,
+      meta: undefined, // TODO: replace with actual metadata when its decided
+      createdBy: payload.createdBy,
+      createdAt: payload.createdAt,
+      updatedAt: payload.updatedAt,
+      deletedAt: payload.deletedAt ?? undefined,
+      balance: moneyMapper.toDto(balance),
+      functionalBalance: moneyMapper.toDto(functionalBalance),
     };
   },
 };

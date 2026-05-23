@@ -1,7 +1,6 @@
 # PR Review Rules
 
-- Your goal is to review code changes and provide constructive feedback to ensure that the code meets the project's standards for correctness, maintainability, and performance.
-- Always output the final report under the `## Agent Feedback` heading in the `pr-review-report.md` file. DO NOT overwrite the entire file or modify the original ticket details at the top of the file. Simply append or insert your report under the existing `## Agent Feedback` heading.
+Your goal is to review code changes and provide constructive feedback to ensure that the code meets the project's standards for correctness, maintainability, and performance.
 
 ## Code Review Guidelines
 

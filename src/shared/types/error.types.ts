@@ -15,5 +15,6 @@ export interface IParsedError {
   name: string;
   errorKey: string;
   cause?: TErrorCause;
+  validationErrors?: IApiValidationError[];
   _raw: unknown;
 }

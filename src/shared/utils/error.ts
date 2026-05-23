@@ -1,13 +1,20 @@
 import DomainError from '../errors/domain.error';
-import { IParsedError, TErrorCause } from '../types/error.types';
+import {
+  IApiValidationError,
+  IParsedError,
+  TErrorCause,
+} from '../types/error.types';
 
 function parseError(err: unknown): IParsedError {
-  const error = err as InstanceType<typeof DomainError>;
+  const error = err as InstanceType<typeof DomainError> & {
+    validationErrors?: IApiValidationError[];
+  };
 
   return {
     name: error.name || 'UnknownError',
     cause: error.cause,
     errorKey: error.errorKey,
+    validationErrors: error.validationErrors,
     _raw: err,
   };
 }
