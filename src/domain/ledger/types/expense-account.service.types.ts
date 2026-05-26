@@ -3,10 +3,12 @@ import { IRepoOptions } from '../../../shared/types/repo.types';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
 import {
   IAssetDisposalLossAccount,
+  IBankChargeAccount,
   IDirectCostsAccount,
   IExpenseLedgerAccount,
+  IFinanceCostAccount,
   IIncomeTaxExpenseAccount,
-  IInterestFinanceAccount,
+  IInterestAccount,
   IRentUtilitiesAccount,
   IUnrealizedLossAccount,
 } from './expense-account.types';
@@ -26,7 +28,9 @@ export default interface IExpenseAccountService {
     headers: {
       directCostsHeader: IDirectCostsAccount;
       rentAndUtilitiesHeader: IRentUtilitiesAccount;
-      financeCostsHeader: IInterestFinanceAccount;
+      bankChargeHeader: IBankChargeAccount;
+      financeCostHeader: IFinanceCostAccount;
+      interestHeader: IInterestAccount;
       taxExpenseHeader: IIncomeTaxExpenseAccount;
       unrealizedLossHeader: IUnrealizedLossAccount;
       assetDisposalLossHeader: IAssetDisposalLossAccount;

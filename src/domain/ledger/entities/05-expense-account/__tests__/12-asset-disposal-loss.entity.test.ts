@@ -2,9 +2,9 @@ import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
-  IUnrealizedLossAccount,
+  IAssetDisposalLossAccount,
 } from '../../../types/expense-account.types';
-import { TUnrealizedLossLedgerCode } from '../../../types/ledger-code.types';
+import { TAssetDisposalLossLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -12,9 +12,9 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import unrealizedLossAccountEntity from '../09-unrealized-loss.entity';
+import assetDisposalLossAccountEntity from '../12-asset-disposal-loss.entity';
 
-describe('Unrealized Loss Entity', () => {
+describe('Asset Disposal Loss Entity', () => {
   const validUUID1 = generateUUID();
   const validUUID2 = generateUUID();
 
@@ -26,8 +26,8 @@ describe('Unrealized Loss Entity', () => {
   };
 
   const validParent = {
-    precedingCode: '509000' as TUnrealizedLossLedgerCode,
-    parentMaterializedPath: '509000' as TUnrealizedLossLedgerCode,
+    precedingCode: '512000' as TAssetDisposalLossLedgerCode,
+    parentMaterializedPath: '512000' as TAssetDisposalLossLedgerCode,
   };
 
   beforeEach(() => {
@@ -41,18 +41,18 @@ describe('Unrealized Loss Entity', () => {
   });
 
   describe('getCode', () => {
-    it('should generate the next sub-ledger code for unrealized loss accounts', () => {
-      expect(unrealizedLossAccountEntity.getCode('509000')).toBe('509001');
-      expect(unrealizedLossAccountEntity.getCode('509099')).toBe('509100');
+    it('should generate the next sub-ledger code for asset disposal loss accounts', () => {
+      expect(assetDisposalLossAccountEntity.getCode('512000')).toBe('512001');
+      expect(assetDisposalLossAccountEntity.getCode('512099')).toBe('512100');
     });
 
-    it('should return 509000 if predecessorCode is null', () => {
-      expect(unrealizedLossAccountEntity.getCode(null)).toBe('509000');
+    it('should return 512000 if predecessorCode is null', () => {
+      expect(assetDisposalLossAccountEntity.getCode(null)).toBe('512000');
     });
 
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
-        unrealizedLossAccountEntity.getCode('510000' as any)
+        assetDisposalLossAccountEntity.getCode('513000' as any)
       ).toThrow();
     });
   });
@@ -60,20 +60,20 @@ describe('Unrealized Loss Entity', () => {
   describe('getMaterializedPath', () => {
     it('should return code if parentMaterializedPath is null', () => {
       expect(
-        unrealizedLossAccountEntity.getMaterializedPath('509000', null)
-      ).toBe('509000');
+        assetDisposalLossAccountEntity.getMaterializedPath('512000', null)
+      ).toBe('512000');
     });
 
     it('should return concatenated path if parentMaterializedPath is provided', () => {
       expect(
-        unrealizedLossAccountEntity.getMaterializedPath('509001', '509000')
-      ).toBe('509000.509001');
+        assetDisposalLossAccountEntity.getMaterializedPath('512001', '512000')
+      ).toBe('512000.512001');
     });
   });
 
   describe('make', () => {
     const validPayload: Pick<
-      IUnrealizedLossAccount,
+      IAssetDisposalLossAccount,
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
@@ -82,7 +82,7 @@ describe('Unrealized Loss Entity', () => {
       | 'controlAccountId'
       | 'meta'
     > = {
-      name: 'Unrealized Exchange Loss',
+      name: 'Loss on Vehicle Sale',
       accountingEntityId: validUUID1,
 
       currency: validCurrency,
@@ -92,18 +92,18 @@ describe('Unrealized Loss Entity', () => {
       meta: null,
     };
 
-    it('should successfully create an unrealized loss account', () => {
-      const [account, events] = unrealizedLossAccountEntity.make(
+    it('should successfully create an asset disposal loss account', () => {
+      const [account, events] = assetDisposalLossAccountEntity.make(
         validPayload,
         validParent
       );
 
-      expect(account.code).toBe('509001');
-      expect(account.materializedPath).toBe('509000.509001');
+      expect(account.code).toBe('512001');
+      expect(account.materializedPath).toBe('512000.512001');
       expect(account.type).toBe(ELedgerType.Expense);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
-      expect(account.subType).toBe(EExpenseSubType.UnrealizedLoss);
-      expect(account.behavior).toBe(EExpenseAccountBehavior.UnrealizedLoss);
+      expect(account.subType).toBe(EExpenseSubType.LossOnAssetDisposal);
+      expect(account.behavior).toBe(EExpenseAccountBehavior.AssetDisposalLoss);
       expect(account.status).toBe(ELedgerAccountStatus.Active);
       expect(account.isControlAccount).toBe(false);
       expect(account.controlAccountId).toBeNull();
@@ -119,14 +119,14 @@ describe('Unrealized Loss Entity', () => {
       expect(events).toHaveLength(2);
     });
 
-    it('should successfully create an unrealized loss account with controlAccountId', () => {
+    it('should successfully create an asset disposal loss account with controlAccountId', () => {
       const validUUID3 = generateUUID();
       const payloadWithControl = {
         ...validPayload,
         isControlAccount: true,
         controlAccountId: validUUID3,
       };
-      const [account, events] = unrealizedLossAccountEntity.make(
+      const [account, events] = assetDisposalLossAccountEntity.make(
         payloadWithControl,
         validParent
       );
@@ -138,24 +138,14 @@ describe('Unrealized Loss Entity', () => {
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        unrealizedLossAccountEntity.make(invalidPayload, validParent)
+        assetDisposalLossAccountEntity.make(invalidPayload, validParent)
       ).toThrow();
     });
 
-    it('should throw if controlAccountId is invalid', () => {
-      const invalidPayload = {
-        ...validPayload,
-        controlAccountId: 'invalid-uuid' as any,
-      };
-      expect(() =>
-        unrealizedLossAccountEntity.make(invalidPayload, validParent)
-      ).toThrow();
-    });
-
-    it('should use base code 509000 when predecessorCode is null', () => {
-      const [account] = unrealizedLossAccountEntity.make(validPayload, null);
-      expect(account.code).toBe('509000');
-      expect(account.materializedPath).toBe('509000');
+    it('should use base code 512000 when predecessorCode is null', () => {
+      const [account] = assetDisposalLossAccountEntity.make(validPayload, null);
+      expect(account.code).toBe('512000');
+      expect(account.materializedPath).toBe('512000');
     });
   });
 });

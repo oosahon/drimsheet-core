@@ -5,11 +5,11 @@ function getCode(
   predecessorCode: TAssetDisposalLossLedgerCode | null
 ): TAssetDisposalLossLedgerCode {
   if (predecessorCode === null) {
-    return '510000' as TAssetDisposalLossLedgerCode;
+    return '512000' as TAssetDisposalLossLedgerCode;
   }
 
   return ledgerAccountEntity.getSubLedgerCode<TAssetDisposalLossLedgerCode>(
-    '510',
+    '512',
     predecessorCode
   );
 }

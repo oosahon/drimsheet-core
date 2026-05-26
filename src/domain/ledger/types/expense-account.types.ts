@@ -1,14 +1,16 @@
 import {
   TAdminGeneralLedgerCode,
   TAssetDisposalLossLedgerCode,
+  TBankChargeLedgerCode,
   TDepreciationAmortizationLedgerCode,
   TDirectCostsLedgerCode,
   TExpenseLedgerCode,
+  TFinanceCostLedgerCode,
   TImpairmentLossLedgerCode,
   TIncomeTaxLedgerCode,
-  TInterestFinanceLedgerCode,
+  TInterestLedgerCode,
   TMarketingSellingLedgerCode,
-  TOtherLossesLedgerCode,
+  TOtherLossLedgerCode,
   TPayrollLedgerCode,
   TRentUtilitiesLedgerCode,
   TResearchDevLedgerCode,
@@ -29,12 +31,14 @@ export const EExpenseSubType = {
   MarketingAndSelling: 'marketing_and_selling',
   ResearchAndDevelopment: 'research_and_development',
   DepreciationAndAmortization: 'depreciation_and_amortization',
-  InterestAndFinanceCharges: 'interest_and_finance_charges',
+  BankCharge: 'bank_charge',
+  FinanceCost: 'finance_cost',
+  Interest: 'interest',
   IncomeTaxExpense: 'income_tax_expense',
   UnrealizedLoss: 'unrealized_loss',
   LossOnAssetDisposal: 'loss_on_asset_disposal',
-  ImpairmentLosses: 'impairment_losses',
-  OtherLosses: 'other_losses',
+  ImpairmentLoss: 'impairment_loss',
+  OtherLoss: 'other_loss',
 } as const;
 
 export type UExpenseSubType =
@@ -60,7 +64,9 @@ const EOpexBehavior = {
 } as const;
 
 const ENonOperatingExpenseBehavior = {
-  FinanceCosts: 'finance_costs',
+  BankCharge: 'bank_charge',
+  FinanceCost: 'finance_cost',
+  Interest: 'interest',
   TaxExpense: 'tax_expense',
 } as const;
 
@@ -68,7 +74,7 @@ const ELossBehavior = {
   UnrealizedLoss: 'unrealized_loss',
   AssetDisposalLoss: 'asset_disposal_loss',
   ImpairmentLoss: 'impairment_loss',
-  OtherLosses: 'other_losses',
+  OtherLoss: 'other_loss',
 } as const;
 
 export const EExpenseAccountBehavior = {
@@ -173,20 +179,44 @@ export interface IDepreciationAmortizationAccount extends IExpenseLedgerAccount 
 }
 
 /**
- * =============== Interest & Finance Charges ===============
+ * =============== Bank Charge ===============
  * code: 507xxx
  */
-export interface IInterestFinanceAccount extends IExpenseLedgerAccount {
-  code: TInterestFinanceLedgerCode;
-  subType: typeof EExpenseSubType.InterestAndFinanceCharges;
-  behavior: typeof ENonOperatingExpenseBehavior.FinanceCosts;
+export interface IBankChargeAccount extends IExpenseLedgerAccount {
+  code: TBankChargeLedgerCode;
+  subType: typeof EExpenseSubType.BankCharge;
+  behavior: typeof ENonOperatingExpenseBehavior.BankCharge;
+  contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
+  adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
+}
+
+/**
+ * =============== Finance Cost ===============
+ * code: 508xxx
+ */
+export interface IFinanceCostAccount extends IExpenseLedgerAccount {
+  code: TFinanceCostLedgerCode;
+  subType: typeof EExpenseSubType.FinanceCost;
+  behavior: typeof ENonOperatingExpenseBehavior.FinanceCost;
+  contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
+  adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
+}
+
+/**
+ * =============== Interest ===============
+ * code: 509xxx
+ */
+export interface IInterestAccount extends IExpenseLedgerAccount {
+  code: TInterestLedgerCode;
+  subType: typeof EExpenseSubType.Interest;
+  behavior: typeof ENonOperatingExpenseBehavior.Interest;
   contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
 }
 
 /**
  * =============== Income Tax Expense ===============
- * code: 508xxx
+ * code: 510xxx
  */
 export interface IIncomeTaxExpenseAccount extends IExpenseLedgerAccount {
   code: TIncomeTaxLedgerCode;
@@ -198,7 +228,7 @@ export interface IIncomeTaxExpenseAccount extends IExpenseLedgerAccount {
 
 /**
  * =============== Unrealized Loss ===============
- * code: 509xxx
+ * code: 511xxx
  */
 export interface IUnrealizedLossAccount extends IExpenseLedgerAccount {
   code: TUnrealizedLossLedgerCode;
@@ -210,7 +240,7 @@ export interface IUnrealizedLossAccount extends IExpenseLedgerAccount {
 
 /**
  * =============== Loss on Asset Disposal ===============
- * code: 510xxx
+ * code: 512xxx
  */
 export interface IAssetDisposalLossAccount extends IExpenseLedgerAccount {
   code: TAssetDisposalLossLedgerCode;
@@ -221,25 +251,25 @@ export interface IAssetDisposalLossAccount extends IExpenseLedgerAccount {
 }
 
 /**
- * =============== Impairment Losses ===============
- * code: 511xxx
+ * =============== Impairment Loss ===============
+ * code: 513xxx
  */
 export interface IImpairmentLossAccount extends IExpenseLedgerAccount {
   code: TImpairmentLossLedgerCode;
-  subType: typeof EExpenseSubType.ImpairmentLosses;
+  subType: typeof EExpenseSubType.ImpairmentLoss;
   behavior: typeof ELossBehavior.ImpairmentLoss;
   contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
 }
 
 /**
- * =============== Other Losses ===============
- * code: 512xxx
+ * =============== Other Loss ===============
+ * code: 514xxx
  */
-export interface IOtherLossesAccount extends IExpenseLedgerAccount {
-  code: TOtherLossesLedgerCode;
-  subType: typeof EExpenseSubType.OtherLosses;
-  behavior: typeof ELossBehavior.OtherLosses;
+export interface IOtherLossAccount extends IExpenseLedgerAccount {
+  code: TOtherLossLedgerCode;
+  subType: typeof EExpenseSubType.OtherLoss;
+  behavior: typeof ELossBehavior.OtherLoss;
   contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
 }

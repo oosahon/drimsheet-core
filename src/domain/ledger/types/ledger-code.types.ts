@@ -162,24 +162,29 @@ declare const DepreciationAmortizationPrefix = '506';
 export type TDepreciationAmortizationLedgerCode =
   `${typeof DepreciationAmortizationPrefix}${string}`;
 
-declare const InterestFinancePrefix = '507';
-export type TInterestFinanceLedgerCode =
-  `${typeof InterestFinancePrefix}${string}`;
+declare const BankChargePrefix = '507';
+export type TBankChargeLedgerCode = `${typeof BankChargePrefix}${string}`;
 
-declare const IncomeTaxPrefix = '508';
+declare const FinanceCostPrefix = '508';
+export type TFinanceCostLedgerCode = `${typeof FinanceCostPrefix}${string}`;
+
+declare const InterestPrefix = '509';
+export type TInterestLedgerCode = `${typeof InterestPrefix}${string}`;
+
+declare const IncomeTaxPrefix = '510';
 export type TIncomeTaxLedgerCode = `${typeof IncomeTaxPrefix}${string}`;
 
-declare const UnrealizedLossPrefix = '509';
+declare const UnrealizedLossPrefix = '511';
 export type TUnrealizedLossLedgerCode =
   `${typeof UnrealizedLossPrefix}${string}`;
 
-declare const AssetDisposalLossPrefix = '510';
+declare const AssetDisposalLossPrefix = '512';
 export type TAssetDisposalLossLedgerCode =
   `${typeof AssetDisposalLossPrefix}${string}`;
 
-declare const ImpairmentLossPrefix = '511';
+declare const ImpairmentLossPrefix = '513';
 export type TImpairmentLossLedgerCode =
   `${typeof ImpairmentLossPrefix}${string}`;
 
-declare const OtherLossesPrefix = '512';
-export type TOtherLossesLedgerCode = `${typeof OtherLossesPrefix}${string}`;
+declare const OtherLossPrefix = '514';
+export type TOtherLossLedgerCode = `${typeof OtherLossPrefix}${string}`;

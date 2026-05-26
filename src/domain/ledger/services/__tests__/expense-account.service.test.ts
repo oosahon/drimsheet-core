@@ -38,7 +38,7 @@ describe('expenseAccountService', () => {
         false
       );
 
-      expect(accounts.length).toBe(6);
+      expect(accounts.length).toBe(8);
       expect(events.length).toBeGreaterThan(0);
       expect(
         accounts.some((a: IExpenseLedgerAccount) => a.name === 'Direct Costs')
@@ -54,7 +54,7 @@ describe('expenseAccountService', () => {
         true
       );
 
-      expect(accounts.length).toBe(12);
+      expect(accounts.length).toBe(16);
       expect(events.length).toBeGreaterThan(0);
       expect(
         accounts.some(

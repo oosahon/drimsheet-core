@@ -3,28 +3,34 @@ import currencyEntity from '../../currency/entities/currency.entity';
 import { EXPENSE_LEDGER_CODES } from '../config/expense-codes.config';
 import directCostsAccountEntity from '../entities/05-expense-account/00-direct-costs.entity';
 import rentAndUtilitiesAccountEntity from '../entities/05-expense-account/02-rent-and-utilities.entity';
-import financeCostsAccountEntity from '../entities/05-expense-account/07-finance-costs.entity';
-import taxExpenseAccountEntity from '../entities/05-expense-account/08-tax-expense.entity';
-import unrealizedLossAccountEntity from '../entities/05-expense-account/09-unrealized-loss.entity';
-import assetDisposalLossAccountEntity from '../entities/05-expense-account/10-asset-disposal-loss.entity';
+import bankChargeAccountEntity from '../entities/05-expense-account/07-bank-charge.entity';
+import financeCostAccountEntity from '../entities/05-expense-account/08-finance-cost.entity';
+import interestAccountEntity from '../entities/05-expense-account/09-interest.entity';
+import taxExpenseAccountEntity from '../entities/05-expense-account/10-tax-expense.entity';
+import unrealizedLossAccountEntity from '../entities/05-expense-account/11-unrealized-loss.entity';
+import assetDisposalLossAccountEntity from '../entities/05-expense-account/12-asset-disposal-loss.entity';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import IExpenseAccountService from '../types/expense-account.service.types';
 import {
   EExpenseAccountBehavior,
   IAssetDisposalLossAccount,
+  IBankChargeAccount,
   IDirectCostsAccount,
   IExpenseLedgerAccount,
+  IFinanceCostAccount,
   IIncomeTaxExpenseAccount,
-  IInterestFinanceAccount,
+  IInterestAccount,
   IRentUtilitiesAccount,
   IUnrealizedLossAccount,
 } from '../types/expense-account.types';
 import {
   TAssetDisposalLossLedgerCode,
+  TBankChargeLedgerCode,
   TDirectCostsLedgerCode,
   TExpenseLedgerCode,
+  TFinanceCostLedgerCode,
   TIncomeTaxLedgerCode,
-  TInterestFinanceLedgerCode,
+  TInterestLedgerCode,
   TRentUtilitiesLedgerCode,
   TUnrealizedLossLedgerCode,
 } from '../types/ledger-code.types';
@@ -40,10 +46,12 @@ export default function makeExpenseAccountService(
    * Bootstraps header expense accounts for a new accounting entity
    *  - Direct Costs:            500000
    *  - Rent and Utilities:      502000
-   *  - Finance Costs:           507000
-   *  - Tax Expense:             508000
-   *  - Unrealized Loss:         509000
-   *  - Asset Disposal Loss:     510000
+   *  - Bank Charge:             507000
+   *  - Finance Cost:            508000
+   *  - Interest:                509000
+   *  - Tax Expense:             510000
+   *  - Unrealized Loss:         511000
+   *  - Asset Disposal Loss:     512000
    */
   const bootstrapHeaderAccounts: TBootstrapHeaders = async (
     accountingEntity,
@@ -120,22 +128,60 @@ export default function makeExpenseAccountService(
     }
 
     /**
-     * ==================== Finance Costs ====================
+     * ==================== Bank Charge ====================
      */
-    const financeCostsCode = EXPENSE_LEDGER_CODES.FINANCE_COSTS.HEADER;
-    const existingFinanceCosts = await getExistingAccounts(financeCostsCode);
+    const bankChargeCode = EXPENSE_LEDGER_CODES.BANK_CHARGE.HEADER;
+    const existingBankCharge = await getExistingAccounts(bankChargeCode);
 
-    let financeCostsHeader: IInterestFinanceAccount;
+    let bankChargeHeader: IBankChargeAccount;
 
-    if (!existingFinanceCosts) {
-      const financeCostsAccount = financeCostsAccountEntity.makeHeader({
+    if (!existingBankCharge) {
+      const bankChargeAccount = bankChargeAccountEntity.makeHeader({
         ...basePayload,
-        name: 'Finance Costs',
+        name: 'Bank Charge',
       });
-      financeCostsHeader = financeCostsAccount[0] as IInterestFinanceAccount;
-      allAccounts.push(financeCostsAccount);
+      bankChargeHeader = bankChargeAccount[0] as IBankChargeAccount;
+      allAccounts.push(bankChargeAccount);
     } else {
-      financeCostsHeader = existingFinanceCosts as IInterestFinanceAccount;
+      bankChargeHeader = existingBankCharge as IBankChargeAccount;
+    }
+
+    /**
+     * ==================== Finance Cost ====================
+     */
+    const financeCostCode = EXPENSE_LEDGER_CODES.FINANCE_COST.HEADER;
+    const existingFinanceCost = await getExistingAccounts(financeCostCode);
+
+    let financeCostHeader: IFinanceCostAccount;
+
+    if (!existingFinanceCost) {
+      const financeCostAccount = financeCostAccountEntity.makeHeader({
+        ...basePayload,
+        name: 'Finance Cost',
+      });
+      financeCostHeader = financeCostAccount[0] as IFinanceCostAccount;
+      allAccounts.push(financeCostAccount);
+    } else {
+      financeCostHeader = existingFinanceCost as IFinanceCostAccount;
+    }
+
+    /**
+     * ==================== Interest ====================
+     */
+    const interestCode = EXPENSE_LEDGER_CODES.INTEREST.HEADER;
+    const existingInterest = await getExistingAccounts(interestCode);
+
+    let interestHeader: IInterestAccount;
+
+    if (!existingInterest) {
+      const interestAccount = interestAccountEntity.makeHeader({
+        ...basePayload,
+        name: 'Interest',
+      });
+      interestHeader = interestAccount[0] as IInterestAccount;
+      allAccounts.push(interestAccount);
+    } else {
+      interestHeader = existingInterest as IInterestAccount;
     }
 
     /**
@@ -209,7 +255,9 @@ export default function makeExpenseAccountService(
           {
             directCostsHeader,
             rentAndUtilitiesHeader,
-            financeCostsHeader,
+            bankChargeHeader,
+            financeCostHeader,
+            interestHeader,
             taxExpenseHeader,
             unrealizedLossHeader,
             assetDisposalLossHeader,
@@ -234,7 +282,9 @@ export default function makeExpenseAccountService(
    * Sets up the following posting expense accounts for a non-power user:
    * - Direct Costs (Default)
    * - Rent and Utilities (Default)
-   * - Finance Costs (Default)
+   * - Bank Charge (Default)
+   * - Finance Cost (Default)
+   * - Interest (Default)
    * - Tax Expense (Default)
    * - Unrealized Loss (Default)
    * - Asset Disposal Loss (Default)
@@ -302,26 +352,68 @@ export default function makeExpenseAccountService(
       expenseAccounts.push(rentAccount);
 
       /**
-       * Finance Costs (Default)
+       * Bank Charge (Default)
        */
-      const financeAccount = financeCostsAccountEntity.make(
+      const bankChargeAccount = bankChargeAccountEntity.make(
         {
-          name: 'Finance Costs (Default)',
+          name: 'Bank Charge (Default)',
           createdBy: ownerId,
           accountingEntityId,
           currency: functionalCurrency,
           isControlAccount: false,
-          controlAccountId: headers.financeCostsHeader.id,
+          controlAccountId: headers.bankChargeHeader.id,
           meta: null,
         },
         {
-          precedingCode: headers.financeCostsHeader
-            .code as TInterestFinanceLedgerCode,
-          parentMaterializedPath: headers.financeCostsHeader
-            .materializedPath as TInterestFinanceLedgerCode,
+          precedingCode: headers.bankChargeHeader.code as TBankChargeLedgerCode,
+          parentMaterializedPath: headers.bankChargeHeader
+            .materializedPath as TBankChargeLedgerCode,
+        }
+      );
+      expenseAccounts.push(bankChargeAccount);
+
+      /**
+       * Finance Cost (Default)
+       */
+      const financeAccount = financeCostAccountEntity.make(
+        {
+          name: 'Finance Cost (Default)',
+          createdBy: ownerId,
+          accountingEntityId,
+          currency: functionalCurrency,
+          isControlAccount: false,
+          controlAccountId: headers.financeCostHeader.id,
+          meta: null,
+        },
+        {
+          precedingCode: headers.financeCostHeader
+            .code as TFinanceCostLedgerCode,
+          parentMaterializedPath: headers.financeCostHeader
+            .materializedPath as TFinanceCostLedgerCode,
         }
       );
       expenseAccounts.push(financeAccount);
+
+      /**
+       * Interest (Default)
+       */
+      const interestAccount = interestAccountEntity.make(
+        {
+          name: 'Interest (Default)',
+          createdBy: ownerId,
+          accountingEntityId,
+          currency: functionalCurrency,
+          isControlAccount: false,
+          controlAccountId: headers.interestHeader.id,
+          meta: null,
+        },
+        {
+          precedingCode: headers.interestHeader.code as TInterestLedgerCode,
+          parentMaterializedPath: headers.interestHeader
+            .materializedPath as TInterestLedgerCode,
+        }
+      );
+      expenseAccounts.push(interestAccount);
 
       /**
        * Tax Expense (Default)
