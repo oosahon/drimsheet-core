@@ -4,9 +4,9 @@ import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
-  IInterestFinanceAccount,
+  IInterestAccount,
 } from '../../types/expense-account.types';
-import { TInterestFinanceLedgerCode } from '../../types/ledger-code.types';
+import { TInterestLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -14,16 +14,16 @@ import {
   ELedgerType,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
-import helpers from './helpers/finance-costs.entity.helpers';
+import helpers from './helpers/interest.entity.helpers';
 
 interface IParentDetails {
-  parentMaterializedPath: TInterestFinanceLedgerCode;
-  precedingCode: TInterestFinanceLedgerCode;
+  parentMaterializedPath: TInterestLedgerCode;
+  precedingCode: TInterestLedgerCode;
 }
 
 function make(
   payload: Pick<
-    IInterestFinanceAccount,
+    IInterestAccount,
     | 'name'
     | 'createdBy'
     | 'accountingEntityId'
@@ -33,14 +33,14 @@ function make(
     | 'meta'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<IInterestFinanceAccount, IInterestFinanceAccount> {
+): TEntityWithEvents<IInterestAccount, IInterestAccount> {
   const code = helpers.getCode(parent?.precedingCode ?? null);
   const materializedPath = helpers.getMaterializedPath(
     code,
     parent?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<IInterestFinanceAccount>({
+  const account = ledgerAccountEntity.make<IInterestAccount>({
     name: payload.name,
     accountingEntityId: payload.accountingEntityId,
 
@@ -48,8 +48,8 @@ function make(
     materializedPath,
     normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
     type: ELedgerType.Expense,
-    subType: EExpenseSubType.InterestAndFinanceCharges,
-    behavior: EExpenseAccountBehavior.FinanceCosts,
+    subType: EExpenseSubType.Interest,
+    behavior: EExpenseAccountBehavior.Interest,
     isControlAccount: payload.isControlAccount,
     controlAccountId: payload.controlAccountId,
     currency: payload.currency,
@@ -60,14 +60,14 @@ function make(
     createdBy: payload.createdBy,
   });
 
-  const event = expenseAccountEvents.financeCostsCreated(account);
+  const event = expenseAccountEvents.interestCreated(account);
   const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
   return [account, [ledgerAccountCreatedEvent, event]];
 }
 
 function makeHeader(
   payload: Pick<
-    IInterestFinanceAccount,
+    IInterestAccount,
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >
 ) {
@@ -85,10 +85,10 @@ function makeHeader(
   );
 }
 
-const financeCostsAccountEntity = Object.freeze({
+const interestAccountEntity = Object.freeze({
   make,
   makeHeader,
   ...helpers,
 });
 
-export default financeCostsAccountEntity;
+export default interestAccountEntity;

@@ -5,11 +5,11 @@ function getCode(
   predecessorCode: TIncomeTaxLedgerCode | null
 ): TIncomeTaxLedgerCode {
   if (predecessorCode === null) {
-    return '508000' as TIncomeTaxLedgerCode;
+    return '510000' as TIncomeTaxLedgerCode;
   }
 
   return ledgerAccountEntity.getSubLedgerCode<TIncomeTaxLedgerCode>(
-    '508',
+    '510',
     predecessorCode
   );
 }

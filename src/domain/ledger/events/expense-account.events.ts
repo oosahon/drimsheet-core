@@ -1,9 +1,11 @@
 import eventValue from '../../../shared/value-objects/event.vo';
 import {
   IAssetDisposalLossAccount,
+  IBankChargeAccount,
   IDirectCostsAccount,
+  IFinanceCostAccount,
   IIncomeTaxExpenseAccount,
-  IInterestFinanceAccount,
+  IInterestAccount,
   IRentUtilitiesAccount,
   IUnrealizedLossAccount,
 } from '../types/expense-account.types';
@@ -12,7 +14,9 @@ export const EExpenseLedgerEvent = {
   DirectCostsCreated: 'domain:ledger:expense:account:direct-costs:created',
   RentAndUtilitiesCreated:
     'domain:ledger:expense:account:rent-and-utilities:created',
-  FinanceCostsCreated: 'domain:ledger:expense:account:finance-costs:created',
+  BankChargeCreated: 'domain:ledger:expense:account:bank-charge:created',
+  FinanceCostCreated: 'domain:ledger:expense:account:finance-cost:created',
+  InterestCreated: 'domain:ledger:expense:account:interest:created',
   TaxExpenseCreated: 'domain:ledger:expense:account:tax-expense:created',
   UnrealizedLossCreated:
     'domain:ledger:expense:account:unrealized-loss:created',
@@ -25,8 +29,11 @@ export const expenseAccountEventDescriptions: Record<string, string> = {
     'Created a direct costs expense account.',
   [EExpenseLedgerEvent.RentAndUtilitiesCreated]:
     'Created a rent and utilities expense account.',
-  [EExpenseLedgerEvent.FinanceCostsCreated]:
-    'Created a finance costs expense account.',
+  [EExpenseLedgerEvent.BankChargeCreated]:
+    'Created a bank charge expense account.',
+  [EExpenseLedgerEvent.FinanceCostCreated]:
+    'Created a finance cost expense account.',
+  [EExpenseLedgerEvent.InterestCreated]: 'Created an interest expense account.',
   [EExpenseLedgerEvent.TaxExpenseCreated]: 'Created a tax expense account.',
   [EExpenseLedgerEvent.UnrealizedLossCreated]:
     'Created an unrealized loss expense account.',
@@ -50,9 +57,23 @@ function makeRentAndUtilitiesAccountCreatedEvent(
   });
 }
 
-function makeFinanceCostsAccountCreatedEvent(payload: IInterestFinanceAccount) {
-  return eventValue.make<IInterestFinanceAccount>({
-    type: EExpenseLedgerEvent.FinanceCostsCreated,
+function makeBankChargeAccountCreatedEvent(payload: IBankChargeAccount) {
+  return eventValue.make<IBankChargeAccount>({
+    type: EExpenseLedgerEvent.BankChargeCreated,
+    data: payload,
+  });
+}
+
+function makeFinanceCostAccountCreatedEvent(payload: IFinanceCostAccount) {
+  return eventValue.make<IFinanceCostAccount>({
+    type: EExpenseLedgerEvent.FinanceCostCreated,
+    data: payload,
+  });
+}
+
+function makeInterestAccountCreatedEvent(payload: IInterestAccount) {
+  return eventValue.make<IInterestAccount>({
+    type: EExpenseLedgerEvent.InterestCreated,
     data: payload,
   });
 }
@@ -85,7 +106,9 @@ function makeAssetDisposalLossAccountCreatedEvent(
 const expenseAccountEvents = Object.freeze({
   directCostsCreated: makeDirectCostsAccountCreatedEvent,
   rentAndUtilitiesCreated: makeRentAndUtilitiesAccountCreatedEvent,
-  financeCostsCreated: makeFinanceCostsAccountCreatedEvent,
+  bankChargeCreated: makeBankChargeAccountCreatedEvent,
+  financeCostCreated: makeFinanceCostAccountCreatedEvent,
+  interestCreated: makeInterestAccountCreatedEvent,
   taxExpenseCreated: makeTaxExpenseAccountCreatedEvent,
   unrealizedLossCreated: makeUnrealizedLossAccountCreatedEvent,
   assetDisposalLossCreated: makeAssetDisposalLossAccountCreatedEvent,

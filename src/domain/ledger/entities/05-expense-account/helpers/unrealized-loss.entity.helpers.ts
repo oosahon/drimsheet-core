@@ -5,11 +5,11 @@ function getCode(
   predecessorCode: TUnrealizedLossLedgerCode | null
 ): TUnrealizedLossLedgerCode {
   if (predecessorCode === null) {
-    return '509000' as TUnrealizedLossLedgerCode;
+    return '511000' as TUnrealizedLossLedgerCode;
   }
 
   return ledgerAccountEntity.getSubLedgerCode<TUnrealizedLossLedgerCode>(
-    '509',
+    '511',
     predecessorCode
   );
 }

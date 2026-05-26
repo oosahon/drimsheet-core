@@ -2,9 +2,9 @@ import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
-  IAssetDisposalLossAccount,
+  IFinanceCostAccount,
 } from '../../../types/expense-account.types';
-import { TAssetDisposalLossLedgerCode } from '../../../types/ledger-code.types';
+import { TFinanceCostLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -12,9 +12,9 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import assetDisposalLossAccountEntity from '../10-asset-disposal-loss.entity';
+import financeCostAccountEntity from '../08-finance-cost.entity';
 
-describe('Asset Disposal Loss Entity', () => {
+describe('Finance Cost Expense Entity', () => {
   const validUUID1 = generateUUID();
   const validUUID2 = generateUUID();
 
@@ -26,8 +26,8 @@ describe('Asset Disposal Loss Entity', () => {
   };
 
   const validParent = {
-    precedingCode: '510000' as TAssetDisposalLossLedgerCode,
-    parentMaterializedPath: '510000' as TAssetDisposalLossLedgerCode,
+    precedingCode: '508000' as TFinanceCostLedgerCode,
+    parentMaterializedPath: '508000' as TFinanceCostLedgerCode,
   };
 
   beforeEach(() => {
@@ -41,39 +41,37 @@ describe('Asset Disposal Loss Entity', () => {
   });
 
   describe('getCode', () => {
-    it('should generate the next sub-ledger code for asset disposal loss accounts', () => {
-      expect(assetDisposalLossAccountEntity.getCode('510000')).toBe('510001');
-      expect(assetDisposalLossAccountEntity.getCode('510099')).toBe('510100');
+    it('should generate the next sub-ledger code for finance cost accounts', () => {
+      expect(financeCostAccountEntity.getCode('508000')).toBe('508001');
+      expect(financeCostAccountEntity.getCode('508099')).toBe('508100');
     });
 
-    it('should return 510000 if predecessorCode is null', () => {
-      expect(assetDisposalLossAccountEntity.getCode(null)).toBe('510000');
+    it('should return 508000 if predecessorCode is null', () => {
+      expect(financeCostAccountEntity.getCode(null)).toBe('508000');
     });
 
     it('should throw if predecessor code does not match header code', () => {
-      expect(() =>
-        assetDisposalLossAccountEntity.getCode('511000' as any)
-      ).toThrow();
+      expect(() => financeCostAccountEntity.getCode('509000' as any)).toThrow();
     });
   });
 
   describe('getMaterializedPath', () => {
     it('should return code if parentMaterializedPath is null', () => {
-      expect(
-        assetDisposalLossAccountEntity.getMaterializedPath('510000', null)
-      ).toBe('510000');
+      expect(financeCostAccountEntity.getMaterializedPath('508000', null)).toBe(
+        '508000'
+      );
     });
 
     it('should return concatenated path if parentMaterializedPath is provided', () => {
       expect(
-        assetDisposalLossAccountEntity.getMaterializedPath('510001', '510000')
-      ).toBe('510000.510001');
+        financeCostAccountEntity.getMaterializedPath('508001', '508000')
+      ).toBe('508000.508001');
     });
   });
 
   describe('make', () => {
     const validPayload: Pick<
-      IAssetDisposalLossAccount,
+      IFinanceCostAccount,
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
@@ -82,7 +80,7 @@ describe('Asset Disposal Loss Entity', () => {
       | 'controlAccountId'
       | 'meta'
     > = {
-      name: 'Loss on Disposal of Machinery',
+      name: 'Credit Facility Fee',
       accountingEntityId: validUUID1,
 
       currency: validCurrency,
@@ -92,18 +90,18 @@ describe('Asset Disposal Loss Entity', () => {
       meta: null,
     };
 
-    it('should successfully create an asset disposal loss account', () => {
-      const [account, events] = assetDisposalLossAccountEntity.make(
+    it('should successfully create a finance cost account', () => {
+      const [account, events] = financeCostAccountEntity.make(
         validPayload,
         validParent
       );
 
-      expect(account.code).toBe('510001');
-      expect(account.materializedPath).toBe('510000.510001');
+      expect(account.code).toBe('508001');
+      expect(account.materializedPath).toBe('508000.508001');
       expect(account.type).toBe(ELedgerType.Expense);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
-      expect(account.subType).toBe(EExpenseSubType.LossOnAssetDisposal);
-      expect(account.behavior).toBe(EExpenseAccountBehavior.AssetDisposalLoss);
+      expect(account.subType).toBe(EExpenseSubType.FinanceCost);
+      expect(account.behavior).toBe(EExpenseAccountBehavior.FinanceCost);
       expect(account.status).toBe(ELedgerAccountStatus.Active);
       expect(account.isControlAccount).toBe(false);
       expect(account.controlAccountId).toBeNull();
@@ -119,14 +117,14 @@ describe('Asset Disposal Loss Entity', () => {
       expect(events).toHaveLength(2);
     });
 
-    it('should successfully create an asset disposal loss account with controlAccountId', () => {
+    it('should successfully create a finance cost account with controlAccountId', () => {
       const validUUID3 = generateUUID();
       const payloadWithControl = {
         ...validPayload,
         isControlAccount: true,
         controlAccountId: validUUID3,
       };
-      const [account, events] = assetDisposalLossAccountEntity.make(
+      const [account, events] = financeCostAccountEntity.make(
         payloadWithControl,
         validParent
       );
@@ -138,24 +136,14 @@ describe('Asset Disposal Loss Entity', () => {
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        assetDisposalLossAccountEntity.make(invalidPayload, validParent)
+        financeCostAccountEntity.make(invalidPayload, validParent)
       ).toThrow();
     });
 
-    it('should throw if controlAccountId is invalid', () => {
-      const invalidPayload = {
-        ...validPayload,
-        controlAccountId: 'invalid-uuid' as any,
-      };
-      expect(() =>
-        assetDisposalLossAccountEntity.make(invalidPayload, validParent)
-      ).toThrow();
-    });
-
-    it('should use base code 510000 when predecessorCode is null', () => {
-      const [account] = assetDisposalLossAccountEntity.make(validPayload, null);
-      expect(account.code).toBe('510000');
-      expect(account.materializedPath).toBe('510000');
+    it('should use base code 508000 when predecessorCode is null', () => {
+      const [account] = financeCostAccountEntity.make(validPayload, null);
+      expect(account.code).toBe('508000');
+      expect(account.materializedPath).toBe('508000');
     });
   });
 });

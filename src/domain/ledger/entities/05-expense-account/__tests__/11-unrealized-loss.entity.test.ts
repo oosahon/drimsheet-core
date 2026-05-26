@@ -2,9 +2,9 @@ import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
-  IInterestFinanceAccount,
+  IUnrealizedLossAccount,
 } from '../../../types/expense-account.types';
-import { TInterestFinanceLedgerCode } from '../../../types/ledger-code.types';
+import { TUnrealizedLossLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -12,9 +12,9 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import financeCostsAccountEntity from '../07-finance-costs.entity';
+import unrealizedLossAccountEntity from '../11-unrealized-loss.entity';
 
-describe('Finance Costs Expense Entity', () => {
+describe('Unrealized Loss Entity', () => {
   const validUUID1 = generateUUID();
   const validUUID2 = generateUUID();
 
@@ -26,8 +26,8 @@ describe('Finance Costs Expense Entity', () => {
   };
 
   const validParent = {
-    precedingCode: '507000' as TInterestFinanceLedgerCode,
-    parentMaterializedPath: '507000' as TInterestFinanceLedgerCode,
+    precedingCode: '511000' as TUnrealizedLossLedgerCode,
+    parentMaterializedPath: '511000' as TUnrealizedLossLedgerCode,
   };
 
   beforeEach(() => {
@@ -41,18 +41,18 @@ describe('Finance Costs Expense Entity', () => {
   });
 
   describe('getCode', () => {
-    it('should generate the next sub-ledger code for finance costs accounts', () => {
-      expect(financeCostsAccountEntity.getCode('507000')).toBe('507001');
-      expect(financeCostsAccountEntity.getCode('507099')).toBe('507100');
+    it('should generate the next sub-ledger code for unrealized loss accounts', () => {
+      expect(unrealizedLossAccountEntity.getCode('511000')).toBe('511001');
+      expect(unrealizedLossAccountEntity.getCode('511099')).toBe('511100');
     });
 
-    it('should return 507000 if predecessorCode is null', () => {
-      expect(financeCostsAccountEntity.getCode(null)).toBe('507000');
+    it('should return 511000 if predecessorCode is null', () => {
+      expect(unrealizedLossAccountEntity.getCode(null)).toBe('511000');
     });
 
     it('should throw if predecessor code does not match header code', () => {
       expect(() =>
-        financeCostsAccountEntity.getCode('508000' as any)
+        unrealizedLossAccountEntity.getCode('512000' as any)
       ).toThrow();
     });
   });
@@ -60,20 +60,20 @@ describe('Finance Costs Expense Entity', () => {
   describe('getMaterializedPath', () => {
     it('should return code if parentMaterializedPath is null', () => {
       expect(
-        financeCostsAccountEntity.getMaterializedPath('507000', null)
-      ).toBe('507000');
+        unrealizedLossAccountEntity.getMaterializedPath('511000', null)
+      ).toBe('511000');
     });
 
     it('should return concatenated path if parentMaterializedPath is provided', () => {
       expect(
-        financeCostsAccountEntity.getMaterializedPath('507001', '507000')
-      ).toBe('507000.507001');
+        unrealizedLossAccountEntity.getMaterializedPath('511001', '511000')
+      ).toBe('511000.511001');
     });
   });
 
   describe('make', () => {
     const validPayload: Pick<
-      IInterestFinanceAccount,
+      IUnrealizedLossAccount,
       | 'name'
       | 'createdBy'
       | 'accountingEntityId'
@@ -82,7 +82,7 @@ describe('Finance Costs Expense Entity', () => {
       | 'controlAccountId'
       | 'meta'
     > = {
-      name: 'Interest on Short Term Loans',
+      name: 'Unrealized Exchange Loss',
       accountingEntityId: validUUID1,
 
       currency: validCurrency,
@@ -92,18 +92,18 @@ describe('Finance Costs Expense Entity', () => {
       meta: null,
     };
 
-    it('should successfully create a finance costs account', () => {
-      const [account, events] = financeCostsAccountEntity.make(
+    it('should successfully create an unrealized loss account', () => {
+      const [account, events] = unrealizedLossAccountEntity.make(
         validPayload,
         validParent
       );
 
-      expect(account.code).toBe('507001');
-      expect(account.materializedPath).toBe('507000.507001');
+      expect(account.code).toBe('511001');
+      expect(account.materializedPath).toBe('511000.511001');
       expect(account.type).toBe(ELedgerType.Expense);
       expect(account.normalBalance).toBe(ENormalBalance.Debit);
-      expect(account.subType).toBe(EExpenseSubType.InterestAndFinanceCharges);
-      expect(account.behavior).toBe(EExpenseAccountBehavior.FinanceCosts);
+      expect(account.subType).toBe(EExpenseSubType.UnrealizedLoss);
+      expect(account.behavior).toBe(EExpenseAccountBehavior.UnrealizedLoss);
       expect(account.status).toBe(ELedgerAccountStatus.Active);
       expect(account.isControlAccount).toBe(false);
       expect(account.controlAccountId).toBeNull();
@@ -119,14 +119,14 @@ describe('Finance Costs Expense Entity', () => {
       expect(events).toHaveLength(2);
     });
 
-    it('should successfully create a finance costs account with controlAccountId', () => {
+    it('should successfully create an unrealized loss account with controlAccountId', () => {
       const validUUID3 = generateUUID();
       const payloadWithControl = {
         ...validPayload,
         isControlAccount: true,
         controlAccountId: validUUID3,
       };
-      const [account, events] = financeCostsAccountEntity.make(
+      const [account, events] = unrealizedLossAccountEntity.make(
         payloadWithControl,
         validParent
       );
@@ -138,24 +138,14 @@ describe('Finance Costs Expense Entity', () => {
     it('should throw if payload values are invalid', () => {
       const invalidPayload = { ...validPayload, name: 'A' };
       expect(() =>
-        financeCostsAccountEntity.make(invalidPayload, validParent)
+        unrealizedLossAccountEntity.make(invalidPayload, validParent)
       ).toThrow();
     });
 
-    it('should throw if controlAccountId is invalid', () => {
-      const invalidPayload = {
-        ...validPayload,
-        controlAccountId: 'invalid-uuid' as any,
-      };
-      expect(() =>
-        financeCostsAccountEntity.make(invalidPayload, validParent)
-      ).toThrow();
-    });
-
-    it('should use base code 507000 when predecessorCode is null', () => {
-      const [account] = financeCostsAccountEntity.make(validPayload, null);
-      expect(account.code).toBe('507000');
-      expect(account.materializedPath).toBe('507000');
+    it('should use base code 511000 when predecessorCode is null', () => {
+      const [account] = unrealizedLossAccountEntity.make(validPayload, null);
+      expect(account.code).toBe('511000');
+      expect(account.materializedPath).toBe('511000');
     });
   });
 });

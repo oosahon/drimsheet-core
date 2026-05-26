@@ -388,12 +388,14 @@
           "marketing_and_selling",
           "research_and_development",
           "depreciation_and_amortization",
-          "interest_and_finance_charges",
+          "bank_charge",
+          "finance_cost",
+          "interest",
           "income_tax_expense",
           "unrealized_loss",
           "loss_on_asset_disposal",
-          "impairment_losses",
-          "other_losses"
+          "impairment_loss",
+          "other_loss"
         ]
       },
       "ULedgerAccountSortBy": {
