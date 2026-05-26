@@ -4,7 +4,9 @@ import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import { EJournalEntryEvent } from '../../events/journal-entry.events';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import {
+  EJournalEntrySourceType,
   EJournalEntryStatus,
+  UJournalEntrySourceType,
   UJournalEntryStatus,
 } from '../../types/journal-entry.types';
 import { EJournalSide, IJournalLine } from '../../types/journal-line.types';
@@ -29,7 +31,8 @@ describe('JournalEntry Entity', () => {
     beforeEach(() => {
       validPayload = {
         accountingEntityId: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
-        transactionId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
+        sourceType: EJournalEntrySourceType.Expense,
+        counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
         status: EJournalEntryStatus.Draft,
         effectiveDate: new Date('2026-04-15T00:00:00.000Z'),
         memo: 'Test entry memo',
@@ -67,7 +70,8 @@ describe('JournalEntry Entity', () => {
       expect(typeof entry.id).toBe('string');
       expect(entry.id.length).toBeGreaterThan(0);
       expect(entry.accountingEntityId).toBe(validPayload.accountingEntityId);
-      expect(entry.transactionId).toBe(validPayload.transactionId);
+      expect(entry.sourceType).toBe(validPayload.sourceType);
+      expect(entry.counterPartyId).toBe(validPayload.counterPartyId);
       expect(entry.memo).toBe('Test entry memo');
       expect(entry.status).toBe(EJournalEntryStatus.Draft);
       expect(entry.effectiveDate).toEqual(validPayload.effectiveDate);
@@ -126,17 +130,6 @@ describe('JournalEntry Entity', () => {
       expect(entry.voidingEntryId).toBe(payload.voidingEntryId);
     });
 
-    it('should successfully create when optional fields like transactionId are absent', () => {
-      const payload: TMakePayload = {
-        ...validPayload,
-        transactionId: null,
-      };
-
-      const [entry] = journalEntryEntity.make(payload);
-
-      expect(entry.transactionId).toBeNull();
-    });
-
     it('should throw an AppError if accountingEntityId is invalid', () => {
       expect(() =>
         journalEntryEntity.make({
@@ -146,11 +139,11 @@ describe('JournalEntry Entity', () => {
       ).toThrow();
     });
 
-    it('should throw an AppError if transactionId is invalid', () => {
+    it('should throw an AppError if sourceType is invalid', () => {
       expect(() =>
         journalEntryEntity.make({
           ...validPayload,
-          transactionId: 'invalid' as TEntityId,
+          sourceType: 'invalid' as UJournalEntrySourceType,
         })
       ).toThrow();
     });
@@ -323,12 +316,76 @@ describe('JournalEntry Entity', () => {
       });
 
       it('should throw an AppError if memo is too long', () => {
-        const longMemo = 'a'.repeat(101);
+        const longMemo = 'a'.repeat(251);
         expect(() => journalEntryEntity.getMemo(longMemo)).toThrow();
       });
 
       it('should return trimmed memo', () => {
         expect(journalEntryEntity.getMemo('  valid memo  ')).toBe('valid memo');
+      });
+    });
+
+    describe('validateSourceType', () => {
+      it('should not throw for valid source types', () => {
+        for (const sourceType of Object.values(EJournalEntrySourceType)) {
+          expect(() =>
+            journalEntryEntity.validateSourceType(sourceType)
+          ).not.toThrow();
+        }
+      });
+
+      it('should throw for an invalid source type', () => {
+        expect(() =>
+          journalEntryEntity.validateSourceType(
+            'invalid' as UJournalEntrySourceType
+          )
+        ).toThrow();
+      });
+    });
+
+    describe('validateCounterpartyId', () => {
+      it('should not throw when counterPartyId is null', () => {
+        expect(() =>
+          journalEntryEntity.validateCounterpartyId(
+            EJournalEntrySourceType.Sale,
+            null
+          )
+        ).not.toThrow();
+      });
+
+      it('should not throw for valid counterPartyId with non-transfer source', () => {
+        expect(() =>
+          journalEntryEntity.validateCounterpartyId(
+            EJournalEntrySourceType.Sale,
+            '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId
+          )
+        ).not.toThrow();
+      });
+
+      it('should throw when counterPartyId is provided for transfer source type', () => {
+        expect(() =>
+          journalEntryEntity.validateCounterpartyId(
+            EJournalEntrySourceType.Transfer,
+            '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId
+          )
+        ).toThrow();
+      });
+
+      it('should throw when counterPartyId is not a valid UUID', () => {
+        expect(() =>
+          journalEntryEntity.validateCounterpartyId(
+            EJournalEntrySourceType.Sale,
+            'invalid' as TEntityId
+          )
+        ).toThrow();
+      });
+    });
+
+    describe('validateStatus with Archived', () => {
+      it('should not throw for Archived status', () => {
+        expect(() =>
+          journalEntryEntity.validateStatus(EJournalEntryStatus.Archived)
+        ).not.toThrow();
       });
     });
   });

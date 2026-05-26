@@ -18,6 +18,8 @@ const EErrorKeys = {
   InvalidJournalLineItem: 'journal_entry_error_invalid_journal_line_item',
   UnbalancedJournalEntry: 'journal_entry_error_unbalanced_journal_entry',
   DuplicateSequenceOrders: 'journal_entry_error_duplicate_sequence_orders',
+  InvalidSourceType: 'journal_entry_error_invalid_source_type',
+  CounterpartyIdNotAllowed: 'journal_entry_error_counterparty_id_not_allowed',
 } as const satisfies Record<string, TErrorPrefix>;
 
 const journalEntryError = Object.freeze({

@@ -1,10 +1,28 @@
 import { TEntityId } from '../../../shared/types/uuid';
 import { IJournalLine } from './journal-line.types';
 
+export const EJournalEntrySourceType = {
+  Sale: 'sale',
+  Purchase: 'purchase',
+  CreditNote: 'credit_note',
+  DebitNote: 'debit_note',
+  Expense: 'expense',
+  Transfer: 'transfer',
+  Payment: 'payment',
+  Receipt: 'receipt',
+  Adjustment: 'adjustment',
+  System: 'system',
+  OpeningBalance: 'opening_balance',
+} as const;
+
+export type UJournalEntrySourceType =
+  (typeof EJournalEntrySourceType)[keyof typeof EJournalEntrySourceType];
+
 export const EJournalEntryStatus = {
   Draft: 'draft',
   Posted: 'posted',
   Voided: 'voided',
+  Archived: 'archived',
 } as const;
 
 export type UJournalEntryStatus =
@@ -13,11 +31,12 @@ export type UJournalEntryStatus =
 export interface IJournalEntry {
   id: TEntityId;
   accountingEntityId: TEntityId;
-  transactionId: TEntityId | null; // non for manual entries and opening balances
+  sourceType: UJournalEntrySourceType;
+  counterPartyId: TEntityId | null;
   lines: IJournalLine[];
   memo: string | null;
   status: UJournalEntryStatus;
-  effectiveDate: Date; // the actual date the transaction occurred
+  effectiveDate: Date;
   postedAt: Date | null;
   voidedAt: Date | null;
   voidingEntryId: TEntityId | null;

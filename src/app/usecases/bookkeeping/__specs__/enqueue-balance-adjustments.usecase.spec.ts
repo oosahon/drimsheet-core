@@ -1,8 +1,8 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import ledgerAccountBalanceEntity from '../../../../domain/bookkeeping/entities/ledger-account-balance.entity';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import {
+  EJournalEntrySourceType,
   EJournalEntryStatus,
   IJournalEntry,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
@@ -57,14 +57,6 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     },
     { precedingCode: '100000', parentMaterializedPath: '100000' }
   );
-
-  const mockExistingBalance = ledgerAccountBalanceEntity.make({
-    ledgerAccountId: mockAssetAccount.id,
-    accountingEntityId: mockAccountingEntity.id,
-    accountMaterializedPath: mockAssetAccount.materializedPath,
-    currencyCode: SYSTEM_CURRENCIES.NGN.code,
-    functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
-  });
 
   const mockQueue: IQueue = {
     addLedgerAccountBalanceAdjustment: jest.fn(),
@@ -134,7 +126,8 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     const mockJournalEntry: IJournalEntry = {
       id: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
       accountingEntityId: mockAccountingEntity.id,
-      transactionId: null,
+      sourceType: EJournalEntrySourceType.Adjustment,
+      counterPartyId: null,
       status: EJournalEntryStatus.Posted,
       effectiveDate: new Date(),
       postedAt: new Date(),
@@ -201,7 +194,8 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     const mockJournalEntry: IJournalEntry = {
       id: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
       accountingEntityId: mockAccountingEntity.id,
-      transactionId: null,
+      sourceType: EJournalEntrySourceType.Adjustment,
+      counterPartyId: null,
       status: EJournalEntryStatus.Posted,
       effectiveDate: new Date(),
       postedAt: new Date(),

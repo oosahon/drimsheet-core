@@ -30,7 +30,8 @@ const journalEntryMapper = {
     return {
       id: payload.id as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
-      transactionId: payload.transactionId as TEntityId,
+      sourceType: payload.sourceType,
+      counterPartyId: (payload.counterpartyId as TEntityId) ?? null,
       memo: payload.memo,
       status: payload.status,
       lines: payload.journalLinesInCores.map((line) => this.toDomainLine(line)),
@@ -68,11 +69,14 @@ const journalEntryMapper = {
     };
   },
 
-  toRepoEntry(payload: IJournalEntry): IJournalEntryModel {
+  toRepoEntry(
+    payload: IJournalEntry
+  ): Omit<IJournalEntryModel, 'transactionId'> {
     return {
       id: payload.id,
       accountingEntityId: payload.accountingEntityId,
-      transactionId: payload.transactionId,
+      counterpartyId: payload.counterPartyId,
+      sourceType: payload.sourceType,
       memo: payload.memo,
       status: payload.status,
       effectiveDate: toRepoDate(payload.effectiveDate),

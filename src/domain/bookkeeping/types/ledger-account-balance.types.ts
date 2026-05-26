@@ -27,7 +27,6 @@ export interface ILedgerAccountBalanceAdjustment {
   amount: IMoney;
   functionalAmount: IMoney;
   journalEntryId: TEntityId;
-  transactionId: TEntityId | null;
   effect: ULedgerAccountBalanceEffect;
   createdBy: TEntityId;
   createdAt: Date;

@@ -3,7 +3,10 @@ import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
 import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
-import { EJournalEntryStatus } from '../../journal-entry/types/journal-entry.types';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '../../journal-entry/types/journal-entry.types';
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
@@ -88,7 +91,8 @@ export default function makeBookkeepingService(
 
       const journalEntry = journalEntryEntity.make({
         accountingEntityId: account.accountingEntityId,
-        transactionId: null,
+        sourceType: EJournalEntrySourceType.OpeningBalance,
+        counterPartyId: null,
         status: EJournalEntryStatus.Posted,
         effectiveDate: timestamp,
         postedAt: timestamp,
