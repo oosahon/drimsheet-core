@@ -74,10 +74,16 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
   exchangeRateValue.validate(exchangeRate);
 }
 
+function getOppositeSide(side: UJournalSide): UJournalSide {
+  validateSide(side);
+  return side === EJournalSide.Debit ? EJournalSide.Credit : EJournalSide.Debit;
+}
+
 const journalLineEntityHelpers = Object.freeze({
   validateSide,
   getDescription,
   validateExchangeRate,
+  getOppositeSide,
 });
 
 export default journalLineEntityHelpers;

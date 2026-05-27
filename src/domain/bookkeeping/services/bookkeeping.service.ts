@@ -2,7 +2,9 @@ import { IMoney } from '../../../shared/types/money.types';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
-import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
+import journalLineEntity, {
+  IMakePayload as IJournalLineMakePayload,
+} from '../../journal-entry/entities/journal-line.entity';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
@@ -61,11 +63,6 @@ export default function makeBookkeepingService(
         throw new bookkeepingError.UnconfiguredOpeningBalanceAccount();
       }
 
-      const { targetAccountSide, equityAccountSide } =
-        journalEntryRules.getOpeningBalanceSides({
-          normalBalance: account.normalBalance,
-        });
-
       const debitLinePayload: IJournalLineMakePayload = {
         accountId: account.id,
         // TODO: use current reporting context currency
@@ -73,7 +70,7 @@ export default function makeBookkeepingService(
         amount,
         exchangeRate,
         sequenceOrder: 1,
-        side: targetAccountSide,
+        side: account.normalBalance,
         description: 'Opening balance',
       };
 
@@ -84,7 +81,7 @@ export default function makeBookkeepingService(
         amount,
         exchangeRate,
         sequenceOrder: 2,
-        side: equityAccountSide,
+        side: journalLineEntity.getOppositeSide(account.normalBalance),
       };
 
       const timestamp = new Date();
@@ -157,11 +154,7 @@ export default function makeBookkeepingService(
     );
 
     for (const line of journalLines) {
-      const effect = journalEntryRules.getBalanceEffect({
-        accountType: account.type,
-        normalBalance: account.normalBalance,
-        journalSide: line.side,
-      });
+      const effect = journalEntryRules.getBalanceEffect(account, line.side);
 
       if (effect === ELedgerAccountBalanceEffect.Increase) {
         balanceDelta = moneyValue.add(balanceDelta, line.amount);

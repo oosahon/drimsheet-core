@@ -238,5 +238,19 @@ describe('JournalLineItem Entity', () => {
         ).toThrow();
       });
     });
+
+    describe('getOppositeSide', () => {
+      it('should return Credit when given Debit', () => {
+        expect(journalLineEntity.getOppositeSide(EJournalSide.Debit)).toBe(
+          EJournalSide.Credit
+        );
+      });
+
+      it('should return Debit when given Credit', () => {
+        expect(journalLineEntity.getOppositeSide(EJournalSide.Credit)).toBe(
+          EJournalSide.Debit
+        );
+      });
+    });
   });
 });
