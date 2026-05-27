@@ -22,8 +22,6 @@ export default function makeLedgerAccountCreatedEventHandler(
         .createLedgerAccountBalance(event.data)
         .catch(reporter.report);
 
-      // TODO: create a 1:1 category map for the ledger account
-
       await Promise.all([createBalance]);
     } catch (error) {
       reporter.report(error);
