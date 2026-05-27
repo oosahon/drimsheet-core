@@ -41,19 +41,12 @@ function make(
   helpers.validateCounterpartyId(payload.sourceType, payload.counterPartyId);
   helpers.validateStatus(payload.status);
   dateUtils.validateDate(payload.effectiveDate, journalEntryError.InvalidValue);
-  if (payload.postedAt)
-    dateUtils.validateDate(payload.postedAt, journalEntryError.InvalidValue);
-  if (payload.voidedAt)
-    dateUtils.validateDate(payload.voidedAt, journalEntryError.InvalidValue);
-  if (payload.voidingEntryId)
-    stringUtils.validateUUID(
-      payload.voidingEntryId,
-      journalEntryError.InvalidValue
-    );
+  helpers.validatePostedAt(payload.postedAt);
+  helpers.validateVoidedAt(payload.voidedAt);
+  helpers.validateVoidingEntryId(payload.voidingEntryId);
 
   const id = generateUUID();
   const timestamp = new Date();
-
   const memo = helpers.getMemo(payload.memo);
 
   const linesWithEvents = payload.lines.map((item) =>

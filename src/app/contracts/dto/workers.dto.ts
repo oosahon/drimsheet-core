@@ -2,19 +2,18 @@ import z from 'zod';
 import { IJournalEntry } from '../../../domain/journal-entry/types/journal-entry.types';
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
 import { TEntityId } from '../../../shared/types/uuid';
-import { journalEntrySourceTypeValidation } from './journal-entry.dto';
 import { IMoneyDto, moneyDtoValidation } from './money.dto';
 
 export interface ILedgerAccountBalanceAdjustmentDto extends ICorrelationId {
-  journalEntry: Pick<IJournalEntry, 'id' | 'sourceType' | 'createdBy'>;
+  journalEntry: Pick<IJournalEntry, 'id' | 'createdBy'>;
   balanceDelta: IMoneyDto;
   functionalBalanceDelta: IMoneyDto;
   ledgerAccountId: TEntityId;
 }
+
 export const ledgerAccountBalanceAdjustmentDtoSchema = z.object({
   journalEntry: z.object({
     id: z.uuid(),
-    sourceType: journalEntrySourceTypeValidation,
     createdBy: z.uuid(),
   }),
   balanceDelta: moneyDtoValidation,

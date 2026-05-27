@@ -1,5 +1,6 @@
 import { IMoney } from '../../../../shared/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import dateUtils from '../../../../shared/utils/date';
 import stringUtils from '../../../../shared/utils/string';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import journalEntryError from '../../errors/journal-entry.error';
@@ -69,7 +70,7 @@ function getMemo(value: string | null) {
       max: 250,
       min: 1,
     },
-    journalEntryError.InvalidValue
+    journalEntryError.InvalidMemo
   );
 }
 
@@ -87,7 +88,28 @@ function validateCounterpartyId(
     throw new journalEntryError.CounterpartyIdNotAllowed();
   }
   if (counterPartyId) {
-    stringUtils.validateUUID(counterPartyId, journalEntryError.InvalidValue);
+    stringUtils.validateUUID(
+      counterPartyId,
+      journalEntryError.InvalidCounterpartyId
+    );
+  }
+}
+
+function validatePostedAt(value: Date | null) {
+  if (value) {
+    dateUtils.validateDate(value, journalEntryError.InvalidPOstingDate);
+  }
+}
+
+function validateVoidedAt(value: Date | null) {
+  if (value) {
+    dateUtils.validateDate(value, journalEntryError.InvalidVoidedAt);
+  }
+}
+
+function validateVoidingEntryId(value: TEntityId | null) {
+  if (value) {
+    stringUtils.validateUUID(value, journalEntryError.InvalidValue);
   }
 }
 
@@ -98,6 +120,9 @@ const journalEntryEntityHelpers = Object.freeze({
   getMemo,
   validateSourceType,
   validateCounterpartyId,
+  validatePostedAt,
+  validateVoidedAt,
+  validateVoidingEntryId,
 });
 
 export default journalEntryEntityHelpers;

@@ -1,4 +1,5 @@
 import z from 'zod';
+import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
 import {
   EJournalEntrySourceType,
   UJournalEntrySourceType,
@@ -12,5 +13,5 @@ export const journalEntrySourceTypeValidation = z.enum(
     UJournalEntrySourceType,
     ...UJournalEntrySourceType[],
   ],
-  'Invalid journal entry source type'
+  new journalEntryError.InvalidSourceType().errorKey
 );
