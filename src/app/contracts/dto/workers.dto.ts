@@ -5,15 +5,15 @@ import { TEntityId } from '../../../shared/types/uuid';
 import { IMoneyDto, moneyDtoValidation } from './money.dto';
 
 export interface ILedgerAccountBalanceAdjustmentDto extends ICorrelationId {
-  journalEntry: Pick<IJournalEntry, 'id' | 'transactionId' | 'createdBy'>;
+  journalEntry: Pick<IJournalEntry, 'id' | 'createdBy'>;
   balanceDelta: IMoneyDto;
   functionalBalanceDelta: IMoneyDto;
   ledgerAccountId: TEntityId;
 }
+
 export const ledgerAccountBalanceAdjustmentDtoSchema = z.object({
   journalEntry: z.object({
     id: z.uuid(),
-    transactionId: z.uuid().nullable(),
     createdBy: z.uuid(),
   }),
   balanceDelta: moneyDtoValidation,

@@ -92,11 +92,7 @@ function makeAdjustment(
     payload.journalEntryId,
     bookkeepingError.InvalidValue
   );
-  if (payload.transactionId)
-    stringUtils.validateUUID(
-      payload.transactionId,
-      bookkeepingError.InvalidValue
-    );
+
   stringUtils.validateUUID(payload.createdBy, bookkeepingError.InvalidValue);
 
   const effect = helpers.getEffectFromAmount(payload.amount);
@@ -107,7 +103,6 @@ function makeAdjustment(
     amount: payload.amount,
     functionalAmount: payload.functionalAmount,
     journalEntryId: payload.journalEntryId,
-    transactionId: payload.transactionId,
     effect,
     createdBy: payload.createdBy,
     createdAt: new Date(),

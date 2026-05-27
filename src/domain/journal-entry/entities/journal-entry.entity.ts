@@ -15,7 +15,8 @@ import journalLineEntity, {
 interface IMakePayload extends Pick<
   IJournalEntry,
   | 'accountingEntityId'
-  | 'transactionId'
+  | 'sourceType'
+  | 'counterPartyId'
   | 'status'
   | 'effectiveDate'
   | 'postedAt'
@@ -36,26 +37,16 @@ function make(
     journalEntryError.InvalidValue
   );
   stringUtils.validateUUID(payload.createdBy, journalEntryError.InvalidValue);
-  if (payload.transactionId)
-    stringUtils.validateUUID(
-      payload.transactionId,
-      journalEntryError.InvalidValue
-    );
+  helpers.validateSourceType(payload.sourceType);
+  helpers.validateCounterpartyId(payload.sourceType, payload.counterPartyId);
   helpers.validateStatus(payload.status);
   dateUtils.validateDate(payload.effectiveDate, journalEntryError.InvalidValue);
-  if (payload.postedAt)
-    dateUtils.validateDate(payload.postedAt, journalEntryError.InvalidValue);
-  if (payload.voidedAt)
-    dateUtils.validateDate(payload.voidedAt, journalEntryError.InvalidValue);
-  if (payload.voidingEntryId)
-    stringUtils.validateUUID(
-      payload.voidingEntryId,
-      journalEntryError.InvalidValue
-    );
+  helpers.validatePostedAt(payload.postedAt);
+  helpers.validateVoidedAt(payload.voidedAt);
+  helpers.validateVoidingEntryId(payload.voidingEntryId);
 
   const id = generateUUID();
   const timestamp = new Date();
-
   const memo = helpers.getMemo(payload.memo);
 
   const linesWithEvents = payload.lines.map((item) =>
@@ -68,7 +59,8 @@ function make(
   const entry: IJournalEntry = {
     id,
     accountingEntityId: payload.accountingEntityId,
-    transactionId: payload.transactionId,
+    sourceType: payload.sourceType,
+    counterPartyId: payload.counterPartyId,
     lines,
     memo,
     status: payload.status,

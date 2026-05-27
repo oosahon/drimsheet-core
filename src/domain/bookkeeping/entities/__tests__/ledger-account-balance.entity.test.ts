@@ -122,7 +122,6 @@ describe('ledgerAccountBalanceEntity', () => {
         currency: currencyEntity.getByCode('USD'),
       },
       journalEntryId: '223e4567-e89b-12d3-a456-426614174001' as TEntityId,
-      transactionId: '323e4567-e89b-12d3-a456-426614174002' as TEntityId,
       createdBy: '423e4567-e89b-12d3-a456-426614174003' as TEntityId,
     };
 
@@ -139,7 +138,6 @@ describe('ledgerAccountBalanceEntity', () => {
         amount: validAdjustmentPayload.amount,
         functionalAmount: validAdjustmentPayload.functionalAmount,
         journalEntryId: validAdjustmentPayload.journalEntryId,
-        transactionId: validAdjustmentPayload.transactionId,
         effect: ELedgerAccountBalanceEffect.Increase,
         createdBy: validAdjustmentPayload.createdBy,
         createdAt: new Date('2026-04-01T00:00:00.000Z'),
@@ -159,20 +157,6 @@ describe('ledgerAccountBalanceEntity', () => {
         updatedAt: new Date('2026-04-01T00:00:00.000Z'),
       });
       expect(Object.isFrozen(newBalance)).toBe(true);
-    });
-
-    it('should create a valid adjustment with transactionId as null', () => {
-      const payload = {
-        ...validAdjustmentPayload,
-        transactionId: null,
-      };
-      const data = ledgerAccountBalanceEntity.makeAdjustment(
-        existingBalance,
-        payload
-      );
-
-      expect(data.adjustment.transactionId).toBeNull();
-      expect(Object.isFrozen(data.adjustment)).toBe(true);
     });
 
     it('should throw if ledgerAccountId is invalid UUID', () => {
@@ -213,16 +197,6 @@ describe('ledgerAccountBalanceEntity', () => {
       const payload = {
         ...validAdjustmentPayload,
         journalEntryId: 'invalid' as unknown as TEntityId,
-      };
-      expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(existingBalance, payload)
-      ).toThrow();
-    });
-
-    it('should throw if transactionId is invalid UUID (and not null)', () => {
-      const payload = {
-        ...validAdjustmentPayload,
-        transactionId: 'invalid' as unknown as TEntityId,
       };
       expect(() =>
         ledgerAccountBalanceEntity.makeAdjustment(existingBalance, payload)

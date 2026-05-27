@@ -1,9 +1,13 @@
 import { IMoney } from '../../../../shared/types/money.types';
+import { TEntityId } from '../../../../shared/types/uuid';
+import dateUtils from '../../../../shared/utils/date';
 import stringUtils from '../../../../shared/utils/string';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import journalEntryError from '../../errors/journal-entry.error';
 import {
+  EJournalEntrySourceType,
   EJournalEntryStatus,
+  UJournalEntrySourceType,
   UJournalEntryStatus,
 } from '../../types/journal-entry.types';
 import { EJournalSide, IJournalLine } from '../../types/journal-line.types';
@@ -63,11 +67,50 @@ function getMemo(value: string | null) {
   return stringUtils.sanitizeAndValidate(
     value,
     {
-      max: 100,
+      max: 250,
       min: 1,
     },
-    journalEntryError.InvalidValue
+    journalEntryError.InvalidMemo
   );
+}
+
+function validateSourceType(sourceType: UJournalEntrySourceType) {
+  if (!Object.values(EJournalEntrySourceType).includes(sourceType)) {
+    throw new journalEntryError.InvalidSourceType({ sourceType });
+  }
+}
+
+function validateCounterpartyId(
+  sourceType: UJournalEntrySourceType,
+  counterPartyId: TEntityId | null
+) {
+  if (sourceType === EJournalEntrySourceType.Transfer && counterPartyId) {
+    throw new journalEntryError.CounterpartyIdNotAllowed();
+  }
+  if (counterPartyId) {
+    stringUtils.validateUUID(
+      counterPartyId,
+      journalEntryError.InvalidCounterpartyId
+    );
+  }
+}
+
+function validatePostedAt(value: Date | null) {
+  if (value) {
+    dateUtils.validateDate(value, journalEntryError.InvalidPOstingDate);
+  }
+}
+
+function validateVoidedAt(value: Date | null) {
+  if (value) {
+    dateUtils.validateDate(value, journalEntryError.InvalidVoidedAt);
+  }
+}
+
+function validateVoidingEntryId(value: TEntityId | null) {
+  if (value) {
+    stringUtils.validateUUID(value, journalEntryError.InvalidValue);
+  }
 }
 
 const journalEntryEntityHelpers = Object.freeze({
@@ -75,6 +118,11 @@ const journalEntryEntityHelpers = Object.freeze({
   validateLine,
   isUniqueSequenceOrder,
   getMemo,
+  validateSourceType,
+  validateCounterpartyId,
+  validatePostedAt,
+  validateVoidedAt,
+  validateVoidingEntryId,
 });
 
 export default journalEntryEntityHelpers;

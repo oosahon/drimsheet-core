@@ -103,7 +103,6 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     correlationId,
     journalEntry: {
       id: '123e4567-e89b-12d3-a456-426614174010' as TEntityId,
-      transactionId: '123e4567-e89b-12d3-a456-426614174011' as TEntityId,
       createdBy: mockUser.id,
     },
     balanceDelta: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
@@ -134,7 +133,6 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
         adjustment: expect.objectContaining({
           ledgerAccountId: mockAssetAccount.id,
           journalEntryId: validPayload.journalEntry.id,
-          transactionId: validPayload.journalEntry.transactionId,
         }),
       }),
       { correlationId, expectedVersion: mockExistingBalance.version }

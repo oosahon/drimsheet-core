@@ -6,6 +6,8 @@ export const EJournalEntryHistoryLogAction = {
   Updated: 'updated',
   Voided: 'voided',
   Posted: 'posted',
+  Archived: 'archived',
+  Unarchived: 'unarchived',
 } as const;
 
 export type UJournalEntryHistoryLogAction =

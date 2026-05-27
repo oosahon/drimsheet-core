@@ -46,7 +46,6 @@ export default function makeEnqueueBalanceAdjustmentsUseCase(
       allAdjustments.push({
         journalEntry: {
           id: journalEntry.id,
-          transactionId: journalEntry.transactionId,
           createdBy: journalEntry.createdBy,
         },
         correlationId,

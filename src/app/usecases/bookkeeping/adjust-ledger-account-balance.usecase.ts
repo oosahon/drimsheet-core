@@ -58,7 +58,6 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
       amount: isSameCurrency ? balanceDelta : functionalBalanceDelta,
       functionalAmount: functionalBalanceDelta,
       journalEntryId: journalEntry.id,
-      transactionId: journalEntry.transactionId,
       createdBy: journalEntry.createdBy,
     };
 
