@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { ELedgerAccountSubType } from '../../../app/contracts/dto/ledger-account.dto';
 import { IMoney } from '../../../shared/types/money.types';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
@@ -19,36 +18,12 @@ import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
 import journalEntryRules from '../rules/journal-entry.rule';
 import IService from '../types/bookkeeping.service.types';
 import { ELedgerAccountBalanceEffect } from '../types/ledger-account-balance.types';
+import bookkeepingServiceHelpers from './helpers/bookkeeping.service.helpers';
 
 type TRecordTransferValidator = (
   sourceAccount: ILedgerAccount,
   destinationAccounts: ILedgerAccount[]
 ) => void;
-
-const validateTransfer: TRecordTransferValidator = (
-  sourceAccount,
-  destinationAccounts
-) => {
-  const allowedTransferSubTypes: string[] = [
-    ELedgerAccountSubType.CashAndCashEquivalent,
-  ];
-
-  if (!allowedTransferSubTypes.includes(sourceAccount.subType)) {
-    throw new bookkeepingError.TransferNotPermittedOnAccount({
-      cause: { accountId: sourceAccount.id, subType: sourceAccount.subType },
-    });
-  }
-
-  const differentSubTypes = destinationAccounts
-    .filter((account) => account.subType !== sourceAccount.subType)
-    .map((account) => ({ id: account.id, subType: account.subType }));
-
-  if (differentSubTypes.length > 0) {
-    throw new bookkeepingError.TransferNotPermittedOnAccount({
-      cause: differentSubTypes,
-    });
-  }
-};
 
 export default function makeBookkeepingService(
   ledgerAccountRepo: ILedgerAccountRepo,
@@ -189,18 +164,11 @@ export default function makeBookkeepingService(
       });
     }
 
-    const validators: Record<string, TRecordTransferValidator> = {
-      [EJournalEntrySourceType.Transfer]: validateTransfer,
-    };
-
-    const validator = validators[header.sourceType];
-    if (!validator) {
-      throw new bookkeepingError.UnsupportedSourceType({
-        cause: { sourceType: header.sourceType },
-      });
-    }
-
-    validator(sourceAccount, destinationAccounts);
+    bookkeepingServiceHelpers.validateTransactionAccounts(
+      sourceAccount,
+      destinationAccounts,
+      payload.header.sourceType
+    );
 
     return journalEntryEntity.make({
       ...header,

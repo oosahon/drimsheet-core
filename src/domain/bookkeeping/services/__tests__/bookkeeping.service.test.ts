@@ -32,6 +32,7 @@ import {
 } from '../../../ledger/types/ledger.types';
 import { IJournalTransactionPayload } from '../../types/bookkeeping.service.types';
 import makeBookkeepingService from '../bookkeeping.service';
+import bookkeepingServiceHelpers from '../helpers/bookkeeping.service.helpers';
 
 describe('bookkeepingService', () => {
   const service = makeBookkeepingService(
@@ -51,6 +52,100 @@ describe('bookkeepingService', () => {
 
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  describe('helpers', () => {
+    const entityId = generateUUID();
+    const createdBy = generateUUID();
+
+    const [sourceCashAccount] = cashAndEquivalentAccountEntity.make(
+      {
+        name: 'Source Cash',
+        accountingEntityId: entityId,
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        controlAccountId: null,
+        behavior: EAssetAccountBehavior.DefaultCash,
+        meta: null,
+        createdBy,
+      },
+      { precedingCode: '100000', parentMaterializedPath: '100000' }
+    );
+
+    const [destinationCashAccount] = cashAndEquivalentAccountEntity.make(
+      {
+        name: 'Destination Cash',
+        accountingEntityId: entityId,
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        controlAccountId: null,
+        behavior: EAssetAccountBehavior.DefaultCash,
+        meta: null,
+        createdBy,
+      },
+      { precedingCode: '100100', parentMaterializedPath: '100000' }
+    );
+
+    const [receivableAccount] =
+      receivablesAccountEntity.makeTradeReceivableAccount(
+        {
+          name: 'Trade Receivable',
+          accountingEntityId: entityId,
+          currency: SYSTEM_CURRENCIES.NGN,
+          isControlAccount: false,
+          controlAccountId: generateUUID(),
+          createdBy,
+        },
+        { precedingCode: '102000', parentMaterializedPath: '102000' }
+      );
+
+    describe('validateTransfer', () => {
+      it('should allow transfers between cash and cash equivalent accounts', () => {
+        expect(() =>
+          bookkeepingServiceHelpers.validateTransfer(sourceCashAccount, [
+            destinationCashAccount,
+          ])
+        ).not.toThrow();
+      });
+
+      it('should throw if the source account subtype is not permitted for transfers', () => {
+        expect(() =>
+          bookkeepingServiceHelpers.validateTransfer(receivableAccount, [
+            destinationCashAccount,
+          ])
+        ).toThrow();
+      });
+
+      it('should throw if a destination account subtype differs from the source', () => {
+        expect(() =>
+          bookkeepingServiceHelpers.validateTransfer(sourceCashAccount, [
+            receivableAccount,
+          ])
+        ).toThrow();
+      });
+    });
+
+    describe('validateTransactionAccounts', () => {
+      it('should validate transfer transaction accounts', () => {
+        expect(() =>
+          bookkeepingServiceHelpers.validateTransactionAccounts(
+            sourceCashAccount,
+            [destinationCashAccount],
+            EJournalEntrySourceType.Transfer
+          )
+        ).not.toThrow();
+      });
+
+      it('should throw if the source type is unsupported', () => {
+        expect(() =>
+          bookkeepingServiceHelpers.validateTransactionAccounts(
+            sourceCashAccount,
+            [destinationCashAccount],
+            EJournalEntrySourceType.Purchase
+          )
+        ).toThrow();
+      });
+    });
   });
 
   describe('recordOpeningBalance', () => {
