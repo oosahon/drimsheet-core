@@ -13,6 +13,14 @@ const EErrorKeys = {
     'journal_entry_error_journal_line_mismatched_exchange_rate_base',
   MismatchedExchangeRateTarget:
     'journal_entry_error_journal_line_mismatched_exchange_rate_target',
+  InvalidHeaderyEntryId:
+    'journal_entry_error_journal_line_invalid_header_entry_id',
+  InvalidAccountId: 'journal_entry_error_journal_line_invalid_account_id',
+  InvalidSequenceOrder:
+    'journal_entry_error_journal_line_invalid_sequence_order',
+  InvalidCreatedAt: 'journal_entry_error_journal_line_invalid_created_at',
+  InvalidExchangeRate: 'journal_entry_error_journal_line_invalid_exchange_rate',
+  InvalidDescription: 'journal_entry_error_journal_line_invalid_description',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UJournalLineError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

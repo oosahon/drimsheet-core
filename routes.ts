@@ -10,6 +10,8 @@ import { LedgerAccountController } from './src/interface/http/controllers/ledger
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CurrencyController } from './src/interface/http/controllers/currency.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { BookkeepingController } from './src/interface/http/controllers/bookkeeping.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './src/interface/http/controllers/auth.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AssetAccountController } from './src/interface/http/controllers/asset-account.controller';
@@ -428,6 +430,116 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UExchangeRateType: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['official'] },
+        { dataType: 'enum', enums: ['negotiated'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IExchangeRateDto: {
+    dataType: 'refObject',
+    properties: {
+      baseCurrencyCode: { dataType: 'string', required: true },
+      targetCurrencyCode: { dataType: 'string', required: true },
+      rate: { dataType: 'double', required: true },
+      type: { ref: 'UExchangeRateType', required: true },
+      asOf: { dataType: 'datetime', required: true },
+      source: { dataType: 'string', required: true },
+      id: { dataType: 'double' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UJournalSide: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['debit'] },
+        { dataType: 'enum', enums: ['credit'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalLineDto: {
+    dataType: 'refObject',
+    properties: {
+      accountId: { dataType: 'string', required: true },
+      amount: { ref: 'IMoneyDto', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRateDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      description: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      side: { ref: 'UJournalSide', required: true },
+      sequenceOrder: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UJournalEntryStatus: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['archived'] },
+        { dataType: 'enum', enums: ['draft'] },
+        { dataType: 'enum', enums: ['posted'] },
+        { dataType: 'enum', enums: ['voided'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ITransferTransactionReq: {
+    dataType: 'refObject',
+    properties: {
+      sourceLine: { ref: 'IJournalLineDto', required: true },
+      destinationLines: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IJournalLineDto' },
+        required: true,
+      },
+      status: { ref: 'UJournalEntryStatus', required: true },
+      effectiveDate: { dataType: 'datetime', required: true },
+      postedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      memo: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IUserSignupReq: {
     dataType: 'refObject',
     properties: {
@@ -462,32 +574,6 @@ const models: TsoaRoute.Models = {
       token: { dataType: 'string', required: true },
       password: { dataType: 'string', required: true },
       confirmPassword: { dataType: 'string', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UExchangeRateType: {
-    dataType: 'refAlias',
-    type: {
-      dataType: 'union',
-      subSchemas: [
-        { dataType: 'enum', enums: ['official'] },
-        { dataType: 'enum', enums: ['negotiated'] },
-      ],
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IExchangeRateDto: {
-    dataType: 'refObject',
-    properties: {
-      baseCurrencyCode: { dataType: 'string', required: true },
-      targetCurrencyCode: { dataType: 'string', required: true },
-      rate: { dataType: 'double', required: true },
-      type: { ref: 'UExchangeRateType', required: true },
-      asOf: { dataType: 'datetime', required: true },
-      source: { dataType: 'string', required: true },
-      id: { dataType: 'double' },
     },
     additionalProperties: false,
   },
@@ -1008,6 +1094,55 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'getAll',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsBookkeepingController_recordTransfer: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'ITransferTransactionReq',
+    },
+  };
+  app.post(
+    '/api/v1/bookkeeping',
+    ...fetchMiddlewares<RequestHandler>(BookkeepingController),
+    ...fetchMiddlewares<RequestHandler>(
+      BookkeepingController.prototype.recordTransfer
+    ),
+
+    async function BookkeepingController_recordTransfer(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsBookkeepingController_recordTransfer,
+          request,
+          response,
+        });
+
+        const controller = new BookkeepingController();
+
+        await templateService.apiHandler({
+          methodName: 'recordTransfer',
           controller,
           response,
           next,

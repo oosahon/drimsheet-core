@@ -5,7 +5,7 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
-import bookkeepingError from '../errors/bookkeeping.error';
+import ledgerAccountBalanceError from '../errors/ledger-account-balance.error';
 import {
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
@@ -24,12 +24,13 @@ interface IMakePayload extends Pick<
 function make(payload: IMakePayload): ILedgerAccountBalance {
   stringUtils.validateUUID(
     payload.ledgerAccountId,
-    bookkeepingError.InvalidValue
+    ledgerAccountBalanceError.InvalidLedgerAccountId
   );
   stringUtils.validateUUID(
     payload.accountingEntityId,
-    bookkeepingError.InvalidValue
+    ledgerAccountBalanceError.InvalidAccountingEntityId
   );
+
   ledgerAccountEntity.validateMaterializedPath(payload.accountMaterializedPath);
 
   const baseCurrency = currencyEntity.getByCode(payload.currencyCode);
@@ -78,22 +79,25 @@ function updateBalance(
   });
 }
 
-function makeAdjustment(
+function adjust(
   existingBalance: ILedgerAccountBalance,
   payload: TCreationOmits<ILedgerAccountBalanceAdjustment, 'effect'>
 ): INewLedgerAccountBalanceAndAdjustment {
   stringUtils.validateUUID(
     payload.ledgerAccountId,
-    bookkeepingError.InvalidValue
+    ledgerAccountBalanceError.InvalidLedgerAccountId
   );
   moneyValue.validate(payload.amount);
   moneyValue.validate(payload.functionalAmount);
   stringUtils.validateUUID(
     payload.journalEntryId,
-    bookkeepingError.InvalidValue
+    ledgerAccountBalanceError.InvalidJournalEntryId
   );
 
-  stringUtils.validateUUID(payload.createdBy, bookkeepingError.InvalidValue);
+  stringUtils.validateUUID(
+    payload.createdBy,
+    ledgerAccountBalanceError.InvalidCreatorId
+  );
 
   const effect = helpers.getEffectFromAmount(payload.amount);
 
@@ -123,7 +127,7 @@ function makeAdjustment(
 
 const ledgerAccountBalanceEntity = Object.freeze({
   make,
-  makeAdjustment,
+  adjust,
 
   ...helpers,
 });

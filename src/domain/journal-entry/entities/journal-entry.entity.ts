@@ -2,35 +2,18 @@ import { TEntityWithEvents } from '../../../shared/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
-import { ICurrency } from '../../currency/types/currency.types';
 import journalEntryError from '../errors/journal-entry.error';
 import journalEntryEvents from '../events/journal-entry.events';
-import { IJournalEntry } from '../types/journal-entry.types';
+import {
+  IJournalEntry,
+  IjournalEntryMakePayload,
+} from '../types/journal-entry.types';
 import { IJournalLine } from '../types/journal-line.types';
 import helpers from './helpers/journal-entry.entity.helpers';
-import journalLineEntity, {
-  IMakePayload as IJournalLineMakePayload,
-} from './journal-line.entity';
-
-interface IMakePayload extends Pick<
-  IJournalEntry,
-  | 'accountingEntityId'
-  | 'sourceType'
-  | 'counterPartyId'
-  | 'status'
-  | 'effectiveDate'
-  | 'postedAt'
-  | 'voidedAt'
-  | 'voidingEntryId'
-  | 'memo'
-  | 'createdBy'
-> {
-  functionalCurrency: ICurrency;
-  lines: IJournalLineMakePayload[];
-}
+import journalLineEntity from './journal-line.entity';
 
 function make(
-  payload: IMakePayload
+  payload: IjournalEntryMakePayload
 ): TEntityWithEvents<IJournalEntry, IJournalEntry | IJournalLine> {
   stringUtils.validateUUID(
     payload.accountingEntityId,
@@ -40,7 +23,10 @@ function make(
   helpers.validateSourceType(payload.sourceType);
   helpers.validateCounterpartyId(payload.sourceType, payload.counterPartyId);
   helpers.validateStatus(payload.status);
-  dateUtils.validateDate(payload.effectiveDate, journalEntryError.InvalidValue);
+  dateUtils.validateDate(
+    payload.effectiveDate,
+    journalEntryError.InvalidEffectiveDate
+  );
   helpers.validatePostedAt(payload.postedAt);
   helpers.validateVoidedAt(payload.voidedAt);
   helpers.validateVoidingEntryId(payload.voidingEntryId);

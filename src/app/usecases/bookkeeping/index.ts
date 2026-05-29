@@ -7,6 +7,7 @@ import makeAdjustLedgerAccountBalanceUseCase from './adjust-ledger-account-balan
 import makeCreateLedgerAccountBalanceUseCase from './create-ledger-account-balance.usecase';
 import makeEnqueueBalanceAdjustment from './enqueue-balance-adjustments.usecase';
 import makeRecordOpeningBalanceUseCase from './record-opening-balance.usecase';
+import makeRecordTransferJournalEntryUseCase from './record-transfer-journal-entry.usecase';
 
 const bookkeepingUseCases = {
   createLedgerAccountBalance: makeCreateLedgerAccountBalanceUseCase(
@@ -30,6 +31,14 @@ const bookkeepingUseCases = {
     messaging.eventBus,
     domainServices.bookkeeping,
     domainServices.exchangeRate
+  ),
+
+  recordTransfer: makeRecordTransferJournalEntryUseCase(
+    appContext.request,
+    domainServices.bookkeeping,
+    domainServices.exchangeRate,
+    repos.journalEntry,
+    messaging.eventBus
   ),
 
   adjustLedgerAccountBalance: makeAdjustLedgerAccountBalanceUseCase(

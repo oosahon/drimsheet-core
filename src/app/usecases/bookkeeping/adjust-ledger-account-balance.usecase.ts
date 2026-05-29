@@ -53,7 +53,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
      */
     const isSameCurrency = balanceDelta.currency.code === account.currency.code;
 
-    const makeAdjustmentPayload = {
+    const adjustPayload = {
       ledgerAccountId: account.id,
       amount: isSameCurrency ? balanceDelta : functionalBalanceDelta,
       functionalAmount: functionalBalanceDelta,
@@ -61,9 +61,9 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
       createdBy: journalEntry.createdBy,
     };
 
-    const adjustment = ledgerAccountBalanceEntity.makeAdjustment(
+    const adjustment = ledgerAccountBalanceEntity.adjust(
       existingBalance,
-      makeAdjustmentPayload
+      adjustPayload
     );
 
     await ledgerAccountBalanceRepo.adjustBalance(adjustment, {

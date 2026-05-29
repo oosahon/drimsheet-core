@@ -1,4 +1,13 @@
-import { and, desc, eq, getTableColumns, ilike, or, sql } from 'drizzle-orm';
+import {
+  and,
+  desc,
+  eq,
+  getTableColumns,
+  ilike,
+  inArray,
+  or,
+  sql,
+} from 'drizzle-orm';
 import ledgerAccountMapper from '../../../app/mappers/ledger-account.mapper';
 import ILedgerAccountRepo, {
   ELedgerAccountSortBy,
@@ -37,6 +46,22 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
       .where(eq(ledgerAccountsInCore.id, id));
 
     return result.map(ledgerAccountMapper.toDomain)[0] ?? null;
+  },
+
+  findAllByIds: async (isDate, options) => {
+    const result = await getDbQuery(options)
+      .select({
+        ...getTableColumns(ledgerAccountsInCore),
+        currency: getTableColumns(currenciesInCore),
+      })
+      .from(ledgerAccountsInCore)
+      .innerJoin(
+        currenciesInCore,
+        eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
+      )
+      .where(inArray(ledgerAccountsInCore.id, isDate));
+
+    return result.map(ledgerAccountMapper.toDomain);
   },
 
   findByCode: async (code, accountingEntityId, options) => {
@@ -138,6 +163,10 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
     const conditions = [
       eq(ledgerAccountsInCore.accountingEntityId, accountingEntityId),
     ];
+
+    if (options.ids && options.ids.length > 0) {
+      conditions.push(inArray(ledgerAccountsInCore.id, options.ids));
+    }
 
     if (options.type) {
       conditions.push(eq(ledgerAccountsInCore.type, options.type));

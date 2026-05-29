@@ -1,5 +1,6 @@
 import { TEntityId } from '../../../shared/types/uuid';
-import { IJournalLine } from './journal-line.types';
+import { ICurrency } from '../../currency/types/currency.types';
+import { IJournalLine, IJournalLineMakePayload } from './journal-line.types';
 
 export const EJournalEntrySourceType = {
   Sale: 'sale',
@@ -44,4 +45,21 @@ export interface IJournalEntry {
   createdBy: TEntityId;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IjournalEntryMakePayload extends Pick<
+  IJournalEntry,
+  | 'accountingEntityId'
+  | 'sourceType'
+  | 'counterPartyId'
+  | 'status'
+  | 'effectiveDate'
+  | 'postedAt'
+  | 'voidedAt'
+  | 'voidingEntryId'
+  | 'memo'
+  | 'createdBy'
+> {
+  functionalCurrency: ICurrency;
+  lines: IJournalLineMakePayload[];
 }

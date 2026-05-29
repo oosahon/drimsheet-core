@@ -480,6 +480,134 @@
         "type": "object",
         "additionalProperties": false
       },
+      "UExchangeRateType": {
+        "type": "string",
+        "enum": ["official", "negotiated"]
+      },
+      "IExchangeRateDto": {
+        "properties": {
+          "baseCurrencyCode": {
+            "type": "string"
+          },
+          "targetCurrencyCode": {
+            "type": "string"
+          },
+          "rate": {
+            "type": "number",
+            "format": "double"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UExchangeRateType"
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string"
+          },
+          "id": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "baseCurrencyCode",
+          "targetCurrencyCode",
+          "rate",
+          "type",
+          "asOf",
+          "source"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UJournalSide": {
+        "type": "string",
+        "enum": ["debit", "credit"]
+      },
+      "IJournalLineDto": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "exchangeRate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IExchangeRateDto"
+              }
+            ],
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "side": {
+            "$ref": "#/components/schemas/UJournalSide"
+          },
+          "sequenceOrder": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "accountId",
+          "amount",
+          "exchangeRate",
+          "description",
+          "side",
+          "sequenceOrder"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UJournalEntryStatus": {
+        "type": "string",
+        "enum": ["archived", "draft", "posted", "voided"]
+      },
+      "ITransferTransactionReq": {
+        "properties": {
+          "sourceLine": {
+            "$ref": "#/components/schemas/IJournalLineDto"
+          },
+          "destinationLines": {
+            "items": {
+              "$ref": "#/components/schemas/IJournalLineDto"
+            },
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UJournalEntryStatus"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "memo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sourceLine",
+          "destinationLines",
+          "status",
+          "effectiveDate",
+          "postedAt",
+          "memo"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IUserSignupReq": {
         "properties": {
           "firstName": {
@@ -535,48 +663,6 @@
           }
         },
         "required": ["token", "password", "confirmPassword"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "UExchangeRateType": {
-        "type": "string",
-        "enum": ["official", "negotiated"]
-      },
-      "IExchangeRateDto": {
-        "properties": {
-          "baseCurrencyCode": {
-            "type": "string"
-          },
-          "targetCurrencyCode": {
-            "type": "string"
-          },
-          "rate": {
-            "type": "number",
-            "format": "double"
-          },
-          "type": {
-            "$ref": "#/components/schemas/UExchangeRateType"
-          },
-          "asOf": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "source": {
-            "type": "string"
-          },
-          "id": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "required": [
-          "baseCurrencyCode",
-          "targetCurrencyCode",
-          "rate",
-          "type",
-          "asOf",
-          "source"
-        ],
         "type": "object",
         "additionalProperties": false
       },
@@ -1240,6 +1326,50 @@
         "tags": ["Currency"],
         "security": [],
         "parameters": []
+      }
+    },
+    "/bookkeeping": {
+      "post": {
+        "operationId": "record-transfer",
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new petty cash sub account",
+        "tags": ["Bookkeeping"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ITransferTransactionReq"
+              }
+            }
+          }
+        }
       }
     },
     "/auth/signup-with-email": {

@@ -21,6 +21,12 @@ const EErrorKeys = {
   AccountNotFound: 'bookkeeping_error_account_not_found',
   EmptyJournalLines: 'bookkeeping_error_empty_journal_lines',
   MismatchedJournalLines: 'bookkeeping_error_mismatched_journal_lines',
+  ControlAccountTransactionNotAllowed:
+    'bookkeeping_error_control_account_transaction_not_allowed',
+  TransferNotPermittedOnAccount:
+    'bookkeeping_error_transfer_not_permitted_on_account',
+  UnsupportedSourceType: 'bookkeeping_error_unsupported_source_type',
+  InvalidJournalEntry: 'bookkeeping_error_invalid_journal_entry',
 } as const satisfies Record<string, TErrorPrefix>;
 
 const bookkeepingError = Object.freeze({

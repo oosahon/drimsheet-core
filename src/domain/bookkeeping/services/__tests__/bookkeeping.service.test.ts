@@ -44,7 +44,7 @@ describe('bookkeepingService', () => {
     jest.useRealTimers();
   });
 
-  describe('createOpeningBalanceJournalEntry', () => {
+  describe('recordOpeningBalance', () => {
     const entityId = generateUUID();
     const accountId = generateUUID();
     const equityAccountId = generateUUID();
@@ -88,11 +88,10 @@ describe('bookkeepingService', () => {
           validEquityAccount,
         ]);
 
-        const [journalEntry, events] =
-          await service.createOpeningBalanceJournalEntry(
-            validPayload,
-            mockOptions
-          );
+        const [journalEntry, events] = await service.recordOpeningBalance(
+          validPayload,
+          mockOptions
+        );
 
         expect(journalEntry.accountingEntityId).toBe(entityId);
         expect(journalEntry.status).toBe(EJournalEntryStatus.Posted);
@@ -117,8 +116,10 @@ describe('bookkeepingService', () => {
           },
         };
 
-        const [journalEntry, events] =
-          await service.createOpeningBalanceJournalEntry(payload, mockOptions);
+        const [journalEntry, events] = await service.recordOpeningBalance(
+          payload,
+          mockOptions
+        );
 
         expect(journalEntry.accountingEntityId).toBe(entityId);
         expect(journalEntry.status).toBe(EJournalEntryStatus.Posted);
@@ -139,7 +140,7 @@ describe('bookkeepingService', () => {
         };
 
         await expect(
-          service.createOpeningBalanceJournalEntry(payload, mockOptions)
+          service.recordOpeningBalance(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -149,7 +150,7 @@ describe('bookkeepingService', () => {
         );
 
         await expect(
-          service.createOpeningBalanceJournalEntry(validPayload, mockOptions)
+          service.recordOpeningBalance(validPayload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -157,7 +158,7 @@ describe('bookkeepingService', () => {
         mockLedgerAccountRepo.findBySubType.mockResolvedValueOnce([]);
 
         await expect(
-          service.createOpeningBalanceJournalEntry(validPayload, mockOptions)
+          service.recordOpeningBalance(validPayload, mockOptions)
         ).rejects.toThrow();
       });
     });
@@ -176,7 +177,7 @@ describe('bookkeepingService', () => {
         };
 
         await expect(
-          service.createOpeningBalanceJournalEntry(payload, mockOptions)
+          service.recordOpeningBalance(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -190,7 +191,7 @@ describe('bookkeepingService', () => {
         };
 
         await expect(
-          service.createOpeningBalanceJournalEntry(payload, mockOptions)
+          service.recordOpeningBalance(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -201,7 +202,7 @@ describe('bookkeepingService', () => {
         };
 
         await expect(
-          service.createOpeningBalanceJournalEntry(payload, mockOptions)
+          service.recordOpeningBalance(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -212,7 +213,7 @@ describe('bookkeepingService', () => {
         };
 
         await expect(
-          service.createOpeningBalanceJournalEntry(payload, mockOptions)
+          service.recordOpeningBalance(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -232,7 +233,7 @@ describe('bookkeepingService', () => {
         };
 
         await expect(
-          service.createOpeningBalanceJournalEntry(payload, mockOptions)
+          service.recordOpeningBalance(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -255,7 +256,7 @@ describe('bookkeepingService', () => {
         };
 
         await expect(
-          service.createOpeningBalanceJournalEntry(payload, mockOptions)
+          service.recordOpeningBalance(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -278,7 +279,7 @@ describe('bookkeepingService', () => {
         };
 
         await expect(
-          service.createOpeningBalanceJournalEntry(payload, mockOptions)
+          service.recordOpeningBalance(payload, mockOptions)
         ).rejects.toThrow();
       });
     });

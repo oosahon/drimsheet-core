@@ -82,7 +82,7 @@ describe('JournalLineItem Entity', () => {
     it('should fall back to entry memo if payload description is missing', () => {
       const payloadWithoutDesc: TMakePayload = {
         ...validPayload,
-        description: undefined,
+        description: null,
       };
 
       const [lineItem] = journalLineEntity.make(

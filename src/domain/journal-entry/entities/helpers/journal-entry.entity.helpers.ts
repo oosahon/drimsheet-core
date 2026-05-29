@@ -1,6 +1,7 @@
 import { IMoney } from '../../../../shared/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import dateUtils from '../../../../shared/utils/date';
+import serializeBigIntInObj from '../../../../shared/utils/serialize-bigint-in-object';
 import stringUtils from '../../../../shared/utils/string';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import journalEntryError from '../../errors/journal-entry.error';
@@ -52,12 +53,20 @@ function validateLine(lines: IJournalLine[]) {
 
   if (!moneyValue.equals(totalDebits, totalCredits)) {
     throw new journalEntryError.UnbalancedJournalEntry({
-      lines,
+      lines: serializeBigIntInObj(lines).map((line) => ({
+        amount: line.amount,
+        side: line.side,
+      })),
     });
   }
 
   if (!isUniqueSequenceOrder(lines)) {
-    throw new journalEntryError.DuplicateSequenceOrders({ lines });
+    throw new journalEntryError.DuplicateSequenceOrders({
+      lines: serializeBigIntInObj(lines).map((line) => ({
+        amount: line.amount,
+        side: line.side,
+      })),
+    });
   }
 }
 
@@ -97,7 +106,7 @@ function validateCounterpartyId(
 
 function validatePostedAt(value: Date | null) {
   if (value) {
-    dateUtils.validateDate(value, journalEntryError.InvalidPOstingDate);
+    dateUtils.validateDate(value, journalEntryError.InvalidPostingDate);
   }
 }
 

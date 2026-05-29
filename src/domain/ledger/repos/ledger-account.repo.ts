@@ -21,6 +21,7 @@ export interface IFindAllLedgerAccountsOptions extends Omit<
   IRepoOptions,
   'orderBy'
 > {
+  ids?: TEntityId[];
   type?: ULedgerType;
   subType?:
     | UAssetSubType
@@ -43,6 +44,11 @@ export default interface ILedgerAccountRepo {
     id: TEntityId,
     options: IRepoOptions
   ): Promise<ILedgerAccount | null>;
+
+  findAllByIds(
+    ids: TEntityId[],
+    options: IRepoOptions
+  ): Promise<ILedgerAccount[]>;
 
   findByCode(
     code: string,

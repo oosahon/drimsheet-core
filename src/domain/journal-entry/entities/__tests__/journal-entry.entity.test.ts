@@ -102,7 +102,7 @@ describe('JournalEntry Entity', () => {
     it('should fall back to entry memo if line item description is absent', () => {
       const lineItemWithoutDesc = {
         ...validPayload.lines[0],
-        description: undefined,
+        description: null,
       };
 
       const payload: TMakePayload = {
