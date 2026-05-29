@@ -3,7 +3,6 @@ import stringUtils from '../../../../shared/utils/string';
 import { ICurrency } from '../../../currency/types/currency.types';
 import { IExchangeRate } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
-import journalEntryError from '../../errors/journal-entry.error';
 import journalLineError from '../../errors/journal-line.error';
 import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
 
@@ -24,7 +23,7 @@ function getDescription(value?: string | null) {
       max: 100,
       min: 1,
     },
-    journalEntryError.InvalidValue
+    journalLineError.InvalidDescription
   );
 }
 
@@ -74,10 +73,16 @@ function validateExchangeRate(payload: IValidateExchangeRatePayload) {
   exchangeRateValue.validate(exchangeRate);
 }
 
+function getOppositeSide(side: UJournalSide): UJournalSide {
+  validateSide(side);
+  return side === EJournalSide.Debit ? EJournalSide.Credit : EJournalSide.Debit;
+}
+
 const journalLineEntityHelpers = Object.freeze({
   validateSide,
   getDescription,
   validateExchangeRate,
+  getOppositeSide,
 });
 
 export default journalLineEntityHelpers;

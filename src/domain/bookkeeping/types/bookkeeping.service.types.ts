@@ -1,11 +1,14 @@
-import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { IMoney } from '../../../shared/types/money.types';
 import { IRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
 import { IExchangeRate } from '../../currency/types/exchange-rate.types';
-import { IJournalEntry } from '../../journal-entry/types/journal-entry.types';
-import { IJournalLine } from '../../journal-entry/types/journal-line.types';
+import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
+import { IjournalEntryMakePayload } from '../../journal-entry/types/journal-entry.types';
+import {
+  IJournalLine,
+  IJournalLineMakePayload,
+} from '../../journal-entry/types/journal-line.types';
 import { ILedgerAccount } from '../../ledger/types/ledger.types';
 
 export interface IOpeningBalanceTransaction {
@@ -15,6 +18,12 @@ export interface IOpeningBalanceTransaction {
   amount: IMoney;
 }
 
+export interface IJournalTransactionPayload {
+  sourceLine: IJournalLineMakePayload;
+  destinationLines: IJournalLineMakePayload[];
+  header: Omit<IjournalEntryMakePayload, 'lines'>;
+}
+
 export interface ILedgerAccountBalanceEffectDelta {
   balanceDelta: IMoney;
   functionalBalanceDelta: IMoney;
@@ -22,10 +31,15 @@ export interface ILedgerAccountBalanceEffectDelta {
 }
 
 export default interface IBookkeepingService {
-  createOpeningBalanceJournalEntry(
+  recordOpeningBalance(
     payload: IOpeningBalanceTransaction,
     repoOptions: IRepoOptions
-  ): Promise<TEntityWithEvents<IJournalEntry, IJournalLine | IJournalEntry>>;
+  ): Promise<ReturnType<typeof journalEntryEntity.make>>;
+
+  recordTransaction(
+    payload: IJournalTransactionPayload,
+    repoOptions: IRepoOptions
+  ): Promise<ReturnType<typeof journalEntryEntity.make>>;
 
   getBalanceEffectDelta(
     accountId: TEntityId,

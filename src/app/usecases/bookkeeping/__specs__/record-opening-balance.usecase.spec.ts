@@ -79,9 +79,10 @@ describe('recordOpeningBalanceUseCase', () => {
 
     mockLedgerAccountRepo.findById.mockResolvedValueOnce(mockAssetAccount);
 
-    mockDomainServices.bookkeeping.createOpeningBalanceJournalEntry.mockResolvedValue(
-      [{ id: 'mock-journal-entry-id' } as any, []]
-    );
+    mockDomainServices.bookkeeping.recordOpeningBalance.mockResolvedValue([
+      { id: 'mock-journal-entry-id' } as any,
+      [],
+    ]);
     mockDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(null);
   });
 
@@ -111,7 +112,7 @@ describe('recordOpeningBalanceUseCase', () => {
       { correlationId }
     );
     expect(
-      mockDomainServices.bookkeeping.createOpeningBalanceJournalEntry
+      mockDomainServices.bookkeeping.recordOpeningBalance
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         account: mockAssetAccount,

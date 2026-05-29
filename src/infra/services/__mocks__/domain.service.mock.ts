@@ -49,7 +49,8 @@ const exchangeRate: jest.Mocked<IExchangeRateService> = {
 };
 
 const bookkeeping: jest.Mocked<IBookkeepingService> = {
-  createOpeningBalanceJournalEntry: jest.fn(),
+  recordOpeningBalance: jest.fn(),
+  recordTransaction: jest.fn(),
   getBalanceEffectDelta: jest.fn(),
 };
 

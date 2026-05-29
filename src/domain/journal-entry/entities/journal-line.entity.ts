@@ -4,30 +4,30 @@ import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
-import { ICurrency } from '../../currency/types/currency.types';
-import journalEntryError from '../errors/journal-entry.error';
+import journalLineError from '../errors/journal-line.error';
 import journalLineEvents from '../events/journal-line-item.events';
 import { IJournalEntry } from '../types/journal-entry.types';
-import { IJournalLine } from '../types/journal-line.types';
-import helpers from './helpers/journal-line.helpers';
-
-export interface IMakePayload extends Pick<
+import {
   IJournalLine,
-  'accountId' | 'sequenceOrder' | 'amount' | 'exchangeRate' | 'side'
-> {
-  functionalCurrency: ICurrency;
-  description?: string;
-}
+  IJournalLineMakePayload,
+} from '../types/journal-line.types';
+import helpers from './helpers/journal-line.helpers';
 
 function make(
   entryPayload: Pick<IJournalEntry, 'id' | 'memo' | 'createdAt'>,
-  payload: IMakePayload
+  payload: IJournalLineMakePayload
 ): TEntityWithEvents<IJournalLine, IJournalLine> {
-  stringUtils.validateUUID(entryPayload.id, journalEntryError.InvalidValue);
-  stringUtils.validateUUID(payload.accountId, journalEntryError.InvalidValue);
+  stringUtils.validateUUID(
+    entryPayload.id,
+    journalLineError.InvalidHeaderyEntryId
+  );
+  stringUtils.validateUUID(
+    payload.accountId,
+    journalLineError.InvalidAccountId
+  );
   numberUtils.validateInteger(
     payload.sequenceOrder,
-    journalEntryError.InvalidValue
+    journalLineError.InvalidSequenceOrder
   );
   moneyValue.validate(payload.amount);
 
@@ -35,14 +35,14 @@ function make(
   helpers.validateSide(payload.side);
   dateUtils.validateDate(
     entryPayload.createdAt,
-    journalEntryError.InvalidValue
+    journalLineError.InvalidCreatedAt
   );
 
   const functionalAmount = moneyValue.convert(
     payload.amount,
     numberUtils.toFactor(
       payload.exchangeRate?.rate ?? 1,
-      journalEntryError.InvalidValue
+      journalLineError.InvalidExchangeRate
     ),
     payload.functionalCurrency
   );

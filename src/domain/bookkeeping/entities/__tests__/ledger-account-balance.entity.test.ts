@@ -94,7 +94,7 @@ describe('ledgerAccountBalanceEntity', () => {
     });
   });
 
-  describe('makeAdjustment', () => {
+  describe('adjust', () => {
     const validMakePayload: Parameters<
       typeof ledgerAccountBalanceEntity.make
     >[0] = {
@@ -126,7 +126,7 @@ describe('ledgerAccountBalanceEntity', () => {
     };
 
     it('should create a valid ledger account balance adjustment', () => {
-      const data = ledgerAccountBalanceEntity.makeAdjustment(
+      const data = ledgerAccountBalanceEntity.adjust(
         existingBalance,
         validAdjustmentPayload
       );
@@ -165,7 +165,7 @@ describe('ledgerAccountBalanceEntity', () => {
         ledgerAccountId: 'invalid' as unknown as TEntityId,
       };
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(existingBalance, payload)
+        ledgerAccountBalanceEntity.adjust(existingBalance, payload)
       ).toThrow();
     });
 
@@ -177,7 +177,7 @@ describe('ledgerAccountBalanceEntity', () => {
         } as unknown as typeof validAdjustmentPayload.amount, // Missing currency
       };
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(existingBalance, payload)
+        ledgerAccountBalanceEntity.adjust(existingBalance, payload)
       ).toThrow();
     });
 
@@ -189,7 +189,7 @@ describe('ledgerAccountBalanceEntity', () => {
         } as unknown as typeof validAdjustmentPayload.functionalAmount, // Missing currency
       };
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(existingBalance, payload)
+        ledgerAccountBalanceEntity.adjust(existingBalance, payload)
       ).toThrow();
     });
 
@@ -199,7 +199,7 @@ describe('ledgerAccountBalanceEntity', () => {
         journalEntryId: 'invalid' as unknown as TEntityId,
       };
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(existingBalance, payload)
+        ledgerAccountBalanceEntity.adjust(existingBalance, payload)
       ).toThrow();
     });
 
@@ -209,7 +209,7 @@ describe('ledgerAccountBalanceEntity', () => {
         createdBy: 'invalid' as unknown as TEntityId,
       };
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(existingBalance, payload)
+        ledgerAccountBalanceEntity.adjust(existingBalance, payload)
       ).toThrow();
     });
 
@@ -219,7 +219,7 @@ describe('ledgerAccountBalanceEntity', () => {
         amount: -100 as unknown as typeof validAdjustmentPayload.amount,
       };
       expect(() =>
-        ledgerAccountBalanceEntity.makeAdjustment(existingBalance, payload)
+        ledgerAccountBalanceEntity.adjust(existingBalance, payload)
       ).toThrow();
     });
   });

@@ -4,6 +4,7 @@ import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';
 import domainServices from '../../../infra/services/domain.service';
+import makeAccountingEntityAccessMiddleware from './accounting-entity-access.middleware';
 import makeErrorHandlerMiddleware from './error-handler.middleware';
 import {
   makeCompleteLoginWithGoogleMiddleware,
@@ -44,6 +45,11 @@ const middlewares = {
   requestLogger: makeRequestLoggerMiddleware(
     observability.logger,
     observability.reporter,
+    appContext.request
+  ),
+
+  accountingEntityAccess: makeAccountingEntityAccessMiddleware(
+    domainServices.accountingEntity,
     appContext.request
   ),
 };

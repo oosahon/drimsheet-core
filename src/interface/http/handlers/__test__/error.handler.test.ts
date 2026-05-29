@@ -1,12 +1,26 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
+import mockLogger from '../../../../app/contracts/infra/__mocks__/logger.contract.mock';
 import appError from '../../../../app/errors/app.error';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import DomainError from '../../../../shared/errors/domain.error';
 import makeHttpErrorHandler from '../error.handler';
 
+interface IBufferedFile {
+  buffer?: Buffer;
+}
+
+type TSanitizableRequest = Omit<Partial<Request>, 'body' | 'file' | 'files'> & {
+  body: {
+    other: string;
+    password?: string;
+  };
+  file: IBufferedFile;
+  files: IBufferedFile[];
+};
+
 describe('makeHttpErrorHandler', () => {
-  let mockReq: Partial<Request>;
+  let mockReq: TSanitizableRequest;
   let mockRes: Partial<Response>;
   let mockStatus: jest.Mock;
   let mockJson: jest.Mock;
@@ -21,7 +35,7 @@ describe('makeHttpErrorHandler', () => {
       },
       file: {
         buffer: Buffer.from('test'),
-      } as any,
+      },
       body: {
         password: 'secretpassword',
         other: 'data',
@@ -29,7 +43,7 @@ describe('makeHttpErrorHandler', () => {
       files: [
         { buffer: Buffer.from('test1') },
         { buffer: Buffer.from('test2') },
-      ] as any,
+      ],
     };
 
     mockRes = {
@@ -41,23 +55,20 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should clean sensitive data from request', () => {
-    const handler = makeHttpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
     const error = new Error('Unknown error');
 
-    handler(mockReq as Request, mockRes as Response, error);
+    handler(mockReq as unknown as Request, mockRes as Response, error);
 
     expect(mockReq.headers?.authorization).toBeUndefined();
-    // @ts-ignore
     expect(mockReq.file?.buffer).toBeUndefined();
     expect(mockReq.body?.password).toBeUndefined();
-    // @ts-ignore
     expect(mockReq.files?.[0].buffer).toBeUndefined();
-    // @ts-ignore
     expect(mockReq.files?.[1].buffer).toBeUndefined();
   });
 
   it('should handle tsoa ValidateError', () => {
-    const handler = makeHttpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
     const error = new ValidateError(
       {
         email: { message: 'Invalid email' },
@@ -66,7 +77,7 @@ describe('makeHttpErrorHandler', () => {
       'Validation failed'
     );
 
-    handler(mockReq as Request, mockRes as Response, error);
+    handler(mockReq as unknown as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(422);
     expect(mockJson).toHaveBeenCalledWith({
@@ -78,14 +89,31 @@ describe('makeHttpErrorHandler', () => {
         { field: 'age', message: 'Must be a number' },
       ],
     });
+    expect(mockLogger.error).toHaveBeenCalledWith(error);
+    expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('should handle tsoa ValidateError without logging outside local', () => {
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'test');
+    const error = new ValidateError(
+      {
+        email: { message: 'Invalid email' },
+      },
+      'Validation failed'
+    );
+
+    handler(mockReq as unknown as Request, mockRes as Response, error);
+
+    expect(mockStatus).toHaveBeenCalledWith(422);
+    expect(mockLogger.error).not.toHaveBeenCalled();
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
   it('should handle AppError (e.g. appError.BadRequest)', () => {
-    const handler = makeHttpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
     const error = new appError.BadRequest();
 
-    handler(mockReq as Request, mockRes as Response, error);
+    handler(mockReq as unknown as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
@@ -93,14 +121,26 @@ describe('makeHttpErrorHandler', () => {
       errorKey: 'app_error_bad_request',
       cause: undefined,
     });
+    expect(mockLogger.error).toHaveBeenCalledWith(error);
+    expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('should handle AppError without logging outside local', () => {
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'test');
+    const error = new appError.BadRequest();
+
+    handler(mockReq as unknown as Request, mockRes as Response, error);
+
+    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockLogger.error).not.toHaveBeenCalled();
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
   it('should handle domain AppError', () => {
-    const handler = makeHttpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
     const error = new appError.Base('app_error_domain_rule_violated');
 
-    handler(mockReq as Request, mockRes as Response, error);
+    handler(mockReq as unknown as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
@@ -112,7 +152,7 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle auth DomainError and return 401', () => {
-    const handler = makeHttpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
     class MockAuthError extends DomainError<'auth_error_test'> {
       constructor() {
         super('auth_error_test');
@@ -121,7 +161,7 @@ describe('makeHttpErrorHandler', () => {
     }
     const error = new MockAuthError();
 
-    handler(mockReq as Request, mockRes as Response, error);
+    handler(mockReq as unknown as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(401);
     expect(mockJson).toHaveBeenCalledWith({
@@ -133,7 +173,7 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle non-auth DomainError and return 400', () => {
-    const handler = makeHttpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
     class MockDomainError extends DomainError<'app_error_other_test'> {
       constructor() {
         super('app_error_other_test');
@@ -141,7 +181,7 @@ describe('makeHttpErrorHandler', () => {
     }
     const error = new MockDomainError();
 
-    handler(mockReq as Request, mockRes as Response, error);
+    handler(mockReq as unknown as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
@@ -153,10 +193,10 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle unknown errors and report them', () => {
-    const handler = makeHttpErrorHandler(mockReporter);
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
     const error = new Error('Internal Server Error');
 
-    handler(mockReq as Request, mockRes as Response, error);
+    handler(mockReq as unknown as Request, mockRes as Response, error);
 
     expect(mockReporter.report).toHaveBeenCalledWith(error);
     expect(mockStatus).toHaveBeenCalledWith(500);
@@ -168,15 +208,15 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle domain error with no errorKey and fallback to Unknown error', () => {
-    const handler = makeHttpErrorHandler(mockReporter);
-    class MockNoKeyError extends DomainError<any> {
+    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
+    class MockNoKeyError extends DomainError<''> {
       constructor() {
-        super('' as any);
+        super('');
       }
     }
     const error = new MockNoKeyError();
 
-    handler(mockReq as Request, mockRes as Response, error);
+    handler(mockReq as unknown as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({

@@ -49,7 +49,7 @@ export default function makeRecordOpeningBalanceUseCase(
     };
 
     const [journalEntries, journalEntryEvents] =
-      await bookkeepingService.createOpeningBalanceJournalEntry(
+      await bookkeepingService.recordOpeningBalance(
         openingBalancePayload,
         trace
       );

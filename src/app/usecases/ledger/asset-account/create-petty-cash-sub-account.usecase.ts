@@ -67,7 +67,7 @@ export default function makeCreatePettyCashSubAccountUseCase(
     };
 
     const [journalEntries, journalEvents] =
-      await bookkeepingService.createOpeningBalanceJournalEntry(
+      await bookkeepingService.recordOpeningBalance(
         openingBalancePayload,
         trace
       );

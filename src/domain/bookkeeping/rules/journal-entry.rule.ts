@@ -1,75 +1,31 @@
-import {
-  ELedgerAccountBalanceEffect,
-  ULedgerAccountBalanceEffect,
-} from '../../bookkeeping/types/ledger-account-balance.types';
+import { ELedgerAccountBalanceEffect } from '../../bookkeeping/types/ledger-account-balance.types';
 import journalLineEntity from '../../journal-entry/entities/journal-line.entity';
-import {
-  EJournalSide,
-  UJournalSide,
-} from '../../journal-entry/types/journal-line.types';
+import { UJournalSide } from '../../journal-entry/types/journal-line.types';
 import ledgerAccountEntityHelpers from '../../ledger/entities/shared/helpers/ledger-account.entity.helpers';
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
-import {
-  ENormalBalance,
-  ULedgerType,
-  UNormalBalance,
-} from '../../ledger/types/ledger.types';
+import { ILedgerAccount } from '../../ledger/types/ledger.types';
 
-export interface IGetBalanceEffectPayload {
-  accountType: ULedgerType;
-  journalSide: UJournalSide;
-  normalBalance: UNormalBalance;
-}
-
+/**
+ * Determines the balance effect of a journal entry based on its account and side.
+ * @param account
+ * @param journalSide
+ * @returns
+ */
 function getBalanceEffect(
-  payload: IGetBalanceEffectPayload
-): ULedgerAccountBalanceEffect {
-  const { accountType, normalBalance, journalSide } = payload;
-
-  ledgerAccountEntityHelpers.validateType(accountType);
-  ledgerAccountEntity.validateNormalBalance(normalBalance);
+  account: Pick<ILedgerAccount, 'type' | 'normalBalance'>,
+  journalSide: UJournalSide
+) {
+  ledgerAccountEntityHelpers.validateType(account.type);
+  ledgerAccountEntity.validateNormalBalance(account.normalBalance);
   journalLineEntity.validateSide(journalSide);
 
-  return journalSide === normalBalance
+  return journalSide === account.normalBalance
     ? ELedgerAccountBalanceEffect.Increase
     : ELedgerAccountBalanceEffect.Decrease;
 }
 
-export interface IGetOpeningBalanceSidesPayload {
-  normalBalance: UNormalBalance;
-}
-
-export interface IGetOpeningBalanceSidesResult {
-  targetAccountSide: UJournalSide;
-  equityAccountSide: UJournalSide;
-}
-
-function getOpeningBalanceSides(
-  payload: IGetOpeningBalanceSidesPayload
-): IGetOpeningBalanceSidesResult {
-  const { normalBalance } = payload;
-
-  ledgerAccountEntity.validateNormalBalance(normalBalance);
-
-  const targetAccountSide =
-    normalBalance === ENormalBalance.Debit
-      ? EJournalSide.Debit
-      : EJournalSide.Credit;
-
-  const equityAccountSide =
-    targetAccountSide === EJournalSide.Debit
-      ? EJournalSide.Credit
-      : EJournalSide.Debit;
-
-  return {
-    targetAccountSide,
-    equityAccountSide,
-  };
-}
-
 const journalEntryRules = Object.freeze({
   getBalanceEffect,
-  getOpeningBalanceSides,
 });
 
 export default journalEntryRules;

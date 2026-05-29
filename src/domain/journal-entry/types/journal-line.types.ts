@@ -1,5 +1,6 @@
 import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { ICurrency } from '../../currency/types/currency.types';
 import { IExchangeRate } from '../../currency/types/exchange-rate.types';
 
 export const EJournalSide = {
@@ -28,4 +29,13 @@ export interface IJournalLine {
   version: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IJournalLineMakePayload extends Pick<
+  IJournalLine,
+  'accountId' | 'sequenceOrder' | 'amount' | 'exchangeRate' | 'side'
+> {
+  functionalCurrency: ICurrency;
+  // TODO: use `null` instead of undefined
+  description: string | null;
 }

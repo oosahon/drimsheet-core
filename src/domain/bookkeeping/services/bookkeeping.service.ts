@@ -1,113 +1,185 @@
+import _ from 'lodash';
 import { IMoney } from '../../../shared/types/money.types';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import currencyEntity from '../../currency/entities/currency.entity';
 import journalEntryEntity from '../../journal-entry/entities/journal-entry.entity';
-import { IMakePayload as IJournalLineMakePayload } from '../../journal-entry/entities/journal-line.entity';
+import journalLineEntity from '../../journal-entry/entities/journal-line.entity';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
 } from '../../journal-entry/types/journal-entry.types';
+import { IJournalLineMakePayload } from '../../journal-entry/types/journal-line.types';
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
-import { ELedgerType } from '../../ledger/types/ledger.types';
+import { ELedgerType, ILedgerAccount } from '../../ledger/types/ledger.types';
 import bookkeepingError from '../errors/bookkeeping.error';
 import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
 import journalEntryRules from '../rules/journal-entry.rule';
-import IBookkeepingService from '../types/bookkeeping.service.types';
+import IService from '../types/bookkeeping.service.types';
 import { ELedgerAccountBalanceEffect } from '../types/ledger-account-balance.types';
+import bookkeepingServiceHelpers from './helpers/bookkeeping.service.helpers';
 
-type TCreateOpeningBalanceJournalEntry =
-  IBookkeepingService['createOpeningBalanceJournalEntry'];
-type TGetBalanceEffectDelta = IBookkeepingService['getBalanceEffectDelta'];
+type TRecordTransferValidator = (
+  sourceAccount: ILedgerAccount,
+  destinationAccounts: ILedgerAccount[]
+) => void;
 
 export default function makeBookkeepingService(
   ledgerAccountRepo: ILedgerAccountRepo,
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
-): IBookkeepingService {
-  const createOpeningBalanceJournalEntry: TCreateOpeningBalanceJournalEntry =
-    async (payload, repoOptions) => {
-      const { account, amount, accountingEntity, exchangeRate } = payload;
-      if (account.isControlAccount) {
-        throw new bookkeepingError.ControlAccountOpeningBalanceNotAllowed({
-          accountId: account.id,
-        });
-      }
-
-      const functionalCurrency = currencyEntity.getByCode(
-        accountingEntity.functionalCurrencyCode
-      );
-
-      const [existingBalanceAdjustment] =
-        await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
-          payload.account.id,
-          { ...repoOptions, limit: 1 }
-        );
-
-      if (existingBalanceAdjustment) {
-        throw new bookkeepingError.ExistingOpeningBalance({
-          accountId: payload.account.id,
-        });
-      }
-
-      const [equityAccount] = await ledgerAccountRepo.findBySubType(
-        account.accountingEntityId,
-        ELedgerType.Equity,
-        EEquitySubType.OpeningBalance,
-        repoOptions
-      );
-
-      if (!equityAccount) {
-        throw new bookkeepingError.UnconfiguredOpeningBalanceAccount();
-      }
-
-      const { targetAccountSide, equityAccountSide } =
-        journalEntryRules.getOpeningBalanceSides({
-          normalBalance: account.normalBalance,
-        });
-
-      const debitLinePayload: IJournalLineMakePayload = {
+): IService {
+  /**
+   * Creates an opening balance journal entry for a ledger account.
+   */
+  const recordOpeningBalance: IService['recordOpeningBalance'] = async (
+    payload,
+    repoOptions
+  ) => {
+    const { account, amount, accountingEntity, exchangeRate } = payload;
+    if (account.isControlAccount) {
+      throw new bookkeepingError.ControlAccountOpeningBalanceNotAllowed({
         accountId: account.id,
-        // TODO: use current reporting context currency
-        functionalCurrency,
-        amount,
-        exchangeRate,
-        sequenceOrder: 1,
-        side: targetAccountSide,
-        description: 'Opening balance',
-      };
-
-      const creditLinePayload: IJournalLineMakePayload = {
-        accountId: equityAccount.id,
-        // TODO: use current reporting context currency
-        functionalCurrency,
-        amount,
-        exchangeRate,
-        sequenceOrder: 2,
-        side: equityAccountSide,
-      };
-
-      const timestamp = new Date();
-
-      const journalEntry = journalEntryEntity.make({
-        accountingEntityId: account.accountingEntityId,
-        sourceType: EJournalEntrySourceType.OpeningBalance,
-        counterPartyId: null,
-        status: EJournalEntryStatus.Posted,
-        effectiveDate: timestamp,
-        postedAt: timestamp,
-        voidedAt: null,
-        voidingEntryId: null,
-        memo: 'Opening balance',
-        createdBy: account.createdBy,
-        functionalCurrency,
-        lines: [debitLinePayload, creditLinePayload],
       });
+    }
 
-      return journalEntry;
+    const functionalCurrency = currencyEntity.getByCode(
+      accountingEntity.functionalCurrencyCode
+    );
+
+    const [existingBalanceAdjustment] =
+      await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
+        payload.account.id,
+        { ...repoOptions, limit: 1 }
+      );
+
+    if (existingBalanceAdjustment) {
+      throw new bookkeepingError.ExistingOpeningBalance({
+        accountId: payload.account.id,
+      });
+    }
+
+    const [equityAccount] = await ledgerAccountRepo.findBySubType(
+      account.accountingEntityId,
+      ELedgerType.Equity,
+      EEquitySubType.OpeningBalance,
+      repoOptions
+    );
+
+    if (!equityAccount) {
+      throw new bookkeepingError.UnconfiguredOpeningBalanceAccount();
+    }
+
+    const accountSide: IJournalLineMakePayload = {
+      accountId: account.id,
+      // TODO: use current reporting context currency
+      functionalCurrency,
+      amount,
+      exchangeRate,
+      sequenceOrder: 1,
+      side: account.normalBalance,
+      description: 'Opening balance',
     };
 
-  const getBalanceEffectDelta: TGetBalanceEffectDelta = async (
+    const equitySide: IJournalLineMakePayload = {
+      accountId: equityAccount.id,
+      // TODO: use current reporting context currency
+      functionalCurrency,
+      amount,
+      exchangeRate,
+      sequenceOrder: 2,
+      description: null,
+      side: journalLineEntity.getOppositeSide(account.normalBalance),
+    };
+
+    const timestamp = new Date();
+
+    const journalEntry = journalEntryEntity.make({
+      accountingEntityId: account.accountingEntityId,
+      sourceType: EJournalEntrySourceType.OpeningBalance,
+      counterPartyId: null,
+      status: EJournalEntryStatus.Posted,
+      effectiveDate: timestamp,
+      postedAt: timestamp,
+      voidedAt: null,
+      voidingEntryId: null,
+      memo: 'Opening balance',
+      createdBy: account.createdBy,
+      functionalCurrency,
+      lines: [accountSide, equitySide],
+    });
+
+    return journalEntry;
+  };
+
+  /**
+   * Record transfer journal entry
+   */
+  const recordTransaction: IService['recordTransaction'] = async (
+    payload,
+    repoOptions
+  ) => {
+    const { sourceLine, destinationLines, header } = payload;
+
+    const invalidDestinationSides = destinationLines.filter(
+      (line) => line.side === sourceLine.side
+    );
+
+    if (invalidDestinationSides.length > 0) {
+      throw new bookkeepingError.InvalidJournalEntry();
+    }
+
+    const sourceAccount = await ledgerAccountRepo.findById(
+      sourceLine.accountId,
+      repoOptions
+    );
+
+    if (!sourceAccount) {
+      throw new bookkeepingError.AccountNotFound({
+        cause: { accountId: sourceLine.accountId },
+      });
+    }
+    if (sourceAccount.isControlAccount) {
+      throw new bookkeepingError.ControlAccountOpeningBalanceNotAllowed({
+        accountId: sourceLine.accountId,
+      });
+    }
+
+    const destinationAccountIds = destinationLines.map(
+      (line) => line.accountId
+    );
+    const destinationAccounts = await ledgerAccountRepo.findAllByIds(
+      destinationAccountIds,
+      repoOptions
+    );
+
+    const missingDestinationAccountIds = _.difference(
+      destinationAccountIds,
+      destinationAccounts.map((account) => account.id)
+    );
+
+    if (missingDestinationAccountIds.length > 0) {
+      throw new bookkeepingError.AccountNotFound({
+        cause: { accountIds: missingDestinationAccountIds },
+      });
+    }
+
+    bookkeepingServiceHelpers.validateTransactionAccounts(
+      sourceAccount,
+      destinationAccounts,
+      payload.header.sourceType
+    );
+
+    return journalEntryEntity.make({
+      ...header,
+      lines: [sourceLine, ...destinationLines],
+    });
+  };
+
+  /**
+   * Calculates the balance effect delta of a set of journal lines on a ledger account.
+   */
+  const getBalanceEffectDelta: IService['getBalanceEffectDelta'] = async (
     accountId,
     journalLines,
     repoOptions
@@ -157,11 +229,7 @@ export default function makeBookkeepingService(
     );
 
     for (const line of journalLines) {
-      const effect = journalEntryRules.getBalanceEffect({
-        accountType: account.type,
-        normalBalance: account.normalBalance,
-        journalSide: line.side,
-      });
+      const effect = journalEntryRules.getBalanceEffect(account, line.side);
 
       if (effect === ELedgerAccountBalanceEffect.Increase) {
         balanceDelta = moneyValue.add(balanceDelta, line.amount);
@@ -189,7 +257,8 @@ export default function makeBookkeepingService(
   };
 
   return Object.freeze({
-    createOpeningBalanceJournalEntry,
+    recordOpeningBalance,
+    recordTransaction,
     getBalanceEffectDelta,
   });
 }

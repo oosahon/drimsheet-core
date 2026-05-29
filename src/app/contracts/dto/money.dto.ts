@@ -14,7 +14,7 @@ export interface IMoneyDto {
   isMinorUnit: boolean;
 }
 export const moneyDtoValidation = z.object({
-  amount: z.number().min(1, 'Amount is required'),
+  amount: z.number(),
   currencyCode: currencyCodeValidation,
   isMinorUnit: z.boolean('Specify if amount is in minor unit.'),
 });

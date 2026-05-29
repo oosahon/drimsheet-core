@@ -96,9 +96,10 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockPettyCashAccount,
       mockEvents,
     ]);
-    mockDomainServices.bookkeeping.createOpeningBalanceJournalEntry.mockResolvedValue(
-      [{} as unknown as IJournalEntry, []]
-    );
+    mockDomainServices.bookkeeping.recordOpeningBalance.mockResolvedValue([
+      {} as unknown as IJournalEntry,
+      [],
+    ]);
     mockDomainServices.exchangeRate.getExchangeRate.mockResolvedValue({
       rate: 1,
     } as unknown as IExchangeRate);
@@ -155,7 +156,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     });
 
     expect(
-      mockDomainServices.bookkeeping.createOpeningBalanceJournalEntry
+      mockDomainServices.bookkeeping.recordOpeningBalance
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         account: mockPettyCashAccount,
@@ -198,7 +199,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       ])
     );
     expect(
-      mockDomainServices.bookkeeping.createOpeningBalanceJournalEntry
+      mockDomainServices.bookkeeping.recordOpeningBalance
     ).not.toHaveBeenCalled();
   });
 

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
+import ILogger from '../../../app/contracts/infra/logger.contract';
 import IReporter from '../../../app/contracts/infra/reporter.contract';
 import appError from '../../../app/errors/app.error';
 import errorUtils from '../../../shared/utils/error';
@@ -27,7 +28,11 @@ function getStatusCodeFromError(error: any): number {
   return 400; // default for domain errors and others
 }
 
-function makeHttpErrorHandler(reporter: IReporter) {
+function makeHttpErrorHandler(
+  reporter: IReporter,
+  logger: ILogger,
+  nodeEnv: string
+) {
   return (req: Request, res: Response<IHttpErrorDto>, error: unknown) => {
     delete req?.headers.authorization;
     // @ts-ignore
@@ -41,6 +46,7 @@ function makeHttpErrorHandler(reporter: IReporter) {
       });
 
     if (error instanceof ValidateError) {
+      if (nodeEnv === 'local') logger.error(error);
       const validationErrors = httpErrorParser.parseTsoaValidationError(error);
       const errRes = new appError.UnprocessableEntity(validationErrors);
 
@@ -61,6 +67,8 @@ function makeHttpErrorHandler(reporter: IReporter) {
         .status(errorKeyToStatusCode[serverError.errorKey] as number)
         .json(httpErrorParser.toHttp(serverError));
     }
+
+    if (nodeEnv === 'local') logger.error(error);
 
     const statusCode = getStatusCodeFromError(parsedError);
 

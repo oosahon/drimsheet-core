@@ -11,41 +11,49 @@ describe('journalEntryRules', () => {
     describe('Asset Account', () => {
       it('should increase on normal debit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Asset,
-            journalSide: EJournalSide.Debit,
-            normalBalance: ENormalBalance.Debit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Asset,
+              normalBalance: ENormalBalance.Debit,
+            },
+            EJournalSide.Debit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Increase);
       });
 
       it('should decrease on normal credit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Asset,
-            journalSide: EJournalSide.Credit,
-            normalBalance: ENormalBalance.Debit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Asset,
+              normalBalance: ENormalBalance.Debit,
+            },
+            EJournalSide.Credit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Decrease);
       });
 
       it('should decrease on contra debit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Asset,
-            journalSide: EJournalSide.Debit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Asset,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Debit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Decrease);
       });
 
       it('should increase on contra credit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Asset,
-            journalSide: EJournalSide.Credit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Asset,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Credit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Increase);
       });
     });
@@ -53,41 +61,49 @@ describe('journalEntryRules', () => {
     describe('Liability Account', () => {
       it('should increase on normal credit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Liability,
-            journalSide: EJournalSide.Credit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Liability,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Credit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Increase);
       });
 
       it('should decrease on normal debit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Liability,
-            journalSide: EJournalSide.Debit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Liability,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Debit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Decrease);
       });
 
       it('should decrease on contra credit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Liability,
-            journalSide: EJournalSide.Credit,
-            normalBalance: ENormalBalance.Debit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Liability,
+              normalBalance: ENormalBalance.Debit,
+            },
+            EJournalSide.Credit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Decrease);
       });
 
       it('should increase on contra debit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Liability,
-            journalSide: EJournalSide.Debit,
-            normalBalance: ENormalBalance.Debit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Liability,
+              normalBalance: ENormalBalance.Debit,
+            },
+            EJournalSide.Debit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Increase);
       });
     });
@@ -95,21 +111,25 @@ describe('journalEntryRules', () => {
     describe('Equity Account', () => {
       it('should increase on normal credit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Equity,
-            journalSide: EJournalSide.Credit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Equity,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Credit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Increase);
       });
 
       it('should decrease on normal debit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Equity,
-            journalSide: EJournalSide.Debit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Equity,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Debit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Decrease);
       });
     });
@@ -117,21 +137,25 @@ describe('journalEntryRules', () => {
     describe('Revenue Account', () => {
       it('should increase on normal credit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Revenue,
-            journalSide: EJournalSide.Credit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Revenue,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Credit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Increase);
       });
 
       it('should decrease on normal debit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Revenue,
-            journalSide: EJournalSide.Debit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Revenue,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Debit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Decrease);
       });
     });
@@ -139,41 +163,49 @@ describe('journalEntryRules', () => {
     describe('Expense Account', () => {
       it('should increase on normal debit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Expense,
-            journalSide: EJournalSide.Debit,
-            normalBalance: ENormalBalance.Debit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Expense,
+              normalBalance: ENormalBalance.Debit,
+            },
+            EJournalSide.Debit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Increase);
       });
 
       it('should decrease on normal credit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Expense,
-            journalSide: EJournalSide.Credit,
-            normalBalance: ENormalBalance.Debit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Expense,
+              normalBalance: ENormalBalance.Debit,
+            },
+            EJournalSide.Credit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Decrease);
       });
 
       it('should decrease on contra debit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Expense,
-            journalSide: EJournalSide.Debit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Expense,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Debit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Decrease);
       });
 
       it('should increase on contra credit', () => {
         expect(
-          journalEntryRules.getBalanceEffect({
-            accountType: ELedgerType.Expense,
-            journalSide: EJournalSide.Credit,
-            normalBalance: ENormalBalance.Credit,
-          })
+          journalEntryRules.getBalanceEffect(
+            {
+              type: ELedgerType.Expense,
+              normalBalance: ENormalBalance.Credit,
+            },
+            EJournalSide.Credit
+          )
         ).toBe(ELedgerAccountBalanceEffect.Increase);
       });
     });

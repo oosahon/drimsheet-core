@@ -7,6 +7,14 @@ type TErrorKeyPrefix = `bookkeeping_error_ledger_account_balance_${string}`;
 const EErrorKeys = {
   InvalidBalanceEffect:
     'bookkeeping_error_ledger_account_balance_invalid_balance_effect',
+  InvalidLedgerAccountId:
+    'bookkeeping_error_ledger_account_balance_invalid_ledger_account_id',
+  InvalidAccountingEntityId:
+    'bookkeeping_error_ledger_account_balance_invalid_accounting_entity_id',
+  InvalidJournalEntryId:
+    'bookkeeping_error_ledger_account_balance_invalid_journal_entry_id',
+  InvalidCreatorId:
+    'bookkeeping_error_ledger_account_balance_invalid_creator_id',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type ULedgerAccountBalanceError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
