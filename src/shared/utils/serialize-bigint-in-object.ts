@@ -50,13 +50,6 @@ function serializeValue(
   return result;
 }
 
-// export default function serializeBigIntInObj(payload: bigint): number;
-// export default function serializeBigIntInObj<T extends readonly unknown[]>(
-//   payload: T
-// ): unknown[];
-// export default function serializeBigIntInObj<T extends object>(
-//   payload: T
-// ): Record<PropertyKey, unknown>;
 export default function serializeBigIntInObj<T>(payload: T): T;
 export default function serializeBigIntInObj(payload: unknown) {
   return serializeValue(payload, new WeakMap());

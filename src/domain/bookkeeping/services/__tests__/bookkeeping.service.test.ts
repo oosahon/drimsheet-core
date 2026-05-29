@@ -4,16 +4,24 @@ import { IMoney } from '../../../../shared/types/money.types';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import moneyValue from '../../../../shared/value-objects/money.vo';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
+import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import {
   EExchangeRateType,
   IExchangeRate,
 } from '../../../currency/types/exchange-rate.types';
-import { EJournalEntryStatus } from '../../../journal-entry/types/journal-entry.types';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '../../../journal-entry/types/journal-entry.types';
 import {
   EJournalSide,
   IJournalLine,
 } from '../../../journal-entry/types/journal-line.types';
+import cashAndEquivalentAccountEntity from '../../../ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
+import receivablesAccountEntity from '../../../ledger/entities/01-asset-account/02-receivables.entity';
+import { EAssetAccountBehavior } from '../../../ledger/types/asset-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -22,6 +30,7 @@ import {
   ENormalBalance,
   ILedgerAccount,
 } from '../../../ledger/types/ledger.types';
+import { IJournalTransactionPayload } from '../../types/bookkeeping.service.types';
 import makeBookkeepingService from '../bookkeeping.service';
 
 describe('bookkeepingService', () => {
@@ -68,11 +77,7 @@ describe('bookkeepingService', () => {
 
     const validAmount: IMoney = {
       amount: 1000n,
-      currency: {
-        code: 'NGN',
-        name: 'Nigerian Naira',
-        symbol: '₦',
-      } as any,
+      currency: SYSTEM_CURRENCIES.NGN,
     };
 
     const validPayload = {
@@ -222,12 +227,7 @@ describe('bookkeepingService', () => {
           ...validPayload,
           amount: {
             ...validAmount,
-            currency: {
-              code: 'EUR',
-              name: 'Euro',
-              minorUnit: 2n,
-              symbol: '€',
-            } as any,
+            currency: SYSTEM_CURRENCIES.EUR,
           },
           exchangeRate: null,
         };
@@ -242,12 +242,7 @@ describe('bookkeepingService', () => {
           ...validPayload,
           amount: {
             ...validAmount,
-            currency: {
-              code: 'EUR',
-              name: 'Euro',
-              minorUnit: 2n,
-              symbol: '€',
-            } as any,
+            currency: SYSTEM_CURRENCIES.EUR,
           },
           exchangeRate: {
             baseCurrencyCode: 'GBP',
@@ -265,12 +260,7 @@ describe('bookkeepingService', () => {
           ...validPayload,
           amount: {
             ...validAmount,
-            currency: {
-              code: 'EUR',
-              name: 'Euro',
-              minorUnit: 2n,
-              symbol: '€',
-            } as any,
+            currency: SYSTEM_CURRENCIES.EUR,
           },
           exchangeRate: {
             baseCurrencyCode: 'EUR',
@@ -285,21 +275,237 @@ describe('bookkeepingService', () => {
     });
   });
 
+  describe('recordTransaction', () => {
+    const entityId = generateUUID();
+    const createdBy = generateUUID();
+    const functionalCurrency = SYSTEM_CURRENCIES.NGN;
+    const transferAmount = moneyValue.make(1000n, SYSTEM_CURRENCIES.NGN, true);
+
+    const [sourceAccount] = cashAndEquivalentAccountEntity.make(
+      {
+        name: 'Source Cash',
+        accountingEntityId: entityId,
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        controlAccountId: null,
+        behavior: EAssetAccountBehavior.DefaultCash,
+        meta: null,
+        createdBy,
+      },
+      { precedingCode: '100000', parentMaterializedPath: '100000' }
+    );
+
+    const [destinationAccount] = cashAndEquivalentAccountEntity.make(
+      {
+        name: 'Destination Cash',
+        accountingEntityId: entityId,
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        controlAccountId: null,
+        behavior: EAssetAccountBehavior.DefaultCash,
+        meta: null,
+        createdBy,
+      },
+      { precedingCode: '100100', parentMaterializedPath: '100000' }
+    );
+
+    const [controlAccount] = cashAndEquivalentAccountEntity.makeHeader({
+      name: 'Cash Header',
+      accountingEntityId: entityId,
+      currency: SYSTEM_CURRENCIES.NGN,
+      createdBy,
+    });
+
+    const [receivableAccount] =
+      receivablesAccountEntity.makeTradeReceivableAccount(
+        {
+          name: 'Trade Receivable',
+          accountingEntityId: entityId,
+          currency: SYSTEM_CURRENCIES.NGN,
+          isControlAccount: false,
+          controlAccountId: generateUUID(),
+          createdBy,
+        },
+        { precedingCode: '102000', parentMaterializedPath: '102000' }
+      );
+
+    const makeTransferPayload = (
+      overrides: Partial<IJournalTransactionPayload> = {}
+    ): IJournalTransactionPayload => ({
+      sourceLine: {
+        accountId: sourceAccount.id,
+        amount: transferAmount,
+        exchangeRate: null,
+        functionalCurrency,
+        description: 'Transfer from source',
+        side: EJournalSide.Credit,
+        sequenceOrder: 1,
+      },
+      destinationLines: [
+        {
+          accountId: destinationAccount.id,
+          amount: transferAmount,
+          exchangeRate: null,
+          functionalCurrency,
+          description: 'Transfer to destination',
+          side: EJournalSide.Debit,
+          sequenceOrder: 2,
+        },
+      ],
+      header: {
+        accountingEntityId: entityId,
+        sourceType: EJournalEntrySourceType.Transfer,
+        counterPartyId: null,
+        status: EJournalEntryStatus.Posted,
+        effectiveDate: new Date('2026-03-15T00:00:00.000Z'),
+        postedAt: new Date('2026-03-15T00:00:00.000Z'),
+        voidedAt: null,
+        voidingEntryId: null,
+        memo: 'Cash transfer',
+        createdBy,
+        functionalCurrency,
+      },
+      ...overrides,
+    });
+
+    it('should record a transfer transaction successfully', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceAccount);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        destinationAccount,
+      ]);
+
+      const [journalEntry, events] = await service.recordTransaction(
+        makeTransferPayload(),
+        mockOptions
+      );
+
+      expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
+        sourceAccount.id,
+        mockOptions
+      );
+      expect(mockLedgerAccountRepo.findAllByIds).toHaveBeenCalledWith(
+        [destinationAccount.id],
+        mockOptions
+      );
+      expect(journalEntry.sourceType).toBe(EJournalEntrySourceType.Transfer);
+      expect(journalEntry.lines).toHaveLength(2);
+      expect(journalEntry.lines[0].accountId).toBe(sourceAccount.id);
+      expect(journalEntry.lines[1].accountId).toBe(destinationAccount.id);
+      expect(events.length).toBeGreaterThan(0);
+    });
+
+    it('should throw if a destination line has the same side as the source line', async () => {
+      const payload = makeTransferPayload({
+        destinationLines: [
+          {
+            accountId: destinationAccount.id,
+            amount: transferAmount,
+            exchangeRate: null,
+            functionalCurrency,
+            description: 'Invalid destination',
+            side: EJournalSide.Credit,
+            sequenceOrder: 2,
+          },
+        ],
+      });
+
+      await expect(
+        service.recordTransaction(payload, mockOptions)
+      ).rejects.toThrow();
+
+      expect(mockLedgerAccountRepo.findById).not.toHaveBeenCalled();
+    });
+
+    it('should throw if the source account is not found', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
+
+      await expect(
+        service.recordTransaction(makeTransferPayload(), mockOptions)
+      ).rejects.toThrow();
+    });
+
+    it('should throw if the source account is a control account', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(controlAccount);
+
+      await expect(
+        service.recordTransaction(makeTransferPayload(), mockOptions)
+      ).rejects.toThrow();
+    });
+
+    it('should throw if any destination account is not found', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceAccount);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([]);
+
+      await expect(
+        service.recordTransaction(makeTransferPayload(), mockOptions)
+      ).rejects.toThrow();
+    });
+
+    it('should throw if the source type is unsupported', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceAccount);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        destinationAccount,
+      ]);
+
+      await expect(
+        service.recordTransaction(
+          makeTransferPayload({
+            header: {
+              ...makeTransferPayload().header,
+              sourceType: EJournalEntrySourceType.Purchase,
+            },
+          }),
+          mockOptions
+        )
+      ).rejects.toThrow();
+    });
+
+    it('should throw if a transfer source account subtype is not permitted', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(receivableAccount);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        destinationAccount,
+      ]);
+
+      await expect(
+        service.recordTransaction(
+          makeTransferPayload({
+            sourceLine: {
+              ...makeTransferPayload().sourceLine,
+              accountId: receivableAccount.id,
+            },
+          }),
+          mockOptions
+        )
+      ).rejects.toThrow();
+    });
+
+    it('should throw if a transfer destination account subtype differs from the source', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceAccount);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        receivableAccount,
+      ]);
+
+      await expect(
+        service.recordTransaction(
+          makeTransferPayload({
+            destinationLines: [
+              {
+                ...makeTransferPayload().destinationLines[0],
+                accountId: receivableAccount.id,
+              },
+            ],
+          }),
+          mockOptions
+        )
+      ).rejects.toThrow();
+    });
+  });
+
   describe('getBalanceEffectDelta', () => {
     const accountId = generateUUID();
     const entityId = generateUUID();
-    const currency = {
-      code: 'USD',
-      name: 'US Dollar',
-      minorUnit: 2n,
-      symbol: '$',
-    } as any;
-    const functionalCurrency = {
-      code: 'EUR',
-      name: 'Euro',
-      minorUnit: 2n,
-      symbol: '€',
-    } as any;
+    const currency = SYSTEM_CURRENCIES.USD;
+    const functionalCurrency = SYSTEM_CURRENCIES.EUR;
 
     const account: ILedgerAccount = {
       id: accountId,
@@ -381,12 +587,7 @@ describe('bookkeepingService', () => {
         ...baseLine,
         functionalAmount: {
           ...baseLine.functionalAmount,
-          currency: {
-            code: 'GBP',
-            name: 'British Pound',
-            minorUnit: 2n,
-            symbol: '£',
-          } as any,
+          currency: SYSTEM_CURRENCIES.GBP,
         },
       };
       await expect(
@@ -404,12 +605,7 @@ describe('bookkeepingService', () => {
         ...baseLine,
         amount: {
           ...baseLine.amount,
-          currency: {
-            code: 'GBP',
-            name: 'British Pound',
-            minorUnit: 2n,
-            symbol: '£',
-          } as any,
+          currency: SYSTEM_CURRENCIES.GBP,
         },
       };
       await expect(

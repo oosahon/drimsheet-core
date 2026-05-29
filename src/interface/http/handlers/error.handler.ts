@@ -45,11 +45,8 @@ function makeHttpErrorHandler(
         delete file.buffer;
       });
 
-    if (nodeEnv === 'local') {
-      logger.error(error);
-    }
-
     if (error instanceof ValidateError) {
+      if (nodeEnv === 'local') logger.error(error);
       const validationErrors = httpErrorParser.parseTsoaValidationError(error);
       const errRes = new appError.UnprocessableEntity(validationErrors);
 
@@ -70,6 +67,8 @@ function makeHttpErrorHandler(
         .status(errorKeyToStatusCode[serverError.errorKey] as number)
         .json(httpErrorParser.toHttp(serverError));
     }
+
+    if (nodeEnv === 'local') logger.error(error);
 
     const statusCode = getStatusCodeFromError(parsedError);
 

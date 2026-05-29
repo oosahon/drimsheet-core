@@ -46,6 +46,45 @@ describe('serializeBigIntInObj', () => {
     expect(serializeBigIntInObj(false)).toBe(false);
   });
 
+  it('leaves date and regexp instances unchanged', () => {
+    const generatedAt = new Date('2026-04-24T00:00:00.000Z');
+    const matcher = /^ledger$/;
+    const payload = {
+      amount: 100n,
+      generatedAt,
+      matcher,
+    };
+
+    const result = serializeBigIntInObj(payload);
+
+    expect(result).toEqual({
+      amount: 100,
+      generatedAt,
+      matcher,
+    });
+    expect(result.generatedAt).toBe(generatedAt);
+    expect(result.matcher).toBe(matcher);
+  });
+
+  it('serializes enumerable symbol properties only', () => {
+    const amountSymbol = Symbol('amount');
+    const hiddenAmountSymbol = Symbol('hiddenAmount');
+    const payload: Record<PropertyKey, unknown> = {
+      name: 'ledger',
+      [amountSymbol]: 100n,
+    };
+    Object.defineProperty(payload, hiddenAmountSymbol, {
+      enumerable: false,
+      value: 200n,
+    });
+
+    const result = serializeBigIntInObj(payload);
+
+    expect(result.name).toBe('ledger');
+    expect(result[amountSymbol]).toBe(100);
+    expect(hiddenAmountSymbol in result).toBe(false);
+  });
+
   it('does not mutate the original payload', () => {
     const payload = {
       amount: 100n,

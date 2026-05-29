@@ -19,8 +19,6 @@ export default async function getAccountingEntityFromRequest(
 
   const isValidUUID = stringUtils.isUUID(id);
 
-  console.log('>>>>>>>>>>>>>>>>>>', { isValidUUID, id });
-
   if (!isValidUUID) throw new appError.BadRequest();
 
   const accountingEntity = await repo.findById(id as TEntityId, {
