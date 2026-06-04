@@ -1,0 +1,16 @@
+import { NODE_ENV } from '../../../infra/config/vars.config';
+import { IInternalMailer } from '../../shared/contracts/transactional-email-agent.contract';
+import { ITransactionalEmailDto } from '../../shared/dtos/workers.dto';
+import appError from '../../shared/errors/app.error';
+
+export default function getSentEmail(internalMailer: IInternalMailer) {
+  return async (
+    email: string,
+    subject: string
+  ): Promise<ITransactionalEmailDto | null> => {
+    if (NODE_ENV !== 'test') {
+      throw new appError.Forbidden();
+    }
+    return internalMailer.getEmail(email, subject);
+  };
+}

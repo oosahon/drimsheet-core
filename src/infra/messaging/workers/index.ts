@@ -1,10 +1,10 @@
+import { EQueueName } from '../../../app/shared/contracts/queues.contract';
+import IReporter from '../../../app/shared/contracts/reporter.contract';
 import {
   ILedgerAccountBalanceAdjustmentDto,
   ITransactionalEmailDto,
-} from '../../../app/contracts/dto/workers.dto';
-import { EQueueName } from '../../../app/contracts/infra/queues.contract';
-import IReporter from '../../../app/contracts/infra/reporter.contract';
-import workers from '../../../app/handlers/queue/index';
+} from '../../../app/shared/dtos/workers.dto';
+import workers from '../../../app/shared/handlers/queue-workers.index';
 import { registerBullMQWorker } from '../../config/bullmq.config';
 
 function workerRegistration(reporter: IReporter) {

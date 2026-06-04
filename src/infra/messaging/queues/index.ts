@@ -1,6 +1,6 @@
 import IQueue, {
   EQueueName,
-} from '../../../app/contracts/infra/queues.contract';
+} from '../../../app/shared/contracts/queues.contract';
 import reporter from '../../observability/reporter';
 import {
   getConfig as getLedgerAccountBalanceAdjustmentQueueConfig,

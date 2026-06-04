@@ -45,7 +45,7 @@ The Node.js API container relies entirely on these third-party systems via HTTPS
 
 ## 7.2 Deployment Mapping and Artifacts
 
-The system is deployed as a consolidated **monolithic runtime architecture**. Even though our Domain Layer (see _5. Building Block View_) cleanly separates contexts such as "Tax", "Transactions", and "Accounting", these blocks are not distributed as separate microservices.
+The system is deployed as a consolidated **monolithic runtime architecture**. Even though our Domain Layer (see _5. Building Block View_) cleanly separates contexts such as Accounting, Bookkeeping, Journal Entry, Ledger, Currency, Subledger, and User, these blocks are not distributed as separate microservices.
 
 **Mapping software to infrastructure:**
 

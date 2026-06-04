@@ -32,10 +32,10 @@ The following ledger accounts are in scope for the individual MVP. Accounts are 
 
 ### Equity
 
-| Account                | Code Block | Entity File                     | Status         |
-| ---------------------- | ---------- | ------------------------------- | -------------- |
-| Retained Earnings      | `301xxx`   | `01-retained-earning.entity.ts` | ✅ Implemented |
-| Opening Balance Equity | `399xxx`   | `99-opening-balance.equity.ts`  | ✅ Implemented |
+| Account                | Code Block | Entity File                           | Status         |
+| ---------------------- | ---------- | ------------------------------------- | -------------- |
+| Retained Earnings      | `301xxx`   | `01-retained-earning.entity.ts`       | ✅ Implemented |
+| Opening Balance Equity | `399xxx`   | `99-opening-balance-equity.entity.ts` | ✅ Implemented |
 
 > [!NOTE]
 > Capital (`300xxx`) is **not** bootstrapped for individuals — there is no concept of owner's equity in personal finance. The type definition exists for sole trader/company use.
@@ -54,11 +54,13 @@ The following ledger accounts are in scope for the individual MVP. Accounts are 
 | Account             | Code Block | Entity File                        | Status         |
 | ------------------- | ---------- | ---------------------------------- | -------------- |
 | Direct Costs        | `500xxx`   | `00-direct-costs.entity.ts`        | ✅ Implemented |
-| Rent and Utilities  | `502xxx`   | `03-rent-and-utilities.entity.ts`  | ✅ Implemented |
-| Finance Costs       | `507xxx`   | `07-finance-costs.entity.ts`       | ✅ Implemented |
-| Tax Expense         | `508xxx`   | `08-tax-expense.entity.ts`         | ✅ Implemented |
-| Unrealized Loss     | `509xxx`   | `09-unrealized-loss.entity.ts`     | ✅ Implemented |
-| Asset Disposal Loss | `510xxx`   | `10-asset-disposal-loss.entity.ts` | ✅ Implemented |
+| Rent and Utilities  | `502xxx`   | `02-rent-and-utilities.entity.ts`  | ✅ Implemented |
+| Bank Charges        | `507xxx`   | `07-bank-charge.entity.ts`         | ✅ Implemented |
+| Finance Costs       | `508xxx`   | `08-finance-cost.entity.ts`        | ✅ Implemented |
+| Interest            | `509xxx`   | `09-interest.entity.ts`            | ✅ Implemented |
+| Tax Expense         | `510xxx`   | `10-tax-expense.entity.ts`         | ✅ Implemented |
+| Unrealized Loss     | `511xxx`   | `11-unrealized-loss.entity.ts`     | ✅ Implemented |
+| Asset Disposal Loss | `512xxx`   | `12-asset-disposal-loss.entity.ts` | ✅ Implemented |
 
 > [!NOTE]
 > See the dedicated Ledger Class documents for detailed behavior rules for each account.

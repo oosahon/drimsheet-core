@@ -1,7 +1,7 @@
 import { RequestHandler, Response } from 'express';
-import IRequestContext from '../../../app/contracts/app/request-context.contract';
-import IAuthService from '../../../app/contracts/infra/auth-service.contract';
-import ILogger from '../../../app/contracts/infra/logger.contract';
+import IAuthService from '../../../app/shared/contracts/auth-service.contract';
+import ILogger from '../../../app/shared/contracts/logger.contract';
+import IRequestContext from '../../../app/shared/contracts/request-context.contract';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../domain/user/repos/user.repo';

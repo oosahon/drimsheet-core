@@ -12,7 +12,9 @@
   - [Research & Development](#research--development)
   - [Depreciation & Amortization](#depreciation--amortization)
 - [Non-Operating Expenses](#non-operating-expenses)
-  - [Interest & Finance Charges](#interest--finance-charges)
+  - [Bank Charges](#bank-charges)
+  - [Finance Costs](#finance-costs)
+  - [Interest](#interest)
 - [Tax Expense](#tax-expense)
   - [Income Tax Expense](#income-tax-expense)
 - [Losses & Adjustments](#losses--adjustments)
@@ -47,20 +49,22 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 | --------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------- | -------------- |
 | Direct Costs                | `500xxx`   | [`00-direct-costs.entity.ts`](../../ledger/entities/05-expense-account/00-direct-costs.entity.ts)               | ✅ Implemented |
 | Payroll & Personnel         | `501xxx`   | —                                                                                                               | 🔲 Types only  |
-| Rent & Utilities            | `502xxx`   | [`03-rent-and-utilities.entity.ts`](../../ledger/entities/05-expense-account/03-rent-and-utilities.entity.ts)   | ✅ Implemented |
+| Rent & Utilities            | `502xxx`   | [`02-rent-and-utilities.entity.ts`](../../ledger/entities/05-expense-account/02-rent-and-utilities.entity.ts)   | ✅ Implemented |
 | Admin & General             | `503xxx`   | —                                                                                                               | 🔲 Types only  |
 | Marketing & Selling         | `504xxx`   | —                                                                                                               | 🔲 Types only  |
 | Research & Development      | `505xxx`   | —                                                                                                               | 🔲 Types only  |
 | Depreciation & Amortization | `506xxx`   | —                                                                                                               | 🔲 Types only  |
-| Interest & Finance Charges  | `507xxx`   | [`07-finance-costs.entity.ts`](../../ledger/entities/05-expense-account/07-finance-costs.entity.ts)             | ✅ Implemented |
-| Income Tax Expense          | `508xxx`   | [`08-tax-expense.entity.ts`](../../ledger/entities/05-expense-account/08-tax-expense.entity.ts)                 | ✅ Implemented |
-| Unrealized Loss             | `509xxx`   | [`09-unrealized-loss.entity.ts`](../../ledger/entities/05-expense-account/09-unrealized-loss.entity.ts)         | ✅ Implemented |
-| Loss on Asset Disposal      | `510xxx`   | [`10-asset-disposal-loss.entity.ts`](../../ledger/entities/05-expense-account/10-asset-disposal-loss.entity.ts) | ✅ Implemented |
-| Impairment Losses           | `511xxx`   | —                                                                                                               | 🔲 Types only  |
-| Other Losses                | `512xxx`   | —                                                                                                               | 🔲 Types only  |
+| Bank Charges                | `507xxx`   | [`07-bank-charge.entity.ts`](../../ledger/entities/05-expense-account/07-bank-charge.entity.ts)                 | ✅ Implemented |
+| Finance Costs               | `508xxx`   | [`08-finance-cost.entity.ts`](../../ledger/entities/05-expense-account/08-finance-cost.entity.ts)               | ✅ Implemented |
+| Interest                    | `509xxx`   | [`09-interest.entity.ts`](../../ledger/entities/05-expense-account/09-interest.entity.ts)                       | ✅ Implemented |
+| Income Tax Expense          | `510xxx`   | [`10-tax-expense.entity.ts`](../../ledger/entities/05-expense-account/10-tax-expense.entity.ts)                 | ✅ Implemented |
+| Unrealized Loss             | `511xxx`   | [`11-unrealized-loss.entity.ts`](../../ledger/entities/05-expense-account/11-unrealized-loss.entity.ts)         | ✅ Implemented |
+| Loss on Asset Disposal      | `512xxx`   | [`12-asset-disposal-loss.entity.ts`](../../ledger/entities/05-expense-account/12-asset-disposal-loss.entity.ts) | ✅ Implemented |
+| Impairment Losses           | `513xxx`   | —                                                                                                               | 🔲 Types only  |
+| Other Losses                | `514xxx`   | —                                                                                                               | 🔲 Types only  |
 
 > [!NOTE]
-> Entity files are named by their COA prefix (e.g. `00-` = `500xxx`, `03-` = `502xxx`, `07-` = `507xxx`) to make it explicit which accounts have been implemented and which are pending.
+> Entity files are named by their COA prefix (e.g. `00-` = `500xxx`, `02-` = `502xxx`, `07-` = `507xxx`) to make it explicit which accounts have been implemented and which are pending.
 
 The following table shows the behaviors of different expense account classes:
 
@@ -122,7 +126,7 @@ OPEX are the day-to-day costs incurred to maintain business operations, distinct
 
 #### Entity Details
 
-The `RentAndUtilities` entity ([`03-rent-and-utilities.entity.ts`](../../ledger/entities/05-expense-account/03-rent-and-utilities.entity.ts)) creates accounts with:
+The `RentAndUtilities` entity ([`02-rent-and-utilities.entity.ts`](../../ledger/entities/05-expense-account/02-rent-and-utilities.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'rent_and_utilities'` / `subType: 'rent_and_utilities'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -196,23 +200,63 @@ The `RentAndUtilities` entity ([`03-rent-and-utilities.entity.ts`](../../ledger/
 
 Expenses incurred outside the central operations of the entity.
 
-### Interest & Finance Charges
+### Bank Charges
 
 - **Ledger codes**: 507xxx
-- **Description**: costs associated with borrowing capital, maintaining lines of credit, or debt servicing.
-- **Main reporting hierarchy**: Non-Operating Expenses / Interest & Finance Charges
+- **Description**: operational bank processing fees, account maintenance charges, card charges, and payment gateway fees.
+- **Main reporting hierarchy**: Non-Operating Expenses / Bank Charges
 
 #### Behaviors
 
-| Sub-Class     | Reporting Hierarchy | Behaviors                                                                                                                                                  |
-| ------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Finance Costs | /                   | <ul><li>Excludes operational bank processing fees (which sit in Admin & General)</li><li>Automatically closed to Retained Earnings at period-end</li></ul> |
+| Sub-Class   | Reporting Hierarchy | Behaviors                                                                                                                   |
+| ----------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Bank Charge | /                   | <ul><li>Captures bank and payment processing fees</li><li>Automatically closed to Retained Earnings at period-end</li></ul> |
 
 #### Entity Details
 
-The `FinanceCosts` entity ([`07-finance-costs.entity.ts`](../../ledger/entities/05-expense-account/07-finance-costs.entity.ts)) creates accounts with:
+The `BankCharge` entity ([`07-bank-charge.entity.ts`](../../ledger/entities/05-expense-account/07-bank-charge.entity.ts)) creates accounts with:
 
-- Fixed `behavior: 'finance_costs'` / `subType: 'interest_and_finance_charges'`
+- Fixed `behavior: 'bank_charge'` / `subType: 'bank_charge'`
+- `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
+- Accepts `isControlAccount`, `controlAccountId`, and `meta` via payload
+
+### Finance Costs
+
+- **Ledger codes**: 508xxx
+- **Description**: non-interest costs of borrowing capital, maintaining lines of credit, and arranging debt facilities.
+- **Main reporting hierarchy**: Non-Operating Expenses / Finance Costs
+
+#### Behaviors
+
+| Sub-Class    | Reporting Hierarchy | Behaviors                                                                                                                                             |
+| ------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Finance Cost | /                   | <ul><li>Excludes operational bank processing fees and pure interest charges</li><li>Automatically closed to Retained Earnings at period-end</li></ul> |
+
+#### Entity Details
+
+The `FinanceCost` entity ([`08-finance-cost.entity.ts`](../../ledger/entities/05-expense-account/08-finance-cost.entity.ts)) creates accounts with:
+
+- Fixed `behavior: 'finance_cost'` / `subType: 'finance_cost'`
+- `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
+- Accepts `isControlAccount`, `controlAccountId`, and `meta` via payload
+
+### Interest
+
+- **Ledger codes**: 509xxx
+- **Description**: interest expense incurred on borrowings, overdrafts, leases, or other debt arrangements.
+- **Main reporting hierarchy**: Non-Operating Expenses / Interest
+
+#### Behaviors
+
+| Sub-Class | Reporting Hierarchy | Behaviors                                                                                                                           |
+| --------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Interest  | /                   | <ul><li>Captures the interest component of debt servicing</li><li>Automatically closed to Retained Earnings at period-end</li></ul> |
+
+#### Entity Details
+
+The `Interest` entity ([`09-interest.entity.ts`](../../ledger/entities/05-expense-account/09-interest.entity.ts)) creates accounts with:
+
+- Fixed `behavior: 'interest'` / `subType: 'interest'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
 - Accepts `isControlAccount`, `controlAccountId`, and `meta` via payload
 
@@ -220,7 +264,7 @@ The `FinanceCosts` entity ([`07-finance-costs.entity.ts`](../../ledger/entities/
 
 ### Income Tax Expense
 
-- **Ledger codes**: 508xxx
+- **Ledger codes**: 510xxx
 - **Description**: statutory tax obligations levied on corporate or entity net income.
 - **Main reporting hierarchy**: Tax Expense / Income Tax Expense
 
@@ -232,7 +276,7 @@ The `FinanceCosts` entity ([`07-finance-costs.entity.ts`](../../ledger/entities/
 
 #### Entity Details
 
-The `TaxExpense` entity ([`08-tax-expense.entity.ts`](../../ledger/entities/05-expense-account/08-tax-expense.entity.ts)) creates accounts with:
+The `TaxExpense` entity ([`10-tax-expense.entity.ts`](../../ledger/entities/05-expense-account/10-tax-expense.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'tax_expense'` / `subType: 'income_tax_expense'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -244,7 +288,7 @@ Distinct charges resulting from adverse market shifts or asset devaluation, isol
 
 ### Unrealized Loss
 
-- **Ledger codes**: 509xxx
+- **Ledger codes**: 511xxx
 - **Description**: accounts used to track negative mark-to-market valuation shifts on short-term/trading assets or foreign exchange balances.
 - **Main reporting hierarchy**: Losses & Adjustments / Unrealized Loss
 
@@ -256,7 +300,7 @@ Distinct charges resulting from adverse market shifts or asset devaluation, isol
 
 #### Entity Details
 
-The `UnrealizedLoss` entity ([`09-unrealized-loss.entity.ts`](../../ledger/entities/05-expense-account/09-unrealized-loss.entity.ts)) creates accounts with:
+The `UnrealizedLoss` entity ([`11-unrealized-loss.entity.ts`](../../ledger/entities/05-expense-account/11-unrealized-loss.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'unrealized_loss'` / `subType: 'unrealized_loss'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -264,7 +308,7 @@ The `UnrealizedLoss` entity ([`09-unrealized-loss.entity.ts`](../../ledger/entit
 
 ### Loss on Asset Disposal
 
-- **Ledger codes**: 510xxx
+- **Ledger codes**: 512xxx
 - **Description**: accounts used to track the net financial loss resulting from the disposal/sale of Property, Plant & Equipment or Long Term Investments below their carrying (book) value.
 - **Main reporting hierarchy**: Losses & Adjustments / Loss on Asset Disposal
 
@@ -276,7 +320,7 @@ The `UnrealizedLoss` entity ([`09-unrealized-loss.entity.ts`](../../ledger/entit
 
 #### Entity Details
 
-The `AssetDisposalLoss` entity ([`10-asset-disposal-loss.entity.ts`](../../ledger/entities/05-expense-account/10-asset-disposal-loss.entity.ts)) creates accounts with:
+The `AssetDisposalLoss` entity ([`12-asset-disposal-loss.entity.ts`](../../ledger/entities/05-expense-account/12-asset-disposal-loss.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'asset_disposal_loss'` / `subType: 'loss_on_asset_disposal'`
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
@@ -284,7 +328,7 @@ The `AssetDisposalLoss` entity ([`10-asset-disposal-loss.entity.ts`](../../ledge
 
 ### Impairment Losses
 
-- **Ledger codes**: 511xxx
+- **Ledger codes**: 513xxx
 - **Description**: non-cash charges recognized when an asset's carrying value structurally drops below its recoverable value.
 - **Main reporting hierarchy**: Losses & Adjustments / Impairment Losses
 
@@ -300,7 +344,7 @@ The `AssetDisposalLoss` entity ([`10-asset-disposal-loss.entity.ts`](../../ledge
 
 ### Other Losses
 
-- **Ledger codes**: 512xxx
+- **Ledger codes**: 514xxx
 - **Description**: accounts used to track realized market losses (such as realized FX trading losses) or other miscellaneous losses.
 - **Main reporting hierarchy**: Losses & Adjustments / Other Losses
 
@@ -332,19 +376,21 @@ For the individual MVP, the following expense accounts will be bootstrapped:
 
 #### Non-Operating Expenses
 
-- Interest & Finance Charges: `507000` (control account)
+- Bank Charges: `507000` (control account)
+- Finance Costs: `508000` (control account)
+- Interest: `509000` (control account)
 
 #### Tax Expense
 
-- Income Tax Expense: `508000` (control account)
+- Income Tax Expense: `510000` (control account)
 
 #### Losses & Adjustments
 
-- Unrealized Loss: `509000` (control account)
-- Loss on Asset Disposal: `510000` (control account)
+- Unrealized Loss: `511000` (control account)
+- Loss on Asset Disposal: `512000` (control account)
 
 > [!NOTE]
-> Payroll (`501xxx`), Admin & General (`503xxx`), Marketing & Selling (`504xxx`), R&D (`505xxx`), Depreciation (`506xxx`), Impairment Losses (`511xxx`), and Other Losses (`512xxx`) are **not** bootstrapped for the individual MVP. Type definitions exist for future use.
+> Payroll (`501xxx`), Admin & General (`503xxx`), Marketing & Selling (`504xxx`), R&D (`505xxx`), Depreciation (`506xxx`), Impairment Losses (`513xxx`), and Other Losses (`514xxx`) are **not** bootstrapped for the individual MVP. Type definitions exist for future use.
 
 > [!NOTE]
 > All expense ledgers are automatically cleared and closed out to `RetainedEarnings (301000)` at the end of the financial/accounting period.

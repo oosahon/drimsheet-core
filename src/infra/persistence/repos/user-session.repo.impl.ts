@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
-import IUserSessionRepo from '../../../app/contracts/repos/user-session.repo.contract';
-import userSessionMapper from '../../../app/mappers/user-session.mapper';
+import IUserSessionRepo from '../../../app/auth/contracts/user-session.repo.contract';
+import userSessionMapper from '../../../app/auth/mappers/user-session.mapper';
 import { userSessionsInCore as userSessions } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';
 

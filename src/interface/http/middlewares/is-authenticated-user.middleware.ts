@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import _ from 'lodash';
-import IRequestContext from '../../../app/contracts/app/request-context.contract';
-import appError from '../../../app/errors/app.error';
+import IRequestContext from '../../../app/shared/contracts/request-context.contract';
+import appError from '../../../app/shared/errors/app.error';
 import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
 import httpHandlers from '../handlers';
 

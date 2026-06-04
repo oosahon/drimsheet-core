@@ -19,7 +19,7 @@ flowchart TB
         PurpleLedgerApp -- "TCP/IP (Redis Protocol)" --> Redis
         PurpleLedgerApp -- "HTTPS (AWS SDK)" --> S3Bucket
     end
-    ClientApp -- "HTTPS (REST/GraphQL)" --> PurpleLedgerApp
+    ClientApp -- "HTTPS (REST)" --> PurpleLedgerApp
     AIAgents -- "HTTPS/Stdio (MCP)" --> PurpleLedgerApp
     subgraph ExternalServices ["External Cloud Services"]
         direction LR

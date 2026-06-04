@@ -1,4 +1,4 @@
-import IUserSessionRepo from '../../../../app/contracts/repos/user-session.repo.contract';
+import IUserSessionRepo from '../../../../app/auth/contracts/user-session.repo.contract';
 
 const mockUserSessionRepo: jest.Mocked<IUserSessionRepo> = {
   save: jest.fn(),

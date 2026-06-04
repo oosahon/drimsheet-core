@@ -13,15 +13,17 @@ flowchart LR
         OperatingExpenses --> Depreciation["Depreciation & Amortization: 506xxx"]
             
     NonOperatingExpenses["Non-Operating Expenses"]
-        NonOperatingExpenses --> FinanceCosts["Interest & Finance Charges: 507xxx"]
+        NonOperatingExpenses --> BankCharges["Bank Charges: 507xxx"]
+        NonOperatingExpenses --> FinanceCosts["Finance Costs: 508xxx"]
+        NonOperatingExpenses --> Interest["Interest: 509xxx"]
 
-    TaxExpense["Income Tax Expense: 508xxx"]
+    TaxExpense["Income Tax Expense: 510xxx"]
 
     Losses["Losses & Adjustments"]
-        Losses --> UnrealizedLoss["Unrealized Loss: 509xxx"]
-        Losses --> AssetDisposal["Loss on Asset Disposal: 510xxx"]
-        Losses --> ImpairmentLoss["Impairment Losses: 511xxx"]
-        Losses --> OtherLosses["Other Losses: 512xxx"]
+        Losses --> UnrealizedLoss["Unrealized Loss: 511xxx"]
+        Losses --> AssetDisposal["Loss on Asset Disposal: 512xxx"]
+        Losses --> ImpairmentLoss["Impairment Losses: 513xxx"]
+        Losses --> OtherLosses["Other Losses: 514xxx"]
 
      %% For positioning
     OperatingExpenses ~~~ DirectCosts & TaxExpense

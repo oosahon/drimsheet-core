@@ -9,11 +9,11 @@
 
 ## Introduction
 
-Suspense accounts are temporary balance sheet accounts that are used to hold transactions that cannot be classified to a specific account. They are typically used in the following scenarios:
+Suspense accounts are temporary balance sheet accounts that are used to hold journal activity that cannot yet be classified to a specific account. They are typically used in the following scenarios:
 
 - Bank Reconciliation
 - Trial Balance Adjustments (for power users)
-- Uncategorized transactions
+- Uncategorized journal activity
 
 > [!IMPORTANT]
 > By the end of the reporting period, all suspense accounts should be cleared to a zero balance.
@@ -24,7 +24,7 @@ In PurpleLedger, we use one liability/asset suspense account per accounting enti
 
 In the Asset ledger, a suspense account typically carries a debit balance. It represents a "pre-classification" of value that the entity currently controls or has initiated. Here are some example use cases:
 
-- Uncategorized credit transactions during bank reconciliation
+- Uncategorized credit-side journal activity during bank reconciliation
 - Uncleared/unidentified outgoing payments
 
 **Entity**: [`99-suspense-account.entity.ts`](../../ledger/entities/01-asset-account/99-suspense-account.entity.ts)
@@ -33,7 +33,7 @@ In the Asset ledger, a suspense account typically carries a debit balance. It re
 
 In the Liability ledger, a suspense account typically carries a credit balance. It represents an obligation that the entity has incurred but has not yet classified to a specific liability account. Here are some example use cases:
 
-- Uncategorized debit transactions during bank reconciliation
+- Uncategorized debit-side journal activity during bank reconciliation
 - Uncleared/unidentified incoming payments
 
 **Entity**: [`99-suspense-account.entity.ts`](../../ledger/entities/02-liability-account/99-suspense-account.entity.ts)

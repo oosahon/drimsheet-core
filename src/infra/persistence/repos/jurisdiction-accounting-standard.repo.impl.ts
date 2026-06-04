@@ -1,4 +1,4 @@
-import jurisdictionAccountingStandardMapper from '../../../app/mappers/jurisdiction-accounting-standard.mapper';
+import jurisdictionAccountingStandardMapper from '../../../app/accounting/mappers/jurisdiction-accounting-standard.mapper';
 import IJurisdictionAccountingStandardRepo from '../../../domain/accounting/repos/jurisdiction-accounting-standard.repo';
 import { jurisdictionAccountingStandardsInCore } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';

@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import exchangeRateMapper from '../../../app/mappers/exchange-rate.mapper';
+import exchangeRateMapper from '../../../app/currency/mappers/exchange-rate.mapper';
 import IExchangeRateRepo from '../../../domain/currency/repos/exchange-rate.repo';
 import { currencyExchangeRatesInCore } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';

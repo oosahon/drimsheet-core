@@ -1,5 +1,5 @@
-import appContext from '../../../app/context';
-import authUseCase from '../../../app/usecases/auth';
+import authUseCase from '../../../app/auth/usecases';
+import appContext from '../../../app/shared/context';
 import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
 import services from '../../../infra/services';

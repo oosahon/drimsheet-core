@@ -1,9 +1,9 @@
 {
-  "entryFile": "src/app/bootstrap/index.ts",
+  "entryFile": "src/app/_bootstrap/index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
   "controllerPathGlobs": ["src/**/*.controller.ts"],
   "spec": {
-    "outputDirectory": ".",
+    "outputDirectory": "./generated",
     "basePath": "/api/v1",
     "specVersion": 3,
     "securityDefinitions": {
@@ -17,7 +17,7 @@
     }
   },
   "routes": {
-    "routesDir": ".",
+    "routesDir": "./generated",
     "basePath": "/api/v1",
     "authenticationModule": "./src/infra/config/tsoa-express-auth.ts"
   }

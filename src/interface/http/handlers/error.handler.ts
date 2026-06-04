@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
-import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
-import ILogger from '../../../app/contracts/infra/logger.contract';
-import IReporter from '../../../app/contracts/infra/reporter.contract';
-import appError from '../../../app/errors/app.error';
+import ILogger from '../../../app/shared/contracts/logger.contract';
+import IReporter from '../../../app/shared/contracts/reporter.contract';
+import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
+import appError from '../../../app/shared/errors/app.error';
 import errorUtils from '../../../shared/utils/error';
 import httpErrorParser from '../helpers/http-error-parser';
 

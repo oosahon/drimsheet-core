@@ -1,4 +1,4 @@
-import jurisdictionMapper from '../../../app/mappers/jurisdiction.mapper';
+import jurisdictionMapper from '../../../app/accounting/mappers/jurisdiction.mapper';
 import IJurisdictionRepo from '../../../domain/accounting/repos/jurisdiction.repo';
 import { jurisdictionsInCore } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';

@@ -1,6 +1,6 @@
 import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
-import ledgerAccountBalanceMapper from '../../../app/mappers/ledger-account-balance.mapper';
+import ledgerAccountBalanceMapper from '../../../app/ledger/mappers/ledger-account-balance.mapper';
 import ILedgerAccountBalanceRepo from '../../../domain/bookkeeping/repos/ledger-account-balance.repo';
 import repoError from '../../../shared/errors/repo.error';
 import {

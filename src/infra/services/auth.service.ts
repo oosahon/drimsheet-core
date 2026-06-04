@@ -6,12 +6,12 @@ import {
   TokenExpiredError,
   verify,
 } from 'jsonwebtoken';
+import authError from '../../app/auth/errors/auth.error';
 import IAuthService, {
   IAuthTokenPayload,
-} from '../../app/contracts/infra/auth-service.contract';
-import { ICacheStorage } from '../../app/contracts/infra/cache-storage.contract';
-import IVarsConfig from '../../app/contracts/infra/vars-config.contract';
-import authError from '../../app/errors/auth.error';
+} from '../../app/shared/contracts/auth-service.contract';
+import { ICacheStorage } from '../../app/shared/contracts/cache-storage.contract';
+import IVarsConfig from '../../app/shared/contracts/vars-config.contract';
 
 export default function makeAuthService(
   cacheStorage: ICacheStorage,

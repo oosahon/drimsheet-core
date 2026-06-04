@@ -6,15 +6,15 @@ This section outlines the foundational rules, patterns, and design decisions app
 
 PurpleLedger natively supports multiple distinct contexts: Individuals, Sole Traders, and Organizations (Section 2.4).
 
-- **Mechanism**: Every request to the core API must establish its operational context early in the request lifecycle via the `x-accounting-domain` request header.  This context is injected into the application's repository layer, ensuring that database queries, ledger operations, and tax computations are strictly isolated to the currently active domain. The system prevents cross-domain data leakage by mandating the `accounting-domain `in all data access patterns.
+- **Mechanism**: Every request to the core API establishes operational context early in the request lifecycle. Authenticated user context is derived from the request session, while accounting-entity context is loaded from the `x-accounting-entity-id` request header when present. This context is injected into application use cases and repository calls, ensuring database queries, ledger operations, and reporting computations are isolated to the currently active accounting entity.
 
 ## 8.2 Immutability & Auditability
 
 To maintain strict adherence to accounting constraints (Section 2.2) and data integrity (Section 1.2), PurpleLedger enforces an append-only architecture for all financial records.
 
 - **Mechanism**:
-  - **No Deletion**: Records such as Journal Entries or Transactions cannot be deleted or mutated via `DELETE` or `UPDATE` statements that alter business meaning.
-  - **Voiding**: Corrections must be made by posting a reversing (voiding) transaction.
+  - **No Deletion**: Records such as Journal Entries cannot be deleted or mutated via `DELETE` or `UPDATE` statements that alter business meaning.
+  - **Voiding**: Corrections must be made by posting a reversing journal entry.
   - **Auditable Trails**: Database triggers or repository base classes automatically capture state changes into a secure audit log, providing a complete historical trail of all financial actions regardless of the actor.
 
 ## 8.3 Double-Entry Core Validation
@@ -56,7 +56,7 @@ PurpleLedger heavily relies on external services like Mono (bank feeds), Paystac
 
 Nigeria Tax Act (NTA) regulations frequently evolve, meaning older transactions must be evaluated under the rules that governed them at the time.
 
-- **Mechanism**: Tax calculation logic is versioned and decoupled from core ledgers. When tax obligations are calculated, the engine evaluates the transaction's effective date against a repository of historical tax rules, rather than indiscriminately applying the most current law.
+- **Mechanism**: Tax calculation logic is versioned and decoupled from core ledgers. When tax obligations are calculated, the engine evaluates the journal or reporting period's effective date against a repository of historical tax rules, rather than indiscriminately applying the most current law.
 
 ## 8.9 Validation, Error Handling, and Logging
 

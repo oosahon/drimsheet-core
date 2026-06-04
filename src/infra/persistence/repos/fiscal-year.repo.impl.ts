@@ -1,4 +1,4 @@
-import fiscalYearMapper from '../../../app/mappers/fiscal-year.mapper';
+import fiscalYearMapper from '../../../app/accounting/mappers/fiscal-year.mapper';
 import IFiscalYearRepo from '../../../domain/accounting/repos/fiscal-year.repo';
 import { fiscalYearsInCore } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';

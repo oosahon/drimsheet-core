@@ -1,4 +1,4 @@
-import IEventBus from '../../../app/contracts/infra/event-bus.contract';
+import IEventBus from '../../../app/shared/contracts/event-bus.contract';
 
 const mockEventBus = {
   publish: jest.fn(),

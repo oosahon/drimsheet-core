@@ -10,9 +10,9 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
-import { IGetLedgerAccountsQuery } from '../../../app/contracts/dto/ledger-account.dto';
-import ledgerAccountUsecases from '../../../app/usecases/ledger/shared';
+import { IGetLedgerAccountsQuery } from '../../../app/ledger/dtos/ledger-account.dto';
+import ledgerAccountUsecases from '../../../app/ledger/usecases/shared';
+import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
 import { TEntityId } from '../../../shared/types/uuid';
 import middlewares from '../middlewares';
 

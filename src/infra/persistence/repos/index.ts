@@ -1,4 +1,3 @@
-import accountTransactionQueryRepo from './account-transaction-query.repo.impl';
 import accountingContextRepo from './accounting-context.repo.impl';
 import accountingEntityRepo from './accounting-entity.repo.impl';
 import accountingPeriodRepo from './accounting-period.repo.impl';
@@ -12,6 +11,7 @@ import jurisdictionAccountingStandardRepo from './jurisdiction-accounting-standa
 import jurisdictionRepo from './jurisdiction.repo.impl';
 import ledgerAccountBalanceRepoImpl from './ledger-account-balance.repo.impl';
 import ledgerAccountRepo from './ledger-account.repo.impl';
+import accountTransactionQueryRepo from './queries/account-transaction.query.repo.impl';
 import reportingContextRepo from './reporting-context.repo.impl';
 import reportingPeriodRepo from './reporting-period.repo.impl';
 import userActivityRepo from './user-activity.repo.impl';
@@ -41,7 +41,10 @@ const repos = {
   accountingStandards: accountingStandardsRepo,
   jurisdiction: jurisdictionRepo,
   jurisdictionAccountingStandard: jurisdictionAccountingStandardRepo,
-  accountTransactionQuery: accountTransactionQueryRepo,
+
+  queries: {
+    accountTransaction: accountTransactionQueryRepo,
+  },
 };
 
 export default repos;

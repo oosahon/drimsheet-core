@@ -1,5 +1,5 @@
 # Protect system critical bootstrap data from accidental changes
-/src/app/bootstrap/data/ @oosahon
+/src/app/_bootstrap/ @oosahon
 
 # Protect tax keys from accidental changes
 /src/domain/tax/value-objects/tax-keys.vo.ts @oosahon

@@ -9,9 +9,9 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IPettyCashAccountCreationReq } from '../../../app/contracts/dto/asset-account.dto';
-import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
-import assetAccountUseCase from '../../../app/usecases/ledger/asset-account';
+import { IPettyCashAccountCreationReq } from '../../../app/ledger/dtos/asset-account.dto';
+import assetAccountUseCase from '../../../app/ledger/usecases/asset-account';
+import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
 import middlewares from '../middlewares';
 
 @Route('ledger/asset-accounts')
