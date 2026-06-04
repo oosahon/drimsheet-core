@@ -540,17 +540,79 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ULedgerAccountBalanceEffect: {
+  UJournalEntrySourceType: {
     dataType: 'refAlias',
     type: {
       dataType: 'union',
       subSchemas: [
-        { dataType: 'enum', enums: ['increase'] },
-        { dataType: 'enum', enums: ['decrease'] },
-        { dataType: 'enum', enums: ['noop'] },
+        { dataType: 'enum', enums: ['system'] },
+        { dataType: 'enum', enums: ['expense'] },
+        { dataType: 'enum', enums: ['opening_balance'] },
+        { dataType: 'enum', enums: ['sale'] },
+        { dataType: 'enum', enums: ['purchase'] },
+        { dataType: 'enum', enums: ['credit_note'] },
+        { dataType: 'enum', enums: ['debit_note'] },
+        { dataType: 'enum', enums: ['transfer'] },
+        { dataType: 'enum', enums: ['payment'] },
+        { dataType: 'enum', enums: ['receipt'] },
+        { dataType: 'enum', enums: ['adjustment'] },
       ],
       validators: {},
     },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalHeaderDto: {
+    dataType: 'refObject',
+    properties: {
+      sourceType: { ref: 'UJournalEntrySourceType', required: true },
+      counterpartyId: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      memo: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      status: { ref: 'UJournalEntryStatus', required: true },
+      effectiveDate: { dataType: 'datetime', required: true },
+      postedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      voidedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      voidingEntryId: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      version: { dataType: 'double', required: true },
+      createdBy: { dataType: 'string', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+    },
+    additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IExchangeRate: {
@@ -597,7 +659,7 @@ const models: TsoaRoute.Models = {
       version: { dataType: 'double', required: true },
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
-      balanceEffect: { ref: 'ULedgerAccountBalanceEffect', required: true },
+      header: { ref: 'IJournalHeaderDto', required: true },
     },
     additionalProperties: false,
   },

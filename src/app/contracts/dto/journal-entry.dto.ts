@@ -88,12 +88,9 @@ export interface IJournalLineDto {
   updatedAt: Date;
 }
 
-export interface IJournalEntryDto {
-  id: string;
-  accountingEntityId: string;
+export interface IJournalHeaderDto {
   sourceType: UJournalEntrySourceType;
-  counterPartyId: string | null;
-  lines: IJournalLineDto[];
+  counterpartyId: string | null;
   memo: string | null;
   status: UJournalEntryStatus;
   effectiveDate: Date;
@@ -104,4 +101,10 @@ export interface IJournalEntryDto {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IJournalEntryDto extends IJournalHeaderDto {
+  id: string;
+  accountingEntityId: string;
+  lines: IJournalLineDto[];
 }

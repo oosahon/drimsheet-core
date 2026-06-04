@@ -608,9 +608,88 @@
         "type": "object",
         "additionalProperties": false
       },
-      "ULedgerAccountBalanceEffect": {
+      "UJournalEntrySourceType": {
         "type": "string",
-        "enum": ["increase", "decrease", "noop"]
+        "enum": [
+          "system",
+          "expense",
+          "opening_balance",
+          "sale",
+          "purchase",
+          "credit_note",
+          "debit_note",
+          "transfer",
+          "payment",
+          "receipt",
+          "adjustment"
+        ]
+      },
+      "IJournalHeaderDto": {
+        "properties": {
+          "sourceType": {
+            "$ref": "#/components/schemas/UJournalEntrySourceType"
+          },
+          "counterpartyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "memo": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/UJournalEntryStatus"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "voidedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "voidingEntryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number",
+            "format": "double"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "sourceType",
+          "counterpartyId",
+          "memo",
+          "status",
+          "effectiveDate",
+          "postedAt",
+          "voidedAt",
+          "voidingEntryId",
+          "version",
+          "createdBy",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "additionalProperties": false
       },
       "IExchangeRate": {
         "properties": {
@@ -703,8 +782,8 @@
             "type": "string",
             "format": "date-time"
           },
-          "balanceEffect": {
-            "$ref": "#/components/schemas/ULedgerAccountBalanceEffect"
+          "header": {
+            "$ref": "#/components/schemas/IJournalHeaderDto"
           }
         },
         "required": [
@@ -720,7 +799,7 @@
           "version",
           "createdAt",
           "updatedAt",
-          "balanceEffect"
+          "header"
         ],
         "type": "object",
         "additionalProperties": false

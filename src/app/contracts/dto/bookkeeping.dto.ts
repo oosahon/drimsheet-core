@@ -1,8 +1,8 @@
 import z from 'zod';
-import { ULedgerAccountBalanceEffect } from '../../../domain/bookkeeping/types/ledger-account-balance.types';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
 import { UJournalEntryStatus } from '../../../domain/journal-entry/types/journal-entry.types';
 import {
+  IJournalHeaderDto,
   IJournalLineDto,
   IJournalLineReq,
   journalEntryStatusValidation,
@@ -55,5 +55,5 @@ export const transferTransactionReqValidation = z.object({
 });
 
 export interface IAccountTransactionDto extends IJournalLineDto {
-  balanceEffect: ULedgerAccountBalanceEffect;
+  header: IJournalHeaderDto;
 }

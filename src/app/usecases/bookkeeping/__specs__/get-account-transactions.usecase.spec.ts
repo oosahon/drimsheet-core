@@ -3,7 +3,6 @@ import {
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../../../domain/accounting/types/accounting-entity.types';
-import { ELedgerAccountBalanceEffect } from '../../../../domain/bookkeeping/types/ledger-account-balance.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
@@ -16,7 +15,7 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/0
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockJournalLineRepo from '../../../../infra/persistence/repos/__mocks__/journal-line.repo.impl.mock';
+import mockAccountTransactionQueryRepo from '../../../../infra/persistence/repos/__mocks__/account-transaction-query.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
 import { EPaginationSortDirection } from '../../../../shared/types/pagination.types';
@@ -50,7 +49,7 @@ describe('getAccountTransactionsUseCase', () => {
       mockRequestContext,
       mockLedgerAccountRepo,
       mockDomainServices.ledgerAccount,
-      mockJournalLineRepo
+      mockAccountTransactionQueryRepo
     );
 
   beforeEach(() => {
@@ -125,8 +124,26 @@ describe('getAccountTransactionsUseCase', () => {
     mockDomainServices.ledgerAccount.validateAccountAccess.mockResolvedValue(
       true
     );
-    mockJournalLineRepo.findAllByAccountId.mockResolvedValue({
-      data: [journalEntry.lines[0]],
+    mockAccountTransactionQueryRepo.findAllByAccountId.mockResolvedValue({
+      data: [
+        {
+          ...journalEntry.lines[0],
+          header: {
+            sourceType: journalEntry.sourceType,
+            counterPartyId: journalEntry.counterPartyId,
+            memo: journalEntry.memo,
+            status: journalEntry.status,
+            effectiveDate: journalEntry.effectiveDate,
+            postedAt: journalEntry.postedAt,
+            voidedAt: journalEntry.voidedAt,
+            voidingEntryId: journalEntry.voidingEntryId,
+            version: journalEntry.version,
+            createdBy: journalEntry.createdBy,
+            createdAt: journalEntry.createdAt,
+            updatedAt: journalEntry.updatedAt,
+          },
+        },
+      ],
       meta: {
         page: 2,
         limit: 25,
@@ -140,7 +157,7 @@ describe('getAccountTransactionsUseCase', () => {
     jest.useRealTimers();
   });
 
-  it('returns account transactions with balance effects', async () => {
+  it('returns account transactions with journal headers', async () => {
     const useCase = getUseCase();
 
     const result = await useCase(ledgerAccount.id, pagination);
@@ -152,17 +169,16 @@ describe('getAccountTransactionsUseCase', () => {
     expect(
       mockDomainServices.ledgerAccount.validateAccountAccess
     ).toHaveBeenCalledWith(ledgerAccount.id, user.id, { correlationId });
-    expect(mockJournalLineRepo.findAllByAccountId).toHaveBeenCalledWith(
-      ledgerAccount.id,
-      {
-        correlationId,
-        limit: pagination.limit,
-        offset: 25,
-        orderBy: pagination.orderBy,
-        search: pagination.search,
-        sortDirection: pagination.sortDirection,
-      }
-    );
+    expect(
+      mockAccountTransactionQueryRepo.findAllByAccountId
+    ).toHaveBeenCalledWith(ledgerAccount.id, {
+      correlationId,
+      limit: pagination.limit,
+      offset: 25,
+      orderBy: pagination.orderBy,
+      search: pagination.search,
+      sortDirection: pagination.sortDirection,
+    });
     expect(result).toEqual({
       data: [
         {
@@ -186,7 +202,20 @@ describe('getAccountTransactionsUseCase', () => {
           version: 1,
           createdAt: journalEntry.createdAt,
           updatedAt: journalEntry.updatedAt,
-          balanceEffect: ELedgerAccountBalanceEffect.Increase,
+          header: {
+            sourceType: journalEntry.sourceType,
+            counterpartyId: journalEntry.counterPartyId,
+            memo: journalEntry.memo,
+            status: journalEntry.status,
+            effectiveDate: journalEntry.effectiveDate,
+            postedAt: journalEntry.postedAt,
+            voidedAt: journalEntry.voidedAt,
+            voidingEntryId: journalEntry.voidingEntryId,
+            version: journalEntry.version,
+            createdBy: journalEntry.createdBy,
+            createdAt: journalEntry.createdAt,
+            updatedAt: journalEntry.updatedAt,
+          },
         },
       ],
       meta: {
@@ -209,7 +238,9 @@ describe('getAccountTransactionsUseCase', () => {
     expect(
       mockDomainServices.ledgerAccount.validateAccountAccess
     ).not.toHaveBeenCalled();
-    expect(mockJournalLineRepo.findAllByAccountId).not.toHaveBeenCalled();
+    expect(
+      mockAccountTransactionQueryRepo.findAllByAccountId
+    ).not.toHaveBeenCalled();
   });
 
   it('throws Forbidden when the user cannot access the account', async () => {
@@ -222,7 +253,9 @@ describe('getAccountTransactionsUseCase', () => {
       appError.Forbidden
     );
 
-    expect(mockJournalLineRepo.findAllByAccountId).not.toHaveBeenCalled();
+    expect(
+      mockAccountTransactionQueryRepo.findAllByAccountId
+    ).not.toHaveBeenCalled();
   });
 
   it('throws UnprocessableEntity when pagination is invalid', async () => {
@@ -235,6 +268,8 @@ describe('getAccountTransactionsUseCase', () => {
 
     expect(mockRequestContext.get).not.toHaveBeenCalled();
     expect(mockLedgerAccountRepo.findById).not.toHaveBeenCalled();
-    expect(mockJournalLineRepo.findAllByAccountId).not.toHaveBeenCalled();
+    expect(
+      mockAccountTransactionQueryRepo.findAllByAccountId
+    ).not.toHaveBeenCalled();
   });
 });

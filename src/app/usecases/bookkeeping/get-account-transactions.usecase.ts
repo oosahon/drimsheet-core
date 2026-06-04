@@ -1,5 +1,4 @@
-import journalEntryRules from '../../../domain/bookkeeping/rules/journal-entry.rule';
-import IJournalLineRepo from '../../../domain/journal-entry/repos/journal-line.repo';
+import IAccountTransactionQueryRepo from '../../../domain/bookkeeping/repos/account-transaction-query.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { ILedgerAccountService } from '../../../domain/ledger/types/ledger-account.service.types';
 import { IPaginatedResponse } from '../../../shared/types/pagination.types';
@@ -13,14 +12,14 @@ import {
 } from '../../contracts/dto/pagination.dto';
 import appError from '../../errors/app.error';
 import ledgerAppError from '../../errors/ledger.error';
-import journalLineMapper from '../../mappers/journal-line.mapper';
+import accountTransactionMapper from '../../mappers/bookkeeping/account-transaction.mapper';
 import paginationMapper from '../../mappers/pagination.mapper';
 
 export default function makeGetAccountTransactionsUseCase(
   requestContext: IRequestContext,
   ledgerAccountRepo: ILedgerAccountRepo,
   ledgerAccountService: ILedgerAccountService,
-  journalLineRepo: IJournalLineRepo
+  accountTransactionQueryRepo: IAccountTransactionQueryRepo
 ) {
   return async (
     accountId: TEntityId,
@@ -48,22 +47,21 @@ export default function makeGetAccountTransactionsUseCase(
       throw new appError.Forbidden();
     }
 
-    const lines = await journalLineRepo.findAllByAccountId(accountId, {
-      ...trace,
-      ...paginationMapper.fromDto(pagination),
-    });
+    const transactions = await accountTransactionQueryRepo.findAllByAccountId(
+      accountId,
+      {
+        ...trace,
+        ...paginationMapper.fromDto(pagination),
+      }
+    );
 
-    const data: IAccountTransactionDto[] = lines.data.map((line) => ({
-      ...journalLineMapper.toDto(line),
-      balanceEffect: journalEntryRules.getBalanceEffect(
-        ledgerAccount,
-        line.side
-      ),
-    }));
+    const data: IAccountTransactionDto[] = transactions.data.map(
+      accountTransactionMapper.toDto
+    );
 
     return {
       data,
-      meta: lines.meta,
+      meta: transactions.meta,
     };
   };
 }

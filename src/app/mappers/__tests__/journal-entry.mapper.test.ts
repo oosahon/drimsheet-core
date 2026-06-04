@@ -165,7 +165,7 @@ describe('Journal Entry Mapper', () => {
         id: entry.id,
         accountingEntityId: entry.accountingEntityId,
         sourceType: EJournalEntrySourceType.Transfer,
-        counterPartyId: null,
+        counterpartyId: null,
         memo: 'Cash transfer',
         status: EJournalEntryStatus.Posted,
         version: 1,

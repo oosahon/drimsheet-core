@@ -3,23 +3,12 @@ import {
   IJournalLine,
   IJournalLineMeta,
 } from '../../domain/journal-entry/types/journal-line.types';
-import {
-  journalEntriesInCore,
-  journalLinesInCore,
-} from '../../infra/config/drizzle/schema';
+import { journalLinesInCore } from '../../infra/config/drizzle/schema';
 import { TEntityId } from '../../shared/types/uuid';
 import { IJournalLineDto } from '../contracts/dto/journal-entry.dto';
 import { fromRepoDate, toRepoDate } from './date';
 import exchangeRateMapper, { IExchangeRateModel } from './exchange-rate.mapper';
 import moneyMapper from './money.mapper';
-
-export interface IJournalEntryModel extends InferSelectModel<
-  typeof journalEntriesInCore
-> {}
-
-export interface IJournalEntrySelectModel extends IJournalEntryModel {
-  journalLinesInCores: IJournalLineModel[];
-}
 
 export interface IJournalLineModel extends InferSelectModel<
   typeof journalLinesInCore

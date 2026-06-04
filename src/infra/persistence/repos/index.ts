@@ -1,3 +1,4 @@
+import accountTransactionQueryRepo from './account-transaction-query.repo.impl';
 import accountingContextRepo from './accounting-context.repo.impl';
 import accountingEntityRepo from './accounting-entity.repo.impl';
 import accountingPeriodRepo from './accounting-period.repo.impl';
@@ -40,6 +41,7 @@ const repos = {
   accountingStandards: accountingStandardsRepo,
   jurisdiction: jurisdictionRepo,
   jurisdictionAccountingStandard: jurisdictionAccountingStandardRepo,
+  accountTransactionQuery: accountTransactionQueryRepo,
 };
 
 export default repos;

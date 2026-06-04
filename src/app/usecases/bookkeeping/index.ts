@@ -52,7 +52,7 @@ const bookkeepingUseCases = {
     appContext.request,
     repos.ledgerAccount,
     domainServices.ledgerAccount,
-    repos.journalLine
+    repos.accountTransactionQuery
   ),
 };
 

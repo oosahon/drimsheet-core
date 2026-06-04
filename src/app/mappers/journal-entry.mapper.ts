@@ -61,7 +61,7 @@ const journalEntryMapper = {
       id: payload.id,
       accountingEntityId: payload.accountingEntityId,
       sourceType: payload.sourceType,
-      counterPartyId: payload.counterPartyId,
+      counterpartyId: payload.counterPartyId,
       lines: payload.lines.map(journalLineMapper.toDto),
       memo: payload.memo,
       status: payload.status,
