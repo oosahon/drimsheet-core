@@ -23,8 +23,8 @@ This document provides guidelines for contributing to this project to ensure a s
 
 - All entities, services, repos, and use-cases are pure functions (causing no side effect).
 - All similar functions are grouped in an immutable object
-- Function/Methods do not call external services directly. Dependencies are wired up in `index.ts` of each sub-layer.\
-  for example, `app/use-cases/categories/index.ts` or `infra/services/index.ts`.
+- Function/Methods do not call external services directly. Dependencies are wired up in `index.ts` of each feature or sub-layer.\
+  for example, `src/app/bookkeeping/usecases/index.ts` or `src/infra/services/index.ts`.
 
 ### Event-Driven Pattern and Immutability
 
@@ -32,7 +32,7 @@ This document provides guidelines for contributing to this project to ensure a s
 - Domain publishing is done on the application layer.
 
 - **Strong Immutability**: All domain entities and state objects MUST be deeply frozen (e.g., using `deepFreeze()`) to prevent accidental mutations.\
-  See `src/domain/transaction/entities/transaction.entity.ts` for reference.
+  See `src/domain/journal-entry/entities/journal-entry.entity.ts` or `src/domain/ledger/entities/shared/ledger-account.entity.ts` for reference.
 
 ### Folder Structure
 
@@ -46,13 +46,24 @@ Here are the top level folders you would find on the application:
 
 src/
 ├─ app/                 # Application layer: orchestrates use-cases, handles commands, maps data between domain and external interfaces
-│  ├─ bootstrap/        # Application bootstrap logic and server initialization
-│  ├─ context/          # Request contexts and related abstractions
-│  ├─ contracts/        # Defines infrastructure services interfaces (contracts) used in the application. (Only use-cases/* uses actual implementations)
-│  ├─ mappers/          # Mapping between domain entities and application interfaces
-│  └─ usecases/         # Usecases: concrete business operations, orchestrating domain entities, repos, and services.
+│  ├─ _bootstrap/       # Application bootstrap logic and server initialization
+│  ├─ _internal/        # Internal-only application use cases
+│  ├─ accounting/       # Accounting feature: dtos, handlers, mappers, use cases
+│  ├─ auth/             # Authentication feature: contracts, dtos, errors, mappers, use cases
+│  ├─ bookkeeping/      # Bookkeeping feature: dtos, handlers, mappers, use cases
+│  ├─ currency/         # Currency feature: mappers and use cases
+│  ├─ ledger/           # Ledger feature: dtos, errors, handlers, mappers, use cases
+│  ├─ shared/           # App-layer shared context, contracts, dtos, errors, handlers, and mappers
+│  └─ user/             # User feature: dtos, handlers, mappers, use cases
 │
 ├─ domain/              # Domain layer: core business logic, entities, repo interfaces and rules
+│  ├─ accounting/
+│  ├─ bookkeeping/
+│  ├─ currency/
+│  ├─ journal-entry/
+│  ├─ ledger/
+│  ├─ subledger/
+│  └─ user/
 │
 ├─ infra/               # Technical layer: implementations of services, database, and infrastructure concerns
 │  ├─ config/           # Configuration files for app, environment variables, secrets, and third-party services
@@ -67,6 +78,7 @@ src/
 │
 └─ shared/              # Shared utilities and types used across multiple layers
    ├─ __docs__/         # Shared documentation covering concepts like monetary values
+   ├─ errors/           # Shared domain/application error types
    ├─ types/            # Global TypeScript types and interfaces
    ├─ utils/            # Helper functions, constants, and reusable utilities
    └─ value-objects/    # Shared value objects and related entities
@@ -125,8 +137,8 @@ We enforce a specific commit message format to generate clean changelogs and tra
 Our project follows these guidelines for testing:
 
 - **Test Proximity**: Test files should be kept near their test subjects.
-- **`__tests__` (`.test` files)**: Used for unit tests. Domain entity factories are never mocked and must use `__tests__` with `.test` files.
-- **`__specs__` (`.spec` files)**: Used for integration tests where dependency injection is important. Contributors should use `__specs__` with `.spec` files for these scenarios.
+- **Domain tests**: Domain entity, service, and rule tests use nearby `__tests__` folders with `.test.ts` files. Domain entity factories are never mocked.
+- **Application, infrastructure, and interface tests**: App-layer mappers/use cases, infrastructure adapters, and HTTP helpers/middlewares use nearby `__specs__` folders with `.spec.ts` files.
 - **End-to-End (E2E) Tests**: All E2E testing is handled in the frontend repository.
 
 ## Reporting Bugs

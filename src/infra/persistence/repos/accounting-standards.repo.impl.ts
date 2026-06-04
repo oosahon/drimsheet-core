@@ -1,4 +1,4 @@
-import accountingStandardMapper from '../../../app/mappers/accounting-standard.mapper';
+import accountingStandardMapper from '../../../app/accounting/mappers/accounting-standard.mapper';
 import { IAccountingStandardRepo } from '../../../domain/accounting/repos/accounting-standards.repo';
 import { accountingStandardsInCore } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';

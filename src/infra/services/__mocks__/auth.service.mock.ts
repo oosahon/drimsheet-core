@@ -1,4 +1,4 @@
-import IAuthService from '../../../app/contracts/infra/auth-service.contract';
+import IAuthService from '../../../app/shared/contracts/auth-service.contract';
 
 const mockAuthService: jest.Mocked<IAuthService> = {
   hashPassword: jest.fn(),

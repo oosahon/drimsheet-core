@@ -1,4 +1,4 @@
-import userActivityMapper from '../../../app/mappers/user-activity.mapper';
+import userActivityMapper from '../../../app/user/mappers/user-activity.mapper';
 import IUserActivityRepo from '../../../domain/user/repos/user-activity.repo';
 import { userActivitiesInAudit } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';

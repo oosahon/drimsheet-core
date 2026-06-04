@@ -1,5 +1,5 @@
-import { ITransactionalEmailDto } from '../../app/contracts/dto/workers.dto';
-import { IInternalMailer } from '../../app/contracts/infra/transactional-email-agent.contract';
+import { IInternalMailer } from '../../app/shared/contracts/transactional-email-agent.contract';
+import { ITransactionalEmailDto } from '../../app/shared/dtos/workers.dto';
 
 const sentEmails: Map<string, ITransactionalEmailDto> = new Map();
 

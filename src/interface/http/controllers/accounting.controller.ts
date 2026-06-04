@@ -10,9 +10,9 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IAccountingEntityCreationDto } from '../../../app/contracts/dto/accounting.dto';
-import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
-import accountingUsecases from '../../../app/usecases/accounting';
+import { IAccountingEntityCreationDto } from '../../../app/accounting/dtos/accounting.dto';
+import accountingUsecases from '../../../app/accounting/usecases';
+import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
 import middlewares from '../middlewares';
 
 @Route('accounting')

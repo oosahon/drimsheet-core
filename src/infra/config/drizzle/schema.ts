@@ -851,3 +851,11 @@ export const ledgerAccountBalanceAdjustmentsInCore = core.table(
     }).onDelete('cascade'),
   ]
 );
+
+export const seeds = pgTable('seeds', {
+  id: serial().primaryKey().notNull(),
+  fileName: varchar('file_name', { length: 250 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});

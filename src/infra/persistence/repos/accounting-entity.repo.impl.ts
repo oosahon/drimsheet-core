@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm';
-import accountingEntityMapper from '../../../app/mappers/accounting-entity.mapper';
+import accountingEntityMapper from '../../../app/accounting/mappers/accounting-entity.mapper';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import { accountingEntitiesInCore } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';

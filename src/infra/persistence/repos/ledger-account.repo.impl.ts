@@ -8,7 +8,7 @@ import {
   or,
   sql,
 } from 'drizzle-orm';
-import ledgerAccountMapper from '../../../app/mappers/ledger-account.mapper';
+import ledgerAccountMapper from '../../../app/ledger/mappers/ledger-account.mapper';
 import ILedgerAccountRepo, {
   ELedgerAccountSortBy,
 } from '../../../domain/ledger/repos/ledger-account.repo';

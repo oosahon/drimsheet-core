@@ -1,5 +1,5 @@
 import * as winston from 'winston';
-import ILogger from '../../app/contracts/infra/logger.contract';
+import ILogger from '../../app/shared/contracts/logger.contract';
 
 winston.addColors({
   error: 'red',

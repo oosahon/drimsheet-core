@@ -26,11 +26,11 @@ echo "✅ ADRs are perfectly synced. Continuing push..."
 echo "🔄 Exporting error keys..."
 npm run export:errors
 
-if ! git diff --quiet exports/error-keys.json; then
+if ! git diff --quiet generated/error-keys.json; then
   echo ""
   echo "❌ ERROR: Error keys are out of sync!"
-  echo "The 'export:errors' script just updated exports/error-keys.json."
-  echo "Please commit the newly synced exports/error-keys.json file and try pushing again!"
+  echo "The 'export:errors' script just updated generated/error-keys.json."
+  echo "Please commit the newly synced generated/error-keys.json file and try pushing again!"
   exit 1
 fi
 

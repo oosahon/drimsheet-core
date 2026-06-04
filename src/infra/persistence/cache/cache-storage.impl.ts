@@ -1,4 +1,4 @@
-import { ICacheStorage } from '../../../app/contracts/infra/cache-storage.contract';
+import { ICacheStorage } from '../../../app/shared/contracts/cache-storage.contract';
 import { redis } from '../../config/redis.config';
 
 const cacheStorage: ICacheStorage = {

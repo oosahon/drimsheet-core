@@ -9,8 +9,8 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
-import userUseCase from '../../../app/usecases/user';
+import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
+import userUseCase from '../../../app/user/usecases';
 import middlewares from '../middlewares';
 
 @Route('users')

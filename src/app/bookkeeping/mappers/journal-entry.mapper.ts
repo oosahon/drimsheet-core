@@ -1,0 +1,80 @@
+import { InferSelectModel } from 'drizzle-orm';
+import { IJournalEntry } from '../../../domain/journal-entry/types/journal-entry.types';
+import { journalEntriesInCore } from '../../../infra/config/drizzle/schema';
+import { TEntityId } from '../../../shared/types/uuid';
+import { fromRepoDate, toRepoDate } from '../../shared/mappers/date';
+import { IJournalEntryDto } from '../dtos/journal-entry.dto';
+import journalLineMapper, { IJournalLineModel } from './journal-line.mapper';
+
+export interface IJournalEntryModel extends InferSelectModel<
+  typeof journalEntriesInCore
+> {}
+
+export interface IJournalEntrySelectModel extends IJournalEntryModel {
+  journalLinesInCores: IJournalLineModel[];
+}
+
+const journalEntryMapper = {
+  toDomain(payload: IJournalEntrySelectModel): IJournalEntry {
+    return {
+      id: payload.id as TEntityId,
+      accountingEntityId: payload.accountingEntityId as TEntityId,
+      sourceType: payload.sourceType,
+      counterPartyId: (payload.counterpartyId as TEntityId) ?? null,
+      memo: payload.memo,
+      status: payload.status,
+      lines: payload.journalLinesInCores.map((line) =>
+        journalLineMapper.toDomain(line)
+      ),
+      effectiveDate: fromRepoDate(payload.effectiveDate),
+      postedAt: payload.postedAt ? fromRepoDate(payload.postedAt) : null,
+      voidedAt: payload.voidedAt ? fromRepoDate(payload.voidedAt) : null,
+      voidingEntryId: payload.voidingEntryId as TEntityId,
+      version: payload.version,
+      createdBy: payload.createdBy as TEntityId,
+      createdAt: fromRepoDate(payload.createdAt),
+      updatedAt: fromRepoDate(payload.updatedAt),
+    };
+  },
+
+  toRepo(payload: IJournalEntry): Omit<IJournalEntryModel, 'transactionId'> {
+    return {
+      id: payload.id,
+      accountingEntityId: payload.accountingEntityId,
+      counterpartyId: payload.counterPartyId,
+      sourceType: payload.sourceType,
+      memo: payload.memo,
+      status: payload.status,
+      effectiveDate: toRepoDate(payload.effectiveDate),
+      postedAt: payload.postedAt ? toRepoDate(payload.postedAt) : null,
+      voidedAt: payload.voidedAt ? toRepoDate(payload.voidedAt) : null,
+      voidingEntryId: payload.voidingEntryId,
+      version: payload.version,
+      createdBy: payload.createdBy,
+      createdAt: toRepoDate(payload.createdAt),
+      updatedAt: toRepoDate(payload.updatedAt),
+    };
+  },
+
+  toDto(payload: IJournalEntry): IJournalEntryDto {
+    return {
+      id: payload.id,
+      accountingEntityId: payload.accountingEntityId,
+      sourceType: payload.sourceType,
+      counterpartyId: payload.counterPartyId,
+      lines: payload.lines.map(journalLineMapper.toDto),
+      memo: payload.memo,
+      status: payload.status,
+      effectiveDate: payload.effectiveDate,
+      postedAt: payload.postedAt,
+      voidedAt: payload.voidedAt,
+      voidingEntryId: payload.voidingEntryId,
+      version: payload.version,
+      createdBy: payload.createdBy,
+      createdAt: payload.createdAt,
+      updatedAt: payload.updatedAt,
+    };
+  },
+};
+
+export default journalEntryMapper;

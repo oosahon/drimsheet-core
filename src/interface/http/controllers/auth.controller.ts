@@ -15,9 +15,9 @@ import {
   IEmailLoginReq,
   IResetPasswordReq,
   IUserSignupReq,
-} from '../../../app/contracts/dto/auth.dto';
-import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
-import authUseCase from '../../../app/usecases/auth';
+} from '../../../app/auth/dtos/auth.dto';
+import authUseCase from '../../../app/auth/usecases';
+import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
 import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
 import middlewares from '../middlewares';
 

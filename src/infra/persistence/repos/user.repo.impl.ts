@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import userMapper from '../../../app/mappers/user.mapper';
+import userMapper from '../../../app/user/mappers/user.mapper';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import { usersInCore as users } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';

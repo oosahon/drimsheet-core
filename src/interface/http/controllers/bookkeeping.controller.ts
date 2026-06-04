@@ -12,10 +12,10 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { ITransferTransactionReq } from '../../../app/contracts/dto/bookkeeping.dto';
-import { IHttpErrorDto } from '../../../app/contracts/dto/error.dto';
-import { IPaginationDto } from '../../../app/contracts/dto/pagination.dto';
-import bookkeepingUseCases from '../../../app/usecases/bookkeeping';
+import { ITransferTransactionReq } from '../../../app/bookkeeping/dtos/bookkeeping.dto';
+import bookkeepingUseCases from '../../../app/bookkeeping/usecases';
+import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
+import { IPaginationDto } from '../../../app/shared/dtos/pagination.dto';
 import { TEntityId } from '../../../shared/types/uuid';
 import middlewares from '../middlewares';
 

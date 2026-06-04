@@ -20,12 +20,12 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group          | Code Block | Entity File                                                                                              | Status         |
-| ---------------------- | ---------- | -------------------------------------------------------------------------------------------------------- | -------------- |
-| Capital                | `300xxx`   | —                                                                                                        | 🔲 Types only  |
-| Retained Earnings      | `301xxx`   | [`01-retained-earning.entity.ts`](../../ledger/entities/03-equity-account/01-retained-earning.entity.ts) | ✅ Implemented |
-| Reserves               | `302xxx`   | —                                                                                                        | 🔲 Types only  |
-| Opening Balance Equity | `399xxx`   | [`99-opening-balance.equity.ts`](../../ledger/entities/03-equity-account/99-opening-balance.equity.ts)   | ✅ Implemented |
+| Account Group          | Code Block | Entity File                                                                                                          | Status         |
+| ---------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------- | -------------- |
+| Capital                | `300xxx`   | —                                                                                                                    | 🔲 Types only  |
+| Retained Earnings      | `301xxx`   | [`01-retained-earning.entity.ts`](../../ledger/entities/03-equity-account/01-retained-earning.entity.ts)             | ✅ Implemented |
+| Reserves               | `302xxx`   | —                                                                                                                    | 🔲 Types only  |
+| Opening Balance Equity | `399xxx`   | [`99-opening-balance-equity.entity.ts`](../../ledger/entities/03-equity-account/99-opening-balance-equity.entity.ts) | ✅ Implemented |
 
 > [!NOTE]
 > Entity files are named by their COA prefix (e.g. `01-` = `301xxx`, `99-` = `399xxx`) to make it explicit which accounts have been implemented and which are pending.
@@ -99,7 +99,7 @@ The `RetainedEarnings` entity ([`01-retained-earning.entity.ts`](../../ledger/en
 
 #### Entity Details
 
-The `OpeningBalanceEquity` entity ([`99-opening-balance.equity.ts`](../../ledger/entities/03-equity-account/99-opening-balance.equity.ts)) creates accounts with:
+The `OpeningBalanceEquity` entity ([`99-opening-balance-equity.entity.ts`](../../ledger/entities/03-equity-account/99-opening-balance-equity.entity.ts)) creates accounts with:
 
 - Fixed `behavior: 'opening_balance_equity'` / `subType: 'opening_balance'`
 - `isControlAccount: false` / `controlAccountId: null`

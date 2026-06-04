@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import swaggerUi from 'swagger-ui-express';
-import swaggerDoc from '../../../swagger.json';
+import swaggerDoc from '../../../generated/swagger.json';
 import { APP_URL, NODE_ENV } from '../config/vars.config';
 
 export default function swagger() {

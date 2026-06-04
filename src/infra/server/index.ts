@@ -2,7 +2,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
-import { RegisterRoutes } from '../../../routes';
+import { RegisterRoutes } from '../../../generated/routes';
 import middlewares from '../../interface/http/middlewares';
 import internalRouter from '../../interface/http/routes/internal.routes';
 import setupOAuth from '../config/oauth.config';

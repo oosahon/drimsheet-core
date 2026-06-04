@@ -1,4 +1,4 @@
-import reportingPeriodMapper from '../../../app/mappers/reporting-period.mapper';
+import reportingPeriodMapper from '../../../app/accounting/mappers/reporting-period.mapper';
 import IReportingPeriodRepo from '../../../domain/accounting/repos/reporting-period.repo';
 import { reportingPeriodsInCore } from '../../config/drizzle/schema';
 import getDbQuery from './helpers/query';

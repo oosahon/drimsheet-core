@@ -1,4 +1,4 @@
-import { ELedgerAccountSubType } from '../../../../app/contracts/dto/ledger-account.dto';
+import { ELedgerAccountSubType } from '../../../../app/ledger/dtos/ledger-account.dto';
 import journalEntryError from '../../../journal-entry/errors/journal-entry.error';
 import {
   EJournalEntrySourceType,
