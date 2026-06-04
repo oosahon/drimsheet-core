@@ -3,6 +3,7 @@ import {
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../../../domain/accounting/types/accounting-entity.types';
+import { ELedgerAccountBalanceEffect } from '../../../../domain/bookkeeping/types/ledger-account-balance.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
@@ -216,6 +217,7 @@ describe('getAccountTransactionsUseCase', () => {
             createdAt: journalEntry.createdAt,
             updatedAt: journalEntry.updatedAt,
           },
+          balanceEffect: ELedgerAccountBalanceEffect.Increase,
         },
       ],
       meta: {

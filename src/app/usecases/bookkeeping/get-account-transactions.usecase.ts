@@ -1,11 +1,12 @@
 import IAccountTransactionQueryRepo from '../../../domain/bookkeeping/repos/account-transaction-query.repo';
+import journalEntryRules from '../../../domain/bookkeeping/rules/journal-entry.rule';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { ILedgerAccountService } from '../../../domain/ledger/types/ledger-account.service.types';
 import { IPaginatedResponse } from '../../../shared/types/pagination.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IRequestContext from '../../contracts/app/request-context.contract';
-import { IAccountTransactionDto } from '../../contracts/dto/bookkeeping.dto';
+import { IAccountTransactionRes } from '../../contracts/dto/bookkeeping.dto';
 import {
   IPaginationDto,
   paginationQueryValidationSchema,
@@ -24,7 +25,7 @@ export default function makeGetAccountTransactionsUseCase(
   return async (
     accountId: TEntityId,
     pagination: IPaginationDto
-  ): Promise<IPaginatedResponse<IAccountTransactionDto>> => {
+  ): Promise<IPaginatedResponse<IAccountTransactionRes>> => {
     zodValidationRunner(paginationQueryValidationSchema, pagination);
 
     const { user, correlationId } = requestContext.get();
@@ -55,9 +56,13 @@ export default function makeGetAccountTransactionsUseCase(
       }
     );
 
-    const data: IAccountTransactionDto[] = transactions.data.map(
-      accountTransactionMapper.toDto
-    );
+    const data: IAccountTransactionRes[] = transactions.data.map((trx) => ({
+      ...accountTransactionMapper.toDto(trx),
+      balanceEffect: journalEntryRules.getBalanceEffect(
+        ledgerAccount,
+        trx.side
+      ),
+    }));
 
     return {
       data,

@@ -608,6 +608,10 @@
         "type": "object",
         "additionalProperties": false
       },
+      "ULedgerAccountBalanceEffect": {
+        "type": "string",
+        "enum": ["increase", "decrease", "noop"]
+      },
       "UJournalEntrySourceType": {
         "type": "string",
         "enum": [
@@ -734,7 +738,7 @@
         "type": "object",
         "additionalProperties": false
       },
-      "IAccountTransactionDto": {
+      "IAccountTransactionRes": {
         "properties": {
           "id": {
             "type": "string"
@@ -784,6 +788,9 @@
           },
           "header": {
             "$ref": "#/components/schemas/IJournalHeaderDto"
+          },
+          "balanceEffect": {
+            "$ref": "#/components/schemas/ULedgerAccountBalanceEffect"
           }
         },
         "required": [
@@ -799,16 +806,17 @@
           "version",
           "createdAt",
           "updatedAt",
-          "header"
+          "header",
+          "balanceEffect"
         ],
         "type": "object",
         "additionalProperties": false
       },
-      "IPaginatedResponse_IAccountTransactionDto_": {
+      "IPaginatedResponse_IAccountTransactionRes_": {
         "properties": {
           "data": {
             "items": {
-              "$ref": "#/components/schemas/IAccountTransactionDto"
+              "$ref": "#/components/schemas/IAccountTransactionRes"
             },
             "type": "array"
           },
@@ -1616,7 +1624,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IPaginatedResponse_IAccountTransactionDto_"
+                  "$ref": "#/components/schemas/IPaginatedResponse_IAccountTransactionRes_"
                 }
               }
             }

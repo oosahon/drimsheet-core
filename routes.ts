@@ -540,6 +540,19 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ULedgerAccountBalanceEffect: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['increase'] },
+        { dataType: 'enum', enums: ['decrease'] },
+        { dataType: 'enum', enums: ['noop'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   UJournalEntrySourceType: {
     dataType: 'refAlias',
     type: {
@@ -630,7 +643,7 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IAccountTransactionDto: {
+  IAccountTransactionRes: {
     dataType: 'refObject',
     properties: {
       id: { dataType: 'string', required: true },
@@ -660,16 +673,17 @@ const models: TsoaRoute.Models = {
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
       header: { ref: 'IJournalHeaderDto', required: true },
+      balanceEffect: { ref: 'ULedgerAccountBalanceEffect', required: true },
     },
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IPaginatedResponse_IAccountTransactionDto_: {
+  IPaginatedResponse_IAccountTransactionRes_: {
     dataType: 'refObject',
     properties: {
       data: {
         dataType: 'array',
-        array: { dataType: 'refObject', ref: 'IAccountTransactionDto' },
+        array: { dataType: 'refObject', ref: 'IAccountTransactionRes' },
         required: true,
       },
       meta: { ref: 'IPaginationResponseMeta', required: true },
