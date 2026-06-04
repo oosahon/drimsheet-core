@@ -442,7 +442,7 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IExchangeRateDto: {
+  IExchangeRateReq: {
     dataType: 'refObject',
     properties: {
       baseCurrencyCode: { dataType: 'string', required: true },
@@ -468,7 +468,7 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IJournalLineDto: {
+  IJournalLineReq: {
     dataType: 'refObject',
     properties: {
       accountId: { dataType: 'string', required: true },
@@ -476,7 +476,7 @@ const models: TsoaRoute.Models = {
       exchangeRate: {
         dataType: 'union',
         subSchemas: [
-          { ref: 'IExchangeRateDto' },
+          { ref: 'IExchangeRateReq' },
           { dataType: 'enum', enums: [null] },
         ],
         required: true,
@@ -512,10 +512,10 @@ const models: TsoaRoute.Models = {
   ITransferTransactionReq: {
     dataType: 'refObject',
     properties: {
-      sourceLine: { ref: 'IJournalLineDto', required: true },
+      sourceLine: { ref: 'IJournalLineReq', required: true },
       destinationLines: {
         dataType: 'array',
-        array: { dataType: 'refObject', ref: 'IJournalLineDto' },
+        array: { dataType: 'refObject', ref: 'IJournalLineReq' },
         required: true,
       },
       status: { ref: 'UJournalEntryStatus', required: true },
@@ -536,6 +536,169 @@ const models: TsoaRoute.Models = {
         ],
         required: true,
       },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ULedgerAccountBalanceEffect: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['increase'] },
+        { dataType: 'enum', enums: ['decrease'] },
+        { dataType: 'enum', enums: ['noop'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UJournalEntrySourceType: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['system'] },
+        { dataType: 'enum', enums: ['expense'] },
+        { dataType: 'enum', enums: ['opening_balance'] },
+        { dataType: 'enum', enums: ['sale'] },
+        { dataType: 'enum', enums: ['purchase'] },
+        { dataType: 'enum', enums: ['credit_note'] },
+        { dataType: 'enum', enums: ['debit_note'] },
+        { dataType: 'enum', enums: ['transfer'] },
+        { dataType: 'enum', enums: ['payment'] },
+        { dataType: 'enum', enums: ['receipt'] },
+        { dataType: 'enum', enums: ['adjustment'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalHeaderDto: {
+    dataType: 'refObject',
+    properties: {
+      sourceType: { ref: 'UJournalEntrySourceType', required: true },
+      counterpartyId: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      memo: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      status: { ref: 'UJournalEntryStatus', required: true },
+      effectiveDate: { dataType: 'datetime', required: true },
+      postedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      voidedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      voidingEntryId: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      version: { dataType: 'double', required: true },
+      createdBy: { dataType: 'string', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IExchangeRate: {
+    dataType: 'refObject',
+    properties: {
+      currencyPair: { dataType: 'string', required: true },
+      baseCurrencyCode: { dataType: 'string', required: true },
+      targetCurrencyCode: { dataType: 'string', required: true },
+      rate: { dataType: 'double', required: true },
+      type: { ref: 'UExchangeRateType', required: true },
+      asOf: { dataType: 'datetime', required: true },
+      source: { dataType: 'string', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IAccountTransactionRes: {
+    dataType: 'refObject',
+    properties: {
+      id: { dataType: 'string', required: true },
+      entryId: { dataType: 'string', required: true },
+      accountId: { dataType: 'string', required: true },
+      sequenceOrder: { dataType: 'double', required: true },
+      amount: { ref: 'IMoneyDto', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRate' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      functionalAmount: { ref: 'IMoneyDto', required: true },
+      side: { ref: 'UJournalSide', required: true },
+      description: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      version: { dataType: 'double', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+      header: { ref: 'IJournalHeaderDto', required: true },
+      balanceEffect: { ref: 'ULedgerAccountBalanceEffect', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaginatedResponse_IAccountTransactionRes_: {
+    dataType: 'refObject',
+    properties: {
+      data: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IAccountTransactionRes' },
+        required: true,
+      },
+      meta: { ref: 'IPaginationResponseMeta', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaginationDto: {
+    dataType: 'refObject',
+    properties: {
+      limit: { dataType: 'double' },
+      orderBy: { dataType: 'string' },
+      sortDirection: { ref: 'UPaginationSortDirection' },
+      search: { dataType: 'string' },
+      page: { dataType: 'double' },
     },
     additionalProperties: false,
   },
@@ -585,7 +748,7 @@ const models: TsoaRoute.Models = {
       exchangeRate: {
         dataType: 'union',
         subSchemas: [
-          { ref: 'IExchangeRateDto' },
+          { ref: 'IExchangeRateReq' },
           { dataType: 'enum', enums: [null] },
         ],
         required: true,
@@ -1118,7 +1281,7 @@ export function RegisterRoutes(app: Router) {
     },
   };
   app.post(
-    '/api/v1/bookkeeping',
+    '/api/v1/bookkeeping/transfer',
     ...fetchMiddlewares<RequestHandler>(BookkeepingController),
     ...fetchMiddlewares<RequestHandler>(
       BookkeepingController.prototype.recordTransfer
@@ -1143,6 +1306,61 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'recordTransfer',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsBookkeepingController_listTransactions: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    accountId: {
+      in: 'path',
+      name: 'accountId',
+      required: true,
+      dataType: 'string',
+    },
+    pagination: {
+      in: 'queries',
+      name: 'pagination',
+      required: true,
+      ref: 'IPaginationDto',
+    },
+  };
+  app.get(
+    '/api/v1/bookkeeping/transactions/accounts/:accountId',
+    ...fetchMiddlewares<RequestHandler>(BookkeepingController),
+    ...fetchMiddlewares<RequestHandler>(
+      BookkeepingController.prototype.listTransactions
+    ),
+
+    async function BookkeepingController_listTransactions(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsBookkeepingController_listTransactions,
+          request,
+          response,
+        });
+
+        const controller = new BookkeepingController();
+
+        await templateService.apiHandler({
+          methodName: 'listTransactions',
           controller,
           response,
           next,
@@ -1558,7 +1776,7 @@ export function RegisterRoutes(app: Router) {
     },
   };
   app.post(
-    '/api/v1/ledger/asset-accounts',
+    '/api/v1/ledger/asset-accounts/petty-cash',
     ...fetchMiddlewares<RequestHandler>(AssetAccountController),
     ...fetchMiddlewares<RequestHandler>(
       AssetAccountController.prototype.makePettyCashSubAccount

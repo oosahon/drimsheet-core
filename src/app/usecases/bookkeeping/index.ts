@@ -6,6 +6,7 @@ import appContext from '../../context';
 import makeAdjustLedgerAccountBalanceUseCase from './adjust-ledger-account-balance.usecase';
 import makeCreateLedgerAccountBalanceUseCase from './create-ledger-account-balance.usecase';
 import makeEnqueueBalanceAdjustment from './enqueue-balance-adjustments.usecase';
+import makeGetAccountTransactionsUseCase from './get-account-transactions.usecase';
 import makeRecordOpeningBalanceUseCase from './record-opening-balance.usecase';
 import makeRecordTransferJournalEntryUseCase from './record-transfer-journal-entry.usecase';
 
@@ -45,6 +46,13 @@ const bookkeepingUseCases = {
     repos.ledgerAccount,
     repos.ledgerAccountBalance,
     messaging.queues
+  ),
+
+  getAccountTransactions: makeGetAccountTransactionsUseCase(
+    appContext.request,
+    repos.ledgerAccount,
+    domainServices.ledgerAccount,
+    repos.accountTransactionQuery
   ),
 };
 

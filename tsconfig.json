@@ -12,7 +12,8 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "inlineSources": true,
-    "sourceRoot": "/"
+    "sourceRoot": "/",
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*"]
 }

@@ -1,8 +1,10 @@
 import { eq } from 'drizzle-orm';
 import journalEntryMapper, {
   IJournalEntryModel,
-  IJournalLineModel,
 } from '../../../app/mappers/journal-entry.mapper';
+import journalLineMapper, {
+  IJournalLineModel,
+} from '../../../app/mappers/journal-line.mapper';
 import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
 import {
   journalEntriesInCore,
@@ -18,8 +20,8 @@ const journalEntryRepo: IJournalEntryRepo = {
     const lines: IJournalLineModel[] = [];
 
     for (const entry of entriesArray) {
-      entries.push(journalEntryMapper.toRepoEntry(entry));
-      lines.push(...entry.lines.map((l) => journalEntryMapper.toRepoLine(l)));
+      entries.push(journalEntryMapper.toRepo(entry));
+      lines.push(...entry.lines.map((l) => journalLineMapper.toRepo(l)));
     }
 
     const dbQuery = getDbQuery(options);
@@ -40,7 +42,7 @@ const journalEntryRepo: IJournalEntryRepo = {
       },
     });
 
-    return response ? journalEntryMapper.toDomainEntry(response) : null;
+    return response ? journalEntryMapper.toDomain(response) : null;
   },
 };
 

@@ -50,7 +50,9 @@ describe('makeHttpErrorHandler', () => {
       status: mockStatus,
       json: mockJson,
     };
+  });
 
+  afterEach(() => {
     jest.clearAllMocks();
   });
 

@@ -1,3 +1,4 @@
+import accountTransactionQueryRepo from './account-transaction-query.repo.impl';
 import accountingContextRepo from './accounting-context.repo.impl';
 import accountingEntityRepo from './accounting-entity.repo.impl';
 import accountingPeriodRepo from './accounting-period.repo.impl';
@@ -6,6 +7,7 @@ import currencyRepo from './currency.repo.impl';
 import exchangeRateRepo from './exchange-rate.repo.impl';
 import fiscalYearRepo from './fiscal-year.repo.impl';
 import journalEntryRepo from './journal-entry.repo.impl';
+import journalLineRepo from './journal-line.repo.impl';
 import jurisdictionAccountingStandardRepo from './jurisdiction-accounting-standard.repo.impl';
 import jurisdictionRepo from './jurisdiction.repo.impl';
 import ledgerAccountBalanceRepoImpl from './ledger-account-balance.repo.impl';
@@ -28,6 +30,7 @@ const repos = {
   userAuth: userAuthRepo,
   userSession: userSessionRepo,
   journalEntry: journalEntryRepo,
+  journalLine: journalLineRepo,
   exchangeRate: exchangeRateRepo,
   ledgerAccountBalance: ledgerAccountBalanceRepoImpl,
   fiscalYear: fiscalYearRepo,
@@ -38,6 +41,7 @@ const repos = {
   accountingStandards: accountingStandardsRepo,
   jurisdiction: jurisdictionRepo,
   jurisdictionAccountingStandard: jurisdictionAccountingStandardRepo,
+  accountTransactionQuery: accountTransactionQueryRepo,
 };
 
 export default repos;

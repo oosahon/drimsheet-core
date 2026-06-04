@@ -5,6 +5,7 @@ import makeExchangeRateService from '../../domain/currency/services/exchange-rat
 import makeAssetAccountService from '../../domain/ledger/services/asset-account.service';
 import makeEquityAccountService from '../../domain/ledger/services/equity-account.service';
 import makeExpenseAccountService from '../../domain/ledger/services/expense-account.service';
+import makeLedgerAccountService from '../../domain/ledger/services/ledger-account.service';
 import makeLiabilityAccountService from '../../domain/ledger/services/liability-account.service';
 import makeRevenueAccountService from '../../domain/ledger/services/revenue-account.service';
 import makeUserPreferencesService from '../../domain/user/services/user-preferences.service';
@@ -14,6 +15,7 @@ const userPreferences = makeUserPreferencesService(repos.userPreferences);
 
 const accountingEntity = makeAccountingEntityService(repos.accountingEntity);
 
+const ledgerAccount = makeLedgerAccountService(repos.ledgerAccount);
 const assetAccount = makeAssetAccountService(repos.ledgerAccount);
 const liabilityAccount = makeLiabilityAccountService(repos.ledgerAccount);
 const equityAccount = makeEquityAccountService(repos.ledgerAccount);
@@ -36,6 +38,7 @@ const domainServices = Object.freeze({
 
   accountingEntity,
 
+  ledgerAccount,
   assetAccount,
   liabilityAccount,
   equityAccount,

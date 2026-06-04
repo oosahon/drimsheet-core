@@ -12,6 +12,10 @@ describe('periodEntity', () => {
     jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
   });
 
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
   const validUUID = '98402eb7-ec79-436f-b258-00a4fb9a572a' as TEntityId;
 
   describe('validateUnit', () => {
@@ -52,15 +56,6 @@ describe('periodEntity', () => {
       startDate: new Date('2026-01-01T00:00:00.000Z'),
       endDate: new Date('2026-03-31T23:59:59.999Z'),
     };
-
-    beforeEach(() => {
-      jest.useFakeTimers();
-      jest.setSystemTime(new Date('2026-04-01T00:00:00.000Z'));
-    });
-
-    afterEach(() => {
-      jest.useRealTimers();
-    });
 
     it('creates a valid reporting period entity with events', () => {
       const [entity, events] = periodEntity.makeReportingPeriod(validPayload);

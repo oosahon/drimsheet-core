@@ -20,7 +20,7 @@ export class AssetAccountController extends Controller {
   /**
    * Create a new petty cash sub account
    */
-  @Post('/')
+  @Post('/petty-cash')
   @OperationId('makePettyCashSubAccount')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
