@@ -484,7 +484,7 @@
         "type": "string",
         "enum": ["official", "negotiated"]
       },
-      "IExchangeRateDto": {
+      "IExchangeRateReq": {
         "properties": {
           "baseCurrencyCode": {
             "type": "string"
@@ -526,7 +526,7 @@
         "type": "string",
         "enum": ["debit", "credit"]
       },
-      "IJournalLineDto": {
+      "IJournalLineReq": {
         "properties": {
           "accountId": {
             "type": "string"
@@ -537,7 +537,7 @@
           "exchangeRate": {
             "allOf": [
               {
-                "$ref": "#/components/schemas/IExchangeRateDto"
+                "$ref": "#/components/schemas/IExchangeRateReq"
               }
             ],
             "nullable": true
@@ -572,11 +572,11 @@
       "ITransferTransactionReq": {
         "properties": {
           "sourceLine": {
-            "$ref": "#/components/schemas/IJournalLineDto"
+            "$ref": "#/components/schemas/IJournalLineReq"
           },
           "destinationLines": {
             "items": {
-              "$ref": "#/components/schemas/IJournalLineDto"
+              "$ref": "#/components/schemas/IJournalLineReq"
             },
             "type": "array"
           },
@@ -605,6 +605,162 @@
           "postedAt",
           "memo"
         ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ULedgerAccountBalanceEffect": {
+        "type": "string",
+        "enum": ["increase", "decrease", "noop"]
+      },
+      "IExchangeRate": {
+        "properties": {
+          "currencyPair": {
+            "type": "string"
+          },
+          "baseCurrencyCode": {
+            "type": "string"
+          },
+          "targetCurrencyCode": {
+            "type": "string"
+          },
+          "rate": {
+            "type": "number",
+            "format": "double"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UExchangeRateType"
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "currencyPair",
+          "baseCurrencyCode",
+          "targetCurrencyCode",
+          "rate",
+          "type",
+          "asOf",
+          "source",
+          "createdAt"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IAccountTransactionDto": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "entryId": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "sequenceOrder": {
+            "type": "number",
+            "format": "double"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "exchangeRate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IExchangeRate"
+              }
+            ],
+            "nullable": true
+          },
+          "functionalAmount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "side": {
+            "$ref": "#/components/schemas/UJournalSide"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number",
+            "format": "double"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "balanceEffect": {
+            "$ref": "#/components/schemas/ULedgerAccountBalanceEffect"
+          }
+        },
+        "required": [
+          "id",
+          "entryId",
+          "accountId",
+          "sequenceOrder",
+          "amount",
+          "exchangeRate",
+          "functionalAmount",
+          "side",
+          "description",
+          "version",
+          "createdAt",
+          "updatedAt",
+          "balanceEffect"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IPaginatedResponse_IAccountTransactionDto_": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/IAccountTransactionDto"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/IPaginationResponseMeta"
+          }
+        },
+        "required": ["data", "meta"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IPaginationDto": {
+        "properties": {
+          "limit": {
+            "type": "number",
+            "format": "double"
+          },
+          "orderBy": {
+            "type": "string"
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/UPaginationSortDirection"
+          },
+          "search": {
+            "type": "string"
+          },
+          "page": {
+            "type": "number",
+            "format": "double"
+          }
+        },
         "type": "object",
         "additionalProperties": false
       },
@@ -674,7 +830,7 @@
           "exchangeRate": {
             "allOf": [
               {
-                "$ref": "#/components/schemas/IExchangeRateDto"
+                "$ref": "#/components/schemas/IExchangeRateReq"
               }
             ],
             "nullable": true
@@ -1328,7 +1484,7 @@
         "parameters": []
       }
     },
-    "/bookkeeping": {
+    "/bookkeeping/transfer": {
       "post": {
         "operationId": "record-transfer",
         "responses": {
@@ -1370,6 +1526,88 @@
             }
           }
         }
+      }
+    },
+    "/bookkeeping/transactions/accounts/{accountId}": {
+      "get": {
+        "operationId": "listTransactions",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPaginatedResponse_IAccountTransactionDto_"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "List transactions",
+        "tags": ["Bookkeeping"],
+        "security": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "accountId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDirection",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UPaginationSortDirection"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          }
+        ]
       }
     },
     "/auth/signup-with-email": {
@@ -1701,7 +1939,7 @@
         "parameters": []
       }
     },
-    "/ledger/asset-accounts": {
+    "/ledger/asset-accounts/petty-cash": {
       "post": {
         "operationId": "makePettyCashSubAccount",
         "responses": {

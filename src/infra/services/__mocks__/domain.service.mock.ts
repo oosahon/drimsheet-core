@@ -5,6 +5,7 @@ import IExchangeRateService from '../../../domain/currency/types/exchange-rate.s
 import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
 import IEquityAccountService from '../../../domain/ledger/types/equity-account.service.types';
 import IExpenseAccountService from '../../../domain/ledger/types/expense-account.service.types';
+import { ILedgerAccountService } from '../../../domain/ledger/types/ledger-account.service.types';
 import ILiabilityAccountService from '../../../domain/ledger/types/liability-account.service.types';
 import IRevenueAccountService from '../../../domain/ledger/types/revenue-account.service.types';
 import IUserPreferencesService from '../../../domain/user/types/user-preferences.service.types';
@@ -16,6 +17,10 @@ const userPreferences: jest.Mocked<IUserPreferencesService> = {
 const accountingEntity: jest.Mocked<IAccountingEntityService> = {
   grantUserAccess: jest.fn(),
   validateAccess: jest.fn(),
+};
+
+const ledgerAccount: jest.Mocked<ILedgerAccountService> = {
+  validateAccountAccess: jest.fn(),
 };
 
 const assetAccount: jest.Mocked<IAssetAccountService> = {
@@ -61,6 +66,7 @@ const accountBalance: jest.Mocked<IAccountBalanceService> = {
 const mockDomainServices = Object.freeze({
   userPreferences,
   accountingEntity,
+  ledgerAccount,
   assetAccount,
   liabilityAccount,
   equityAccount,

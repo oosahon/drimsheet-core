@@ -19,7 +19,7 @@ export const moneyDtoValidation = z.object({
   isMinorUnit: z.boolean('Specify if amount is in minor unit.'),
 });
 
-export interface IExchangeRateDto extends Pick<
+export interface IExchangeRateReq extends Pick<
   IExchangeRate,
   | 'baseCurrencyCode'
   | 'targetCurrencyCode'
@@ -30,7 +30,7 @@ export interface IExchangeRateDto extends Pick<
 > {
   id?: number;
 }
-export const exchangeRateDtoValidation = z.object({
+export const exchangeRateReqValidation = z.object({
   id: z.number().optional(),
   baseCurrencyCode: currencyCodeValidation,
   targetCurrencyCode: currencyCodeValidation,

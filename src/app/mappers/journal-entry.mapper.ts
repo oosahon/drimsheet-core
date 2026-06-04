@@ -1,17 +1,10 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IJournalEntry } from '../../domain/journal-entry/types/journal-entry.types';
-import {
-  IJournalLine,
-  IJournalLineMeta,
-} from '../../domain/journal-entry/types/journal-line.types';
-import {
-  journalEntriesInCore,
-  journalLinesInCore,
-} from '../../infra/config/drizzle/schema';
+import { journalEntriesInCore } from '../../infra/config/drizzle/schema';
 import { TEntityId } from '../../shared/types/uuid';
+import { IJournalEntryDto } from '../contracts/dto/journal-entry.dto';
 import { fromRepoDate, toRepoDate } from './date';
-import exchangeRateMapper, { IExchangeRateModel } from './exchange-rate.mapper';
-import moneyMapper from './money.mapper';
+import journalLineMapper, { IJournalLineModel } from './journal-line.mapper';
 
 export interface IJournalEntryModel extends InferSelectModel<
   typeof journalEntriesInCore
@@ -21,12 +14,8 @@ export interface IJournalEntrySelectModel extends IJournalEntryModel {
   journalLinesInCores: IJournalLineModel[];
 }
 
-export interface IJournalLineModel extends InferSelectModel<
-  typeof journalLinesInCore
-> {}
-
 const journalEntryMapper = {
-  toDomainEntry(payload: IJournalEntrySelectModel): IJournalEntry {
+  toDomain(payload: IJournalEntrySelectModel): IJournalEntry {
     return {
       id: payload.id as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
@@ -34,7 +23,9 @@ const journalEntryMapper = {
       counterPartyId: (payload.counterpartyId as TEntityId) ?? null,
       memo: payload.memo,
       status: payload.status,
-      lines: payload.journalLinesInCores.map((line) => this.toDomainLine(line)),
+      lines: payload.journalLinesInCores.map((line) =>
+        journalLineMapper.toDomain(line)
+      ),
       effectiveDate: fromRepoDate(payload.effectiveDate),
       postedAt: payload.postedAt ? fromRepoDate(payload.postedAt) : null,
       voidedAt: payload.voidedAt ? fromRepoDate(payload.voidedAt) : null,
@@ -46,32 +37,7 @@ const journalEntryMapper = {
     };
   },
 
-  toDomainLine(payload: IJournalLineModel): IJournalLine {
-    return {
-      id: payload.id as TEntityId,
-      entryId: payload.entryId as TEntityId,
-      accountId: payload.accountId as TEntityId,
-      sequenceOrder: payload.sequenceOrder,
-      amount: moneyMapper.fromRepo(payload.amount, payload.currencyCode),
-      exchangeRate: exchangeRateMapper.toDomain(
-        payload.exchangeRate as IExchangeRateModel
-      ),
-      functionalAmount: moneyMapper.fromRepo(
-        payload.functionalAmount,
-        payload.functionalCurrencyCode
-      ),
-      side: payload.side,
-      description: payload.description,
-      meta: payload.meta as IJournalLineMeta,
-      version: payload.version,
-      createdAt: fromRepoDate(payload.createdAt),
-      updatedAt: fromRepoDate(payload.updatedAt),
-    };
-  },
-
-  toRepoEntry(
-    payload: IJournalEntry
-  ): Omit<IJournalEntryModel, 'transactionId'> {
+  toRepo(payload: IJournalEntry): Omit<IJournalEntryModel, 'transactionId'> {
     return {
       id: payload.id,
       accountingEntityId: payload.accountingEntityId,
@@ -90,22 +56,23 @@ const journalEntryMapper = {
     };
   },
 
-  toRepoLine(payload: IJournalLine): IJournalLineModel {
+  toDto(payload: IJournalEntry): IJournalEntryDto {
     return {
       id: payload.id,
-      entryId: payload.entryId,
-      accountId: payload.accountId,
-      sequenceOrder: payload.sequenceOrder,
-      ...moneyMapper.toRepo(payload.amount),
-      exchangeRate: payload.exchangeRate,
-      functionalAmount: moneyMapper.toRepo(payload.functionalAmount).amount,
-      functionalCurrencyCode: payload.functionalAmount.currency.code,
-      side: payload.side,
-      description: payload.description,
-      meta: payload.meta,
+      accountingEntityId: payload.accountingEntityId,
+      sourceType: payload.sourceType,
+      counterPartyId: payload.counterPartyId,
+      lines: payload.lines.map(journalLineMapper.toDto),
+      memo: payload.memo,
+      status: payload.status,
+      effectiveDate: payload.effectiveDate,
+      postedAt: payload.postedAt,
+      voidedAt: payload.voidedAt,
+      voidingEntryId: payload.voidingEntryId,
       version: payload.version,
-      createdAt: toRepoDate(payload.createdAt),
-      updatedAt: toRepoDate(payload.updatedAt),
+      createdBy: payload.createdBy,
+      createdAt: payload.createdAt,
+      updatedAt: payload.updatedAt,
     };
   },
 };

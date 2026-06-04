@@ -1,25 +1,27 @@
 import z from 'zod';
+import { ULedgerAccountBalanceEffect } from '../../../domain/bookkeeping/types/ledger-account-balance.types';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
 import { UJournalEntryStatus } from '../../../domain/journal-entry/types/journal-entry.types';
 import {
   IJournalLineDto,
+  IJournalLineReq,
   journalEntryStatusValidation,
-  journalLineDtoValidation,
+  journalLineReqValidation,
 } from './journal-entry.dto';
 import {
-  exchangeRateDtoValidation,
-  IExchangeRateDto,
+  exchangeRateReqValidation,
+  IExchangeRateReq,
   IMoneyDto,
   moneyDtoValidation,
 } from './money.dto';
 
 export interface IOpeningBalanceDto {
   amount: IMoneyDto;
-  exchangeRate: IExchangeRateDto | null;
+  exchangeRate: IExchangeRateReq | null;
 }
 export const openingBalanceDtoValidation = z.object({
   amount: moneyDtoValidation,
-  exchangeRate: exchangeRateDtoValidation.nullable(),
+  exchangeRate: exchangeRateReqValidation.nullable(),
 });
 export interface IOpeningBalanceCreationReq extends IOpeningBalanceDto {
   accountId: string;
@@ -31,8 +33,8 @@ export const openingBalanceCreationReqValidation = z.object({
 });
 
 export interface ITransferTransactionReq {
-  sourceLine: IJournalLineDto;
-  destinationLines: IJournalLineDto[];
+  sourceLine: IJournalLineReq;
+  destinationLines: IJournalLineReq[];
   status: UJournalEntryStatus;
   effectiveDate: Date;
   postedAt: Date | null;
@@ -40,9 +42,9 @@ export interface ITransferTransactionReq {
 }
 
 export const transferTransactionReqValidation = z.object({
-  sourceLine: journalLineDtoValidation,
+  sourceLine: journalLineReqValidation,
   destinationLines: z
-    .array(journalLineDtoValidation)
+    .array(journalLineReqValidation)
     .min(1, 'At least one destination line is required'),
   status: journalEntryStatusValidation,
   effectiveDate: z.date(new journalEntryError.InvalidEffectiveDate().errorKey),
@@ -51,3 +53,7 @@ export const transferTransactionReqValidation = z.object({
     .nullable(),
   memo: z.string(new journalEntryError.InvalidMemo().errorKey).nullable(),
 });
+
+export interface IAccountTransactionDto extends IJournalLineDto {
+  balanceEffect: ULedgerAccountBalanceEffect;
+}

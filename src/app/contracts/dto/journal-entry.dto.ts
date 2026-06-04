@@ -1,4 +1,5 @@
 import z from 'zod';
+import { IExchangeRate } from '../../../domain/currency/types/exchange-rate.types';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
 import journalLineError from '../../../domain/journal-entry/errors/journal-line.error';
 import {
@@ -12,8 +13,8 @@ import {
   UJournalSide,
 } from '../../../domain/journal-entry/types/journal-line.types';
 import {
-  exchangeRateDtoValidation,
-  IExchangeRateDto,
+  exchangeRateReqValidation,
+  IExchangeRateReq,
   IMoneyDto,
   moneyDtoValidation,
 } from './money.dto';
@@ -50,19 +51,19 @@ export const journalEntryStatusValidation = z.enum(
   journalEntryStatusError
 );
 
-export interface IJournalLineDto {
+export interface IJournalLineReq {
   accountId: string;
   amount: IMoneyDto;
-  exchangeRate: IExchangeRateDto | null;
+  exchangeRate: IExchangeRateReq | null;
   description: string | null;
   side: UJournalSide;
   sequenceOrder: number;
 }
 
-export const journalLineDtoValidation = z.object({
+export const journalLineReqValidation = z.object({
   accountId: z.uuid(accountIdError),
   amount: moneyDtoValidation,
-  exchangeRate: exchangeRateDtoValidation.nullable(),
+  exchangeRate: exchangeRateReqValidation.nullable(),
   description: z
     .string(descriptionError)
     .max(100, descriptionError)
@@ -71,3 +72,36 @@ export const journalLineDtoValidation = z.object({
   side: journalEntrySideValidation,
   sequenceOrder: z.number(sequenceOrderError).int().positive(),
 });
+
+export interface IJournalLineDto {
+  id: string;
+  entryId: string;
+  accountId: string;
+  sequenceOrder: number;
+  amount: IMoneyDto;
+  exchangeRate: IExchangeRate | null;
+  functionalAmount: IMoneyDto;
+  side: UJournalSide;
+  description: string | null;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IJournalEntryDto {
+  id: string;
+  accountingEntityId: string;
+  sourceType: UJournalEntrySourceType;
+  counterPartyId: string | null;
+  lines: IJournalLineDto[];
+  memo: string | null;
+  status: UJournalEntryStatus;
+  effectiveDate: Date;
+  postedAt: Date | null;
+  voidedAt: Date | null;
+  voidingEntryId: string | null;
+  version: number;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}

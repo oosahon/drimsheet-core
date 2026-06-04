@@ -129,6 +129,19 @@ const ledgerAccountBalanceMapper = {
     };
   },
 
+  toAdjustmentDto(payload: ILedgerAccountBalanceAdjustment) {
+    return {
+      id: payload.id,
+      ledgerAccountId: payload.ledgerAccountId,
+      amount: moneyMapper.toDto(payload.amount),
+      functionalAmount: moneyMapper.toDto(payload.functionalAmount),
+      journalEntryId: payload.journalEntryId,
+      effect: payload.effect,
+      createdBy: payload.createdBy,
+      createdAt: payload.createdAt,
+    };
+  },
+
   toRepoNewBalanceAndAdjustment(
     payload: INewLedgerAccountBalanceAndAdjustment
   ): INewLedgerAccountBalanceAndAdjustmentModel {
