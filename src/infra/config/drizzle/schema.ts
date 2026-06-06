@@ -10,10 +10,12 @@ import {
   numeric,
   pgSchema,
   pgTable,
+  primaryKey,
   serial,
   smallint,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
   varchar,
@@ -102,13 +104,114 @@ export const periodUnitInCore = core.enum('period_unit', [
 ]);
 
 export const pgmigrations = pgTable('pgmigrations', {
-  id: serial().notNull(),
+  id: serial().primaryKey().notNull(),
   name: varchar({ length: 255 }).notNull(),
   runOn: timestamp('run_on', { mode: 'string' }).notNull(),
 });
 
+export const usersInCore = core.table(
+  'users',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    firstName: varchar('first_name', { length: 100 }).notNull(),
+    lastName: varchar('last_name', { length: 100 }).notNull(),
+    email: varchar({ length: 200 }).notNull(),
+    emailVerified: boolean('email_verified').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [unique('users_email_key').on(table.email)]
+);
+
+export const userAuthInCore = core.table(
+  'user_auth',
+  {
+    userId: uuid('user_id').primaryKey().notNull(),
+    password: varchar({ length: 200 }),
+    failedLoginAttempts: integer('failed_login_attempts').default(0),
+    strategies: varchar({ length: 50 }).array().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_auth_user_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const userSessionsInCore = core.table(
+  'user_sessions',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    userId: uuid('user_id').notNull(),
+    refreshToken: text('refresh_token').notNull(),
+    lastLoginAt: timestamp('last_login_at', {
+      withTimezone: true,
+      mode: 'string',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('user_sessions_user_id_refresh_token_unique_index').using(
+      'btree',
+      table.userId.asc().nullsLast().op('text_ops'),
+      table.refreshToken.asc().nullsLast().op('text_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_sessions_user_id_fkey',
+    }).onDelete('cascade'),
+    unique('user_sessions_refresh_token_key').on(table.refreshToken),
+  ]
+);
+
+export const userActivitiesInAudit = audit.table(
+  'user_activities',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    userId: uuid('user_id'),
+    eventKey: varchar('event_key', { length: 150 }).notNull(),
+    description: varchar({ length: 100 }).notNull(),
+    meta: jsonb(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_activities_user_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
 export const currenciesInCore = core.table('currencies', {
-  code: varchar({ length: 3 }).notNull(),
+  code: varchar({ length: 3 }).primaryKey().notNull(),
   symbol: varchar({ length: 5 }).notNull(),
   name: varchar({ length: 50 }).notNull(),
   minorUnit: smallint('minor_unit').notNull(),
@@ -121,41 +224,10 @@ export const currenciesInCore = core.table('currencies', {
   deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
 });
 
-export const jurisdictionAccountingStandardsInCore = core.table(
-  'jurisdiction_accounting_standards',
-  {
-    jurisdictionCode: varchar('jurisdiction_code', { length: 2 }).notNull(),
-    accountingStandardCode: varchar('accounting_standard_code', {
-      length: 15,
-    }).notNull(),
-    accountingEntityType: accountingEntityTypeInCore(
-      'accounting_entity_type'
-    ).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.jurisdictionCode],
-      foreignColumns: [jurisdictionsInCore.code],
-      name: 'jurisdiction_accounting_standards_jurisdiction_code_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.accountingStandardCode],
-      foreignColumns: [accountingStandardsInCore.code],
-      name: 'jurisdiction_accounting_standards_accounting_standard_code_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
 export const jurisdictionsInCore = core.table(
   'jurisdictions',
   {
-    code: varchar({ length: 2 }).notNull(),
+    code: varchar({ length: 2 }).primaryKey().notNull(),
     name: varchar({ length: 70 }).notNull(),
     currencyCode: varchar('currency_code', { length: 3 }).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
@@ -175,25 +247,12 @@ export const jurisdictionsInCore = core.table(
   ]
 );
 
-export const accountingStandardsInCore = core.table('accounting_standards', {
-  code: varchar({ length: 15 }).notNull(),
-  name: varchar({ length: 100 }).notNull(),
-  link: varchar({ length: 200 }),
-  isSupported: boolean('is_supported').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-});
-
 export const accountingEntitiesInCore = core.table(
   'accounting_entities',
   {
     id: uuid()
       .default(sql`uuid_generate_v4()`)
+      .primaryKey()
       .notNull(),
     type: accountingEntityTypeInCore().notNull(),
     name: varchar({ length: 255 }).notNull(),
@@ -233,6 +292,7 @@ export const fiscalYearsInCore = core.table(
   {
     id: uuid()
       .default(sql`uuid_generate_v4()`)
+      .primaryKey()
       .notNull(),
     name: varchar({ length: 150 }).notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
@@ -255,11 +315,26 @@ export const fiscalYearsInCore = core.table(
   ]
 );
 
+export const accountingStandardsInCore = core.table('accounting_standards', {
+  code: varchar({ length: 15 }).primaryKey().notNull(),
+  name: varchar({ length: 100 }).notNull(),
+  link: varchar({ length: 200 }),
+  isSupported: boolean('is_supported').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+});
+
 export const accountingPeriodsInCore = core.table(
   'accounting_periods',
   {
     id: uuid()
       .default(sql`uuid_generate_v4()`)
+      .primaryKey()
       .notNull(),
     name: varchar({ length: 150 }).notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
@@ -293,6 +368,7 @@ export const accountingContextsInCore = core.table(
   {
     id: uuid()
       .default(sql`uuid_generate_v4()`)
+      .primaryKey()
       .notNull(),
     name: varchar({ length: 150 }).notNull(),
     description: varchar({ length: 255 }),
@@ -339,6 +415,7 @@ export const reportingPeriodsInCore = core.table(
   {
     id: uuid()
       .default(sql`uuid_generate_v4()`)
+      .primaryKey()
       .notNull(),
     name: varchar({ length: 150 }).notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
@@ -370,6 +447,7 @@ export const reportingContextsInCore = core.table(
   {
     id: uuid()
       .default(sql`uuid_generate_v4()`)
+      .primaryKey()
       .notNull(),
     name: varchar({ length: 150 }).notNull(),
     description: varchar({ length: 255 }),
@@ -422,7 +500,7 @@ export const reportingContextsInCore = core.table(
 export const currencyExchangeRatesInCore = core.table(
   'currency_exchange_rates',
   {
-    id: bigserial({ mode: 'bigint' }).notNull(),
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
     currencyPair: varchar('currency_pair', { length: 7 }).notNull(),
     baseCurrencyCode: varchar('base_currency_code', { length: 3 }).notNull(),
     targetCurrencyCode: varchar('target_currency_code', {
@@ -450,104 +528,12 @@ export const currencyExchangeRatesInCore = core.table(
   ]
 );
 
-export const usersInCore = core.table('users', {
-  id: uuid()
-    .default(sql`uuid_generate_v4()`)
-    .notNull(),
-  firstName: varchar('first_name', { length: 100 }).notNull(),
-  lastName: varchar('last_name', { length: 100 }).notNull(),
-  email: varchar({ length: 200 }).notNull(),
-  emailVerified: boolean('email_verified').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-});
-
-export const userAuthInCore = core.table(
-  'user_auth',
-  {
-    userId: uuid('user_id').notNull(),
-    password: varchar({ length: 200 }),
-    failedLoginAttempts: integer('failed_login_attempts').default(0),
-    strategies: varchar({ length: 50 }).array().notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'user_auth_user_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
-export const userSessionsInCore = core.table(
-  'user_sessions',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    userId: uuid('user_id').notNull(),
-    refreshToken: text('refresh_token').notNull(),
-    lastLoginAt: timestamp('last_login_at', {
-      withTimezone: true,
-      mode: 'string',
-    }),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    uniqueIndex('user_sessions_user_id_refresh_token_unique_index').using(
-      'btree',
-      table.userId.asc().nullsLast().op('text_ops'),
-      table.refreshToken.asc().nullsLast().op('text_ops')
-    ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'user_sessions_user_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
-export const userActivitiesInAudit = audit.table(
-  'user_activities',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .notNull(),
-    userId: uuid('user_id'),
-    eventKey: varchar('event_key', { length: 150 }).notNull(),
-    description: varchar({ length: 100 }).notNull(),
-    meta: jsonb(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'user_activities_user_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
 export const ledgerAccountsInCore = core.table(
   'ledger_accounts',
   {
     id: uuid()
       .default(sql`uuid_generate_v4()`)
+      .primaryKey()
       .notNull(),
     code: varchar({ length: 6 }).notNull(),
     materializedPath: varchar('materialized_path', { length: 100 }).notNull(),
@@ -596,13 +582,21 @@ export const ledgerAccountsInCore = core.table(
       foreignColumns: [usersInCore.id],
       name: 'ledger_accounts_created_by_fkey',
     }).onDelete('cascade'),
+    unique('ledger_accounts_code_accounting_entity_id_uk').on(
+      table.code,
+      table.accountingEntityId
+    ),
+    unique('ledger_accounts_path_accounting_entity_id_uk').on(
+      table.materializedPath,
+      table.accountingEntityId
+    ),
   ]
 );
 
 export const userPreferencesInCore = core.table(
   'user_preferences',
   {
-    id: uuid().notNull(),
+    id: uuid().primaryKey().notNull(),
     appPreferences: jsonb('app_preferences'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
@@ -624,7 +618,7 @@ export const userPreferencesInCore = core.table(
 export const journalEntriesInCore = core.table(
   'journal_entries',
   {
-    id: uuid().notNull(),
+    id: uuid().primaryKey().notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     sourceType: journalEntrySourceTypeInCore('source_type').notNull(),
     counterpartyId: uuid('counterparty_id'),
@@ -670,6 +664,7 @@ export const journalEntriesInCore = core.table(
 export const counterpartiesInCore = core.table('counterparties', {
   id: uuid()
     .default(sql`uuid_generate_v4()`)
+    .primaryKey()
     .notNull(),
   name: varchar({ length: 100 }).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
@@ -683,7 +678,7 @@ export const counterpartiesInCore = core.table('counterparties', {
 export const journalLinesInCore = core.table(
   'journal_lines',
   {
-    id: uuid().notNull(),
+    id: uuid().primaryKey().notNull(),
     entryId: uuid('entry_id').notNull(),
     accountId: uuid('account_id').notNull(),
     sequenceOrder: integer('sequence_order').notNull(),
@@ -734,7 +729,7 @@ export const journalLinesInCore = core.table(
 export const journalEntryAttachmentsInCore = core.table(
   'journal_entry_attachments',
   {
-    id: uuid().defaultRandom().notNull(),
+    id: uuid().defaultRandom().primaryKey().notNull(),
     journalEntryId: uuid('journal_entry_id').notNull(),
     data: jsonb().notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
@@ -756,7 +751,7 @@ export const journalEntryAttachmentsInCore = core.table(
 export const ledgerAccountBalancesInCore = core.table(
   'ledger_account_balances',
   {
-    ledgerAccountId: uuid('ledger_account_id').notNull(),
+    ledgerAccountId: uuid('ledger_account_id').primaryKey().notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     accountMaterializedPath: varchar('account_materialized_path', {
       length: 100,
@@ -800,13 +795,17 @@ export const ledgerAccountBalancesInCore = core.table(
       foreignColumns: [currenciesInCore.code],
       name: 'ledger_account_balances_functional_currency_code_fkey',
     }).onDelete('restrict'),
+    unique('ledger_account_balances_path_entity_id_uk').on(
+      table.accountingEntityId,
+      table.accountMaterializedPath
+    ),
   ]
 );
 
 export const ledgerAccountBalanceAdjustmentsInCore = core.table(
   'ledger_account_balance_adjustments',
   {
-    id: uuid().defaultRandom().notNull(),
+    id: uuid().defaultRandom().primaryKey().notNull(),
     ledgerAccountId: uuid('ledger_account_id').notNull(),
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     amount: bigint({ mode: 'number' }).notNull(),
@@ -852,10 +851,41 @@ export const ledgerAccountBalanceAdjustmentsInCore = core.table(
   ]
 );
 
-export const seeds = pgTable('seeds', {
-  id: serial().primaryKey().notNull(),
-  fileName: varchar('file_name', { length: 250 }).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const jurisdictionAccountingStandardsInCore = core.table(
+  'jurisdiction_accounting_standards',
+  {
+    jurisdictionCode: varchar('jurisdiction_code', { length: 2 }).notNull(),
+    accountingStandardCode: varchar('accounting_standard_code', {
+      length: 15,
+    }).notNull(),
+    accountingEntityType: accountingEntityTypeInCore(
+      'accounting_entity_type'
+    ).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.jurisdictionCode],
+      foreignColumns: [jurisdictionsInCore.code],
+      name: 'jurisdiction_accounting_standards_jurisdiction_code_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.accountingStandardCode],
+      foreignColumns: [accountingStandardsInCore.code],
+      name: 'jurisdiction_accounting_standards_accounting_standard_code_fkey',
+    }).onDelete('cascade'),
+    primaryKey({
+      columns: [
+        table.jurisdictionCode,
+        table.accountingStandardCode,
+        table.accountingEntityType,
+      ],
+      name: 'jurisdiction_accounting_standards_pkey',
+    }),
+  ]
+);

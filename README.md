@@ -29,25 +29,38 @@ This repo contains the core accounting module of PurpleLedger. It encompasses th
 
 ## Requirements
 
-- Docker (for local PostgreSQL and Redis databases)
+- [PostgreSQL](https://www.postgresql.org/) (>=16)
+- [Redis](https://redis.io/) (>=8)
+- [RabbitMQ](https://www.rabbitmq.com/) (>=3)
 - Node.js (>=20.18.1 as specified in `package.json`)
 - npm
 - AWS account for S3 storage
 - API credentials for 3rd party integrations (Paystack, Mono, ZeptoMail) managed securely via Doppler
 
+> **Note:** PostgreSQL, Redis, and RabbitMQ can be installed locally or run as Docker containers using the [purple-ledger-platforms](https://github.com/purple-ledger/purple-ledger-platforms) repo.
+
 ## Installation
 
-- Clone the repo
-- Run `npm install`
-- Copy the environment variables from Doppler (dev) and save them in a `.env` file in the root directory. [Env URL](https://dashboard.doppler.com/workplace/b0fb8d6179aa66108eac/projects/purple-ledger-be/configs/dev)
+1. Clone the repo
+2. Run `npm install`
+3. Copy the environment variables from Doppler (dev) and save them in a `.env` file in the root directory. [Env URL](https://dashboard.doppler.com/workplace/b0fb8d6179aa66108eac/projects/purple-ledger-be/configs/dev)
 
-### Setting up the PostgreSQL database
+### Setting up platform services
 
-- Clone the [postgres schema repo](https://github.com/oosahon/PurpleLedger-db-schema)
-- Follow the instructions in the repo to set up the database.
+The app requires running PostgreSQL, Redis, and RabbitMQ instances. You have two options:
+
+**Option A — Use the [purple-ledger-platforms](https://github.com/purple-ledger/purple-ledger-platforms) repo (recommended)**
+
+1. Clone the [purple-ledger-platforms](https://github.com/purple-ledger/purple-ledger-platforms) repo
+2. Follow its [Quick Start](https://github.com/purple-ledger/purple-ledger-platforms#quick-start) instructions to spin up all services via Docker
+
+**Option B — Install locally**
+
+Install and run PostgreSQL, Redis, and RabbitMQ on your machine and configure the connection details in your `.env` file.
 
 ### Running the core app
 
+- Ensure PostgreSQL, Redis, and RabbitMQ are running (see above)
 - Run `npm run dev`
 - The app should now be running on `http://localhost:${PORT}`
 

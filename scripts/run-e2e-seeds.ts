@@ -1,16 +1,16 @@
 /**
  * scripts/run-e2e-seeds.ts
  *
- * Runs all seeds living in `e2e/seeds/` of the pl-web project.
+ * Runs all seeds living in `e2e/seeds/` of the purple-ledger-web project.
  *
- * This script is called by pl-web's `global.setup.ts` before E2E tests run.
+ * This script is called by purple-ledger-web's `global.setup.ts` before E2E tests run.
  * It is intentionally separate from the app's own `scripts/run-seed.ts` to keep
  * E2E fixtures from polluting production/dev seed tracking.
  *
  * Seeds are simple async functions that receive a Drizzle transaction and
  * insert rows using ON CONFLICT DO NOTHING, making them idempotent.
  *
- * Usage (called from pl-web/e2e/global.setup.ts):
+ * Usage (called from purple-ledger-web/e2e/global.setup.ts):
  *   npx tsx scripts/run-e2e-seeds.ts
  */
 import fs from 'fs';
@@ -18,8 +18,11 @@ import path from 'path';
 import { postgres as db } from '../src/infra/config/postgres.config';
 import logger from '../src/infra/observability/logger';
 
-// Path to pl-web's e2e seeds, resolved relative to pl-core's location
-const E2E_SEEDS_DIR = path.resolve(__dirname, '../../pl-web/e2e/seeds');
+// Path to purple-ledger-web's e2e seeds, resolved relative to purple-ledger-core's location
+const E2E_SEEDS_DIR = path.resolve(
+  __dirname,
+  '../../purple-ledger-web/e2e/seeds'
+);
 
 function getE2ESeedFiles(): string[] {
   if (!fs.existsSync(E2E_SEEDS_DIR)) {
@@ -37,7 +40,7 @@ async function runE2ESeed(seedFile: string): Promise<void> {
   const seedPath = path.join(E2E_SEEDS_DIR, seedFile);
 
   try {
-    // Seeds in pl-web export their identity constants but don't export
+    // Seeds in purple-ledger-web export their identity constants but don't export
     // a default function — they define the DATA, the actual DB insertion
     // is handled by the backend seed runner below.
     //

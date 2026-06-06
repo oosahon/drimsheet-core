@@ -9,8 +9,8 @@ if [ -f .env ]; then
 fi
 
 # Start dev services
+# NOTE: Infrastructure (Postgres, Redis, RabbitMQ) should be started
+# separately via purple-ledger-platforms: bash bin/start.sh
 npx concurrently \
-  "npm run start:postgres" \
-  "npm run start:redis" \
   "nodemon" \
   "nodemon -x 'tsoa spec-and-routes -c tsoa.json'"

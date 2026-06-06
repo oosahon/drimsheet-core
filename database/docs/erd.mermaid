@@ -1,0 +1,384 @@
+erDiagram
+
+%% Users Domain
+users {
+    uuid id PK
+    varchar first_name
+    varchar last_name
+    varchar email UK
+    boolean email_verified
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+}
+
+user_auth {
+    uuid user_id PK, FK
+    varchar password
+    integer failed_login_attempts
+    varchar_array strategies
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+user_sessions {
+    uuid id PK
+    uuid user_id FK
+    text refresh_token UK
+    timestamptz last_login_at
+    timestamptz created_at
+}
+
+user_activities {
+    uuid id PK
+    uuid user_id FK
+    varchar event_key
+    varchar description
+    jsonb meta
+    timestamptz created_at
+}
+
+user_preferences {
+    uuid id PK, FK
+    jsonb app_preferences
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+users ||--o| user_auth : "has"
+users ||--o{ user_sessions : "has"
+users ||--o{ user_activities : "performs"
+users ||--o| user_preferences : "has"
+
+%% Core Config Domain
+currencies {
+    varchar code PK
+    varchar symbol
+    varchar name
+    smallint minor_unit
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+}
+
+accounting_standards {
+    varchar code PK
+    varchar name
+    varchar link
+    boolean is_supported
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+}
+
+jurisdictions {
+    varchar code PK
+    varchar name
+    varchar currency_code FK
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+}
+
+jurisdiction_standards {
+    uuid id PK
+    varchar jurisdiction_code FK
+    varchar accounting_standard_code FK
+    varchar accounting_entity_type
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+currency_exchange_rates {
+    bigserial id PK
+    varchar currency_pair
+    varchar base_currency_code
+    varchar target_currency_code
+    numeric rate
+    varchar type
+    date as_of
+    varchar source
+    timestamptz created_at
+}
+
+currencies ||--o{ jurisdictions : "default currency for"
+jurisdictions ||--o{ jurisdiction_standards : "has standard"
+accounting_standards ||--o{ jurisdiction_standards : "applicable in"
+
+%% Accounting Entities Domain
+accounting_entities {
+    uuid id PK
+    varchar type
+    varchar name
+    uuid owner_id FK
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+users ||--o{ accounting_entities : "owns"
+
+fiscal_years {
+    uuid id PK
+    varchar name
+    uuid accounting_entity_id FK
+    varchar unit
+    smallint count
+    date start_date
+    date end_date
+    varchar status
+    timestamptz closed_at
+    timestamptz updated_at
+}
+
+accounting_periods {
+    uuid id PK
+    varchar name
+    uuid accounting_entity_id FK
+    uuid fiscal_year_id FK
+    varchar unit
+    smallint count
+    date start_date
+    date end_date
+    varchar status
+    timestamptz closed_at
+    timestamptz updated_at
+}
+
+accounting_contexts {
+    uuid id PK
+    varchar name
+    varchar description
+    uuid accounting_entity_id FK
+    varchar functional_currency_code FK
+    varchar jurisdiction_code FK
+    varchar accounting_standard_code FK
+    uuid fiscal_year_id FK
+    uuid current_operating_period_id FK
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz closed_at
+}
+
+reporting_periods {
+    uuid id PK
+    varchar name
+    uuid accounting_entity_id FK
+    uuid fiscal_year_id FK
+    varchar unit
+    smallint count
+    date start_date
+    date end_date
+    timestamptz updated_at
+}
+
+reporting_contexts {
+    uuid id PK
+    varchar name
+    varchar description
+    uuid accounting_entity_id FK
+    varchar reporting_currency_code FK
+    uuid accounting_context_id FK
+    uuid current_reporting_period_id FK
+    varchar accounting_standard_code FK
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz closed_at
+}
+
+accounting_entities ||--o{ fiscal_years : "has"
+accounting_entities ||--o{ accounting_periods : "has"
+accounting_entities ||--o{ reporting_periods : "has"
+accounting_entities ||--o{ accounting_contexts : "has context"
+accounting_entities ||--o{ reporting_contexts : "has context"
+
+fiscal_years ||--o{ accounting_periods : "contains"
+fiscal_years ||--o{ reporting_periods : "contains"
+
+accounting_contexts ||--o| accounting_periods : "current period"
+accounting_contexts ||--o| fiscal_years : "current fiscal year"
+currencies ||--o{ accounting_contexts : "functional currency"
+jurisdictions ||--o{ accounting_contexts : "operates in"
+accounting_standards ||--o{ accounting_contexts : "uses standard"
+
+reporting_contexts ||--o| reporting_periods : "current period"
+reporting_contexts ||--o| accounting_contexts : "derives from"
+currencies ||--o{ reporting_contexts : "reporting currency"
+accounting_standards ||--o{ reporting_contexts : "uses standard"
+
+%% Ledgers & Balances Domain
+ledger_accounts {
+    uuid id PK
+    varchar code
+    varchar materialized_path UK
+    uuid accounting_entity_id FK
+    varchar type
+    varchar normal_balance
+    varchar sub_type
+    varchar behavior
+    boolean is_control_account
+    uuid control_account_id FK
+    varchar name
+    varchar currency_code FK
+    varchar status
+    varchar contra_account_rule
+    varchar adjunct_account_rule
+    jsonb meta
+    uuid created_by FK
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+}
+
+categories {
+    uuid id PK
+    uuid accounting_entity_id FK
+    uuid account_id FK
+    varchar account_materialized_path
+    integer version
+    varchar status
+    varchar name
+    boolean is_grouping
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+category_history {
+    bigserial id PK
+    uuid category_id FK
+    uuid user_id FK
+    varchar action
+    jsonb diff
+    varchar note
+    timestamptz created_at
+}
+
+ledger_account_balances {
+    uuid ledger_account_id PK, FK
+    uuid accounting_entity_id FK
+    varchar account_materialized_path UK
+    bigint amount
+    varchar currency_code FK
+    bigint functional_amount
+    varchar functional_currency_code FK
+    integer version
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+ledger_account_balance_adjustments {
+    uuid id PK
+    uuid ledger_account_id FK
+    bigint amount
+    varchar currency_code FK
+    bigint functional_amount
+    varchar functional_currency_code FK
+    uuid journal_entry_id FK
+    uuid transaction_id FK
+    varchar effect
+    uuid created_by FK
+    timestamptz created_at
+}
+
+accounting_entities ||--o{ ledger_accounts : "has"
+users ||--o{ ledger_accounts : "created by"
+currencies ||--o{ ledger_accounts : "denominated in"
+ledger_accounts ||--o{ ledger_accounts : "child of (control)"
+
+accounting_entities ||--o{ categories : "has"
+ledger_accounts ||--o{ categories : "categorized as"
+categories ||--o{ category_history : "history"
+users ||--o{ category_history : "modified by"
+
+ledger_accounts ||--o| ledger_account_balances : "has balance"
+accounting_entities ||--o{ ledger_account_balances : "belongs to"
+currencies ||--o{ ledger_account_balances : "balance currency"
+
+ledger_accounts ||--o{ ledger_account_balance_adjustments : "adjusted by"
+currencies ||--o{ ledger_account_balance_adjustments : "adjustment currency"
+users ||--o{ ledger_account_balance_adjustments : "created by"
+
+%% Transactions & Journals Domain
+transactions {
+    uuid id PK
+    uuid accounting_entity_id FK
+    varchar reference UK
+    varchar type
+    date effective_date
+    uuid created_by FK
+    uuid source_account_id FK
+    bigint amount
+    varchar currency_code FK
+    jsonb exchange_rate
+    bigint functional_amount
+    varchar notes
+    integer version
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+transaction_lines {
+    uuid id PK
+    uuid transaction_id FK
+    uuid target_account_id FK
+    bigint amount
+    varchar currency_code FK
+    bigint functional_amount
+    varchar description
+    timestamptz created_at
+    timestamptz updated_at
+    timestamptz deleted_at
+}
+
+journal_entries {
+    uuid id PK
+    uuid accounting_entity_id FK
+    uuid transaction_id FK
+    varchar memo
+    varchar status
+    date effective_date
+    timestamptz posted_at
+    timestamptz voided_at
+    uuid voiding_entry_id FK
+    integer version
+    uuid created_by FK
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+journal_lines {
+    uuid id PK
+    uuid entry_id FK
+    uuid account_id FK
+    integer sequence_order
+    bigint amount
+    varchar currency_code FK
+    jsonb exchange_rate
+    bigint functional_amount
+    varchar functional_currency_code FK
+    varchar side
+    varchar description
+    jsonb meta
+    integer version
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+accounting_entities ||--o{ transactions : "has"
+users ||--o{ transactions : "created by"
+ledger_accounts ||--o{ transactions : "source account"
+currencies ||--o{ transactions : "currency"
+transactions ||--o{ transaction_lines : "has lines"
+ledger_accounts ||--o{ transaction_lines : "target account"
+currencies ||--o{ transaction_lines : "currency"
+
+accounting_entities ||--o{ journal_entries : "has"
+transactions ||--o| journal_entries : "generates"
+journal_entries ||--o| journal_entries : "voided by"
+users ||--o{ journal_entries : "created by"
+
+journal_entries ||--o{ journal_lines : "has lines"
+ledger_accounts ||--o{ journal_lines : "affects"
+currencies ||--o{ journal_lines : "currency"
+
+journal_entries ||--o{ ledger_account_balance_adjustments : "creates adjustment"
+transactions ||--o{ ledger_account_balance_adjustments : "creates adjustment"
