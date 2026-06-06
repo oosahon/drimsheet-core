@@ -25,16 +25,42 @@ import {
   usersInCore,
 } from './schema';
 
-export const jurisdictionAccountingStandardsInCoreRelations = relations(
-  jurisdictionAccountingStandardsInCore,
+export const userAuthInCoreRelations = relations(userAuthInCore, ({ one }) => ({
+  usersInCore: one(usersInCore, {
+    fields: [userAuthInCore.userId],
+    references: [usersInCore.id],
+  }),
+}));
+
+export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
+  userAuthInCores: many(userAuthInCore),
+  userSessionsInCores: many(userSessionsInCore),
+  userActivitiesInAudits: many(userActivitiesInAudit),
+  accountingEntitiesInCores: many(accountingEntitiesInCore),
+  ledgerAccountsInCores: many(ledgerAccountsInCore),
+  userPreferencesInCores: many(userPreferencesInCore),
+  journalEntriesInCores: many(journalEntriesInCore),
+  ledgerAccountBalanceAdjustmentsInCores: many(
+    ledgerAccountBalanceAdjustmentsInCore
+  ),
+}));
+
+export const userSessionsInCoreRelations = relations(
+  userSessionsInCore,
   ({ one }) => ({
-    jurisdictionsInCore: one(jurisdictionsInCore, {
-      fields: [jurisdictionAccountingStandardsInCore.jurisdictionCode],
-      references: [jurisdictionsInCore.code],
+    usersInCore: one(usersInCore, {
+      fields: [userSessionsInCore.userId],
+      references: [usersInCore.id],
     }),
-    accountingStandardsInCore: one(accountingStandardsInCore, {
-      fields: [jurisdictionAccountingStandardsInCore.accountingStandardCode],
-      references: [accountingStandardsInCore.code],
+  })
+);
+
+export const userActivitiesInAuditRelations = relations(
+  userActivitiesInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [userActivitiesInAudit.userId],
+      references: [usersInCore.id],
     }),
   })
 );
@@ -42,25 +68,14 @@ export const jurisdictionAccountingStandardsInCoreRelations = relations(
 export const jurisdictionsInCoreRelations = relations(
   jurisdictionsInCore,
   ({ one, many }) => ({
-    jurisdictionAccountingStandardsInCores: many(
-      jurisdictionAccountingStandardsInCore
-    ),
     currenciesInCore: one(currenciesInCore, {
       fields: [jurisdictionsInCore.currencyCode],
       references: [currenciesInCore.code],
     }),
     accountingEntitiesInCores: many(accountingEntitiesInCore),
-  })
-);
-
-export const accountingStandardsInCoreRelations = relations(
-  accountingStandardsInCore,
-  ({ many }) => ({
     jurisdictionAccountingStandardsInCores: many(
       jurisdictionAccountingStandardsInCore
     ),
-    accountingContextsInCores: many(accountingContextsInCore),
-    reportingContextsInCores: many(reportingContextsInCore),
   })
 );
 
@@ -149,19 +164,6 @@ export const accountingEntitiesInCoreRelations = relations(
   })
 );
 
-export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
-  accountingEntitiesInCores: many(accountingEntitiesInCore),
-  userAuthInCores: many(userAuthInCore),
-  userSessionsInCores: many(userSessionsInCore),
-  userActivitiesInAudits: many(userActivitiesInAudit),
-  ledgerAccountsInCores: many(ledgerAccountsInCore),
-  userPreferencesInCores: many(userPreferencesInCore),
-  journalEntriesInCores: many(journalEntriesInCore),
-  ledgerAccountBalanceAdjustmentsInCores: many(
-    ledgerAccountBalanceAdjustmentsInCore
-  ),
-}));
-
 export const fiscalYearsInCoreRelations = relations(
   fiscalYearsInCore,
   ({ one, many }) => ({
@@ -210,6 +212,17 @@ export const accountingContextsInCoreRelations = relations(
       references: [accountingPeriodsInCore.id],
     }),
     reportingContextsInCores: many(reportingContextsInCore),
+  })
+);
+
+export const accountingStandardsInCoreRelations = relations(
+  accountingStandardsInCore,
+  ({ many }) => ({
+    accountingContextsInCores: many(accountingContextsInCore),
+    reportingContextsInCores: many(reportingContextsInCore),
+    jurisdictionAccountingStandardsInCores: many(
+      jurisdictionAccountingStandardsInCore
+    ),
   })
 );
 
@@ -268,33 +281,6 @@ export const currencyExchangeRatesInCoreRelations = relations(
       references: [currenciesInCore.code],
       relationName:
         'currencyExchangeRatesInCore_targetCurrencyCode_currenciesInCore_code',
-    }),
-  })
-);
-
-export const userAuthInCoreRelations = relations(userAuthInCore, ({ one }) => ({
-  usersInCore: one(usersInCore, {
-    fields: [userAuthInCore.userId],
-    references: [usersInCore.id],
-  }),
-}));
-
-export const userSessionsInCoreRelations = relations(
-  userSessionsInCore,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userSessionsInCore.userId],
-      references: [usersInCore.id],
-    }),
-  })
-);
-
-export const userActivitiesInAuditRelations = relations(
-  userActivitiesInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userActivitiesInAudit.userId],
-      references: [usersInCore.id],
     }),
   })
 );
@@ -469,6 +455,20 @@ export const ledgerAccountBalanceAdjustmentsInCoreRelations = relations(
     usersInCore: one(usersInCore, {
       fields: [ledgerAccountBalanceAdjustmentsInCore.createdBy],
       references: [usersInCore.id],
+    }),
+  })
+);
+
+export const jurisdictionAccountingStandardsInCoreRelations = relations(
+  jurisdictionAccountingStandardsInCore,
+  ({ one }) => ({
+    jurisdictionsInCore: one(jurisdictionsInCore, {
+      fields: [jurisdictionAccountingStandardsInCore.jurisdictionCode],
+      references: [jurisdictionsInCore.code],
+    }),
+    accountingStandardsInCore: one(accountingStandardsInCore, {
+      fields: [jurisdictionAccountingStandardsInCore.accountingStandardCode],
+      references: [accountingStandardsInCore.code],
     }),
   })
 );

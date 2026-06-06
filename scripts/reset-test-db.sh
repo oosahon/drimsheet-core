@@ -10,9 +10,9 @@ fi
 
 export NODE_ENV=test
 
-echo "Setting up PostgreSQL and Redis..."
-yarn start:test:postgres
-yarn start:test:redis
+# NOTE: Infrastructure (Postgres, Redis, RabbitMQ) should be started
+# separately via purple-ledger-platforms: bash bin/start.sh --test
+
 
 echo "Tearing down and setting up database migrations..."
 yarn db:migrate down 9999 || true

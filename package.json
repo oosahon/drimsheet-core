@@ -12,10 +12,6 @@
     "test:db:reset": "bash scripts/reset-test-db.sh",
     "start": "node ./dist/src/app/_bootstrap/index.js",
     "start:test": "bash scripts/test.sh",
-    "start:postgres": "bash scripts/start-postgres.sh",
-    "start:redis": "bash scripts/redis-setup.sh",
-    "start:test:postgres": "bash scripts/pg-setup.sh",
-    "start:test:redis": "bash scripts/redis-setup.sh",
     "setup:test:db": "bash scripts/setup-test-db.sh",
     "dev": "bash scripts/dev.sh",
     "format:all": "prettier --write \"src/**/*.{ts,js,json,md}\"",
@@ -32,7 +28,7 @@
     "adr:sync": "tsx scripts/sync-adr.ts",
     "mjml:build": "tsx scripts/mjml-to-ts.ts",
     "export:errors": "tsx scripts/export-error-keys.ts",
-    "db:migrate": "tsx ./node_modules/.bin/node-pg-migrate -j ts -m ./submodules/migrations -d POSTGRES_URL"
+    "db:migrate": "tsx ./node_modules/.bin/node-pg-migrate -j ts -m ./database/migrations -d POSTGRES_URL"
   },
   "lint-staged": {
     "*.{ts,js,json,md}": "prettier --write --plugin=prettier-plugin-organize-imports"
