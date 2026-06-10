@@ -15,10 +15,10 @@ import mockJournalEntryRepo from '../../../../../infra/persistence/repos/__mocks
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockDomainServices from '../../../../../infra/services/__mocks__/domain.service.mock';
 import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
-import { TEntityId } from '../../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../../infra/services/__mocks__/request-context.mock';
+import { TEntityId } from '../../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import makeCreatePettyCashSubAccountUseCase from '../create-petty-cash-sub-account.usecase';
 

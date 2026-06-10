@@ -2,18 +2,30 @@ import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies
 import currencyError from '../../../../domain/currency/errors/currency.error';
 import exchangeRateError from '../../../../domain/currency/errors/exchange-rate.error';
 import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
+import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import exchangeRateRepoMock from '../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
+import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
+import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
 import makeIngestExchangeRateUseCase from '../ingest-exchange-rate.usecase';
+
+jest.mock('../../../../shared/utils/uuid-generator', () => ({
+  __esModule: true,
+  default: jest.fn().mockReturnValue('mocked-uuid'),
+}));
 
 describe('makeIngestExchangeRateUseCase', () => {
   const correlationId = 'test-correlation-id';
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    mockRepoService.runInTransaction.mockImplementation(async (cb) => {
+      return await cb('mock-tx' as unknown as ITransactionContext);
+    });
+    exchangeRateRepoMock.save.mockReset();
 
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-06-10T12:53:59.000Z'));
@@ -54,14 +66,13 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      mockRequestContext,
       exchangeRateRepoMock,
-      mockRepoService
+      mockRepoService,
+      mockLogger
     );
 
     await usecase(payload);
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(exchangeRateRepoMock.save).toHaveBeenCalledTimes(2);
 
@@ -88,9 +99,9 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      mockRequestContext,
       exchangeRateRepoMock,
-      mockRepoService
+      mockRepoService,
+      mockLogger
     );
 
     await usecase(payload);
@@ -118,9 +129,9 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      mockRequestContext,
       exchangeRateRepoMock,
-      mockRepoService
+      mockRepoService,
+      mockLogger
     );
 
     await expect(usecase(payload)).rejects.toThrow(currencyError.InvalidCode);
@@ -147,9 +158,9 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      mockRequestContext,
       exchangeRateRepoMock,
-      mockRepoService
+      mockRepoService,
+      mockLogger
     );
 
     await expect(usecase(payload)).rejects.toThrow(
@@ -176,9 +187,9 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      mockRequestContext,
       exchangeRateRepoMock,
-      mockRepoService
+      mockRepoService,
+      mockLogger
     );
 
     await expect(usecase(payload)).rejects.toThrow(
@@ -205,9 +216,9 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      mockRequestContext,
       exchangeRateRepoMock,
-      mockRepoService
+      mockRepoService,
+      mockLogger
     );
 
     await expect(usecase(payload)).rejects.toThrow(currencyError.InvalidValue);
@@ -235,9 +246,9 @@ describe('makeIngestExchangeRateUseCase', () => {
     exchangeRateRepoMock.save.mockRejectedValue(saveError);
 
     const usecase = makeIngestExchangeRateUseCase(
-      mockRequestContext,
       exchangeRateRepoMock,
-      mockRepoService
+      mockRepoService,
+      mockLogger
     );
 
     await expect(usecase(payload)).rejects.toThrow(saveError);
@@ -265,11 +276,52 @@ describe('makeIngestExchangeRateUseCase', () => {
     mockRepoService.runInTransaction.mockRejectedValue(transactionError);
 
     const usecase = makeIngestExchangeRateUseCase(
-      mockRequestContext,
       exchangeRateRepoMock,
-      mockRepoService
+      mockRepoService,
+      mockLogger
     );
 
     await expect(usecase(payload)).rejects.toThrow(transactionError);
+  });
+
+  it('should generate a correlation_id and log a warning if correlation_id is not provided', async () => {
+    const payload: Omit<
+      IExchangeRateIngestion['message']['payload'],
+      'correlation_id'
+    > = {
+      event_type: 'exchange-rate.ingested.v1',
+      occurred_at: '2026-06-10T12:00:00.000Z',
+      producer: 'pl-ingestion',
+      data: [
+        {
+          base_currency_code: SYSTEM_CURRENCIES.EUR.code,
+          target_currency_code: SYSTEM_CURRENCIES.USD.code,
+          rate: '1.0850',
+          rate_class: EExchangeRateType.Official,
+          as_of: '2026-06-10T00:00:00.000Z',
+          source: 'ECB',
+        },
+      ],
+    };
+
+    const usecase = makeIngestExchangeRateUseCase(
+      exchangeRateRepoMock,
+      mockRepoService,
+      mockLogger
+    );
+
+    await usecase(
+      payload as unknown as IExchangeRateIngestion['message']['payload']
+    );
+
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      'Exchange rate ingestion message was sent without a correlation_id'
+    );
+    expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
+    expect(exchangeRateRepoMock.save).toHaveBeenCalledTimes(1);
+    expect(exchangeRateRepoMock.save).toHaveBeenCalledWith(expect.any(Array), {
+      correlationId: 'mocked-uuid',
+      tx: 'mock-tx',
+    });
   });
 });

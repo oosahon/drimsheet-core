@@ -19,12 +19,12 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
 import mockAccountTransactionQueryRepo from '../../../../infra/persistence/repos/queries/__mocks__/account-transaction.query.repo.impl.mock';
 import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
+import mockRequestContext, {
+  mockClientSession,
+} from '../../../../infra/services/__mocks__/request-context.mock';
 import { EPaginationSortDirection } from '../../../../shared/types/pagination.types';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import { IPaginationDto } from '../../../shared/dtos/pagination.dto';
 import appError from '../../../shared/errors/app.error';

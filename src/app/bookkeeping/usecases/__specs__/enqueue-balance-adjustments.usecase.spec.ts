@@ -14,10 +14,10 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/0
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
-import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../infra/services/__mocks__/request-context.mock';
+import { TEntityId } from '../../../../shared/types/uuid';
 import IQueue from '../../../shared/contracts/queues.contract';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeEnqueueBalanceAdjustmentsUseCase from '../enqueue-balance-adjustments.usecase';

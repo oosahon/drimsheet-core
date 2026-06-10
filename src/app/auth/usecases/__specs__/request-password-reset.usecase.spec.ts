@@ -5,17 +5,21 @@ import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import mockUserAuthRepo from '../../../../infra/persistence/repos/__mocks__/user-auth.repo.impl.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
+import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import authError from '../../../auth/errors/auth.error';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
-import { IUserAuth } from '../../../shared/contracts/auth-service.contract';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import IVarsConfig from '../../../shared/contracts/vars-config.contract';
+import { IUserAuth } from '../../contracts/auth-service.contract';
 import makeRequestPasswordResetUseCase from '../request-password-reset.usecase';
 
 describe('makeRequestPasswordResetUseCase', () => {
   const correlationId = 'test-corr-id';
+  const mockVarsConfig = {
+    WEB_APP_URL: 'https://test-app.com',
+  } as IVarsConfig;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -40,7 +44,8 @@ describe('makeRequestPasswordResetUseCase', () => {
       mockAuthService,
       mockTransactionalEmailService,
       mockEventBus,
-      mockUserAuthRepo
+      mockUserAuthRepo,
+      mockVarsConfig
     );
 
     await usecase(userEmail);
@@ -71,8 +76,7 @@ describe('makeRequestPasswordResetUseCase', () => {
       deletedAt: null,
     };
     const resetToken = 'test-reset-token';
-    const { WEB_APP_URL } = require('../../../../infra/config/vars.config');
-    const resetLink = `${WEB_APP_URL}/auth/reset-password?token=${resetToken}`;
+    const resetLink = `https://test-app.com/auth/reset-password?token=${resetToken}`;
 
     const mockUserAuth = {
       userId: mockUser.id,
@@ -91,7 +95,8 @@ describe('makeRequestPasswordResetUseCase', () => {
       mockAuthService,
       mockTransactionalEmailService,
       mockEventBus,
-      mockUserAuthRepo
+      mockUserAuthRepo,
+      mockVarsConfig
     );
 
     await usecase(userEmail);
@@ -148,7 +153,8 @@ describe('makeRequestPasswordResetUseCase', () => {
       mockAuthService,
       mockTransactionalEmailService,
       mockEventBus,
-      mockUserAuthRepo
+      mockUserAuthRepo,
+      mockVarsConfig
     );
 
     await expect(usecase(userEmail)).rejects.toThrow(authError.WrongStrategy);

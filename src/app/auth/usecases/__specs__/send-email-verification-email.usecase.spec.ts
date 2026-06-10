@@ -3,16 +3,20 @@ import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
+import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import authError from '../../../auth/errors/auth.error';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import appError from '../../../shared/errors/app.error';
 import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 
 describe('makeSendEmailVerificationEmailUseCase', () => {
   const correlationId = 'test-corr-id';
+  const mockVarsConfig = {
+    WEB_APP_URL: 'https://test-app.com',
+  } as IVarsConfig;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -27,7 +31,8 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
       mockLogger,
       mockAuthService,
       mockUserRepo,
-      mockTransactionalEmailService
+      mockTransactionalEmailService,
+      mockVarsConfig
     );
 
     await expect(usecase('invalid-email')).rejects.toThrow(
@@ -44,7 +49,8 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
       mockLogger,
       mockAuthService,
       mockUserRepo,
-      mockTransactionalEmailService
+      mockTransactionalEmailService,
+      mockVarsConfig
     );
 
     await expect(usecase(userEmail)).rejects.toThrow(authError.UserNotFound);
@@ -82,7 +88,8 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
       mockLogger,
       mockAuthService,
       mockUserRepo,
-      mockTransactionalEmailService
+      mockTransactionalEmailService,
+      mockVarsConfig
     );
 
     await usecase(userEmail);
@@ -128,7 +135,8 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
       mockLogger,
       mockAuthService,
       mockUserRepo,
-      mockTransactionalEmailService
+      mockTransactionalEmailService,
+      mockVarsConfig
     );
 
     await usecase(userEmail);
@@ -143,10 +151,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
       id: mockUser.id,
     });
 
-    // We import WEB_APP_URL from config or it is undefined in test if mocked loosely.
-    // Usually it's handled properly by jest when importing.
-    const { WEB_APP_URL } = require('../../../../infra/config/vars.config');
-    const verificationLink = `${WEB_APP_URL}/auth/signup/complete?token=${token}`;
+    const verificationLink = `https://test-app.com/auth/signup/complete?token=${token}`;
     expect(
       mockTransactionalEmailService.sendEmailVerification
     ).toHaveBeenCalledWith({

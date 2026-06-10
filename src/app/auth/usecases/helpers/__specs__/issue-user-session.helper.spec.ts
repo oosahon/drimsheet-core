@@ -10,7 +10,7 @@ import mockAuthService from '../../../../../infra/services/__mocks__/auth.servic
 import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../../infra/services/__mocks__/request-context.mock';
 
 jest.mock('../../../../../shared/utils/uuid-generator', () => ({
   __esModule: true,

@@ -19,7 +19,7 @@ import mockReportingContextRepo from '../../../../infra/persistence/repos/__mock
 import mockReportingPeriodRepo from '../../../../infra/persistence/repos/__mocks__/reporting-period.repo.impl.mock';
 import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
+import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 
 describe('createAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';

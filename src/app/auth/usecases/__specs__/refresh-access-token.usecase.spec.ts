@@ -1,7 +1,7 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import authError from '../../../auth/errors/auth.error';
-import { IUserSession } from '../../../shared/contracts/auth-service.contract';
+import { IUserSession } from '../../contracts/auth-service.contract';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 
@@ -12,7 +12,7 @@ import mockAuthService from '../../../../infra/services/__mocks__/auth.service.m
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../infra/services/__mocks__/request-context.mock';
 
 jest.mock('../helpers/issue-user-session.helper');
 

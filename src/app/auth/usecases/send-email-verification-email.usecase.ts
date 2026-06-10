@@ -1,13 +1,13 @@
 import { z } from 'zod';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
-import { WEB_APP_URL } from '../../../infra/config/vars.config';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import authError from '../../auth/errors/auth.error';
-import IAuthService from '../../shared/contracts/auth-service.contract';
+import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
 import ILogger from '../../shared/contracts/logger.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
-import ITransactionalEmailService from '../../shared/contracts/transactional-email-service.contract';
+import IVarsConfig from '../../shared/contracts/vars-config.contract';
+import IAuthService from '../contracts/auth-service.contract';
 
 const validationSchema = z.object({
   email: z.email(),
@@ -18,7 +18,8 @@ export default function makeSendEmailVerificationEmailUseCase(
   logger: ILogger,
   makeAuthService: IAuthService,
   userRepo: IUserRepo,
-  transactionalEmailService: ITransactionalEmailService
+  transactionalEmailService: ITransactionalEmailService,
+  varsConfig: IVarsConfig
 ) {
   return async (userEmail: string) => {
     zodValidationRunner(validationSchema, { email: userEmail });
@@ -48,7 +49,7 @@ export default function makeSendEmailVerificationEmailUseCase(
       id: user.id,
     });
 
-    const verificationLink = `${WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
+    const verificationLink = `${varsConfig.WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
 
     await transactionalEmailService.sendEmailVerification({
       user,

@@ -6,16 +6,16 @@ import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/u
 import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
+import mockRequestContext, {
+  mockClientSession,
+} from '../../../../infra/services/__mocks__/request-context.mock';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import authError from '../../../auth/errors/auth.error';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.mock';
-import { IUserAuth } from '../../../shared/contracts/auth-service.contract';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
+import { IUserAuth } from '../../contracts/auth-service.contract';
 import makeResetPasswordUseCase from '../reset-password.usecase';
 
 describe('makeResetPasswordUseCase', () => {

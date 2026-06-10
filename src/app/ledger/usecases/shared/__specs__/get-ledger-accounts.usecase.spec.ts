@@ -7,11 +7,11 @@ import { IBankAccount } from '../../../../../domain/ledger/types/asset-account.t
 import mockReporter from '../../../../../infra/observability/__mocks__/reporter.mock';
 import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockRequestContext from '../../../../../infra/services/__mocks__/request-context.mock';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import moneyValue from '../../../../../shared/value-objects/money.vo';
 import { IGetLedgerAccountsQuery } from '../../../../ledger/dtos/ledger-account.dto';
-import mockRequestContext from '../../../../shared/contracts/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import makeGetLedgerAccountsUsecase from '../get-ledger-accounts.usecase';
 

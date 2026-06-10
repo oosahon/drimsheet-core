@@ -6,3 +6,4 @@ const mockReporter: jest.Mocked<IReporter> = {
 };
 
 export default mockReporter;
+export { mockReporter as MockReporter };

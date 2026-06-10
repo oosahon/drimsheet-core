@@ -17,11 +17,11 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import mockJournalEntryRepo from '../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
 import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
-import { TEntityId } from '../../../../shared/types/uuid';
-import { ITransferTransactionReq } from '../../../bookkeeping/dtos/bookkeeping.dto';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../infra/services/__mocks__/request-context.mock';
+import { TEntityId } from '../../../../shared/types/uuid';
+import { ITransferTransactionReq } from '../../../bookkeeping/dtos/bookkeeping.dto';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeRecordTransferJournalEntryUseCase from '../record-transfer-journal-entry.usecase';
 

@@ -1,4 +1,3 @@
-import { WEB_APP_URL } from '../../../infra/config/vars.config';
 import messaging from '../../../infra/messaging';
 import observability from '../../../infra/observability';
 import repos from '../../../infra/persistence/repos';
@@ -30,7 +29,8 @@ const authUseCase = {
     observability.logger,
     services.auth,
     repos.user,
-    services.transactionalEmail
+    services.transactionalEmail,
+    services.varsConfig
   ),
 
   verifyEmail: makeVerifyEmailAddressUseCase(
@@ -58,7 +58,8 @@ const authUseCase = {
     services.auth,
     services.transactionalEmail,
     messaging.eventBus,
-    repos.userAuth
+    repos.userAuth,
+    services.varsConfig
   ),
 
   resetPassword: makeResetPasswordUseCase(
@@ -77,7 +78,7 @@ const authUseCase = {
     messaging.eventBus,
     repos.userSession,
     services.repo,
-    WEB_APP_URL
+    services.varsConfig.WEB_APP_URL
   ),
 
   makeGoogleOAuthHelper: makeGoogleOAuthHelper(

@@ -1,5 +1,5 @@
 import { IRepoOptions } from '../../../shared/types/repo.types';
-import { IUserAuth } from '../../shared/contracts/auth-service.contract';
+import { IUserAuth } from './auth-service.contract';
 
 export default interface IUserAuthRepo {
   save(userAuth: IUserAuth, options: IRepoOptions): Promise<void>;

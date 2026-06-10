@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import IAuthService from '../../../app/shared/contracts/auth-service.contract';
+import IAuthService from '../../../app/auth/contracts/auth-service.contract';
 import ILogger from '../../../app/shared/contracts/logger.contract';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import { IUser } from '../../../domain/user/types/user.types';

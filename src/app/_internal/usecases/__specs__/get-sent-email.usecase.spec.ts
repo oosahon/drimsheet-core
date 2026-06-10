@@ -1,5 +1,7 @@
+import { IInternalMailer } from '../../../notification/contracts/transactional-email-agent.contract';
 import { ITransactionalEmailDto } from '../../../notification/dtos/transactional-email.dto';
-import { IInternalMailer } from '../../../shared/contracts/transactional-email-agent.contract';
+import IVarsConfig from '../../../shared/contracts/vars-config.contract';
+import getSentEmail from '../get-sent-email.usecase';
 
 describe('getSentEmail', () => {
   const mockInternalMailer: jest.Mocked<IInternalMailer> = {
@@ -9,16 +11,14 @@ describe('getSentEmail', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.resetModules();
   });
 
   it('throws ErrorForbidden if NODE_ENV is not test', async () => {
-    jest.doMock('../../../../infra/config/vars.config', () => ({
+    const mockVarsConfig = {
       NODE_ENV: 'production',
-    }));
+    } as IVarsConfig;
 
-    const { default: getSentEmail } = await import('../get-sent-email.usecase');
-    const useCase = getSentEmail(mockInternalMailer);
+    const useCase = getSentEmail(mockInternalMailer, mockVarsConfig);
 
     await expect(useCase('test@test.com', 'subject')).rejects.toThrow(
       'app_error_forbidden'
@@ -26,12 +26,11 @@ describe('getSentEmail', () => {
   });
 
   it('returns email correctly when NODE_ENV is test', async () => {
-    jest.doMock('../../../../infra/config/vars.config', () => ({
+    const mockVarsConfig = {
       NODE_ENV: 'test',
-    }));
+    } as IVarsConfig;
 
-    const { default: getSentEmail } = await import('../get-sent-email.usecase');
-    const useCase = getSentEmail(mockInternalMailer);
+    const useCase = getSentEmail(mockInternalMailer, mockVarsConfig);
 
     const mockEmailDto: ITransactionalEmailDto = {
       correlationId: 'test-corr-id',

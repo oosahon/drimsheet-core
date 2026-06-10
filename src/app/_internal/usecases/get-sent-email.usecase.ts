@@ -1,14 +1,17 @@
-import { NODE_ENV } from '../../../infra/config/vars.config';
+import { IInternalMailer } from '../../notification/contracts/transactional-email-agent.contract';
 import { ITransactionalEmailDto } from '../../notification/dtos/transactional-email.dto';
-import { IInternalMailer } from '../../shared/contracts/transactional-email-agent.contract';
+import IVarsConfig from '../../shared/contracts/vars-config.contract';
 import appError from '../../shared/errors/app.error';
 
-export default function getSentEmail(internalMailer: IInternalMailer) {
+export default function getSentEmail(
+  internalMailer: IInternalMailer,
+  varsConfig: IVarsConfig
+) {
   return async (
     email: string,
     subject: string
   ): Promise<ITransactionalEmailDto | null> => {
-    if (NODE_ENV !== 'test') {
+    if (varsConfig.NODE_ENV !== 'test') {
       throw new appError.Forbidden();
     }
     return internalMailer.getEmail(email, subject);
