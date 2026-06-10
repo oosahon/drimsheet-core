@@ -11,14 +11,16 @@ import { EAssetAccountBehavior } from '../../../../../domain/ledger/types/asset-
 import { TCashLedgerCode } from '../../../../../domain/ledger/types/ledger-code.types';
 import { IUser } from '../../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryRepo from '../../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
-import mockDomainServices from '../../../../../infra/services/__mocks__/domain.service.mock';
+import mockJournalEntryRepo from '../../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
-import { TEntityId } from '../../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../../infra/services/__mocks__/request-context.mock';
+import mockBookkeepingDomainServices from '../../../../../infra/services/domain/__mocks__/bookkeeping.domain.service.mock';
+import mockCurrencyDomainServices from '../../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
+import mockLedgerDomainServices from '../../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import { TEntityId } from '../../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import makeCreatePettyCashSubAccountUseCase from '../create-petty-cash-sub-account.usecase';
 
@@ -92,15 +94,13 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(null);
-    mockDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue([
-      mockPettyCashAccount,
-      mockEvents,
-    ]);
-    mockDomainServices.bookkeeping.recordOpeningBalance.mockResolvedValue([
-      {} as unknown as IJournalEntry,
-      [],
-    ]);
-    mockDomainServices.exchangeRate.getExchangeRate.mockResolvedValue({
+    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue(
+      [mockPettyCashAccount, mockEvents]
+    );
+    mockBookkeepingDomainServices.bookkeeping.recordOpeningBalance.mockResolvedValue(
+      [{} as unknown as IJournalEntry, []]
+    );
+    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue({
       rate: 1,
     } as unknown as IExchangeRate);
   });
@@ -111,9 +111,9 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockEventBus,
       mockLedgerAccountRepo,
       mockJournalEntryRepo,
-      mockDomainServices.assetAccount,
-      mockDomainServices.bookkeeping,
-      mockDomainServices.exchangeRate,
+      mockLedgerDomainServices.assetAccount,
+      mockBookkeepingDomainServices.bookkeeping,
+      mockCurrencyDomainServices.exchangeRate,
       mockRepoService
     );
 
@@ -123,7 +123,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     await useCase(validPayload);
 
     expect(
-      mockDomainServices.assetAccount.makePettyCashSubAccount
+      mockLedgerDomainServices.assetAccount.makePettyCashSubAccount
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
@@ -150,13 +150,13 @@ describe('createPettyCashSubAccountUseCase', () => {
     });
 
     expect(
-      mockDomainServices.exchangeRate.getExchangeRate
+      mockCurrencyDomainServices.exchangeRate.getExchangeRate
     ).toHaveBeenCalledWith(validPayload.openingBalance?.exchangeRate, {
       correlationId,
     });
 
     expect(
-      mockDomainServices.bookkeeping.recordOpeningBalance
+      mockBookkeepingDomainServices.bookkeeping.recordOpeningBalance
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         account: mockPettyCashAccount,
@@ -199,14 +199,14 @@ describe('createPettyCashSubAccountUseCase', () => {
       ])
     );
     expect(
-      mockDomainServices.bookkeeping.recordOpeningBalance
+      mockBookkeepingDomainServices.bookkeeping.recordOpeningBalance
     ).not.toHaveBeenCalled();
   });
 
   it('should throw an error if the control account is not found', async () => {
     const useCase = getUseCase();
 
-    mockDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
+    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
       new appError.Base('app_error_control_account_not_found')
     );
 
@@ -241,7 +241,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IRequestContextData);
 
-    mockDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
+    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
       new appError.Base('app_error_access_denied')
     );
 

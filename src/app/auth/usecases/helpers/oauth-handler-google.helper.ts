@@ -4,7 +4,6 @@ import emailValue from '../../../../domain/user/value-objects/email.vo';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import IUserAuthRepo from '../../../auth/contracts/user-auth.repo.contract';
 import { IOAuthProfile, TOAuthDoneCallback } from '../../../auth/dtos/auth.dto';
-import { EAuthStrategy } from '../../../shared/contracts/auth-service.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
@@ -12,6 +11,7 @@ import {
 } from '../../../shared/contracts/repo.contract';
 import IRequestContext from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
+import { EAuthStrategy } from '../../contracts/auth-service.contract';
 
 export default function makeGoogleOAuthHelper(
   eventBus: IEventBus,

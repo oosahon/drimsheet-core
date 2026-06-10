@@ -1,6 +1,6 @@
 import { Queue } from 'bullmq';
+import { ITransactionalEmailDto } from '../../../app/notification/dtos/transactional-email.dto';
 import { EQueueName } from '../../../app/shared/contracts/queues.contract';
-import { ITransactionalEmailDto } from '../../../app/shared/dtos/workers.dto';
 import { queueConnection } from '../../config/redis.config';
 
 export const transactionalEmailQueue = new Queue(

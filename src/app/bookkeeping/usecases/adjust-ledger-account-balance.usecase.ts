@@ -4,11 +4,11 @@ import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import ledgerAppError from '../../ledger/errors/ledger.error';
 import IQueue from '../../shared/contracts/queues.contract';
+import moneyMapper from '../../shared/mappers/money.mapper';
 import {
   ILedgerAccountBalanceAdjustmentDto,
   ledgerAccountBalanceAdjustmentDtoSchema,
-} from '../../shared/dtos/workers.dto';
-import moneyMapper from '../../shared/mappers/money.mapper';
+} from '../dtos/ledger-account-balance-adjustment.dto';
 
 export default function makeAdjustLedgerAccountBalanceUseCase(
   ledgerAccountRepo: ILedgerAccountRepo,

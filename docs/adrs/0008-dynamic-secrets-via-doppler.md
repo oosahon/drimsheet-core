@@ -14,7 +14,7 @@ We replaced all `.env` reliance with **Doppler**, acting as our centralized secr
 
 1. Secrets are mapped securely within Doppler.
 2. During continuous integration pipelines via Coolify, the Doppler CLI natively injects those variables directly into the Node.js Docker container lifecycle dynamically at startup.
-3. Within the App, configuration is firmly typed via our `vars.config.ts`, ensuring we never process undefined essential keys.
+3. Within the App, configuration is firmly typed via our `vars.config.ts` at the infrastructure layer. Application-layer code accesses these values through the `IVarsConfig` contract interface (`src/app/shared/contracts/vars-config.contract.ts`), ensuring we never process undefined essential keys and that environment configuration does not leak into testable application logic.
 
 ## Consequences
 

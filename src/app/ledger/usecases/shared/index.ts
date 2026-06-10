@@ -1,5 +1,6 @@
 import observability from '../../../../infra/observability';
-import repos from '../../../../infra/persistence/repos';
+import bookkeepingRepos from '../../../../infra/persistence/repos/bookkeeping';
+import ledgerRepos from '../../../../infra/persistence/repos/ledger';
 import appContext from '../../../shared/context';
 import makeGetLedgerAccountUseCase from './get-ledger-account.usecase';
 import makeGetLedgerAccountsUsecase from './get-ledger-accounts.usecase';
@@ -8,15 +9,15 @@ const ledgerAccountUsecases = {
   getLedgerAccounts: makeGetLedgerAccountsUsecase(
     appContext.request,
     observability.reporter,
-    repos.ledgerAccount,
-    repos.ledgerAccountBalance
+    ledgerRepos.ledgerAccount,
+    bookkeepingRepos.ledgerAccountBalance
   ),
 
   getLedgerAccount: makeGetLedgerAccountUseCase(
     appContext.request,
-    repos.ledgerAccount,
+    ledgerRepos.ledgerAccount,
     observability.reporter,
-    repos.ledgerAccountBalance
+    bookkeepingRepos.ledgerAccountBalance
   ),
 };
 

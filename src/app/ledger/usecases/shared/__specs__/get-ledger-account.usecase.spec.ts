@@ -11,15 +11,15 @@ import {
   ILedgerAccount,
 } from '../../../../../domain/ledger/types/ledger.types';
 import { IUser } from '../../../../../domain/user/types/user.types';
+import { MockReporter } from '../../../../../infra/observability/__mocks__/reporter.mock';
+import mockRequestContext from '../../../../../infra/services/__mocks__/request-context.mock';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import moneyValue from '../../../../../shared/value-objects/money.vo';
 import ledgerAccountMapper from '../../../../ledger/mappers/ledger-account.mapper';
-import { MockReporter } from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
-import mockRequestContext from '../../../../shared/contracts/__mocks__/request-context.mock';
 import makeGetLedgerAccountUseCase from '../get-ledger-account.usecase';
 
-import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/bookkeeping/__mocks__/ledger-account-balance.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 
 describe('getLedgerAccountUseCase', () => {
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;

@@ -1,4 +1,4 @@
-import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
+import mockAccountingEntityRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-entity.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IAccountingEntity } from '../../types/accounting-entity.types';
 import makeAccountingEntityService from '../accounting-entity.service';

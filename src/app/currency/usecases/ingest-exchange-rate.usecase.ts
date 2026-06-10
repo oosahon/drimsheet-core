@@ -4,17 +4,28 @@ import { UExchangeRateType } from '../../../domain/currency/types/exchange-rate.
 import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
 import batchArray from '../../../shared/utils/batch-array';
 import dateUtils from '../../../shared/utils/date';
-import { IRepoService } from '../../shared/contracts/repo.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
+import generateUUID from '../../../shared/utils/uuid-generator';
+import ILogger from '../../shared/contracts/logger.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '../../shared/contracts/repo.contract';
 import IExchangeRateIngestion from '../contracts/exchange-rate-ingestion.contract';
 
 export default function makeIngestExchangeRateUseCase(
-  requestContext: IRequestContext,
   exchangeRateRepo: IExchangeRateRepo,
-  repoService: IRepoService
+  repoService: IRepoService,
+  logger: ILogger
 ) {
   return async (payload: IExchangeRateIngestion['message']['payload']) => {
-    const { correlationId } = requestContext.get();
+    const { correlation_id } = payload;
+
+    if (!correlation_id) {
+      logger.warn(
+        'Exchange rate ingestion message was sent without a correlation_id'
+      );
+    }
+    const correlationId = correlation_id || generateUUID();
 
     const exchangeRates = payload.data.map((rate) =>
       exchangeRateValue.make({
@@ -27,12 +38,13 @@ export default function makeIngestExchangeRateUseCase(
       })
     );
 
-    await repoService.runInTransaction(async (tx) => {
+    const transactionFn: TRepoTransactionFn = async (tx) => {
       const batches = batchArray(exchangeRates, 100);
-
       for (const batch of batches) {
-        await exchangeRateRepo.save(batch, { correlationId, tx });
+        await exchangeRateRepo.save(batch, { tx, correlationId });
       }
-    });
+    };
+
+    await repoService.runInTransaction(transactionFn);
   };
 }

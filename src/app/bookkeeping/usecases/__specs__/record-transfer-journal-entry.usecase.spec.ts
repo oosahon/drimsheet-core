@@ -15,13 +15,14 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/0
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
-import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
-import { TEntityId } from '../../../../shared/types/uuid';
-import { ITransferTransactionReq } from '../../../bookkeeping/dtos/bookkeeping.dto';
+import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../infra/services/__mocks__/request-context.mock';
+import mockBookkeepingDomainServices from '../../../../infra/services/domain/__mocks__/bookkeeping.domain.service.mock';
+import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
+import { TEntityId } from '../../../../shared/types/uuid';
+import { ITransferTransactionReq } from '../../../bookkeeping/dtos/bookkeeping.dto';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeRecordTransferJournalEntryUseCase from '../record-transfer-journal-entry.usecase';
 
@@ -186,10 +187,10 @@ describe('recordTransferJournalEntryUseCase', () => {
 
     const journalEntryResult = makeSavedJournalEntry();
 
-    mockDomainServices.exchangeRate.getExchangeRate
+    mockCurrencyDomainServices.exchangeRate.getExchangeRate
       .mockResolvedValueOnce(mockExchangeRate)
       .mockResolvedValueOnce(null);
-    mockDomainServices.bookkeeping.recordTransaction.mockResolvedValue(
+    mockBookkeepingDomainServices.bookkeeping.recordTransaction.mockResolvedValue(
       journalEntryResult
     );
   });
@@ -197,8 +198,8 @@ describe('recordTransferJournalEntryUseCase', () => {
   const getUseCase = () =>
     makeRecordTransferJournalEntryUseCase(
       mockRequestContext,
-      mockDomainServices.bookkeeping,
-      mockDomainServices.exchangeRate,
+      mockBookkeepingDomainServices.bookkeeping,
+      mockCurrencyDomainServices.exchangeRate,
       mockJournalEntryRepo,
       mockEventBus
     );
@@ -207,26 +208,25 @@ describe('recordTransferJournalEntryUseCase', () => {
     const useCase = getUseCase();
     const [journalEntry, events] = makeSavedJournalEntry();
 
-    mockDomainServices.bookkeeping.recordTransaction.mockResolvedValueOnce([
-      journalEntry,
-      events,
-    ]);
+    mockBookkeepingDomainServices.bookkeeping.recordTransaction.mockResolvedValueOnce(
+      [journalEntry, events]
+    );
 
     await useCase(validPayload);
 
     expect(
-      mockDomainServices.exchangeRate.getExchangeRate
+      mockCurrencyDomainServices.exchangeRate.getExchangeRate
     ).toHaveBeenCalledWith(validPayload.sourceLine.exchangeRate, {
       correlationId,
     });
     expect(
-      mockDomainServices.exchangeRate.getExchangeRate
+      mockCurrencyDomainServices.exchangeRate.getExchangeRate
     ).toHaveBeenCalledWith(validPayload.destinationLines[0].exchangeRate, {
       correlationId,
     });
 
     expect(
-      mockDomainServices.bookkeeping.recordTransaction
+      mockBookkeepingDomainServices.bookkeeping.recordTransaction
     ).toHaveBeenCalledWith(
       {
         sourceLine: expect.objectContaining({
@@ -298,10 +298,10 @@ describe('recordTransferJournalEntryUseCase', () => {
     );
 
     expect(
-      mockDomainServices.exchangeRate.getExchangeRate
+      mockCurrencyDomainServices.exchangeRate.getExchangeRate
     ).not.toHaveBeenCalled();
     expect(
-      mockDomainServices.bookkeeping.recordTransaction
+      mockBookkeepingDomainServices.bookkeeping.recordTransaction
     ).not.toHaveBeenCalled();
     expect(mockJournalEntryRepo.save).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();

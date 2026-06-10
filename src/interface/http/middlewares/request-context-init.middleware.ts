@@ -1,5 +1,5 @@
 import { RequestHandler, Response } from 'express';
-import IAuthService from '../../../app/shared/contracts/auth-service.contract';
+import IAuthService from '../../../app/auth/contracts/auth-service.contract';
 import ILogger from '../../../app/shared/contracts/logger.contract';
 import IRequestContext from '../../../app/shared/contracts/request-context.contract';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';

@@ -12,6 +12,7 @@ const services = {
   logger,
   repo: repoService,
   transactionalEmail: makeTransactionalEmailService(messaging.queues),
+  varsConfig,
 };
 
 export default services;

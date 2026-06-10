@@ -1,20 +1,19 @@
 import { SYSTEM_CURRENCIES } from '../../domain/currency/config/currencies.config';
-import ICurrencyRepo from '../../domain/currency/repos/currency.repo';
+import observability from '../../infra/observability';
+import currencyRepos from '../../infra/persistence/repos/currency';
 import generateUUID from '../../shared/utils/uuid-generator';
-import ILogger from '../shared/contracts/logger.contract';
 
-export default async function bootstrapCurrencies(
-  currencyRepo: ICurrencyRepo,
-  logger: ILogger
-) {
+export default async function bootstrapCurrencies() {
   const correlationId = `bootstrap-currencies-${generateUUID()}`;
-  logger.info(`Bootstrapping currencies with correlation id ${correlationId}`);
+  observability.logger.info(
+    `Bootstrapping currencies with correlation id ${correlationId}`
+  );
 
   for (const currency of Object.values(SYSTEM_CURRENCIES)) {
-    await currencyRepo.save(currency, {
+    await currencyRepos.currency.save(currency, {
       correlationId,
     });
   }
 
-  logger.info('Currencies bootstrapped successfully');
+  observability.logger.info('Currencies bootstrapped successfully');
 }

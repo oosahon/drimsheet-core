@@ -1,26 +1,20 @@
+import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/bookkeeping/dtos/ledger-account-balance-adjustment.dto';
+import bookkeepingWorkers from '../../../app/bookkeeping/workers';
+import { ITransactionalEmailDto } from '../../../app/notification/dtos/transactional-email.dto';
+import notificationWorkers from '../../../app/notification/workers';
 import { EQueueName } from '../../../app/shared/contracts/queues.contract';
-import IReporter from '../../../app/shared/contracts/reporter.contract';
-import {
-  ILedgerAccountBalanceAdjustmentDto,
-  ITransactionalEmailDto,
-} from '../../../app/shared/dtos/workers.dto';
-import workers from '../../../app/shared/handlers/queue-workers.index';
 import { registerBullMQWorker } from '../../config/bullmq.config';
 
-function workerRegistration(reporter: IReporter) {
-  try {
-    registerBullMQWorker<ITransactionalEmailDto>(
-      EQueueName.TransactionalEmail,
-      workers.transactionalEmail
-    );
+function workerRegistration() {
+  registerBullMQWorker<ITransactionalEmailDto>(
+    EQueueName.TransactionalEmail,
+    notificationWorkers.transactionalEmail
+  );
 
-    registerBullMQWorker<ILedgerAccountBalanceAdjustmentDto>(
-      EQueueName.LedgerAccountBalanceAdjustment,
-      workers.ledgerAccountBalanceAdjustment
-    );
-  } catch (error) {
-    reporter.report(error, { context: 'Failed to register workers' });
-  }
+  registerBullMQWorker<ILedgerAccountBalanceAdjustmentDto>(
+    EQueueName.LedgerAccountBalanceAdjustment,
+    bookkeepingWorkers.ledgerAccountBalanceAdjustment
+  );
 }
 
 export default workerRegistration;

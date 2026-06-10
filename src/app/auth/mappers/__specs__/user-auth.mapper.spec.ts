@@ -2,7 +2,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import {
   EAuthStrategy,
   IUserAuth,
-} from '../../../shared/contracts/auth-service.contract';
+} from '../../contracts/auth-service.contract';
 import userAuthMapper, { IUserAuthModel } from '../user-auth.mapper';
 
 describe('User Auth Mapper', () => {

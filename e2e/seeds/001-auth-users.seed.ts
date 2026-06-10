@@ -1,7 +1,7 @@
 import {
   IUserAuth,
   UAuthStrategy,
-} from '../../src/app/shared/contracts/auth-service.contract';
+} from '../../src/app/auth/contracts/auth-service.contract';
 import userEntity from '../../src/domain/user/entities/user.entity';
 import repos from '../../src/infra/persistence/repos';
 import services from '../../src/infra/services';

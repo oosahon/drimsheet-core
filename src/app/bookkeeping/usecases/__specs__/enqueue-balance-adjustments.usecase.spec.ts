@@ -13,11 +13,11 @@ import {
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
-import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../infra/services/__mocks__/request-context.mock';
+import mockBookkeepingDomainServices from '../../../../infra/services/domain/__mocks__/bookkeeping.domain.service.mock';
+import { TEntityId } from '../../../../shared/types/uuid';
 import IQueue from '../../../shared/contracts/queues.contract';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeEnqueueBalanceAdjustmentsUseCase from '../enqueue-balance-adjustments.usecase';
@@ -72,21 +72,23 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IRequestContextData);
 
-    mockDomainServices.bookkeeping.getBalanceEffectDelta.mockResolvedValue({
-      balanceDelta: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
-      functionalBalanceDelta: {
-        amount: 1000n,
-        currency: SYSTEM_CURRENCIES.NGN,
-      },
-      affectedLedgerCodes: ['100000'],
-    });
+    mockBookkeepingDomainServices.bookkeeping.getBalanceEffectDelta.mockResolvedValue(
+      {
+        balanceDelta: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+        functionalBalanceDelta: {
+          amount: 1000n,
+          currency: SYSTEM_CURRENCIES.NGN,
+        },
+        affectedLedgerCodes: ['100000'],
+      }
+    );
   });
 
   const getUseCase = () =>
     makeEnqueueBalanceAdjustmentsUseCase(
       mockRequestContext,
       mockQueue,
-      mockDomainServices.bookkeeping
+      mockBookkeepingDomainServices.bookkeeping
     );
 
   it('should return early if journal entry is draft', async () => {
@@ -99,7 +101,7 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     await useCase(mockJournalEntry);
 
     expect(
-      mockDomainServices.bookkeeping.getBalanceEffectDelta
+      mockBookkeepingDomainServices.bookkeeping.getBalanceEffectDelta
     ).not.toHaveBeenCalled();
     expect(mockQueue.addLedgerAccountBalanceAdjustment).not.toHaveBeenCalled();
   });
@@ -144,7 +146,7 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     await useCase(mockJournalEntry);
 
     expect(
-      mockDomainServices.bookkeeping.getBalanceEffectDelta
+      mockBookkeepingDomainServices.bookkeeping.getBalanceEffectDelta
     ).toHaveBeenCalledWith(mockAssetAccount.id, expect.any(Array), {
       correlationId,
     });
@@ -212,7 +214,7 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     await useCase(mockJournalEntry);
 
     expect(
-      mockDomainServices.bookkeeping.getBalanceEffectDelta
+      mockBookkeepingDomainServices.bookkeeping.getBalanceEffectDelta
     ).toHaveBeenCalledWith(mockAssetAccount.id, expect.any(Array), {
       correlationId,
     });

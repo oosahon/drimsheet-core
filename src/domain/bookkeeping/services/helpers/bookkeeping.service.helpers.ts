@@ -1,9 +1,9 @@
-import { ELedgerAccountSubType } from '../../../../app/ledger/dtos/ledger-account.dto';
 import journalEntryError from '../../../journal-entry/errors/journal-entry.error';
 import {
   EJournalEntrySourceType,
   UJournalEntrySourceType,
 } from '../../../journal-entry/types/journal-entry.types';
+import { ELedgerAccountSubType } from '../../../ledger/types/ledger-aggregate.types';
 import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import bookkeepingError from '../../errors/bookkeeping.error';
 

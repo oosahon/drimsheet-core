@@ -1,5 +1,5 @@
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IUserSession } from '../../../shared/contracts/auth-service.contract';
+import { IUserSession } from '../../contracts/auth-service.contract';
 import userSessionMapper, { IUserSessionModel } from '../user-session.mapper';
 
 describe('User Session Mapper', () => {

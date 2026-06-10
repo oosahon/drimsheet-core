@@ -7,9 +7,6 @@ import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IUserAuthRepo from '../../auth/contracts/user-auth.repo.contract';
 import { IUserSignupReq } from '../../auth/dtos/auth.dto';
-import IAuthService, {
-  EAuthStrategy,
-} from '../../shared/contracts/auth-service.contract';
 import IEventBus from '../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
@@ -17,6 +14,9 @@ import {
 } from '../../shared/contracts/repo.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
+import IAuthService, {
+  EAuthStrategy,
+} from '../contracts/auth-service.contract';
 
 const validationSchema = z.object({
   firstName: z

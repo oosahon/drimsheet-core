@@ -1,13 +1,13 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/user-session.repo.impl.mock';
-import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
+import mockUserSessionRepo from '../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
+import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import authError from '../../../auth/errors/auth.error';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../infra/services/__mocks__/request-context.mock';
+import authError from '../../../auth/errors/auth.error';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';

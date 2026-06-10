@@ -6,13 +6,13 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/0
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
-import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
-import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
-import { TEntityId } from '../../../../shared/types/uuid';
+import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/bookkeeping/__mocks__/ledger-account-balance.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.mock';
+} from '../../../../infra/services/__mocks__/request-context.mock';
+import mockBookkeepingDomainServices from '../../../../infra/services/domain/__mocks__/bookkeeping.domain.service.mock';
+import { TEntityId } from '../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeCreateLedgerAccountBalanceUseCase from '../create-ledger-account-balance.usecase';
 
@@ -71,7 +71,7 @@ describe('createLedgerAccountBalanceUseCase', () => {
       currencyCode: SYSTEM_CURRENCIES.NGN.code,
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
     });
-    mockDomainServices.accountBalance.createBalance.mockResolvedValue(
+    mockBookkeepingDomainServices.accountBalance.createBalance.mockResolvedValue(
       mockNewBalance
     );
   });
@@ -82,7 +82,7 @@ describe('createLedgerAccountBalanceUseCase', () => {
       mockLedgerAccountBalanceRepo,
       mockLedgerAccountRepo,
       mockLogger,
-      mockDomainServices.accountBalance
+      mockBookkeepingDomainServices.accountBalance
     );
 
   it('should successfully create a ledger account balance', async () => {

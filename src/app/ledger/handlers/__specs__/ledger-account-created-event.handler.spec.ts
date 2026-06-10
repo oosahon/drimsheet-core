@@ -14,8 +14,8 @@ import makeLedgerAccountCreatedEventHandler from '../ledger-account-created-even
 
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
+import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import bookkeepingUseCases from '../../../bookkeeping/usecases';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 
 jest.mock('../../../bookkeeping/usecases', () => ({

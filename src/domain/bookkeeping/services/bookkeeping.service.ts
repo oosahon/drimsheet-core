@@ -12,18 +12,13 @@ import { IJournalLineMakePayload } from '../../journal-entry/types/journal-line.
 import ledgerAccountEntity from '../../ledger/entities/shared/ledger-account.entity';
 import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '../../ledger/types/equity-account.types';
-import { ELedgerType, ILedgerAccount } from '../../ledger/types/ledger.types';
+import { ELedgerType } from '../../ledger/types/ledger.types';
 import bookkeepingError from '../errors/bookkeeping.error';
 import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
 import journalEntryRules from '../rules/journal-entry.rule';
 import IService from '../types/bookkeeping.service.types';
 import { ELedgerAccountBalanceEffect } from '../types/ledger-account-balance.types';
 import bookkeepingServiceHelpers from './helpers/bookkeeping.service.helpers';
-
-type TRecordTransferValidator = (
-  sourceAccount: ILedgerAccount,
-  destinationAccounts: ILedgerAccount[]
-) => void;
 
 export default function makeBookkeepingService(
   ledgerAccountRepo: ILedgerAccountRepo,

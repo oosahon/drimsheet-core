@@ -3,13 +3,13 @@ import { IEvent } from '../../../../shared/types/event.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import IUserSessionRepo from '../../../auth/contracts/user-session.repo.contract';
 import { IAccessToken } from '../../../auth/dtos/auth.dto';
-import IAuthService from '../../../shared/contracts/auth-service.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
 import IRequestContext from '../../../shared/contracts/request-context.contract';
+import IAuthService from '../../contracts/auth-service.contract';
 
 export interface IIssueUserSessionDeps {
   user: IUser;

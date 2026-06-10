@@ -6,8 +6,8 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import makeUserCreatedEventHandler from '../user-created-event.handler';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
+import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import authUseCase from '../../../auth/usecases';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import userUseCase from '../../../user/usecases';
 

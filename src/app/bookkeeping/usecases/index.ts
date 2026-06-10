@@ -1,7 +1,11 @@
 import messaging from '../../../infra/messaging';
 import observability from '../../../infra/observability';
-import repos from '../../../infra/persistence/repos';
-import domainServices from '../../../infra/services/domain.service';
+import bookkeepingRepos from '../../../infra/persistence/repos/bookkeeping';
+import journalEntryRepos from '../../../infra/persistence/repos/journal-entry';
+import ledgerRepos from '../../../infra/persistence/repos/ledger';
+import bookkeepingDomainServices from '../../../infra/services/domain/bookkeeping.domain.service';
+import currencyDomainServices from '../../../infra/services/domain/currency.domain.service';
+import ledgerDomainServices from '../../../infra/services/domain/ledger.domain.service';
 import appContext from '../../shared/context';
 import makeAdjustLedgerAccountBalanceUseCase from './adjust-ledger-account-balance.usecase';
 import makeCreateLedgerAccountBalanceUseCase from './create-ledger-account-balance.usecase';
@@ -13,46 +17,46 @@ import makeRecordTransferJournalEntryUseCase from './record-transfer-journal-ent
 const bookkeepingUseCases = {
   createLedgerAccountBalance: makeCreateLedgerAccountBalanceUseCase(
     appContext.request,
-    repos.ledgerAccountBalance,
-    repos.ledgerAccount,
+    bookkeepingRepos.ledgerAccountBalance,
+    ledgerRepos.ledgerAccount,
     observability.logger,
-    domainServices.accountBalance
+    bookkeepingDomainServices.accountBalance
   ),
 
   enqueueBalanceAdjustment: makeEnqueueBalanceAdjustment(
     appContext.request,
     messaging.queues,
-    domainServices.bookkeeping
+    bookkeepingDomainServices.bookkeeping
   ),
 
   recordOpeningBalance: makeRecordOpeningBalanceUseCase(
     appContext.request,
-    repos.ledgerAccount,
-    repos.journalEntry,
+    ledgerRepos.ledgerAccount,
+    journalEntryRepos.journalEntry,
     messaging.eventBus,
-    domainServices.bookkeeping,
-    domainServices.exchangeRate
+    bookkeepingDomainServices.bookkeeping,
+    currencyDomainServices.exchangeRate
   ),
 
   recordTransfer: makeRecordTransferJournalEntryUseCase(
     appContext.request,
-    domainServices.bookkeeping,
-    domainServices.exchangeRate,
-    repos.journalEntry,
+    bookkeepingDomainServices.bookkeeping,
+    currencyDomainServices.exchangeRate,
+    journalEntryRepos.journalEntry,
     messaging.eventBus
   ),
 
   adjustLedgerAccountBalance: makeAdjustLedgerAccountBalanceUseCase(
-    repos.ledgerAccount,
-    repos.ledgerAccountBalance,
+    ledgerRepos.ledgerAccount,
+    bookkeepingRepos.ledgerAccountBalance,
     messaging.queues
   ),
 
   getAccountTransactions: makeGetAccountTransactionsUseCase(
     appContext.request,
-    repos.ledgerAccount,
-    domainServices.ledgerAccount,
-    repos.queries.accountTransaction
+    ledgerRepos.ledgerAccount,
+    ledgerDomainServices.ledgerAccount,
+    bookkeepingRepos.queries.accountTransaction
   ),
 };
 

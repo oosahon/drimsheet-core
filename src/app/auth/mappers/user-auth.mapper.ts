@@ -2,11 +2,8 @@ import { InferSelectModel } from 'drizzle-orm';
 
 import { userAuthInCore } from '../../../infra/config/drizzle/schema';
 import { TEntityId } from '../../../shared/types/uuid';
-import {
-  IUserAuth,
-  UAuthStrategy,
-} from '../../shared/contracts/auth-service.contract';
 import { fromRepoDate, toRepoDate } from '../../shared/mappers/date';
+import { IUserAuth, UAuthStrategy } from '../contracts/auth-service.contract';
 
 export interface IUserAuthModel extends InferSelectModel<
   typeof userAuthInCore

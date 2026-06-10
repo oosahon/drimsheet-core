@@ -50,10 +50,11 @@ src/
 │  ├─ _internal/        # Internal-only application use cases
 │  ├─ accounting/       # Accounting feature: dtos, handlers, mappers, use cases
 │  ├─ auth/             # Authentication feature: contracts, dtos, errors, mappers, use cases
-│  ├─ bookkeeping/      # Bookkeeping feature: dtos, handlers, mappers, use cases
-│  ├─ currency/         # Currency feature: mappers and use cases
+│  ├─ bookkeeping/      # Bookkeeping feature: contracts, dtos, handlers, mappers, use cases, workers
+│  ├─ currency/         # Currency feature: contracts, mappers, use cases, workers
 │  ├─ ledger/           # Ledger feature: dtos, errors, handlers, mappers, use cases
-│  ├─ shared/           # App-layer shared context, contracts, dtos, errors, handlers, and mappers
+│  ├─ notification/     # Notification feature: contracts, dtos, workers
+│  ├─ shared/           # App-layer shared context, contracts, dtos, errors, helpers, and mappers
 │  └─ user/             # User feature: dtos, handlers, mappers, use cases
 │
 ├─ domain/              # Domain layer: core business logic, entities, repo interfaces and rules
@@ -67,10 +68,13 @@ src/
 │
 ├─ infra/               # Technical layer: implementations of services, database, and infrastructure concerns
 │  ├─ config/           # Configuration files for app, environment variables, secrets, and third-party services
+│  ├─ db/               # Database migrations (node-pg-migrate)
+│  ├─ messaging/        # Event bus, message queues (BullMQ), and external messaging adapters (RabbitMQ)
 │  ├─ observability/    # Logging, metrics, monitoring, and tracing
 │  ├─ persistence/      # Data persistence mechanisms including DB (Drizzle), caching, and concrete repo implementations
 │  ├─ server/           # Express (or other HTTP) server setup and bootstrapping
-│  └─ services/         # External service clients (e.g., third-party API clients)
+│  ├─ services/         # External service clients (e.g., third-party API clients)
+│  └─ templates/        # Email templates (MJML source and compiled TypeScript)
 │
 ├─ interface/           # Application entry points and external interfaces
 │  ├─ http/             # API REST endpoints, controllers, handlers, and middlewares

@@ -1,7 +1,8 @@
 import messaging from '../../../infra/messaging';
-import repos from '../../../infra/persistence/repos';
+import accountingRepos from '../../../infra/persistence/repos/accounting';
+import ledgerRepos from '../../../infra/persistence/repos/ledger';
 import services from '../../../infra/services';
-import domainServices from '../../../infra/services/domain.service';
+import ledgerDomainServices from '../../../infra/services/domain/ledger.domain.service';
 import appContext from '../../shared/context';
 import makeCreateAccountingEntityUseCase from './create-accounting-entity.usecase';
 import makeGetJurisdictionsUseCase from './get-jurisdictions.usecase';
@@ -11,26 +12,26 @@ const accountingUsecases = Object.freeze({
   createAccountingEntity: makeCreateAccountingEntityUseCase(
     appContext.request,
     services.repo,
-    repos.accountingEntity,
-    repos.fiscalYear,
-    repos.accountingPeriod,
-    repos.accountingContext,
-    repos.reportingPeriod,
-    repos.reportingContext,
-    repos.ledgerAccount,
+    accountingRepos.accountingEntity,
+    accountingRepos.fiscalYear,
+    accountingRepos.accountingPeriod,
+    accountingRepos.accountingContext,
+    accountingRepos.reportingPeriod,
+    accountingRepos.reportingContext,
+    ledgerRepos.ledgerAccount,
     messaging.eventBus,
-    domainServices.assetAccount,
-    domainServices.liabilityAccount,
-    domainServices.equityAccount,
-    domainServices.revenueAccount,
-    domainServices.expenseAccount
+    ledgerDomainServices.assetAccount,
+    ledgerDomainServices.liabilityAccount,
+    ledgerDomainServices.equityAccount,
+    ledgerDomainServices.revenueAccount,
+    ledgerDomainServices.expenseAccount
   ),
 
   getJurisdictions: makeGetJurisdictionsUseCase(),
 
   getUserAccountingEntities: makeGetUserAccountingEntitiesUseCase(
     appContext.request,
-    repos.accountingEntity
+    accountingRepos.accountingEntity
   ),
 });
 

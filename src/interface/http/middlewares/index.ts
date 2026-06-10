@@ -1,9 +1,10 @@
 import authUseCase from '../../../app/auth/usecases';
 import appContext from '../../../app/shared/context';
 import observability from '../../../infra/observability';
-import repos from '../../../infra/persistence/repos';
+import accountingRepos from '../../../infra/persistence/repos/accounting';
+import userRepos from '../../../infra/persistence/repos/user';
 import services from '../../../infra/services';
-import domainServices from '../../../infra/services/domain.service';
+import accountingDomainServices from '../../../infra/services/domain/accounting.domain.service';
 import makeAccountingEntityAccessMiddleware from './accounting-entity-access.middleware';
 import makeErrorHandlerMiddleware from './error-handler.middleware';
 import {
@@ -29,9 +30,9 @@ const middlewares = {
 
   requestContext: makeRequestContextInitMiddleware(
     appContext.request,
-    repos.accountingEntity,
+    accountingRepos.accountingEntity,
     services.auth,
-    repos.user,
+    userRepos.user,
     observability.logger
   ),
 
@@ -39,7 +40,7 @@ const middlewares = {
 
   isAuthenticatedUser: makeIsAuthenticatedUserMiddleware(
     appContext.request,
-    domainServices.accountingEntity
+    accountingDomainServices.accountingEntity
   ),
 
   requestLogger: makeRequestLoggerMiddleware(
@@ -49,7 +50,7 @@ const middlewares = {
   ),
 
   accountingEntityAccess: makeAccountingEntityAccessMiddleware(
-    domainServices.accountingEntity,
+    accountingDomainServices.accountingEntity,
     appContext.request
   ),
 };

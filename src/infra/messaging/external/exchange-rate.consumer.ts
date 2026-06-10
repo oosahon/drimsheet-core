@@ -1,6 +1,6 @@
 import IExchangeRateIngestion from '../../../app/currency/contracts/exchange-rate-ingestion.contract';
+import currencyWorkers from '../../../app/currency/workers';
 import IReporter from '../../../app/shared/contracts/reporter.contract';
-import workers from '../../../app/shared/handlers/queue-workers.index';
 import {
   connectRabbitMQ,
   IRabbitMQConsumerConfig,
@@ -22,7 +22,7 @@ export default async function registerExchangeRateConsumer(
     },
     queue: 'pl-core.exchange-rate.ingested',
     routingKey: 'exchange-rate.ingested',
-    processor: workers.exchangeRateIngestion,
+    processor: currencyWorkers.exchangeRateIngestion,
   };
 
   await registerRabbitMQConsumer(connection, config, reporter);

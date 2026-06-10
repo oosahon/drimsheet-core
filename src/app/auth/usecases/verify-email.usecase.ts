@@ -6,10 +6,10 @@ import eventValue from '../../../shared/value-objects/event.vo';
 import IUserSessionRepo from '../../auth/contracts/user-session.repo.contract';
 import { IAccessToken } from '../../auth/dtos/auth.dto';
 import authError from '../../auth/errors/auth.error';
-import IAuthService from '../../shared/contracts/auth-service.contract';
 import IEventBus from '../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../shared/contracts/repo.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
+import IAuthService from '../contracts/auth-service.contract';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 const validationSchema = z.object({
