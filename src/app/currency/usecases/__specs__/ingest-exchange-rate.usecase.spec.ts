@@ -4,7 +4,7 @@ import exchangeRateError from '../../../../domain/currency/errors/exchange-rate.
 import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
 import exchangeRateRepoMock from '../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import MockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
 import makeIngestExchangeRateUseCase from '../ingest-exchange-rate.usecase';
@@ -18,7 +18,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-06-10T12:53:59.000Z'));
 
-    MockRequestContext.get.mockReturnValue({
+    mockRequestContext.get.mockReturnValue({
       correlationId,
       idempotencyKey: 'test-idempotency-key',
       user: null,
@@ -54,14 +54,14 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      MockRequestContext,
+      mockRequestContext,
       exchangeRateRepoMock,
       mockRepoService
     );
 
     await usecase(payload);
 
-    expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(exchangeRateRepoMock.save).toHaveBeenCalledTimes(2);
 
@@ -88,7 +88,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      MockRequestContext,
+      mockRequestContext,
       exchangeRateRepoMock,
       mockRepoService
     );
@@ -118,7 +118,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      MockRequestContext,
+      mockRequestContext,
       exchangeRateRepoMock,
       mockRepoService
     );
@@ -147,7 +147,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      MockRequestContext,
+      mockRequestContext,
       exchangeRateRepoMock,
       mockRepoService
     );
@@ -176,7 +176,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      MockRequestContext,
+      mockRequestContext,
       exchangeRateRepoMock,
       mockRepoService
     );
@@ -205,7 +205,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const usecase = makeIngestExchangeRateUseCase(
-      MockRequestContext,
+      mockRequestContext,
       exchangeRateRepoMock,
       mockRepoService
     );
@@ -235,7 +235,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     exchangeRateRepoMock.save.mockRejectedValue(saveError);
 
     const usecase = makeIngestExchangeRateUseCase(
-      MockRequestContext,
+      mockRequestContext,
       exchangeRateRepoMock,
       mockRepoService
     );
@@ -265,7 +265,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     mockRepoService.runInTransaction.mockRejectedValue(transactionError);
 
     const usecase = makeIngestExchangeRateUseCase(
-      MockRequestContext,
+      mockRequestContext,
       exchangeRateRepoMock,
       mockRepoService
     );

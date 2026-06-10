@@ -3,7 +3,7 @@ import { EUserEvents } from '../../../../domain/user/events/user.events';
 import mockUserActivityRepo from '../../../../infra/persistence/repos/__mocks__/user-activity.repo.impl.mock';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import MockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeSaveUserActivityUseCase from '../save-activity.usecase';
 
@@ -18,7 +18,7 @@ describe('makeSaveUserActivityUseCase', () => {
 
   it('should save user activity successfully with description from map', async () => {
     const correlationId = 'test-corr-id';
-    MockRequestContext.get.mockReturnValue({
+    mockRequestContext.get.mockReturnValue({
       correlationId,
     } as IRequestContextData);
 
@@ -35,13 +35,13 @@ describe('makeSaveUserActivityUseCase', () => {
     (userActivityEntity.make as jest.Mock).mockReturnValue(mockActivityEntity);
 
     const usecase = makeSaveUserActivityUseCase(
-      MockRequestContext,
+      mockRequestContext,
       mockUserActivityRepo
     );
 
     await usecase(userId, event);
 
-    expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(userActivityEntity.make).toHaveBeenCalledWith({
       userId,
       eventKey: event.type,
@@ -55,7 +55,7 @@ describe('makeSaveUserActivityUseCase', () => {
 
   it('should handle unmapped event types gracefully', async () => {
     const correlationId = 'test-corr-id';
-    MockRequestContext.get.mockReturnValue({
+    mockRequestContext.get.mockReturnValue({
       correlationId,
     } as IRequestContextData);
 
@@ -72,7 +72,7 @@ describe('makeSaveUserActivityUseCase', () => {
     (userActivityEntity.make as jest.Mock).mockReturnValue(mockActivityEntity);
 
     const usecase = makeSaveUserActivityUseCase(
-      MockRequestContext,
+      mockRequestContext,
       mockUserActivityRepo
     );
 
