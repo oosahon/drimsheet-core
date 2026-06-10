@@ -1,4 +1,4 @@
-import mockExchangeRateRepo from '../../../../infra/persistence/repos/__mocks__/exchange-rate-repo.impl.mock';
+import mockExchangeRateRepo from '../../../../infra/persistence/repos/currency/__mocks__/exchange-rate-repo.impl.mock';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import {
   EExchangeRateType,

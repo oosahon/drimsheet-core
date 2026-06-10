@@ -5,8 +5,8 @@ import currencyEntity from '../../../../../domain/currency/entities/currency.ent
 import cashAndEquivalentAccountEntity from '../../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import { IBankAccount } from '../../../../../domain/ledger/types/asset-account.types';
 import mockReporter from '../../../../../infra/observability/__mocks__/reporter.mock';
-import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/bookkeeping/__mocks__/ledger-account-balance.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockRequestContext from '../../../../../infra/services/__mocks__/request-context.mock';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';

@@ -1,6 +1,6 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
-import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/user-session.repo.impl.mock';
+import mockUserSessionRepo from '../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRequestContext, {
   mockClientSession,

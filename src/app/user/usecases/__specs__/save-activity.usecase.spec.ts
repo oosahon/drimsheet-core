@@ -1,6 +1,6 @@
 import userActivityEntity from '../../../../domain/user/entities/user-activity.entity';
 import { EUserEvents } from '../../../../domain/user/events/user.events';
-import mockUserActivityRepo from '../../../../infra/persistence/repos/__mocks__/user-activity.repo.impl.mock';
+import mockUserActivityRepo from '../../../../infra/persistence/repos/user/__mocks__/user-activity.repo.impl.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';

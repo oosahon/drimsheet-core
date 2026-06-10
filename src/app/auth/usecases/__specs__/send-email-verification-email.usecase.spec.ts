@@ -1,7 +1,7 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
-import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
+import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';

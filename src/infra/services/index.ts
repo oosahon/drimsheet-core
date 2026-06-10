@@ -1,4 +1,3 @@
-import IVarsConfig from '../../app/shared/contracts/vars-config.contract';
 import { NON_PROD_EMAIL_WHITELIST } from '../config/email-whitelist.config';
 import * as varsConfig from '../config/vars.config';
 import messaging from '../messaging';
@@ -13,7 +12,7 @@ const services = {
   logger,
   repo: repoService,
   transactionalEmail: makeTransactionalEmailService(messaging.queues),
-  varsConfig: varsConfig as IVarsConfig,
+  varsConfig,
 };
 
 export default services;

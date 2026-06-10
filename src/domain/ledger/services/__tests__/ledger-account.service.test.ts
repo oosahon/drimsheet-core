@@ -1,4 +1,4 @@
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import accountingEntityEntity from '../../../accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../accounting/types/accounting-entity.types';

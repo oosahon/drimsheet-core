@@ -1,5 +1,5 @@
-import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/bookkeeping/__mocks__/ledger-account-balance.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IMoney } from '../../../../shared/types/money.types';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';

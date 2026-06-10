@@ -18,8 +18,8 @@ import moneyValue from '../../../../../shared/value-objects/money.vo';
 import ledgerAccountMapper from '../../../../ledger/mappers/ledger-account.mapper';
 import makeGetLedgerAccountUseCase from '../get-ledger-account.usecase';
 
-import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/bookkeeping/__mocks__/ledger-account-balance.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 
 describe('getLedgerAccountUseCase', () => {
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;

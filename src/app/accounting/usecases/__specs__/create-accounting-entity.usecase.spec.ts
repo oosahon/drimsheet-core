@@ -10,16 +10,16 @@ import { IAccountingEntityCreationDto } from '../../../accounting/dtos/accountin
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
 
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockAccountingContextRepo from '../../../../infra/persistence/repos/__mocks__/accounting-context.repo.impl.mock';
-import mockAccountingEntityRepo from '../../../../infra/persistence/repos/__mocks__/accounting-entity.repo.impl.mock';
-import mockAccountingPeriodRepo from '../../../../infra/persistence/repos/__mocks__/accounting-period.repo.impl.mock';
-import mockFiscalYearRepo from '../../../../infra/persistence/repos/__mocks__/fiscal-year.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
-import mockReportingContextRepo from '../../../../infra/persistence/repos/__mocks__/reporting-context.repo.impl.mock';
-import mockReportingPeriodRepo from '../../../../infra/persistence/repos/__mocks__/reporting-period.repo.impl.mock';
-import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
+import mockAccountingContextRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-context.repo.impl.mock';
+import mockAccountingEntityRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-entity.repo.impl.mock';
+import mockAccountingPeriodRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-period.repo.impl.mock';
+import mockFiscalYearRepo from '../../../../infra/persistence/repos/accounting/__mocks__/fiscal-year.repo.impl.mock';
+import mockReportingContextRepo from '../../../../infra/persistence/repos/accounting/__mocks__/reporting-context.repo.impl.mock';
+import mockReportingPeriodRepo from '../../../../infra/persistence/repos/accounting/__mocks__/reporting-period.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
+import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 
 describe('createAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -31,7 +31,7 @@ describe('createAccountingEntityUseCase', () => {
     equityAccount: mockEquityAccountService,
     revenueAccount: mockRevenueAccountService,
     expenseAccount: mockExpenseAccountService,
-  } = mockDomainServices;
+  } = mockLedgerDomainServices;
 
   const getUseCase = () =>
     createAccountingEntityUseCase(

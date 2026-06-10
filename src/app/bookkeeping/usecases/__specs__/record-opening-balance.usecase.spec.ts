@@ -10,12 +10,13 @@ import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/__mocks__/journal-entry.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
-import mockDomainServices from '../../../../infra/services/__mocks__/domain.service.mock';
+import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
+import mockBookkeepingDomainServices from '../../../../infra/services/domain/__mocks__/bookkeeping.domain.service.mock';
+import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
@@ -79,11 +80,12 @@ describe('recordOpeningBalanceUseCase', () => {
 
     mockLedgerAccountRepo.findById.mockResolvedValueOnce(mockAssetAccount);
 
-    mockDomainServices.bookkeeping.recordOpeningBalance.mockResolvedValue([
-      { id: 'mock-journal-entry-id' } as any,
-      [],
-    ]);
-    mockDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(null);
+    mockBookkeepingDomainServices.bookkeeping.recordOpeningBalance.mockResolvedValue(
+      [{ id: 'mock-journal-entry-id' } as any, []]
+    );
+    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
+      null
+    );
   });
 
   const getUseCase = () =>
@@ -92,8 +94,8 @@ describe('recordOpeningBalanceUseCase', () => {
       mockLedgerAccountRepo,
       mockJournalEntryRepo,
       mockEventBus,
-      mockDomainServices.bookkeeping,
-      mockDomainServices.exchangeRate
+      mockBookkeepingDomainServices.bookkeeping,
+      mockCurrencyDomainServices.exchangeRate
     );
 
   it('should successfully record opening balance', async () => {
@@ -112,7 +114,7 @@ describe('recordOpeningBalanceUseCase', () => {
       { correlationId }
     );
     expect(
-      mockDomainServices.bookkeeping.recordOpeningBalance
+      mockBookkeepingDomainServices.bookkeeping.recordOpeningBalance
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         account: mockAssetAccount,
@@ -142,7 +144,7 @@ describe('recordOpeningBalanceUseCase', () => {
       createdAt: new Date(),
     };
 
-    mockDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
+    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
       mockExchangeRate
     );
 
@@ -163,7 +165,7 @@ describe('recordOpeningBalanceUseCase', () => {
     await useCase(payload);
 
     expect(
-      mockDomainServices.exchangeRate.getExchangeRate
+      mockCurrencyDomainServices.exchangeRate.getExchangeRate
     ).toHaveBeenCalledWith(payload.exchangeRate, { correlationId });
     expect(mockJournalEntryRepo.save).toHaveBeenCalled();
   });

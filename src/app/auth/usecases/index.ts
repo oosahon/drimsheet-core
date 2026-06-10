@@ -1,6 +1,6 @@
 import messaging from '../../../infra/messaging';
 import observability from '../../../infra/observability';
-import repos from '../../../infra/persistence/repos';
+import userRepos from '../../../infra/persistence/repos/user';
 import services from '../../../infra/services';
 import appContext from '../../shared/context';
 import makeGoogleOAuthHelper from './helpers/oauth-handler-google.helper';
@@ -17,10 +17,10 @@ import makeVerifyEmailAddressUseCase from './verify-email.usecase';
 const authUseCase = {
   signupWithEmail: makeSignupWithEmailUsecase(
     appContext.request,
-    repos.user,
+    userRepos.user,
     services.auth,
     messaging.eventBus,
-    repos.userAuth,
+    userRepos.userAuth,
     services.repo
   ),
 
@@ -28,47 +28,47 @@ const authUseCase = {
     appContext.request,
     observability.logger,
     services.auth,
-    repos.user,
+    userRepos.user,
     services.transactionalEmail,
     services.varsConfig
   ),
 
   verifyEmail: makeVerifyEmailAddressUseCase(
     services.auth,
-    repos.user,
+    userRepos.user,
     appContext.request,
     messaging.eventBus,
-    repos.userSession,
+    userRepos.userSession,
     services.repo
   ),
 
   loginWithEmail: makeLoginWithEmailUseCase(
     appContext.request,
-    repos.user,
+    userRepos.user,
     services.auth,
     messaging.eventBus,
-    repos.userAuth,
-    repos.userSession,
+    userRepos.userAuth,
+    userRepos.userSession,
     services.repo
   ),
 
   getPasswordResetLink: makeRequestPasswordResetUseCase(
     appContext.request,
-    repos.user,
+    userRepos.user,
     services.auth,
     services.transactionalEmail,
     messaging.eventBus,
-    repos.userAuth,
+    userRepos.userAuth,
     services.varsConfig
   ),
 
   resetPassword: makeResetPasswordUseCase(
     appContext.request,
-    repos.user,
+    userRepos.user,
     services.auth,
     messaging.eventBus,
-    repos.userAuth,
-    repos.userSession,
+    userRepos.userAuth,
+    userRepos.userSession,
     services.repo
   ),
 
@@ -76,7 +76,7 @@ const authUseCase = {
     appContext.request,
     services.auth,
     messaging.eventBus,
-    repos.userSession,
+    userRepos.userSession,
     services.repo,
     services.varsConfig.WEB_APP_URL
   ),
@@ -84,24 +84,24 @@ const authUseCase = {
   makeGoogleOAuthHelper: makeGoogleOAuthHelper(
     messaging.eventBus,
     appContext.request,
-    repos.user,
-    repos.userAuth,
+    userRepos.user,
+    userRepos.userAuth,
     services.repo
   ),
 
   refreshAccessToken: makeRefreshAccessTokenUseCase(
     appContext.request,
-    repos.user,
+    userRepos.user,
     services.auth,
     messaging.eventBus,
-    repos.userSession,
+    userRepos.userSession,
     services.repo
   ),
 
   logout: makeLogoutUseCase(
     appContext.request,
     services.auth,
-    repos.userSession,
+    userRepos.userSession,
     observability.logger
   ),
 };

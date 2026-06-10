@@ -6,8 +6,8 @@ import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserSessionRepo from '../../../../infra/persistence/repos/__mocks__/user-session.repo.impl.mock';
-import mockUserRepo from '../../../../infra/persistence/repos/__mocks__/user.repo.impl.mock';
+import mockUserSessionRepo from '../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
+import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {

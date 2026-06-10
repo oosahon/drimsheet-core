@@ -5,8 +5,8 @@ import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/bookkeeping/__mocks__/ledger-account-balance.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import IQueue from '../../../shared/contracts/queues.contract';

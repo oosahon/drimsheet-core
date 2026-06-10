@@ -2,7 +2,7 @@ import { SYSTEM_ACCOUNTING_STANDARDS } from '../../domain/accounting/config/acco
 import { SYSTEM_JURISDICTIONS } from '../../domain/accounting/config/jurisdictions.config';
 import { IJurisdictionAccountingStandard } from '../../domain/accounting/types/jurisdiction.types';
 import observability from '../../infra/observability';
-import repos from '../../infra/persistence/repos';
+import accountingRepos from '../../infra/persistence/repos/accounting';
 import repoService from '../../infra/services/repo.service';
 
 export async function bootstrapAccountingContext() {
@@ -32,9 +32,12 @@ export async function bootstrapAccountingContext() {
   await repoService.runInTransaction(async (tx) => {
     const repoOptions = { correlationId: 'accounting-context-bootstrap' };
 
-    await repos.accountingStandards.save(accountingStandards, repoOptions);
-    await repos.jurisdiction.save(jurisdictions, repoOptions);
-    await repos.jurisdictionAccountingStandard.save(
+    await accountingRepos.accountingStandards.save(
+      accountingStandards,
+      repoOptions
+    );
+    await accountingRepos.jurisdiction.save(jurisdictions, repoOptions);
+    await accountingRepos.jurisdictionAccountingStandard.save(
       allJurisdictionStandards,
       repoOptions
     );

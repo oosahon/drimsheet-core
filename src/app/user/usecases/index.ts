@@ -1,4 +1,4 @@
-import repos from '../../../infra/persistence/repos';
+import userRepos from '../../../infra/persistence/repos/user';
 import appContext from '../../shared/context';
 import makeGetUserPreferencesUseCase from './get-preferences.usecase';
 import makeGetAuthUserProfileUseCase from './get-profile.usecase';
@@ -7,12 +7,12 @@ import makeSaveUserActivityUseCase from './save-activity.usecase';
 const userUseCase = {
   saveActivity: makeSaveUserActivityUseCase(
     appContext.request,
-    repos.userActivity
+    userRepos.userActivity
   ),
 
   getPreferences: makeGetUserPreferencesUseCase(
     appContext.request,
-    repos.userPreferences
+    userRepos.userPreferences
   ),
 
   getAuthUserProfile: makeGetAuthUserProfileUseCase(appContext.request),
