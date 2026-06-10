@@ -1,19 +1,11 @@
 import { SYSTEM_ACCOUNTING_STANDARDS } from '../../domain/accounting/config/accounting-standards.config';
 import { SYSTEM_JURISDICTIONS } from '../../domain/accounting/config/jurisdictions.config';
-import { IAccountingStandardRepo } from '../../domain/accounting/repos/accounting-standards.repo';
-import IJurisdictionAccountingStandardRepo from '../../domain/accounting/repos/jurisdiction-accounting-standard.repo';
-import IJurisdictionRepo from '../../domain/accounting/repos/jurisdiction.repo';
 import { IJurisdictionAccountingStandard } from '../../domain/accounting/types/jurisdiction.types';
-import ILogger from '../shared/contracts/logger.contract';
-import { IRepoService } from '../shared/contracts/repo.contract';
+import observability from '../../infra/observability';
+import repos from '../../infra/persistence/repos';
+import repoService from '../../infra/services/repo.service';
 
-export async function bootstrapAccountingContext(
-  logger: ILogger,
-  accountingStandardsRepo: IAccountingStandardRepo,
-  jurisdictionRepo: IJurisdictionRepo,
-  jurisdictionAccountingStandardRepo: IJurisdictionAccountingStandardRepo,
-  repoService: IRepoService
-) {
+export async function bootstrapAccountingContext() {
   const accountingStandards = Object.values(SYSTEM_ACCOUNTING_STANDARDS);
   const jurisdictions = Object.values(SYSTEM_JURISDICTIONS);
 
@@ -40,12 +32,12 @@ export async function bootstrapAccountingContext(
   await repoService.runInTransaction(async (tx) => {
     const repoOptions = { correlationId: 'accounting-context-bootstrap' };
 
-    await accountingStandardsRepo.save(accountingStandards, repoOptions);
-    await jurisdictionRepo.save(jurisdictions, repoOptions);
-    await jurisdictionAccountingStandardRepo.save(
+    await repos.accountingStandards.save(accountingStandards, repoOptions);
+    await repos.jurisdiction.save(jurisdictions, repoOptions);
+    await repos.jurisdictionAccountingStandard.save(
       allJurisdictionStandards,
       repoOptions
     );
   });
-  logger.info('Accounting context bootstrapped successfully');
+  observability.logger.info('Accounting context bootstrapped successfully');
 }

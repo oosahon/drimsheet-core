@@ -1,10 +1,10 @@
+import messaging from '../../infra/messaging';
 import { accountingEntityEventsRegistry } from '../accounting/handlers';
 import { journalEntryEventsRegistry } from '../bookkeeping/handlers';
 import { ledgerAccountEventsRegistry } from '../ledger/handlers';
-import IEventBus from '../shared/contracts/event-bus.contract';
 import { userEventsRegistry } from '../user/handlers';
 
-export default function eventsRegistry(eventBus: IEventBus) {
+export default function eventsRegistry() {
   const events = {
     ...accountingEntityEventsRegistry,
     ...userEventsRegistry,
@@ -13,6 +13,6 @@ export default function eventsRegistry(eventBus: IEventBus) {
   };
 
   Object.entries(events).forEach(([eventType, handler]) => {
-    eventBus.subscribe(eventType, handler);
+    messaging.eventBus.subscribe(eventType, handler);
   });
 }
