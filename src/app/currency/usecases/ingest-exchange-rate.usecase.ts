@@ -16,7 +16,7 @@ export default function makeIngestExchangeRateUseCase(
   return async (payload: IExchangeRateIngestion['message']['payload']) => {
     const { correlationId } = requestContext.get();
 
-    const echangeRates = payload.data.map((rate) =>
+    const exchangeRates = payload.data.map((rate) =>
       exchangeRateValue.make({
         baseCurrencyCode: rate.base_currency_code,
         targetCurrencyCode: rate.target_currency_code,
@@ -27,8 +27,8 @@ export default function makeIngestExchangeRateUseCase(
       })
     );
 
-    repoService.runInTransaction(async (tx) => {
-      const batches = batchArray(echangeRates, 100);
+    await repoService.runInTransaction(async (tx) => {
+      const batches = batchArray(exchangeRates, 100);
 
       for (const batch of batches) {
         await exchangeRateRepo.save(batch, { correlationId, tx });

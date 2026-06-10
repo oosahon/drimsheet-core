@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import ILogger from '../../shared/contracts/logger.contract';
 import IReporter from '../../shared/contracts/reporter.contract';
@@ -14,7 +13,6 @@ export default function makeExchangeRateIngestionWorker(
   logger: ILogger
 ) {
   return async (payload: IExchangeRateIngestion['message']['payload']) => {
-    console.log('>>>>>>>>>>>>>>>>>>>', _.omit(payload, ['data']));
     try {
       logger.info('Initiating currency exchange rate ingestion');
 
@@ -27,13 +25,17 @@ export default function makeExchangeRateIngestionWorker(
       }
 
       const storeInitialState = {
-        getCorrelationId: correlation_id || generateUUID(),
+        correlationId: correlation_id || generateUUID(),
       } as unknown as IRequestContextData;
 
-      requestContext.init(
-        storeInitialState,
-        async () => await currencyUseCase.ingest(payload).catch(reporter.report)
-      );
+      await new Promise<void>((resolve) => {
+        requestContext.init(storeInitialState, () => {
+          currencyUseCase
+            .ingest(payload)
+            .catch(reporter.report)
+            .finally(resolve);
+        });
+      });
 
       logger.info('Currency exchange rate ingested successfully');
     } catch (error) {
