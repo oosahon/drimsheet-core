@@ -1,0 +1,277 @@
+import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
+import {
+  EAccountingEntityType,
+  IAccountingEntity,
+} from '../../../../domain/accounting/types/accounting-entity.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
+import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+  IJournalEntry,
+} from '../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
+import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/types/ledger-account-balance.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
+import userEntity from '../../../../domain/user/entities/user.entity';
+import { IUser } from '../../../../domain/user/types/user.types';
+import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
+import mockAccountTransactionQueryRepo from '../../../../infra/persistence/repos/ledger/queries/__mocks__/account-transaction.query.repo.impl.mock';
+import mockRequestContext, {
+  mockClientSession,
+} from '../../../../infra/services/__mocks__/request-context.mock';
+import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import { EPaginationSortDirection } from '../../../../shared/types/pagination.types';
+import moneyValue from '../../../../shared/value-objects/money.vo';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import { IPaginationDto } from '../../../shared/dtos/pagination.dto';
+import appError from '../../../shared/errors/app.error';
+import ledgerAppError from '../../errors/ledger.error';
+import makeGetAccountTransactionsUseCase from '../get-account-transactions.usecase';
+
+describe('getAccountTransactionsUseCase', () => {
+  const correlationId = 'test-correlation-id';
+  const pagination: IPaginationDto = {
+    limit: 25,
+    page: 2,
+    orderBy: 'createdAt',
+    sortDirection: EPaginationSortDirection.Desc,
+    search: 'cash',
+  };
+
+  let user: IUser;
+  let accountingEntity: IAccountingEntity;
+  let ledgerAccount: ILedgerAccount;
+  let journalEntry: IJournalEntry;
+
+  const getUseCase = () =>
+    makeGetAccountTransactionsUseCase(
+      mockRequestContext,
+      mockLedgerAccountRepo,
+      mockLedgerDomainServices.ledgerAccount,
+      mockAccountTransactionQueryRepo
+    );
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-05-01T00:00:00.000Z'));
+    jest.clearAllMocks();
+
+    [user] = userEntity.make({
+      email: 'owner@example.com',
+      emailVerified: true,
+      firstName: 'Account',
+      lastName: 'Owner',
+    });
+    [accountingEntity] = accountingEntityEntity.make({
+      name: 'Owner Business',
+      ownerId: user.id,
+      type: EAccountingEntityType.Individual,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+      jurisdictionCode: 'NG',
+    });
+
+    [ledgerAccount] = cashAndEquivalentAccountEntity.makeHeader({
+      name: 'Main Cash',
+      accountingEntityId: accountingEntity.id,
+      currency: SYSTEM_CURRENCIES.NGN,
+      createdBy: user.id,
+    });
+
+    const amount = moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true);
+    [journalEntry] = journalEntryEntity.make({
+      accountingEntityId: accountingEntity.id,
+      sourceType: EJournalEntrySourceType.Transfer,
+      counterPartyId: null,
+      status: EJournalEntryStatus.Posted,
+      effectiveDate: new Date('2026-05-01T00:00:00.000Z'),
+      postedAt: new Date('2026-05-01T00:00:00.000Z'),
+      voidedAt: null,
+      voidingEntryId: null,
+      memo: 'Cash transfer',
+      functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      createdBy: user.id,
+      lines: [
+        {
+          accountId: ledgerAccount.id,
+          sequenceOrder: 1,
+          amount,
+          exchangeRate: null,
+          side: EJournalSide.Debit,
+          description: 'Debit cash',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+        {
+          accountId: ledgerAccount.id,
+          sequenceOrder: 2,
+          amount,
+          exchangeRate: null,
+          side: EJournalSide.Credit,
+          description: 'Credit cash',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+      ],
+    });
+
+    mockRequestContext.get.mockReturnValue({
+      correlationId,
+      idempotencyKey: 'test-idempotency-key',
+      user,
+      accountingEntity,
+      clientSession: mockClientSession,
+    } satisfies IRequestContextData);
+    mockLedgerAccountRepo.findById.mockResolvedValue(ledgerAccount);
+    mockLedgerDomainServices.ledgerAccount.validateAccountAccess.mockResolvedValue(
+      true
+    );
+    mockAccountTransactionQueryRepo.findAllByAccountId.mockResolvedValue({
+      data: [
+        {
+          ...journalEntry.lines[0],
+          header: {
+            sourceType: journalEntry.sourceType,
+            counterPartyId: journalEntry.counterPartyId,
+            memo: journalEntry.memo,
+            status: journalEntry.status,
+            effectiveDate: journalEntry.effectiveDate,
+            postedAt: journalEntry.postedAt,
+            voidedAt: journalEntry.voidedAt,
+            voidingEntryId: journalEntry.voidingEntryId,
+            version: journalEntry.version,
+            createdBy: journalEntry.createdBy,
+            createdAt: journalEntry.createdAt,
+            updatedAt: journalEntry.updatedAt,
+          },
+        },
+      ],
+      meta: {
+        page: 2,
+        limit: 25,
+        total: 1,
+        totalPages: 1,
+      },
+    });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('returns account transactions with journal headers', async () => {
+    const useCase = getUseCase();
+
+    const result = await useCase(ledgerAccount.id, pagination);
+
+    expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
+      ledgerAccount.id,
+      { correlationId }
+    );
+    expect(
+      mockLedgerDomainServices.ledgerAccount.validateAccountAccess
+    ).toHaveBeenCalledWith(ledgerAccount.id, user.id, { correlationId });
+    expect(
+      mockAccountTransactionQueryRepo.findAllByAccountId
+    ).toHaveBeenCalledWith(ledgerAccount.id, {
+      correlationId,
+      limit: pagination.limit,
+      offset: 25,
+      orderBy: pagination.orderBy,
+      search: pagination.search,
+      sortDirection: pagination.sortDirection,
+    });
+    expect(result).toEqual({
+      data: [
+        {
+          id: journalEntry.lines[0].id,
+          entryId: journalEntry.id,
+          accountId: ledgerAccount.id,
+          sequenceOrder: 1,
+          amount: {
+            amount: 100_00,
+            currencyCode: SYSTEM_CURRENCIES.NGN.code,
+            isMinorUnit: true,
+          },
+          exchangeRate: null,
+          functionalAmount: {
+            amount: 100_00,
+            currencyCode: SYSTEM_CURRENCIES.NGN.code,
+            isMinorUnit: true,
+          },
+          side: EJournalSide.Debit,
+          description: 'Debit cash',
+          version: 1,
+          createdAt: journalEntry.createdAt,
+          updatedAt: journalEntry.updatedAt,
+          header: {
+            sourceType: journalEntry.sourceType,
+            counterpartyId: journalEntry.counterPartyId,
+            memo: journalEntry.memo,
+            status: journalEntry.status,
+            effectiveDate: journalEntry.effectiveDate,
+            postedAt: journalEntry.postedAt,
+            voidedAt: journalEntry.voidedAt,
+            voidingEntryId: journalEntry.voidingEntryId,
+            version: journalEntry.version,
+            createdBy: journalEntry.createdBy,
+            createdAt: journalEntry.createdAt,
+            updatedAt: journalEntry.updatedAt,
+          },
+          balanceEffect: ELedgerAccountBalanceEffect.Increase,
+        },
+      ],
+      meta: {
+        page: 2,
+        limit: 25,
+        total: 1,
+        totalPages: 1,
+      },
+    });
+  });
+
+  it('throws AccountNotFound when the account does not exist', async () => {
+    const useCase = getUseCase();
+    mockLedgerAccountRepo.findById.mockResolvedValue(null);
+
+    await expect(useCase(ledgerAccount.id, pagination)).rejects.toThrow(
+      ledgerAppError.AccountNotFound
+    );
+
+    expect(
+      mockLedgerDomainServices.ledgerAccount.validateAccountAccess
+    ).not.toHaveBeenCalled();
+    expect(
+      mockAccountTransactionQueryRepo.findAllByAccountId
+    ).not.toHaveBeenCalled();
+  });
+
+  it('throws Forbidden when the user cannot access the account', async () => {
+    const useCase = getUseCase();
+    mockLedgerDomainServices.ledgerAccount.validateAccountAccess.mockResolvedValue(
+      false
+    );
+
+    await expect(useCase(ledgerAccount.id, pagination)).rejects.toThrow(
+      appError.Forbidden
+    );
+
+    expect(
+      mockAccountTransactionQueryRepo.findAllByAccountId
+    ).not.toHaveBeenCalled();
+  });
+
+  it('throws UnprocessableEntity when pagination is invalid', async () => {
+    const useCase = getUseCase();
+    const invalidPagination: IPaginationDto = { limit: 0 };
+
+    await expect(useCase(ledgerAccount.id, invalidPagination)).rejects.toThrow(
+      appError.UnprocessableEntity
+    );
+
+    expect(mockRequestContext.get).not.toHaveBeenCalled();
+    expect(mockLedgerAccountRepo.findById).not.toHaveBeenCalled();
+    expect(
+      mockAccountTransactionQueryRepo.findAllByAccountId
+    ).not.toHaveBeenCalled();
+  });
+});

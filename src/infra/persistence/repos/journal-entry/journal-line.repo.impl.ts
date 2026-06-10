@@ -1,5 +1,5 @@
 import { and, eq, ilike, sql } from 'drizzle-orm';
-import journalLineMapper from '../../../../app/bookkeeping/mappers/journal-line.mapper';
+import journalLineMapper from '../../../../app/journal-entry/mappers/journal-line.mapper';
 import IJournalLineRepo from '../../../../domain/journal-entry/repos/journal-line.repo';
 import paginationValue from '../../../../shared/value-objects/pagination.vo';
 import { journalLinesInCore } from '../../../config/drizzle/schema';

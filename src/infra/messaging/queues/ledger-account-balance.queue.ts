@@ -1,5 +1,5 @@
 import { Queue } from 'bullmq';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/bookkeeping/dtos/ledger-account-balance-adjustment.dto';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/ledger/dtos/ledger-account-balance-adjustment.dto';
 import { EQueueName } from '../../../app/shared/contracts/queues.contract';
 import { queueConnection } from '../../config/redis.config';
 

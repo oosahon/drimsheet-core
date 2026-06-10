@@ -1,10 +1,10 @@
 import { ELedgerAccountEvent } from '../../../domain/ledger/events/ledger-account.events';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import { IEvent } from '../../../shared/types/event.types';
-import bookkeepingUseCases from '../../bookkeeping/usecases';
 import IReporter from '../../shared/contracts/reporter.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
+import ledgerUseCases from '../usecases';
 
 export default function makeLedgerAccountCreatedEventHandler(
   reporter: IReporter,
@@ -18,7 +18,7 @@ export default function makeLedgerAccountCreatedEventHandler(
         ELedgerAccountEvent.Created
       );
 
-      const createBalance = bookkeepingUseCases
+      const createBalance = ledgerUseCases
         .createLedgerAccountBalance(event.data)
         .catch(reporter.report);
 
