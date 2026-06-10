@@ -9,7 +9,11 @@ import toSchemaString from '../utils/to-schema-string';
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
-  pgm.createType(currencyExchangeRateType, ['official', 'negotiated']);
+  pgm.createType(currencyExchangeRateType, [
+    'official',
+    'negotiated',
+    'market',
+  ]);
 
   pgm.createTable(currencyExchangeRatesTable, {
     id: {
@@ -60,6 +64,14 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       default: pgm.func('now()'),
     },
   });
+
+  pgm.addConstraint(
+    currencyExchangeRatesTable,
+    'currency_exchange_rates_currency_pair_as_of_key',
+    {
+      unique: ['currency_pair', 'as_of'],
+    }
+  );
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {

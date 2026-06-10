@@ -6,11 +6,13 @@ import getDbQuery from './helpers/query';
 
 const exchangeRateRepo: IExchangeRateRepo = {
   save: async (payload, options) => {
+    const values = Array.isArray(payload) ? payload : [payload];
     const dbQuery = getDbQuery(options);
 
     await dbQuery
       .insert(currencyExchangeRatesInCore)
-      .values(exchangeRateMapper.toRepo(payload));
+      .values(values.map(exchangeRateMapper.toRepo))
+      .onConflictDoNothing();
   },
 
   getById: async (id, options) => {

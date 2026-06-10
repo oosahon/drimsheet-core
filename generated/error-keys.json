@@ -56,6 +56,7 @@
   "bookkeeping_error_transfer_not_permitted_on_account",
   "bookkeeping_error_unconfigured_opening_balance_account",
   "bookkeeping_error_unsupported_source_type",
+  "currency_error_exchange_rate_invalid_date",
   "currency_error_exchange_rate_invalid_pair",
   "currency_error_exchange_rate_invalid_type",
   "currency_error_exchange_rate_not_found",

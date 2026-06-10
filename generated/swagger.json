@@ -482,7 +482,7 @@
       },
       "UExchangeRateType": {
         "type": "string",
-        "enum": ["official", "negotiated"]
+        "enum": ["official", "negotiated", "market"]
       },
       "IExchangeRateReq": {
         "properties": {

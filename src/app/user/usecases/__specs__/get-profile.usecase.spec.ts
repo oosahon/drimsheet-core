@@ -1,6 +1,6 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import MockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import userMapper from '../../mappers/user.mapper';
 import makeGetAuthUserProfileUseCase from '../get-profile.usecase';
@@ -20,28 +20,28 @@ describe('makeGetAuthUserProfileUseCase', () => {
       email: 'test@example.com',
     } as IUser;
 
-    MockRequestContext.get.mockReturnValue({
+    mockRequestContext.get.mockReturnValue({
       user: mockUser,
     } as IRequestContextData);
 
     const mappedUser = { id: 'test-user-id', email: 'test@example.com' };
     (userMapper.toInterface as jest.Mock).mockReturnValue(mappedUser);
 
-    const usecase = makeGetAuthUserProfileUseCase(MockRequestContext);
+    const usecase = makeGetAuthUserProfileUseCase(mockRequestContext);
     const result = await usecase();
 
-    expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(userMapper.toInterface).toHaveBeenCalledWith(mockUser);
     expect(result).toEqual(mappedUser);
   });
 
   it('should throw appError.Unauthorized if user is not in request context', async () => {
-    MockRequestContext.get.mockReturnValue({} as IRequestContextData);
+    mockRequestContext.get.mockReturnValue({} as IRequestContextData);
 
-    const usecase = makeGetAuthUserProfileUseCase(MockRequestContext);
+    const usecase = makeGetAuthUserProfileUseCase(mockRequestContext);
 
     await expect(usecase()).rejects.toThrow('app_error_unauthorized');
-    expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(userMapper.toInterface).not.toHaveBeenCalled();
   });
 });

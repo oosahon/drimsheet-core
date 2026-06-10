@@ -437,6 +437,7 @@ const models: TsoaRoute.Models = {
       subSchemas: [
         { dataType: 'enum', enums: ['official'] },
         { dataType: 'enum', enums: ['negotiated'] },
+        { dataType: 'enum', enums: ['market'] },
       ],
       validators: {},
     },

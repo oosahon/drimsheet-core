@@ -4,7 +4,7 @@ import { IEvent } from '../../../shared/types/event.types';
 import bookkeepingUseCases from '../../bookkeeping/usecases';
 import IReporter from '../../shared/contracts/reporter.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
-import validateEventAndSetRequestContext from '../../shared/handlers/validate-and-set-request-context';
+import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
 
 export default function makeJournalEntryCreatedEventHandler(
   reporter: IReporter,

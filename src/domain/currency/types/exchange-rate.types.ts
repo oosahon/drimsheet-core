@@ -1,6 +1,7 @@
 export const EExchangeRateType = {
   Official: 'official',
   Negotiated: 'negotiated',
+  Market: 'market',
 } as const;
 
 export type UExchangeRateType =

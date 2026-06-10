@@ -2,7 +2,7 @@ import { IUserPreferences } from '../../../../domain/user/types/user-preferences
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockUserPreferencesRepo from '../../../../infra/persistence/repos/__mocks__/user-preferences.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
-import MockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeGetUserPreferencesUseCase from '../get-preferences.usecase';
 
@@ -17,7 +17,7 @@ describe('makeGetUserPreferencesUseCase', () => {
       id: 'test-user-id' as TEntityId,
     } as IUser;
 
-    MockRequestContext.get.mockReturnValue({
+    mockRequestContext.get.mockReturnValue({
       correlationId,
       user: mockUser,
     } as IRequestContextData);
@@ -34,12 +34,12 @@ describe('makeGetUserPreferencesUseCase', () => {
     mockUserPreferencesRepo.findById.mockResolvedValue(mockPreferences);
 
     const usecase = makeGetUserPreferencesUseCase(
-      MockRequestContext,
+      mockRequestContext,
       mockUserPreferencesRepo
     );
     const result = await usecase();
 
-    expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(mockUserPreferencesRepo.findById).toHaveBeenCalledWith(mockUser.id, {
       correlationId,
     });
@@ -47,15 +47,15 @@ describe('makeGetUserPreferencesUseCase', () => {
   });
 
   it('should throw appError.Unauthorized if user is not in request context', async () => {
-    MockRequestContext.get.mockReturnValue({} as IRequestContextData);
+    mockRequestContext.get.mockReturnValue({} as IRequestContextData);
 
     const usecase = makeGetUserPreferencesUseCase(
-      MockRequestContext,
+      mockRequestContext,
       mockUserPreferencesRepo
     );
 
     await expect(usecase()).rejects.toThrow('app_error_unauthorized');
-    expect(MockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
     expect(mockUserPreferencesRepo.findById).not.toHaveBeenCalled();
   });
 });

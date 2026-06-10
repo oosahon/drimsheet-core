@@ -175,6 +175,19 @@ function isWithinRange(
   );
 }
 
+function fromString<T extends Error>(
+  string: string,
+  ErrorClass: TErrorConstructor<T>
+) {
+  const date = dayjs(string);
+
+  if (!date.isValid()) {
+    throw new ErrorClass({ date: string });
+  }
+
+  return date.toDate();
+}
+
 const dateUtils = Object.freeze({
   isValidDate,
   validateDate,
@@ -207,6 +220,7 @@ const dateUtils = Object.freeze({
   addYearsToDate,
 
   isWithinRange,
+  fromString,
 });
 
 export default dateUtils;
