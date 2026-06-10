@@ -29,7 +29,7 @@
     "mjml:build": "tsx scripts/mjml-to-ts.ts",
     "export:errors": "tsx scripts/export-error-keys.ts",
     "json-contract-to-ts": "tsx scripts/json-contract-to-ts.ts",
-    "db:migrate": "tsx ./node_modules/.bin/node-pg-migrate -j ts -m ./src/infra/db/migrations -d POSTGRES_URL"
+    "db:migrate": "tsx ./node_modules/.bin/node-pg-migrate -j ts -m ./db/migrations -d POSTGRES_URL"
   },
   "lint-staged": {
     "*.{ts,js,json,md}": "prettier --write --plugin=prettier-plugin-organize-imports"

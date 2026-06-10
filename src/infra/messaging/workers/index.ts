@@ -1,5 +1,5 @@
-import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/bookkeeping/dtos/ledger-account-balance-adjustment.dto';
-import bookkeepingWorkers from '../../../app/bookkeeping/workers';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/ledger/dtos/ledger-account-balance-adjustment.dto';
+import ledgerWorkers from '../../../app/ledger/workers';
 import { ITransactionalEmailDto } from '../../../app/notification/dtos/transactional-email.dto';
 import notificationWorkers from '../../../app/notification/workers';
 import { EQueueName } from '../../../app/shared/contracts/queues.contract';
@@ -13,7 +13,7 @@ function workerRegistration() {
 
   registerBullMQWorker<ILedgerAccountBalanceAdjustmentDto>(
     EQueueName.LedgerAccountBalanceAdjustment,
-    bookkeepingWorkers.ledgerAccountBalanceAdjustment
+    ledgerWorkers.ledgerAccountBalanceAdjustment
   );
 }
 

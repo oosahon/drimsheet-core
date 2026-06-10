@@ -15,10 +15,10 @@ import makeLedgerAccountCreatedEventHandler from '../ledger-account-created-even
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
-import bookkeepingUseCases from '../../../bookkeeping/usecases';
+import ledgerUseCases from '../../../ledger/usecases';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 
-jest.mock('../../../bookkeeping/usecases', () => ({
+jest.mock('../../../ledger/usecases', () => ({
   __esModule: true,
   default: {
     createLedgerAccountBalance: jest.fn(),
@@ -79,9 +79,9 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
       correlationId: 'default-corr-id',
     } as IRequestContextData);
 
-    (
-      bookkeepingUseCases.createLedgerAccountBalance as jest.Mock
-    ).mockResolvedValue(undefined);
+    (ledgerUseCases.createLedgerAccountBalance as jest.Mock).mockResolvedValue(
+      undefined
+    );
 
     await handler(mockEvent);
 
@@ -91,7 +91,7 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: mockEvent.correlationId,
     });
-    expect(bookkeepingUseCases.createLedgerAccountBalance).toHaveBeenCalledWith(
+    expect(ledgerUseCases.createLedgerAccountBalance).toHaveBeenCalledWith(
       mockEvent.data
     );
   });
@@ -112,9 +112,9 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
       correlationId: 'default-corr-id',
     } as IRequestContextData);
 
-    (
-      bookkeepingUseCases.createLedgerAccountBalance as jest.Mock
-    ).mockResolvedValue(undefined);
+    (ledgerUseCases.createLedgerAccountBalance as jest.Mock).mockResolvedValue(
+      undefined
+    );
 
     await handler(mockEvent);
 
@@ -124,7 +124,7 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: expect.any(String),
     });
-    expect(bookkeepingUseCases.createLedgerAccountBalance).toHaveBeenCalledWith(
+    expect(ledgerUseCases.createLedgerAccountBalance).toHaveBeenCalledWith(
       mockEvent.data
     );
   });
@@ -145,8 +145,6 @@ describe('makeLedgerAccountCreatedEventHandler', () => {
       eventError.EventTypeMismatch
     );
 
-    expect(
-      bookkeepingUseCases.createLedgerAccountBalance
-    ).not.toHaveBeenCalled();
+    expect(ledgerUseCases.createLedgerAccountBalance).not.toHaveBeenCalled();
   });
 });

@@ -25,6 +25,20 @@ const EErrorKeys = {
   InvalidVoidedAt: 'journal_entry_error_invalid_voided_at',
   InvalidCounterpartyId: 'journal_entry_error_invalid_counterparty_id',
   InvalidMemo: 'journal_entry_error_invalid_memo',
+  ControlAccountOpeningBalanceNotAllowed:
+    'journal_entry_error_control_account_opening_balance_not_allowed',
+  ExistingOpeningBalance: 'journal_entry_error_existing_opening_balance',
+  UnconfiguredOpeningBalanceAccount:
+    'journal_entry_error_unconfigured_opening_balance_account',
+  AccountNotFound: 'journal_entry_error_account_not_found',
+  EmptyJournalLines: 'journal_entry_error_empty_journal_lines',
+  MismatchedJournalLines: 'journal_entry_error_mismatched_journal_lines',
+  ControlAccountTransactionNotAllowed:
+    'journal_entry_error_control_account_transaction_not_allowed',
+  TransferNotPermittedOnAccount:
+    'journal_entry_error_transfer_not_permitted_on_account',
+  UnsupportedSourceType: 'journal_entry_error_unsupported_source_type',
+  InvalidJournalEntry: 'journal_entry_error_invalid_journal_entry',
 } as const satisfies Record<string, TErrorPrefix>;
 
 const journalEntryError = Object.freeze({

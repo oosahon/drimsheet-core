@@ -2,7 +2,7 @@ import z from 'zod';
 import {
   IOpeningBalanceDto,
   openingBalanceDtoValidation,
-} from '../../bookkeeping/dtos/bookkeeping.dto';
+} from '../../journal-entry/dtos/transfer-transaction.dto';
 import { currencyCodeValidation } from '../../shared/dtos/money.dto';
 
 export interface IPettyCashAccountCreationReq {

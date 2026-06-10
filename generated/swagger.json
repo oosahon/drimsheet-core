@@ -460,26 +460,6 @@
         "type": "object",
         "additionalProperties": false
       },
-      "ICurrencyDto": {
-        "properties": {
-          "code": {
-            "type": "string"
-          },
-          "symbol": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "minorUnit": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "required": ["code", "symbol", "name", "minorUnit"],
-        "type": "object",
-        "additionalProperties": false
-      },
       "UExchangeRateType": {
         "type": "string",
         "enum": ["official", "negotiated", "market"]
@@ -522,15 +502,8 @@
         "type": "object",
         "additionalProperties": false
       },
-      "UJournalSide": {
-        "type": "string",
-        "enum": ["debit", "credit"]
-      },
-      "IJournalLineReq": {
+      "IOpeningBalanceDto": {
         "properties": {
-          "accountId": {
-            "type": "string"
-          },
           "amount": {
             "$ref": "#/components/schemas/IMoneyDto"
           },
@@ -541,69 +514,40 @@
               }
             ],
             "nullable": true
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "side": {
-            "$ref": "#/components/schemas/UJournalSide"
-          },
-          "sequenceOrder": {
-            "type": "number",
-            "format": "double"
           }
         },
-        "required": [
-          "accountId",
-          "amount",
-          "exchangeRate",
-          "description",
-          "side",
-          "sequenceOrder"
-        ],
+        "required": ["amount", "exchangeRate"],
         "type": "object",
         "additionalProperties": false
       },
-      "UJournalEntryStatus": {
-        "type": "string",
-        "enum": ["archived", "draft", "posted", "voided"]
-      },
-      "ITransferTransactionReq": {
+      "IPettyCashAccountCreationReq": {
         "properties": {
-          "sourceLine": {
-            "$ref": "#/components/schemas/IJournalLineReq"
+          "name": {
+            "type": "string"
           },
-          "destinationLines": {
-            "items": {
-              "$ref": "#/components/schemas/IJournalLineReq"
-            },
-            "type": "array"
+          "currencyCode": {
+            "type": "string"
           },
-          "status": {
-            "$ref": "#/components/schemas/UJournalEntryStatus"
+          "isControlAccount": {
+            "type": "boolean"
           },
-          "effectiveDate": {
-            "type": "string",
-            "format": "date-time"
+          "controlAccountCode": {
+            "type": "string"
           },
-          "postedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "memo": {
-            "type": "string",
+          "openingBalance": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IOpeningBalanceDto"
+              }
+            ],
             "nullable": true
           }
         },
         "required": [
-          "sourceLine",
-          "destinationLines",
-          "status",
-          "effectiveDate",
-          "postedAt",
-          "memo"
+          "name",
+          "currencyCode",
+          "isControlAccount",
+          "openingBalance"
         ],
         "type": "object",
         "additionalProperties": false
@@ -627,6 +571,10 @@
           "receipt",
           "adjustment"
         ]
+      },
+      "UJournalEntryStatus": {
+        "type": "string",
+        "enum": ["archived", "draft", "posted", "voided"]
       },
       "IJournalHeaderDto": {
         "properties": {
@@ -737,6 +685,10 @@
         ],
         "type": "object",
         "additionalProperties": false
+      },
+      "UJournalSide": {
+        "type": "string",
+        "enum": ["debit", "credit"]
       },
       "IAccountTransactionRes": {
         "properties": {
@@ -851,6 +803,104 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IJournalLineReq": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "exchangeRate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IExchangeRateReq"
+              }
+            ],
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "side": {
+            "$ref": "#/components/schemas/UJournalSide"
+          },
+          "sequenceOrder": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "accountId",
+          "amount",
+          "exchangeRate",
+          "description",
+          "side",
+          "sequenceOrder"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ITransferTransactionReq": {
+        "properties": {
+          "sourceLine": {
+            "$ref": "#/components/schemas/IJournalLineReq"
+          },
+          "destinationLines": {
+            "items": {
+              "$ref": "#/components/schemas/IJournalLineReq"
+            },
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UJournalEntryStatus"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "memo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sourceLine",
+          "destinationLines",
+          "status",
+          "effectiveDate",
+          "postedAt",
+          "memo"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ICurrencyDto": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "minorUnit": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["code", "symbol", "name", "minorUnit"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IUserSignupReq": {
         "properties": {
           "firstName": {
@@ -906,56 +956,6 @@
           }
         },
         "required": ["token", "password", "confirmPassword"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "IOpeningBalanceDto": {
-        "properties": {
-          "amount": {
-            "$ref": "#/components/schemas/IMoneyDto"
-          },
-          "exchangeRate": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/IExchangeRateReq"
-              }
-            ],
-            "nullable": true
-          }
-        },
-        "required": ["amount", "exchangeRate"],
-        "type": "object",
-        "additionalProperties": false
-      },
-      "IPettyCashAccountCreationReq": {
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "currencyCode": {
-            "type": "string"
-          },
-          "isControlAccount": {
-            "type": "boolean"
-          },
-          "controlAccountCode": {
-            "type": "string"
-          },
-          "openingBalance": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/IOpeningBalanceDto"
-              }
-            ],
-            "nullable": true
-          }
-        },
-        "required": [
-          "name",
-          "currencyCode",
-          "isControlAccount",
-          "openingBalance"
-        ],
         "type": "object",
         "additionalProperties": false
       },
@@ -1399,7 +1399,7 @@
           }
         },
         "description": "Get paginated ledger accounts with optional filters",
-        "tags": ["Ledger Accounts"],
+        "tags": ["Ledger"],
         "security": [],
         "parameters": [
           {
@@ -1487,6 +1487,50 @@
         ]
       }
     },
+    "/ledger/accounts/asset/petty-cash": {
+      "post": {
+        "operationId": "createPettyCashAccount",
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new petty cash sub account",
+        "tags": ["Asset Accounts", "Ledger"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IPettyCashAccountCreationReq"
+              }
+            }
+          }
+        }
+      }
+    },
     "/ledger/accounts/{accountId}": {
       "get": {
         "operationId": "getLedgerAccount",
@@ -1533,7 +1577,7 @@
           }
         },
         "description": "Get a single ledger account by id",
-        "tags": ["Ledger Accounts"],
+        "tags": ["Ledger"],
         "security": [],
         "parameters": [
           {
@@ -1547,75 +1591,7 @@
         ]
       }
     },
-    "/currencies": {
-      "get": {
-        "operationId": "getAll",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ICurrencyDto"
-                  },
-                  "type": "array"
-                }
-              }
-            }
-          }
-        },
-        "description": "Gets all system currencies",
-        "tags": ["Currency"],
-        "security": [],
-        "parameters": []
-      }
-    },
-    "/bookkeeping/transfer": {
-      "post": {
-        "operationId": "record-transfer",
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IHttpErrorDto"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IHttpErrorDto"
-                }
-              }
-            }
-          }
-        },
-        "description": "Create a new petty cash sub account",
-        "tags": ["Bookkeeping"],
-        "security": [],
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ITransferTransactionReq"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/bookkeeping/transactions/accounts/{accountId}": {
+    "/ledger/accounts/{accountId}/transactions": {
       "get": {
         "operationId": "listTransactions",
         "responses": {
@@ -1640,8 +1616,8 @@
             }
           }
         },
-        "description": "List transactions",
-        "tags": ["Bookkeeping"],
+        "description": "List transactions for an account",
+        "tags": ["Ledger"],
         "security": [],
         "parameters": [
           {
@@ -1695,6 +1671,74 @@
             }
           }
         ]
+      }
+    },
+    "/journal-entry/transfer": {
+      "post": {
+        "operationId": "record-transfer",
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new petty cash sub account",
+        "tags": ["Journal Entries"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ITransferTransactionReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/currencies": {
+      "get": {
+        "operationId": "getAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ICurrencyDto"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Gets all system currencies",
+        "tags": ["Currency"],
+        "security": [],
+        "parameters": []
       }
     },
     "/auth/signup-with-email": {
@@ -2024,50 +2068,6 @@
         "tags": ["Auth"],
         "security": [],
         "parameters": []
-      }
-    },
-    "/ledger/asset-accounts/petty-cash": {
-      "post": {
-        "operationId": "makePettyCashSubAccount",
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IHttpErrorDto"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IHttpErrorDto"
-                }
-              }
-            }
-          }
-        },
-        "description": "Create a new petty cash sub account",
-        "tags": ["Ledger Accounts", "Asset Account"],
-        "security": [],
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IPettyCashAccountCreationReq"
-              }
-            }
-          }
-        }
       }
     },
     "/accounting/accounting-entity": {

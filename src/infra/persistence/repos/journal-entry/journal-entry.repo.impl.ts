@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm';
 import journalEntryMapper, {
   IJournalEntryModel,
-} from '../../../../app/bookkeeping/mappers/journal-entry.mapper';
+} from '../../../../app/journal-entry/mappers/journal-entry.mapper';
 import journalLineMapper, {
   IJournalLineModel,
-} from '../../../../app/bookkeeping/mappers/journal-line.mapper';
+} from '../../../../app/journal-entry/mappers/journal-line.mapper';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
 import {
   journalEntriesInCore,

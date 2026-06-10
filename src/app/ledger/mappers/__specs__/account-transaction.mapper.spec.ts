@@ -1,0 +1,212 @@
+import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
+import { IAccountTransaction } from '../../../../domain/journal-entry/types/account-transaction.types';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
+import { TEntityId } from '../../../../shared/types/uuid';
+import moneyValue from '../../../../shared/value-objects/money.vo';
+import { IJournalEntryModel } from '../../../journal-entry/mappers/journal-entry.mapper';
+import { IJournalLineModel } from '../../../journal-entry/mappers/journal-line.mapper';
+import accountTransactionMapper from '../account-transaction.mapper';
+
+describe('Account Transaction Mapper', () => {
+  const id = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
+  const entryId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
+  const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+  const counterPartyId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
+  const createdBy = '123e4567-e89b-12d3-a456-426614174005' as TEntityId;
+  const createdAt = new Date('2026-05-01T00:00:00.000Z');
+  const updatedAt = new Date('2026-05-01T01:00:00.000Z');
+  const effectiveDate = new Date('2026-04-30T00:00:00.000Z');
+  const postedAt = new Date('2026-05-01T02:00:00.000Z');
+  const voidedAt = new Date('2026-05-01T03:00:00.000Z');
+
+  const transaction: IAccountTransaction = {
+    id,
+    entryId,
+    accountId,
+    sequenceOrder: 1,
+    amount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
+    exchangeRate: null,
+    functionalAmount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
+    side: EJournalSide.Debit,
+    description: 'Debit cash',
+    meta: null,
+    version: 1,
+    createdAt,
+    updatedAt,
+    header: {
+      sourceType: EJournalEntrySourceType.Transfer,
+      counterPartyId,
+      memo: 'Cash transfer',
+      status: EJournalEntryStatus.Posted,
+      effectiveDate,
+      postedAt,
+      voidedAt,
+      voidingEntryId: null,
+      version: 1,
+      createdBy,
+      createdAt,
+      updatedAt,
+    },
+  };
+
+  const lineModel: IJournalLineModel = {
+    id,
+    entryId,
+    accountId,
+    sequenceOrder: 1,
+    amount: 100_00,
+    currencyCode: SYSTEM_CURRENCIES.NGN.code,
+    exchangeRate: null,
+    functionalAmount: 100_00,
+    functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    side: EJournalSide.Debit,
+    description: 'Debit cash',
+    meta: null,
+    version: 1,
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
+  };
+
+  const headerModel: IJournalEntryModel = {
+    id: entryId,
+    accountingEntityId: '123e4567-e89b-12d3-a456-426614174006',
+    sourceType: EJournalEntrySourceType.Transfer,
+    counterpartyId: counterPartyId,
+    memo: 'Cash transfer',
+    status: EJournalEntryStatus.Posted,
+    effectiveDate: effectiveDate.toISOString(),
+    postedAt: postedAt.toISOString(),
+    voidedAt: voidedAt.toISOString(),
+    voidingEntryId: null,
+    version: 1,
+    createdBy,
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
+  };
+
+  const model = {
+    line: lineModel,
+    header: headerModel,
+  };
+
+  describe('toDomain', () => {
+    it('maps an account transaction query model to domain', () => {
+      expect(accountTransactionMapper.toDomain(model)).toEqual(transaction);
+    });
+
+    it('maps nullable journal header fields to domain nulls', () => {
+      const result = accountTransactionMapper.toDomain({
+        line: lineModel,
+        header: {
+          id: entryId,
+          accountingEntityId: '123e4567-e89b-12d3-a456-426614174006',
+          sourceType: EJournalEntrySourceType.Transfer,
+          counterpartyId: null,
+          memo: null,
+          status: EJournalEntryStatus.Posted,
+          effectiveDate: effectiveDate.toISOString(),
+          postedAt: null,
+          voidedAt: null,
+          voidingEntryId: null,
+          version: 1,
+          createdBy,
+          createdAt: createdAt.toISOString(),
+          updatedAt: updatedAt.toISOString(),
+        },
+      });
+
+      expect(result.header).toMatchObject({
+        counterPartyId: null,
+        memo: null,
+        postedAt: null,
+        voidedAt: null,
+        voidingEntryId: null,
+      });
+    });
+  });
+
+  describe('toDto', () => {
+    it('maps an account transaction to a DTO', () => {
+      expect(accountTransactionMapper.toDto(transaction)).toEqual({
+        id,
+        entryId,
+        accountId,
+        sequenceOrder: 1,
+        amount: {
+          amount: 100_00,
+          currencyCode: SYSTEM_CURRENCIES.NGN.code,
+          isMinorUnit: true,
+        },
+        exchangeRate: null,
+        functionalAmount: {
+          amount: 100_00,
+          currencyCode: SYSTEM_CURRENCIES.NGN.code,
+          isMinorUnit: true,
+        },
+        side: EJournalSide.Debit,
+        description: 'Debit cash',
+        version: 1,
+        createdAt,
+        updatedAt,
+        header: {
+          sourceType: transaction.header.sourceType,
+          counterpartyId: counterPartyId,
+          memo: transaction.header.memo,
+          status: transaction.header.status,
+          effectiveDate,
+          postedAt,
+          voidedAt,
+          voidingEntryId: null,
+          version: transaction.header.version,
+          createdBy,
+          createdAt,
+          updatedAt,
+        },
+      });
+    });
+
+    it('maps nullable journal header fields to DTO nulls', () => {
+      const result = accountTransactionMapper.toDto({
+        id,
+        entryId,
+        accountId,
+        sequenceOrder: 1,
+        amount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
+        exchangeRate: null,
+        functionalAmount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
+        side: EJournalSide.Debit,
+        description: 'Debit cash',
+        meta: null,
+        version: 1,
+        createdAt,
+        updatedAt,
+        header: {
+          sourceType: EJournalEntrySourceType.Transfer,
+          counterPartyId: null,
+          memo: null,
+          status: EJournalEntryStatus.Posted,
+          effectiveDate,
+          postedAt: null,
+          voidedAt: null,
+          voidingEntryId: null,
+          version: 1,
+          createdBy,
+          createdAt,
+          updatedAt,
+        },
+      });
+
+      expect(result.header).toMatchObject({
+        counterpartyId: null,
+        memo: null,
+        postedAt: null,
+        voidedAt: null,
+        voidingEntryId: null,
+      });
+    });
+  });
+});

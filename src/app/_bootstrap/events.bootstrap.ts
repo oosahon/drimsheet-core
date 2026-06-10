@@ -1,6 +1,6 @@
 import messaging from '../../infra/messaging';
 import { accountingEntityEventsRegistry } from '../accounting/handlers';
-import { journalEntryEventsRegistry } from '../bookkeeping/handlers';
+import { journalEntryEventsRegistry } from '../journal-entry/handlers';
 import { ledgerAccountEventsRegistry } from '../ledger/handlers';
 import { userEventsRegistry } from '../user/handlers';
 
