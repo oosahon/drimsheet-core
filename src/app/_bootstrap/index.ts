@@ -1,4 +1,5 @@
-import eventBus from '../../infra/messaging/event-bus';
+import eventBus from '../../infra/messaging/bus/event-bus';
+import registerExchangeRateConsumer from '../../infra/messaging/external/exchange-rate.consumer';
 import registerWorkers from '../../infra/messaging/workers';
 import observability from '../../infra/observability';
 import repos from '../../infra/persistence/repos';
@@ -21,6 +22,7 @@ async function bootstraper() {
 
     registerWorkers(observability.reporter);
     eventsRegistry(eventBus);
+    await registerExchangeRateConsumer(observability.reporter);
   } catch (error) {
     observability.logger.error(error, 'Failed to bootstrap');
     observability.reporter.report(error);

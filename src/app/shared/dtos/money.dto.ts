@@ -1,3 +1,5 @@
+// TODO: use standard errors
+
 import z from 'zod';
 import {
   EExchangeRateType,

@@ -1,6 +1,9 @@
 import { MigrationBuilder } from 'node-pg-migrate';
+import {
+  DATABASE_USER_ADMIN,
+  DATABASE_USER_CORE,
+} from '../../config/vars.config';
 import { auditSchema, coreSchema, reportingSchema } from '../config/schemas';
-import { DATABASE_USER_ADMIN, DATABASE_USER_CORE } from '../config/vars';
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   if (!DATABASE_USER_CORE || !DATABASE_USER_ADMIN) return;

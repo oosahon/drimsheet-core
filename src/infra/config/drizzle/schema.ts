@@ -42,7 +42,7 @@ export const contraAccountRuleInCore = core.enum('contra_account_rule', [
 ]);
 export const currencyExchangeRateTypeInCore = core.enum(
   'currency_exchange_rate_type',
-  ['official', 'negotiated']
+  ['official', 'negotiated', 'market']
 );
 export const fiscalYearPeriodUnitInCore = core.enum('fiscal_year_period_unit', [
   'month',
@@ -186,30 +186,6 @@ export const userSessionsInCore = core.table(
   ]
 );
 
-export const userActivitiesInAudit = audit.table(
-  'user_activities',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .primaryKey()
-      .notNull(),
-    userId: uuid('user_id'),
-    eventKey: varchar('event_key', { length: 150 }).notNull(),
-    description: varchar({ length: 100 }).notNull(),
-    meta: jsonb(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'user_activities_user_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
 export const currenciesInCore = core.table('currencies', {
   code: varchar({ length: 3 }).primaryKey().notNull(),
   symbol: varchar({ length: 5 }).notNull(),
@@ -311,6 +287,30 @@ export const fiscalYearsInCore = core.table(
       columns: [table.accountingEntityId],
       foreignColumns: [accountingEntitiesInCore.id],
       name: 'fiscal_years_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const userActivitiesInAudit = audit.table(
+  'user_activities',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    userId: uuid('user_id'),
+    eventKey: varchar('event_key', { length: 150 }).notNull(),
+    description: varchar({ length: 100 }).notNull(),
+    meta: jsonb(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_activities_user_id_fkey',
     }).onDelete('cascade'),
   ]
 );
@@ -525,8 +525,72 @@ export const currencyExchangeRatesInCore = core.table(
       foreignColumns: [currenciesInCore.code],
       name: 'currency_exchange_rates_target_currency_code_fkey',
     }),
+    unique('currency_exchange_rates_currency_pair_as_of_key').on(
+      table.currencyPair,
+      table.asOf
+    ),
   ]
 );
+
+export const journalEntriesInCore = core.table(
+  'journal_entries',
+  {
+    id: uuid().primaryKey().notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    sourceType: journalEntrySourceTypeInCore('source_type').notNull(),
+    counterpartyId: uuid('counterparty_id'),
+    memo: varchar({ length: 100 }),
+    status: journalEntryStatusInCore().notNull(),
+    effectiveDate: date('effective_date').notNull(),
+    postedAt: timestamp('posted_at', { withTimezone: true, mode: 'string' }),
+    voidedAt: timestamp('voided_at', { withTimezone: true, mode: 'string' }),
+    voidingEntryId: uuid('voiding_entry_id'),
+    version: integer().default(1).notNull(),
+    createdBy: uuid('created_by').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'journal_entries_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.counterpartyId],
+      foreignColumns: [counterpartiesInCore.id],
+      name: 'journal_entries_counterparty_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.voidingEntryId],
+      foreignColumns: [table.id],
+      name: 'journal_entries_voiding_entry_id_fkey',
+    }),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [usersInCore.id],
+      name: 'journal_entries_created_by_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
+export const counterpartiesInCore = core.table('counterparties', {
+  id: uuid()
+    .default(sql`uuid_generate_v4()`)
+    .primaryKey()
+    .notNull(),
+  name: varchar({ length: 100 }).notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+});
 
 export const ledgerAccountsInCore = core.table(
   'ledger_accounts',
@@ -614,66 +678,6 @@ export const userPreferencesInCore = core.table(
     }).onDelete('cascade'),
   ]
 );
-
-export const journalEntriesInCore = core.table(
-  'journal_entries',
-  {
-    id: uuid().primaryKey().notNull(),
-    accountingEntityId: uuid('accounting_entity_id').notNull(),
-    sourceType: journalEntrySourceTypeInCore('source_type').notNull(),
-    counterpartyId: uuid('counterparty_id'),
-    memo: varchar({ length: 100 }),
-    status: journalEntryStatusInCore().notNull(),
-    effectiveDate: date('effective_date').notNull(),
-    postedAt: timestamp('posted_at', { withTimezone: true, mode: 'string' }),
-    voidedAt: timestamp('voided_at', { withTimezone: true, mode: 'string' }),
-    voidingEntryId: uuid('voiding_entry_id'),
-    version: integer().default(1).notNull(),
-    createdBy: uuid('created_by').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.accountingEntityId],
-      foreignColumns: [accountingEntitiesInCore.id],
-      name: 'journal_entries_accounting_entity_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.counterpartyId],
-      foreignColumns: [counterpartiesInCore.id],
-      name: 'journal_entries_counterparty_id_fkey',
-    }),
-    foreignKey({
-      columns: [table.voidingEntryId],
-      foreignColumns: [table.id],
-      name: 'journal_entries_voiding_entry_id_fkey',
-    }),
-    foreignKey({
-      columns: [table.createdBy],
-      foreignColumns: [usersInCore.id],
-      name: 'journal_entries_created_by_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
-export const counterpartiesInCore = core.table('counterparties', {
-  id: uuid()
-    .default(sql`uuid_generate_v4()`)
-    .primaryKey()
-    .notNull(),
-  name: varchar({ length: 100 }).notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-});
 
 export const journalLinesInCore = core.table(
   'journal_lines',

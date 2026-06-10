@@ -368,4 +368,22 @@ describe('dateUtils', () => {
       ).toBe(false);
     });
   });
+
+  describe('fromString', () => {
+    it('converts a valid date string to a Date', () => {
+      const result = dateUtils.fromString(
+        '2026-03-14T10:00:00.000Z',
+        TestError
+      );
+
+      expect(result).toBeInstanceOf(Date);
+      expect(result.toISOString()).toBe('2026-03-14T10:00:00.000Z');
+    });
+
+    it('throws TestError for an invalid date string', () => {
+      expect(() => dateUtils.fromString('invalid-date', TestError)).toThrow(
+        TestError
+      );
+    });
+  });
 });
