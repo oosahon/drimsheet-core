@@ -29,6 +29,7 @@ All internal systems run as Docker containers strictly managed and orchestrated 
 | **PurpleLedger Core** | Node.js Runtime      | The monolith serving our API, Application, and Domain rules (compiled to JavaScript). Multiple instances/replicas can be spun up by Coolify based on load.                       |
 | **PostgreSQL**        | Relational Database  | The primary transactional database where ledgers and journals are stored. Runs persistently on attached volumes ensuring ACID compliance.                                        |
 | **Redis**             | In-Memory Data Store | Acts as a fast response cache and the backbone for the background job processing (BullMQ / Bull Board).                                                                          |
+| **RabbitMQ**          | Message Broker       | Handles asynchronous event-driven message consumption for external workflows such as exchange rate ingestion, decoupling producers from consumers.                               |
 | **Qdrant**            | Vector Database      | Maintains semantic context and vector embeddings, particularly for enabling intelligent AI Agent integrations into the product.                                                  |
 
 ### 7.1.3 External Cloud Services
@@ -63,4 +64,4 @@ PurpleLedger does not store raw `.env` files anywhere in version control or dire
 
 1.  **Storage (Doppler)**: API Keys, AWS keys, database passwords, and runtime flags are encrypted and updated purely on Doppler's platform.
 2.  **Injection (Coolify Pipeline)**: When Coolify initiates a deployment of the PurpleLedger Core, it utilizes the Doppler CLI (or Doppler Service Token) to securely pull and inject these keys into the Node.js Docker environment at startup.
-3.  **Application Consumption (`vars.config.ts`)**: Within the codebase, configurations are not arbitrarily fetched. The file `src/infra/config/vars.config.ts` parses `process.env`. This acts as the secure internal schema for the application, ensuring that configurations are predictable and typed for all downstream code.
+3.  **Application Consumption (`vars.config.ts` & `IVarsConfig`)**: Within the codebase, configurations are not arbitrarily fetched. The file `src/infra/config/vars.config.ts` parses `process.env` and acts as the secure internal schema for the application. Application-layer code accesses these values through the `IVarsConfig` contract interface (`src/app/shared/contracts/vars-config.contract.ts`), ensuring that environment configuration does not leak into testable application logic.

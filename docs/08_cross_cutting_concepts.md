@@ -50,7 +50,7 @@ PurpleLedger heavily relies on external services like Mono (bank feeds), Paystac
 
 - **Mechanism**:
   - **Idempotency & Correlation**: Both incoming API requests and outgoing external mutations require unique idempotency keys to ensure network retries do not result in duplicate operations (e.g., duplicate payments, ledger entries, or tax filings). Additionally, correlation IDs are mandated across all requests to trace the complete lifecycle of an operation across distributed boundaries.
-  - **Resilience**: Asynchronous queues (e.g., Redis) or dead-letter queues (DLQ) are utilized to handle transient failures, employing exponential backoff for retries to ensure eventual consistency globally.
+  - **Resilience**: Asynchronous queues (e.g., BullMQ on Redis, RabbitMQ consumers) or dead-letter queues (DLQ) are utilized to handle transient failures, employing exponential backoff for retries to ensure eventual consistency globally.
 
 ## 8.8 Tax Policy Versioning
 
