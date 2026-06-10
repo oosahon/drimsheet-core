@@ -1,5 +1,5 @@
+import { ITransactionalEmailDto } from '../../../notification/dtos/transactional-email.dto';
 import { IInternalMailer } from '../../../shared/contracts/transactional-email-agent.contract';
-import { ITransactionalEmailDto } from '../../../shared/dtos/workers.dto';
 
 describe('getSentEmail', () => {
   const mockInternalMailer: jest.Mocked<IInternalMailer> = {

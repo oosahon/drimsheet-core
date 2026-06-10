@@ -1,6 +1,6 @@
 import { Queue } from 'bullmq';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/bookkeeping/dtos/ledger-account-balance-adjustment.dto';
 import { EQueueName } from '../../../app/shared/contracts/queues.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/shared/dtos/workers.dto';
 import { queueConnection } from '../../config/redis.config';
 
 export const ledgerAccountBalanceAdjustmentQueue = new Queue(

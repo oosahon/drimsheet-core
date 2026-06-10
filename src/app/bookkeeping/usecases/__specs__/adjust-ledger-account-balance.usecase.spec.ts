@@ -10,7 +10,7 @@ import mockLedgerAccountRepo from '../../../../infra/persistence/repos/__mocks__
 import { TEntityId } from '../../../../shared/types/uuid';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import IQueue from '../../../shared/contracts/queues.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../../shared/dtos/workers.dto';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../dtos/ledger-account-balance-adjustment.dto';
 import makeAdjustLedgerAccountBalanceUseCase from '../adjust-ledger-account-balance.usecase';
 
 describe('makeAdjustLedgerAccountBalanceUseCase', () => {

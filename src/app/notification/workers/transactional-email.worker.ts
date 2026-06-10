@@ -1,9 +1,9 @@
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import ITransactionalEmailAgent from '../contracts/transactional-email-agent.contract';
+import ITransactionalEmailAgent from '../../shared/contracts/transactional-email-agent.contract';
 import {
   ITransactionalEmailDto,
   transactionalEmailDtoSchema,
-} from '../dtos/workers.dto';
+} from '../dtos/transactional-email.dto';
 
 export default function makeTransactionalEmailWorker(
   mailer: ITransactionalEmailAgent

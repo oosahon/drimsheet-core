@@ -1,8 +1,6 @@
 import { ICorrelationId } from '../../../shared/types/correlation-id.types';
-import {
-  ILedgerAccountBalanceAdjustmentDto,
-  ITransactionalEmailDto,
-} from '../dtos/workers.dto';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../bookkeeping/dtos/ledger-account-balance-adjustment.dto';
+import { ITransactionalEmailDto } from '../../notification/dtos/transactional-email.dto';
 
 export const EQueueName = {
   TransactionalEmail: 'transactional-email-queue',

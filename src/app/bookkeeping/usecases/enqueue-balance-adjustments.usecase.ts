@@ -7,8 +7,8 @@ import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.t
 import { TEntityId } from '../../../shared/types/uuid';
 import IQueue from '../../shared/contracts/queues.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../shared/dtos/workers.dto';
 import moneyMapper from '../../shared/mappers/money.mapper';
+import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment.dto';
 
 export default function makeEnqueueBalanceAdjustmentsUseCase(
   requestContext: IRequestContext,

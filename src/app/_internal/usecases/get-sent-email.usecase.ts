@@ -1,6 +1,6 @@
 import { NODE_ENV } from '../../../infra/config/vars.config';
+import { ITransactionalEmailDto } from '../../notification/dtos/transactional-email.dto';
 import { IInternalMailer } from '../../shared/contracts/transactional-email-agent.contract';
-import { ITransactionalEmailDto } from '../../shared/dtos/workers.dto';
 import appError from '../../shared/errors/app.error';
 
 export default function getSentEmail(internalMailer: IInternalMailer) {
