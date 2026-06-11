@@ -3,7 +3,6 @@
 ## Before Making Changes
 
 - Always think carefully about the changes you are about to make.
-- Ensure that we are aligned on every single detail of the implementation.
 
 ## When You Don't Understand
 

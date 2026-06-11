@@ -171,20 +171,19 @@ export interface IReadRepoOptions extends IRepoOptions {
 export interface IPaginatedReadRepoOptions
   extends IReadRepoOptions, IPaginationParams {}
 
-interface IBaseWriteRepoOptions extends IRepoOptions {
+export interface IWriteRepoOptions extends IRepoOptions {
   expectedVersion?: number;
 }
-
-export type IWriteRepoOptions<THistory = never> = IBaseWriteRepoOptions &
-  ([THistory] extends [never] ? object : { history: THistory });
 ```
 
 Usage:
 
 - Point reads use `IReadRepoOptions`.
 - Paginated reads use `IPaginatedReadRepoOptions`.
-- Non-audited writes use `IWriteRepoOptions`.
-- Audited writes use `IWriteRepoOptions<THistory>`, which requires `history`.
+- All writes use `IWriteRepoOptions` for transaction, correlation, and
+  concurrency metadata.
+- Audited writes carry the entity and required history together in an
+  `IHistoryWrite` payload.
 
 This is a breaking refactor across repository contracts. Perform it as a
 mechanical first phase and keep behavior unchanged before introducing history
@@ -226,10 +225,17 @@ export interface IHistoryRecord<
   occurredAt: Date;
 }
 
-export interface IAuditedDomainResult<TEntity, THistory, TEventPayload> {
+export interface IEntityOutcome<TEntity, TEventPayload> {
   entity: TEntity;
-  history: THistory;
   events: IEvent<TEventPayload>[];
+}
+
+export interface IAuditedEntityOutcome<
+  TEntity,
+  THistory,
+  TEventPayload,
+> extends IEntityOutcome<TEntity, TEventPayload> {
+  history: THistory;
 }
 
 export interface IHistoryWrite<TEntity, THistory> {
@@ -277,6 +283,10 @@ This identity:
 
 Reconcile and remove overlapping concepts:
 
+- Replace `TEntityWithEvents<TEntity, TEventPayload>` (tuple) with
+  `IEntityOutcome<TEntity, TEventPayload>` (named object). All non-audited
+  domain operations migrate to the named form. Destructure as
+  `const { entity, events } = ...` at call sites.
 - Replace `IAuditTrail<T>` with `IHistoryRecord<TSnapshot, TAction>`.
 - Remove `IMakeAuditTrail` after all callers migrate.
 - Replace `IJournalEntryHistoryLog` with `IJournalEntryHistory`.
@@ -373,11 +383,22 @@ The helper validates:
 
 ## 7. Domain Operation Results
 
-Audited domain mutations return named results:
+All domain operations return named result objects.
+
+Non-audited operations return:
 
 ```ts
-IAuditedDomainResult<TEntity, THistory, TEventPayload>;
+IEntityOutcome<TEntity, TEventPayload>;
 ```
+
+Audited operations return:
+
+```ts
+IAuditedEntityOutcome<TEntity, THistory, TEventPayload>;
+```
+
+`IAuditedEntityOutcome` extends `IEntityOutcome`, so any call site that only
+needs the entity and events can consume either type without branching.
 
 Example:
 
@@ -388,7 +409,11 @@ function archive(
     actor: IHistoryActor;
     note?: string | null;
   }
-): IAuditedDomainResult<ILedgerAccount, ILedgerAccountHistory, ILedgerAccount> {
+): IAuditedEntityOutcome<
+  ILedgerAccount,
+  ILedgerAccountHistory,
+  ILedgerAccount
+> {
   const updatedAccount = Object.freeze({
     ...account,
     status: ELedgerAccountStatus.Archived,
@@ -411,13 +436,9 @@ function archive(
 }
 ```
 
-Existing non-audited operations may continue returning
-`TEntityWithEvents<TEntity, TEventPayload>`. Do not introduce a three-element
-tuple for audited operations.
-
-As aggregates become audited, migrate their mutation operations to the named
-result. Creation factories may be migrated at the same time so that every
-audited write follows one result convention.
+Migrate all existing `TEntityWithEvents` return types to `IEntityOutcome`
+during the 23.3 shared foundation phase. Do not leave the tuple type active
+alongside the named form.
 
 ## 8. Actor Propagation
 
@@ -457,19 +478,17 @@ state and is not inferred by the repository.
 
 ## 9. Repository Contracts
 
-### 9.1 Single writes
+### 9.1 Unified writes
 
-Audited repositories accept one aggregate and one required history record:
+Audited repositories expose one `save` method. It accepts either one paired
+entity/history write or an array of paired writes:
 
 ```ts
+type TLedgerAccountWrite = IHistoryWrite<ILedgerAccount, ILedgerAccountHistory>;
+
 export default interface ILedgerAccountRepo {
   save(
-    account: ILedgerAccount,
-    options: IHistoryWriteRepoOptions<ILedgerAccountHistory>
-  ): Promise<void>;
-
-  saveMany(
-    writes: readonly IHistoryWrite<ILedgerAccount, ILedgerAccountHistory>[],
+    payload: TLedgerAccountWrite | readonly TLedgerAccountWrite[],
     options: IWriteRepoOptions
   ): Promise<void>;
 
@@ -480,10 +499,11 @@ export default interface ILedgerAccountRepo {
 }
 ```
 
-Remove `Entity | Entity[]` from audited `save` signatures. Bulk persistence is
-an explicit `saveMany` operation.
+The method normalizes a single write to a one-item array internally. Single and
+bulk persistence therefore share the same validation, transaction, and
+persistence path without adding a second repository method.
 
-### 9.2 Bulk writes
+### 9.2 Paired writes
 
 Do not use parallel arrays of entities and history records.
 
@@ -495,11 +515,15 @@ const writes = accounts.map((account) => ({
   history: makeCreatedHistory(account, actor),
 }));
 
-await ledgerAccountRepo.saveMany(writes, {
+await ledgerAccountRepo.save(writes, {
   correlationId,
   tx,
 });
 ```
+
+Because every array item contains both values, the repository does not compare
+entity and history array lengths. Pairing is structural, and validation focuses
+on whether each history belongs to its accompanying entity.
 
 The repository validates for every write:
 
@@ -520,62 +544,45 @@ It should reject:
 
 An audited repository owns atomic persistence for its aggregate and history.
 
-Structure the implementation around a reusable private persistence function:
+Follow the existing repository implementation style: normalize the payload,
+validate the paired writes, map them to persistence values, and pass the full
+value arrays to Drizzle.
 
 ```ts
-async function persistOne(
-  query: TDatabaseQuery,
-  account: ILedgerAccount,
-  history: ILedgerAccountHistory,
-  options: IWriteRepoOptions
-) {
-  validateHistoryAssociation(account, history);
-
-  await persistAccount(query, account, options);
-  await persistHistory(query, account, history, options);
-}
-```
-
-Single-write behavior:
-
-```ts
-async function save(account, options) {
-  const persist = async (query: TDatabaseQuery) => {
-    await persistOne(query, account, options.history, options);
-  };
-
-  if (options.tx) {
-    await persist(getDbQuery(options));
-    return;
-  }
-
-  await postgres.transaction(persist);
-}
-```
-
-Bulk behavior:
-
-```ts
-async function saveMany(writes, options) {
-  const persist = async (query: TDatabaseQuery) => {
+const ledgerAccountRepoImpl: ILedgerAccountRepo = {
+  save: async (payload, options) => {
+    const writes = Array.isArray(payload) ? payload : [payload];
     validateWrites(writes);
 
-    for (const write of writes) {
-      await persistOne(query, write.entity, write.history, options);
-    }
-  };
+    const accountValues = writes.map(({ entity }) =>
+      ledgerAccountMapper.toRepo(entity)
+    );
+    const historyValues = writes.map(({ history }) =>
+      ledgerAccountHistoryMapper.toRepo(history)
+    );
 
-  if (options.tx) {
-    await persist(getDbQuery(options));
-    return;
-  }
+    const dbQuery = getDbQuery(options);
 
-  await postgres.transaction(persist);
-}
+    await dbQuery.transaction(async (tx) => {
+      await tx.insert(ledgerAccountsInCore).values(accountValues);
+      await tx.insert(ledgerAccountHistoryInAudit).values(historyValues);
+    });
+  },
+};
 ```
 
-The implementation may batch inserts for performance after the reference
-behavior is correct. Correct association and atomicity come first.
+Mapping prepares the database values in memory; it does not issue one database
+write per entity. Drizzle receives one value array for the aggregates and one
+value array for their histories.
+
+Every audited `save` uses a transaction because aggregate persistence and
+history persistence are separate SQL statements that must succeed or fail
+together. This applies to both single and bulk payloads. As in the current
+journal-entry repository, `getDbQuery(options)` returns either PostgreSQL or the
+supplied transaction context, and the repository calls `.transaction()` on
+that query. When `options.tx` is supplied, Drizzle creates a nested transaction
+using a savepoint. This keeps the repository write inside the caller's unit of
+work while giving the aggregate and history inserts their own atomic scope.
 
 ### 10.1 Existing transaction participation
 
@@ -584,22 +591,34 @@ When a use case already spans several repositories, it continues using
 
 ```ts
 await repoService.runInTransaction(async (tx) => {
-  await ledgerAccountRepo.save(accountResult.entity, {
-    tx,
-    correlationId,
-    history: accountResult.history,
-  });
+  await ledgerAccountRepo.save(
+    {
+      entity: accountOutcome.entity,
+      history: accountOutcome.history,
+    },
+    {
+      tx,
+      correlationId,
+    }
+  );
 
-  await journalEntryRepo.save(entryResult.entity, {
-    tx,
-    correlationId,
-    history: entryResult.history,
-  });
+  await journalEntryRepo.save(
+    {
+      entity: entryOutcome.entity,
+      history: entryOutcome.history,
+    },
+    {
+      tx,
+      correlationId,
+    }
+  );
 });
 ```
 
-Both repositories use the supplied transaction. They must not open nested
-transactions.
+Both repositories use the supplied transaction context through
+`getDbQuery(options)`. Their repository-level transactions become nested
+transactions backed by savepoints, and the outer use-case transaction still
+controls the final commit or rollback.
 
 ### 10.2 Events
 
@@ -919,10 +938,13 @@ Test:
 - Aggregate failure writes no history.
 - History failure rolls back the aggregate write.
 - A supplied external transaction is used.
-- No nested transaction is opened when `tx` is supplied.
+- A supplied transaction creates a nested repository transaction backed by a
+  savepoint.
 - Duplicate history IDs fail without duplicating the aggregate mutation.
 - Entity/history ID mismatch is rejected.
 - Bulk writes associate each history with the correct aggregate.
+- Bulk writes use one aggregate value-array insert and one history value-array
+  insert rather than one insert per paired write.
 - Bulk failure rolls back the entire batch.
 - Expected-version conflicts write no history.
 
@@ -973,7 +995,7 @@ No history behavior is introduced in this phase.
 1. Define ledger-account actions and snapshot.
 2. Add ledger-account history helpers.
 3. Update creation and mutation domain operations to return audited results.
-4. Change the repository to `save` and `saveMany`.
+4. Change the repository to a unified paired `save`.
 5. Add the ledger-account history migration.
 6. Add Drizzle schema and mapper.
 7. Persist aggregate and history atomically.
@@ -1139,7 +1161,7 @@ dependent call sites have been updated.
 ### 23.2 Repository option refactor
 
 - [x] Add `ITransactionContext`, `IReadRepoOptions`,
-      `IPaginatedReadRepoOptions`, and generic `IWriteRepoOptions<THistory>`.
+      `IPaginatedReadRepoOptions`, and `IWriteRepoOptions`.
 - [x] Remove pagination and locking concerns from the base `IRepoOptions`.
 - [x] Migrate point-read repository contracts and implementations to
       `IReadRepoOptions`.
@@ -1161,6 +1183,11 @@ dependent call sites have been updated.
 - [x] Replace `IAuditTrail`, `IMakeAuditTrail`,
       `IJournalEntryHistoryLog`, and period-specific history shapes.
 - [x] Add shared history unit tests.
+- [ ] Replace `TEntityWithEvents<TEntity, TEventPayload>` tuple with
+      `IEntityOutcome<TEntity, TEventPayload>` named object across all domain
+      entities. Rename `IAuditedDomainResult` to `IAuditedEntityOutcome`.
+      Update all call-site destructuring from positional to named fields.
+      Run type checking and the full test suite.
 
 ### 23.4 Ledger-account reference implementation
 
@@ -1170,8 +1197,8 @@ dependent call sites have been updated.
       domain results.
 - [ ] Propagate explicit user and system actors from use cases to domain
       operations.
-- [ ] Change the ledger-account repository contract to audited `save` and
-      paired `saveMany` writes.
+- [ ] Change the ledger-account repository contract to a unified audited
+      `save` accepting one paired write or an array of paired writes.
 - [ ] Add ledger-account history persistence mapping.
 - [ ] Persist the ledger account and history atomically with and without an
       external transaction.
