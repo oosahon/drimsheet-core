@@ -1,3 +1,5 @@
+import { auditSchema } from './schemas';
+
 export const accountingStandardsTable = {
   name: 'accounting_standards',
   schema: 'core',
@@ -51,4 +53,19 @@ export const reportingPeriodsTable = {
 export const reportingContextsTable = {
   name: 'reporting_contexts',
   schema: 'core',
+};
+
+export const accountingContextHistoryTable = {
+  name: 'accounting_context_history',
+  schema: auditSchema,
+};
+
+export const accountingPeriodHistoryTable = {
+  name: 'accounting_period_history',
+  schema: auditSchema,
+};
+
+export const fiscalYearHistoryTable = {
+  name: 'fiscal_year_history',
+  schema: auditSchema,
 };

@@ -1,26 +1,33 @@
 import { relations } from 'drizzle-orm/relations';
 import {
+  accountingContextHistoryInAudit,
   accountingContextsInCore,
   accountingEntitiesInCore,
+  accountingEntityHistoryInAudit,
+  accountingPeriodHistoryInAudit,
   accountingPeriodsInCore,
   accountingStandardsInCore,
   counterpartiesInCore,
   currenciesInCore,
   currencyExchangeRatesInCore,
+  fiscalYearHistoryInAudit,
   fiscalYearsInCore,
   journalEntriesInCore,
   journalEntryAttachmentsInCore,
+  journalEntryHistoryInAudit,
   journalLinesInCore,
   jurisdictionAccountingStandardsInCore,
   jurisdictionsInCore,
   ledgerAccountBalanceAdjustmentsInCore,
   ledgerAccountBalancesInCore,
+  ledgerAccountHistoryInAudit,
   ledgerAccountsInCore,
   reportingContextsInCore,
   reportingPeriodsInCore,
   userActivitiesInAudit,
   userAuthInCore,
   userPreferencesInCore,
+  userProfileHistoryInAudit,
   userSessionsInCore,
   usersInCore,
 } from './schema';
@@ -35,14 +42,21 @@ export const userAuthInCoreRelations = relations(userAuthInCore, ({ one }) => ({
 export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   userAuthInCores: many(userAuthInCore),
   userSessionsInCores: many(userSessionsInCore),
-  accountingEntitiesInCores: many(accountingEntitiesInCore),
   userActivitiesInAudits: many(userActivitiesInAudit),
-  journalEntriesInCores: many(journalEntriesInCore),
+  accountingEntitiesInCores: many(accountingEntitiesInCore),
   ledgerAccountsInCores: many(ledgerAccountsInCore),
   userPreferencesInCores: many(userPreferencesInCore),
+  journalEntriesInCores: many(journalEntriesInCore),
   ledgerAccountBalanceAdjustmentsInCores: many(
     ledgerAccountBalanceAdjustmentsInCore
   ),
+  journalEntryHistoryInAudits: many(journalEntryHistoryInAudit),
+  ledgerAccountHistoryInAudits: many(ledgerAccountHistoryInAudit),
+  accountingEntityHistoryInAudits: many(accountingEntityHistoryInAudit),
+  accountingContextHistoryInAudits: many(accountingContextHistoryInAudit),
+  accountingPeriodHistoryInAudits: many(accountingPeriodHistoryInAudit),
+  fiscalYearHistoryInAudits: many(fiscalYearHistoryInAudit),
+  userProfileHistoryInAudits: many(userProfileHistoryInAudit),
 }));
 
 export const userSessionsInCoreRelations = relations(
@@ -50,6 +64,16 @@ export const userSessionsInCoreRelations = relations(
   ({ one }) => ({
     usersInCore: one(usersInCore, {
       fields: [userSessionsInCore.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const userActivitiesInAuditRelations = relations(
+  userActivitiesInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [userActivitiesInAudit.userId],
       references: [usersInCore.id],
     }),
   })
@@ -148,8 +172,8 @@ export const accountingEntitiesInCoreRelations = relations(
     accountingContextsInCores: many(accountingContextsInCore),
     reportingPeriodsInCores: many(reportingPeriodsInCore),
     reportingContextsInCores: many(reportingContextsInCore),
-    journalEntriesInCores: many(journalEntriesInCore),
     ledgerAccountsInCores: many(ledgerAccountsInCore),
+    journalEntriesInCores: many(journalEntriesInCore),
     ledgerAccountBalancesInCores: many(ledgerAccountBalancesInCore),
   })
 );
@@ -164,16 +188,6 @@ export const fiscalYearsInCoreRelations = relations(
     accountingPeriodsInCores: many(accountingPeriodsInCore),
     accountingContextsInCores: many(accountingContextsInCore),
     reportingPeriodsInCores: many(reportingPeriodsInCore),
-  })
-);
-
-export const userActivitiesInAuditRelations = relations(
-  userActivitiesInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userActivitiesInAudit.userId],
-      references: [usersInCore.id],
-    }),
   })
 );
 
@@ -285,46 +299,6 @@ export const currencyExchangeRatesInCoreRelations = relations(
   })
 );
 
-export const journalEntriesInCoreRelations = relations(
-  journalEntriesInCore,
-  ({ one, many }) => ({
-    accountingEntitiesInCore: one(accountingEntitiesInCore, {
-      fields: [journalEntriesInCore.accountingEntityId],
-      references: [accountingEntitiesInCore.id],
-    }),
-    counterpartiesInCore: one(counterpartiesInCore, {
-      fields: [journalEntriesInCore.counterpartyId],
-      references: [counterpartiesInCore.id],
-    }),
-    journalEntriesInCore: one(journalEntriesInCore, {
-      fields: [journalEntriesInCore.voidingEntryId],
-      references: [journalEntriesInCore.id],
-      relationName:
-        'journalEntriesInCore_voidingEntryId_journalEntriesInCore_id',
-    }),
-    journalEntriesInCores: many(journalEntriesInCore, {
-      relationName:
-        'journalEntriesInCore_voidingEntryId_journalEntriesInCore_id',
-    }),
-    usersInCore: one(usersInCore, {
-      fields: [journalEntriesInCore.createdBy],
-      references: [usersInCore.id],
-    }),
-    journalLinesInCores: many(journalLinesInCore),
-    journalEntryAttachmentsInCores: many(journalEntryAttachmentsInCore),
-    ledgerAccountBalanceAdjustmentsInCores: many(
-      ledgerAccountBalanceAdjustmentsInCore
-    ),
-  })
-);
-
-export const counterpartiesInCoreRelations = relations(
-  counterpartiesInCore,
-  ({ many }) => ({
-    journalEntriesInCores: many(journalEntriesInCore),
-  })
-);
-
 export const ledgerAccountsInCoreRelations = relations(
   ledgerAccountsInCore,
   ({ one, many }) => ({
@@ -365,6 +339,46 @@ export const userPreferencesInCoreRelations = relations(
       fields: [userPreferencesInCore.id],
       references: [usersInCore.id],
     }),
+  })
+);
+
+export const journalEntriesInCoreRelations = relations(
+  journalEntriesInCore,
+  ({ one, many }) => ({
+    accountingEntitiesInCore: one(accountingEntitiesInCore, {
+      fields: [journalEntriesInCore.accountingEntityId],
+      references: [accountingEntitiesInCore.id],
+    }),
+    counterpartiesInCore: one(counterpartiesInCore, {
+      fields: [journalEntriesInCore.counterpartyId],
+      references: [counterpartiesInCore.id],
+    }),
+    journalEntriesInCore: one(journalEntriesInCore, {
+      fields: [journalEntriesInCore.voidingEntryId],
+      references: [journalEntriesInCore.id],
+      relationName:
+        'journalEntriesInCore_voidingEntryId_journalEntriesInCore_id',
+    }),
+    journalEntriesInCores: many(journalEntriesInCore, {
+      relationName:
+        'journalEntriesInCore_voidingEntryId_journalEntriesInCore_id',
+    }),
+    usersInCore: one(usersInCore, {
+      fields: [journalEntriesInCore.createdBy],
+      references: [usersInCore.id],
+    }),
+    journalLinesInCores: many(journalLinesInCore),
+    journalEntryAttachmentsInCores: many(journalEntryAttachmentsInCore),
+    ledgerAccountBalanceAdjustmentsInCores: many(
+      ledgerAccountBalanceAdjustmentsInCore
+    ),
+  })
+);
+
+export const counterpartiesInCoreRelations = relations(
+  counterpartiesInCore,
+  ({ many }) => ({
+    journalEntriesInCores: many(journalEntriesInCore),
   })
 );
 
@@ -454,6 +468,76 @@ export const ledgerAccountBalanceAdjustmentsInCoreRelations = relations(
     }),
     usersInCore: one(usersInCore, {
       fields: [ledgerAccountBalanceAdjustmentsInCore.createdBy],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const journalEntryHistoryInAuditRelations = relations(
+  journalEntryHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [journalEntryHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const ledgerAccountHistoryInAuditRelations = relations(
+  ledgerAccountHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [ledgerAccountHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const accountingEntityHistoryInAuditRelations = relations(
+  accountingEntityHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [accountingEntityHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const accountingContextHistoryInAuditRelations = relations(
+  accountingContextHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [accountingContextHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const accountingPeriodHistoryInAuditRelations = relations(
+  accountingPeriodHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [accountingPeriodHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const fiscalYearHistoryInAuditRelations = relations(
+  fiscalYearHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [fiscalYearHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const userProfileHistoryInAuditRelations = relations(
+  userProfileHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [userProfileHistoryInAudit.userId],
       references: [usersInCore.id],
     }),
   })
