@@ -14,7 +14,6 @@ yarn test --coverage
 ## Mandatory Skills
 
 - ALWAYS USE [Error Handling](./error-handling.skill.md)
-- ALWAYS USE [Pair Programmer](./pair-programmer.skill.md)
 
 ## Mandatory Rules
 

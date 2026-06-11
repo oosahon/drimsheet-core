@@ -1,7 +1,7 @@
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IMoney } from '../../../../shared/types/money.types';
-import { IRepoOptions } from '../../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import moneyValue from '../../../../shared/value-objects/money.vo';
@@ -36,7 +36,9 @@ describe('journalEntryService', () => {
     mockLedgerAccountRepo,
     mockLedgerAccountBalanceRepo
   );
-  const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
+  const mockOptions: IReadRepoOptions = {
+    correlationId: 'test-correlation-id',
+  };
 
   beforeEach(() => {
     jest.useFakeTimers();

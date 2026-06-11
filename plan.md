@@ -1152,15 +1152,15 @@ dependent call sites have been updated.
 
 ### 23.3 Shared history foundation
 
-- [ ] Update `IDiff<T>` so `before` is nullable for creation and `after` is
+- [x] Update `IDiff<T>` so `before` is nullable for creation and `after` is
       always populated.
-- [ ] Add the shared actor, history record, audited result, and history-write
+- [x] Add the shared actor, history record, audited result, and history-write
       types.
-- [ ] Add shared validation for actor identity, non-empty diffs, notes, history
+- [x] Add shared validation for actor identity, non-empty diffs, notes, history
       IDs, and occurrence timestamps.
-- [ ] Replace `IAuditTrail`, `IMakeAuditTrail`,
+- [x] Replace `IAuditTrail`, `IMakeAuditTrail`,
       `IJournalEntryHistoryLog`, and period-specific history shapes.
-- [ ] Add shared history unit tests.
+- [x] Add shared history unit tests.
 
 ### 23.4 Ledger-account reference implementation
 

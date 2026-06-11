@@ -1,43 +1,47 @@
 import generateDiff from '../diff-generator';
 
 describe('generateDiff', () => {
-  it('should return empty objects if identical', () => {
-    const diff = generateDiff({ a: 1 }, { a: 1 });
-    expect(diff.before).toEqual({});
-    expect(diff.after).toEqual({});
+  it('should return full snapshots if identical', () => {
+    const before = { a: 1 };
+    const after = { a: 1 };
+    const diff = generateDiff(after, before);
+    expect(diff.before).toEqual(before);
+    expect(diff.after).toEqual(after);
+    expect(diff.hasChanges).toBe(false);
   });
 
-  it('should return empty objects if identical arrays are provided', () => {
-    const diff = generateDiff({ a: [1, 2, 3] }, { a: [1, 2, 3] });
-    expect(diff.before).toEqual({});
-    expect(diff.after).toEqual({});
+  it('should return full snapshots if identical arrays are provided', () => {
+    const before = { a: [1, 2, 3] };
+    const after = { a: [1, 2, 3] };
+    const diff = generateDiff(after, before);
+    expect(diff.before).toEqual(before);
+    expect(diff.after).toEqual(after);
     expect(diff.hasChanges).toBe(false);
   });
 
   it('should treat missing before as full creation', () => {
     const diff = generateDiff({ a: 1 });
-    expect(diff.before).toEqual({});
+    expect(diff.before).toBeNull();
     expect(diff.after).toEqual({ a: 1 });
+    expect(diff.hasChanges).toBe(true);
   });
 
-  it('should deeply diff nested objects', () => {
-    const diff = generateDiff(
-      { a: 1, b: { c: 2, d: 4 }, e: 5 },
-      { a: 1, b: { c: 2, d: 3 } }
-    );
-    expect(diff.before).toEqual({ b: { d: 3 }, e: undefined });
-    expect(diff.after).toEqual({ b: { d: 4 }, e: 5 });
+  it('should detect changes in deeply nested objects', () => {
+    const before = { a: 1, b: { c: 2, d: 3 } };
+    const after = { a: 1, b: { c: 2, d: 4 }, e: 5 };
+    const diff = generateDiff(after, before);
+    expect(diff.before).toEqual(before);
+    expect(diff.after).toEqual(after);
+    expect(diff.hasChanges).toBe(true);
   });
 
-  it('should deeply diff arrays', () => {
-    const diff = generateDiff({ a: [1, 2, 4] }, { a: [1, 2, 3] });
-    const expectedBeforeArray: unknown[] = [];
-    expectedBeforeArray[2] = 3;
-    const expectedAfterArray: unknown[] = [];
-    expectedAfterArray[2] = 4;
-
-    expect(diff.before).toEqual({ a: expectedBeforeArray });
-    expect(diff.after).toEqual({ a: expectedAfterArray });
+  it('should detect changes in arrays', () => {
+    const before = { a: [1, 2, 3] };
+    const after = { a: [1, 2, 4] };
+    const diff = generateDiff(after, before);
+    expect(diff.before).toEqual(before);
+    expect(diff.after).toEqual(after);
+    expect(diff.hasChanges).toBe(true);
   });
 
   it('should handle dates correctly', () => {
@@ -45,26 +49,28 @@ describe('generateDiff', () => {
     const date2 = new Date('2026-01-02');
 
     const diff1 = generateDiff({ d: date1 }, { d: date1 });
-    expect(diff1.before).toEqual({});
-    expect(diff1.after).toEqual({});
+    expect(diff1.before).toEqual({ d: date1 });
+    expect(diff1.after).toEqual({ d: date1 });
 
     const diffSameTime = generateDiff(
       { d: new Date('2026-01-01') },
       { d: new Date('2026-01-01') }
     );
-    expect(diffSameTime.before).toEqual({});
-    expect(diffSameTime.after).toEqual({});
     expect(diffSameTime.hasChanges).toBe(false);
 
     const diff2 = generateDiff({ d: date2 }, { d: date1 });
     expect(diff2.before).toEqual({ d: date1 });
     expect(diff2.after).toEqual({ d: date2 });
+    expect(diff2.hasChanges).toBe(true);
   });
 
   it('should return top level field deletions properly', () => {
-    const diff = generateDiff({ a: 1 }, { a: 1, b: 2 });
-    expect(diff.before).toEqual({ b: 2 });
-    expect(diff.after).toEqual({ b: undefined });
+    const before = { a: 1, b: 2 };
+    const after = { a: 1 };
+    const diff = generateDiff(after, before);
+    expect(diff.before).toEqual(before);
+    expect(diff.after).toEqual(after);
+    expect(diff.hasChanges).toBe(true);
   });
 
   it('should handle type mismatches wholesale (object to primitive, etc)', () => {
@@ -74,16 +80,15 @@ describe('generateDiff', () => {
     );
     expect(diff.before).toEqual({ a: { complex: true } });
     expect(diff.after).toEqual({ a: 1 });
+    expect(diff.hasChanges).toBe(true);
   });
 
   it('should handle array extensions', () => {
-    const diff = generateDiff({ a: [1, 2] }, { a: [1] });
-    const expectedBeforeArray: unknown[] = [];
-    expectedBeforeArray[1] = undefined;
-    const expectedAfterArray: unknown[] = [];
-    expectedAfterArray[1] = 2;
-
-    expect(diff.before).toEqual({ a: expectedBeforeArray });
-    expect(diff.after).toEqual({ a: expectedAfterArray });
+    const before = { a: [1] };
+    const after = { a: [1, 2] };
+    const diff = generateDiff(after, before);
+    expect(diff.before).toEqual(before);
+    expect(diff.after).toEqual(after);
+    expect(diff.hasChanges).toBe(true);
   });
 });

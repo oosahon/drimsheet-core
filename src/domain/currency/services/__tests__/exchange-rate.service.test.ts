@@ -1,5 +1,5 @@
 import mockExchangeRateRepo from '../../../../infra/persistence/repos/currency/__mocks__/exchange-rate-repo.impl.mock';
-import { IRepoOptions } from '../../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
   EExchangeRateType,
   IExchangeRate,
@@ -9,7 +9,9 @@ import makeExchangeRateService from '../exchange-rate.service';
 
 describe('exchangeRateService', () => {
   const service = makeExchangeRateService(mockExchangeRateRepo);
-  const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
+  const mockOptions: IReadRepoOptions = {
+    correlationId: 'test-correlation-id',
+  };
 
   beforeEach(() => {
     jest.useFakeTimers();

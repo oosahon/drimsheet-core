@@ -1,5 +1,5 @@
 [
-  "accounting_error_accounting_entity_invalid_audit_trail_action",
+  "accounting_error_accounting_entity_invalid_history_action",
   "accounting_error_accounting_entity_invalid_jurisdiction_code",
   "accounting_error_accounting_entity_invalid_type",
   "accounting_error_accounting_entity_unauthorized",
@@ -63,6 +63,11 @@
   "file_attachment_error_invalid_size",
   "file_attachment_error_invalid_type",
   "file_attachment_error_invalid_url",
+  "history_error_invalid_action",
+  "history_error_invalid_actor",
+  "history_error_invalid_diff",
+  "history_error_invalid_entity_id",
+  "history_error_invalid_note",
   "journal_entry_error_account_not_found",
   "journal_entry_error_control_account_opening_balance_not_allowed",
   "journal_entry_error_control_account_transaction_not_allowed",

@@ -2,7 +2,7 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
 import {
-  EAccountingEntityAuditTrailAction,
+  EAccountingEntityHistoryAction,
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../types/accounting-entity.types';
@@ -160,41 +160,41 @@ describe('accountingEntityEntity', () => {
       });
     });
 
-    describe('isValidAuditTrailAction', () => {
-      it('should return true for valid audit trail actions', () => {
+    describe('isValidHistoryAction', () => {
+      it('should return true for valid history actions', () => {
         expect(
-          accountingEntityEntity.isValidAuditTrailAction(
-            EAccountingEntityAuditTrailAction.Created
+          accountingEntityEntity.isValidHistoryAction(
+            EAccountingEntityHistoryAction.Created
           )
         ).toBe(true);
         expect(
-          accountingEntityEntity.isValidAuditTrailAction(
-            EAccountingEntityAuditTrailAction.Updated
+          accountingEntityEntity.isValidHistoryAction(
+            EAccountingEntityHistoryAction.Updated
           )
         ).toBe(true);
       });
 
-      it('should return false for invalid audit trail action', () => {
+      it('should return false for invalid history action', () => {
         expect(
           // @ts-expect-error testing invalid argument
-          accountingEntityEntity.isValidAuditTrailAction('invalid-action')
+          accountingEntityEntity.isValidHistoryAction('invalid-action')
         ).toBe(false);
       });
     });
 
-    describe('validateAuditTrailAction', () => {
-      it('should not throw for valid audit trail action', () => {
+    describe('validateHistoryAction', () => {
+      it('should not throw for valid history action', () => {
         expect(() =>
-          accountingEntityEntity.validateAuditTrailAction(
-            EAccountingEntityAuditTrailAction.Created
+          accountingEntityEntity.validateHistoryAction(
+            EAccountingEntityHistoryAction.Created
           )
         ).not.toThrow();
       });
 
-      it('should throw AppError for invalid audit trail action', () => {
+      it('should throw AppError for invalid history action', () => {
         expect(() =>
           // @ts-expect-error testing invalid argument
-          accountingEntityEntity.validateAuditTrailAction('invalid-action')
+          accountingEntityEntity.validateHistoryAction('invalid-action')
         ).toThrow();
       });
     });

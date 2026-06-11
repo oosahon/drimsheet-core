@@ -1,7 +1,7 @@
-import { TEntityId } from '../../../shared/types/uuid';
+import { IHistoryRecord } from '../../../shared/types/history.types';
 import { IJournalEntry } from './journal-entry.types';
 
-export const EJournalEntryHistoryLogAction = {
+export const EJournalEntryHistoryAction = {
   Created: 'created',
   Updated: 'updated',
   Voided: 'voided',
@@ -10,18 +10,10 @@ export const EJournalEntryHistoryLogAction = {
   Unarchived: 'unarchived',
 } as const;
 
-export type UJournalEntryHistoryLogAction =
-  (typeof EJournalEntryHistoryLogAction)[keyof typeof EJournalEntryHistoryLogAction];
+export type UJournalEntryHistoryAction =
+  (typeof EJournalEntryHistoryAction)[keyof typeof EJournalEntryHistoryAction];
 
-export interface IJournalEntryHistoryLog {
-  id: number; // using serials for db performance
-  journalEntryId: TEntityId;
-  userId: TEntityId;
-  action: UJournalEntryHistoryLogAction;
-  diff: {
-    before: Partial<IJournalEntry>;
-    after: Partial<IJournalEntry>;
-  };
-  note?: string;
-  createdAt: Date;
-}
+export interface IJournalEntryHistory extends IHistoryRecord<
+  IJournalEntry,
+  UJournalEntryHistoryAction
+> {}

@@ -1,5 +1,5 @@
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import { IRepoOptions } from '../../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import accountingEntityEntity from '../../../accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
@@ -10,7 +10,9 @@ import makeLedgerAccountService from '../ledger-account.service';
 
 describe('ledgerAccountService', () => {
   const service = makeLedgerAccountService(mockLedgerAccountRepo);
-  const repoOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
+  const repoOptions: IReadRepoOptions = {
+    correlationId: 'test-correlation-id',
+  };
 
   let account: ILedgerAccount;
 

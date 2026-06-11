@@ -1,5 +1,5 @@
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import { IRepoOptions } from '../../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import { IEquityLedgerAccount } from '../../types/equity-account.types';
@@ -7,7 +7,9 @@ import makeEquityAccountService from '../equity-account.service';
 
 describe('equityAccountService', () => {
   const service = makeEquityAccountService(mockLedgerAccountRepo);
-  const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
+  const mockOptions: IReadRepoOptions = {
+    correlationId: 'test-correlation-id',
+  };
 
   beforeEach(() => {
     jest.useFakeTimers();

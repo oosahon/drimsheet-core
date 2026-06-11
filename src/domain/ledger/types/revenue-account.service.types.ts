@@ -1,5 +1,5 @@
 import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
 import {
   IEmploymentIncomeAccount,
@@ -12,7 +12,7 @@ import {
 export default interface IRevenueAccountService {
   bootstrapHeaderAccounts(
     accountingEntity: IAccountingEntity,
-    repoOptions: IRepoOptions,
+    repoOptions: IReadRepoOptions,
     shouldBootstrapPostingAccounts?: boolean
   ): Promise<{
     accounts: IRevenueLedgerAccount[];
@@ -27,6 +27,6 @@ export default interface IRevenueAccountService {
       gainOnAssetSaleHeader: IGainOnAssetSaleAccount;
       unrealizedGainHeader: IUnrealizedGainAccount;
     },
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ): Promise<TEntityWithEvents<IRevenueLedgerAccount, IRevenueLedgerAccount>[]>;
 }

@@ -1,4 +1,4 @@
-import { IAuditTrail } from '../../../shared/types/audit-trail.types';
+import { IHistoryRecord } from '../../../shared/types/history.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { UCurrencyCode } from '../../currency/config/currencies.config';
 import { UJurisdictionCode } from '../config/jurisdictions.config';
@@ -23,15 +23,15 @@ export interface IAccountingEntity {
   updatedAt: Date;
 }
 
-export const EAccountingEntityAuditTrailAction = {
+export const EAccountingEntityHistoryAction = {
   Created: 'created',
   Updated: 'updated',
 } as const;
 
-export type UAccountingEntityAuditTrailAction =
-  (typeof EAccountingEntityAuditTrailAction)[keyof typeof EAccountingEntityAuditTrailAction];
+export type UAccountingEntityHistoryAction =
+  (typeof EAccountingEntityHistoryAction)[keyof typeof EAccountingEntityHistoryAction];
 
-export interface IAccountingEntityAuditTrail extends IAuditTrail<IAccountingEntity> {
-  accountingEntityId: TEntityId;
-  action: UAccountingEntityAuditTrailAction;
-}
+export type IAccountingEntityHistory = IHistoryRecord<
+  IAccountingEntity,
+  UAccountingEntityHistoryAction
+>;

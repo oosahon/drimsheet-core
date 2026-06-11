@@ -1,5 +1,5 @@
 import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
 import {
   IAssetDisposalLossAccount,
@@ -16,7 +16,7 @@ import {
 export default interface IExpenseAccountService {
   bootstrapHeaderAccounts(
     accountingEntity: IAccountingEntity,
-    repoOptions: IRepoOptions,
+    repoOptions: IReadRepoOptions,
     shouldBootstrapPostingAccounts?: boolean
   ): Promise<{
     accounts: IExpenseLedgerAccount[];
@@ -35,6 +35,6 @@ export default interface IExpenseAccountService {
       unrealizedLossHeader: IUnrealizedLossAccount;
       assetDisposalLossHeader: IAssetDisposalLossAccount;
     },
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ): Promise<TEntityWithEvents<IExpenseLedgerAccount, IExpenseLedgerAccount>[]>;
 }

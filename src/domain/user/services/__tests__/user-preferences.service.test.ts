@@ -1,5 +1,5 @@
 import mockUserPreferencesRepo from '../../../../infra/persistence/repos/user/__mocks__/user-preferences.repo.impl.mock';
-import { IRepoOptions } from '../../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { EUserEvents } from '../../events/user.events';
 import {
@@ -12,7 +12,9 @@ import makeUserPreferencesService from '../user-preferences.service';
 describe('makeUserPreferencesService', () => {
   const service = makeUserPreferencesService(mockUserPreferencesRepo);
   const userId = generateUUID();
-  const mockOptions: IRepoOptions = { correlationId: 'test-correlation-id' };
+  const mockOptions: IReadRepoOptions = {
+    correlationId: 'test-correlation-id',
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();

@@ -4,9 +4,9 @@ import {
 } from '../../config/jurisdictions.config';
 import accountingEntityError from '../../errors/accounting-entity.error';
 import {
-  EAccountingEntityAuditTrailAction,
+  EAccountingEntityHistoryAction,
   EAccountingEntityType,
-  UAccountingEntityAuditTrailAction,
+  UAccountingEntityHistoryAction,
   UAccountingEntityType,
 } from '../../types/accounting-entity.types';
 
@@ -30,13 +30,13 @@ function validateJurisdictionCode(code: unknown) {
   }
 }
 
-function isValidAuditTrailAction(action: UAccountingEntityAuditTrailAction) {
-  return Object.values(EAccountingEntityAuditTrailAction).includes(action);
+function isValidHistoryAction(action: UAccountingEntityHistoryAction) {
+  return Object.values(EAccountingEntityHistoryAction).includes(action);
 }
 
-function validateAuditTrailAction(action: UAccountingEntityAuditTrailAction) {
-  if (!isValidAuditTrailAction(action)) {
-    throw new accountingEntityError.InvalidAuditTrailAction({ action });
+function validateHistoryAction(action: UAccountingEntityHistoryAction) {
+  if (!isValidHistoryAction(action)) {
+    throw new accountingEntityError.InvalidHistoryAction({ action });
   }
 }
 
@@ -47,8 +47,8 @@ const accountingEntityHelpers = Object.freeze({
   isValidJurisdictionCode,
   validateJurisdictionCode,
 
-  isValidAuditTrailAction,
-  validateAuditTrailAction,
+  isValidHistoryAction,
+  validateHistoryAction,
 });
 
 export default accountingEntityHelpers;

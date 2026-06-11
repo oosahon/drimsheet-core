@@ -1,5 +1,5 @@
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
-import { IRepoOptions } from '../../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import ledgerAccountBalanceEntity from '../../entities/shared/ledger-account-balance.entity';
@@ -51,7 +51,7 @@ describe('account-balance.service', () => {
     createdBy: createdBy,
   });
 
-  const repoOptions: IRepoOptions = { correlationId: 'req-1' };
+  const repoOptions: IReadRepoOptions = { correlationId: 'req-1' };
 
   describe('createBalance', () => {
     it('should return existing balance if it exists', async () => {

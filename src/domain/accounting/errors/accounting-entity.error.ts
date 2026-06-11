@@ -9,8 +9,8 @@ const EErrorKeys = {
   InvalidType: 'accounting_error_accounting_entity_invalid_type',
   InvalidJurisdictionCode:
     'accounting_error_accounting_entity_invalid_jurisdiction_code',
-  InvalidAuditTrailAction:
-    'accounting_error_accounting_entity_invalid_audit_trail_action',
+  InvalidHistoryAction:
+    'accounting_error_accounting_entity_invalid_history_action',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UAccountingEntityError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
