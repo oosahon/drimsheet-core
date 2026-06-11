@@ -1,8 +1,11 @@
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import {
+  IReadRepoOptions,
+  IWriteRepoOptions,
+} from '../../../shared/types/repo.types';
 import { IExchangeRate } from '../types/exchange-rate.types';
 
 export default interface IExchangeRateRepo {
-  save(exchangeRate: IExchangeRate[], option: IRepoOptions): Promise<void>;
+  save(exchangeRate: IExchangeRate[], option: IWriteRepoOptions): Promise<void>;
 
-  getById(id: number, option: IRepoOptions): Promise<IExchangeRate | null>;
+  getById(id: number, option: IReadRepoOptions): Promise<IExchangeRate | null>;
 }

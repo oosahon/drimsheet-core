@@ -155,22 +155,28 @@ export interface IRepoOptions extends ICorrelationId {
   tx?: ITransactionContext;
 }
 
-export type TRepoLock = 'update' | 'no key update' | 'share' | 'key share';
+export const ERepoLock = {
+  Update: 'update',
+  NoKeyUpdate: 'no key update',
+  Share: 'share',
+  KeyShare: 'key share',
+} as const;
+
+export type URepoLock = (typeof ERepoLock)[keyof typeof ERepoLock];
 
 export interface IReadRepoOptions extends IRepoOptions {
-  lock?: TRepoLock;
+  lock?: URepoLock;
 }
 
 export interface IPaginatedReadRepoOptions
   extends IReadRepoOptions, IPaginationParams {}
 
-export interface IWriteRepoOptions extends IRepoOptions {
+interface IBaseWriteRepoOptions extends IRepoOptions {
   expectedVersion?: number;
 }
 
-export interface IHistoryWriteRepoOptions<THistory> extends IWriteRepoOptions {
-  history: THistory;
-}
+export type IWriteRepoOptions<THistory = never> = IBaseWriteRepoOptions &
+  ([THistory] extends [never] ? object : { history: THistory });
 ```
 
 Usage:
@@ -178,7 +184,7 @@ Usage:
 - Point reads use `IReadRepoOptions`.
 - Paginated reads use `IPaginatedReadRepoOptions`.
 - Non-audited writes use `IWriteRepoOptions`.
-- Audited writes use `IHistoryWriteRepoOptions<THistory>`.
+- Audited writes use `IWriteRepoOptions<THistory>`, which requires `history`.
 
 This is a breaking refactor across repository contracts. Perform it as a
 mechanical first phase and keep behavior unchanged before introducing history
@@ -1128,18 +1134,17 @@ dependent call sites have been updated.
 
 ### 23.2 Repository option refactor
 
-- [ ] Add `ITransactionContext`, `IReadRepoOptions`,
-      `IPaginatedReadRepoOptions`, `IWriteRepoOptions`, and
-      `IHistoryWriteRepoOptions`.
-- [ ] Remove pagination and locking concerns from the base `IRepoOptions`.
-- [ ] Migrate point-read repository contracts and implementations to
+- [x] Add `ITransactionContext`, `IReadRepoOptions`,
+      `IPaginatedReadRepoOptions`, and generic `IWriteRepoOptions<THistory>`.
+- [x] Remove pagination and locking concerns from the base `IRepoOptions`.
+- [x] Migrate point-read repository contracts and implementations to
       `IReadRepoOptions`.
-- [ ] Migrate paginated query contracts and implementations to
+- [x] Migrate paginated query contracts and implementations to
       `IPaginatedReadRepoOptions`.
-- [ ] Migrate non-audited writes to `IWriteRepoOptions`.
-- [ ] Update repository helpers, services, use cases, mocks, and tests for the
+- [x] Migrate non-audited writes to `IWriteRepoOptions`.
+- [x] Update repository helpers, services, use cases, mocks, and tests for the
       new option types.
-- [ ] Run type checking and the full test suite before adding history behavior.
+- [x] Run type checking and the full test suite before adding history behavior.
 
 ### 23.3 Shared history foundation
 

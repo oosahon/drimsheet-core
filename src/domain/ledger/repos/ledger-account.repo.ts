@@ -1,5 +1,9 @@
 import { IPaginatedResponse } from '../../../shared/types/pagination.types';
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import {
+  IPaginatedReadRepoOptions,
+  IReadRepoOptions,
+  IWriteRepoOptions,
+} from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { UAssetSubType } from '../types/asset-account.types';
 import { UEquitySubType } from '../types/equity-account.types';
@@ -18,7 +22,7 @@ export type ULedgerAccountSortBy =
   (typeof ELedgerAccountSortBy)[keyof typeof ELedgerAccountSortBy];
 
 export interface IFindAllLedgerAccountsOptions extends Omit<
-  IRepoOptions,
+  IPaginatedReadRepoOptions,
   'orderBy'
 > {
   ids?: TEntityId[];
@@ -37,43 +41,43 @@ export interface IFindAllLedgerAccountsOptions extends Omit<
 export default interface ILedgerAccountRepo {
   save(
     account: ILedgerAccount | ILedgerAccount[],
-    options: IRepoOptions
+    options: IWriteRepoOptions
   ): Promise<void>;
 
   findById(
     id: TEntityId,
-    options: IRepoOptions
+    options: IReadRepoOptions
   ): Promise<ILedgerAccount | null>;
 
   findAllByIds(
     ids: TEntityId[],
-    options: IRepoOptions
+    options: IReadRepoOptions
   ): Promise<ILedgerAccount[]>;
 
   findByCode(
     code: string,
     accountingEntityId: TEntityId,
-    options: IRepoOptions
+    options: IReadRepoOptions
   ): Promise<ILedgerAccount | null>;
 
   findBySubType(
     accountingEntityId: TEntityId,
     type: ULedgerType,
     subType: string,
-    options: IRepoOptions
+    options: IReadRepoOptions
   ): Promise<ILedgerAccount[]>;
 
   findByBehavior(
     accountingEntityId: TEntityId,
     behavior: string,
-    options: IRepoOptions
+    options: IReadRepoOptions
   ): Promise<ILedgerAccount[]>;
 
   findLatestBySubType(
     accountingEntityId: TEntityId,
     type: ULedgerType,
     subType: string,
-    options: IRepoOptions
+    options: IReadRepoOptions
   ): Promise<Pick<ILedgerAccount, 'id' | 'code' | 'materializedPath'> | null>;
 
   findAll(

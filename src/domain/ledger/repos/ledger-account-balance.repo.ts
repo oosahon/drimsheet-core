@@ -1,4 +1,7 @@
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import {
+  IReadRepoOptions,
+  IWriteRepoOptions,
+} from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import {
   ILedgerAccountBalance,
@@ -9,28 +12,28 @@ import {
 export default interface ILedgerAccountBalanceRepo {
   create(
     payload: ILedgerAccountBalance,
-    repoOptions: IRepoOptions
+    repoOptions: IWriteRepoOptions
   ): Promise<void>;
 
   adjustBalance(
     payload: INewLedgerAccountBalanceAndAdjustment,
-    repoOptions: IRepoOptions
+    repoOptions: IWriteRepoOptions
   ): Promise<void>;
 
   findByAccountId(
     ledgerAccountId: TEntityId,
     accountingEntityId: TEntityId,
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ): Promise<ILedgerAccountBalance | null>;
 
   findAdjustmentsByAccountId(
     ledgerAccountId: TEntityId,
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ): Promise<ILedgerAccountBalanceAdjustment[]>;
 
   findAllByAccountIds(
     accountingEntityId: TEntityId,
     ledgerAccountIds: TEntityId[],
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ): Promise<ILedgerAccountBalance[]>;
 }

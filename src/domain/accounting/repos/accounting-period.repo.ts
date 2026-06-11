@@ -1,9 +1,9 @@
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import { IWriteRepoOptions } from '../../../shared/types/repo.types';
 import { IAccountingPeriod } from '../types/period.types';
 
 export default interface IAccountingPeriodRepo {
   save(
     payload: IAccountingPeriod | IAccountingPeriod[],
-    options: IRepoOptions
+    options: IWriteRepoOptions
   ): Promise<void>;
 }

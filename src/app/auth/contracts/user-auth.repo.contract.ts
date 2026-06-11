@@ -1,19 +1,22 @@
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import {
+  IReadRepoOptions,
+  IWriteRepoOptions,
+} from '../../../shared/types/repo.types';
 import { IUserAuth } from './auth-service.contract';
 
 export default interface IUserAuthRepo {
-  save(userAuth: IUserAuth, options: IRepoOptions): Promise<void>;
+  save(userAuth: IUserAuth, options: IWriteRepoOptions): Promise<void>;
   findByUserId(
     userId: string,
-    options: IRepoOptions
+    options: IReadRepoOptions
   ): Promise<IUserAuth | null>;
-  update(userAuth: IUserAuth, options: IRepoOptions): Promise<void>;
+  update(userAuth: IUserAuth, options: IWriteRepoOptions): Promise<void>;
   incrementFailedLoginAttempts(
     userId: string,
-    options: IRepoOptions
+    options: IWriteRepoOptions
   ): Promise<void>;
   resetFailedLoginAttempts(
     userId: string,
-    options: IRepoOptions
+    options: IWriteRepoOptions
   ): Promise<void>;
 }

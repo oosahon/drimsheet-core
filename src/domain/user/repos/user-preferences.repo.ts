@@ -1,12 +1,18 @@
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import {
+  IReadRepoOptions,
+  IWriteRepoOptions,
+} from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { IUserPreferences } from '../types/user-preferences.types';
 
 export default interface IUserPreferencesRepo {
-  save(preferences: IUserPreferences, options: IRepoOptions): Promise<void>;
+  save(
+    preferences: IUserPreferences,
+    options: IWriteRepoOptions
+  ): Promise<void>;
 
   findById(
     userId: TEntityId,
-    options: IRepoOptions
+    options: IReadRepoOptions
   ): Promise<IUserPreferences | null>;
 }
