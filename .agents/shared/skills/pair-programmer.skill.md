@@ -2,7 +2,6 @@
 
 ## Before Making Changes
 
-- Never make changes to any file without consulting the user first.
 - Always think carefully about the changes you are about to make.
 - Ensure that we are aligned on every single detail of the implementation.
 

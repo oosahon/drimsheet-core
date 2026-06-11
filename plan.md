@@ -245,15 +245,19 @@ Update `src/shared/types/diff.types.ts`:
 ```ts
 export interface IDiff<T extends object> {
   before: T | null;
-  after: T | null;
+  after: T;
 }
 ```
 
 Meaning:
 
 - Creation: `before` is `null`.
-- Deletion, where allowed: `after` is `null`.
 - Mutation: both sides are populated.
+- Soft deletion is a mutation represented by the entity's resulting snapshot,
+  including its deletion marker such as `deletedAt`.
+- Hard deletion or privacy erasure is not represented by retaining a history
+  record with `after: null`; applicable historical data must follow the
+  system's retention and erasure policy.
 
 Snapshots should contain the relevant state, not only the fields that changed.
 This makes each record independently understandable and avoids reconstructing a
@@ -890,8 +894,8 @@ Test:
 - User actor requires a user ID.
 - System and migration actors are accepted.
 - Creation permits `before: null`.
-- Deletion permits `after: null`.
-- Both states cannot be null.
+- Every history record requires a populated `after` snapshot.
+- Soft deletion records the resulting entity state, including `deletedAt`.
 - History IDs and occurrence timestamps are created once.
 - Notes are sanitized and bounded.
 
@@ -1148,7 +1152,8 @@ dependent call sites have been updated.
 
 ### 23.3 Shared history foundation
 
-- [ ] Update `IDiff<T>` so `before` and `after` are independently nullable.
+- [ ] Update `IDiff<T>` so `before` is nullable for creation and `after` is
+      always populated.
 - [ ] Add the shared actor, history record, audited result, and history-write
       types.
 - [ ] Add shared validation for actor identity, non-empty diffs, notes, history
