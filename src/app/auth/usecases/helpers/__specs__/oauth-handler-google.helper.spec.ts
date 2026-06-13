@@ -14,7 +14,7 @@ import {
 import makeGoogleOAuthHelper from '../oauth-handler-google.helper';
 
 describe('makeGoogleOAuthHelper', () => {
-  const correlationId = 'test-corr-id';
+  const correlationId = '854e4567-e89b-42d3-a456-426614174001';
   const idempotencyKey = 'test-idemp-key';
 
   beforeEach(() => {
@@ -138,7 +138,11 @@ describe('makeGoogleOAuthHelper', () => {
         email: 'testuser@example.com',
         emailVerified: true,
       }),
-      expect.objectContaining({ correlationId, tx: 'mock-tx' })
+      expect.objectContaining({
+        correlationId,
+        tx: 'mock-tx',
+        history: expect.any(Object),
+      })
     );
 
     expect(mockUserAuthRepo.save).toHaveBeenCalledWith(

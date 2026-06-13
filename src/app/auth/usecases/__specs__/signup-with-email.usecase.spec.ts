@@ -41,7 +41,7 @@ describe('makeSignupWithEmailUsecase', () => {
   });
 
   it('should successfully sign up a new user', async () => {
-    const correlationId = 'test-corr-id';
+    const correlationId = '854e4567-e89b-42d3-a456-426614174001';
     const idempotencyKey = 'test-idemp-key';
     mockRequestContext.get.mockReturnValue({
       correlationId,
@@ -97,7 +97,11 @@ describe('makeSignupWithEmailUsecase', () => {
       email,
       emailVerified: false,
     });
-    expect(savedUserArgs[1]).toEqual({ correlationId, tx: 'mock-tx' });
+    expect(savedUserArgs[1]).toMatchObject({
+      correlationId,
+      tx: 'mock-tx',
+      history: expect.any(Object),
+    });
 
     expect(mockEventBus.publish).toHaveBeenCalled();
     const publishCalls = (mockEventBus.publish as jest.Mock).mock.calls;
@@ -114,7 +118,7 @@ describe('makeSignupWithEmailUsecase', () => {
   });
 
   it('should throw appError.Conflict if user already exists', async () => {
-    const correlationId = 'test-corr-id';
+    const correlationId = '854e4567-e89b-42d3-a456-426614174001';
     mockRequestContext.get.mockReturnValue({
       correlationId,
     } as IRequestContextData);
@@ -152,7 +156,7 @@ describe('makeSignupWithEmailUsecase', () => {
   });
 
   it('should throw appError.Forbidden if email is not permitted', async () => {
-    const correlationId = 'test-corr-id';
+    const correlationId = '854e4567-e89b-42d3-a456-426614174001';
     mockRequestContext.get.mockReturnValue({
       correlationId,
     } as unknown as IRequestContextData);

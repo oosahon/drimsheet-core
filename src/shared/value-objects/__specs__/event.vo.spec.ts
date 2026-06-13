@@ -153,4 +153,52 @@ describe('event.vo', () => {
       ).not.toThrow();
     });
   });
+
+  describe('enrichAll', () => {
+    it('enriches multiple events successfully', () => {
+      const events = [
+        eventValue.make({ type: 'Event1', data: { val: 1 } }),
+        eventValue.make({ type: 'Event2', data: { val: 2 } }),
+      ];
+
+      const enriched = eventValue.enrichAll(events, {
+        correlationId: validUUID,
+        idempotencyKey: validUUID2,
+      });
+
+      expect(enriched).toHaveLength(2);
+      expect(enriched[0].correlationId).toBe(validUUID);
+      expect(enriched[0].idempotencyKey).toBe(validUUID2);
+      expect(enriched[1].correlationId).toBe(validUUID);
+      expect(enriched[1].idempotencyKey).toBe(validUUID2);
+    });
+  });
+
+  describe('validateKey', () => {
+    it('passes for valid keys starting with domain, app, or infra', () => {
+      expect(() => eventValue.validateKey('domain.user.created')).not.toThrow();
+      expect(() => eventValue.validateKey('app.user.verify')).not.toThrow();
+      expect(() => eventValue.validateKey('infra.db.connected')).not.toThrow();
+    });
+
+    it('throws MissingKey if key is empty or not a non-empty string', () => {
+      expect(() => eventValue.validateKey('')).toThrow(eventError.MissingKey);
+      expect(() => eventValue.validateKey('   ')).toThrow(
+        eventError.MissingKey
+      );
+      expect(() => eventValue.validateKey(null as any)).toThrow(
+        eventError.MissingKey
+      );
+    });
+
+    it('throws InvalidKey if key does not start with domain, app, or infra', () => {
+      expect(() => eventValue.validateKey('other.event.name')).toThrow(
+        eventError.InvalidKey
+      );
+      expect(() => eventValue.validateKey('domain')).not.toThrow(); // starts with domain
+      expect(() => eventValue.validateKey('domai')).toThrow(
+        eventError.InvalidKey
+      );
+    });
+  });
 });

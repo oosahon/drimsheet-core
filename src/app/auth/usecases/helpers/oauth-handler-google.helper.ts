@@ -2,6 +2,7 @@ import userEntity from '../../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import eventValue from '../../../../shared/value-objects/event.vo';
+import historyValue from '../../../../shared/value-objects/history.vo';
 import IUserAuthRepo from '../../../auth/contracts/user-auth.repo.contract';
 import { IOAuthProfile, TOAuthDoneCallback } from '../../../auth/dtos/auth.dto';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
@@ -45,15 +46,21 @@ export default function makeGoogleOAuthHelper(
         return done(null, existingUser);
       }
 
-      const [user, userEvents] = userEntity.make({
+      const [user, userEvents, userAuditDelta] = userEntity.make({
         firstName: profile.firstName,
         lastName: profile.lastName,
         email,
         emailVerified: true,
       });
 
+      const history = historyValue.make(
+        userAuditDelta,
+        historyValue.getUserActor(user.id),
+        correlationId
+      );
+
       const repoTransaction: TRepoTransactionFn = async (tx) => {
-        await userRepo.save(user, { correlationId, tx });
+        await userRepo.save(user, { correlationId, tx, history });
         const timestamp = new Date();
 
         await userAuthRepo.save(

@@ -26,6 +26,8 @@ const userActor: IHistoryActor = {
   userId,
 };
 
+const correlationId = '854e4567-e89b-42d3-a456-426614174001';
+
 function makeHistory(
   actor: IHistoryActor,
   action: string,
@@ -43,7 +45,8 @@ function makeHistory(
       },
       occurredAt,
     },
-    actor
+    actor,
+    correlationId
   );
 }
 
@@ -64,6 +67,7 @@ describe('history.vo', () => {
       expect(history.action).toBe('updated');
       expect(history.diff).toEqual({ before, after });
       expect(history.occurredAt).toBe(occurredAt);
+      expect(history.correlationId).toBe(correlationId);
       expect(Object.isFrozen(history)).toBe(true);
 
       // Verify removed fields are not present
@@ -104,7 +108,8 @@ describe('history.vo', () => {
             diff: { before, after },
             occurredAt: new Date(),
           },
-          userActor
+          userActor,
+          correlationId
         )
       ).toThrow(historyError.InvalidEntityId);
     });
@@ -145,7 +150,8 @@ describe('history.vo', () => {
             diff: { before, after },
             occurredAt: new Date(),
           },
-          userActor
+          userActor,
+          correlationId
         )
       ).toThrow(historyError.InvalidAction);
 
@@ -157,7 +163,8 @@ describe('history.vo', () => {
             diff: { before, after },
             occurredAt: new Date(),
           },
-          userActor
+          userActor,
+          correlationId
         )
       ).toThrow(historyError.InvalidAction);
     });
@@ -171,9 +178,25 @@ describe('history.vo', () => {
             diff: { before, after },
             occurredAt: new Date('invalid'),
           },
-          userActor
+          userActor,
+          correlationId
         )
       ).toThrow(historyError.InvalidDate);
+    });
+
+    it('rejects invalid correlation IDs', () => {
+      expect(() =>
+        historyValue.make(
+          {
+            entityId,
+            action: 'updated',
+            diff: { before, after },
+            occurredAt: new Date(),
+          },
+          userActor,
+          ''
+        )
+      ).toThrow(historyError.InvalidCorrelationId);
     });
 
     it('rejects invalid diffs', () => {
@@ -196,6 +219,36 @@ describe('history.vo', () => {
           )
         ).toThrow(historyError.InvalidDiff);
       }
+    });
+  });
+
+  describe('helpers', () => {
+    it('getUserActor returns valid user actor and validates userId', () => {
+      const actor = historyValue.getUserActor(userId);
+      expect(actor).toEqual({
+        userId,
+        type: EHistoryActorType.User,
+      });
+
+      expect(() =>
+        historyValue.getUserActor('invalid-uuid' as TEntityId)
+      ).toThrow(historyError.InvalidActor);
+    });
+
+    it('getSystemActor returns system actor', () => {
+      const actor = historyValue.getSystemActor();
+      expect(actor).toEqual({
+        userId: null,
+        type: EHistoryActorType.System,
+      });
+    });
+
+    it('getMigrationActor returns migration actor', () => {
+      const actor = historyValue.getMigrationActor();
+      expect(actor).toEqual({
+        userId: null,
+        type: EHistoryActorType.Migration,
+      });
     });
   });
 });

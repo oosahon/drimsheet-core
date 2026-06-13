@@ -294,4 +294,29 @@ describe('stringUtils', () => {
       ).toThrow(TestError);
     });
   });
+
+  describe('validateIsInEnum', () => {
+    enum TestEnum {
+      A = 'value_a',
+      B = 'value_b',
+    }
+
+    it('does not throw if value is a valid enum value', () => {
+      expect(() =>
+        stringUtils.validateIsInEnum('value_a', TestEnum, TestError)
+      ).not.toThrow();
+      expect(() =>
+        stringUtils.validateIsInEnum('value_b', TestEnum, TestError)
+      ).not.toThrow();
+    });
+
+    it('throws TestError if value is not a valid enum value', () => {
+      expect(() =>
+        stringUtils.validateIsInEnum('value_c', TestEnum, TestError)
+      ).toThrow(TestError);
+      expect(() =>
+        stringUtils.validateIsInEnum('', TestEnum, TestError)
+      ).toThrow(TestError);
+    });
+  });
 });

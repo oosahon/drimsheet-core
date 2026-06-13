@@ -12,8 +12,21 @@ import { IRequestContextData } from '../../../shared/contracts/request-context.c
 import appError from '../../../shared/errors/app.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
+jest.mock('../../../../domain/user/entities/user.entity', () => {
+  const actual = jest.requireActual(
+    '../../../../domain/user/entities/user.entity'
+  ).default;
+  return {
+    __esModule: true,
+    default: {
+      ...actual,
+      verifyEmail: jest.fn(actual.verifyEmail),
+    },
+  };
+});
+
 describe('makeVerifyEmailAddressUseCase', () => {
-  const correlationId = 'test-corr-id';
+  const correlationId = '854e4567-e89b-42d3-a456-426614174001';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -83,7 +96,10 @@ describe('makeVerifyEmailAddressUseCase', () => {
       id: mockUser.id,
       emailVerified: true,
     });
-    expect(savedUserArgs![1]).toEqual({ correlationId });
+    expect(savedUserArgs![1]).toMatchObject({
+      correlationId,
+      history: expect.any(Object),
+    });
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
     expect(mockUserSessionRepo.save).toHaveBeenCalled();
@@ -194,5 +210,48 @@ describe('makeVerifyEmailAddressUseCase', () => {
     expect(result).toEqual({ accessToken: 'new-auth-token' });
 
     expect(mockEventBus.publish).toHaveBeenCalledWith([]);
+  });
+
+  it('should not save user and history if userAuditDelta is falsy', async () => {
+    const token = 'valid-token';
+    const [mockUser] = userEntity.make({
+      email: 'johndoe@example.com',
+      emailVerified: false,
+      firstName: 'John',
+      lastName: 'Doe',
+    });
+    const decodedToken = {
+      id: mockUser.id,
+      email: 'johndoe@example.com',
+    };
+
+    mockAuthService.verifySignupToken.mockResolvedValue(decodedToken as never);
+    mockUserRepo.findById.mockResolvedValue(mockUser);
+    mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
+    mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
+
+    const [updatedUser, events] = userEntity.verifyEmail(mockUser);
+    (userEntity.verifyEmail as jest.Mock).mockReturnValueOnce([
+      updatedUser,
+      events,
+      null,
+    ]);
+
+    const usecase = makeVerifyEmailAddressUseCase(
+      mockAuthService,
+      mockUserRepo,
+      mockRequestContext,
+      mockEventBus,
+      mockUserSessionRepo,
+      mockRepoService
+    );
+
+    const result = await usecase(token);
+
+    expect(userEntity.verifyEmail).toHaveBeenCalled();
+    expect(mockUserRepo.save).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      accessToken: 'new-auth-token',
+    });
   });
 });

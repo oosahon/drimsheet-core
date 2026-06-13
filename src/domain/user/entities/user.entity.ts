@@ -1,14 +1,11 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import {
-  TAuditedEntity,
-  TEntityWithEvents,
-} from '../../../shared/types/event.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import userEvents from '../events/user.events';
 
 import userError from '../errors/user.error';
-import { EUserEntityActions } from '../types/user-audit.types';
+import { EUserEntityActions, IUserAudit } from '../types/user-audit.types';
 import { IUser } from '../types/user.types';
 import emailValue from '../value-objects/email.vo';
 import userAudit from '../value-objects/user-audit.vo';
@@ -59,9 +56,9 @@ function make(
   return [user, [events], audit];
 }
 
-function verifyEmail(user: IUser): TEntityWithEvents<IUser, IUser> {
+function verifyEmail(user: IUser): [IUser, IEvent<IUser>[], IUserAudit | null] {
   if (user.emailVerified) {
-    return [user, []];
+    return [user, [], null];
   }
 
   helpers.validate(user);
@@ -74,13 +71,19 @@ function verifyEmail(user: IUser): TEntityWithEvents<IUser, IUser> {
 
   const event = userEvents.emailVerified(updatedUser);
 
-  return [updatedUser, [event]];
+  const audit = userAudit.make({
+    before: user,
+    after: updatedUser,
+    action: EUserEntityActions.EmailVerified,
+  });
+
+  return [updatedUser, [event], audit];
 }
 
 function update(
   user: IUser,
   options: Partial<Pick<IUser, 'firstName' | 'lastName'>>
-): TEntityWithEvents<IUser, IUser> {
+): [IUser, IEvent<IUser>[], IUserAudit | null] {
   helpers.validate(user);
 
   const firstName = stringUtils.sanitizeAndValidate(
@@ -105,7 +108,7 @@ function update(
     firstName === user.firstName && lastName === user.lastName;
 
   if (isUnchanged) {
-    return [user, []] as TEntityWithEvents<IUser, IUser>;
+    return [user, [], null];
   }
 
   const updatedUser: IUser = Object.freeze({
@@ -117,7 +120,13 @@ function update(
 
   const event = userEvents.updated(updatedUser);
 
-  return [updatedUser, [event]];
+  const audit = userAudit.make({
+    before: user,
+    after: updatedUser,
+    action: EUserEntityActions.Updated,
+  });
+
+  return [updatedUser, [event], audit];
 }
 
 const userEntity = Object.freeze({

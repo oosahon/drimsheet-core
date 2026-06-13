@@ -72,7 +72,7 @@ function make<T extends object>(
   dateUtils.validateDate(delta.occurredAt, historyError.InvalidDate);
   validateActor(actor);
   stringUtils.validateIsNonEmptyString(
-    delta.action,
+    correlationId,
     historyError.InvalidCorrelationId
   );
 

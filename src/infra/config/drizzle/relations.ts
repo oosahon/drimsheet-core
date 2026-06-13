@@ -24,7 +24,6 @@ import {
   ledgerAccountsInCore,
   reportingContextsInCore,
   reportingPeriodsInCore,
-  userActivitiesInAudit,
   userAuthInCore,
   userPreferencesInCore,
   userProfileHistoryInAudit,
@@ -42,7 +41,6 @@ export const userAuthInCoreRelations = relations(userAuthInCore, ({ one }) => ({
 export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   userAuthInCores: many(userAuthInCore),
   userSessionsInCores: many(userSessionsInCore),
-  userActivitiesInAudits: many(userActivitiesInAudit),
   accountingEntitiesInCores: many(accountingEntitiesInCore),
   ledgerAccountsInCores: many(ledgerAccountsInCore),
   userPreferencesInCores: many(userPreferencesInCore),
@@ -64,16 +62,6 @@ export const userSessionsInCoreRelations = relations(
   ({ one }) => ({
     usersInCore: one(usersInCore, {
       fields: [userSessionsInCore.userId],
-      references: [usersInCore.id],
-    }),
-  })
-);
-
-export const userActivitiesInAuditRelations = relations(
-  userActivitiesInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userActivitiesInAudit.userId],
       references: [usersInCore.id],
     }),
   })

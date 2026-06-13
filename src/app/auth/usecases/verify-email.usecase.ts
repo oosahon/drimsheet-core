@@ -3,6 +3,7 @@ import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
+import historyValue from '../../../shared/value-objects/history.vo';
 import IUserSessionRepo from '../../auth/contracts/user-session.repo.contract';
 import { IAccessToken } from '../../auth/dtos/auth.dto';
 import authError from '../../auth/errors/auth.error';
@@ -49,9 +50,17 @@ export default function makeVerifyEmailAddressUseCase(
       });
     }
 
-    const [updatedUser, events] = userEntity.verifyEmail(user);
+    const [updatedUser, events, userAuditDelta] = userEntity.verifyEmail(user);
 
-    await userRepo.save(updatedUser, { correlationId });
+    if (userAuditDelta) {
+      const history = historyValue.make(
+        userAuditDelta,
+        historyValue.getUserActor(user.id),
+        correlationId
+      );
+
+      await userRepo.save(updatedUser, { correlationId, history });
+    }
 
     return makeIssueUserSessionHelper({
       user: updatedUser,

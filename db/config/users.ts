@@ -20,11 +20,6 @@ export const userPreferencesTable = {
   name: 'user_preferences',
 };
 
-export const userActivitiesTable = {
-  schema: auditSchema,
-  name: 'user_activities',
-};
-
 export const userProfileHistoryTable = {
   schema: auditSchema,
   name: 'user_profile_history',
