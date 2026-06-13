@@ -110,6 +110,12 @@ export const periodUnitInCore = core.enum('period_unit', [
   'year',
 ]);
 
+export const pgmigrations = pgTable('pgmigrations', {
+  id: serial().primaryKey().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
+});
+
 export const usersInCore = core.table(
   'users',
   {
@@ -856,73 +862,16 @@ export const ledgerAccountBalanceAdjustmentsInCore = core.table(
   ]
 );
 
-export const pgmigrations = pgTable('pgmigrations', {
-  id: serial().primaryKey().notNull(),
-  name: varchar({ length: 255 }).notNull(),
-  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
-});
-
-export const journalEntryHistoryInAudit = audit.table(
-  'journal_entry_history',
-  {
-    id: uuid().primaryKey().notNull(),
-    journalEntryId: uuid('journal_entry_id').notNull(),
-    accountingEntityId: uuid('accounting_entity_id').notNull(),
-    userId: uuid('user_id'),
-    actorType: historyActorTypeInAudit('actor_type').notNull(),
-    action: varchar({ length: 50 }).notNull(),
-    diff: jsonb().notNull(),
-    note: text(),
-    correlationId: varchar('correlation_id', { length: 255 }),
-    entityVersion: integer('entity_version'),
-    occurredAt: timestamp('occurred_at', {
-      withTimezone: true,
-      mode: 'string',
-    }).notNull(),
-    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    index('journal_entry_history_tenant_timeline_idx').using(
-      'btree',
-      table.accountingEntityId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
-    ),
-    index('journal_entry_history_timeline_idx').using(
-      'btree',
-      table.journalEntryId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
-    ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'journal_entry_history_user_id_fkey',
-    }).onDelete('set null'),
-    check(
-      'journal_entry_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-    check(
-      'journal_entry_history_actor_check',
-      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
-    ),
-  ]
-);
-
 export const ledgerAccountHistoryInAudit = audit.table(
   'ledger_account_history',
   {
-    id: uuid().primaryKey().notNull(),
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
     ledgerAccountId: uuid('ledger_account_id').notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     userId: uuid('user_id'),
     actorType: historyActorTypeInAudit('actor_type').notNull(),
     action: varchar({ length: 50 }).notNull(),
     diff: jsonb().notNull(),
-    note: text(),
     correlationId: varchar('correlation_id', { length: 255 }),
     occurredAt: timestamp('occurred_at', {
       withTimezone: true,
@@ -935,15 +884,15 @@ export const ledgerAccountHistoryInAudit = audit.table(
   (table) => [
     index('ledger_account_history_tenant_timeline_idx').using(
       'btree',
-      table.accountingEntityId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
     index('ledger_account_history_timeline_idx').using(
       'btree',
-      table.ledgerAccountId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.ledgerAccountId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
       columns: [table.userId],
@@ -961,16 +910,64 @@ export const ledgerAccountHistoryInAudit = audit.table(
   ]
 );
 
-export const accountingEntityHistoryInAudit = audit.table(
-  'accounting_entity_history',
+export const journalEntryHistoryInAudit = audit.table(
+  'journal_entry_history',
   {
-    id: uuid().primaryKey().notNull(),
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
+    journalEntryId: uuid('journal_entry_id').notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     userId: uuid('user_id'),
     actorType: historyActorTypeInAudit('actor_type').notNull(),
     action: varchar({ length: 50 }).notNull(),
     diff: jsonb().notNull(),
-    note: text(),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    entityVersion: integer('entity_version'),
+    occurredAt: timestamp('occurred_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('journal_entry_history_tenant_timeline_idx').using(
+      'btree',
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
+    ),
+    index('journal_entry_history_timeline_idx').using(
+      'btree',
+      table.journalEntryId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'journal_entry_history_user_id_fkey',
+    }).onDelete('set null'),
+    check(
+      'journal_entry_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+    ),
+    check(
+      'journal_entry_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+  ]
+);
+
+export const accountingEntityHistoryInAudit = audit.table(
+  'accounting_entity_history',
+  {
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    userId: uuid('user_id'),
+    actorType: historyActorTypeInAudit('actor_type').notNull(),
+    action: varchar({ length: 50 }).notNull(),
+    diff: jsonb().notNull(),
     correlationId: varchar('correlation_id', { length: 255 }),
     occurredAt: timestamp('occurred_at', {
       withTimezone: true,
@@ -984,8 +981,8 @@ export const accountingEntityHistoryInAudit = audit.table(
     index('accounting_entity_history_timeline_idx').using(
       'btree',
       table.accountingEntityId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
-      table.id.desc().nullsFirst().op('timestamptz_ops')
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
       columns: [table.userId],
@@ -1006,14 +1003,13 @@ export const accountingEntityHistoryInAudit = audit.table(
 export const accountingContextHistoryInAudit = audit.table(
   'accounting_context_history',
   {
-    id: uuid().primaryKey().notNull(),
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
     accountingContextId: uuid('accounting_context_id').notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     userId: uuid('user_id'),
     actorType: historyActorTypeInAudit('actor_type').notNull(),
     action: varchar({ length: 50 }).notNull(),
     diff: jsonb().notNull(),
-    note: text(),
     correlationId: varchar('correlation_id', { length: 255 }),
     occurredAt: timestamp('occurred_at', {
       withTimezone: true,
@@ -1026,15 +1022,15 @@ export const accountingContextHistoryInAudit = audit.table(
   (table) => [
     index('accounting_context_history_tenant_timeline_idx').using(
       'btree',
-      table.accountingEntityId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
     index('accounting_context_history_timeline_idx').using(
       'btree',
-      table.accountingContextId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.accountingContextId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
       columns: [table.userId],
@@ -1055,14 +1051,13 @@ export const accountingContextHistoryInAudit = audit.table(
 export const accountingPeriodHistoryInAudit = audit.table(
   'accounting_period_history',
   {
-    id: uuid().primaryKey().notNull(),
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
     accountingPeriodId: uuid('accounting_period_id').notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     userId: uuid('user_id'),
     actorType: historyActorTypeInAudit('actor_type').notNull(),
     action: varchar({ length: 50 }).notNull(),
     diff: jsonb().notNull(),
-    note: text(),
     correlationId: varchar('correlation_id', { length: 255 }),
     occurredAt: timestamp('occurred_at', {
       withTimezone: true,
@@ -1075,15 +1070,15 @@ export const accountingPeriodHistoryInAudit = audit.table(
   (table) => [
     index('accounting_period_history_tenant_timeline_idx').using(
       'btree',
-      table.accountingEntityId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
     index('accounting_period_history_timeline_idx').using(
       'btree',
-      table.accountingPeriodId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.accountingPeriodId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
       columns: [table.userId],
@@ -1104,14 +1099,13 @@ export const accountingPeriodHistoryInAudit = audit.table(
 export const fiscalYearHistoryInAudit = audit.table(
   'fiscal_year_history',
   {
-    id: uuid().primaryKey().notNull(),
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
     fiscalYearId: uuid('fiscal_year_id').notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     userId: uuid('user_id'),
     actorType: historyActorTypeInAudit('actor_type').notNull(),
     action: varchar({ length: 50 }).notNull(),
     diff: jsonb().notNull(),
-    note: text(),
     correlationId: varchar('correlation_id', { length: 255 }),
     occurredAt: timestamp('occurred_at', {
       withTimezone: true,
@@ -1124,15 +1118,15 @@ export const fiscalYearHistoryInAudit = audit.table(
   (table) => [
     index('fiscal_year_history_tenant_timeline_idx').using(
       'btree',
-      table.accountingEntityId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
     index('fiscal_year_history_timeline_idx').using(
       'btree',
-      table.fiscalYearId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.fiscalYearId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
       columns: [table.userId],
@@ -1153,13 +1147,12 @@ export const fiscalYearHistoryInAudit = audit.table(
 export const userProfileHistoryInAudit = audit.table(
   'user_profile_history',
   {
-    id: uuid().primaryKey().notNull(),
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
     userProfileId: uuid('user_profile_id').notNull(),
     userId: uuid('user_id'),
     actorType: historyActorTypeInAudit('actor_type').notNull(),
     action: varchar({ length: 50 }).notNull(),
     diff: jsonb().notNull(),
-    note: text(),
     correlationId: varchar('correlation_id', { length: 255 }),
     occurredAt: timestamp('occurred_at', {
       withTimezone: true,
@@ -1173,8 +1166,8 @@ export const userProfileHistoryInAudit = audit.table(
     index('user_profile_history_timeline_idx').using(
       'btree',
       table.userProfileId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
-      table.id.desc().nullsFirst().op('timestamptz_ops')
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
       columns: [table.userId],

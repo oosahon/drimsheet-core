@@ -1,20 +1,30 @@
 import { eq } from 'drizzle-orm';
+import userHistoryMapper from '../../../../app/user/mappers/user-history.mapper';
 import userMapper from '../../../../app/user/mappers/user.mapper';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
-import { usersInCore as users } from '../../../config/drizzle/schema';
+import {
+  userProfileHistoryInAudit,
+  usersInCore as users,
+} from '../../../config/drizzle/schema';
 import getDbQuery from '../helpers/query';
 
 const userRepo: IUserRepo = {
   save: async (user, options) => {
     const query = getDbQuery(options);
 
-    await query
-      .insert(users)
-      .values(userMapper.toRepo(user))
-      .onConflictDoUpdate({
-        target: users.id,
-        set: userMapper.toRepo(user),
-      });
+    await query.transaction(async (tx) => {
+      await tx
+        .insert(users)
+        .values(userMapper.toRepo(user))
+        .onConflictDoUpdate({
+          target: users.id,
+          set: userMapper.toRepo(user),
+        });
+
+      await tx
+        .insert(userProfileHistoryInAudit)
+        .values(userHistoryMapper.toRepo(options.history));
+    });
   },
 
   findByEmail: async (email, options) => {

@@ -1,4 +1,4 @@
-import { IHistoryRecord } from '../../../shared/types/history.types';
+import { IHistory } from '../../../shared/types/history.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { UCurrencyCode } from '../../currency/config/currencies.config';
 import { UJurisdictionCode } from '../config/jurisdictions.config';
@@ -31,7 +31,4 @@ export const EAccountingEntityHistoryAction = {
 export type UAccountingEntityHistoryAction =
   (typeof EAccountingEntityHistoryAction)[keyof typeof EAccountingEntityHistoryAction];
 
-export type IAccountingEntityHistory = IHistoryRecord<
-  IAccountingEntity,
-  UAccountingEntityHistoryAction
->;
+export type IAccountingEntityHistory = IHistory<IAccountingEntity>;

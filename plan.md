@@ -59,10 +59,10 @@ history. A user profile update may produce both:
 
 ## 3. Architectural Decisions
 
-### 3.1 History is domain-derived
+### 3.1 History deltas are domain-derived
 
-The domain operation constructs the history record because it knows the
-semantic action being performed.
+The domain operation constructs an entity delta because it knows the semantic
+action being performed and the relevant before/after state.
 
 The repository must not infer whether a generic update means:
 
@@ -73,8 +73,10 @@ The repository must not infer whether a generic update means:
 - `closed`
 - `reopened`
 
-The repository only validates the relationship between the aggregate and its
-history record, maps both to persistence models, and stores them atomically.
+The domain does not know the request actor. The application combines the
+domain-produced delta with the application-owned actor to create the complete
+history value. The repository validates the relationship between the aggregate
+and history, maps both to persistence models, and stores them atomically.
 
 ### 3.2 History is required for audited repository writes
 
@@ -171,9 +173,12 @@ export interface IReadRepoOptions extends IRepoOptions {
 export interface IPaginatedReadRepoOptions
   extends IReadRepoOptions, IPaginationParams {}
 
-export interface IWriteRepoOptions extends IRepoOptions {
+interface IBaseWriteRepoOptions extends IRepoOptions {
   expectedVersion?: number;
 }
+
+export type IWriteRepoOptions<THistory = never> = IBaseWriteRepoOptions &
+  ([THistory] extends [never] ? object : { history: THistory });
 ```
 
 Usage:
@@ -182,8 +187,8 @@ Usage:
 - Paginated reads use `IPaginatedReadRepoOptions`.
 - All writes use `IWriteRepoOptions` for transaction, correlation, and
   concurrency metadata.
-- Audited writes carry the entity and required history together in an
-  `IHistoryWrite` payload.
+- Audited writes require the application-created history through the audited
+  repository contract.
 
 This is a breaking refactor across repository contracts. Perform it as a
 mechanical first phase and keep behavior unchanged before introducing history
@@ -195,7 +200,6 @@ Create `src/shared/types/history.types.ts`.
 
 ```ts
 import { IDiff } from './diff.types';
-import { IEvent } from './event.types';
 import { TEntityId } from './uuid';
 
 export const EHistoryActorType = {
@@ -212,36 +216,33 @@ export interface IHistoryActor {
   userId: TEntityId | null;
 }
 
-export interface IHistoryRecord<
-  TSnapshot extends object,
-  TAction extends string,
-> {
-  id: TEntityId;
+export interface IEntityDelta<TSnapshot extends object> {
   entityId: TEntityId;
-  actor: IHistoryActor;
-  action: TAction;
+  action: string;
   diff: IDiff<TSnapshot>;
-  note: string | null;
   occurredAt: Date;
 }
 
-export interface IEntityOutcome<TEntity, TEventPayload> {
-  entity: TEntity;
-  events: IEvent<TEventPayload>[];
+export interface IHistory<
+  TSnapshot extends object,
+> extends IEntityDelta<TSnapshot> {
+  actor: IHistoryActor;
 }
+```
 
-export interface IAuditedEntityOutcome<
+Keep entity result tuples in `src/shared/types/event.types.ts`:
+
+```ts
+export type TEntityWithEvents<TEntity, TEventPayload> = [
   TEntity,
-  THistory,
-  TEventPayload,
-> extends IEntityOutcome<TEntity, TEventPayload> {
-  history: THistory;
-}
+  IEvent<TEventPayload>[],
+];
 
-export interface IHistoryWrite<TEntity, THistory> {
-  entity: TEntity;
-  history: THistory;
-}
+export type TAuditedEntity<TEntity, TEventPayload, TSnapshot extends object> = [
+  TEntity,
+  IEvent<TEventPayload>[],
+  IEntityDelta<TSnapshot>,
+];
 ```
 
 ### 5.1 Diff semantics
@@ -271,23 +272,26 @@ state from a long chain of partial patches.
 
 ### 5.2 History identity
 
-Every history record receives a UUID when the domain action is created.
+Every persisted history row receives a UUID at the persistence boundary.
 
 This identity:
 
-- Prevents duplicate persistence during retries.
 - Supports a unique database constraint.
 - Becomes an idempotency key if history later moves through an outbox or queue.
+
+If retry deduplication must span separate application executions, promote the
+history ID into the application-created history contract rather than generating
+it only while mapping to persistence.
 
 ### 5.3 Existing type migration
 
 Reconcile and remove overlapping concepts:
 
-- Replace `TEntityWithEvents<TEntity, TEventPayload>` (tuple) with
-  `IEntityOutcome<TEntity, TEventPayload>` (named object). All non-audited
-  domain operations migrate to the named form. Destructure as
-  `const { entity, events } = ...` at call sites.
-- Replace `IAuditTrail<T>` with `IHistoryRecord<TSnapshot, TAction>`.
+- Keep `TEntityWithEvents<TEntity, TEventPayload>` and its existing positional
+  destructuring across non-audited domain operations.
+- Add `TAuditedEntity<TEntity, TEventPayload, TSnapshot>` for audited domain
+  operations. Its third tuple member is the domain-produced `IEntityDelta`.
+- Replace `IAuditTrail<T>` with `IHistory<TSnapshot>`.
 - Remove `IMakeAuditTrail` after all callers migrate.
 - Replace `IJournalEntryHistoryLog` with `IJournalEntryHistory`.
 - Replace period-specific ad hoc history shapes with the shared contract.
@@ -305,7 +309,7 @@ Each audited aggregate owns:
 - Snapshot type
 - History type
 - Snapshot serializer
-- History construction as part of domain operations
+- Delta construction as part of domain operations
 
 Example ledger-account types:
 
@@ -338,13 +342,12 @@ export interface ILedgerAccountHistorySnapshot {
   adjunctAccountRule: UAdjunctAccountRule;
 }
 
-export type ILedgerAccountHistory = IHistoryRecord<
-  ILedgerAccountHistorySnapshot,
-  ULedgerAccountHistoryAction
->;
+export type ILedgerAccountHistory = IHistory<ILedgerAccountHistorySnapshot>;
 ```
 
 Use existing domain unions rather than weakening snapshot fields to `string`.
+Domain helpers should still constrain each produced delta to the aggregate's
+semantic action union.
 
 ### 6.1 Snapshot serializers
 
@@ -364,55 +367,48 @@ function toHistorySnapshot(
   account: ILedgerAccount
 ): ILedgerAccountHistorySnapshot;
 
-function makeHistory(params: {
+function makeDelta(params: {
   previous: ILedgerAccount | null;
-  current: ILedgerAccount | null;
+  current: ILedgerAccount;
   action: ULedgerAccountHistoryAction;
-  actor: IHistoryActor;
-  note?: string | null;
-}): ILedgerAccountHistory;
+}): IEntityDelta<ILedgerAccountHistorySnapshot>;
 ```
 
 The helper validates:
 
-- At least one of `previous` or `current` is present.
-- `actor.type === 'user'` requires a `userId`.
-- System and migration actors use `userId: null`, unless a future use case has
-  a clear reason to preserve both.
-- Notes are sanitized and length-limited.
+- `current` is present.
+- Creation uses `previous: null`.
+- The action is valid for the aggregate.
+- The snapshots contain only the approved history fields.
 
 ## 7. Domain Operation Results
 
-All domain operations return named result objects.
+Keep the established tuple convention for domain operation results.
 
 Non-audited operations return:
 
 ```ts
-IEntityOutcome<TEntity, TEventPayload>;
+TEntityWithEvents<TEntity, TEventPayload>;
 ```
 
 Audited operations return:
 
 ```ts
-IAuditedEntityOutcome<TEntity, THistory, TEventPayload>;
+TAuditedEntity<TEntity, TEventPayload, TSnapshot>;
 ```
 
-`IAuditedEntityOutcome` extends `IEntityOutcome`, so any call site that only
-needs the entity and events can consume either type without branching.
+The third tuple member is an `IEntityDelta<TSnapshot>`, not a complete history
+record. This keeps actor and request context outside the domain.
 
 Example:
 
 ```ts
 function archive(
-  account: ILedgerAccount,
-  params: {
-    actor: IHistoryActor;
-    note?: string | null;
-  }
-): IAuditedEntityOutcome<
+  account: ILedgerAccount
+): TAuditedEntity<
   ILedgerAccount,
-  ILedgerAccountHistory,
-  ILedgerAccount
+  ILedgerAccount,
+  ILedgerAccountHistorySnapshot
 > {
   const updatedAccount = Object.freeze({
     ...account,
@@ -420,39 +416,46 @@ function archive(
     updatedAt: new Date(),
   });
 
-  const history = ledgerAccountHistoryHelpers.makeHistory({
+  const delta = ledgerAccountHistoryHelpers.makeDelta({
     previous: account,
     current: updatedAccount,
     action: ELedgerAccountHistoryAction.Archived,
-    actor: params.actor,
-    note: params.note,
   });
 
-  return {
-    entity: updatedAccount,
-    history,
-    events: [ledgerAccountEvents.archived(updatedAccount)],
-  };
+  return [
+    updatedAccount,
+    [ledgerAccountEvents.archived(updatedAccount)],
+    delta,
+  ];
 }
 ```
 
-Migrate all existing `TEntityWithEvents` return types to `IEntityOutcome`
-during the 23.3 shared foundation phase. Do not leave the tuple type active
-alongside the named form.
+Do not mechanically migrate existing tuple results to named objects. Existing
+call sites continue to use positional destructuring, while audited operations
+destructure the third value only where history is required.
 
-## 8. Actor Propagation
+## 8. Application History Construction
 
-The domain must not access application request context.
+The actor belongs to the application layer. The domain must neither access
+request context nor accept an actor solely for history construction.
 
-HTTP use cases obtain the actor from `IRequestContext` and pass it explicitly:
+HTTP use cases obtain the actor from `IRequestContext`, receive a delta from the
+domain, and create history with `historyValue.make`:
 
 ```ts
+const [account, events, delta] = ledgerAccountEntity.archive(existingAccount);
+
 const { user } = requestContext.get();
 
 const actor: IHistoryActor = {
   type: EHistoryActorType.User,
   userId: user.id,
 };
+
+const history = historyValue.make({
+  ...delta,
+  actor,
+});
 ```
 
 Background jobs use:
@@ -473,23 +476,27 @@ const actor: IHistoryActor = {
 };
 ```
 
-The actor is an explicit input to the domain action. It is not read from global
-state and is not inferred by the repository.
+The application validates and attaches the actor after the domain action. The
+repository does not infer the actor, and the domain never receives it.
 
 ## 9. Repository Contracts
 
 ### 9.1 Unified writes
 
-Audited repositories expose one `save` method. It accepts either one paired
-entity/history write or an array of paired writes:
+Audited repositories keep entities as the save payload and require history
+through `IWriteRepoOptions<THistory>`. Use overloads when the repository
+supports both single and bulk writes:
 
 ```ts
-type TLedgerAccountWrite = IHistoryWrite<ILedgerAccount, ILedgerAccountHistory>;
-
 export default interface ILedgerAccountRepo {
   save(
-    payload: TLedgerAccountWrite | readonly TLedgerAccountWrite[],
-    options: IWriteRepoOptions
+    entity: ILedgerAccount,
+    options: IWriteRepoOptions<ILedgerAccountHistory>
+  ): Promise<void>;
+
+  save(
+    entities: readonly ILedgerAccount[],
+    options: IWriteRepoOptions<readonly ILedgerAccountHistory[]>
   ): Promise<void>;
 
   findById(
@@ -499,43 +506,44 @@ export default interface ILedgerAccountRepo {
 }
 ```
 
-The method normalizes a single write to a one-item array internally. Single and
-bulk persistence therefore share the same validation, transaction, and
-persistence path without adding a second repository method.
+The implementation normalizes single entity/history values to one-item arrays.
+Single and bulk persistence therefore share the same validation, transaction,
+and persistence path without adding a second repository method.
 
-### 9.2 Paired writes
+### 9.2 Entity/history association
 
-Do not use parallel arrays of entities and history records.
-
-Each bulk item pairs the aggregate and history:
+The application creates one history value for each audited entity. For bulk
+operations, construct entities and histories from the same audited outcomes:
 
 ```ts
-const writes = accounts.map((account) => ({
-  entity: account,
-  history: makeCreatedHistory(account, actor),
-}));
+const auditedAccounts = inputs.map((input) => ledgerAccountEntity.make(input));
 
-await ledgerAccountRepo.save(writes, {
+const accounts = auditedAccounts.map(([account]) => account);
+const histories = auditedAccounts.map(([, , delta]) =>
+  historyValue.make({ ...delta, actor })
+);
+
+await ledgerAccountRepo.save(accounts, {
   correlationId,
   tx,
+  history: histories,
 });
 ```
 
-Because every array item contains both values, the repository does not compare
-entity and history array lengths. Pairing is structural, and validation focuses
-on whether each history belongs to its accompanying entity.
+The repository must compare entity and history array lengths and validate each
+position before persistence.
 
-The repository validates for every write:
+For every index, it validates:
 
 ```ts
-write.entity.id === write.history.entityId;
+entities[index].id === histories[index].entityId;
 ```
 
 It should reject:
 
 - Empty bulk writes, unless current repository conventions explicitly allow
   them.
-- Duplicate history IDs within the batch.
+- Different entity and history array lengths.
 - A history record associated with the wrong aggregate.
 - Multiple histories for one aggregate in a method intended to perform one
   mutation per aggregate.
@@ -545,19 +553,23 @@ It should reject:
 An audited repository owns atomic persistence for its aggregate and history.
 
 Follow the existing repository implementation style: normalize the payload,
-validate the paired writes, map them to persistence values, and pass the full
-value arrays to Drizzle.
+validate entity/history associations, map them to persistence values, and pass
+the full value arrays to Drizzle.
 
 ```ts
 const ledgerAccountRepoImpl: ILedgerAccountRepo = {
   save: async (payload, options) => {
-    const writes = Array.isArray(payload) ? payload : [payload];
-    validateWrites(writes);
+    const entities = Array.isArray(payload) ? payload : [payload];
+    const histories = Array.isArray(options.history)
+      ? options.history
+      : [options.history];
 
-    const accountValues = writes.map(({ entity }) =>
+    validateAssociations(entities, histories);
+
+    const accountValues = entities.map((entity) =>
       ledgerAccountMapper.toRepo(entity)
     );
-    const historyValues = writes.map(({ history }) =>
+    const historyValues = histories.map((history) =>
       ledgerAccountHistoryMapper.toRepo(history)
     );
 
@@ -591,27 +603,17 @@ When a use case already spans several repositories, it continues using
 
 ```ts
 await repoService.runInTransaction(async (tx) => {
-  await ledgerAccountRepo.save(
-    {
-      entity: accountOutcome.entity,
-      history: accountOutcome.history,
-    },
-    {
-      tx,
-      correlationId,
-    }
-  );
+  await ledgerAccountRepo.save(account, {
+    tx,
+    correlationId,
+    history: accountHistory,
+  });
 
-  await journalEntryRepo.save(
-    {
-      entity: entryOutcome.entity,
-      history: entryOutcome.history,
-    },
-    {
-      tx,
-      correlationId,
-    }
-  );
+  await journalEntryRepo.save(entry, {
+    tx,
+    correlationId,
+    history: entryHistory,
+  });
 });
 ```
 
@@ -915,8 +917,9 @@ Test:
 - Creation permits `before: null`.
 - Every history record requires a populated `after` snapshot.
 - Soft deletion records the resulting entity state, including `deletedAt`.
-- History IDs and occurrence timestamps are created once.
-- Notes are sanitized and bounded.
+- Occurrence timestamps from domain deltas are preserved.
+- Invalid actor/delta combinations are rejected when application history is
+  created.
 
 ### 17.2 Domain operation tests
 
@@ -926,7 +929,6 @@ For each action, verify:
 - The semantic action is correct.
 - Before snapshot matches the original aggregate.
 - After snapshot matches the updated aggregate.
-- Actor and note are preserved.
 - Expected domain events are still produced.
 - Input aggregate objects remain immutable.
 
@@ -940,11 +942,10 @@ Test:
 - A supplied external transaction is used.
 - A supplied transaction creates a nested repository transaction backed by a
   savepoint.
-- Duplicate history IDs fail without duplicating the aggregate mutation.
 - Entity/history ID mismatch is rejected.
-- Bulk writes associate each history with the correct aggregate.
+- Bulk writes reject different entity/history lengths and mismatched IDs.
 - Bulk writes use one aggregate value-array insert and one history value-array
-  insert rather than one insert per paired write.
+  insert rather than one insert per entity/history association.
 - Bulk failure rolls back the entire batch.
 - Expected-version conflicts write no history.
 
@@ -963,8 +964,9 @@ Test:
 
 Update mocks and assertions to verify:
 
-- Request users become explicit history actors.
-- System workflows use system actors.
+- Request users become history actors when the application converts deltas.
+- System workflows attach system actors in the application layer.
+- Domain operations are called without actor/request context.
 - Repositories receive required history.
 - Events publish only after persistence succeeds.
 - Persistence failures prevent event publication.
@@ -987,21 +989,23 @@ No history behavior is introduced in this phase.
 1. Add shared history types.
 2. Update nullable diff semantics.
 3. Add shared actor and history validation.
-4. Add history ID generation.
+4. Add `TAuditedEntity` while retaining `TEntityWithEvents`.
 5. Begin deprecating existing audit-trail and history-log types.
 
 ### Phase 3: Ledger-account reference implementation
 
 1. Define ledger-account actions and snapshot.
-2. Add ledger-account history helpers.
-3. Update creation and mutation domain operations to return audited results.
-4. Change the repository to a unified paired `save`.
-5. Add the ledger-account history migration.
-6. Add Drizzle schema and mapper.
-7. Persist aggregate and history atomically.
-8. Add timeline query repository.
-9. Add unit, repository, and use-case tests.
-10. Document lessons before duplicating the pattern.
+2. Add ledger-account snapshot and delta helpers.
+3. Update creation and mutation domain operations to return
+   `TAuditedEntity`.
+4. Convert deltas to history in application use cases.
+5. Require history through audited `IWriteRepoOptions<THistory>`.
+6. Add the ledger-account history migration.
+7. Add Drizzle schema and mapper.
+8. Persist aggregate and history atomically.
+9. Add timeline query repository.
+10. Add unit, repository, and use-case tests.
+11. Document lessons before duplicating the pattern.
 
 ### Phase 4: Journal-entry implementation
 
@@ -1088,7 +1092,8 @@ repository base classes automatically capture state changes.
 After the reference implementation is accepted, update that section to state
 that:
 
-- The domain constructs semantic history.
+- The domain constructs semantic entity deltas.
+- The application attaches actor context to construct history.
 - Audited repositories persist aggregate and history atomically.
 - Domain events are not the authoritative history mechanism.
 
@@ -1119,11 +1124,11 @@ The history foundation is complete when:
 - Every ledger-account write requires a history record at compile time.
 - Aggregate and history writes are atomic with and without an external
   transaction.
-- Bulk writes cannot misassociate histories and aggregates.
+- Bulk writes validate entity/history lengths and associations before writing.
 - History records are append-only from the application perspective.
 - Tenant-scoped history queries are indexed and authorized.
 - Domain events publish only after successful persistence.
-- Tests prove rollback behavior and actor propagation.
+- Tests prove rollback behavior and application-owned actor attachment.
 - The pattern is documented well enough to implement journal-entry history
   without inventing a second approach.
 
@@ -1131,7 +1136,8 @@ The broader rollout is complete when all in-scope aggregates have:
 
 - Purpose-built snapshots
 - Semantic action unions
-- Domain-generated history
+- Domain-generated deltas
+- Application-created history
 - Atomic repository persistence
 - Timeline queries
 - Tenant and authorization tests
@@ -1176,34 +1182,32 @@ dependent call sites have been updated.
 
 - [x] Update `IDiff<T>` so `before` is nullable for creation and `after` is
       always populated.
-- [x] Add the shared actor, history record, audited result, and history-write
-      types.
-- [x] Add shared validation for actor identity, non-empty diffs, notes, history
-      IDs, and occurrence timestamps.
+- [x] Add the shared actor, entity-delta, history, and audited tuple types.
+- [x] Add shared validation for actor identity, non-empty diffs, and occurrence
+      timestamps.
 - [x] Replace `IAuditTrail`, `IMakeAuditTrail`,
       `IJournalEntryHistoryLog`, and period-specific history shapes.
 - [x] Add shared history unit tests.
-- [ ] Replace `TEntityWithEvents<TEntity, TEventPayload>` tuple with
-      `IEntityOutcome<TEntity, TEventPayload>` named object across all domain
-      entities. Rename `IAuditedDomainResult` to `IAuditedEntityOutcome`.
-      Update all call-site destructuring from positional to named fields.
-      Run type checking and the full test suite.
+- [x] Retain `TEntityWithEvents<TEntity, TEventPayload>` for non-audited
+      operations and add
+      `TAuditedEntity<TEntity, TEventPayload, TSnapshot>` for operations that
+      also return an `IEntityDelta<TSnapshot>`.
 
 ### 23.4 Ledger-account reference implementation
 
 - [ ] Define ledger-account history actions and the sanitized snapshot type.
-- [ ] Add ledger-account snapshot and history-construction helpers.
+- [ ] Add ledger-account snapshot and delta-construction helpers.
 - [ ] Update ledger-account creation and mutation operations to return audited
-      domain results.
-- [ ] Propagate explicit user and system actors from use cases to domain
-      operations.
+      tuples.
+- [ ] Convert domain deltas to history in use cases by attaching explicit user
+      or system actors.
 - [ ] Change the ledger-account repository contract to a unified audited
-      `save` accepting one paired write or an array of paired writes.
+      `save` requiring history through `IWriteRepoOptions<THistory>`.
 - [ ] Add ledger-account history persistence mapping.
 - [ ] Persist the ledger account and history atomically with and without an
       external transaction.
-- [ ] Validate entity/history association, duplicate IDs, empty batches, and
-      bulk-write pairing.
+- [ ] Validate entity/history association, empty batches, and bulk array
+      lengths.
 - [ ] Publish ledger-account events only after persistence commits.
 - [ ] Add the tenant-scoped ledger-account timeline query repository.
 - [ ] Add domain, repository rollback, bulk-write, query, and use-case tests.
@@ -1215,7 +1219,7 @@ dependent call sites have been updated.
 - [ ] Finalize canonical serialization for money, exchange rates, dates, and
       journal lines.
 - [ ] Define journal-entry history actions, snapshots, and helpers.
-- [ ] Update journal-entry operations to return audited domain results.
+- [ ] Update journal-entry operations to return audited domain tuples.
 - [ ] Persist the entry, lines, attachments where applicable, and one semantic
       history record in the same transaction.
 - [ ] Integrate `expectedVersion` checks and store the committed entity version
@@ -1243,8 +1247,8 @@ dependent call sites have been updated.
       or omitted.
 - [ ] Define a sanitized user-profile snapshot that excludes authentication
       and session data.
-- [ ] Add user-profile actions, helpers, actor propagation, and audited domain
-      results.
+- [ ] Add user-profile actions, delta helpers, application-owned actor
+      attachment, and audited domain tuples.
 - [ ] Persist user-profile changes and history atomically without changing
       `audit.user_activities` behavior.
 - [ ] Verify user deletion cannot cascade or erase profile history.
@@ -1260,8 +1264,8 @@ dependent call sites have been updated.
 - [ ] Verify history rows cannot be updated or deleted through application
       repositories.
 - [ ] Verify persistence failures prevent domain-event publication.
-- [ ] Update `docs/08_cross_cutting_concepts.md` to describe domain-generated,
-      transactionally persisted history.
+- [ ] Update `docs/08_cross_cutting_concepts.md` to describe domain-generated
+      deltas, application-created history, and transactional persistence.
 - [ ] Decide whether to capture the accepted pattern in an ADR.
 - [ ] Run formatting, type checking, the full test suite, and migration tests.
 - [ ] Defer subledger history until its persistence and aggregate ownership are

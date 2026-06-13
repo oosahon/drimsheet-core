@@ -24,23 +24,6 @@ export const EExpenseLedgerEvent = {
     'domain:ledger:expense:account:asset-disposal-loss:created',
 } as const;
 
-export const expenseAccountEventDescriptions: Record<string, string> = {
-  [EExpenseLedgerEvent.DirectCostsCreated]:
-    'Created a direct costs expense account.',
-  [EExpenseLedgerEvent.RentAndUtilitiesCreated]:
-    'Created a rent and utilities expense account.',
-  [EExpenseLedgerEvent.BankChargeCreated]:
-    'Created a bank charge expense account.',
-  [EExpenseLedgerEvent.FinanceCostCreated]:
-    'Created a finance cost expense account.',
-  [EExpenseLedgerEvent.InterestCreated]: 'Created an interest expense account.',
-  [EExpenseLedgerEvent.TaxExpenseCreated]: 'Created a tax expense account.',
-  [EExpenseLedgerEvent.UnrealizedLossCreated]:
-    'Created an unrealized loss expense account.',
-  [EExpenseLedgerEvent.AssetDisposalLossCreated]:
-    'Created an asset disposal loss expense account.',
-};
-
 function makeDirectCostsAccountCreatedEvent(payload: IDirectCostsAccount) {
   return eventValue.make<IDirectCostsAccount>({
     type: EExpenseLedgerEvent.DirectCostsCreated,

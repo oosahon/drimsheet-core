@@ -12,16 +12,6 @@ export const EUserEvents = {
   PasswordReset: 'domain:user:password-reset',
 } as const;
 
-export const userEventDescriptions: Record<string, string> = {
-  [EUserEvents.Created]: 'Signed up to Purple Ledger.',
-  [EUserEvents.Updated]: 'Updated profile information.',
-  [EUserEvents.EmailVerified]: 'Verified email address.',
-  [EUserEvents.PreferencesUpdated]: 'Updated preferences.',
-  [EUserEvents.LoggedIn]: 'Logged in.',
-  [EUserEvents.RequestedPasswordReset]: 'Requested password reset.',
-  [EUserEvents.PasswordReset]: 'Reset password.',
-} as const;
-
 function makeCreatedEvent(user: IUser) {
   return eventValue.make<IUser>({
     type: EUserEvents.Created,

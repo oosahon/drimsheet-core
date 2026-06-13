@@ -5,6 +5,7 @@ import emailValue from '../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../domain/user/value-objects/password.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
+import historyValue from '../../../shared/value-objects/history.vo';
 import IUserAuthRepo from '../../auth/contracts/user-auth.repo.contract';
 import { IUserSignupReq } from '../../auth/dtos/auth.dto';
 import IEventBus from '../../shared/contracts/event-bus.contract';
@@ -72,15 +73,21 @@ export default function makeSignupWithEmailUsecase(
     const password = passwordValue.make(payload.password);
     const passwordHash = await makeAuthService.hashPassword(password);
 
-    const [user, userEvents] = userEntity.make({
+    const [user, userEvents, userAudit] = userEntity.make({
       firstName: payload.firstName,
       lastName: payload.lastName,
       email,
       emailVerified: false,
     });
 
+    const history = historyValue.make(
+      userAudit,
+      historyValue.getUserActor(user.id),
+      correlationId
+    );
+
     const repoTransaction: TRepoTransactionFn = async (tx) => {
-      await userRepo.save(user, { correlationId, tx });
+      await userRepo.save(user, { correlationId, tx, history });
       const timestamp = new Date();
 
       await userAuthRepo.save(

@@ -1,4 +1,4 @@
-import { IHistoryRecord } from '../../../shared/types/history.types';
+import { IHistory } from '../../../shared/types/history.types';
 import { IJournalEntry } from './journal-entry.types';
 
 export const EJournalEntryHistoryAction = {
@@ -13,7 +13,4 @@ export const EJournalEntryHistoryAction = {
 export type UJournalEntryHistoryAction =
   (typeof EJournalEntryHistoryAction)[keyof typeof EJournalEntryHistoryAction];
 
-export interface IJournalEntryHistory extends IHistoryRecord<
-  IJournalEntry,
-  UJournalEntryHistoryAction
-> {}
+export interface IJournalEntryHistory extends IHistory<IJournalEntry> {}

@@ -8,14 +8,6 @@ import makeUserEmailVerifiedEventHandler from '../user-email-verified-event.hand
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-import userUseCase from '../../../user/usecases';
-
-jest.mock('../../../user/usecases', () => ({
-  __esModule: true,
-  default: {
-    saveActivity: jest.fn(),
-  },
-}));
 
 describe('makeUserEmailVerifiedEventHandler', () => {
   beforeEach(() => {
@@ -54,17 +46,11 @@ describe('makeUserEmailVerifiedEventHandler', () => {
       correlationId: 'default-corr-id',
     } as IRequestContextData);
 
-    (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
-
     await handler(mockEvent);
 
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: mockEvent.correlationId,
     });
-    expect(userUseCase.saveActivity).toHaveBeenCalledWith(
-      mockEvent.data.id,
-      mockEvent
-    );
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
@@ -83,17 +69,11 @@ describe('makeUserEmailVerifiedEventHandler', () => {
       correlationId: 'default-corr-id',
     } as IRequestContextData);
 
-    (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
-
     await handler(mockEvent);
 
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: expect.any(String),
     });
-    expect(userUseCase.saveActivity).toHaveBeenCalledWith(
-      mockEvent.data.id,
-      mockEvent
-    );
   });
 
   it('should throw if event type is invalid', async () => {
@@ -107,21 +87,5 @@ describe('makeUserEmailVerifiedEventHandler', () => {
     await expect(handler(mockEvent)).rejects.toThrow(
       eventError.EventTypeMismatch
     );
-    expect(userUseCase.saveActivity).not.toHaveBeenCalled();
-  });
-
-  it('should report an error if saveActivity fails', async () => {
-    const handler = makeUserEmailVerifiedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
-    const mockEvent = getValidEvent();
-
-    const error = new Error('DB Error');
-    (userUseCase.saveActivity as jest.Mock).mockRejectedValue(error);
-
-    await handler(mockEvent);
-
-    expect(MockReporter.report).toHaveBeenCalledWith(error);
   });
 });

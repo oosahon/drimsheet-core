@@ -1,4 +1,4 @@
-import { IHistoryRecord } from '../../../shared/types/history.types';
+import { IHistory } from '../../../shared/types/history.types';
 import { TEntityId } from '../../../shared/types/uuid';
 
 /**
@@ -35,10 +35,7 @@ export const EPeriodHistoryAction = {
 export type UPeriodHistoryAction =
   (typeof EPeriodHistoryAction)[keyof typeof EPeriodHistoryAction];
 
-export interface IPeriodHistory<T extends IPeriod> extends IHistoryRecord<
-  T,
-  UPeriodHistoryAction
-> {}
+export interface IPeriodHistory<T extends IPeriod> extends IHistory<T> {}
 
 export const EPeriodStatus = {
   Pending: 'pending',

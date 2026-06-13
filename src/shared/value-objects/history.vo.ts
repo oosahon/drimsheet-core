@@ -1,29 +1,13 @@
 import historyError from '../errors/history.error';
-import { IDiff } from '../types/diff.types';
 import {
   EHistoryActorType,
+  IEntityDelta,
+  IHistory,
   IHistoryActor,
-  IHistoryRecord,
 } from '../types/history.types';
-import generateDiff from '../utils/diff-generator';
+import { TEntityId } from '../types/uuid';
+import dateUtils from '../utils/date';
 import stringUtils from '../utils/string';
-import generateUUID from '../utils/uuid-generator';
-
-const MAX_NOTE_LENGTH = 1000;
-
-interface IMakeHistoryPayload<
-  TSnapshot extends object,
-  TAction extends string,
-> extends IDiff<TSnapshot> {
-  entityId: IHistoryRecord<TSnapshot, TAction>['entityId'];
-  actor: IHistoryRecord<TSnapshot, TAction>['actor'];
-  action: IHistoryRecord<TSnapshot, TAction>['action'];
-  note: IHistoryRecord<TSnapshot, TAction>['note'];
-}
-
-type THistoryActions<TAction extends string> = Readonly<
-  Record<string, TAction>
->;
 
 function validateActor(actor: IHistoryActor) {
   const isValidActorType = Object.values(EHistoryActorType).includes(
@@ -45,15 +29,6 @@ function validateActor(actor: IHistoryActor) {
 
   if (actor.userId !== null) {
     throw new historyError.InvalidActor({ actor });
-  }
-}
-
-function validateAction<TAction extends string>(
-  action: TAction,
-  actions: THistoryActions<TAction>
-) {
-  if (!Object.values(actions).includes(action)) {
-    throw new historyError.InvalidAction({ action });
   }
 }
 
@@ -83,52 +58,63 @@ function validateSnapshots<TSnapshot extends object>(
   }
 }
 
-function sanitizeNote(note: string | null): string | null {
-  if (note === null) {
-    return null;
-  }
-
-  return stringUtils.sanitizeAndValidate(
-    note,
-    { min: 1, max: MAX_NOTE_LENGTH },
-    historyError.InvalidNote
+function make<T extends object>(
+  delta: IEntityDelta<T>,
+  actor: IHistoryActor,
+  correlationId: string
+): IHistory<T> {
+  stringUtils.validateUUID(delta.entityId, historyError.InvalidEntityId);
+  stringUtils.validateIsNonEmptyString(
+    delta.action,
+    historyError.InvalidAction
   );
+  validateSnapshots(delta.diff.before, delta.diff.after);
+  dateUtils.validateDate(delta.occurredAt, historyError.InvalidDate);
+  validateActor(actor);
+  stringUtils.validateIsNonEmptyString(
+    delta.action,
+    historyError.InvalidCorrelationId
+  );
+
+  const history: IHistory<T> = {
+    entityId: delta.entityId,
+    action: delta.action,
+    diff: delta.diff,
+    occurredAt: delta.occurredAt,
+    actor: actor,
+    correlationId,
+  };
+
+  return Object.freeze(history);
 }
 
-function make<TSnapshot extends object, TAction extends string>(
-  payload: IMakeHistoryPayload<TSnapshot, TAction>,
-  actions: THistoryActions<TAction>
-): IHistoryRecord<TSnapshot, TAction> {
-  stringUtils.validateUUID(payload.entityId, historyError.InvalidEntityId);
-  validateActor(payload.actor);
-  validateAction(payload.action, actions);
-  validateSnapshots(payload.before, payload.after);
+function getUserActor(userId: TEntityId): IHistoryActor {
+  stringUtils.validateUUID(userId, historyError.InvalidActor);
+  return {
+    userId,
+    type: EHistoryActorType.User,
+  };
+}
 
-  const generatedDiff = generateDiff(payload.after, payload.before);
+function getSystemActor(): IHistoryActor {
+  return {
+    userId: null,
+    type: EHistoryActorType.System,
+  };
+}
 
-  if (!generatedDiff.hasChanges) {
-    throw new historyError.InvalidDiff({
-      before: payload.before,
-      after: payload.after,
-    });
-  }
-
-  return Object.freeze({
-    id: generateUUID(),
-    entityId: payload.entityId,
-    actor: payload.actor,
-    action: payload.action,
-    diff: {
-      before: generatedDiff.before,
-      after: generatedDiff.after,
-    },
-    note: sanitizeNote(payload.note),
-    occurredAt: new Date(),
-  });
+function getMigrationActor(): IHistoryActor {
+  return {
+    userId: null,
+    type: EHistoryActorType.Migration,
+  };
 }
 
 const historyValue = Object.freeze({
   make,
+  getUserActor,
+  getSystemActor,
+  getMigrationActor,
 });
 
 export default historyValue;

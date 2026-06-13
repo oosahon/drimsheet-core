@@ -10,6 +10,8 @@ const EErrorKeys = {
   InvalidDiff: 'history_error_invalid_diff',
   InvalidNote: 'history_error_invalid_note',
   InvalidEntityId: 'history_error_invalid_entity_id',
+  InvalidDate: 'history_error_invalid_date',
+  InvalidCorrelationId: 'history_error_invalid_correlation_id',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UHistoryError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

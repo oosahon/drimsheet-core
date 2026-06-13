@@ -5,10 +5,6 @@ export const EAccountingContextEvents = {
   Created: 'domain:accounting:context:created',
 } as const;
 
-export const accountingContextEventDescriptions: Record<string, string> = {
-  [EAccountingContextEvents.Created]: 'Created an accounting context.',
-};
-
 function makeCreatedEvent(params: IAccountingContext) {
   return eventValue.make<IAccountingContext>({
     type: EAccountingContextEvents.Created,

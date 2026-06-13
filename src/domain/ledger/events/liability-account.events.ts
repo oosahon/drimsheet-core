@@ -12,15 +12,6 @@ export const ELiabilityLedgerEvent = {
   PayableCreated: 'domain:ledger:liability:account:payable:created',
 } as const;
 
-export const liabilityAccountEventDescriptions: Record<string, string> = {
-  [ELiabilityLedgerEvent.SuspenseCreated]:
-    'Created a liability suspense account.',
-  [ELiabilityLedgerEvent.ShortTermLoanCreated]:
-    'Created a short-term loan liability account.',
-  [ELiabilityLedgerEvent.PayableCreated]:
-    'Created a payable liability account.',
-};
-
 function makeSuspenseAccountCreatedEvent(payload: ILiabilitySuspenseAccount) {
   return eventValue.make<ILiabilitySuspenseAccount>({
     type: ELiabilityLedgerEvent.SuspenseCreated,

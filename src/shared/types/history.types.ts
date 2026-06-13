@@ -1,5 +1,4 @@
 import { IDiff } from './diff.types';
-import { IEvent } from './event.types';
 import { TEntityId } from './uuid';
 
 export const EHistoryActorType = {
@@ -16,26 +15,16 @@ export interface IHistoryActor {
   userId: TEntityId | null;
 }
 
-export interface IHistoryRecord<
-  TSnapshot extends object,
-  TAction extends string,
-> {
-  id: TEntityId;
+export interface IEntityDelta<SnapShot extends object> {
   entityId: TEntityId;
-  actor: IHistoryActor;
-  action: TAction;
-  diff: IDiff<TSnapshot>;
-  note: string | null;
+  action: string;
+  diff: IDiff<SnapShot>;
   occurredAt: Date;
 }
 
-export interface IAuditedDomainResult<TEntity, THistory, TEventPayload> {
-  entity: TEntity;
-  history: THistory;
-  events: IEvent<TEventPayload>[];
-}
-
-export interface IHistoryWrite<TEntity, THistory> {
-  entity: TEntity;
-  history: THistory;
+export interface IHistory<
+  SnapShot extends object,
+> extends IEntityDelta<SnapShot> {
+  actor: IHistoryActor;
+  correlationId: string;
 }

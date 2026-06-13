@@ -11,7 +11,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
   pgm.createTable(ledgerAccountHistoryTable, {
     id: {
-      type: 'uuid',
+      type: 'bigserial',
       primaryKey: true,
     },
     ledger_account_id: {
@@ -38,9 +38,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     diff: {
       type: 'jsonb',
       notNull: true,
-    },
-    note: {
-      type: 'text',
     },
     correlation_id: {
       type: 'varchar(255)',

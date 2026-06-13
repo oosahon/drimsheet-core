@@ -13,16 +13,6 @@ export const ECurrencyLotEvent = {
   LotSaleCreated: 'domain:subledger:currency-lot:sale:created',
 } as const;
 
-export const currencyLotEventDescriptions: Record<string, string> = {
-  [ECurrencyLotEvent.LotCreated]: 'Created a new currency lot.',
-  [ECurrencyLotEvent.LotUpdated]: 'Updated an existing currency lot.',
-  [ECurrencyLotEvent.LotAdjustmentCreated]:
-    'Created a new currency lot adjustment.',
-  [ECurrencyLotEvent.LotAdjustmentUpdated]:
-    'Updated a currency lot adjustment.',
-  [ECurrencyLotEvent.LotSaleCreated]: 'Created a new currency lot sale.',
-};
-
 function makeLotCreatedEvent(payload: ICurrencyLot) {
   return eventValue.make<ICurrencyLot>({
     type: ECurrencyLotEvent.LotCreated,

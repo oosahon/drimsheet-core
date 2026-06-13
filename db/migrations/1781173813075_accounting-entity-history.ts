@@ -9,7 +9,7 @@ export const shorthands: ColumnDefinitions | undefined = undefined;
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(accountingEntityHistoryTable, {
     id: {
-      type: 'uuid',
+      type: 'bigserial',
       primaryKey: true,
     },
     accounting_entity_id: {
@@ -32,9 +32,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     diff: {
       type: 'jsonb',
       notNull: true,
-    },
-    note: {
-      type: 'text',
     },
     correlation_id: {
       type: 'varchar(255)',

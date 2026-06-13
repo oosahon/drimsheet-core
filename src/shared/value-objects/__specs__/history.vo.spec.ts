@@ -1,21 +1,12 @@
 import historyError from '../../errors/history.error';
 import { EHistoryActorType, IHistoryActor } from '../../types/history.types';
 import { TEntityId } from '../../types/uuid';
-import stringUtils from '../../utils/string';
 import historyValue from '../history.vo';
 
 interface ITestSnapshot {
   id: TEntityId;
   name: string;
 }
-
-const ETestHistoryAction = {
-  Created: 'created',
-  Updated: 'updated',
-} as const;
-
-type UTestHistoryAction =
-  (typeof ETestHistoryAction)[keyof typeof ETestHistoryAction];
 
 const entityId = '123e4567-e89b-42d3-a456-426614174000' as TEntityId;
 const userId = '987fcdeb-51a2-43d7-9012-3456789abcde' as TEntityId;
@@ -37,47 +28,47 @@ const userActor: IHistoryActor = {
 
 function makeHistory(
   actor: IHistoryActor,
-  action: UTestHistoryAction,
+  action: string,
   beforeSnapshot: ITestSnapshot | null,
   afterSnapshot: ITestSnapshot,
-  note: string | null
+  occurredAt: Date = new Date()
 ) {
   return historyValue.make(
     {
       entityId,
-      actor,
       action,
-      before: beforeSnapshot,
-      after: afterSnapshot,
-      note,
+      diff: {
+        before: beforeSnapshot,
+        after: afterSnapshot,
+      },
+      occurredAt,
     },
-    ETestHistoryAction
+    actor
   );
 }
 
 describe('history.vo', () => {
   describe('make', () => {
     it('creates a frozen history record', () => {
-      const earliestTimestamp = Date.now();
+      const occurredAt = new Date();
       const history = makeHistory(
         userActor,
         'updated',
         before,
         after,
-        'Changed the name'
+        occurredAt
       );
 
-      expect(stringUtils.isUUID(history.id)).toBe(true);
       expect(history.entityId).toBe(entityId);
       expect(history.actor).toBe(userActor);
       expect(history.action).toBe('updated');
       expect(history.diff).toEqual({ before, after });
-      expect(history.diff).not.toHaveProperty('hasChanges');
-      expect(history.note).toBe('Changed the name');
-      expect(history.occurredAt.getTime()).toBeGreaterThanOrEqual(
-        earliestTimestamp
-      );
+      expect(history.occurredAt).toBe(occurredAt);
       expect(Object.isFrozen(history)).toBe(true);
+
+      // Verify removed fields are not present
+      expect(history).not.toHaveProperty('id');
+      expect(history).not.toHaveProperty('note');
     });
 
     it('creates history for system and migration actors', () => {
@@ -88,8 +79,7 @@ describe('history.vo', () => {
         },
         'created',
         null,
-        after,
-        null
+        after
       );
       const migrationHistory = makeHistory(
         {
@@ -98,25 +88,11 @@ describe('history.vo', () => {
         },
         'created',
         null,
-        after,
-        null
+        after
       );
 
       expect(systemHistory.actor.type).toBe(EHistoryActorType.System);
       expect(migrationHistory.actor.type).toBe(EHistoryActorType.Migration);
-    });
-
-    it('preserves valid actions and sanitizes notes', () => {
-      const history = makeHistory(
-        userActor,
-        ETestHistoryAction.Updated,
-        before,
-        after,
-        '  Changed the name  '
-      );
-
-      expect(history.action).toBe('updated');
-      expect(history.note).toBe('Changed the name');
     });
 
     it('rejects invalid entity IDs', () => {
@@ -124,13 +100,11 @@ describe('history.vo', () => {
         historyValue.make(
           {
             entityId: 'invalid' as TEntityId,
-            actor: userActor,
-            action: ETestHistoryAction.Updated,
-            before,
-            after,
-            note: null,
+            action: 'updated',
+            diff: { before, after },
+            occurredAt: new Date(),
           },
-          ETestHistoryAction
+          userActor
         )
       ).toThrow(historyError.InvalidEntityId);
     });
@@ -156,59 +130,72 @@ describe('history.vo', () => {
       ];
 
       for (const actor of invalidActors) {
-        expect(() =>
-          makeHistory(actor, ETestHistoryAction.Updated, before, after, null)
-        ).toThrow(historyError.InvalidActor);
+        expect(() => makeHistory(actor, 'updated', before, after)).toThrow(
+          historyError.InvalidActor
+        );
       }
     });
 
     it('rejects invalid actions', () => {
       expect(() =>
-        makeHistory(
-          userActor,
-          'deleted' as UTestHistoryAction,
-          before,
-          after,
-          null
+        historyValue.make(
+          {
+            entityId,
+            action: '   ',
+            diff: { before, after },
+            occurredAt: new Date(),
+          },
+          userActor
+        )
+      ).toThrow(historyError.InvalidAction);
+
+      expect(() =>
+        historyValue.make(
+          {
+            entityId,
+            action: '',
+            diff: { before, after },
+            occurredAt: new Date(),
+          },
+          userActor
         )
       ).toThrow(historyError.InvalidAction);
     });
 
-    it('rejects unchanged and malformed diffs', () => {
+    it('rejects invalid dates', () => {
+      expect(() =>
+        historyValue.make(
+          {
+            entityId,
+            action: 'updated',
+            diff: { before, after },
+            occurredAt: new Date('invalid'),
+          },
+          userActor
+        )
+      ).toThrow(historyError.InvalidDate);
+    });
+
+    it('rejects invalid diffs', () => {
       const invalidSnapshots: [unknown, unknown][] = [
         [before, null],
         [before, []],
         [[], after],
-        [before, before],
         [null, {}],
+        [before, {}],
+        [{}, after],
       ];
 
       for (const [invalidBefore, invalidAfter] of invalidSnapshots) {
         expect(() =>
           makeHistory(
             userActor,
-            ETestHistoryAction.Updated,
+            'updated',
             invalidBefore as ITestSnapshot | null,
-            invalidAfter as ITestSnapshot,
-            null
+            invalidAfter as ITestSnapshot
           )
         ).toThrow(historyError.InvalidDiff);
       }
-    });
-
-    it('rejects invalid notes', () => {
-      expect(() =>
-        makeHistory(userActor, ETestHistoryAction.Updated, before, after, '   ')
-      ).toThrow(historyError.InvalidNote);
-      expect(() =>
-        makeHistory(
-          userActor,
-          ETestHistoryAction.Updated,
-          before,
-          after,
-          'a'.repeat(1001)
-        )
-      ).toThrow(historyError.InvalidNote);
     });
   });
 });
