@@ -1,6 +1,5 @@
-import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import equityAccountEvents from '../../events/equity-account.events';
-import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EEquityAccountBehavior,
   EEquitySubType,
@@ -12,6 +11,7 @@ import {
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ILedgerAccount,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 import helpers from './helpers/opening-balance.entity.helpers';
@@ -27,9 +27,10 @@ function make(
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<
+): TAuditedEntity<
   IOpeningBalanceEquityAccount,
-  IOpeningBalanceEquityAccount
+  IOpeningBalanceEquityAccount,
+  ILedgerAccount
 > {
   const code = helpers.getCode(parent?.precedingCode ?? null);
   const materializedPath = helpers.getMaterializedPath(
@@ -37,29 +38,29 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<IOpeningBalanceEquityAccount>({
-    name: payload.name,
-    accountingEntityId: payload.accountingEntityId,
+  const [account, [ledgerAccountCreatedEvent], audit] =
+    ledgerAccountEntity.make<IOpeningBalanceEquityAccount>({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntityId,
 
-    code,
-    materializedPath,
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Equity),
-    type: ELedgerType.Equity,
-    subType: EEquitySubType.OpeningBalance,
-    behavior: EEquityAccountBehavior.OpeningBalanceEquity,
-    isControlAccount: false,
-    controlAccountId: null,
-    currency: payload.currency,
-    meta: null,
-    status: ELedgerAccountStatus.Active,
-    contraAccountRule: EContraAccountRule.ContraNotPermitted,
-    adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-    createdBy: payload.createdBy,
-  });
+      code,
+      materializedPath,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Equity),
+      type: ELedgerType.Equity,
+      subType: EEquitySubType.OpeningBalance,
+      behavior: EEquityAccountBehavior.OpeningBalanceEquity,
+      isControlAccount: false,
+      controlAccountId: null,
+      currency: payload.currency,
+      meta: null,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy: payload.createdBy,
+    });
 
   const event = equityAccountEvents.openingBalanceEquityCreated(account);
-  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event]];
+  return [account, [ledgerAccountCreatedEvent, event], audit];
 }
 
 const openingBalanceEquityLedgerEntity = Object.freeze({

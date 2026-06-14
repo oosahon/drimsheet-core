@@ -177,43 +177,58 @@ export default function createAccountingEntityUseCase(
 
     // =============== Asset Accounts ===============
 
-    const { accounts: assetAccounts, events: assetAccountEvents } =
-      await assetAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace,
-        shouldBootstrapPostingAccounts
-      );
+    const {
+      accounts: assetAccounts,
+      events: assetAccountEvents,
+      audits: assetAccountAudits,
+    } = await assetAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace,
+      shouldBootstrapPostingAccounts
+    );
 
     // =============== Liability Accounts ===============
-    const { accounts: liabilityAccounts, events: liabilityAccountEvents } =
-      await liabilityAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace,
-        shouldBootstrapPostingAccounts
-      );
+    const {
+      accounts: liabilityAccounts,
+      events: liabilityAccountEvents,
+      audits: liabilityAccountAudits,
+    } = await liabilityAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace,
+      shouldBootstrapPostingAccounts
+    );
 
     // =============== Equity Accounts ===============
-    const { accounts: equityAccounts, events: equityAccountEvents } =
-      await equityAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace
-      );
+    const {
+      accounts: equityAccounts,
+      events: equityAccountEvents,
+      audits: equityAccountAudits,
+    } = await equityAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace
+    );
 
     // =============== Revenue Accounts ===============
-    const { accounts: revenueAccounts, events: revenueAccountEvents } =
-      await revenueAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace,
-        shouldBootstrapPostingAccounts
-      );
+    const {
+      accounts: revenueAccounts,
+      events: revenueAccountEvents,
+      audits: revenueAccountAudits,
+    } = await revenueAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace,
+      shouldBootstrapPostingAccounts
+    );
 
     // =============== Expense Accounts ===============
-    const { accounts: expenseAccounts, events: expenseAccountEvents } =
-      await expenseAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace,
-        shouldBootstrapPostingAccounts
-      );
+    const {
+      accounts: expenseAccounts,
+      events: expenseAccountEvents,
+      audits: expenseAccountAudits,
+    } = await expenseAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace,
+      shouldBootstrapPostingAccounts
+    );
 
     const ledgerAccounts = [
       ...assetAccounts,
@@ -240,7 +255,22 @@ export default function createAccountingEntityUseCase(
       });
       await reportingPeriodRepo.save(reportingPeriods, options);
       await reportingContextRepo.save(reportingContext, options);
-      await ledgerAccountRepo.save(ledgerAccounts, options);
+      await ledgerAccountRepo.save(ledgerAccounts, {
+        ...options,
+        history: [
+          ...assetAccountAudits,
+          ...liabilityAccountAudits,
+          ...equityAccountAudits,
+          ...revenueAccountAudits,
+          ...expenseAccountAudits,
+        ].map((audit) =>
+          historyValue.make(
+            audit,
+            historyValue.getUserActor(user.id),
+            correlationId
+          )
+        ),
+      });
     };
 
     await repoService.runInTransaction(transactionFn);

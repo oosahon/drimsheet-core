@@ -1,6 +1,8 @@
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
+import { IEntityDelta } from '../../../shared/types/history.types';
 import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
+import { ILedgerAccount } from './ledger.types';
 import {
   ILiabilityLedgerAccount,
   IStatutoryPayableAccount,
@@ -14,6 +16,7 @@ export default interface ILiabilityAccountService {
   ): Promise<{
     accounts: ILiabilityLedgerAccount[];
     events: IEvent<ILiabilityLedgerAccount>[];
+    audits: IEntityDelta<ILedgerAccount>[];
   }>;
 
   bootstrapIndividualPostingAccounts(
@@ -21,6 +24,10 @@ export default interface ILiabilityAccountService {
     headers: { statutoryPayablesHeader: IStatutoryPayableAccount },
     repoOptions: IReadRepoOptions
   ): Promise<
-    TEntityWithEvents<ILiabilityLedgerAccount, ILiabilityLedgerAccount>[]
+    TAuditedEntity<
+      ILiabilityLedgerAccount,
+      ILiabilityLedgerAccount,
+      ILedgerAccount
+    >[]
   >;
 }

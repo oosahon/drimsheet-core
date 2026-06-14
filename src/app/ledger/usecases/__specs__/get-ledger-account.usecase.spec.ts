@@ -60,7 +60,7 @@ describe('getLedgerAccountUseCase', () => {
     createdBy: mockUserId,
   };
 
-  const mockLedgerAccount =
+  const [mockLedgerAccount] =
     ledgerAccountEntity.make<ILedgerAccount>(validAccountData);
   const accountWithId = { ...mockLedgerAccount, id: mockAccountId };
 

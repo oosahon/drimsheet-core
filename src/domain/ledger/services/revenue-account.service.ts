@@ -1,4 +1,5 @@
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
+import { IEntityDelta } from '../../../shared/types/history.types';
 import currencyEntity from '../../currency/entities/currency.entity';
 import { REVENUE_LEDGER_CODES } from '../config/revenue-codes.config';
 import servicesAccountEntity from '../entities/04-revenue-account/02-services.entity';
@@ -13,6 +14,7 @@ import {
   TServicesLedgerCode,
   TUnrealizedGainLedgerCode,
 } from '../types/ledger-code.types';
+import { ILedgerAccount } from '../types/ledger.types';
 import IRevenueAccountService from '../types/revenue-account.service.types';
 import {
   IEmploymentIncomeAccount,
@@ -57,9 +59,10 @@ export default function makeRevenueAccountService(
       )) as T | null;
     };
 
-    const allAccounts: TEntityWithEvents<
+    const allAccounts: TAuditedEntity<
       IRevenueLedgerAccount,
-      IRevenueLedgerAccount
+      IRevenueLedgerAccount,
+      ILedgerAccount
     >[] = [];
 
     const basePayload = {
@@ -169,13 +172,15 @@ export default function makeRevenueAccountService(
 
     const accounts: IRevenueLedgerAccount[] = [];
     const events: IEvent<IRevenueLedgerAccount>[] = [];
+    const audits: IEntityDelta<ILedgerAccount>[] = [];
 
-    for (const [account, accountEvents] of allAccounts) {
+    for (const [account, accountEvents, audit] of allAccounts) {
       accounts.push(account);
       events.push(...accountEvents);
+      audits.push(audit);
     }
 
-    return { accounts, events };
+    return { accounts, events, audits };
   };
 
   const bootstrapIndividualPostingAccounts: TBootstrapIndividualPostingAccounts =
@@ -190,9 +195,10 @@ export default function makeRevenueAccountService(
         functionalCurrencyCode
       );
 
-      const revenueAccounts: TEntityWithEvents<
+      const revenueAccounts: TAuditedEntity<
         IRevenueLedgerAccount,
-        IRevenueLedgerAccount
+        IRevenueLedgerAccount,
+        ILedgerAccount
       >[] = [];
 
       /**

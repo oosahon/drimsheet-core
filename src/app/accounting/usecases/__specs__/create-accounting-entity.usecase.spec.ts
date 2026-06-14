@@ -93,22 +93,27 @@ describe('createAccountingEntityUseCase', () => {
     mockAssetAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
     mockLiabilityAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
     mockEquityAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
     mockRevenueAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
     mockExpenseAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
   });
 

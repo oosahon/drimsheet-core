@@ -110,26 +110,6 @@ export const periodUnitInCore = core.enum('period_unit', [
   'year',
 ]);
 
-export const pgmigrations = pgTable('pgmigrations', {
-  id: serial().primaryKey().notNull(),
-  name: varchar({ length: 255 }).notNull(),
-  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
-});
-
-export const accountingStandardsInCore = core.table('accounting_standards', {
-  code: varchar({ length: 15 }).primaryKey().notNull(),
-  name: varchar({ length: 100 }).notNull(),
-  link: varchar({ length: 200 }),
-  isSupported: boolean('is_supported').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-    .defaultNow()
-    .notNull(),
-  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-});
-
 export const usersInCore = core.table(
   'users',
   {
@@ -311,6 +291,20 @@ export const fiscalYearsInCore = core.table(
     }).onDelete('cascade'),
   ]
 );
+
+export const accountingStandardsInCore = core.table('accounting_standards', {
+  code: varchar({ length: 15 }).primaryKey().notNull(),
+  name: varchar({ length: 100 }).notNull(),
+  link: varchar({ length: 200 }),
+  isSupported: boolean('is_supported').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+    .defaultNow()
+    .notNull(),
+  deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+});
 
 export const accountingPeriodsInCore = core.table(
   'accounting_periods',
@@ -976,6 +970,12 @@ export const accountingEntityHistoryInAudit = audit.table(
   ]
 );
 
+export const pgmigrations = pgTable('pgmigrations', {
+  id: serial().primaryKey().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
+});
+
 export const accountingContextHistoryInAudit = audit.table(
   'accounting_context_history',
   {
@@ -1141,8 +1141,8 @@ export const userProfileHistoryInAudit = audit.table(
   (table) => [
     index('user_profile_history_timeline_idx').using(
       'btree',
-      table.userProfileId.asc().nullsLast().op('int8_ops'),
-      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.userProfileId.asc().nullsLast().op('timestamptz_ops'),
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
       table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({

@@ -43,11 +43,20 @@ export default function makeCreatePettyCashAccountUseCase(
       controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
     };
 
-    const [account, accountEvents] =
+    const [account, accountEvents, accountAudit] =
       await assetAccountService.makePettyCashSubAccount(accountPayload, trace);
 
     if (!payload.openingBalance) {
-      await ledgerAccountRepo.save(account, trace);
+      await ledgerAccountRepo.save(account, {
+        ...trace,
+        history: [
+          historyValue.make(
+            accountAudit,
+            historyValue.getUserActor(user.id),
+            correlationId
+          ),
+        ],
+      });
       eventBus.publish(eventValue.enrichAll(accountEvents, trace));
       return;
     }
@@ -75,7 +84,16 @@ export default function makeCreatePettyCashAccountUseCase(
 
     await repoService.runInTransaction(async (tx) => {
       const repoOptions = { tx, correlationId };
-      await ledgerAccountRepo.save(account, repoOptions);
+      await ledgerAccountRepo.save(account, {
+        ...repoOptions,
+        history: [
+          historyValue.make(
+            accountAudit,
+            historyValue.getUserActor(user.id),
+            correlationId
+          ),
+        ],
+      });
       await journalEntryPersistenceService.save(
         journalEntry,
         audit,

@@ -32,7 +32,7 @@ describe('account-balance.service', () => {
   const accountingEntityId = generateUUID();
   const createdBy = generateUUID();
 
-  const ledgerAccount = ledgerAccountEntity.make({
+  const [ledgerAccount] = ledgerAccountEntity.make({
     code: '100000',
     materializedPath: '100000',
     accountingEntityId: accountingEntityId,

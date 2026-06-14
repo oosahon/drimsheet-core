@@ -5,9 +5,8 @@
  * @see {@link ../__docs__/suspense-account.md} to understand their behaviors
  *
  */
-import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import assetAccountEvents from '../../events/asset-account.events';
-import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -19,6 +18,7 @@ import {
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ILedgerAccount,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 import helpers from './helpers/suspense-account.entity.helpers';
@@ -34,7 +34,11 @@ function make(
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<IAssetSuspenseAccount, IAssetSuspenseAccount> {
+): TAuditedEntity<
+  IAssetSuspenseAccount,
+  IAssetSuspenseAccount,
+  ILedgerAccount
+> {
   const { name, createdBy, accountingEntityId, currency } = payload;
 
   const code = helpers.getCode(parent?.precedingCode ?? null);
@@ -43,28 +47,28 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<IAssetSuspenseAccount>({
-    name,
-    accountingEntityId,
+  const [account, [ledgerAccountCreatedEvent], audit] =
+    ledgerAccountEntity.make<IAssetSuspenseAccount>({
+      name,
+      accountingEntityId,
 
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
-    code,
-    materializedPath,
-    type: ELedgerType.Asset,
-    subType: EAssetSubType.Suspense,
-    behavior: EAssetAccountBehavior.Default,
-    meta: null,
-    isControlAccount: false,
-    controlAccountId: null,
-    currency,
-    status: ELedgerAccountStatus.Active,
-    contraAccountRule: EContraAccountRule.ContraNotPermitted,
-    adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-    createdBy,
-  });
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+      code,
+      materializedPath,
+      type: ELedgerType.Asset,
+      subType: EAssetSubType.Suspense,
+      behavior: EAssetAccountBehavior.Default,
+      meta: null,
+      isControlAccount: false,
+      controlAccountId: null,
+      currency,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy,
+    });
   const event = assetAccountEvents.suspenseCreated(account);
-  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event]];
+  return [account, [ledgerAccountCreatedEvent, event], audit];
 }
 
 const assetSuspenseAccountEntity = Object.freeze({

@@ -1,8 +1,7 @@
-import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import ledgerError from '../../errors/ledger.error';
 import assetAccountEvents from '../../events/asset-account.events';
-import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -16,6 +15,7 @@ import {
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ILedgerAccount,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 import helpers from './helpers/receivables.entity.helpers';
@@ -46,7 +46,7 @@ function make(
     | 'adjunctAccountRule'
   >,
   parent: IParentDetails | null // null for the header account
-): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
+): TAuditedEntity<IReceivablesAccount, IReceivablesAccount, ILedgerAccount> {
   if (payload.controlAccountId) {
     stringUtils.validateUUID(
       payload.controlAccountId,
@@ -60,29 +60,29 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<IReceivablesAccount>({
-    name: payload.name,
-    accountingEntityId: payload.accountingEntityId,
+  const [account, [ledgerAccountCreatedEvent], audit] =
+    ledgerAccountEntity.make<IReceivablesAccount>({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntityId,
 
-    code,
-    materializedPath,
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
-    type: ELedgerType.Asset,
-    subType: EAssetSubType.Receivables,
-    behavior: payload.behavior,
-    isControlAccount: payload.isControlAccount,
-    controlAccountId: payload.controlAccountId,
-    currency: payload.currency,
-    meta: payload.meta,
-    status: ELedgerAccountStatus.Active,
-    contraAccountRule: payload.contraAccountRule,
-    adjunctAccountRule: payload.adjunctAccountRule,
-    createdBy: payload.createdBy,
-  });
+      code,
+      materializedPath,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+      type: ELedgerType.Asset,
+      subType: EAssetSubType.Receivables,
+      behavior: payload.behavior,
+      isControlAccount: payload.isControlAccount,
+      controlAccountId: payload.controlAccountId,
+      currency: payload.currency,
+      meta: payload.meta,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: payload.contraAccountRule,
+      adjunctAccountRule: payload.adjunctAccountRule,
+      createdBy: payload.createdBy,
+    });
 
   const event = assetAccountEvents.receivablesCreated(account);
-  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event]];
+  return [account, [ledgerAccountCreatedEvent, event], audit];
 }
 
 function makeHeader(
@@ -125,7 +125,7 @@ function makeStatutoryReceivableAccount(
     | 'controlAccountId'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
+): TAuditedEntity<IReceivablesAccount, IReceivablesAccount, ILedgerAccount> {
   return make(
     {
       name: payload.name,
@@ -161,7 +161,7 @@ function makeTradeReceivableAccount(
     | 'controlAccountId'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<IReceivablesAccount, IReceivablesAccount> {
+): TAuditedEntity<IReceivablesAccount, IReceivablesAccount, ILedgerAccount> {
   return make(
     {
       name: payload.name,

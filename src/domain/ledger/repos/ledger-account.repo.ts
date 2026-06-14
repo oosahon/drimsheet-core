@@ -8,6 +8,7 @@ import { TEntityId } from '../../../shared/types/uuid';
 import { UAssetSubType } from '../types/asset-account.types';
 import { UEquitySubType } from '../types/equity-account.types';
 import { UExpenseSubType } from '../types/expense-account.types';
+import { ILedgerAccountHistory } from '../types/ledger-account-audit.types';
 import { ILedgerAccount, ULedgerType } from '../types/ledger.types';
 import { ULiabilitySubType } from '../types/liability-account.types';
 import { URevenueSubType } from '../types/revenue-account.types';
@@ -41,7 +42,7 @@ export interface IFindAllLedgerAccountsOptions extends Omit<
 export default interface ILedgerAccountRepo {
   save(
     account: ILedgerAccount | ILedgerAccount[],
-    options: IWriteRepoOptions
+    options: IWriteRepoOptions<ILedgerAccountHistory[]>
   ): Promise<void>;
 
   findById(

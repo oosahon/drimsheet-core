@@ -1,5 +1,4 @@
-import { TEntityWithEvents } from '../../../../shared/types/event.types';
-import ledgerAccountEvents from '../../events/ledger-account.events';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import revenueAccountEvents from '../../events/revenue-account.events';
 import { TServicesLedgerCode } from '../../types/ledger-code.types';
 import {
@@ -7,6 +6,7 @@ import {
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ILedgerAccount,
 } from '../../types/ledger.types';
 import {
   ERevenueAccountBehavior,
@@ -33,36 +33,36 @@ function make(
     | 'meta'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<IServicesAccount, IServicesAccount> {
+): TAuditedEntity<IServicesAccount, IServicesAccount, ILedgerAccount> {
   const code = helpers.getCode(parent?.precedingCode ?? null);
   const materializedPath = helpers.getMaterializedPath(
     code,
     parent?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<IServicesAccount>({
-    name: payload.name,
-    accountingEntityId: payload.accountingEntityId,
+  const [account, [ledgerAccountCreatedEvent], audit] =
+    ledgerAccountEntity.make<IServicesAccount>({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntityId,
 
-    code,
-    materializedPath,
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
-    type: ELedgerType.Revenue,
-    subType: ERevenueSubType.Services,
-    behavior: ERevenueAccountBehavior.Services,
-    isControlAccount: payload.isControlAccount,
-    controlAccountId: payload.controlAccountId,
-    currency: payload.currency,
-    meta: payload.meta,
-    status: ELedgerAccountStatus.Active,
-    contraAccountRule: EContraAccountRule.ContraNotPermitted,
-    adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-    createdBy: payload.createdBy,
-  });
+      code,
+      materializedPath,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
+      type: ELedgerType.Revenue,
+      subType: ERevenueSubType.Services,
+      behavior: ERevenueAccountBehavior.Services,
+      isControlAccount: payload.isControlAccount,
+      controlAccountId: payload.controlAccountId,
+      currency: payload.currency,
+      meta: payload.meta,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy: payload.createdBy,
+    });
 
   const event = revenueAccountEvents.servicesCreated(account);
-  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event]];
+  return [account, [ledgerAccountCreatedEvent, event], audit];
 }
 
 function makeHeader(

@@ -70,7 +70,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
   };
 
-  const [mockPettyCashAccount, mockEvents] =
+  const [mockPettyCashAccount, mockEvents, mockPettyCashAudit] =
     cashAndEquivalentAccountEntity.makePettyCashAccount(
       {
         name: validPayload.name,
@@ -100,7 +100,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(null);
     mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue(
-      [mockPettyCashAccount, mockEvents]
+      [mockPettyCashAccount, mockEvents, mockPettyCashAudit]
     );
     mockJournalEntryDomainServices.journalEntry.recordOpeningBalance.mockResolvedValue(
       journalEntryEntity.make({
@@ -179,7 +179,10 @@ describe('createPettyCashSubAccountUseCase', () => {
         name: validPayload.name,
         accountingEntityId: mockAccountingEntity.id,
       }),
-      { correlationId, tx: 'mock-tx' }
+      expect.objectContaining({
+        correlationId,
+        tx: 'mock-tx',
+      })
     );
     expect(mockJournalEntryPersistenceService.save).toHaveBeenCalledWith(
       expect.anything(),
@@ -231,7 +234,7 @@ describe('createPettyCashSubAccountUseCase', () => {
         name: validPayload.name,
         accountingEntityId: mockAccountingEntity.id,
       }),
-      { correlationId }
+      expect.objectContaining({ correlationId })
     );
     expect(mockEventBus.publish).toHaveBeenCalledWith(
       expect.arrayContaining([

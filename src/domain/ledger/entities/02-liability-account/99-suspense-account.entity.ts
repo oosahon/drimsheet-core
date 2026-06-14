@@ -1,5 +1,4 @@
-import { TEntityWithEvents } from '../../../../shared/types/event.types';
-import ledgerAccountEvents from '../../events/ledger-account.events';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import liabilityAccountEvents from '../../events/liability-account.events';
 import { TLiabilitySuspenseLedgerCode } from '../../types/ledger-code.types';
 import {
@@ -7,6 +6,7 @@ import {
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ILedgerAccount,
 } from '../../types/ledger.types';
 import {
   ELiabilityAccountBehavior,
@@ -27,7 +27,11 @@ function make(
     'name' | 'createdBy' | 'accountingEntityId' | 'currency'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<ILiabilitySuspenseAccount, ILiabilitySuspenseAccount> {
+): TAuditedEntity<
+  ILiabilitySuspenseAccount,
+  ILiabilitySuspenseAccount,
+  ILedgerAccount
+> {
   const { name, createdBy, accountingEntityId, currency } = payload;
 
   const code = helpers.getCode(parent?.precedingCode ?? null);
@@ -36,28 +40,30 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<ILiabilitySuspenseAccount>({
-    name,
-    accountingEntityId,
+  const [account, [ledgerAccountCreatedEvent], audit] =
+    ledgerAccountEntity.make<ILiabilitySuspenseAccount>({
+      name,
+      accountingEntityId,
 
-    code,
-    materializedPath,
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),
-    type: ELedgerType.Liability,
-    subType: ELiabilitySubType.Suspense,
-    behavior: ELiabilityAccountBehavior.Default,
-    meta: null,
-    isControlAccount: false,
-    controlAccountId: null,
-    currency,
-    status: ELedgerAccountStatus.Active,
-    contraAccountRule: EContraAccountRule.ContraNotPermitted,
-    adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-    createdBy,
-  });
+      code,
+      materializedPath,
+      normalBalance: ledgerAccountEntity.getNormalBalance(
+        ELedgerType.Liability
+      ),
+      type: ELedgerType.Liability,
+      subType: ELiabilitySubType.Suspense,
+      behavior: ELiabilityAccountBehavior.Default,
+      meta: null,
+      isControlAccount: false,
+      controlAccountId: null,
+      currency,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy,
+    });
   const event = liabilityAccountEvents.suspenseCreated(account);
-  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event]];
+  return [account, [ledgerAccountCreatedEvent, event], audit];
 }
 
 const liabilitySuspenseAccountEntity = Object.freeze({

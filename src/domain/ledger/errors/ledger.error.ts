@@ -7,6 +7,8 @@ type TErrorPrefix = `ledger_error_${string}`;
 const EErrorKeys = {
   InvalidValue: 'ledger_error_invalid_value',
   InvalidId: 'ledger_error_invalid_id',
+  InvalidAction: 'ledger_error_invalid_action',
+  InvalidDate: 'ledger_error_invalid_date',
 } as const satisfies Record<string, TErrorPrefix>;
 
 type ULedgerError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

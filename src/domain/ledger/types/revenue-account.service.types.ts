@@ -1,6 +1,8 @@
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
+import { IEntityDelta } from '../../../shared/types/history.types';
 import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
+import { ILedgerAccount } from './ledger.types';
 import {
   IEmploymentIncomeAccount,
   IGainOnAssetSaleAccount,
@@ -17,6 +19,7 @@ export default interface IRevenueAccountService {
   ): Promise<{
     accounts: IRevenueLedgerAccount[];
     events: IEvent<IRevenueLedgerAccount>[];
+    audits: IEntityDelta<ILedgerAccount>[];
   }>;
 
   bootstrapIndividualPostingAccounts(
@@ -28,5 +31,11 @@ export default interface IRevenueAccountService {
       unrealizedGainHeader: IUnrealizedGainAccount;
     },
     repoOptions: IReadRepoOptions
-  ): Promise<TEntityWithEvents<IRevenueLedgerAccount, IRevenueLedgerAccount>[]>;
+  ): Promise<
+    TAuditedEntity<
+      IRevenueLedgerAccount,
+      IRevenueLedgerAccount,
+      ILedgerAccount
+    >[]
+  >;
 }

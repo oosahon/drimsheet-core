@@ -114,6 +114,8 @@
   "ledger_balance_error_invalid_journal_entry_id",
   "ledger_balance_error_invalid_ledger_account_id",
   "ledger_error_asset_account_control_account_not_found",
+  "ledger_error_invalid_action",
+  "ledger_error_invalid_date",
   "ledger_error_invalid_id",
   "ledger_error_invalid_value",
   "ledger_error_ledger_account_invalid_adjunct_rule",

@@ -8,6 +8,7 @@ import {
   or,
   sql,
 } from 'drizzle-orm';
+import ledgerAccountHistoryMapper from '../../../../app/ledger/mappers/ledger-account-history.mapper';
 import ledgerAccountMapper from '../../../../app/ledger/mappers/ledger-account.mapper';
 import ILedgerAccountRepo, {
   ELedgerAccountSortBy,
@@ -16,6 +17,7 @@ import paginationValue from '../../../../shared/value-objects/pagination.vo';
 import {
   currenciesInCore,
   ledgerAccountBalancesInCore,
+  ledgerAccountHistoryInAudit,
   ledgerAccountsInCore,
 } from '../../../config/drizzle/schema';
 import drizzleFilters from '../helpers/filters';
@@ -25,11 +27,15 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
   save: async (payload, options) => {
     const dbQuery = getDbQuery(options);
 
-    const valuesArray = Array.isArray(payload)
-      ? payload.map(ledgerAccountMapper.toRepo)
-      : [ledgerAccountMapper.toRepo(payload)];
+    const accountsArray = Array.isArray(payload) ? payload : [payload];
+    const valuesArray = accountsArray.map(ledgerAccountMapper.toRepo);
 
-    await dbQuery.insert(ledgerAccountsInCore).values(valuesArray);
+    await dbQuery.transaction(async (tx) => {
+      await tx.insert(ledgerAccountsInCore).values(valuesArray);
+      await tx
+        .insert(ledgerAccountHistoryInAudit)
+        .values(options.history.map(ledgerAccountHistoryMapper.toRepo));
+    });
   },
 
   findById: async (id, options) => {

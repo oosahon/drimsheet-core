@@ -1,8 +1,7 @@
-import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import ledgerError from '../../errors/ledger.error';
 import expenseAccountEvents from '../../events/expense-account.events';
-import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EExpenseSubType,
   IDirectCostsAccount,
@@ -13,6 +12,7 @@ import {
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ILedgerAccount,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 import helpers from './helpers/direct-costs.entity.helpers';
@@ -35,7 +35,7 @@ function make(
     | 'meta'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<IDirectCostsAccount, IDirectCostsAccount> {
+): TAuditedEntity<IDirectCostsAccount, IDirectCostsAccount, ILedgerAccount> {
   if (payload.controlAccountId) {
     stringUtils.validateUUID(
       payload.controlAccountId,
@@ -49,29 +49,29 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<IDirectCostsAccount>({
-    name: payload.name,
-    accountingEntityId: payload.accountingEntityId,
+  const [account, [ledgerAccountCreatedEvent], audit] =
+    ledgerAccountEntity.make<IDirectCostsAccount>({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntityId,
 
-    code,
-    materializedPath,
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
-    type: ELedgerType.Expense,
-    subType: EExpenseSubType.DirectCosts,
-    behavior: payload.behavior,
-    isControlAccount: payload.isControlAccount,
-    controlAccountId: payload.controlAccountId,
-    currency: payload.currency,
-    meta: payload.meta,
-    status: ELedgerAccountStatus.Active,
-    contraAccountRule: EContraAccountRule.ContraNotPermitted,
-    adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-    createdBy: payload.createdBy,
-  });
+      code,
+      materializedPath,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
+      type: ELedgerType.Expense,
+      subType: EExpenseSubType.DirectCosts,
+      behavior: payload.behavior,
+      isControlAccount: payload.isControlAccount,
+      controlAccountId: payload.controlAccountId,
+      currency: payload.currency,
+      meta: payload.meta,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy: payload.createdBy,
+    });
 
   const event = expenseAccountEvents.directCostsCreated(account);
-  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event]];
+  return [account, [ledgerAccountCreatedEvent, event], audit];
 }
 
 function makeHeader(
