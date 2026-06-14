@@ -1,5 +1,6 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import { EReportingContextEvents } from '../../events/reporting-context.events';
+import { EReportingContextActions } from '../../types/reporting-context-audit.types';
 import reportingContextEntity from '../reporting-context.entity';
 
 describe('reportingContextEntity', () => {
@@ -24,7 +25,7 @@ describe('reportingContextEntity', () => {
 
   describe('make', () => {
     it('creates a valid reporting context entity with events', () => {
-      const [entity, events] = reportingContextEntity.make(validPayload);
+      const [entity, events, audit] = reportingContextEntity.make(validPayload);
 
       expect(entity).toEqual({
         id: expect.any(String),
@@ -46,6 +47,17 @@ describe('reportingContextEntity', () => {
         type: EReportingContextEvents.Created,
         data: entity,
       });
+
+      expect(audit).toEqual({
+        entityId: entity.id,
+        action: EReportingContextActions.Created,
+        diff: {
+          before: null,
+          after: entity,
+        },
+        occurredAt: entity.updatedAt,
+      });
+      expect(Object.isFrozen(audit)).toBe(true);
     });
 
     it('throws AppError if accountingEntityId is invalid', () => {

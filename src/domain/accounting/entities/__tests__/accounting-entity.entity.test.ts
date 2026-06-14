@@ -1,6 +1,7 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
+import { EAccountingEntityActions } from '../../types/accounting-entity-audit.types';
 import {
   EAccountingEntityHistoryAction,
   EAccountingEntityType,
@@ -31,7 +32,7 @@ describe('accountingEntityEntity', () => {
 
   describe('make', () => {
     it('should successfully create an accounting entity with valid payload', () => {
-      const [entity, events] = accountingEntityEntity.make(validPayload);
+      const [entity, events, audit] = accountingEntityEntity.make(validPayload);
 
       expect(entity.id).toBeDefined();
       expect(typeof entity.id).toBe('string');
@@ -50,6 +51,17 @@ describe('accountingEntityEntity', () => {
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe(EAccountingEntityEvents.Created);
       expect(events[0].data).toEqual(entity);
+
+      expect(audit).toEqual({
+        entityId: entity.id,
+        action: EAccountingEntityActions.Created,
+        diff: {
+          before: null,
+          after: entity,
+        },
+        occurredAt: entity.updatedAt,
+      });
+      expect(Object.isFrozen(audit)).toBe(true);
     });
 
     it('should throw if invalid type is provided', () => {

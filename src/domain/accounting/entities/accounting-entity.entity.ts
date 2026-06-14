@@ -1,16 +1,18 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import currencyEntity from '../../currency/entities/currency.entity';
 import accountingError from '../errors/accounting.error';
 import accountingEntityEvents from '../events/accounting-entity.events';
+import { EAccountingEntityActions } from '../types/accounting-entity-audit.types';
 import { IAccountingEntity } from '../types/accounting-entity.types';
+import accountingEntityAudit from '../value-objects/accounting-entity-audit.vo';
 import helpers from './helpers/accounting-entity.entity.helpers';
 
 function make(
   payload: TCreationOmits<IAccountingEntity>
-): TEntityWithEvents<IAccountingEntity, IAccountingEntity> {
+): TAuditedEntity<IAccountingEntity, IAccountingEntity, IAccountingEntity> {
   helpers.validateType(payload.type);
   stringUtils.validateUUID(payload.ownerId, accountingError.InvalidValue);
   currencyEntity.validateCode(payload.functionalCurrencyCode);
@@ -40,7 +42,13 @@ function make(
 
   const events = accountingEntityEvents.created(entity);
 
-  return [entity, [events]];
+  const audit = accountingEntityAudit.make({
+    before: null,
+    after: entity,
+    action: EAccountingEntityActions.Created,
+  });
+
+  return [entity, [events], audit];
 }
 
 const accountingEntityEntity = Object.freeze({

@@ -1,6 +1,7 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import getEntitiesAndEvents from '../../../../shared/utils/get-entities-and-events';
 import { IFiscalYear } from '../../types/fiscal-year.types';
+import { EPeriodActions } from '../../types/period-audit.types';
 import { EPeriodStatus, EPeriodUnit } from '../../types/period.types';
 import accountingPeriodEntity from '../accounting-period.entity';
 
@@ -65,6 +66,18 @@ describe('accountingPeriodEntity', () => {
       expect(events[0].type).toBe(
         'domain:accounting:period:accounting-period:created'
       );
+
+      const firstAudit = result[0][2];
+      expect(firstAudit).toEqual({
+        entityId: firstEntity.id,
+        action: EPeriodActions.Created,
+        diff: {
+          before: null,
+          after: firstEntity,
+        },
+        occurredAt: firstEntity.updatedAt,
+      });
+      expect(Object.isFrozen(firstAudit)).toBe(true);
     });
 
     it('throws InvalidPeriodUnitError if unit is invalid', () => {

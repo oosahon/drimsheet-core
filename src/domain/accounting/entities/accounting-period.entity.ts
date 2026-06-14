@@ -1,9 +1,11 @@
-import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import accountingError from '../errors/accounting.error';
 import periodEvents from '../events/period.events';
 import { IFiscalYear } from '../types/fiscal-year.types';
+import { EPeriodActions } from '../types/period-audit.types';
 import { EPeriodStatus, IAccountingPeriod } from '../types/period.types';
+import accountingPeriodAudit from '../value-objects/accounting-period-audit.vo';
 import periodHelpers from './helpers/period.helpers';
 
 interface IMakePayload extends Pick<
@@ -15,7 +17,7 @@ interface IMakePayload extends Pick<
 
 function make(
   payload: IMakePayload
-): TEntityWithEvents<IAccountingPeriod, IAccountingPeriod>[] {
+): TAuditedEntity<IAccountingPeriod, IAccountingPeriod, IAccountingPeriod>[] {
   stringUtils.validateUUID(
     payload.accountingEntityId,
     accountingError.InvalidValue
@@ -49,10 +51,16 @@ function make(
       })
   );
 
-  return accountingPeriods.map((period) => [
-    period,
-    [periodEvents.accountingPeriodCreated(period)],
-  ]);
+  return accountingPeriods.map((period) => {
+    const event = periodEvents.accountingPeriodCreated(period);
+    const audit = accountingPeriodAudit.make({
+      before: null,
+      after: period,
+      action: EPeriodActions.Created,
+    });
+
+    return [period, [event], audit];
+  });
 }
 
 const accountingPeriodEntity = Object.freeze({

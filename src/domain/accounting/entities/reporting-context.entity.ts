@@ -1,16 +1,18 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import currencyEntity from '../../currency/entities/currency.entity';
 import accountingError from '../errors/accounting.error';
 import reportingContextEvents from '../events/reporting-context.events';
 import { IReportingContext } from '../types/context.types';
+import { EReportingContextActions } from '../types/reporting-context-audit.types';
+import reportingContextAudit from '../value-objects/reporting-context-audit.vo';
 import helpers from './helpers/accounting-context.entity.helpers';
 
 function make(
   payload: TCreationOmits<IReportingContext, 'closedAt'>
-): TEntityWithEvents<IReportingContext, IReportingContext> {
+): TAuditedEntity<IReportingContext, IReportingContext, IReportingContext> {
   stringUtils.validateUUID(
     payload.accountingEntityId,
     accountingError.InvalidValue
@@ -54,7 +56,13 @@ function make(
 
   const events = reportingContextEvents.created(entity);
 
-  return [entity, [events]];
+  const audit = reportingContextAudit.make({
+    before: null,
+    after: entity,
+    action: EReportingContextActions.Created,
+  });
+
+  return [entity, [events], audit];
 }
 
 const reportingContextEntity = Object.freeze({

@@ -1,7 +1,11 @@
-import { IEvent, TEntityWithEvents } from '../types/event.types';
+import {
+  IEvent,
+  TAuditedEntity,
+  TEntityWithEvents,
+} from '../types/event.types';
 
-export default function getEntitiesAndEvents<T, E>(
-  data: TEntityWithEvents<T, E>[]
+export default function getEntitiesAndEvents<T, E, S extends object = object>(
+  data: (TEntityWithEvents<T, E> | TAuditedEntity<T, E, S>)[]
 ) {
   const entities: T[] = [];
   const events: IEvent<E>[] = [];

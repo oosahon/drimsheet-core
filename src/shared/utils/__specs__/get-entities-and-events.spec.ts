@@ -1,4 +1,10 @@
-import { IEvent, TEntityWithEvents } from '../../types/event.types';
+import {
+  IEvent,
+  TAuditedEntity,
+  TEntityWithEvents,
+} from '../../types/event.types';
+import { IEntityDelta } from '../../types/history.types';
+import { TEntityId } from '../../types/uuid';
 import getEntitiesAndEvents from '../get-entities-and-events';
 
 describe('getEntitiesAndEvents', () => {
@@ -75,5 +81,25 @@ describe('getEntitiesAndEvents', () => {
     expect(result.events).toEqual([]);
 
     expect(Object.isFrozen(result)).toBe(true);
+  });
+
+  it('should handle audited entity tuples', () => {
+    const audit: IEntityDelta<TMockEntity> = {
+      entityId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+      action: 'created',
+      diff: {
+        before: null,
+        after: mockEntity1,
+      },
+      occurredAt: new Date(),
+    };
+    const data: TAuditedEntity<TMockEntity, TMockEventData, TMockEntity>[] = [
+      [mockEntity1, [mockEvent1], audit],
+    ];
+
+    const result = getEntitiesAndEvents(data);
+
+    expect(result.entities).toEqual([mockEntity1]);
+    expect(result.events).toEqual([mockEvent1]);
   });
 });
