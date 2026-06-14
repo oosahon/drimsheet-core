@@ -1,4 +1,4 @@
-import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { IEvent } from '../../../shared/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
@@ -6,17 +6,22 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import journalLineError from '../errors/journal-line.error';
 import journalLineEvents from '../events/journal-line-item.events';
+import {
+  EJournalLineAuditAction,
+  IJournalLineAudit,
+} from '../types/journal-entry-audit.types';
 import { IJournalEntry } from '../types/journal-entry.types';
 import {
   IJournalLine,
   IJournalLineMakePayload,
 } from '../types/journal-line.types';
+import journalLineAudit from '../value-objects/journal-line-audit.vo';
 import helpers from './helpers/journal-line.helpers';
 
 function make(
   entryPayload: Pick<IJournalEntry, 'id' | 'memo' | 'createdAt'>,
   payload: IJournalLineMakePayload
-): TEntityWithEvents<IJournalLine, IJournalLine> {
+): [IJournalLine, IEvent<IJournalLine>[], IJournalLineAudit] {
   stringUtils.validateUUID(
     entryPayload.id,
     journalLineError.InvalidHeaderyEntryId
@@ -67,8 +72,13 @@ function make(
   };
 
   const event = journalLineEvents.created(lineItem);
+  const audit = journalLineAudit.make({
+    before: null,
+    after: lineItem,
+    action: EJournalLineAuditAction.Created,
+  });
 
-  return [Object.freeze(lineItem), [event]];
+  return [Object.freeze(lineItem), [event], audit];
 }
 
 const journalLineEntity = Object.freeze({

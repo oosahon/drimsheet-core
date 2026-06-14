@@ -1,8 +1,12 @@
+import journalEntryHistoryRepo from './journal-entry-history.repo.impl';
 import journalEntryRepo from './journal-entry.repo.impl';
+import journalLineHistoryRepo from './journal-line-history.repo.impl';
 import journalLineRepo from './journal-line.repo.impl';
 
 const journalEntryRepos = {
+  journalEntryHistory: journalEntryHistoryRepo,
   journalEntry: journalEntryRepo,
+  journalLineHistory: journalLineHistoryRepo,
   journalLine: journalLineRepo,
 };
 

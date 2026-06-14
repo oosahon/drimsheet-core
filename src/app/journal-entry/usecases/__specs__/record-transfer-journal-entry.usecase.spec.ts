@@ -15,11 +15,11 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/0
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
+import mockJournalEntryPersistenceService from '../../../../infra/services/domain/__mocks__/journal-entry-persistence.domain.service.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
@@ -199,17 +199,17 @@ describe('recordTransferJournalEntryUseCase', () => {
     makeRecordTransferJournalEntryUseCase(
       mockRequestContext,
       mockJournalEntryDomainServices.journalEntry,
+      mockJournalEntryPersistenceService,
       mockCurrencyDomainServices.exchangeRate,
-      mockJournalEntryRepo,
       mockEventBus
     );
 
   it('records a transfer journal entry and publishes enriched domain events', async () => {
     const useCase = getUseCase();
-    const [journalEntry, events] = makeSavedJournalEntry();
+    const [journalEntry, events, audit] = makeSavedJournalEntry();
 
     mockJournalEntryDomainServices.journalEntry.recordTransaction.mockResolvedValueOnce(
-      [journalEntry, events]
+      [journalEntry, events, audit]
     );
 
     await useCase(validPayload);
@@ -271,9 +271,15 @@ describe('recordTransferJournalEntryUseCase', () => {
       },
       { correlationId }
     );
-    expect(mockJournalEntryRepo.save).toHaveBeenCalledWith(journalEntry, {
-      correlationId,
-    });
+    expect(mockJournalEntryPersistenceService.save).toHaveBeenCalledWith(
+      journalEntry,
+      audit,
+      {
+        type: 'user',
+        userId: mockUser.id,
+      },
+      { correlationId }
+    );
     expect(mockEventBus.publish).toHaveBeenCalledWith(
       events.map((event) =>
         expect.objectContaining({
@@ -303,7 +309,7 @@ describe('recordTransferJournalEntryUseCase', () => {
     expect(
       mockJournalEntryDomainServices.journalEntry.recordTransaction
     ).not.toHaveBeenCalled();
-    expect(mockJournalEntryRepo.save).not.toHaveBeenCalled();
+    expect(mockJournalEntryPersistenceService.save).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 });

@@ -3,11 +3,11 @@ import {
   IWriteRepoOptions,
 } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
-import { IJournalEntry } from '../types/journal-entry.types';
+import { IJournalEntry, IJournalHeader } from '../types/journal-entry.types';
 
 export default interface IJournalEntryRepo {
   save(
-    payload: IJournalEntry | IJournalEntry[],
+    payload: IJournalHeader | IJournalHeader[],
     options: IWriteRepoOptions
   ): Promise<void>;
 

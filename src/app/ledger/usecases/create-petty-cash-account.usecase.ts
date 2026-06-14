@@ -1,6 +1,6 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
-import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
+import IJournalEntryPersistenceService from '../../../domain/journal-entry/types/journal-entry-persistence.service.types';
 import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
@@ -8,6 +8,7 @@ import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types'
 import { IEvent } from '../../../shared/types/event.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
+import historyValue from '../../../shared/value-objects/history.vo';
 import IEventBus from '../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../shared/contracts/repo.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
@@ -21,9 +22,9 @@ export default function makeCreatePettyCashAccountUseCase(
   requestContext: IRequestContext,
   eventBus: IEventBus,
   ledgerAccountRepo: ILedgerAccountRepo,
-  journalEntryRepo: IJournalEntryRepo,
   assetAccountService: IAssetAccountService,
   journalEntryService: IJournalEntryService,
+  journalEntryPersistenceService: IJournalEntryPersistenceService,
   exchangeRateService: IExchangeRateService,
   repoService: IRepoService
 ) {
@@ -66,7 +67,7 @@ export default function makeCreatePettyCashAccountUseCase(
       exchangeRate,
     };
 
-    const [journalEntries, journalEvents] =
+    const [journalEntry, journalEvents, audit] =
       await journalEntryService.recordOpeningBalance(
         openingBalancePayload,
         trace
@@ -75,7 +76,12 @@ export default function makeCreatePettyCashAccountUseCase(
     await repoService.runInTransaction(async (tx) => {
       const repoOptions = { tx, correlationId };
       await ledgerAccountRepo.save(account, repoOptions);
-      await journalEntryRepo.save(journalEntries, repoOptions);
+      await journalEntryPersistenceService.save(
+        journalEntry,
+        audit,
+        historyValue.getUserActor(user.id),
+        repoOptions
+      );
     });
 
     const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];

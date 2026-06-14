@@ -47,6 +47,8 @@ export interface IJournalEntry {
   updatedAt: Date;
 }
 
+export type IJournalHeader = Omit<IJournalEntry, 'lines'>;
+
 export interface IjournalEntryMakePayload extends Pick<
   IJournalEntry,
   | 'accountingEntityId'

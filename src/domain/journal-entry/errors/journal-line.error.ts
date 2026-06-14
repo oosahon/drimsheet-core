@@ -21,6 +21,7 @@ const EErrorKeys = {
   InvalidCreatedAt: 'journal_entry_error_journal_line_invalid_created_at',
   InvalidExchangeRate: 'journal_entry_error_journal_line_invalid_exchange_rate',
   InvalidDescription: 'journal_entry_error_journal_line_invalid_description',
+  MissingHistory: 'journal_entry_error_journal_line_missing_history',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UJournalLineError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

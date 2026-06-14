@@ -2,20 +2,25 @@ import accountingEntityEntity from '../../../../domain/accounting/entities/accou
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import { IExchangeRate } from '../../../../domain/currency/types/exchange-rate.types';
-import { IJournalEntry } from '../../../../domain/journal-entry/types/journal-entry.types';
+import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
+import mockJournalEntryPersistenceService from '../../../../infra/services/domain/__mocks__/journal-entry-persistence.domain.service.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -98,7 +103,39 @@ describe('createPettyCashSubAccountUseCase', () => {
       [mockPettyCashAccount, mockEvents]
     );
     mockJournalEntryDomainServices.journalEntry.recordOpeningBalance.mockResolvedValue(
-      [{} as unknown as IJournalEntry, []]
+      journalEntryEntity.make({
+        accountingEntityId: mockAccountingEntity.id,
+        sourceType: EJournalEntrySourceType.OpeningBalance,
+        counterPartyId: null,
+        status: EJournalEntryStatus.Posted,
+        effectiveDate: new Date(),
+        postedAt: new Date(),
+        voidedAt: null,
+        voidingEntryId: null,
+        memo: 'Opening balance',
+        createdBy: mockUser.id,
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        lines: [
+          {
+            accountId: mockPettyCashAccount.id,
+            sequenceOrder: 1,
+            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+            exchangeRate: null,
+            side: EJournalSide.Debit,
+            description: 'Opening balance',
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+          },
+          {
+            accountId: mockControlAccount.id,
+            sequenceOrder: 2,
+            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+            exchangeRate: null,
+            side: EJournalSide.Credit,
+            description: 'Opening balance',
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+          },
+        ],
+      })
     );
     mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue({
       rate: 1,
@@ -110,9 +147,9 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockRequestContext,
       mockEventBus,
       mockLedgerAccountRepo,
-      mockJournalEntryRepo,
       mockLedgerDomainServices.assetAccount,
       mockJournalEntryDomainServices.journalEntry,
+      mockJournalEntryPersistenceService,
       mockCurrencyDomainServices.exchangeRate,
       mockRepoService
     );
@@ -144,10 +181,15 @@ describe('createPettyCashSubAccountUseCase', () => {
       }),
       { correlationId, tx: 'mock-tx' }
     );
-    expect(mockJournalEntryRepo.save).toHaveBeenCalledWith(expect.anything(), {
-      correlationId,
-      tx: 'mock-tx',
-    });
+    expect(mockJournalEntryPersistenceService.save).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      {
+        type: 'user',
+        userId: mockUser.id,
+      },
+      { correlationId, tx: 'mock-tx' }
+    );
 
     expect(
       mockCurrencyDomainServices.exchangeRate.getExchangeRate

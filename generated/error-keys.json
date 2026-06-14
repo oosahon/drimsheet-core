@@ -101,6 +101,7 @@
   "journal_entry_error_journal_line_mismatched_exchange_rate_base",
   "journal_entry_error_journal_line_mismatched_exchange_rate_target",
   "journal_entry_error_journal_line_missing_exchange_rate",
+  "journal_entry_error_journal_line_missing_history",
   "journal_entry_error_journal_line_unsupported_exchange_rate",
   "journal_entry_error_mismatched_journal_lines",
   "journal_entry_error_transfer_not_permitted_on_account",

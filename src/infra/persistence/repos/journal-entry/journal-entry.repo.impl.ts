@@ -1,35 +1,42 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import journalEntryMapper, {
   IJournalEntryModel,
 } from '../../../../app/journal-entry/mappers/journal-entry.mapper';
-import journalLineMapper, {
-  IJournalLineModel,
-} from '../../../../app/journal-entry/mappers/journal-line.mapper';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
-import {
-  journalEntriesInCore,
-  journalLinesInCore,
-} from '../../../config/drizzle/schema';
+import { journalEntriesInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../helpers/query';
 
 const journalEntryRepo: IJournalEntryRepo = {
   save: async (payload, options) => {
     const entriesArray = Array.isArray(payload) ? payload : [payload];
 
-    const entries: IJournalEntryModel[] = [];
-    const lines: IJournalLineModel[] = [];
-
-    for (const entry of entriesArray) {
-      entries.push(journalEntryMapper.toRepo(entry));
-      lines.push(...entry.lines.map((l) => journalLineMapper.toRepo(l)));
-    }
+    const entries: IJournalEntryModel[] = entriesArray.map(
+      journalEntryMapper.toRepo
+    );
 
     const dbQuery = getDbQuery(options);
 
-    await dbQuery.transaction(async (tx) => {
-      await tx.insert(journalEntriesInCore).values(entries);
-      await tx.insert(journalLinesInCore).values(lines);
-    });
+    await dbQuery
+      .insert(journalEntriesInCore)
+      .values(entries)
+      .onConflictDoUpdate({
+        target: journalEntriesInCore.id,
+        set: {
+          accountingEntityId: sql`excluded.accounting_entity_id`,
+          sourceType: sql`excluded.source_type`,
+          counterpartyId: sql`excluded.counterparty_id`,
+          memo: sql`excluded.memo`,
+          status: sql`excluded.status`,
+          effectiveDate: sql`excluded.effective_date`,
+          postedAt: sql`excluded.posted_at`,
+          voidedAt: sql`excluded.voided_at`,
+          voidingEntryId: sql`excluded.voiding_entry_id`,
+          version: sql`excluded.version`,
+          createdBy: sql`excluded.created_by`,
+          createdAt: sql`excluded.created_at`,
+          updatedAt: sql`excluded.updated_at`,
+        },
+      });
   },
 
   async findById(id, options) {

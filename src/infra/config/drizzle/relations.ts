@@ -15,6 +15,7 @@ import {
   journalEntriesInCore,
   journalEntryAttachmentsInCore,
   journalEntryHistoryInAudit,
+  journalLineHistoryInAudit,
   journalLinesInCore,
   jurisdictionAccountingStandardsInCore,
   jurisdictionsInCore,
@@ -42,6 +43,7 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   userAuthInCores: many(userAuthInCore),
   userSessionsInCores: many(userSessionsInCore),
   accountingEntitiesInCores: many(accountingEntitiesInCore),
+  journalLineHistoryInAudits: many(journalLineHistoryInAudit),
   ledgerAccountsInCores: many(ledgerAccountsInCore),
   userPreferencesInCores: many(userPreferencesInCore),
   journalEntriesInCores: many(journalEntriesInCore),
@@ -225,6 +227,16 @@ export const accountingStandardsInCoreRelations = relations(
     jurisdictionAccountingStandardsInCores: many(
       jurisdictionAccountingStandardsInCore
     ),
+  })
+);
+
+export const journalLineHistoryInAuditRelations = relations(
+  journalLineHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [journalLineHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
   })
 );
 

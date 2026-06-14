@@ -5,17 +5,23 @@ import {
   EExchangeRateType,
   IExchangeRate,
 } from '../../../../domain/currency/types/exchange-rate.types';
+import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities/03-equity-account/99-opening-balance-equity.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
+import mockJournalEntryPersistenceService from '../../../../infra/services/domain/__mocks__/journal-entry-persistence.domain.service.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
@@ -81,7 +87,39 @@ describe('recordOpeningBalanceUseCase', () => {
     mockLedgerAccountRepo.findById.mockResolvedValueOnce(mockAssetAccount);
 
     mockJournalEntryDomainServices.journalEntry.recordOpeningBalance.mockResolvedValue(
-      [{ id: 'mock-journal-entry-id' } as any, []]
+      journalEntryEntity.make({
+        accountingEntityId: mockAccountingEntity.id,
+        sourceType: EJournalEntrySourceType.OpeningBalance,
+        counterPartyId: null,
+        status: EJournalEntryStatus.Posted,
+        effectiveDate: new Date(),
+        postedAt: new Date(),
+        voidedAt: null,
+        voidingEntryId: null,
+        memo: 'Opening balance',
+        createdBy: mockUser.id,
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        lines: [
+          {
+            accountId: mockAssetAccount.id,
+            sequenceOrder: 1,
+            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+            exchangeRate: null,
+            side: EJournalSide.Debit,
+            description: 'Opening balance',
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+          },
+          {
+            accountId: mockEquityAccount.id,
+            sequenceOrder: 2,
+            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+            exchangeRate: null,
+            side: EJournalSide.Credit,
+            description: 'Opening balance',
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+          },
+        ],
+      })
     );
     mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
       null
@@ -92,9 +130,9 @@ describe('recordOpeningBalanceUseCase', () => {
     makeRecordOpeningBalanceUseCase(
       mockRequestContext,
       mockLedgerAccountRepo,
-      mockJournalEntryRepo,
       mockEventBus,
       mockJournalEntryDomainServices.journalEntry,
+      mockJournalEntryPersistenceService,
       mockCurrencyDomainServices.exchangeRate
     );
 
@@ -122,7 +160,7 @@ describe('recordOpeningBalanceUseCase', () => {
       }),
       { correlationId }
     );
-    expect(mockJournalEntryRepo.save).toHaveBeenCalled();
+    expect(mockJournalEntryPersistenceService.save).toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
@@ -167,7 +205,7 @@ describe('recordOpeningBalanceUseCase', () => {
     expect(
       mockCurrencyDomainServices.exchangeRate.getExchangeRate
     ).toHaveBeenCalledWith(payload.exchangeRate, { correlationId });
-    expect(mockJournalEntryRepo.save).toHaveBeenCalled();
+    expect(mockJournalEntryPersistenceService.save).toHaveBeenCalled();
   });
 
   it('should throw ErrorResourceNotFound if the account is not found', async () => {

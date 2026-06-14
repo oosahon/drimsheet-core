@@ -1,6 +1,6 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
-import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
+import IJournalEntryPersistenceService from '../../../domain/journal-entry/types/journal-entry-persistence.service.types';
 import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
 import {
   EJournalEntrySourceType,
@@ -10,6 +10,7 @@ import { IJournalLineMakePayload } from '../../../domain/journal-entry/types/jou
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
+import historyValue from '../../../shared/value-objects/history.vo';
 import IEventBus from '../../shared/contracts/event-bus.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
@@ -21,8 +22,8 @@ import {
 export default function makeRecordTransferJournalEntryUseCase(
   requestContext: IRequestContext,
   journalEntryService: IJournalEntryService,
+  journalEntryPersistenceService: IJournalEntryPersistenceService,
   exchangeRateService: IExchangeRateService,
-  journalEntryRepo: IJournalEntryRepo,
   eventBus: IEventBus
 ) {
   return async (payload: ITransferTransactionReq) => {
@@ -81,7 +82,7 @@ export default function makeRecordTransferJournalEntryUseCase(
       functionalCurrency,
     };
 
-    const [journalEntries, events] =
+    const [journalEntry, events, audit] =
       await journalEntryService.recordTransaction(
         {
           sourceLine,
@@ -91,7 +92,12 @@ export default function makeRecordTransferJournalEntryUseCase(
         trace
       );
 
-    await journalEntryRepo.save(journalEntries, trace);
+    await journalEntryPersistenceService.save(
+      journalEntry,
+      audit,
+      historyValue.getUserActor(user.id),
+      trace
+    );
 
     eventBus.publish(eventValue.enrichAll(events, trace));
   };
