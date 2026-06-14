@@ -147,6 +147,18 @@ describe('createAccountingEntityUseCase', () => {
     expect(mockFiscalYearRepo.save).toHaveBeenCalled();
     expect(mockAccountingPeriodRepo.save).toHaveBeenCalled();
     expect(mockAccountingContextRepo.save).toHaveBeenCalled();
+    expect(mockAccountingContextRepo.save.mock.calls[0][1]).toMatchObject({
+      correlationId,
+      tx: 'mock-tx',
+      history: {
+        action: 'created',
+        actor: {
+          type: 'user',
+          userId: mockUserId,
+        },
+        correlationId,
+      },
+    });
     expect(mockReportingPeriodRepo.save).toHaveBeenCalled();
     expect(mockReportingContextRepo.save).toHaveBeenCalled();
     expect(mockLedgerAccountRepo.save).toHaveBeenCalled();

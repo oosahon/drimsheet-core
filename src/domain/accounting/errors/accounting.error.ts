@@ -6,6 +6,9 @@ type TErrorPrefix = `accounting_error_${string}`;
 
 const EErrorKeys = {
   InvalidValue: 'accounting_error_invalid_value',
+  InvalidAction: 'accounting_error_invalid_action',
+  InvalidId: 'accounting_error_invalid_id',
+  InvalidDate: 'accounting_error_invalid_date',
 } as const satisfies Record<string, TErrorPrefix>;
 
 type UAccountingError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

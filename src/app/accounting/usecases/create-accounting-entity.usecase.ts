@@ -25,6 +25,7 @@ import { EAppUsageModePreference } from '../../../domain/user/types/user-prefere
 import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
+import historyValue from '../../../shared/value-objects/history.vo';
 import {
   accountingEntityOnboardingDtoSchema,
   IAccountingEntityCreationDto,
@@ -132,7 +133,7 @@ export default function createAccountingEntityUseCase(
     const currentAccountingPeriod =
       periodEntity.getCurrentPeriod(accountingPeriods) ?? accountingPeriods[0];
 
-    const [accountingContext, accountingContextEvents] =
+    const [accountingContext, accountingContextEvents, accountingContextAudit] =
       accountingContextEntity.make({
         name: 'Default Accounting Context',
         description: null,
@@ -229,7 +230,14 @@ export default function createAccountingEntityUseCase(
       await accountingEntityRepo.save(accountingEntity, options);
       await fiscalYearRepo.save(fiscalYear, options);
       await accountingPeriodRepo.save(accountingPeriods, options);
-      await accountingContextRepo.save(accountingContext, options);
+      await accountingContextRepo.save(accountingContext, {
+        ...options,
+        history: historyValue.make(
+          accountingContextAudit,
+          historyValue.getUserActor(user.id),
+          correlationId
+        ),
+      });
       await reportingPeriodRepo.save(reportingPeriods, options);
       await reportingContextRepo.save(reportingContext, options);
       await ledgerAccountRepo.save(ledgerAccounts, options);
