@@ -52,15 +52,13 @@ export default function makeVerifyEmailAddressUseCase(
 
     const [updatedUser, events, userAuditDelta] = userEntity.verifyEmail(user);
 
-    if (userAuditDelta) {
-      const history = historyValue.make(
-        userAuditDelta,
-        historyValue.getUserActor(user.id),
-        correlationId
-      );
+    const history = historyValue.make(
+      userAuditDelta!,
+      historyValue.getUserActor(user.id),
+      correlationId
+    );
 
-      await userRepo.save(updatedUser, { correlationId, history });
-    }
+    await userRepo.save(updatedUser, { correlationId, history });
 
     return makeIssueUserSessionHelper({
       user: updatedUser,
