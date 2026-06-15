@@ -15,11 +15,15 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/0
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockJournalEntryHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry-history.repo.impl.mock';
+import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
+import mockJournalLineHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line-history.repo.impl.mock';
+import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
+import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
-import mockJournalEntryPersistenceService from '../../../../infra/services/domain/__mocks__/journal-entry-persistence.domain.service.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
@@ -195,13 +199,21 @@ describe('recordTransferJournalEntryUseCase', () => {
     );
   });
 
+  const mockRepos = {
+    journalEntry: mockJournalEntryRepo,
+    journalEntryHistory: mockJournalEntryHistoryRepo,
+    journalLine: mockJournalLineRepo,
+    journalLineHistory: mockJournalLineHistoryRepo,
+  };
+
   const getUseCase = () =>
     makeRecordTransferJournalEntryUseCase(
       mockRequestContext,
       mockJournalEntryDomainServices.journalEntry,
-      mockJournalEntryPersistenceService,
+      mockRepos,
       mockCurrencyDomainServices.exchangeRate,
-      mockEventBus
+      mockEventBus,
+      mockRepoService
     );
 
   it('records a transfer journal entry and publishes enriched domain events', async () => {
@@ -271,15 +283,11 @@ describe('recordTransferJournalEntryUseCase', () => {
       },
       { correlationId }
     );
-    expect(mockJournalEntryPersistenceService.save).toHaveBeenCalledWith(
-      journalEntry,
-      audit,
-      {
-        type: 'user',
-        userId: mockUser.id,
-      },
-      { correlationId }
-    );
+    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
+    expect(mockJournalEntryRepo.create).toHaveBeenCalled();
+    expect(mockJournalLineRepo.create).toHaveBeenCalled();
+    expect(mockJournalEntryHistoryRepo.create).toHaveBeenCalled();
+    expect(mockJournalLineHistoryRepo.create).toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalledWith(
       events.map((event) =>
         expect.objectContaining({
@@ -309,7 +317,7 @@ describe('recordTransferJournalEntryUseCase', () => {
     expect(
       mockJournalEntryDomainServices.journalEntry.recordTransaction
     ).not.toHaveBeenCalled();
-    expect(mockJournalEntryPersistenceService.save).not.toHaveBeenCalled();
+    expect(mockJournalEntryRepo.create).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 });

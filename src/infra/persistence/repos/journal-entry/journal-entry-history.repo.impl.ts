@@ -4,7 +4,7 @@ import { journalEntryHistoryInAudit } from '../../../config/drizzle/schema';
 import getDbQuery from '../helpers/query';
 
 const journalEntryHistoryRepo: IJournalEntryHistoryRepo = {
-  save: async (header, history, options) => {
+  create: async (header, history, options) => {
     await getDbQuery(options)
       .insert(journalEntryHistoryInAudit)
       .values(journalEntryHistoryMapper.toRepo(header, history));

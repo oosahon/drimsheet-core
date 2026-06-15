@@ -2,7 +2,7 @@ import IJurisdictionAccountingStandardRepo from '../../../../../domain/accountin
 
 const mockJurisdictionAccountingStandardRepo: jest.Mocked<IJurisdictionAccountingStandardRepo> =
   {
-    save: jest.fn(),
+    create: jest.fn(),
   };
 
 export default mockJurisdictionAccountingStandardRepo;

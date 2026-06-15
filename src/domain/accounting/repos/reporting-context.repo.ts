@@ -1,6 +1,10 @@
 import { IWriteRepoOptions } from '../../../shared/types/repo.types';
 import { IReportingContext } from '../types/context.types';
+import { IReportingContextHistory } from '../types/reporting-context-audit.types';
 
 export default interface IReportingContextRepo {
-  save(payload: IReportingContext, options: IWriteRepoOptions): Promise<void>;
+  create(
+    payload: IReportingContext,
+    options: IWriteRepoOptions<IReportingContextHistory>
+  ): Promise<void>;
 }

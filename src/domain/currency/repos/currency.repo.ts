@@ -5,7 +5,7 @@ import {
 import { ICurrency } from '../types/currency.types';
 
 interface ICurrencyRepo {
-  save(currency: ICurrency, option: IWriteRepoOptions): Promise<void>;
+  create(currency: ICurrency, option: IWriteRepoOptions): Promise<void>;
 
   findByCode(code: string, option: IReadRepoOptions): Promise<ICurrency | null>;
 

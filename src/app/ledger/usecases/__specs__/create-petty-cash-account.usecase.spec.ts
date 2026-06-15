@@ -14,13 +14,17 @@ import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-acc
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockJournalEntryHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry-history.repo.impl.mock';
+import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
+import mockJournalLineHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line-history.repo.impl.mock';
+import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
+import mockLedgerAccountHistoryRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-history.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
-import mockJournalEntryPersistenceService from '../../../../infra/services/domain/__mocks__/journal-entry-persistence.domain.service.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -142,14 +146,22 @@ describe('createPettyCashSubAccountUseCase', () => {
     } as unknown as IExchangeRate);
   });
 
+  const mockRepos = {
+    ledgerAccount: mockLedgerAccountRepo,
+    ledgerAccountHistory: mockLedgerAccountHistoryRepo,
+    journalEntry: mockJournalEntryRepo,
+    journalEntryHistory: mockJournalEntryHistoryRepo,
+    journalLine: mockJournalLineRepo,
+    journalLineHistory: mockJournalLineHistoryRepo,
+  };
+
   const getUseCase = () =>
     makeCreatePettyCashAccountUseCase(
       mockRequestContext,
       mockEventBus,
-      mockLedgerAccountRepo,
+      mockRepos,
       mockLedgerDomainServices.assetAccount,
       mockJournalEntryDomainServices.journalEntry,
-      mockJournalEntryPersistenceService,
       mockCurrencyDomainServices.exchangeRate,
       mockRepoService
     );
@@ -174,7 +186,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     );
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockLedgerAccountRepo.save).toHaveBeenCalledWith(
+    expect(mockLedgerAccountRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
         accountingEntityId: mockAccountingEntity.id,
@@ -184,15 +196,10 @@ describe('createPettyCashSubAccountUseCase', () => {
         tx: 'mock-tx',
       })
     );
-    expect(mockJournalEntryPersistenceService.save).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-      {
-        type: 'user',
-        userId: mockUser.id,
-      },
-      { correlationId, tx: 'mock-tx' }
-    );
+    expect(mockJournalEntryRepo.create).toHaveBeenCalled();
+    expect(mockJournalLineRepo.create).toHaveBeenCalled();
+    expect(mockJournalEntryHistoryRepo.create).toHaveBeenCalled();
+    expect(mockJournalLineHistoryRepo.create).toHaveBeenCalled();
 
     expect(
       mockCurrencyDomainServices.exchangeRate.getExchangeRate
@@ -229,7 +236,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     await useCase({ ...validPayload, openingBalance: null });
 
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-    expect(mockLedgerAccountRepo.save).toHaveBeenCalledWith(
+    expect(mockLedgerAccountRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
         accountingEntityId: mockAccountingEntity.id,

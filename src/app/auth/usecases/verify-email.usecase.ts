@@ -58,7 +58,7 @@ export default function makeVerifyEmailAddressUseCase(
       correlationId
     );
 
-    await userRepo.save(updatedUser, { correlationId, history });
+    await userRepo.update(updatedUser, { correlationId, history });
 
     return makeIssueUserSessionHelper({
       user: updatedUser,

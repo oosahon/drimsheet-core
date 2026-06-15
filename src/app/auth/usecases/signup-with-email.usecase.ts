@@ -87,10 +87,10 @@ export default function makeSignupWithEmailUsecase(
     );
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
-      await userRepo.save(user, { correlationId, tx, history });
+      await userRepo.create(user, { correlationId, tx, history });
       const timestamp = new Date();
 
-      await userAuthRepo.save(
+      await userAuthRepo.create(
         {
           userId: user.id,
           password: passwordHash,

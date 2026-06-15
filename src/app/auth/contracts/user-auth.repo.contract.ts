@@ -5,7 +5,7 @@ import {
 import { IUserAuth } from './auth-service.contract';
 
 export default interface IUserAuthRepo {
-  save(userAuth: IUserAuth, options: IWriteRepoOptions): Promise<void>;
+  create(userAuth: IUserAuth, options: IWriteRepoOptions): Promise<void>;
   findByUserId(
     userId: string,
     options: IReadRepoOptions

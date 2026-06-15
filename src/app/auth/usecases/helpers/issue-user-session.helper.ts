@@ -64,7 +64,7 @@ export default async function makeIssueUserSessionHelper({
     }
 
     const timestamp = new Date();
-    await userSessionRepo.save(
+    await userSessionRepo.create(
       {
         id: generateUUID(),
         userId: user.id,

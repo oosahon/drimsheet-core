@@ -1,5 +1,6 @@
 import messaging from '../../../infra/messaging';
 import observability from '../../../infra/observability';
+import journalEntryRepos from '../../../infra/persistence/repos/journal-entry';
 import ledgerRepos from '../../../infra/persistence/repos/ledger';
 import services from '../../../infra/services';
 import currencyDomainServices from '../../../infra/services/domain/currency.domain.service';
@@ -53,10 +54,12 @@ const ledgerUseCases = {
   createPettyCashAccount: makeCreatePettyCashAccountUseCase(
     appContext.request,
     messaging.eventBus,
-    ledgerRepos.ledgerAccount,
+    {
+      ledgerAccount: ledgerRepos.ledgerAccount,
+      ...journalEntryRepos,
+    },
     ledgerDomainServices.assetAccount,
     journalEntryDomainServices.journalEntry,
-    journalEntryDomainServices.journalEntryPersistence,
     currencyDomainServices.exchangeRate,
     services.repo
   ),

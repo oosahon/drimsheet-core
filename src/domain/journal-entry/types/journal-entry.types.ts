@@ -29,12 +29,11 @@ export const EJournalEntryStatus = {
 export type UJournalEntryStatus =
   (typeof EJournalEntryStatus)[keyof typeof EJournalEntryStatus];
 
-export interface IJournalEntry {
+export interface IJournalHeader {
   id: TEntityId;
   accountingEntityId: TEntityId;
   sourceType: UJournalEntrySourceType;
   counterPartyId: TEntityId | null;
-  lines: IJournalLine[];
   memo: string | null;
   status: UJournalEntryStatus;
   effectiveDate: Date;
@@ -47,7 +46,9 @@ export interface IJournalEntry {
   updatedAt: Date;
 }
 
-export type IJournalHeader = Omit<IJournalEntry, 'lines'>;
+export interface IJournalEntry extends IJournalHeader {
+  lines: IJournalLine[];
+}
 
 export interface IjournalEntryMakePayload extends Pick<
   IJournalEntry,

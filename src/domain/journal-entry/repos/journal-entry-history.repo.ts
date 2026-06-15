@@ -3,7 +3,7 @@ import { IJournalEntryHistory } from '../types/journal-entry-audit.types';
 import { IJournalHeader } from '../types/journal-entry.types';
 
 export default interface IJournalEntryHistoryRepo {
-  save(
+  create(
     header: IJournalHeader,
     history: IJournalEntryHistory,
     options: IWriteRepoOptions

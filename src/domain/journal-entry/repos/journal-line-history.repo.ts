@@ -4,7 +4,7 @@ import { IJournalLineHistory } from '../types/journal-entry-audit.types';
 import { IJournalLine } from '../types/journal-line.types';
 
 export default interface IJournalLineHistoryRepo {
-  save(
+  create(
     lines: IJournalLine | IJournalLine[],
     histories: IJournalLineHistory | IJournalLineHistory[],
     accountingEntityId: TEntityId,

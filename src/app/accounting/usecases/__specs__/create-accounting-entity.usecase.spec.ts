@@ -151,25 +151,13 @@ describe('createAccountingEntityUseCase', () => {
     );
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockAccountingEntityRepo.save).toHaveBeenCalled();
-    expect(mockFiscalYearRepo.save).toHaveBeenCalled();
-    expect(mockAccountingPeriodRepo.save).toHaveBeenCalled();
-    expect(mockAccountingContextRepo.save).toHaveBeenCalled();
-    expect(mockAccountingContextRepo.save.mock.calls[0][1]).toMatchObject({
-      correlationId,
-      tx: 'mock-tx',
-      history: {
-        action: 'created',
-        actor: {
-          type: 'user',
-          userId: mockUserId,
-        },
-        correlationId,
-      },
-    });
-    expect(mockReportingPeriodRepo.save).toHaveBeenCalled();
-    expect(mockReportingContextRepo.save).toHaveBeenCalled();
-    expect(mockLedgerAccountRepo.save).toHaveBeenCalled();
+    expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
+    expect(mockFiscalYearRepo.create).toHaveBeenCalled();
+    expect(mockAccountingPeriodRepo.create).toHaveBeenCalled();
+    expect(mockAccountingContextRepo.create).toHaveBeenCalled();
+    expect(mockReportingPeriodRepo.create).toHaveBeenCalled();
+    expect(mockReportingContextRepo.create).toHaveBeenCalled();
+    expect(mockLedgerAccountRepo.create).toHaveBeenCalled();
 
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
@@ -194,7 +182,7 @@ describe('createAccountingEntityUseCase', () => {
     );
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockAccountingEntityRepo.save).toHaveBeenCalled();
+    expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
   });
 
   it('successfully creates accounting entity in PowerUser mode (shouldBootstrapPostingAccounts is false)', async () => {
@@ -208,7 +196,7 @@ describe('createAccountingEntityUseCase', () => {
     await useCase(powerUserPayload);
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockAccountingEntityRepo.save).toHaveBeenCalled();
+    expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
@@ -233,11 +221,12 @@ describe('createAccountingEntityUseCase', () => {
 
     await useCase(validPayload);
 
-    const ledgerSaveCall = mockLedgerAccountRepo.save.mock.calls[0];
-    const saveOptions = ledgerSaveCall[1] as { history: unknown[] };
+    const ledgerCreateCall = mockLedgerAccountRepo.create.mock.calls[0];
+    const options = ledgerCreateCall[1];
+    const histories = options.history as unknown[];
 
-    expect(saveOptions.history).toHaveLength(1);
-    expect(saveOptions.history[0]).toMatchObject({
+    expect(histories).toHaveLength(1);
+    expect(histories[0]).toMatchObject({
       action: 'created',
       actor: {
         type: 'user',

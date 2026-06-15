@@ -7,34 +7,13 @@ import drizzleFilters from '../helpers/filters';
 import getDbQuery from '../helpers/query';
 
 const journalLineRepo: IJournalLineRepo = {
-  save: async (payload, options) => {
+  create: async (payload, options) => {
     const lines = (Array.isArray(payload) ? payload : [payload]).map(
       journalLineMapper.toRepo
     );
     const dbQuery = getDbQuery(options);
 
-    await dbQuery
-      .insert(journalLinesInCore)
-      .values(lines)
-      .onConflictDoUpdate({
-        target: journalLinesInCore.id,
-        set: {
-          entryId: sql`excluded.entry_id`,
-          accountId: sql`excluded.account_id`,
-          sequenceOrder: sql`excluded.sequence_order`,
-          amount: sql`excluded.amount`,
-          currencyCode: sql`excluded.currency_code`,
-          exchangeRate: sql`excluded.exchange_rate`,
-          functionalAmount: sql`excluded.functional_amount`,
-          functionalCurrencyCode: sql`excluded.functional_currency_code`,
-          side: sql`excluded.side`,
-          description: sql`excluded.description`,
-          meta: sql`excluded.meta`,
-          version: sql`excluded.version`,
-          createdAt: sql`excluded.created_at`,
-          updatedAt: sql`excluded.updated_at`,
-        },
-      });
+    await dbQuery.insert(journalLinesInCore).values(lines);
   },
 
   findAllByAccountId: async (accountId, options) => {

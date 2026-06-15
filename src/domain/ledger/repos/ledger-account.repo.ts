@@ -40,7 +40,7 @@ export interface IFindAllLedgerAccountsOptions extends Omit<
 }
 
 export default interface ILedgerAccountRepo {
-  save(
+  create(
     account: ILedgerAccount | ILedgerAccount[],
     options: IWriteRepoOptions<ILedgerAccountHistory[]>
   ): Promise<void>;

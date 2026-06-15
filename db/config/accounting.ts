@@ -69,3 +69,13 @@ export const fiscalYearHistoryTable = {
   name: 'fiscal_year_history',
   schema: auditSchema,
 };
+
+export const reportingContextHistoryTable = {
+  name: 'reporting_context_history',
+  schema: auditSchema,
+};
+
+export const reportingPeriodHistoryTable = {
+  name: 'reporting_period_history',
+  schema: auditSchema,
+};

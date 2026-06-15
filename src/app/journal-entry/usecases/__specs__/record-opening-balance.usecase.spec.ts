@@ -16,12 +16,16 @@ import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockJournalEntryHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry-history.repo.impl.mock';
+import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
+import mockJournalLineHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line-history.repo.impl.mock';
+import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
+import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
-import mockJournalEntryPersistenceService from '../../../../infra/services/domain/__mocks__/journal-entry-persistence.domain.service.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
@@ -126,14 +130,22 @@ describe('recordOpeningBalanceUseCase', () => {
     );
   });
 
+  const mockRepos = {
+    journalEntry: mockJournalEntryRepo,
+    journalEntryHistory: mockJournalEntryHistoryRepo,
+    journalLine: mockJournalLineRepo,
+    journalLineHistory: mockJournalLineHistoryRepo,
+  };
+
   const getUseCase = () =>
     makeRecordOpeningBalanceUseCase(
       mockRequestContext,
       mockLedgerAccountRepo,
       mockEventBus,
       mockJournalEntryDomainServices.journalEntry,
-      mockJournalEntryPersistenceService,
-      mockCurrencyDomainServices.exchangeRate
+      mockRepos,
+      mockCurrencyDomainServices.exchangeRate,
+      mockRepoService
     );
 
   it('should successfully record opening balance', async () => {
@@ -160,7 +172,11 @@ describe('recordOpeningBalanceUseCase', () => {
       }),
       { correlationId }
     );
-    expect(mockJournalEntryPersistenceService.save).toHaveBeenCalled();
+    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
+    expect(mockJournalEntryRepo.create).toHaveBeenCalled();
+    expect(mockJournalLineRepo.create).toHaveBeenCalled();
+    expect(mockJournalEntryHistoryRepo.create).toHaveBeenCalled();
+    expect(mockJournalLineHistoryRepo.create).toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
@@ -205,7 +221,8 @@ describe('recordOpeningBalanceUseCase', () => {
     expect(
       mockCurrencyDomainServices.exchangeRate.getExchangeRate
     ).toHaveBeenCalledWith(payload.exchangeRate, { correlationId });
-    expect(mockJournalEntryPersistenceService.save).toHaveBeenCalled();
+    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
+    expect(mockJournalEntryRepo.create).toHaveBeenCalled();
   });
 
   it('should throw ErrorResourceNotFound if the account is not found', async () => {

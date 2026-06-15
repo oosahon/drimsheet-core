@@ -1,7 +1,7 @@
 import ILedgerAccountRepo from '../../../../../domain/ledger/repos/ledger-account.repo';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
-  save: jest.fn(),
+  create: jest.fn(),
   findById: jest.fn(),
   findAllByIds: jest.fn(),
   findByCode: jest.fn(),

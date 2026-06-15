@@ -6,7 +6,7 @@ import {
 import { IJournalLine } from '../types/journal-line.types';
 
 export default interface IJournalLineRepo {
-  save(
+  create(
     payload: IJournalLine | IJournalLine[],
     options: IWriteRepoOptions
   ): Promise<void>;

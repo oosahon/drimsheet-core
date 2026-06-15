@@ -5,7 +5,7 @@ import { currencyExchangeRatesInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../helpers/query';
 
 const exchangeRateRepo: IExchangeRateRepo = {
-  save: async (payload, options) => {
+  create: async (payload, options) => {
     const values = Array.isArray(payload) ? payload : [payload];
     const dbQuery = getDbQuery(options);
 

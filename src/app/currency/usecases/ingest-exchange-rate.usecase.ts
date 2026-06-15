@@ -41,7 +41,7 @@ export default function makeIngestExchangeRateUseCase(
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const batches = batchArray(exchangeRates, 100);
       for (const batch of batches) {
-        await exchangeRateRepo.save(batch, { tx, correlationId });
+        await exchangeRateRepo.create(batch, { tx, correlationId });
       }
     };
 

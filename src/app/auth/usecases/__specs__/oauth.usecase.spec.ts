@@ -59,7 +59,7 @@ describe('makeOauthUsecase', () => {
       );
 
       expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-      expect(mockUserSessionRepo.save).toHaveBeenCalledWith(
+      expect(mockUserSessionRepo.create).toHaveBeenCalledWith(
         expect.objectContaining({
           id: expect.any(String),
           userId: mockUser.id,

@@ -5,14 +5,11 @@ import { userAuthInCore as userAuth } from '../../../config/drizzle/schema';
 import getDbQuery from '../helpers/query';
 
 const userAuthRepo: IUserAuthRepo = {
-  save: async (userAuthData, options) => {
+  create: async (userAuthData, options) => {
     const query = getDbQuery(options);
     const repoData = userAuthMapper.toRepo(userAuthData);
 
-    await query.insert(userAuth).values(repoData).onConflictDoUpdate({
-      target: userAuth.userId,
-      set: repoData,
-    });
+    await query.insert(userAuth).values(repoData);
   },
 
   findByUserId: async (userId, options) => {

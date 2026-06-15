@@ -1,7 +1,7 @@
 import IUserAuthRepo from '../../../../../app/auth/contracts/user-auth.repo.contract';
 
 const mockUserAuthRepo: jest.Mocked<IUserAuthRepo> = {
-  save: jest.fn(),
+  create: jest.fn(),
   findByUserId: jest.fn(),
   update: jest.fn(),
   incrementFailedLoginAttempts: jest.fn(),

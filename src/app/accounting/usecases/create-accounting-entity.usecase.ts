@@ -101,7 +101,7 @@ export default function createAccountingEntityUseCase(
     );
 
     // =============== Accounting Entity ===============
-    const [accountingEntity, accountingEntityEvents] =
+    const [accountingEntity, accountingEntityEvents, accountingEntityAudit] =
       accountingEntityEntity.make({
         name: payload.name,
         type: payload.entityType,
@@ -111,12 +111,13 @@ export default function createAccountingEntityUseCase(
       });
 
     // =============== Fiscal Year ===============
-    const [fiscalYear, fiscalYearEvents] = fiscalYearEntity.make({
-      accountingEntityId: accountingEntity.id,
-      startDate: payload.fiscalYear.startDate,
-      endDate: payload.fiscalYear.endDate,
-      status: EPeriodStatus.Open,
-    });
+    const [fiscalYear, fiscalYearEvents, fiscalYearAudit] =
+      fiscalYearEntity.make({
+        accountingEntityId: accountingEntity.id,
+        startDate: payload.fiscalYear.startDate,
+        endDate: payload.fiscalYear.endDate,
+        status: EPeriodStatus.Open,
+      });
 
     // =============== Accounting Periods ===============
     const accountingPeriodsData = accountingPeriodEntity.make({
@@ -159,7 +160,7 @@ export default function createAccountingEntityUseCase(
     const currentReportingPeriod =
       periodEntity.getCurrentPeriod(reportingPeriods) ?? reportingPeriods[0];
 
-    const [reportingContext, reportingContextEvents] =
+    const [reportingContext, reportingContextEvents, reportingContextAudit] =
       reportingContextEntity.make({
         name: 'Default Reporting Context',
         description: null,
@@ -238,38 +239,73 @@ export default function createAccountingEntityUseCase(
       ...expenseAccounts,
     ];
 
-    // =============== Save domain entities ===============
+    // =============== Persist domain entities ===============
+    const actor = historyValue.getUserActor(user.id);
+
+    const accountingEntityHistory = historyValue.make(
+      accountingEntityAudit,
+      actor,
+      correlationId
+    );
+    const fiscalYearHistory = historyValue.make(
+      fiscalYearAudit,
+      actor,
+      correlationId
+    );
+    const accountingPeriodHistories = accountingPeriodsData.map(([, , audit]) =>
+      historyValue.make(audit, actor, correlationId)
+    );
+    const accountingContextHistory = historyValue.make(
+      accountingContextAudit,
+      actor,
+      correlationId
+    );
+    const reportingPeriodHistories = reportingPeriodsData.map(([, , audit]) =>
+      historyValue.make(audit, actor, correlationId)
+    );
+    const reportingContextHistory = historyValue.make(
+      reportingContextAudit,
+      actor,
+      correlationId
+    );
+    const ledgerAccountHistories = [
+      ...assetAccountAudits,
+      ...liabilityAccountAudits,
+      ...equityAccountAudits,
+      ...revenueAccountAudits,
+      ...expenseAccountAudits,
+    ].map((audit) => historyValue.make(audit, actor, correlationId));
+
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const options = { correlationId, tx };
 
-      await accountingEntityRepo.save(accountingEntity, options);
-      await fiscalYearRepo.save(fiscalYear, options);
-      await accountingPeriodRepo.save(accountingPeriods, options);
-      await accountingContextRepo.save(accountingContext, {
+      await accountingEntityRepo.create(accountingEntity, {
         ...options,
-        history: historyValue.make(
-          accountingContextAudit,
-          historyValue.getUserActor(user.id),
-          correlationId
-        ),
+        history: accountingEntityHistory,
       });
-      await reportingPeriodRepo.save(reportingPeriods, options);
-      await reportingContextRepo.save(reportingContext, options);
-      await ledgerAccountRepo.save(ledgerAccounts, {
+      await fiscalYearRepo.create(fiscalYear, {
         ...options,
-        history: [
-          ...assetAccountAudits,
-          ...liabilityAccountAudits,
-          ...equityAccountAudits,
-          ...revenueAccountAudits,
-          ...expenseAccountAudits,
-        ].map((audit) =>
-          historyValue.make(
-            audit,
-            historyValue.getUserActor(user.id),
-            correlationId
-          )
-        ),
+        history: fiscalYearHistory,
+      });
+      await accountingPeriodRepo.create(accountingPeriods, {
+        ...options,
+        history: accountingPeriodHistories,
+      });
+      await accountingContextRepo.create(accountingContext, {
+        ...options,
+        history: accountingContextHistory,
+      });
+      await reportingPeriodRepo.create(reportingPeriods, {
+        ...options,
+        history: reportingPeriodHistories,
+      });
+      await reportingContextRepo.create(reportingContext, {
+        ...options,
+        history: reportingContextHistory,
+      });
+      await ledgerAccountRepo.create(ledgerAccounts, {
+        ...options,
+        history: ledgerAccountHistories,
       });
     };
 

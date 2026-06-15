@@ -6,7 +6,9 @@ import { IUserHistory } from '../types/user-audit.types';
 import { IUser } from '../types/user.types';
 
 interface IUserRepo {
-  save(user: IUser, options: IWriteRepoOptions<IUserHistory>): Promise<void>;
+  create(user: IUser, options: IWriteRepoOptions<IUserHistory>): Promise<void>;
+
+  update(user: IUser, options: IWriteRepoOptions<IUserHistory>): Promise<void>;
 
   findByEmail(email: string, options: IReadRepoOptions): Promise<IUser | null>;
 

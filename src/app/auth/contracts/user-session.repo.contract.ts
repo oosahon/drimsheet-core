@@ -5,7 +5,7 @@ import {
 import { IUserSession } from './auth-service.contract';
 
 export default interface IUserSessionRepo {
-  save(userSession: IUserSession, options: IWriteRepoOptions): Promise<void>;
+  create(userSession: IUserSession, options: IWriteRepoOptions): Promise<void>;
 
   findByRefreshToken(
     userId: string,

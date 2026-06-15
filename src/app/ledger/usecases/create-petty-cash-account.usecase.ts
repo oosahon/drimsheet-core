@@ -1,6 +1,9 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
-import IJournalEntryPersistenceService from '../../../domain/journal-entry/types/journal-entry-persistence.service.types';
+import IJournalEntryHistoryRepo from '../../../domain/journal-entry/repos/journal-entry-history.repo';
+import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
+import IJournalLineHistoryRepo from '../../../domain/journal-entry/repos/journal-line-history.repo';
+import IJournalLineRepo from '../../../domain/journal-entry/repos/journal-line.repo';
 import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
@@ -18,13 +21,20 @@ import {
   pettyCashCreationReqValidation,
 } from '../dtos/asset-account.dto';
 
+interface ICreatePettyCashAccountRepos {
+  ledgerAccount: ILedgerAccountRepo;
+  journalEntry: IJournalEntryRepo;
+  journalEntryHistory: IJournalEntryHistoryRepo;
+  journalLine: IJournalLineRepo;
+  journalLineHistory: IJournalLineHistoryRepo;
+}
+
 export default function makeCreatePettyCashAccountUseCase(
   requestContext: IRequestContext,
   eventBus: IEventBus,
-  ledgerAccountRepo: ILedgerAccountRepo,
+  repos: ICreatePettyCashAccountRepos,
   assetAccountService: IAssetAccountService,
   journalEntryService: IJournalEntryService,
-  journalEntryPersistenceService: IJournalEntryPersistenceService,
   exchangeRateService: IExchangeRateService,
   repoService: IRepoService
 ) {
@@ -46,16 +56,15 @@ export default function makeCreatePettyCashAccountUseCase(
     const [account, accountEvents, accountAudit] =
       await assetAccountService.makePettyCashSubAccount(accountPayload, trace);
 
+    const actor = historyValue.getUserActor(user.id);
+    const accountHistory = [
+      historyValue.make(accountAudit, actor, correlationId),
+    ];
+
     if (!payload.openingBalance) {
-      await ledgerAccountRepo.save(account, {
+      await repos.ledgerAccount.create(account, {
         ...trace,
-        history: [
-          historyValue.make(
-            accountAudit,
-            historyValue.getUserActor(user.id),
-            correlationId
-          ),
-        ],
+        history: accountHistory,
       });
       eventBus.publish(eventValue.enrichAll(accountEvents, trace));
       return;
@@ -84,20 +93,32 @@ export default function makeCreatePettyCashAccountUseCase(
 
     await repoService.runInTransaction(async (tx) => {
       const repoOptions = { tx, correlationId };
-      await ledgerAccountRepo.save(account, {
+      await repos.ledgerAccount.create(account, {
         ...repoOptions,
-        history: [
-          historyValue.make(
-            accountAudit,
-            historyValue.getUserActor(user.id),
-            correlationId
-          ),
-        ],
+        history: accountHistory,
       });
-      await journalEntryPersistenceService.save(
-        journalEntry,
-        audit,
-        historyValue.getUserActor(user.id),
+
+      const { lines, ...header } = journalEntry;
+      const headerHistory = historyValue.make(
+        audit.header,
+        actor,
+        correlationId
+      );
+      const lineHistories = audit.lines.map((lineAudit) =>
+        historyValue.make(lineAudit, actor, correlationId)
+      );
+
+      await repos.journalEntry.create(header, repoOptions);
+      await repos.journalLine.create(lines, repoOptions);
+      await repos.journalEntryHistory.create(
+        header,
+        headerHistory,
+        repoOptions
+      );
+      await repos.journalLineHistory.create(
+        lines,
+        lineHistories,
+        header.accountingEntityId,
         repoOptions
       );
     });

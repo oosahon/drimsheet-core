@@ -2,6 +2,7 @@ import { IUser } from '../../../../../domain/user/types/user.types';
 import emailValue from '../../../../../domain/user/value-objects/email.vo';
 import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
 import mockUserAuthRepo from '../../../../../infra/persistence/repos/user/__mocks__/user-auth.repo.impl.mock';
+
 import mockUserRepo from '../../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext from '../../../../../infra/services/__mocks__/request-context.mock';
@@ -96,7 +97,7 @@ describe('makeGoogleOAuthHelper', () => {
     });
 
     expect(mockUserAuth.strategy).toContain(EAuthStrategy.Google);
-    expect(mockUserAuthRepo.save).toHaveBeenCalledWith(mockUserAuth, {
+    expect(mockUserAuthRepo.update).toHaveBeenCalledWith(mockUserAuth, {
       correlationId,
     });
 
@@ -118,7 +119,7 @@ describe('makeGoogleOAuthHelper', () => {
 
     await helper(validProfile, doneCallback);
 
-    expect(mockUserAuthRepo.save).not.toHaveBeenCalled(); // No rewrite needed
+    expect(mockUserAuthRepo.update).not.toHaveBeenCalled(); // No rewrite needed
     expect(doneCallback).toHaveBeenCalledWith(null, mockUser);
   });
 
@@ -131,7 +132,7 @@ describe('makeGoogleOAuthHelper', () => {
     await helper(validProfile, doneCallback);
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockUserRepo.save).toHaveBeenCalledWith(
+    expect(mockUserRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         firstName: validProfile.firstName,
         lastName: validProfile.lastName,
@@ -145,7 +146,7 @@ describe('makeGoogleOAuthHelper', () => {
       })
     );
 
-    expect(mockUserAuthRepo.save).toHaveBeenCalledWith(
+    expect(mockUserAuthRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: expect.any(String),
         password: null,

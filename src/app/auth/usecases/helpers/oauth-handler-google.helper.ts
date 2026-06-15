@@ -40,7 +40,7 @@ export default function makeGoogleOAuthHelper(
 
         if (userAuth && !userAuth.strategy.includes(EAuthStrategy.Google)) {
           userAuth.strategy.push(EAuthStrategy.Google);
-          await userAuthRepo.save(userAuth, { correlationId });
+          await userAuthRepo.update(userAuth, { correlationId });
         }
 
         return done(null, existingUser);
@@ -60,10 +60,10 @@ export default function makeGoogleOAuthHelper(
       );
 
       const repoTransaction: TRepoTransactionFn = async (tx) => {
-        await userRepo.save(user, { correlationId, tx, history });
+        await userRepo.create(user, { correlationId, tx, history });
         const timestamp = new Date();
 
-        await userAuthRepo.save(
+        await userAuthRepo.create(
           {
             userId: user.id,
             password: null,

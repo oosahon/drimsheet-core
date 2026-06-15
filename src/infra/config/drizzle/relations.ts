@@ -23,7 +23,9 @@ import {
   ledgerAccountBalancesInCore,
   ledgerAccountHistoryInAudit,
   ledgerAccountsInCore,
+  reportingContextHistoryInAudit,
   reportingContextsInCore,
+  reportingPeriodHistoryInAudit,
   reportingPeriodsInCore,
   userAuthInCore,
   userPreferencesInCore,
@@ -57,6 +59,8 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   fiscalYearHistoryInAudits: many(fiscalYearHistoryInAudit),
   userProfileHistoryInAudits: many(userProfileHistoryInAudit),
   journalLineHistoryInAudits: many(journalLineHistoryInAudit),
+  reportingContextHistoryInAudits: many(reportingContextHistoryInAudit),
+  reportingPeriodHistoryInAudits: many(reportingPeriodHistoryInAudit),
 }));
 
 export const userSessionsInCoreRelations = relations(
@@ -538,6 +542,26 @@ export const journalLineHistoryInAuditRelations = relations(
   ({ one }) => ({
     usersInCore: one(usersInCore, {
       fields: [journalLineHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const reportingContextHistoryInAuditRelations = relations(
+  reportingContextHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [reportingContextHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const reportingPeriodHistoryInAuditRelations = relations(
+  reportingPeriodHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [reportingPeriodHistoryInAudit.userId],
       references: [usersInCore.id],
     }),
   })

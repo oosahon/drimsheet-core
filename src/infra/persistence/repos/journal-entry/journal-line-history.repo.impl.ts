@@ -5,7 +5,7 @@ import { journalLineHistoryInAudit } from '../../../config/drizzle/schema';
 import getDbQuery from '../helpers/query';
 
 const journalLineHistoryRepo: IJournalLineHistoryRepo = {
-  save: async (payload, historyPayload, accountingEntityId, options) => {
+  create: async (payload, historyPayload, accountingEntityId, options) => {
     const lines = Array.isArray(payload) ? payload : [payload];
     const histories = Array.isArray(historyPayload)
       ? historyPayload

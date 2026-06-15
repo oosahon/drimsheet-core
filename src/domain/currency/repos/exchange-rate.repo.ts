@@ -5,7 +5,10 @@ import {
 import { IExchangeRate } from '../types/exchange-rate.types';
 
 export default interface IExchangeRateRepo {
-  save(exchangeRate: IExchangeRate[], option: IWriteRepoOptions): Promise<void>;
+  create(
+    exchangeRate: IExchangeRate[],
+    option: IWriteRepoOptions
+  ): Promise<void>;
 
   getById(id: number, option: IReadRepoOptions): Promise<IExchangeRate | null>;
 }

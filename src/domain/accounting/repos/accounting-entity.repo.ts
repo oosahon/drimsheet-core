@@ -3,13 +3,17 @@ import {
   IWriteRepoOptions,
 } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { IAccountingEntityAuditHistory } from '../types/accounting-entity-audit.types';
 import {
   IAccountingEntity,
   UAccountingEntityType,
 } from '../types/accounting-entity.types';
 
 export default interface IAccountingEntityRepo {
-  save(domain: IAccountingEntity, options: IWriteRepoOptions): Promise<void>;
+  create(
+    domain: IAccountingEntity,
+    options: IWriteRepoOptions<IAccountingEntityAuditHistory>
+  ): Promise<void>;
 
   findById(
     id: TEntityId,

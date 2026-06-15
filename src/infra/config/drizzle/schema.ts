@@ -1217,6 +1217,102 @@ export const journalLineHistoryInAudit = audit.table(
   ]
 );
 
+export const reportingContextHistoryInAudit = audit.table(
+  'reporting_context_history',
+  {
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
+    reportingContextId: uuid('reporting_context_id').notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    userId: uuid('user_id'),
+    actorType: historyActorTypeInAudit('actor_type').notNull(),
+    action: varchar({ length: 50 }).notNull(),
+    diff: jsonb().notNull(),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    occurredAt: timestamp('occurred_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('reporting_context_history_tenant_timeline_idx').using(
+      'btree',
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
+    ),
+    index('reporting_context_history_timeline_idx').using(
+      'btree',
+      table.reportingContextId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'reporting_context_history_user_id_fkey',
+    }).onDelete('set null'),
+    check(
+      'reporting_context_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+    ),
+    check(
+      'reporting_context_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+  ]
+);
+
+export const reportingPeriodHistoryInAudit = audit.table(
+  'reporting_period_history',
+  {
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
+    reportingPeriodId: uuid('reporting_period_id').notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    userId: uuid('user_id'),
+    actorType: historyActorTypeInAudit('actor_type').notNull(),
+    action: varchar({ length: 50 }).notNull(),
+    diff: jsonb().notNull(),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    occurredAt: timestamp('occurred_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('reporting_period_history_tenant_timeline_idx').using(
+      'btree',
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
+    ),
+    index('reporting_period_history_timeline_idx').using(
+      'btree',
+      table.reportingPeriodId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'reporting_period_history_user_id_fkey',
+    }).onDelete('set null'),
+    check(
+      'reporting_period_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+    ),
+    check(
+      'reporting_period_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+  ]
+);
+
 export const jurisdictionAccountingStandardsInCore = core.table(
   'jurisdiction_accounting_standards',
   {

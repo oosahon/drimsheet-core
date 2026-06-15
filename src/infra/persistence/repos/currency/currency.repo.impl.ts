@@ -5,7 +5,7 @@ import { currenciesInCore as currencies } from '../../../config/drizzle/schema';
 import getDbQuery from '../helpers/query';
 
 const currencyRepo: ICurrencyRepo = {
-  save: async (payload, options) => {
+  create: async (payload, options) => {
     const dbQuery = getDbQuery(options);
 
     await dbQuery

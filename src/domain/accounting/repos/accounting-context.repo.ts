@@ -3,7 +3,7 @@ import { IAccountingContextHistory } from '../types/accounting-context-audit.typ
 import { IAccountingContext } from '../types/context.types';
 
 export default interface IAccountingContextRepo {
-  save(
+  create(
     payload: IAccountingContext,
     options: IWriteRepoOptions<IAccountingContextHistory>
   ): Promise<void>;

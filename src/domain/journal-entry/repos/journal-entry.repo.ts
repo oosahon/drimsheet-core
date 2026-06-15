@@ -6,7 +6,7 @@ import { TEntityId } from '../../../shared/types/uuid';
 import { IJournalEntry, IJournalHeader } from '../types/journal-entry.types';
 
 export default interface IJournalEntryRepo {
-  save(
+  create(
     payload: IJournalHeader | IJournalHeader[],
     options: IWriteRepoOptions
   ): Promise<void>;

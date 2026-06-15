@@ -32,12 +32,12 @@ export async function bootstrapAccountingContext() {
   await repoService.runInTransaction(async (tx) => {
     const repoOptions = { correlationId: 'accounting-context-bootstrap' };
 
-    await accountingRepos.accountingStandards.save(
+    await accountingRepos.accountingStandards.create(
       accountingStandards,
       repoOptions
     );
-    await accountingRepos.jurisdiction.save(jurisdictions, repoOptions);
-    await accountingRepos.jurisdictionAccountingStandard.save(
+    await accountingRepos.jurisdiction.create(jurisdictions, repoOptions);
+    await accountingRepos.jurisdictionAccountingStandard.create(
       allJurisdictionStandards,
       repoOptions
     );
