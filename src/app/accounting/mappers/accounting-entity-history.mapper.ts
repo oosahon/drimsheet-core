@@ -1,6 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IAccountingEntityAuditHistory } from '../../../domain/accounting/types/accounting-entity-audit.types';
-import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import { accountingEntityHistoryInAudit } from '../../../infra/config/drizzle/schema';
 import { toRepoDate } from '../../shared/mappers/date';
 
@@ -10,7 +9,6 @@ export interface IAccountingEntityHistoryRepoModel extends InferSelectModel<
 
 const accountingEntityHistoryMapper = {
   toRepo(
-    _accountingEntity: IAccountingEntity,
     history: IAccountingEntityAuditHistory
   ): Omit<IAccountingEntityHistoryRepoModel, 'id' | 'recordedAt'> {
     return {

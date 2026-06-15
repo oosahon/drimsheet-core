@@ -7,7 +7,7 @@ const accountingEntityHistoryRepo: IAccountingEntityHistoryRepo = {
   save: async (entity, history, options) => {
     await getDbQuery(options)
       .insert(accountingEntityHistoryInAudit)
-      .values(accountingEntityHistoryMapper.toRepo(entity, history));
+      .values(accountingEntityHistoryMapper.toRepo(history));
   },
 };
 
