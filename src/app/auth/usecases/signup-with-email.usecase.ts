@@ -3,17 +3,17 @@ import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../domain/user/value-objects/password.vo';
+import IEventBus from '../../../shared/contracts/event-bus.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '../../../shared/contracts/repo.contract';
+import IRequestContext from '../../../shared/contracts/request-context.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
 import IUserAuthRepo from '../../auth/contracts/user-auth.repo.contract';
 import { IUserSignupReq } from '../../auth/dtos/auth.dto';
-import IEventBus from '../../shared/contracts/event-bus.contract';
-import {
-  IRepoService,
-  TRepoTransactionFn,
-} from '../../shared/contracts/repo.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 import IAuthService, {
   EAuthStrategy,

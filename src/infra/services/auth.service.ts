@@ -10,8 +10,8 @@ import IAuthService, {
   IAuthTokenPayload,
 } from '../../app/auth/contracts/auth-service.contract';
 import authError from '../../app/auth/errors/auth.error';
-import { ICacheStorage } from '../../app/shared/contracts/cache-storage.contract';
-import IVarsConfig from '../../app/shared/contracts/vars-config.contract';
+import { ICacheStorage } from '../../shared/contracts/cache-storage.contract';
+import IVarsConfig from '../../shared/contracts/vars-config.contract';
 
 export default function makeAuthService(
   cacheStorage: ICacheStorage,

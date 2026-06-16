@@ -8,8 +8,8 @@ import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/use
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { IEvent } from '../../../../shared/types/event.types';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
 

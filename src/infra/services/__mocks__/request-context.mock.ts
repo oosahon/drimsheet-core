@@ -1,4 +1,4 @@
-import IRequestContext from '../../../app/shared/contracts/request-context.contract';
+import IRequestContext from '../../../shared/contracts/request-context.contract';
 
 export const mockClientSession = {
   setRefreshToken: jest.fn(),

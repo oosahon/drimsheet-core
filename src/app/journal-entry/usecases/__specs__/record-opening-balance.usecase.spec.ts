@@ -16,20 +16,15 @@ import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry-history.repo.impl.mock';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
-import mockJournalLineHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line-history.repo.impl.mock';
-import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
+import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeRecordOpeningBalanceUseCase from '../record-opening-balance.usecase';
 
 describe('recordOpeningBalanceUseCase', () => {
@@ -130,22 +125,14 @@ describe('recordOpeningBalanceUseCase', () => {
     );
   });
 
-  const mockRepos = {
-    journalEntry: mockJournalEntryRepo,
-    journalEntryHistory: mockJournalEntryHistoryRepo,
-    journalLine: mockJournalLineRepo,
-    journalLineHistory: mockJournalLineHistoryRepo,
-  };
-
   const getUseCase = () =>
     makeRecordOpeningBalanceUseCase(
       mockRequestContext,
       mockLedgerAccountRepo,
       mockEventBus,
       mockJournalEntryDomainServices.journalEntry,
-      mockRepos,
-      mockCurrencyDomainServices.exchangeRate,
-      mockRepoService
+      mockJournalEntryDomainServices.journalEntryPersistence,
+      mockCurrencyDomainServices.exchangeRate
     );
 
   it('should successfully record opening balance', async () => {
@@ -172,11 +159,22 @@ describe('recordOpeningBalanceUseCase', () => {
       }),
       { correlationId }
     );
-    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockJournalEntryRepo.create).toHaveBeenCalled();
-    expect(mockJournalLineRepo.create).toHaveBeenCalled();
-    expect(mockJournalEntryHistoryRepo.create).toHaveBeenCalled();
-    expect(mockJournalLineHistoryRepo.create).toHaveBeenCalled();
+    expect(
+      mockJournalEntryDomainServices.journalEntryPersistence.create
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accountingEntityId: mockAccountingEntity.id,
+      }),
+      expect.objectContaining({
+        correlationId,
+      }),
+      expect.arrayContaining([
+        expect.objectContaining({
+          correlationId,
+        }),
+      ]),
+      { correlationId }
+    );
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
@@ -221,8 +219,18 @@ describe('recordOpeningBalanceUseCase', () => {
     expect(
       mockCurrencyDomainServices.exchangeRate.getExchangeRate
     ).toHaveBeenCalledWith(payload.exchangeRate, { correlationId });
-    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockJournalEntryRepo.create).toHaveBeenCalled();
+    expect(
+      mockJournalEntryDomainServices.journalEntryPersistence.create
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accountingEntityId: mockAccountingEntity.id,
+      }),
+      expect.objectContaining({
+        correlationId,
+      }),
+      expect.any(Array),
+      { correlationId }
+    );
   });
 
   it('should throw ErrorResourceNotFound if the account is not found', async () => {

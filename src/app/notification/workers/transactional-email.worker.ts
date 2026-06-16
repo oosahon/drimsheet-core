@@ -1,5 +1,5 @@
+import IReporter from '../../../shared/contracts/reporter.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IReporter from '../../shared/contracts/reporter.contract';
 import ITransactionalEmailAgent from '../contracts/transactional-email-agent.contract';
 import {
   ITransactionalEmailDto,

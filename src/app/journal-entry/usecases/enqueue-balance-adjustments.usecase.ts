@@ -4,10 +4,10 @@ import {
   IJournalEntry,
 } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.types';
+import IQueue from '../../../shared/contracts/queues.contract';
+import IRequestContext from '../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../shared/types/uuid';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment.dto';
-import IQueue from '../../shared/contracts/queues.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
 
 export default function makeEnqueueBalanceAdjustmentsUseCase(

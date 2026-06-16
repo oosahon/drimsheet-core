@@ -2,7 +2,7 @@ import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/ledger/dtos/led
 import ledgerWorkers from '../../../app/ledger/workers';
 import { ITransactionalEmailDto } from '../../../app/notification/dtos/transactional-email.dto';
 import notificationWorkers from '../../../app/notification/workers';
-import { EQueueName } from '../../../app/shared/contracts/queues.contract';
+import { EQueueName } from '../../../shared/contracts/queues.contract';
 import { registerBullMQWorker } from '../../config/bullmq.config';
 
 function workerRegistration() {

@@ -17,9 +17,9 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
+import IQueue from '../../../../shared/contracts/queues.contract';
+import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
-import IQueue from '../../../shared/contracts/queues.contract';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeEnqueueBalanceAdjustmentsUseCase from '../enqueue-balance-adjustments.usecase';
 
 describe('makeEnqueueBalanceAdjustmentsUseCase', () => {

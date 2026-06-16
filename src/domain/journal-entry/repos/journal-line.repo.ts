@@ -3,12 +3,16 @@ import {
   IPaginatedReadRepoOptions,
   IWriteRepoOptions,
 } from '../../../shared/types/repo.types';
+import { TEntityId } from '../../../shared/types/uuid';
+import { IJournalLineHistory } from '../types/journal-entry-audit.types';
 import { IJournalLine } from '../types/journal-line.types';
 
 export default interface IJournalLineRepo {
   create(
     payload: IJournalLine | IJournalLine[],
-    options: IWriteRepoOptions
+    options: IWriteRepoOptions<IJournalLineHistory | IJournalLineHistory[]> & {
+      accountingEntityId: TEntityId;
+    }
   ): Promise<void>;
 
   findAllByAccountId(

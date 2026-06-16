@@ -1,6 +1,6 @@
 import IExchangeRateIngestion from '../../../app/currency/contracts/exchange-rate-ingestion.contract';
 import currencyWorkers from '../../../app/currency/workers';
-import IReporter from '../../../app/shared/contracts/reporter.contract';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import {
   connectRabbitMQ,
   IRabbitMQConsumerConfig,

@@ -1,13 +1,13 @@
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
+import IEventBus from '../../../shared/contracts/event-bus.contract';
+import IRequestContext from '../../../shared/contracts/request-context.contract';
+import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import eventValue from '../../../shared/value-objects/event.vo';
 import IUserAuthRepo from '../../auth/contracts/user-auth.repo.contract';
 import authError from '../../auth/errors/auth.error';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
-import IEventBus from '../../shared/contracts/event-bus.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
-import IVarsConfig from '../../shared/contracts/vars-config.contract';
 import IAuthService, {
   EAuthStrategy,
 } from '../contracts/auth-service.contract';

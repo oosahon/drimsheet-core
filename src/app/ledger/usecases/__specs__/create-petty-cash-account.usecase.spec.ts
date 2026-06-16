@@ -14,9 +14,7 @@ import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-acc
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry-history.repo.impl.mock';
 import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
-import mockJournalLineHistoryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line-history.repo.impl.mock';
 import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
 import mockLedgerAccountHistoryRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-history.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
@@ -27,8 +25,8 @@ import mockRequestContext, {
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import { IPettyCashAccountCreationReq } from '../../dtos/asset-account.dto';
 import makeCreatePettyCashAccountUseCase from '../create-petty-cash-account.usecase';
@@ -150,9 +148,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     ledgerAccount: mockLedgerAccountRepo,
     ledgerAccountHistory: mockLedgerAccountHistoryRepo,
     journalEntry: mockJournalEntryRepo,
-    journalEntryHistory: mockJournalEntryHistoryRepo,
     journalLine: mockJournalLineRepo,
-    journalLineHistory: mockJournalLineHistoryRepo,
   };
 
   const getUseCase = () =>
@@ -196,10 +192,19 @@ describe('createPettyCashSubAccountUseCase', () => {
         tx: 'mock-tx',
       })
     );
-    expect(mockJournalEntryRepo.create).toHaveBeenCalled();
-    expect(mockJournalLineRepo.create).toHaveBeenCalled();
-    expect(mockJournalEntryHistoryRepo.create).toHaveBeenCalled();
-    expect(mockJournalLineHistoryRepo.create).toHaveBeenCalled();
+    expect(mockJournalEntryRepo.create).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        history: expect.any(Object),
+      })
+    );
+    expect(mockJournalLineRepo.create).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({
+        history: expect.any(Array),
+        accountingEntityId: mockAccountingEntity.id,
+      })
+    );
 
     expect(
       mockCurrencyDomainServices.exchangeRate.getExchangeRate

@@ -2,14 +2,14 @@ import exchangeRateError from '../../../domain/currency/errors/exchange-rate.err
 import IExchangeRateRepo from '../../../domain/currency/repos/exchange-rate.repo';
 import { UExchangeRateType } from '../../../domain/currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
-import batchArray from '../../../shared/utils/batch-array';
-import dateUtils from '../../../shared/utils/date';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import ILogger from '../../shared/contracts/logger.contract';
+import ILogger from '../../../shared/contracts/logger.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../shared/contracts/repo.contract';
+} from '../../../shared/contracts/repo.contract';
+import batchArray from '../../../shared/utils/batch-array';
+import dateUtils from '../../../shared/utils/date';
+import generateUUID from '../../../shared/utils/uuid-generator';
 import IExchangeRateIngestion from '../contracts/exchange-rate-ingestion.contract';
 
 export default function makeIngestExchangeRateUseCase(

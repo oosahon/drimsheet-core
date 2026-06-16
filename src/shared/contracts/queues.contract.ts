@@ -1,6 +1,6 @@
-import { ICorrelationId } from '../../../shared/types/correlation-id.types';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment.dto';
-import { ITransactionalEmailDto } from '../../notification/dtos/transactional-email.dto';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../app/ledger/dtos/ledger-account-balance-adjustment.dto';
+import { ITransactionalEmailDto } from '../../app/notification/dtos/transactional-email.dto';
+import { ICorrelationId } from '../types/correlation-id.types';
 
 export const EQueueName = {
   TransactionalEmail: 'transactional-email-queue',

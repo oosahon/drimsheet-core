@@ -9,11 +9,11 @@ import mockRepoService from '../../../../infra/services/__mocks__/repo.service.m
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import authError from '../../../auth/errors/auth.error';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import { IUserAuth } from '../../contracts/auth-service.contract';
 import makeResetPasswordUseCase from '../reset-password.usecase';

@@ -1,20 +1,18 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
-import IJournalEntryHistoryRepo from '../../../domain/journal-entry/repos/journal-entry-history.repo';
 import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
-import IJournalLineHistoryRepo from '../../../domain/journal-entry/repos/journal-line-history.repo';
 import IJournalLineRepo from '../../../domain/journal-entry/repos/journal-line.repo';
 import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
 import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
+import IEventBus from '../../../shared/contracts/event-bus.contract';
+import { IRepoService } from '../../../shared/contracts/repo.contract';
+import IRequestContext from '../../../shared/contracts/request-context.contract';
 import { IEvent } from '../../../shared/types/event.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
-import IEventBus from '../../shared/contracts/event-bus.contract';
-import { IRepoService } from '../../shared/contracts/repo.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
 import {
   IPettyCashAccountCreationReq,
@@ -24,9 +22,7 @@ import {
 interface ICreatePettyCashAccountRepos {
   ledgerAccount: ILedgerAccountRepo;
   journalEntry: IJournalEntryRepo;
-  journalEntryHistory: IJournalEntryHistoryRepo;
   journalLine: IJournalLineRepo;
-  journalLineHistory: IJournalLineHistoryRepo;
 }
 
 export default function makeCreatePettyCashAccountUseCase(
@@ -108,19 +104,15 @@ export default function makeCreatePettyCashAccountUseCase(
         historyValue.make(lineAudit, actor, correlationId)
       );
 
-      await repos.journalEntry.create(header, repoOptions);
-      await repos.journalLine.create(lines, repoOptions);
-      await repos.journalEntryHistory.create(
-        header,
-        headerHistory,
-        repoOptions
-      );
-      await repos.journalLineHistory.create(
-        lines,
-        lineHistories,
-        header.accountingEntityId,
-        repoOptions
-      );
+      await repos.journalEntry.create(header, {
+        ...repoOptions,
+        history: headerHistory,
+      });
+      await repos.journalLine.create(lines, {
+        ...repoOptions,
+        history: lineHistories,
+        accountingEntityId: header.accountingEntityId,
+      });
     });
 
     const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];

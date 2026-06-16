@@ -7,8 +7,8 @@ import makeUserCreatedEventHandler from '../user-created-event.handler';
 
 import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import authUseCase from '../../../auth/usecases';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 
 jest.mock('../../../auth/usecases', () => ({
   __esModule: true,

@@ -1,7 +1,5 @@
 import messaging from '../../../infra/messaging';
-import journalEntryRepos from '../../../infra/persistence/repos/journal-entry';
 import ledgerRepos from '../../../infra/persistence/repos/ledger';
-import services from '../../../infra/services';
 import currencyDomainServices from '../../../infra/services/domain/currency.domain.service';
 import journalEntryDomainServices from '../../../infra/services/domain/journal-entry.domain.service';
 import appContext from '../../shared/context';
@@ -21,18 +19,16 @@ const journalEntryUseCases = {
     ledgerRepos.ledgerAccount,
     messaging.eventBus,
     journalEntryDomainServices.journalEntry,
-    journalEntryRepos,
-    currencyDomainServices.exchangeRate,
-    services.repo
+    journalEntryDomainServices.journalEntryPersistence,
+    currencyDomainServices.exchangeRate
   ),
 
   recordTransfer: makeRecordTransferJournalEntryUseCase(
     appContext.request,
     journalEntryDomainServices.journalEntry,
-    journalEntryRepos,
+    journalEntryDomainServices.journalEntryPersistence,
     currencyDomainServices.exchangeRate,
-    messaging.eventBus,
-    services.repo
+    messaging.eventBus
   ),
 };
 

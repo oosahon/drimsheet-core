@@ -7,8 +7,8 @@ import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-acc
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
+import IQueue from '../../../../shared/contracts/queues.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
-import IQueue from '../../../shared/contracts/queues.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../dtos/ledger-account-balance-adjustment.dto';
 import ledgerAppError from '../../errors/ledger.error';
 import makeAdjustLedgerAccountBalanceUseCase from '../adjust-ledger-account-balance.usecase';

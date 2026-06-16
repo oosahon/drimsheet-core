@@ -8,8 +8,8 @@ import mockRepoService from '../../../../infra/services/__mocks__/repo.service.m
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
+import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import authError from '../../../auth/errors/auth.error';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 

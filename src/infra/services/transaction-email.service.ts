@@ -1,5 +1,5 @@
 import ITransactionalEmailService from '../../app/notification/contracts/transactional-email-service.contract';
-import IQueue from '../../app/shared/contracts/queues.contract';
+import IQueue from '../../shared/contracts/queues.contract';
 import emailVerificationEmail from '../templates/email-verification-email';
 import passwordResetRequestEmail from '../templates/password-reset-request-email';
 

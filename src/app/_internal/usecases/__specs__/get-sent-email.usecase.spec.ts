@@ -1,6 +1,6 @@
+import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import { IInternalMailer } from '../../../notification/contracts/transactional-email-agent.contract';
 import { ITransactionalEmailDto } from '../../../notification/dtos/transactional-email.dto';
-import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import getSentEmail from '../get-sent-email.usecase';
 
 describe('getSentEmail', () => {
