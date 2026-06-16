@@ -5,9 +5,14 @@ import getDbQuery from '../helpers/query';
 
 const journalEntryHistoryRepo: IJournalEntryHistoryRepo = {
   create: async (header, history, options) => {
-    await getDbQuery(options)
-      .insert(journalEntryHistoryInAudit)
-      .values(journalEntryHistoryMapper.toRepo(header, history));
+    const headersArray = Array.isArray(header) ? header : [header];
+    const historiesArray = Array.isArray(history) ? history : [history];
+
+    const values = headersArray.map((h, i) =>
+      journalEntryHistoryMapper.toRepo(h, historiesArray[i])
+    );
+
+    await getDbQuery(options).insert(journalEntryHistoryInAudit).values(values);
   },
 };
 

@@ -17,13 +17,11 @@ const journalEntryRepo: IJournalEntryRepo = {
       const entries = entriesArray.map(journalEntryMapper.toRepo);
       await tx.insert(journalEntriesInCore).values(entries);
 
-      for (let i = 0; i < entriesArray.length; i++) {
-        await journalEntryHistoryRepo.create(
-          entriesArray[i],
-          historiesArray[i],
-          passOnRepoTransaction(options, tx)
-        );
-      }
+      await journalEntryHistoryRepo.create(
+        entriesArray,
+        historiesArray,
+        passOnRepoTransaction(options, tx)
+      );
     });
   },
 

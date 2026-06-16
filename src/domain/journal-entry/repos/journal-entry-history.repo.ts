@@ -4,8 +4,8 @@ import { IJournalHeader } from '../types/journal-entry.types';
 
 export default interface IJournalEntryHistoryRepo {
   create(
-    header: IJournalHeader,
-    history: IJournalEntryHistory,
+    header: IJournalHeader | IJournalHeader[],
+    history: IJournalEntryHistory | IJournalEntryHistory[],
     options: IWriteRepoOptions
   ): Promise<void>;
 }
