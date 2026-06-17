@@ -1,8 +1,8 @@
 import { EJournalEntryEvent } from '../../../domain/journal-entry/events/journal-entry.events';
 import { IJournalEntry } from '../../../domain/journal-entry/types/journal-entry.types';
 import IReporter from '../../../shared/contracts/reporter.contract';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
 import { IEvent } from '../../../shared/types/event.types';
+import IRequestContext from '../../shared/contracts/request-context.contract';
 import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
 import journalEntryUseCases from '../usecases';
 

@@ -4,15 +4,15 @@ import {
   IJournalEntry,
 } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.types';
-import IQueue from '../../../shared/contracts/queues.contract';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../shared/types/uuid';
+import ILedgerBalanceAdjustmentQueue from '../../ledger/contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment.dto';
+import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
 
 export default function makeEnqueueBalanceAdjustmentsUseCase(
   requestContext: IRequestContext,
-  queue: IQueue,
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue,
   journalEntryService: IJournalEntryService
 ) {
   return async (journalEntry: IJournalEntry) => {
@@ -60,7 +60,7 @@ export default function makeEnqueueBalanceAdjustmentsUseCase(
 
     await Promise.all(
       allAdjustments.map((adjustment) =>
-        queue.addLedgerAccountBalanceAdjustment(adjustment)
+        ledgerBalanceAdjustmentQueue.add(adjustment)
       )
     );
   };

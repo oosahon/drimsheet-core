@@ -1,5 +1,5 @@
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
+import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 
 export default function makeGetUserPreferencesUseCase(

@@ -22,9 +22,9 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { EPaginationSortDirection } from '../../../../shared/types/pagination.types';
 import moneyValue from '../../../../shared/value-objects/money.vo';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import { IPaginationDto } from '../../../shared/dtos/pagination.dto';
 import appError from '../../../shared/errors/app.error';
 import ledgerAppError from '../../errors/ledger.error';

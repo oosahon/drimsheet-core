@@ -7,11 +7,11 @@ import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/use
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import authError from '../../../auth/errors/auth.error';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import { IUserAuth } from '../../contracts/auth-service.contract';
 import makeRequestPasswordResetUseCase from '../request-password-reset.usecase';
 

@@ -6,8 +6,8 @@ import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import exchangeRateRepoMock from '../../../../infra/persistence/repos/currency/__mocks__/exchange-rate-repo.impl.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
 import makeIngestExchangeRateUseCase from '../ingest-exchange-rate.usecase';
 

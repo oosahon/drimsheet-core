@@ -1,7 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import IRequestContext, {
   IRequestContextData,
-} from '../../../shared/contracts/request-context.contract';
+} from '../contracts/request-context.contract';
 import contextError from '../errors/context.error';
 
 const asyncLocalStorage = new AsyncLocalStorage<IRequestContextData>();

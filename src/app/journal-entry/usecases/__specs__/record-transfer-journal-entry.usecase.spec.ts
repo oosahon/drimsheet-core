@@ -20,8 +20,8 @@ import mockRequestContext, {
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import { ITransferTransactionReq } from '../../dtos/transfer-transaction.dto';
 import makeRecordTransferJournalEntryUseCase from '../record-transfer-journal-entry.usecase';
 

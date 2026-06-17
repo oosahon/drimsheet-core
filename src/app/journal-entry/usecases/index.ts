@@ -10,7 +10,7 @@ import makeRecordTransferJournalEntryUseCase from './record-transfer-journal-ent
 const journalEntryUseCases = {
   enqueueBalanceAdjustment: makeEnqueueBalanceAdjustment(
     appContext.request,
-    messaging.queues,
+    messaging.queues.ledgerBalanceAdjustment,
     journalEntryDomainServices.journalEntry
   ),
 

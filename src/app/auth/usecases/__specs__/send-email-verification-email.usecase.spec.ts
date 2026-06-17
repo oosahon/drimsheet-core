@@ -5,10 +5,10 @@ import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/use
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import authError from '../../../auth/errors/auth.error';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 

@@ -1,40 +1,11 @@
-import IQueue, { EQueueName } from '../../../shared/contracts/queues.contract';
 import reporter from '../../observability/reporter';
-import {
-  getConfig as getLedgerAccountBalanceAdjustmentQueueConfig,
-  ledgerAccountBalanceAdjustmentQueue,
-} from '../queues/ledger-account-balance.queue';
-import {
-  getConfig as getTransactionalEmailQueueConfig,
-  transactionalEmailQueue,
-} from '../queues/transactional-email.queue';
+import makeLedgerAccountBalanceAdjustmentQueue from './ledger-account-balance.queue';
+import makeTransactionalEmailQueue from './transactional-email.queue';
 
-const queue: IQueue = {
-  async addTransactionalEmail(payload) {
-    try {
-      await transactionalEmailQueue.add(
-        EQueueName.TransactionalEmail,
-        payload,
-        getTransactionalEmailQueueConfig(payload)
-      );
-    } catch (error) {
-      reporter.report(error, { job: payload });
-    }
-  },
+const queues = Object.freeze({
+  ledgerBalanceAdjustment: makeLedgerAccountBalanceAdjustmentQueue(reporter),
 
-  async addLedgerAccountBalanceAdjustment(payload) {
-    try {
-      await ledgerAccountBalanceAdjustmentQueue.add(
-        EQueueName.LedgerAccountBalanceAdjustment,
-        payload,
-        getLedgerAccountBalanceAdjustmentQueueConfig(payload)
-      );
-    } catch (error) {
-      reporter.report(error, { job: payload });
-    }
-  },
-};
+  transactionalEmail: makeTransactionalEmailQueue(reporter),
+});
 
-export { ledgerAccountBalanceAdjustmentQueue, transactionalEmailQueue };
-
-export default queue;
+export default queues;

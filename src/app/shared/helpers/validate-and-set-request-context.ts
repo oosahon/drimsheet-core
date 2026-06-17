@@ -1,7 +1,7 @@
-import IRequestContext from '../../../shared/contracts/request-context.contract';
 import { IEvent } from '../../../shared/types/event.types';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import eventValue from '../../../shared/value-objects/event.vo';
+import IRequestContext from '../contracts/request-context.contract';
 
 export default function validateEventAndSetRequestContext(
   requestContext: IRequestContext,

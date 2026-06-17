@@ -12,8 +12,8 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockLedgerBalanceDomainServices from '../../../../infra/services/domain/__mocks__/ledger-balance.domain.service.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeCreateLedgerAccountBalanceUseCase from '../create-ledger-account-balance.usecase';
 
 describe('createLedgerAccountBalanceUseCase', () => {

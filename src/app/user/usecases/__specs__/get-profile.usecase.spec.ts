@@ -1,7 +1,7 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import userMapper from '../../mappers/user.mapper';
 import makeGetAuthUserProfileUseCase from '../get-profile.usecase';
 

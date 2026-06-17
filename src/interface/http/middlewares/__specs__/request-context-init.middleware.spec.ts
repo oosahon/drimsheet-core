@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 import IAuthService from '../../../../app/auth/contracts/auth-service.contract';
+import IRequestContext from '../../../../app/shared/contracts/request-context.contract';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import ILogger from '../../../../shared/contracts/logger.contract';
-import IRequestContext from '../../../../shared/contracts/request-context.contract';
 import makeRequestContextInitMiddleware from '../request-context-init.middleware';
 
 let mockWebAppUrl = 'http://localhost:3000';

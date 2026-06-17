@@ -1,8 +1,8 @@
 import { RequestHandler } from 'express';
 import { performance } from 'perf_hooks';
+import IRequestContext from '../../../app/shared/contracts/request-context.contract';
 import ILogger from '../../../shared/contracts/logger.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
 
 export default function makeRequestLoggerMiddleware(
   logger: ILogger,

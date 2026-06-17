@@ -17,9 +17,9 @@ import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
-import IQueue from '../../../../shared/contracts/queues.contract';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
+import ILedgerBalanceAdjustmentQueue from '../../../ledger/contracts/ledger-balance-adjustment-queue.contract';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeEnqueueBalanceAdjustmentsUseCase from '../enqueue-balance-adjustments.usecase';
 
 describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
@@ -58,9 +58,9 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     { precedingCode: '100000', parentMaterializedPath: '100000' }
   );
 
-  const mockQueue: IQueue = {
-    addLedgerAccountBalanceAdjustment: jest.fn(),
-  } as unknown as IQueue;
+  const mockQueue: ILedgerBalanceAdjustmentQueue = {
+    add: jest.fn(),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -103,7 +103,7 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     expect(
       mockJournalEntryDomainServices.journalEntry.getBalanceEffectDelta
     ).not.toHaveBeenCalled();
-    expect(mockQueue.addLedgerAccountBalanceAdjustment).not.toHaveBeenCalled();
+    expect(mockQueue.add).not.toHaveBeenCalled();
   });
 
   it('should successfully adjust balance after journal entry', async () => {
@@ -150,7 +150,7 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     ).toHaveBeenCalledWith(mockAssetAccount.id, expect.any(Array), {
       correlationId,
     });
-    expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledWith(
+    expect(mockQueue.add).toHaveBeenCalledWith(
       expect.objectContaining({
         correlationId,
         ledgerAccountId: mockAssetAccount.id,
@@ -218,10 +218,8 @@ describe('makeEnqueueBalanceAdjustmentsUseCase', () => {
     ).toHaveBeenCalledWith(mockAssetAccount.id, expect.any(Array), {
       correlationId,
     });
-    expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledTimes(
-      1
-    );
-    expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledWith(
+    expect(mockQueue.add).toHaveBeenCalledTimes(1);
+    expect(mockQueue.add).toHaveBeenCalledWith(
       expect.objectContaining({
         correlationId,
         ledgerAccountId: mockAssetAccount.id,

@@ -1,5 +1,5 @@
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
+import IRequestContext from '../../shared/contracts/request-context.contract';
 
 export default function makeGetUserAccountingEntitiesUseCase(
   requestContext: IRequestContext,

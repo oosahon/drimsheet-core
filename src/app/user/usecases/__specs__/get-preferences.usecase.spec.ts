@@ -2,8 +2,8 @@ import { IUserPreferences } from '../../../../domain/user/types/user-preferences
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockUserPreferencesRepo from '../../../../infra/persistence/repos/user/__mocks__/user-preferences.repo.impl.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeGetUserPreferencesUseCase from '../get-preferences.usecase';
 
 describe('makeGetUserPreferencesUseCase', () => {

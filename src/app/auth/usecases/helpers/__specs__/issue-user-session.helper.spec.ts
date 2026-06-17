@@ -1,7 +1,7 @@
 import userEntity from '../../../../../domain/user/entities/user.entity';
-import { IRequestContextData } from '../../../../../shared/contracts/request-context.contract';
 import { IEvent } from '../../../../../shared/types/event.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import makeIssueUserSessionHelper from '../issue-user-session.helper';
 
 import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';

@@ -7,8 +7,8 @@ import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-acc
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import IQueue from '../../../../shared/contracts/queues.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
+import ILedgerBalanceAdjustmentQueue from '../../contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../dtos/ledger-account-balance-adjustment.dto';
 import ledgerAppError from '../../errors/ledger.error';
 import makeAdjustLedgerAccountBalanceUseCase from '../adjust-ledger-account-balance.usecase';
@@ -79,9 +79,9 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
   });
 
-  const mockQueue: IQueue = {
-    addLedgerAccountBalanceAdjustment: jest.fn(),
-  } as unknown as IQueue;
+  const mockQueue: ILedgerBalanceAdjustmentQueue = {
+    add: jest.fn(),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -137,7 +137,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
       }),
       { correlationId, expectedVersion: mockExistingBalance.version }
     );
-    expect(mockQueue.addLedgerAccountBalanceAdjustment).not.toHaveBeenCalled();
+    expect(mockQueue.add).not.toHaveBeenCalled();
   });
 
   it('should successfully adjust balance for different currency account and propagate adjustment', async () => {
@@ -176,7 +176,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
       { correlationId, expectedVersion: mockExistingBalanceWithControl.version }
     );
 
-    expect(mockQueue.addLedgerAccountBalanceAdjustment).toHaveBeenCalledWith({
+    expect(mockQueue.add).toHaveBeenCalledWith({
       ...payloadWithControl,
       ledgerAccountId: mockAssetAccountWithControl.controlAccountId,
     });

@@ -1,8 +1,8 @@
 import { ELedgerAccountEvent } from '../../../domain/ledger/events/ledger-account.events';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IReporter from '../../../shared/contracts/reporter.contract';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
 import { IEvent } from '../../../shared/types/event.types';
+import IRequestContext from '../../shared/contracts/request-context.contract';
 import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
 import ledgerUseCases from '../usecases';
 

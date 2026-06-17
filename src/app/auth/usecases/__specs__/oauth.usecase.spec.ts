@@ -7,7 +7,7 @@ import mockRepoService from '../../../../infra/services/__mocks__/repo.service.m
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
+import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeOauthUsecase from '../oauth.usecase';
 
 describe('makeOauthUsecase', () => {

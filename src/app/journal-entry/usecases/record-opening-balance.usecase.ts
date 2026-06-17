@@ -3,12 +3,12 @@ import IJournalEntryPersistenceService from '../../../domain/journal-entry/types
 import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
 import ledgerAppError from '../../ledger/errors/ledger.error';
+import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
 import {
   IOpeningBalanceCreationReq,

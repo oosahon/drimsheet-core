@@ -27,7 +27,6 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
 import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
@@ -37,6 +36,7 @@ import {
   IAccountingEntityCreationDto,
 } from '../../accounting/dtos/accounting.dto';
 import currencyMapper from '../../currency/mappers/currency.mapper';
+import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 
 function validate(payload: IAccountingEntityCreationDto) {

@@ -1,5 +1,5 @@
 import { IUser } from '../../../domain/user/types/user.types';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
+import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 import userMapper from '../../user/mappers/user.mapper';
 

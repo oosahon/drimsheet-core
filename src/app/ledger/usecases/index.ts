@@ -41,7 +41,7 @@ const ledgerUseCases = {
   adjustLedgerAccountBalance: makeAdjustLedgerAccountBalanceUseCase(
     ledgerRepos.ledgerAccount,
     ledgerRepos.ledgerAccountBalance,
-    messaging.queues
+    messaging.queues.ledgerBalanceAdjustment
   ),
 
   getAccountTransactions: makeGetAccountTransactionsUseCase(
