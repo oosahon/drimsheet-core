@@ -1,14 +1,18 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import currencyEntity from '../../../currency/entities/currency.entity';
 import ledgerError from '../../errors/ledger.error';
+import ledgerAccountEvents from '../../events/ledger-account.events';
+import { ELedgerAccountAuditAction } from '../../types/ledger-account-audit.types';
 import { ILedgerAccount } from '../../types/ledger.types';
+import ledgerAccountAudit from '../../value-objects/ledger-account-audit.vo';
 import helpers from './helpers/ledger-account.entity.helpers';
 
 function make<T extends ILedgerAccount>(
   payload: TCreationOmits<T>
-): Readonly<T> {
+): TAuditedEntity<Readonly<T>, T, ILedgerAccount> {
   helpers.validateCode(payload.code);
   stringUtils.validateUUID(
     payload.accountingEntityId,
@@ -68,7 +72,17 @@ function make<T extends ILedgerAccount>(
     deletedAt: null,
   };
 
-  return Object.freeze(ledgerAccount) as Readonly<T>;
+  const entity = Object.freeze(ledgerAccount) as Readonly<T>;
+
+  const event = ledgerAccountEvents.makeCreated(entity);
+
+  const audit = ledgerAccountAudit.make({
+    before: null,
+    after: ledgerAccount,
+    action: ELedgerAccountAuditAction.Created,
+  });
+
+  return [entity, [event], audit];
 }
 
 const ledgerAccountEntity = Object.freeze({

@@ -1,4 +1,4 @@
-import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../shared/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
@@ -6,7 +6,9 @@ import generateUUID from '../../../shared/utils/uuid-generator';
 import accountingError from '../errors/accounting.error';
 import periodError from '../errors/period.error';
 import periodEvents from '../events/period.events';
+import { EPeriodActions } from '../types/period-audit.types';
 import { IReportingPeriod } from '../types/period.types';
+import reportingPeriodAudit from '../value-objects/reporting-period-audit.vo';
 import helpers from './helpers/period.helpers';
 
 function makeReportingPeriod(
@@ -20,7 +22,7 @@ function makeReportingPeriod(
     | 'startDate'
     | 'endDate'
   >
-): TEntityWithEvents<IReportingPeriod, IReportingPeriod> {
+): TAuditedEntity<IReportingPeriod, IReportingPeriod, IReportingPeriod> {
   const name = stringUtils.sanitizeAndValidate(
     payload.name,
     {
@@ -68,7 +70,13 @@ function makeReportingPeriod(
 
   const events = periodEvents.reportingPeriodCreated(entity);
 
-  return [entity, [events]];
+  const audit = reportingPeriodAudit.make({
+    before: null,
+    after: entity,
+    action: EPeriodActions.Created,
+  });
+
+  return [entity, [events], audit];
 }
 
 const periodEntity = Object.freeze({

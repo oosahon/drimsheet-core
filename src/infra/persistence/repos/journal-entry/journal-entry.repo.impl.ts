@@ -1,34 +1,27 @@
 import { eq } from 'drizzle-orm';
-import journalEntryMapper, {
-  IJournalEntryModel,
-} from '../../../../app/journal-entry/mappers/journal-entry.mapper';
-import journalLineMapper, {
-  IJournalLineModel,
-} from '../../../../app/journal-entry/mappers/journal-line.mapper';
+import journalEntryMapper from '../../../../app/journal-entry/mappers/journal-entry.mapper';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
-import {
-  journalEntriesInCore,
-  journalLinesInCore,
-} from '../../../config/drizzle/schema';
+import { journalEntriesInCore } from '../../../config/drizzle/schema';
+import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
+import journalEntryHistoryRepo from './journal-entry-history.repo.impl';
 
 const journalEntryRepo: IJournalEntryRepo = {
-  save: async (payload, options) => {
+  create: async (payload, options) => {
     const entriesArray = Array.isArray(payload) ? payload : [payload];
+    const historiesArray = Array.isArray(options.history)
+      ? options.history
+      : [options.history];
 
-    const entries: IJournalEntryModel[] = [];
-    const lines: IJournalLineModel[] = [];
-
-    for (const entry of entriesArray) {
-      entries.push(journalEntryMapper.toRepo(entry));
-      lines.push(...entry.lines.map((l) => journalLineMapper.toRepo(l)));
-    }
-
-    const dbQuery = getDbQuery(options);
-
-    await dbQuery.transaction(async (tx) => {
+    await getDbQuery(options).transaction(async (tx) => {
+      const entries = entriesArray.map(journalEntryMapper.toRepo);
       await tx.insert(journalEntriesInCore).values(entries);
-      await tx.insert(journalLinesInCore).values(lines);
+
+      await journalEntryHistoryRepo.create(
+        entriesArray,
+        historiesArray,
+        passOnRepoTransaction(options, tx)
+      );
     });
   },
 

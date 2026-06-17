@@ -2,15 +2,23 @@ import { and, eq } from 'drizzle-orm';
 import accountingEntityMapper from '../../../../app/accounting/mappers/accounting-entity.mapper';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { accountingEntitiesInCore } from '../../../config/drizzle/schema';
+import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
+import accountingEntityHistoryRepo from './accounting-entity-history.repo.impl';
 
 const accountingEntityRepo: IAccountingEntityRepo = {
-  save: async (domain, options) => {
-    const query = getDbQuery(options);
+  create: async (domain, options) => {
+    await getDbQuery(options).transaction(async (tx) => {
+      await tx
+        .insert(accountingEntitiesInCore)
+        .values(accountingEntityMapper.toRepo(domain));
 
-    await query
-      .insert(accountingEntitiesInCore)
-      .values(accountingEntityMapper.toRepo(domain));
+      await accountingEntityHistoryRepo.save(
+        domain,
+        options.history,
+        passOnRepoTransaction(options, tx)
+      );
+    });
   },
 
   findById: async (id, options) => {

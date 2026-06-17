@@ -4,9 +4,27 @@ import IJournalLineRepo from '../../../../domain/journal-entry/repos/journal-lin
 import paginationValue from '../../../../shared/value-objects/pagination.vo';
 import { journalLinesInCore } from '../../../config/drizzle/schema';
 import drizzleFilters from '../helpers/filters';
+import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
+import journalLineHistoryRepo from './journal-line-history.repo.impl';
 
 const journalLineRepo: IJournalLineRepo = {
+  create: async (payload, options) => {
+    const lines = Array.isArray(payload) ? payload : [payload];
+
+    await getDbQuery(options).transaction(async (tx) => {
+      const mappedLines = lines.map(journalLineMapper.toRepo);
+      await tx.insert(journalLinesInCore).values(mappedLines);
+
+      await journalLineHistoryRepo.create(
+        lines,
+        options.history,
+        options.accountingEntityId,
+        passOnRepoTransaction(options, tx)
+      );
+    });
+  },
+
   findAllByAccountId: async (accountId, options) => {
     const conditions = [eq(journalLinesInCore.accountId, accountId)];
 

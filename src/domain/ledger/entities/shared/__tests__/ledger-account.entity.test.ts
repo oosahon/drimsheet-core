@@ -1,6 +1,8 @@
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import { ELedgerAccountEvent } from '../../../events/ledger-account.events';
+import { ELedgerAccountAuditAction } from '../../../types/ledger-account-audit.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -261,7 +263,7 @@ describe('Ledger Account Shared Entity', () => {
 
   describe('make', () => {
     it('should successfully create a ledger account with valid inputs', () => {
-      const account = ledgerAccountEntity.make(validPayload);
+      const [account, events, audit] = ledgerAccountEntity.make(validPayload);
 
       expect(typeof account.id).toBe('string');
       expect(account.code).toBe('101001');
@@ -277,6 +279,21 @@ describe('Ledger Account Shared Entity', () => {
       expect(account.updatedAt).toEqual(new Date('2026-04-01T00:00:00.000Z'));
       expect(account.deletedAt).toBeNull();
       expect(Object.isFrozen(account)).toBe(true);
+
+      expect(events).toHaveLength(1);
+      expect(events[0].type).toBe(ELedgerAccountEvent.Created);
+      expect(events[0].data).toEqual(account);
+
+      expect(audit).toEqual({
+        entityId: account.id,
+        action: ELedgerAccountAuditAction.Created,
+        diff: {
+          before: null,
+          after: account,
+        },
+        occurredAt: account.updatedAt,
+      });
+      expect(Object.isFrozen(audit)).toBe(true);
     });
 
     it('should successfully create a ledger account with a control account ID', () => {
@@ -285,7 +302,7 @@ describe('Ledger Account Shared Entity', () => {
         isControlAccount: true,
         controlAccountId: validUUID3,
       };
-      const account = ledgerAccountEntity.make(payloadWithControl);
+      const [account] = ledgerAccountEntity.make(payloadWithControl);
       expect(account.isControlAccount).toBe(true);
       expect(account.controlAccountId).toBe(validUUID3);
     });
@@ -357,7 +374,7 @@ describe('Ledger Account Shared Entity', () => {
 
     it('should pass if meta is null', () => {
       const payload = { ...validPayload, meta: null };
-      const account = ledgerAccountEntity.make(payload);
+      const [account] = ledgerAccountEntity.make(payload);
       expect(account.meta).toBeNull();
     });
 

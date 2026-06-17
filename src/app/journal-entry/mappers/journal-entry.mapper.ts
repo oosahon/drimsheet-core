@@ -1,5 +1,8 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IJournalEntry } from '../../../domain/journal-entry/types/journal-entry.types';
+import {
+  IJournalEntry,
+  IJournalHeader,
+} from '../../../domain/journal-entry/types/journal-entry.types';
 import { journalEntriesInCore } from '../../../infra/config/drizzle/schema';
 import { TEntityId } from '../../../shared/types/uuid';
 import { fromRepoDate, toRepoDate } from '../../shared/mappers/date';
@@ -37,7 +40,7 @@ const journalEntryMapper = {
     };
   },
 
-  toRepo(payload: IJournalEntry): Omit<IJournalEntryModel, 'transactionId'> {
+  toRepo(payload: IJournalHeader): Omit<IJournalEntryModel, 'transactionId'> {
     return {
       id: payload.id,
       accountingEntityId: payload.accountingEntityId,

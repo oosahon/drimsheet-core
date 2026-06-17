@@ -3,7 +3,7 @@ import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-accou
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import IAccountBalanceService from '../../../domain/ledger/types/account-balance.service.types';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
-import ILogger from '../../shared/contracts/logger.contract';
+import ILogger from '../../../shared/contracts/logger.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 

@@ -1,15 +1,23 @@
 import accountingContextMapper from '../../../../app/accounting/mappers/accounting-context.mapper';
 import IAccountingContextRepo from '../../../../domain/accounting/repos/accounting-context.repo';
 import { accountingContextsInCore } from '../../../config/drizzle/schema';
+import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
+import accountingContextHistoryRepo from './accounting-context-history.repo.impl';
 
 const accountingContextRepoImpl: IAccountingContextRepo = {
-  save: async (payload, options) => {
-    const dbQuery = getDbQuery(options);
+  create: async (payload, options) => {
+    await getDbQuery(options).transaction(async (tx) => {
+      await tx
+        .insert(accountingContextsInCore)
+        .values(accountingContextMapper.toRepo(payload));
 
-    await dbQuery
-      .insert(accountingContextsInCore)
-      .values(accountingContextMapper.toRepo(payload));
+      await accountingContextHistoryRepo.save(
+        payload,
+        options.history,
+        passOnRepoTransaction(options, tx)
+      );
+    });
   },
 };
 

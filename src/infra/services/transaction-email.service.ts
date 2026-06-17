@@ -1,16 +1,16 @@
+import ITransactionalEmailQueue from '../../app/notification/contracts/transactional-email-queue.contract';
 import ITransactionalEmailService from '../../app/notification/contracts/transactional-email-service.contract';
-import IQueue from '../../app/shared/contracts/queues.contract';
 import emailVerificationEmail from '../templates/email-verification-email';
 import passwordResetRequestEmail from '../templates/password-reset-request-email';
 
 export default function makeTransactionalEmailService(
-  queue: IQueue
+  transactionalEmailQueue: ITransactionalEmailQueue
 ): ITransactionalEmailService {
   return {
     async sendEmailVerification(payload) {
       const { correlationId, user, verificationLink } = payload;
 
-      queue.addTransactionalEmail({
+      transactionalEmailQueue.add({
         emails: [user.email],
         subject: 'Action Required: Verify Your Email Address',
         html: emailVerificationEmail({
@@ -24,7 +24,7 @@ export default function makeTransactionalEmailService(
     async sendPasswordResetLink(payload) {
       const { correlationId, user, resetLink } = payload;
 
-      queue.addTransactionalEmail({
+      transactionalEmailQueue.add({
         emails: [user.email],
         subject: 'Reset your password',
         html: passwordResetRequestEmail({

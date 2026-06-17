@@ -1,11 +1,10 @@
 import { EUserEvents } from '../../../domain/user/events/user.events';
 import { IUser } from '../../../domain/user/types/user.types';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import { IEvent } from '../../../shared/types/event.types';
 import authUseCase from '../../auth/usecases';
-import IReporter from '../../shared/contracts/reporter.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
-import userUseCase from '../../user/usecases';
 
 export default function makeUserCreatedEventHandler(
   reporter: IReporter,
@@ -18,10 +17,6 @@ export default function makeUserCreatedEventHandler(
         event,
         EUserEvents.Created
       );
-
-      await userUseCase
-        .saveActivity(event.data.id, event)
-        .catch(reporter.report);
 
       const shouldSendEmailVerification = !event.data.emailVerified;
 

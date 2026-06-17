@@ -9,7 +9,7 @@ export const mockClientSession = {
 const mockRequestContext: jest.Mocked<IRequestContext> = {
   init: jest.fn(),
   get: jest.fn().mockReturnValue({
-    correlationId: 'mock-correlation-id',
+    correlationId: '854e4567-e89b-42d3-a456-426614174001',
     idempotencyKey: 'mock-idempotency-key',
     user: null,
     accountingEntityType: 'individual',

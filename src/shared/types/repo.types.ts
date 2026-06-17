@@ -5,8 +5,29 @@ export interface ITransactionContext {
   _brand?: 'PurpleLedgerTransactionContext';
 }
 
-export interface IRepoOptions extends ICorrelationId, IPaginationParams {
+export interface IRepoOptions extends ICorrelationId {
   tx?: ITransactionContext;
-  lock?: 'update' | 'no key update' | 'share' | 'key share';
+}
+
+export const ERepoLock = {
+  Update: 'update',
+  NoKeyUpdate: 'no key update',
+  Share: 'share',
+  KeyShare: 'key share',
+} as const;
+
+export type URepoLock = (typeof ERepoLock)[keyof typeof ERepoLock];
+
+export interface IReadRepoOptions extends IRepoOptions {
+  lock?: URepoLock;
+}
+
+export interface IPaginatedReadRepoOptions
+  extends IReadRepoOptions, IPaginationParams {}
+
+interface IBaseWriteRepoOptions extends IRepoOptions {
   expectedVersion?: number;
 }
+
+export type IWriteRepoOptions<THistory = never> = IBaseWriteRepoOptions &
+  ([THistory] extends [never] ? object : { history: THistory });

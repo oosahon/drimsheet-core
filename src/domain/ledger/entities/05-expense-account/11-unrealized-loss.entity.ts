@@ -1,6 +1,5 @@
-import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import expenseAccountEvents from '../../events/expense-account.events';
-import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -12,6 +11,7 @@ import {
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ILedgerAccount,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 import helpers from './helpers/unrealized-loss.entity.helpers';
@@ -33,36 +33,40 @@ function make(
     | 'meta'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<IUnrealizedLossAccount, IUnrealizedLossAccount> {
+): TAuditedEntity<
+  IUnrealizedLossAccount,
+  IUnrealizedLossAccount,
+  ILedgerAccount
+> {
   const code = helpers.getCode(parent?.precedingCode ?? null);
   const materializedPath = helpers.getMaterializedPath(
     code,
     parent?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<IUnrealizedLossAccount>({
-    name: payload.name,
-    accountingEntityId: payload.accountingEntityId,
+  const [account, [ledgerAccountCreatedEvent], audit] =
+    ledgerAccountEntity.make<IUnrealizedLossAccount>({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntityId,
 
-    code,
-    materializedPath,
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
-    type: ELedgerType.Expense,
-    subType: EExpenseSubType.UnrealizedLoss,
-    behavior: EExpenseAccountBehavior.UnrealizedLoss,
-    isControlAccount: payload.isControlAccount,
-    controlAccountId: payload.controlAccountId,
-    currency: payload.currency,
-    meta: payload.meta,
-    status: ELedgerAccountStatus.Active,
-    contraAccountRule: EContraAccountRule.ContraNotPermitted,
-    adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-    createdBy: payload.createdBy,
-  });
+      code,
+      materializedPath,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
+      type: ELedgerType.Expense,
+      subType: EExpenseSubType.UnrealizedLoss,
+      behavior: EExpenseAccountBehavior.UnrealizedLoss,
+      isControlAccount: payload.isControlAccount,
+      controlAccountId: payload.controlAccountId,
+      currency: payload.currency,
+      meta: payload.meta,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy: payload.createdBy,
+    });
 
   const event = expenseAccountEvents.unrealizedLossCreated(account);
-  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event]];
+  return [account, [ledgerAccountCreatedEvent, event], audit];
 }
 
 function makeHeader(

@@ -104,7 +104,7 @@ describe('makeLoginWithEmailUseCase', () => {
       'old-refresh-token',
       { correlationId, tx: 'mock-tx' }
     );
-    expect(mockUserSessionRepo.save).toHaveBeenCalledWith(
+    expect(mockUserSessionRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         id: expect.any(String),
         userId: mockUser.id,
@@ -237,6 +237,6 @@ describe('makeLoginWithEmailUseCase', () => {
     await usecase(validPayload);
 
     expect(mockUserSessionRepo.delete).not.toHaveBeenCalled();
-    expect(mockUserSessionRepo.save).toHaveBeenCalled();
+    expect(mockUserSessionRepo.create).toHaveBeenCalled();
   });
 });

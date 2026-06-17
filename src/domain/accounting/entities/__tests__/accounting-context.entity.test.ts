@@ -1,6 +1,10 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import { EAccountingContextEvents } from '../../events/accounting-context.events';
-import { EAccountingEntityType } from '../../types/accounting-entity.types';
+import { EAccountingContextActions } from '../../types/accounting-context-audit.types';
+import {
+  EAccountingEntityType,
+  UAccountingEntityType,
+} from '../../types/accounting-entity.types';
 import accountingContextEntity from '../accounting-context.entity';
 
 describe('accountingContextEntity', () => {
@@ -146,8 +150,12 @@ describe('accountingContextEntity', () => {
     it('throws InvalidStandard if availableStandards is undefined for the given entity type', () => {
       // Temporarily bypass validateType by adding a property to EAccountingEntityType
       // This allows us to test the case where a valid entity type has no configured standards in the jurisdiction
-      const testType = 'test_type' as any;
-      (EAccountingEntityType as any).Test = testType;
+      const testType = 'test_type' as UAccountingEntityType;
+      const mutableEntityTypes = EAccountingEntityType as unknown as Record<
+        string,
+        UAccountingEntityType
+      >;
+      mutableEntityTypes.Test = testType;
 
       try {
         expect(() =>
@@ -159,14 +167,15 @@ describe('accountingContextEntity', () => {
         ).toThrow();
       } finally {
         // Clean up the temporary property
-        delete (EAccountingEntityType as any).Test;
+        delete mutableEntityTypes.Test;
       }
     });
   });
 
   describe('make', () => {
     it('creates a valid accounting context entity with events', () => {
-      const [entity, events] = accountingContextEntity.make(validPayload);
+      const [entity, events, audit] =
+        accountingContextEntity.make(validPayload);
 
       expect(entity).toEqual({
         id: expect.any(String),
@@ -187,6 +196,17 @@ describe('accountingContextEntity', () => {
         type: EAccountingContextEvents.Created,
         data: entity,
       });
+
+      expect(audit).toEqual({
+        entityId: entity.id,
+        action: EAccountingContextActions.Created,
+        diff: {
+          before: null,
+          after: entity,
+        },
+        occurredAt: entity.updatedAt,
+      });
+      expect(Object.isFrozen(audit)).toBe(true);
     });
 
     it('throws AppError if accountingEntityId is invalid', () => {

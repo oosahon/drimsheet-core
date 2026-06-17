@@ -14,7 +14,7 @@ import mockRequestContext, {
 
 jest.mock('../../../../../shared/utils/uuid-generator', () => ({
   __esModule: true,
-  default: jest.fn().mockReturnValue('mocked-uuid'),
+  default: jest.fn().mockReturnValue('123e4567-e89b-42d3-a456-426614174000'),
 }));
 
 describe('makeIssueUserSessionHelper', () => {
@@ -42,7 +42,7 @@ describe('makeIssueUserSessionHelper', () => {
 
     mockUserSessionRepo.delete.mockResolvedValue(undefined as never);
     mockUserSessionRepo.findByRefreshToken.mockResolvedValue(null);
-    mockUserSessionRepo.save.mockResolvedValue(undefined as never);
+    mockUserSessionRepo.create.mockResolvedValue(undefined as never);
 
     mockEventBus.publish.mockResolvedValue(undefined);
   });
@@ -70,9 +70,9 @@ describe('makeIssueUserSessionHelper', () => {
     expect(mockUserSessionRepo.delete).not.toHaveBeenCalled();
 
     // Check save called once with newly generated values
-    expect(mockUserSessionRepo.save).toHaveBeenCalledWith(
+    expect(mockUserSessionRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: 'mocked-uuid',
+        id: '123e4567-e89b-42d3-a456-426614174000',
         userId: mockUser.id,
         refreshToken: 'new-refresh-token',
       }),

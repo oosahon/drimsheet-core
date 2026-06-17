@@ -11,7 +11,9 @@ const services = {
   auth: makeAuthService(cacheStorage, varsConfig, NON_PROD_EMAIL_WHITELIST),
   logger,
   repo: repoService,
-  transactionalEmail: makeTransactionalEmailService(messaging.queues),
+  transactionalEmail: makeTransactionalEmailService(
+    messaging.queues.transactionalEmail
+  ),
   varsConfig,
 };
 

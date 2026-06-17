@@ -45,7 +45,7 @@ export default function makeJournalEntryService(
     const [existingBalanceAdjustment] =
       await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
         payload.account.id,
-        { ...repoOptions, limit: 1 }
+        repoOptions
       );
 
     if (existingBalanceAdjustment) {

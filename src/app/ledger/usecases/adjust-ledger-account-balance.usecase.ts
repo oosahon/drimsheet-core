@@ -2,8 +2,8 @@ import ledgerAccountBalanceEntity from '../../../domain/ledger/entities/shared/l
 import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IQueue from '../../shared/contracts/queues.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
+import ILedgerBalanceAdjustmentQueue from '../contracts/ledger-balance-adjustment-queue.contract';
 import {
   ILedgerAccountBalanceAdjustmentDto,
   ledgerAccountBalanceAdjustmentDtoSchema,
@@ -13,7 +13,7 @@ import ledgerAppError from '../errors/ledger.error';
 export default function makeAdjustLedgerAccountBalanceUseCase(
   ledgerAccountRepo: ILedgerAccountRepo,
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
-  queue: IQueue
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue
 ) {
   return async (payload: ILedgerAccountBalanceAdjustmentDto) => {
     zodValidationRunner(ledgerAccountBalanceAdjustmentDtoSchema, payload);
@@ -77,9 +77,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
         ledgerAccountId: account.controlAccountId,
       };
 
-      await queue.addLedgerAccountBalanceAdjustment(
-        propagateAdjustmentsPayload
-      );
+      await ledgerBalanceAdjustmentQueue.add(propagateAdjustmentsPayload);
     }
   };
 }

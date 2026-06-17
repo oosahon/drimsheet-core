@@ -4,6 +4,10 @@ import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import { EJournalEntryEvent } from '../../events/journal-entry.events';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import {
+  EJournalEntryAuditAction,
+  EJournalLineAuditAction,
+} from '../../types/journal-entry-audit.types';
+import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
   UJournalEntrySourceType,
@@ -65,7 +69,7 @@ describe('JournalEntry Entity', () => {
     });
 
     it('should successfully create a journal entry with line items and events', () => {
-      const [entry, events] = journalEntryEntity.make(validPayload);
+      const [entry, events, audit] = journalEntryEntity.make(validPayload);
 
       expect(typeof entry.id).toBe('string');
       expect(entry.id.length).toBeGreaterThan(0);
@@ -97,6 +101,19 @@ describe('JournalEntry Entity', () => {
       expect(events[2].data).toEqual(entry.lines[1]);
 
       expect(Object.isFrozen(entry)).toBe(true);
+      expect(audit.header.action).toBe(EJournalEntryAuditAction.Created);
+      expect(audit.header.diff.before).toBeNull();
+      expect(audit.header.diff.after).not.toHaveProperty('lines');
+      expect(audit.lines).toHaveLength(2);
+      expect(audit.lines[0]).toEqual({
+        entityId: entry.lines[0].id,
+        action: EJournalLineAuditAction.Created,
+        diff: {
+          before: null,
+          after: entry.lines[0],
+        },
+        occurredAt: entry.lines[0].updatedAt,
+      });
     });
 
     it('should fall back to entry memo if line item description is absent', () => {

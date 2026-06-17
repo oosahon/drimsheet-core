@@ -1,4 +1,4 @@
-import ILogger from '../../shared/contracts/logger.contract';
+import ILogger from '../../../shared/contracts/logger.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment.dto';
 import ledgerUseCases from '../usecases';
 

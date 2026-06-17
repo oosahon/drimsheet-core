@@ -22,19 +22,20 @@ import IExpenseAccountService from '../../../domain/ledger/types/expense-account
 import ILiabilityAccountService from '../../../domain/ledger/types/liability-account.service.types';
 import IRevenueAccountService from '../../../domain/ledger/types/revenue-account.service.types';
 import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
+import IEventBus from '../../../shared/contracts/event-bus.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '../../../shared/contracts/repo.contract';
 import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
+import historyValue from '../../../shared/value-objects/history.vo';
 import {
   accountingEntityOnboardingDtoSchema,
   IAccountingEntityCreationDto,
 } from '../../accounting/dtos/accounting.dto';
 import currencyMapper from '../../currency/mappers/currency.mapper';
-import IEventBus from '../../shared/contracts/event-bus.contract';
-import {
-  IRepoService,
-  TRepoTransactionFn,
-} from '../../shared/contracts/repo.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 
@@ -100,7 +101,7 @@ export default function createAccountingEntityUseCase(
     );
 
     // =============== Accounting Entity ===============
-    const [accountingEntity, accountingEntityEvents] =
+    const [accountingEntity, accountingEntityEvents, accountingEntityAudit] =
       accountingEntityEntity.make({
         name: payload.name,
         type: payload.entityType,
@@ -110,12 +111,13 @@ export default function createAccountingEntityUseCase(
       });
 
     // =============== Fiscal Year ===============
-    const [fiscalYear, fiscalYearEvents] = fiscalYearEntity.make({
-      accountingEntityId: accountingEntity.id,
-      startDate: payload.fiscalYear.startDate,
-      endDate: payload.fiscalYear.endDate,
-      status: EPeriodStatus.Open,
-    });
+    const [fiscalYear, fiscalYearEvents, fiscalYearAudit] =
+      fiscalYearEntity.make({
+        accountingEntityId: accountingEntity.id,
+        startDate: payload.fiscalYear.startDate,
+        endDate: payload.fiscalYear.endDate,
+        status: EPeriodStatus.Open,
+      });
 
     // =============== Accounting Periods ===============
     const accountingPeriodsData = accountingPeriodEntity.make({
@@ -132,7 +134,7 @@ export default function createAccountingEntityUseCase(
     const currentAccountingPeriod =
       periodEntity.getCurrentPeriod(accountingPeriods) ?? accountingPeriods[0];
 
-    const [accountingContext, accountingContextEvents] =
+    const [accountingContext, accountingContextEvents, accountingContextAudit] =
       accountingContextEntity.make({
         name: 'Default Accounting Context',
         description: null,
@@ -158,7 +160,7 @@ export default function createAccountingEntityUseCase(
     const currentReportingPeriod =
       periodEntity.getCurrentPeriod(reportingPeriods) ?? reportingPeriods[0];
 
-    const [reportingContext, reportingContextEvents] =
+    const [reportingContext, reportingContextEvents, reportingContextAudit] =
       reportingContextEntity.make({
         name: 'Default Reporting Context',
         description: null,
@@ -176,43 +178,58 @@ export default function createAccountingEntityUseCase(
 
     // =============== Asset Accounts ===============
 
-    const { accounts: assetAccounts, events: assetAccountEvents } =
-      await assetAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace,
-        shouldBootstrapPostingAccounts
-      );
+    const {
+      accounts: assetAccounts,
+      events: assetAccountEvents,
+      audits: assetAccountAudits,
+    } = await assetAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace,
+      shouldBootstrapPostingAccounts
+    );
 
     // =============== Liability Accounts ===============
-    const { accounts: liabilityAccounts, events: liabilityAccountEvents } =
-      await liabilityAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace,
-        shouldBootstrapPostingAccounts
-      );
+    const {
+      accounts: liabilityAccounts,
+      events: liabilityAccountEvents,
+      audits: liabilityAccountAudits,
+    } = await liabilityAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace,
+      shouldBootstrapPostingAccounts
+    );
 
     // =============== Equity Accounts ===============
-    const { accounts: equityAccounts, events: equityAccountEvents } =
-      await equityAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace
-      );
+    const {
+      accounts: equityAccounts,
+      events: equityAccountEvents,
+      audits: equityAccountAudits,
+    } = await equityAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace
+    );
 
     // =============== Revenue Accounts ===============
-    const { accounts: revenueAccounts, events: revenueAccountEvents } =
-      await revenueAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace,
-        shouldBootstrapPostingAccounts
-      );
+    const {
+      accounts: revenueAccounts,
+      events: revenueAccountEvents,
+      audits: revenueAccountAudits,
+    } = await revenueAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace,
+      shouldBootstrapPostingAccounts
+    );
 
     // =============== Expense Accounts ===============
-    const { accounts: expenseAccounts, events: expenseAccountEvents } =
-      await expenseAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        trace,
-        shouldBootstrapPostingAccounts
-      );
+    const {
+      accounts: expenseAccounts,
+      events: expenseAccountEvents,
+      audits: expenseAccountAudits,
+    } = await expenseAccountService.bootstrapHeaderAccounts(
+      accountingEntity,
+      trace,
+      shouldBootstrapPostingAccounts
+    );
 
     const ledgerAccounts = [
       ...assetAccounts,
@@ -222,17 +239,74 @@ export default function createAccountingEntityUseCase(
       ...expenseAccounts,
     ];
 
-    // =============== Save domain entities ===============
+    // =============== Persist domain entities ===============
+    const actor = historyValue.getUserActor(user.id);
+
+    const accountingEntityHistory = historyValue.make(
+      accountingEntityAudit,
+      actor,
+      correlationId
+    );
+    const fiscalYearHistory = historyValue.make(
+      fiscalYearAudit,
+      actor,
+      correlationId
+    );
+    const accountingPeriodHistories = accountingPeriodsData.map(([, , audit]) =>
+      historyValue.make(audit, actor, correlationId)
+    );
+    const accountingContextHistory = historyValue.make(
+      accountingContextAudit,
+      actor,
+      correlationId
+    );
+    const reportingPeriodHistories = reportingPeriodsData.map(([, , audit]) =>
+      historyValue.make(audit, actor, correlationId)
+    );
+    const reportingContextHistory = historyValue.make(
+      reportingContextAudit,
+      actor,
+      correlationId
+    );
+    const ledgerAccountHistories = [
+      ...assetAccountAudits,
+      ...liabilityAccountAudits,
+      ...equityAccountAudits,
+      ...revenueAccountAudits,
+      ...expenseAccountAudits,
+    ].map((audit) => historyValue.make(audit, actor, correlationId));
+
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const options = { correlationId, tx };
 
-      await accountingEntityRepo.save(accountingEntity, options);
-      await fiscalYearRepo.save(fiscalYear, options);
-      await accountingPeriodRepo.save(accountingPeriods, options);
-      await accountingContextRepo.save(accountingContext, options);
-      await reportingPeriodRepo.save(reportingPeriods, options);
-      await reportingContextRepo.save(reportingContext, options);
-      await ledgerAccountRepo.save(ledgerAccounts, options);
+      await accountingEntityRepo.create(accountingEntity, {
+        ...options,
+        history: accountingEntityHistory,
+      });
+      await fiscalYearRepo.create(fiscalYear, {
+        ...options,
+        history: fiscalYearHistory,
+      });
+      await accountingPeriodRepo.create(accountingPeriods, {
+        ...options,
+        history: accountingPeriodHistories,
+      });
+      await accountingContextRepo.create(accountingContext, {
+        ...options,
+        history: accountingContextHistory,
+      });
+      await reportingPeriodRepo.create(reportingPeriods, {
+        ...options,
+        history: reportingPeriodHistories,
+      });
+      await reportingContextRepo.create(reportingContext, {
+        ...options,
+        history: reportingContextHistory,
+      });
+      await ledgerAccountRepo.create(ledgerAccounts, {
+        ...options,
+        history: ledgerAccountHistories,
+      });
     };
 
     await repoService.runInTransaction(transactionFn);

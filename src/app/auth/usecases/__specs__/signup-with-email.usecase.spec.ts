@@ -3,6 +3,7 @@ import emailValue from '../../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../../domain/user/value-objects/password.vo';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import mockUserAuthRepo from '../../../../infra/persistence/repos/user/__mocks__/user-auth.repo.impl.mock';
+
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
@@ -41,7 +42,7 @@ describe('makeSignupWithEmailUsecase', () => {
   });
 
   it('should successfully sign up a new user', async () => {
-    const correlationId = 'test-corr-id';
+    const correlationId = '854e4567-e89b-42d3-a456-426614174001';
     const idempotencyKey = 'test-idemp-key';
     mockRequestContext.get.mockReturnValue({
       correlationId,
@@ -89,15 +90,19 @@ describe('makeSignupWithEmailUsecase', () => {
     expect(mockAuthService.hashPassword).toHaveBeenCalledWith(password);
 
     // Assert that save methods were called correctly
-    expect(mockUserRepo.save).toHaveBeenCalledTimes(1);
-    const savedUserArgs = mockUserRepo.save.mock.calls[0];
+    expect(mockUserRepo.create).toHaveBeenCalledTimes(1);
+    const savedUserArgs = mockUserRepo.create.mock.calls[0];
     expect(savedUserArgs[0]).toMatchObject({
       firstName: payload.firstName,
       lastName: payload.lastName,
       email,
       emailVerified: false,
     });
-    expect(savedUserArgs[1]).toEqual({ correlationId, tx: 'mock-tx' });
+    expect(savedUserArgs[1]).toMatchObject({
+      correlationId,
+      tx: 'mock-tx',
+      history: expect.any(Object),
+    });
 
     expect(mockEventBus.publish).toHaveBeenCalled();
     const publishCalls = (mockEventBus.publish as jest.Mock).mock.calls;
@@ -114,7 +119,7 @@ describe('makeSignupWithEmailUsecase', () => {
   });
 
   it('should throw appError.Conflict if user already exists', async () => {
-    const correlationId = 'test-corr-id';
+    const correlationId = '854e4567-e89b-42d3-a456-426614174001';
     mockRequestContext.get.mockReturnValue({
       correlationId,
     } as IRequestContextData);
@@ -152,7 +157,7 @@ describe('makeSignupWithEmailUsecase', () => {
   });
 
   it('should throw appError.Forbidden if email is not permitted', async () => {
-    const correlationId = 'test-corr-id';
+    const correlationId = '854e4567-e89b-42d3-a456-426614174001';
     mockRequestContext.get.mockReturnValue({
       correlationId,
     } as unknown as IRequestContextData);

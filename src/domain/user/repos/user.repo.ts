@@ -1,14 +1,20 @@
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import {
+  IReadRepoOptions,
+  IWriteRepoOptions,
+} from '../../../shared/types/repo.types';
+import { IUserHistory } from '../types/user-audit.types';
 import { IUser } from '../types/user.types';
 
 interface IUserRepo {
-  save(user: IUser, options: IRepoOptions): Promise<void>;
+  create(user: IUser, options: IWriteRepoOptions<IUserHistory>): Promise<void>;
 
-  findByEmail(email: string, options: IRepoOptions): Promise<IUser | null>;
+  update(user: IUser, options: IWriteRepoOptions<IUserHistory>): Promise<void>;
 
-  findById(id: string, options: IRepoOptions): Promise<IUser | null>;
+  findByEmail(email: string, options: IReadRepoOptions): Promise<IUser | null>;
 
-  delete(id: string, options: IRepoOptions): Promise<void>;
+  findById(id: string, options: IReadRepoOptions): Promise<IUser | null>;
+
+  delete(id: string, options: IWriteRepoOptions): Promise<void>;
 }
 
 export default IUserRepo;

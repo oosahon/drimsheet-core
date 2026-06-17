@@ -41,7 +41,7 @@ const ledgerUseCases = {
   adjustLedgerAccountBalance: makeAdjustLedgerAccountBalanceUseCase(
     ledgerRepos.ledgerAccount,
     ledgerRepos.ledgerAccountBalance,
-    messaging.queues
+    messaging.queues.ledgerBalanceAdjustment
   ),
 
   getAccountTransactions: makeGetAccountTransactionsUseCase(
@@ -54,8 +54,10 @@ const ledgerUseCases = {
   createPettyCashAccount: makeCreatePettyCashAccountUseCase(
     appContext.request,
     messaging.eventBus,
-    ledgerRepos.ledgerAccount,
-    journalEntryRepos.journalEntry,
+    {
+      ledgerAccount: ledgerRepos.ledgerAccount,
+      ...journalEntryRepos,
+    },
     ledgerDomainServices.assetAccount,
     journalEntryDomainServices.journalEntry,
     currencyDomainServices.exchangeRate,

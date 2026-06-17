@@ -107,6 +107,17 @@ function generateUUID(): TEntityId {
   return uuid() as TEntityId;
 }
 
+function validateIsInEnum<T extends Error>(
+  value: string,
+  enums: object,
+  ErrorClass: TErrorConstructor<T>
+) {
+  const isInArray = Object.values(enums).includes(value);
+  if (!isInArray) {
+    throw new ErrorClass({ value });
+  }
+}
+
 const stringUtils = Object.freeze({
   sanitizeAndValidate: sanitizeAndValidateString,
   isUUID,
@@ -119,6 +130,7 @@ const stringUtils = Object.freeze({
   isUrl,
   isStringWithinRange,
   validateStringWithinRange,
+  validateIsInEnum,
 });
 
 export default stringUtils;

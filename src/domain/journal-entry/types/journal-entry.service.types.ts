@@ -1,5 +1,5 @@
 import { IMoney } from '../../../shared/types/money.types';
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
 import { IExchangeRate } from '../../currency/types/exchange-rate.types';
@@ -30,17 +30,17 @@ export interface ILedgerAccountBalanceEffectDelta {
 export default interface IJournalEntryService {
   recordOpeningBalance(
     payload: IOpeningBalanceTransaction,
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ): Promise<ReturnType<typeof journalEntryEntity.make>>;
 
   recordTransaction(
     payload: IJournalTransactionPayload,
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ): Promise<ReturnType<typeof journalEntryEntity.make>>;
 
   getBalanceEffectDelta(
     accountId: TEntityId,
     journalLines: IJournalLine[],
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ): Promise<ILedgerAccountBalanceEffectDelta>;
 }

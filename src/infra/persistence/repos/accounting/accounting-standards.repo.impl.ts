@@ -4,7 +4,7 @@ import { accountingStandardsInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../helpers/query';
 
 const accountingStandardRepo: IAccountingStandardRepo = {
-  save: async (domain, options) => {
+  create: async (domain, options) => {
     const query = getDbQuery(options);
 
     const values = Array.isArray(domain)

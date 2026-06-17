@@ -2,7 +2,12 @@ import accountingEntityEntity from '../../../../domain/accounting/entities/accou
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import { IExchangeRate } from '../../../../domain/currency/types/exchange-rate.types';
-import { IJournalEntry } from '../../../../domain/journal-entry/types/journal-entry.types';
+import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
@@ -10,6 +15,8 @@ import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.typ
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
+import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
+import mockLedgerAccountHistoryRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-history.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {
@@ -65,7 +72,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
   };
 
-  const [mockPettyCashAccount, mockEvents] =
+  const [mockPettyCashAccount, mockEvents, mockPettyCashAudit] =
     cashAndEquivalentAccountEntity.makePettyCashAccount(
       {
         name: validPayload.name,
@@ -95,22 +102,60 @@ describe('createPettyCashSubAccountUseCase', () => {
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(null);
     mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue(
-      [mockPettyCashAccount, mockEvents]
+      [mockPettyCashAccount, mockEvents, mockPettyCashAudit]
     );
     mockJournalEntryDomainServices.journalEntry.recordOpeningBalance.mockResolvedValue(
-      [{} as unknown as IJournalEntry, []]
+      journalEntryEntity.make({
+        accountingEntityId: mockAccountingEntity.id,
+        sourceType: EJournalEntrySourceType.OpeningBalance,
+        counterPartyId: null,
+        status: EJournalEntryStatus.Posted,
+        effectiveDate: new Date(),
+        postedAt: new Date(),
+        voidedAt: null,
+        voidingEntryId: null,
+        memo: 'Opening balance',
+        createdBy: mockUser.id,
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        lines: [
+          {
+            accountId: mockPettyCashAccount.id,
+            sequenceOrder: 1,
+            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+            exchangeRate: null,
+            side: EJournalSide.Debit,
+            description: 'Opening balance',
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+          },
+          {
+            accountId: mockControlAccount.id,
+            sequenceOrder: 2,
+            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+            exchangeRate: null,
+            side: EJournalSide.Credit,
+            description: 'Opening balance',
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+          },
+        ],
+      })
     );
     mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue({
       rate: 1,
     } as unknown as IExchangeRate);
   });
 
+  const mockRepos = {
+    ledgerAccount: mockLedgerAccountRepo,
+    ledgerAccountHistory: mockLedgerAccountHistoryRepo,
+    journalEntry: mockJournalEntryRepo,
+    journalLine: mockJournalLineRepo,
+  };
+
   const getUseCase = () =>
     makeCreatePettyCashAccountUseCase(
       mockRequestContext,
       mockEventBus,
-      mockLedgerAccountRepo,
-      mockJournalEntryRepo,
+      mockRepos,
       mockLedgerDomainServices.assetAccount,
       mockJournalEntryDomainServices.journalEntry,
       mockCurrencyDomainServices.exchangeRate,
@@ -137,17 +182,29 @@ describe('createPettyCashSubAccountUseCase', () => {
     );
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockLedgerAccountRepo.save).toHaveBeenCalledWith(
+    expect(mockLedgerAccountRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
         accountingEntityId: mockAccountingEntity.id,
       }),
-      { correlationId, tx: 'mock-tx' }
+      expect.objectContaining({
+        correlationId,
+        tx: 'mock-tx',
+      })
     );
-    expect(mockJournalEntryRepo.save).toHaveBeenCalledWith(expect.anything(), {
-      correlationId,
-      tx: 'mock-tx',
-    });
+    expect(mockJournalEntryRepo.create).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        history: expect.any(Object),
+      })
+    );
+    expect(mockJournalLineRepo.create).toHaveBeenCalledWith(
+      expect.any(Array),
+      expect.objectContaining({
+        history: expect.any(Array),
+        accountingEntityId: mockAccountingEntity.id,
+      })
+    );
 
     expect(
       mockCurrencyDomainServices.exchangeRate.getExchangeRate
@@ -184,12 +241,12 @@ describe('createPettyCashSubAccountUseCase', () => {
     await useCase({ ...validPayload, openingBalance: null });
 
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-    expect(mockLedgerAccountRepo.save).toHaveBeenCalledWith(
+    expect(mockLedgerAccountRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
         accountingEntityId: mockAccountingEntity.id,
       }),
-      { correlationId }
+      expect.objectContaining({ correlationId })
     );
     expect(mockEventBus.publish).toHaveBeenCalledWith(
       expect.arrayContaining([

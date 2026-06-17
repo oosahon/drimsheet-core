@@ -1,13 +1,13 @@
 import { IUser } from '../../../../domain/user/types/user.types';
+import IEventBus from '../../../../shared/contracts/event-bus.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '../../../../shared/contracts/repo.contract';
 import { IEvent } from '../../../../shared/types/event.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import IUserSessionRepo from '../../../auth/contracts/user-session.repo.contract';
 import { IAccessToken } from '../../../auth/dtos/auth.dto';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
-import {
-  IRepoService,
-  TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
 import IRequestContext from '../../../shared/contracts/request-context.contract';
 import IAuthService from '../../contracts/auth-service.contract';
 
@@ -64,7 +64,7 @@ export default async function makeIssueUserSessionHelper({
     }
 
     const timestamp = new Date();
-    await userSessionRepo.save(
+    await userSessionRepo.create(
       {
         id: generateUUID(),
         userId: user.id,

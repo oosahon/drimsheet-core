@@ -1,5 +1,6 @@
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
+import { IEntityDelta } from '../../../shared/types/history.types';
+import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
 import {
   IAssetDisposalLossAccount,
@@ -12,15 +13,17 @@ import {
   IRentUtilitiesAccount,
   IUnrealizedLossAccount,
 } from './expense-account.types';
+import { ILedgerAccount } from './ledger.types';
 
 export default interface IExpenseAccountService {
   bootstrapHeaderAccounts(
     accountingEntity: IAccountingEntity,
-    repoOptions: IRepoOptions,
+    repoOptions: IReadRepoOptions,
     shouldBootstrapPostingAccounts?: boolean
   ): Promise<{
     accounts: IExpenseLedgerAccount[];
     events: IEvent<IExpenseLedgerAccount>[];
+    audits: IEntityDelta<ILedgerAccount>[];
   }>;
 
   bootstrapIndividualPostingAccounts(
@@ -35,6 +38,12 @@ export default interface IExpenseAccountService {
       unrealizedLossHeader: IUnrealizedLossAccount;
       assetDisposalLossHeader: IAssetDisposalLossAccount;
     },
-    repoOptions: IRepoOptions
-  ): Promise<TEntityWithEvents<IExpenseLedgerAccount, IExpenseLedgerAccount>[]>;
+    repoOptions: IReadRepoOptions
+  ): Promise<
+    TAuditedEntity<
+      IExpenseLedgerAccount,
+      IExpenseLedgerAccount,
+      ILedgerAccount
+    >[]
+  >;
 }

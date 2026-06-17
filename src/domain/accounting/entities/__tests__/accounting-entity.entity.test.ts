@@ -1,8 +1,9 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
+import { EAccountingEntityActions } from '../../types/accounting-entity-audit.types';
 import {
-  EAccountingEntityAuditTrailAction,
+  EAccountingEntityHistoryAction,
   EAccountingEntityType,
   IAccountingEntity,
 } from '../../types/accounting-entity.types';
@@ -31,7 +32,7 @@ describe('accountingEntityEntity', () => {
 
   describe('make', () => {
     it('should successfully create an accounting entity with valid payload', () => {
-      const [entity, events] = accountingEntityEntity.make(validPayload);
+      const [entity, events, audit] = accountingEntityEntity.make(validPayload);
 
       expect(entity.id).toBeDefined();
       expect(typeof entity.id).toBe('string');
@@ -50,6 +51,17 @@ describe('accountingEntityEntity', () => {
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe(EAccountingEntityEvents.Created);
       expect(events[0].data).toEqual(entity);
+
+      expect(audit).toEqual({
+        entityId: entity.id,
+        action: EAccountingEntityActions.Created,
+        diff: {
+          before: null,
+          after: entity,
+        },
+        occurredAt: entity.updatedAt,
+      });
+      expect(Object.isFrozen(audit)).toBe(true);
     });
 
     it('should throw if invalid type is provided', () => {
@@ -160,41 +172,41 @@ describe('accountingEntityEntity', () => {
       });
     });
 
-    describe('isValidAuditTrailAction', () => {
-      it('should return true for valid audit trail actions', () => {
+    describe('isValidHistoryAction', () => {
+      it('should return true for valid history actions', () => {
         expect(
-          accountingEntityEntity.isValidAuditTrailAction(
-            EAccountingEntityAuditTrailAction.Created
+          accountingEntityEntity.isValidHistoryAction(
+            EAccountingEntityHistoryAction.Created
           )
         ).toBe(true);
         expect(
-          accountingEntityEntity.isValidAuditTrailAction(
-            EAccountingEntityAuditTrailAction.Updated
+          accountingEntityEntity.isValidHistoryAction(
+            EAccountingEntityHistoryAction.Updated
           )
         ).toBe(true);
       });
 
-      it('should return false for invalid audit trail action', () => {
+      it('should return false for invalid history action', () => {
         expect(
           // @ts-expect-error testing invalid argument
-          accountingEntityEntity.isValidAuditTrailAction('invalid-action')
+          accountingEntityEntity.isValidHistoryAction('invalid-action')
         ).toBe(false);
       });
     });
 
-    describe('validateAuditTrailAction', () => {
-      it('should not throw for valid audit trail action', () => {
+    describe('validateHistoryAction', () => {
+      it('should not throw for valid history action', () => {
         expect(() =>
-          accountingEntityEntity.validateAuditTrailAction(
-            EAccountingEntityAuditTrailAction.Created
+          accountingEntityEntity.validateHistoryAction(
+            EAccountingEntityHistoryAction.Created
           )
         ).not.toThrow();
       });
 
-      it('should throw AppError for invalid audit trail action', () => {
+      it('should throw AppError for invalid history action', () => {
         expect(() =>
           // @ts-expect-error testing invalid argument
-          accountingEntityEntity.validateAuditTrailAction('invalid-action')
+          accountingEntityEntity.validateHistoryAction('invalid-action')
         ).toThrow();
       });
     });

@@ -1,12 +1,13 @@
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
-import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
+import IJournalEntryPersistenceService from '../../../domain/journal-entry/types/journal-entry-persistence.service.types';
 import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
+import historyValue from '../../../shared/value-objects/history.vo';
 import ledgerAppError from '../../ledger/errors/ledger.error';
-import IEventBus from '../../shared/contracts/event-bus.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
 import {
@@ -17,15 +18,15 @@ import {
 export default function makeRecordOpeningBalanceUseCase(
   requestContext: IRequestContext,
   ledgerAccountRepo: ILedgerAccountRepo,
-  journalEntryRepo: IJournalEntryRepo,
   eventBus: IEventBus,
   journalEntryService: IJournalEntryService,
+  journalEntryPersistenceService: IJournalEntryPersistenceService,
   exchangeRateService: IExchangeRateService
 ) {
   return async (payload: IOpeningBalanceCreationReq) => {
     zodValidationRunner(openingBalanceCreationReqValidation, payload);
 
-    const { accountingEntity, correlationId } = requestContext.get();
+    const { accountingEntity, correlationId, user } = requestContext.get();
     const trace = { correlationId };
 
     const account = await ledgerAccountRepo.findById(
@@ -48,13 +49,24 @@ export default function makeRecordOpeningBalanceUseCase(
       exchangeRate,
     };
 
-    const [journalEntries, journalEntryEvents] =
+    const [journalEntry, journalEntryEvents, audit] =
       await journalEntryService.recordOpeningBalance(
         openingBalancePayload,
         trace
       );
 
-    await journalEntryRepo.save(journalEntries, trace);
+    const actor = historyValue.getUserActor(user.id);
+    const headerHistory = historyValue.make(audit.header, actor, correlationId);
+    const lineHistories = audit.lines.map((lineAudit) =>
+      historyValue.make(lineAudit, actor, correlationId)
+    );
+
+    await journalEntryPersistenceService.create(
+      journalEntry,
+      headerHistory,
+      lineHistories,
+      trace
+    );
 
     eventBus.publish(eventValue.enrichAll(journalEntryEvents, trace));
   };

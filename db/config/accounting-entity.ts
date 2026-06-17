@@ -1,4 +1,4 @@
-import { coreSchema } from './schemas';
+import { auditSchema, coreSchema } from './schemas';
 
 export const accountingEntityType = {
   name: 'accounting_entity_type',
@@ -8,4 +8,9 @@ export const accountingEntityType = {
 export const accountingEntitiesTable = {
   name: 'accounting_entities',
   schema: coreSchema,
+};
+
+export const accountingEntityHistoryTable = {
+  name: 'accounting_entity_history',
+  schema: auditSchema,
 };

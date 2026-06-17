@@ -8,10 +8,6 @@ export const ELedgerAccountEvent = {
 export type ULedgerAccountEvent =
   (typeof ELedgerAccountEvent)[keyof typeof ELedgerAccountEvent];
 
-export const ledgerAccountEventDescriptions: Record<string, string> = {
-  [ELedgerAccountEvent.Created]: 'Created a ledger account.',
-};
-
 function makeLedgerAccountCreatedEvent<T extends ILedgerAccount>(payload: T) {
   return eventValue.make<T>({
     type: ELedgerAccountEvent.Created,

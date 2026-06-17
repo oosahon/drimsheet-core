@@ -1,4 +1,5 @@
 import { TEntityId } from '../../../../shared/types/uuid';
+import { EPeriodActions } from '../../types/period-audit.types';
 import {
   EPeriodStatus,
   EPeriodUnit,
@@ -58,7 +59,8 @@ describe('periodEntity', () => {
     };
 
     it('creates a valid reporting period entity with events', () => {
-      const [entity, events] = periodEntity.makeReportingPeriod(validPayload);
+      const [entity, events, audit] =
+        periodEntity.makeReportingPeriod(validPayload);
 
       expect(entity.name).toBe(validPayload.name);
       expect(entity.accountingEntityId).toBe(validPayload.accountingEntityId);
@@ -73,6 +75,17 @@ describe('periodEntity', () => {
       expect(Object.isFrozen(entity)).toBe(true);
 
       expect(events.length).toBe(1);
+
+      expect(audit).toEqual({
+        entityId: entity.id,
+        action: EPeriodActions.Created,
+        diff: {
+          before: null,
+          after: entity,
+        },
+        occurredAt: entity.updatedAt,
+      });
+      expect(Object.isFrozen(audit)).toBe(true);
     });
 
     it('throws AppError if accountingEntityId is invalid', () => {

@@ -10,7 +10,7 @@ export default async function bootstrapCurrencies() {
   );
 
   for (const currency of Object.values(SYSTEM_CURRENCIES)) {
-    await currencyRepos.currency.save(currency, {
+    await currencyRepos.currency.create(currency, {
       correlationId,
     });
   }

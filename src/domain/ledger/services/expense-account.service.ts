@@ -1,4 +1,5 @@
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
+import { IEntityDelta } from '../../../shared/types/history.types';
 import currencyEntity from '../../currency/entities/currency.entity';
 import { EXPENSE_LEDGER_CODES } from '../config/expense-codes.config';
 import directCostsAccountEntity from '../entities/05-expense-account/00-direct-costs.entity';
@@ -34,6 +35,7 @@ import {
   TRentUtilitiesLedgerCode,
   TUnrealizedLossLedgerCode,
 } from '../types/ledger-code.types';
+import { ILedgerAccount } from '../types/ledger.types';
 
 type TBootstrapHeaders = IExpenseAccountService['bootstrapHeaderAccounts'];
 type TBootstrapIndividualPostingAccounts =
@@ -74,9 +76,10 @@ export default function makeExpenseAccountService(
       )) as T | null;
     };
 
-    const allAccounts: TEntityWithEvents<
+    const allAccounts: TAuditedEntity<
       IExpenseLedgerAccount,
-      IExpenseLedgerAccount
+      IExpenseLedgerAccount,
+      ILedgerAccount
     >[] = [];
 
     const basePayload = {
@@ -269,13 +272,15 @@ export default function makeExpenseAccountService(
 
     const accounts: IExpenseLedgerAccount[] = [];
     const events: IEvent<IExpenseLedgerAccount>[] = [];
+    const audits: IEntityDelta<ILedgerAccount>[] = [];
 
-    for (const [account, accountEvents] of allAccounts) {
+    for (const [account, accountEvents, audit] of allAccounts) {
       accounts.push(account);
       events.push(...accountEvents);
+      audits.push(audit);
     }
 
-    return { accounts, events };
+    return { accounts, events, audits };
   };
 
   /**
@@ -301,9 +306,10 @@ export default function makeExpenseAccountService(
         functionalCurrencyCode
       );
 
-      const expenseAccounts: TEntityWithEvents<
+      const expenseAccounts: TAuditedEntity<
         IExpenseLedgerAccount,
-        IExpenseLedgerAccount
+        IExpenseLedgerAccount,
+        ILedgerAccount
       >[] = [];
 
       /**

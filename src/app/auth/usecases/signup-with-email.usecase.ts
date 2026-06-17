@@ -3,15 +3,16 @@ import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../domain/user/value-objects/password.vo';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/value-objects/event.vo';
-import IUserAuthRepo from '../../auth/contracts/user-auth.repo.contract';
-import { IUserSignupReq } from '../../auth/dtos/auth.dto';
-import IEventBus from '../../shared/contracts/event-bus.contract';
+import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../shared/contracts/repo.contract';
+} from '../../../shared/contracts/repo.contract';
+import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import eventValue from '../../../shared/value-objects/event.vo';
+import historyValue from '../../../shared/value-objects/history.vo';
+import IUserAuthRepo from '../../auth/contracts/user-auth.repo.contract';
+import { IUserSignupReq } from '../../auth/dtos/auth.dto';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 import IAuthService, {
@@ -72,18 +73,24 @@ export default function makeSignupWithEmailUsecase(
     const password = passwordValue.make(payload.password);
     const passwordHash = await makeAuthService.hashPassword(password);
 
-    const [user, userEvents] = userEntity.make({
+    const [user, userEvents, userAudit] = userEntity.make({
       firstName: payload.firstName,
       lastName: payload.lastName,
       email,
       emailVerified: false,
     });
 
+    const history = historyValue.make(
+      userAudit,
+      historyValue.getUserActor(user.id),
+      correlationId
+    );
+
     const repoTransaction: TRepoTransactionFn = async (tx) => {
-      await userRepo.save(user, { correlationId, tx });
+      await userRepo.create(user, { correlationId, tx, history });
       const timestamp = new Date();
 
-      await userAuthRepo.save(
+      await userAuthRepo.create(
         {
           userId: user.id,
           password: passwordHash,

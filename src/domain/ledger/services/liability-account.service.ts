@@ -1,4 +1,5 @@
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
+import { IEntityDelta } from '../../../shared/types/history.types';
 import currencyEntity from '../../currency/entities/currency.entity';
 import { LIABILITY_LEDGER_CODES } from '../config/liability-codes.config';
 import shortTermLoanAccountEntity from '../entities/02-liability-account/00-short-term-loan.entity';
@@ -9,7 +10,7 @@ import {
   TLiabilityLedgerCode,
   TPayablesLedgerCode,
 } from '../types/ledger-code.types';
-import { ELedgerType } from '../types/ledger.types';
+import { ELedgerType, ILedgerAccount } from '../types/ledger.types';
 import ILiabilityAccountService from '../types/liability-account.service.types';
 import {
   ELiabilityAccountBehavior,
@@ -54,9 +55,10 @@ export default function makeLiabilityAccountService(
       )) as T | null;
     };
 
-    const allAccounts: TEntityWithEvents<
+    const allAccounts: TAuditedEntity<
       ILiabilityLedgerAccount,
-      ILiabilityLedgerAccount
+      ILiabilityLedgerAccount,
+      ILedgerAccount
     >[] = [];
 
     /**
@@ -174,13 +176,15 @@ export default function makeLiabilityAccountService(
 
     const accounts: ILiabilityLedgerAccount[] = [];
     const events: IEvent<ILiabilityLedgerAccount>[] = [];
+    const audits: IEntityDelta<ILedgerAccount>[] = [];
 
-    for (const [account, accountEvents] of allAccounts) {
+    for (const [account, accountEvents, audit] of allAccounts) {
       accounts.push(account);
       events.push(...accountEvents);
+      audits.push(audit);
     }
 
-    return { accounts, events };
+    return { accounts, events, audits };
   };
 
   const bootstrapIndividualPostingAccounts: TBootstrapIndividualPostingAccounts =
@@ -195,9 +199,10 @@ export default function makeLiabilityAccountService(
         functionalCurrencyCode
       );
 
-      const liabilityAccounts: TEntityWithEvents<
+      const liabilityAccounts: TAuditedEntity<
         ILiabilityLedgerAccount,
-        ILiabilityLedgerAccount
+        ILiabilityLedgerAccount,
+        ILedgerAccount
       >[] = [];
 
       /**

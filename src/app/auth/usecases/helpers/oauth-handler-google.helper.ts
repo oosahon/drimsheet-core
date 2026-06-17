@@ -1,14 +1,15 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
-import eventValue from '../../../../shared/value-objects/event.vo';
-import IUserAuthRepo from '../../../auth/contracts/user-auth.repo.contract';
-import { IOAuthProfile, TOAuthDoneCallback } from '../../../auth/dtos/auth.dto';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
+import IEventBus from '../../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
+} from '../../../../shared/contracts/repo.contract';
+import eventValue from '../../../../shared/value-objects/event.vo';
+import historyValue from '../../../../shared/value-objects/history.vo';
+import IUserAuthRepo from '../../../auth/contracts/user-auth.repo.contract';
+import { IOAuthProfile, TOAuthDoneCallback } from '../../../auth/dtos/auth.dto';
 import IRequestContext from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import { EAuthStrategy } from '../../contracts/auth-service.contract';
@@ -39,24 +40,30 @@ export default function makeGoogleOAuthHelper(
 
         if (userAuth && !userAuth.strategy.includes(EAuthStrategy.Google)) {
           userAuth.strategy.push(EAuthStrategy.Google);
-          await userAuthRepo.save(userAuth, { correlationId });
+          await userAuthRepo.update(userAuth, { correlationId });
         }
 
         return done(null, existingUser);
       }
 
-      const [user, userEvents] = userEntity.make({
+      const [user, userEvents, userAuditDelta] = userEntity.make({
         firstName: profile.firstName,
         lastName: profile.lastName,
         email,
         emailVerified: true,
       });
 
+      const history = historyValue.make(
+        userAuditDelta,
+        historyValue.getUserActor(user.id),
+        correlationId
+      );
+
       const repoTransaction: TRepoTransactionFn = async (tx) => {
-        await userRepo.save(user, { correlationId, tx });
+        await userRepo.create(user, { correlationId, tx, history });
         const timestamp = new Date();
 
-        await userAuthRepo.save(
+        await userAuthRepo.create(
           {
             userId: user.id,
             password: null,

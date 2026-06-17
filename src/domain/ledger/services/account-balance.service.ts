@@ -1,4 +1,4 @@
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { ICurrency } from '../../currency/types/currency.types';
 import ledgerAccountBalanceEntity from '../entities/shared/ledger-account-balance.entity';
 import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
@@ -13,7 +13,7 @@ export default function makeLedgerAccountBalanceService(
   const createBalance: TCreateBalance = async (
     ledgerAccount: ILedgerAccount,
     functionalCurrency: ICurrency,
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ) => {
     const existing = await ledgerAccountBalanceRepo.findByAccountId(
       ledgerAccount.id,

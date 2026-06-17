@@ -1,5 +1,5 @@
-import ILogger from '../../shared/contracts/logger.contract';
-import IReporter from '../../shared/contracts/reporter.contract';
+import ILogger from '../../../shared/contracts/logger.contract';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import IExchangeRateIngestion from '../contracts/exchange-rate-ingestion.contract';
 import currencyUseCase from '../usecases';
 

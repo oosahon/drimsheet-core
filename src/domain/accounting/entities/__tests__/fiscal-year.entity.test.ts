@@ -1,5 +1,6 @@
 import { TEntityId } from '../../../../shared/types/uuid';
 import { EPeriodEvents } from '../../events/period.events';
+import { EPeriodActions } from '../../types/period-audit.types';
 import { EPeriodStatus } from '../../types/period.types';
 import fiscalYearEntity from '../fiscal-year.entity';
 
@@ -23,7 +24,7 @@ describe('fiscalYearEntity', () => {
     };
 
     it('creates a valid fiscal year entity with events', () => {
-      const [entity, events] = fiscalYearEntity.make(validPayload);
+      const [entity, events, audit] = fiscalYearEntity.make(validPayload);
 
       expect(entity.name).toBe(validPayload.name);
       expect(entity.accountingEntityId).toBe(validPayload.accountingEntityId);
@@ -39,6 +40,17 @@ describe('fiscalYearEntity', () => {
       expect(events.length).toBe(1);
       expect(events[0].type).toBe(EPeriodEvents.FiscalYearCreated);
       expect(events[0].data).toBe(entity);
+
+      expect(audit).toEqual({
+        entityId: entity.id,
+        action: EPeriodActions.Created,
+        diff: {
+          before: null,
+          after: entity,
+        },
+        occurredAt: entity.updatedAt,
+      });
+      expect(Object.isFrozen(audit)).toBe(true);
     });
 
     it('derives name if name is not provided', () => {

@@ -1,4 +1,4 @@
-import { IRepoService } from '../../app/shared/contracts/repo.contract';
+import { IRepoService } from '../../shared/contracts/repo.contract';
 import { ITransactionContext } from '../../shared/types/repo.types';
 import { postgres } from '../config/postgres.config';
 

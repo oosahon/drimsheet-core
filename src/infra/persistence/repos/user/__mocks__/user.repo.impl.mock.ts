@@ -1,7 +1,8 @@
 import IUserRepo from '../../../../../domain/user/repos/user.repo';
 
 const mockUserRepo: jest.Mocked<IUserRepo> = {
-  save: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
   findByEmail: jest.fn(),
   findById: jest.fn(),
   delete: jest.fn(),

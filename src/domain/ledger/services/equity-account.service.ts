@@ -1,4 +1,5 @@
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
+import { IEntityDelta } from '../../../shared/types/history.types';
 import currencyEntity from '../../currency/entities/currency.entity';
 import { EQUITY_LEDGER_CODES } from '../config/equity-codes.config';
 import retainedEarningAccountEntity from '../entities/03-equity-account/01-retained-earning.entity';
@@ -7,6 +8,7 @@ import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import IEquityAccountService from '../types/equity-account.service.types';
 import { IEquityLedgerAccount } from '../types/equity-account.types';
 import { TEquityLedgerCode } from '../types/ledger-code.types';
+import { ILedgerAccount } from '../types/ledger.types';
 
 type TBootstrapHeaders = IEquityAccountService['bootstrapHeaderAccounts'];
 
@@ -38,9 +40,10 @@ export default function makeEquityAccountService(
       )) as T | null;
     };
 
-    const allAccounts: TEntityWithEvents<
+    const allAccounts: TAuditedEntity<
       IEquityLedgerAccount,
-      IEquityLedgerAccount
+      IEquityLedgerAccount,
+      ILedgerAccount
     >[] = [];
 
     /**
@@ -87,13 +90,15 @@ export default function makeEquityAccountService(
 
     const accounts: IEquityLedgerAccount[] = [];
     const events: IEvent<IEquityLedgerAccount>[] = [];
+    const audits: IEntityDelta<ILedgerAccount>[] = [];
 
-    for (const [account, accountEvents] of allAccounts) {
+    for (const [account, accountEvents, audit] of allAccounts) {
       accounts.push(account);
       events.push(...accountEvents);
+      audits.push(audit);
     }
 
-    return { accounts, events };
+    return { accounts, events, audits };
   };
 
   return Object.freeze({

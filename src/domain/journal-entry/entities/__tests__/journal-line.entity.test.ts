@@ -4,6 +4,7 @@ import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
 import { EExchangeRateType } from '../../../currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
+import { EJournalLineAuditAction } from '../../types/journal-entry-audit.types';
 import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
 import journalLineEntity from '../journal-line.entity';
 
@@ -51,7 +52,7 @@ describe('JournalLineItem Entity', () => {
     });
 
     it('should successfully create a journal line item with valid inputs', () => {
-      const [lineItem, events] = journalLineEntity.make(
+      const [lineItem, events, audit] = journalLineEntity.make(
         validEntryPayload,
         validPayload
       );
@@ -77,6 +78,16 @@ describe('JournalLineItem Entity', () => {
       expect(lineItem.updatedAt).toEqual(validEntryPayload.createdAt);
 
       expect(Object.isFrozen(lineItem)).toBe(true);
+      expect(audit).toEqual({
+        entityId: lineItem.id,
+        action: EJournalLineAuditAction.Created,
+        diff: {
+          before: null,
+          after: lineItem,
+        },
+        occurredAt: lineItem.updatedAt,
+      });
+      expect(Object.isFrozen(audit)).toBe(true);
     });
 
     it('should fall back to entry memo if payload description is missing', () => {

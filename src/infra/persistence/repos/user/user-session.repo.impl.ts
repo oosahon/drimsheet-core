@@ -5,14 +5,11 @@ import { userSessionsInCore as userSessions } from '../../../config/drizzle/sche
 import getDbQuery from '../helpers/query';
 
 const userSessionRepo: IUserSessionRepo = {
-  save: async (userSessionData, options) => {
+  create: async (userSessionData, options) => {
     const query = getDbQuery(options);
     const repoData = userSessionMapper.toRepo(userSessionData);
 
-    await query.insert(userSessions).values(repoData).onConflictDoUpdate({
-      target: userSessions.id,
-      set: repoData,
-    });
+    await query.insert(userSessions).values(repoData);
   },
 
   findByRefreshToken: async (userId, refreshToken, options) => {

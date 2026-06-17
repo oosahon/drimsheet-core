@@ -3,8 +3,10 @@ import {
   IAccountingEntity,
 } from '../../../../domain/accounting/types/accounting-entity.types';
 import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
+import { IEntityDelta } from '../../../../shared/types/history.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IAccountingEntityCreationDto } from '../../../accounting/dtos/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
@@ -20,6 +22,7 @@ import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import generateUUID from '../../../../shared/utils/uuid-generator';
 
 describe('createAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -93,22 +96,27 @@ describe('createAccountingEntityUseCase', () => {
     mockAssetAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
     mockLiabilityAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
     mockEquityAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
     mockRevenueAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
     mockExpenseAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
       events: [],
+      audits: [],
     });
   });
 
@@ -143,13 +151,13 @@ describe('createAccountingEntityUseCase', () => {
     );
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockAccountingEntityRepo.save).toHaveBeenCalled();
-    expect(mockFiscalYearRepo.save).toHaveBeenCalled();
-    expect(mockAccountingPeriodRepo.save).toHaveBeenCalled();
-    expect(mockAccountingContextRepo.save).toHaveBeenCalled();
-    expect(mockReportingPeriodRepo.save).toHaveBeenCalled();
-    expect(mockReportingContextRepo.save).toHaveBeenCalled();
-    expect(mockLedgerAccountRepo.save).toHaveBeenCalled();
+    expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
+    expect(mockFiscalYearRepo.create).toHaveBeenCalled();
+    expect(mockAccountingPeriodRepo.create).toHaveBeenCalled();
+    expect(mockAccountingContextRepo.create).toHaveBeenCalled();
+    expect(mockReportingPeriodRepo.create).toHaveBeenCalled();
+    expect(mockReportingContextRepo.create).toHaveBeenCalled();
+    expect(mockLedgerAccountRepo.create).toHaveBeenCalled();
 
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
@@ -174,6 +182,57 @@ describe('createAccountingEntityUseCase', () => {
     );
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockAccountingEntityRepo.save).toHaveBeenCalled();
+    expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
+  });
+
+  it('successfully creates accounting entity in PowerUser mode (shouldBootstrapPostingAccounts is false)', async () => {
+    const useCase = getUseCase();
+
+    const powerUserPayload: IAccountingEntityCreationDto = {
+      ...validPayload,
+      appUsageMode: EAppUsageModePreference.PowerUser,
+    };
+
+    await useCase(powerUserPayload);
+
+    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
+    expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
+    expect(mockEventBus.publish).toHaveBeenCalled();
+  });
+
+  it('maps ledger account audits into history entries when account services return non-empty audits', async () => {
+    const mockAudit = {
+      entityId: generateUUID(),
+      action: 'created',
+      diff: {
+        before: null,
+        after: { id: generateUUID(), name: 'Cash Account' },
+      },
+      occurredAt: new Date(),
+    } as unknown as IEntityDelta<ILedgerAccount>;
+
+    mockAssetAccountService.bootstrapHeaderAccounts.mockResolvedValue({
+      accounts: [],
+      events: [],
+      audits: [mockAudit],
+    });
+
+    const useCase = getUseCase();
+
+    await useCase(validPayload);
+
+    const ledgerCreateCall = mockLedgerAccountRepo.create.mock.calls[0];
+    const options = ledgerCreateCall[1];
+    const histories = options.history as unknown[];
+
+    expect(histories).toHaveLength(1);
+    expect(histories[0]).toMatchObject({
+      action: 'created',
+      actor: {
+        type: 'user',
+        userId: mockUserId,
+      },
+      correlationId,
+    });
   });
 });

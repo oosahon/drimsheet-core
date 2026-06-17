@@ -25,7 +25,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     mockRepoService.runInTransaction.mockImplementation(async (cb) => {
       return await cb('mock-tx' as unknown as ITransactionContext);
     });
-    exchangeRateRepoMock.save.mockReset();
+    exchangeRateRepoMock.create.mockReset();
 
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-06-10T12:53:59.000Z'));
@@ -74,15 +74,15 @@ describe('makeIngestExchangeRateUseCase', () => {
     await usecase(payload);
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
-    expect(exchangeRateRepoMock.save).toHaveBeenCalledTimes(2);
+    expect(exchangeRateRepoMock.create).toHaveBeenCalledTimes(2);
 
     // First call should have 100 items
-    expect(exchangeRateRepoMock.save.mock.calls[0][0].length).toBe(100);
+    expect(exchangeRateRepoMock.create.mock.calls[0][0].length).toBe(100);
     // Second call should have 50 items
-    expect(exchangeRateRepoMock.save.mock.calls[1][0].length).toBe(50);
+    expect(exchangeRateRepoMock.create.mock.calls[1][0].length).toBe(50);
 
     // Verify saving params
-    expect(exchangeRateRepoMock.save).toHaveBeenNthCalledWith(
+    expect(exchangeRateRepoMock.create).toHaveBeenNthCalledWith(
       1,
       expect.any(Array),
       { correlationId, tx: 'mock-tx' }
@@ -107,7 +107,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     await usecase(payload);
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
-    expect(exchangeRateRepoMock.save).not.toHaveBeenCalled();
+    expect(exchangeRateRepoMock.create).not.toHaveBeenCalled();
   });
 
   it('should throw an error if currency code is invalid', async () => {
@@ -243,7 +243,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     };
 
     const saveError = new Error('Database save failed');
-    exchangeRateRepoMock.save.mockRejectedValue(saveError);
+    exchangeRateRepoMock.create.mockRejectedValue(saveError);
 
     const usecase = makeIngestExchangeRateUseCase(
       exchangeRateRepoMock,
@@ -318,10 +318,13 @@ describe('makeIngestExchangeRateUseCase', () => {
       'Exchange rate ingestion message was sent without a correlation_id'
     );
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
-    expect(exchangeRateRepoMock.save).toHaveBeenCalledTimes(1);
-    expect(exchangeRateRepoMock.save).toHaveBeenCalledWith(expect.any(Array), {
-      correlationId: 'mocked-uuid',
-      tx: 'mock-tx',
-    });
+    expect(exchangeRateRepoMock.create).toHaveBeenCalledTimes(1);
+    expect(exchangeRateRepoMock.create).toHaveBeenCalledWith(
+      expect.any(Array),
+      {
+        correlationId: 'mocked-uuid',
+        tx: 'mock-tx',
+      }
+    );
   });
 });

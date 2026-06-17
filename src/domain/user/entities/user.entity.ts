@@ -1,42 +1,19 @@
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import userEvents from '../events/user.events';
 
 import userError from '../errors/user.error';
+import { EUserEntityActions, IUserAudit } from '../types/user-audit.types';
 import { IUser } from '../types/user.types';
 import emailValue from '../value-objects/email.vo';
+import userAudit from '../value-objects/user-audit.vo';
+import helpers from './helpers/user.entity.helpers';
 
-function validate(user: IUser) {
-  stringUtils.validateUUID(user.id, userError.InvalidValue);
-
-  stringUtils.sanitizeAndValidate(
-    user.firstName,
-    {
-      min: 1,
-      max: 100,
-    },
-    userError.InvalidValue
-  );
-
-  stringUtils.sanitizeAndValidate(
-    user.lastName,
-    {
-      min: 1,
-      max: 100,
-    },
-    userError.InvalidValue
-  );
-
-  emailValue.validate(user.email);
-}
-
-const userHelpers = Object.freeze({
-  validate,
-});
-
-function make(payload: TCreationOmits<IUser>): TEntityWithEvents<IUser, IUser> {
+function make(
+  payload: TCreationOmits<IUser>
+): TAuditedEntity<IUser, IUser, IUser> {
   const timestamp = new Date();
 
   const firstName = stringUtils.sanitizeAndValidate(
@@ -70,15 +47,21 @@ function make(payload: TCreationOmits<IUser>): TEntityWithEvents<IUser, IUser> {
 
   const events = userEvents.created(user);
 
-  return [user, [events]];
+  const audit = userAudit.make({
+    before: null,
+    after: user,
+    action: EUserEntityActions.Created,
+  });
+
+  return [user, [events], audit];
 }
 
-function verifyEmail(user: IUser): TEntityWithEvents<IUser, IUser> {
+function verifyEmail(user: IUser): [IUser, IEvent<IUser>[], IUserAudit | null] {
   if (user.emailVerified) {
-    return [user, []];
+    return [user, [], null];
   }
 
-  userHelpers.validate(user);
+  helpers.validate(user);
 
   const updatedUser = Object.freeze({
     ...user,
@@ -88,14 +71,20 @@ function verifyEmail(user: IUser): TEntityWithEvents<IUser, IUser> {
 
   const event = userEvents.emailVerified(updatedUser);
 
-  return [updatedUser, [event]];
+  const audit = userAudit.make({
+    before: user,
+    after: updatedUser,
+    action: EUserEntityActions.EmailVerified,
+  });
+
+  return [updatedUser, [event], audit];
 }
 
 function update(
   user: IUser,
   options: Partial<Pick<IUser, 'firstName' | 'lastName'>>
-): TEntityWithEvents<IUser, IUser> {
-  userHelpers.validate(user);
+): [IUser, IEvent<IUser>[], IUserAudit | null] {
+  helpers.validate(user);
 
   const firstName = stringUtils.sanitizeAndValidate(
     options.firstName ?? user.firstName,
@@ -119,7 +108,7 @@ function update(
     firstName === user.firstName && lastName === user.lastName;
 
   if (isUnchanged) {
-    return [user, []] as TEntityWithEvents<IUser, IUser>;
+    return [user, [], null];
   }
 
   const updatedUser: IUser = Object.freeze({
@@ -131,14 +120,20 @@ function update(
 
   const event = userEvents.updated(updatedUser);
 
-  return [updatedUser, [event]];
+  const audit = userAudit.make({
+    before: user,
+    after: updatedUser,
+    action: EUserEntityActions.Updated,
+  });
+
+  return [updatedUser, [event], audit];
 }
 
 const userEntity = Object.freeze({
   make,
   verifyEmail,
   update,
-  ...userHelpers,
+  ...helpers,
 });
 
 export default userEntity;

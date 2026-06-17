@@ -9,7 +9,7 @@ import authError from '../../../auth/errors/auth.error';
 import makeLogoutUseCase from '../logout.usecase';
 
 describe('makeLogoutUseCase', () => {
-  const correlationId = 'mock-correlation-id'; // This is what is defined in request-context.mock.ts
+  const correlationId = '854e4567-e89b-42d3-a456-426614174001'; // This is what is defined in request-context.mock.ts
 
   const [mockUser] = userEntity.make({
     email: 'johndoe@example.com',

@@ -19,17 +19,22 @@ import {
   ledgerAccountsInCore,
 } from '../../../config/drizzle/schema';
 import drizzleFilters from '../helpers/filters';
+import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
+import ledgerAccountHistoryRepo from './ledger-account-history.repo.impl';
 
 const ledgerAccountRepoImpl: ILedgerAccountRepo = {
-  save: async (payload, options) => {
-    const dbQuery = getDbQuery(options);
+  create: async (payload, options) => {
+    await getDbQuery(options).transaction(async (tx) => {
+      const accountsArray = Array.isArray(payload) ? payload : [payload];
+      const valuesArray = accountsArray.map(ledgerAccountMapper.toRepo);
 
-    const valuesArray = Array.isArray(payload)
-      ? payload.map(ledgerAccountMapper.toRepo)
-      : [ledgerAccountMapper.toRepo(payload)];
-
-    await dbQuery.insert(ledgerAccountsInCore).values(valuesArray);
+      await tx.insert(ledgerAccountsInCore).values(valuesArray);
+      await ledgerAccountHistoryRepo.save(
+        options.history,
+        passOnRepoTransaction(options, tx)
+      );
+    });
   },
 
   findById: async (id, options) => {

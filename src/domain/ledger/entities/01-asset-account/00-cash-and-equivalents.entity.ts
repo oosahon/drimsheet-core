@@ -1,9 +1,8 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import { TEntityWithEvents } from '../../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import ledgerError from '../../errors/ledger.error';
 import assetAccountEvents from '../../events/asset-account.events';
-import ledgerAccountEvents from '../../events/ledger-account.events';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -18,6 +17,7 @@ import {
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ILedgerAccount,
 } from '../../types/ledger.types';
 import ledgerAccountEntity from '../shared/ledger-account.entity';
 import helpers from './helpers/cash.entity.helpers';
@@ -46,9 +46,10 @@ function make(
     | 'meta'
   >,
   scope: IScopeDetails | null // null for the header account
-): TEntityWithEvents<
+): TAuditedEntity<
   ICashAndCashEquivalentAccount,
-  ICashAndCashEquivalentAccount
+  ICashAndCashEquivalentAccount,
+  ILedgerAccount
 > {
   if (payload.controlAccountId) {
     stringUtils.validateUUID(
@@ -63,29 +64,29 @@ function make(
     scope?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<ICashAndCashEquivalentAccount>({
-    name: payload.name,
-    accountingEntityId: payload.accountingEntityId,
+  const [account, [ledgerAccountCreatedEvent], audit] =
+    ledgerAccountEntity.make<ICashAndCashEquivalentAccount>({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntityId,
 
-    code,
-    materializedPath,
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
-    type: ELedgerType.Asset,
-    subType: EAssetSubType.CashAndCashEquivalent,
-    behavior: payload.behavior,
-    isControlAccount: payload.isControlAccount,
-    controlAccountId: payload.controlAccountId,
-    currency: payload.currency,
-    meta: payload.meta,
-    status: ELedgerAccountStatus.Active,
-    contraAccountRule: EContraAccountRule.ContraPermitted,
-    adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-    createdBy: payload.createdBy,
-  });
+      code,
+      materializedPath,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+      type: ELedgerType.Asset,
+      subType: EAssetSubType.CashAndCashEquivalent,
+      behavior: payload.behavior,
+      isControlAccount: payload.isControlAccount,
+      controlAccountId: payload.controlAccountId,
+      currency: payload.currency,
+      meta: payload.meta,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+      createdBy: payload.createdBy,
+    });
 
   const event = assetAccountEvents.cashAndEquivalentCreated(account);
-  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event]];
+  return [account, [ledgerAccountCreatedEvent, event], audit];
 }
 
 function makeHeader(
@@ -126,9 +127,10 @@ function makePettyCashAccount(
     | 'accountingEntityId'
   >,
   scope: IScopeDetails | null
-): TEntityWithEvents<
+): TAuditedEntity<
   ICashAndCashEquivalentAccount,
-  ICashAndCashEquivalentAccount
+  ICashAndCashEquivalentAccount,
+  ILedgerAccount
 > {
   const meta: IPettyCashAccountMeta = Object.freeze({
     lastReconciliationDate: null,
@@ -159,9 +161,10 @@ function makePettyCashAccount(
 function makeBankAccount(
   payload: TCreationOmits<IBankAccount>,
   scope: IScopeDetails | null
-): TEntityWithEvents<
+): TAuditedEntity<
   ICashAndCashEquivalentAccount,
-  ICashAndCashEquivalentAccount
+  ICashAndCashEquivalentAccount,
+  ILedgerAccount
 > {
   return make(
     {

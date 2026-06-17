@@ -1,6 +1,8 @@
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
+import { IEntityDelta } from '../../../shared/types/history.types';
+import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
+import { ILedgerAccount } from './ledger.types';
 import {
   IEmploymentIncomeAccount,
   IGainOnAssetSaleAccount,
@@ -12,11 +14,12 @@ import {
 export default interface IRevenueAccountService {
   bootstrapHeaderAccounts(
     accountingEntity: IAccountingEntity,
-    repoOptions: IRepoOptions,
+    repoOptions: IReadRepoOptions,
     shouldBootstrapPostingAccounts?: boolean
   ): Promise<{
     accounts: IRevenueLedgerAccount[];
     events: IEvent<IRevenueLedgerAccount>[];
+    audits: IEntityDelta<ILedgerAccount>[];
   }>;
 
   bootstrapIndividualPostingAccounts(
@@ -27,6 +30,12 @@ export default interface IRevenueAccountService {
       gainOnAssetSaleHeader: IGainOnAssetSaleAccount;
       unrealizedGainHeader: IUnrealizedGainAccount;
     },
-    repoOptions: IRepoOptions
-  ): Promise<TEntityWithEvents<IRevenueLedgerAccount, IRevenueLedgerAccount>[]>;
+    repoOptions: IReadRepoOptions
+  ): Promise<
+    TAuditedEntity<
+      IRevenueLedgerAccount,
+      IRevenueLedgerAccount,
+      ILedgerAccount
+    >[]
+  >;
 }

@@ -1,5 +1,5 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import { IEvent } from '../../../../shared/types/event.types';
+import { EUserEntityActions } from '../../types/user-audit.types';
 import { IUser } from '../../types/user.types';
 import userEntity from '../user.entity';
 
@@ -111,7 +111,7 @@ describe('User Entity', () => {
     });
 
     it('should verify email and update updatedAt', () => {
-      const [result, events] = userEntity.verifyEmail(unverifiedUser);
+      const [result, events, audit] = userEntity.verifyEmail(unverifiedUser);
 
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe('domain:user:email-verified');
@@ -122,13 +122,20 @@ describe('User Entity', () => {
         unverifiedUser.updatedAt.getTime()
       );
       expect(Object.isFrozen(result)).toBe(true);
+
+      expect(audit).not.toBeNull();
+      expect(audit!.action).toBe(EUserEntityActions.EmailVerified);
+      expect(audit!.entityId).toBe(unverifiedUser.id);
+      expect(audit!.diff.before).not.toBeNull();
+      expect(audit!.diff.after).toEqual(result);
     });
 
-    it('should return identical user and no events if email is already verified', () => {
-      const [result, events] = userEntity.verifyEmail(verifiedUser);
+    it('should return identical user, no events, and null audit if email is already verified', () => {
+      const [result, events, audit] = userEntity.verifyEmail(verifiedUser);
 
       expect(events).toHaveLength(0);
       expect(result).toBe(verifiedUser);
+      expect(audit).toBeNull();
     });
 
     it('should throw error if user is invalid before verifying', () => {
@@ -156,10 +163,10 @@ describe('User Entity', () => {
         firstName: 'Updated First',
         lastName: 'Updated Last',
       };
-      const [result, events] = userEntity.update(
+      const [result, events, audit] = userEntity.update(
         existingUser,
         updateOptions
-      ) as [IUser, IEvent<IUser>[]];
+      );
 
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe('domain:user:updated');
@@ -171,35 +178,55 @@ describe('User Entity', () => {
         existingUser.updatedAt.getTime()
       );
       expect(Object.isFrozen(result)).toBe(true);
+
+      expect(audit).not.toBeNull();
+      expect(audit!.action).toBe(EUserEntityActions.Updated);
+      expect(audit!.entityId).toBe(existingUser.id);
+      expect(audit!.diff.before).not.toBeNull();
+      expect(audit!.diff.after).toEqual(result);
     });
 
     it('should update only firstName correctly', () => {
       const updateOptions = { firstName: 'Updated First' };
-      const [result, events] = userEntity.update(existingUser, updateOptions);
+      const [result, events, audit] = userEntity.update(
+        existingUser,
+        updateOptions
+      );
 
       expect(events).toHaveLength(1);
       expect(result.firstName).toBe('Updated First');
       expect(result.lastName).toBe('Original Last');
+      expect(audit).not.toBeNull();
+      expect(audit!.action).toBe(EUserEntityActions.Updated);
     });
 
     it('should update only lastName correctly', () => {
       const updateOptions = { lastName: 'Updated Last' };
-      const [result, events] = userEntity.update(existingUser, updateOptions);
+      const [result, events, audit] = userEntity.update(
+        existingUser,
+        updateOptions
+      );
 
       expect(events).toHaveLength(1);
       expect(result.firstName).toBe('Original First');
       expect(result.lastName).toBe('Updated Last');
+      expect(audit).not.toBeNull();
+      expect(audit!.action).toBe(EUserEntityActions.Updated);
     });
 
-    it('should return identical user and no events if unchanged', () => {
+    it('should return identical user, no events, and null audit if unchanged', () => {
       const updateOptions = {
         firstName: 'Original First',
         lastName: 'Original Last',
       };
-      const [result, events] = userEntity.update(existingUser, updateOptions);
+      const [result, events, audit] = userEntity.update(
+        existingUser,
+        updateOptions
+      );
 
       expect(events).toHaveLength(0);
       expect(result).toBe(existingUser);
+      expect(audit).toBeNull();
     });
 
     it('should throw error if user is invalid before updating', () => {

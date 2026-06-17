@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
-import ILogger from '../../../app/shared/contracts/logger.contract';
-import IReporter from '../../../app/shared/contracts/reporter.contract';
+import ILogger from '../../../shared/contracts/logger.contract';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import httpHandlers from '../handlers';
 
 export default function makeIsOptionalAuthenticatedUserMiddleware(

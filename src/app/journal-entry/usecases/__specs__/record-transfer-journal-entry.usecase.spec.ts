@@ -15,7 +15,6 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/0
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
@@ -199,17 +198,17 @@ describe('recordTransferJournalEntryUseCase', () => {
     makeRecordTransferJournalEntryUseCase(
       mockRequestContext,
       mockJournalEntryDomainServices.journalEntry,
+      mockJournalEntryDomainServices.journalEntryPersistence,
       mockCurrencyDomainServices.exchangeRate,
-      mockJournalEntryRepo,
       mockEventBus
     );
 
   it('records a transfer journal entry and publishes enriched domain events', async () => {
     const useCase = getUseCase();
-    const [journalEntry, events] = makeSavedJournalEntry();
+    const [journalEntry, events, audit] = makeSavedJournalEntry();
 
     mockJournalEntryDomainServices.journalEntry.recordTransaction.mockResolvedValueOnce(
-      [journalEntry, events]
+      [journalEntry, events, audit]
     );
 
     await useCase(validPayload);
@@ -271,9 +270,26 @@ describe('recordTransferJournalEntryUseCase', () => {
       },
       { correlationId }
     );
-    expect(mockJournalEntryRepo.save).toHaveBeenCalledWith(journalEntry, {
-      correlationId,
-    });
+    expect(
+      mockJournalEntryDomainServices.journalEntryPersistence.create
+    ).toHaveBeenCalledWith(
+      journalEntry,
+      expect.objectContaining({
+        entityId: journalEntry.id,
+        correlationId,
+      }),
+      expect.arrayContaining([
+        expect.objectContaining({
+          entityId: journalEntry.lines[0].id,
+          correlationId,
+        }),
+        expect.objectContaining({
+          entityId: journalEntry.lines[1].id,
+          correlationId,
+        }),
+      ]),
+      { correlationId }
+    );
     expect(mockEventBus.publish).toHaveBeenCalledWith(
       events.map((event) =>
         expect.objectContaining({
@@ -303,7 +319,9 @@ describe('recordTransferJournalEntryUseCase', () => {
     expect(
       mockJournalEntryDomainServices.journalEntry.recordTransaction
     ).not.toHaveBeenCalled();
-    expect(mockJournalEntryRepo.save).not.toHaveBeenCalled();
+    expect(
+      mockJournalEntryDomainServices.journalEntryPersistence.create
+    ).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 });

@@ -6,6 +6,9 @@ type TErrorPrefix = `user_error_${string}`;
 
 const EErrorKeys = {
   InvalidValue: 'user_error_invalid_value',
+  InvalidAction: 'user_error_invalid_action',
+  InvalidId: 'user_error_invalid_id',
+  InvalidDate: 'user_error_invalid_date',
 } as const satisfies Record<string, TErrorPrefix>;
 
 type UUserError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

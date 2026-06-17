@@ -1,15 +1,17 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
 import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
+import IJournalLineRepo from '../../../domain/journal-entry/repos/journal-line.repo';
 import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
 import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
+import IEventBus from '../../../shared/contracts/event-bus.contract';
+import { IRepoService } from '../../../shared/contracts/repo.contract';
 import { IEvent } from '../../../shared/types/event.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
-import IEventBus from '../../shared/contracts/event-bus.contract';
-import { IRepoService } from '../../shared/contracts/repo.contract';
+import historyValue from '../../../shared/value-objects/history.vo';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
 import {
@@ -17,11 +19,16 @@ import {
   pettyCashCreationReqValidation,
 } from '../dtos/asset-account.dto';
 
+interface ICreatePettyCashAccountRepos {
+  ledgerAccount: ILedgerAccountRepo;
+  journalEntry: IJournalEntryRepo;
+  journalLine: IJournalLineRepo;
+}
+
 export default function makeCreatePettyCashAccountUseCase(
   requestContext: IRequestContext,
   eventBus: IEventBus,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  journalEntryRepo: IJournalEntryRepo,
+  repos: ICreatePettyCashAccountRepos,
   assetAccountService: IAssetAccountService,
   journalEntryService: IJournalEntryService,
   exchangeRateService: IExchangeRateService,
@@ -42,11 +49,19 @@ export default function makeCreatePettyCashAccountUseCase(
       controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
     };
 
-    const [account, accountEvents] =
+    const [account, accountEvents, accountAudit] =
       await assetAccountService.makePettyCashSubAccount(accountPayload, trace);
 
+    const actor = historyValue.getUserActor(user.id);
+    const accountHistory = [
+      historyValue.make(accountAudit, actor, correlationId),
+    ];
+
     if (!payload.openingBalance) {
-      await ledgerAccountRepo.save(account, trace);
+      await repos.ledgerAccount.create(account, {
+        ...trace,
+        history: accountHistory,
+      });
       eventBus.publish(eventValue.enrichAll(accountEvents, trace));
       return;
     }
@@ -66,7 +81,7 @@ export default function makeCreatePettyCashAccountUseCase(
       exchangeRate,
     };
 
-    const [journalEntries, journalEvents] =
+    const [journalEntry, journalEvents, audit] =
       await journalEntryService.recordOpeningBalance(
         openingBalancePayload,
         trace
@@ -74,8 +89,30 @@ export default function makeCreatePettyCashAccountUseCase(
 
     await repoService.runInTransaction(async (tx) => {
       const repoOptions = { tx, correlationId };
-      await ledgerAccountRepo.save(account, repoOptions);
-      await journalEntryRepo.save(journalEntries, repoOptions);
+      await repos.ledgerAccount.create(account, {
+        ...repoOptions,
+        history: accountHistory,
+      });
+
+      const { lines, ...header } = journalEntry;
+      const headerHistory = historyValue.make(
+        audit.header,
+        actor,
+        correlationId
+      );
+      const lineHistories = audit.lines.map((lineAudit) =>
+        historyValue.make(lineAudit, actor, correlationId)
+      );
+
+      await repos.journalEntry.create(header, {
+        ...repoOptions,
+        history: headerHistory,
+      });
+      await repos.journalLine.create(lines, {
+        ...repoOptions,
+        history: lineHistories,
+        accountingEntityId: header.accountingEntityId,
+      });
     });
 
     const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];

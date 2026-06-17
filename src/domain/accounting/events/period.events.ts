@@ -8,12 +8,6 @@ export const EPeriodEvents = {
   ReportingPeriodCreated: 'domain:accounting:period:reporting-period:created',
 } as const;
 
-export const periodEventDescriptions: Record<string, string> = {
-  [EPeriodEvents.FiscalYearCreated]: 'Created a fiscal year.',
-  [EPeriodEvents.AccountingPeriodCreated]: 'Created an accounting period.',
-  [EPeriodEvents.ReportingPeriodCreated]: 'Created a reporting period.',
-};
-
 function makeFiscalYearCreatedEvent(params: IFiscalYear) {
   return eventValue.make<IFiscalYear>({
     type: EPeriodEvents.FiscalYearCreated,

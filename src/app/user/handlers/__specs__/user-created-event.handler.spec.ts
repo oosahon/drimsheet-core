@@ -9,19 +9,11 @@ import MockReporter from '../../../../infra/observability/__mocks__/reporter.moc
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import authUseCase from '../../../auth/usecases';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-import userUseCase from '../../../user/usecases';
 
 jest.mock('../../../auth/usecases', () => ({
   __esModule: true,
   default: {
     sendEmailVerificationEmail: jest.fn(),
-  },
-}));
-
-jest.mock('../../../user/usecases', () => ({
-  __esModule: true,
-  default: {
-    saveActivity: jest.fn(),
   },
 }));
 
@@ -62,7 +54,6 @@ describe('makeUserCreatedEventHandler', () => {
       correlationId: 'default-corr-id',
     } as IRequestContextData);
 
-    (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
     (authUseCase.sendEmailVerificationEmail as jest.Mock).mockResolvedValue(
       undefined
     );
@@ -72,10 +63,6 @@ describe('makeUserCreatedEventHandler', () => {
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: mockEvent.correlationId,
     });
-    expect(userUseCase.saveActivity).toHaveBeenCalledWith(
-      mockEvent.data.id,
-      mockEvent
-    );
     expect(authUseCase.sendEmailVerificationEmail).toHaveBeenCalledWith(
       mockEvent.data.email
     );
@@ -97,7 +84,6 @@ describe('makeUserCreatedEventHandler', () => {
       correlationId: 'default-corr-id',
     } as IRequestContextData);
 
-    (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
     (authUseCase.sendEmailVerificationEmail as jest.Mock).mockResolvedValue(
       undefined
     );
@@ -107,10 +93,6 @@ describe('makeUserCreatedEventHandler', () => {
     expect(mockRequestContext.set).toHaveBeenCalledWith({
       correlationId: expect.any(String),
     });
-    expect(userUseCase.saveActivity).toHaveBeenCalledWith(
-      mockEvent.data.id,
-      mockEvent
-    );
     expect(authUseCase.sendEmailVerificationEmail).toHaveBeenCalledWith(
       mockEvent.data.email
     );
@@ -128,14 +110,8 @@ describe('makeUserCreatedEventHandler', () => {
       correlationId: 'default-corr-id',
     } as IRequestContextData);
 
-    (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
-
     await handler(mockEvent);
 
-    expect(userUseCase.saveActivity).toHaveBeenCalledWith(
-      mockEvent.data.id,
-      mockEvent
-    );
     expect(authUseCase.sendEmailVerificationEmail).not.toHaveBeenCalled();
   });
 
@@ -154,27 +130,7 @@ describe('makeUserCreatedEventHandler', () => {
       eventError.EventTypeMismatch
     );
 
-    expect(userUseCase.saveActivity).not.toHaveBeenCalled();
     expect(authUseCase.sendEmailVerificationEmail).not.toHaveBeenCalled();
-  });
-
-  it('should report an error if saveActivity fails', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
-    const mockEvent = getValidEvent();
-
-    const error = new Error('DB Error');
-    (userUseCase.saveActivity as jest.Mock).mockRejectedValue(error);
-    (authUseCase.sendEmailVerificationEmail as jest.Mock).mockResolvedValue(
-      undefined
-    );
-
-    await handler(mockEvent);
-
-    expect(MockReporter.report).toHaveBeenCalledWith(error);
-    expect(authUseCase.sendEmailVerificationEmail).toHaveBeenCalled();
   });
 
   it('should report an error if sendEmailVerificationEmail fails', async () => {
@@ -185,7 +141,6 @@ describe('makeUserCreatedEventHandler', () => {
     const mockEvent = getValidEvent();
 
     const error = new Error('Email Error');
-    (userUseCase.saveActivity as jest.Mock).mockResolvedValue(undefined);
     (authUseCase.sendEmailVerificationEmail as jest.Mock).mockRejectedValue(
       error
     );

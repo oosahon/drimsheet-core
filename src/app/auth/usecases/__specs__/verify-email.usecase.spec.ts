@@ -1,6 +1,7 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import mockUserSessionRepo from '../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
+
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
@@ -13,7 +14,7 @@ import appError from '../../../shared/errors/app.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
 describe('makeVerifyEmailAddressUseCase', () => {
-  const correlationId = 'test-corr-id';
+  const correlationId = '854e4567-e89b-42d3-a456-426614174001';
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -73,9 +74,9 @@ describe('makeVerifyEmailAddressUseCase', () => {
       correlationId,
     });
 
-    expect(mockUserRepo.save).toHaveBeenCalledTimes(1);
-    // User save check
-    const savedUserArgs = mockUserRepo.save.mock.calls.find(
+    expect(mockUserRepo.update).toHaveBeenCalledTimes(1);
+    // User update check
+    const savedUserArgs = mockUserRepo.update.mock.calls.find(
       (c) => c[0].emailVerified === true
     );
     expect(savedUserArgs).toBeDefined();
@@ -83,10 +84,13 @@ describe('makeVerifyEmailAddressUseCase', () => {
       id: mockUser.id,
       emailVerified: true,
     });
-    expect(savedUserArgs![1]).toEqual({ correlationId });
+    expect(savedUserArgs![1]).toMatchObject({
+      correlationId,
+      history: expect.any(Object),
+    });
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockUserSessionRepo.save).toHaveBeenCalled();
+    expect(mockUserSessionRepo.create).toHaveBeenCalled();
 
     expect(mockEventBus.publish).toHaveBeenCalled();
     const publishCalls = (mockEventBus.publish as jest.Mock).mock.calls;
@@ -126,7 +130,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
     expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).not.toHaveBeenCalled();
-    expect(mockUserRepo.save).not.toHaveBeenCalled();
+    expect(mockUserRepo.update).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
@@ -155,7 +159,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
       correlationId,
     });
-    expect(mockUserRepo.save).not.toHaveBeenCalled();
+    expect(mockUserRepo.update).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
@@ -189,7 +193,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     const result = await usecase(token);
 
     // Save should NOT be called on the user repo because the email is already verified
-    expect(mockUserRepo.save).not.toHaveBeenCalled();
+    expect(mockUserRepo.update).not.toHaveBeenCalled();
     expect(mockAuthService.generateAccessToken).toHaveBeenCalledTimes(1);
     expect(result).toEqual({ accessToken: 'new-auth-token' });
 

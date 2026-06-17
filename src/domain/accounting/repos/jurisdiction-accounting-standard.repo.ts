@@ -1,11 +1,11 @@
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import { IWriteRepoOptions } from '../../../shared/types/repo.types';
 import { IJurisdictionAccountingStandard } from '../types/jurisdiction.types';
 
 export default interface IJurisdictionAccountingStandardRepo {
-  save(
+  create(
     jurisdictionStandards:
       | IJurisdictionAccountingStandard
       | IJurisdictionAccountingStandard[],
-    repoOptions: IRepoOptions
+    repoOptions: IWriteRepoOptions
   ): Promise<void>;
 }

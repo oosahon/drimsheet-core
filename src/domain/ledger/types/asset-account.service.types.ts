@@ -1,5 +1,6 @@
-import { IEvent, TEntityWithEvents } from '../../../shared/types/event.types';
-import { IRepoOptions } from '../../../shared/types/repo.types';
+import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
+import { IEntityDelta } from '../../../shared/types/history.types';
+import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
 import { ICurrency } from '../../currency/types/currency.types';
@@ -9,6 +10,7 @@ import {
   IStatutoryReceivableAccount,
 } from './asset-account.types';
 import { TCashLedgerCode } from './ledger-code.types';
+import { ILedgerAccount } from './ledger.types';
 
 interface IMakePettyCashPayload {
   name: string;
@@ -22,26 +24,30 @@ interface IMakePettyCashPayload {
 export default interface IAssetAccountService {
   bootstrapHeaderAccounts(
     accountingEntity: IAccountingEntity,
-    repoOptions: IRepoOptions,
+    repoOptions: IReadRepoOptions,
     shouldBootstrapPostingAccounts?: boolean
   ): Promise<{
     accounts: IAssetLedgerAccount[];
     events: IEvent<IAssetLedgerAccount>[];
+    audits: IEntityDelta<ILedgerAccount>[];
   }>;
 
   bootstrapIndividualPostingAccounts(
     accountingEntity: IAccountingEntity,
     headers: { statutoryReceivablesHeader: IStatutoryReceivableAccount },
-    repoOptions: IRepoOptions
-  ): Promise<TEntityWithEvents<IAssetLedgerAccount, IAssetLedgerAccount>[]>;
+    repoOptions: IReadRepoOptions
+  ): Promise<
+    TAuditedEntity<IAssetLedgerAccount, IAssetLedgerAccount, ILedgerAccount>[]
+  >;
 
   makePettyCashSubAccount(
     payload: IMakePettyCashPayload,
-    repoOptions: IRepoOptions
+    repoOptions: IReadRepoOptions
   ): Promise<
-    TEntityWithEvents<
+    TAuditedEntity<
       ICashAndCashEquivalentAccount,
-      ICashAndCashEquivalentAccount
+      ICashAndCashEquivalentAccount,
+      ILedgerAccount
     >
   >;
 }

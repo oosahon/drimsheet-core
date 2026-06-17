@@ -1,4 +1,4 @@
-import { ICacheStorage } from '../../../../app/shared/contracts/cache-storage.contract';
+import { ICacheStorage } from '../../../../shared/contracts/cache-storage.contract';
 
 export const makeMockCacheStorage = (): ICacheStorage => {
   const store = new Map<string, any>();

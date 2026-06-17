@@ -1,5 +1,4 @@
-import { TEntityWithEvents } from '../../../../shared/types/event.types';
-import ledgerAccountEvents from '../../events/ledger-account.events';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
 import revenueAccountEvents from '../../events/revenue-account.events';
 import { TGainOnAssetSaleLedgerCode } from '../../types/ledger-code.types';
 import {
@@ -7,6 +6,7 @@ import {
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
+  ILedgerAccount,
 } from '../../types/ledger.types';
 import {
   ERevenueAccountBehavior,
@@ -33,36 +33,40 @@ function make(
     | 'meta'
   >,
   parent: IParentDetails | null
-): TEntityWithEvents<IGainOnAssetSaleAccount, IGainOnAssetSaleAccount> {
+): TAuditedEntity<
+  IGainOnAssetSaleAccount,
+  IGainOnAssetSaleAccount,
+  ILedgerAccount
+> {
   const code = helpers.getCode(parent?.precedingCode ?? null);
   const materializedPath = helpers.getMaterializedPath(
     code,
     parent?.parentMaterializedPath ?? null
   );
 
-  const account = ledgerAccountEntity.make<IGainOnAssetSaleAccount>({
-    name: payload.name,
-    accountingEntityId: payload.accountingEntityId,
+  const [account, [ledgerAccountCreatedEvent], audit] =
+    ledgerAccountEntity.make<IGainOnAssetSaleAccount>({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntityId,
 
-    code,
-    materializedPath,
-    type: ELedgerType.Revenue,
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
-    subType: ERevenueSubType.GainOnAssetSale,
-    behavior: ERevenueAccountBehavior.GainOnAssetSale,
-    isControlAccount: payload.isControlAccount,
-    controlAccountId: payload.controlAccountId,
-    currency: payload.currency,
-    meta: payload.meta,
-    status: ELedgerAccountStatus.Active,
-    contraAccountRule: EContraAccountRule.ContraNotPermitted,
-    adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-    createdBy: payload.createdBy,
-  });
+      code,
+      materializedPath,
+      type: ELedgerType.Revenue,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
+      subType: ERevenueSubType.GainOnAssetSale,
+      behavior: ERevenueAccountBehavior.GainOnAssetSale,
+      isControlAccount: payload.isControlAccount,
+      controlAccountId: payload.controlAccountId,
+      currency: payload.currency,
+      meta: payload.meta,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy: payload.createdBy,
+    });
 
   const event = revenueAccountEvents.GainOnAssetSaleCreated(account);
-  const ledgerAccountCreatedEvent = ledgerAccountEvents.makeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event]];
+  return [account, [ledgerAccountCreatedEvent, event], audit];
 }
 
 function makeHeader(

@@ -8,10 +8,6 @@ export const EJournalEntryEvent = {
 export type UJournalEntryEvent =
   (typeof EJournalEntryEvent)[keyof typeof EJournalEntryEvent];
 
-export const journalEntryEventDescriptions: Record<string, string> = {
-  [EJournalEntryEvent.Created]: 'Created a new journal entry.',
-};
-
 function makeJournalEntryCreatedEvent(payload: IJournalEntry) {
   return eventValue.make<IJournalEntry>({
     type: EJournalEntryEvent.Created,

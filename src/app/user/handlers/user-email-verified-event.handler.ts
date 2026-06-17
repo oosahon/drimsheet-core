@@ -1,10 +1,9 @@
 import { EUserEvents } from '../../../domain/user/events/user.events';
 import { IUser } from '../../../domain/user/types/user.types';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import { IEvent } from '../../../shared/types/event.types';
-import IReporter from '../../shared/contracts/reporter.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
-import userUseCase from '../../user/usecases';
 
 function makeUserEmailVerifiedEventHandler(
   reporter: IReporter,
@@ -16,8 +15,6 @@ function makeUserEmailVerifiedEventHandler(
       event,
       EUserEvents.EmailVerified
     );
-
-    await userUseCase.saveActivity(event.data.id, event).catch(reporter.report);
 
     // TODO: send welcome email https://linear.app/purpleledger/issue/PUR-20/create-and-send-welcome-emails
   };

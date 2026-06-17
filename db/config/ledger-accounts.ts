@@ -1,4 +1,11 @@
+import { auditSchema } from './schemas';
+
 export const ledgerAccountsTable = { schema: 'core', name: 'ledger_accounts' };
+
+export const ledgerAccountHistoryTable = {
+  schema: auditSchema,
+  name: 'ledger_account_history',
+};
 
 export const ledgerType = { schema: 'core', name: 'ledger_type' };
 
