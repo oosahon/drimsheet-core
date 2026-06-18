@@ -42,7 +42,7 @@ export interface IFindAllLedgerAccountsOptions extends Omit<
 export default interface ILedgerAccountRepo {
   create(
     account: ILedgerAccount | ILedgerAccount[],
-    options: IWriteRepoOptions<ILedgerAccountHistory[]>
+    options: IWriteRepoOptions<ILedgerAccountHistory | ILedgerAccountHistory[]>
   ): Promise<void>;
 
   findById(

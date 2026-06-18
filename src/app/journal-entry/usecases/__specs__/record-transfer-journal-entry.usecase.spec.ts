@@ -15,11 +15,11 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/0
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
+import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookkeeping.service.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
-import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import { ITransferTransactionReq } from '../../dtos/transfer-transaction.dto';
@@ -189,7 +189,7 @@ describe('recordTransferJournalEntryUseCase', () => {
     mockCurrencyDomainServices.exchangeRate.getExchangeRate
       .mockResolvedValueOnce(mockExchangeRate)
       .mockResolvedValueOnce(null);
-    mockJournalEntryDomainServices.journalEntry.recordTransaction.mockResolvedValue(
+    mockBookkeepingServices.transactionEntry.create.mockResolvedValue(
       journalEntryResult
     );
   });
@@ -197,8 +197,8 @@ describe('recordTransferJournalEntryUseCase', () => {
   const getUseCase = () =>
     makeRecordTransferJournalEntryUseCase(
       mockRequestContext,
-      mockJournalEntryDomainServices.journalEntry,
-      mockJournalEntryDomainServices.journalEntryPersistence,
+      mockBookkeepingServices.transactionEntry,
+      mockBookkeepingServices.journalEntryPersistence,
       mockCurrencyDomainServices.exchangeRate,
       mockEventBus
     );
@@ -207,9 +207,11 @@ describe('recordTransferJournalEntryUseCase', () => {
     const useCase = getUseCase();
     const [journalEntry, events, audit] = makeSavedJournalEntry();
 
-    mockJournalEntryDomainServices.journalEntry.recordTransaction.mockResolvedValueOnce(
-      [journalEntry, events, audit]
-    );
+    mockBookkeepingServices.transactionEntry.create.mockResolvedValueOnce([
+      journalEntry,
+      events,
+      audit,
+    ]);
 
     await useCase(validPayload);
 
@@ -225,53 +227,51 @@ describe('recordTransferJournalEntryUseCase', () => {
     });
 
     expect(
-      mockJournalEntryDomainServices.journalEntry.recordTransaction
+      mockBookkeepingServices.transactionEntry.create
     ).toHaveBeenCalledWith(
-      {
-        sourceLine: expect.objectContaining({
-          accountId: sourceAccount.id,
-          sequenceOrder: validPayload.sourceLine.sequenceOrder,
-          amount: {
-            amount: 1500n,
-            currency: SYSTEM_CURRENCIES.USD,
-          },
-          exchangeRate: mockExchangeRate,
-          side: EJournalSide.Credit,
-          functionalCurrency: SYSTEM_CURRENCIES.NGN,
-          description: validPayload.sourceLine.description,
-        }),
-        destinationLines: [
-          expect.objectContaining({
-            accountId: destinationAccount.id,
-            sequenceOrder: validPayload.destinationLines[0].sequenceOrder,
-            amount: {
-              amount: 2250000n,
-              currency: SYSTEM_CURRENCIES.NGN,
-            },
-            exchangeRate: null,
-            side: EJournalSide.Debit,
-            functionalCurrency: SYSTEM_CURRENCIES.NGN,
-            description: validPayload.destinationLines[0].description,
-          }),
-        ],
-        header: {
-          accountingEntityId: mockAccountingEntity.id,
-          sourceType: EJournalEntrySourceType.Transfer,
-          counterPartyId: null,
-          status: validPayload.status,
-          effectiveDate,
-          postedAt,
-          voidedAt: null,
-          voidingEntryId: null,
-          memo: validPayload.memo,
-          createdBy: mockUser.id,
-          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      expect.objectContaining({
+        accountId: sourceAccount.id,
+        sequenceOrder: validPayload.sourceLine.sequenceOrder,
+        amount: {
+          amount: 1500n,
+          currency: SYSTEM_CURRENCIES.USD,
         },
+        exchangeRate: mockExchangeRate,
+        side: EJournalSide.Credit,
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        description: validPayload.sourceLine.description,
+      }),
+      [
+        expect.objectContaining({
+          accountId: destinationAccount.id,
+          sequenceOrder: validPayload.destinationLines[0].sequenceOrder,
+          amount: {
+            amount: 2250000n,
+            currency: SYSTEM_CURRENCIES.NGN,
+          },
+          exchangeRate: null,
+          side: EJournalSide.Debit,
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+          description: validPayload.destinationLines[0].description,
+        }),
+      ],
+      {
+        accountingEntityId: mockAccountingEntity.id,
+        sourceType: EJournalEntrySourceType.Transfer,
+        counterPartyId: null,
+        status: validPayload.status,
+        effectiveDate,
+        postedAt,
+        voidedAt: null,
+        voidingEntryId: null,
+        memo: validPayload.memo,
+        createdBy: mockUser.id,
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
       },
       { correlationId }
     );
     expect(
-      mockJournalEntryDomainServices.journalEntryPersistence.create
+      mockBookkeepingServices.journalEntryPersistence.create
     ).toHaveBeenCalledWith(
       journalEntry,
       expect.objectContaining({
@@ -317,10 +317,10 @@ describe('recordTransferJournalEntryUseCase', () => {
       mockCurrencyDomainServices.exchangeRate.getExchangeRate
     ).not.toHaveBeenCalled();
     expect(
-      mockJournalEntryDomainServices.journalEntry.recordTransaction
+      mockBookkeepingServices.transactionEntry.create
     ).not.toHaveBeenCalled();
     expect(
-      mockJournalEntryDomainServices.journalEntryPersistence.create
+      mockBookkeepingServices.journalEntryPersistence.create
     ).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });

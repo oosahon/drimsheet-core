@@ -1,6 +1,7 @@
 import IAssetAccountService from '../../../../domain/ledger/types/asset-account.service.types';
 import IEquityAccountService from '../../../../domain/ledger/types/equity-account.service.types';
 import IExpenseAccountService from '../../../../domain/ledger/types/expense-account.service.types';
+import ILedgerAccountPersistenceService from '../../../../domain/ledger/types/ledger-account-persistence.service.types';
 import { ILedgerAccountService } from '../../../../domain/ledger/types/ledger-account.service.types';
 import ILiabilityAccountService from '../../../../domain/ledger/types/liability-account.service.types';
 import IRevenueAccountService from '../../../../domain/ledger/types/revenue-account.service.types';
@@ -34,6 +35,10 @@ const expenseAccount: jest.Mocked<IExpenseAccountService> = {
   bootstrapIndividualPostingAccounts: jest.fn(),
 };
 
+const persistence: jest.Mocked<ILedgerAccountPersistenceService> = {
+  create: jest.fn(),
+};
+
 const mockLedgerDomainServices = Object.freeze({
   ledgerAccount,
   assetAccount,
@@ -41,6 +46,7 @@ const mockLedgerDomainServices = Object.freeze({
   equityAccount,
   revenueAccount,
   expenseAccount,
+  persistence,
 });
 
 export default mockLedgerDomainServices;

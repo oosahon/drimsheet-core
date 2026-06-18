@@ -1,7 +1,6 @@
+import ITransactionEntryService from '../../../app/bookkeeping/contracts/transaction-entry.service.contract';
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
-import IJournalEntryPersistenceService from '../../../domain/journal-entry/types/journal-entry-persistence.service.types';
-import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
 import {
   EJournalEntrySourceType,
   IjournalEntryMakePayload,
@@ -12,6 +11,7 @@ import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
+import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
 import {
@@ -21,7 +21,7 @@ import {
 
 export default function makeRecordTransferJournalEntryUseCase(
   requestContext: IRequestContext,
-  journalEntryService: IJournalEntryService,
+  transactionEntryService: ITransactionEntryService,
   journalEntryPersistenceService: IJournalEntryPersistenceService,
   exchangeRateService: IExchangeRateService,
   eventBus: IEventBus
@@ -82,15 +82,12 @@ export default function makeRecordTransferJournalEntryUseCase(
       functionalCurrency,
     };
 
-    const [journalEntry, events, audit] =
-      await journalEntryService.recordTransaction(
-        {
-          sourceLine,
-          destinationLines,
-          header,
-        },
-        trace
-      );
+    const [journalEntry, events, audit] = await transactionEntryService.create(
+      sourceLine,
+      destinationLines,
+      header,
+      trace
+    );
 
     const actor = historyValue.getUserActor(user.id);
     const headerHistory = historyValue.make(audit.header, actor, correlationId);

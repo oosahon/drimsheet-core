@@ -5,5 +5,8 @@ export type TRepoTransactionFn<T = void> = (
 ) => Promise<T>;
 
 export interface IRepoService {
-  runInTransaction<T>(fn: TRepoTransactionFn<T>): Promise<T>;
+  runInTransaction<T>(
+    fn: TRepoTransactionFn<T>,
+    tx?: ITransactionContext
+  ): Promise<T>;
 }

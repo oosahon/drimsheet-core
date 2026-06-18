@@ -1,12 +1,12 @@
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
-import IJournalEntryPersistenceService from '../../../domain/journal-entry/types/journal-entry-persistence.service.types';
-import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
+import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
+import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import ledgerAppError from '../../ledger/errors/ledger.error';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
@@ -19,7 +19,7 @@ export default function makeRecordOpeningBalanceUseCase(
   requestContext: IRequestContext,
   ledgerAccountRepo: ILedgerAccountRepo,
   eventBus: IEventBus,
-  journalEntryService: IJournalEntryService,
+  openingBalanceEntryService: IOpeningBalanceEntryService,
   journalEntryPersistenceService: IJournalEntryPersistenceService,
   exchangeRateService: IExchangeRateService
 ) {
@@ -42,16 +42,12 @@ export default function makeRecordOpeningBalanceUseCase(
       trace
     );
 
-    const openingBalancePayload = {
-      account,
-      amount,
-      accountingEntity,
-      exchangeRate,
-    };
-
-    const [journalEntry, journalEntryEvents, audit] =
-      await journalEntryService.recordOpeningBalance(
-        openingBalancePayload,
+    const [journalEntry, journalEvents, audit] =
+      await openingBalanceEntryService.create(
+        accountingEntity,
+        account,
+        amount,
+        exchangeRate,
         trace
       );
 
@@ -68,6 +64,6 @@ export default function makeRecordOpeningBalanceUseCase(
       trace
     );
 
-    eventBus.publish(eventValue.enrichAll(journalEntryEvents, trace));
+    eventBus.publish(eventValue.enrichAll(journalEvents, trace));
   };
 }
