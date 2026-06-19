@@ -25,7 +25,7 @@ function enforcer(source: ILedgerAccount, destinations: ILedgerAccount[]) {
 }
 
 const transferTransactionRule = Object.freeze({
-  permittedSrouces: {
+  permittedSources: {
     behaviors: ALLOWED_BEHAVIORS,
   },
   permittedDestinations: {

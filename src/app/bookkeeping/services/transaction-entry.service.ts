@@ -5,7 +5,7 @@ import journalEntryError from '../../../domain/journal-entry/errors/journal-entr
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import ITransactionEntryService from '../contracts/transaction-entry.service.contract';
 
-export default function makeTransferTransactionEntryService(
+export default function makeTransactionEntryService(
   ledgerAccountRepo: ILedgerAccountRepo
 ): ITransactionEntryService {
   return {

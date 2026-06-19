@@ -13,7 +13,7 @@ import {
   ILedgerAccount,
 } from '../../../../ledger/types/ledger.types';
 import accountingError from '../../../errors/accounting.error';
-import transferTransactionRule from '../transafer-transaction.rule';
+import transferTransactionRule from '../transfer-transaction.rule';
 
 function createMockAccount(overrides: Partial<ILedgerAccount>): ILedgerAccount {
   const type = overrides.type ?? ELedgerType.Asset;
@@ -46,7 +46,7 @@ function createMockAccount(overrides: Partial<ILedgerAccount>): ILedgerAccount {
 describe('transferTransactionRule', () => {
   describe('Rule Configuration', () => {
     it('should have correct permitted sources and destinations configuration', () => {
-      expect(transferTransactionRule.permittedSrouces).toEqual({
+      expect(transferTransactionRule.permittedSources).toEqual({
         behaviors: [
           EAssetAccountBehavior.PettyCash,
           EAssetAccountBehavior.Bank,

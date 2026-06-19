@@ -16,10 +16,10 @@ import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import makeTransferTransactionEntryService from '../transaction-entry.service';
+import makeTransactionEntryService from '../transaction-entry.service';
 
 describe('transferTransactionEntryService', () => {
-  const service = makeTransferTransactionEntryService(mockLedgerAccountRepo);
+  const service = makeTransactionEntryService(mockLedgerAccountRepo);
 
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
