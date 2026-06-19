@@ -1,9 +1,9 @@
 import _ from 'lodash';
+import enforceTransactionAccountsRule from '../../../domain/accounting/rules/bookkeeping/transaction.rule';
 import journalEntryEntity from '../../../domain/journal-entry/entities/journal-entry.entity';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import ITransactionEntryService from '../contracts/transaction-entry.service.contract';
-import validateJournalEntryTransactionAccounts from '../validations/entry-accounts.validation';
 
 export default function makeTransferTransactionEntryService(
   ledgerAccountRepo: ILedgerAccountRepo
@@ -54,7 +54,7 @@ export default function makeTransferTransactionEntryService(
         });
       }
 
-      validateJournalEntryTransactionAccounts(
+      enforceTransactionAccountsRule(
         sourceAccount,
         destinationAccounts,
         header.sourceType

@@ -1,0 +1,131 @@
+import generateUUID from '../../../../../shared/utils/uuid-generator';
+import { SYSTEM_CURRENCIES } from '../../../../currency/config/currencies.config';
+import ledgerAccountEntity from '../../../../ledger/entities/shared/ledger-account.entity';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+} from '../../../../ledger/types/asset-account.types';
+import { EExpenseSubType } from '../../../../ledger/types/expense-account.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerAccountStatus,
+  ELedgerType,
+  ILedgerAccount,
+} from '../../../../ledger/types/ledger.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
+} from '../../../../ledger/types/liability-account.types';
+import accountingError from '../../../errors/accounting.error';
+import paymentTransactionRule from '../payment-transaction.rule';
+
+function createMockAccount(overrides: Partial<ILedgerAccount>): ILedgerAccount {
+  const type = overrides.type ?? ELedgerType.Asset;
+  const subType = overrides.subType ?? EAssetSubType.CashAndCashEquivalent;
+  const behavior = overrides.behavior ?? EAssetAccountBehavior.Bank;
+  const code = overrides.code ?? '101001';
+
+  const [account] = ledgerAccountEntity.make({
+    code,
+    materializedPath: code,
+    accountingEntityId: overrides.accountingEntityId ?? generateUUID(),
+    type,
+    subType,
+    behavior,
+    normalBalance: ledgerAccountEntity.getNormalBalance(type),
+    isControlAccount: false,
+    controlAccountId: null,
+    name: overrides.name ?? 'Test Account',
+    currency: SYSTEM_CURRENCIES.USD,
+    status: ELedgerAccountStatus.Active,
+    contraAccountRule: EContraAccountRule.ContraPermitted,
+    adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+    meta: {},
+    createdBy: generateUUID(),
+    ...overrides,
+  });
+  return account;
+}
+
+describe('paymentTransactionRule', () => {
+  describe('Rule Configuration', () => {
+    it('should have correct permitted sources and destinations configuration', () => {
+      expect(paymentTransactionRule.permittedSources).toEqual({
+        behaviors: [
+          EAssetAccountBehavior.Bank,
+          EAssetAccountBehavior.PettyCash,
+          ELiabilityAccountBehavior.CreditCard,
+        ],
+      });
+      expect(paymentTransactionRule.permittedDestinations.subtypes).toContain(
+        ELiabilitySubType.Payable
+      );
+      expect(paymentTransactionRule.permittedDestinations.subtypes).toContain(
+        EExpenseSubType.DirectCosts
+      );
+    });
+  });
+
+  describe('enforce', () => {
+    it('should pass when source has permitted behavior and destinations have permitted subtypes', () => {
+      const source = createMockAccount({
+        behavior: EAssetAccountBehavior.Bank,
+        subType: EAssetSubType.CashAndCashEquivalent,
+        type: ELedgerType.Asset,
+        code: '101001',
+      });
+      const destination1 = createMockAccount({
+        subType: ELiabilitySubType.Payable,
+        type: ELedgerType.Liability,
+        code: '201001',
+      });
+      const destination2 = createMockAccount({
+        subType: EExpenseSubType.DirectCosts,
+        type: ELedgerType.Expense,
+        code: '501001',
+      });
+
+      expect(() => {
+        paymentTransactionRule.enforce(source, [destination1, destination2]);
+      }).not.toThrow();
+    });
+
+    it('should throw PaymentNotPermittedOnAccount when source behavior is not permitted', () => {
+      const source = createMockAccount({
+        behavior: ELiabilityAccountBehavior.Default,
+        subType: ELiabilitySubType.Payable,
+        type: ELedgerType.Liability,
+        code: '201001',
+      });
+      const destination = createMockAccount({
+        subType: EExpenseSubType.DirectCosts,
+        type: ELedgerType.Expense,
+        code: '501001',
+      });
+
+      expect(() => {
+        paymentTransactionRule.enforce(source, [destination]);
+      }).toThrow(accountingError.PaymentNotPermittedOnAccount);
+    });
+
+    it('should throw PaymentNotPermittedOnAccount when a destination subtype is not permitted', () => {
+      const source = createMockAccount({
+        behavior: EAssetAccountBehavior.Bank,
+        subType: EAssetSubType.CashAndCashEquivalent,
+        type: ELedgerType.Asset,
+        code: '101001',
+      });
+      const destination = createMockAccount({
+        behavior: EAssetAccountBehavior.Bank,
+        subType: EAssetSubType.CashAndCashEquivalent,
+        type: ELedgerType.Asset,
+        code: '101002',
+      });
+
+      expect(() => {
+        paymentTransactionRule.enforce(source, [destination]);
+      }).toThrow(accountingError.PaymentNotPermittedOnAccount);
+    });
+  });
+});

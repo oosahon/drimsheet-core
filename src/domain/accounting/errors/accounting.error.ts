@@ -9,6 +9,10 @@ const EErrorKeys = {
   InvalidAction: 'accounting_error_invalid_action',
   InvalidId: 'accounting_error_invalid_id',
   InvalidDate: 'accounting_error_invalid_date',
+  TransferNotPermittedOnAccount:
+    'accounting_error_transfer_not_permitted_on_account',
+  PaymentNotPermittedOnAccount:
+    'accounting_error_payment_not_permitted_on_account',
 } as const satisfies Record<string, TErrorPrefix>;
 
 type UAccountingError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

@@ -187,7 +187,10 @@ describe('journalEntryPersistenceService', () => {
       });
       expect(
         mockBookkeepingServices.balancePropagation.propagate
-      ).toHaveBeenCalledWith(journalEntry, mockOptions);
+      ).toHaveBeenCalledWith(journalEntry, {
+        ...mockOptions,
+        tx: 'mock-tx',
+      });
     });
 
     it('should stop before creating lines or propagating balances if header persistence fails', async () => {
@@ -240,7 +243,10 @@ describe('journalEntryPersistenceService', () => {
       expect(mockJournalLineRepo.create).toHaveBeenCalledTimes(1);
       expect(
         mockBookkeepingServices.balancePropagation.propagate
-      ).toHaveBeenCalledWith(journalEntry, mockOptions);
+      ).toHaveBeenCalledWith(journalEntry, {
+        ...mockOptions,
+        tx: 'mock-tx',
+      });
     });
   });
 });

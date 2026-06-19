@@ -1,3 +1,4 @@
+import accountingError from '../../../../domain/accounting/errors/accounting.error';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
 import {
@@ -38,7 +39,7 @@ describe('transferTransactionEntryService', () => {
       currency: SYSTEM_CURRENCIES.NGN,
       isControlAccount: false,
       controlAccountId: null,
-      behavior: EAssetAccountBehavior.DefaultCash,
+      behavior: EAssetAccountBehavior.Bank,
       meta: null,
       createdBy,
     },
@@ -52,7 +53,7 @@ describe('transferTransactionEntryService', () => {
       currency: SYSTEM_CURRENCIES.NGN,
       isControlAccount: false,
       controlAccountId: null,
-      behavior: EAssetAccountBehavior.DefaultCash,
+      behavior: EAssetAccountBehavior.Bank,
       meta: null,
       createdBy,
     },
@@ -193,9 +194,7 @@ describe('transferTransactionEntryService', () => {
           header,
           mockOptions
         )
-      ).rejects.toThrow(
-        journalEntryError.ControlAccountOpeningBalanceNotAllowed
-      );
+      ).rejects.toThrow(journalEntryError.ControlAccountTransactionNotAllowed);
     });
 
     it('should throw if any destination account is not found', async () => {
@@ -257,7 +256,7 @@ describe('transferTransactionEntryService', () => {
           header,
           mockOptions
         )
-      ).rejects.toThrow(journalEntryError.TransferNotPermittedOnAccount);
+      ).rejects.toThrow(accountingError.TransferNotPermittedOnAccount);
     });
 
     it('should throw if a transfer destination account subtype differs from the source', async () => {
@@ -278,7 +277,7 @@ describe('transferTransactionEntryService', () => {
           header,
           mockOptions
         )
-      ).rejects.toThrow(journalEntryError.TransferNotPermittedOnAccount);
+      ).rejects.toThrow(accountingError.TransferNotPermittedOnAccount);
     });
   });
 });

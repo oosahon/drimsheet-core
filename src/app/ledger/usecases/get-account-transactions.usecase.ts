@@ -1,9 +1,9 @@
+import balanceEffectRule from '../../../domain/accounting/rules/bookkeeping/balance-effect.rule';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { ILedgerAccountService } from '../../../domain/ledger/types/ledger-account.service.types';
 import { IPaginatedResponse } from '../../../shared/types/pagination.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import getLedgerAccountBalanceEffect from '../../bookkeeping/services/helpers/balance-effect.helper';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import {
   IPaginationDto,
@@ -58,7 +58,7 @@ export default function makeGetAccountTransactionsUseCase(
 
     const data: IAccountTransactionRes[] = transactions.data.map((trx) => ({
       ...accountTransactionMapper.toDto(trx),
-      balanceEffect: getLedgerAccountBalanceEffect(ledgerAccount, trx.side),
+      balanceEffect: balanceEffectRule.derive(ledgerAccount, trx.side),
     }));
 
     return {

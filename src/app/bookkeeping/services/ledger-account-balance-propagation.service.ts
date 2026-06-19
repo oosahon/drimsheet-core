@@ -1,3 +1,4 @@
+import balanceEffectRule from '../../../domain/accounting/rules/bookkeeping/balance-effect.rule';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
 import {
   EJournalEntryStatus,
@@ -14,7 +15,6 @@ import ILedgerBalanceAdjustmentQueue from '../../ledger/contracts/ledger-balance
 import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment.dto';
 import moneyMapper from '../../shared/mappers/money.mapper';
 import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-adjustment-service.contract';
-import getLedgerAccountBalanceEffect from './helpers/balance-effect.helper';
 
 function getAccountMap(
   journalEntry: IJournalEntry
@@ -93,7 +93,7 @@ export default function makeLedgerAccountBalancePropagationService(
         );
 
         for (const line of journalLines) {
-          const effect = getLedgerAccountBalanceEffect(account, line.side);
+          const effect = balanceEffectRule.derive(account, line.side);
 
           if (effect === ELedgerAccountBalanceEffect.Increase) {
             balanceDelta = moneyValue.add(balanceDelta, line.amount);
