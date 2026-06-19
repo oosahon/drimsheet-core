@@ -25,9 +25,9 @@ import mockCurrencyDomainServices from '../../../../infra/services/domain/__mock
 import { TEntityId } from '../../../../shared/types/uuid';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-import makeRecordOpeningBalanceUseCase from '../record-opening-balance.usecase';
+import makeCreateOpeningBalanceUseCase from '../create-opening-balance.usecase';
 
-describe('recordOpeningBalanceUseCase', () => {
+describe('createOpeningBalanceUseCase', () => {
   const correlationId = 'test-corr-id';
 
   const mockUser: IUser = {
@@ -126,7 +126,7 @@ describe('recordOpeningBalanceUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeRecordOpeningBalanceUseCase(
+    makeCreateOpeningBalanceUseCase(
       mockRequestContext,
       mockLedgerAccountRepo,
       mockEventBus,

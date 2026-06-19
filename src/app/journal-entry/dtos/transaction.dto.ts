@@ -1,37 +1,20 @@
 import z from 'zod';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
-import { UJournalEntryStatus } from '../../../domain/journal-entry/types/journal-entry.types';
 import {
-  exchangeRateReqValidation,
-  IExchangeRateReq,
-  IMoneyDto,
-  moneyDtoValidation,
-} from '../../shared/dtos/money.dto';
+  UJournalEntrySourceType,
+  UJournalEntryStatus,
+} from '../../../domain/journal-entry/types/journal-entry.types';
 import {
   IJournalLineReq,
+  journalEntrySourceTypeValidation,
   journalEntryStatusValidation,
   journalLineReqValidation,
 } from './journal-entry.dto';
 
-export interface IOpeningBalanceDto {
-  amount: IMoneyDto;
-  exchangeRate: IExchangeRateReq | null;
-}
-export const openingBalanceDtoValidation = z.object({
-  amount: moneyDtoValidation,
-  exchangeRate: exchangeRateReqValidation.nullable(),
-});
-export interface IOpeningBalanceCreationReq extends IOpeningBalanceDto {
-  accountId: string;
-}
-
-export const openingBalanceCreationReqValidation = z.object({
-  ...openingBalanceDtoValidation.shape,
-  accountId: z.uuid('Invalid account ID'),
-});
-
-export interface ITransferTransactionReq {
+export interface IJournalEntryReq {
   sourceLine: IJournalLineReq;
+  // TODO: include counterparty when module is available
+  sourceType: UJournalEntrySourceType;
   destinationLines: IJournalLineReq[];
   status: UJournalEntryStatus;
   effectiveDate: Date;
@@ -39,8 +22,9 @@ export interface ITransferTransactionReq {
   memo: string | null;
 }
 
-export const transferTransactionReqValidation = z.object({
+export const journalEntryReqValidation = z.object({
   sourceLine: journalLineReqValidation,
+  sourceType: journalEntrySourceTypeValidation,
   destinationLines: z
     .array(journalLineReqValidation)
     .min(1, 'At least one destination line is required'),

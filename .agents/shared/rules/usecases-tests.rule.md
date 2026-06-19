@@ -16,7 +16,7 @@
 Define your core domain entities, users, and correlation IDs at the root level of your `describe` block. Generate them properly via their domain factories to ensure structural integrity across all tests.
 
 ```typescript
-describe('recordOpeningBalanceUseCase', () => {
+describe('createOpeningBalanceUseCase', () => {
   const correlationId = 'test-corr-id';
 
   const [mockAccountingEntity] = accountingEntityEntity.make({
@@ -56,7 +56,7 @@ Provide a single instantiation helper function within the suite to supply all th
 
 ```typescript
 const getUseCase = () =>
-  makeRecordOpeningBalanceUseCase(
+  makeCreateOpeningBalanceUseCase(
     mockRequestContext,
     mockExchangeRateRepo,
     mockLedgerAccountRepo

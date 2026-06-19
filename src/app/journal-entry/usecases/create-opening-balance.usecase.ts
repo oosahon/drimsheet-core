@@ -13,9 +13,9 @@ import moneyMapper from '../../shared/mappers/money.mapper';
 import {
   IOpeningBalanceCreationReq,
   openingBalanceCreationReqValidation,
-} from '../dtos/transfer-transaction.dto';
+} from '../dtos/opening-balance.dto';
 
-export default function makeRecordOpeningBalanceUseCase(
+export default function makeCreateOpeningBalanceUseCase(
   requestContext: IRequestContext,
   ledgerAccountRepo: ILedgerAccountRepo,
   eventBus: IEventBus,

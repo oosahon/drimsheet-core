@@ -3,11 +3,11 @@ import ledgerRepos from '../../../infra/persistence/repos/ledger';
 import bookkeepingServices from '../../../infra/services/bookkeeping.service';
 import currencyDomainServices from '../../../infra/services/domain/currency.domain.service';
 import appContext from '../../shared/context';
-import makeRecordOpeningBalanceUseCase from './record-opening-balance.usecase';
-import makeRecordTransferJournalEntryUseCase from './record-transfer-journal-entry.usecase';
+import makeCreateJournalEntryUseCase from './create-journal-entry.usecase';
+import makeCreateOpeningBalanceUseCase from './create-opening-balance.usecase';
 
 const journalEntryUseCases = {
-  recordOpeningBalance: makeRecordOpeningBalanceUseCase(
+  createOpeningBalance: makeCreateOpeningBalanceUseCase(
     appContext.request,
     ledgerRepos.ledgerAccount,
     messaging.eventBus,
@@ -16,7 +16,7 @@ const journalEntryUseCases = {
     currencyDomainServices.exchangeRate
   ),
 
-  recordTransfer: makeRecordTransferJournalEntryUseCase(
+  create: makeCreateJournalEntryUseCase(
     appContext.request,
     bookkeepingServices.transactionEntry,
     bookkeepingServices.journalEntryPersistence,

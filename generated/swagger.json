@@ -842,10 +842,13 @@
         "type": "object",
         "additionalProperties": false
       },
-      "ITransferTransactionReq": {
+      "IJournalEntryReq": {
         "properties": {
           "sourceLine": {
             "$ref": "#/components/schemas/IJournalLineReq"
+          },
+          "sourceType": {
+            "$ref": "#/components/schemas/UJournalEntrySourceType"
           },
           "destinationLines": {
             "items": {
@@ -872,6 +875,7 @@
         },
         "required": [
           "sourceLine",
+          "sourceType",
           "destinationLines",
           "status",
           "effectiveDate",
@@ -1673,11 +1677,11 @@
         ]
       }
     },
-    "/journal-entry/transfer": {
+    "/journal-entry": {
       "post": {
-        "operationId": "record-transfer",
+        "operationId": "create",
         "responses": {
-          "200": {
+          "201": {
             "description": ""
           },
           "400": {
@@ -1710,7 +1714,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ITransferTransactionReq"
+                "$ref": "#/components/schemas/IJournalEntryReq"
               }
             }
           }

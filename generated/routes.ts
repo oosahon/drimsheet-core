@@ -695,10 +695,11 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ITransferTransactionReq: {
+  IJournalEntryReq: {
     dataType: 'refObject',
     properties: {
       sourceLine: { ref: 'IJournalLineReq', required: true },
+      sourceType: { ref: 'UJournalEntrySourceType', required: true },
       destinationLines: {
         dataType: 'array',
         array: { dataType: 'refObject', ref: 'IJournalLineReq' },
@@ -1332,25 +1333,20 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsJournalEntryController_recordTransfer: Record<
+  const argsJournalEntryController_create: Record<
     string,
     TsoaRoute.ParameterSchema
   > = {
-    body: {
-      in: 'body',
-      name: 'body',
-      required: true,
-      ref: 'ITransferTransactionReq',
-    },
+    body: { in: 'body', name: 'body', required: true, ref: 'IJournalEntryReq' },
   };
   app.post(
-    '/api/v1/journal-entry/transfer',
+    '/api/v1/journal-entry',
     ...fetchMiddlewares<RequestHandler>(JournalEntryController),
     ...fetchMiddlewares<RequestHandler>(
-      JournalEntryController.prototype.recordTransfer
+      JournalEntryController.prototype.create
     ),
 
-    async function JournalEntryController_recordTransfer(
+    async function JournalEntryController_create(
       request: ExRequest,
       response: ExResponse,
       next: any
@@ -1360,7 +1356,7 @@ export function RegisterRoutes(app: Router) {
       let validatedArgs: any[] = [];
       try {
         validatedArgs = templateService.getValidatedArgs({
-          args: argsJournalEntryController_recordTransfer,
+          args: argsJournalEntryController_create,
           request,
           response,
         });
@@ -1368,12 +1364,12 @@ export function RegisterRoutes(app: Router) {
         const controller = new JournalEntryController();
 
         await templateService.apiHandler({
-          methodName: 'recordTransfer',
+          methodName: 'create',
           controller,
           response,
           next,
           validatedArgs,
-          successStatus: 200,
+          successStatus: 201,
         });
       } catch (err) {
         return next(err);

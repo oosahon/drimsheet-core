@@ -9,7 +9,7 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { ITransferTransactionReq } from '../../../app/journal-entry/dtos/transfer-transaction.dto';
+import { IJournalEntryReq } from '../../../app/journal-entry/dtos/transaction.dto';
 import journalEntryUseCases from '../../../app/journal-entry/usecases';
 import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
 import middlewares from '../middlewares';
@@ -20,16 +20,16 @@ export class JournalEntryController extends Controller {
   /**
    * Create a new petty cash sub account
    */
-  @Post('/transfer')
-  @OperationId('record-transfer')
-  @SuccessResponse('200')
+  @Post('/')
+  @OperationId('create')
+  @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('422')
   @Middlewares(
     middlewares.isAuthenticatedUser,
     middlewares.accountingEntityAccess
   )
-  public async recordTransfer(@Body() body: ITransferTransactionReq) {
-    return journalEntryUseCases.recordTransfer(body);
+  public async create(@Body() body: IJournalEntryReq) {
+    return journalEntryUseCases.create(body);
   }
 }
