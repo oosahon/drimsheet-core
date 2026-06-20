@@ -36,6 +36,16 @@ export default function makeTransactionEntryService(
         repoOptions
       );
 
+      const destinationControlAccounts = destinationAccounts.filter(
+        (v) => v.isControlAccount
+      );
+
+      if (destinationControlAccounts.length > 0) {
+        throw new journalEntryError.ControlAccountTransactionNotAllowed({
+          accountId: destinationControlAccounts.map((v) => v.id),
+        });
+      }
+
       const missingDestinationAccountIds = _.difference(
         destinationAccountIds,
         destinationAccounts.map((account) => account.id)

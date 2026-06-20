@@ -823,9 +823,6 @@
             "type": "string",
             "nullable": true
           },
-          "side": {
-            "$ref": "#/components/schemas/UJournalSide"
-          },
           "sequenceOrder": {
             "type": "number",
             "format": "double"
@@ -836,7 +833,6 @@
           "amount",
           "exchangeRate",
           "description",
-          "side",
           "sequenceOrder"
         ],
         "type": "object",
@@ -876,6 +872,45 @@
         "required": [
           "sourceLine",
           "sourceType",
+          "destinationLines",
+          "status",
+          "effectiveDate",
+          "postedAt",
+          "memo"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ITransactionJournalEntryReq": {
+        "properties": {
+          "sourceLine": {
+            "$ref": "#/components/schemas/IJournalLineReq"
+          },
+          "destinationLines": {
+            "items": {
+              "$ref": "#/components/schemas/IJournalLineReq"
+            },
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UJournalEntryStatus"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "memo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sourceLine",
           "destinationLines",
           "status",
           "effectiveDate",
@@ -1705,8 +1740,9 @@
             }
           }
         },
-        "description": "Create a new petty cash sub account",
+        "description": "Create a new journal entry",
         "tags": ["Journal Entries"],
+        "deprecated": true,
         "security": [],
         "parameters": [],
         "requestBody": {
@@ -1715,6 +1751,94 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/IJournalEntryReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/journal-entry/payment": {
+      "post": {
+        "operationId": "createPayment",
+        "responses": {
+          "201": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a payment journal entry",
+        "tags": ["Journal Entries"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ITransactionJournalEntryReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/journal-entry/transfer": {
+      "post": {
+        "operationId": "createTransfer",
+        "responses": {
+          "201": {
+            "description": ""
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a transfer journal entry",
+        "tags": ["Journal Entries"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ITransactionJournalEntryReq"
               }
             }
           }

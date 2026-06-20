@@ -689,7 +689,6 @@ const models: TsoaRoute.Models = {
         ],
         required: true,
       },
-      side: { ref: 'UJournalSide', required: true },
       sequenceOrder: { dataType: 'double', required: true },
     },
     additionalProperties: false,
@@ -700,6 +699,37 @@ const models: TsoaRoute.Models = {
     properties: {
       sourceLine: { ref: 'IJournalLineReq', required: true },
       sourceType: { ref: 'UJournalEntrySourceType', required: true },
+      destinationLines: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IJournalLineReq' },
+        required: true,
+      },
+      status: { ref: 'UJournalEntryStatus', required: true },
+      effectiveDate: { dataType: 'datetime', required: true },
+      postedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      memo: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ITransactionJournalEntryReq: {
+    dataType: 'refObject',
+    properties: {
+      sourceLine: { ref: 'IJournalLineReq', required: true },
       destinationLines: {
         dataType: 'array',
         array: { dataType: 'refObject', ref: 'IJournalLineReq' },
@@ -1365,6 +1395,104 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'create',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsJournalEntryController_createPayment: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'ITransactionJournalEntryReq',
+    },
+  };
+  app.post(
+    '/api/v1/journal-entry/payment',
+    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
+    ...fetchMiddlewares<RequestHandler>(
+      JournalEntryController.prototype.createPayment
+    ),
+
+    async function JournalEntryController_createPayment(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsJournalEntryController_createPayment,
+          request,
+          response,
+        });
+
+        const controller = new JournalEntryController();
+
+        await templateService.apiHandler({
+          methodName: 'createPayment',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsJournalEntryController_createTransfer: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'ITransactionJournalEntryReq',
+    },
+  };
+  app.post(
+    '/api/v1/journal-entry/transfer',
+    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
+    ...fetchMiddlewares<RequestHandler>(
+      JournalEntryController.prototype.createTransfer
+    ),
+
+    async function JournalEntryController_createTransfer(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsJournalEntryController_createTransfer,
+          request,
+          response,
+        });
+
+        const controller = new JournalEntryController();
+
+        await templateService.apiHandler({
+          methodName: 'createTransfer',
           controller,
           response,
           next,
