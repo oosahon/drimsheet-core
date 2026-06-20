@@ -14,16 +14,13 @@ import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-acc
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
-import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
-import mockLedgerAccountHistoryRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-history.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
+import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookkeeping.service.mock';
 import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
-import mockJournalEntryDomainServices from '../../../../infra/services/domain/__mocks__/journal-entry.domain.service.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
@@ -89,6 +86,44 @@ describe('createPettyCashSubAccountUseCase', () => {
       }
     );
 
+  const [
+    mockOpeningBalanceJournalEntry,
+    mockOpeningBalanceEvents,
+    mockOpeningBalanceAudit,
+  ] = journalEntryEntity.make({
+    accountingEntityId: mockAccountingEntity.id,
+    sourceType: EJournalEntrySourceType.OpeningBalance,
+    counterPartyId: null,
+    status: EJournalEntryStatus.Posted,
+    effectiveDate: new Date(),
+    postedAt: new Date(),
+    voidedAt: null,
+    voidingEntryId: null,
+    memo: 'Opening balance',
+    createdBy: mockUser.id,
+    functionalCurrency: SYSTEM_CURRENCIES.NGN,
+    lines: [
+      {
+        accountId: mockPettyCashAccount.id,
+        sequenceOrder: 1,
+        amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+        exchangeRate: null,
+        side: EJournalSide.Debit,
+        description: 'Opening balance',
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      },
+      {
+        accountId: mockControlAccount.id,
+        sequenceOrder: 2,
+        amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+        exchangeRate: null,
+        side: EJournalSide.Credit,
+        description: 'Opening balance',
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      },
+    ],
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -104,62 +139,26 @@ describe('createPettyCashSubAccountUseCase', () => {
     mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue(
       [mockPettyCashAccount, mockEvents, mockPettyCashAudit]
     );
-    mockJournalEntryDomainServices.journalEntry.recordOpeningBalance.mockResolvedValue(
-      journalEntryEntity.make({
-        accountingEntityId: mockAccountingEntity.id,
-        sourceType: EJournalEntrySourceType.OpeningBalance,
-        counterPartyId: null,
-        status: EJournalEntryStatus.Posted,
-        effectiveDate: new Date(),
-        postedAt: new Date(),
-        voidedAt: null,
-        voidingEntryId: null,
-        memo: 'Opening balance',
-        createdBy: mockUser.id,
-        functionalCurrency: SYSTEM_CURRENCIES.NGN,
-        lines: [
-          {
-            accountId: mockPettyCashAccount.id,
-            sequenceOrder: 1,
-            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
-            exchangeRate: null,
-            side: EJournalSide.Debit,
-            description: 'Opening balance',
-            functionalCurrency: SYSTEM_CURRENCIES.NGN,
-          },
-          {
-            accountId: mockControlAccount.id,
-            sequenceOrder: 2,
-            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
-            exchangeRate: null,
-            side: EJournalSide.Credit,
-            description: 'Opening balance',
-            functionalCurrency: SYSTEM_CURRENCIES.NGN,
-          },
-        ],
-      })
-    );
+    mockBookkeepingServices.openingBalanceEntry.create.mockResolvedValue([
+      mockOpeningBalanceJournalEntry,
+      mockOpeningBalanceEvents,
+      mockOpeningBalanceAudit,
+    ]);
     mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue({
       rate: 1,
     } as unknown as IExchangeRate);
   });
 
-  const mockRepos = {
-    ledgerAccount: mockLedgerAccountRepo,
-    ledgerAccountHistory: mockLedgerAccountHistoryRepo,
-    journalEntry: mockJournalEntryRepo,
-    journalLine: mockJournalLineRepo,
-  };
-
   const getUseCase = () =>
     makeCreatePettyCashAccountUseCase(
       mockRequestContext,
       mockEventBus,
-      mockRepos,
       mockLedgerDomainServices.assetAccount,
-      mockJournalEntryDomainServices.journalEntry,
+      mockBookkeepingServices.openingBalanceEntry,
       mockCurrencyDomainServices.exchangeRate,
-      mockRepoService
+      mockBookkeepingServices.journalEntryPersistence,
+      mockRepoService,
+      mockLedgerDomainServices.persistence
     );
 
   it('should successfully create a petty cash sub-account and record opening balance', async () => {
@@ -181,29 +180,44 @@ describe('createPettyCashSubAccountUseCase', () => {
       { correlationId }
     );
 
-    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockLedgerAccountRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: validPayload.name,
-        accountingEntityId: mockAccountingEntity.id,
-      }),
+    expect(mockLedgerDomainServices.persistence.create).toHaveBeenCalledWith(
+      mockPettyCashAccount,
+      mockAccountingEntity.functionalCurrencyCode,
       expect.objectContaining({
         correlationId,
         tx: 'mock-tx',
+        history: expect.arrayContaining([
+          expect.objectContaining({
+            entityId: mockPettyCashAccount.id,
+            correlationId,
+            actor: expect.objectContaining({ userId: mockUser.id }),
+          }),
+        ]),
       })
     );
-    expect(mockJournalEntryRepo.create).toHaveBeenCalledWith(
-      expect.any(Object),
+
+    expect(
+      mockBookkeepingServices.journalEntryPersistence.create
+    ).toHaveBeenCalledWith(
+      mockOpeningBalanceJournalEntry,
       expect.objectContaining({
-        history: expect.any(Object),
-      })
-    );
-    expect(mockJournalLineRepo.create).toHaveBeenCalledWith(
-      expect.any(Array),
-      expect.objectContaining({
-        history: expect.any(Array),
-        accountingEntityId: mockAccountingEntity.id,
-      })
+        entityId: mockOpeningBalanceJournalEntry.id,
+        correlationId,
+        actor: expect.objectContaining({ userId: mockUser.id }),
+      }),
+      expect.arrayContaining(
+        mockOpeningBalanceJournalEntry.lines.map((line) =>
+          expect.objectContaining({
+            entityId: line.id,
+            correlationId,
+            actor: expect.objectContaining({ userId: mockUser.id }),
+          })
+        )
+      ),
+      {
+        correlationId,
+        tx: 'mock-tx',
+      }
     );
 
     expect(
@@ -213,16 +227,14 @@ describe('createPettyCashSubAccountUseCase', () => {
     });
 
     expect(
-      mockJournalEntryDomainServices.journalEntry.recordOpeningBalance
+      mockBookkeepingServices.openingBalanceEntry.create
     ).toHaveBeenCalledWith(
+      mockAccountingEntity,
+      mockPettyCashAccount,
       expect.objectContaining({
-        account: mockPettyCashAccount,
-        amount: expect.objectContaining({
-          amount: 1000n,
-        }),
-        accountingEntity: mockAccountingEntity,
-        exchangeRate: expect.anything(),
+        amount: 1000n,
       }),
+      expect.anything(),
       { correlationId }
     );
 
@@ -240,13 +252,22 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     await useCase({ ...validPayload, openingBalance: null });
 
-    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-    expect(mockLedgerAccountRepo.create).toHaveBeenCalledWith(
+    expect(
+      mockBookkeepingServices.journalEntryPersistence.create
+    ).not.toHaveBeenCalled();
+    expect(mockLedgerDomainServices.persistence.create).toHaveBeenCalledWith(
+      mockPettyCashAccount,
+      mockAccountingEntity.functionalCurrencyCode,
       expect.objectContaining({
-        name: validPayload.name,
-        accountingEntityId: mockAccountingEntity.id,
-      }),
-      expect.objectContaining({ correlationId })
+        correlationId,
+        history: expect.arrayContaining([
+          expect.objectContaining({
+            entityId: mockPettyCashAccount.id,
+            correlationId,
+            actor: expect.objectContaining({ userId: mockUser.id }),
+          }),
+        ]),
+      })
     );
     expect(mockEventBus.publish).toHaveBeenCalledWith(
       expect.arrayContaining([
@@ -256,7 +277,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       ])
     );
     expect(
-      mockJournalEntryDomainServices.journalEntry.recordOpeningBalance
+      mockBookkeepingServices.openingBalanceEntry.create
     ).not.toHaveBeenCalled();
   });
 

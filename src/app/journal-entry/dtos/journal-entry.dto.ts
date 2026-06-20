@@ -56,7 +56,6 @@ export interface IJournalLineReq {
   amount: IMoneyDto;
   exchangeRate: IExchangeRateReq | null;
   description: string | null;
-  side: UJournalSide;
   sequenceOrder: number;
 }
 
@@ -69,7 +68,6 @@ export const journalLineReqValidation = z.object({
     .max(100, descriptionError)
     .min(1, descriptionError)
     .nullable(),
-  side: journalEntrySideValidation,
   sequenceOrder: z.number(sequenceOrderError).int().positive(),
 });
 

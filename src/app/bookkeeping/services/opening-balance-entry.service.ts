@@ -1,0 +1,97 @@
+import currencyEntity from '../../../domain/currency/entities/currency.entity';
+import journalEntryEntity from '../../../domain/journal-entry/entities/journal-entry.entity';
+import journalLineEntity from '../../../domain/journal-entry/entities/journal-line.entity';
+import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '../../../domain/journal-entry/types/journal-entry.types';
+import { IJournalLineMakePayload } from '../../../domain/journal-entry/types/journal-line.types';
+import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import { EEquitySubType } from '../../../domain/ledger/types/equity-account.types';
+import { ELedgerType } from '../../../domain/ledger/types/ledger.types';
+import IOpeningBalanceEntryService from '../contracts/opening-balance-entry.service.contract';
+
+export default function makeOpeningBalanceEntryService(
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
+  ledgerAccountRepo: ILedgerAccountRepo
+): IOpeningBalanceEntryService {
+  return {
+    async create(accountingEntity, account, amount, exchangeRate, repoOptions) {
+      if (account.isControlAccount) {
+        throw new journalEntryError.ControlAccountOpeningBalanceNotAllowed({
+          accountId: account.id,
+        });
+      }
+
+      const functionalCurrency = currencyEntity.getByCode(
+        accountingEntity.functionalCurrencyCode
+      );
+
+      const [existingBalanceAdjustment] =
+        await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
+          account.id,
+          repoOptions
+        );
+
+      if (existingBalanceAdjustment) {
+        throw new journalEntryError.ExistingOpeningBalance({
+          accountId: account.id,
+        });
+      }
+
+      const [equityAccount] = await ledgerAccountRepo.findBySubType(
+        account.accountingEntityId,
+        ELedgerType.Equity,
+        EEquitySubType.OpeningBalance,
+        repoOptions
+      );
+
+      if (!equityAccount) {
+        throw new journalEntryError.UnconfiguredOpeningBalanceAccount();
+      }
+
+      const accountSide: IJournalLineMakePayload = {
+        accountId: account.id,
+        // TODO: use current reporting context currency
+        functionalCurrency,
+        amount,
+        exchangeRate,
+        sequenceOrder: 1,
+        side: account.normalBalance,
+        description: 'Opening balance',
+      };
+
+      const equitySide: IJournalLineMakePayload = {
+        accountId: equityAccount.id,
+        // TODO: use current reporting context currency
+        functionalCurrency,
+        amount,
+        exchangeRate,
+        sequenceOrder: 2,
+        description: null,
+        side: journalLineEntity.getOppositeSide(account.normalBalance),
+      };
+
+      const timestamp = new Date();
+
+      const journalEntry = journalEntryEntity.make({
+        accountingEntityId: account.accountingEntityId,
+        sourceType: EJournalEntrySourceType.OpeningBalance,
+        counterPartyId: null,
+        status: EJournalEntryStatus.Posted,
+        effectiveDate: timestamp,
+        postedAt: timestamp,
+        voidedAt: null,
+        voidingEntryId: null,
+        memo: 'Opening balance',
+        createdBy: account.createdBy,
+        functionalCurrency,
+        lines: [accountSide, equitySide],
+      });
+
+      return journalEntry;
+    },
+  };
+}

@@ -1,5 +1,6 @@
+import { IEvent } from '../../../shared/types/event.types';
 import { IEntityDelta, IHistory } from '../../../shared/types/history.types';
-import { IJournalHeader } from './journal-entry.types';
+import { IJournalEntry, IJournalHeader } from './journal-entry.types';
 import { IJournalLine } from './journal-line.types';
 
 export const EJournalEntryAuditAction = {
@@ -26,11 +27,6 @@ export interface IMakeJournalEntryAuditPayload {
 
 export interface IJournalEntryHistory extends IHistory<IJournalHeader> {}
 
-export interface IJournalEntryCreationAudit {
-  header: IJournalEntryAudit;
-  lines: IJournalLineAudit[];
-}
-
 export const EJournalLineAuditAction = {
   Created: 'created',
   Updated: 'updated',
@@ -51,3 +47,12 @@ export interface IMakeJournalLineAuditPayload {
 }
 
 export interface IJournalLineHistory extends IHistory<IJournalLine> {}
+
+export type TAuditedJournalEntry = [
+  IJournalEntry,
+  IEvent<IJournalEntry | IJournalLine>[],
+  {
+    header: IJournalEntryAudit;
+    lines: IJournalLineAudit[];
+  },
+];

@@ -9,7 +9,7 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { ITransferTransactionReq } from '../../../app/journal-entry/dtos/transfer-transaction.dto';
+import { ITransactionJournalEntryReq } from '../../../app/journal-entry/dtos/transaction-journal-entry.dto';
 import journalEntryUseCases from '../../../app/journal-entry/usecases';
 import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
 import middlewares from '../middlewares';
@@ -18,18 +18,34 @@ import middlewares from '../middlewares';
 @Tags('Journal Entries')
 export class JournalEntryController extends Controller {
   /**
-   * Create a new petty cash sub account
+   * Create a payment journal entry
    */
-  @Post('/transfer')
-  @OperationId('record-transfer')
-  @SuccessResponse('200')
+  @Post('/payment')
+  @OperationId('createPayment')
+  @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('422')
   @Middlewares(
     middlewares.isAuthenticatedUser,
     middlewares.accountingEntityAccess
   )
-  public async recordTransfer(@Body() body: ITransferTransactionReq) {
-    return journalEntryUseCases.recordTransfer(body);
+  public async createPayment(@Body() body: ITransactionJournalEntryReq) {
+    return journalEntryUseCases.createPayment(body);
+  }
+
+  /**
+   * Create a transfer journal entry
+   */
+  @Post('/transfer')
+  @OperationId('createTransfer')
+  @SuccessResponse('201')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('422')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.accountingEntityAccess
+  )
+  public async createTransfer(@Body() body: ITransactionJournalEntryReq) {
+    return journalEntryUseCases.createTransfer(body);
   }
 }

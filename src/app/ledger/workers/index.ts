@@ -3,7 +3,7 @@ import makeLedgerAccountBalanceAdjustmentWorker from './ledger-account-balance-a
 
 const ledgerWorkers = {
   ledgerAccountBalanceAdjustment: makeLedgerAccountBalanceAdjustmentWorker(
-    observability.logger
+    observability.reporter
   ),
 };
 

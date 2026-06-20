@@ -5,9 +5,10 @@ import getDbQuery from '../helpers/query';
 
 const ledgerAccountHistoryRepo: ILedgerAccountHistoryRepo = {
   save: async (histories, options) => {
+    const values = Array.isArray(histories) ? histories : [histories];
     await getDbQuery(options)
       .insert(ledgerAccountHistoryInAudit)
-      .values(histories.map(ledgerAccountHistoryMapper.toRepo));
+      .values(values.map(ledgerAccountHistoryMapper.toRepo));
   },
 };
 

@@ -1,4 +1,3 @@
-import { IEvent } from '../../../shared/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
@@ -6,25 +5,18 @@ import journalEntryError from '../errors/journal-entry.error';
 import journalEntryEvents from '../events/journal-entry.events';
 import {
   EJournalEntryAuditAction,
-  IJournalEntryCreationAudit,
+  TAuditedJournalEntry,
 } from '../types/journal-entry-audit.types';
 import {
   IJournalEntry,
   IJournalHeader,
   IjournalEntryMakePayload,
 } from '../types/journal-entry.types';
-import { IJournalLine } from '../types/journal-line.types';
 import journalEntryAudit from '../value-objects/journal-entry-audit.vo';
 import helpers from './helpers/journal-entry.entity.helpers';
 import journalLineEntity from './journal-line.entity';
 
-function make(
-  payload: IjournalEntryMakePayload
-): [
-  IJournalEntry,
-  IEvent<IJournalEntry | IJournalLine>[],
-  IJournalEntryCreationAudit,
-] {
+function make(payload: IjournalEntryMakePayload): TAuditedJournalEntry {
   stringUtils.validateUUID(
     payload.accountingEntityId,
     journalEntryError.InvalidValue

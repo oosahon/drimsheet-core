@@ -1,17 +1,19 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
-import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
-import IJournalLineRepo from '../../../domain/journal-entry/repos/journal-line.repo';
-import IJournalEntryService from '../../../domain/journal-entry/types/journal-entry.service.types';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
+import ILedgerAccountPersistenceService from '../../../domain/ledger/types/ledger-account-persistence.service.types';
 import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
-import { IRepoService } from '../../../shared/contracts/repo.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '../../../shared/contracts/repo.contract';
 import { IEvent } from '../../../shared/types/event.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
+import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
+import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
 import {
@@ -19,20 +21,15 @@ import {
   pettyCashCreationReqValidation,
 } from '../dtos/asset-account.dto';
 
-interface ICreatePettyCashAccountRepos {
-  ledgerAccount: ILedgerAccountRepo;
-  journalEntry: IJournalEntryRepo;
-  journalLine: IJournalLineRepo;
-}
-
 export default function makeCreatePettyCashAccountUseCase(
   requestContext: IRequestContext,
   eventBus: IEventBus,
-  repos: ICreatePettyCashAccountRepos,
   assetAccountService: IAssetAccountService,
-  journalEntryService: IJournalEntryService,
+  openingBalanceEntryService: IOpeningBalanceEntryService,
   exchangeRateService: IExchangeRateService,
-  repoService: IRepoService
+  journalEntryPersistenceService: IJournalEntryPersistenceService,
+  repoService: IRepoService,
+  ledgerAccountPersistenceService: ILedgerAccountPersistenceService
 ) {
   return async (payload: IPettyCashAccountCreationReq) => {
     zodValidationRunner(pettyCashCreationReqValidation, payload);
@@ -57,11 +54,19 @@ export default function makeCreatePettyCashAccountUseCase(
       historyValue.make(accountAudit, actor, correlationId),
     ];
 
+    const { functionalCurrencyCode } = accountingEntity;
+
     if (!payload.openingBalance) {
-      await repos.ledgerAccount.create(account, {
+      const repoOptions = {
         ...trace,
         history: accountHistory,
-      });
+      };
+
+      await ledgerAccountPersistenceService.create(
+        account,
+        functionalCurrencyCode,
+        repoOptions
+      );
       eventBus.publish(eventValue.enrichAll(accountEvents, trace));
       return;
     }
@@ -74,46 +79,43 @@ export default function makeCreatePettyCashAccountUseCase(
       trace
     );
 
-    const openingBalancePayload = {
-      account,
-      amount: openingBalanceAmount,
-      accountingEntity,
-      exchangeRate,
-    };
-
     const [journalEntry, journalEvents, audit] =
-      await journalEntryService.recordOpeningBalance(
-        openingBalancePayload,
+      await openingBalanceEntryService.create(
+        accountingEntity,
+        account,
+        openingBalanceAmount,
+        exchangeRate,
         trace
       );
 
-    await repoService.runInTransaction(async (tx) => {
-      const repoOptions = { tx, correlationId };
-      await repos.ledgerAccount.create(account, {
+    const headerHistory = historyValue.make(audit.header, actor, correlationId);
+    const lineHistories = audit.lines.map((lineAudit) =>
+      historyValue.make(lineAudit, actor, correlationId)
+    );
+
+    const dbTransactionFn: TRepoTransactionFn = async (tx) => {
+      const repoOptions = { ...trace, tx };
+
+      const accountRepoOptions = {
         ...repoOptions,
         history: accountHistory,
-      });
+      };
 
-      const { lines, ...header } = journalEntry;
-      const headerHistory = historyValue.make(
-        audit.header,
-        actor,
-        correlationId
-      );
-      const lineHistories = audit.lines.map((lineAudit) =>
-        historyValue.make(lineAudit, actor, correlationId)
+      await ledgerAccountPersistenceService.create(
+        account,
+        functionalCurrencyCode,
+        accountRepoOptions
       );
 
-      await repos.journalEntry.create(header, {
-        ...repoOptions,
-        history: headerHistory,
-      });
-      await repos.journalLine.create(lines, {
-        ...repoOptions,
-        history: lineHistories,
-        accountingEntityId: header.accountingEntityId,
-      });
-    });
+      await journalEntryPersistenceService.create(
+        journalEntry,
+        headerHistory,
+        lineHistories,
+        repoOptions
+      );
+    };
+
+    await repoService.runInTransaction(dbTransactionFn);
 
     const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];
     eventBus.publish(eventValue.enrichAll(allEvents, trace));

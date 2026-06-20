@@ -3,7 +3,7 @@ import { ILedgerAccountHistory } from '../types/ledger-account-audit.types';
 
 export default interface ILedgerAccountHistoryRepo {
   save(
-    histories: ILedgerAccountHistory[],
+    histories: ILedgerAccountHistory | ILedgerAccountHistory[],
     options: IWriteRepoOptions
   ): Promise<void>;
 }
