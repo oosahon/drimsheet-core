@@ -694,38 +694,6 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IJournalEntryReq: {
-    dataType: 'refObject',
-    properties: {
-      sourceLine: { ref: 'IJournalLineReq', required: true },
-      sourceType: { ref: 'UJournalEntrySourceType', required: true },
-      destinationLines: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'IJournalLineReq' },
-        required: true,
-      },
-      status: { ref: 'UJournalEntryStatus', required: true },
-      effectiveDate: { dataType: 'datetime', required: true },
-      postedAt: {
-        dataType: 'union',
-        subSchemas: [
-          { dataType: 'datetime' },
-          { dataType: 'enum', enums: [null] },
-        ],
-        required: true,
-      },
-      memo: {
-        dataType: 'union',
-        subSchemas: [
-          { dataType: 'string' },
-          { dataType: 'enum', enums: [null] },
-        ],
-        required: true,
-      },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ITransactionJournalEntryReq: {
     dataType: 'refObject',
     properties: {
@@ -1356,50 +1324,6 @@ export function RegisterRoutes(app: Router) {
           next,
           validatedArgs,
           successStatus: 200,
-        });
-      } catch (err) {
-        return next(err);
-      }
-    }
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsJournalEntryController_create: Record<
-    string,
-    TsoaRoute.ParameterSchema
-  > = {
-    body: { in: 'body', name: 'body', required: true, ref: 'IJournalEntryReq' },
-  };
-  app.post(
-    '/api/v1/journal-entry',
-    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
-    ...fetchMiddlewares<RequestHandler>(
-      JournalEntryController.prototype.create
-    ),
-
-    async function JournalEntryController_create(
-      request: ExRequest,
-      response: ExResponse,
-      next: any
-    ) {
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = templateService.getValidatedArgs({
-          args: argsJournalEntryController_create,
-          request,
-          response,
-        });
-
-        const controller = new JournalEntryController();
-
-        await templateService.apiHandler({
-          methodName: 'create',
-          controller,
-          response,
-          next,
-          validatedArgs,
-          successStatus: 201,
         });
       } catch (err) {
         return next(err);

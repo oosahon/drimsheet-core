@@ -4,6 +4,7 @@ import makeLedgerAccountBalancePropagationService from '../../app/bookkeeping/se
 import makeOpeningBalanceEntryService from '../../app/bookkeeping/services/opening-balance-entry.service';
 import makeTransactionEntryService from '../../app/bookkeeping/services/transaction-entry.service';
 import messaging from '../messaging';
+import observability from '../observability';
 import journalEntryRepos from '../persistence/repos/journal-entry';
 import ledgerRepos from '../persistence/repos/ledger';
 
@@ -23,7 +24,8 @@ const journalEntryPersistence = makeJournalEntryPersistenceService(
   services.repo,
   journalEntryRepos.journalEntry,
   journalEntryRepos.journalLine,
-  balancePropagation
+  balancePropagation,
+  observability.reporter
 );
 
 const bookkeepingServices = Object.freeze({

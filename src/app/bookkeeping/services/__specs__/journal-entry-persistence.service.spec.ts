@@ -15,6 +15,7 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities/03-equity-account/99-opening-balance-equity.entity';
 import userEntity from '../../../../domain/user/entities/user.entity';
+import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
 import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
 import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookkeeping.service.mock';
@@ -29,7 +30,8 @@ describe('journalEntryPersistenceService', () => {
     mockRepoService,
     mockJournalEntryRepo,
     mockJournalLineRepo,
-    mockBookkeepingServices.balancePropagation
+    mockBookkeepingServices.balancePropagation,
+    mockReporter
   );
 
   const mockOptions: IRepoOptions = {
@@ -187,10 +189,7 @@ describe('journalEntryPersistenceService', () => {
       });
       expect(
         mockBookkeepingServices.balancePropagation.propagate
-      ).toHaveBeenCalledWith(journalEntry, {
-        ...mockOptions,
-        tx: 'mock-tx',
-      });
+      ).toHaveBeenCalledWith(journalEntry, mockOptions);
     });
 
     it('should stop before creating lines or propagating balances if header persistence fails', async () => {
@@ -227,7 +226,7 @@ describe('journalEntryPersistenceService', () => {
       ).not.toHaveBeenCalled();
     });
 
-    it('should propagate balance propagation errors after persistence succeeds', async () => {
+    it('should catch and report balance propagation errors after persistence succeeds', async () => {
       const { headerHistory, journalEntry, linesHistory } = makeFixture();
       const error = new Error('balance propagation failed');
 
@@ -237,16 +236,14 @@ describe('journalEntryPersistenceService', () => {
 
       await expect(
         service.create(journalEntry, headerHistory, linesHistory, mockOptions)
-      ).rejects.toThrow(error);
+      ).resolves.toBeUndefined();
 
       expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
       expect(mockJournalLineRepo.create).toHaveBeenCalledTimes(1);
       expect(
         mockBookkeepingServices.balancePropagation.propagate
-      ).toHaveBeenCalledWith(journalEntry, {
-        ...mockOptions,
-        tx: 'mock-tx',
-      });
+      ).toHaveBeenCalledWith(journalEntry, mockOptions);
+      expect(mockReporter.report).toHaveBeenCalledWith(error);
     });
   });
 });

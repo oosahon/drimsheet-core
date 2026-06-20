@@ -1,5 +1,6 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import {
   EExchangeRateType,
   IExchangeRate,
@@ -19,10 +20,9 @@ import mockRequestContext, {
 import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-import { IJournalEntryReq } from '../../dtos/transaction.dto';
-import makeCreateJournalEntryUseCase from '../create-journal-entry.usecase';
+import makeCreatePaymentJournalEntryUseCase from '../create-payment-journal-entry.usecase';
 
-describe('createJournalEntryUseCase', () => {
+describe('createPaymentJournalEntryUseCase', () => {
   const correlationId = 'test-corr-id';
 
   const mockUser: IUser = {
@@ -44,29 +44,42 @@ describe('createJournalEntryUseCase', () => {
     jurisdictionCode: 'NG',
   });
 
-  const validPayload: IJournalEntryReq = {
-    sourceType: EJournalEntrySourceType.Adjustment,
-    status: EJournalEntryStatus.Draft,
-    effectiveDate: new Date('2026-06-19T00:00:00.000Z'),
-    postedAt: null,
-    memo: 'Test memo',
-    sourceLine: {
-      accountId: '123e4567-e89b-12d3-a456-426614174003',
-      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-      exchangeRate: null,
-      description: 'Source line description',
-      sequenceOrder: 1,
-    },
-    destinationLines: [
+  const accountId1 = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
+  const accountId2 = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+
+  const mockJournalEntryResult = journalEntryEntity.make({
+    accountingEntityId: mockAccountingEntity.id,
+    sourceType: EJournalEntrySourceType.Payment,
+    counterPartyId: null,
+    status: EJournalEntryStatus.Posted,
+    effectiveDate: new Date(),
+    postedAt: new Date(),
+    voidedAt: null,
+    voidingEntryId: null,
+    memo: 'Payment memo',
+    createdBy: mockUser.id,
+    functionalCurrency: SYSTEM_CURRENCIES.NGN,
+    lines: [
       {
-        accountId: '123e4567-e89b-12d3-a456-426614174004',
-        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        accountId: accountId1,
+        sequenceOrder: 1,
+        amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
         exchangeRate: null,
-        description: 'Destination line description',
+        side: EJournalSide.Debit,
+        description: 'Source Line',
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      },
+      {
+        accountId: accountId2,
         sequenceOrder: 2,
+        amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+        exchangeRate: null,
+        side: EJournalSide.Credit,
+        description: 'Destination Line',
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
       },
     ],
-  };
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -78,28 +91,21 @@ describe('createJournalEntryUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IRequestContextData);
 
-    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
-      null
+    mockBookkeepingServices.transactionEntry.create.mockResolvedValue(
+      mockJournalEntryResult
     );
 
-    mockBookkeepingServices.transactionEntry.create.mockImplementation(
-      async (source, destinations, header) => {
-        return journalEntryEntity.make({
-          ...header,
-          lines: [
-            { ...source, side: EJournalSide.Credit },
-            ...destinations.map((d: any) => ({
-              ...d,
-              side: EJournalSide.Debit,
-            })),
-          ],
-        });
-      }
+    mockBookkeepingServices.journalEntryPersistence.create.mockResolvedValue(
+      undefined
+    );
+
+    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
+      null
     );
   });
 
   const getUseCase = () =>
-    makeCreateJournalEntryUseCase(
+    makeCreatePaymentJournalEntryUseCase(
       mockRequestContext,
       mockBookkeepingServices.transactionEntry,
       mockBookkeepingServices.journalEntryPersistence,
@@ -107,125 +113,117 @@ describe('createJournalEntryUseCase', () => {
       mockEventBus
     );
 
-  it('should successfully create a journal entry', async () => {
+  const validPayload = {
+    sourceLine: {
+      accountId: accountId1,
+      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      exchangeRate: null,
+      description: 'Source Line',
+      sequenceOrder: 1,
+    },
+    destinationLines: [
+      {
+        accountId: accountId2,
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Destination Line',
+        sequenceOrder: 2,
+      },
+    ],
+    status: EJournalEntryStatus.Posted,
+    effectiveDate: new Date(),
+    postedAt: new Date(),
+    memo: 'Payment memo',
+  };
+
+  it('should successfully record payment journal entry', async () => {
     const useCase = getUseCase();
 
     await useCase(validPayload);
 
     expect(
+      mockCurrencyDomainServices.exchangeRate.getExchangeRate
+    ).toHaveBeenCalledWith(null, { correlationId });
+    expect(
       mockBookkeepingServices.transactionEntry.create
     ).toHaveBeenCalledWith(
       expect.objectContaining({
-        accountId: validPayload.sourceLine.accountId,
+        accountId: accountId1,
+        sequenceOrder: 1,
       }),
       expect.arrayContaining([
         expect.objectContaining({
-          accountId: validPayload.destinationLines[0].accountId,
+          accountId: accountId2,
+          sequenceOrder: 2,
         }),
       ]),
       expect.objectContaining({
         accountingEntityId: mockAccountingEntity.id,
-        sourceType: validPayload.sourceType,
-        status: validPayload.status,
+        sourceType: EJournalEntrySourceType.Payment,
       }),
       { correlationId }
     );
-
     expect(
       mockBookkeepingServices.journalEntryPersistence.create
     ).toHaveBeenCalledWith(
-      expect.objectContaining({
-        accountingEntityId: mockAccountingEntity.id,
-      }),
-      expect.objectContaining({
-        action: 'created',
-        correlationId,
-      }),
-      expect.arrayContaining([
-        expect.objectContaining({
-          action: 'created',
-          correlationId,
-        }),
-      ]),
+      mockJournalEntryResult[0],
+      expect.any(Object),
+      expect.any(Array),
       { correlationId }
     );
-
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
-  it('should retrieve exchange rates when exchangeRate field is provided', async () => {
+  it('should handle exchange rates correctly when provided', async () => {
+    const useCase = getUseCase();
+
     const mockExchangeRate: IExchangeRate = {
       currencyPair: 'USD/NGN',
       baseCurrencyCode: 'USD',
       targetCurrencyCode: 'NGN',
       rate: 1500,
       type: EExchangeRateType.Official,
-      asOf: new Date('2026-06-19T00:00:00.000Z'),
+      asOf: new Date(),
       source: 'test',
       createdAt: new Date(),
     };
 
-    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockImplementation(
-      async (req) => (req ? mockExchangeRate : null)
+    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
+      mockExchangeRate
     );
 
-    const payloadWithRates: IJournalEntryReq = {
+    const payload = {
       ...validPayload,
       sourceLine: {
         ...validPayload.sourceLine,
         amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
         exchangeRate: {
+          id: 1,
           baseCurrencyCode: 'USD',
           targetCurrencyCode: 'NGN',
           rate: 1500,
           type: EExchangeRateType.Official,
-          asOf: '2026-06-19T00:00:00.000Z' as unknown as Date,
+          asOf: new Date().toISOString() as unknown as Date,
           source: 'test',
         },
       },
-      destinationLines: [
-        {
-          ...validPayload.destinationLines[0],
-          amount: { amount: 1500000, currencyCode: 'NGN', isMinorUnit: true },
-          exchangeRate: null,
-        },
-      ],
     };
 
-    const useCase = getUseCase();
-    await useCase(payloadWithRates);
+    await useCase(payload);
 
     expect(
       mockCurrencyDomainServices.exchangeRate.getExchangeRate
-    ).toHaveBeenCalledTimes(2);
-
-    expect(
-      mockCurrencyDomainServices.exchangeRate.getExchangeRate
-    ).toHaveBeenNthCalledWith(1, payloadWithRates.sourceLine.exchangeRate, {
-      correlationId,
-    });
-
-    expect(
-      mockCurrencyDomainServices.exchangeRate.getExchangeRate
-    ).toHaveBeenNthCalledWith(
-      2,
-      payloadWithRates.destinationLines[0].exchangeRate,
-      { correlationId }
-    );
+    ).toHaveBeenCalledWith(payload.sourceLine.exchangeRate, { correlationId });
   });
 
-  it('should throw validation error if the payload is invalid', async () => {
+  it('should throw validation error if payload is invalid', async () => {
     const useCase = getUseCase();
 
-    // Invalid accountId (not uuid)
     const invalidPayload = {
       ...validPayload,
-      sourceLine: {
-        ...validPayload.sourceLine,
-        accountId: 'invalid-uuid',
-      },
+      destinationLines: [], // Requires at least one destination line
     };
 
-    await expect(useCase(invalidPayload)).rejects.toThrow();
+    await expect(useCase(invalidPayload as any)).rejects.toThrow();
   });
 });

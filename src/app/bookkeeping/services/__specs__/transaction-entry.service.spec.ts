@@ -174,6 +174,27 @@ describe('transferTransactionEntryService', () => {
       ).rejects.toThrow(journalEntryError.ControlAccountTransactionNotAllowed);
     });
 
+    it('should throw if any destination account is a control account', async () => {
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceAccount);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        controlAccount,
+      ]);
+
+      const controlDestinationLine: IJournalLineInput = {
+        ...destinationLine,
+        accountId: controlAccount.id,
+      };
+
+      await expect(
+        service.create(
+          sourceLine,
+          [controlDestinationLine],
+          header,
+          mockOptions
+        )
+      ).rejects.toThrow(journalEntryError.ControlAccountTransactionNotAllowed);
+    });
+
     it('should throw if any destination account is not found', async () => {
       mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceAccount);
       mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([]);

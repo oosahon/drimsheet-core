@@ -838,49 +838,6 @@
         "type": "object",
         "additionalProperties": false
       },
-      "IJournalEntryReq": {
-        "properties": {
-          "sourceLine": {
-            "$ref": "#/components/schemas/IJournalLineReq"
-          },
-          "sourceType": {
-            "$ref": "#/components/schemas/UJournalEntrySourceType"
-          },
-          "destinationLines": {
-            "items": {
-              "$ref": "#/components/schemas/IJournalLineReq"
-            },
-            "type": "array"
-          },
-          "status": {
-            "$ref": "#/components/schemas/UJournalEntryStatus"
-          },
-          "effectiveDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "postedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "memo": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "required": [
-          "sourceLine",
-          "sourceType",
-          "destinationLines",
-          "status",
-          "effectiveDate",
-          "postedAt",
-          "memo"
-        ],
-        "type": "object",
-        "additionalProperties": false
-      },
       "ITransactionJournalEntryReq": {
         "properties": {
           "sourceLine": {
@@ -1710,51 +1667,6 @@
             }
           }
         ]
-      }
-    },
-    "/journal-entry": {
-      "post": {
-        "operationId": "create",
-        "responses": {
-          "201": {
-            "description": ""
-          },
-          "400": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IHttpErrorDto"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IHttpErrorDto"
-                }
-              }
-            }
-          }
-        },
-        "description": "Create a new journal entry",
-        "tags": ["Journal Entries"],
-        "deprecated": true,
-        "security": [],
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IJournalEntryReq"
-              }
-            }
-          }
-        }
       }
     },
     "/journal-entry/payment": {
