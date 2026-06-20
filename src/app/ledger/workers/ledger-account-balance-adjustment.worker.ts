@@ -1,15 +1,15 @@
-import ILogger from '../../../shared/contracts/logger.contract';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment.dto';
 import ledgerUseCases from '../usecases';
 
 export default function makeLedgerAccountBalanceAdjustmentWorker(
-  logger: ILogger
+  reporter: IReporter
 ) {
   return async (payload: ILedgerAccountBalanceAdjustmentDto) => {
     try {
       await ledgerUseCases.adjustLedgerAccountBalance(payload);
     } catch (error) {
-      logger.error('Failed to adjust ledger account balance', error);
+      reporter.report(error);
       throw error;
     }
   };
