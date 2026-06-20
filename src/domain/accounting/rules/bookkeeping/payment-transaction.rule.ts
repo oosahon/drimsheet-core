@@ -1,3 +1,4 @@
+import { EJournalSide } from '../../../journal-entry/types/journal-line.types';
 import { EAssetAccountBehavior } from '../../../ledger/types/asset-account.types';
 import { EExpenseSubType } from '../../../ledger/types/expense-account.types';
 import { ILedgerAccount } from '../../../ledger/types/ledger.types';
@@ -6,6 +7,7 @@ import {
   ELiabilitySubType,
 } from '../../../ledger/types/liability-account.types';
 import accountingError from '../../errors/accounting.error';
+import { ITransactionRule } from '../../types/bookkeeping-rule.types';
 
 const { Bank, PettyCash } = EAssetAccountBehavior;
 const { CreditCard } = ELiabilityAccountBehavior;
@@ -79,14 +81,20 @@ function enforcer(source: ILedgerAccount, destinations: ILedgerAccount[]) {
   }
 }
 
-const paymentTransactionRule = Object.freeze({
-  permittedSources: {
-    behaviors: ALLOWED_SOURCE_BEHAVIORS,
-  },
-  permittedDestinations: {
-    subtypes: ALLOWED_DESTINATION_SUBTYPES,
-  },
+const paymentTransactionRule: ITransactionRule = Object.freeze({
   enforce: enforcer,
+  getPermittedAccounts() {
+    return {
+      sources: { behaviors: ALLOWED_SOURCE_BEHAVIORS, subtypes: [] },
+      destinations: { behaviors: [], subtypes: ALLOWED_DESTINATION_SUBTYPES },
+    };
+  },
+  getSides() {
+    return {
+      source: EJournalSide.Credit,
+      destination: EJournalSide.Debit,
+    };
+  },
 });
 
 export default paymentTransactionRule;

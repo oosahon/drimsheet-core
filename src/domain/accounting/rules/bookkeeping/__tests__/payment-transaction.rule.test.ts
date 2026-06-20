@@ -50,20 +50,28 @@ function createMockAccount(overrides: Partial<ILedgerAccount>): ILedgerAccount {
 
 describe('paymentTransactionRule', () => {
   describe('Rule Configuration', () => {
-    it('should have correct permitted sources and destinations configuration', () => {
-      expect(paymentTransactionRule.permittedSources).toEqual({
+    it('should have correct permitted accounts configuration', () => {
+      const permitted = paymentTransactionRule.getPermittedAccounts();
+      expect(permitted.sources).toEqual({
         behaviors: [
           EAssetAccountBehavior.Bank,
           EAssetAccountBehavior.PettyCash,
           ELiabilityAccountBehavior.CreditCard,
         ],
+        subtypes: [],
       });
-      expect(paymentTransactionRule.permittedDestinations.subtypes).toContain(
+      expect(permitted.destinations.subtypes).toContain(
         ELiabilitySubType.Payable
       );
-      expect(paymentTransactionRule.permittedDestinations.subtypes).toContain(
+      expect(permitted.destinations.subtypes).toContain(
         EExpenseSubType.DirectCosts
       );
+    });
+
+    it('should return credit for source and debit for destination', () => {
+      const sides = paymentTransactionRule.getSides();
+      expect(sides.source).toBe('credit');
+      expect(sides.destination).toBe('debit');
     });
   });
 

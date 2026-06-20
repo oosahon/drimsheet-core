@@ -55,7 +55,6 @@ describe('createJournalEntryUseCase', () => {
       amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
       exchangeRate: null,
       description: 'Source line description',
-      side: EJournalSide.Debit,
       sequenceOrder: 1,
     },
     destinationLines: [
@@ -64,7 +63,6 @@ describe('createJournalEntryUseCase', () => {
         amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
         exchangeRate: null,
         description: 'Destination line description',
-        side: EJournalSide.Credit,
         sequenceOrder: 2,
       },
     ],
@@ -88,7 +86,13 @@ describe('createJournalEntryUseCase', () => {
       async (source, destinations, header) => {
         return journalEntryEntity.make({
           ...header,
-          lines: [source, ...destinations],
+          lines: [
+            { ...source, side: EJournalSide.Credit },
+            ...destinations.map((d: any) => ({
+              ...d,
+              side: EJournalSide.Debit,
+            })),
+          ],
         });
       }
     );
@@ -113,12 +117,10 @@ describe('createJournalEntryUseCase', () => {
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         accountId: validPayload.sourceLine.accountId,
-        side: validPayload.sourceLine.side,
       }),
       expect.arrayContaining([
         expect.objectContaining({
           accountId: validPayload.destinationLines[0].accountId,
-          side: validPayload.destinationLines[0].side,
         }),
       ]),
       expect.objectContaining({

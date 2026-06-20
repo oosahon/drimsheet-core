@@ -5,10 +5,7 @@ import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
-import {
-  EJournalSide,
-  IJournalLineMakePayload,
-} from '../../../../domain/journal-entry/types/journal-line.types';
+import { IJournalLineInput } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
 import receivablesAccountEntity from '../../../../domain/ledger/entities/01-asset-account/02-receivables.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
@@ -80,23 +77,21 @@ describe('transferTransactionEntryService', () => {
       { precedingCode: '102000', parentMaterializedPath: '102000' }
     );
 
-  const sourceLine: IJournalLineMakePayload = {
+  const sourceLine: IJournalLineInput = {
     accountId: sourceAccount.id,
     amount: transferAmount,
     exchangeRate: null,
     functionalCurrency,
     description: 'Transfer from source',
-    side: EJournalSide.Credit,
     sequenceOrder: 1,
   };
 
-  const destinationLine: IJournalLineMakePayload = {
+  const destinationLine: IJournalLineInput = {
     accountId: destinationAccount.id,
     amount: transferAmount,
     exchangeRate: null,
     functionalCurrency,
     description: 'Transfer to destination',
-    side: EJournalSide.Debit,
     sequenceOrder: 2,
   };
 
@@ -153,24 +148,6 @@ describe('transferTransactionEntryService', () => {
       expect(events.length).toBeGreaterThan(0);
     });
 
-    it('should throw if a destination line has the same side as the source line', async () => {
-      const invalidDestinationLine: IJournalLineMakePayload = {
-        ...destinationLine,
-        side: EJournalSide.Credit, // same side as source
-      };
-
-      await expect(
-        service.create(
-          sourceLine,
-          [invalidDestinationLine],
-          header,
-          mockOptions
-        )
-      ).rejects.toThrow(journalEntryError.InvalidJournalEntry);
-
-      expect(mockLedgerAccountRepo.findById).not.toHaveBeenCalled();
-    });
-
     it('should throw if the source account is not found', async () => {
       mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
 
@@ -182,7 +159,7 @@ describe('transferTransactionEntryService', () => {
     it('should throw if the source account is a control account', async () => {
       mockLedgerAccountRepo.findById.mockResolvedValueOnce(controlAccount);
 
-      const controlSourceLine: IJournalLineMakePayload = {
+      const controlSourceLine: IJournalLineInput = {
         ...sourceLine,
         accountId: controlAccount.id,
       };
@@ -202,7 +179,7 @@ describe('transferTransactionEntryService', () => {
       mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([]);
 
       const missingAccountId = generateUUID();
-      const missingDestinationLine: IJournalLineMakePayload = {
+      const missingDestinationLine: IJournalLineInput = {
         ...destinationLine,
         accountId: missingAccountId,
       };
@@ -244,7 +221,7 @@ describe('transferTransactionEntryService', () => {
         destinationAccount,
       ]);
 
-      const receivableSourceLine: IJournalLineMakePayload = {
+      const receivableSourceLine: IJournalLineInput = {
         ...sourceLine,
         accountId: receivableAccount.id,
       };
@@ -265,7 +242,7 @@ describe('transferTransactionEntryService', () => {
         receivableAccount,
       ]);
 
-      const receivableDestinationLine: IJournalLineMakePayload = {
+      const receivableDestinationLine: IJournalLineInput = {
         ...destinationLine,
         accountId: receivableAccount.id,
       };

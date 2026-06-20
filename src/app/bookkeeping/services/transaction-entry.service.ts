@@ -1,7 +1,8 @@
 import _ from 'lodash';
-import enforceTransactionAccountsRule from '../../../domain/accounting/rules/bookkeeping/transaction.rule';
+import getTransactionRule from '../../../domain/accounting/rules/bookkeeping/transaction.rule';
 import journalEntryEntity from '../../../domain/journal-entry/entities/journal-entry.entity';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
+import { IJournalLineMakePayload } from '../../../domain/journal-entry/types/journal-line.types';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import ITransactionEntryService from '../contracts/transaction-entry.service.contract';
 
@@ -10,14 +11,6 @@ export default function makeTransactionEntryService(
 ): ITransactionEntryService {
   return {
     async create(sourceLine, destinationLines, header, repoOptions) {
-      const invalidDestinationSides = destinationLines.filter(
-        (line) => line.side === sourceLine.side
-      );
-
-      if (invalidDestinationSides.length > 0) {
-        throw new journalEntryError.InvalidJournalEntry();
-      }
-
       const sourceAccount = await ledgerAccountRepo.findById(
         sourceLine.accountId,
         repoOptions
@@ -54,15 +47,25 @@ export default function makeTransactionEntryService(
         });
       }
 
-      enforceTransactionAccountsRule(
-        sourceAccount,
-        destinationAccounts,
-        header.sourceType
-      );
+      const rule = getTransactionRule(header.sourceType);
+      rule.enforce(sourceAccount, destinationAccounts);
+
+      const sides = rule.getSides();
+
+      const sourceLineWithSide: IJournalLineMakePayload = {
+        ...sourceLine,
+        side: sides.source,
+      };
+
+      const destinationLinesWithSides: IJournalLineMakePayload[] =
+        destinationLines.map((line) => ({
+          ...line,
+          side: sides.destination,
+        }));
 
       return journalEntryEntity.make({
         ...header,
-        lines: [sourceLine, ...destinationLines],
+        lines: [sourceLineWithSide, ...destinationLinesWithSides],
       });
     },
   };

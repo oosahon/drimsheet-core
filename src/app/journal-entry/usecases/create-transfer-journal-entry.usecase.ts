@@ -1,6 +1,6 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
-import { IjournalEntryMakePayload } from '../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalEntrySourceType } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLineInput } from '../../../domain/journal-entry/types/journal-line.types';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { TEntityId } from '../../../shared/types/uuid';
@@ -12,20 +12,19 @@ import ITransactionEntryService from '../../bookkeeping/contracts/transaction-en
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
 import {
-  IJournalEntryReq,
-  journalEntryReqValidation,
-} from '../dtos/transaction.dto';
+  ITransactionJournalEntryReq,
+  transactionJournalEntryReqValidation,
+} from '../dtos/transaction-journal-entry.dto';
 
-/** @deprecated Use makeCreatePaymentJournalEntryUseCase or makeCreateTransferJournalEntryUseCase instead */
-export default function makeCreateJournalEntryUseCase(
+export default function makeCreateTransferJournalEntryUseCase(
   requestContext: IRequestContext,
   transactionEntryService: ITransactionEntryService,
   journalEntryPersistenceService: IJournalEntryPersistenceService,
   exchangeRateService: IExchangeRateService,
   eventBus: IEventBus
 ) {
-  return async (payload: IJournalEntryReq) => {
-    zodValidationRunner(journalEntryReqValidation, payload);
+  return async (payload: ITransactionJournalEntryReq) => {
+    zodValidationRunner(transactionJournalEntryReqValidation, payload);
 
     const { accountingEntity, user, correlationId } = requestContext.get();
     const trace = { correlationId };
@@ -63,10 +62,10 @@ export default function makeCreateJournalEntryUseCase(
       });
     }
 
-    const header: Omit<IjournalEntryMakePayload, 'lines'> = {
+    const header = {
       accountingEntityId: accountingEntity.id,
-      sourceType: payload.sourceType,
-      counterPartyId: null, // TODO: determine counterparty based on transaction type
+      sourceType: EJournalEntrySourceType.Transfer,
+      counterPartyId: null,
       status: payload.status,
       effectiveDate: payload.effectiveDate,
       postedAt: payload.postedAt,

@@ -39,3 +39,5 @@ export interface IJournalLineMakePayload extends Pick<
   // TODO: use `null` instead of undefined
   description: string | null;
 }
+
+export type IJournalLineInput = Omit<IJournalLineMakePayload, 'side'>;

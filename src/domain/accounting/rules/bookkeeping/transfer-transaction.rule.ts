@@ -1,6 +1,8 @@
+import { EJournalSide } from '../../../journal-entry/types/journal-line.types';
 import { EAssetAccountBehavior } from '../../../ledger/types/asset-account.types';
 import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import accountingError from '../../errors/accounting.error';
+import { ITransactionRule } from '../../types/bookkeeping-rule.types';
 
 const { PettyCash, Bank } = EAssetAccountBehavior;
 
@@ -24,14 +26,20 @@ function enforcer(source: ILedgerAccount, destinations: ILedgerAccount[]) {
   }
 }
 
-const transferTransactionRule = Object.freeze({
-  permittedSources: {
-    behaviors: ALLOWED_BEHAVIORS,
-  },
-  permittedDestinations: {
-    behaviors: ALLOWED_BEHAVIORS,
-  },
+const transferTransactionRule: ITransactionRule = Object.freeze({
   enforce: enforcer,
+  getPermittedAccounts() {
+    return {
+      sources: { behaviors: ALLOWED_BEHAVIORS, subtypes: [] },
+      destinations: { behaviors: ALLOWED_BEHAVIORS, subtypes: [] },
+    };
+  },
+  getSides() {
+    return {
+      source: EJournalSide.Credit,
+      destination: EJournalSide.Debit,
+    };
+  },
 });
 
 export default transferTransactionRule;

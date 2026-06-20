@@ -45,19 +45,28 @@ function createMockAccount(overrides: Partial<ILedgerAccount>): ILedgerAccount {
 
 describe('transferTransactionRule', () => {
   describe('Rule Configuration', () => {
-    it('should have correct permitted sources and destinations configuration', () => {
-      expect(transferTransactionRule.permittedSources).toEqual({
+    it('should have correct permitted accounts configuration', () => {
+      const permitted = transferTransactionRule.getPermittedAccounts();
+      expect(permitted.sources).toEqual({
         behaviors: [
           EAssetAccountBehavior.PettyCash,
           EAssetAccountBehavior.Bank,
         ],
+        subtypes: [],
       });
-      expect(transferTransactionRule.permittedDestinations).toEqual({
+      expect(permitted.destinations).toEqual({
         behaviors: [
           EAssetAccountBehavior.PettyCash,
           EAssetAccountBehavior.Bank,
         ],
+        subtypes: [],
       });
+    });
+
+    it('should return credit for source and debit for destination', () => {
+      const sides = transferTransactionRule.getSides();
+      expect(sides.source).toBe('credit');
+      expect(sides.destination).toBe('debit');
     });
   });
 

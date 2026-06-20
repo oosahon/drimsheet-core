@@ -15,7 +15,7 @@ import {
   ILedgerAccount,
 } from '../../../../ledger/types/ledger.types';
 import accountingError from '../../../errors/accounting.error';
-import enforceTransactionAccountsRule from '../transaction.rule';
+import getTransactionRule from '../transaction.rule';
 
 function createMockAccount(overrides: Partial<ILedgerAccount>): ILedgerAccount {
   const type = overrides.type ?? ELedgerType.Asset;
@@ -45,8 +45,25 @@ function createMockAccount(overrides: Partial<ILedgerAccount>): ILedgerAccount {
   return account;
 }
 
-describe('enforceTransactionAccountsRule', () => {
-  it('should route to transferTransactionRule when sourceType is Transfer', () => {
+describe('getTransactionRule', () => {
+  it('should return transferTransactionRule when sourceType is Transfer', () => {
+    const rule = getTransactionRule(EJournalEntrySourceType.Transfer);
+    expect(rule).toBeDefined();
+    expect(rule.enforce).toBeDefined();
+    expect(rule.getPermittedAccounts).toBeDefined();
+    expect(rule.getSides).toBeDefined();
+  });
+
+  it('should return paymentTransactionRule when sourceType is Payment', () => {
+    const rule = getTransactionRule(EJournalEntrySourceType.Payment);
+    expect(rule).toBeDefined();
+    expect(rule.enforce).toBeDefined();
+    expect(rule.getPermittedAccounts).toBeDefined();
+    expect(rule.getSides).toBeDefined();
+  });
+
+  it('should return a rule that enforces transfer accounts correctly', () => {
+    const rule = getTransactionRule(EJournalEntrySourceType.Transfer);
     const source = createMockAccount({
       behavior: EAssetAccountBehavior.Bank,
       subType: EAssetSubType.CashAndCashEquivalent,
@@ -57,31 +74,22 @@ describe('enforceTransactionAccountsRule', () => {
       code: '101002',
     });
 
-    // Valid transfer should not throw
     expect(() => {
-      enforceTransactionAccountsRule(
-        source,
-        [destination],
-        EJournalEntrySourceType.Transfer
-      );
+      rule.enforce(source, [destination]);
     }).not.toThrow();
 
-    // Invalid transfer (different subTypes) should throw transfer error
     const invalidDestination = createMockAccount({
       behavior: EAssetAccountBehavior.TradeReceivable,
       subType: EAssetSubType.Receivables,
       code: '102001',
     });
     expect(() => {
-      enforceTransactionAccountsRule(
-        source,
-        [invalidDestination],
-        EJournalEntrySourceType.Transfer
-      );
+      rule.enforce(source, [invalidDestination]);
     }).toThrow(accountingError.TransferNotPermittedOnAccount);
   });
 
-  it('should route to paymentTransactionRule when sourceType is Payment', () => {
+  it('should return a rule that enforces payment accounts correctly', () => {
+    const rule = getTransactionRule(EJournalEntrySourceType.Payment);
     const source = createMockAccount({
       behavior: EAssetAccountBehavior.Bank,
       subType: EAssetSubType.CashAndCashEquivalent,
@@ -92,33 +100,14 @@ describe('enforceTransactionAccountsRule', () => {
       code: '101002',
     });
 
-    // Invalid payment (destination has Asset subType which is not allowed for payments) should throw payment error
     expect(() => {
-      enforceTransactionAccountsRule(
-        source,
-        [destination],
-        EJournalEntrySourceType.Payment
-      );
+      rule.enforce(source, [destination]);
     }).toThrow(accountingError.PaymentNotPermittedOnAccount);
   });
 
   it('should throw journalEntryError.InvalidSourceType when sourceType is unsupported', () => {
-    const source = createMockAccount({
-      behavior: EAssetAccountBehavior.Bank,
-      subType: EAssetSubType.CashAndCashEquivalent,
-    });
-    const destination = createMockAccount({
-      behavior: EAssetAccountBehavior.Bank,
-      subType: EAssetSubType.CashAndCashEquivalent,
-      code: '101002',
-    });
-
     expect(() => {
-      enforceTransactionAccountsRule(
-        source,
-        [destination],
-        EJournalEntrySourceType.Sale
-      );
+      getTransactionRule(EJournalEntrySourceType.Sale);
     }).toThrow(journalEntryError.InvalidSourceType);
   });
 });
