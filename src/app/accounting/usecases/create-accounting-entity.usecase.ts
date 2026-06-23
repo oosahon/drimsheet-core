@@ -39,20 +39,6 @@ import currencyMapper from '../../currency/mappers/currency.mapper';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 
-function validate(payload: IAccountingEntityCreationDto) {
-  zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
-
-  if (payload.entityType !== EAccountingEntityType.Individual) {
-    throw new appError.BadRequest();
-  }
-
-  accountingContextEntity.validateStandardCodeAndJurisdiction(
-    payload.accountingStandardCode as UAccountingStandardCode,
-    payload.jurisdictionCode,
-    payload.entityType
-  );
-}
-
 export default function createAccountingEntityUseCase(
   requestContext: IRequestContext,
   repoService: IRepoService,
@@ -71,7 +57,17 @@ export default function createAccountingEntityUseCase(
   expenseAccountService: IExpenseAccountService
 ) {
   return async (payload: IAccountingEntityCreationDto) => {
-    validate(payload);
+    zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
+
+    if (payload.entityType !== EAccountingEntityType.Individual) {
+      throw new appError.BadRequest();
+    }
+
+    accountingContextEntity.validateStandardCodeAndJurisdiction(
+      payload.accountingStandardCode as UAccountingStandardCode,
+      payload.jurisdictionCode,
+      payload.entityType
+    );
 
     const { user, correlationId } = requestContext.get();
     const trace = { correlationId };
