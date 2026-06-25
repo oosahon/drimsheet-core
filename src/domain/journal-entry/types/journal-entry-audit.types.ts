@@ -9,7 +9,7 @@ export const EJournalEntryAuditAction = {
   Voided: 'voided',
   Posted: 'posted',
   Archived: 'archived',
-  Unarchived: 'unarchived',
+  UnArchived: 'un-archived',
 } as const;
 
 export type UJournalEntryAuditAction =

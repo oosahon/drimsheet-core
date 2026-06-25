@@ -50,7 +50,7 @@ export interface IJournalEntry extends IJournalHeader {
   lines: IJournalLine[];
 }
 
-export interface IjournalEntryMakePayload extends Pick<
+export interface IJournalEntryMakePayload extends Pick<
   IJournalEntry,
   | 'accountingEntityId'
   | 'sourceType'
