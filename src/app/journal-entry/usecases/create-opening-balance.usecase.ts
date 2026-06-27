@@ -1,4 +1,4 @@
-import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
+import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { TEntityId } from '../../../shared/types/uuid';
@@ -20,8 +20,7 @@ export default function makeCreateOpeningBalanceUseCase(
   ledgerAccountRepo: ILedgerAccountRepo,
   eventBus: IEventBus,
   openingBalanceEntryService: IOpeningBalanceEntryService,
-  journalEntryPersistenceService: IJournalEntryPersistenceService,
-  exchangeRateService: IExchangeRateService
+  journalEntryPersistenceService: IJournalEntryPersistenceService
 ) {
   return async (payload: IOpeningBalanceCreationReq) => {
     zodValidationRunner(openingBalanceCreationReqValidation, payload);
@@ -37,10 +36,9 @@ export default function makeCreateOpeningBalanceUseCase(
     if (!account) throw new ledgerAppError.AccountNotFound();
 
     const amount = moneyMapper.fromDto(payload.amount);
-    const exchangeRate = await exchangeRateService.getExchangeRate(
-      payload.exchangeRate,
-      trace
-    );
+    const exchangeRate = payload.exchangeRate
+      ? exchangeRateValue.make(payload.exchangeRate)
+      : null;
 
     const [journalEntry, journalEvents, audit] =
       await openingBalanceEntryService.create(

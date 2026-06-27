@@ -1,5 +1,5 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
-import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
+import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
 import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
 import ILedgerAccountPersistenceService from '../../../domain/ledger/types/ledger-account-persistence.service.types';
 import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
@@ -26,7 +26,6 @@ export default function makeCreatePettyCashAccountUseCase(
   eventBus: IEventBus,
   assetAccountService: IAssetAccountService,
   openingBalanceEntryService: IOpeningBalanceEntryService,
-  exchangeRateService: IExchangeRateService,
   journalEntryPersistenceService: IJournalEntryPersistenceService,
   repoService: IRepoService,
   ledgerAccountPersistenceService: ILedgerAccountPersistenceService
@@ -74,10 +73,9 @@ export default function makeCreatePettyCashAccountUseCase(
     const openingBalanceAmount = moneyMapper.fromDto(
       payload.openingBalance.amount
     );
-    const exchangeRate = await exchangeRateService.getExchangeRate(
-      payload.openingBalance.exchangeRate,
-      trace
-    );
+    const exchangeRate = payload.openingBalance.exchangeRate
+      ? exchangeRateValue.make(payload.openingBalance.exchangeRate)
+      : null;
 
     const [journalEntry, journalEvents, audit] =
       await openingBalanceEntryService.create(

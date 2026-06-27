@@ -21,7 +21,6 @@ import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookke
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
-import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
@@ -120,9 +119,6 @@ describe('createOpeningBalanceUseCase', () => {
         ],
       })
     );
-    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
-      null
-    );
   });
 
   const getUseCase = () =>
@@ -131,8 +127,7 @@ describe('createOpeningBalanceUseCase', () => {
       mockLedgerAccountRepo,
       mockEventBus,
       mockBookkeepingServices.openingBalanceEntry,
-      mockBookkeepingServices.journalEntryPersistence,
-      mockCurrencyDomainServices.exchangeRate
+      mockBookkeepingServices.journalEntryPersistence
     );
 
   it('should successfully record opening balance', async () => {
@@ -199,15 +194,10 @@ describe('createOpeningBalanceUseCase', () => {
       createdAt: new Date(),
     };
 
-    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
-      mockExchangeRate
-    );
-
     const payload = {
       accountId: mockAssetAccount.id,
       amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
       exchangeRate: {
-        id: 1,
         baseCurrencyCode: 'USD',
         targetCurrencyCode: 'NGN',
         rate: 1500,
@@ -219,9 +209,6 @@ describe('createOpeningBalanceUseCase', () => {
 
     await useCase(payload);
 
-    expect(
-      mockCurrencyDomainServices.exchangeRate.getExchangeRate
-    ).toHaveBeenCalledWith(payload.exchangeRate, { correlationId });
     expect(
       mockBookkeepingServices.journalEntryPersistence.create
     ).toHaveBeenCalledWith(

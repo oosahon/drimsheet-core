@@ -109,6 +109,10 @@ export const periodUnitInCore = core.enum('period_unit', [
   'quarter',
   'year',
 ]);
+export const subledgerFxCostBasisLotStatusInCore = core.enum(
+  'subledger_fx_cost_basis_lot_status',
+  ['open', 'closed']
+);
 
 export const usersInCore = core.table(
   'users',
@@ -571,6 +575,62 @@ export const ledgerAccountsInCore = core.table(
       table.materializedPath,
       table.accountingEntityId
     ),
+  ]
+);
+
+export const subledgerFxCostBasisLotsInCore = core.table(
+  'subledger_fx_cost_basis_lots',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    ledgerAccountId: uuid('ledger_account_id').notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    status: subledgerFxCostBasisLotStatusInCore().notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    originalQuantityAmount: bigint('original_quantity_amount', {
+      mode: 'number',
+    }).notNull(),
+    originalQuantityCurrency: varchar('original_quantity_currency', {
+      length: 3,
+    }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    costBasisAmount: bigint('cost_basis_amount', { mode: 'number' }).notNull(),
+    costBasisCurrency: varchar('cost_basis_currency', { length: 3 }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    remainingCostBasisAmount: bigint('remaining_cost_basis_amount', {
+      mode: 'number',
+    }).notNull(),
+    acquisitionRate: numeric('acquisition_rate').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.ledgerAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'subledger_fx_cost_basis_lots_ledger_account_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'subledger_fx_cost_basis_lots_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.originalQuantityCurrency],
+      foreignColumns: [currenciesInCore.code],
+      name: 'subledger_fx_cost_basis_lots_original_quantity_currency_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.costBasisCurrency],
+      foreignColumns: [currenciesInCore.code],
+      name: 'subledger_fx_cost_basis_lots_cost_basis_currency_fkey',
+    }).onDelete('restrict'),
   ]
 );
 

@@ -1,7 +1,6 @@
 import messaging from '../../../infra/messaging';
 import ledgerRepos from '../../../infra/persistence/repos/ledger';
 import bookkeepingServices from '../../../infra/services/bookkeeping.service';
-import currencyDomainServices from '../../../infra/services/domain/currency.domain.service';
 import appContext from '../../shared/context';
 import makeCreateOpeningBalanceUseCase from './create-opening-balance.usecase';
 import makeCreatePaymentJournalEntryUseCase from './create-payment-journal-entry.usecase';
@@ -13,15 +12,13 @@ const journalEntryUseCases = {
     ledgerRepos.ledgerAccount,
     messaging.eventBus,
     bookkeepingServices.openingBalanceEntry,
-    bookkeepingServices.journalEntryPersistence,
-    currencyDomainServices.exchangeRate
+    bookkeepingServices.journalEntryPersistence
   ),
 
   createPayment: makeCreatePaymentJournalEntryUseCase(
     appContext.request,
     bookkeepingServices.transactionEntry,
     bookkeepingServices.journalEntryPersistence,
-    currencyDomainServices.exchangeRate,
     messaging.eventBus
   ),
 
@@ -29,7 +26,6 @@ const journalEntryUseCases = {
     appContext.request,
     bookkeepingServices.transactionEntry,
     bookkeepingServices.journalEntryPersistence,
-    currencyDomainServices.exchangeRate,
     messaging.eventBus
   ),
 };

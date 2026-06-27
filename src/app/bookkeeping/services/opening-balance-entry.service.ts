@@ -49,7 +49,7 @@ export default function makeOpeningBalanceEntryService(
       );
 
       if (!equityAccount) {
-        throw new journalEntryError.UnconfiguredOpeningBalanceAccount();
+        throw new journalEntryError.UnConfiguredOpeningBalanceAccount();
       }
 
       const accountSide: IJournalLineMakePayload = {

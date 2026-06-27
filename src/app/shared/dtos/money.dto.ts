@@ -3,7 +3,7 @@
 import z from 'zod';
 import {
   EExchangeRateType,
-  IExchangeRate,
+  UExchangeRateType,
 } from '../../../domain/currency/types/exchange-rate.types';
 
 export const currencyCodeValidation = z
@@ -21,19 +21,15 @@ export const moneyDtoValidation = z.object({
   isMinorUnit: z.boolean('Specify if amount is in minor unit.'),
 });
 
-export interface IExchangeRateReq extends Pick<
-  IExchangeRate,
-  | 'baseCurrencyCode'
-  | 'targetCurrencyCode'
-  | 'rate'
-  | 'type'
-  | 'asOf'
-  | 'source'
-> {
-  id?: number;
+export interface IExchangeRateDto {
+  baseCurrencyCode: string;
+  targetCurrencyCode: string;
+  rate: number;
+  type: UExchangeRateType;
+  asOf: Date;
+  source: string;
 }
-export const exchangeRateReqValidation = z.object({
-  id: z.number().optional(),
+export const exchangeRateDtoValidation = z.object({
   baseCurrencyCode: currencyCodeValidation,
   targetCurrencyCode: currencyCodeValidation,
   rate: z

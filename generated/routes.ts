@@ -430,7 +430,7 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IExchangeRateReq: {
+  IExchangeRateDto: {
     dataType: 'refObject',
     properties: {
       baseCurrencyCode: { dataType: 'string', required: true },
@@ -439,7 +439,6 @@ const models: TsoaRoute.Models = {
       type: { ref: 'UExchangeRateType', required: true },
       asOf: { dataType: 'datetime', required: true },
       source: { dataType: 'string', required: true },
-      id: { dataType: 'double' },
     },
     additionalProperties: false,
   },
@@ -451,7 +450,7 @@ const models: TsoaRoute.Models = {
       exchangeRate: {
         dataType: 'union',
         subSchemas: [
-          { ref: 'IExchangeRateReq' },
+          { ref: 'IExchangeRateDto' },
           { dataType: 'enum', enums: [null] },
         ],
         required: true,
@@ -676,7 +675,7 @@ const models: TsoaRoute.Models = {
       exchangeRate: {
         dataType: 'union',
         subSchemas: [
-          { ref: 'IExchangeRateReq' },
+          { ref: 'IExchangeRateDto' },
           { dataType: 'enum', enums: [null] },
         ],
         required: true,

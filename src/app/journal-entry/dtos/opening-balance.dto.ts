@@ -1,18 +1,18 @@
 import z from 'zod';
 import {
-  exchangeRateReqValidation,
-  IExchangeRateReq,
+  exchangeRateDtoValidation,
+  IExchangeRateDto,
   IMoneyDto,
   moneyDtoValidation,
 } from '../../shared/dtos/money.dto';
 
 export interface IOpeningBalanceDto {
   amount: IMoneyDto;
-  exchangeRate: IExchangeRateReq | null;
+  exchangeRate: IExchangeRateDto | null;
 }
 export const openingBalanceDtoValidation = z.object({
   amount: moneyDtoValidation,
-  exchangeRate: exchangeRateReqValidation.nullable(),
+  exchangeRate: exchangeRateDtoValidation.nullable(),
 });
 export interface IOpeningBalanceCreationReq extends IOpeningBalanceDto {
   accountId: string;

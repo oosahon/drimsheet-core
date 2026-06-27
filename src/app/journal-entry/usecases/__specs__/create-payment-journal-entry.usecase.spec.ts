@@ -17,7 +17,6 @@ import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookke
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
-import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeCreatePaymentJournalEntryUseCase from '../create-payment-journal-entry.usecase';
@@ -98,10 +97,6 @@ describe('createPaymentJournalEntryUseCase', () => {
     mockBookkeepingServices.journalEntryPersistence.create.mockResolvedValue(
       undefined
     );
-
-    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
-      null
-    );
   });
 
   const getUseCase = () =>
@@ -109,7 +104,6 @@ describe('createPaymentJournalEntryUseCase', () => {
       mockRequestContext,
       mockBookkeepingServices.transactionEntry,
       mockBookkeepingServices.journalEntryPersistence,
-      mockCurrencyDomainServices.exchangeRate,
       mockEventBus
     );
 
@@ -141,9 +135,6 @@ describe('createPaymentJournalEntryUseCase', () => {
 
     await useCase(validPayload);
 
-    expect(
-      mockCurrencyDomainServices.exchangeRate.getExchangeRate
-    ).toHaveBeenCalledWith(null, { correlationId });
     expect(
       mockBookkeepingServices.transactionEntry.create
     ).toHaveBeenCalledWith(
@@ -188,32 +179,37 @@ describe('createPaymentJournalEntryUseCase', () => {
       createdAt: new Date(),
     };
 
-    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue(
-      mockExchangeRate
-    );
-
     const payload = {
       ...validPayload,
       sourceLine: {
         ...validPayload.sourceLine,
         amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
         exchangeRate: {
-          id: 1,
           baseCurrencyCode: 'USD',
           targetCurrencyCode: 'NGN',
           rate: 1500,
           type: EExchangeRateType.Official,
-          asOf: new Date().toISOString() as unknown as Date,
+          asOf: '2026-03-14T00:00:00.000Z' as unknown as Date,
           source: 'test',
         },
       },
+      destinationLines: [
+        {
+          ...validPayload.destinationLines[0],
+          amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
+          exchangeRate: {
+            baseCurrencyCode: 'USD',
+            targetCurrencyCode: 'NGN',
+            rate: 1500,
+            type: EExchangeRateType.Official,
+            asOf: '2026-03-14T00:00:00.000Z' as unknown as Date,
+            source: 'test',
+          },
+        },
+      ],
     };
 
     await useCase(payload);
-
-    expect(
-      mockCurrencyDomainServices.exchangeRate.getExchangeRate
-    ).toHaveBeenCalledWith(payload.sourceLine.exchangeRate, { correlationId });
   });
 
   it('should throw validation error if payload is invalid', async () => {
