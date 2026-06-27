@@ -2,9 +2,8 @@ import z from 'zod';
 import {
   exchangeRateDtoValidation,
   IExchangeRateDto,
-  IMoneyDto,
-  moneyDtoValidation,
-} from '../../shared/dtos/money.dto';
+} from '../../currency/dtos/exchange-rate.dto';
+import { IMoneyDto, moneyDtoValidation } from '../../shared/dtos/money.dto';
 
 export interface IOpeningBalanceDto {
   amount: IMoneyDto;

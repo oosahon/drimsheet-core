@@ -15,9 +15,8 @@ import {
 import {
   exchangeRateDtoValidation,
   IExchangeRateDto,
-  IMoneyDto,
-  moneyDtoValidation,
-} from '../../shared/dtos/money.dto';
+} from '../../currency/dtos/exchange-rate.dto';
+import { IMoneyDto, moneyDtoValidation } from '../../shared/dtos/money.dto';
 
 const accountIdError = new journalLineError.InvalidAccountId().errorKey;
 const descriptionError = new journalLineError.InvalidDescription().errorKey;

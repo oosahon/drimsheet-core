@@ -16,7 +16,7 @@ import {
   UPeriodUnit,
 } from '../../../domain/accounting/types/period.types';
 import { UAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
-import { currencyCodeValidation } from '../../shared/dtos/money.dto';
+import { currencyCodeValidation } from '../../currency/dtos/currency.dto';
 import { userAppUsageModePreferenceValidation } from '../../user/dtos/user.dto';
 
 /**

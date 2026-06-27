@@ -53,8 +53,6 @@ export default function makeCreatePettyCashAccountUseCase(
       historyValue.make(accountAudit, actor, correlationId),
     ];
 
-    const { functionalCurrencyCode } = accountingEntity;
-
     if (!payload.openingBalance) {
       const repoOptions = {
         ...trace,
@@ -63,7 +61,7 @@ export default function makeCreatePettyCashAccountUseCase(
 
       await ledgerAccountPersistenceService.create(
         account,
-        functionalCurrencyCode,
+        accountingEntity.functionalCurrencyCode,
         repoOptions
       );
       eventBus.publish(eventValue.enrichAll(accountEvents, trace));
@@ -101,7 +99,7 @@ export default function makeCreatePettyCashAccountUseCase(
 
       await ledgerAccountPersistenceService.create(
         account,
-        functionalCurrencyCode,
+        accountingEntity.functionalCurrencyCode,
         accountRepoOptions
       );
 
