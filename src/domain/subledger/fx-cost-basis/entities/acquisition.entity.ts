@@ -1,0 +1,86 @@
+import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
+import { TAuditedEntity } from '../../../../shared/types/event.types';
+import dateUtils from '../../../../shared/utils/date';
+import stringUtils from '../../../../shared/utils/string';
+import generateUUID from '../../../../shared/utils/uuid-generator';
+import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
+import FxCostBasisLotAcquisitionError from '../errors/acquisition.error';
+import FxCostBasisLotAcquisitionEvents from '../events/acquisition.events';
+import {
+  EFxCostBasisLotAcquisitionAuditAction,
+  IFxCostBasisLotAcquisition,
+} from '../types/acquisition.types';
+import helpers from './helpers/acquisition.entity.helpers';
+
+function make(
+  payload: TCreationOmits<IFxCostBasisLotAcquisition>
+): TAuditedEntity<
+  IFxCostBasisLotAcquisition,
+  IFxCostBasisLotAcquisition,
+  IFxCostBasisLotAcquisition
+> {
+  stringUtils.validateUUID(
+    payload.ledgerAccountId,
+    FxCostBasisLotAcquisitionError.InvalidLedgerAccountId
+  );
+  stringUtils.validateUUID(
+    payload.accountingEntityId,
+    FxCostBasisLotAcquisitionError.InvalidAccountingEntityId
+  );
+  stringUtils.validateUUID(
+    payload.lotId,
+    FxCostBasisLotAcquisitionError.InvalidLotId
+  );
+
+  stringUtils.validateUUID(
+    payload.journalEntryId,
+    FxCostBasisLotAcquisitionError.InvalidJournalEntryId
+  );
+
+  helpers.validateQuantity(payload.quantity);
+  helpers.validateCostBasis(payload.costBasis);
+  exchangeRateValue.validate(payload.acquisitionRate);
+  helpers.validateOfficialRate(payload.officialRate);
+  dateUtils.validateDateIsNotInTheFuture(
+    payload.acquisitionDate,
+    FxCostBasisLotAcquisitionError.InvalidAcquisitionDate
+  );
+
+  const timestamp = new Date();
+
+  const entity: IFxCostBasisLotAcquisition = Object.freeze({
+    id: generateUUID(),
+    ledgerAccountId: payload.ledgerAccountId,
+    accountingEntityId: payload.accountingEntityId,
+    lotId: payload.lotId,
+    journalEntryId: payload.journalEntryId,
+    quantity: payload.quantity,
+    costBasis: payload.costBasis,
+    acquisitionRate: payload.acquisitionRate,
+    acquisitionDate: payload.acquisitionDate,
+    officialRate: payload.officialRate,
+    createdAt: timestamp,
+  });
+
+  const event = FxCostBasisLotAcquisitionEvents.created(entity);
+
+  const audit = Object.freeze({
+    entityId: entity.id,
+    action: EFxCostBasisLotAcquisitionAuditAction.Created,
+    diff: {
+      before: null,
+      after: entity,
+    },
+    occurredAt: timestamp,
+  });
+
+  return [entity, [event], audit];
+}
+
+const fxCostBasisLotAcquisitionEntity = Object.freeze({
+  make,
+
+  ...helpers,
+});
+
+export default fxCostBasisLotAcquisitionEntity;

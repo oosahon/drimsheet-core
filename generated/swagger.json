@@ -464,7 +464,7 @@
         "type": "string",
         "enum": ["official", "negotiated", "market"]
       },
-      "IExchangeRateReq": {
+      "IExchangeRateDto": {
         "properties": {
           "baseCurrencyCode": {
             "type": "string"
@@ -485,10 +485,6 @@
           },
           "source": {
             "type": "string"
-          },
-          "id": {
-            "type": "number",
-            "format": "double"
           }
         },
         "required": [
@@ -510,7 +506,7 @@
           "exchangeRate": {
             "allOf": [
               {
-                "$ref": "#/components/schemas/IExchangeRateReq"
+                "$ref": "#/components/schemas/IExchangeRateDto"
               }
             ],
             "nullable": true
@@ -814,7 +810,7 @@
           "exchangeRate": {
             "allOf": [
               {
-                "$ref": "#/components/schemas/IExchangeRateReq"
+                "$ref": "#/components/schemas/IExchangeRateDto"
               }
             ],
             "nullable": true

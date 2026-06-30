@@ -9,14 +9,14 @@ import {
 } from '../types/journal-entry-audit.types';
 import {
   IJournalEntry,
+  IJournalEntryMakePayload,
   IJournalHeader,
-  IjournalEntryMakePayload,
 } from '../types/journal-entry.types';
 import journalEntryAudit from '../value-objects/journal-entry-audit.vo';
 import helpers from './helpers/journal-entry.entity.helpers';
 import journalLineEntity from './journal-line.entity';
 
-function make(payload: IjournalEntryMakePayload): TAuditedJournalEntry {
+function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
   stringUtils.validateUUID(
     payload.accountingEntityId,
     journalEntryError.InvalidValue

@@ -1,9 +1,9 @@
 import z from 'zod';
+import { currencyCodeValidation } from '../../currency/dtos/currency.dto';
 import {
   IOpeningBalanceDto,
   openingBalanceDtoValidation,
 } from '../../journal-entry/dtos/opening-balance.dto';
-import { currencyCodeValidation } from '../../shared/dtos/money.dto';
 
 export interface IPettyCashAccountCreationReq {
   name: string;

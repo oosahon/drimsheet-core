@@ -1,5 +1,5 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
-import IExchangeRateService from '../../../domain/currency/types/exchange-rate.service.types';
+import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
 import { EJournalEntrySourceType } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLineInput } from '../../../domain/journal-entry/types/journal-line.types';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
@@ -20,7 +20,6 @@ export default function makeCreatePaymentJournalEntryUseCase(
   requestContext: IRequestContext,
   transactionEntryService: ITransactionEntryService,
   journalEntryPersistenceService: IJournalEntryPersistenceService,
-  exchangeRateService: IExchangeRateService,
   eventBus: IEventBus
 ) {
   return async (payload: ITransactionJournalEntryReq) => {
@@ -33,10 +32,9 @@ export default function makeCreatePaymentJournalEntryUseCase(
       accountingEntity.functionalCurrencyCode
     );
 
-    const sourceLineExchangeRate = await exchangeRateService.getExchangeRate(
-      payload.sourceLine.exchangeRate,
-      trace
-    );
+    const sourceLineExchangeRate = payload.sourceLine.exchangeRate
+      ? exchangeRateValue.make(payload.sourceLine.exchangeRate)
+      : null;
     const sourceLine: IJournalLineInput = {
       accountId: payload.sourceLine.accountId as TEntityId,
       sequenceOrder: payload.sourceLine.sequenceOrder,
@@ -49,8 +47,9 @@ export default function makeCreatePaymentJournalEntryUseCase(
     const destinationLines: IJournalLineInput[] = [];
 
     for (const line of payload.destinationLines) {
-      const destinationLineExchangeRate =
-        await exchangeRateService.getExchangeRate(line.exchangeRate, trace);
+      const destinationLineExchangeRate = line.exchangeRate
+        ? exchangeRateValue.make(line.exchangeRate)
+        : null;
 
       destinationLines.push({
         accountId: line.accountId as TEntityId,

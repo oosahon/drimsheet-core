@@ -1,0 +1,26 @@
+import fxCostBasisLotHistoryMapper from '../../../../../app/subledger/fx-cost-basis/mappers/lot-history.mapper';
+import fxCostBasisLotMapper from '../../../../../app/subledger/fx-cost-basis/mappers/lot.mapper';
+import IFxCostBasisLotRepo from '../../../../../domain/subledger/fx-cost-basis/repos/lot.repo';
+import {
+  subledgerFxCostBasisLotHistoryInAudit,
+  subledgerFxCostBasisLotsInCore,
+} from '../../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/query';
+
+const fxCostBasisLotRepo: IFxCostBasisLotRepo = {
+  create: async (payload, options) => {
+    await getDbQuery(options).transaction(async (tx) => {
+      const repoModel = fxCostBasisLotMapper.toRepo(payload);
+      await tx.insert(subledgerFxCostBasisLotsInCore).values(repoModel);
+
+      const historyValues = Array.isArray(options.history)
+        ? options.history
+        : [options.history];
+      await tx
+        .insert(subledgerFxCostBasisLotHistoryInAudit)
+        .values(historyValues.map(fxCostBasisLotHistoryMapper.toRepo));
+    });
+  },
+};
+
+export default fxCostBasisLotRepo;

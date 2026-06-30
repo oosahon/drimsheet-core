@@ -9,6 +9,7 @@ import ILedgerAccountBalanceRepo from '../repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';
 import ILedgerAccountPersistenceService from '../types/ledger-account-persistence.service.types';
 
+// TODO: move this service to the application layer. It shouldn't be touching persistence
 export default function makeLedgerAccountPersistenceService(
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
   ledgerAccountRepo: ILedgerAccountRepo,

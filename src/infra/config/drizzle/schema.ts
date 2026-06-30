@@ -109,6 +109,16 @@ export const periodUnitInCore = core.enum('period_unit', [
   'quarter',
   'year',
 ]);
+export const subledgerFxCostBasisLotStatusInCore = core.enum(
+  'subledger_fx_cost_basis_lot_status',
+  ['open', 'closed']
+);
+
+export const pgmigrations = pgTable('pgmigrations', {
+  id: serial().primaryKey().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
+});
 
 export const usersInCore = core.table(
   'users',
@@ -247,11 +257,6 @@ export const accountingEntitiesInCore = core.table(
   },
   (table) => [
     foreignKey({
-      columns: [table.ownerId],
-      foreignColumns: [usersInCore.id],
-      name: 'accounting_entities_owner_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
       columns: [table.functionalCurrencyCode],
       foreignColumns: [currenciesInCore.code],
       name: 'accounting_entities_functional_currency_code_fkey',
@@ -261,6 +266,11 @@ export const accountingEntitiesInCore = core.table(
       foreignColumns: [jurisdictionsInCore.code],
       name: 'accounting_entities_jurisdiction_code_fkey',
     }),
+    foreignKey({
+      columns: [table.ownerId],
+      foreignColumns: [usersInCore.id],
+      name: 'accounting_entities_owner_id_fkey',
+    }).onDelete('cascade'),
   ]
 );
 
@@ -375,15 +385,15 @@ export const accountingContextsInCore = core.table(
       name: 'accounting_contexts_accounting_standard_code_fkey',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.fiscalYearId],
-      foreignColumns: [fiscalYearsInCore.id],
-      name: 'accounting_contexts_fiscal_year_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
       columns: [table.currentOperatingPeriodId],
       foreignColumns: [accountingPeriodsInCore.id],
       name: 'accounting_contexts_current_operating_period_id_fkey',
     }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.fiscalYearId],
+      foreignColumns: [fiscalYearsInCore.id],
+      name: 'accounting_contexts_fiscal_year_id_fkey',
+    }).onDelete('cascade'),
   ]
 );
 
@@ -447,19 +457,19 @@ export const reportingContextsInCore = core.table(
   },
   (table) => [
     foreignKey({
+      columns: [table.accountingContextId],
+      foreignColumns: [accountingContextsInCore.id],
+      name: 'reporting_contexts_accounting_context_id_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
       columns: [table.accountingEntityId],
       foreignColumns: [accountingEntitiesInCore.id],
       name: 'reporting_contexts_accounting_entity_id_fkey',
     }).onDelete('cascade'),
     foreignKey({
-      columns: [table.reportingCurrencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'reporting_contexts_reporting_currency_code_fkey',
-    }).onDelete('restrict'),
-    foreignKey({
-      columns: [table.accountingContextId],
-      foreignColumns: [accountingContextsInCore.id],
-      name: 'reporting_contexts_accounting_context_id_fkey',
+      columns: [table.accountingStandardCode],
+      foreignColumns: [accountingStandardsInCore.code],
+      name: 'reporting_contexts_accounting_standard_code_fkey',
     }).onDelete('restrict'),
     foreignKey({
       columns: [table.currentReportingPeriodId],
@@ -467,9 +477,9 @@ export const reportingContextsInCore = core.table(
       name: 'reporting_contexts_current_reporting_period_id_fkey',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.accountingStandardCode],
-      foreignColumns: [accountingStandardsInCore.code],
-      name: 'reporting_contexts_accounting_standard_code_fkey',
+      columns: [table.reportingCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'reporting_contexts_reporting_currency_code_fkey',
     }).onDelete('restrict'),
   ]
 );
@@ -554,15 +564,15 @@ export const ledgerAccountsInCore = core.table(
       name: 'ledger_accounts_control_account_id_fkey',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.currencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'ledger_accounts_currency_code_fkey',
-    }).onDelete('restrict'),
-    foreignKey({
       columns: [table.createdBy],
       foreignColumns: [usersInCore.id],
       name: 'ledger_accounts_created_by_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.currencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'ledger_accounts_currency_code_fkey',
+    }).onDelete('restrict'),
     unique('ledger_accounts_code_accounting_entity_id_uk').on(
       table.code,
       table.accountingEntityId
@@ -630,15 +640,15 @@ export const journalEntriesInCore = core.table(
       name: 'journal_entries_counterparty_id_fkey',
     }),
     foreignKey({
-      columns: [table.voidingEntryId],
-      foreignColumns: [table.id],
-      name: 'journal_entries_voiding_entry_id_fkey',
-    }),
-    foreignKey({
       columns: [table.createdBy],
       foreignColumns: [usersInCore.id],
       name: 'journal_entries_created_by_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.voidingEntryId],
+      foreignColumns: [table.id],
+      name: 'journal_entries_voiding_entry_id_fkey',
+    }),
   ]
 );
 
@@ -685,11 +695,6 @@ export const journalLinesInCore = core.table(
   },
   (table) => [
     foreignKey({
-      columns: [table.entryId],
-      foreignColumns: [journalEntriesInCore.id],
-      name: 'journal_lines_entry_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
       columns: [table.accountId],
       foreignColumns: [ledgerAccountsInCore.id],
       name: 'journal_lines_account_id_fkey',
@@ -699,6 +704,11 @@ export const journalLinesInCore = core.table(
       foreignColumns: [currenciesInCore.code],
       name: 'journal_lines_currency_code_fkey',
     }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.entryId],
+      foreignColumns: [journalEntriesInCore.id],
+      name: 'journal_lines_entry_id_fkey',
+    }).onDelete('cascade'),
     foreignKey({
       columns: [table.functionalCurrencyCode],
       foreignColumns: [currenciesInCore.code],
@@ -757,11 +767,6 @@ export const ledgerAccountBalancesInCore = core.table(
   },
   (table) => [
     foreignKey({
-      columns: [table.ledgerAccountId],
-      foreignColumns: [ledgerAccountsInCore.id],
-      name: 'ledger_account_balances_ledger_account_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
       columns: [table.accountingEntityId],
       foreignColumns: [accountingEntitiesInCore.id],
       name: 'ledger_account_balances_accounting_entity_id_fkey',
@@ -776,6 +781,11 @@ export const ledgerAccountBalancesInCore = core.table(
       foreignColumns: [currenciesInCore.code],
       name: 'ledger_account_balances_functional_currency_code_fkey',
     }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.ledgerAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'ledger_account_balances_ledger_account_id_fkey',
+    }).onDelete('cascade'),
     unique('ledger_account_balances_path_entity_id_uk').on(
       table.accountingEntityId,
       table.accountMaterializedPath
@@ -805,9 +815,14 @@ export const ledgerAccountBalanceAdjustmentsInCore = core.table(
   },
   (table) => [
     foreignKey({
-      columns: [table.ledgerAccountId],
-      foreignColumns: [ledgerAccountsInCore.id],
-      name: 'ledger_account_balance_adjustments_ledger_account_id_fkey',
+      columns: [table.functionalCurrencyCode],
+      foreignColumns: [currenciesInCore.code],
+      name: 'ledger_account_balance_adjustment_functional_currency_code_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [usersInCore.id],
+      name: 'ledger_account_balance_adjustments_created_by_fkey',
     }).onDelete('cascade'),
     foreignKey({
       columns: [table.currencyCode],
@@ -815,19 +830,14 @@ export const ledgerAccountBalanceAdjustmentsInCore = core.table(
       name: 'ledger_account_balance_adjustments_currency_code_fkey',
     }).onDelete('restrict'),
     foreignKey({
-      columns: [table.functionalCurrencyCode],
-      foreignColumns: [currenciesInCore.code],
-      name: 'ledger_account_balance_adjustment_functional_currency_code_fkey',
-    }).onDelete('restrict'),
-    foreignKey({
       columns: [table.journalEntryId],
       foreignColumns: [journalEntriesInCore.id],
       name: 'ledger_account_balance_adjustments_journal_entry_id_fkey',
     }).onDelete('cascade'),
     foreignKey({
-      columns: [table.createdBy],
-      foreignColumns: [usersInCore.id],
-      name: 'ledger_account_balance_adjustments_created_by_fkey',
+      columns: [table.ledgerAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'ledger_account_balance_adjustments_ledger_account_id_fkey',
     }).onDelete('cascade'),
   ]
 );
@@ -870,12 +880,12 @@ export const ledgerAccountHistoryInAudit = audit.table(
       name: 'ledger_account_history_user_id_fkey',
     }).onDelete('set null'),
     check(
-      'ledger_account_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-    check(
       'ledger_account_history_actor_check',
       sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'ledger_account_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
 );
@@ -919,12 +929,12 @@ export const journalEntryHistoryInAudit = audit.table(
       name: 'journal_entry_history_user_id_fkey',
     }).onDelete('set null'),
     check(
-      'journal_entry_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-    check(
       'journal_entry_history_actor_check',
       sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'journal_entry_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
 );
@@ -960,21 +970,15 @@ export const accountingEntityHistoryInAudit = audit.table(
       name: 'accounting_entity_history_user_id_fkey',
     }).onDelete('set null'),
     check(
-      'accounting_entity_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-    check(
       'accounting_entity_history_actor_check',
       sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
     ),
+    check(
+      'accounting_entity_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+    ),
   ]
 );
-
-export const pgmigrations = pgTable('pgmigrations', {
-  id: serial().primaryKey().notNull(),
-  name: varchar({ length: 255 }).notNull(),
-  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
-});
 
 export const accountingContextHistoryInAudit = audit.table(
   'accounting_context_history',
@@ -1014,12 +1018,12 @@ export const accountingContextHistoryInAudit = audit.table(
       name: 'accounting_context_history_user_id_fkey',
     }).onDelete('set null'),
     check(
-      'accounting_context_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-    check(
       'accounting_context_history_actor_check',
       sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'accounting_context_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
 );
@@ -1062,12 +1066,108 @@ export const accountingPeriodHistoryInAudit = audit.table(
       name: 'accounting_period_history_user_id_fkey',
     }).onDelete('set null'),
     check(
+      'accounting_period_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
       'accounting_period_history_diff_check',
       sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
+  ]
+);
+
+export const reportingContextHistoryInAudit = audit.table(
+  'reporting_context_history',
+  {
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
+    reportingContextId: uuid('reporting_context_id').notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    userId: uuid('user_id'),
+    actorType: historyActorTypeInAudit('actor_type').notNull(),
+    action: varchar({ length: 50 }).notNull(),
+    diff: jsonb().notNull(),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    occurredAt: timestamp('occurred_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('reporting_context_history_tenant_timeline_idx').using(
+      'btree',
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
+    ),
+    index('reporting_context_history_timeline_idx').using(
+      'btree',
+      table.reportingContextId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'reporting_context_history_user_id_fkey',
+    }).onDelete('set null'),
     check(
-      'accounting_period_history_actor_check',
+      'reporting_context_history_actor_check',
       sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'reporting_context_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+    ),
+  ]
+);
+
+export const reportingPeriodHistoryInAudit = audit.table(
+  'reporting_period_history',
+  {
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
+    reportingPeriodId: uuid('reporting_period_id').notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    userId: uuid('user_id'),
+    actorType: historyActorTypeInAudit('actor_type').notNull(),
+    action: varchar({ length: 50 }).notNull(),
+    diff: jsonb().notNull(),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    occurredAt: timestamp('occurred_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('reporting_period_history_tenant_timeline_idx').using(
+      'btree',
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
+    ),
+    index('reporting_period_history_timeline_idx').using(
+      'btree',
+      table.reportingPeriodId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'reporting_period_history_user_id_fkey',
+    }).onDelete('set null'),
+    check(
+      'reporting_period_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'reporting_period_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
 );
@@ -1110,12 +1210,12 @@ export const fiscalYearHistoryInAudit = audit.table(
       name: 'fiscal_year_history_user_id_fkey',
     }).onDelete('set null'),
     check(
-      'fiscal_year_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-    check(
       'fiscal_year_history_actor_check',
       sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'fiscal_year_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
 );
@@ -1151,12 +1251,12 @@ export const userProfileHistoryInAudit = audit.table(
       name: 'user_profile_history_user_id_fkey',
     }).onDelete('set null'),
     check(
-      'user_profile_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-    check(
       'user_profile_history_actor_check',
       sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'user_profile_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
 );
@@ -1207,21 +1307,78 @@ export const journalLineHistoryInAudit = audit.table(
       name: 'journal_line_history_user_id_fkey',
     }).onDelete('set null'),
     check(
-      'journal_line_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-    check(
       'journal_line_history_actor_check',
       sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
     ),
+    check(
+      'journal_line_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+    ),
   ]
 );
 
-export const reportingContextHistoryInAudit = audit.table(
-  'reporting_context_history',
+export const subledgerFxCostBasisLotsInCore = core.table(
+  'subledger_fx_cost_basis_lots',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    ledgerAccountId: uuid('ledger_account_id').notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    status: subledgerFxCostBasisLotStatusInCore().notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    originalQuantityAmount: bigint('original_quantity_amount', {
+      mode: 'number',
+    }).notNull(),
+    originalQuantityCurrency: varchar('original_quantity_currency', {
+      length: 3,
+    }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    costBasisAmount: bigint('cost_basis_amount', { mode: 'number' }).notNull(),
+    costBasisCurrency: varchar('cost_basis_currency', { length: 3 }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    remainingCostBasisAmount: bigint('remaining_cost_basis_amount', {
+      mode: 'number',
+    }).notNull(),
+    acquisitionRate: numeric('acquisition_rate').notNull(),
+    version: integer().default(1).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'subledger_fx_cost_basis_lots_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.costBasisCurrency],
+      foreignColumns: [currenciesInCore.code],
+      name: 'subledger_fx_cost_basis_lots_cost_basis_currency_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.ledgerAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'subledger_fx_cost_basis_lots_ledger_account_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.originalQuantityCurrency],
+      foreignColumns: [currenciesInCore.code],
+      name: 'subledger_fx_cost_basis_lots_original_quantity_currency_fkey',
+    }).onDelete('restrict'),
+  ]
+);
+
+export const subledgerFxCostBasisLotHistoryInAudit = audit.table(
+  'subledger_fx_cost_basis_lot_history',
   {
     id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
-    reportingContextId: uuid('reporting_context_id').notNull(),
+    lotId: uuid('lot_id').notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     userId: uuid('user_id'),
     actorType: historyActorTypeInAudit('actor_type').notNull(),
@@ -1237,39 +1394,98 @@ export const reportingContextHistoryInAudit = audit.table(
       .notNull(),
   },
   (table) => [
-    index('reporting_context_history_tenant_timeline_idx').using(
+    index('subledger_fx_cost_basis_lot_history_tenant_timeline_idx').using(
       'btree',
       table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
       table.occurredAt.desc().nullsFirst().op('int8_ops'),
       table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
-    index('reporting_context_history_timeline_idx').using(
+    index('subledger_fx_cost_basis_lot_history_timeline_idx').using(
       'btree',
-      table.reportingContextId.asc().nullsLast().op('int8_ops'),
+      table.lotId.asc().nullsLast().op('int8_ops'),
       table.occurredAt.desc().nullsFirst().op('uuid_ops'),
       table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [usersInCore.id],
-      name: 'reporting_context_history_user_id_fkey',
+      name: 'subledger_fx_cost_basis_lot_history_user_id_fkey',
     }).onDelete('set null'),
     check(
-      'reporting_context_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+      'subledger_fx_cost_basis_lot_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
     ),
     check(
-      'reporting_context_history_actor_check',
-      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+      'subledger_fx_cost_basis_lot_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
 );
 
-export const reportingPeriodHistoryInAudit = audit.table(
-  'reporting_period_history',
+export const subledgerFxCostBasisLotAcquisitionsInCore = core.table(
+  'subledger_fx_cost_basis_lot_acquisitions',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    ledgerAccountId: uuid('ledger_account_id').notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    lotId: uuid('lot_id').notNull(),
+    journalEntryId: uuid('journal_entry_id').notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    quantityAmount: bigint('quantity_amount', { mode: 'number' }).notNull(),
+    quantityCurrency: varchar('quantity_currency', { length: 3 }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    costBasisAmount: bigint('cost_basis_amount', { mode: 'number' }).notNull(),
+    costBasisCurrency: varchar('cost_basis_currency', { length: 3 }).notNull(),
+    acquisitionRate: jsonb('acquisition_rate').notNull(),
+    acquisitionDate: date('acquisition_date').notNull(),
+    officialRate: jsonb('official_rate').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'subledger_fx_cost_basis_lot_acquisiti_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.costBasisCurrency],
+      foreignColumns: [currenciesInCore.code],
+      name: 'subledger_fx_cost_basis_lot_acquisitio_cost_basis_currency_fkey',
+    }).onDelete('restrict'),
+    foreignKey({
+      columns: [table.journalEntryId],
+      foreignColumns: [journalEntriesInCore.id],
+      name: 'subledger_fx_cost_basis_lot_acquisitions_journal_entry_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.ledgerAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'subledger_fx_cost_basis_lot_acquisitions_ledger_account_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.lotId],
+      foreignColumns: [subledgerFxCostBasisLotsInCore.id],
+      name: 'subledger_fx_cost_basis_lot_acquisitions_lot_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.quantityCurrency],
+      foreignColumns: [currenciesInCore.code],
+      name: 'subledger_fx_cost_basis_lot_acquisitions_quantity_currency_fkey',
+    }).onDelete('restrict'),
+  ]
+);
+
+export const subledgerFxCostBasisLotAcquisitionHistoryInAudit = audit.table(
+  'subledger_fx_cost_basis_lot_acquisition_history',
   {
     id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
-    reportingPeriodId: uuid('reporting_period_id').notNull(),
+    acquisitionId: uuid('acquisition_id').notNull(),
+    lotId: uuid('lot_id').notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     userId: uuid('user_id'),
     actorType: historyActorTypeInAudit('actor_type').notNull(),
@@ -1285,30 +1501,32 @@ export const reportingPeriodHistoryInAudit = audit.table(
       .notNull(),
   },
   (table) => [
-    index('reporting_period_history_tenant_timeline_idx').using(
+    index(
+      'subledger_fx_cost_basis_lot_acquisition_history_tenant_timeline'
+    ).using(
       'btree',
       table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
       table.occurredAt.desc().nullsFirst().op('int8_ops'),
       table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
-    index('reporting_period_history_timeline_idx').using(
+    index('subledger_fx_cost_basis_lot_acquisition_history_timeline_idx').using(
       'btree',
-      table.reportingPeriodId.asc().nullsLast().op('int8_ops'),
+      table.acquisitionId.asc().nullsLast().op('int8_ops'),
       table.occurredAt.desc().nullsFirst().op('uuid_ops'),
       table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
       columns: [table.userId],
       foreignColumns: [usersInCore.id],
-      name: 'reporting_period_history_user_id_fkey',
+      name: 'subledger_fx_cost_basis_lot_acquisition_history_user_id_fkey',
     }).onDelete('set null'),
     check(
-      'reporting_period_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+      'subledger_fx_cost_basis_lot_acquisition_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
     ),
     check(
-      'reporting_period_history_actor_check',
-      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+      'subledger_fx_cost_basis_lot_acquisition_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
 );
@@ -1332,14 +1550,14 @@ export const jurisdictionAccountingStandardsInCore = core.table(
   },
   (table) => [
     foreignKey({
-      columns: [table.jurisdictionCode],
-      foreignColumns: [jurisdictionsInCore.code],
-      name: 'jurisdiction_accounting_standards_jurisdiction_code_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
       columns: [table.accountingStandardCode],
       foreignColumns: [accountingStandardsInCore.code],
       name: 'jurisdiction_accounting_standards_accounting_standard_code_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.jurisdictionCode],
+      foreignColumns: [jurisdictionsInCore.code],
+      name: 'jurisdiction_accounting_standards_jurisdiction_code_fkey',
     }).onDelete('cascade'),
     primaryKey({
       columns: [

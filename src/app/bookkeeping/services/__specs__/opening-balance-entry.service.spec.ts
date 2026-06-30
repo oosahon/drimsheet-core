@@ -264,7 +264,7 @@ describe('openingBalanceEntryService', () => {
           null,
           mockOptions
         )
-      ).rejects.toThrow(journalEntryError.UnconfiguredOpeningBalanceAccount);
+      ).rejects.toThrow(journalEntryError.UnConfiguredOpeningBalanceAccount);
 
       expect(mockLedgerAccountRepo.findBySubType).toHaveBeenCalledWith(
         accountingEntity.id,

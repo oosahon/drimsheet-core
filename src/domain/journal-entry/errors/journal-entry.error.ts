@@ -28,7 +28,7 @@ const EErrorKeys = {
   ControlAccountOpeningBalanceNotAllowed:
     'journal_entry_error_control_account_opening_balance_not_allowed',
   ExistingOpeningBalance: 'journal_entry_error_existing_opening_balance',
-  UnconfiguredOpeningBalanceAccount:
+  UnConfiguredOpeningBalanceAccount:
     'journal_entry_error_unconfigured_opening_balance_account',
   AccountNotFound: 'journal_entry_error_account_not_found',
   EmptyJournalLines: 'journal_entry_error_empty_journal_lines',

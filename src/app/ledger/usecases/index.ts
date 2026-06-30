@@ -3,7 +3,6 @@ import observability from '../../../infra/observability';
 import ledgerRepos from '../../../infra/persistence/repos/ledger';
 import services from '../../../infra/services';
 import bookkeepingServices from '../../../infra/services/bookkeeping.service';
-import currencyDomainServices from '../../../infra/services/domain/currency.domain.service';
 import ledgerDomainServices from '../../../infra/services/domain/ledger.domain.service';
 import appContext from '../../shared/context';
 import makeAdjustLedgerAccountBalanceUseCase from './adjust-ledger-account-balance.usecase';
@@ -46,7 +45,6 @@ const ledgerUseCases = {
     messaging.eventBus,
     ledgerDomainServices.assetAccount,
     bookkeepingServices.openingBalanceEntry,
-    currencyDomainServices.exchangeRate,
     bookkeepingServices.journalEntryPersistence,
     services.repo,
     ledgerDomainServices.persistence

@@ -1,7 +1,7 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
-import { IExchangeRate } from '../../../../domain/currency/types/exchange-rate.types';
+import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
@@ -20,7 +20,6 @@ import mockRepoService from '../../../../infra/services/__mocks__/repo.service.m
 import mockRequestContext, {
   mockClientSession,
 } from '../../../../infra/services/__mocks__/request-context.mock';
-import mockCurrencyDomainServices from '../../../../infra/services/domain/__mocks__/currency.domain.service.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
@@ -144,9 +143,6 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockOpeningBalanceEvents,
       mockOpeningBalanceAudit,
     ]);
-    mockCurrencyDomainServices.exchangeRate.getExchangeRate.mockResolvedValue({
-      rate: 1,
-    } as unknown as IExchangeRate);
   });
 
   const getUseCase = () =>
@@ -155,7 +151,6 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockEventBus,
       mockLedgerDomainServices.assetAccount,
       mockBookkeepingServices.openingBalanceEntry,
-      mockCurrencyDomainServices.exchangeRate,
       mockBookkeepingServices.journalEntryPersistence,
       mockRepoService,
       mockLedgerDomainServices.persistence
@@ -221,12 +216,6 @@ describe('createPettyCashSubAccountUseCase', () => {
     );
 
     expect(
-      mockCurrencyDomainServices.exchangeRate.getExchangeRate
-    ).toHaveBeenCalledWith(validPayload.openingBalance?.exchangeRate, {
-      correlationId,
-    });
-
-    expect(
       mockBookkeepingServices.openingBalanceEntry.create
     ).toHaveBeenCalledWith(
       mockAccountingEntity,
@@ -234,7 +223,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       expect.objectContaining({
         amount: 1000n,
       }),
-      expect.anything(),
+      null,
       { correlationId }
     );
 
@@ -244,6 +233,42 @@ describe('createPettyCashSubAccountUseCase', () => {
           correlationId,
         }),
       ])
+    );
+  });
+
+  it('should successfully create a petty cash sub-account with an exchange rate', async () => {
+    const useCase = getUseCase();
+
+    const payloadWithRate = {
+      ...validPayload,
+      openingBalance: {
+        ...validPayload.openingBalance!,
+        exchangeRate: {
+          baseCurrencyCode: 'NGN',
+          targetCurrencyCode: 'NGN',
+          rate: 1,
+          type: EExchangeRateType.Official,
+          asOf: '2026-03-14T00:00:00.000Z' as unknown as Date,
+          source: 'test',
+        },
+      },
+    };
+
+    await useCase(payloadWithRate);
+
+    expect(
+      mockBookkeepingServices.openingBalanceEntry.create
+    ).toHaveBeenCalledWith(
+      mockAccountingEntity,
+      mockPettyCashAccount,
+      expect.objectContaining({
+        amount: 1000n,
+      }),
+      expect.objectContaining({
+        rate: 1,
+        baseCurrencyCode: 'NGN',
+      }),
+      { correlationId }
     );
   });
 

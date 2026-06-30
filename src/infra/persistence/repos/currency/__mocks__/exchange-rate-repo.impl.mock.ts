@@ -2,7 +2,7 @@ import IExchangeRateRepo from '../../../../../domain/currency/repos/exchange-rat
 
 const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
   create: jest.fn(),
-  getById: jest.fn(),
+  find: jest.fn(),
 };
 
 export default exchangeRateRepoMock;

@@ -13,11 +13,10 @@ import {
   UJournalSide,
 } from '../../../domain/journal-entry/types/journal-line.types';
 import {
-  exchangeRateReqValidation,
-  IExchangeRateReq,
-  IMoneyDto,
-  moneyDtoValidation,
-} from '../../shared/dtos/money.dto';
+  exchangeRateDtoValidation,
+  IExchangeRateDto,
+} from '../../currency/dtos/exchange-rate.dto';
+import { IMoneyDto, moneyDtoValidation } from '../../shared/dtos/money.dto';
 
 const accountIdError = new journalLineError.InvalidAccountId().errorKey;
 const descriptionError = new journalLineError.InvalidDescription().errorKey;
@@ -54,7 +53,7 @@ export const journalEntryStatusValidation = z.enum(
 export interface IJournalLineReq {
   accountId: string;
   amount: IMoneyDto;
-  exchangeRate: IExchangeRateReq | null;
+  exchangeRate: IExchangeRateDto | null;
   description: string | null;
   sequenceOrder: number;
 }
@@ -62,7 +61,7 @@ export interface IJournalLineReq {
 export const journalLineReqValidation = z.object({
   accountId: z.uuid(accountIdError),
   amount: moneyDtoValidation,
-  exchangeRate: exchangeRateReqValidation.nullable(),
+  exchangeRate: exchangeRateDtoValidation.nullable(),
   description: z
     .string(descriptionError)
     .max(100, descriptionError)
