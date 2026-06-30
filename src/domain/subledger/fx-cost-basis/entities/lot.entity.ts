@@ -6,7 +6,6 @@ import generateUUID from '../../../../shared/utils/uuid-generator';
 import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
 import fxCostBasisLotError from '../errors/lot.error';
 import FxCostBasisLotEvents from '../events/lot.events';
-
 import {
   EFxCostBasisLotAuditAction,
   IFxCostBasisLot,
@@ -14,7 +13,7 @@ import {
 import helpers from './helpers/lot.entity.helpers';
 
 function make(
-  payload: TCreationOmits<IFxCostBasisLot, 'version'>
+  payload: TCreationOmits<IFxCostBasisLot>
 ): TAuditedEntity<IFxCostBasisLot, IFxCostBasisLot, IFxCostBasisLot> {
   stringUtils.validateUUID(
     payload.ledgerAccountId,

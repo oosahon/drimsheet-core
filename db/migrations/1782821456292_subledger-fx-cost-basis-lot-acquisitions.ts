@@ -2,19 +2,17 @@ import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 import { accountingEntitiesTable } from '../config/accounting-entity';
 import { currenciesTable } from '../config/currencies';
 import {
+  subledgerFxCostBasisLotAcquisitionsTable,
   subledgerFxCostBasisLotsTable,
-  subledgerFxCostBasisLotStatus,
 } from '../config/fx-cost-basis-lots';
+import { journalEntriesTable } from '../config/journal-entries';
 import { ledgerAccountsTable } from '../config/ledger-accounts';
-import toSchemaString from '../utils/to-schema-string';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
-  pgm.createType(subledgerFxCostBasisLotStatus, ['open', 'closed']);
-
   pgm.createTable(
-    subledgerFxCostBasisLotsTable,
+    subledgerFxCostBasisLotAcquisitionsTable,
     {
       id: {
         type: 'uuid',
@@ -36,17 +34,26 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         onDelete: 'CASCADE',
       },
 
-      status: {
-        type: toSchemaString(subledgerFxCostBasisLotStatus),
+      lot_id: {
+        type: 'uuid',
         notNull: true,
+        references: subledgerFxCostBasisLotsTable,
+        onDelete: 'CASCADE',
       },
 
-      original_quantity_amount: {
+      journal_entry_id: {
+        type: 'uuid',
+        notNull: true,
+        references: journalEntriesTable,
+        onDelete: 'CASCADE',
+      },
+
+      quantity_amount: {
         type: 'bigint',
         notNull: true,
       },
 
-      original_quantity_currency: {
+      quantity_currency: {
         type: 'varchar(3)',
         notNull: true,
         references: currenciesTable,
@@ -65,29 +72,22 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         onDelete: 'RESTRICT',
       },
 
-      remaining_cost_basis_amount: {
-        type: 'bigint',
-        notNull: true,
-      },
-
       acquisition_rate: {
-        type: 'numeric',
+        type: 'jsonb',
         notNull: true,
       },
 
-      version: {
-        type: 'integer',
+      acquisition_date: {
+        type: 'date',
         notNull: true,
-        default: 1,
+      },
+
+      official_rate: {
+        type: 'jsonb',
+        notNull: true,
       },
 
       created_at: {
-        type: 'timestamptz',
-        notNull: true,
-        default: pgm.func('now()'),
-      },
-
-      updated_at: {
         type: 'timestamptz',
         notNull: true,
         default: pgm.func('now()'),
@@ -100,6 +100,5 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropTable(subledgerFxCostBasisLotsTable);
-  pgm.dropType(subledgerFxCostBasisLotStatus);
+  pgm.dropTable(subledgerFxCostBasisLotAcquisitionsTable);
 }

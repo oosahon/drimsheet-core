@@ -9,9 +9,4 @@ export default interface IFxCostBasisLotAcquisitionRepo {
     payload: IFxCostBasisLotAcquisition,
     options: IWriteRepoOptions<IFxCostBasisLotAcquisitionHistory>
   ): Promise<void>;
-
-  update(
-    payload: IFxCostBasisLotAcquisition,
-    options: IWriteRepoOptions<IFxCostBasisLotAcquisitionHistory>
-  ): Promise<void>;
 }

@@ -10,10 +10,10 @@ import fxCostBasisLotAcquisitionError from '../../errors/acquisition.error';
 import fxCostBasisLotError from '../../errors/lot.error';
 import { IFxCostBasisLotAcquisition } from '../../types/acquisition.types';
 import { EFxCostBasisLotStatus } from '../../types/lot.types';
-import makeFxCostBasisLotAcquisitionService from '../acquisition.service';
+import makeFxCostBasisLotService from '../lot.service';
 
-describe('makeFxCostBasisLotAcquisitionService', () => {
-  const service = makeFxCostBasisLotAcquisitionService();
+describe('makeFxCostBasisLotService', () => {
+  const service = makeFxCostBasisLotService();
   const MOCK_DATE = new Date('2026-04-01T00:00:00.000Z');
   let acquisitionRate: IExchangeRate;
   let officialRate: IExchangeRate;
@@ -62,9 +62,9 @@ describe('makeFxCostBasisLotAcquisitionService', () => {
     jest.useRealTimers();
   });
 
-  describe('create', () => {
-    it('should successfully create a lot and acquisition when given a valid payload', () => {
-      const result = service.create(validPayload);
+  describe('acquire', () => {
+    it('should successfully acquires a lot and acquisition when given a valid payload', () => {
+      const result = service.acquire(validPayload);
 
       expect(result.lot).toBeDefined();
       expect(result.acquisition).toBeDefined();
@@ -120,7 +120,7 @@ describe('makeFxCostBasisLotAcquisitionService', () => {
 
       expect(() => {
         // @ts-expect-error testing invalid UUID
-        service.create(invalidPayload);
+        service.acquire(invalidPayload);
       }).toThrow(fxCostBasisLotError.InvalidLedgerAccountId);
     });
 
@@ -132,7 +132,7 @@ describe('makeFxCostBasisLotAcquisitionService', () => {
 
       expect(() => {
         // @ts-expect-error testing invalid UUID
-        service.create(invalidPayload);
+        service.acquire(invalidPayload);
       }).toThrow(fxCostBasisLotAcquisitionError.InvalidJournalEntryId);
     });
   });

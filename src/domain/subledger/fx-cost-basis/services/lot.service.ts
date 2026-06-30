@@ -1,13 +1,13 @@
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import fxCostBasisLotAcquisitionEntity from '../entities/acquisition.entity';
 import fxCostBasisLotEntity from '../entities/lot.entity';
-import IFxCostBasisLotAcquisitionService from '../types/acquisition.service.types';
 import { IFxCostBasisLotAcquisition } from '../types/acquisition.types';
+import IFxCostBasisLotService from '../types/lot.service.types';
 import { EFxCostBasisLotStatus, IFxCostBasisLot } from '../types/lot.types';
 
-export default function makeFxCostBasisLotAcquisitionService(): IFxCostBasisLotAcquisitionService {
+export default function makeFxCostBasisLotService(): IFxCostBasisLotService {
   return {
-    create(payload) {
+    acquire(payload) {
       const lotPayload: TCreationOmits<IFxCostBasisLot, 'version'> = {
         ledgerAccountId: payload.ledgerAccountId,
         accountingEntityId: payload.accountingEntityId,
