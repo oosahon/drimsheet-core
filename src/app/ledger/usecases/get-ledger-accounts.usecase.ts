@@ -1,8 +1,8 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
-import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
+import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo, {
   IFindAllLedgerAccountsOptions,
-} from '../../../domain/ledger/repos/ledger-account.repo';
+} from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { IPaginatedResponse } from '../../../shared/types/pagination.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';

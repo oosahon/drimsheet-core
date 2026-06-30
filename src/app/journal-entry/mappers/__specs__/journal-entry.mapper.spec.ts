@@ -7,7 +7,7 @@ import {
   EJournalEntryStatus,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import journalEntryMapper, {

@@ -1,8 +1,8 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
-import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
-import ILedgerAccountPersistenceService from '../../../domain/ledger/types/ledger-account-persistence.service.types';
-import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
+import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
+import ILedgerAccountPersistenceService from '../../../domain/ledger/shared/types/ledger-account-persistence.service.types';
+import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,

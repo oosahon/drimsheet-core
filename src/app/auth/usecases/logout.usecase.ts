@@ -1,7 +1,7 @@
 import ILogger from '../../../shared/contracts/logger.contract';
-import IUserSessionRepo from '../../auth/contracts/user-session.repo.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
+import IUserSessionRepo from '../contracts/user-session.repo.contract';
 
 export default function makeLogoutUseCase(
   reqContext: IRequestContext,

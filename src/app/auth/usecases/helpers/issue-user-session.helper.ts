@@ -6,10 +6,10 @@ import {
 } from '../../../../shared/contracts/repo.contract';
 import { IEvent } from '../../../../shared/types/event.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import IUserSessionRepo from '../../../auth/contracts/user-session.repo.contract';
-import { IAccessToken } from '../../../auth/dtos/auth.dto';
 import IRequestContext from '../../../shared/contracts/request-context.contract';
 import IAuthService from '../../contracts/auth-service.contract';
+import IUserSessionRepo from '../../contracts/user-session.repo.contract';
+import { IAccessToken } from '../../dtos/auth.dto';
 
 export interface IIssueUserSessionDeps {
   user: IUser;

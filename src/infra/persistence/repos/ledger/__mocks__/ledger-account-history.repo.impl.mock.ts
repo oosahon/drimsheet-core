@@ -1,4 +1,4 @@
-import ILedgerAccountHistoryRepo from '../../../../../domain/ledger/repos/ledger-account-history.repo';
+import ILedgerAccountHistoryRepo from '../../../../../domain/ledger/shared/repos/ledger-account-history.repo';
 
 const mockLedgerAccountHistoryRepo: jest.Mocked<ILedgerAccountHistoryRepo> = {
   save: jest.fn(),

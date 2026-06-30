@@ -2,18 +2,18 @@ import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { SYSTEM_CURRENCIES } from '../../../../currency/config/currencies.config';
 import journalEntryError from '../../../../journal-entry/errors/journal-entry.error';
 import { EJournalEntrySourceType } from '../../../../journal-entry/types/journal-entry.types';
-import ledgerAccountEntity from '../../../../ledger/entities/shared/ledger-account.entity';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../../../ledger/types/asset-account.types';
+} from '../../../../ledger/asset-account/types/asset-account.types';
+import ledgerAccountEntity from '../../../../ledger/shared/entities/ledger-account.entity';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ILedgerAccount,
-} from '../../../../ledger/types/ledger.types';
+} from '../../../../ledger/shared/types/ledger.types';
 import accountingError from '../../../errors/accounting.error';
 import getTransactionRule from '../transaction.rule';
 

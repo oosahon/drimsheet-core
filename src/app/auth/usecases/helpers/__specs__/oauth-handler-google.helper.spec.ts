@@ -6,12 +6,12 @@ import mockUserAuthRepo from '../../../../../infra/persistence/repos/user/__mock
 import mockUserRepo from '../../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
 import mockRequestContext from '../../../../../infra/services/__mocks__/request-context.mock';
-import { IOAuthProfile } from '../../../../auth/dtos/auth.dto';
 import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import {
   EAuthStrategy,
   IUserAuth,
 } from '../../../contracts/auth-service.contract';
+import { IOAuthProfile } from '../../../dtos/auth.dto';
 import makeGoogleOAuthHelper from '../oauth-handler-google.helper';
 
 describe('makeGoogleOAuthHelper', () => {

@@ -8,11 +8,11 @@ import {
   EJournalEntryStatus,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
-import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities/03-equity-account/99-opening-balance-equity.entity';
-import ledgerAccountBalanceEntity from '../../../../domain/ledger/entities/shared/ledger-account-balance.entity';
-import { EEquitySubType } from '../../../../domain/ledger/types/equity-account.types';
-import { ELedgerType } from '../../../../domain/ledger/types/ledger.types';
+import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import { EEquitySubType } from '../../../../domain/ledger/equity-account/types/equity-account.types';
+import { ELedgerType } from '../../../../domain/ledger/shared/types/ledger.types';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';

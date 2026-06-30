@@ -1,9 +1,9 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import currencyEntity from '../../../../domain/currency/entities/currency.entity';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
-import { IBankAccount } from '../../../../domain/ledger/types/asset-account.types';
-import { ILedgerAccountBalance } from '../../../../domain/ledger/types/ledger-account-balance.types';
+import { ILedgerAccountBalance } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import { IBankAccount } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';

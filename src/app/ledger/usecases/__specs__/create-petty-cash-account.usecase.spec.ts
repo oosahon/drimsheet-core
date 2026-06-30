@@ -8,10 +8,10 @@ import {
   EJournalEntryStatus,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
-import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
-import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
+import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/asset-account/config/asset-codes.config';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';

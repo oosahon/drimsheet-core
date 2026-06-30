@@ -5,9 +5,9 @@ import {
   IJournalEntry,
 } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.types';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import { ELedgerAccountBalanceEffect } from '../../../domain/ledger/types/ledger-account-balance.types';
-import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
+import { ELedgerAccountBalanceEffect } from '../../../domain/ledger/account-balance/types/ledger-account-balance.types';
+import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
 import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import moneyValue from '../../../shared/value-objects/money.vo';

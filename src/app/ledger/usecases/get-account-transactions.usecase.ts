@@ -1,6 +1,6 @@
 import balanceEffectRule from '../../../domain/accounting/rules/bookkeeping/balance-effect.rule';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import { ILedgerAccountService } from '../../../domain/ledger/types/ledger-account.service.types';
+import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import { ILedgerAccountService } from '../../../domain/ledger/shared/types/ledger-account.service.types';
 import { IPaginatedResponse } from '../../../shared/types/pagination.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';

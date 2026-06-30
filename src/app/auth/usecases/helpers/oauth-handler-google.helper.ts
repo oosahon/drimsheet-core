@@ -8,11 +8,11 @@ import {
 } from '../../../../shared/contracts/repo.contract';
 import eventValue from '../../../../shared/value-objects/event.vo';
 import historyValue from '../../../../shared/value-objects/history.vo';
-import IUserAuthRepo from '../../../auth/contracts/user-auth.repo.contract';
-import { IOAuthProfile, TOAuthDoneCallback } from '../../../auth/dtos/auth.dto';
 import IRequestContext from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import { EAuthStrategy } from '../../contracts/auth-service.contract';
+import IUserAuthRepo from '../../contracts/user-auth.repo.contract';
+import { IOAuthProfile, TOAuthDoneCallback } from '../../dtos/auth.dto';
 
 export default function makeGoogleOAuthHelper(
   eventBus: IEventBus,

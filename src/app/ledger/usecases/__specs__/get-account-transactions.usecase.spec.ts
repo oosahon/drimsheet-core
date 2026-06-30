@@ -11,9 +11,9 @@ import {
   IJournalEntry,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
-import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/types/ledger-account-balance.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
+import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';

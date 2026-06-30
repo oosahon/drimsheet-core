@@ -1,6 +1,6 @@
 import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import { ELedgerAccountSubType } from '../../../../domain/ledger/types/ledger-aggregate.types';
+import { ELedgerAccountSubType } from '../../../../domain/ledger/shared/types/ledger-aggregate.types';
 import {
   EFxCostBasisLotStatus,
   IFxCostBasisLot,

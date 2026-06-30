@@ -4,13 +4,13 @@ import emailValue from '../../../domain/user/value-objects/email.vo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import eventValue from '../../../shared/value-objects/event.vo';
-import IUserAuthRepo from '../../auth/contracts/user-auth.repo.contract';
-import authError from '../../auth/errors/auth.error';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService, {
   EAuthStrategy,
 } from '../contracts/auth-service.contract';
+import IUserAuthRepo from '../contracts/user-auth.repo.contract';
+import authError from '../errors/auth.error';
 
 export default function makeRequestPasswordResetUseCase(
   requestContext: IRequestContext,
