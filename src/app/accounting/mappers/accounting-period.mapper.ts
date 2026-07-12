@@ -3,6 +3,8 @@ import { IAccountingPeriod } from '../../../domain/accounting/types/period.types
 import { accountingPeriodsInCore } from '../../../infra/config/drizzle/schema';
 import { toRepoDate, toRepoDateOnly } from '../../shared/mappers/date';
 
+// TODO [PUR-22]: move repo mappers to infra layer
+
 export interface IAccountingPeriodRepoModel extends InferInsertModel<
   typeof accountingPeriodsInCore
 > {}

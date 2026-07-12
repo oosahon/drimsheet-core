@@ -23,7 +23,10 @@ function make(payload: TCreationOmits<IExchangeRate, 'currencyPair'>) {
   );
   currencyEntity.validateCode(targetCurrencyCode);
 
-  const currencyPair = `${baseCurrencyCode}/${targetCurrencyCode}`;
+  const currencyPair = helpers.getCurrencyPair(
+    baseCurrencyCode,
+    targetCurrencyCode
+  );
   const source = stringUtils.sanitizeAndValidate(
     payload.source,
     {

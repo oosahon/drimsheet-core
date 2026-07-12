@@ -3,7 +3,9 @@ import observability from '../../../infra/observability';
 import ledgerRepos from '../../../infra/persistence/repos/ledger';
 import services from '../../../infra/services';
 import bookkeepingServices from '../../../infra/services/bookkeeping.service';
+import currencyServices from '../../../infra/services/currency.service';
 import ledgerDomainServices from '../../../infra/services/domain/ledger.domain.service';
+import fxCostBasisService from '../../../infra/services/fx-lot-cost-basis.service';
 import appContext from '../../shared/context';
 import makeAdjustLedgerAccountBalanceUseCase from './adjust-ledger-account-balance.usecase';
 
@@ -47,7 +49,10 @@ const ledgerUseCases = {
     bookkeepingServices.openingBalanceEntry,
     bookkeepingServices.journalEntryPersistence,
     services.repo,
-    ledgerDomainServices.persistence
+    ledgerDomainServices.persistence,
+    fxCostBasisService.persistence,
+    fxCostBasisService.domain,
+    currencyServices.exchangeRate
   ),
 };
 

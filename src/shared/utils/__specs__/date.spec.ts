@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import DomainError from '../../errors/domain.error';
 
+import DomainError from '../../errors/domain.error';
 import dateUtils from '../date';
 
 class TestError extends DomainError<'test_error'> {
@@ -30,6 +30,26 @@ describe('dateUtils', () => {
 
     it('returns false for NaN', () => {
       expect(dateUtils.isValidDate(NaN)).toBe(false);
+    });
+  });
+
+  describe('isSameDay', () => {
+    it('returns true if dates are on the same calendar day', () => {
+      expect(
+        dateUtils.isSameDay('2026-03-14T10:00:00Z', '2026-03-14T20:00:00Z')
+      ).toBe(true);
+      expect(
+        dateUtils.isSameDay(new Date('2026-03-14'), new Date('2026-03-14'))
+      ).toBe(true);
+    });
+
+    it('returns false if dates are on different calendar days', () => {
+      expect(dateUtils.isSameDay('2026-03-14', '2026-03-15')).toBe(false);
+    });
+
+    it('handles mixed types (string, Date, timestamp)', () => {
+      const ts = new Date('2026-03-14').getTime();
+      expect(dateUtils.isSameDay('2026-03-14T12:00:00Z', ts)).toBe(true);
     });
   });
 

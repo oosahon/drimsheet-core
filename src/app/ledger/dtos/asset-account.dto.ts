@@ -10,7 +10,6 @@ export interface IPettyCashAccountCreationReq {
   currencyCode: string;
   isControlAccount: boolean;
   controlAccountCode?: string;
-
   openingBalance: IOpeningBalanceDto | null;
 }
 export const pettyCashCreationReqValidation = z

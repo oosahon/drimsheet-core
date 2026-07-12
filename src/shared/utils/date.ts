@@ -188,8 +188,16 @@ function fromString<T extends Error>(
   return date.toDate();
 }
 
+function isSameDay(
+  date1: Date | string | number,
+  date2: Date | string | number
+) {
+  return dayjs(date1).isSame(dayjs(date2), 'day');
+}
+
 const dateUtils = Object.freeze({
   isValidDate,
+  isSameDay,
   validateDate,
 
   isNotInThePast,

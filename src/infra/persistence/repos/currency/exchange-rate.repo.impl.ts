@@ -2,6 +2,7 @@ import { and, eq } from 'drizzle-orm';
 import exchangeRateMapper from '../../../../app/currency/mappers/exchange-rate.mapper';
 import { toRepoDate } from '../../../../app/shared/mappers/date';
 import IExchangeRateRepo from '../../../../domain/currency/repos/exchange-rate.repo';
+import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
 import paginationValue from '../../../../shared/value-objects/pagination.vo';
 import { currencyExchangeRatesInCore } from '../../../config/drizzle/schema';
 import drizzleFilters from '../helpers/filters';
@@ -67,6 +68,23 @@ const exchangeRateRepo: IExchangeRateRepo = {
       .offset(offset);
 
     return results.map(exchangeRateMapper.toDomain);
+  },
+
+  async findByPairAndDate(currencyPair, asOf, options) {
+    const dbQuery = getDbQuery(options);
+
+    const [result] = await dbQuery
+      .select()
+      .from(currencyExchangeRatesInCore)
+      .where(
+        and(
+          eq(currencyExchangeRatesInCore.currencyPair, currencyPair),
+          eq(currencyExchangeRatesInCore.asOf, toRepoDate(asOf)),
+          eq(currencyExchangeRatesInCore.type, EExchangeRateType.Official)
+        )
+      );
+
+    return result ? exchangeRateMapper.toDomain(result) : null;
   },
 };
 
