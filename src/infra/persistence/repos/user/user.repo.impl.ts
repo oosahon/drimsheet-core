@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
-import userMapper from '../../../../app/user/mappers/user.mapper';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { usersInCore as users } from '../../../config/drizzle/schema';
+import userMapper from '../../mappers/user/user.mapper';
 import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
 import userHistoryRepo from './user-history.repo.impl';

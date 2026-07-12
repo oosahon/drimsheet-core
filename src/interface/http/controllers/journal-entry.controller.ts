@@ -10,8 +10,8 @@ import {
   Tags,
 } from 'tsoa';
 import { ITransactionJournalEntryReq } from '../../../app/journal-entry/dtos/transaction-journal-entry.dto';
-import journalEntryUseCases from '../../../app/journal-entry/usecases';
 import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
+import journalEntryUseCases from '../../../infra/ioc/journal-entry/usecases';
 import middlewares from '../middlewares';
 
 @Route('journal-entry')

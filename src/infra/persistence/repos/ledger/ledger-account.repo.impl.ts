@@ -8,7 +8,6 @@ import {
   or,
   sql,
 } from 'drizzle-orm';
-import ledgerAccountMapper from '../../../../app/ledger/mappers/ledger-account.mapper';
 import ILedgerAccountRepo, {
   ELedgerAccountSortBy,
 } from '../../../../domain/ledger/shared/repos/ledger-account.repo';
@@ -18,6 +17,7 @@ import {
   ledgerAccountBalancesInCore,
   ledgerAccountsInCore,
 } from '../../../config/drizzle/schema';
+import ledgerAccountMapper from '../../mappers/ledger/ledger-account.mapper';
 import drizzleFilters from '../helpers/filters';
 import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';

@@ -1,6 +1,6 @@
-import reportingContextMapper from '../../../../app/accounting/mappers/reporting-context.mapper';
 import IReportingContextRepo from '../../../../domain/accounting/repos/reporting-context.repo';
 import { reportingContextsInCore } from '../../../config/drizzle/schema';
+import reportingContextMapper from '../../mappers/accounting/reporting-context.mapper';
 import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
 import reportingContextHistoryRepo from './reporting-context-history.repo.impl';

@@ -1,11 +1,11 @@
 import { and, eq, ilike, sql } from 'drizzle-orm';
 import IAccountTransactionQueryRepo from '../../../../../app/ledger/contracts/account-transaction.query.repo.contract';
-import accountTransactionMapper from '../../../../../app/ledger/mappers/account-transaction.mapper';
 import paginationValue from '../../../../../shared/value-objects/pagination.vo';
 import {
   journalEntriesInCore,
   journalLinesInCore,
 } from '../../../../config/drizzle/schema';
+import accountTransactionMapper from '../../../mappers/ledger/account-transaction.mapper';
 import drizzleFilters from '../../helpers/filters';
 import getDbQuery from '../../helpers/query';
 

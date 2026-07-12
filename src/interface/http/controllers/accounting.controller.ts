@@ -11,8 +11,8 @@ import {
   Tags,
 } from 'tsoa';
 import { IAccountingEntityCreationDto } from '../../../app/accounting/dtos/accounting.dto';
-import accountingUsecases from '../../../app/accounting/usecases';
 import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
+import accountingUsecases from '../../../infra/ioc/accounting/usecases';
 import middlewares from '../middlewares';
 
 @Route('accounting')

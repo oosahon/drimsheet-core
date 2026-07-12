@@ -10,7 +10,7 @@ import {
   Tags,
 } from 'tsoa';
 import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
-import userUseCase from '../../../app/user/usecases';
+import userUseCase from '../../../infra/ioc/user/usecases';
 import middlewares from '../middlewares';
 
 @Route('users')

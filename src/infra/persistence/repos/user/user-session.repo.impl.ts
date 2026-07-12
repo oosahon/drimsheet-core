@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import IUserSessionRepo from '../../../../app/auth/contracts/user-session.repo.contract';
-import userSessionMapper from '../../../../app/auth/mappers/user-session.mapper';
 import { userSessionsInCore as userSessions } from '../../../config/drizzle/schema';
+import userSessionMapper from '../../mappers/auth/user-session.mapper';
 import getDbQuery from '../helpers/query';
 
 const userSessionRepo: IUserSessionRepo = {

@@ -1,6 +1,6 @@
-import fiscalYearMapper from '../../../../app/accounting/mappers/fiscal-year.mapper';
 import IFiscalYearRepo from '../../../../domain/accounting/repos/fiscal-year.repo';
 import { fiscalYearsInCore } from '../../../config/drizzle/schema';
+import fiscalYearMapper from '../../mappers/accounting/fiscal-year.mapper';
 import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
 import fiscalYearHistoryRepo from './fiscal-year-history.repo.impl';

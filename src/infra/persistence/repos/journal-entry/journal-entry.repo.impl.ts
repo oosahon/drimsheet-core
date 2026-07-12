@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
-import journalEntryMapper from '../../../../app/journal-entry/mappers/journal-entry.mapper';
 import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
 import { journalEntriesInCore } from '../../../config/drizzle/schema';
+import journalEntryMapper from '../../mappers/journal-entry/journal-entry.mapper';
 import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
 import journalEntryHistoryRepo from './journal-entry-history.repo.impl';

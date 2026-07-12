@@ -1484,7 +1484,12 @@
         "operationId": "createPettyCashAccount",
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           },
           "400": {
             "description": "",

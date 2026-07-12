@@ -2,13 +2,13 @@ import { EUserEvents } from '../../../domain/user/events/user.events';
 import { IUser } from '../../../domain/user/types/user.types';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { IEvent } from '../../../shared/types/event.types';
-import authUseCase from '../../auth/usecases';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
 
 interface IDependencies {
   reporter: IReporter;
   requestContext: IRequestContext;
+  sendEmailVerificationEmail: (email: string) => Promise<void>;
 }
 
 export default function makeUserCreatedEventHandler(deps: IDependencies) {
@@ -23,7 +23,7 @@ export default function makeUserCreatedEventHandler(deps: IDependencies) {
       const shouldSendEmailVerification = !event.data.emailVerified;
 
       if (shouldSendEmailVerification) {
-        await authUseCase
+        await deps
           .sendEmailVerificationEmail(event.data.email)
           .catch(deps.reporter.report);
       } else {

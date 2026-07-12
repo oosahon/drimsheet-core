@@ -1,6 +1,6 @@
-import accountingContextMapper from '../../../../app/accounting/mappers/accounting-context.mapper';
 import IAccountingContextRepo from '../../../../domain/accounting/repos/accounting-context.repo';
 import { accountingContextsInCore } from '../../../config/drizzle/schema';
+import accountingContextMapper from '../../mappers/accounting/accounting-context.mapper';
 import passOnRepoTransaction from '../helpers/passon-repo-transaction';
 import getDbQuery from '../helpers/query';
 import accountingContextHistoryRepo from './accounting-context-history.repo.impl';

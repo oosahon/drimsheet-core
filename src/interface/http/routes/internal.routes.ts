@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import internalUseCases from '../../../app/_internal/usecases';
+import internalUseCases from '../../../infra/ioc/_internal/usecases';
 
 const internalRouter = Router();
 
