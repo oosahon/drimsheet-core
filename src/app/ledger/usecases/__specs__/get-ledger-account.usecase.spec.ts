@@ -1,7 +1,7 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
-import ledgerAccountBalanceEntity from '../../../../domain/ledger/entities/shared/ledger-account-balance.entity';
-import ledgerAccountEntity from '../../../../domain/ledger/entities/shared/ledger-account.entity';
+import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
+import ledgerAccountEntity from '../../../../domain/ledger/shared/entities/ledger-account.entity';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -9,7 +9,7 @@ import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../../../domain/ledger/types/ledger.types';
+} from '../../../../domain/ledger/shared/types/ledger.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { MockReporter } from '../../../../infra/observability/__mocks__/reporter.mock';
 import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';

@@ -2,17 +2,20 @@ import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/juris
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
+import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
+import exchangeRateValue from '../../../../domain/currency/value-objects/exchange-rate.vo';
 import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
+import journalLineError from '../../../../domain/journal-entry/errors/journal-line.error';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
-import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/entities/03-equity-account/99-opening-balance-equity.entity';
-import ledgerAccountBalanceEntity from '../../../../domain/ledger/entities/shared/ledger-account-balance.entity';
-import { EEquitySubType } from '../../../../domain/ledger/types/equity-account.types';
-import { ELedgerType } from '../../../../domain/ledger/types/ledger.types';
+import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import { EEquitySubType } from '../../../../domain/ledger/equity-account/types/equity-account.types';
+import { ELedgerType } from '../../../../domain/ledger/shared/types/ledger.types';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
@@ -206,6 +209,44 @@ describe('openingBalanceEntryService', () => {
         mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId
       ).not.toHaveBeenCalled();
       expect(mockLedgerAccountRepo.findBySubType).not.toHaveBeenCalled();
+    });
+
+    it('should reject same-currency opening balances with an exchange rate', async () => {
+      const { accountingEntity, amount, equityAccount, postingAccount } =
+        makeFixture();
+      const exchangeRate = exchangeRateValue.make({
+        baseCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+        targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+        rate: 1,
+        type: EExchangeRateType.Official,
+        asOf: new Date('2026-06-14T10:30:00.000Z'),
+        source: 'Test Source',
+      });
+
+      mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId.mockResolvedValue(
+        []
+      );
+      mockLedgerAccountRepo.findBySubType.mockResolvedValue([equityAccount]);
+
+      await expect(
+        service.create(
+          accountingEntity,
+          postingAccount,
+          amount,
+          exchangeRate,
+          mockOptions
+        )
+      ).rejects.toThrow(journalLineError.UnsupportedExchangeRate);
+
+      expect(
+        mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId
+      ).toHaveBeenCalledWith(postingAccount.id, mockOptions);
+      expect(mockLedgerAccountRepo.findBySubType).toHaveBeenCalledWith(
+        accountingEntity.id,
+        ELedgerType.Equity,
+        EEquitySubType.OpeningBalance,
+        mockOptions
+      );
     });
 
     it('should reject accounts that already have an opening balance adjustment', async () => {

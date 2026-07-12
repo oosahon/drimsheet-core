@@ -15,12 +15,12 @@ import IReportingContextRepo from '../../../domain/accounting/repos/reporting-co
 import IReportingPeriodRepo from '../../../domain/accounting/repos/reporting-period.repo';
 import { EAccountingEntityType } from '../../../domain/accounting/types/accounting-entity.types';
 import { EPeriodStatus } from '../../../domain/accounting/types/period.types';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
-import IEquityAccountService from '../../../domain/ledger/types/equity-account.service.types';
-import IExpenseAccountService from '../../../domain/ledger/types/expense-account.service.types';
-import ILiabilityAccountService from '../../../domain/ledger/types/liability-account.service.types';
-import IRevenueAccountService from '../../../domain/ledger/types/revenue-account.service.types';
+import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
+import IEquityAccountService from '../../../domain/ledger/equity-account/types/equity-account.service.types';
+import IExpenseAccountService from '../../../domain/ledger/expense-account/types/expense-account.service.types';
+import ILiabilityAccountService from '../../../domain/ledger/liability-account/types/liability-account.service.types';
+import IRevenueAccountService from '../../../domain/ledger/revenue-account/types/revenue-account.service.types';
+import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
@@ -31,13 +31,13 @@ import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events'
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
-import {
-  accountingEntityOnboardingDtoSchema,
-  IAccountingEntityCreationDto,
-} from '../../accounting/dtos/accounting.dto';
 import currencyMapper from '../../currency/mappers/currency.mapper';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
+import {
+  accountingEntityOnboardingDtoSchema,
+  IAccountingEntityCreationDto,
+} from '../dtos/accounting.dto';
 
 export default function createAccountingEntityUseCase(
   requestContext: IRequestContext,

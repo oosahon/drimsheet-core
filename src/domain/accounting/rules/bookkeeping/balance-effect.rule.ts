@@ -1,9 +1,9 @@
 import journalLineEntity from '../../../journal-entry/entities/journal-line.entity';
 import { UJournalSide } from '../../../journal-entry/types/journal-line.types';
-import ledgerAccountEntityHelpers from '../../../ledger/entities/shared/helpers/ledger-account.entity.helpers';
-import ledgerAccountEntity from '../../../ledger/entities/shared/ledger-account.entity';
-import { ELedgerAccountBalanceEffect } from '../../../ledger/types/ledger-account-balance.types';
-import { ILedgerAccount } from '../../../ledger/types/ledger.types';
+import { ELedgerAccountBalanceEffect } from '../../../ledger/account-balance/types/ledger-account-balance.types';
+import ledgerAccountEntityHelpers from '../../../ledger/shared/entities/helpers/ledger-account.entity.helpers';
+import ledgerAccountEntity from '../../../ledger/shared/entities/ledger-account.entity';
+import { ILedgerAccount } from '../../../ledger/shared/types/ledger.types';
 
 function deriver(
   account: Pick<ILedgerAccount, 'type' | 'normalBalance'>,

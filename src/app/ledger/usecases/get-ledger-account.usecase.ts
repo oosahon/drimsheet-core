@@ -1,7 +1,7 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
-import ledgerError from '../../../domain/ledger/errors/ledger.error';
-import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
+import ledgerError from '../../../domain/ledger/shared/errors/ledger.error';
+import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';

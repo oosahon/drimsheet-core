@@ -2,10 +2,10 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import fxCostBasisLotAcquisitionEntity from '../entities/acquisition.entity';
 import fxCostBasisLotEntity from '../entities/lot.entity';
 import { IFxCostBasisLotAcquisition } from '../types/acquisition.types';
-import IFxCostBasisLotService from '../types/lot.service.types';
+import IFxCostBasisLotDomainService from '../types/lot.service.types';
 import { EFxCostBasisLotStatus, IFxCostBasisLot } from '../types/lot.types';
 
-export default function makeFxCostBasisLotService(): IFxCostBasisLotService {
+export default function makeFxCostBasisLotService(): IFxCostBasisLotDomainService {
   return {
     acquire(payload) {
       const lotPayload: TCreationOmits<IFxCostBasisLot, 'version'> = {

@@ -11,7 +11,7 @@ import {
 import ledgerAccountMapper from '../../../../app/ledger/mappers/ledger-account.mapper';
 import ILedgerAccountRepo, {
   ELedgerAccountSortBy,
-} from '../../../../domain/ledger/repos/ledger-account.repo';
+} from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import paginationValue from '../../../../shared/value-objects/pagination.vo';
 import {
   currenciesInCore,

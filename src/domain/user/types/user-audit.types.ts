@@ -1,5 +1,5 @@
 import { IEntityDelta, IHistory } from '../../../shared/types/history.types';
-import { IUser } from '../types/user.types';
+import { IUser } from './user.types';
 
 export const EUserEntityActions = {
   Created: 'created',

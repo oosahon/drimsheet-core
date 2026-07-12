@@ -7,10 +7,10 @@ import {
   EJournalEntryStatus,
 } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLineMakePayload } from '../../../domain/journal-entry/types/journal-line.types';
-import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import { EEquitySubType } from '../../../domain/ledger/types/equity-account.types';
-import { ELedgerType } from '../../../domain/ledger/types/ledger.types';
+import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
+import { EEquitySubType } from '../../../domain/ledger/equity-account/types/equity-account.types';
+import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import { ELedgerType } from '../../../domain/ledger/shared/types/ledger.types';
 import IOpeningBalanceEntryService from '../contracts/opening-balance-entry.service.contract';
 
 export default function makeOpeningBalanceEntryService(

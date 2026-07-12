@@ -3,12 +3,12 @@ import {
   IAccountingEntity,
 } from '../../../../domain/accounting/types/accounting-entity.types';
 import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
+import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { IEntityDelta } from '../../../../shared/types/history.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IAccountingEntityCreationDto } from '../../../accounting/dtos/accounting.dto';
+import { IAccountingEntityCreationDto } from '../../dtos/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
 
 import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';

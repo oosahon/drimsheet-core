@@ -1,5 +1,6 @@
 import {
   IPaginatedReadRepoOptions,
+  IReadRepoOptions,
   IWriteRepoOptions,
 } from '../../../shared/types/repo.types';
 import { IExchangeRate, UExchangeRateType } from '../types/exchange-rate.types';
@@ -21,4 +22,10 @@ export default interface IExchangeRateRepo {
   ): Promise<void>;
 
   find(query: IFindQuery, options: IFindRepoOptions): Promise<IExchangeRate[]>;
+
+  findByPairAndDate(
+    currencyPair: string,
+    asOf: Date,
+    options: IReadRepoOptions
+  ): Promise<IExchangeRate | null>;
 }

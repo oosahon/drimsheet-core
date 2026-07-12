@@ -7,9 +7,9 @@ import mockRequestContext from '../../../../infra/services/__mocks__/request-con
 import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
-import authError from '../../../auth/errors/auth.error';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
+import authError from '../../errors/auth.error';
 import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 
 describe('makeSendEmailVerificationEmailUseCase', () => {

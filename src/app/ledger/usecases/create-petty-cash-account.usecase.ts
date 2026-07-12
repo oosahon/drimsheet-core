@@ -1,25 +1,51 @@
 import currencyEntity from '../../../domain/currency/entities/currency.entity';
+import { IExchangeRate } from '../../../domain/currency/types/exchange-rate.types';
 import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
-import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
-import ILedgerAccountPersistenceService from '../../../domain/ledger/types/ledger-account-persistence.service.types';
-import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
+import { IJournalEntry } from '../../../domain/journal-entry/types/journal-entry.types';
+import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
+import { ICashAndCashEquivalentAccount } from '../../../domain/ledger/asset-account/types/asset-account.types';
+import ILedgerAccountPersistenceService from '../../../domain/ledger/shared/types/ledger-account-persistence.service.types';
+import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
+import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
+import { IFxCostBasisLotAcquisition } from '../../../domain/subledger/fx-cost-basis/types/acquisition.types';
+import IFxCostBasisLotDomainService from '../../../domain/subledger/fx-cost-basis/types/lot.service.types';
+import { IFxCostBasisLot } from '../../../domain/subledger/fx-cost-basis/types/lot.types';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
 import { IEvent } from '../../../shared/types/event.types';
+import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
+import IExchangeRateAppService from '../../currency/contracts/exchange-rate.service.contract';
+import { IOpeningBalanceDto } from '../../journal-entry/dtos/opening-balance.dto';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/mappers/money.mapper';
+import IFxCostBasisPersistenceService from '../../subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
 import {
   IPettyCashAccountCreationReq,
   pettyCashCreationReqValidation,
 } from '../dtos/asset-account.dto';
+import ledgerAppError from '../errors/ledger.error';
+
+const validateExchangeRate = (
+  functionalCurrencyCode: string,
+  currencyCode: string,
+  openingBalance: IOpeningBalanceDto | null
+) => {
+  const isForex = functionalCurrencyCode !== currencyCode;
+
+  const requiresExchangeRate = isForex && openingBalance;
+
+  if (requiresExchangeRate && !openingBalance?.exchangeRate) {
+    throw new ledgerAppError.ExchangeRateRequired({ openingBalance });
+  }
+};
 
 export default function makeCreatePettyCashAccountUseCase(
   requestContext: IRequestContext,
@@ -28,25 +54,86 @@ export default function makeCreatePettyCashAccountUseCase(
   openingBalanceEntryService: IOpeningBalanceEntryService,
   journalEntryPersistenceService: IJournalEntryPersistenceService,
   repoService: IRepoService,
-  ledgerAccountPersistenceService: ILedgerAccountPersistenceService
+  ledgerAccountPersistenceService: ILedgerAccountPersistenceService,
+  fxCostBasisPersistenceService: IFxCostBasisPersistenceService,
+  fxCostBasisService: IFxCostBasisLotDomainService,
+  exchangeRateService: IExchangeRateAppService
 ) {
-  return async (payload: IPettyCashAccountCreationReq) => {
+  return async (
+    payload: IPettyCashAccountCreationReq
+  ): Promise<ICashAndCashEquivalentAccount> => {
     zodValidationRunner(pettyCashCreationReqValidation, payload);
 
     const { correlationId, user, accountingEntity } = requestContext.get();
-    const trace = { correlationId };
 
-    const accountPayload = {
-      name: payload.name,
-      currency: currencyEntity.getByCode(payload.currencyCode),
-      isControlAccount: payload.isControlAccount,
-      userId: user.id,
-      accountingEntity,
-      controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
+    validateExchangeRate(
+      accountingEntity.functionalCurrencyCode,
+      payload.currencyCode,
+      payload.openingBalance
+    );
+
+    // FX lot data getter
+    const getFxLotData = async (
+      account: ILedgerAccount,
+      journalEntry: IJournalEntry,
+      exchangeRate: IExchangeRate | null,
+      repoOptions: IReadRepoOptions
+    ) => {
+      const shouldNotCreate =
+        !exchangeRate ||
+        payload.currencyCode === accountingEntity.functionalCurrencyCode;
+
+      if (shouldNotCreate) {
+        return null;
+      }
+
+      const debitLine = journalEntry.lines.find(
+        (v) => v.accountId === account.id
+      )!;
+
+      const officialRate = await exchangeRateService.getOfficialRate(
+        exchangeRate.currencyPair,
+        exchangeRate.asOf,
+        repoOptions,
+        exchangeRate
+      );
+
+      return fxCostBasisService.acquire({
+        ledgerAccountId: account.id,
+        accountingEntityId: account.accountingEntityId,
+        journalEntryId: journalEntry.id,
+        quantity: debitLine.amount,
+        costBasis: debitLine.functionalAmount,
+        acquisitionRate: exchangeRate,
+        acquisitionDate: journalEntry.effectiveDate,
+        officialRate,
+      });
     };
 
+    const getAccountPayload = () => {
+      return {
+        name: payload.name,
+        currency: currencyEntity.getByCode(payload.currencyCode),
+        isControlAccount: payload.isControlAccount,
+        userId: user.id,
+        accountingEntity,
+        controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
+      };
+    };
+
+    const getExchangeRate = () => {
+      return payload.openingBalance?.exchangeRate
+        ? exchangeRateValue.make(payload.openingBalance.exchangeRate)
+        : null;
+    };
+
+    const trace = { correlationId };
+
     const [account, accountEvents, accountAudit] =
-      await assetAccountService.makePettyCashSubAccount(accountPayload, trace);
+      await assetAccountService.makePettyCashSubAccount(
+        getAccountPayload(),
+        trace
+      );
 
     const actor = historyValue.getUserActor(user.id);
     const accountHistory = [
@@ -64,56 +151,91 @@ export default function makeCreatePettyCashAccountUseCase(
         accountingEntity.functionalCurrencyCode,
         repoOptions
       );
+
       eventBus.publish(eventValue.enrichAll(accountEvents, trace));
-      return;
+
+      return account;
     }
 
-    const openingBalanceAmount = moneyMapper.fromDto(
-      payload.openingBalance.amount
-    );
-    const exchangeRate = payload.openingBalance.exchangeRate
-      ? exchangeRateValue.make(payload.openingBalance.exchangeRate)
-      : null;
+    // Create the opening balance journal entry
+    const exchangeRate = getExchangeRate();
 
     const [journalEntry, journalEvents, audit] =
       await openingBalanceEntryService.create(
         accountingEntity,
         account,
-        openingBalanceAmount,
+        moneyMapper.fromDto(payload.openingBalance.amount),
         exchangeRate,
         trace
       );
 
-    const headerHistory = historyValue.make(audit.header, actor, correlationId);
-    const lineHistories = audit.lines.map((lineAudit) =>
-      historyValue.make(lineAudit, actor, correlationId)
+    const fxLotData = await getFxLotData(
+      account,
+      journalEntry,
+      exchangeRate,
+      trace
     );
 
+    let lotEvents: IEvent<IFxCostBasisLot>[] = [];
+    let acquisitionEvents: IEvent<IFxCostBasisLotAcquisition>[] = [];
+
+    // Persistence
     const dbTransactionFn: TRepoTransactionFn = async (tx) => {
       const repoOptions = { ...trace, tx };
-
-      const accountRepoOptions = {
-        ...repoOptions,
-        history: accountHistory,
-      };
 
       await ledgerAccountPersistenceService.create(
         account,
         accountingEntity.functionalCurrencyCode,
-        accountRepoOptions
+        {
+          ...repoOptions,
+          history: accountHistory,
+        }
       );
 
+      const headerHistory = historyValue.make(
+        audit.header,
+        actor,
+        correlationId
+      );
+      const linesHistory = audit.lines.map((lineAudit) =>
+        historyValue.make(lineAudit, actor, correlationId)
+      );
       await journalEntryPersistenceService.create(
         journalEntry,
         headerHistory,
-        lineHistories,
+        linesHistory,
         repoOptions
       );
+
+      if (fxLotData) {
+        const {
+          lot: [lot, lotEventData, lotHistory],
+          acquisition: [acquisition, acqEventData, acquisitionHistory],
+        } = fxLotData;
+
+        await fxCostBasisPersistenceService.persistAcquisition(
+          lot,
+          acquisition,
+          historyValue.make(lotHistory, actor, correlationId),
+          historyValue.make(acquisitionHistory, actor, correlationId),
+          repoOptions
+        );
+
+        lotEvents = lotEventData;
+        acquisitionEvents = acqEventData;
+      }
     };
 
     await repoService.runInTransaction(dbTransactionFn);
 
-    const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];
+    const allEvents: IEvent<unknown>[] = [
+      ...accountEvents,
+      ...journalEvents,
+      ...lotEvents,
+      ...acquisitionEvents,
+    ];
     eventBus.publish(eventValue.enrichAll(allEvents, trace));
+
+    return account;
   };
 }

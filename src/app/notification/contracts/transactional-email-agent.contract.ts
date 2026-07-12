@@ -1,4 +1,4 @@
-import { ITransactionalEmailDto } from '../../notification/dtos/transactional-email.dto';
+import { ITransactionalEmailDto } from '../dtos/transactional-email.dto';
 
 export enum ETransactionalEmailAgent {
   Notifications = 'notifications',

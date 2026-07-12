@@ -4,7 +4,7 @@ import {
   toCommonRepoDates,
   toRepoDate,
   toRepoDateOnly,
-} from '../../../shared/mappers/date';
+} from '../date';
 
 describe('Date Mappers', () => {
   describe('toRepoDate', () => {

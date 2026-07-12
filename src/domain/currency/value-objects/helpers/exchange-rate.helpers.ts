@@ -67,10 +67,18 @@ function validate(exchangeRate: IExchangeRate) {
   dateUtils.validateDate(exchangeRate.createdAt, currencyError.InvalidValue);
 }
 
+function getCurrencyPair(baseCode: string, targetCode: string) {
+  currencyEntity.validateCode(baseCode);
+  currencyEntity.validateCode(targetCode);
+
+  return `${baseCode}/${targetCode}`;
+}
+
 const exchangeRateValueHelpers = Object.freeze({
   validate,
   validateType,
   validateCurrencyPair,
+  getCurrencyPair,
 });
 
 export default exchangeRateValueHelpers;

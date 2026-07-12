@@ -1,5 +1,5 @@
 import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';

@@ -1,4 +1,4 @@
-import ILedgerAccountRepo from '../../../../../domain/ledger/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../../../domain/ledger/shared/repos/ledger-account.repo';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   create: jest.fn(),

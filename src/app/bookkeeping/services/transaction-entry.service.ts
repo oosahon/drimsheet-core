@@ -3,7 +3,7 @@ import getTransactionRule from '../../../domain/accounting/rules/bookkeeping/tra
 import journalEntryEntity from '../../../domain/journal-entry/entities/journal-entry.entity';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
 import { IJournalLineMakePayload } from '../../../domain/journal-entry/types/journal-line.types';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import ITransactionEntryService from '../contracts/transaction-entry.service.contract';
 
 export default function makeTransactionEntryService(

@@ -1,10 +1,10 @@
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
-import IUserSessionRepo from '../../auth/contracts/user-session.repo.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 import IAuthService from '../contracts/auth-service.contract';
+import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 export default function makeRefreshAccessTokenUseCase(

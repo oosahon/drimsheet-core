@@ -1,11 +1,11 @@
 import { EJournalSide } from '../../../journal-entry/types/journal-line.types';
-import { EAssetAccountBehavior } from '../../../ledger/types/asset-account.types';
-import { EExpenseSubType } from '../../../ledger/types/expense-account.types';
-import { ILedgerAccount } from '../../../ledger/types/ledger.types';
+import { EAssetAccountBehavior } from '../../../ledger/asset-account/types/asset-account.types';
+import { EExpenseSubType } from '../../../ledger/expense-account/types/expense-account.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
-} from '../../../ledger/types/liability-account.types';
+} from '../../../ledger/liability-account/types/liability-account.types';
+import { ILedgerAccount } from '../../../ledger/shared/types/ledger.types';
 import accountingError from '../../errors/accounting.error';
 import { ITransactionRule } from '../../types/bookkeeping-rule.types';
 

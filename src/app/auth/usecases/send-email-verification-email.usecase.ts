@@ -4,10 +4,10 @@ import emailValue from '../../../domain/user/value-objects/email.vo';
 import ILogger from '../../../shared/contracts/logger.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import authError from '../../auth/errors/auth.error';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
+import authError from '../errors/auth.error';
 
 const validationSchema = z.object({
   email: z.email(),

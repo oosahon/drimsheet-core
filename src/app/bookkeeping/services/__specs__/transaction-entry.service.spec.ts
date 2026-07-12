@@ -6,9 +6,9 @@ import {
   EJournalEntryStatus,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLineInput } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/entities/01-asset-account/00-cash-and-equivalents.entity';
-import receivablesAccountEntity from '../../../../domain/ledger/entities/01-asset-account/02-receivables.entity';
-import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import receivablesAccountEntity from '../../../../domain/ledger/asset-account/entities/receivables.entity';
+import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';

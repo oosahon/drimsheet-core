@@ -13,6 +13,7 @@ import authError from '../../app/auth/errors/auth.error';
 import { ICacheStorage } from '../../shared/contracts/cache-storage.contract';
 import IVarsConfig from '../../shared/contracts/vars-config.contract';
 
+// TODO [PUR-21]: refactor services
 export default function makeAuthService(
   cacheStorage: ICacheStorage,
   varsConfig: IVarsConfig,

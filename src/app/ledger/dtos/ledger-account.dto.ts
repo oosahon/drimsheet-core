@@ -1,14 +1,14 @@
 import _ from 'lodash';
 import z from 'zod';
-import ledgerAccountError from '../../../domain/ledger/errors/ledger-account.error';
+import ledgerAccountError from '../../../domain/ledger/shared/errors/ledger-account.error';
 import {
   ELedgerAccountSortBy,
   ULedgerAccountSortBy,
-} from '../../../domain/ledger/repos/ledger-account.repo';
+} from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import {
   ELedgerAccountSubType,
   ULedgerAccountSubType,
-} from '../../../domain/ledger/types/ledger-aggregate.types';
+} from '../../../domain/ledger/shared/types/ledger-aggregate.types';
 import {
   ELedgerType,
   UAdjunctAccountRule,
@@ -16,7 +16,7 @@ import {
   ULedgerAccountStatus,
   ULedgerType,
   UNormalBalance,
-} from '../../../domain/ledger/types/ledger.types';
+} from '../../../domain/ledger/shared/types/ledger.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { IMoneyDto } from '../../shared/dtos/money.dto';
 import {

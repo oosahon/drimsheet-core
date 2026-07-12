@@ -10,9 +10,9 @@ import mockTransactionalEmailService from '../../../../infra/services/__mocks__/
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import eventValue from '../../../../shared/value-objects/event.vo';
-import authError from '../../../auth/errors/auth.error';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import { IUserAuth } from '../../contracts/auth-service.contract';
+import authError from '../../errors/auth.error';
 import makeRequestPasswordResetUseCase from '../request-password-reset.usecase';
 
 describe('makeRequestPasswordResetUseCase', () => {
