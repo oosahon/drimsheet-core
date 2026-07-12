@@ -38,25 +38,27 @@ const validationSchema = z
     path: ['confirmPassword'],
   });
 
-export default function makeResetPasswordUseCase(
-  requestContext: IRequestContext,
-  userRepo: IUserRepo,
-  makeAuthService: IAuthService,
-  eventBus: IEventBus,
-  userAuthRepo: IUserAuthRepo,
-  userSessionRepo: IUserSessionRepo,
-  repoService: IRepoService
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+  userRepo: IUserRepo;
+  makeAuthService: IAuthService;
+  eventBus: IEventBus;
+  userAuthRepo: IUserAuthRepo;
+  userSessionRepo: IUserSessionRepo;
+  repoService: IRepoService;
+}
+
+export default function makeResetPasswordUseCase(deps: IDependencies) {
   return async (payload: IResetPasswordReq): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, payload);
 
-    const { correlationId, idempotencyKey } = requestContext.get();
+    const { correlationId, idempotencyKey } = deps.requestContext.get();
 
-    const tokenPayload = await makeAuthService.verifyPasswordResetToken(
+    const tokenPayload = await deps.makeAuthService.verifyPasswordResetToken(
       payload.token
     );
 
-    const existingUser = await userRepo.findById(tokenPayload.id, {
+    const existingUser = await deps.userRepo.findById(tokenPayload.id, {
       correlationId,
     });
 
@@ -64,23 +66,28 @@ export default function makeResetPasswordUseCase(
       throw new authError.InvalidToken();
     }
 
-    const existingUserAuth = await userAuthRepo.findByUserId(existingUser.id, {
-      correlationId,
-    });
+    const existingUserAuth = await deps.userAuthRepo.findByUserId(
+      existingUser.id,
+      {
+        correlationId,
+      }
+    );
 
     if (!existingUserAuth) {
       throw new authError.InvalidToken();
     }
 
-    const passwordHash = await makeAuthService.hashPassword(payload.password);
+    const passwordHash = await deps.makeAuthService.hashPassword(
+      payload.password
+    );
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
-      await userAuthRepo.update(
+      await deps.userAuthRepo.update(
         { ...existingUserAuth, password: passwordHash, failedLoginAttempts: 0 },
         { correlationId, tx }
       );
     };
-    await repoService.runInTransaction(repoTransaction);
+    await deps.repoService.runInTransaction(repoTransaction);
 
     const event = userEvents.passwordReset(existingUser);
 
@@ -91,11 +98,11 @@ export default function makeResetPasswordUseCase(
 
     return makeIssueUserSessionHelper({
       user: existingUser,
-      reqContext: requestContext,
-      makeAuthService,
-      userSessionRepo,
-      eventBus,
-      repoService,
+      reqContext: deps.requestContext,
+      makeAuthService: deps.makeAuthService,
+      userSessionRepo: deps.userSessionRepo,
+      eventBus: deps.eventBus,
+      repoService: deps.repoService,
       events: enrichedEvent,
     });
   };

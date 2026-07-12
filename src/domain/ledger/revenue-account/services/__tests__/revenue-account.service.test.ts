@@ -6,7 +6,9 @@ import { IRevenueLedgerAccount } from '../../types/revenue-account.types';
 import makeRevenueAccountService from '../revenue-account.service';
 
 describe('revenueAccountService', () => {
-  const service = makeRevenueAccountService(mockLedgerAccountRepo);
+  const service = makeRevenueAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
   };

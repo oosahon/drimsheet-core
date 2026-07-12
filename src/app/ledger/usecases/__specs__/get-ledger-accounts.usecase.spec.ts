@@ -17,12 +17,12 @@ import makeGetLedgerAccountsUsecase from '../get-ledger-accounts.usecase';
 
 describe('makeGetLedgerAccountsUsecase', () => {
   const getUseCase = () =>
-    makeGetLedgerAccountsUsecase(
-      mockRequestContext,
-      mockReporter,
-      mockLedgerAccountRepo,
-      mockLedgerAccountBalanceRepo
-    );
+    makeGetLedgerAccountsUsecase({
+      requestContext: mockRequestContext,
+      reporter: mockReporter,
+      ledgerAccountRepo: mockLedgerAccountRepo,
+      ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
+    });
 
   const mockDate = new Date('2026-04-01T00:00:00.000Z');
   const usdCurrency = currencyEntity.getByCode('USD');

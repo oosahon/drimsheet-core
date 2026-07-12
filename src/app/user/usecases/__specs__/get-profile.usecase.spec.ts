@@ -27,7 +27,9 @@ describe('makeGetAuthUserProfileUseCase', () => {
     const mappedUser = { id: 'test-user-id', email: 'test@example.com' };
     (userMapper.toInterface as jest.Mock).mockReturnValue(mappedUser);
 
-    const usecase = makeGetAuthUserProfileUseCase(mockRequestContext);
+    const usecase = makeGetAuthUserProfileUseCase({
+      requestContext: mockRequestContext,
+    });
     const result = await usecase();
 
     expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
@@ -38,7 +40,9 @@ describe('makeGetAuthUserProfileUseCase', () => {
   it('should throw appError.Unauthorized if user is not in request context', async () => {
     mockRequestContext.get.mockReturnValue({} as IRequestContextData);
 
-    const usecase = makeGetAuthUserProfileUseCase(mockRequestContext);
+    const usecase = makeGetAuthUserProfileUseCase({
+      requestContext: mockRequestContext,
+    });
 
     await expect(usecase()).rejects.toThrow('app_error_unauthorized');
     expect(mockRequestContext.get).toHaveBeenCalledTimes(1);

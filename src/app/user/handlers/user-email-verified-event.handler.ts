@@ -5,13 +5,15 @@ import { IEvent } from '../../../shared/types/event.types';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
 
-function makeUserEmailVerifiedEventHandler(
-  reporter: IReporter,
-  requestContext: IRequestContext
-) {
+interface IDependencies {
+  reporter: IReporter;
+  requestContext: IRequestContext;
+}
+
+function makeUserEmailVerifiedEventHandler(deps: IDependencies) {
   return async (event: IEvent<IUser>) => {
     validateEventAndSetRequestContext(
-      requestContext,
+      deps.requestContext,
       event,
       EUserEvents.EmailVerified
     );

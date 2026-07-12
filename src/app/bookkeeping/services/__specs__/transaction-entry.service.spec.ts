@@ -16,7 +16,9 @@ import moneyValue from '../../../../shared/value-objects/money.vo';
 import makeTransactionEntryService from '../transaction-entry.service';
 
 describe('transferTransactionEntryService', () => {
-  const service = makeTransactionEntryService(mockLedgerAccountRepo);
+  const service = makeTransactionEntryService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',

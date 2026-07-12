@@ -37,23 +37,23 @@ describe('createAccountingEntityUseCase', () => {
   } = mockLedgerDomainServices;
 
   const getUseCase = () =>
-    createAccountingEntityUseCase(
-      mockRequestContext,
-      mockRepoService,
-      mockAccountingEntityRepo,
-      mockFiscalYearRepo,
-      mockAccountingPeriodRepo,
-      mockAccountingContextRepo,
-      mockReportingPeriodRepo,
-      mockReportingContextRepo,
-      mockLedgerAccountRepo,
-      mockEventBus,
-      mockAssetAccountService,
-      mockLiabilityAccountService,
-      mockEquityAccountService,
-      mockRevenueAccountService,
-      mockExpenseAccountService
-    );
+    createAccountingEntityUseCase({
+      requestContext: mockRequestContext,
+      repoService: mockRepoService,
+      accountingEntityRepo: mockAccountingEntityRepo,
+      fiscalYearRepo: mockFiscalYearRepo,
+      accountingPeriodRepo: mockAccountingPeriodRepo,
+      accountingContextRepo: mockAccountingContextRepo,
+      reportingPeriodRepo: mockReportingPeriodRepo,
+      reportingContextRepo: mockReportingContextRepo,
+      ledgerAccountRepo: mockLedgerAccountRepo,
+      eventBus: mockEventBus,
+      assetAccountService: mockAssetAccountService,
+      liabilityAccountService: mockLiabilityAccountService,
+      equityAccountService: mockEquityAccountService,
+      revenueAccountService: mockRevenueAccountService,
+      expenseAccountService: mockExpenseAccountService,
+    });
 
   const validPayload: IAccountingEntityCreationDto = {
     name: 'Test Business',

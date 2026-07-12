@@ -17,22 +17,26 @@ const validationSchema = z.object({
   token: z.string(),
 });
 
-export default function makeVerifyEmailAddressUseCase(
-  makeAuthService: IAuthService,
-  userRepo: IUserRepo,
-  requestContext: IRequestContext,
-  eventBus: IEventBus,
-  userSessionRepo: IUserSessionRepo,
-  repoService: IRepoService
-) {
+interface IDependencies {
+  makeAuthService: IAuthService;
+  userRepo: IUserRepo;
+  requestContext: IRequestContext;
+  eventBus: IEventBus;
+  userSessionRepo: IUserSessionRepo;
+  repoService: IRepoService;
+}
+
+export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
   return async (token: string): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, { token });
 
-    const { correlationId } = requestContext.get();
+    const { correlationId } = deps.requestContext.get();
 
-    const decodedToken = await makeAuthService.verifySignupToken(token);
+    const decodedToken = await deps.makeAuthService.verifySignupToken(token);
 
-    const user = await userRepo.findById(decodedToken.id, { correlationId });
+    const user = await deps.userRepo.findById(decodedToken.id, {
+      correlationId,
+    });
 
     if (!user) {
       throw new authError.InvalidToken();
@@ -41,11 +45,11 @@ export default function makeVerifyEmailAddressUseCase(
     if (user.emailVerified) {
       return makeIssueUserSessionHelper({
         user,
-        reqContext: requestContext,
-        makeAuthService,
-        userSessionRepo,
-        eventBus,
-        repoService,
+        reqContext: deps.requestContext,
+        makeAuthService: deps.makeAuthService,
+        userSessionRepo: deps.userSessionRepo,
+        eventBus: deps.eventBus,
+        repoService: deps.repoService,
         events: [],
       });
     }
@@ -58,15 +62,15 @@ export default function makeVerifyEmailAddressUseCase(
       correlationId
     );
 
-    await userRepo.update(updatedUser, { correlationId, history });
+    await deps.userRepo.update(updatedUser, { correlationId, history });
 
     return makeIssueUserSessionHelper({
       user: updatedUser,
-      reqContext: requestContext,
-      makeAuthService,
-      userSessionRepo,
-      eventBus,
-      repoService,
+      reqContext: deps.requestContext,
+      makeAuthService: deps.makeAuthService,
+      userSessionRepo: deps.userSessionRepo,
+      eventBus: deps.eventBus,
+      repoService: deps.repoService,
       events: eventValue.enrichAll(events, { correlationId }),
     });
   };

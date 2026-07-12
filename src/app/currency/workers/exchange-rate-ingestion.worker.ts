@@ -3,15 +3,17 @@ import IReporter from '../../../shared/contracts/reporter.contract';
 import IExchangeRateIngestion from '../contracts/exchange-rate-ingestion.contract';
 import currencyUseCase from '../usecases';
 
-export default function makeExchangeRateIngestionWorker(
-  reporter: IReporter,
-  logger: ILogger
-) {
+interface IDependencies {
+  reporter: IReporter;
+  logger: ILogger;
+}
+
+export default function makeExchangeRateIngestionWorker(deps: IDependencies) {
   return async (payload: IExchangeRateIngestion['message']['payload']) => {
-    logger.info('Initiating currency exchange rate ingestion');
+    deps.logger.info('Initiating currency exchange rate ingestion');
 
-    await currencyUseCase.ingest(payload).catch(reporter.report);
+    await currencyUseCase.ingest(payload).catch(deps.reporter.report);
 
-    logger.info('Currency exchange rate ingested successfully');
+    deps.logger.info('Currency exchange rate ingested successfully');
   };
 }

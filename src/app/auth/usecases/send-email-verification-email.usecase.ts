@@ -13,29 +13,36 @@ const validationSchema = z.object({
   email: z.email(),
 });
 
+interface IDependencies {
+  requestContext: IRequestContext;
+  logger: ILogger;
+  makeAuthService: IAuthService;
+  userRepo: IUserRepo;
+  transactionalEmailService: ITransactionalEmailService;
+  varsConfig: IVarsConfig;
+}
+
 export default function makeSendEmailVerificationEmailUseCase(
-  requestContext: IRequestContext,
-  logger: ILogger,
-  makeAuthService: IAuthService,
-  userRepo: IUserRepo,
-  transactionalEmailService: ITransactionalEmailService,
-  varsConfig: IVarsConfig
+  deps: IDependencies
 ) {
   return async (userEmail: string) => {
     zodValidationRunner(validationSchema, { email: userEmail });
 
-    const { correlationId } = requestContext.get();
+    const { correlationId } = deps.requestContext.get();
 
-    const user = await userRepo.findByEmail(emailValue.normalize(userEmail), {
-      correlationId,
-    });
+    const user = await deps.userRepo.findByEmail(
+      emailValue.normalize(userEmail),
+      {
+        correlationId,
+      }
+    );
 
     if (!user) {
       throw new authError.UserNotFound();
     }
 
     if (user.emailVerified) {
-      logger.info(
+      deps.logger.info(
         'Skipping sending email verification email as user email is already verified',
         {
           userId: user.id,
@@ -45,13 +52,13 @@ export default function makeSendEmailVerificationEmailUseCase(
       return;
     }
 
-    const verificationToken = await makeAuthService.generateSignupToken({
+    const verificationToken = await deps.makeAuthService.generateSignupToken({
       id: user.id,
     });
 
-    const verificationLink = `${varsConfig.WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
+    const verificationLink = `${deps.varsConfig.WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
 
-    await transactionalEmailService.sendEmailVerification({
+    await deps.transactionalEmailService.sendEmailVerification({
       user,
       verificationLink,
       correlationId,

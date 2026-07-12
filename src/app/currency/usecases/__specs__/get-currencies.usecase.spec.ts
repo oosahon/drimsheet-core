@@ -30,10 +30,10 @@ describe('makeGetCurrenciesUseCase', () => {
 
     mockCurrencyRepo.findAll.mockResolvedValue(mockCurrencies);
 
-    const usecase = makeGetCurrenciesUseCase(
-      mockCurrencyRepo,
-      mockRequestContext
-    );
+    const usecase = makeGetCurrenciesUseCase({
+      currencyRepo: mockCurrencyRepo,
+      requestContext: mockRequestContext,
+    });
     const result = await usecase();
 
     expect(mockRequestContext.get).toHaveBeenCalledTimes(1);

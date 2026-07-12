@@ -10,7 +10,9 @@ import {
 import makeUserPreferencesService from '../user-preferences.service';
 
 describe('makeUserPreferencesService', () => {
-  const service = makeUserPreferencesService(mockUserPreferencesRepo);
+  const service = makeUserPreferencesService({
+    userPreferencesRepo: mockUserPreferencesRepo,
+  });
   const userId = generateUUID();
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',

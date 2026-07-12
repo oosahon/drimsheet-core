@@ -6,14 +6,16 @@ import authUseCase from '../../auth/usecases';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
 
-export default function makeUserCreatedEventHandler(
-  reporter: IReporter,
-  requestContext: IRequestContext
-) {
+interface IDependencies {
+  reporter: IReporter;
+  requestContext: IRequestContext;
+}
+
+export default function makeUserCreatedEventHandler(deps: IDependencies) {
   return async (event: IEvent<IUser>) => {
     try {
       validateEventAndSetRequestContext(
-        requestContext,
+        deps.requestContext,
         event,
         EUserEvents.Created
       );
@@ -23,12 +25,12 @@ export default function makeUserCreatedEventHandler(
       if (shouldSendEmailVerification) {
         await authUseCase
           .sendEmailVerificationEmail(event.data.email)
-          .catch(reporter.report);
+          .catch(deps.reporter.report);
       } else {
         // TODO: send welcome email https://linear.app/purpleledger/issue/PUR-20/create-and-send-welcome-emails
       }
     } catch (error) {
-      reporter.report(error);
+      deps.reporter.report(error);
     }
   };
 }

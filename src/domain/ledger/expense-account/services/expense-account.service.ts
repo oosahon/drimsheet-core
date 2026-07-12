@@ -41,8 +41,12 @@ type TBootstrapHeaders = IExpenseAccountService['bootstrapHeaderAccounts'];
 type TBootstrapIndividualPostingAccounts =
   IExpenseAccountService['bootstrapIndividualPostingAccounts'];
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeExpenseAccountService(
-  repo: ILedgerAccountRepo
+  deps: IDependencies
 ): IExpenseAccountService {
   /**
    * Bootstraps header expense accounts for a new accounting entity
@@ -69,7 +73,7 @@ export default function makeExpenseAccountService(
     const getExistingAccounts = async <T extends IExpenseLedgerAccount>(
       code: TExpenseLedgerCode
     ) => {
-      return (await repo.findByCode(
+      return (await deps.ledgerAccountRepo.findByCode(
         code,
         accountingEntityId,
         repoOptions

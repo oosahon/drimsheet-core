@@ -6,27 +6,29 @@ import IAuthService from '../contracts/auth-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
-export default function makeOauthUsecase(
-  reqContext: IRequestContext,
-  makeAuthService: IAuthService,
-  eventBus: IEventBus,
-  userSessionRepo: IUserSessionRepo,
-  repoService: IRepoService,
-  webAppUrl: string
-) {
+interface IDependencies {
+  reqContext: IRequestContext;
+  makeAuthService: IAuthService;
+  eventBus: IEventBus;
+  userSessionRepo: IUserSessionRepo;
+  repoService: IRepoService;
+  webAppUrl: string;
+}
+
+export default function makeOauthUsecase(deps: IDependencies) {
   return {
     handleGoogleCallback: async (user: IUser): Promise<string> => {
       const { accessToken } = await makeIssueUserSessionHelper({
         user,
-        reqContext,
-        makeAuthService,
-        userSessionRepo,
-        eventBus,
-        repoService,
+        reqContext: deps.reqContext,
+        makeAuthService: deps.makeAuthService,
+        userSessionRepo: deps.userSessionRepo,
+        eventBus: deps.eventBus,
+        repoService: deps.repoService,
         events: [],
       });
 
-      return `${webAppUrl}/auth/oauth-confirmation?access_token=${accessToken}`;
+      return `${deps.webAppUrl}/auth/oauth-confirmation?access_token=${accessToken}`;
     },
   };
 }

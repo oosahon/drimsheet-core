@@ -7,27 +7,27 @@ import makeCreatePaymentJournalEntryUseCase from './create-payment-journal-entry
 import makeCreateTransferJournalEntryUseCase from './create-transfer-journal-entry.usecase';
 
 const journalEntryUseCases = {
-  createOpeningBalance: makeCreateOpeningBalanceUseCase(
-    appContext.request,
-    ledgerRepos.ledgerAccount,
-    messaging.eventBus,
-    bookkeepingServices.openingBalanceEntry,
-    bookkeepingServices.journalEntryPersistence
-  ),
+  createOpeningBalance: makeCreateOpeningBalanceUseCase({
+    requestContext: appContext.request,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    eventBus: messaging.eventBus,
+    openingBalanceEntryService: bookkeepingServices.openingBalanceEntry,
+    journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
+  }),
 
-  createPayment: makeCreatePaymentJournalEntryUseCase(
-    appContext.request,
-    bookkeepingServices.transactionEntry,
-    bookkeepingServices.journalEntryPersistence,
-    messaging.eventBus
-  ),
+  createPayment: makeCreatePaymentJournalEntryUseCase({
+    requestContext: appContext.request,
+    transactionEntryService: bookkeepingServices.transactionEntry,
+    journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
+    eventBus: messaging.eventBus,
+  }),
 
-  createTransfer: makeCreateTransferJournalEntryUseCase(
-    appContext.request,
-    bookkeepingServices.transactionEntry,
-    bookkeepingServices.journalEntryPersistence,
-    messaging.eventBus
-  ),
+  createTransfer: makeCreateTransferJournalEntryUseCase({
+    requestContext: appContext.request,
+    transactionEntryService: bookkeepingServices.transactionEntry,
+    journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
+    eventBus: messaging.eventBus,
+  }),
 };
 
 export default journalEntryUseCases;

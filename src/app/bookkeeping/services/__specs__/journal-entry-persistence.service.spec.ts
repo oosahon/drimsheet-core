@@ -26,13 +26,13 @@ import moneyValue from '../../../../shared/value-objects/money.vo';
 import makeJournalEntryPersistenceService from '../journal-entry-persistence.service';
 
 describe('journalEntryPersistenceService', () => {
-  const service = makeJournalEntryPersistenceService(
-    mockRepoService,
-    mockJournalEntryRepo,
-    mockJournalLineRepo,
-    mockBookkeepingServices.balancePropagation,
-    mockReporter
-  );
+  const service = makeJournalEntryPersistenceService({
+    repoService: mockRepoService,
+    journalEntryRepo: mockJournalEntryRepo,
+    journalLineRepo: mockJournalLineRepo,
+    balancePropagationService: mockBookkeepingServices.balancePropagation,
+    reporter: mockReporter,
+  });
 
   const mockOptions: IRepoOptions = {
     correlationId: 'test-correlation-id',

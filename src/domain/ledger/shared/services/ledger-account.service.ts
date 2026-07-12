@@ -3,15 +3,22 @@ import { ILedgerAccountService } from '../types/ledger-account.service.types';
 
 type TvalidateAccountAccess = ILedgerAccountService['validateAccountAccess'];
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeLedgerAccountService(
-  ledgerAccountRepo: ILedgerAccountRepo
+  deps: IDependencies
 ): ILedgerAccountService {
   const validateAccountAccess: TvalidateAccountAccess = async (
     accountId,
     userId,
     repoOptions
   ) => {
-    const account = await ledgerAccountRepo.findById(accountId, repoOptions);
+    const account = await deps.ledgerAccountRepo.findById(
+      accountId,
+      repoOptions
+    );
     return account?.createdBy === userId;
   };
 

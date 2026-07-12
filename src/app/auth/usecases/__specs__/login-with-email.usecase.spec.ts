@@ -47,15 +47,15 @@ describe('makeLoginWithEmailUseCase', () => {
     }) as unknown as IUserAuth;
 
   const getUseCase = () =>
-    makeLoginWithEmailUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    makeLoginWithEmailUseCase({
+      reqContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = getUseCase();

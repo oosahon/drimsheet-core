@@ -22,14 +22,14 @@ describe('refreshAccessTokenUseCase', () => {
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
 
   const getUseCase = () =>
-    makeRefreshAccessTokenUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    makeRefreshAccessTokenUseCase({
+      reqContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
   beforeEach(() => {
     jest.clearAllMocks();

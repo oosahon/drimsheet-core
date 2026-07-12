@@ -18,7 +18,10 @@ describe('getSentEmail', () => {
       NODE_ENV: 'production',
     } as IVarsConfig;
 
-    const useCase = getSentEmail(mockInternalMailer, mockVarsConfig);
+    const useCase = getSentEmail({
+      internalMailer: mockInternalMailer,
+      varsConfig: mockVarsConfig,
+    });
 
     await expect(useCase('test@test.com', 'subject')).rejects.toThrow(
       'app_error_forbidden'
@@ -30,7 +33,10 @@ describe('getSentEmail', () => {
       NODE_ENV: 'test',
     } as IVarsConfig;
 
-    const useCase = getSentEmail(mockInternalMailer, mockVarsConfig);
+    const useCase = getSentEmail({
+      internalMailer: mockInternalMailer,
+      varsConfig: mockVarsConfig,
+    });
 
     const mockEmailDto: ITransactionalEmailDto = {
       correlationId: 'test-corr-id',

@@ -38,15 +38,15 @@ describe('makeRequestPasswordResetUseCase', () => {
     const userEmail = 'notfound@example.com';
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
-    const usecase = makeRequestPasswordResetUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockTransactionalEmailService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockVarsConfig
-    );
+    const usecase = makeRequestPasswordResetUseCase({
+      requestContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      transactionEmailService: mockTransactionalEmailService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      varsConfig: mockVarsConfig,
+    });
 
     await usecase(userEmail);
 
@@ -89,15 +89,15 @@ describe('makeRequestPasswordResetUseCase', () => {
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
     mockAuthService.generatePasswordResetToken.mockResolvedValue(resetToken);
 
-    const usecase = makeRequestPasswordResetUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockTransactionalEmailService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockVarsConfig
-    );
+    const usecase = makeRequestPasswordResetUseCase({
+      requestContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      transactionEmailService: mockTransactionalEmailService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      varsConfig: mockVarsConfig,
+    });
 
     await usecase(userEmail);
 
@@ -147,15 +147,15 @@ describe('makeRequestPasswordResetUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
 
-    const usecase = makeRequestPasswordResetUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockTransactionalEmailService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockVarsConfig
-    );
+    const usecase = makeRequestPasswordResetUseCase({
+      requestContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      transactionEmailService: mockTransactionalEmailService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      varsConfig: mockVarsConfig,
+    });
 
     await expect(usecase(userEmail)).rejects.toThrow(authError.WrongStrategy);
 

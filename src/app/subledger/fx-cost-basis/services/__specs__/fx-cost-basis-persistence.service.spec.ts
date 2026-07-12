@@ -33,11 +33,11 @@ describe('fxCostBasisPersistenceService', () => {
   };
 
   const getService = () =>
-    makeFxLotCostBasisPersistenceService(
-      mockFxCostBasisLotRepo,
-      mockFxCostBasisLotAcquisitionRepo,
-      mockRepoService
-    );
+    makeFxLotCostBasisPersistenceService({
+      lotRepo: mockFxCostBasisLotRepo,
+      acquisitionRepo: mockFxCostBasisLotAcquisitionRepo,
+      repoService: mockRepoService,
+    });
 
   beforeEach(() => {
     jest.clearAllMocks();

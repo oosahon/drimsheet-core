@@ -61,9 +61,13 @@ function validateLines(journalLines: IJournalLine[], account: ILedgerAccount) {
   }
 }
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
+}
+
 export default function makeLedgerAccountBalancePropagationService(
-  ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue
+  deps: IDependencies
 ): ILedgerAccountBalancePropagationService {
   return {
     async propagate(journalEntry, repoOptions) {
@@ -76,7 +80,7 @@ export default function makeLedgerAccountBalancePropagationService(
       const accountMap = getAccountMap(journalEntry);
 
       for (const [accountId, journalLines] of accountMap.entries()) {
-        const account = await ledgerAccountRepo.findById(
+        const account = await deps.ledgerAccountRepo.findById(
           accountId,
           repoOptions
         );
@@ -124,7 +128,7 @@ export default function makeLedgerAccountBalancePropagationService(
 
       await Promise.all(
         allAdjustments.map((adjustment) =>
-          ledgerBalanceAdjustmentQueue.add(adjustment)
+          deps.ledgerBalanceAdjustmentQueue.add(adjustment)
         )
       );
     },

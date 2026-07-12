@@ -13,12 +13,12 @@ import { ILedgerAccount } from '../../types/ledger.types';
 import makeLedgerAccountPersistenceService from '../ledger-account-persistence.service';
 
 describe('ledgerAccountPersistenceService', () => {
-  const service = makeLedgerAccountPersistenceService(
-    mockLedgerAccountBalanceRepo,
-    mockLedgerAccountRepo,
-    mockRepoService,
-    mockLogger
-  );
+  const service = makeLedgerAccountPersistenceService({
+    ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
+    ledgerAccountRepo: mockLedgerAccountRepo,
+    repoService: mockRepoService,
+    logger: mockLogger,
+  });
 
   let repoOptions: IWriteRepoOptions<ILedgerAccountHistory[]>;
   let account: ILedgerAccount;

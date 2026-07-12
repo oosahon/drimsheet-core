@@ -8,12 +8,16 @@ import IReporter from '../../../shared/contracts/reporter.contract';
 import IJournalEntryPersistenceService from '../contracts/journal-entry-persistence.service.contract';
 import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-adjustment-service.contract';
 
+interface IDependencies {
+  repoService: IRepoService;
+  journalEntryRepo: IJournalEntryRepo;
+  journalLineRepo: IJournalLineRepo;
+  balancePropagationService: ILedgerAccountBalancePropagationService;
+  reporter: IReporter;
+}
+
 export default function makeJournalEntryPersistenceService(
-  repoService: IRepoService,
-  journalEntryRepo: IJournalEntryRepo,
-  journalLineRepo: IJournalLineRepo,
-  balancePropagationService: ILedgerAccountBalancePropagationService,
-  reporter: IReporter
+  deps: IDependencies
 ): IJournalEntryPersistenceService {
   return {
     async create(entry, headerHistory, linesHistory, repoOptions) {
@@ -21,25 +25,25 @@ export default function makeJournalEntryPersistenceService(
         const writeOptions = { ...repoOptions, tx };
         const { lines, ...header } = entry;
 
-        await journalEntryRepo.create(header, {
+        await deps.journalEntryRepo.create(header, {
           ...writeOptions,
           history: headerHistory,
         });
 
-        await journalLineRepo.create(lines, {
+        await deps.journalLineRepo.create(lines, {
           ...writeOptions,
           history: linesHistory,
           accountingEntityId: header.accountingEntityId,
         });
       };
 
-      await repoService.runInTransaction(transactionFn, repoOptions.tx);
+      await deps.repoService.runInTransaction(transactionFn, repoOptions.tx);
 
       // This should not cause the journal entry creation to fail.
       // We can simply run the propagation manually IF it does fail for some reason.
-      await balancePropagationService
+      await deps.balancePropagationService
         .propagate(entry, repoOptions)
-        .catch(reporter.report);
+        .catch(deps.reporter.report);
     },
   };
 }

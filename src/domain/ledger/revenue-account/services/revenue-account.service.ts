@@ -28,8 +28,12 @@ type TBootstrapHeaders = IRevenueAccountService['bootstrapHeaderAccounts'];
 type TBootstrapIndividualPostingAccounts =
   IRevenueAccountService['bootstrapIndividualPostingAccounts'];
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeRevenueAccountService(
-  repo: ILedgerAccountRepo
+  deps: IDependencies
 ): IRevenueAccountService {
   /**
    * Bootstraps header revenue accounts for a new accounting entity
@@ -52,7 +56,7 @@ export default function makeRevenueAccountService(
     const getExistingAccounts = async <T extends IRevenueLedgerAccount>(
       code: TRevenueLedgerCode
     ) => {
-      return (await repo.findByCode(
+      return (await deps.ledgerAccountRepo.findByCode(
         code,
         accountingEntityId,
         repoOptions

@@ -29,12 +29,12 @@ describe('makeLogoutUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeLogoutUseCase(
-      mockRequestContext,
-      mockAuthService,
-      mockUserSessionRepo,
-      mockLogger
-    );
+    makeLogoutUseCase({
+      reqContext: mockRequestContext,
+      makeAuthService: mockAuthService,
+      userSessionRepo: mockUserSessionRepo,
+      logger: mockLogger,
+    });
 
   it('should clear refresh token and delete session if valid refresh token is present', async () => {
     mockClientSession.getRefreshToken.mockReturnValue('valid-refresh-token');

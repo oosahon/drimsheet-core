@@ -12,8 +12,12 @@ import { IEquityLedgerAccount } from '../types/equity-account.types';
 
 type TBootstrapHeaders = IEquityAccountService['bootstrapHeaderAccounts'];
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeEquityAccountService(
-  repo: ILedgerAccountRepo
+  deps: IDependencies
 ): IEquityAccountService {
   /**
    * Bootstraps header equity accounts for a new accounting entity
@@ -33,7 +37,7 @@ export default function makeEquityAccountService(
     const getExistingAccounts = async <T extends IEquityLedgerAccount>(
       code: TEquityLedgerCode
     ) => {
-      return (await repo.findByCode(
+      return (await deps.ledgerAccountRepo.findByCode(
         code,
         accountingEntityId,
         repoOptions

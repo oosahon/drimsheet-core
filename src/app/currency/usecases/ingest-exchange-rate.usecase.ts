@@ -12,16 +12,18 @@ import dateUtils from '../../../shared/utils/date';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import IExchangeRateIngestion from '../contracts/exchange-rate-ingestion.contract';
 
-export default function makeIngestExchangeRateUseCase(
-  exchangeRateRepo: IExchangeRateRepo,
-  repoService: IRepoService,
-  logger: ILogger
-) {
+interface IDependencies {
+  exchangeRateRepo: IExchangeRateRepo;
+  repoService: IRepoService;
+  logger: ILogger;
+}
+
+export default function makeIngestExchangeRateUseCase(deps: IDependencies) {
   return async (payload: IExchangeRateIngestion['message']['payload']) => {
     const { correlation_id } = payload;
 
     if (!correlation_id) {
-      logger.warn(
+      deps.logger.warn(
         'Exchange rate ingestion message was sent without a correlation_id'
       );
     }
@@ -41,10 +43,10 @@ export default function makeIngestExchangeRateUseCase(
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const batches = batchArray(exchangeRates, 100);
       for (const batch of batches) {
-        await exchangeRateRepo.create(batch, { tx, correlationId });
+        await deps.exchangeRateRepo.create(batch, { tx, correlationId });
       }
     };
 
-    await repoService.runInTransaction(transactionFn);
+    await deps.repoService.runInTransaction(transactionFn);
   };
 }

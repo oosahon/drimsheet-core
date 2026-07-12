@@ -34,14 +34,14 @@ describe('makeOauthUsecase', () => {
     }) as unknown as IUser;
 
   const getUseCase = () =>
-    makeOauthUsecase(
-      mockRequestContext,
-      mockAuthService,
-      mockEventBus,
-      mockUserSessionRepo,
-      mockRepoService,
-      webAppUrl
-    );
+    makeOauthUsecase({
+      reqContext: mockRequestContext,
+      makeAuthService: mockAuthService,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+      webAppUrl,
+    });
 
   describe('handleGoogleCallback', () => {
     it('should generate tokens, update session, and return the formatted redirect URL', async () => {

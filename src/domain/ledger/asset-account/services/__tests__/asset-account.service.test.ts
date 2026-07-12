@@ -9,7 +9,9 @@ import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import makeAssetAccountService from '../asset-account.service';
 
 describe('assetAccountService', () => {
-  const service = makeAssetAccountService(mockLedgerAccountRepo);
+  const service = makeAssetAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
   };

@@ -3,7 +3,7 @@ import * as varsConfig from '../../../infra/config/vars.config';
 import getSentEmail from './get-sent-email.usecase';
 
 const internalUseCases = {
-  getSentEmail: getSentEmail(internalMailer, varsConfig),
+  getSentEmail: getSentEmail({ internalMailer, varsConfig }),
 };
 
 export default internalUseCases;

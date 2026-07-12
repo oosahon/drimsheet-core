@@ -19,14 +19,14 @@ describe('makeSignupWithEmailUsecase', () => {
   });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
-    const usecase = makeSignupWithEmailUsecase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockRepoService
-    );
+    const usecase = makeSignupWithEmailUsecase({
+      requestContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
 
     const invalidPayload = {
       firstName: '', // empty name
@@ -62,14 +62,14 @@ describe('makeSignupWithEmailUsecase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
     mockAuthService.hashPassword.mockResolvedValue('hashed-password');
 
-    const usecase = makeSignupWithEmailUsecase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockRepoService
-    );
+    const usecase = makeSignupWithEmailUsecase({
+      requestContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
 
     await usecase(payload);
 
@@ -138,14 +138,14 @@ describe('makeSignupWithEmailUsecase', () => {
       id: 'existing-user-id',
     } as unknown as IUser);
 
-    const usecase = makeSignupWithEmailUsecase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockRepoService
-    );
+    const usecase = makeSignupWithEmailUsecase({
+      requestContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(appError.Conflict);
     await expect(usecase(payload)).rejects.toThrow('app_error_conflict');
@@ -172,14 +172,14 @@ describe('makeSignupWithEmailUsecase', () => {
 
     mockAuthService.isPermittedEmail.mockReturnValue(false);
 
-    const usecase = makeSignupWithEmailUsecase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockRepoService
-    );
+    const usecase = makeSignupWithEmailUsecase({
+      requestContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(appError.Forbidden);
     await expect(usecase(payload)).rejects.toThrow('app_error_forbidden');

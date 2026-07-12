@@ -22,10 +22,10 @@ import moneyValue from '../../../../shared/value-objects/money.vo';
 import makeLedgerAccountBalancePropagationService from '../ledger-account-balance-propagation.service';
 
 describe('ledgerAccountBalancePropagationService', () => {
-  const service = makeLedgerAccountBalancePropagationService(
-    mockLedgerAccountRepo,
-    mockLedgerAccountBalanceAdjustmentQueue
-  );
+  const service = makeLedgerAccountBalancePropagationService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+    ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
+  });
 
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',

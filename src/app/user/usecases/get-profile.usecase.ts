@@ -3,11 +3,13 @@ import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 import userMapper from '../mappers/user.mapper';
 
-export default function makeGetAuthUserProfileUseCase(
-  requestContext: IRequestContext
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+}
+
+export default function makeGetAuthUserProfileUseCase(deps: IDependencies) {
   return async (): Promise<IUser> => {
-    const { user } = requestContext.get();
+    const { user } = deps.requestContext.get();
 
     if (!user) {
       throw new appError.Unauthorized();

@@ -16,45 +16,49 @@ import { IAccountTransactionRes } from '../dtos/account-transaction.dto';
 import ledgerAppError from '../errors/ledger.error';
 import accountTransactionMapper from '../mappers/account-transaction.mapper';
 
-export default function makeGetAccountTransactionsUseCase(
-  requestContext: IRequestContext,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountService: ILedgerAccountService,
-  accountTransactionQueryRepo: IAccountTransactionQueryRepo
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+  ledgerAccountRepo: ILedgerAccountRepo;
+  ledgerAccountService: ILedgerAccountService;
+  accountTransactionQueryRepo: IAccountTransactionQueryRepo;
+}
+
+export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
   return async (
     accountId: TEntityId,
     pagination: IPaginationDto
   ): Promise<IPaginatedResponse<IAccountTransactionRes>> => {
     zodValidationRunner(paginationQueryValidationSchema, pagination);
 
-    const { user, correlationId } = requestContext.get();
+    const { user, correlationId } = deps.requestContext.get();
 
     const trace = { correlationId };
 
-    const ledgerAccount = await ledgerAccountRepo.findById(accountId, trace);
+    const ledgerAccount = await deps.ledgerAccountRepo.findById(
+      accountId,
+      trace
+    );
 
     if (!ledgerAccount) {
       throw new ledgerAppError.AccountNotFound();
     }
 
-    const canAccessAccount = await ledgerAccountService.validateAccountAccess(
-      ledgerAccount.id,
-      user.id,
-      trace
-    );
+    const canAccessAccount =
+      await deps.ledgerAccountService.validateAccountAccess(
+        ledgerAccount.id,
+        user.id,
+        trace
+      );
 
     if (!canAccessAccount) {
       throw new appError.Forbidden();
     }
 
-    const transactions = await accountTransactionQueryRepo.findAllByAccountId(
-      accountId,
-      {
+    const transactions =
+      await deps.accountTransactionQueryRepo.findAllByAccountId(accountId, {
         ...trace,
         ...paginationMapper.fromDto(pagination),
-      }
-    );
+      });
 
     const data: IAccountTransactionRes[] = transactions.data.map((trx) => ({
       ...accountTransactionMapper.toDto(trx),

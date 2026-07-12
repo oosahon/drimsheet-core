@@ -122,13 +122,14 @@ describe('createOpeningBalanceUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeCreateOpeningBalanceUseCase(
-      mockRequestContext,
-      mockLedgerAccountRepo,
-      mockEventBus,
-      mockBookkeepingServices.openingBalanceEntry,
-      mockBookkeepingServices.journalEntryPersistence
-    );
+    makeCreateOpeningBalanceUseCase({
+      requestContext: mockRequestContext,
+      ledgerAccountRepo: mockLedgerAccountRepo,
+      eventBus: mockEventBus,
+      openingBalanceEntryService: mockBookkeepingServices.openingBalanceEntry,
+      journalEntryPersistenceService:
+        mockBookkeepingServices.journalEntryPersistence,
+    });
 
   it('should successfully record opening balance', async () => {
     const useCase = getUseCase();

@@ -18,9 +18,11 @@ describe('makeAuthService', () => {
       NODE_ENV: 'test',
     } as IVarsConfig;
 
-    authService = makeAuthService(cacheStorage, varsConfig, [
-      'osahonoboite@gmail.com',
-    ]);
+    authService = makeAuthService({
+      cacheStorage,
+      varsConfig,
+      nonProdEmailWhitelist: ['osahonoboite@gmail.com'],
+    });
   });
 
   describe('hashPassword & comparePassword', () => {
@@ -223,21 +225,21 @@ describe('makeAuthService', () => {
     });
 
     it('should return true for any email in production environment', () => {
-      const prodAuthService = makeAuthService(
+      const prodAuthService = makeAuthService({
         cacheStorage,
-        { ...varsConfig, NODE_ENV: 'production' },
-        ['osahonoboite@gmail.com']
-      );
+        varsConfig: { ...varsConfig, NODE_ENV: 'production' },
+        nonProdEmailWhitelist: ['osahonoboite@gmail.com'],
+      });
 
       expect(prodAuthService.isPermittedEmail('random@email.com')).toBe(true);
     });
 
     it('should use nonProdEmailWhitelist in staging environment', () => {
-      const stagingAuthService = makeAuthService(
+      const stagingAuthService = makeAuthService({
         cacheStorage,
-        { ...varsConfig, NODE_ENV: 'staging' },
-        ['osahonoboite@gmail.com']
-      );
+        varsConfig: { ...varsConfig, NODE_ENV: 'staging' },
+        nonProdEmailWhitelist: ['osahonoboite@gmail.com'],
+      });
 
       expect(
         stagingAuthService.isPermittedEmail('osahonoboite@gmail.com')

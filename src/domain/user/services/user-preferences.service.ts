@@ -4,8 +4,12 @@ import IUserPreferencesService from '../types/user-preferences.service.types';
 
 type TUpdate = IUserPreferencesService['update'];
 
+interface IDependencies {
+  userPreferencesRepo: IUserPreferencesRepo;
+}
+
 export default function makeUserPreferencesService(
-  repo: IUserPreferencesRepo
+  deps: IDependencies
 ): IUserPreferencesService {
   /**
    * Updates user preferences
@@ -14,7 +18,7 @@ export default function makeUserPreferencesService(
    * @param options - Options for the update operation
    */
   const update: TUpdate = async (userId, payload, options) => {
-    const existing = await repo.findById(userId, options);
+    const existing = await deps.userPreferencesRepo.findById(userId, options);
     return userPreferencesEntity.make(userId, {
       appPreferences: {
         theme:

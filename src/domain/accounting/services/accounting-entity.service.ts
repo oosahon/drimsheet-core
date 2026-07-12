@@ -5,8 +5,12 @@ import IAccountingEntityService from '../types/accounting-entity.service.types';
 type TGrantUserAccess = IAccountingEntityService['grantUserAccess'];
 type TValidateAccess = IAccountingEntityService['validateAccess'];
 
+interface IDependencies {
+  accountingEntityRepo: IAccountingEntityRepo;
+}
+
 export default function makeAccountingEntityService(
-  repo: IAccountingEntityRepo
+  deps: IDependencies
 ): IAccountingEntityService {
   /**
    * Grants a user access to an accounting entity

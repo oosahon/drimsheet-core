@@ -39,23 +39,25 @@ import {
   IAccountingEntityCreationDto,
 } from '../dtos/accounting.dto';
 
-export default function createAccountingEntityUseCase(
-  requestContext: IRequestContext,
-  repoService: IRepoService,
-  accountingEntityRepo: IAccountingEntityRepo,
-  fiscalYearRepo: IFiscalYearRepo,
-  accountingPeriodRepo: IAccountingPeriodRepo,
-  accountingContextRepo: IAccountingContextRepo,
-  reportingPeriodRepo: IReportingPeriodRepo,
-  reportingContextRepo: IReportingContextRepo,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  eventBus: IEventBus,
-  assetAccountService: IAssetAccountService,
-  liabilityAccountService: ILiabilityAccountService,
-  equityAccountService: IEquityAccountService,
-  revenueAccountService: IRevenueAccountService,
-  expenseAccountService: IExpenseAccountService
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+  repoService: IRepoService;
+  accountingEntityRepo: IAccountingEntityRepo;
+  fiscalYearRepo: IFiscalYearRepo;
+  accountingPeriodRepo: IAccountingPeriodRepo;
+  accountingContextRepo: IAccountingContextRepo;
+  reportingPeriodRepo: IReportingPeriodRepo;
+  reportingContextRepo: IReportingContextRepo;
+  ledgerAccountRepo: ILedgerAccountRepo;
+  eventBus: IEventBus;
+  assetAccountService: IAssetAccountService;
+  liabilityAccountService: ILiabilityAccountService;
+  equityAccountService: IEquityAccountService;
+  revenueAccountService: IRevenueAccountService;
+  expenseAccountService: IExpenseAccountService;
+}
+
+export default function createAccountingEntityUseCase(deps: IDependencies) {
   return async (payload: IAccountingEntityCreationDto) => {
     zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
@@ -69,10 +71,10 @@ export default function createAccountingEntityUseCase(
       payload.entityType
     );
 
-    const { user, correlationId } = requestContext.get();
+    const { user, correlationId } = deps.requestContext.get();
     const trace = { correlationId };
 
-    const existing = await accountingEntityRepo.findByUserId(
+    const existing = await deps.accountingEntityRepo.findByUserId(
       user.id,
       trace,
       payload.entityType
@@ -178,7 +180,7 @@ export default function createAccountingEntityUseCase(
       accounts: assetAccounts,
       events: assetAccountEvents,
       audits: assetAccountAudits,
-    } = await assetAccountService.bootstrapHeaderAccounts(
+    } = await deps.assetAccountService.bootstrapHeaderAccounts(
       accountingEntity,
       trace,
       shouldBootstrapPostingAccounts
@@ -189,7 +191,7 @@ export default function createAccountingEntityUseCase(
       accounts: liabilityAccounts,
       events: liabilityAccountEvents,
       audits: liabilityAccountAudits,
-    } = await liabilityAccountService.bootstrapHeaderAccounts(
+    } = await deps.liabilityAccountService.bootstrapHeaderAccounts(
       accountingEntity,
       trace,
       shouldBootstrapPostingAccounts
@@ -200,7 +202,7 @@ export default function createAccountingEntityUseCase(
       accounts: equityAccounts,
       events: equityAccountEvents,
       audits: equityAccountAudits,
-    } = await equityAccountService.bootstrapHeaderAccounts(
+    } = await deps.equityAccountService.bootstrapHeaderAccounts(
       accountingEntity,
       trace
     );
@@ -210,7 +212,7 @@ export default function createAccountingEntityUseCase(
       accounts: revenueAccounts,
       events: revenueAccountEvents,
       audits: revenueAccountAudits,
-    } = await revenueAccountService.bootstrapHeaderAccounts(
+    } = await deps.revenueAccountService.bootstrapHeaderAccounts(
       accountingEntity,
       trace,
       shouldBootstrapPostingAccounts
@@ -221,7 +223,7 @@ export default function createAccountingEntityUseCase(
       accounts: expenseAccounts,
       events: expenseAccountEvents,
       audits: expenseAccountAudits,
-    } = await expenseAccountService.bootstrapHeaderAccounts(
+    } = await deps.expenseAccountService.bootstrapHeaderAccounts(
       accountingEntity,
       trace,
       shouldBootstrapPostingAccounts
@@ -275,39 +277,39 @@ export default function createAccountingEntityUseCase(
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const options = { correlationId, tx };
 
-      await accountingEntityRepo.create(accountingEntity, {
+      await deps.accountingEntityRepo.create(accountingEntity, {
         ...options,
         history: accountingEntityHistory,
       });
-      await fiscalYearRepo.create(fiscalYear, {
+      await deps.fiscalYearRepo.create(fiscalYear, {
         ...options,
         history: fiscalYearHistory,
       });
-      await accountingPeriodRepo.create(accountingPeriods, {
+      await deps.accountingPeriodRepo.create(accountingPeriods, {
         ...options,
         history: accountingPeriodHistories,
       });
-      await accountingContextRepo.create(accountingContext, {
+      await deps.accountingContextRepo.create(accountingContext, {
         ...options,
         history: accountingContextHistory,
       });
-      await reportingPeriodRepo.create(reportingPeriods, {
+      await deps.reportingPeriodRepo.create(reportingPeriods, {
         ...options,
         history: reportingPeriodHistories,
       });
-      await reportingContextRepo.create(reportingContext, {
+      await deps.reportingContextRepo.create(reportingContext, {
         ...options,
         history: reportingContextHistory,
       });
-      await ledgerAccountRepo.create(ledgerAccounts, {
+      await deps.ledgerAccountRepo.create(ledgerAccounts, {
         ...options,
         history: ledgerAccountHistories,
       });
     };
 
-    await repoService.runInTransaction(transactionFn);
+    await deps.repoService.runInTransaction(transactionFn);
 
-    await requestContext.set({ accountingEntity });
+    await deps.requestContext.set({ accountingEntity });
 
     // =============== Publish events ===============
     const allEvents = [
@@ -324,7 +326,7 @@ export default function createAccountingEntityUseCase(
       ...eventValue.enrichAll(expenseAccountEvents, trace),
     ];
 
-    eventBus.publish(allEvents);
+    deps.eventBus.publish(allEvents);
 
     return accountingEntity;
   };

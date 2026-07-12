@@ -9,7 +9,9 @@ import { ILedgerAccount } from '../../types/ledger.types';
 import makeLedgerAccountService from '../ledger-account.service';
 
 describe('ledgerAccountService', () => {
-  const service = makeLedgerAccountService(mockLedgerAccountRepo);
+  const service = makeLedgerAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   const repoOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
   };

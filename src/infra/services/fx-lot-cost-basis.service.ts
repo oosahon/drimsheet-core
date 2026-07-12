@@ -6,11 +6,11 @@ import repoService from './repo.service';
 
 const domain = makeFxCostBasisLotService();
 
-const persistence = makeFxLotCostBasisPersistenceService(
-  fxCostBasisLotRepo,
-  fxCostBasisLotAcquisitionRepo,
-  repoService
-);
+const persistence = makeFxLotCostBasisPersistenceService({
+  lotRepo: fxCostBasisLotRepo,
+  acquisitionRepo: fxCostBasisLotAcquisitionRepo,
+  repoService,
+});
 
 const fxCostBasisService = Object.freeze({
   persistence,

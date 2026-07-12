@@ -33,6 +33,19 @@ import {
 } from '../dtos/asset-account.dto';
 import ledgerAppError from '../errors/ledger.error';
 
+interface IDependencies {
+  requestContext: IRequestContext;
+  eventBus: IEventBus;
+  assetAccountService: IAssetAccountService;
+  openingBalanceEntryService: IOpeningBalanceEntryService;
+  journalEntryPersistenceService: IJournalEntryPersistenceService;
+  repoService: IRepoService;
+  ledgerAccountPersistenceService: ILedgerAccountPersistenceService;
+  fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
+  fxCostBasisService: IFxCostBasisLotDomainService;
+  exchangeRateService: IExchangeRateAppService;
+}
+
 const validateExchangeRate = (
   functionalCurrencyCode: string,
   currencyCode: string,
@@ -47,24 +60,13 @@ const validateExchangeRate = (
   }
 };
 
-export default function makeCreatePettyCashAccountUseCase(
-  requestContext: IRequestContext,
-  eventBus: IEventBus,
-  assetAccountService: IAssetAccountService,
-  openingBalanceEntryService: IOpeningBalanceEntryService,
-  journalEntryPersistenceService: IJournalEntryPersistenceService,
-  repoService: IRepoService,
-  ledgerAccountPersistenceService: ILedgerAccountPersistenceService,
-  fxCostBasisPersistenceService: IFxCostBasisPersistenceService,
-  fxCostBasisService: IFxCostBasisLotDomainService,
-  exchangeRateService: IExchangeRateAppService
-) {
+export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
   return async (
     payload: IPettyCashAccountCreationReq
   ): Promise<ICashAndCashEquivalentAccount> => {
     zodValidationRunner(pettyCashCreationReqValidation, payload);
 
-    const { correlationId, user, accountingEntity } = requestContext.get();
+    const { correlationId, user, accountingEntity } = deps.requestContext.get();
 
     validateExchangeRate(
       accountingEntity.functionalCurrencyCode,
@@ -91,14 +93,14 @@ export default function makeCreatePettyCashAccountUseCase(
         (v) => v.accountId === account.id
       )!;
 
-      const officialRate = await exchangeRateService.getOfficialRate(
+      const officialRate = await deps.exchangeRateService.getOfficialRate(
         exchangeRate.currencyPair,
         exchangeRate.asOf,
         repoOptions,
         exchangeRate
       );
 
-      return fxCostBasisService.acquire({
+      return deps.fxCostBasisService.acquire({
         ledgerAccountId: account.id,
         accountingEntityId: account.accountingEntityId,
         journalEntryId: journalEntry.id,
@@ -130,7 +132,7 @@ export default function makeCreatePettyCashAccountUseCase(
     const trace = { correlationId };
 
     const [account, accountEvents, accountAudit] =
-      await assetAccountService.makePettyCashSubAccount(
+      await deps.assetAccountService.makePettyCashSubAccount(
         getAccountPayload(),
         trace
       );
@@ -146,13 +148,13 @@ export default function makeCreatePettyCashAccountUseCase(
         history: accountHistory,
       };
 
-      await ledgerAccountPersistenceService.create(
+      await deps.ledgerAccountPersistenceService.create(
         account,
         accountingEntity.functionalCurrencyCode,
         repoOptions
       );
 
-      eventBus.publish(eventValue.enrichAll(accountEvents, trace));
+      deps.eventBus.publish(eventValue.enrichAll(accountEvents, trace));
 
       return account;
     }
@@ -161,7 +163,7 @@ export default function makeCreatePettyCashAccountUseCase(
     const exchangeRate = getExchangeRate();
 
     const [journalEntry, journalEvents, audit] =
-      await openingBalanceEntryService.create(
+      await deps.openingBalanceEntryService.create(
         accountingEntity,
         account,
         moneyMapper.fromDto(payload.openingBalance.amount),
@@ -183,7 +185,7 @@ export default function makeCreatePettyCashAccountUseCase(
     const dbTransactionFn: TRepoTransactionFn = async (tx) => {
       const repoOptions = { ...trace, tx };
 
-      await ledgerAccountPersistenceService.create(
+      await deps.ledgerAccountPersistenceService.create(
         account,
         accountingEntity.functionalCurrencyCode,
         {
@@ -200,7 +202,7 @@ export default function makeCreatePettyCashAccountUseCase(
       const linesHistory = audit.lines.map((lineAudit) =>
         historyValue.make(lineAudit, actor, correlationId)
       );
-      await journalEntryPersistenceService.create(
+      await deps.journalEntryPersistenceService.create(
         journalEntry,
         headerHistory,
         linesHistory,
@@ -213,7 +215,7 @@ export default function makeCreatePettyCashAccountUseCase(
           acquisition: [acquisition, acqEventData, acquisitionHistory],
         } = fxLotData;
 
-        await fxCostBasisPersistenceService.persistAcquisition(
+        await deps.fxCostBasisPersistenceService.persistAcquisition(
           lot,
           acquisition,
           historyValue.make(lotHistory, actor, correlationId),
@@ -226,7 +228,7 @@ export default function makeCreatePettyCashAccountUseCase(
       }
     };
 
-    await repoService.runInTransaction(dbTransactionFn);
+    await deps.repoService.runInTransaction(dbTransactionFn);
 
     const allEvents: IEvent<unknown>[] = [
       ...accountEvents,
@@ -234,7 +236,7 @@ export default function makeCreatePettyCashAccountUseCase(
       ...lotEvents,
       ...acquisitionEvents,
     ];
-    eventBus.publish(eventValue.enrichAll(allEvents, trace));
+    deps.eventBus.publish(eventValue.enrichAll(allEvents, trace));
 
     return account;
   };

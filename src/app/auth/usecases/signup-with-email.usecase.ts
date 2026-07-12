@@ -41,28 +41,30 @@ const validationSchema = z.object({
     }),
 });
 
-export default function makeSignupWithEmailUsecase(
-  requestContext: IRequestContext,
-  userRepo: IUserRepo,
-  makeAuthService: IAuthService,
-  eventBus: IEventBus,
-  userAuthRepo: IUserAuthRepo,
-  repoService: IRepoService
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+  userRepo: IUserRepo;
+  makeAuthService: IAuthService;
+  eventBus: IEventBus;
+  userAuthRepo: IUserAuthRepo;
+  repoService: IRepoService;
+}
+
+export default function makeSignupWithEmailUsecase(deps: IDependencies) {
   return async (payload: IUserSignupReq) => {
     zodValidationRunner(validationSchema, payload);
 
-    const { correlationId, idempotencyKey } = requestContext.get();
+    const { correlationId, idempotencyKey } = deps.requestContext.get();
 
     const email = emailValue.make(payload.email);
 
-    const isPermittedEmail = makeAuthService.isPermittedEmail(email);
+    const isPermittedEmail = deps.makeAuthService.isPermittedEmail(email);
 
     if (!isPermittedEmail) {
       throw new appError.Forbidden();
     }
 
-    const existingUser = await userRepo.findByEmail(email, {
+    const existingUser = await deps.userRepo.findByEmail(email, {
       correlationId,
     });
 
@@ -71,7 +73,7 @@ export default function makeSignupWithEmailUsecase(
     }
 
     const password = passwordValue.make(payload.password);
-    const passwordHash = await makeAuthService.hashPassword(password);
+    const passwordHash = await deps.makeAuthService.hashPassword(password);
 
     const [user, userEvents, userAudit] = userEntity.make({
       firstName: payload.firstName,
@@ -87,10 +89,10 @@ export default function makeSignupWithEmailUsecase(
     );
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
-      await userRepo.create(user, { correlationId, tx, history });
+      await deps.userRepo.create(user, { correlationId, tx, history });
       const timestamp = new Date();
 
-      await userAuthRepo.create(
+      await deps.userAuthRepo.create(
         {
           userId: user.id,
           password: passwordHash,
@@ -103,12 +105,12 @@ export default function makeSignupWithEmailUsecase(
       );
     };
 
-    await repoService.runInTransaction(repoTransaction);
+    await deps.repoService.runInTransaction(repoTransaction);
 
     const enrichedUserEvents = userEvents.map((e) =>
       eventValue.enrich(e, { correlationId, idempotencyKey })
     );
 
-    eventBus.publish(enrichedUserEvents);
+    deps.eventBus.publish(enrichedUserEvents);
   };
 }

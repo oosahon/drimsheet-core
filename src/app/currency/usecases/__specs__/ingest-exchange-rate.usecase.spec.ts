@@ -65,11 +65,11 @@ describe('makeIngestExchangeRateUseCase', () => {
       data: dataItems,
     };
 
-    const usecase = makeIngestExchangeRateUseCase(
-      exchangeRateRepoMock,
-      mockRepoService,
-      mockLogger
-    );
+    const usecase = makeIngestExchangeRateUseCase({
+      exchangeRateRepo: exchangeRateRepoMock,
+      repoService: mockRepoService,
+      logger: mockLogger,
+    });
 
     await usecase(payload);
 
@@ -98,11 +98,11 @@ describe('makeIngestExchangeRateUseCase', () => {
       data: [],
     };
 
-    const usecase = makeIngestExchangeRateUseCase(
-      exchangeRateRepoMock,
-      mockRepoService,
-      mockLogger
-    );
+    const usecase = makeIngestExchangeRateUseCase({
+      exchangeRateRepo: exchangeRateRepoMock,
+      repoService: mockRepoService,
+      logger: mockLogger,
+    });
 
     await usecase(payload);
 
@@ -128,11 +128,11 @@ describe('makeIngestExchangeRateUseCase', () => {
       ],
     };
 
-    const usecase = makeIngestExchangeRateUseCase(
-      exchangeRateRepoMock,
-      mockRepoService,
-      mockLogger
-    );
+    const usecase = makeIngestExchangeRateUseCase({
+      exchangeRateRepo: exchangeRateRepoMock,
+      repoService: mockRepoService,
+      logger: mockLogger,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(currencyError.InvalidCode);
   });
@@ -157,11 +157,11 @@ describe('makeIngestExchangeRateUseCase', () => {
       ],
     };
 
-    const usecase = makeIngestExchangeRateUseCase(
-      exchangeRateRepoMock,
-      mockRepoService,
-      mockLogger
-    );
+    const usecase = makeIngestExchangeRateUseCase({
+      exchangeRateRepo: exchangeRateRepoMock,
+      repoService: mockRepoService,
+      logger: mockLogger,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(
       exchangeRateError.InvalidType
@@ -186,11 +186,11 @@ describe('makeIngestExchangeRateUseCase', () => {
       ],
     };
 
-    const usecase = makeIngestExchangeRateUseCase(
-      exchangeRateRepoMock,
-      mockRepoService,
-      mockLogger
-    );
+    const usecase = makeIngestExchangeRateUseCase({
+      exchangeRateRepo: exchangeRateRepoMock,
+      repoService: mockRepoService,
+      logger: mockLogger,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(
       exchangeRateError.InvalidDate
@@ -215,11 +215,11 @@ describe('makeIngestExchangeRateUseCase', () => {
       ],
     };
 
-    const usecase = makeIngestExchangeRateUseCase(
-      exchangeRateRepoMock,
-      mockRepoService,
-      mockLogger
-    );
+    const usecase = makeIngestExchangeRateUseCase({
+      exchangeRateRepo: exchangeRateRepoMock,
+      repoService: mockRepoService,
+      logger: mockLogger,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(currencyError.InvalidValue);
   });
@@ -245,11 +245,11 @@ describe('makeIngestExchangeRateUseCase', () => {
     const saveError = new Error('Database save failed');
     exchangeRateRepoMock.create.mockRejectedValue(saveError);
 
-    const usecase = makeIngestExchangeRateUseCase(
-      exchangeRateRepoMock,
-      mockRepoService,
-      mockLogger
-    );
+    const usecase = makeIngestExchangeRateUseCase({
+      exchangeRateRepo: exchangeRateRepoMock,
+      repoService: mockRepoService,
+      logger: mockLogger,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(saveError);
   });
@@ -275,11 +275,11 @@ describe('makeIngestExchangeRateUseCase', () => {
     const transactionError = new Error('Transaction block failed');
     mockRepoService.runInTransaction.mockRejectedValue(transactionError);
 
-    const usecase = makeIngestExchangeRateUseCase(
-      exchangeRateRepoMock,
-      mockRepoService,
-      mockLogger
-    );
+    const usecase = makeIngestExchangeRateUseCase({
+      exchangeRateRepo: exchangeRateRepoMock,
+      repoService: mockRepoService,
+      logger: mockLogger,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(transactionError);
   });
@@ -304,11 +304,11 @@ describe('makeIngestExchangeRateUseCase', () => {
       ],
     };
 
-    const usecase = makeIngestExchangeRateUseCase(
-      exchangeRateRepoMock,
-      mockRepoService,
-      mockLogger
-    );
+    const usecase = makeIngestExchangeRateUseCase({
+      exchangeRateRepo: exchangeRateRepoMock,
+      repoService: mockRepoService,
+      logger: mockLogger,
+    });
 
     await usecase(
       payload as unknown as IExchangeRateIngestion['message']['payload']

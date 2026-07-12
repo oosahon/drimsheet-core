@@ -154,18 +154,19 @@ describe('createPettyCashSubAccountUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeCreatePettyCashAccountUseCase(
-      mockRequestContext,
-      mockEventBus,
-      mockLedgerDomainServices.assetAccount,
-      mockBookkeepingServices.openingBalanceEntry,
-      mockBookkeepingServices.journalEntryPersistence,
-      mockRepoService,
-      mockLedgerDomainServices.persistence,
-      mockFxLotCostBasisService.persistence,
-      mockFxCostBasisLotDomainService,
-      mockExchangeRateService
-    );
+    makeCreatePettyCashAccountUseCase({
+      requestContext: mockRequestContext,
+      eventBus: mockEventBus,
+      assetAccountService: mockLedgerDomainServices.assetAccount,
+      openingBalanceEntryService: mockBookkeepingServices.openingBalanceEntry,
+      journalEntryPersistenceService:
+        mockBookkeepingServices.journalEntryPersistence,
+      repoService: mockRepoService,
+      ledgerAccountPersistenceService: mockLedgerDomainServices.persistence,
+      fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
+      fxCostBasisService: mockFxCostBasisLotDomainService,
+      exchangeRateService: mockExchangeRateService,
+    });
 
   it('should successfully create a petty cash sub-account and record opening balance', async () => {
     const useCase = getUseCase();

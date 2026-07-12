@@ -13,9 +13,13 @@ import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-accou
 import { ELedgerType } from '../../../domain/ledger/shared/types/ledger.types';
 import IOpeningBalanceEntryService from '../contracts/opening-balance-entry.service.contract';
 
+interface IDependencies {
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeOpeningBalanceEntryService(
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
-  ledgerAccountRepo: ILedgerAccountRepo
+  deps: IDependencies
 ): IOpeningBalanceEntryService {
   return {
     async create(accountingEntity, account, amount, exchangeRate, repoOptions) {
@@ -30,7 +34,7 @@ export default function makeOpeningBalanceEntryService(
       );
 
       const [existingBalanceAdjustment] =
-        await ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
+        await deps.ledgerAccountBalanceRepo.findAdjustmentsByAccountId(
           account.id,
           repoOptions
         );
@@ -41,7 +45,7 @@ export default function makeOpeningBalanceEntryService(
         });
       }
 
-      const [equityAccount] = await ledgerAccountRepo.findBySubType(
+      const [equityAccount] = await deps.ledgerAccountRepo.findBySubType(
         account.accountingEntityId,
         ELedgerType.Equity,
         EEquitySubType.OpeningBalance,

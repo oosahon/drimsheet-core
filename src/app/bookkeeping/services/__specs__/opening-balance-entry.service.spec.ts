@@ -25,10 +25,10 @@ import moneyValue from '../../../../shared/value-objects/money.vo';
 import makeOpeningBalanceEntryService from '../opening-balance-entry.service';
 
 describe('openingBalanceEntryService', () => {
-  const service = makeOpeningBalanceEntryService(
-    mockLedgerAccountBalanceRepo,
-    mockLedgerAccountRepo
-  );
+  const service = makeOpeningBalanceEntryService({
+    ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',

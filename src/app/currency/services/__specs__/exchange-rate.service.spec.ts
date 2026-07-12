@@ -18,7 +18,10 @@ describe('ExchangeRateAppService', () => {
     jest.useRealTimers();
   });
 
-  const getService = () => makeExchangeRateAppService(exchangeRateRepoMock);
+  const getService = () =>
+    makeExchangeRateAppService({
+      exchangeRateRepo: exchangeRateRepoMock,
+    });
 
   it('should return user-provided rate directly when it is official', async () => {
     const service = getService();

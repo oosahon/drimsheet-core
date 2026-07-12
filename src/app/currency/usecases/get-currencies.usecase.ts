@@ -2,10 +2,12 @@ import ICurrencyRepo from '../../../domain/currency/repos/currency.repo';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import { ICurrencyDto } from '../dtos/currency.dto';
 
-export default function makeGetCurrenciesUseCase(
-  currencyRepo: ICurrencyRepo,
-  requestContext: IRequestContext
-) {
+interface IDependencies {
+  currencyRepo: ICurrencyRepo;
+  requestContext: IRequestContext;
+}
+
+export default function makeGetCurrenciesUseCase(deps: IDependencies) {
   /**
    * ========= USECASE EXECUTOR =========
    *
@@ -14,9 +16,9 @@ export default function makeGetCurrenciesUseCase(
    * This usecase is used to get all supported currencies
    */
   return async (): Promise<ICurrencyDto[]> => {
-    const { correlationId } = requestContext.get();
+    const { correlationId } = deps.requestContext.get();
 
-    const res = await currencyRepo.findAll({
+    const res = await deps.currencyRepo.findAll({
       correlationId,
     });
 

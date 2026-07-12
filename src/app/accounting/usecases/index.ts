@@ -9,30 +9,30 @@ import makeGetJurisdictionsUseCase from './get-jurisdictions.usecase';
 import makeGetUserAccountingEntitiesUseCase from './get-user-accounting-entities.usecase';
 
 const accountingUsecases = Object.freeze({
-  createAccountingEntity: makeCreateAccountingEntityUseCase(
-    appContext.request,
-    services.repo,
-    accountingRepos.accountingEntity,
-    accountingRepos.fiscalYear,
-    accountingRepos.accountingPeriod,
-    accountingRepos.accountingContext,
-    accountingRepos.reportingPeriod,
-    accountingRepos.reportingContext,
-    ledgerRepos.ledgerAccount,
-    messaging.eventBus,
-    ledgerDomainServices.assetAccount,
-    ledgerDomainServices.liabilityAccount,
-    ledgerDomainServices.equityAccount,
-    ledgerDomainServices.revenueAccount,
-    ledgerDomainServices.expenseAccount
-  ),
+  createAccountingEntity: makeCreateAccountingEntityUseCase({
+    requestContext: appContext.request,
+    repoService: services.repo,
+    accountingEntityRepo: accountingRepos.accountingEntity,
+    fiscalYearRepo: accountingRepos.fiscalYear,
+    accountingPeriodRepo: accountingRepos.accountingPeriod,
+    accountingContextRepo: accountingRepos.accountingContext,
+    reportingPeriodRepo: accountingRepos.reportingPeriod,
+    reportingContextRepo: accountingRepos.reportingContext,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    eventBus: messaging.eventBus,
+    assetAccountService: ledgerDomainServices.assetAccount,
+    liabilityAccountService: ledgerDomainServices.liabilityAccount,
+    equityAccountService: ledgerDomainServices.equityAccount,
+    revenueAccountService: ledgerDomainServices.revenueAccount,
+    expenseAccountService: ledgerDomainServices.expenseAccount,
+  }),
 
   getJurisdictions: makeGetJurisdictionsUseCase(),
 
-  getUserAccountingEntities: makeGetUserAccountingEntitiesUseCase(
-    appContext.request,
-    accountingRepos.accountingEntity
-  ),
+  getUserAccountingEntities: makeGetUserAccountingEntitiesUseCase({
+    requestContext: appContext.request,
+    accountingEntityRepo: accountingRepos.accountingEntity,
+  }),
 });
 
 export default accountingUsecases;

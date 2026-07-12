@@ -12,27 +12,31 @@ import IAuthService, {
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import authError from '../errors/auth.error';
 
-export default function makeRequestPasswordResetUseCase(
-  requestContext: IRequestContext,
-  userRepo: IUserRepo,
-  makeAuthService: IAuthService,
-  transactionEmailService: ITransactionalEmailService,
-  eventBus: IEventBus,
-  userAuthRepo: IUserAuthRepo,
-  varsConfig: IVarsConfig
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+  userRepo: IUserRepo;
+  makeAuthService: IAuthService;
+  transactionEmailService: ITransactionalEmailService;
+  eventBus: IEventBus;
+  userAuthRepo: IUserAuthRepo;
+  varsConfig: IVarsConfig;
+}
+
+export default function makeRequestPasswordResetUseCase(deps: IDependencies) {
   return async (userEmail: string) => {
-    const { correlationId } = requestContext.get();
+    const { correlationId } = deps.requestContext.get();
 
     const normalizedEmail = emailValue.normalize(userEmail);
 
-    const user = await userRepo.findByEmail(normalizedEmail, { correlationId });
+    const user = await deps.userRepo.findByEmail(normalizedEmail, {
+      correlationId,
+    });
 
     if (!user) {
       return;
     }
 
-    const userAuth = await userAuthRepo.findByUserId(user.id, {
+    const userAuth = await deps.userAuthRepo.findByUserId(user.id, {
       correlationId,
     });
 
@@ -40,10 +44,11 @@ export default function makeRequestPasswordResetUseCase(
       throw new authError.WrongStrategy();
     }
 
-    const resetToken = await makeAuthService.generatePasswordResetToken(user);
-    const resetLink = `${varsConfig.WEB_APP_URL}/auth/reset-password?token=${resetToken}`;
+    const resetToken =
+      await deps.makeAuthService.generatePasswordResetToken(user);
+    const resetLink = `${deps.varsConfig.WEB_APP_URL}/auth/reset-password?token=${resetToken}`;
 
-    await transactionEmailService.sendPasswordResetLink({
+    await deps.transactionEmailService.sendPasswordResetLink({
       user,
       resetLink,
       correlationId,
@@ -51,6 +56,6 @@ export default function makeRequestPasswordResetUseCase(
 
     const event = userEvents.requestedPasswordReset(user);
 
-    eventBus.publish(eventValue.enrich(event, { correlationId }));
+    deps.eventBus.publish(eventValue.enrich(event, { correlationId }));
   };
 }

@@ -10,10 +10,14 @@ import {
 } from '../dtos/ledger-account-balance-adjustment.dto';
 import ledgerAppError from '../errors/ledger.error';
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
+}
+
 export default function makeAdjustLedgerAccountBalanceUseCase(
-  ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
-  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue
+  deps: IDependencies
 ) {
   return async (payload: ILedgerAccountBalanceAdjustmentDto) => {
     zodValidationRunner(ledgerAccountBalanceAdjustmentDtoSchema, payload);
@@ -27,7 +31,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
 
     const repoOptions = { correlationId };
 
-    const account = await ledgerAccountRepo.findById(
+    const account = await deps.ledgerAccountRepo.findById(
       ledgerAccountId,
       repoOptions
     );
@@ -36,7 +40,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
       throw new ledgerAppError.AccountNotFound();
     }
 
-    const existingBalance = await ledgerAccountBalanceRepo.findByAccountId(
+    const existingBalance = await deps.ledgerAccountBalanceRepo.findByAccountId(
       account.id,
       account.accountingEntityId,
       repoOptions
@@ -66,7 +70,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
       adjustPayload
     );
 
-    await ledgerAccountBalanceRepo.adjustBalance(adjustment, {
+    await deps.ledgerAccountBalanceRepo.adjustBalance(adjustment, {
       ...repoOptions,
       expectedVersion: existingBalance.version,
     });
@@ -77,7 +81,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
         ledgerAccountId: account.controlAccountId,
       };
 
-      await ledgerBalanceAdjustmentQueue.add(propagateAdjustmentsPayload);
+      await deps.ledgerBalanceAdjustmentQueue.add(propagateAdjustmentsPayload);
     }
   };
 }

@@ -19,10 +19,10 @@ describe('getUserAccountingEntitiesUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeGetUserAccountingEntitiesUseCase(
-      mockRequestContext,
-      mockAccountingEntityRepo
-    );
+    makeGetUserAccountingEntitiesUseCase({
+      requestContext: mockRequestContext,
+      accountingEntityRepo: mockAccountingEntityRepo,
+    });
 
   beforeEach(() => {
     jest.clearAllMocks();

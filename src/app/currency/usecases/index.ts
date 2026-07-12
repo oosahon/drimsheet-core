@@ -6,13 +6,16 @@ import makeGetCurrenciesUseCase from './get-currencies.usecase';
 import makeIngestExchangeRateUseCase from './ingest-exchange-rate.usecase';
 
 const currencyUseCase = Object.freeze({
-  getAll: makeGetCurrenciesUseCase(currencyRepos.currency, appContext.request),
+  getAll: makeGetCurrenciesUseCase({
+    currencyRepo: currencyRepos.currency,
+    requestContext: appContext.request,
+  }),
 
-  ingest: makeIngestExchangeRateUseCase(
-    currencyRepos.exchangeRate,
-    services.repo,
-    observability.logger
-  ),
+  ingest: makeIngestExchangeRateUseCase({
+    exchangeRateRepo: currencyRepos.exchangeRate,
+    repoService: services.repo,
+    logger: observability.logger,
+  }),
 });
 
 export default currencyUseCase;

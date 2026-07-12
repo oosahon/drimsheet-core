@@ -14,11 +14,13 @@ import { ICacheStorage } from '../../shared/contracts/cache-storage.contract';
 import IVarsConfig from '../../shared/contracts/vars-config.contract';
 
 // TODO [PUR-21]: refactor services
-export default function makeAuthService(
-  cacheStorage: ICacheStorage,
-  varsConfig: IVarsConfig,
-  nonProdEmailWhitelist: string[]
-): IAuthService {
+interface IDependencies {
+  cacheStorage: ICacheStorage;
+  varsConfig: IVarsConfig;
+  nonProdEmailWhitelist: string[];
+}
+
+export default function makeAuthService(deps: IDependencies): IAuthService {
   const handleJwtError = (err: unknown): never => {
     if (err instanceof TokenExpiredError) {
       throw new authError.ExpiredToken();
@@ -34,7 +36,10 @@ export default function makeAuthService(
 
   const verifyAuthToken = (token: string) => {
     try {
-      return verify(token, varsConfig.JWT_SECRET_KEY) as IAuthTokenPayload & {
+      return verify(
+        token,
+        deps.varsConfig.JWT_SECRET_KEY
+      ) as IAuthTokenPayload & {
         type: string;
       };
     } catch (err) {
@@ -56,11 +61,15 @@ export default function makeAuthService(
         id,
         type: 'signup',
       },
-      varsConfig.JWT_SECRET_KEY,
+      deps.varsConfig.JWT_SECRET_KEY,
       { expiresIn: '1day' }
     );
 
-    await cacheStorage.set(`app:auth:signup-token:${id}`, token, 60 * 60 * 24);
+    await deps.cacheStorage.set(
+      `app:auth:signup-token:${id}`,
+      token,
+      60 * 60 * 24
+    );
     return token;
   };
 
@@ -73,7 +82,7 @@ export default function makeAuthService(
       throw new authError.InvalidToken();
     }
 
-    const cachedToken = await cacheStorage.get<string>(
+    const cachedToken = await deps.cacheStorage.get<string>(
       `app:auth:signup-token:${decoded.id}`
     );
 
@@ -81,7 +90,7 @@ export default function makeAuthService(
       throw new authError.InvalidToken();
     }
 
-    await cacheStorage.del(`app:auth:signup-token:${decoded.id}`);
+    await deps.cacheStorage.del(`app:auth:signup-token:${decoded.id}`);
 
     return decoded;
   };
@@ -97,7 +106,7 @@ export default function makeAuthService(
     id,
   }) => {
     const ttlSeconds = 60 * 15; // 15 minutes
-    const token = sign({ id, type: 'access' }, varsConfig.JWT_SECRET_KEY, {
+    const token = sign({ id, type: 'access' }, deps.varsConfig.JWT_SECRET_KEY, {
       expiresIn: ttlSeconds,
     });
 
@@ -113,7 +122,7 @@ export default function makeAuthService(
         id,
         type: 'refresh',
       },
-      varsConfig.JWT_SECRET_KEY,
+      deps.varsConfig.JWT_SECRET_KEY,
       { expiresIn: ttlSeconds }
     );
 
@@ -138,10 +147,14 @@ export default function makeAuthService(
           id,
           type: 'reset',
         },
-        varsConfig.JWT_SECRET_KEY,
+        deps.varsConfig.JWT_SECRET_KEY,
         { expiresIn: ttlSeconds }
       );
-      await cacheStorage.set(`app:auth:reset-token:${id}`, token, ttlSeconds);
+      await deps.cacheStorage.set(
+        `app:auth:reset-token:${id}`,
+        token,
+        ttlSeconds
+      );
 
       return token;
     };
@@ -154,7 +167,7 @@ export default function makeAuthService(
         throw new authError.InvalidToken();
       }
 
-      const cachedToken = await cacheStorage.get<string>(
+      const cachedToken = await deps.cacheStorage.get<string>(
         `app:auth:reset-token:${decoded.id}`
       );
 
@@ -162,7 +175,7 @@ export default function makeAuthService(
         throw new authError.InvalidToken();
       }
 
-      await cacheStorage.del(`app:auth:reset-token:${decoded.id}`);
+      await deps.cacheStorage.del(`app:auth:reset-token:${decoded.id}`);
 
       return decoded;
     };
@@ -178,11 +191,14 @@ export default function makeAuthService(
   };
 
   const isPermittedEmail: IAuthService['isPermittedEmail'] = (email) => {
-    if (varsConfig.NODE_ENV === 'local' || varsConfig.NODE_ENV === 'test')
+    if (
+      deps.varsConfig.NODE_ENV === 'local' ||
+      deps.varsConfig.NODE_ENV === 'test'
+    )
       return true;
 
-    const isProd = varsConfig.NODE_ENV === 'production';
-    return isProd ? true : nonProdEmailWhitelist.includes(email);
+    const isProd = deps.varsConfig.NODE_ENV === 'production';
+    return isProd ? true : deps.nonProdEmailWhitelist.includes(email);
   };
 
   return Object.freeze({

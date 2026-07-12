@@ -15,20 +15,22 @@ import {
   openingBalanceCreationReqValidation,
 } from '../dtos/opening-balance.dto';
 
-export default function makeCreateOpeningBalanceUseCase(
-  requestContext: IRequestContext,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  eventBus: IEventBus,
-  openingBalanceEntryService: IOpeningBalanceEntryService,
-  journalEntryPersistenceService: IJournalEntryPersistenceService
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+  ledgerAccountRepo: ILedgerAccountRepo;
+  eventBus: IEventBus;
+  openingBalanceEntryService: IOpeningBalanceEntryService;
+  journalEntryPersistenceService: IJournalEntryPersistenceService;
+}
+
+export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
   return async (payload: IOpeningBalanceCreationReq) => {
     zodValidationRunner(openingBalanceCreationReqValidation, payload);
 
-    const { accountingEntity, correlationId, user } = requestContext.get();
+    const { accountingEntity, correlationId, user } = deps.requestContext.get();
     const trace = { correlationId };
 
-    const account = await ledgerAccountRepo.findById(
+    const account = await deps.ledgerAccountRepo.findById(
       payload.accountId as TEntityId,
       trace
     );
@@ -41,7 +43,7 @@ export default function makeCreateOpeningBalanceUseCase(
       : null;
 
     const [journalEntry, journalEvents, audit] =
-      await openingBalanceEntryService.create(
+      await deps.openingBalanceEntryService.create(
         accountingEntity,
         account,
         amount,
@@ -55,13 +57,13 @@ export default function makeCreateOpeningBalanceUseCase(
       historyValue.make(lineAudit, actor, correlationId)
     );
 
-    await journalEntryPersistenceService.create(
+    await deps.journalEntryPersistenceService.create(
       journalEntry,
       headerHistory,
       lineHistories,
       trace
     );
 
-    eventBus.publish(eventValue.enrichAll(journalEvents, trace));
+    deps.eventBus.publish(eventValue.enrichAll(journalEvents, trace));
   };
 }

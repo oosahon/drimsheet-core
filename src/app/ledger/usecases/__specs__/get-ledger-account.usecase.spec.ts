@@ -28,12 +28,12 @@ describe('getLedgerAccountUseCase', () => {
     '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const correlationId = 'test-corr-id';
 
-  const useCase = makeGetLedgerAccountUseCase(
-    mockRequestContext,
-    mockLedgerAccountRepo,
-    MockReporter,
-    mockLedgerAccountBalanceRepo
-  );
+  const useCase = makeGetLedgerAccountUseCase({
+    requestContext: mockRequestContext,
+    ledgerAccountRepo: mockLedgerAccountRepo,
+    reporter: MockReporter,
+    ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
+  });
 
   const mockUser = { id: mockUserId } as unknown as IUser;
   const mockAccountingEntity = {

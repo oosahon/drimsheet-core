@@ -2,18 +2,20 @@ import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.re
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 
-export default function makeGetUserPreferencesUseCase(
-  requestContext: IRequestContext,
-  userPreferencesRepo: IUserPreferencesRepo
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+  userPreferencesRepo: IUserPreferencesRepo;
+}
+
+export default function makeGetUserPreferencesUseCase(deps: IDependencies) {
   return async () => {
-    const { correlationId, user } = requestContext.get();
+    const { correlationId, user } = deps.requestContext.get();
 
     if (!user) {
       throw new appError.Unauthorized();
     }
 
-    const preferences = await userPreferencesRepo.findById(user.id, {
+    const preferences = await deps.userPreferencesRepo.findById(user.id, {
       correlationId,
     });
 

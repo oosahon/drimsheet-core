@@ -44,10 +44,10 @@ describe('makeUserCreatedEventHandler', () => {
   });
 
   it('should successfully handle Created event and send verification email if not verified', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      requestContext: mockRequestContext,
+    });
     const mockEvent = getValidEvent();
 
     mockRequestContext.get.mockReturnValue({
@@ -69,10 +69,10 @@ describe('makeUserCreatedEventHandler', () => {
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      requestContext: mockRequestContext,
+    });
     const mockEvent: IEvent<IUser> = {
       type: EUserEvents.Created,
       occurredAt: new Date(),
@@ -99,10 +99,10 @@ describe('makeUserCreatedEventHandler', () => {
   });
 
   it('should successfully handle Created event and NOT send verification email if already verified', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      requestContext: mockRequestContext,
+    });
     const mockEvent = getValidEvent();
     mockEvent.data = { ...validUserData, emailVerified: true };
 
@@ -116,10 +116,10 @@ describe('makeUserCreatedEventHandler', () => {
   });
 
   it('should throw and report if event type is invalid', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      requestContext: mockRequestContext,
+    });
     const mockEvent = getValidEvent();
     mockEvent.type = 'INVALID_EVENT' as keyof typeof EUserEvents;
 
@@ -134,10 +134,10 @@ describe('makeUserCreatedEventHandler', () => {
   });
 
   it('should report an error if sendEmailVerificationEmail fails', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      requestContext: mockRequestContext,
+    });
     const mockEvent = getValidEvent();
 
     const error = new Error('Email Error');

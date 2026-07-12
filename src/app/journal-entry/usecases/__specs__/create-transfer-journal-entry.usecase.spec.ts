@@ -100,12 +100,13 @@ describe('createTransferJournalEntryUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeCreateTransferJournalEntryUseCase(
-      mockRequestContext,
-      mockBookkeepingServices.transactionEntry,
-      mockBookkeepingServices.journalEntryPersistence,
-      mockEventBus
-    );
+    makeCreateTransferJournalEntryUseCase({
+      requestContext: mockRequestContext,
+      transactionEntryService: mockBookkeepingServices.transactionEntry,
+      journalEntryPersistenceService:
+        mockBookkeepingServices.journalEntryPersistence,
+      eventBus: mockEventBus,
+    });
 
   const validPayload = {
     sourceLine: {

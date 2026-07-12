@@ -26,14 +26,14 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
   });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
-    const usecase = makeSendEmailVerificationEmailUseCase(
-      mockRequestContext,
-      mockLogger,
-      mockAuthService,
-      mockUserRepo,
-      mockTransactionalEmailService,
-      mockVarsConfig
-    );
+    const usecase = makeSendEmailVerificationEmailUseCase({
+      requestContext: mockRequestContext,
+      logger: mockLogger,
+      makeAuthService: mockAuthService,
+      userRepo: mockUserRepo,
+      transactionalEmailService: mockTransactionalEmailService,
+      varsConfig: mockVarsConfig,
+    });
 
     await expect(usecase('invalid-email')).rejects.toThrow(
       appError.UnprocessableEntity
@@ -44,14 +44,14 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     const userEmail = 'notfound@example.com';
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
-    const usecase = makeSendEmailVerificationEmailUseCase(
-      mockRequestContext,
-      mockLogger,
-      mockAuthService,
-      mockUserRepo,
-      mockTransactionalEmailService,
-      mockVarsConfig
-    );
+    const usecase = makeSendEmailVerificationEmailUseCase({
+      requestContext: mockRequestContext,
+      logger: mockLogger,
+      makeAuthService: mockAuthService,
+      userRepo: mockUserRepo,
+      transactionalEmailService: mockTransactionalEmailService,
+      varsConfig: mockVarsConfig,
+    });
 
     await expect(usecase(userEmail)).rejects.toThrow(authError.UserNotFound);
 
@@ -83,14 +83,14 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
 
-    const usecase = makeSendEmailVerificationEmailUseCase(
-      mockRequestContext,
-      mockLogger,
-      mockAuthService,
-      mockUserRepo,
-      mockTransactionalEmailService,
-      mockVarsConfig
-    );
+    const usecase = makeSendEmailVerificationEmailUseCase({
+      requestContext: mockRequestContext,
+      logger: mockLogger,
+      makeAuthService: mockAuthService,
+      userRepo: mockUserRepo,
+      transactionalEmailService: mockTransactionalEmailService,
+      varsConfig: mockVarsConfig,
+    });
 
     await usecase(userEmail);
 
@@ -130,14 +130,14 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockAuthService.generateSignupToken.mockResolvedValue(token);
 
-    const usecase = makeSendEmailVerificationEmailUseCase(
-      mockRequestContext,
-      mockLogger,
-      mockAuthService,
-      mockUserRepo,
-      mockTransactionalEmailService,
-      mockVarsConfig
-    );
+    const usecase = makeSendEmailVerificationEmailUseCase({
+      requestContext: mockRequestContext,
+      logger: mockLogger,
+      makeAuthService: mockAuthService,
+      userRepo: mockUserRepo,
+      transactionalEmailService: mockTransactionalEmailService,
+      varsConfig: mockVarsConfig,
+    });
 
     await usecase(userEmail);
 

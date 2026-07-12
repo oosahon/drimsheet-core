@@ -46,12 +46,12 @@ describe('getAccountTransactionsUseCase', () => {
   let journalEntry: IJournalEntry;
 
   const getUseCase = () =>
-    makeGetAccountTransactionsUseCase(
-      mockRequestContext,
-      mockLedgerAccountRepo,
-      mockLedgerDomainServices.ledgerAccount,
-      mockAccountTransactionQueryRepo
-    );
+    makeGetAccountTransactionsUseCase({
+      requestContext: mockRequestContext,
+      ledgerAccountRepo: mockLedgerAccountRepo,
+      ledgerAccountService: mockLedgerDomainServices.ledgerAccount,
+      accountTransactionQueryRepo: mockAccountTransactionQueryRepo,
+    });
 
   beforeEach(() => {
     jest.useFakeTimers();

@@ -6,7 +6,9 @@ import { IExpenseLedgerAccount } from '../../types/expense-account.types';
 import makeExpenseAccountService from '../expense-account.service';
 
 describe('expenseAccountService', () => {
-  const service = makeExpenseAccountService(mockLedgerAccountRepo);
+  const service = makeExpenseAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
   };

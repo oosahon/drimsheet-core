@@ -6,13 +6,15 @@ import {
   transactionalEmailDtoSchema,
 } from '../dtos/transactional-email.dto';
 
-export default function makeTransactionalEmailWorker(
-  mailer: ITransactionalEmailAgent,
-  reporter: IReporter
-) {
+interface IDependencies {
+  mailer: ITransactionalEmailAgent;
+  reporter: IReporter;
+}
+
+export default function makeTransactionalEmailWorker(deps: IDependencies) {
   return async (payload: ITransactionalEmailDto) => {
     zodValidationRunner(transactionalEmailDtoSchema, payload);
 
-    await mailer.send(payload).catch(reporter.report);
+    await deps.mailer.send(payload).catch(deps.reporter.report);
   };
 }

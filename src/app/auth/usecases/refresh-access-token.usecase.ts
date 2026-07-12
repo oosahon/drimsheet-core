@@ -7,16 +7,18 @@ import IAuthService from '../contracts/auth-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
-export default function makeRefreshAccessTokenUseCase(
-  reqContext: IRequestContext,
-  userRepo: IUserRepo,
-  makeAuthService: IAuthService,
-  eventBus: IEventBus,
-  userSessionRepo: IUserSessionRepo,
-  repoService: IRepoService
-) {
+interface IDependencies {
+  reqContext: IRequestContext;
+  userRepo: IUserRepo;
+  makeAuthService: IAuthService;
+  eventBus: IEventBus;
+  userSessionRepo: IUserSessionRepo;
+  repoService: IRepoService;
+}
+
+export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
   return async () => {
-    const { clientSession, correlationId } = reqContext.get();
+    const { clientSession, correlationId } = deps.reqContext.get();
 
     const refreshToken = clientSession.getRefreshToken();
 
@@ -24,15 +26,15 @@ export default function makeRefreshAccessTokenUseCase(
       throw new appError.Unauthorized();
     }
 
-    const decoded = makeAuthService.verifyRefreshToken(refreshToken);
+    const decoded = deps.makeAuthService.verifyRefreshToken(refreshToken);
 
-    const user = await userRepo.findById(decoded.id, { correlationId });
+    const user = await deps.userRepo.findById(decoded.id, { correlationId });
 
     if (!user) {
       throw new appError.Unauthorized();
     }
 
-    const existingRefreshToken = await userSessionRepo.findByRefreshToken(
+    const existingRefreshToken = await deps.userSessionRepo.findByRefreshToken(
       user.id,
       refreshToken,
       { correlationId }
@@ -44,11 +46,11 @@ export default function makeRefreshAccessTokenUseCase(
 
     return makeIssueUserSessionHelper({
       user,
-      reqContext,
-      makeAuthService,
-      userSessionRepo,
-      eventBus,
-      repoService,
+      reqContext: deps.reqContext,
+      makeAuthService: deps.makeAuthService,
+      userSessionRepo: deps.userSessionRepo,
+      eventBus: deps.eventBus,
+      repoService: deps.repoService,
       events: [],
     });
   };

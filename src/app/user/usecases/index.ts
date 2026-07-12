@@ -4,12 +4,14 @@ import makeGetUserPreferencesUseCase from './get-preferences.usecase';
 import makeGetAuthUserProfileUseCase from './get-profile.usecase';
 
 const userUseCase = {
-  getPreferences: makeGetUserPreferencesUseCase(
-    appContext.request,
-    userRepos.userPreferences
-  ),
+  getPreferences: makeGetUserPreferencesUseCase({
+    requestContext: appContext.request,
+    userPreferencesRepo: userRepos.userPreferences,
+  }),
 
-  getAuthUserProfile: makeGetAuthUserProfileUseCase(appContext.request),
+  getAuthUserProfile: makeGetAuthUserProfileUseCase({
+    requestContext: appContext.request,
+  }),
 };
 
 export default userUseCase;

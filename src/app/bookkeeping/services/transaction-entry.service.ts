@@ -6,12 +6,16 @@ import { IJournalLineMakePayload } from '../../../domain/journal-entry/types/jou
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import ITransactionEntryService from '../contracts/transaction-entry.service.contract';
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeTransactionEntryService(
-  ledgerAccountRepo: ILedgerAccountRepo
+  deps: IDependencies
 ): ITransactionEntryService {
   return {
     async create(sourceLine, destinationLines, header, repoOptions) {
-      const sourceAccount = await ledgerAccountRepo.findById(
+      const sourceAccount = await deps.ledgerAccountRepo.findById(
         sourceLine.accountId,
         repoOptions
       );
@@ -31,7 +35,7 @@ export default function makeTransactionEntryService(
       const destinationAccountIds = destinationLines.map(
         (line) => line.accountId
       );
-      const destinationAccounts = await ledgerAccountRepo.findAllByIds(
+      const destinationAccounts = await deps.ledgerAccountRepo.findAllByIds(
         destinationAccountIds,
         repoOptions
       );

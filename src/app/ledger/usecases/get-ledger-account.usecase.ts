@@ -12,20 +12,22 @@ import { ILedgerAccountDto } from '../dtos/ledger-account.dto';
 import ledgerAppError from '../errors/ledger.error';
 import ledgerAccountMapper from '../mappers/ledger-account.mapper';
 
-export default function makeGetLedgerAccountUseCase(
-  requestContext: IRequestContext,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  reporter: IReporter,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+  ledgerAccountRepo: ILedgerAccountRepo;
+  reporter: IReporter;
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
+}
+
+export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
   return async (accountId: TEntityId): Promise<ILedgerAccountDto> => {
     stringUtils.validateUUID(accountId, ledgerError.InvalidId);
 
-    const { correlationId, accountingEntity, user } = requestContext.get();
+    const { correlationId, accountingEntity, user } = deps.requestContext.get();
 
     const trace = { correlationId };
 
-    const account = await ledgerAccountRepo.findById(accountId, trace);
+    const account = await deps.ledgerAccountRepo.findById(accountId, trace);
 
     if (!account) {
       throw new ledgerAppError.AccountNotFound();
@@ -38,14 +40,14 @@ export default function makeGetLedgerAccountUseCase(
       throw new appError.Forbidden();
     }
 
-    let balance = await ledgerAccountBalanceRepo.findByAccountId(
+    let balance = await deps.ledgerAccountBalanceRepo.findByAccountId(
       accountId,
       accountingEntity.id,
       trace
     );
 
     if (!balance) {
-      reporter.report(
+      deps.reporter.report(
         new Error(`No balance found for ledger account with id ${accountId}`)
       );
 

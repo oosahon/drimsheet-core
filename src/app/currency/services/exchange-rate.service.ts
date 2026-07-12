@@ -2,8 +2,12 @@ import IExchangeRateRepo from '../../../domain/currency/repos/exchange-rate.repo
 import { EExchangeRateType } from '../../../domain/currency/types/exchange-rate.types';
 import IExchangeRateAppService from '../contracts/exchange-rate.service.contract';
 
+interface IDependencies {
+  exchangeRateRepo: IExchangeRateRepo;
+}
+
 export default function makeExchangeRateAppService(
-  repo: IExchangeRateRepo
+  deps: IDependencies
 ): IExchangeRateAppService {
   return {
     async getOfficialRate(pair, asOf, repoOptions, userProvided) {
@@ -11,7 +15,7 @@ export default function makeExchangeRateAppService(
         return userProvided;
       }
 
-      return repo.findByPairAndDate(pair, asOf, repoOptions);
+      return deps.exchangeRateRepo.findByPairAndDate(pair, asOf, repoOptions);
     },
   };
 }

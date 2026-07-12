@@ -5,15 +5,15 @@ import makeUserCreatedEventHandler from './user-created-event.handler';
 import makeUserEmailVerifiedEventHandler from './user-email-verified-event.handler';
 
 const userEventHandlers = {
-  created: makeUserCreatedEventHandler(
-    observability.reporter,
-    appContext.request
-  ),
+  created: makeUserCreatedEventHandler({
+    reporter: observability.reporter,
+    requestContext: appContext.request,
+  }),
 
-  emailVerified: makeUserEmailVerifiedEventHandler(
-    observability.reporter,
-    appContext.request
-  ),
+  emailVerified: makeUserEmailVerifiedEventHandler({
+    reporter: observability.reporter,
+    requestContext: appContext.request,
+  }),
 };
 
 const userEventsRegistry = {

@@ -6,7 +6,9 @@ import { ILiabilityLedgerAccount } from '../../types/liability-account.types';
 import makeLiabilityAccountService from '../liability-account.service';
 
 describe('liabilityAccountService', () => {
-  const service = makeLiabilityAccountService(mockLedgerAccountRepo);
+  const service = makeLiabilityAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
   };

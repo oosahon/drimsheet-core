@@ -28,11 +28,13 @@ function getStatusCodeFromError(error: any): number {
   return 400; // default for domain errors and others
 }
 
-function makeHttpErrorHandler(
-  reporter: IReporter,
-  logger: ILogger,
-  nodeEnv: string
-) {
+interface IDependencies {
+  reporter: IReporter;
+  logger: ILogger;
+  nodeEnv: string;
+}
+
+function makeHttpErrorHandler(deps: IDependencies) {
   return (req: Request, res: Response<IHttpErrorDto>, error: unknown) => {
     delete req?.headers.authorization;
     // @ts-ignore
@@ -46,7 +48,7 @@ function makeHttpErrorHandler(
       });
 
     if (error instanceof ValidateError) {
-      if (nodeEnv === 'local') logger.error(error);
+      if (deps.nodeEnv === 'local') deps.logger.error(error);
       const validationErrors = httpErrorParser.parseTsoaValidationError(error);
       const errRes = new appError.UnprocessableEntity(validationErrors);
 
@@ -61,14 +63,14 @@ function makeHttpErrorHandler(
       parsedError.name === 'UnknownError' || parsedError.name === 'Error';
 
     if (isUnknownError) {
-      reporter.report(error);
+      deps.reporter.report(error);
       const serverError = new appError.InternalServerError();
       return res
         .status(errorKeyToStatusCode[serverError.errorKey] as number)
         .json(httpErrorParser.toHttp(serverError));
     }
 
-    if (nodeEnv === 'local') logger.error(error);
+    if (deps.nodeEnv === 'local') deps.logger.error(error);
 
     const statusCode = getStatusCodeFromError(parsedError);
 

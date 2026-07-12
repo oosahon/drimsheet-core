@@ -23,29 +23,31 @@ const validationSchema = z.object({
     .max(100, { message: 'Password must be at most 100 characters' }),
 });
 
-export default function makeLoginWithEmailUseCase(
-  reqContext: IRequestContext,
-  userRepo: IUserRepo,
-  makeAuthService: IAuthService,
-  eventBus: IEventBus,
-  userAuthRepo: IUserAuthRepo,
-  userSessionRepo: IUserSessionRepo,
-  repoService: IRepoService
-) {
+interface IDependencies {
+  reqContext: IRequestContext;
+  userRepo: IUserRepo;
+  makeAuthService: IAuthService;
+  eventBus: IEventBus;
+  userAuthRepo: IUserAuthRepo;
+  userSessionRepo: IUserSessionRepo;
+  repoService: IRepoService;
+}
+
+export default function makeLoginWithEmailUseCase(deps: IDependencies) {
   return async (payload: IEmailLoginReq): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, payload);
 
-    const { correlationId } = reqContext.get();
+    const { correlationId } = deps.reqContext.get();
 
     const email = emailValue.normalize(payload.email);
 
-    const user = await userRepo.findByEmail(email, { correlationId });
+    const user = await deps.userRepo.findByEmail(email, { correlationId });
 
     if (!user) {
       throw new authError.InvalidCredentials();
     }
 
-    const userAuth = await userAuthRepo.findByUserId(user.id, {
+    const userAuth = await deps.userAuthRepo.findByUserId(user.id, {
       correlationId,
     });
 
@@ -63,26 +65,28 @@ export default function makeLoginWithEmailUseCase(
       !userAuth.strategy.includes(EAuthStrategy.Email) ||
       !userAuth.password
     ) {
-      await userAuthRepo.incrementFailedLoginAttempts(user.id, {
+      await deps.userAuthRepo.incrementFailedLoginAttempts(user.id, {
         correlationId,
       });
       throw new authError.WrongStrategy();
     }
 
-    const isValidPassword = await makeAuthService.comparePassword(
+    const isValidPassword = await deps.makeAuthService.comparePassword(
       payload.password,
       userAuth.password
     );
 
     if (!isValidPassword) {
-      await userAuthRepo.incrementFailedLoginAttempts(user.id, {
+      await deps.userAuthRepo.incrementFailedLoginAttempts(user.id, {
         correlationId,
       });
       throw new authError.InvalidCredentials();
     }
 
     if (userAuth.failedLoginAttempts > 0) {
-      await userAuthRepo.resetFailedLoginAttempts(user.id, { correlationId });
+      await deps.userAuthRepo.resetFailedLoginAttempts(user.id, {
+        correlationId,
+      });
     }
 
     const events = eventValue.enrich(userEvents.loggedIn(user), {
@@ -91,11 +95,11 @@ export default function makeLoginWithEmailUseCase(
 
     return makeIssueUserSessionHelper({
       user,
-      reqContext,
-      makeAuthService,
-      userSessionRepo,
-      eventBus,
-      repoService,
+      reqContext: deps.reqContext,
+      makeAuthService: deps.makeAuthService,
+      userSessionRepo: deps.userSessionRepo,
+      eventBus: deps.eventBus,
+      repoService: deps.repoService,
       events,
     });
   };

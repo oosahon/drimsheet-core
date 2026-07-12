@@ -4,7 +4,9 @@ import { IAccountingEntity } from '../../types/accounting-entity.types';
 import makeAccountingEntityService from '../accounting-entity.service';
 
 describe('accountingEntityService', () => {
-  const service = makeAccountingEntityService(mockAccountingEntityRepo);
+  const service = makeAccountingEntityService({
+    accountingEntityRepo: mockAccountingEntityRepo,
+  });
 
   describe('grantUserAccess', () => {
     it('should return true if user is owner', () => {

@@ -16,17 +16,19 @@ import {
 } from '../dtos/ledger-account.dto';
 import ledgerAccountMapper from '../mappers/ledger-account.mapper';
 
-export default function makeGetLedgerAccountsUsecase(
-  requestContext: IRequestContext,
-  reporter: IReporter,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
-) {
+interface IDependencies {
+  requestContext: IRequestContext;
+  reporter: IReporter;
+  ledgerAccountRepo: ILedgerAccountRepo;
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
+}
+
+export default function makeGetLedgerAccountsUsecase(deps: IDependencies) {
   return async (
     query: IGetLedgerAccountsQuery
   ): Promise<IPaginatedResponse<ILedgerAccountDto>> => {
     zodValidationRunner(getLedgerAccountQueryValidationSchema, query);
-    const { correlationId, accountingEntity } = requestContext.get();
+    const { correlationId, accountingEntity } = deps.requestContext.get();
 
     const trace = { correlationId };
     const offset = paginationValue.pageToOffset(query.page, query.limit);
@@ -36,7 +38,7 @@ export default function makeGetLedgerAccountsUsecase(
       ...trace,
     };
 
-    const ledgerAccountsRes = await ledgerAccountRepo.findAll(
+    const ledgerAccountsRes = await deps.ledgerAccountRepo.findAll(
       accountingEntity.id,
       accountRepoOptions
     );
@@ -48,7 +50,7 @@ export default function makeGetLedgerAccountsUsecase(
       };
     }
 
-    const balances = await ledgerAccountBalanceRepo.findAllByAccountIds(
+    const balances = await deps.ledgerAccountBalanceRepo.findAllByAccountIds(
       accountingEntity.id,
       ledgerAccountsRes.data.map((account) => account.id),
       trace
@@ -60,7 +62,7 @@ export default function makeGetLedgerAccountsUsecase(
       const balance = balances.find((b) => b.ledgerAccountId === account.id);
 
       if (!balance) {
-        reporter.report(
+        deps.reporter.report(
           new Error(`No balance found for ledger account with id ${account.id}`)
         );
 

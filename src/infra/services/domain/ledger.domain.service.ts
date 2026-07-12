@@ -9,18 +9,30 @@ import makeLedgerAccountService from '../../../domain/ledger/shared/services/led
 import observability from '../../observability';
 import ledgerRepos from '../../persistence/repos/ledger';
 
-const ledgerAccount = makeLedgerAccountService(ledgerRepos.ledgerAccount);
-const assetAccount = makeAssetAccountService(ledgerRepos.ledgerAccount);
-const liabilityAccount = makeLiabilityAccountService(ledgerRepos.ledgerAccount);
-const equityAccount = makeEquityAccountService(ledgerRepos.ledgerAccount);
-const revenueAccount = makeRevenueAccountService(ledgerRepos.ledgerAccount);
-const expenseAccount = makeExpenseAccountService(ledgerRepos.ledgerAccount);
-const persistence = makeLedgerAccountPersistenceService(
-  ledgerRepos.ledgerAccountBalance,
-  ledgerRepos.ledgerAccount,
-  services.repo,
-  observability.logger
-);
+const ledgerAccount = makeLedgerAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+const assetAccount = makeAssetAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+const liabilityAccount = makeLiabilityAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+const equityAccount = makeEquityAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+const revenueAccount = makeRevenueAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+const expenseAccount = makeExpenseAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+const persistence = makeLedgerAccountPersistenceService({
+  ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+  repoService: services.repo,
+  logger: observability.logger,
+});
 
 const ledgerDomainServices = Object.freeze({
   ledgerAccount,

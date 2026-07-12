@@ -8,12 +8,16 @@ import repoService from './repo.service';
 import makeTransactionalEmailService from './transaction-email.service';
 
 const services = {
-  auth: makeAuthService(cacheStorage, varsConfig, NON_PROD_EMAIL_WHITELIST),
+  auth: makeAuthService({
+    cacheStorage,
+    varsConfig,
+    nonProdEmailWhitelist: NON_PROD_EMAIL_WHITELIST,
+  }),
   logger,
   repo: repoService,
-  transactionalEmail: makeTransactionalEmailService(
-    messaging.queues.transactionalEmail
-  ),
+  transactionalEmail: makeTransactionalEmailService({
+    transactionalEmailQueue: messaging.queues.transactionalEmail,
+  }),
   varsConfig,
 };
 

@@ -93,11 +93,11 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeAdjustLedgerAccountBalanceUseCase(
-      mockLedgerAccountRepo,
-      mockLedgerAccountBalanceRepo,
-      mockQueue
-    );
+    makeAdjustLedgerAccountBalanceUseCase({
+      ledgerAccountRepo: mockLedgerAccountRepo,
+      ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
+      ledgerBalanceAdjustmentQueue: mockQueue,
+    });
 
   const validPayload: ILedgerAccountBalanceAdjustmentDto = {
     correlationId,

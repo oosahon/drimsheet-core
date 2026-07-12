@@ -25,14 +25,14 @@ describe('makeVerifyEmailAddressUseCase', () => {
   });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
-    const usecase = makeVerifyEmailAddressUseCase(
-      mockAuthService,
-      mockUserRepo,
-      mockRequestContext,
-      mockEventBus,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    const usecase = makeVerifyEmailAddressUseCase({
+      makeAuthService: mockAuthService,
+      userRepo: mockUserRepo,
+      requestContext: mockRequestContext,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
     await expect(usecase(123 as unknown as string)).rejects.toThrow(
       appError.UnprocessableEntity
@@ -57,14 +57,14 @@ describe('makeVerifyEmailAddressUseCase', () => {
     mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
-    const usecase = makeVerifyEmailAddressUseCase(
-      mockAuthService,
-      mockUserRepo,
-      mockRequestContext,
-      mockEventBus,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    const usecase = makeVerifyEmailAddressUseCase({
+      makeAuthService: mockAuthService,
+      userRepo: mockUserRepo,
+      requestContext: mockRequestContext,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
     const result = await usecase(token);
 
@@ -117,14 +117,14 @@ describe('makeVerifyEmailAddressUseCase', () => {
       new authError.InvalidToken()
     );
 
-    const usecase = makeVerifyEmailAddressUseCase(
-      mockAuthService,
-      mockUserRepo,
-      mockRequestContext,
-      mockEventBus,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    const usecase = makeVerifyEmailAddressUseCase({
+      makeAuthService: mockAuthService,
+      userRepo: mockUserRepo,
+      requestContext: mockRequestContext,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
     await expect(usecase(token)).rejects.toThrow(authError.Base);
 
@@ -144,14 +144,14 @@ describe('makeVerifyEmailAddressUseCase', () => {
     mockAuthService.verifySignupToken.mockResolvedValue(decodedToken as never);
     mockUserRepo.findById.mockResolvedValue(null);
 
-    const usecase = makeVerifyEmailAddressUseCase(
-      mockAuthService,
-      mockUserRepo,
-      mockRequestContext,
-      mockEventBus,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    const usecase = makeVerifyEmailAddressUseCase({
+      makeAuthService: mockAuthService,
+      userRepo: mockUserRepo,
+      requestContext: mockRequestContext,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
     await expect(usecase(token)).rejects.toThrow(authError.InvalidToken);
 
@@ -181,14 +181,14 @@ describe('makeVerifyEmailAddressUseCase', () => {
     mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
-    const usecase = makeVerifyEmailAddressUseCase(
-      mockAuthService,
-      mockUserRepo,
-      mockRequestContext,
-      mockEventBus,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    const usecase = makeVerifyEmailAddressUseCase({
+      makeAuthService: mockAuthService,
+      userRepo: mockUserRepo,
+      requestContext: mockRequestContext,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
     const result = await usecase(token);
 

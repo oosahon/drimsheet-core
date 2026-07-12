@@ -3,17 +3,19 @@ import { IInternalMailer } from '../../notification/contracts/transactional-emai
 import { ITransactionalEmailDto } from '../../notification/dtos/transactional-email.dto';
 import appError from '../../shared/errors/app.error';
 
-export default function getSentEmail(
-  internalMailer: IInternalMailer,
-  varsConfig: IVarsConfig
-) {
+interface IDependencies {
+  internalMailer: IInternalMailer;
+  varsConfig: IVarsConfig;
+}
+
+export default function getSentEmail(deps: IDependencies) {
   return async (
     email: string,
     subject: string
   ): Promise<ITransactionalEmailDto | null> => {
-    if (varsConfig.NODE_ENV !== 'test') {
+    if (deps.varsConfig.NODE_ENV !== 'test') {
       throw new appError.Forbidden();
     }
-    return internalMailer.getEmail(email, subject);
+    return deps.internalMailer.getEmail(email, subject);
   };
 }

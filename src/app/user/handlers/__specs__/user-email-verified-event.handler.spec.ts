@@ -36,10 +36,10 @@ describe('makeUserEmailVerifiedEventHandler', () => {
   });
 
   it('should successfully handle EmailVerified event', async () => {
-    const handler = makeUserEmailVerifiedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserEmailVerifiedEventHandler({
+      reporter: MockReporter,
+      requestContext: mockRequestContext,
+    });
     const mockEvent = getValidEvent();
 
     mockRequestContext.get.mockReturnValue({
@@ -54,10 +54,10 @@ describe('makeUserEmailVerifiedEventHandler', () => {
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = makeUserEmailVerifiedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserEmailVerifiedEventHandler({
+      reporter: MockReporter,
+      requestContext: mockRequestContext,
+    });
     const mockEvent: IEvent<IUser> = {
       type: EUserEvents.EmailVerified,
       occurredAt: new Date(),
@@ -77,10 +77,10 @@ describe('makeUserEmailVerifiedEventHandler', () => {
   });
 
   it('should throw if event type is invalid', async () => {
-    const handler = makeUserEmailVerifiedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserEmailVerifiedEventHandler({
+      reporter: MockReporter,
+      requestContext: mockRequestContext,
+    });
     const mockEvent = getValidEvent();
     mockEvent.type = 'INVALID_EVENT' as keyof typeof EUserEvents;
 

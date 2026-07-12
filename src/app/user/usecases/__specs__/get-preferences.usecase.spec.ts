@@ -33,10 +33,10 @@ describe('makeGetUserPreferencesUseCase', () => {
 
     mockUserPreferencesRepo.findById.mockResolvedValue(mockPreferences);
 
-    const usecase = makeGetUserPreferencesUseCase(
-      mockRequestContext,
-      mockUserPreferencesRepo
-    );
+    const usecase = makeGetUserPreferencesUseCase({
+      requestContext: mockRequestContext,
+      userPreferencesRepo: mockUserPreferencesRepo,
+    });
     const result = await usecase();
 
     expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
@@ -49,10 +49,10 @@ describe('makeGetUserPreferencesUseCase', () => {
   it('should throw appError.Unauthorized if user is not in request context', async () => {
     mockRequestContext.get.mockReturnValue({} as IRequestContextData);
 
-    const usecase = makeGetUserPreferencesUseCase(
-      mockRequestContext,
-      mockUserPreferencesRepo
-    );
+    const usecase = makeGetUserPreferencesUseCase({
+      requestContext: mockRequestContext,
+      userPreferencesRepo: mockUserPreferencesRepo,
+    });
 
     await expect(usecase()).rejects.toThrow('app_error_unauthorized');
     expect(mockRequestContext.get).toHaveBeenCalledTimes(1);

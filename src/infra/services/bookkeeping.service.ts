@@ -8,25 +8,27 @@ import observability from '../observability';
 import journalEntryRepos from '../persistence/repos/journal-entry';
 import ledgerRepos from '../persistence/repos/ledger';
 
-const transactionEntry = makeTransactionEntryService(ledgerRepos.ledgerAccount);
+const transactionEntry = makeTransactionEntryService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
 
-const openingBalanceEntry = makeOpeningBalanceEntryService(
-  ledgerRepos.ledgerAccountBalance,
-  ledgerRepos.ledgerAccount
-);
+const openingBalanceEntry = makeOpeningBalanceEntryService({
+  ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
 
-const balancePropagation = makeLedgerAccountBalancePropagationService(
-  ledgerRepos.ledgerAccount,
-  messaging.queues.ledgerBalanceAdjustment
-);
+const balancePropagation = makeLedgerAccountBalancePropagationService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+  ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+});
 
-const journalEntryPersistence = makeJournalEntryPersistenceService(
-  services.repo,
-  journalEntryRepos.journalEntry,
-  journalEntryRepos.journalLine,
-  balancePropagation,
-  observability.reporter
-);
+const journalEntryPersistence = makeJournalEntryPersistenceService({
+  repoService: services.repo,
+  journalEntryRepo: journalEntryRepos.journalEntry,
+  journalLineRepo: journalEntryRepos.journalLine,
+  balancePropagationService: balancePropagation,
+  reporter: observability.reporter,
+});
 
 const bookkeepingServices = Object.freeze({
   transactionEntry,

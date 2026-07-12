@@ -16,16 +16,20 @@ import {
   transactionJournalEntryReqValidation,
 } from '../dtos/transaction-journal-entry.dto';
 
+interface IDependencies {
+  requestContext: IRequestContext;
+  transactionEntryService: ITransactionEntryService;
+  journalEntryPersistenceService: IJournalEntryPersistenceService;
+  eventBus: IEventBus;
+}
+
 export default function makeCreateTransferJournalEntryUseCase(
-  requestContext: IRequestContext,
-  transactionEntryService: ITransactionEntryService,
-  journalEntryPersistenceService: IJournalEntryPersistenceService,
-  eventBus: IEventBus
+  deps: IDependencies
 ) {
   return async (payload: ITransactionJournalEntryReq) => {
     zodValidationRunner(transactionJournalEntryReqValidation, payload);
 
-    const { accountingEntity, user, correlationId } = requestContext.get();
+    const { accountingEntity, user, correlationId } = deps.requestContext.get();
     const trace = { correlationId };
 
     const functionalCurrency = currencyEntity.getByCode(
@@ -75,12 +79,13 @@ export default function makeCreateTransferJournalEntryUseCase(
       functionalCurrency,
     };
 
-    const [journalEntry, events, audit] = await transactionEntryService.create(
-      sourceLine,
-      destinationLines,
-      header,
-      trace
-    );
+    const [journalEntry, events, audit] =
+      await deps.transactionEntryService.create(
+        sourceLine,
+        destinationLines,
+        header,
+        trace
+      );
 
     const actor = historyValue.getUserActor(user.id);
     const headerHistory = historyValue.make(audit.header, actor, correlationId);
@@ -88,13 +93,13 @@ export default function makeCreateTransferJournalEntryUseCase(
       historyValue.make(lineAudit, actor, correlationId)
     );
 
-    await journalEntryPersistenceService.create(
+    await deps.journalEntryPersistenceService.create(
       journalEntry,
       headerHistory,
       lineHistories,
       trace
     );
 
-    eventBus.publish(eventValue.enrichAll(events, trace));
+    deps.eventBus.publish(eventValue.enrichAll(events, trace));
   };
 }

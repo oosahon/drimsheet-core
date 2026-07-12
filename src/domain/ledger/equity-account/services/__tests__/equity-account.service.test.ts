@@ -6,7 +6,9 @@ import { IEquityLedgerAccount } from '../../types/equity-account.types';
 import makeEquityAccountService from '../equity-account.service';
 
 describe('equityAccountService', () => {
-  const service = makeEquityAccountService(mockLedgerAccountRepo);
+  const service = makeEquityAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
   };

@@ -24,8 +24,12 @@ type TBootstrapHeaders = ILiabilityAccountService['bootstrapHeaderAccounts'];
 type TBootstrapIndividualPostingAccounts =
   ILiabilityAccountService['bootstrapIndividualPostingAccounts'];
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeLiabilityAccountService(
-  repo: ILedgerAccountRepo
+  deps: IDependencies
 ): ILiabilityAccountService {
   /**
    * Bootstraps header liability accounts for a new accounting entity
@@ -48,7 +52,7 @@ export default function makeLiabilityAccountService(
     const getExistingAccounts = async <T extends ILiabilityLedgerAccount>(
       code: TLiabilityLedgerCode
     ) => {
-      return (await repo.findByCode(
+      return (await deps.ledgerAccountRepo.findByCode(
         code,
         accountingEntityId,
         repoOptions
@@ -208,7 +212,7 @@ export default function makeLiabilityAccountService(
       /**
        * Suspense account
        */
-      const existingSuspense = await repo.findBySubType(
+      const existingSuspense = await deps.ledgerAccountRepo.findBySubType(
         accountingEntityId,
         ELedgerType.Liability,
         ELiabilitySubType.Suspense,
@@ -231,11 +235,12 @@ export default function makeLiabilityAccountService(
       /**
        * Statutory Payables
        */
-      const existingStatutoryPayables = (await repo.findByBehavior(
-        accountingEntityId,
-        ELiabilityAccountBehavior.TaxPayable,
-        repoOptions
-      )) as IStatutoryPayableAccount[];
+      const existingStatutoryPayables =
+        (await deps.ledgerAccountRepo.findByBehavior(
+          accountingEntityId,
+          ELiabilityAccountBehavior.TaxPayable,
+          repoOptions
+        )) as IStatutoryPayableAccount[];
 
       // Since the header is also a statutory payable, if length is 1, only the header exists
       if (existingStatutoryPayables.length === 1) {

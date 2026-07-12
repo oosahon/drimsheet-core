@@ -44,15 +44,15 @@ describe('makeResetPasswordUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeResetPasswordUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    makeResetPasswordUseCase({
+      requestContext: mockRequestContext,
+      userRepo: mockUserRepo,
+      makeAuthService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
   it('should explicitly fail validation if passwords do not match', async () => {
     const usecase = getUseCase();

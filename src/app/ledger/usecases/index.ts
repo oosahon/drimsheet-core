@@ -15,45 +15,45 @@ import makeGetLedgerAccountUseCase from './get-ledger-account.usecase';
 import makeGetLedgerAccountsUsecase from './get-ledger-accounts.usecase';
 
 const ledgerUseCases = {
-  getLedgerAccounts: makeGetLedgerAccountsUsecase(
-    appContext.request,
-    observability.reporter,
-    ledgerRepos.ledgerAccount,
-    ledgerRepos.ledgerAccountBalance
-  ),
+  getLedgerAccounts: makeGetLedgerAccountsUsecase({
+    requestContext: appContext.request,
+    reporter: observability.reporter,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+  }),
 
-  getLedgerAccount: makeGetLedgerAccountUseCase(
-    appContext.request,
-    ledgerRepos.ledgerAccount,
-    observability.reporter,
-    ledgerRepos.ledgerAccountBalance
-  ),
+  getLedgerAccount: makeGetLedgerAccountUseCase({
+    requestContext: appContext.request,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    reporter: observability.reporter,
+    ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+  }),
 
-  adjustLedgerAccountBalance: makeAdjustLedgerAccountBalanceUseCase(
-    ledgerRepos.ledgerAccount,
-    ledgerRepos.ledgerAccountBalance,
-    messaging.queues.ledgerBalanceAdjustment
-  ),
+  adjustLedgerAccountBalance: makeAdjustLedgerAccountBalanceUseCase({
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+  }),
 
-  getAccountTransactions: makeGetAccountTransactionsUseCase(
-    appContext.request,
-    ledgerRepos.ledgerAccount,
-    ledgerDomainServices.ledgerAccount,
-    ledgerRepos.queries.accountTransaction
-  ),
+  getAccountTransactions: makeGetAccountTransactionsUseCase({
+    requestContext: appContext.request,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    ledgerAccountService: ledgerDomainServices.ledgerAccount,
+    accountTransactionQueryRepo: ledgerRepos.queries.accountTransaction,
+  }),
 
-  createPettyCashAccount: makeCreatePettyCashAccountUseCase(
-    appContext.request,
-    messaging.eventBus,
-    ledgerDomainServices.assetAccount,
-    bookkeepingServices.openingBalanceEntry,
-    bookkeepingServices.journalEntryPersistence,
-    services.repo,
-    ledgerDomainServices.persistence,
-    fxCostBasisService.persistence,
-    fxCostBasisService.domain,
-    currencyServices.exchangeRate
-  ),
+  createPettyCashAccount: makeCreatePettyCashAccountUseCase({
+    requestContext: appContext.request,
+    eventBus: messaging.eventBus,
+    assetAccountService: ledgerDomainServices.assetAccount,
+    openingBalanceEntryService: bookkeepingServices.openingBalanceEntry,
+    journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
+    repoService: services.repo,
+    ledgerAccountPersistenceService: ledgerDomainServices.persistence,
+    fxCostBasisPersistenceService: fxCostBasisService.persistence,
+    fxCostBasisService: fxCostBasisService.domain,
+    exchangeRateService: currencyServices.exchangeRate,
+  }),
 };
 
 export default ledgerUseCases;
