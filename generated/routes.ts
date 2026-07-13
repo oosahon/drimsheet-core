@@ -6,11 +6,11 @@ import { ExpressTemplateService, fetchMiddlewares } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { UserController } from './../src/interface/http/controllers/user.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { CurrencyController } from './../src/interface/http/controllers/money.controller';
-// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { LedgerController } from './../src/interface/http/controllers/ledger.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { JournalEntryController } from './../src/interface/http/controllers/journal-entry.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { CurrencyController } from './../src/interface/http/controllers/currency.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './../src/interface/http/controllers/auth.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -164,17 +164,6 @@ const models: TsoaRoute.Models = {
         ],
         required: true,
       },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  ICurrencyDto: {
-    dataType: 'refObject',
-    properties: {
-      code: { dataType: 'string', required: true },
-      symbol: { dataType: 'string', required: true },
-      name: { dataType: 'string', required: true },
-      minorUnit: { dataType: 'double', required: true },
     },
     additionalProperties: false,
   },
@@ -735,6 +724,17 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ICurrencyDto: {
+    dataType: 'refObject',
+    properties: {
+      code: { dataType: 'string', required: true },
+      symbol: { dataType: 'string', required: true },
+      name: { dataType: 'string', required: true },
+      minorUnit: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IUserSignupReq: {
     dataType: 'refObject',
     properties: {
@@ -1128,46 +1128,6 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsCurrencyController_getAll: Record<
-    string,
-    TsoaRoute.ParameterSchema
-  > = {};
-  app.get(
-    '/api/v1/currencies',
-    ...fetchMiddlewares<RequestHandler>(CurrencyController),
-    ...fetchMiddlewares<RequestHandler>(CurrencyController.prototype.getAll),
-
-    async function CurrencyController_getAll(
-      request: ExRequest,
-      response: ExResponse,
-      next: any
-    ) {
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = templateService.getValidatedArgs({
-          args: argsCurrencyController_getAll,
-          request,
-          response,
-        });
-
-        const controller = new CurrencyController();
-
-        await templateService.apiHandler({
-          methodName: 'getAll',
-          controller,
-          response,
-          next,
-          validatedArgs,
-          successStatus: 200,
-        });
-      } catch (err) {
-        return next(err);
-      }
-    }
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   const argsLedgerController_getLedgerAccounts: Record<
     string,
     TsoaRoute.ParameterSchema
@@ -1461,6 +1421,46 @@ export function RegisterRoutes(app: Router) {
           next,
           validatedArgs,
           successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsCurrencyController_getAll: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {};
+  app.get(
+    '/api/v1/currencies',
+    ...fetchMiddlewares<RequestHandler>(CurrencyController),
+    ...fetchMiddlewares<RequestHandler>(CurrencyController.prototype.getAll),
+
+    async function CurrencyController_getAll(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsCurrencyController_getAll,
+          request,
+          response,
+        });
+
+        const controller = new CurrencyController();
+
+        await templateService.apiHandler({
+          methodName: 'getAll',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
         });
       } catch (err) {
         return next(err);

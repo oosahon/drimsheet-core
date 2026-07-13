@@ -164,26 +164,6 @@
         "type": "object",
         "additionalProperties": false
       },
-      "ICurrencyDto": {
-        "properties": {
-          "code": {
-            "type": "string"
-          },
-          "symbol": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "minorUnit": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "required": ["code", "symbol", "name", "minorUnit"],
-        "type": "object",
-        "additionalProperties": false
-      },
       "ULedgerType": {
         "type": "string",
         "enum": ["asset", "liability", "revenue", "expense", "equity"]
@@ -893,6 +873,26 @@
         "type": "object",
         "additionalProperties": false
       },
+      "ICurrencyDto": {
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "minorUnit": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["code", "symbol", "name", "minorUnit"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IUserSignupReq": {
         "properties": {
           "firstName": {
@@ -1355,30 +1355,6 @@
         "parameters": []
       }
     },
-    "/currencies": {
-      "get": {
-        "operationId": "getAll",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ICurrencyDto"
-                  },
-                  "type": "array"
-                }
-              }
-            }
-          }
-        },
-        "description": "Gets all system currencies",
-        "tags": ["Currency"],
-        "security": [],
-        "parameters": []
-      }
-    },
     "/ledger/accounts": {
       "get": {
         "operationId": "getLedgerAccounts",
@@ -1780,6 +1756,30 @@
             }
           }
         }
+      }
+    },
+    "/currencies": {
+      "get": {
+        "operationId": "getAll",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ICurrencyDto"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Gets all system currencies",
+        "tags": ["Currency"],
+        "security": [],
+        "parameters": []
       }
     },
     "/auth/signup-with-email": {
