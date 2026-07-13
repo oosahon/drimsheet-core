@@ -1,7 +1,7 @@
-import mockUserPreferencesRepo from '../../../../infra/persistence/repos/user/__mocks__/user-preferences.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { EUserEvents } from '../../events/user.events';
+import mockUserPreferencesRepo from '../../repos/__mocks__/user-preferences.repo.impl.mock';
 import {
   EAppThemePreference,
   EAppUsageModePreference,

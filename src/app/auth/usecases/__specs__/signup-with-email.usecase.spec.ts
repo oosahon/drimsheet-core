@@ -4,7 +4,7 @@ import passwordValue from '../../../../domain/user/values/password.vo';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 
-import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
+import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';

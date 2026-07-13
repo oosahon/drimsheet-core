@@ -1,8 +1,8 @@
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import currencyError from '../../../../domain/money/errors/currency.error';
 import exchangeRateError from '../../../../domain/money/errors/exchange-rate.error';
+import exchangeRateRepoMock from '../../../../domain/money/repos/__mocks__/exchange-rate-repo.impl.mock';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import exchangeRateRepoMock from '../../../../infra/persistence/repos/money/__mocks__/exchange-rate-repo.impl.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';

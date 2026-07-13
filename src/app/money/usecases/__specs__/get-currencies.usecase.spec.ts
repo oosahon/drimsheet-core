@@ -1,5 +1,5 @@
+import mockCurrencyRepo from '../../../../domain/money/repos/__mocks__/currency.repo.impl.mock';
 import { ICurrency } from '../../../../domain/money/types/currency.types';
-import mockCurrencyRepo from '../../../../infra/persistence/repos/money/__mocks__/currency.repo.impl.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import makeGetCurrenciesUseCase from '../get-currencies.usecase';

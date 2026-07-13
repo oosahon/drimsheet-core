@@ -8,9 +8,9 @@ import { IJournalLineInput } from '../../../../domain/journal-entry/types/journa
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import receivablesAccountEntity from '../../../../domain/ledger/asset-account/entities/receivables.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import makeTransactionEntryService from '../transaction-entry.service';

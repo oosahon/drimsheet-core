@@ -1,12 +1,12 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
+import mockLedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import ILedgerBalanceAdjustmentQueue from '../../contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';

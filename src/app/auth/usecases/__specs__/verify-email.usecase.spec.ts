@@ -2,7 +2,7 @@ import userEntity from '../../../../domain/user/entities/user.entity';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 
-import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
+import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import mockAppContext, {
   mockClientSession,
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';

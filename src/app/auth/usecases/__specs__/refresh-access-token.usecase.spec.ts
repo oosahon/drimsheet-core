@@ -5,7 +5,7 @@ import authError from '../../errors/auth.error';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 
-import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
+import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import mockAppContext, {
   mockClientSession,
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';

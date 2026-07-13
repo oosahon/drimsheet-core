@@ -11,12 +11,12 @@ import {
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import mockLedgerAccountBalanceAdjustmentQueue from '../../../ledger/contracts/__mocks__/ledger-balance-adjustment-queue.contract.mock';
 import makeLedgerAccountBalancePropagationService from '../ledger-account-balance-propagation.service';

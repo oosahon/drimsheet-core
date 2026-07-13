@@ -1,12 +1,12 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
+import mockLedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import { ILedgerAccountBalance } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { IBankAccount } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../../domain/money/values/money.vo';
-import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';

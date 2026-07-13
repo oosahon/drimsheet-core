@@ -12,13 +12,13 @@ import {
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import mockLedgerDomainServices from '../../../../domain/ledger/services/__mocks__/ledger.service.mock';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockLedgerDomainServices from '../../../../infra/ioc/services/__mocks__/ledger.service.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockAppContext, {
   mockClientSession,
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';

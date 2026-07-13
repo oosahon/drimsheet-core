@@ -1,7 +1,7 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
+import mockAccountingEntityRepo from '../../../../domain/accounting/repos/__mocks__/accounting-entity.repo.impl.mock';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockAccountingEntityRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-entity.repo.impl.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeGetUserAccountingEntitiesUseCase from '../get-user-accounting-entities.usecase';

@@ -9,6 +9,7 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/asset-account/config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
@@ -17,14 +18,13 @@ import fxCostBasisLotAcquisitionEntity from '../../../../domain/subledger/fx-cos
 import fxCostBasisLotEntity from '../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
 import { EFxCostBasisLotStatus } from '../../../../domain/subledger/fx-cost-basis/types/lot.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
+import mockLedgerDomainServices from '../../../../domain/ledger/services/__mocks__/ledger.service.mock';
 import moneyValue from '../../../../domain/money/values/money.vo';
-import mockFxCostBasisLotDomainService from '../../../../infra/ioc/services/__mocks__/fx-lot-cost-basis.service.mock';
-import mockLedgerDomainServices from '../../../../infra/ioc/services/__mocks__/ledger.service.mock';
+import mockFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/services/__mocks__/fx-lot-cost-basis.service.mock';
 import mockAppContext, {
   mockClientSession,
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';

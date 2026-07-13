@@ -1,7 +1,7 @@
 import userEvents from '../../../../domain/user/events/user.events';
+import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
-import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';

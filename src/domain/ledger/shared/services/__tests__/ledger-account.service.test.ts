@@ -1,10 +1,10 @@
-import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import accountingEntityEntity from '../../../../accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
 import userEntity from '../../../../user/entities/user.entity';
 import cashAndEquivalentAccountEntity from '../../../asset-account/entities/cash-and-equivalents.entity';
+import mockLedgerAccountRepo from '../../repos/__mocks__/ledger-account.repo.impl.mock';
 import { ILedgerAccount } from '../../types/ledger.types';
 import makeLedgerAccountService from '../ledger-account.service';
 

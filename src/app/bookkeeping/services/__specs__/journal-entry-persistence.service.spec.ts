@@ -2,6 +2,8 @@ import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/juris
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+import mockJournalEntryRepo from '../../../../domain/journal-entry/repos/__mocks__/journal-entry.repo.impl.mock';
+import mockJournalLineRepo from '../../../../domain/journal-entry/repos/__mocks__/journal-line.repo.impl.mock';
 import {
   IJournalEntryHistory,
   IJournalLineHistory,
@@ -15,8 +17,6 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-acco
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
-import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
 

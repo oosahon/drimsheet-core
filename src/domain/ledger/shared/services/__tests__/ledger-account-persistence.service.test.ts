@@ -1,5 +1,3 @@
-import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockLogger from '../../../../../shared/contracts/__mocks__/logger.contract.mock';
 import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { IWriteRepoOptions } from '../../../../../shared/types/repo.types';
@@ -7,7 +5,9 @@ import accountingEntityEntity from '../../../../accounting/entities/accounting-e
 import { EAccountingEntityType } from '../../../../accounting/types/accounting-entity.types';
 import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
 import userEntity from '../../../../user/entities/user.entity';
+import mockLedgerAccountBalanceRepo from '../../../account-balance/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import cashAndEquivalentAccountEntity from '../../../asset-account/entities/cash-and-equivalents.entity';
+import mockLedgerAccountRepo from '../../repos/__mocks__/ledger-account.repo.impl.mock';
 import { ILedgerAccountHistory } from '../../types/ledger-account-audit.types';
 import { ILedgerAccount } from '../../types/ledger.types';
 import makeLedgerAccountPersistenceService from '../ledger-account-persistence.service';
