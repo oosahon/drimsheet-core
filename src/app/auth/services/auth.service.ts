@@ -6,12 +6,12 @@ import {
   TokenExpiredError,
   verify,
 } from 'jsonwebtoken';
+import { ICacheStorage } from '../../../shared/contracts/cache-storage.contract';
+import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import IAuthService, {
   IAuthTokenPayload,
-} from '../../app/auth/contracts/auth-service.contract';
-import authError from '../../app/auth/errors/auth.error';
-import { ICacheStorage } from '../../shared/contracts/cache-storage.contract';
-import IVarsConfig from '../../shared/contracts/vars-config.contract';
+} from '../contracts/auth-service.contract';
+import authError from '../errors/auth.error';
 
 // TODO [PUR-21]: refactor services
 interface IDependencies {
