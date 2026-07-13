@@ -1,9 +1,10 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import currencyEntity from '../../../../domain/currency/entities/currency.entity';
 import { ILedgerAccountBalance } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { IBankAccount } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import currencyEntity from '../../../../domain/money/entities/currency.entity';
+import moneyValue from '../../../../domain/money/value-objects/money.vo';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
@@ -11,7 +12,6 @@ import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contra
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import moneyValue from '../../../../shared/value-objects/money.vo';
 import { IGetLedgerAccountsQuery } from '../../dtos/ledger-account/ledger-account.dto';
 import makeGetLedgerAccountsUsecase from '../get-ledger-accounts.usecase';
 

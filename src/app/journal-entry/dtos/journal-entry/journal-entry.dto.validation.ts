@@ -11,8 +11,8 @@ import {
   EJournalSide,
   UJournalSide,
 } from '../../../../domain/journal-entry/types/journal-line.types';
-import { exchangeRateDtoValidation } from '../../../currency/dtos/exchange-rate/exchange-rate.dto.validation';
-import { moneyDtoValidation } from '../../../shared/dtos/money/money.dto.validation';
+import { exchangeRateDtoValidation } from '../../../money/dtos/exchange-rate/exchange-rate.dto.validation';
+import { moneyDtoValidation } from '../../../money/dtos/money/money.dto.validation';
 
 const accountIdError = new journalLineError.InvalidAccountId().errorKey;
 const descriptionError = new journalLineError.InvalidDescription().errorKey;

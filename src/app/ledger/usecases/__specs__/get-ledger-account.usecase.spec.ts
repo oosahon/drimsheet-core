@@ -1,5 +1,4 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
 import ledgerAccountEntity from '../../../../domain/ledger/shared/entities/ledger-account.entity';
 import {
@@ -10,11 +9,12 @@ import {
   ENormalBalance,
   ILedgerAccount,
 } from '../../../../domain/ledger/shared/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import moneyValue from '../../../../domain/money/value-objects/money.vo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import { MockReporter } from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
-import moneyValue from '../../../../shared/value-objects/money.vo';
 import ledgerAccountMapper from '../../dtos/ledger-account/ledger-account.dto.mapper';
 import makeGetLedgerAccountUseCase from '../get-ledger-account.usecase';
 

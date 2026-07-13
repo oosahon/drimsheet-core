@@ -1,10 +1,10 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { ILedgerAccountDto } from '../../../../app/ledger/dtos/ledger-account/ledger-account.dto';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
-import { IMoney } from '../../../../shared/types/money.types';
+import { IMoney } from '../../../../domain/money/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { ledgerAccountsInCore } from '../../../config/drizzle/schema';
-import currencyMapper, { ICurrencyModel } from '../currency/currency.mapper';
+import currencyMapper, { ICurrencyModel } from '../money/currency.mapper';
 import { fromCommonRepoDates, toCommonRepoDates } from '../shared/date';
 import moneyMapper from '../shared/money.mapper';
 

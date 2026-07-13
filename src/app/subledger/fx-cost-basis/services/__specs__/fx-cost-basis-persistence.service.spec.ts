@@ -1,5 +1,6 @@
-import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
-import { EExchangeRateType } from '../../../../../domain/currency/types/exchange-rate.types';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
+import { EExchangeRateType } from '../../../../../domain/money/types/exchange-rate.types';
+import moneyValue from '../../../../../domain/money/value-objects/money.vo';
 import fxCostBasisLotAcquisitionEntity from '../../../../../domain/subledger/fx-cost-basis/entities/acquisition.entity';
 import fxCostBasisLotEntity from '../../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
 import { EFxCostBasisLotStatus } from '../../../../../domain/subledger/fx-cost-basis/types/lot.types';
@@ -10,7 +11,6 @@ import { EHistoryActorType } from '../../../../../shared/types/history.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import historyValue from '../../../../../shared/value-objects/history.vo';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
 import makeFxLotCostBasisPersistenceService from '../fx-cost-basis-persistence.service';
 
 describe('fxCostBasisPersistenceService', () => {

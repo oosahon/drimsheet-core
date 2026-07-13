@@ -1,6 +1,6 @@
 import z from 'zod';
-import { currencyCodeValidation } from '../../../currency/dtos/currency/currency.dto.validation';
 import { openingBalanceDtoValidation } from '../../../journal-entry/dtos/opening-balance/opening-balance.dto.validation';
+import { currencyCodeValidation } from '../../../money/dtos/currency/currency.dto.validation';
 
 export const pettyCashCreationReqValidation = z
   .object({

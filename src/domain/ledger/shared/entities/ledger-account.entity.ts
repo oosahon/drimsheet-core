@@ -2,7 +2,7 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import { TAuditedEntity } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import currencyEntity from '../../../currency/entities/currency.entity';
+import currencyEntity from '../../../money/entities/currency.entity';
 import ledgerError from '../errors/ledger.error';
 import ledgerAccountEvents from '../events/ledger-account.events';
 import { ELedgerAccountAuditAction } from '../types/ledger-account-audit.types';

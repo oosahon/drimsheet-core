@@ -9,9 +9,9 @@ import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
 import services from '../../services';
 import bookkeepingServices from '../../services/bookkeeping.service';
-import currencyServices from '../../services/currency.service';
 import ledgerDomainServices from '../../services/domain/ledger.domain.service';
 import fxCostBasisService from '../../services/fx-lot-cost-basis.service';
+import currencyServices from '../../services/money.service';
 
 const ledgerUseCases = {
   getLedgerAccounts: makeGetLedgerAccountsUsecase({

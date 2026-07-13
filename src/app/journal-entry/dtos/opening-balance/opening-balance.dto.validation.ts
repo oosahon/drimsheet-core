@@ -1,6 +1,6 @@
 import z from 'zod';
-import { exchangeRateDtoValidation } from '../../../currency/dtos/exchange-rate/exchange-rate.dto.validation';
-import { moneyDtoValidation } from '../../../shared/dtos/money/money.dto.validation';
+import { exchangeRateDtoValidation } from '../../../money/dtos/exchange-rate/exchange-rate.dto.validation';
+import { moneyDtoValidation } from '../../../money/dtos/money/money.dto.validation';
 
 export const openingBalanceDtoValidation = z.object({
   amount: moneyDtoValidation,

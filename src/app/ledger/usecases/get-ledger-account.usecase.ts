@@ -1,12 +1,12 @@
-import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import ledgerError from '../../../domain/ledger/shared/errors/ledger.error';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import currencyEntity from '../../../domain/money/entities/currency.entity';
+import moneyValue from '../../../domain/money/value-objects/money.vo';
 import IAppContext from '../../../shared/contracts/app-context.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
-import moneyValue from '../../../shared/value-objects/money.vo';
 import appError from '../../shared/errors/app.error';
 import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';
 import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';

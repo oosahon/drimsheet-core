@@ -8,7 +8,7 @@ import {
   UNormalBalance,
 } from '../../../../domain/ledger/shared/types/ledger.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IMoneyDto } from '../../../shared/dtos/money/money.dto';
+import { IMoneyDto } from '../../../money/dtos/money/money.dto';
 import { IPaginationDto } from '../../../shared/dtos/pagination/pagination.dto';
 export interface IGetLedgerAccountsQuery extends IPaginationDto {
   type?: ULedgerType;

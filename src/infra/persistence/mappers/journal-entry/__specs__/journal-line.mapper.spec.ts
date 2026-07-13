@@ -1,12 +1,12 @@
-import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
-import { EExchangeRateType } from '../../../../../domain/currency/types/exchange-rate.types';
 import {
   EJournalSide,
   IJournalLine,
 } from '../../../../../domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
+import { EExchangeRateType } from '../../../../../domain/money/types/exchange-rate.types';
+import moneyValue from '../../../../../domain/money/value-objects/money.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
-import { IExchangeRateModel } from '../../currency/exchange-rate.mapper';
+import { IExchangeRateModel } from '../../money/exchange-rate.mapper';
 import journalLineMapper, { IJournalLineModel } from '../journal-line.mapper';
 
 describe('Journal Line Mapper', () => {

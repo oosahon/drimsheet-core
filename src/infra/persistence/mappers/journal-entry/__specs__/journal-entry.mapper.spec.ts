@@ -1,6 +1,5 @@
 import accountingEntityEntity from '../../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
 import journalEntryEntity from '../../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
@@ -8,8 +7,9 @@ import {
 } from '../../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
+import moneyValue from '../../../../../domain/money/value-objects/money.vo';
 import userEntity from '../../../../../domain/user/entities/user.entity';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
 import journalEntryMapper, {
   IJournalEntrySelectModel,
 } from '../journal-entry.mapper';

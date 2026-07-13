@@ -1,7 +1,7 @@
-import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
 import { ILedgerAccount } from '../../../../../domain/ledger/shared/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
+import moneyValue from '../../../../../domain/money/value-objects/money.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
 import ledgerAccountMapper, {
   ILedgerAccountModel,
 } from '../ledger-account.mapper';

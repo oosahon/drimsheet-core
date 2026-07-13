@@ -1,7 +1,6 @@
 import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/jurisdictions.config';
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   IJournalEntryHistory,
@@ -14,16 +13,17 @@ import {
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
 import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
 
+import moneyValue from '../../../../domain/money/value-objects/money.vo';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { EHistoryActorType } from '../../../../shared/types/history.types';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
-import moneyValue from '../../../../shared/value-objects/money.vo';
 import makeJournalEntryPersistenceService from '../journal-entry-persistence.service';
 
 describe('journalEntryPersistenceService', () => {

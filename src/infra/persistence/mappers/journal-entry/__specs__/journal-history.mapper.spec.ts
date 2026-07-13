@@ -1,10 +1,10 @@
-import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
 import journalEntryEntity from '../../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
 } from '../../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../../domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import historyValue from '../../../../../shared/value-objects/history.vo';
 import journalEntryHistoryMapper from '../journal-entry-history.mapper';

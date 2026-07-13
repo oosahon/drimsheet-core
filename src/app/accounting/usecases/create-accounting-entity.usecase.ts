@@ -32,7 +32,7 @@ import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events'
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
-import currencyMapper from '../../currency/dtos/currency/currency.dto.mapper';
+import currencyMapper from '../../money/dtos/currency/currency.dto.mapper';
 import appError from '../../shared/errors/app.error';
 import { IAccountingEntityCreationDto } from '../dtos/accounting/accounting.dto';
 import { accountingEntityOnboardingDtoSchema } from '../dtos/accounting/accounting.dto.validation';

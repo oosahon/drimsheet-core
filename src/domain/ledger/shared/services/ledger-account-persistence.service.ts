@@ -3,7 +3,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../../shared/contracts/repo.contract';
-import currencyEntity from '../../../currency/entities/currency.entity';
+import currencyEntity from '../../../money/entities/currency.entity';
 import ILedgerAccountBalanceRepo from '../../account-balance/repos/ledger-account-balance.repo';
 import { ledgerAccountBalanceEntity } from '../entities';
 import ILedgerAccountRepo from '../repos/ledger-account.repo';

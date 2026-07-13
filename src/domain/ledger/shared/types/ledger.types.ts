@@ -1,5 +1,5 @@
 import { TEntityId } from '../../../../shared/types/uuid';
-import { ICurrency } from '../../../currency/types/currency.types';
+import { ICurrency } from '../../../money/types/currency.types';
 
 export const ELedgerType = {
   Asset: 'asset',

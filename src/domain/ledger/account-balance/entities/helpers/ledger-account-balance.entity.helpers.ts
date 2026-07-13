@@ -1,5 +1,5 @@
-import { IMoney } from '../../../../../shared/types/money.types';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
+import { IMoney } from '../../../../../domain/money/types/money.types';
+import moneyValue from '../../../../../domain/money/value-objects/money.vo';
 import ledgerAccountBalanceError from '../../errors/ledger-account-balance.error';
 import {
   ELedgerAccountBalanceEffect,

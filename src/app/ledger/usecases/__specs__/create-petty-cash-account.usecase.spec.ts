@@ -1,8 +1,5 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
-import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/currency/value-objects/exchange-rate.vo';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
@@ -13,6 +10,9 @@ import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/asset-account/conf
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
+import exchangeRateValue from '../../../../domain/money/value-objects/exchange-rate.vo';
 import fxCostBasisLotAcquisitionEntity from '../../../../domain/subledger/fx-cost-basis/entities/acquisition.entity';
 import fxCostBasisLotEntity from '../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
 import { EFxCostBasisLotStatus } from '../../../../domain/subledger/fx-cost-basis/types/lot.types';
@@ -22,6 +22,7 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contr
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
+import moneyValue from '../../../../domain/money/value-objects/money.vo';
 import mockFxCostBasisLotDomainService from '../../../../infra/services/domain/__mocks__/fx-cost-basis.domain.service.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 import mockAppContext, {
@@ -30,8 +31,7 @@ import mockAppContext, {
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
-import moneyValue from '../../../../shared/value-objects/money.vo';
-import mockExchangeRateService from '../../../currency/contracts/__mocks__/exchange-rate.service.contract.mock';
+import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.contract.mock';
 import appError from '../../../shared/errors/app.error';
 import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.contract.mock';
 import { IPettyCashAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';

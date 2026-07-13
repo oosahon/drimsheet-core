@@ -1,11 +1,11 @@
+import moneyValue from '../../../../../domain/money/value-objects/money.vo';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
-import { SYSTEM_CURRENCIES } from '../../../../currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
 import {
   EExchangeRateType,
   IExchangeRate,
-} from '../../../../currency/types/exchange-rate.types';
+} from '../../../../money/types/exchange-rate.types';
 import fxCostBasisLotDispositionError from '../../errors/disposition.error';
 import { EFxCostBasisLotDispositionEvent } from '../../events/disposition.events';
 import {

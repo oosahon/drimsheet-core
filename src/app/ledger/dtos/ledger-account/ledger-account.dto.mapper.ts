@@ -1,6 +1,6 @@
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
-import { IMoney } from '../../../../shared/types/money.types';
-import moneyMapper from '../../../shared/dtos/money/money.dto.mapper';
+import { IMoney } from '../../../../domain/money/types/money.types';
+import moneyMapper from '../../../money/dtos/money/money.dto.mapper';
 import { ILedgerAccountDto } from './ledger-account.dto';
 
 const ledgerAccountMapper = {

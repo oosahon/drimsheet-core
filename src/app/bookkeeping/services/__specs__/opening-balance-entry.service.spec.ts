@@ -1,9 +1,6 @@
 import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/jurisdictions.config';
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
-import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/currency/value-objects/exchange-rate.vo';
 import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
 import journalLineError from '../../../../domain/journal-entry/errors/journal-line.error';
 import {
@@ -16,12 +13,15 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-acco
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import { EEquitySubType } from '../../../../domain/ledger/equity-account/types/equity-account.types';
 import { ELedgerType } from '../../../../domain/ledger/shared/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
+import exchangeRateValue from '../../../../domain/money/value-objects/exchange-rate.vo';
+import moneyValue from '../../../../domain/money/value-objects/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import moneyValue from '../../../../shared/value-objects/money.vo';
 import makeOpeningBalanceEntryService from '../opening-balance-entry.service';
 
 describe('openingBalanceEntryService', () => {

@@ -8,12 +8,12 @@ import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.t
 import { ELedgerAccountBalanceEffect } from '../../../domain/ledger/account-balance/types/ledger-account-balance.types';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
-import { IMoney } from '../../../shared/types/money.types';
+import { IMoney } from '../../../domain/money/types/money.types';
+import moneyValue from '../../../domain/money/value-objects/money.vo';
 import { TEntityId } from '../../../shared/types/uuid';
-import moneyValue from '../../../shared/value-objects/money.vo';
 import ILedgerBalanceAdjustmentQueue from '../../ledger/contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
-import moneyMapper from '../../shared/dtos/money/money.dto.mapper';
+import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-adjustment-service.contract';
 
 function getAccountMap(

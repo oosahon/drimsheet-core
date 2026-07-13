@@ -1,7 +1,7 @@
-import currencyEntity from '../../../domain/currency/entities/currency.entity';
-import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
 import { EJournalEntrySourceType } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLineInput } from '../../../domain/journal-entry/types/journal-line.types';
+import currencyEntity from '../../../domain/money/entities/currency.entity';
+import exchangeRateValue from '../../../domain/money/value-objects/exchange-rate.vo';
 import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { TEntityId } from '../../../shared/types/uuid';
@@ -10,7 +10,7 @@ import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import ITransactionEntryService from '../../bookkeeping/contracts/transaction-entry.service.contract';
-import moneyMapper from '../../shared/dtos/money/money.dto.mapper';
+import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import { ITransactionJournalEntryReq } from '../dtos/transaction-journal-entry/transaction-journal-entry.dto';
 import { transactionJournalEntryReqValidation } from '../dtos/transaction-journal-entry/transaction-journal-entry.dto.validation';
 

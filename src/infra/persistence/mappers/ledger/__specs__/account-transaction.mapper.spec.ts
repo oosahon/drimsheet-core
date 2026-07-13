@@ -1,12 +1,12 @@
-import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
 import { IAccountTransaction } from '../../../../../domain/journal-entry/types/account-transaction.types';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
 } from '../../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../../domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
+import moneyValue from '../../../../../domain/money/value-objects/money.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
 import { IJournalEntryModel } from '../../journal-entry/journal-entry.mapper';
 import { IJournalLineModel } from '../../journal-entry/journal-line.mapper';
 import accountTransactionMapper from '../account-transaction.mapper';

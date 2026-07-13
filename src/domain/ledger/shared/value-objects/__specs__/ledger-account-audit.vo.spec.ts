@@ -1,7 +1,7 @@
 import historyError from '../../../../../shared/errors/history.error';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { SYSTEM_CURRENCIES } from '../../../../currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerError from '../../errors/ledger.error';
 import {

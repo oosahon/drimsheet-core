@@ -1,4 +1,4 @@
-import { SYSTEM_CURRENCIES } from '../../currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../money/config/currencies.config';
 import { EAccountingEntityType } from '../types/accounting-entity.types';
 import { IJurisdiction } from '../types/jurisdiction.types';
 

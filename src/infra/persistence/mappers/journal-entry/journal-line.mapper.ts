@@ -8,7 +8,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import { journalLinesInCore } from '../../../config/drizzle/schema';
 import exchangeRateMapper, {
   IExchangeRateModel,
-} from '../currency/exchange-rate.mapper';
+} from '../money/exchange-rate.mapper';
 import { fromRepoDate, toRepoDate } from '../shared/date';
 import moneyMapper from '../shared/money.mapper';
 

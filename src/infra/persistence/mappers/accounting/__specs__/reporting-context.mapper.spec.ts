@@ -1,6 +1,6 @@
 import { UAccountingStandardCode } from '../../../../../domain/accounting/config/accounting-standards.config';
 import { IReportingContext } from '../../../../../domain/accounting/types/context.types';
-import { UCurrencyCode } from '../../../../../domain/currency/config/currencies.config';
+import { UCurrencyCode } from '../../../../../domain/money/config/currencies.config';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import reportingContextMapper from '../reporting-context.mapper';
 

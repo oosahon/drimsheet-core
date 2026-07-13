@@ -2,7 +2,7 @@ import ledgerAccountBalanceEntity from '../../../domain/ledger/account-balance/e
 import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import moneyMapper from '../../shared/dtos/money/money.dto.mapper';
+import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import ILedgerBalanceAdjustmentQueue from '../contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 import { ledgerAccountBalanceAdjustmentDtoSchema } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto.validation';

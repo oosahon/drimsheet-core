@@ -1,10 +1,5 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
-import {
-  EExchangeRateType,
-  IExchangeRate,
-} from '../../../../domain/currency/types/exchange-rate.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
@@ -14,6 +9,11 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import {
+  EExchangeRateType,
+  IExchangeRate,
+} from '../../../../domain/money/types/exchange-rate.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';

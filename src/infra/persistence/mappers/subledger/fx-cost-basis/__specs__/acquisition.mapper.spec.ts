@@ -1,9 +1,9 @@
-import { SYSTEM_CURRENCIES } from '../../../../../../domain/currency/config/currencies.config';
-import { EExchangeRateType } from '../../../../../../domain/currency/types/exchange-rate.types';
-import exchangeRateValue from '../../../../../../domain/currency/value-objects/exchange-rate.vo';
+import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
+import { EExchangeRateType } from '../../../../../../domain/money/types/exchange-rate.types';
+import exchangeRateValue from '../../../../../../domain/money/value-objects/exchange-rate.vo';
+import moneyValue from '../../../../../../domain/money/value-objects/money.vo';
 import { IFxCostBasisLotAcquisition } from '../../../../../../domain/subledger/fx-cost-basis/types/acquisition.types';
 import { TEntityId } from '../../../../../../shared/types/uuid';
-import moneyValue from '../../../../../../shared/value-objects/money.vo';
 import fxCostBasisLotAcquisitionMapper, {
   IFxCostBasisLotAcquisitionModel,
 } from '../acquisition.mapper';

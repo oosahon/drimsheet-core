@@ -9,7 +9,7 @@ import {
   ledgerAccountBalanceAdjustmentsInCore,
   ledgerAccountBalancesInCore,
 } from '../../../config/drizzle/schema';
-import { ICurrencyModel } from '../currency/currency.mapper';
+import { ICurrencyModel } from '../money/currency.mapper';
 import { fromRepoDate, toRepoDate } from '../shared/date';
 import moneyMapper from '../shared/money.mapper';
 

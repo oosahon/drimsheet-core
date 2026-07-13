@@ -1,12 +1,12 @@
-import { IMoneyDto } from '../../../../app/shared/dtos/money/money.dto';
+import { IMoneyDto } from '../../../../app/money/dtos/money/money.dto';
 import appError from '../../../../app/shared/errors/app.error';
 import {
   SYSTEM_CURRENCIES,
   UCurrencyCode,
-} from '../../../../domain/currency/config/currencies.config';
-import currencyEntity from '../../../../domain/currency/entities/currency.entity';
-import { IMoney } from '../../../../shared/types/money.types';
-import moneyValue from '../../../../shared/value-objects/money.vo';
+} from '../../../../domain/money/config/currencies.config';
+import currencyEntity from '../../../../domain/money/entities/currency.entity';
+import { IMoney } from '../../../../domain/money/types/money.types';
+import moneyValue from '../../../../domain/money/value-objects/money.vo';
 
 const moneyMapper = {
   toDto(money: IMoney): IMoneyDto {

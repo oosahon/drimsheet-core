@@ -1,4 +1,3 @@
-import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import journalEntryEntity from '../../../domain/journal-entry/entities/journal-entry.entity';
 import journalLineEntity from '../../../domain/journal-entry/entities/journal-line.entity';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
@@ -11,6 +10,7 @@ import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/re
 import { EEquitySubType } from '../../../domain/ledger/equity-account/types/equity-account.types';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ELedgerType } from '../../../domain/ledger/shared/types/ledger.types';
+import currencyEntity from '../../../domain/money/entities/currency.entity';
 import IOpeningBalanceEntryService from '../contracts/opening-balance-entry.service.contract';
 
 interface IDependencies {
