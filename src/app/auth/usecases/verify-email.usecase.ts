@@ -18,7 +18,7 @@ const validationSchema = z.object({
 });
 
 interface IDependencies {
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   userRepo: IUserRepo;
   appContext: IAppContext;
   eventBus: IEventBus;
@@ -32,7 +32,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
 
     const { correlationId } = deps.appContext.get();
 
-    const decodedToken = await deps.makeAuthService.verifySignupToken(token);
+    const decodedToken = await deps.authService.verifySignupToken(token);
 
     const user = await deps.userRepo.findById(decodedToken.id, {
       correlationId,
@@ -46,7 +46,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
       return makeIssueUserSessionHelper({
         user,
         reqContext: deps.appContext,
-        makeAuthService: deps.makeAuthService,
+        authService: deps.authService,
         userSessionRepo: deps.userSessionRepo,
         eventBus: deps.eventBus,
         repoService: deps.repoService,
@@ -67,7 +67,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
     return makeIssueUserSessionHelper({
       user: updatedUser,
       reqContext: deps.appContext,
-      makeAuthService: deps.makeAuthService,
+      authService: deps.authService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,
       repoService: deps.repoService,

@@ -10,6 +10,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
 
+import mockLedgerDomainServices from '../../../../infra/ioc/services/__mocks__/ledger.service.mock';
 import mockAccountingContextRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-context.repo.impl.mock';
 import mockAccountingEntityRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-entity.repo.impl.mock';
 import mockAccountingPeriodRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-period.repo.impl.mock';
@@ -17,7 +18,6 @@ import mockFiscalYearRepo from '../../../../infra/persistence/repos/accounting/_
 import mockReportingContextRepo from '../../../../infra/persistence/repos/accounting/__mocks__/reporting-context.repo.impl.mock';
 import mockReportingPeriodRepo from '../../../../infra/persistence/repos/accounting/__mocks__/reporting-period.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';

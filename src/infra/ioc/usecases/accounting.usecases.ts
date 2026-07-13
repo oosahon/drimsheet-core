@@ -5,13 +5,13 @@ import messaging from '../../messaging';
 import accountingRepos from '../../persistence/repos/accounting';
 import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
-import services from '../../services';
-import ledgerDomainServices from '../../services/domain/ledger.domain.service';
+import ledgerDomainServices from '../services/ledger.service';
+import repoService from '../services/repo.service';
 
 const accountingUsecases = Object.freeze({
   createAccountingEntity: makeCreateAccountingEntityUseCase({
-    appContext: appContext,
-    repoService: services.repo,
+    appContext,
+    repoService,
     accountingEntityRepo: accountingRepos.accountingEntity,
     fiscalYearRepo: accountingRepos.fiscalYear,
     accountingPeriodRepo: accountingRepos.accountingPeriod,

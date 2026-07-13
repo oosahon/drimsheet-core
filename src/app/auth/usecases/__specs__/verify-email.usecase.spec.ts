@@ -26,7 +26,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeVerifyEmailAddressUseCase({
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -58,7 +58,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
     const usecase = makeVerifyEmailAddressUseCase({
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -118,7 +118,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     );
 
     const usecase = makeVerifyEmailAddressUseCase({
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -145,7 +145,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     mockUserRepo.findById.mockResolvedValue(null);
 
     const usecase = makeVerifyEmailAddressUseCase({
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -182,7 +182,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
     const usecase = makeVerifyEmailAddressUseCase({
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,

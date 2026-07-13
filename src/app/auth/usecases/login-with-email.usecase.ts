@@ -26,7 +26,7 @@ const validationSchema = z.object({
 interface IDependencies {
   reqContext: IAppContext;
   userRepo: IUserRepo;
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
   userSessionRepo: IUserSessionRepo;
@@ -71,7 +71,7 @@ export default function makeLoginWithEmailUseCase(deps: IDependencies) {
       throw new authError.WrongStrategy();
     }
 
-    const isValidPassword = await deps.makeAuthService.comparePassword(
+    const isValidPassword = await deps.authService.comparePassword(
       payload.password,
       userAuth.password
     );
@@ -96,7 +96,7 @@ export default function makeLoginWithEmailUseCase(deps: IDependencies) {
     return makeIssueUserSessionHelper({
       user,
       reqContext: deps.reqContext,
-      makeAuthService: deps.makeAuthService,
+      authService: deps.authService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,
       repoService: deps.repoService,

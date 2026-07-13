@@ -50,7 +50,7 @@ describe('makeLoginWithEmailUseCase', () => {
     makeLoginWithEmailUseCase({
       reqContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
       userSessionRepo: mockUserSessionRepo,

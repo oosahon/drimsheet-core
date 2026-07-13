@@ -7,11 +7,11 @@ import messaging from '../../messaging';
 import observability from '../../observability';
 import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
-import services from '../../services';
-import bookkeepingServices from '../../services/bookkeeping.service';
-import ledgerDomainServices from '../../services/domain/ledger.domain.service';
-import fxCostBasisService from '../../services/fx-lot-cost-basis.service';
-import currencyServices from '../../services/money.service';
+import bookkeepingServices from '../services/bookkeeping.service';
+import fxCostBasisService from '../services/fx-lot-cost-basis.service';
+import ledgerDomainServices from '../services/ledger.service';
+import currencyServices from '../services/money.service';
+import repoService from '../services/repo.service';
 
 const ledgerUseCases = {
   getLedgerAccounts: makeGetLedgerAccountsUsecase({
@@ -47,7 +47,7 @@ const ledgerUseCases = {
     assetAccountService: ledgerDomainServices.assetAccount,
     openingBalanceEntryService: bookkeepingServices.openingBalanceEntry,
     journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
-    repoService: services.repo,
+    repoService,
     ledgerAccountPersistenceService: ledgerDomainServices.persistence,
     fxCostBasisPersistenceService: fxCostBasisService.persistence,
     fxCostBasisService: fxCostBasisService.domain,

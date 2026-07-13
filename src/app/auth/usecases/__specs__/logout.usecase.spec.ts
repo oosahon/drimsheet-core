@@ -31,7 +31,7 @@ describe('makeLogoutUseCase', () => {
   const getUseCase = () =>
     makeLogoutUseCase({
       reqContext: mockAppContext,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       logger: mockLogger,
     });

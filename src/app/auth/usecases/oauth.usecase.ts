@@ -8,7 +8,7 @@ import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 interface IDependencies {
   reqContext: IAppContext;
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   eventBus: IEventBus;
   userSessionRepo: IUserSessionRepo;
   repoService: IRepoService;
@@ -21,7 +21,7 @@ export default function makeOauthUsecase(deps: IDependencies) {
       const { accessToken } = await makeIssueUserSessionHelper({
         user,
         reqContext: deps.reqContext,
-        makeAuthService: deps.makeAuthService,
+        authService: deps.authService,
         userSessionRepo: deps.userSessionRepo,
         eventBus: deps.eventBus,
         repoService: deps.repoService,

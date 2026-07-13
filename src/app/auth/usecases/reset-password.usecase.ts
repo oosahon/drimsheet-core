@@ -41,7 +41,7 @@ const validationSchema = z
 interface IDependencies {
   appContext: IAppContext;
   userRepo: IUserRepo;
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
   userSessionRepo: IUserSessionRepo;
@@ -54,7 +54,7 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
 
     const { correlationId, idempotencyKey } = deps.appContext.get();
 
-    const tokenPayload = await deps.makeAuthService.verifyPasswordResetToken(
+    const tokenPayload = await deps.authService.verifyPasswordResetToken(
       payload.token
     );
 
@@ -77,9 +77,7 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
       throw new authError.InvalidToken();
     }
 
-    const passwordHash = await deps.makeAuthService.hashPassword(
-      payload.password
-    );
+    const passwordHash = await deps.authService.hashPassword(payload.password);
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
       await deps.userAuthRepo.update(
@@ -99,7 +97,7 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
     return makeIssueUserSessionHelper({
       user: existingUser,
       reqContext: deps.appContext,
-      makeAuthService: deps.makeAuthService,
+      authService: deps.authService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,
       repoService: deps.repoService,

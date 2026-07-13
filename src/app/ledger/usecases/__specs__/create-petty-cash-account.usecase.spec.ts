@@ -23,8 +23,8 @@ import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/_
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
 import moneyValue from '../../../../domain/money/values/money.vo';
-import mockFxCostBasisLotDomainService from '../../../../infra/services/domain/__mocks__/fx-cost-basis.domain.service.mock';
-import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import mockFxCostBasisLotDomainService from '../../../../infra/ioc/services/__mocks__/fx-lot-cost-basis.service.mock';
+import mockLedgerDomainServices from '../../../../infra/ioc/services/__mocks__/ledger.service.mock';
 import mockAppContext, {
   mockClientSession,
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';

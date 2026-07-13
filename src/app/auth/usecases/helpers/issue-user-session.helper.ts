@@ -14,7 +14,7 @@ import { IAccessToken } from '../../dtos/auth/auth.dto';
 export interface IIssueUserSessionDeps {
   user: IUser;
   reqContext: IAppContext;
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   userSessionRepo: IUserSessionRepo;
   eventBus: IEventBus;
   repoService: IRepoService;
@@ -24,7 +24,7 @@ export interface IIssueUserSessionDeps {
 export default async function makeIssueUserSessionHelper({
   user,
   reqContext,
-  makeAuthService,
+  authService,
   userSessionRepo,
   eventBus,
   repoService,
@@ -32,8 +32,8 @@ export default async function makeIssueUserSessionHelper({
 }: IIssueUserSessionDeps): Promise<IAccessToken> {
   const { correlationId, clientSession } = reqContext.get();
 
-  const accessToken = await makeAuthService.generateAccessToken(user);
-  const refreshToken = await makeAuthService.generateRefreshToken(user);
+  const accessToken = await authService.generateAccessToken(user);
+  const refreshToken = await authService.generateRefreshToken(user);
 
   const repoTransaction: TRepoTransactionFn = async (tx) => {
     const existingClientRefreshToken = clientSession.getRefreshToken();

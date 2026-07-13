@@ -8,77 +8,80 @@ import makeResetPasswordUseCase from '../../../app/auth/usecases/reset-password.
 import makeSendEmailVerificationEmailUseCase from '../../../app/auth/usecases/send-email-verification-email.usecase';
 import makeSignupWithEmailUsecase from '../../../app/auth/usecases/signup-with-email.usecase';
 import makeVerifyEmailAddressUseCase from '../../../app/auth/usecases/verify-email.usecase';
+import * as varsConfig from '../../config/vars.config';
 import messaging from '../../messaging';
 import observability from '../../observability';
 import userRepos from '../../persistence/repos/user';
 import appContext from '../../runtime/app-context';
-import services from '../../services';
+import authService from '../services/auth.service';
+import notificationService from '../services/notification.service';
+import repoService from '../services/repo.service';
 
 const authUseCase = {
   signupWithEmail: makeSignupWithEmailUsecase({
     appContext: appContext,
     userRepo: userRepos.user,
-    makeAuthService: services.auth,
+    authService,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
-    repoService: services.repo,
+    repoService,
   }),
 
   sendEmailVerificationEmail: makeSendEmailVerificationEmailUseCase({
     appContext: appContext,
     logger: observability.logger,
-    makeAuthService: services.auth,
+    authService,
     userRepo: userRepos.user,
-    transactionalEmailService: services.transactionalEmail,
-    varsConfig: services.varsConfig,
+    transactionalEmailService: notificationService.transactionalEmail,
+    varsConfig: varsConfig,
   }),
 
   verifyEmail: makeVerifyEmailAddressUseCase({
-    makeAuthService: services.auth,
+    authService,
     userRepo: userRepos.user,
     appContext: appContext,
     eventBus: messaging.eventBus,
     userSessionRepo: userRepos.userSession,
-    repoService: services.repo,
+    repoService,
   }),
 
   loginWithEmail: makeLoginWithEmailUseCase({
     reqContext: appContext,
     userRepo: userRepos.user,
-    makeAuthService: services.auth,
+    authService,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
     userSessionRepo: userRepos.userSession,
-    repoService: services.repo,
+    repoService,
   }),
 
   getPasswordResetLink: makeRequestPasswordResetUseCase({
     appContext: appContext,
     userRepo: userRepos.user,
-    makeAuthService: services.auth,
-    transactionEmailService: services.transactionalEmail,
+    authService,
+    transactionEmailService: notificationService.transactionalEmail,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
-    varsConfig: services.varsConfig,
+    varsConfig: varsConfig,
   }),
 
   resetPassword: makeResetPasswordUseCase({
     appContext: appContext,
     userRepo: userRepos.user,
-    makeAuthService: services.auth,
+    authService,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
     userSessionRepo: userRepos.userSession,
-    repoService: services.repo,
+    repoService,
   }),
 
   oAuth: makeOauthUsecase({
     reqContext: appContext,
-    makeAuthService: services.auth,
+    authService,
     eventBus: messaging.eventBus,
     userSessionRepo: userRepos.userSession,
-    repoService: services.repo,
-    webAppUrl: services.varsConfig.WEB_APP_URL,
+    repoService,
+    webAppUrl: varsConfig.WEB_APP_URL,
   }),
 
   makeGoogleOAuthHelper: makeGoogleOAuthHelper(
@@ -86,21 +89,21 @@ const authUseCase = {
     appContext,
     userRepos.user,
     userRepos.userAuth,
-    services.repo
+    repoService
   ),
 
   refreshAccessToken: makeRefreshAccessTokenUseCase({
     reqContext: appContext,
     userRepo: userRepos.user,
-    makeAuthService: services.auth,
+    authService,
     eventBus: messaging.eventBus,
     userSessionRepo: userRepos.userSession,
-    repoService: services.repo,
+    repoService,
   }),
 
   logout: makeLogoutUseCase({
     reqContext: appContext,
-    makeAuthService: services.auth,
+    authService,
     userSessionRepo: userRepos.userSession,
     logger: observability.logger,
   }),

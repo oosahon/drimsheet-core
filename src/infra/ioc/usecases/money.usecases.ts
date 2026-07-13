@@ -3,7 +3,7 @@ import makeIngestExchangeRateUseCase from '../../../app/money/usecases/ingest-ex
 import observability from '../../observability';
 import currencyRepos from '../../persistence/repos/money';
 import appContext from '../../runtime/app-context';
-import services from '../../services';
+import repoService from '../services/repo.service';
 
 const currencyUseCase = Object.freeze({
   getAll: makeGetCurrenciesUseCase({
@@ -13,7 +13,7 @@ const currencyUseCase = Object.freeze({
 
   ingest: makeIngestExchangeRateUseCase({
     exchangeRateRepo: currencyRepos.exchangeRate,
-    repoService: services.repo,
+    repoService,
     logger: observability.logger,
   }),
 });

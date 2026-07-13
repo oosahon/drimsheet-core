@@ -16,7 +16,7 @@ const validationSchema = z.object({
 interface IDependencies {
   appContext: IAppContext;
   logger: ILogger;
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   userRepo: IUserRepo;
   transactionalEmailService: ITransactionalEmailService;
   varsConfig: IVarsConfig;
@@ -52,7 +52,7 @@ export default function makeSendEmailVerificationEmailUseCase(
       return;
     }
 
-    const verificationToken = await deps.makeAuthService.generateSignupToken({
+    const verificationToken = await deps.authService.generateSignupToken({
       id: user.id,
     });
 

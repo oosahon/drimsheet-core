@@ -51,7 +51,7 @@ describe('makeIssueUserSessionHelper', () => {
     makeIssueUserSessionHelper({
       user: mockUser,
       reqContext: mockAppContext,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,
       repoService: mockRepoService,

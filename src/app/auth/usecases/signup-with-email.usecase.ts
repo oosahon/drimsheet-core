@@ -44,7 +44,7 @@ const validationSchema = z.object({
 interface IDependencies {
   appContext: IAppContext;
   userRepo: IUserRepo;
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
   repoService: IRepoService;
@@ -58,7 +58,7 @@ export default function makeSignupWithEmailUsecase(deps: IDependencies) {
 
     const email = emailValue.make(payload.email);
 
-    const isPermittedEmail = deps.makeAuthService.isPermittedEmail(email);
+    const isPermittedEmail = deps.authService.isPermittedEmail(email);
 
     if (!isPermittedEmail) {
       throw new appError.Forbidden();
@@ -73,7 +73,7 @@ export default function makeSignupWithEmailUsecase(deps: IDependencies) {
     }
 
     const password = passwordValue.make(payload.password);
-    const passwordHash = await deps.makeAuthService.hashPassword(password);
+    const passwordHash = await deps.authService.hashPassword(password);
 
     const [user, userEvents, userAudit] = userEntity.make({
       firstName: payload.firstName,

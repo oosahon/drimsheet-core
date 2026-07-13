@@ -17,8 +17,8 @@ import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.co
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import { IUser } from '../../../../domain/user/types/user.types';
+import mockLedgerDomainServices from '../../../../infra/ioc/services/__mocks__/ledger.service.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 import mockAppContext, {
   mockClientSession,
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';

@@ -22,7 +22,7 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
       repoService: mockRepoService,
@@ -65,7 +65,7 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
       repoService: mockRepoService,
@@ -141,7 +141,7 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
       repoService: mockRepoService,
@@ -175,7 +175,7 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
       repoService: mockRepoService,

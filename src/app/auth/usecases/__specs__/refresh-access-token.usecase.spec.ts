@@ -25,7 +25,7 @@ describe('refreshAccessTokenUseCase', () => {
     makeRefreshAccessTokenUseCase({
       reqContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,
@@ -93,7 +93,7 @@ describe('refreshAccessTokenUseCase', () => {
     expect(makeIssueUserSessionHelper).toHaveBeenCalledWith({
       user: { id: mockUserId },
       reqContext: mockAppContext,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,
       repoService: mockRepoService,

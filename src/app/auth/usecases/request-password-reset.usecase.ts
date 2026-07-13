@@ -15,7 +15,7 @@ import authError from '../errors/auth.error';
 interface IDependencies {
   appContext: IAppContext;
   userRepo: IUserRepo;
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   transactionEmailService: ITransactionalEmailService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
@@ -44,8 +44,7 @@ export default function makeRequestPasswordResetUseCase(deps: IDependencies) {
       throw new authError.WrongStrategy();
     }
 
-    const resetToken =
-      await deps.makeAuthService.generatePasswordResetToken(user);
+    const resetToken = await deps.authService.generatePasswordResetToken(user);
     const resetLink = `${deps.varsConfig.WEB_APP_URL}/auth/reset-password?token=${resetToken}`;
 
     await deps.transactionEmailService.sendPasswordResetLink({

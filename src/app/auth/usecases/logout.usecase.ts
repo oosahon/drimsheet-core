@@ -5,7 +5,7 @@ import IUserSessionRepo from '../contracts/user-session.repo.contract';
 
 interface IDependencies {
   reqContext: IAppContext;
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   userSessionRepo: IUserSessionRepo;
   logger: ILogger;
 }
@@ -18,7 +18,7 @@ export default function makeLogoutUseCase(deps: IDependencies) {
 
     if (refreshToken) {
       try {
-        const decoded = deps.makeAuthService.verifyRefreshToken(refreshToken);
+        const decoded = deps.authService.verifyRefreshToken(refreshToken);
         await deps.userSessionRepo.delete(decoded.id, refreshToken, {
           correlationId,
         });

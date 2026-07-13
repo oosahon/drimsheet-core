@@ -41,7 +41,7 @@ describe('makeRequestPasswordResetUseCase', () => {
     const usecase = makeRequestPasswordResetUseCase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       transactionEmailService: mockTransactionalEmailService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -92,7 +92,7 @@ describe('makeRequestPasswordResetUseCase', () => {
     const usecase = makeRequestPasswordResetUseCase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       transactionEmailService: mockTransactionalEmailService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -150,7 +150,7 @@ describe('makeRequestPasswordResetUseCase', () => {
     const usecase = makeRequestPasswordResetUseCase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       transactionEmailService: mockTransactionalEmailService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,

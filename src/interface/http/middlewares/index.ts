@@ -1,10 +1,10 @@
+import accountingDomainServices from '../../../infra/ioc/services/accounting.service';
+import authService from '../../../infra/ioc/services/auth.service';
 import authUseCase from '../../../infra/ioc/usecases/auth.usecases';
 import observability from '../../../infra/observability';
 import accountingRepos from '../../../infra/persistence/repos/accounting';
 import userRepos from '../../../infra/persistence/repos/user';
 import appContext from '../../../infra/runtime/app-context';
-import services from '../../../infra/services';
-import accountingDomainServices from '../../../infra/services/domain/accounting.domain.service';
 import makeAccountingEntityAccessMiddleware from './accounting-entity-access.middleware';
 import makeAppContextInitMiddleware from './app-context-init.middleware';
 import makeErrorHandlerMiddleware from './error-handler.middleware';
@@ -31,7 +31,7 @@ const middlewares = {
   appContext: makeAppContextInitMiddleware(
     appContext,
     accountingRepos.accountingEntity,
-    services.auth,
+    authService,
     userRepos.user,
     observability.logger
   ),

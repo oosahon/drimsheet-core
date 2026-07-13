@@ -1,4 +1,3 @@
-import services from '..';
 import makeAssetAccountService from '../../../domain/ledger/asset-account/services/asset-account.service';
 import makeEquityAccountService from '../../../domain/ledger/equity-account/services/equity-account.service';
 import makeExpenseAccountService from '../../../domain/ledger/expense-account/services/expense-account.service';
@@ -8,6 +7,7 @@ import makeLedgerAccountPersistenceService from '../../../domain/ledger/shared/s
 import makeLedgerAccountService from '../../../domain/ledger/shared/services/ledger-account.service';
 import observability from '../../observability';
 import ledgerRepos from '../../persistence/repos/ledger';
+import repoService from './repo.service';
 
 const ledgerAccount = makeLedgerAccountService({
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
@@ -30,7 +30,7 @@ const expenseAccount = makeExpenseAccountService({
 const persistence = makeLedgerAccountPersistenceService({
   ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  repoService: services.repo,
+  repoService,
   logger: observability.logger,
 });
 

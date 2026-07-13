@@ -49,7 +49,7 @@ function handleClearRefreshToken(res: Response) {
 export default function makeAppContextInitMiddleware(
   appContext: IAppContext,
   accountingEntityRepo: IAccountingEntityRepo,
-  makeAuthService: IAuthService,
+  authService: IAuthService,
   userRepo: IUserRepo,
   logger: ILogger
 ): RequestHandler {
@@ -59,7 +59,7 @@ export default function makeAppContextInitMiddleware(
 
     const user = await getAuthUserFromRequest(
       req,
-      makeAuthService,
+      authService,
       logger,
       userRepo
     );

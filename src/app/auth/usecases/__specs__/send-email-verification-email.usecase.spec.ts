@@ -29,7 +29,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     const usecase = makeSendEmailVerificationEmailUseCase({
       appContext: mockAppContext,
       logger: mockLogger,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userRepo: mockUserRepo,
       transactionalEmailService: mockTransactionalEmailService,
       varsConfig: mockVarsConfig,
@@ -47,7 +47,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     const usecase = makeSendEmailVerificationEmailUseCase({
       appContext: mockAppContext,
       logger: mockLogger,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userRepo: mockUserRepo,
       transactionalEmailService: mockTransactionalEmailService,
       varsConfig: mockVarsConfig,
@@ -86,7 +86,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     const usecase = makeSendEmailVerificationEmailUseCase({
       appContext: mockAppContext,
       logger: mockLogger,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userRepo: mockUserRepo,
       transactionalEmailService: mockTransactionalEmailService,
       varsConfig: mockVarsConfig,
@@ -133,7 +133,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     const usecase = makeSendEmailVerificationEmailUseCase({
       appContext: mockAppContext,
       logger: mockLogger,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       userRepo: mockUserRepo,
       transactionalEmailService: mockTransactionalEmailService,
       varsConfig: mockVarsConfig,

@@ -7,7 +7,7 @@ import getHttpHeaderValue, { getCorrelationId } from './get-http-header-value';
 
 export default async function getAuthUserFromRequest(
   req: Request,
-  makeAuthService: IAuthService,
+  authService: IAuthService,
   logger: ILogger,
   userRepo: IUserRepo
 ): Promise<IUser | null> {
@@ -20,7 +20,7 @@ export default async function getAuthUserFromRequest(
 
   if (!token) return null;
 
-  const authUser = await makeAuthService.getAuthUser(token);
+  const authUser = await authService.getAuthUser(token);
 
   const user = await userRepo.findById(authUser.id, { correlationId });
 

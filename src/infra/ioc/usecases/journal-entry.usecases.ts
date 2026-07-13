@@ -4,7 +4,7 @@ import makeCreateTransferJournalEntryUseCase from '../../../app/journal-entry/us
 import messaging from '../../messaging';
 import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
-import bookkeepingServices from '../../services/bookkeeping.service';
+import bookkeepingServices from '../services/bookkeeping.service';
 
 const journalEntryUseCases = {
   createOpeningBalance: makeCreateOpeningBalanceUseCase({

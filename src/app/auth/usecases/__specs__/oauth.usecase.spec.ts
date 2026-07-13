@@ -36,7 +36,7 @@ describe('makeOauthUsecase', () => {
   const getUseCase = () =>
     makeOauthUsecase({
       reqContext: mockAppContext,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,

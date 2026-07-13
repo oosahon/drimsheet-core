@@ -47,7 +47,7 @@ describe('makeResetPasswordUseCase', () => {
     makeResetPasswordUseCase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      makeAuthService: mockAuthService,
+      authService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
       userSessionRepo: mockUserSessionRepo,

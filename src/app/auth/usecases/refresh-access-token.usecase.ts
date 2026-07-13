@@ -10,7 +10,7 @@ import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 interface IDependencies {
   reqContext: IAppContext;
   userRepo: IUserRepo;
-  makeAuthService: IAuthService;
+  authService: IAuthService;
   eventBus: IEventBus;
   userSessionRepo: IUserSessionRepo;
   repoService: IRepoService;
@@ -26,7 +26,7 @@ export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
       throw new appError.Unauthorized();
     }
 
-    const decoded = deps.makeAuthService.verifyRefreshToken(refreshToken);
+    const decoded = deps.authService.verifyRefreshToken(refreshToken);
 
     const user = await deps.userRepo.findById(decoded.id, { correlationId });
 
@@ -47,7 +47,7 @@ export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
     return makeIssueUserSessionHelper({
       user,
       reqContext: deps.reqContext,
-      makeAuthService: deps.makeAuthService,
+      authService: deps.authService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,
       repoService: deps.repoService,
