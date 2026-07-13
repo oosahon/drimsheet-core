@@ -1,5 +1,5 @@
+import { IPaginationParams } from '../pagination/types/pagination.types';
 import { ICorrelationId } from './correlation-id.types';
-import { IPaginationParams } from './pagination.types';
 
 export interface ITransactionContext {
   _brand?: 'PurpleLedgerTransactionContext';

@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
-import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
-import appError from '../../../app/shared/errors/app.error';
 import ILogger from '../../../shared/contracts/logger.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
+import appError from '../../../shared/errors/app.error';
+import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import errorUtils from '../../../shared/utils/error';
 import httpErrorParser from '../helpers/http-error-parser';
 
@@ -28,11 +28,13 @@ function getStatusCodeFromError(error: any): number {
   return 400; // default for domain errors and others
 }
 
-function makeHttpErrorHandler(
-  reporter: IReporter,
-  logger: ILogger,
-  nodeEnv: string
-) {
+interface IDependencies {
+  reporter: IReporter;
+  logger: ILogger;
+  nodeEnv: string;
+}
+
+function makeHttpErrorHandler(deps: IDependencies) {
   return (req: Request, res: Response<IHttpErrorDto>, error: unknown) => {
     delete req?.headers.authorization;
     // @ts-ignore
@@ -46,7 +48,7 @@ function makeHttpErrorHandler(
       });
 
     if (error instanceof ValidateError) {
-      if (nodeEnv === 'local') logger.error(error);
+      if (deps.nodeEnv === 'local') deps.logger.error(error);
       const validationErrors = httpErrorParser.parseTsoaValidationError(error);
       const errRes = new appError.UnprocessableEntity(validationErrors);
 
@@ -61,14 +63,14 @@ function makeHttpErrorHandler(
       parsedError.name === 'UnknownError' || parsedError.name === 'Error';
 
     if (isUnknownError) {
-      reporter.report(error);
+      deps.reporter.report(error);
       const serverError = new appError.InternalServerError();
       return res
         .status(errorKeyToStatusCode[serverError.errorKey] as number)
         .json(httpErrorParser.toHttp(serverError));
     }
 
-    if (nodeEnv === 'local') logger.error(error);
+    if (deps.nodeEnv === 'local') deps.logger.error(error);
 
     const statusCode = getStatusCodeFromError(parsedError);
 

@@ -1,15 +1,15 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
-import mockUserSessionRepo from '../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import mockRequestContext, {
+import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
+import mockAppContext, {
   mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 import authError from '../../errors/auth.error';
 import makeLogoutUseCase from '../logout.usecase';
 
 describe('makeLogoutUseCase', () => {
-  const correlationId = '854e4567-e89b-42d3-a456-426614174001'; // This is what is defined in request-context.mock.ts
+  const correlationId = '854e4567-e89b-42d3-a456-426614174001'; // This is what is defined in app-context.mock.ts
 
   const [mockUser] = userEntity.make({
     email: 'johndoe@example.com',
@@ -21,7 +21,7 @@ describe('makeLogoutUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // The mockRequestContext is automatically returning the default payload
+    // The mockAppContext is automatically returning the default payload
     // including the mockClientSession and 'mock-correlation-id'
     mockAuthService.verifyRefreshToken.mockReturnValue({
       id: mockUser.id,
@@ -29,12 +29,12 @@ describe('makeLogoutUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeLogoutUseCase(
-      mockRequestContext,
-      mockAuthService,
-      mockUserSessionRepo,
-      mockLogger
-    );
+    makeLogoutUseCase({
+      reqContext: mockAppContext,
+      authService: mockAuthService,
+      userSessionRepo: mockUserSessionRepo,
+      logger: mockLogger,
+    });
 
   it('should clear refresh token and delete session if valid refresh token is present', async () => {
     mockClientSession.getRefreshToken.mockReturnValue('valid-refresh-token');

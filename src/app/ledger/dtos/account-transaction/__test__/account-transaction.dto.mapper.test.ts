@@ -1,0 +1,87 @@
+import { IAccountTransaction } from '../../../../../domain/journal-entry/types/account-transaction.types';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
+import moneyValue from '../../../../../domain/money/values/money.vo';
+import { TEntityId } from '../../../../../shared/types/uuid';
+import accountTransactionMapper from '../account-transaction.dto.mapper';
+
+describe('Account Transaction DTO Mapper', () => {
+  describe('toDto', () => {
+    it('should map account transaction to DTO correctly', () => {
+      const moneyAmount = moneyValue.make(1000n, SYSTEM_CURRENCIES.USD, true);
+      const functionalAmount = moneyValue.make(
+        1000n,
+        SYSTEM_CURRENCIES.USD,
+        true
+      );
+
+      const mockTransaction: IAccountTransaction = {
+        id: 'tx-id-123' as unknown as TEntityId,
+        entryId: 'entry-id-456' as unknown as TEntityId,
+        accountId: 'account-id-789' as unknown as TEntityId,
+        sequenceOrder: 1,
+        amount: moneyAmount,
+        exchangeRate: null,
+        functionalAmount: functionalAmount,
+        side: 'debit',
+        description: 'Test description',
+        meta: null,
+        version: 1,
+        createdAt: new Date('2026-07-13T18:00:00Z'),
+        updatedAt: new Date('2026-07-13T18:00:00Z'),
+        header: {
+          sourceType: 'transfer',
+          counterPartyId: 'counterparty-id-111' as unknown as TEntityId,
+          memo: 'Test memo',
+          status: 'posted',
+          effectiveDate: new Date('2026-07-13T18:00:00Z'),
+          postedAt: new Date('2026-07-13T18:00:00Z'),
+          voidedAt: null,
+          voidingEntryId: null,
+          version: 1,
+          createdBy: 'user-id-555' as unknown as TEntityId,
+          createdAt: new Date('2026-07-13T18:00:00Z'),
+          updatedAt: new Date('2026-07-13T18:00:00Z'),
+        },
+      };
+
+      const dto = accountTransactionMapper.toDto(mockTransaction);
+
+      expect(dto).toEqual({
+        id: 'tx-id-123',
+        entryId: 'entry-id-456',
+        accountId: 'account-id-789',
+        sequenceOrder: 1,
+        amount: {
+          amount: 1000,
+          currencyCode: 'USD',
+          isMinorUnit: true,
+        },
+        exchangeRate: null,
+        functionalAmount: {
+          amount: 1000,
+          currencyCode: 'USD',
+          isMinorUnit: true,
+        },
+        side: 'debit',
+        description: 'Test description',
+        version: 1,
+        createdAt: new Date('2026-07-13T18:00:00Z'),
+        updatedAt: new Date('2026-07-13T18:00:00Z'),
+        header: {
+          sourceType: 'transfer',
+          counterpartyId: 'counterparty-id-111',
+          memo: 'Test memo',
+          status: 'posted',
+          effectiveDate: new Date('2026-07-13T18:00:00Z'),
+          postedAt: new Date('2026-07-13T18:00:00Z'),
+          voidedAt: null,
+          voidingEntryId: null,
+          version: 1,
+          createdBy: 'user-id-555',
+          createdAt: new Date('2026-07-13T18:00:00Z'),
+          updatedAt: new Date('2026-07-13T18:00:00Z'),
+        },
+      });
+    });
+  });
+});

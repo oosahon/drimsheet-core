@@ -4,17 +4,17 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../../shared/contracts/repo.contract';
-import { IEvent } from '../../../../shared/types/event.types';
+import { IEvent } from '../../../../shared/events/types/event.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import IRequestContext from '../../../shared/contracts/request-context.contract';
+import IAppContext from '../../../_internal/contracts/app-context.contract';
 import IAuthService from '../../contracts/auth-service.contract';
 import IUserSessionRepo from '../../contracts/user-session.repo.contract';
-import { IAccessToken } from '../../dtos/auth.dto';
+import { IAccessToken } from '../../dtos/auth/auth.dto';
 
 export interface IIssueUserSessionDeps {
   user: IUser;
-  reqContext: IRequestContext;
-  makeAuthService: IAuthService;
+  reqContext: IAppContext;
+  authService: IAuthService;
   userSessionRepo: IUserSessionRepo;
   eventBus: IEventBus;
   repoService: IRepoService;
@@ -24,7 +24,7 @@ export interface IIssueUserSessionDeps {
 export default async function makeIssueUserSessionHelper({
   user,
   reqContext,
-  makeAuthService,
+  authService,
   userSessionRepo,
   eventBus,
   repoService,
@@ -32,8 +32,8 @@ export default async function makeIssueUserSessionHelper({
 }: IIssueUserSessionDeps): Promise<IAccessToken> {
   const { correlationId, clientSession } = reqContext.get();
 
-  const accessToken = await makeAuthService.generateAccessToken(user);
-  const refreshToken = await makeAuthService.generateRefreshToken(user);
+  const accessToken = await authService.generateAccessToken(user);
+  const refreshToken = await authService.generateRefreshToken(user);
 
   const repoTransaction: TRepoTransactionFn = async (tx) => {
     const existingClientRefreshToken = clientSession.getRefreshToken();

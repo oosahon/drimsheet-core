@@ -8,12 +8,12 @@ import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.t
 import { ELedgerAccountBalanceEffect } from '../../../domain/ledger/account-balance/types/ledger-account-balance.types';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
-import { IMoney } from '../../../shared/types/money.types';
+import { IMoney } from '../../../domain/money/types/money.types';
+import moneyValue from '../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../shared/types/uuid';
-import moneyValue from '../../../shared/value-objects/money.vo';
 import ILedgerBalanceAdjustmentQueue from '../../ledger/contracts/ledger-balance-adjustment-queue.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment.dto';
-import moneyMapper from '../../shared/mappers/money.mapper';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
+import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-adjustment-service.contract';
 
 function getAccountMap(
@@ -61,9 +61,13 @@ function validateLines(journalLines: IJournalLine[], account: ILedgerAccount) {
   }
 }
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
+}
+
 export default function makeLedgerAccountBalancePropagationService(
-  ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue
+  deps: IDependencies
 ): ILedgerAccountBalancePropagationService {
   return {
     async propagate(journalEntry, repoOptions) {
@@ -76,7 +80,7 @@ export default function makeLedgerAccountBalancePropagationService(
       const accountMap = getAccountMap(journalEntry);
 
       for (const [accountId, journalLines] of accountMap.entries()) {
-        const account = await ledgerAccountRepo.findById(
+        const account = await deps.ledgerAccountRepo.findById(
           accountId,
           repoOptions
         );
@@ -124,7 +128,7 @@ export default function makeLedgerAccountBalancePropagationService(
 
       await Promise.all(
         allAdjustments.map((adjustment) =>
-          ledgerBalanceAdjustmentQueue.add(adjustment)
+          deps.ledgerBalanceAdjustmentQueue.add(adjustment)
         )
       );
     },

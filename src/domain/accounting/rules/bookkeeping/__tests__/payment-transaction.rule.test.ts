@@ -1,5 +1,4 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { SYSTEM_CURRENCIES } from '../../../../currency/config/currencies.config';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -17,6 +16,7 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../../../ledger/shared/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
 import accountingError from '../../../errors/accounting.error';
 import paymentTransactionRule from '../payment-transaction.rule';
 

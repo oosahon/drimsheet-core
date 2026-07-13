@@ -1,17 +1,17 @@
 import { IUser } from '../../../../../domain/user/types/user.types';
-import emailValue from '../../../../../domain/user/value-objects/email.vo';
-import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserAuthRepo from '../../../../../infra/persistence/repos/user/__mocks__/user-auth.repo.impl.mock';
+import emailValue from '../../../../../domain/user/values/email.vo';
+import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockUserAuthRepo from '../../../contracts/__mocks__/user-auth.repo.contract.mock';
 
-import mockUserRepo from '../../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
-import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext from '../../../../../infra/services/__mocks__/request-context.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
+import mockUserRepo from '../../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
+import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockAppContext from '../../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../../_internal/contracts/app-context.contract';
 import {
   EAuthStrategy,
   IUserAuth,
 } from '../../../contracts/auth-service.contract';
-import { IOAuthProfile } from '../../../dtos/auth.dto';
+import { IOAuthProfile } from '../../../dtos/auth/auth.dto';
 import makeGoogleOAuthHelper from '../oauth-handler-google.helper';
 
 describe('makeGoogleOAuthHelper', () => {
@@ -20,10 +20,10 @@ describe('makeGoogleOAuthHelper', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
   });
 
   const validProfile: IOAuthProfile = {
@@ -50,7 +50,7 @@ describe('makeGoogleOAuthHelper', () => {
   const getHelper = () =>
     makeGoogleOAuthHelper(
       mockEventBus,
-      mockRequestContext,
+      mockAppContext,
       mockUserRepo,
       mockUserAuthRepo,
       mockRepoService

@@ -12,11 +12,11 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IPettyCashAccountCreationReq } from '../../../app/ledger/dtos/asset-account.dto';
-import { IGetLedgerAccountsQuery } from '../../../app/ledger/dtos/ledger-account.dto';
-import ledgerUseCases from '../../../app/ledger/usecases';
-import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
-import { IPaginationDto } from '../../../app/shared/dtos/pagination.dto';
+import { IPettyCashAccountCreationReq } from '../../../app/ledger/dtos/asset-account/asset-account.dto';
+import { IGetLedgerAccountsQuery } from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
+import ledgerUseCases from '../../../infra/ioc/usecases/ledger.usecases';
+import { IHttpErrorDto } from '../../../shared/errors/error.dto';
+import { IPaginationDto } from '../../../shared/pagination/dto/pagination.dto';
 import { TEntityId } from '../../../shared/types/uuid';
 import middlewares from '../middlewares';
 
@@ -48,7 +48,7 @@ export class LedgerController extends Controller {
   @Middlewares(middlewares.isAuthenticatedUser)
   public async createPettyCashAccount(
     @Body() body: IPettyCashAccountCreationReq
-  ) {
+  ): Promise<unknown> {
     return await ledgerUseCases.createPettyCashAccount(body);
   }
 

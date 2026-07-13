@@ -1,15 +1,17 @@
-import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
+import mockLedgerAccountRepo from '../../../shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TCashLedgerCode } from '../../../shared/types/ledger-code.types';
 import { ILedgerAccount } from '../../../shared/types/ledger.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import makeAssetAccountService from '../asset-account.service';
 
 describe('assetAccountService', () => {
-  const service = makeAssetAccountService(mockLedgerAccountRepo);
+  const service = makeAssetAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
   };

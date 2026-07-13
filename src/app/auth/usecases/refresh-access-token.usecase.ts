@@ -1,22 +1,24 @@
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
-import appError from '../../shared/errors/app.error';
+import appError from '../../../shared/errors/app.error';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
-export default function makeRefreshAccessTokenUseCase(
-  reqContext: IRequestContext,
-  userRepo: IUserRepo,
-  makeAuthService: IAuthService,
-  eventBus: IEventBus,
-  userSessionRepo: IUserSessionRepo,
-  repoService: IRepoService
-) {
+interface IDependencies {
+  reqContext: IAppContext;
+  userRepo: IUserRepo;
+  authService: IAuthService;
+  eventBus: IEventBus;
+  userSessionRepo: IUserSessionRepo;
+  repoService: IRepoService;
+}
+
+export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
   return async () => {
-    const { clientSession, correlationId } = reqContext.get();
+    const { clientSession, correlationId } = deps.reqContext.get();
 
     const refreshToken = clientSession.getRefreshToken();
 
@@ -24,15 +26,15 @@ export default function makeRefreshAccessTokenUseCase(
       throw new appError.Unauthorized();
     }
 
-    const decoded = makeAuthService.verifyRefreshToken(refreshToken);
+    const decoded = deps.authService.verifyRefreshToken(refreshToken);
 
-    const user = await userRepo.findById(decoded.id, { correlationId });
+    const user = await deps.userRepo.findById(decoded.id, { correlationId });
 
     if (!user) {
       throw new appError.Unauthorized();
     }
 
-    const existingRefreshToken = await userSessionRepo.findByRefreshToken(
+    const existingRefreshToken = await deps.userSessionRepo.findByRefreshToken(
       user.id,
       refreshToken,
       { correlationId }
@@ -44,11 +46,11 @@ export default function makeRefreshAccessTokenUseCase(
 
     return makeIssueUserSessionHelper({
       user,
-      reqContext,
-      makeAuthService,
-      userSessionRepo,
-      eventBus,
-      repoService,
+      reqContext: deps.reqContext,
+      authService: deps.authService,
+      userSessionRepo: deps.userSessionRepo,
+      eventBus: deps.eventBus,
+      repoService: deps.repoService,
       events: [],
     });
   };

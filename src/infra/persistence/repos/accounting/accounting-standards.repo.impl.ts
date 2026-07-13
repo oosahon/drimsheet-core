@@ -1,7 +1,7 @@
-import accountingStandardMapper from '../../../../app/accounting/mappers/accounting-standard.mapper';
 import { IAccountingStandardRepo } from '../../../../domain/accounting/repos/accounting-standards.repo';
 import { accountingStandardsInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../helpers/query';
+import getDbQuery from '../../helpers/get-db-query';
+import accountingStandardMapper from '../../mappers/accounting/accounting-standard.mapper';
 
 const accountingStandardRepo: IAccountingStandardRepo = {
   create: async (domain, options) => {

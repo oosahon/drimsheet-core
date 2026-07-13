@@ -15,10 +15,10 @@ import {
   IEmailLoginReq,
   IResetPasswordReq,
   IUserSignupReq,
-} from '../../../app/auth/dtos/auth.dto';
-import authUseCase from '../../../app/auth/usecases';
-import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
+} from '../../../app/auth/dtos/auth/auth.dto';
 import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
+import authUseCase from '../../../infra/ioc/usecases/auth.usecases';
+import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import middlewares from '../middlewares';
 
 const rateLimiter = {

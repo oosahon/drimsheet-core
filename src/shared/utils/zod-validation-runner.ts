@@ -1,5 +1,5 @@
 import z from 'zod';
-import appError from '../../app/shared/errors/app.error';
+import appError from '../errors/app.error';
 import { IApiValidationError } from '../types/error.types';
 
 function errorFormatter(errors: z.core.$ZodIssue[]): IApiValidationError[] {

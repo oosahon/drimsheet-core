@@ -1,15 +1,21 @@
 import IReporter from '../../../shared/contracts/reporter.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment.dto';
-import ledgerUseCases from '../usecases';
+import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
+
+interface IDependencies {
+  reporter: IReporter;
+  adjustLedgerAccountBalance: (
+    payload: ILedgerAccountBalanceAdjustmentDto
+  ) => Promise<void>;
+}
 
 export default function makeLedgerAccountBalanceAdjustmentWorker(
-  reporter: IReporter
+  deps: IDependencies
 ) {
   return async (payload: ILedgerAccountBalanceAdjustmentDto) => {
     try {
-      await ledgerUseCases.adjustLedgerAccountBalance(payload);
+      await deps.adjustLedgerAccountBalance(payload);
     } catch (error) {
-      reporter.report(error);
+      deps.reporter.report(error);
       throw error;
     }
   };

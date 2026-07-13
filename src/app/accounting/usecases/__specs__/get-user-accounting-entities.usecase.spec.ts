@@ -1,9 +1,9 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
+import mockAccountingEntityRepo from '../../../../domain/accounting/repos/__mocks__/accounting-entity.repo.impl.mock';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockAccountingEntityRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-entity.repo.impl.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import makeGetUserAccountingEntitiesUseCase from '../get-user-accounting-entities.usecase';
 
 describe('getUserAccountingEntitiesUseCase', () => {
@@ -19,18 +19,18 @@ describe('getUserAccountingEntitiesUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeGetUserAccountingEntitiesUseCase(
-      mockRequestContext,
-      mockAccountingEntityRepo
-    );
+    makeGetUserAccountingEntitiesUseCase({
+      appContext: mockAppContext,
+      accountingEntityRepo: mockAccountingEntityRepo,
+    });
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       user: { id: mockUserId } as unknown as IUser,
-    } as unknown as ReturnType<typeof mockRequestContext.get>);
+    } as unknown as ReturnType<typeof mockAppContext.get>);
 
     mockAccountingEntityRepo.findByUserId.mockResolvedValue([
       mockAccountingEntity,

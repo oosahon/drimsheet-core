@@ -1,16 +1,16 @@
 import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/value-objects/email.vo';
-import passwordValue from '../../../../domain/user/value-objects/password.vo';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserAuthRepo from '../../../../infra/persistence/repos/user/__mocks__/user-auth.repo.impl.mock';
+import emailValue from '../../../../domain/user/values/email.vo';
+import passwordValue from '../../../../domain/user/values/password.vo';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 
-import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
-import { IEvent } from '../../../../shared/types/event.types';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-import appError from '../../../shared/errors/app.error';
+import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import appError from '../../../../shared/errors/app.error';
+import { IEvent } from '../../../../shared/events/types/event.types';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
 
 describe('makeSignupWithEmailUsecase', () => {
@@ -19,14 +19,14 @@ describe('makeSignupWithEmailUsecase', () => {
   });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
-    const usecase = makeSignupWithEmailUsecase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockRepoService
-    );
+    const usecase = makeSignupWithEmailUsecase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
 
     const invalidPayload = {
       firstName: '', // empty name
@@ -44,10 +44,10 @@ describe('makeSignupWithEmailUsecase', () => {
   it('should successfully sign up a new user', async () => {
     const correlationId = '854e4567-e89b-42d3-a456-426614174001';
     const idempotencyKey = 'test-idemp-key';
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
-    } as IRequestContextData);
+    } as IAppContextData);
 
     const payload = {
       firstName: 'John',
@@ -62,18 +62,18 @@ describe('makeSignupWithEmailUsecase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
     mockAuthService.hashPassword.mockResolvedValue('hashed-password');
 
-    const usecase = makeSignupWithEmailUsecase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockRepoService
-    );
+    const usecase = makeSignupWithEmailUsecase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
 
     await usecase(payload);
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
 
     const email = emailValue.make(payload.email);
     const password = passwordValue.make(payload.password);
@@ -120,9 +120,9 @@ describe('makeSignupWithEmailUsecase', () => {
 
   it('should throw appError.Conflict if user already exists', async () => {
     const correlationId = '854e4567-e89b-42d3-a456-426614174001';
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
-    } as IRequestContextData);
+    } as IAppContextData);
 
     const payload = {
       firstName: 'Jane',
@@ -138,14 +138,14 @@ describe('makeSignupWithEmailUsecase', () => {
       id: 'existing-user-id',
     } as unknown as IUser);
 
-    const usecase = makeSignupWithEmailUsecase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockRepoService
-    );
+    const usecase = makeSignupWithEmailUsecase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(appError.Conflict);
     await expect(usecase(payload)).rejects.toThrow('app_error_conflict');
@@ -158,9 +158,9 @@ describe('makeSignupWithEmailUsecase', () => {
 
   it('should throw appError.Forbidden if email is not permitted', async () => {
     const correlationId = '854e4567-e89b-42d3-a456-426614174001';
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     const payload = {
       firstName: 'Jane',
@@ -172,14 +172,14 @@ describe('makeSignupWithEmailUsecase', () => {
 
     mockAuthService.isPermittedEmail.mockReturnValue(false);
 
-    const usecase = makeSignupWithEmailUsecase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockRepoService
-    );
+    const usecase = makeSignupWithEmailUsecase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
 
     await expect(usecase(payload)).rejects.toThrow(appError.Forbidden);
     await expect(usecase(payload)).rejects.toThrow('app_error_forbidden');

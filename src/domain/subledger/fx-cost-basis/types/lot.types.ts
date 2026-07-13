@@ -1,7 +1,10 @@
-import { IEntityDelta, IHistory } from '../../../../shared/types/history.types';
-import { IMoney } from '../../../../shared/types/money.types';
+import { IMoney } from '../../../../domain/money/types/money.types';
+import {
+  IEntityDelta,
+  IHistory,
+} from '../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IExchangeRate } from '../../../currency/types/exchange-rate.types';
+import { IExchangeRate } from '../../../money/types/exchange-rate.types';
 
 export const EFxCostBasisLotStatus = {
   Open: 'open',

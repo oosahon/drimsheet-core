@@ -1,9 +1,9 @@
-import { IMoney } from '../../../../shared/types/money.types';
+import { IMoney } from '../../../../domain/money/types/money.types';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
 import dateUtils from '../../../../shared/utils/date';
 import serializeBigIntInObj from '../../../../shared/utils/serialize-bigint-in-object';
 import stringUtils from '../../../../shared/utils/string';
-import moneyValue from '../../../../shared/value-objects/money.vo';
 import journalEntryError from '../../errors/journal-entry.error';
 import {
   EJournalEntrySourceType,

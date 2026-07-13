@@ -1,9 +1,9 @@
+import mockUserPreferencesRepo from '../../../../domain/user/repos/__mocks__/user-preferences.repo.impl.mock';
 import { IUserPreferences } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockUserPreferencesRepo from '../../../../infra/persistence/repos/user/__mocks__/user-preferences.repo.impl.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import makeGetUserPreferencesUseCase from '../get-preferences.usecase';
 
 describe('makeGetUserPreferencesUseCase', () => {
@@ -17,10 +17,10 @@ describe('makeGetUserPreferencesUseCase', () => {
       id: 'test-user-id' as TEntityId,
     } as IUser;
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       user: mockUser,
-    } as IRequestContextData);
+    } as IAppContextData);
 
     const mockPreferences = {
       id: 'prefs-id' as TEntityId,
@@ -33,13 +33,13 @@ describe('makeGetUserPreferencesUseCase', () => {
 
     mockUserPreferencesRepo.findById.mockResolvedValue(mockPreferences);
 
-    const usecase = makeGetUserPreferencesUseCase(
-      mockRequestContext,
-      mockUserPreferencesRepo
-    );
+    const usecase = makeGetUserPreferencesUseCase({
+      appContext: mockAppContext,
+      userPreferencesRepo: mockUserPreferencesRepo,
+    });
     const result = await usecase();
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
     expect(mockUserPreferencesRepo.findById).toHaveBeenCalledWith(mockUser.id, {
       correlationId,
     });
@@ -47,15 +47,15 @@ describe('makeGetUserPreferencesUseCase', () => {
   });
 
   it('should throw appError.Unauthorized if user is not in request context', async () => {
-    mockRequestContext.get.mockReturnValue({} as IRequestContextData);
+    mockAppContext.get.mockReturnValue({} as IAppContextData);
 
-    const usecase = makeGetUserPreferencesUseCase(
-      mockRequestContext,
-      mockUserPreferencesRepo
-    );
+    const usecase = makeGetUserPreferencesUseCase({
+      appContext: mockAppContext,
+      userPreferencesRepo: mockUserPreferencesRepo,
+    });
 
     await expect(usecase()).rejects.toThrow('app_error_unauthorized');
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
     expect(mockUserPreferencesRepo.findById).not.toHaveBeenCalled();
   });
 });

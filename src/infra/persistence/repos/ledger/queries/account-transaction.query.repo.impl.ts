@@ -1,13 +1,13 @@
 import { and, eq, ilike, sql } from 'drizzle-orm';
 import IAccountTransactionQueryRepo from '../../../../../app/ledger/contracts/account-transaction.query.repo.contract';
-import accountTransactionMapper from '../../../../../app/ledger/mappers/account-transaction.mapper';
-import paginationValue from '../../../../../shared/value-objects/pagination.vo';
+import drizzleFilters from '../../../../../shared/helpers/drizzle-filters';
+import paginationValue from '../../../../../shared/pagination/pagination.vo';
 import {
   journalEntriesInCore,
   journalLinesInCore,
 } from '../../../../config/drizzle/schema';
-import drizzleFilters from '../../helpers/filters';
-import getDbQuery from '../../helpers/query';
+import getDbQuery from '../../../helpers/get-db-query';
+import accountTransactionMapper from '../../../mappers/ledger/account-transaction.mapper';
 
 const accountTransactionQueryRepo: IAccountTransactionQueryRepo = {
   findAllByAccountId: async (accountId, options) => {

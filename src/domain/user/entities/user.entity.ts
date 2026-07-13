@@ -1,5 +1,8 @@
+import {
+  IEvent,
+  TAuditedEntity,
+} from '../../../shared/events/types/event.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { IEvent, TAuditedEntity } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import userEvents from '../events/user.events';
@@ -7,8 +10,8 @@ import userEvents from '../events/user.events';
 import userError from '../errors/user.error';
 import { EUserEntityActions, IUserAudit } from '../types/user-audit.types';
 import { IUser } from '../types/user.types';
-import emailValue from '../value-objects/email.vo';
-import userAudit from '../value-objects/user-audit.vo';
+import emailValue from '../values/email.vo';
+import userAudit from '../values/user-audit.vo';
 import helpers from './helpers/user.entity.helpers';
 
 function make(

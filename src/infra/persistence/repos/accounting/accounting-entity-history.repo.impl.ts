@@ -1,7 +1,7 @@
-import accountingEntityHistoryMapper from '../../../../app/accounting/mappers/accounting-entity-history.mapper';
 import IAccountingEntityHistoryRepo from '../../../../domain/accounting/repos/accounting-entity-history.repo';
 import { accountingEntityHistoryInAudit } from '../../../config/drizzle/schema';
-import getDbQuery from '../helpers/query';
+import getDbQuery from '../../helpers/get-db-query';
+import accountingEntityHistoryMapper from '../../mappers/accounting/accounting-entity-history.mapper';
 
 const accountingEntityHistoryRepo: IAccountingEntityHistoryRepo = {
   save: async (entity, history, options) => {

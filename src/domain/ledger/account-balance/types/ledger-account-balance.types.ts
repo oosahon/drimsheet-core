@@ -1,4 +1,4 @@
-import { IMoney } from '../../../../shared/types/money.types';
+import { IMoney } from '../../../../domain/money/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 
 export interface ILedgerAccountBalance {

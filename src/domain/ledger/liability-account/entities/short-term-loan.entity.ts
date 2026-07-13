@@ -1,4 +1,4 @@
-import { TAuditedEntity } from '../../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../../shared/events/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
 import ledgerError from '../../shared/errors/ledger.error';

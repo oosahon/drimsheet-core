@@ -1,16 +1,16 @@
 import userEvents from '../../../../domain/user/events/user.events';
+import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/value-objects/email.vo';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserAuthRepo from '../../../../infra/persistence/repos/user/__mocks__/user-auth.repo.impl.mock';
-import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
-import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
+import emailValue from '../../../../domain/user/values/email.vo';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
+import eventValue from '../../../../shared/events/event.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
-import eventValue from '../../../../shared/value-objects/event.vo';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+import mockTransactionalEmailService from '../../../notification/contracts/__mocks__/transactional-email-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 import { IUserAuth } from '../../contracts/auth-service.contract';
 import authError from '../../errors/auth.error';
 import makeRequestPasswordResetUseCase from '../request-password-reset.usecase';
@@ -25,9 +25,9 @@ describe('makeRequestPasswordResetUseCase', () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2023-01-01T00:00:00.000Z'));
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
-    } as IRequestContextData);
+    } as IAppContextData);
   });
 
   afterEach(() => {
@@ -38,15 +38,15 @@ describe('makeRequestPasswordResetUseCase', () => {
     const userEmail = 'notfound@example.com';
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
-    const usecase = makeRequestPasswordResetUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockTransactionalEmailService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockVarsConfig
-    );
+    const usecase = makeRequestPasswordResetUseCase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      transactionEmailService: mockTransactionalEmailService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      varsConfig: mockVarsConfig,
+    });
 
     await usecase(userEmail);
 
@@ -89,15 +89,15 @@ describe('makeRequestPasswordResetUseCase', () => {
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
     mockAuthService.generatePasswordResetToken.mockResolvedValue(resetToken);
 
-    const usecase = makeRequestPasswordResetUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockTransactionalEmailService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockVarsConfig
-    );
+    const usecase = makeRequestPasswordResetUseCase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      transactionEmailService: mockTransactionalEmailService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      varsConfig: mockVarsConfig,
+    });
 
     await usecase(userEmail);
 
@@ -147,15 +147,15 @@ describe('makeRequestPasswordResetUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
 
-    const usecase = makeRequestPasswordResetUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockTransactionalEmailService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockVarsConfig
-    );
+    const usecase = makeRequestPasswordResetUseCase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      transactionEmailService: mockTransactionalEmailService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      varsConfig: mockVarsConfig,
+    });
 
     await expect(usecase(userEmail)).rejects.toThrow(authError.WrongStrategy);
 

@@ -1,9 +1,6 @@
 import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/jurisdictions.config';
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
-import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/currency/value-objects/exchange-rate.vo';
 import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
 import journalLineError from '../../../../domain/journal-entry/errors/journal-line.error';
 import {
@@ -12,23 +9,26 @@ import {
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
+import mockLedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/__mocks__/ledger-account-balance.repo.impl.mock';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import { EEquitySubType } from '../../../../domain/ledger/equity-account/types/equity-account.types';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { ELedgerType } from '../../../../domain/ledger/shared/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
+import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import moneyValue from '../../../../shared/value-objects/money.vo';
 import makeOpeningBalanceEntryService from '../opening-balance-entry.service';
 
 describe('openingBalanceEntryService', () => {
-  const service = makeOpeningBalanceEntryService(
-    mockLedgerAccountBalanceRepo,
-    mockLedgerAccountRepo
-  );
+  const service = makeOpeningBalanceEntryService({
+    ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',

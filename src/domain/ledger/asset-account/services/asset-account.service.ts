@@ -1,6 +1,9 @@
-import { IEvent, TAuditedEntity } from '../../../../shared/types/event.types';
-import { IEntityDelta } from '../../../../shared/types/history.types';
-import currencyEntity from '../../../currency/entities/currency.entity';
+import {
+  IEvent,
+  TAuditedEntity,
+} from '../../../../shared/events/types/event.types';
+import { IEntityDelta } from '../../../../shared/history/types/history.types';
+import currencyEntity from '../../../money/entities/currency.entity';
 import ILedgerAccountRepo from '../../shared/repos/ledger-account.repo';
 import {
   TAssetLedgerCode,
@@ -30,8 +33,12 @@ type TCreatePettyCashSubAccount =
 type TBootstrapIndividualPostingAccounts =
   IAssetAccountService['bootstrapIndividualPostingAccounts'];
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeAssetAccountService(
-  repo: ILedgerAccountRepo
+  deps: IDependencies
 ): IAssetAccountService {
   /**
    * Bootstraps header asset accounts for a new accounting entity
@@ -54,7 +61,7 @@ export default function makeAssetAccountService(
     const getExistingAccounts = async <T extends IAssetLedgerAccount>(
       code: TAssetLedgerCode
     ) => {
-      return (await repo.findByCode(
+      return (await deps.ledgerAccountRepo.findByCode(
         code,
         accountingEntityId,
         repoOptions
@@ -202,7 +209,7 @@ export default function makeAssetAccountService(
       payload.controlAccountCode ??
       ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER;
 
-    const controlAccount = await repo.findByCode(
+    const controlAccount = await deps.ledgerAccountRepo.findByCode(
       controlAccountLedgerCode,
       payload.accountingEntity.id,
       repoOptions
@@ -214,7 +221,7 @@ export default function makeAssetAccountService(
       });
     }
 
-    const latest = await repo.findLatestBySubType(
+    const latest = await deps.ledgerAccountRepo.findLatestBySubType(
       payload.accountingEntity.id,
       ELedgerType.Asset,
       EAssetSubType.CashAndCashEquivalent,
@@ -270,7 +277,7 @@ export default function makeAssetAccountService(
       /**
        * Suspense account
        */
-      const existingSuspense = await repo.findBySubType(
+      const existingSuspense = await deps.ledgerAccountRepo.findBySubType(
         accountingEntityId,
         ELedgerType.Asset,
         EAssetSubType.Suspense,
@@ -293,11 +300,12 @@ export default function makeAssetAccountService(
       /**
        * Statutory receivables
        */
-      const existingStatutoryReceivables = (await repo.findByBehavior(
-        accountingEntityId,
-        EAssetAccountBehavior.StatutoryReceivable,
-        repoOptions
-      )) as IStatutoryReceivableAccount[];
+      const existingStatutoryReceivables =
+        (await deps.ledgerAccountRepo.findByBehavior(
+          accountingEntityId,
+          EAssetAccountBehavior.StatutoryReceivable,
+          repoOptions
+        )) as IStatutoryReceivableAccount[];
 
       // Since the header is also a statutory receivable, if length is 1, only the header exists
       if (existingStatutoryReceivables.length === 1) {

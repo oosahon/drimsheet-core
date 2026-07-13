@@ -1,6 +1,6 @@
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import { IInternalMailer } from '../../../notification/contracts/transactional-email-agent.contract';
-import { ITransactionalEmailDto } from '../../../notification/dtos/transactional-email.dto';
+import { ITransactionalEmailDto } from '../../../notification/dtos/transactional-email/transactional-email.dto';
 import getSentEmail from '../get-sent-email.usecase';
 
 describe('getSentEmail', () => {
@@ -18,7 +18,10 @@ describe('getSentEmail', () => {
       NODE_ENV: 'production',
     } as IVarsConfig;
 
-    const useCase = getSentEmail(mockInternalMailer, mockVarsConfig);
+    const useCase = getSentEmail({
+      internalMailer: mockInternalMailer,
+      varsConfig: mockVarsConfig,
+    });
 
     await expect(useCase('test@test.com', 'subject')).rejects.toThrow(
       'app_error_forbidden'
@@ -30,7 +33,10 @@ describe('getSentEmail', () => {
       NODE_ENV: 'test',
     } as IVarsConfig;
 
-    const useCase = getSentEmail(mockInternalMailer, mockVarsConfig);
+    const useCase = getSentEmail({
+      internalMailer: mockInternalMailer,
+      varsConfig: mockVarsConfig,
+    });
 
     const mockEmailDto: ITransactionalEmailDto = {
       correlationId: 'test-corr-id',

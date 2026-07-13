@@ -2,7 +2,7 @@ import { Queue } from 'bullmq';
 import ILedgerBalanceAdjustmentQueue, {
   LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME,
 } from '../../../app/ledger/contracts/ledger-balance-adjustment-queue.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/ledger/dtos/ledger-account-balance-adjustment.dto';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { queueConnection } from '../../config/redis.config';
 

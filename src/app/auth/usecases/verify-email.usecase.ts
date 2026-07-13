@@ -3,13 +3,13 @@ import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
+import eventValue from '../../../shared/events/event.vo';
+import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/value-objects/event.vo';
-import historyValue from '../../../shared/value-objects/history.vo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
-import { IAccessToken } from '../dtos/auth.dto';
+import { IAccessToken } from '../dtos/auth/auth.dto';
 import authError from '../errors/auth.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
@@ -17,22 +17,26 @@ const validationSchema = z.object({
   token: z.string(),
 });
 
-export default function makeVerifyEmailAddressUseCase(
-  makeAuthService: IAuthService,
-  userRepo: IUserRepo,
-  requestContext: IRequestContext,
-  eventBus: IEventBus,
-  userSessionRepo: IUserSessionRepo,
-  repoService: IRepoService
-) {
+interface IDependencies {
+  authService: IAuthService;
+  userRepo: IUserRepo;
+  appContext: IAppContext;
+  eventBus: IEventBus;
+  userSessionRepo: IUserSessionRepo;
+  repoService: IRepoService;
+}
+
+export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
   return async (token: string): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, { token });
 
-    const { correlationId } = requestContext.get();
+    const { correlationId } = deps.appContext.get();
 
-    const decodedToken = await makeAuthService.verifySignupToken(token);
+    const decodedToken = await deps.authService.verifySignupToken(token);
 
-    const user = await userRepo.findById(decodedToken.id, { correlationId });
+    const user = await deps.userRepo.findById(decodedToken.id, {
+      correlationId,
+    });
 
     if (!user) {
       throw new authError.InvalidToken();
@@ -41,11 +45,11 @@ export default function makeVerifyEmailAddressUseCase(
     if (user.emailVerified) {
       return makeIssueUserSessionHelper({
         user,
-        reqContext: requestContext,
-        makeAuthService,
-        userSessionRepo,
-        eventBus,
-        repoService,
+        reqContext: deps.appContext,
+        authService: deps.authService,
+        userSessionRepo: deps.userSessionRepo,
+        eventBus: deps.eventBus,
+        repoService: deps.repoService,
         events: [],
       });
     }
@@ -58,15 +62,15 @@ export default function makeVerifyEmailAddressUseCase(
       correlationId
     );
 
-    await userRepo.update(updatedUser, { correlationId, history });
+    await deps.userRepo.update(updatedUser, { correlationId, history });
 
     return makeIssueUserSessionHelper({
       user: updatedUser,
-      reqContext: requestContext,
-      makeAuthService,
-      userSessionRepo,
-      eventBus,
-      repoService,
+      reqContext: deps.appContext,
+      authService: deps.authService,
+      userSessionRepo: deps.userSessionRepo,
+      eventBus: deps.eventBus,
+      repoService: deps.repoService,
       events: eventValue.enrichAll(events, { correlationId }),
     });
   };

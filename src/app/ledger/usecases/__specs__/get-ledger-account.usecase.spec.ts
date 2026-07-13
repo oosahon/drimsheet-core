@@ -1,5 +1,4 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
 import ledgerAccountEntity from '../../../../domain/ledger/shared/entities/ledger-account.entity';
 import {
@@ -10,16 +9,17 @@ import {
   ENormalBalance,
   ILedgerAccount,
 } from '../../../../domain/ledger/shared/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { MockReporter } from '../../../../infra/observability/__mocks__/reporter.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
+import { MockReporter } from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
-import moneyValue from '../../../../shared/value-objects/money.vo';
-import ledgerAccountMapper from '../../mappers/ledger-account.mapper';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import ledgerAccountMapper from '../../dtos/ledger-account/ledger-account.dto.mapper';
 import makeGetLedgerAccountUseCase from '../get-ledger-account.usecase';
 
-import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
+import mockLedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/__mocks__/ledger-account-balance.repo.impl.mock';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 
 describe('getLedgerAccountUseCase', () => {
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
@@ -28,12 +28,12 @@ describe('getLedgerAccountUseCase', () => {
     '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const correlationId = 'test-corr-id';
 
-  const useCase = makeGetLedgerAccountUseCase(
-    mockRequestContext,
-    mockLedgerAccountRepo,
-    MockReporter,
-    mockLedgerAccountBalanceRepo
-  );
+  const useCase = makeGetLedgerAccountUseCase({
+    appContext: mockAppContext,
+    ledgerAccountRepo: mockLedgerAccountRepo,
+    reporter: MockReporter,
+    ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
+  });
 
   const mockUser = { id: mockUserId } as unknown as IUser;
   const mockAccountingEntity = {
@@ -67,7 +67,7 @@ describe('getLedgerAccountUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       user: mockUser,
       accountingEntity: mockAccountingEntity,
@@ -77,7 +77,7 @@ describe('getLedgerAccountUseCase', () => {
         getRefreshToken: jest.fn(),
         clearRefreshToken: jest.fn(),
       },
-    } as unknown as ReturnType<typeof mockRequestContext.get>);
+    } as unknown as ReturnType<typeof mockAppContext.get>);
   });
 
   it('throws ledger_error_invalid_id if accountId is not a valid UUID', async () => {

@@ -1,4 +1,4 @@
-import { IPaginatedResponse } from '../../../shared/types/pagination.types';
+import { IPaginatedResponse } from '../../../shared/pagination/types/pagination.types';
 import {
   IPaginatedReadRepoOptions,
   IWriteRepoOptions,

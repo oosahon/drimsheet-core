@@ -1,4 +1,4 @@
-import eventValue from '../../../../shared/value-objects/event.vo';
+import eventValue from '../../../../shared/events/event.vo';
 import {
   IOpeningBalanceEquityAccount,
   IRetainedEarningsAccount,

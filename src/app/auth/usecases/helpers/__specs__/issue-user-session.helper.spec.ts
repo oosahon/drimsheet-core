@@ -1,16 +1,16 @@
 import userEntity from '../../../../../domain/user/entities/user.entity';
-import { IEvent } from '../../../../../shared/types/event.types';
+import { IEvent } from '../../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
+import { IAppContextData } from '../../../../_internal/contracts/app-context.contract';
 import makeIssueUserSessionHelper from '../issue-user-session.helper';
 
-import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserSessionRepo from '../../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
-import mockAuthService from '../../../../../infra/services/__mocks__/auth.service.mock';
-import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext, {
+import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockAppContext, {
   mockClientSession,
-} from '../../../../../infra/services/__mocks__/request-context.mock';
+} from '../../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import mockAuthService from '../../../contracts/__mocks__/auth-service.contract.mock';
+import mockUserSessionRepo from '../../../contracts/__mocks__/user-session.repo.contract.mock';
 
 jest.mock('../../../../../shared/utils/uuid-generator', () => ({
   __esModule: true,
@@ -32,10 +32,10 @@ describe('makeIssueUserSessionHelper', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'test-corr-id',
       clientSession: mockClientSession,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     mockAuthService.generateAccessToken.mockResolvedValue('new-access-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
@@ -50,8 +50,8 @@ describe('makeIssueUserSessionHelper', () => {
   const runHelper = () =>
     makeIssueUserSessionHelper({
       user: mockUser,
-      reqContext: mockRequestContext,
-      makeAuthService: mockAuthService,
+      reqContext: mockAppContext,
+      authService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,
       repoService: mockRepoService,

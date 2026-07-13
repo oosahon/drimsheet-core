@@ -1,6 +1,6 @@
+import moneyValue from '../../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
-import moneyValue from '../../../../shared/value-objects/money.vo';
-import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
+import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import { EJournalEntryEvent } from '../../events/journal-entry.events';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import {

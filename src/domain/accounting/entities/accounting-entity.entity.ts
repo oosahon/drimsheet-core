@@ -1,13 +1,13 @@
+import { TAuditedEntity } from '../../../shared/events/types/event.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { TAuditedEntity } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
-import currencyEntity from '../../currency/entities/currency.entity';
+import currencyEntity from '../../money/entities/currency.entity';
 import accountingError from '../errors/accounting.error';
 import accountingEntityEvents from '../events/accounting-entity.events';
 import { EAccountingEntityActions } from '../types/accounting-entity-audit.types';
 import { IAccountingEntity } from '../types/accounting-entity.types';
-import accountingEntityAudit from '../value-objects/accounting-entity-audit.vo';
+import accountingEntityAudit from '../values/accounting-entity-audit.vo';
 import helpers from './helpers/accounting-entity.entity.helpers';
 
 function make(

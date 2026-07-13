@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import emailValue from '../../../domain/user/value-objects/email.vo';
+import emailValue from '../../../domain/user/values/email.vo';
 import ILogger from '../../../shared/contracts/logger.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import authError from '../errors/auth.error';
 
@@ -13,29 +13,36 @@ const validationSchema = z.object({
   email: z.email(),
 });
 
+interface IDependencies {
+  appContext: IAppContext;
+  logger: ILogger;
+  authService: IAuthService;
+  userRepo: IUserRepo;
+  transactionalEmailService: ITransactionalEmailService;
+  varsConfig: IVarsConfig;
+}
+
 export default function makeSendEmailVerificationEmailUseCase(
-  requestContext: IRequestContext,
-  logger: ILogger,
-  makeAuthService: IAuthService,
-  userRepo: IUserRepo,
-  transactionalEmailService: ITransactionalEmailService,
-  varsConfig: IVarsConfig
+  deps: IDependencies
 ) {
   return async (userEmail: string) => {
     zodValidationRunner(validationSchema, { email: userEmail });
 
-    const { correlationId } = requestContext.get();
+    const { correlationId } = deps.appContext.get();
 
-    const user = await userRepo.findByEmail(emailValue.normalize(userEmail), {
-      correlationId,
-    });
+    const user = await deps.userRepo.findByEmail(
+      emailValue.normalize(userEmail),
+      {
+        correlationId,
+      }
+    );
 
     if (!user) {
       throw new authError.UserNotFound();
     }
 
     if (user.emailVerified) {
-      logger.info(
+      deps.logger.info(
         'Skipping sending email verification email as user email is already verified',
         {
           userId: user.id,
@@ -45,13 +52,13 @@ export default function makeSendEmailVerificationEmailUseCase(
       return;
     }
 
-    const verificationToken = await makeAuthService.generateSignupToken({
+    const verificationToken = await deps.authService.generateSignupToken({
       id: user.id,
     });
 
-    const verificationLink = `${varsConfig.WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
+    const verificationLink = `${deps.varsConfig.WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
 
-    await transactionalEmailService.sendEmailVerification({
+    await deps.transactionalEmailService.sendEmailVerification({
       user,
       verificationLink,
       correlationId,

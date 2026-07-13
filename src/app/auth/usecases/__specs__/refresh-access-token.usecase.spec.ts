@@ -5,14 +5,14 @@ import authError from '../../errors/auth.error';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserSessionRepo from '../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
-import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext, {
+import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockAppContext, {
   mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 
 jest.mock('../helpers/issue-user-session.helper');
 
@@ -22,22 +22,22 @@ describe('refreshAccessTokenUseCase', () => {
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
 
   const getUseCase = () =>
-    makeRefreshAccessTokenUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    makeRefreshAccessTokenUseCase({
+      reqContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
-    } as unknown as ReturnType<typeof mockRequestContext.get>);
+    } as unknown as ReturnType<typeof mockAppContext.get>);
 
     mockClientSession.getRefreshToken.mockReturnValue(mockRefreshToken);
 
@@ -92,8 +92,8 @@ describe('refreshAccessTokenUseCase', () => {
 
     expect(makeIssueUserSessionHelper).toHaveBeenCalledWith({
       user: { id: mockUserId },
-      reqContext: mockRequestContext,
-      makeAuthService: mockAuthService,
+      reqContext: mockAppContext,
+      authService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,
       repoService: mockRepoService,

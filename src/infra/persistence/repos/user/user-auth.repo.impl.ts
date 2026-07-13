@@ -1,8 +1,8 @@
 import { eq, sql } from 'drizzle-orm';
 import IUserAuthRepo from '../../../../app/auth/contracts/user-auth.repo.contract';
-import userAuthMapper from '../../../../app/auth/mappers/user-auth.mapper';
 import { userAuthInCore as userAuth } from '../../../config/drizzle/schema';
-import getDbQuery from '../helpers/query';
+import getDbQuery from '../../helpers/get-db-query';
+import userAuthMapper from '../../mappers/auth/user-auth.mapper';
 
 const userAuthRepo: IUserAuthRepo = {
   create: async (userAuthData, options) => {

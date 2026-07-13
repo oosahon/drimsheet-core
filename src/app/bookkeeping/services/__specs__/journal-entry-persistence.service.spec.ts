@@ -1,8 +1,9 @@
 import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/jurisdictions.config';
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+import mockJournalEntryRepo from '../../../../domain/journal-entry/repos/__mocks__/journal-entry.repo.impl.mock';
+import mockJournalLineRepo from '../../../../domain/journal-entry/repos/__mocks__/journal-line.repo.impl.mock';
 import {
   IJournalEntryHistory,
   IJournalLineHistory,
@@ -14,25 +15,25 @@ import {
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
-import mockJournalEntryRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-entry.repo.impl.mock';
-import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-entry/__mocks__/journal-line.repo.impl.mock';
-import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookkeeping.service.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import { EHistoryActorType } from '../../../../shared/types/history.types';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
+import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
+
+import moneyValue from '../../../../domain/money/values/money.vo';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import { EHistoryActorType } from '../../../../shared/history/types/history.types';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
-import moneyValue from '../../../../shared/value-objects/money.vo';
 import makeJournalEntryPersistenceService from '../journal-entry-persistence.service';
 
 describe('journalEntryPersistenceService', () => {
-  const service = makeJournalEntryPersistenceService(
-    mockRepoService,
-    mockJournalEntryRepo,
-    mockJournalLineRepo,
-    mockBookkeepingServices.balancePropagation,
-    mockReporter
-  );
+  const service = makeJournalEntryPersistenceService({
+    repoService: mockRepoService,
+    journalEntryRepo: mockJournalEntryRepo,
+    journalLineRepo: mockJournalLineRepo,
+    balancePropagationService: mockLedgerAccountBalancePropagationService,
+    reporter: mockReporter,
+  });
 
   const mockOptions: IRepoOptions = {
     correlationId: 'test-correlation-id',
@@ -154,7 +155,7 @@ describe('journalEntryPersistenceService', () => {
     jest.clearAllMocks();
     mockJournalEntryRepo.create.mockResolvedValue(undefined);
     mockJournalLineRepo.create.mockResolvedValue(undefined);
-    mockBookkeepingServices.balancePropagation.propagate.mockResolvedValue(
+    mockLedgerAccountBalancePropagationService.propagate.mockResolvedValue(
       undefined
     );
   });
@@ -188,7 +189,7 @@ describe('journalEntryPersistenceService', () => {
         accountingEntityId: journalEntry.accountingEntityId,
       });
       expect(
-        mockBookkeepingServices.balancePropagation.propagate
+        mockLedgerAccountBalancePropagationService.propagate
       ).toHaveBeenCalledWith(journalEntry, mockOptions);
     });
 
@@ -205,7 +206,7 @@ describe('journalEntryPersistenceService', () => {
       expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
       expect(mockJournalLineRepo.create).not.toHaveBeenCalled();
       expect(
-        mockBookkeepingServices.balancePropagation.propagate
+        mockLedgerAccountBalancePropagationService.propagate
       ).not.toHaveBeenCalled();
     });
 
@@ -222,7 +223,7 @@ describe('journalEntryPersistenceService', () => {
       expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
       expect(mockJournalLineRepo.create).toHaveBeenCalledTimes(1);
       expect(
-        mockBookkeepingServices.balancePropagation.propagate
+        mockLedgerAccountBalancePropagationService.propagate
       ).not.toHaveBeenCalled();
     });
 
@@ -230,7 +231,7 @@ describe('journalEntryPersistenceService', () => {
       const { headerHistory, journalEntry, linesHistory } = makeFixture();
       const error = new Error('balance propagation failed');
 
-      mockBookkeepingServices.balancePropagation.propagate.mockRejectedValue(
+      mockLedgerAccountBalancePropagationService.propagate.mockRejectedValue(
         error
       );
 
@@ -241,7 +242,7 @@ describe('journalEntryPersistenceService', () => {
       expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
       expect(mockJournalLineRepo.create).toHaveBeenCalledTimes(1);
       expect(
-        mockBookkeepingServices.balancePropagation.propagate
+        mockLedgerAccountBalancePropagationService.propagate
       ).toHaveBeenCalledWith(journalEntry, mockOptions);
       expect(mockReporter.report).toHaveBeenCalledWith(error);
     });

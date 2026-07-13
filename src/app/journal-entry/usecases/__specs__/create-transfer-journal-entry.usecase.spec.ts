@@ -1,24 +1,26 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
-import {
-  EExchangeRateType,
-  IExchangeRate,
-} from '../../../../domain/currency/types/exchange-rate.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import {
+  EExchangeRateType,
+  IExchangeRate,
+} from '../../../../domain/money/types/exchange-rate.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookkeeping.service.mock';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
+import mockTransactionEntryService from '../../../bookkeeping/contracts/__mocks__/transaction-entry.service.contract.mock';
+
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import makeCreateTransferJournalEntryUseCase from '../create-transfer-journal-entry.usecase';
 
 describe('createTransferJournalEntryUseCase', () => {
@@ -83,29 +85,27 @@ describe('createTransferJournalEntryUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
       user: mockUser,
       accountingEntity: mockAccountingEntity,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
-    mockBookkeepingServices.transactionEntry.create.mockResolvedValue(
+    mockTransactionEntryService.create.mockResolvedValue(
       mockJournalEntryResult
     );
 
-    mockBookkeepingServices.journalEntryPersistence.create.mockResolvedValue(
-      undefined
-    );
+    mockJournalEntryPersistenceService.create.mockResolvedValue(undefined);
   });
 
   const getUseCase = () =>
-    makeCreateTransferJournalEntryUseCase(
-      mockRequestContext,
-      mockBookkeepingServices.transactionEntry,
-      mockBookkeepingServices.journalEntryPersistence,
-      mockEventBus
-    );
+    makeCreateTransferJournalEntryUseCase({
+      appContext: mockAppContext,
+      transactionEntryService: mockTransactionEntryService,
+      journalEntryPersistenceService: mockJournalEntryPersistenceService,
+      eventBus: mockEventBus,
+    });
 
   const validPayload = {
     sourceLine: {
@@ -135,9 +135,7 @@ describe('createTransferJournalEntryUseCase', () => {
 
     await useCase(validPayload);
 
-    expect(
-      mockBookkeepingServices.transactionEntry.create
-    ).toHaveBeenCalledWith(
+    expect(mockTransactionEntryService.create).toHaveBeenCalledWith(
       expect.objectContaining({
         accountId: accountId1,
         sequenceOrder: 1,
@@ -154,9 +152,7 @@ describe('createTransferJournalEntryUseCase', () => {
       }),
       { correlationId }
     );
-    expect(
-      mockBookkeepingServices.journalEntryPersistence.create
-    ).toHaveBeenCalledWith(
+    expect(mockJournalEntryPersistenceService.create).toHaveBeenCalledWith(
       mockJournalEntryResult[0],
       expect.any(Object),
       expect.any(Array),

@@ -1,8 +1,5 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
-import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/currency/value-objects/exchange-rate.vo';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
@@ -12,27 +9,33 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/asset-account/config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
+import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
 import fxCostBasisLotAcquisitionEntity from '../../../../domain/subledger/fx-cost-basis/entities/acquisition.entity';
 import fxCostBasisLotEntity from '../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
 import { EFxCostBasisLotStatus } from '../../../../domain/subledger/fx-cost-basis/types/lot.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookkeeping.service.mock';
-import mockExchangeRateService from '../../../../infra/services/__mocks__/exchange-rate.service.mock';
-import mockFxLotCostBasisService from '../../../../infra/services/__mocks__/fx-lot-cost-basis.service.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
-import mockFxCostBasisLotDomainService from '../../../../infra/services/domain/__mocks__/fx-cost-basis.domain.service.mock';
-import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
+import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
+
+import mockAssetAccountService from '../../../../domain/ledger/asset-account/services/__mocks__/asset-account.service.mock';
+import mockLedgerAccountPersistenceService from '../../../../domain/ledger/shared/services/__mocks__/ledger-account-persistence.service.mock';
+import moneyValue from '../../../../domain/money/values/money.vo';
+import mockFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/services/__mocks__/fx-lot-cost-basis.service.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import appError from '../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import moneyValue from '../../../../shared/value-objects/money.vo';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-import appError from '../../../shared/errors/app.error';
-import { IPettyCashAccountCreationReq } from '../../dtos/asset-account.dto';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.contract.mock';
+import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.contract.mock';
+import { IPettyCashAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
 import makeCreatePettyCashAccountUseCase from '../create-petty-cash-account.usecase';
 
 describe('createPettyCashSubAccountUseCase', () => {
@@ -134,19 +137,21 @@ describe('createPettyCashSubAccountUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
       user: mockUser,
       accountingEntity: mockAccountingEntity,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(null);
-    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue(
-      [mockPettyCashAccount, mockEvents, mockPettyCashAudit]
-    );
-    mockBookkeepingServices.openingBalanceEntry.create.mockResolvedValue([
+    mockAssetAccountService.makePettyCashSubAccount.mockResolvedValue([
+      mockPettyCashAccount,
+      mockEvents,
+      mockPettyCashAudit,
+    ]);
+    mockOpeningBalanceEntryService.create.mockResolvedValue([
       mockOpeningBalanceJournalEntry,
       mockOpeningBalanceEvents,
       mockOpeningBalanceAudit,
@@ -154,18 +159,18 @@ describe('createPettyCashSubAccountUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeCreatePettyCashAccountUseCase(
-      mockRequestContext,
-      mockEventBus,
-      mockLedgerDomainServices.assetAccount,
-      mockBookkeepingServices.openingBalanceEntry,
-      mockBookkeepingServices.journalEntryPersistence,
-      mockRepoService,
-      mockLedgerDomainServices.persistence,
-      mockFxLotCostBasisService.persistence,
-      mockFxCostBasisLotDomainService,
-      mockExchangeRateService
-    );
+    makeCreatePettyCashAccountUseCase({
+      appContext: mockAppContext,
+      eventBus: mockEventBus,
+      assetAccountService: mockAssetAccountService,
+      openingBalanceEntryService: mockOpeningBalanceEntryService,
+      journalEntryPersistenceService: mockJournalEntryPersistenceService,
+      repoService: mockRepoService,
+      ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
+      fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
+      fxCostBasisService: mockFxCostBasisLotDomainService,
+      exchangeRateService: mockExchangeRateService,
+    });
 
   it('should successfully create a petty cash sub-account and record opening balance', async () => {
     const useCase = getUseCase();
@@ -173,7 +178,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     await useCase(validPayload);
 
     expect(
-      mockLedgerDomainServices.assetAccount.makePettyCashSubAccount
+      mockAssetAccountService.makePettyCashSubAccount
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
@@ -186,7 +191,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       { correlationId }
     );
 
-    expect(mockLedgerDomainServices.persistence.create).toHaveBeenCalledWith(
+    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledWith(
       mockPettyCashAccount,
       mockAccountingEntity.functionalCurrencyCode,
       expect.objectContaining({
@@ -202,9 +207,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       })
     );
 
-    expect(
-      mockBookkeepingServices.journalEntryPersistence.create
-    ).toHaveBeenCalledWith(
+    expect(mockJournalEntryPersistenceService.create).toHaveBeenCalledWith(
       mockOpeningBalanceJournalEntry,
       expect.objectContaining({
         entityId: mockOpeningBalanceJournalEntry.id,
@@ -226,9 +229,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       }
     );
 
-    expect(
-      mockBookkeepingServices.openingBalanceEntry.create
-    ).toHaveBeenCalledWith(
+    expect(mockOpeningBalanceEntryService.create).toHaveBeenCalledWith(
       mockAccountingEntity,
       mockPettyCashAccount,
       expect.objectContaining({
@@ -252,10 +253,8 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     await useCase({ ...validPayload, openingBalance: null });
 
-    expect(
-      mockBookkeepingServices.journalEntryPersistence.create
-    ).not.toHaveBeenCalled();
-    expect(mockLedgerDomainServices.persistence.create).toHaveBeenCalledWith(
+    expect(mockJournalEntryPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledWith(
       mockPettyCashAccount,
       mockAccountingEntity.functionalCurrencyCode,
       expect.objectContaining({
@@ -276,15 +275,13 @@ describe('createPettyCashSubAccountUseCase', () => {
         }),
       ])
     );
-    expect(
-      mockBookkeepingServices.openingBalanceEntry.create
-    ).not.toHaveBeenCalled();
+    expect(mockOpeningBalanceEntryService.create).not.toHaveBeenCalled();
   });
 
   it('should throw an error if the control account is not found', async () => {
     const useCase = getUseCase();
 
-    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
+    mockAssetAccountService.makePettyCashSubAccount.mockRejectedValue(
       new appError.Base('app_error_control_account_not_found')
     );
 
@@ -312,14 +309,14 @@ describe('createPettyCashSubAccountUseCase', () => {
       id: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
     };
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
       user: anotherUser,
       accountingEntity: mockAccountingEntity,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
-    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
+    mockAssetAccountService.makePettyCashSubAccount.mockRejectedValue(
       new appError.Base('app_error_access_denied')
     );
 
@@ -462,10 +459,12 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     // 2. Setup mock resolves for this test block
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockForexControlAccount);
-    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue(
-      [mockForexPettyCashAccount, mockForexEvents, mockForexPettyCashAudit]
-    );
-    mockBookkeepingServices.openingBalanceEntry.create.mockResolvedValue([
+    mockAssetAccountService.makePettyCashSubAccount.mockResolvedValue([
+      mockForexPettyCashAccount,
+      mockForexEvents,
+      mockForexPettyCashAudit,
+    ]);
+    mockOpeningBalanceEntryService.create.mockResolvedValue([
       mockForexOpeningBalanceJournalEntry,
       mockForexOpeningBalanceEvents,
       mockForexOpeningBalanceAudit,

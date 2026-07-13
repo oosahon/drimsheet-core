@@ -1,6 +1,9 @@
-import { IEvent, TAuditedEntity } from '../../../../shared/types/event.types';
-import { IEntityDelta } from '../../../../shared/types/history.types';
-import currencyEntity from '../../../currency/entities/currency.entity';
+import {
+  IEvent,
+  TAuditedEntity,
+} from '../../../../shared/events/types/event.types';
+import { IEntityDelta } from '../../../../shared/history/types/history.types';
+import currencyEntity from '../../../money/entities/currency.entity';
 import ILedgerAccountRepo from '../../shared/repos/ledger-account.repo';
 import { TEquityLedgerCode } from '../../shared/types/ledger-code.types';
 import { ILedgerAccount } from '../../shared/types/ledger.types';
@@ -12,8 +15,12 @@ import { IEquityLedgerAccount } from '../types/equity-account.types';
 
 type TBootstrapHeaders = IEquityAccountService['bootstrapHeaderAccounts'];
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeEquityAccountService(
-  repo: ILedgerAccountRepo
+  deps: IDependencies
 ): IEquityAccountService {
   /**
    * Bootstraps header equity accounts for a new accounting entity
@@ -33,7 +40,7 @@ export default function makeEquityAccountService(
     const getExistingAccounts = async <T extends IEquityLedgerAccount>(
       code: TEquityLedgerCode
     ) => {
-      return (await repo.findByCode(
+      return (await deps.ledgerAccountRepo.findByCode(
         code,
         accountingEntityId,
         repoOptions

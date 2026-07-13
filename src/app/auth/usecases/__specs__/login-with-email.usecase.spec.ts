@@ -1,16 +1,16 @@
+import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/value-objects/email.vo';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserAuthRepo from '../../../../infra/persistence/repos/user/__mocks__/user-auth.repo.impl.mock';
-import mockUserSessionRepo from '../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
-import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext, {
+import emailValue from '../../../../domain/user/values/email.vo';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import appError from '../../../../shared/errors/app.error';
+import mockAppContext, {
   mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-import appError from '../../../shared/errors/app.error';
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 import { IUserAuth } from '../../contracts/auth-service.contract';
 import authError from '../../errors/auth.error';
 import makeLoginWithEmailUseCase from '../login-with-email.usecase';
@@ -20,10 +20,10 @@ describe('makeLoginWithEmailUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
   });
 
   const validPayload = {
@@ -47,15 +47,15 @@ describe('makeLoginWithEmailUseCase', () => {
     }) as unknown as IUserAuth;
 
   const getUseCase = () =>
-    makeLoginWithEmailUseCase(
-      mockRequestContext,
-      mockUserRepo,
-      mockAuthService,
-      mockEventBus,
-      mockUserAuthRepo,
-      mockUserSessionRepo,
-      mockRepoService
-    );
+    makeLoginWithEmailUseCase({
+      reqContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = getUseCase();
@@ -84,7 +84,7 @@ describe('makeLoginWithEmailUseCase', () => {
     const usecase = getUseCase();
     const result = await usecase(validPayload);
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(2);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(2);
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(
       emailValue.make(validPayload.email),
       {

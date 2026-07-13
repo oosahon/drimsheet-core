@@ -6,13 +6,13 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
+import eventValue from '../../../shared/events/event.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/value-objects/event.vo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
-import { IAccessToken, IResetPasswordReq } from '../dtos/auth.dto';
+import { IAccessToken, IResetPasswordReq } from '../dtos/auth/auth.dto';
 import authError from '../errors/auth.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
@@ -38,25 +38,27 @@ const validationSchema = z
     path: ['confirmPassword'],
   });
 
-export default function makeResetPasswordUseCase(
-  requestContext: IRequestContext,
-  userRepo: IUserRepo,
-  makeAuthService: IAuthService,
-  eventBus: IEventBus,
-  userAuthRepo: IUserAuthRepo,
-  userSessionRepo: IUserSessionRepo,
-  repoService: IRepoService
-) {
+interface IDependencies {
+  appContext: IAppContext;
+  userRepo: IUserRepo;
+  authService: IAuthService;
+  eventBus: IEventBus;
+  userAuthRepo: IUserAuthRepo;
+  userSessionRepo: IUserSessionRepo;
+  repoService: IRepoService;
+}
+
+export default function makeResetPasswordUseCase(deps: IDependencies) {
   return async (payload: IResetPasswordReq): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, payload);
 
-    const { correlationId, idempotencyKey } = requestContext.get();
+    const { correlationId, idempotencyKey } = deps.appContext.get();
 
-    const tokenPayload = await makeAuthService.verifyPasswordResetToken(
+    const tokenPayload = await deps.authService.verifyPasswordResetToken(
       payload.token
     );
 
-    const existingUser = await userRepo.findById(tokenPayload.id, {
+    const existingUser = await deps.userRepo.findById(tokenPayload.id, {
       correlationId,
     });
 
@@ -64,23 +66,26 @@ export default function makeResetPasswordUseCase(
       throw new authError.InvalidToken();
     }
 
-    const existingUserAuth = await userAuthRepo.findByUserId(existingUser.id, {
-      correlationId,
-    });
+    const existingUserAuth = await deps.userAuthRepo.findByUserId(
+      existingUser.id,
+      {
+        correlationId,
+      }
+    );
 
     if (!existingUserAuth) {
       throw new authError.InvalidToken();
     }
 
-    const passwordHash = await makeAuthService.hashPassword(payload.password);
+    const passwordHash = await deps.authService.hashPassword(payload.password);
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
-      await userAuthRepo.update(
+      await deps.userAuthRepo.update(
         { ...existingUserAuth, password: passwordHash, failedLoginAttempts: 0 },
         { correlationId, tx }
       );
     };
-    await repoService.runInTransaction(repoTransaction);
+    await deps.repoService.runInTransaction(repoTransaction);
 
     const event = userEvents.passwordReset(existingUser);
 
@@ -91,11 +96,11 @@ export default function makeResetPasswordUseCase(
 
     return makeIssueUserSessionHelper({
       user: existingUser,
-      reqContext: requestContext,
-      makeAuthService,
-      userSessionRepo,
-      eventBus,
-      repoService,
+      reqContext: deps.appContext,
+      authService: deps.authService,
+      userSessionRepo: deps.userSessionRepo,
+      eventBus: deps.eventBus,
+      repoService: deps.repoService,
       events: enrichedEvent,
     });
   };

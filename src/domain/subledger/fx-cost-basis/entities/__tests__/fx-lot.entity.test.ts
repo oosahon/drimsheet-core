@@ -1,8 +1,8 @@
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
-import { SYSTEM_CURRENCIES } from '../../../../currency/config/currencies.config';
-import { EExchangeRateType } from '../../../../currency/types/exchange-rate.types';
+import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
+import { EExchangeRateType } from '../../../../money/types/exchange-rate.types';
 import fxCostBasisLotError from '../../errors/lot.error';
 import { EFxCostBasisLotEvent } from '../../events/lot.events';
 import {

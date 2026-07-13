@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
-import appError from '../../../../app/shared/errors/app.error';
-import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
-import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
+import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
+import appError from '../../../../shared/errors/app.error';
 import DomainError from '../../../../shared/errors/domain.error';
 import makeHttpErrorHandler from '../error.handler';
 
@@ -57,7 +57,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should clean sensitive data from request', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
     const error = new Error('Unknown error');
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
@@ -70,7 +74,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle tsoa ValidateError', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
     const error = new ValidateError(
       {
         email: { message: 'Invalid email' },
@@ -96,7 +104,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle tsoa ValidateError without logging outside local', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'test');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'test',
+    });
     const error = new ValidateError(
       {
         email: { message: 'Invalid email' },
@@ -112,7 +124,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle AppError (e.g. appError.BadRequest)', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
     const error = new appError.BadRequest();
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
@@ -128,7 +144,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle AppError without logging outside local', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'test');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'test',
+    });
     const error = new appError.BadRequest();
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
@@ -139,7 +159,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle domain AppError', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
     const error = new appError.Base('app_error_domain_rule_violated');
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
@@ -154,7 +178,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle auth DomainError and return 401', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
     class MockAuthError extends DomainError<'auth_error_test'> {
       constructor() {
         super('auth_error_test');
@@ -175,7 +203,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle non-auth DomainError and return 400', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
     class MockDomainError extends DomainError<'app_error_other_test'> {
       constructor() {
         super('app_error_other_test');
@@ -195,7 +227,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle unknown errors and report them', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
     const error = new Error('Internal Server Error');
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
@@ -210,7 +246,11 @@ describe('makeHttpErrorHandler', () => {
   });
 
   it('should handle domain error with no errorKey and fallback to Unknown error', () => {
-    const handler = makeHttpErrorHandler(mockReporter, mockLogger, 'local');
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
     class MockNoKeyError extends DomainError<''> {
       constructor() {
         super('');

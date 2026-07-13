@@ -1,32 +1,34 @@
-import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo, {
   IFindAllLedgerAccountsOptions,
 } from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import currencyEntity from '../../../domain/money/entities/currency.entity';
+import moneyValue from '../../../domain/money/values/money.vo';
 import IReporter from '../../../shared/contracts/reporter.contract';
-import { IPaginatedResponse } from '../../../shared/types/pagination.types';
+import paginationValue from '../../../shared/pagination/pagination.vo';
+import { IPaginatedResponse } from '../../../shared/pagination/types/pagination.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import moneyValue from '../../../shared/value-objects/money.vo';
-import paginationValue from '../../../shared/value-objects/pagination.vo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import {
-  getLedgerAccountQueryValidationSchema,
   IGetLedgerAccountsQuery,
   ILedgerAccountDto,
-} from '../dtos/ledger-account.dto';
-import ledgerAccountMapper from '../mappers/ledger-account.mapper';
+} from '../dtos/ledger-account/ledger-account.dto';
+import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';
+import { getLedgerAccountQueryValidationSchema } from '../dtos/ledger-account/ledger-account.dto.validation';
 
-export default function makeGetLedgerAccountsUsecase(
-  requestContext: IRequestContext,
-  reporter: IReporter,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo
-) {
+interface IDependencies {
+  appContext: IAppContext;
+  reporter: IReporter;
+  ledgerAccountRepo: ILedgerAccountRepo;
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
+}
+
+export default function makeGetLedgerAccountsUsecase(deps: IDependencies) {
   return async (
     query: IGetLedgerAccountsQuery
   ): Promise<IPaginatedResponse<ILedgerAccountDto>> => {
     zodValidationRunner(getLedgerAccountQueryValidationSchema, query);
-    const { correlationId, accountingEntity } = requestContext.get();
+    const { correlationId, accountingEntity } = deps.appContext.get();
 
     const trace = { correlationId };
     const offset = paginationValue.pageToOffset(query.page, query.limit);
@@ -36,7 +38,7 @@ export default function makeGetLedgerAccountsUsecase(
       ...trace,
     };
 
-    const ledgerAccountsRes = await ledgerAccountRepo.findAll(
+    const ledgerAccountsRes = await deps.ledgerAccountRepo.findAll(
       accountingEntity.id,
       accountRepoOptions
     );
@@ -48,7 +50,7 @@ export default function makeGetLedgerAccountsUsecase(
       };
     }
 
-    const balances = await ledgerAccountBalanceRepo.findAllByAccountIds(
+    const balances = await deps.ledgerAccountBalanceRepo.findAllByAccountIds(
       accountingEntity.id,
       ledgerAccountsRes.data.map((account) => account.id),
       trace
@@ -60,7 +62,7 @@ export default function makeGetLedgerAccountsUsecase(
       const balance = balances.find((b) => b.ledgerAccountId === account.id);
 
       if (!balance) {
-        reporter.report(
+        deps.reporter.report(
           new Error(`No balance found for ledger account with id ${account.id}`)
         );
 

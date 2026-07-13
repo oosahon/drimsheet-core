@@ -1,23 +1,17 @@
 import { EUserEvents } from '../../../../domain/user/events/user.events';
 import { IUser } from '../../../../domain/user/types/user.types';
-import eventError from '../../../../shared/errors/event.error';
-import { IEvent } from '../../../../shared/types/event.types';
+import eventError from '../../../../shared/events/event.error';
+import { IEvent } from '../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeUserCreatedEventHandler from '../user-created-event.handler';
 
-import MockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
-import authUseCase from '../../../auth/usecases';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-
-jest.mock('../../../auth/usecases', () => ({
-  __esModule: true,
-  default: {
-    sendEmailVerificationEmail: jest.fn(),
-  },
-}));
+import MockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 
 describe('makeUserCreatedEventHandler', () => {
+  const sendEmailVerificationEmail = jest.fn();
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -44,35 +38,35 @@ describe('makeUserCreatedEventHandler', () => {
   });
 
   it('should successfully handle Created event and send verification email if not verified', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      appContext: mockAppContext,
+      sendEmailVerificationEmail,
+    });
     const mockEvent = getValidEvent();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as IRequestContextData);
+    } as IAppContextData);
 
-    (authUseCase.sendEmailVerificationEmail as jest.Mock).mockResolvedValue(
-      undefined
-    );
+    sendEmailVerificationEmail.mockResolvedValue(undefined);
 
     await handler(mockEvent);
 
-    expect(mockRequestContext.set).toHaveBeenCalledWith({
+    expect(mockAppContext.set).toHaveBeenCalledWith({
       correlationId: mockEvent.correlationId,
     });
-    expect(authUseCase.sendEmailVerificationEmail).toHaveBeenCalledWith(
+    expect(sendEmailVerificationEmail).toHaveBeenCalledWith(
       mockEvent.data.email
     );
   });
 
   it('should generate a correlationId if not provided in the event', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      appContext: mockAppContext,
+      sendEmailVerificationEmail,
+    });
     const mockEvent: IEvent<IUser> = {
       type: EUserEvents.Created,
       occurredAt: new Date(),
@@ -80,46 +74,46 @@ describe('makeUserCreatedEventHandler', () => {
       data: validUserData,
     };
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as IRequestContextData);
+    } as IAppContextData);
 
-    (authUseCase.sendEmailVerificationEmail as jest.Mock).mockResolvedValue(
-      undefined
-    );
+    sendEmailVerificationEmail.mockResolvedValue(undefined);
 
     await handler(mockEvent);
 
-    expect(mockRequestContext.set).toHaveBeenCalledWith({
+    expect(mockAppContext.set).toHaveBeenCalledWith({
       correlationId: expect.any(String),
     });
-    expect(authUseCase.sendEmailVerificationEmail).toHaveBeenCalledWith(
+    expect(sendEmailVerificationEmail).toHaveBeenCalledWith(
       mockEvent.data.email
     );
   });
 
   it('should successfully handle Created event and NOT send verification email if already verified', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      appContext: mockAppContext,
+      sendEmailVerificationEmail,
+    });
     const mockEvent = getValidEvent();
     mockEvent.data = { ...validUserData, emailVerified: true };
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as IRequestContextData);
+    } as IAppContextData);
 
     await handler(mockEvent);
 
-    expect(authUseCase.sendEmailVerificationEmail).not.toHaveBeenCalled();
+    expect(sendEmailVerificationEmail).not.toHaveBeenCalled();
   });
 
   it('should throw and report if event type is invalid', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      appContext: mockAppContext,
+      sendEmailVerificationEmail,
+    });
     const mockEvent = getValidEvent();
     mockEvent.type = 'INVALID_EVENT' as keyof typeof EUserEvents;
 
@@ -130,20 +124,19 @@ describe('makeUserCreatedEventHandler', () => {
       eventError.EventTypeMismatch
     );
 
-    expect(authUseCase.sendEmailVerificationEmail).not.toHaveBeenCalled();
+    expect(sendEmailVerificationEmail).not.toHaveBeenCalled();
   });
 
   it('should report an error if sendEmailVerificationEmail fails', async () => {
-    const handler = makeUserCreatedEventHandler(
-      MockReporter,
-      mockRequestContext
-    );
+    const handler = makeUserCreatedEventHandler({
+      reporter: MockReporter,
+      appContext: mockAppContext,
+      sendEmailVerificationEmail,
+    });
     const mockEvent = getValidEvent();
 
     const error = new Error('Email Error');
-    (authUseCase.sendEmailVerificationEmail as jest.Mock).mockRejectedValue(
-      error
-    );
+    sendEmailVerificationEmail.mockRejectedValue(error);
 
     await handler(mockEvent);
 

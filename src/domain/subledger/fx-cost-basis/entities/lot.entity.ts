@@ -1,9 +1,9 @@
+import { TAuditedEntity } from '../../../../shared/events/types/event.types';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import { TAuditedEntity } from '../../../../shared/types/event.types';
 import dateUtils from '../../../../shared/utils/date';
 import stringUtils from '../../../../shared/utils/string';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
+import exchangeRateValue from '../../../money/values/exchange-rate.vo';
 import fxCostBasisLotError from '../errors/lot.error';
 import FxCostBasisLotEvents from '../events/lot.events';
 import {

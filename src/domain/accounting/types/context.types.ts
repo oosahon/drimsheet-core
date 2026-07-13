@@ -1,5 +1,5 @@
 import { TEntityId } from '../../../shared/types/uuid';
-import { UCurrencyCode } from '../../currency/config/currencies.config';
+import { UCurrencyCode } from '../../money/config/currencies.config';
 import { UAccountingStandardCode } from '../config/accounting-standards.config';
 
 export interface IAccountingContext {

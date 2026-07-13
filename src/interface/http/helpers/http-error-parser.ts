@@ -1,6 +1,6 @@
 import { ValidateError } from 'tsoa';
-import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
-import appError from '../../../app/shared/errors/app.error';
+import appError from '../../../shared/errors/app.error';
+import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import {
   IApiValidationError,
   IParsedError,

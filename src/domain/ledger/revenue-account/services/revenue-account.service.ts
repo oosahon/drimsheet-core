@@ -1,6 +1,9 @@
-import { IEvent, TAuditedEntity } from '../../../../shared/types/event.types';
-import { IEntityDelta } from '../../../../shared/types/history.types';
-import currencyEntity from '../../../currency/entities/currency.entity';
+import {
+  IEvent,
+  TAuditedEntity,
+} from '../../../../shared/events/types/event.types';
+import { IEntityDelta } from '../../../../shared/history/types/history.types';
+import currencyEntity from '../../../money/entities/currency.entity';
 import ILedgerAccountRepo from '../../shared/repos/ledger-account.repo';
 import {
   TEmploymentIncomeLedgerCode,
@@ -28,8 +31,12 @@ type TBootstrapHeaders = IRevenueAccountService['bootstrapHeaderAccounts'];
 type TBootstrapIndividualPostingAccounts =
   IRevenueAccountService['bootstrapIndividualPostingAccounts'];
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
 export default function makeRevenueAccountService(
-  repo: ILedgerAccountRepo
+  deps: IDependencies
 ): IRevenueAccountService {
   /**
    * Bootstraps header revenue accounts for a new accounting entity
@@ -52,7 +59,7 @@ export default function makeRevenueAccountService(
     const getExistingAccounts = async <T extends IRevenueLedgerAccount>(
       code: TRevenueLedgerCode
     ) => {
-      return (await repo.findByCode(
+      return (await deps.ledgerAccountRepo.findByCode(
         code,
         accountingEntityId,
         repoOptions

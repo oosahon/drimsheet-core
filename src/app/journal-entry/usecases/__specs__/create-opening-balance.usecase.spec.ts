@@ -1,10 +1,5 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies.config';
-import {
-  EExchangeRateType,
-  IExchangeRate,
-} from '../../../../domain/currency/types/exchange-rate.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
@@ -14,16 +9,23 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import {
+  EExchangeRateType,
+  IExchangeRate,
+} from '../../../../domain/money/types/exchange-rate.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookkeeping.service.mock';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
+import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
+
 import { TEntityId } from '../../../../shared/types/uuid';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeCreateOpeningBalanceUseCase from '../create-opening-balance.usecase';
 
 describe('createOpeningBalanceUseCase', () => {
@@ -75,16 +77,16 @@ describe('createOpeningBalanceUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
       user: mockUser,
       accountingEntity: mockAccountingEntity,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     mockLedgerAccountRepo.findById.mockResolvedValueOnce(mockAssetAccount);
 
-    mockBookkeepingServices.openingBalanceEntry.create.mockResolvedValue(
+    mockOpeningBalanceEntryService.create.mockResolvedValue(
       journalEntryEntity.make({
         accountingEntityId: mockAccountingEntity.id,
         sourceType: EJournalEntrySourceType.OpeningBalance,
@@ -122,13 +124,13 @@ describe('createOpeningBalanceUseCase', () => {
   });
 
   const getUseCase = () =>
-    makeCreateOpeningBalanceUseCase(
-      mockRequestContext,
-      mockLedgerAccountRepo,
-      mockEventBus,
-      mockBookkeepingServices.openingBalanceEntry,
-      mockBookkeepingServices.journalEntryPersistence
-    );
+    makeCreateOpeningBalanceUseCase({
+      appContext: mockAppContext,
+      ledgerAccountRepo: mockLedgerAccountRepo,
+      eventBus: mockEventBus,
+      openingBalanceEntryService: mockOpeningBalanceEntryService,
+      journalEntryPersistenceService: mockJournalEntryPersistenceService,
+    });
 
   it('should successfully record opening balance', async () => {
     const useCase = getUseCase();
@@ -145,9 +147,7 @@ describe('createOpeningBalanceUseCase', () => {
       mockAssetAccount.id,
       { correlationId }
     );
-    expect(
-      mockBookkeepingServices.openingBalanceEntry.create
-    ).toHaveBeenCalledWith(
+    expect(mockOpeningBalanceEntryService.create).toHaveBeenCalledWith(
       mockAccountingEntity,
       mockAssetAccount,
       expect.objectContaining({
@@ -157,9 +157,7 @@ describe('createOpeningBalanceUseCase', () => {
       null,
       { correlationId }
     );
-    expect(
-      mockBookkeepingServices.journalEntryPersistence.create
-    ).toHaveBeenCalledWith(
+    expect(mockJournalEntryPersistenceService.create).toHaveBeenCalledWith(
       expect.objectContaining({
         accountingEntityId: mockAccountingEntity.id,
       }),
@@ -209,9 +207,7 @@ describe('createOpeningBalanceUseCase', () => {
 
     await useCase(payload);
 
-    expect(
-      mockBookkeepingServices.journalEntryPersistence.create
-    ).toHaveBeenCalledWith(
+    expect(mockJournalEntryPersistenceService.create).toHaveBeenCalledWith(
       expect.objectContaining({
         accountingEntityId: mockAccountingEntity.id,
       }),

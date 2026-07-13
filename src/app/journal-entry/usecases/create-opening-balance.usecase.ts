@@ -1,34 +1,34 @@
-import exchangeRateValue from '../../../domain/currency/value-objects/exchange-rate.vo';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
+import eventValue from '../../../shared/events/event.vo';
+import historyValue from '../../../shared/history/history.vo';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/value-objects/event.vo';
-import historyValue from '../../../shared/value-objects/history.vo';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import ledgerAppError from '../../ledger/errors/ledger.error';
-import IRequestContext from '../../shared/contracts/request-context.contract';
-import moneyMapper from '../../shared/mappers/money.mapper';
-import {
-  IOpeningBalanceCreationReq,
-  openingBalanceCreationReqValidation,
-} from '../dtos/opening-balance.dto';
+import moneyMapper from '../../money/dtos/money/money.dto.mapper';
+import { IOpeningBalanceCreationReq } from '../dtos/opening-balance/opening-balance.dto';
+import { openingBalanceCreationReqValidation } from '../dtos/opening-balance/opening-balance.dto.validation';
 
-export default function makeCreateOpeningBalanceUseCase(
-  requestContext: IRequestContext,
-  ledgerAccountRepo: ILedgerAccountRepo,
-  eventBus: IEventBus,
-  openingBalanceEntryService: IOpeningBalanceEntryService,
-  journalEntryPersistenceService: IJournalEntryPersistenceService
-) {
+interface IDependencies {
+  appContext: IAppContext;
+  ledgerAccountRepo: ILedgerAccountRepo;
+  eventBus: IEventBus;
+  openingBalanceEntryService: IOpeningBalanceEntryService;
+  journalEntryPersistenceService: IJournalEntryPersistenceService;
+}
+
+export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
   return async (payload: IOpeningBalanceCreationReq) => {
     zodValidationRunner(openingBalanceCreationReqValidation, payload);
 
-    const { accountingEntity, correlationId, user } = requestContext.get();
+    const { accountingEntity, correlationId, user } = deps.appContext.get();
     const trace = { correlationId };
 
-    const account = await ledgerAccountRepo.findById(
+    const account = await deps.ledgerAccountRepo.findById(
       payload.accountId as TEntityId,
       trace
     );
@@ -41,7 +41,7 @@ export default function makeCreateOpeningBalanceUseCase(
       : null;
 
     const [journalEntry, journalEvents, audit] =
-      await openingBalanceEntryService.create(
+      await deps.openingBalanceEntryService.create(
         accountingEntity,
         account,
         amount,
@@ -55,13 +55,13 @@ export default function makeCreateOpeningBalanceUseCase(
       historyValue.make(lineAudit, actor, correlationId)
     );
 
-    await journalEntryPersistenceService.create(
+    await deps.journalEntryPersistenceService.create(
       journalEntry,
       headerHistory,
       lineHistories,
       trace
     );
 
-    eventBus.publish(eventValue.enrichAll(journalEvents, trace));
+    deps.eventBus.publish(eventValue.enrichAll(journalEvents, trace));
   };
 }

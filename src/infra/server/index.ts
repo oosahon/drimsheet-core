@@ -34,7 +34,7 @@ function setupServer(bootstrap?: () => Promise<void>) {
 
   app.use(cookieParser());
 
-  app.use(middlewares.requestContext);
+  app.use(middlewares.appContext);
 
   app.use(middlewares.requestLogger);
 

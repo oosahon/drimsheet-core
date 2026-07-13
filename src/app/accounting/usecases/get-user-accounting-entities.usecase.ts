@@ -1,14 +1,18 @@
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
+import IAppContext from '../../_internal/contracts/app-context.contract';
+
+interface IDependencies {
+  appContext: IAppContext;
+  accountingEntityRepo: IAccountingEntityRepo;
+}
 
 export default function makeGetUserAccountingEntitiesUseCase(
-  requestContext: IRequestContext,
-  accountingEntityRepo: IAccountingEntityRepo
+  deps: IDependencies
 ) {
   return async () => {
-    const { user, correlationId } = requestContext.get();
+    const { user, correlationId } = deps.appContext.get();
 
-    const accountingEntities = await accountingEntityRepo.findByUserId(
+    const accountingEntities = await deps.accountingEntityRepo.findByUserId(
       user.id,
       {
         correlationId,

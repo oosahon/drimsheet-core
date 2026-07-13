@@ -1,1 +1,4 @@
-npx lint-staged
+#!/bin/sh
+npm run lint || exit 1
+npx lint-staged || exit 1
+

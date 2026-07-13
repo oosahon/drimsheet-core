@@ -1,10 +1,12 @@
-import mockAccountingEntityRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-entity.repo.impl.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
+import mockAccountingEntityRepo from '../../repos/__mocks__/accounting-entity.repo.impl.mock';
 import { IAccountingEntity } from '../../types/accounting-entity.types';
 import makeAccountingEntityService from '../accounting-entity.service';
 
 describe('accountingEntityService', () => {
-  const service = makeAccountingEntityService(mockAccountingEntityRepo);
+  const service = makeAccountingEntityService({
+    accountingEntityRepo: mockAccountingEntityRepo,
+  });
 
   describe('grantUserAccess', () => {
     it('should return true if user is owner', () => {

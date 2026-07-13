@@ -1,8 +1,8 @@
 import { eq } from 'drizzle-orm';
-import userPreferencesMapper from '../../../../app/user/mappers/user-preferences.mapper';
 import IUserPreferencesRepo from '../../../../domain/user/repos/user-preferences.repo';
 import { userPreferencesInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../helpers/query';
+import getDbQuery from '../../helpers/get-db-query';
+import userPreferencesMapper from '../../mappers/user/user-preferences.mapper';
 
 const userPreferencesRepo: IUserPreferencesRepo = {
   async findById(id, options) {

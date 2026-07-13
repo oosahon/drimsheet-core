@@ -1,16 +1,16 @@
-import { SYSTEM_CURRENCIES } from '../../../../../domain/currency/config/currencies.config';
-import { EExchangeRateType } from '../../../../../domain/currency/types/exchange-rate.types';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
+import { EExchangeRateType } from '../../../../../domain/money/types/exchange-rate.types';
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import fxCostBasisLotAcquisitionEntity from '../../../../../domain/subledger/fx-cost-basis/entities/acquisition.entity';
 import fxCostBasisLotEntity from '../../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
+import mockFxCostBasisLotAcquisitionRepo from '../../../../../domain/subledger/fx-cost-basis/repos/__mocks__/acquisition.repo.impl.mock';
+import mockFxCostBasisLotRepo from '../../../../../domain/subledger/fx-cost-basis/repos/__mocks__/lot.repo.impl.mock';
 import { EFxCostBasisLotStatus } from '../../../../../domain/subledger/fx-cost-basis/types/lot.types';
-import mockFxCostBasisLotAcquisitionRepo from '../../../../../infra/persistence/repos/subledger/fx-cost-basis/__mocks__/acquisition.repo.impl.mock';
-import mockFxCostBasisLotRepo from '../../../../../infra/persistence/repos/subledger/fx-cost-basis/__mocks__/lot.repo.impl.mock';
-import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
-import { EHistoryActorType } from '../../../../../shared/types/history.types';
+import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
+import historyValue from '../../../../../shared/history/history.vo';
+import { EHistoryActorType } from '../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import historyValue from '../../../../../shared/value-objects/history.vo';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
 import makeFxLotCostBasisPersistenceService from '../fx-cost-basis-persistence.service';
 
 describe('fxCostBasisPersistenceService', () => {
@@ -33,11 +33,11 @@ describe('fxCostBasisPersistenceService', () => {
   };
 
   const getService = () =>
-    makeFxLotCostBasisPersistenceService(
-      mockFxCostBasisLotRepo,
-      mockFxCostBasisLotAcquisitionRepo,
-      mockRepoService
-    );
+    makeFxLotCostBasisPersistenceService({
+      lotRepo: mockFxCostBasisLotRepo,
+      acquisitionRepo: mockFxCostBasisLotAcquisitionRepo,
+      repoService: mockRepoService,
+    });
 
   beforeEach(() => {
     jest.clearAllMocks();

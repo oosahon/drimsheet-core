@@ -1,9 +1,9 @@
-import { IEvent } from '../../../shared/types/event.types';
+import moneyValue from '../../../domain/money/values/money.vo';
+import { IEvent } from '../../../shared/events/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
-import moneyValue from '../../../shared/value-objects/money.vo';
 import journalLineError from '../errors/journal-line.error';
 import journalLineEvents from '../events/journal-line-item.events';
 import {
@@ -15,7 +15,7 @@ import {
   IJournalLine,
   IJournalLineMakePayload,
 } from '../types/journal-line.types';
-import journalLineAudit from '../value-objects/journal-line-audit.vo';
+import journalLineAudit from '../values/journal-line-audit.vo';
 import helpers from './helpers/journal-line.helpers';
 
 function make(

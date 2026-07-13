@@ -6,54 +6,50 @@ import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { IEntityDelta } from '../../../../shared/types/history.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IAccountingEntityCreationDto } from '../../dtos/accounting.dto';
+import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
 
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockAccountingContextRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-context.repo.impl.mock';
-import mockAccountingEntityRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-entity.repo.impl.mock';
-import mockAccountingPeriodRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-period.repo.impl.mock';
-import mockFiscalYearRepo from '../../../../infra/persistence/repos/accounting/__mocks__/fiscal-year.repo.impl.mock';
-import mockReportingContextRepo from '../../../../infra/persistence/repos/accounting/__mocks__/reporting-context.repo.impl.mock';
-import mockReportingPeriodRepo from '../../../../infra/persistence/repos/accounting/__mocks__/reporting-period.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
-import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import mockAccountingContextRepo from '../../../../domain/accounting/repos/__mocks__/accounting-context.repo.impl.mock';
+import mockAccountingEntityRepo from '../../../../domain/accounting/repos/__mocks__/accounting-entity.repo.impl.mock';
+import mockAccountingPeriodRepo from '../../../../domain/accounting/repos/__mocks__/accounting-period.repo.impl.mock';
+import mockFiscalYearRepo from '../../../../domain/accounting/repos/__mocks__/fiscal-year.repo.impl.mock';
+import mockReportingContextRepo from '../../../../domain/accounting/repos/__mocks__/reporting-context.repo.impl.mock';
+import mockReportingPeriodRepo from '../../../../domain/accounting/repos/__mocks__/reporting-period.repo.impl.mock';
+import mockAssetAccountService from '../../../../domain/ledger/asset-account/services/__mocks__/asset-account.service.mock';
+import mockEquityAccountService from '../../../../domain/ledger/equity-account/services/__mocks__/equity-account.service.mock';
+import mockExpenseAccountService from '../../../../domain/ledger/expense-account/services/__mocks__/expense-account.service.mock';
+import mockLiabilityAccountService from '../../../../domain/ledger/liability-account/services/__mocks__/liability-account.service.mock';
+import mockRevenueAccountService from '../../../../domain/ledger/revenue-account/services/__mocks__/revenue-account.service.mock';
+import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import { IEntityDelta } from '../../../../shared/history/types/history.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 
 describe('createAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
 
-  const {
-    assetAccount: mockAssetAccountService,
-    liabilityAccount: mockLiabilityAccountService,
-    equityAccount: mockEquityAccountService,
-    revenueAccount: mockRevenueAccountService,
-    expenseAccount: mockExpenseAccountService,
-  } = mockLedgerDomainServices;
-
   const getUseCase = () =>
-    createAccountingEntityUseCase(
-      mockRequestContext,
-      mockRepoService,
-      mockAccountingEntityRepo,
-      mockFiscalYearRepo,
-      mockAccountingPeriodRepo,
-      mockAccountingContextRepo,
-      mockReportingPeriodRepo,
-      mockReportingContextRepo,
-      mockLedgerAccountRepo,
-      mockEventBus,
-      mockAssetAccountService,
-      mockLiabilityAccountService,
-      mockEquityAccountService,
-      mockRevenueAccountService,
-      mockExpenseAccountService
-    );
+    createAccountingEntityUseCase({
+      appContext: mockAppContext,
+      repoService: mockRepoService,
+      accountingEntityRepo: mockAccountingEntityRepo,
+      fiscalYearRepo: mockFiscalYearRepo,
+      accountingPeriodRepo: mockAccountingPeriodRepo,
+      accountingContextRepo: mockAccountingContextRepo,
+      reportingPeriodRepo: mockReportingPeriodRepo,
+      reportingContextRepo: mockReportingContextRepo,
+      ledgerAccountRepo: mockLedgerAccountRepo,
+      eventBus: mockEventBus,
+      assetAccountService: mockAssetAccountService,
+      liabilityAccountService: mockLiabilityAccountService,
+      equityAccountService: mockEquityAccountService,
+      revenueAccountService: mockRevenueAccountService,
+      expenseAccountService: mockExpenseAccountService,
+    });
 
   const validPayload: IAccountingEntityCreationDto = {
     name: 'Test Business',
@@ -80,7 +76,7 @@ describe('createAccountingEntityUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       user: { id: mockUserId } as unknown as IUser,
       idempotencyKey: 'mock-idempotency-key',
@@ -89,7 +85,7 @@ describe('createAccountingEntityUseCase', () => {
         getRefreshToken: jest.fn(),
         clearRefreshToken: jest.fn(),
       },
-    } as unknown as ReturnType<typeof mockRequestContext.get>);
+    } as unknown as ReturnType<typeof mockAppContext.get>);
 
     mockAccountingEntityRepo.findByUserId.mockResolvedValue([]);
 

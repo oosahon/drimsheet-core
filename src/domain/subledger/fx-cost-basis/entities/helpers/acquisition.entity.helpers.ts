@@ -1,7 +1,7 @@
-import { IMoney } from '../../../../../shared/types/money.types';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
-import { IExchangeRate } from '../../../../currency/types/exchange-rate.types';
-import exchangeRateValue from '../../../../currency/value-objects/exchange-rate.vo';
+import { IMoney } from '../../../../../domain/money/types/money.types';
+import moneyValue from '../../../../../domain/money/values/money.vo';
+import { IExchangeRate } from '../../../../money/types/exchange-rate.types';
+import exchangeRateValue from '../../../../money/values/exchange-rate.vo';
 import fxCostBasisLotAcquisitionError from '../../errors/acquisition.error';
 
 function isValidMoney(value: unknown): value is IMoney {

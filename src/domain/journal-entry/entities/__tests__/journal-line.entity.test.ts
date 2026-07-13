@@ -1,8 +1,8 @@
+import moneyValue from '../../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
-import moneyValue from '../../../../shared/value-objects/money.vo';
-import { SYSTEM_CURRENCIES } from '../../../currency/config/currencies.config';
-import { EExchangeRateType } from '../../../currency/types/exchange-rate.types';
-import exchangeRateValue from '../../../currency/value-objects/exchange-rate.vo';
+import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
+import { EExchangeRateType } from '../../../money/types/exchange-rate.types';
+import exchangeRateValue from '../../../money/values/exchange-rate.vo';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import { EJournalLineAuditAction } from '../../types/journal-entry-audit.types';
 import { EJournalSide, UJournalSide } from '../../types/journal-line.types';

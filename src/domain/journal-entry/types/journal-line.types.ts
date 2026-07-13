@@ -1,7 +1,7 @@
-import { IMoney } from '../../../shared/types/money.types';
+import { IMoney } from '../../../domain/money/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
-import { ICurrency } from '../../currency/types/currency.types';
-import { IExchangeRate } from '../../currency/types/exchange-rate.types';
+import { ICurrency } from '../../money/types/currency.types';
+import { IExchangeRate } from '../../money/types/exchange-rate.types';
 
 export const EJournalSide = {
   Debit: 'debit',

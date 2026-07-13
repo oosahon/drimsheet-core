@@ -3,11 +3,11 @@ import observability from '../../../infra/observability';
 import makeHttpErrorHandler from './error.handler';
 
 const httpHandlers = {
-  error: makeHttpErrorHandler(
-    observability.reporter,
-    observability.logger,
-    NODE_ENV
-  ),
+  error: makeHttpErrorHandler({
+    reporter: observability.reporter,
+    logger: observability.logger,
+    nodeEnv: NODE_ENV,
+  }),
 };
 
 export default httpHandlers;

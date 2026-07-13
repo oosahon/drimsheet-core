@@ -2,18 +2,20 @@ import ledgerAccountBalanceEntity from '../../../domain/ledger/account-balance/e
 import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import moneyMapper from '../../shared/mappers/money.mapper';
+import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import ILedgerBalanceAdjustmentQueue from '../contracts/ledger-balance-adjustment-queue.contract';
-import {
-  ILedgerAccountBalanceAdjustmentDto,
-  ledgerAccountBalanceAdjustmentDtoSchema,
-} from '../dtos/ledger-account-balance-adjustment.dto';
+import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
+import { ledgerAccountBalanceAdjustmentDtoSchema } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto.validation';
 import ledgerAppError from '../errors/ledger.error';
 
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
+}
+
 export default function makeAdjustLedgerAccountBalanceUseCase(
-  ledgerAccountRepo: ILedgerAccountRepo,
-  ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo,
-  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue
+  deps: IDependencies
 ) {
   return async (payload: ILedgerAccountBalanceAdjustmentDto) => {
     zodValidationRunner(ledgerAccountBalanceAdjustmentDtoSchema, payload);
@@ -27,7 +29,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
 
     const repoOptions = { correlationId };
 
-    const account = await ledgerAccountRepo.findById(
+    const account = await deps.ledgerAccountRepo.findById(
       ledgerAccountId,
       repoOptions
     );
@@ -36,7 +38,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
       throw new ledgerAppError.AccountNotFound();
     }
 
-    const existingBalance = await ledgerAccountBalanceRepo.findByAccountId(
+    const existingBalance = await deps.ledgerAccountBalanceRepo.findByAccountId(
       account.id,
       account.accountingEntityId,
       repoOptions
@@ -66,7 +68,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
       adjustPayload
     );
 
-    await ledgerAccountBalanceRepo.adjustBalance(adjustment, {
+    await deps.ledgerAccountBalanceRepo.adjustBalance(adjustment, {
       ...repoOptions,
       expectedVersion: existingBalance.version,
     });
@@ -77,7 +79,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
         ledgerAccountId: account.controlAccountId,
       };
 
-      await ledgerBalanceAdjustmentQueue.add(propagateAdjustmentsPayload);
+      await deps.ledgerBalanceAdjustmentQueue.add(propagateAdjustmentsPayload);
     }
   };
 }

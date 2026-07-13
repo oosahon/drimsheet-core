@@ -1,5 +1,5 @@
-import { IMoney } from '../../../../../shared/types/money.types';
-import moneyValue from '../../../../../shared/value-objects/money.vo';
+import { IMoney } from '../../../../../domain/money/types/money.types';
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import fxCostBasisLotError from '../../errors/lot.error';
 import {
   EFxCostBasisLotStatus,

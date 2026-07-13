@@ -1,7 +1,7 @@
-import ledgerAccountHistoryMapper from '../../../../app/ledger/mappers/ledger-account-history.mapper';
 import ILedgerAccountHistoryRepo from '../../../../domain/ledger/shared/repos/ledger-account-history.repo';
 import { ledgerAccountHistoryInAudit } from '../../../config/drizzle/schema';
-import getDbQuery from '../helpers/query';
+import getDbQuery from '../../helpers/get-db-query';
+import ledgerAccountHistoryMapper from '../../mappers/ledger/ledger-account-history.mapper';
 
 const ledgerAccountHistoryRepo: ILedgerAccountHistoryRepo = {
   save: async (histories, options) => {
