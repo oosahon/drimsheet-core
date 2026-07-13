@@ -1,5 +1,8 @@
-import { IEvent, TAuditedEntity } from '../../../../shared/types/event.types';
-import { IEntityDelta } from '../../../../shared/types/history.types';
+import {
+  IEvent,
+  TAuditedEntity,
+} from '../../../../shared/events/types/event.types';
+import { IEntityDelta } from '../../../../shared/history/types/history.types';
 import currencyEntity from '../../../money/entities/currency.entity';
 import ILedgerAccountRepo from '../../shared/repos/ledger-account.repo';
 import {

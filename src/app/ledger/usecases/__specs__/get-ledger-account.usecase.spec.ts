@@ -10,7 +10,7 @@ import {
   ILedgerAccount,
 } from '../../../../domain/ledger/shared/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import { MockReporter } from '../../../../shared/contracts/__mocks__/reporter.contract.mock';

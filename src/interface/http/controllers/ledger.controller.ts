@@ -14,9 +14,9 @@ import {
 } from 'tsoa';
 import { IPettyCashAccountCreationReq } from '../../../app/ledger/dtos/asset-account/asset-account.dto';
 import { IGetLedgerAccountsQuery } from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
-import { IPaginationDto } from '../../../app/shared/dtos/pagination/pagination.dto';
 import ledgerUseCases from '../../../infra/ioc/usecases/ledger.usecases';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
+import { IPaginationDto } from '../../../shared/pagination/dto/pagination.dto';
 import { TEntityId } from '../../../shared/types/uuid';
 import middlewares from '../middlewares';
 

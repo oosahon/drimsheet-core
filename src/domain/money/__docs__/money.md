@@ -32,7 +32,7 @@ The `moneyValue` object enforces proper mathematical rounding securely and preve
 **Example**:
 
 ```typescript
-import moneyValue from 'src/domain/money/value-objects/money.vo';
+import moneyValue from 'src/domain/money/values/money.vo';
 
 // ✅ DO:
 const totalAmount = moneyValue.add(itemMoney, taxMoney);

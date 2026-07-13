@@ -1,7 +1,7 @@
 import { IMoney } from '../../../../../domain/money/types/money.types';
-import moneyValue from '../../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import { IExchangeRate } from '../../../../money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../money/value-objects/exchange-rate.vo';
+import exchangeRateValue from '../../../../money/values/exchange-rate.vo';
 import FxCostBasisLotDispositionError from '../../errors/disposition.error';
 
 function isValidMoney(value: unknown): value is IMoney {

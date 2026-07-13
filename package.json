@@ -10,7 +10,7 @@
     "test:ci": "bash scripts/test-ci.sh",
     "test:seed": "ts-node scripts/seed.ts",
     "test:db:reset": "bash scripts/reset-test-db.sh",
-    "start": "node ./dist/src/infra/ioc/_bootstrap/index.js",
+    "start": "node ./dist/src/infra/runtime/_bootstrap/index.js",
     "start:test": "bash scripts/test.sh",
     "setup:test:db": "bash scripts/setup-test-db.sh",
     "dev": "bash scripts/dev.sh",

@@ -1,15 +1,15 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
-import emailValue from '../../../../domain/user/value-objects/email.vo';
+import emailValue from '../../../../domain/user/values/email.vo';
 import IAppContext from '../../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../../shared/contracts/repo.contract';
-import eventValue from '../../../../shared/value-objects/event.vo';
-import historyValue from '../../../../shared/value-objects/history.vo';
-import appError from '../../../shared/errors/app.error';
+import appError from '../../../../shared/errors/app.error';
+import eventValue from '../../../../shared/events/event.vo';
+import historyValue from '../../../../shared/history/history.vo';
 import { EAuthStrategy } from '../../contracts/auth-service.contract';
 import IUserAuthRepo from '../../contracts/user-auth.repo.contract';
 import { IOAuthProfile, TOAuthDoneCallback } from '../../dtos/auth/auth.dto';

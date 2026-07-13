@@ -6,7 +6,7 @@ import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code
 import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import { IExchangeRate } from '../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../domain/money/value-objects/exchange-rate.vo';
+import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import { IFxCostBasisLotAcquisition } from '../../../domain/subledger/fx-cost-basis/types/acquisition.types';
 import IFxCostBasisLotDomainService from '../../../domain/subledger/fx-cost-basis/types/lot.service.types';
 import { IFxCostBasisLot } from '../../../domain/subledger/fx-cost-basis/types/lot.types';
@@ -16,11 +16,11 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
-import { IEvent } from '../../../shared/types/event.types';
+import eventValue from '../../../shared/events/event.vo';
+import { IEvent } from '../../../shared/events/types/event.types';
+import historyValue from '../../../shared/history/history.vo';
 import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/value-objects/event.vo';
-import historyValue from '../../../shared/value-objects/history.vo';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import { IOpeningBalanceDto } from '../../journal-entry/dtos/opening-balance/opening-balance.dto';

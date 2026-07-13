@@ -1,4 +1,4 @@
-import moneyValue from '../../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';

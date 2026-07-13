@@ -8,7 +8,7 @@ import {
 import { EJournalSide } from '../../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import userEntity from '../../../../../domain/user/entities/user.entity';
 import journalEntryMapper, {
   IJournalEntrySelectModel,

@@ -1,7 +1,7 @@
 import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../../../domain/money/values/money.vo';
 import { IFxCostBasisLotAcquisitionHistory } from '../../../../../../domain/subledger/fx-cost-basis/types/acquisition.types';
-import { EHistoryActorType } from '../../../../../../shared/types/history.types';
+import { EHistoryActorType } from '../../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../../shared/types/uuid';
 import fxCostBasisLotAcquisitionHistoryMapper from '../acquisition-history.mapper';
 

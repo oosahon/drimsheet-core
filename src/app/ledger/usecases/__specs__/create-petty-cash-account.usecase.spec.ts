@@ -12,7 +12,7 @@ import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/t
 import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/money/value-objects/exchange-rate.vo';
+import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
 import fxCostBasisLotAcquisitionEntity from '../../../../domain/subledger/fx-cost-basis/entities/acquisition.entity';
 import fxCostBasisLotEntity from '../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
 import { EFxCostBasisLotStatus } from '../../../../domain/subledger/fx-cost-basis/types/lot.types';
@@ -22,7 +22,7 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contr
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import mockFxCostBasisLotDomainService from '../../../../infra/services/domain/__mocks__/fx-cost-basis.domain.service.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 import mockAppContext, {
@@ -30,9 +30,9 @@ import mockAppContext, {
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
+import appError from '../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.contract.mock';
-import appError from '../../../shared/errors/app.error';
 import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.contract.mock';
 import { IPettyCashAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
 import makeCreatePettyCashAccountUseCase from '../create-petty-cash-account.usecase';

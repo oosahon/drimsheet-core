@@ -1,4 +1,4 @@
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import IFxCostBasisLotAcquisitionRepo from '../../../../domain/subledger/fx-cost-basis/repos/acquisition.repo';
 import IFxCostBasisLotRepo from '../../../../domain/subledger/fx-cost-basis/repos/lot.repo';
 import {

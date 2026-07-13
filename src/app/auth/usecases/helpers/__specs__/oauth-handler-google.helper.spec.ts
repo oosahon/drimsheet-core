@@ -1,5 +1,5 @@
 import { IUser } from '../../../../../domain/user/types/user.types';
-import emailValue from '../../../../../domain/user/value-objects/email.vo';
+import emailValue from '../../../../../domain/user/values/email.vo';
 import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockUserAuthRepo from '../../../contracts/__mocks__/user-auth.repo.contract.mock';
 

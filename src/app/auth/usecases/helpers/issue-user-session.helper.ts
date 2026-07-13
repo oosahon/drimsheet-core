@@ -5,7 +5,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../../shared/contracts/repo.contract';
-import { IEvent } from '../../../../shared/types/event.types';
+import { IEvent } from '../../../../shared/events/types/event.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import IAuthService from '../../contracts/auth-service.contract';
 import IUserSessionRepo from '../../contracts/user-session.repo.contract';

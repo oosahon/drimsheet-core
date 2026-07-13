@@ -2,10 +2,10 @@ import {
   IEvent,
   TAuditedEntity,
   TEntityWithEvents,
-} from '../../types/event.types';
-import { IEntityDelta } from '../../types/history.types';
+} from '../../events/types/event.types';
+import getEntitiesAndEvents from '../../helpers/get-entities-and-events';
+import { IEntityDelta } from '../../history/types/history.types';
 import { TEntityId } from '../../types/uuid';
-import getEntitiesAndEvents from '../get-entities-and-events';
 
 describe('getEntitiesAndEvents', () => {
   type TMockEntity = { id: number; name: string };

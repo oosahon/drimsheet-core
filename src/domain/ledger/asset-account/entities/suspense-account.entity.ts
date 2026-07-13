@@ -5,7 +5,7 @@
  * @see {@link ../__docs__/suspense-account.md} to understand their behaviors
  *
  */
-import { TAuditedEntity } from '../../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../../shared/events/types/event.types';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
 import { TAssetSuspenseLedgerCode } from '../../shared/types/ledger-code.types';
 import {

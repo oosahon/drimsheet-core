@@ -2,7 +2,7 @@ import { IMoney } from '../../../../domain/money/types/money.types';
 import stringUtils from '../../../../shared/utils/string';
 import { ICurrency } from '../../../money/types/currency.types';
 import { IExchangeRate } from '../../../money/types/exchange-rate.types';
-import exchangeRateValue from '../../../money/value-objects/exchange-rate.vo';
+import exchangeRateValue from '../../../money/values/exchange-rate.vo';
 import journalLineError from '../../errors/journal-line.error';
 import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
 

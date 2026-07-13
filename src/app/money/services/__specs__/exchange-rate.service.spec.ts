@@ -1,5 +1,5 @@
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/money/value-objects/exchange-rate.vo';
+import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
 import exchangeRateRepoMock from '../../../../infra/persistence/repos/money/__mocks__/exchange-rate-repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import makeExchangeRateAppService from '../exchange-rate.service';

@@ -20,9 +20,9 @@ import mockJournalLineRepo from '../../../../infra/persistence/repos/journal-ent
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
 
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
-import { EHistoryActorType } from '../../../../shared/types/history.types';
+import { EHistoryActorType } from '../../../../shared/history/types/history.types';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import makeJournalEntryPersistenceService from '../journal-entry-persistence.service';
 

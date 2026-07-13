@@ -4,7 +4,7 @@ import { ILedgerAccountBalance } from '../../../../domain/ledger/account-balance
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { IBankAccount } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';

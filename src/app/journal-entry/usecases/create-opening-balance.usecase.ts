@@ -1,11 +1,11 @@
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
-import exchangeRateValue from '../../../domain/money/value-objects/exchange-rate.vo';
+import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
+import eventValue from '../../../shared/events/event.vo';
+import historyValue from '../../../shared/history/history.vo';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/value-objects/event.vo';
-import historyValue from '../../../shared/value-objects/history.vo';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import ledgerAppError from '../../ledger/errors/ledger.error';

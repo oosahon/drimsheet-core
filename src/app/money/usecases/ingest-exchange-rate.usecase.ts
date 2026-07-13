@@ -1,7 +1,7 @@
 import exchangeRateError from '../../../domain/money/errors/exchange-rate.error';
 import IExchangeRateRepo from '../../../domain/money/repos/exchange-rate.repo';
 import { UExchangeRateType } from '../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../domain/money/value-objects/exchange-rate.vo';
+import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import ILogger from '../../../shared/contracts/logger.contract';
 import {
   IRepoService,

@@ -1,13 +1,13 @@
 import userEvents from '../../../../domain/user/events/user.events';
 import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/value-objects/email.vo';
+import emailValue from '../../../../domain/user/values/email.vo';
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
+import eventValue from '../../../../shared/events/event.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
-import eventValue from '../../../../shared/value-objects/event.vo';
 import mockTransactionalEmailService from '../../../notification/contracts/__mocks__/transactional-email-service.contract.mock';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';

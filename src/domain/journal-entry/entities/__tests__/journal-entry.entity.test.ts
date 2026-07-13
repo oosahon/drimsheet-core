@@ -1,4 +1,4 @@
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import { EJournalEntryEvent } from '../../events/journal-entry.events';

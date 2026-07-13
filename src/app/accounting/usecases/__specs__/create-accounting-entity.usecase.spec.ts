@@ -6,7 +6,6 @@ import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { IEntityDelta } from '../../../../shared/types/history.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
@@ -22,6 +21,7 @@ import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks_
 import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import { IEntityDelta } from '../../../../shared/history/types/history.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 
 describe('createAccountingEntityUseCase', () => {

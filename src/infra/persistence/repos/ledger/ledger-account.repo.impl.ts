@@ -14,7 +14,7 @@ import ILedgerAccountRepo, {
 import drizzleFilters from '../../../../shared/helpers/drizzle-filters';
 import getDbQuery from '../../../../shared/helpers/get-db-query';
 import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import paginationValue from '../../../../shared/value-objects/pagination.vo';
+import paginationValue from '../../../../shared/pagination/pagination.vo';
 import {
   currenciesInCore,
   ledgerAccountBalancesInCore,

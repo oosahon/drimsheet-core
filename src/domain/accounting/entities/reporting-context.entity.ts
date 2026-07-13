@@ -1,5 +1,5 @@
+import { TAuditedEntity } from '../../../shared/events/types/event.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { TAuditedEntity } from '../../../shared/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import currencyEntity from '../../money/entities/currency.entity';
@@ -7,7 +7,7 @@ import accountingError from '../errors/accounting.error';
 import reportingContextEvents from '../events/reporting-context.events';
 import { IReportingContext } from '../types/context.types';
 import { EReportingContextActions } from '../types/reporting-context-audit.types';
-import reportingContextAudit from '../value-objects/reporting-context-audit.vo';
+import reportingContextAudit from '../values/reporting-context-audit.vo';
 import helpers from './helpers/accounting-context.entity.helpers';
 
 function make(

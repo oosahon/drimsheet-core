@@ -3,7 +3,7 @@ import { EAccountingEntityType } from '../../../../../domain/accounting/types/ac
 import ledgerAccountBalanceEntity from '../../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
 import cashAndEquivalentAccountEntity from '../../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import userEntity from '../../../../../domain/user/entities/user.entity';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import ledgerAccountBalanceMapper, {

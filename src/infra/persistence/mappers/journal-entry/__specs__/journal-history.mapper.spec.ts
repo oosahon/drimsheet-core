@@ -5,8 +5,8 @@ import {
 } from '../../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../../domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
+import historyValue from '../../../../../shared/history/history.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
-import historyValue from '../../../../../shared/value-objects/history.vo';
 import journalEntryHistoryMapper from '../journal-entry-history.mapper';
 import journalLineHistoryMapper from '../journal-line-history.mapper';
 

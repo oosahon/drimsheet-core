@@ -1,5 +1,5 @@
 import { IMoney } from '../../../../domain/money/types/money.types';
-import { IEntityDelta } from '../../../../shared/types/history.types';
+import { IEntityDelta } from '../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IExchangeRate } from '../../../money/types/exchange-rate.types';
 

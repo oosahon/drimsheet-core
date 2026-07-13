@@ -1,8 +1,8 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
-import contextError from '../../app/shared/errors/context.error';
 import IAppContext, {
   IAppContextData,
 } from '../../shared/contracts/app-context.contract';
+import runtimeError from '../../shared/errors/runtime.error';
 
 const asyncLocalStorage = new AsyncLocalStorage<IAppContextData>();
 
@@ -15,7 +15,7 @@ const appContext: IAppContext = {
     const store = asyncLocalStorage.getStore();
 
     if (!store) {
-      throw new contextError.StoreNotFound();
+      throw new runtimeError.StoreNotFound();
     }
 
     return store;

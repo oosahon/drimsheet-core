@@ -1,4 +1,4 @@
-import { TAuditedEntity } from '../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../shared/events/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
@@ -8,7 +8,7 @@ import periodError from '../errors/period.error';
 import periodEvents from '../events/period.events';
 import { EPeriodActions } from '../types/period-audit.types';
 import { IReportingPeriod } from '../types/period.types';
-import reportingPeriodAudit from '../value-objects/reporting-period-audit.vo';
+import reportingPeriodAudit from '../values/reporting-period-audit.vo';
 import helpers from './helpers/period.helpers';
 
 function makeReportingPeriod(

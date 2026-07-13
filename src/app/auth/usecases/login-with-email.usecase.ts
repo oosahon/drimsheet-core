@@ -1,12 +1,12 @@
 import z from 'zod';
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import emailValue from '../../../domain/user/value-objects/email.vo';
+import emailValue from '../../../domain/user/values/email.vo';
 import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
+import eventValue from '../../../shared/events/event.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/value-objects/event.vo';
 import IAuthService, {
   EAuthStrategy,
 } from '../contracts/auth-service.contract';

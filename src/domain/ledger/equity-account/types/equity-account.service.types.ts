@@ -1,5 +1,5 @@
-import { IEvent } from '../../../../shared/types/event.types';
-import { IEntityDelta } from '../../../../shared/types/history.types';
+import { IEvent } from '../../../../shared/events/types/event.types';
+import { IEntityDelta } from '../../../../shared/history/types/history.types';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import { ILedgerAccount } from '../../shared/types/ledger.types';

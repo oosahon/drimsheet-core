@@ -1,5 +1,5 @@
 import { IMoney } from '../../../../domain/money/types/money.types';
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import stringUtils from '../../../../shared/utils/string';
 import generateUUID from '../../../../shared/utils/uuid-generator';

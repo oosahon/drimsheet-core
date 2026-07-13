@@ -1,7 +1,7 @@
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
+import appError from '../../../shared/errors/app.error';
 import { IInternalMailer } from '../../notification/contracts/transactional-email-agent.contract';
 import { ITransactionalEmailDto } from '../../notification/dtos/transactional-email/transactional-email.dto';
-import appError from '../../shared/errors/app.error';
 
 interface IDependencies {
   internalMailer: IInternalMailer;

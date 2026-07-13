@@ -1,7 +1,7 @@
 import { Request } from 'express';
-import appError from '../../../../app/shared/errors/app.error';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
+import appError from '../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import getAccountingEntityFromRequest from '../get-accounting-entity-from-request.helper';
 

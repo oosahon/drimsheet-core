@@ -4,7 +4,7 @@ import {
 } from '../../../../../domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../../domain/money/types/exchange-rate.types';
-import moneyValue from '../../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import { IExchangeRateModel } from '../../money/exchange-rate.mapper';
 import journalLineMapper, { IJournalLineModel } from '../journal-line.mapper';

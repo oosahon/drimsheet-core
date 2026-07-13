@@ -1,4 +1,4 @@
-import { TAuditedEntity } from '../../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../../shared/events/types/event.types';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
 import { TFinanceCostLedgerCode } from '../../shared/types/ledger-code.types';
 import {

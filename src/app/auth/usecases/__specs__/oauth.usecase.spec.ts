@@ -1,5 +1,5 @@
 import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/value-objects/email.vo';
+import emailValue from '../../../../domain/user/values/email.vo';
 import mockAppContext, {
   mockClientSession,
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';

@@ -1,5 +1,5 @@
 import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/value-objects/email.vo';
+import emailValue from '../../../../domain/user/values/email.vo';
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
 import mockAppContext, {
   mockClientSession,
@@ -7,10 +7,10 @@ import mockAppContext, {
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
-import { IEvent } from '../../../../shared/types/event.types';
+import appError from '../../../../shared/errors/app.error';
+import { IEvent } from '../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import appError from '../../../shared/errors/app.error';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';

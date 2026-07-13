@@ -1,5 +1,5 @@
 import { IMoney } from '../../../../domain/money/types/money.types';
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
 import dateUtils from '../../../../shared/utils/date';
 import serializeBigIntInObj from '../../../../shared/utils/serialize-bigint-in-object';

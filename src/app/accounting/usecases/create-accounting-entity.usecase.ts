@@ -28,12 +28,12 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
-import getEntitiesAndEvents from '../../../shared/utils/get-entities-and-events';
+import appError from '../../../shared/errors/app.error';
+import eventValue from '../../../shared/events/event.vo';
+import getEntitiesAndEvents from '../../../shared/helpers/get-entities-and-events';
+import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/value-objects/event.vo';
-import historyValue from '../../../shared/value-objects/history.vo';
 import currencyMapper from '../../money/dtos/currency/currency.dto.mapper';
-import appError from '../../shared/errors/app.error';
 import { IAccountingEntityCreationDto } from '../dtos/accounting/accounting.dto';
 import { accountingEntityOnboardingDtoSchema } from '../dtos/accounting/accounting.dto.validation';
 

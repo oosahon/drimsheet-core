@@ -1,4 +1,4 @@
-import appError from '../../../app/shared/errors/app.error';
+import appError from '../../errors/app.error';
 import DomainError from '../../errors/domain.error';
 import errorUtils from '../error';
 

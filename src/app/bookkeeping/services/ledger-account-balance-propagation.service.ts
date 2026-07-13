@@ -9,7 +9,7 @@ import { ELedgerAccountBalanceEffect } from '../../../domain/ledger/account-bala
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
 import { IMoney } from '../../../domain/money/types/money.types';
-import moneyValue from '../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../shared/types/uuid';
 import ILedgerBalanceAdjustmentQueue from '../../ledger/contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import emailValue from '../../../domain/user/value-objects/email.vo';
+import emailValue from '../../../domain/user/values/email.vo';
 import IAppContext from '../../../shared/contracts/app-context.contract';
 import ILogger from '../../../shared/contracts/logger.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';

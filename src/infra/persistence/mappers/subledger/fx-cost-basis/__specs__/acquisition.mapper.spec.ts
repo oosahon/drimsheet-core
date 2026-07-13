@@ -1,7 +1,7 @@
 import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../../../domain/money/value-objects/exchange-rate.vo';
-import moneyValue from '../../../../../../domain/money/value-objects/money.vo';
+import exchangeRateValue from '../../../../../../domain/money/values/exchange-rate.vo';
+import moneyValue from '../../../../../../domain/money/values/money.vo';
 import { IFxCostBasisLotAcquisition } from '../../../../../../domain/subledger/fx-cost-basis/types/acquisition.types';
 import { TEntityId } from '../../../../../../shared/types/uuid';
 import fxCostBasisLotAcquisitionMapper, {

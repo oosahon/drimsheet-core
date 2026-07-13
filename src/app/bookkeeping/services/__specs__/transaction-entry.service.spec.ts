@@ -9,7 +9,7 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-acco
 import receivablesAccountEntity from '../../../../domain/ledger/asset-account/entities/receivables.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';

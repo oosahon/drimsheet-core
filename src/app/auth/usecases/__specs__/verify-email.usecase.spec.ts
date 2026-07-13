@@ -8,7 +8,7 @@ import mockAppContext, {
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
-import appError from '../../../shared/errors/app.error';
+import appError from '../../../../shared/errors/app.error';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import authError from '../../errors/auth.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';

@@ -1,4 +1,4 @@
-import { IEntityDelta } from '../../../shared/types/history.types';
+import { IEntityDelta } from '../../../shared/history/types/history.types';
 import { TEntityId } from '../../../shared/types/uuid';
 
 export const EExchangeRateIssue = {

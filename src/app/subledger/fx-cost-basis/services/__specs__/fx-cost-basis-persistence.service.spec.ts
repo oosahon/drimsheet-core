@@ -1,16 +1,16 @@
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../../domain/money/types/exchange-rate.types';
-import moneyValue from '../../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import fxCostBasisLotAcquisitionEntity from '../../../../../domain/subledger/fx-cost-basis/entities/acquisition.entity';
 import fxCostBasisLotEntity from '../../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
 import { EFxCostBasisLotStatus } from '../../../../../domain/subledger/fx-cost-basis/types/lot.types';
 import mockFxCostBasisLotAcquisitionRepo from '../../../../../infra/persistence/repos/subledger/fx-cost-basis/__mocks__/acquisition.repo.impl.mock';
 import mockFxCostBasisLotRepo from '../../../../../infra/persistence/repos/subledger/fx-cost-basis/__mocks__/lot.repo.impl.mock';
 import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
-import { EHistoryActorType } from '../../../../../shared/types/history.types';
+import historyValue from '../../../../../shared/history/history.vo';
+import { EHistoryActorType } from '../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import historyValue from '../../../../../shared/value-objects/history.vo';
 import makeFxLotCostBasisPersistenceService from '../fx-cost-basis-persistence.service';
 
 describe('fxCostBasisPersistenceService', () => {

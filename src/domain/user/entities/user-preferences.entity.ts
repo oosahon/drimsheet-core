@@ -1,5 +1,5 @@
+import { TEntityWithEvents } from '../../../shared/events/types/event.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { TEntityWithEvents } from '../../../shared/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
 import userPreferencesError from '../errors/user-preferences.error';

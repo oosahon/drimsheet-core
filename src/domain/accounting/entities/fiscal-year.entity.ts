@@ -1,4 +1,4 @@
-import { TAuditedEntity } from '../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../shared/events/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import accountingError from '../errors/accounting.error';
@@ -6,7 +6,7 @@ import periodEvents from '../events/period.events';
 import { IFiscalYear } from '../types/fiscal-year.types';
 import { EPeriodActions } from '../types/period-audit.types';
 import { EPeriodUnit } from '../types/period.types';
-import fiscalYearAudit from '../value-objects/fiscal-year-audit.vo';
+import fiscalYearAudit from '../values/fiscal-year-audit.vo';
 import fiscalYearHelpers from './helpers/fiscal-year.helpers';
 
 interface IMakePayload extends Pick<

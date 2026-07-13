@@ -1,10 +1,10 @@
 import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../../../domain/money/values/money.vo';
 import {
   EFxCostBasisLotStatus,
   IFxCostBasisLotHistory,
 } from '../../../../../../domain/subledger/fx-cost-basis/types/lot.types';
-import { EHistoryActorType } from '../../../../../../shared/types/history.types';
+import { EHistoryActorType } from '../../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../../shared/types/uuid';
 import fxCostBasisLotHistoryMapper from '../lot-history.mapper';
 

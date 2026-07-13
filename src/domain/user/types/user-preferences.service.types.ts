@@ -1,4 +1,4 @@
-import { TEntityWithEvents } from '../../../shared/types/event.types';
+import { TEntityWithEvents } from '../../../shared/events/types/event.types';
 import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { IUserPreferences } from './user-preferences.types';

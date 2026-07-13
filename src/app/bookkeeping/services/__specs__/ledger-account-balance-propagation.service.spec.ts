@@ -13,8 +13,8 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-acco
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/money/value-objects/exchange-rate.vo';
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';

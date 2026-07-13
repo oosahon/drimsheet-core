@@ -14,7 +14,7 @@ import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/account-b
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
@@ -23,9 +23,9 @@ import mockAppContext, {
   mockClientSession,
 } from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
-import { EPaginationSortDirection } from '../../../../shared/types/pagination.types';
-import { IPaginationDto } from '../../../shared/dtos/pagination/pagination.dto';
-import appError from '../../../shared/errors/app.error';
+import appError from '../../../../shared/errors/app.error';
+import { IPaginationDto } from '../../../../shared/pagination/dto/pagination.dto';
+import { EPaginationSortDirection } from '../../../../shared/pagination/types/pagination.types';
 import mockAccountTransactionQueryRepo from '../../contracts/__mocks__/account-transaction.query.repo.contract.mock';
 import ledgerAppError from '../../errors/ledger.error';
 import makeGetAccountTransactionsUseCase from '../get-account-transactions.usecase';

@@ -7,8 +7,8 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
+import eventValue from '../../../shared/events/event.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/value-objects/event.vo';
 import IAuthService from '../contracts/auth-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';

@@ -5,7 +5,7 @@ import {
 } from '../../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../../domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../domain/money/value-objects/money.vo';
+import moneyValue from '../../../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import { IJournalEntryModel } from '../../journal-entry/journal-entry.mapper';
 import { IJournalLineModel } from '../../journal-entry/journal-line.mapper';

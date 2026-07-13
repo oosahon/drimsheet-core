@@ -1,5 +1,5 @@
 {
-  "entryFile": "src/infra/ioc/_bootstrap/index.ts",
+  "entryFile": "src/infra/runtime/_bootstrap/index.ts",
   "noImplicitAdditionalProperties": "throw-on-extras",
   "controllerPathGlobs": ["src/**/*.controller.ts"],
   "spec": {

@@ -1,7 +1,7 @@
 import stringUtils from '../../../../shared/utils/string';
 import userError from '../../errors/user.error';
 import { IUser } from '../../types/user.types';
-import emailValue from '../../value-objects/email.vo';
+import emailValue from '../../values/email.vo';
 
 function validate(user: IUser) {
   stringUtils.validateUUID(user.id, userError.InvalidValue);

@@ -1,4 +1,4 @@
-import { IHistory } from '../../../shared/types/history.types';
+import { IHistory } from '../../../shared/history/types/history.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { UCurrencyCode } from '../../money/config/currencies.config';
 import { UJurisdictionCode } from '../config/jurisdictions.config';

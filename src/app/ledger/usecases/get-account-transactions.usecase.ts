@@ -2,13 +2,13 @@ import balanceEffectRule from '../../../domain/accounting/rules/bookkeeping/bala
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccountService } from '../../../domain/ledger/shared/types/ledger-account.service.types';
 import IAppContext from '../../../shared/contracts/app-context.contract';
-import { IPaginatedResponse } from '../../../shared/types/pagination.types';
+import appError from '../../../shared/errors/app.error';
+import { IPaginationDto } from '../../../shared/pagination/dto/pagination.dto';
+import paginationMapper from '../../../shared/pagination/dto/pagination.dto.mapper';
+import { paginationQueryValidationSchema } from '../../../shared/pagination/dto/pagination.dto.validation';
+import { IPaginatedResponse } from '../../../shared/pagination/types/pagination.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import { IPaginationDto } from '../../shared/dtos/pagination/pagination.dto';
-import paginationMapper from '../../shared/dtos/pagination/pagination.dto.mapper';
-import { paginationQueryValidationSchema } from '../../shared/dtos/pagination/pagination.dto.validation';
-import appError from '../../shared/errors/app.error';
 import IAccountTransactionQueryRepo from '../contracts/account-transaction.query.repo.contract';
 import { IAccountTransactionRes } from '../dtos/account-transaction/account-transaction.dto';
 import accountTransactionMapper from '../dtos/account-transaction/account-transaction.dto.mapper';

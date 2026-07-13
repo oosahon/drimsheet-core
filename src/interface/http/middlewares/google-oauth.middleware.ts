@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import passport from 'passport';
-import appError from '../../../app/shared/errors/app.error';
 import { IUser } from '../../../domain/user/types/user.types';
+import appError from '../../../shared/errors/app.error';
 
 export function makeInitiateLoginWithGoogleMiddleware(): RequestHandler {
   return passport.authenticate('google', {

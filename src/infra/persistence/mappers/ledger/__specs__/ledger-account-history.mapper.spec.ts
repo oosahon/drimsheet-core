@@ -1,6 +1,6 @@
 import { ILedgerAccountHistory } from '../../../../../domain/ledger/shared/types/ledger-account-audit.types';
 import { ILedgerAccount } from '../../../../../domain/ledger/shared/types/ledger.types';
-import { EHistoryActorType } from '../../../../../shared/types/history.types';
+import { EHistoryActorType } from '../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import ledgerAccountHistoryMapper from '../ledger-account-history.mapper';
 

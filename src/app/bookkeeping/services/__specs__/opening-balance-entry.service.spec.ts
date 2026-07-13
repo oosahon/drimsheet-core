@@ -15,8 +15,8 @@ import { EEquitySubType } from '../../../../domain/ledger/equity-account/types/e
 import { ELedgerType } from '../../../../domain/ledger/shared/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/money/value-objects/exchange-rate.vo';
-import moneyValue from '../../../../domain/money/value-objects/money.vo';
+import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
+import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';

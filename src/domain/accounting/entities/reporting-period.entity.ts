@@ -1,11 +1,11 @@
-import { TAuditedEntity } from '../../../shared/types/event.types';
+import { TAuditedEntity } from '../../../shared/events/types/event.types';
 import stringUtils from '../../../shared/utils/string';
 import accountingError from '../errors/accounting.error';
 import periodEvents from '../events/period.events';
 import { IFiscalYear } from '../types/fiscal-year.types';
 import { EPeriodActions } from '../types/period-audit.types';
 import { IAccountingPeriod, IReportingPeriod } from '../types/period.types';
-import reportingPeriodAudit from '../value-objects/reporting-period-audit.vo';
+import reportingPeriodAudit from '../values/reporting-period-audit.vo';
 import periodHelpers from './helpers/period.helpers';
 
 interface IMakePayload extends Pick<

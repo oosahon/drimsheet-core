@@ -1,5 +1,5 @@
+import { TAuditedEntity } from '../../../../shared/events/types/event.types';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import { TAuditedEntity } from '../../../../shared/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import currencyEntity from '../../../money/entities/currency.entity';
@@ -7,7 +7,7 @@ import ledgerError from '../errors/ledger.error';
 import ledgerAccountEvents from '../events/ledger-account.events';
 import { ELedgerAccountAuditAction } from '../types/ledger-account-audit.types';
 import { ILedgerAccount } from '../types/ledger.types';
-import ledgerAccountAudit from '../value-objects/ledger-account-audit.vo';
+import ledgerAccountAudit from '../values/ledger-account-audit.vo';
 import helpers from './helpers/ledger-account.entity.helpers';
 
 function make<T extends ILedgerAccount>(
