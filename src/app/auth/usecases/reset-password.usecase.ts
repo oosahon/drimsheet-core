@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
@@ -8,7 +9,6 @@ import {
 } from '../../../shared/contracts/repo.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
@@ -39,7 +39,7 @@ const validationSchema = z
   });
 
 interface IDependencies {
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   userRepo: IUserRepo;
   makeAuthService: IAuthService;
   eventBus: IEventBus;
@@ -52,7 +52,7 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
   return async (payload: IResetPasswordReq): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, payload);
 
-    const { correlationId, idempotencyKey } = deps.requestContext.get();
+    const { correlationId, idempotencyKey } = deps.appContext.get();
 
     const tokenPayload = await deps.makeAuthService.verifyPasswordResetToken(
       payload.token
@@ -98,7 +98,7 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
 
     return makeIssueUserSessionHelper({
       user: existingUser,
-      reqContext: deps.requestContext,
+      reqContext: deps.appContext,
       makeAuthService: deps.makeAuthService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,

@@ -5,9 +5,9 @@ import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeUserCreatedEventHandler from '../user-created-event.handler';
 
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import MockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 
 describe('makeUserCreatedEventHandler', () => {
   const sendEmailVerificationEmail = jest.fn();
@@ -40,20 +40,20 @@ describe('makeUserCreatedEventHandler', () => {
   it('should successfully handle Created event and send verification email if not verified', async () => {
     const handler = makeUserCreatedEventHandler({
       reporter: MockReporter,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       sendEmailVerificationEmail,
     });
     const mockEvent = getValidEvent();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as IRequestContextData);
+    } as IAppContextData);
 
     sendEmailVerificationEmail.mockResolvedValue(undefined);
 
     await handler(mockEvent);
 
-    expect(mockRequestContext.set).toHaveBeenCalledWith({
+    expect(mockAppContext.set).toHaveBeenCalledWith({
       correlationId: mockEvent.correlationId,
     });
     expect(sendEmailVerificationEmail).toHaveBeenCalledWith(
@@ -64,7 +64,7 @@ describe('makeUserCreatedEventHandler', () => {
   it('should generate a correlationId if not provided in the event', async () => {
     const handler = makeUserCreatedEventHandler({
       reporter: MockReporter,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       sendEmailVerificationEmail,
     });
     const mockEvent: IEvent<IUser> = {
@@ -74,15 +74,15 @@ describe('makeUserCreatedEventHandler', () => {
       data: validUserData,
     };
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as IRequestContextData);
+    } as IAppContextData);
 
     sendEmailVerificationEmail.mockResolvedValue(undefined);
 
     await handler(mockEvent);
 
-    expect(mockRequestContext.set).toHaveBeenCalledWith({
+    expect(mockAppContext.set).toHaveBeenCalledWith({
       correlationId: expect.any(String),
     });
     expect(sendEmailVerificationEmail).toHaveBeenCalledWith(
@@ -93,15 +93,15 @@ describe('makeUserCreatedEventHandler', () => {
   it('should successfully handle Created event and NOT send verification email if already verified', async () => {
     const handler = makeUserCreatedEventHandler({
       reporter: MockReporter,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       sendEmailVerificationEmail,
     });
     const mockEvent = getValidEvent();
     mockEvent.data = { ...validUserData, emailVerified: true };
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as IRequestContextData);
+    } as IAppContextData);
 
     await handler(mockEvent);
 
@@ -111,7 +111,7 @@ describe('makeUserCreatedEventHandler', () => {
   it('should throw and report if event type is invalid', async () => {
     const handler = makeUserCreatedEventHandler({
       reporter: MockReporter,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       sendEmailVerificationEmail,
     });
     const mockEvent = getValidEvent();
@@ -130,7 +130,7 @@ describe('makeUserCreatedEventHandler', () => {
   it('should report an error if sendEmailVerificationEmail fails', async () => {
     const handler = makeUserCreatedEventHandler({
       reporter: MockReporter,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       sendEmailVerificationEmail,
     });
     const mockEvent = getValidEvent();

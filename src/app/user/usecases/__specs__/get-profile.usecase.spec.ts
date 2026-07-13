@@ -1,7 +1,7 @@
 import { IUser } from '../../../../domain/user/types/user.types';
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import userMapper from '../../dtos/user/user.dto.mapper';
 import makeGetAuthUserProfileUseCase from '../get-profile.usecase';
 
@@ -20,32 +20,32 @@ describe('makeGetAuthUserProfileUseCase', () => {
       email: 'test@example.com',
     } as IUser;
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       user: mockUser,
-    } as IRequestContextData);
+    } as IAppContextData);
 
     const mappedUser = { id: 'test-user-id', email: 'test@example.com' };
     (userMapper.toInterface as jest.Mock).mockReturnValue(mappedUser);
 
     const usecase = makeGetAuthUserProfileUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
     });
     const result = await usecase();
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
     expect(userMapper.toInterface).toHaveBeenCalledWith(mockUser);
     expect(result).toEqual(mappedUser);
   });
 
   it('should throw appError.Unauthorized if user is not in request context', async () => {
-    mockRequestContext.get.mockReturnValue({} as IRequestContextData);
+    mockAppContext.get.mockReturnValue({} as IAppContextData);
 
     const usecase = makeGetAuthUserProfileUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
     });
 
     await expect(usecase()).rejects.toThrow('app_error_unauthorized');
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
     expect(userMapper.toInterface).not.toHaveBeenCalled();
   });
 });

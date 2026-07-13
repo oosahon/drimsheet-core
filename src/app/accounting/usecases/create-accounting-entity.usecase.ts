@@ -22,6 +22,7 @@ import ILiabilityAccountService from '../../../domain/ledger/liability-account/t
 import IRevenueAccountService from '../../../domain/ledger/revenue-account/types/revenue-account.service.types';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
@@ -32,13 +33,12 @@ import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
 import currencyMapper from '../../currency/dtos/currency/currency.dto.mapper';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 import { IAccountingEntityCreationDto } from '../dtos/accounting/accounting.dto';
 import { accountingEntityOnboardingDtoSchema } from '../dtos/accounting/accounting.dto.validation';
 
 interface IDependencies {
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   repoService: IRepoService;
   accountingEntityRepo: IAccountingEntityRepo;
   fiscalYearRepo: IFiscalYearRepo;
@@ -69,7 +69,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       payload.entityType
     );
 
-    const { user, correlationId } = deps.requestContext.get();
+    const { user, correlationId } = deps.appContext.get();
     const trace = { correlationId };
 
     const existing = await deps.accountingEntityRepo.findByUserId(
@@ -307,7 +307,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
 
     await deps.repoService.runInTransaction(transactionFn);
 
-    await deps.requestContext.set({ accountingEntity });
+    await deps.appContext.set({ accountingEntity });
 
     // =============== Publish events ===============
     const allEvents = [

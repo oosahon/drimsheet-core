@@ -16,9 +16,9 @@ import {
   IResetPasswordReq,
   IUserSignupReq,
 } from '../../../app/auth/dtos/auth/auth.dto';
-import { IHttpErrorDto } from '../../../app/shared/dtos/error/error.dto';
 import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
 import authUseCase from '../../../infra/ioc/usecases/auth.usecases';
+import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import middlewares from '../middlewares';
 
 const rateLimiter = {

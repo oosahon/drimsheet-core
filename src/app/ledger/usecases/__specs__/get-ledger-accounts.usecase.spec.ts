@@ -6,19 +6,19 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-acco
 import { IBankAccount } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import { IGetLedgerAccountsQuery } from '../../dtos/ledger-account/ledger-account.dto';
 import makeGetLedgerAccountsUsecase from '../get-ledger-accounts.usecase';
 
 describe('makeGetLedgerAccountsUsecase', () => {
   const getUseCase = () =>
     makeGetLedgerAccountsUsecase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       reporter: mockReporter,
       ledgerAccountRepo: mockLedgerAccountRepo,
       ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
@@ -114,10 +114,10 @@ describe('makeGetLedgerAccountsUsecase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       accountingEntity,
-    } as IRequestContextData);
+    } as IAppContextData);
   });
 
   it('throws ZodError for invalid query', async () => {

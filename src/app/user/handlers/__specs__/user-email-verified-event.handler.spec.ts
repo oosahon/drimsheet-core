@@ -5,9 +5,9 @@ import { IEvent } from '../../../../shared/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeUserEmailVerifiedEventHandler from '../user-email-verified-event.handler';
 
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import MockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 
 describe('makeUserEmailVerifiedEventHandler', () => {
   beforeEach(() => {
@@ -38,17 +38,17 @@ describe('makeUserEmailVerifiedEventHandler', () => {
   it('should successfully handle EmailVerified event', async () => {
     const handler = makeUserEmailVerifiedEventHandler({
       reporter: MockReporter,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
     });
     const mockEvent = getValidEvent();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as IRequestContextData);
+    } as IAppContextData);
 
     await handler(mockEvent);
 
-    expect(mockRequestContext.set).toHaveBeenCalledWith({
+    expect(mockAppContext.set).toHaveBeenCalledWith({
       correlationId: mockEvent.correlationId,
     });
   });
@@ -56,7 +56,7 @@ describe('makeUserEmailVerifiedEventHandler', () => {
   it('should generate a correlationId if not provided in the event', async () => {
     const handler = makeUserEmailVerifiedEventHandler({
       reporter: MockReporter,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
     });
     const mockEvent: IEvent<IUser> = {
       type: EUserEvents.EmailVerified,
@@ -65,13 +65,13 @@ describe('makeUserEmailVerifiedEventHandler', () => {
       data: validUserData,
     };
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'default-corr-id',
-    } as IRequestContextData);
+    } as IAppContextData);
 
     await handler(mockEvent);
 
-    expect(mockRequestContext.set).toHaveBeenCalledWith({
+    expect(mockAppContext.set).toHaveBeenCalledWith({
       correlationId: expect.any(String),
     });
   });
@@ -79,7 +79,7 @@ describe('makeUserEmailVerifiedEventHandler', () => {
   it('should throw if event type is invalid', async () => {
     const handler = makeUserEmailVerifiedEventHandler({
       reporter: MockReporter,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
     });
     const mockEvent = getValidEvent();
     mockEvent.type = 'INVALID_EVENT' as keyof typeof EUserEvents;

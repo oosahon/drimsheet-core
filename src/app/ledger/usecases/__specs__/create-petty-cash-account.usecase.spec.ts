@@ -24,14 +24,14 @@ import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__moc
 
 import mockFxCostBasisLotDomainService from '../../../../infra/services/domain/__mocks__/fx-cost-basis.domain.service.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import moneyValue from '../../../../shared/value-objects/money.vo';
 import mockExchangeRateService from '../../../currency/contracts/__mocks__/exchange-rate.service.contract.mock';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.contract.mock';
 import { IPettyCashAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
@@ -136,12 +136,12 @@ describe('createPettyCashSubAccountUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
       user: mockUser,
       accountingEntity: mockAccountingEntity,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(null);
@@ -157,7 +157,7 @@ describe('createPettyCashSubAccountUseCase', () => {
 
   const getUseCase = () =>
     makeCreatePettyCashAccountUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       eventBus: mockEventBus,
       assetAccountService: mockLedgerDomainServices.assetAccount,
       openingBalanceEntryService: mockOpeningBalanceEntryService,
@@ -306,12 +306,12 @@ describe('createPettyCashSubAccountUseCase', () => {
       id: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
     };
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
       user: anotherUser,
       accountingEntity: mockAccountingEntity,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
       new appError.Base('app_error_access_denied')

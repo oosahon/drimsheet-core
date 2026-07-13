@@ -3,11 +3,11 @@ import currencyError from '../../../../domain/currency/errors/currency.error';
 import exchangeRateError from '../../../../domain/currency/errors/exchange-rate.error';
 import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
 import exchangeRateRepoMock from '../../../../infra/persistence/repos/currency/__mocks__/exchange-rate-repo.impl.mock';
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
 import makeIngestExchangeRateUseCase from '../ingest-exchange-rate.usecase';
 
@@ -30,7 +30,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-06-10T12:53:59.000Z'));
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey: 'test-idempotency-key',
       user: null,
@@ -40,7 +40,7 @@ describe('makeIngestExchangeRateUseCase', () => {
         getRefreshToken: jest.fn(),
         clearRefreshToken: jest.fn(),
       },
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
   });
 
   afterEach(() => {

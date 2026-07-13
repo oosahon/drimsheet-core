@@ -3,12 +3,12 @@ import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/re
 import ILedgerAccountRepo, {
   IFindAllLedgerAccountsOptions,
 } from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { IPaginatedResponse } from '../../../shared/types/pagination.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import paginationValue from '../../../shared/value-objects/pagination.vo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import {
   IGetLedgerAccountsQuery,
   ILedgerAccountDto,
@@ -17,7 +17,7 @@ import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mappe
 import { getLedgerAccountQueryValidationSchema } from '../dtos/ledger-account/ledger-account.dto.validation';
 
 interface IDependencies {
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   reporter: IReporter;
   ledgerAccountRepo: ILedgerAccountRepo;
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
@@ -28,7 +28,7 @@ export default function makeGetLedgerAccountsUsecase(deps: IDependencies) {
     query: IGetLedgerAccountsQuery
   ): Promise<IPaginatedResponse<ILedgerAccountDto>> => {
     zodValidationRunner(getLedgerAccountQueryValidationSchema, query);
-    const { correlationId, accountingEntity } = deps.requestContext.get();
+    const { correlationId, accountingEntity } = deps.appContext.get();
 
     const trace = { correlationId };
     const offset = paginationValue.pageToOffset(query.page, query.limit);

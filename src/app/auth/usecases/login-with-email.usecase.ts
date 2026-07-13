@@ -2,11 +2,11 @@ import z from 'zod';
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService, {
   EAuthStrategy,
 } from '../contracts/auth-service.contract';
@@ -24,7 +24,7 @@ const validationSchema = z.object({
 });
 
 interface IDependencies {
-  reqContext: IRequestContext;
+  reqContext: IAppContext;
   userRepo: IUserRepo;
   makeAuthService: IAuthService;
   eventBus: IEventBus;

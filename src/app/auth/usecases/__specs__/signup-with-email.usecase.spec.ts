@@ -5,10 +5,10 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contr
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import { IEvent } from '../../../../shared/types/event.types';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
@@ -20,7 +20,7 @@ describe('makeSignupWithEmailUsecase', () => {
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeSignupWithEmailUsecase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       userRepo: mockUserRepo,
       makeAuthService: mockAuthService,
       eventBus: mockEventBus,
@@ -44,10 +44,10 @@ describe('makeSignupWithEmailUsecase', () => {
   it('should successfully sign up a new user', async () => {
     const correlationId = '854e4567-e89b-42d3-a456-426614174001';
     const idempotencyKey = 'test-idemp-key';
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
-    } as IRequestContextData);
+    } as IAppContextData);
 
     const payload = {
       firstName: 'John',
@@ -63,7 +63,7 @@ describe('makeSignupWithEmailUsecase', () => {
     mockAuthService.hashPassword.mockResolvedValue('hashed-password');
 
     const usecase = makeSignupWithEmailUsecase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       userRepo: mockUserRepo,
       makeAuthService: mockAuthService,
       eventBus: mockEventBus,
@@ -73,7 +73,7 @@ describe('makeSignupWithEmailUsecase', () => {
 
     await usecase(payload);
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
 
     const email = emailValue.make(payload.email);
     const password = passwordValue.make(payload.password);
@@ -120,9 +120,9 @@ describe('makeSignupWithEmailUsecase', () => {
 
   it('should throw appError.Conflict if user already exists', async () => {
     const correlationId = '854e4567-e89b-42d3-a456-426614174001';
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
-    } as IRequestContextData);
+    } as IAppContextData);
 
     const payload = {
       firstName: 'Jane',
@@ -139,7 +139,7 @@ describe('makeSignupWithEmailUsecase', () => {
     } as unknown as IUser);
 
     const usecase = makeSignupWithEmailUsecase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       userRepo: mockUserRepo,
       makeAuthService: mockAuthService,
       eventBus: mockEventBus,
@@ -158,9 +158,9 @@ describe('makeSignupWithEmailUsecase', () => {
 
   it('should throw appError.Forbidden if email is not permitted', async () => {
     const correlationId = '854e4567-e89b-42d3-a456-426614174001';
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     const payload = {
       firstName: 'Jane',
@@ -173,7 +173,7 @@ describe('makeSignupWithEmailUsecase', () => {
     mockAuthService.isPermittedEmail.mockReturnValue(false);
 
     const usecase = makeSignupWithEmailUsecase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       userRepo: mockUserRepo,
       makeAuthService: mockAuthService,
       eventBus: mockEventBus,

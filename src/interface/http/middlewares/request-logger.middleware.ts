@@ -1,13 +1,13 @@
 import { RequestHandler } from 'express';
 import { performance } from 'perf_hooks';
-import IRequestContext from '../../../app/shared/contracts/request-context.contract';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import ILogger from '../../../shared/contracts/logger.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
 
 export default function makeRequestLoggerMiddleware(
   logger: ILogger,
   reporter: IReporter,
-  requestContext: IRequestContext
+  appContext: IAppContext
 ): RequestHandler {
   const SLOW_REQUEST_THRESHOLD =
     Number(process.env.SLOW_REQUEST_THRESHOLD_MS) || 1000;
@@ -15,7 +15,7 @@ export default function makeRequestLoggerMiddleware(
   return (req, res, next) => {
     const start = performance.now();
 
-    const { correlationId } = requestContext.get();
+    const { correlationId } = appContext.get();
 
     const handleFinish = () => {
       const duration = Math.round(performance.now() - start);

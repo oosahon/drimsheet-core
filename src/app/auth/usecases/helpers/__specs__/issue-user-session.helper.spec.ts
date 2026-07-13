@@ -1,14 +1,14 @@
 import userEntity from '../../../../../domain/user/entities/user.entity';
+import { IAppContextData } from '../../../../../shared/contracts/app-context.contract';
 import { IEvent } from '../../../../../shared/types/event.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import makeIssueUserSessionHelper from '../issue-user-session.helper';
 
+import mockAppContext, {
+  mockClientSession,
+} from '../../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../../shared/contracts/__mocks__/request-context.contract.mock';
 import mockAuthService from '../../../contracts/__mocks__/auth-service.contract.mock';
 import mockUserSessionRepo from '../../../contracts/__mocks__/user-session.repo.contract.mock';
 
@@ -32,10 +32,10 @@ describe('makeIssueUserSessionHelper', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId: 'test-corr-id',
       clientSession: mockClientSession,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     mockAuthService.generateAccessToken.mockResolvedValue('new-access-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
@@ -50,7 +50,7 @@ describe('makeIssueUserSessionHelper', () => {
   const runHelper = () =>
     makeIssueUserSessionHelper({
       user: mockUser,
-      reqContext: mockRequestContext,
+      reqContext: mockAppContext,
       makeAuthService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,

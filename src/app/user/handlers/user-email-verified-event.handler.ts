@@ -1,19 +1,19 @@
 import { EUserEvents } from '../../../domain/user/events/user.events';
 import { IUser } from '../../../domain/user/types/user.types';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { IEvent } from '../../../shared/types/event.types';
-import IRequestContext from '../../shared/contracts/request-context.contract';
-import validateEventAndSetRequestContext from '../../shared/helpers/validate-and-set-request-context';
+import validateEventAndSetAppContext from '../../../shared/utils/validate-and-set-app-context';
 
 interface IDependencies {
   reporter: IReporter;
-  requestContext: IRequestContext;
+  appContext: IAppContext;
 }
 
 function makeUserEmailVerifiedEventHandler(deps: IDependencies) {
   return async (event: IEvent<IUser>) => {
-    validateEventAndSetRequestContext(
-      deps.requestContext,
+    validateEventAndSetAppContext(
+      deps.appContext,
       event,
       EUserEvents.EmailVerified
     );

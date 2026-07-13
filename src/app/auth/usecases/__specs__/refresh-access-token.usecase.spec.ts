@@ -6,11 +6,11 @@ import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 
@@ -23,7 +23,7 @@ describe('refreshAccessTokenUseCase', () => {
 
   const getUseCase = () =>
     makeRefreshAccessTokenUseCase({
-      reqContext: mockRequestContext,
+      reqContext: mockAppContext,
       userRepo: mockUserRepo,
       makeAuthService: mockAuthService,
       eventBus: mockEventBus,
@@ -34,10 +34,10 @@ describe('refreshAccessTokenUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
-    } as unknown as ReturnType<typeof mockRequestContext.get>);
+    } as unknown as ReturnType<typeof mockAppContext.get>);
 
     mockClientSession.getRefreshToken.mockReturnValue(mockRefreshToken);
 
@@ -92,7 +92,7 @@ describe('refreshAccessTokenUseCase', () => {
 
     expect(makeIssueUserSessionHelper).toHaveBeenCalledWith({
       user: { id: mockUserId },
-      reqContext: mockRequestContext,
+      reqContext: mockAppContext,
       makeAuthService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,

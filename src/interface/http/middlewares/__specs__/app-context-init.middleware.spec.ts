@@ -1,12 +1,12 @@
 import { Request, Response } from 'express';
 import IAuthService from '../../../../app/auth/contracts/auth-service.contract';
-import IRequestContext from '../../../../app/shared/contracts/request-context.contract';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
+import IAppContext from '../../../../shared/contracts/app-context.contract';
 import ILogger from '../../../../shared/contracts/logger.contract';
-import makeRequestContextInitMiddleware from '../request-context-init.middleware';
+import makeAppContextInitMiddleware from '../app-context-init.middleware';
 
 let mockWebAppUrl = 'http://localhost:3000';
 let mockNodeEnv = 'test';
@@ -20,8 +20,8 @@ jest.mock('../../../../infra/config/vars.config', () => ({
   },
 }));
 
-describe('makeRequestContextInitMiddleware', () => {
-  let mockRequestContext: jest.Mocked<IRequestContext>;
+describe('makeAppContextInitMiddleware', () => {
+  let mockAppContext: jest.Mocked<IAppContext>;
   let mockAccountingEntityRepo: jest.Mocked<IAccountingEntityRepo>;
   let mockAuthService: jest.Mocked<IAuthService>;
   let mockUserRepo: jest.Mocked<IUserRepo>;
@@ -32,10 +32,10 @@ describe('makeRequestContextInitMiddleware', () => {
   let mockNext: jest.Mock;
 
   beforeEach(() => {
-    mockRequestContext = {
+    mockAppContext = {
       init: jest.fn((ctx, next) => next()),
       get: jest.fn(),
-    } as unknown as jest.Mocked<IRequestContext>;
+    } as unknown as jest.Mocked<IAppContext>;
 
     mockAccountingEntityRepo = {
       findById: jest.fn(),
@@ -73,8 +73,8 @@ describe('makeRequestContextInitMiddleware', () => {
   });
 
   it('should initialize request context with empty user and entity when no headers are provided', async () => {
-    const middleware = makeRequestContextInitMiddleware(
-      mockRequestContext,
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
@@ -83,8 +83,8 @@ describe('makeRequestContextInitMiddleware', () => {
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    expect(mockRequestContext.init).toHaveBeenCalled();
-    const initArgs = mockRequestContext.init.mock.calls[0][0];
+    expect(mockAppContext.init).toHaveBeenCalled();
+    const initArgs = mockAppContext.init.mock.calls[0][0];
     expect(initArgs.user).toEqual({});
     expect(initArgs.accountingEntity).toEqual({});
     expect(initArgs.correlationId).toBeDefined();
@@ -99,8 +99,8 @@ describe('makeRequestContextInitMiddleware', () => {
       email: 'test@example.com',
     } as IUser);
 
-    const middleware = makeRequestContextInitMiddleware(
-      mockRequestContext,
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
@@ -109,7 +109,7 @@ describe('makeRequestContextInitMiddleware', () => {
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const initArgs = mockRequestContext.init.mock.calls[0][0];
+    const initArgs = mockAppContext.init.mock.calls[0][0];
     expect(initArgs.user).toEqual({
       id: 'user-id-123',
       email: 'test@example.com',
@@ -132,8 +132,8 @@ describe('makeRequestContextInitMiddleware', () => {
       ownerId: 'user-id-123', // Matches user id
     } as IAccountingEntity);
 
-    const middleware = makeRequestContextInitMiddleware(
-      mockRequestContext,
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
@@ -142,7 +142,7 @@ describe('makeRequestContextInitMiddleware', () => {
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const initArgs = mockRequestContext.init.mock.calls[0][0];
+    const initArgs = mockAppContext.init.mock.calls[0][0];
     expect(initArgs.user.id).toBe('user-id-123');
     expect(initArgs.accountingEntity.id).toBe(validUUID);
     expect(mockNext).toHaveBeenCalled();
@@ -150,8 +150,8 @@ describe('makeRequestContextInitMiddleware', () => {
 
   it('should implement client session methods correctly with undefined domain on localhost', async () => {
     mockWebAppUrl = 'http://localhost:3000'; // local
-    const middleware = makeRequestContextInitMiddleware(
-      mockRequestContext,
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
@@ -160,7 +160,7 @@ describe('makeRequestContextInitMiddleware', () => {
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const initArgs = mockRequestContext.init.mock.calls[0][0];
+    const initArgs = mockAppContext.init.mock.calls[0][0];
     const clientSession = initArgs.clientSession;
 
     expect(clientSession).toBeDefined();
@@ -198,8 +198,8 @@ describe('makeRequestContextInitMiddleware', () => {
     mockWebAppUrl = 'https://production.purpleledger.app'; // production
     mockNodeEnv = 'production';
 
-    const middleware = makeRequestContextInitMiddleware(
-      mockRequestContext,
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
@@ -208,7 +208,7 @@ describe('makeRequestContextInitMiddleware', () => {
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const initArgs = mockRequestContext.init.mock.calls[0][0];
+    const initArgs = mockAppContext.init.mock.calls[0][0];
     const clientSession = initArgs.clientSession;
 
     // Test setRefreshToken

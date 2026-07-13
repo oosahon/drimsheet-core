@@ -3,11 +3,11 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contr
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
-import mockRequestContext, {
+import mockAppContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import appError from '../../../shared/errors/app.error';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import authError from '../../errors/auth.error';
@@ -18,17 +18,17 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
   });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeVerifyEmailAddressUseCase({
       makeAuthService: mockAuthService,
       userRepo: mockUserRepo,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,
@@ -60,7 +60,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     const usecase = makeVerifyEmailAddressUseCase({
       makeAuthService: mockAuthService,
       userRepo: mockUserRepo,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,
@@ -68,7 +68,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
     const result = await usecase(token);
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(2);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(2);
     expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
       correlationId,
@@ -120,7 +120,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     const usecase = makeVerifyEmailAddressUseCase({
       makeAuthService: mockAuthService,
       userRepo: mockUserRepo,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,
@@ -147,7 +147,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     const usecase = makeVerifyEmailAddressUseCase({
       makeAuthService: mockAuthService,
       userRepo: mockUserRepo,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,
@@ -184,7 +184,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     const usecase = makeVerifyEmailAddressUseCase({
       makeAuthService: mockAuthService,
       userRepo: mockUserRepo,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,

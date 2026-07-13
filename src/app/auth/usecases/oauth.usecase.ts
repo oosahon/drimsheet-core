@@ -1,13 +1,13 @@
 import { IUser } from '../../../domain/user/types/user.types';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 interface IDependencies {
-  reqContext: IRequestContext;
+  reqContext: IAppContext;
   makeAuthService: IAuthService;
   eventBus: IEventBus;
   userSessionRepo: IUserSessionRepo;

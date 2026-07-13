@@ -1,15 +1,15 @@
 import Sentry from '@sentry/node';
-import appContext from '../../app/shared/app-context';
 import IReporter from '../../shared/contracts/reporter.contract';
 import errorUtils from '../../shared/utils/error';
 import { NODE_ENV, SENTRY_DSN } from '../config/vars.config';
+import appContext from '../runtime/app-context';
 import logger from './logger';
 
 Sentry.init({ dsn: SENTRY_DSN, sendDefaultPii: true, environment: NODE_ENV });
 
 const getCorrelationId = () => {
   try {
-    return appContext.request.get().correlationId;
+    return appContext.get().correlationId;
   } catch (error) {
     logger.error(error);
     return undefined;

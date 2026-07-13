@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import ILogger from '../../../shared/contracts/logger.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import authError from '../errors/auth.error';
 
@@ -14,7 +14,7 @@ const validationSchema = z.object({
 });
 
 interface IDependencies {
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   logger: ILogger;
   makeAuthService: IAuthService;
   userRepo: IUserRepo;
@@ -28,7 +28,7 @@ export default function makeSendEmailVerificationEmailUseCase(
   return async (userEmail: string) => {
     zodValidationRunner(validationSchema, { email: userEmail });
 
-    const { correlationId } = deps.requestContext.get();
+    const { correlationId } = deps.appContext.get();
 
     const user = await deps.userRepo.findByEmail(
       emailValue.normalize(userEmail),

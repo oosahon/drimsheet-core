@@ -18,12 +18,12 @@ import userEntity from '../../../../domain/user/entities/user.entity';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import { EPaginationSortDirection } from '../../../../shared/types/pagination.types';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import { IPaginationDto } from '../../../shared/dtos/pagination/pagination.dto';
 import appError from '../../../shared/errors/app.error';
 import mockAccountTransactionQueryRepo from '../../contracts/__mocks__/account-transaction.query.repo.contract.mock';
@@ -47,7 +47,7 @@ describe('getAccountTransactionsUseCase', () => {
 
   const getUseCase = () =>
     makeGetAccountTransactionsUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       ledgerAccountRepo: mockLedgerAccountRepo,
       ledgerAccountService: mockLedgerDomainServices.ledgerAccount,
       accountTransactionQueryRepo: mockAccountTransactionQueryRepo,
@@ -114,13 +114,13 @@ describe('getAccountTransactionsUseCase', () => {
       ],
     });
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey: 'test-idempotency-key',
       user,
       accountingEntity,
       clientSession: mockClientSession,
-    } satisfies IRequestContextData);
+    } satisfies IAppContextData);
     mockLedgerAccountRepo.findById.mockResolvedValue(ledgerAccount);
     mockLedgerDomainServices.ledgerAccount.validateAccountAccess.mockResolvedValue(
       true
@@ -268,7 +268,7 @@ describe('getAccountTransactionsUseCase', () => {
       appError.UnprocessableEntity
     );
 
-    expect(mockRequestContext.get).not.toHaveBeenCalled();
+    expect(mockAppContext.get).not.toHaveBeenCalled();
     expect(mockLedgerAccountRepo.findById).not.toHaveBeenCalled();
     expect(
       mockAccountTransactionQueryRepo.findAllByAccountId

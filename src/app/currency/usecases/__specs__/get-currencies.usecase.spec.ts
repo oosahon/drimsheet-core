@@ -1,7 +1,7 @@
 import { ICurrency } from '../../../../domain/currency/types/currency.types';
 import mockCurrencyRepo from '../../../../infra/persistence/repos/currency/__mocks__/currency.repo.impl.mock';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import makeGetCurrenciesUseCase from '../get-currencies.usecase';
 
 /**
@@ -19,9 +19,9 @@ describe('makeGetCurrenciesUseCase', () => {
   it('should get all currencies successfully', async () => {
     const correlationId = 'test-corr-id';
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
-    } as IRequestContextData);
+    } as IAppContextData);
 
     const mockCurrencies = [
       { code: 'USD', symbol: '$', name: 'US Dollar', minorUnit: 2n },
@@ -32,11 +32,11 @@ describe('makeGetCurrenciesUseCase', () => {
 
     const usecase = makeGetCurrenciesUseCase({
       currencyRepo: mockCurrencyRepo,
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
     });
     const result = await usecase();
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(1);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
     expect(mockCurrencyRepo.findAll).toHaveBeenCalledWith({ correlationId });
     expect(result).toEqual(
       mockCurrencies.map((c) => ({

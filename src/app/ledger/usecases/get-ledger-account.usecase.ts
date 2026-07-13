@@ -2,18 +2,18 @@ import currencyEntity from '../../../domain/currency/entities/currency.entity';
 import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import ledgerError from '../../../domain/ledger/shared/errors/ledger.error';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
 import moneyValue from '../../../shared/value-objects/money.vo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';
 import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';
 import ledgerAppError from '../errors/ledger.error';
 
 interface IDependencies {
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   ledgerAccountRepo: ILedgerAccountRepo;
   reporter: IReporter;
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
@@ -23,7 +23,7 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
   return async (accountId: TEntityId): Promise<ILedgerAccountDto> => {
     stringUtils.validateUUID(accountId, ledgerError.InvalidId);
 
-    const { correlationId, accountingEntity, user } = deps.requestContext.get();
+    const { correlationId, accountingEntity, user } = deps.appContext.get();
 
     const trace = { correlationId };
 

@@ -1,12 +1,12 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockTransactionalEmailService from '../../../notification/contracts/__mocks__/transactional-email-service.contract.mock';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import authError from '../../errors/auth.error';
@@ -20,14 +20,14 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
-    } as IRequestContextData);
+    } as IAppContextData);
   });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeSendEmailVerificationEmailUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       logger: mockLogger,
       makeAuthService: mockAuthService,
       userRepo: mockUserRepo,
@@ -45,7 +45,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(null);
 
     const usecase = makeSendEmailVerificationEmailUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       logger: mockLogger,
       makeAuthService: mockAuthService,
       userRepo: mockUserRepo,
@@ -84,7 +84,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
 
     const usecase = makeSendEmailVerificationEmailUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       logger: mockLogger,
       makeAuthService: mockAuthService,
       userRepo: mockUserRepo,
@@ -131,7 +131,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     mockAuthService.generateSignupToken.mockResolvedValue(token);
 
     const usecase = makeSendEmailVerificationEmailUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       logger: mockLogger,
       makeAuthService: mockAuthService,
       userRepo: mockUserRepo,

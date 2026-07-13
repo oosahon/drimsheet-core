@@ -10,6 +10,7 @@ import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types
 import { IFxCostBasisLotAcquisition } from '../../../domain/subledger/fx-cost-basis/types/acquisition.types';
 import IFxCostBasisLotDomainService from '../../../domain/subledger/fx-cost-basis/types/lot.service.types';
 import { IFxCostBasisLot } from '../../../domain/subledger/fx-cost-basis/types/lot.types';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
@@ -24,7 +25,6 @@ import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import IExchangeRateAppService from '../../currency/contracts/exchange-rate.service.contract';
 import { IOpeningBalanceDto } from '../../journal-entry/dtos/opening-balance/opening-balance.dto';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import moneyMapper from '../../shared/dtos/money/money.dto.mapper';
 import IFxCostBasisPersistenceService from '../../subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
 import { IPettyCashAccountCreationReq } from '../dtos/asset-account/asset-account.dto';
@@ -32,7 +32,7 @@ import { pettyCashCreationReqValidation } from '../dtos/asset-account/asset-acco
 import ledgerAppError from '../errors/ledger.error';
 
 interface IDependencies {
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   eventBus: IEventBus;
   assetAccountService: IAssetAccountService;
   openingBalanceEntryService: IOpeningBalanceEntryService;
@@ -64,7 +64,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
   ): Promise<ICashAndCashEquivalentAccount> => {
     zodValidationRunner(pettyCashCreationReqValidation, payload);
 
-    const { correlationId, user, accountingEntity } = deps.requestContext.get();
+    const { correlationId, user, accountingEntity } = deps.appContext.get();
 
     validateExchangeRate(
       accountingEntity.functionalCurrencyCode,

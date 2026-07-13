@@ -3,10 +3,10 @@ import makeCreatePettyCashAccountUseCase from '../../../app/ledger/usecases/crea
 import makeGetAccountTransactionsUseCase from '../../../app/ledger/usecases/get-account-transactions.usecase';
 import makeGetLedgerAccountUseCase from '../../../app/ledger/usecases/get-ledger-account.usecase';
 import makeGetLedgerAccountsUsecase from '../../../app/ledger/usecases/get-ledger-accounts.usecase';
-import appContext from '../../../app/shared/app-context';
 import messaging from '../../messaging';
 import observability from '../../observability';
 import ledgerRepos from '../../persistence/repos/ledger';
+import appContext from '../../runtime/app-context';
 import services from '../../services';
 import bookkeepingServices from '../../services/bookkeeping.service';
 import currencyServices from '../../services/currency.service';
@@ -15,14 +15,14 @@ import fxCostBasisService from '../../services/fx-lot-cost-basis.service';
 
 const ledgerUseCases = {
   getLedgerAccounts: makeGetLedgerAccountsUsecase({
-    requestContext: appContext.request,
+    appContext: appContext,
     reporter: observability.reporter,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
   }),
 
   getLedgerAccount: makeGetLedgerAccountUseCase({
-    requestContext: appContext.request,
+    appContext: appContext,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     reporter: observability.reporter,
     ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
@@ -35,14 +35,14 @@ const ledgerUseCases = {
   }),
 
   getAccountTransactions: makeGetAccountTransactionsUseCase({
-    requestContext: appContext.request,
+    appContext: appContext,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     ledgerAccountService: ledgerDomainServices.ledgerAccount,
     accountTransactionQueryRepo: ledgerRepos.queries.accountTransaction,
   }),
 
   createPettyCashAccount: makeCreatePettyCashAccountUseCase({
-    requestContext: appContext.request,
+    appContext: appContext,
     eventBus: messaging.eventBus,
     assetAccountService: ledgerDomainServices.assetAccount,
     openingBalanceEntryService: bookkeepingServices.openingBalanceEntry,

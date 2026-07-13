@@ -1,16 +1,16 @@
 import makeCreateAccountingEntityUseCase from '../../../app/accounting/usecases/create-accounting-entity.usecase';
 import makeGetJurisdictionsUseCase from '../../../app/accounting/usecases/get-jurisdictions.usecase';
 import makeGetUserAccountingEntitiesUseCase from '../../../app/accounting/usecases/get-user-accounting-entities.usecase';
-import appContext from '../../../app/shared/app-context';
 import messaging from '../../messaging';
 import accountingRepos from '../../persistence/repos/accounting';
 import ledgerRepos from '../../persistence/repos/ledger';
+import appContext from '../../runtime/app-context';
 import services from '../../services';
 import ledgerDomainServices from '../../services/domain/ledger.domain.service';
 
 const accountingUsecases = Object.freeze({
   createAccountingEntity: makeCreateAccountingEntityUseCase({
-    requestContext: appContext.request,
+    appContext: appContext,
     repoService: services.repo,
     accountingEntityRepo: accountingRepos.accountingEntity,
     fiscalYearRepo: accountingRepos.fiscalYear,
@@ -30,7 +30,7 @@ const accountingUsecases = Object.freeze({
   getJurisdictions: makeGetJurisdictionsUseCase(),
 
   getUserAccountingEntities: makeGetUserAccountingEntitiesUseCase({
-    requestContext: appContext.request,
+    appContext: appContext,
     accountingEntityRepo: accountingRepos.accountingEntity,
   }),
 });

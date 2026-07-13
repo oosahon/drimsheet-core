@@ -1,4 +1,4 @@
-import IRequestContext from '../request-context.contract';
+import IAppContext from '../app-context.contract';
 
 export const mockClientSession = {
   setRefreshToken: jest.fn(),
@@ -6,7 +6,7 @@ export const mockClientSession = {
   clearRefreshToken: jest.fn(),
 };
 
-const mockRequestContext: jest.Mocked<IRequestContext> = {
+const mockAppContext: jest.Mocked<IAppContext> = {
   init: jest.fn(),
   get: jest.fn().mockReturnValue({
     correlationId: '854e4567-e89b-42d3-a456-426614174001',
@@ -18,4 +18,4 @@ const mockRequestContext: jest.Mocked<IRequestContext> = {
   set: jest.fn(),
 };
 
-export default mockRequestContext;
+export default mockAppContext;

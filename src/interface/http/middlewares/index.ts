@@ -1,11 +1,12 @@
-import appContext from '../../../app/shared/app-context';
 import authUseCase from '../../../infra/ioc/usecases/auth.usecases';
 import observability from '../../../infra/observability';
 import accountingRepos from '../../../infra/persistence/repos/accounting';
 import userRepos from '../../../infra/persistence/repos/user';
+import appContext from '../../../infra/runtime/app-context';
 import services from '../../../infra/services';
 import accountingDomainServices from '../../../infra/services/domain/accounting.domain.service';
 import makeAccountingEntityAccessMiddleware from './accounting-entity-access.middleware';
+import makeAppContextInitMiddleware from './app-context-init.middleware';
 import makeErrorHandlerMiddleware from './error-handler.middleware';
 import {
   makeCompleteLoginWithGoogleMiddleware,
@@ -13,7 +14,6 @@ import {
 } from './google-oauth.middleware';
 import makeIsAuthenticatedUserMiddleware from './is-authenticated-user.middleware';
 import makeIsOptionalAuthenticatedUserMiddleware from './is-optional-authenticated-user.middleware';
-import makeRequestContextInitMiddleware from './request-context-init.middleware';
 import makeRequestLoggerMiddleware from './request-logger.middleware';
 
 const middlewares = {
@@ -28,8 +28,8 @@ const middlewares = {
     observability.reporter
   ),
 
-  requestContext: makeRequestContextInitMiddleware(
-    appContext.request,
+  appContext: makeAppContextInitMiddleware(
+    appContext,
     accountingRepos.accountingEntity,
     services.auth,
     userRepos.user,
@@ -39,19 +39,19 @@ const middlewares = {
   errorHandler: makeErrorHandlerMiddleware(),
 
   isAuthenticatedUser: makeIsAuthenticatedUserMiddleware(
-    appContext.request,
+    appContext,
     accountingDomainServices.accountingEntity
   ),
 
   requestLogger: makeRequestLoggerMiddleware(
     observability.logger,
     observability.reporter,
-    appContext.request
+    appContext
   ),
 
   accountingEntityAccess: makeAccountingEntityAccessMiddleware(
     accountingDomainServices.accountingEntity,
-    appContext.request
+    appContext
   ),
 };
 

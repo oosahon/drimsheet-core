@@ -20,12 +20,12 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contr
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
+import mockAppContext, {
+  mockClientSession,
+} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeCreateOpeningBalanceUseCase from '../create-opening-balance.usecase';
 
 describe('createOpeningBalanceUseCase', () => {
@@ -77,12 +77,12 @@ describe('createOpeningBalanceUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
       user: mockUser,
       accountingEntity: mockAccountingEntity,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     mockLedgerAccountRepo.findById.mockResolvedValueOnce(mockAssetAccount);
 
@@ -125,7 +125,7 @@ describe('createOpeningBalanceUseCase', () => {
 
   const getUseCase = () =>
     makeCreateOpeningBalanceUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       ledgerAccountRepo: mockLedgerAccountRepo,
       eventBus: mockEventBus,
       openingBalanceEntryService: mockOpeningBalanceEntryService,

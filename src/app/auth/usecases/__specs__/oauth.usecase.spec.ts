@@ -1,11 +1,11 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 import makeOauthUsecase from '../oauth.usecase';
@@ -16,10 +16,10 @@ describe('makeOauthUsecase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     mockAuthService.generateAccessToken.mockResolvedValue('mock-access-token');
     mockAuthService.generateRefreshToken.mockResolvedValue(
@@ -35,7 +35,7 @@ describe('makeOauthUsecase', () => {
 
   const getUseCase = () =>
     makeOauthUsecase({
-      reqContext: mockRequestContext,
+      reqContext: mockAppContext,
       makeAuthService: mockAuthService,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,

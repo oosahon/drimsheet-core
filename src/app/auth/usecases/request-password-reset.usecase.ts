@@ -1,11 +1,11 @@
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import eventValue from '../../../shared/value-objects/event.vo';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService, {
   EAuthStrategy,
 } from '../contracts/auth-service.contract';
@@ -13,7 +13,7 @@ import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import authError from '../errors/auth.error';
 
 interface IDependencies {
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   userRepo: IUserRepo;
   makeAuthService: IAuthService;
   transactionEmailService: ITransactionalEmailService;
@@ -24,7 +24,7 @@ interface IDependencies {
 
 export default function makeRequestPasswordResetUseCase(deps: IDependencies) {
   return async (userEmail: string) => {
-    const { correlationId } = deps.requestContext.get();
+    const { correlationId } = deps.appContext.get();
 
     const normalizedEmail = emailValue.normalize(userEmail);
 

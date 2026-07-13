@@ -19,10 +19,10 @@ import mockReportingContextRepo from '../../../../infra/persistence/repos/accoun
 import mockReportingPeriodRepo from '../../../../infra/persistence/repos/accounting/__mocks__/reporting-period.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 
 describe('createAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -38,7 +38,7 @@ describe('createAccountingEntityUseCase', () => {
 
   const getUseCase = () =>
     createAccountingEntityUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       repoService: mockRepoService,
       accountingEntityRepo: mockAccountingEntityRepo,
       fiscalYearRepo: mockFiscalYearRepo,
@@ -80,7 +80,7 @@ describe('createAccountingEntityUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       user: { id: mockUserId } as unknown as IUser,
       idempotencyKey: 'mock-idempotency-key',
@@ -89,7 +89,7 @@ describe('createAccountingEntityUseCase', () => {
         getRefreshToken: jest.fn(),
         clearRefreshToken: jest.fn(),
       },
-    } as unknown as ReturnType<typeof mockRequestContext.get>);
+    } as unknown as ReturnType<typeof mockAppContext.get>);
 
     mockAccountingEntityRepo.findByUserId.mockResolvedValue([]);
 

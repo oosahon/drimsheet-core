@@ -11,10 +11,10 @@ import {
   ILedgerAccount,
 } from '../../../../domain/ledger/shared/types/ledger.types';
 import { IUser } from '../../../../domain/user/types/user.types';
+import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import { MockReporter } from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 import ledgerAccountMapper from '../../dtos/ledger-account/ledger-account.dto.mapper';
 import makeGetLedgerAccountUseCase from '../get-ledger-account.usecase';
 
@@ -29,7 +29,7 @@ describe('getLedgerAccountUseCase', () => {
   const correlationId = 'test-corr-id';
 
   const useCase = makeGetLedgerAccountUseCase({
-    requestContext: mockRequestContext,
+    appContext: mockAppContext,
     ledgerAccountRepo: mockLedgerAccountRepo,
     reporter: MockReporter,
     ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
@@ -67,7 +67,7 @@ describe('getLedgerAccountUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       user: mockUser,
       accountingEntity: mockAccountingEntity,
@@ -77,7 +77,7 @@ describe('getLedgerAccountUseCase', () => {
         getRefreshToken: jest.fn(),
         clearRefreshToken: jest.fn(),
       },
-    } as unknown as ReturnType<typeof mockRequestContext.get>);
+    } as unknown as ReturnType<typeof mockAppContext.get>);
   });
 
   it('throws ledger_error_invalid_id if accountId is not a valid UUID', async () => {

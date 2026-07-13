@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import { IAccessToken } from '../dtos/auth/auth.dto';
@@ -20,7 +20,7 @@ const validationSchema = z.object({
 interface IDependencies {
   makeAuthService: IAuthService;
   userRepo: IUserRepo;
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   eventBus: IEventBus;
   userSessionRepo: IUserSessionRepo;
   repoService: IRepoService;
@@ -30,7 +30,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
   return async (token: string): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, { token });
 
-    const { correlationId } = deps.requestContext.get();
+    const { correlationId } = deps.appContext.get();
 
     const decodedToken = await deps.makeAuthService.verifySignupToken(token);
 
@@ -45,7 +45,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
     if (user.emailVerified) {
       return makeIssueUserSessionHelper({
         user,
-        reqContext: deps.requestContext,
+        reqContext: deps.appContext,
         makeAuthService: deps.makeAuthService,
         userSessionRepo: deps.userSessionRepo,
         eventBus: deps.eventBus,
@@ -66,7 +66,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
 
     return makeIssueUserSessionHelper({
       user: updatedUser,
-      reqContext: deps.requestContext,
+      reqContext: deps.appContext,
       makeAuthService: deps.makeAuthService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,

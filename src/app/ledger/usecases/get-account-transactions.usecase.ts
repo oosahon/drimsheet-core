@@ -1,10 +1,10 @@
 import balanceEffectRule from '../../../domain/accounting/rules/bookkeeping/balance-effect.rule';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccountService } from '../../../domain/ledger/shared/types/ledger-account.service.types';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import { IPaginatedResponse } from '../../../shared/types/pagination.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import { IPaginationDto } from '../../shared/dtos/pagination/pagination.dto';
 import paginationMapper from '../../shared/dtos/pagination/pagination.dto.mapper';
 import { paginationQueryValidationSchema } from '../../shared/dtos/pagination/pagination.dto.validation';
@@ -15,7 +15,7 @@ import accountTransactionMapper from '../dtos/account-transaction/account-transa
 import ledgerAppError from '../errors/ledger.error';
 
 interface IDependencies {
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   ledgerAccountRepo: ILedgerAccountRepo;
   ledgerAccountService: ILedgerAccountService;
   accountTransactionQueryRepo: IAccountTransactionQueryRepo;
@@ -28,7 +28,7 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
   ): Promise<IPaginatedResponse<IAccountTransactionRes>> => {
     zodValidationRunner(paginationQueryValidationSchema, pagination);
 
-    const { user, correlationId } = deps.requestContext.get();
+    const { user, correlationId } = deps.appContext.get();
 
     const trace = { correlationId };
 

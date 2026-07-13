@@ -16,11 +16,11 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contr
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockTransactionEntryService from '../../../bookkeeping/contracts/__mocks__/transaction-entry.service.contract.mock';
 
-import { TEntityId } from '../../../../shared/types/uuid';
-import mockRequestContext, {
+import mockAppContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
+import { TEntityId } from '../../../../shared/types/uuid';
 import makeCreateTransferJournalEntryUseCase from '../create-transfer-journal-entry.usecase';
 
 describe('createTransferJournalEntryUseCase', () => {
@@ -85,12 +85,12 @@ describe('createTransferJournalEntryUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
       user: mockUser,
       accountingEntity: mockAccountingEntity,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
 
     mockTransactionEntryService.create.mockResolvedValue(
       mockJournalEntryResult
@@ -101,7 +101,7 @@ describe('createTransferJournalEntryUseCase', () => {
 
   const getUseCase = () =>
     makeCreateTransferJournalEntryUseCase({
-      requestContext: mockRequestContext,
+      appContext: mockAppContext,
       transactionEntryService: mockTransactionEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       eventBus: mockEventBus,

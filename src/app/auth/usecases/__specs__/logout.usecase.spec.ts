@@ -1,15 +1,15 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
-import mockRequestContext, {
+import mockAppContext, {
   mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
+} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
+import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 import authError from '../../errors/auth.error';
 import makeLogoutUseCase from '../logout.usecase';
 
 describe('makeLogoutUseCase', () => {
-  const correlationId = '854e4567-e89b-42d3-a456-426614174001'; // This is what is defined in request-context.mock.ts
+  const correlationId = '854e4567-e89b-42d3-a456-426614174001'; // This is what is defined in app-context.mock.ts
 
   const [mockUser] = userEntity.make({
     email: 'johndoe@example.com',
@@ -21,7 +21,7 @@ describe('makeLogoutUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // The mockRequestContext is automatically returning the default payload
+    // The mockAppContext is automatically returning the default payload
     // including the mockClientSession and 'mock-correlation-id'
     mockAuthService.verifyRefreshToken.mockReturnValue({
       id: mockUser.id,
@@ -30,7 +30,7 @@ describe('makeLogoutUseCase', () => {
 
   const getUseCase = () =>
     makeLogoutUseCase({
-      reqContext: mockRequestContext,
+      reqContext: mockAppContext,
       makeAuthService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       logger: mockLogger,

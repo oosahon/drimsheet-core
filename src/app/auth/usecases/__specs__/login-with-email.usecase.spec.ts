@@ -1,12 +1,12 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import appError from '../../../shared/errors/app.error';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
@@ -20,10 +20,10 @@ describe('makeLoginWithEmailUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
   });
 
   const validPayload = {
@@ -48,7 +48,7 @@ describe('makeLoginWithEmailUseCase', () => {
 
   const getUseCase = () =>
     makeLoginWithEmailUseCase({
-      reqContext: mockRequestContext,
+      reqContext: mockAppContext,
       userRepo: mockUserRepo,
       makeAuthService: mockAuthService,
       eventBus: mockEventBus,
@@ -84,7 +84,7 @@ describe('makeLoginWithEmailUseCase', () => {
     const usecase = getUseCase();
     const result = await usecase(validPayload);
 
-    expect(mockRequestContext.get).toHaveBeenCalledTimes(2);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(2);
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(
       emailValue.make(validPayload.email),
       {

@@ -1,17 +1,17 @@
 import { RequestHandler } from 'express';
 import _ from 'lodash';
-import IRequestContext from '../../../app/shared/contracts/request-context.contract';
 import appError from '../../../app/shared/errors/app.error';
 import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import httpHandlers from '../handlers';
 
 export default function makeIsAuthenticatedUserMiddleware(
-  requestContext: IRequestContext,
+  appContext: IAppContext,
   accountingEntityService: IAccountingEntityService
 ): RequestHandler {
   return async (req, res, next) => {
     try {
-      const { user, accountingEntity } = requestContext.get();
+      const { user, accountingEntity } = appContext.get();
 
       if (_.isEmpty(user)) {
         throw new appError.Unauthorized();

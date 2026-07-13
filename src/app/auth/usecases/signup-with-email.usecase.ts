@@ -3,6 +3,7 @@ import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/value-objects/email.vo';
 import passwordValue from '../../../domain/user/value-objects/password.vo';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
@@ -11,7 +12,6 @@ import {
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import eventValue from '../../../shared/value-objects/event.vo';
 import historyValue from '../../../shared/value-objects/history.vo';
-import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
 import IAuthService, {
   EAuthStrategy,
@@ -42,7 +42,7 @@ const validationSchema = z.object({
 });
 
 interface IDependencies {
-  requestContext: IRequestContext;
+  appContext: IAppContext;
   userRepo: IUserRepo;
   makeAuthService: IAuthService;
   eventBus: IEventBus;
@@ -54,7 +54,7 @@ export default function makeSignupWithEmailUsecase(deps: IDependencies) {
   return async (payload: IUserSignupReq) => {
     zodValidationRunner(validationSchema, payload);
 
-    const { correlationId, idempotencyKey } = deps.requestContext.get();
+    const { correlationId, idempotencyKey } = deps.appContext.get();
 
     const email = emailValue.make(payload.email);
 

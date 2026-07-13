@@ -4,9 +4,9 @@ import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.co
 import mockUserAuthRepo from '../../../contracts/__mocks__/user-auth.repo.contract.mock';
 
 import mockUserRepo from '../../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
+import mockAppContext from '../../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
-import mockRequestContext from '../../../../shared/contracts/__mocks__/request-context.contract.mock';
-import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
+import { IAppContextData } from '../../../../../shared/contracts/app-context.contract';
 import {
   EAuthStrategy,
   IUserAuth,
@@ -20,10 +20,10 @@ describe('makeGoogleOAuthHelper', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRequestContext.get.mockReturnValue({
+    mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
-    } as unknown as IRequestContextData);
+    } as unknown as IAppContextData);
   });
 
   const validProfile: IOAuthProfile = {
@@ -50,7 +50,7 @@ describe('makeGoogleOAuthHelper', () => {
   const getHelper = () =>
     makeGoogleOAuthHelper(
       mockEventBus,
-      mockRequestContext,
+      mockAppContext,
       mockUserRepo,
       mockUserAuthRepo,
       mockRepoService

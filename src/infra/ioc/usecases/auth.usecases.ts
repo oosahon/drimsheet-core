@@ -8,15 +8,15 @@ import makeResetPasswordUseCase from '../../../app/auth/usecases/reset-password.
 import makeSendEmailVerificationEmailUseCase from '../../../app/auth/usecases/send-email-verification-email.usecase';
 import makeSignupWithEmailUsecase from '../../../app/auth/usecases/signup-with-email.usecase';
 import makeVerifyEmailAddressUseCase from '../../../app/auth/usecases/verify-email.usecase';
-import appContext from '../../../app/shared/app-context';
 import messaging from '../../messaging';
 import observability from '../../observability';
 import userRepos from '../../persistence/repos/user';
+import appContext from '../../runtime/app-context';
 import services from '../../services';
 
 const authUseCase = {
   signupWithEmail: makeSignupWithEmailUsecase({
-    requestContext: appContext.request,
+    appContext: appContext,
     userRepo: userRepos.user,
     makeAuthService: services.auth,
     eventBus: messaging.eventBus,
@@ -25,7 +25,7 @@ const authUseCase = {
   }),
 
   sendEmailVerificationEmail: makeSendEmailVerificationEmailUseCase({
-    requestContext: appContext.request,
+    appContext: appContext,
     logger: observability.logger,
     makeAuthService: services.auth,
     userRepo: userRepos.user,
@@ -36,14 +36,14 @@ const authUseCase = {
   verifyEmail: makeVerifyEmailAddressUseCase({
     makeAuthService: services.auth,
     userRepo: userRepos.user,
-    requestContext: appContext.request,
+    appContext: appContext,
     eventBus: messaging.eventBus,
     userSessionRepo: userRepos.userSession,
     repoService: services.repo,
   }),
 
   loginWithEmail: makeLoginWithEmailUseCase({
-    reqContext: appContext.request,
+    reqContext: appContext,
     userRepo: userRepos.user,
     makeAuthService: services.auth,
     eventBus: messaging.eventBus,
@@ -53,7 +53,7 @@ const authUseCase = {
   }),
 
   getPasswordResetLink: makeRequestPasswordResetUseCase({
-    requestContext: appContext.request,
+    appContext: appContext,
     userRepo: userRepos.user,
     makeAuthService: services.auth,
     transactionEmailService: services.transactionalEmail,
@@ -63,7 +63,7 @@ const authUseCase = {
   }),
 
   resetPassword: makeResetPasswordUseCase({
-    requestContext: appContext.request,
+    appContext: appContext,
     userRepo: userRepos.user,
     makeAuthService: services.auth,
     eventBus: messaging.eventBus,
@@ -73,7 +73,7 @@ const authUseCase = {
   }),
 
   oAuth: makeOauthUsecase({
-    reqContext: appContext.request,
+    reqContext: appContext,
     makeAuthService: services.auth,
     eventBus: messaging.eventBus,
     userSessionRepo: userRepos.userSession,
@@ -83,14 +83,14 @@ const authUseCase = {
 
   makeGoogleOAuthHelper: makeGoogleOAuthHelper(
     messaging.eventBus,
-    appContext.request,
+    appContext,
     userRepos.user,
     userRepos.userAuth,
     services.repo
   ),
 
   refreshAccessToken: makeRefreshAccessTokenUseCase({
-    reqContext: appContext.request,
+    reqContext: appContext,
     userRepo: userRepos.user,
     makeAuthService: services.auth,
     eventBus: messaging.eventBus,
@@ -99,7 +99,7 @@ const authUseCase = {
   }),
 
   logout: makeLogoutUseCase({
-    reqContext: appContext.request,
+    reqContext: appContext,
     makeAuthService: services.auth,
     userSessionRepo: userRepos.userSession,
     logger: observability.logger,

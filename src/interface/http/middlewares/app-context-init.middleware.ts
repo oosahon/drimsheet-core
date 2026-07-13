@@ -1,11 +1,11 @@
 import { RequestHandler, Response } from 'express';
 import IAuthService from '../../../app/auth/contracts/auth-service.contract';
-import IRequestContext from '../../../app/shared/contracts/request-context.contract';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import { IUser } from '../../../domain/user/types/user.types';
 import { NODE_ENV, WEB_APP_URL } from '../../../infra/config/vars.config';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 import ILogger from '../../../shared/contracts/logger.contract';
 import getAccountingEntityFromRequest from '../helpers/get-accounting-entity-from-request.helper';
 import getAuthUserFromRequest from '../helpers/get-auth-user-from-request.helper';
@@ -46,8 +46,8 @@ function handleClearRefreshToken(res: Response) {
  *
  * This middleware is used to initialize the request context
  */
-export default function makeRequestContextInitMiddleware(
-  requestContext: IRequestContext,
+export default function makeAppContextInitMiddleware(
+  appContext: IAppContext,
   accountingEntityRepo: IAccountingEntityRepo,
   makeAuthService: IAuthService,
   userRepo: IUserRepo,
@@ -70,7 +70,7 @@ export default function makeRequestContextInitMiddleware(
       user?.id
     );
 
-    requestContext.init(
+    appContext.init(
       {
         user: user ?? ({} as IUser),
         accountingEntity: accountingEntity ?? ({} as IAccountingEntity),

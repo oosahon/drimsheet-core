@@ -1,13 +1,13 @@
 import { RequestHandler } from 'express';
-import IRequestContext from '../../../app/shared/contracts/request-context.contract';
 import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
+import IAppContext from '../../../shared/contracts/app-context.contract';
 
 export default function makeAccountingEntityAccessMiddleware(
   accountingEntityService: IAccountingEntityService,
-  requestContext: IRequestContext
+  appContext: IAppContext
 ): RequestHandler {
   return async (req, res, next) => {
-    const { user, accountingEntity } = requestContext.get();
+    const { user, accountingEntity } = appContext.get();
 
     accountingEntityService.validateAccess(accountingEntity, user.id);
 
