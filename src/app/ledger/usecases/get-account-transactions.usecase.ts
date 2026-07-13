@@ -4,7 +4,7 @@ import { ILedgerAccountService } from '../../../domain/ledger/shared/types/ledge
 import appError from '../../../shared/errors/app.error';
 import { IPaginationDto } from '../../../shared/pagination/dto/pagination.dto';
 import paginationMapper from '../../../shared/pagination/dto/pagination.dto.mapper';
-import { paginationQueryValidationSchema } from '../../../shared/pagination/dto/pagination.dto.validation';
+import { paginationDtoValidation } from '../../../shared/pagination/dto/pagination.dto.validation';
 import { IPaginatedResponse } from '../../../shared/pagination/types/pagination.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
@@ -26,7 +26,7 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
     accountId: TEntityId,
     pagination: IPaginationDto
   ): Promise<IPaginatedResponse<IAccountTransactionRes>> => {
-    zodValidationRunner(paginationQueryValidationSchema, pagination);
+    zodValidationRunner(paginationDtoValidation, pagination);
 
     const { user, correlationId } = deps.appContext.get();
 

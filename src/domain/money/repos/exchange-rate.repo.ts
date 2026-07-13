@@ -12,7 +12,7 @@ interface IFindQuery {
 }
 
 interface IFindRepoOptions extends IPaginatedReadRepoOptions {
-  orderBy: keyof IExchangeRate;
+  orderBy?: keyof IExchangeRate;
 }
 
 export default interface IExchangeRateRepo {

@@ -52,8 +52,9 @@ const exchangeRateRepo: IExchangeRateRepo = {
       createdAt: currencyExchangeRatesInCore.createdAt,
     };
 
-    const sortColumn =
-      columnsMap[options.orderBy] ?? currencyExchangeRatesInCore.createdAt;
+    const sortColumn = options.orderBy
+      ? (columnsMap[options.orderBy] ?? currencyExchangeRatesInCore.createdAt)
+      : currencyExchangeRatesInCore.createdAt;
     const orderByClause = direction(sortColumn);
 
     const limit = paginationValue.getLimit(options.limit);
