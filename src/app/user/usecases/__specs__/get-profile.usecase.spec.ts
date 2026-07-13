@@ -1,11 +1,11 @@
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-import userMapper from '../../mappers/user.mapper';
+import userMapper from '../../dtos/user/user.dto.mapper';
 import makeGetAuthUserProfileUseCase from '../get-profile.usecase';
 
-jest.mock('../../mappers/user.mapper', () => ({
+jest.mock('../../dtos/user/user.dto.mapper', () => ({
   toInterface: jest.fn(),
 }));
 

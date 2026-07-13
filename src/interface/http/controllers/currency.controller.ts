@@ -7,7 +7,7 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import currencyUseCase from '../../../infra/ioc/currency/usecases';
+import currencyUseCase from '../../../infra/ioc/usecases/currency.usecases';
 import middlewares from '../middlewares';
 
 @Route('currencies')

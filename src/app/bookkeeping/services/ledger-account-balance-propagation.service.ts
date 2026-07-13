@@ -12,8 +12,8 @@ import { IMoney } from '../../../shared/types/money.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import ILedgerBalanceAdjustmentQueue from '../../ledger/contracts/ledger-balance-adjustment-queue.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment.dto';
-import moneyMapper from '../../shared/mappers/money.mapper';
+import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
+import moneyMapper from '../../shared/dtos/money/money.dto.mapper';
 import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-adjustment-service.contract';
 
 function getAccountMap(

@@ -9,11 +9,9 @@ import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import ledgerAppError from '../../ledger/errors/ledger.error';
 import IRequestContext from '../../shared/contracts/request-context.contract';
-import moneyMapper from '../../shared/mappers/money.mapper';
-import {
-  IOpeningBalanceCreationReq,
-  openingBalanceCreationReqValidation,
-} from '../dtos/opening-balance.dto';
+import moneyMapper from '../../shared/dtos/money/money.dto.mapper';
+import { IOpeningBalanceCreationReq } from '../dtos/opening-balance/opening-balance.dto';
+import { openingBalanceCreationReqValidation } from '../dtos/opening-balance/opening-balance.dto.validation';
 
 interface IDependencies {
   requestContext: IRequestContext;

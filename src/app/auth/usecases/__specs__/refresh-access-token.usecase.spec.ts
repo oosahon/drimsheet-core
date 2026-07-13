@@ -5,14 +5,14 @@ import authError from '../../errors/auth.error';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserSessionRepo from '../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
+} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 
 jest.mock('../helpers/issue-user-session.helper');
 

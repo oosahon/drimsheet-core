@@ -10,11 +10,11 @@ import moneyValue from '../../../shared/value-objects/money.vo';
 import paginationValue from '../../../shared/value-objects/pagination.vo';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import {
-  getLedgerAccountQueryValidationSchema,
   IGetLedgerAccountsQuery,
   ILedgerAccountDto,
-} from '../dtos/ledger-account.dto';
-import ledgerAccountMapper from '../mappers/ledger-account.mapper';
+} from '../dtos/ledger-account/ledger-account.dto';
+import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';
+import { getLedgerAccountQueryValidationSchema } from '../dtos/ledger-account/ledger-account.dto.validation';
 
 interface IDependencies {
   requestContext: IRequestContext;

@@ -15,10 +15,10 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockLedgerAccountBalanceAdjustmentQueue from '../../../../infra/messaging/queues/__mocks__/ledger-account-balance.queue.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import moneyValue from '../../../../shared/value-objects/money.vo';
+import mockLedgerAccountBalanceAdjustmentQueue from '../../../ledger/contracts/__mocks__/ledger-balance-adjustment-queue.contract.mock';
 import makeLedgerAccountBalancePropagationService from '../ledger-account-balance-propagation.service';
 
 describe('ledgerAccountBalancePropagationService', () => {

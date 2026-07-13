@@ -1,7 +1,7 @@
 import { IUser } from '../../../domain/user/types/user.types';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
-import userMapper from '../mappers/user.mapper';
+import userMapper from '../dtos/user/user.dto.mapper';
 
 interface IDependencies {
   requestContext: IRequestContext;

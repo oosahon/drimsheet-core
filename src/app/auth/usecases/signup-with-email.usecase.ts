@@ -17,7 +17,7 @@ import IAuthService, {
   EAuthStrategy,
 } from '../contracts/auth-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
-import { IUserSignupReq } from '../dtos/auth.dto';
+import { IUserSignupReq } from '../dtos/auth/auth.dto';
 
 const validationSchema = z.object({
   firstName: z

@@ -1,5 +1,5 @@
-import appContext from '../../../app/shared/context';
-import authUseCase from '../../../infra/ioc/auth/usecases';
+import appContext from '../../../app/shared/app-context';
+import authUseCase from '../../../infra/ioc/usecases/auth.usecases';
 import observability from '../../../infra/observability';
 import accountingRepos from '../../../infra/persistence/repos/accounting';
 import userRepos from '../../../infra/persistence/repos/user';

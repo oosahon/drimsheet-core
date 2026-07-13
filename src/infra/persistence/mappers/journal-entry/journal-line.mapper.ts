@@ -1,5 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IJournalLineDto } from '../../../../app/journal-entry/dtos/journal-entry.dto';
+import { IJournalLineDto } from '../../../../app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import {
   IJournalLine,
   IJournalLineMeta,

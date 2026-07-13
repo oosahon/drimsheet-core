@@ -12,7 +12,7 @@ import IRequestContext from '../../shared/contracts/request-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
-import { IAccessToken, IResetPasswordReq } from '../dtos/auth.dto';
+import { IAccessToken, IResetPasswordReq } from '../dtos/auth/auth.dto';
 import authError from '../errors/auth.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 

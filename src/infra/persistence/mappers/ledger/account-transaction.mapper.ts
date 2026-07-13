@@ -1,4 +1,4 @@
-import { IAccountTransactionDto } from '../../../../app/ledger/dtos/account-transaction.dto';
+import { IAccountTransactionDto } from '../../../../app/ledger/dtos/account-transaction/account-transaction.dto';
 import { IAccountTransaction } from '../../../../domain/journal-entry/types/account-transaction.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IJournalEntryModel } from '../journal-entry/journal-entry.mapper';

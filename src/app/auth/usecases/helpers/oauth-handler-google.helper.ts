@@ -12,7 +12,7 @@ import IRequestContext from '../../../shared/contracts/request-context.contract'
 import appError from '../../../shared/errors/app.error';
 import { EAuthStrategy } from '../../contracts/auth-service.contract';
 import IUserAuthRepo from '../../contracts/user-auth.repo.contract';
-import { IOAuthProfile, TOAuthDoneCallback } from '../../dtos/auth.dto';
+import { IOAuthProfile, TOAuthDoneCallback } from '../../dtos/auth/auth.dto';
 
 export default function makeGoogleOAuthHelper(
   eventBus: IEventBus,

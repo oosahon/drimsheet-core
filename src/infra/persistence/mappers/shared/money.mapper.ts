@@ -1,4 +1,4 @@
-import { IMoneyDto } from '../../../../app/shared/dtos/money.dto';
+import { IMoneyDto } from '../../../../app/shared/dtos/money/money.dto';
 import appError from '../../../../app/shared/errors/app.error';
 import {
   SYSTEM_CURRENCIES,

@@ -1,6 +1,6 @@
 import messaging from '../../messaging';
 
-import { userEventsRegistry } from '../user/handlers';
+import { userEventsRegistry } from '../handlers/user.handlers';
 
 export default function eventsRegistry() {
   const events = {

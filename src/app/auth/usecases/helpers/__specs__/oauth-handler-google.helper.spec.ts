@@ -1,17 +1,17 @@
 import { IUser } from '../../../../../domain/user/types/user.types';
 import emailValue from '../../../../../domain/user/value-objects/email.vo';
-import mockEventBus from '../../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserAuthRepo from '../../../../../infra/persistence/repos/user/__mocks__/user-auth.repo.impl.mock';
+import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockUserAuthRepo from '../../../contracts/__mocks__/user-auth.repo.contract.mock';
 
 import mockUserRepo from '../../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
-import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext from '../../../../../infra/services/__mocks__/request-context.mock';
+import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockRequestContext from '../../../../shared/contracts/__mocks__/request-context.contract.mock';
 import { IRequestContextData } from '../../../../shared/contracts/request-context.contract';
 import {
   EAuthStrategy,
   IUserAuth,
 } from '../../../contracts/auth-service.contract';
-import { IOAuthProfile } from '../../../dtos/auth.dto';
+import { IOAuthProfile } from '../../../dtos/auth/auth.dto';
 import makeGoogleOAuthHelper from '../oauth-handler-google.helper';
 
 describe('makeGoogleOAuthHelper', () => {

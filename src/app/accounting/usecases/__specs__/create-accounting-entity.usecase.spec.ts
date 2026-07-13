@@ -8,10 +8,9 @@ import { EAppUsageModePreference } from '../../../../domain/user/types/user-pref
 import { IUser } from '../../../../domain/user/types/user.types';
 import { IEntityDelta } from '../../../../shared/types/history.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IAccountingEntityCreationDto } from '../../dtos/accounting.dto';
+import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
 
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
 import mockAccountingContextRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-context.repo.impl.mock';
 import mockAccountingEntityRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-entity.repo.impl.mock';
 import mockAccountingPeriodRepo from '../../../../infra/persistence/repos/accounting/__mocks__/accounting-period.repo.impl.mock';
@@ -19,10 +18,11 @@ import mockFiscalYearRepo from '../../../../infra/persistence/repos/accounting/_
 import mockReportingContextRepo from '../../../../infra/persistence/repos/accounting/__mocks__/reporting-context.repo.impl.mock';
 import mockReportingPeriodRepo from '../../../../infra/persistence/repos/accounting/__mocks__/reporting-period.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 
 describe('createAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';

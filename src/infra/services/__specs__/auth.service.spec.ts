@@ -1,9 +1,9 @@
 import { sign } from 'jsonwebtoken';
 import authError from '../../../app/auth/errors/auth.error';
+import { makeMockCacheStorage } from '../../../shared/contracts/__mocks__/cache-storage.contract.mock';
 import { ICacheStorage } from '../../../shared/contracts/cache-storage.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import { TEntityId } from '../../../shared/types/uuid';
-import { makeMockCacheStorage } from '../../persistence/cache/__mocks__/cache-storage.impl.mock';
 import makeAuthService from '../auth.service';
 
 describe('makeAuthService', () => {

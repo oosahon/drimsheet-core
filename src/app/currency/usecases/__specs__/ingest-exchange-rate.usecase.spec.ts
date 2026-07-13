@@ -2,11 +2,11 @@ import { SYSTEM_CURRENCIES } from '../../../../domain/currency/config/currencies
 import currencyError from '../../../../domain/currency/errors/currency.error';
 import exchangeRateError from '../../../../domain/currency/errors/exchange-rate.error';
 import { EExchangeRateType } from '../../../../domain/currency/types/exchange-rate.types';
-import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import exchangeRateRepoMock from '../../../../infra/persistence/repos/currency/__mocks__/exchange-rate-repo.impl.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
+import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
 import makeIngestExchangeRateUseCase from '../ingest-exchange-rate.usecase';

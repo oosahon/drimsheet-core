@@ -10,11 +10,9 @@ import historyValue from '../../../shared/value-objects/history.vo';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import ITransactionEntryService from '../../bookkeeping/contracts/transaction-entry.service.contract';
 import IRequestContext from '../../shared/contracts/request-context.contract';
-import moneyMapper from '../../shared/mappers/money.mapper';
-import {
-  ITransactionJournalEntryReq,
-  transactionJournalEntryReqValidation,
-} from '../dtos/transaction-journal-entry.dto';
+import moneyMapper from '../../shared/dtos/money/money.dto.mapper';
+import { ITransactionJournalEntryReq } from '../dtos/transaction-journal-entry/transaction-journal-entry.dto';
+import { transactionJournalEntryReqValidation } from '../dtos/transaction-journal-entry/transaction-journal-entry.dto.validation';
 
 interface IDependencies {
   requestContext: IRequestContext;

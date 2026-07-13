@@ -5,7 +5,7 @@ import {
   IRabbitMQConsumerConfig,
   registerRabbitMQConsumer,
 } from '../../config/rabbitmq.config';
-import currencyWorkers from '../../ioc/currency/workers';
+import currencyWorkers from '../../ioc/workers/currency.workers';
 
 export default async function registerExchangeRateConsumer(
   reporter: IReporter

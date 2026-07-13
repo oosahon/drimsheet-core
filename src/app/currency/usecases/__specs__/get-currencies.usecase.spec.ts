@@ -1,6 +1,6 @@
 import { ICurrency } from '../../../../domain/currency/types/currency.types';
 import mockCurrencyRepo from '../../../../infra/persistence/repos/currency/__mocks__/currency.repo.impl.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeGetCurrenciesUseCase from '../get-currencies.usecase';
 

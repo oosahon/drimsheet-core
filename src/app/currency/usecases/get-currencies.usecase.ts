@@ -1,6 +1,6 @@
 import ICurrencyRepo from '../../../domain/currency/repos/currency.repo';
 import IRequestContext from '../../shared/contracts/request-context.contract';
-import { ICurrencyDto } from '../dtos/currency.dto';
+import { ICurrencyDto } from '../dtos/currency/currency.dto';
 
 interface IDependencies {
   currencyRepo: ICurrencyRepo;

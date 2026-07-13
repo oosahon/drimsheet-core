@@ -1,5 +1,5 @@
 import Sentry from '@sentry/node';
-import appContext from '../../app/shared/context';
+import appContext from '../../app/shared/app-context';
 import IReporter from '../../shared/contracts/reporter.contract';
 import errorUtils from '../../shared/utils/error';
 import { NODE_ENV, SENTRY_DSN } from '../config/vars.config';

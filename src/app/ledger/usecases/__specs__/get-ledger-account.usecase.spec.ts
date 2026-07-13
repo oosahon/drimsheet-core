@@ -11,11 +11,11 @@ import {
   ILedgerAccount,
 } from '../../../../domain/ledger/shared/types/ledger.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { MockReporter } from '../../../../infra/observability/__mocks__/reporter.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
+import { MockReporter } from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import moneyValue from '../../../../shared/value-objects/money.vo';
-import ledgerAccountMapper from '../../mappers/ledger-account.mapper';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
+import ledgerAccountMapper from '../../dtos/ledger-account/ledger-account.dto.mapper';
 import makeGetLedgerAccountUseCase from '../get-ledger-account.usecase';
 
 import mockLedgerAccountBalanceRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';

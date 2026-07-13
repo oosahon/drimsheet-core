@@ -5,16 +5,14 @@ import { IPaginatedResponse } from '../../../shared/types/pagination.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IRequestContext from '../../shared/contracts/request-context.contract';
-import {
-  IPaginationDto,
-  paginationQueryValidationSchema,
-} from '../../shared/dtos/pagination.dto';
+import { IPaginationDto } from '../../shared/dtos/pagination/pagination.dto';
+import paginationMapper from '../../shared/dtos/pagination/pagination.dto.mapper';
+import { paginationQueryValidationSchema } from '../../shared/dtos/pagination/pagination.dto.validation';
 import appError from '../../shared/errors/app.error';
-import paginationMapper from '../../shared/mappers/pagination.mapper';
 import IAccountTransactionQueryRepo from '../contracts/account-transaction.query.repo.contract';
-import { IAccountTransactionRes } from '../dtos/account-transaction.dto';
+import { IAccountTransactionRes } from '../dtos/account-transaction/account-transaction.dto';
+import accountTransactionMapper from '../dtos/account-transaction/account-transaction.dto.mapper';
 import ledgerAppError from '../errors/ledger.error';
-import accountTransactionMapper from '../mappers/account-transaction.mapper';
 
 interface IDependencies {
   requestContext: IRequestContext;

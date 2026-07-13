@@ -1,0 +1,53 @@
+import _ from 'lodash';
+import z from 'zod';
+import ledgerAccountError from '../../../../domain/ledger/shared/errors/ledger-account.error';
+import {
+  ELedgerAccountSortBy,
+  ULedgerAccountSortBy,
+} from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+import {
+  ELedgerAccountSubType,
+  ULedgerAccountSubType,
+} from '../../../../domain/ledger/shared/types/ledger-aggregate.types';
+import {
+  ELedgerType,
+  ULedgerType,
+} from '../../../../domain/ledger/shared/types/ledger.types';
+import { paginationQueryValidationSchema } from '../../../shared/dtos/pagination/pagination.dto.validation';
+import appError from '../../../shared/errors/app.error';
+
+// =========== error keys start ===========
+const invalidTypeKey = new ledgerAccountError.InvalidType().errorKey;
+const invalidSubTypeKey = new ledgerAccountError.InvalidSubType().errorKey;
+const defaultErrorKey = new appError.UnprocessableEntity([]).errorKey;
+// =========== error keys end ===========
+
+export const ledgerAccountTypeValidation = z.enum(
+  Object.values(ELedgerType) as [ULedgerType, ...ULedgerType[]],
+  invalidTypeKey
+);
+
+export const ledgerAccountOrderByValidationSchema = z.enum(
+  Object.values(ELedgerAccountSortBy) as [
+    ULedgerAccountSortBy,
+    ...ULedgerAccountSortBy[],
+  ],
+  { message: invalidTypeKey }
+);
+
+export const ledgerAccountSubTypeValidation = z.enum(
+  Object.values(ELedgerAccountSubType) as [
+    ULedgerAccountSubType,
+    ...ULedgerAccountSubType[],
+  ],
+  { message: invalidSubTypeKey }
+);
+
+export const getLedgerAccountQueryValidationSchema = z.object({
+  ..._.omit(paginationQueryValidationSchema.shape, ['orderBy']),
+  type: ledgerAccountTypeValidation.optional(),
+  subType: ledgerAccountSubTypeValidation.optional(),
+  behavior: z.string(defaultErrorKey).optional(),
+  isControlAccount: z.boolean(defaultErrorKey).optional(),
+  orderBy: ledgerAccountOrderByValidationSchema.optional(),
+});

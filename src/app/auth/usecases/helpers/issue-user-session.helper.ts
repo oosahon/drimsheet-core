@@ -9,7 +9,7 @@ import generateUUID from '../../../../shared/utils/uuid-generator';
 import IRequestContext from '../../../shared/contracts/request-context.contract';
 import IAuthService from '../../contracts/auth-service.contract';
 import IUserSessionRepo from '../../contracts/user-session.repo.contract';
-import { IAccessToken } from '../../dtos/auth.dto';
+import { IAccessToken } from '../../dtos/auth/auth.dto';
 
 export interface IIssueUserSessionDeps {
   user: IUser;

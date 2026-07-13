@@ -1,13 +1,13 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockUserSessionRepo from '../../../../infra/persistence/repos/user/__mocks__/user-session.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import mockRepoService from '../../../../infra/services/__mocks__/repo.service.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
+} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
+import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 import makeOauthUsecase from '../oauth.usecase';
 
 describe('makeOauthUsecase', () => {

@@ -9,9 +9,9 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { ITransactionJournalEntryReq } from '../../../app/journal-entry/dtos/transaction-journal-entry.dto';
-import { IHttpErrorDto } from '../../../app/shared/dtos/error.dto';
-import journalEntryUseCases from '../../../infra/ioc/journal-entry/usecases';
+import { ITransactionJournalEntryReq } from '../../../app/journal-entry/dtos/transaction-journal-entry/transaction-journal-entry.dto';
+import { IHttpErrorDto } from '../../../app/shared/dtos/error/error.dto';
+import journalEntryUseCases from '../../../infra/ioc/usecases/journal-entry.usecases';
 import middlewares from '../middlewares';
 
 @Route('journal-entry')

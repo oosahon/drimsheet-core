@@ -17,16 +17,16 @@ import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.ty
 import userEntity from '../../../../domain/user/entities/user.entity';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockLedgerAccountRepo from '../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import mockAccountTransactionQueryRepo from '../../../../infra/persistence/repos/ledger/queries/__mocks__/account-transaction.query.repo.impl.mock';
-import mockRequestContext, {
-  mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
 import mockLedgerDomainServices from '../../../../infra/services/domain/__mocks__/ledger.domain.service.mock';
 import { EPaginationSortDirection } from '../../../../shared/types/pagination.types';
 import moneyValue from '../../../../shared/value-objects/money.vo';
+import mockRequestContext, {
+  mockClientSession,
+} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
-import { IPaginationDto } from '../../../shared/dtos/pagination.dto';
+import { IPaginationDto } from '../../../shared/dtos/pagination/pagination.dto';
 import appError from '../../../shared/errors/app.error';
+import mockAccountTransactionQueryRepo from '../../contracts/__mocks__/account-transaction.query.repo.contract.mock';
 import ledgerAppError from '../../errors/ledger.error';
 import makeGetAccountTransactionsUseCase from '../get-account-transactions.usecase';
 

@@ -1,5 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IJournalEntryDto } from '../../../../app/journal-entry/dtos/journal-entry.dto';
+import { IJournalEntryDto } from '../../../../app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import {
   IJournalEntry,
   IJournalHeader,

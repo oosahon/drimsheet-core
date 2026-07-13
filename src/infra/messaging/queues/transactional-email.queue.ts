@@ -2,7 +2,7 @@ import { Queue } from 'bullmq';
 import ITransactionalEmailQueue, {
   TRANSACTIONAL_EMAIL_QUEUE_NAME,
 } from '../../../app/notification/contracts/transactional-email-queue.contract';
-import { ITransactionalEmailDto } from '../../../app/notification/dtos/transactional-email.dto';
+import { ITransactionalEmailDto } from '../../../app/notification/dtos/transactional-email/transactional-email.dto';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { queueConnection } from '../../config/redis.config';
 

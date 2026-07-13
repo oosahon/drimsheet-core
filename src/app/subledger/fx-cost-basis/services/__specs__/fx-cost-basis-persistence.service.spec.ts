@@ -5,7 +5,7 @@ import fxCostBasisLotEntity from '../../../../../domain/subledger/fx-cost-basis/
 import { EFxCostBasisLotStatus } from '../../../../../domain/subledger/fx-cost-basis/types/lot.types';
 import mockFxCostBasisLotAcquisitionRepo from '../../../../../infra/persistence/repos/subledger/fx-cost-basis/__mocks__/acquisition.repo.impl.mock';
 import mockFxCostBasisLotRepo from '../../../../../infra/persistence/repos/subledger/fx-cost-basis/__mocks__/lot.repo.impl.mock';
-import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
+import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { EHistoryActorType } from '../../../../../shared/types/history.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';

@@ -1,7 +1,7 @@
-import mockLogger from '../../../../../infra/observability/__mocks__/logger.mock';
 import mockLedgerAccountBalanceRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account-balance.repo.impl.mock';
 import mockLedgerAccountRepo from '../../../../../infra/persistence/repos/ledger/__mocks__/ledger-account.repo.impl.mock';
-import mockRepoService from '../../../../../infra/services/__mocks__/repo.service.mock';
+import mockLogger from '../../../../../shared/contracts/__mocks__/logger.contract.mock';
+import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { IWriteRepoOptions } from '../../../../../shared/types/repo.types';
 import accountingEntityEntity from '../../../../accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../accounting/types/accounting-entity.types';

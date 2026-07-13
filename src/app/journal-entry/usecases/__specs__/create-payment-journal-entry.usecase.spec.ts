@@ -12,12 +12,14 @@ import {
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../infra/messaging/__mock__/event-bus.mock';
-import mockBookkeepingServices from '../../../../infra/services/__mocks__/bookkeeping.service.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
+import mockTransactionEntryService from '../../../bookkeeping/contracts/__mocks__/transaction-entry.service.contract.mock';
+
+import { TEntityId } from '../../../../shared/types/uuid';
 import mockRequestContext, {
   mockClientSession,
-} from '../../../../infra/services/__mocks__/request-context.mock';
-import { TEntityId } from '../../../../shared/types/uuid';
+} from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import makeCreatePaymentJournalEntryUseCase from '../create-payment-journal-entry.usecase';
 
@@ -90,21 +92,18 @@ describe('createPaymentJournalEntryUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IRequestContextData);
 
-    mockBookkeepingServices.transactionEntry.create.mockResolvedValue(
+    mockTransactionEntryService.create.mockResolvedValue(
       mockJournalEntryResult
     );
 
-    mockBookkeepingServices.journalEntryPersistence.create.mockResolvedValue(
-      undefined
-    );
+    mockJournalEntryPersistenceService.create.mockResolvedValue(undefined);
   });
 
   const getUseCase = () =>
     makeCreatePaymentJournalEntryUseCase({
       requestContext: mockRequestContext,
-      transactionEntryService: mockBookkeepingServices.transactionEntry,
-      journalEntryPersistenceService:
-        mockBookkeepingServices.journalEntryPersistence,
+      transactionEntryService: mockTransactionEntryService,
+      journalEntryPersistenceService: mockJournalEntryPersistenceService,
       eventBus: mockEventBus,
     });
 
@@ -136,9 +135,7 @@ describe('createPaymentJournalEntryUseCase', () => {
 
     await useCase(validPayload);
 
-    expect(
-      mockBookkeepingServices.transactionEntry.create
-    ).toHaveBeenCalledWith(
+    expect(mockTransactionEntryService.create).toHaveBeenCalledWith(
       expect.objectContaining({
         accountId: accountId1,
         sequenceOrder: 1,
@@ -155,9 +152,7 @@ describe('createPaymentJournalEntryUseCase', () => {
       }),
       { correlationId }
     );
-    expect(
-      mockBookkeepingServices.journalEntryPersistence.create
-    ).toHaveBeenCalledWith(
+    expect(mockJournalEntryPersistenceService.create).toHaveBeenCalledWith(
       mockJournalEntryResult[0],
       expect.any(Object),
       expect.any(Array),

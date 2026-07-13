@@ -23,14 +23,12 @@ import historyValue from '../../../shared/value-objects/history.vo';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import IExchangeRateAppService from '../../currency/contracts/exchange-rate.service.contract';
-import { IOpeningBalanceDto } from '../../journal-entry/dtos/opening-balance.dto';
+import { IOpeningBalanceDto } from '../../journal-entry/dtos/opening-balance/opening-balance.dto';
 import IRequestContext from '../../shared/contracts/request-context.contract';
-import moneyMapper from '../../shared/mappers/money.mapper';
+import moneyMapper from '../../shared/dtos/money/money.dto.mapper';
 import IFxCostBasisPersistenceService from '../../subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
-import {
-  IPettyCashAccountCreationReq,
-  pettyCashCreationReqValidation,
-} from '../dtos/asset-account.dto';
+import { IPettyCashAccountCreationReq } from '../dtos/asset-account/asset-account.dto';
+import { pettyCashCreationReqValidation } from '../dtos/asset-account/asset-account.dto.validation';
 import ledgerAppError from '../errors/ledger.error';
 
 interface IDependencies {

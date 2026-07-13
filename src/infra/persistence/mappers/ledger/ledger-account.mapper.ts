@@ -1,5 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { ILedgerAccountDto } from '../../../../app/ledger/dtos/ledger-account.dto';
+import { ILedgerAccountDto } from '../../../../app/ledger/dtos/ledger-account/ledger-account.dto';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { IMoney } from '../../../../shared/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';

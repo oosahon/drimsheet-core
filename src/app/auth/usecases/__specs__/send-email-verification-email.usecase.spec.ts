@@ -1,14 +1,14 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/value-objects/email.vo';
-import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
 import mockUserRepo from '../../../../infra/persistence/repos/user/__mocks__/user.repo.impl.mock';
-import mockAuthService from '../../../../infra/services/__mocks__/auth.service.mock';
-import mockRequestContext from '../../../../infra/services/__mocks__/request-context.mock';
-import mockTransactionalEmailService from '../../../../infra/services/__mocks__/transactional-email.service.mock';
+import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
+import mockTransactionalEmailService from '../../../notification/contracts/__mocks__/transactional-email-service.contract.mock';
+import mockRequestContext from '../../../shared/contracts/__mocks__/request-context.contract.mock';
 import { IRequestContextData } from '../../../shared/contracts/request-context.contract';
 import appError from '../../../shared/errors/app.error';
+import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import authError from '../../errors/auth.error';
 import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
 

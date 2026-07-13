@@ -8,9 +8,9 @@ import stringUtils from '../../../shared/utils/string';
 import moneyValue from '../../../shared/value-objects/money.vo';
 import IRequestContext from '../../shared/contracts/request-context.contract';
 import appError from '../../shared/errors/app.error';
-import { ILedgerAccountDto } from '../dtos/ledger-account.dto';
+import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';
+import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';
 import ledgerAppError from '../errors/ledger.error';
-import ledgerAccountMapper from '../mappers/ledger-account.mapper';
 
 interface IDependencies {
   requestContext: IRequestContext;

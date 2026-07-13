@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
 import appError from '../../../../app/shared/errors/app.error';
-import mockLogger from '../../../../infra/observability/__mocks__/logger.mock';
-import mockReporter from '../../../../infra/observability/__mocks__/reporter.mock';
+import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import DomainError from '../../../../shared/errors/domain.error';
 import makeHttpErrorHandler from '../error.handler';
 
