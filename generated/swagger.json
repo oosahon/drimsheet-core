@@ -893,6 +893,51 @@
         "type": "object",
         "additionalProperties": false
       },
+      "Pick_IPaginationDto.Exclude_keyofIPaginationDto.search-or-sortDirection__": {
+        "properties": {
+          "limit": {
+            "type": "number",
+            "format": "double"
+          },
+          "orderBy": {
+            "type": "string"
+          },
+          "page": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "type": "object",
+        "description": "From T, pick a set of properties whose keys are in the union K"
+      },
+      "IExchangeRateQueryParam": {
+        "properties": {
+          "limit": {
+            "type": "number",
+            "format": "double"
+          },
+          "orderBy": {
+            "type": "string"
+          },
+          "page": {
+            "type": "number",
+            "format": "double"
+          },
+          "currencyPair": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UExchangeRateType"
+          },
+          "asOf": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": ["currencyPair"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IUserSignupReq": {
         "properties": {
           "firstName": {
@@ -1758,9 +1803,9 @@
         }
       }
     },
-    "/currencies": {
+    "/money/currencies": {
       "get": {
-        "operationId": "getAll",
+        "operationId": "getAllCurrencies",
         "responses": {
           "200": {
             "description": "",
@@ -1777,9 +1822,85 @@
           }
         },
         "description": "Gets all system currencies",
-        "tags": ["Currency"],
+        "tags": ["Money"],
         "security": [],
         "parameters": []
+      }
+    },
+    "/money/exchange-rates": {
+      "get": {
+        "operationId": "getExchangeRates",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IExchangeRate"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "description": "Gets all system exchange",
+        "tags": ["Money"],
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "currencyPair",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UExchangeRateType"
+            }
+          },
+          {
+            "in": "query",
+            "name": "asOf",
+            "required": false,
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          }
+        ]
       }
     },
     "/auth/signup-with-email": {

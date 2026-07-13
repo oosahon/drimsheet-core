@@ -27,7 +27,7 @@ export const paginationSortDirectionValidationSchema = z.enum(
   InvalidSortDirectionKey
 );
 
-export const paginationQueryValidationSchema = z.object({
+export const paginationDtoValidation = z.object({
   limit: z
     .number(invalidLimitKey)
     .min(1, invalidLimitKey)

@@ -10,7 +10,7 @@ import { LedgerController } from './../src/interface/http/controllers/ledger.con
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { JournalEntryController } from './../src/interface/http/controllers/journal-entry.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { CurrencyController } from './../src/interface/http/controllers/currency.controller';
+import { MoneyController } from './../src/interface/http/controllers/currency.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './../src/interface/http/controllers/auth.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -735,6 +735,32 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  'Pick_IPaginationDto.Exclude_keyofIPaginationDto.search-or-sortDirection__': {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'nestedObjectLiteral',
+      nestedProperties: {
+        limit: { dataType: 'double' },
+        orderBy: { dataType: 'string' },
+        page: { dataType: 'double' },
+      },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IExchangeRateQueryParam: {
+    dataType: 'refObject',
+    properties: {
+      limit: { dataType: 'double' },
+      orderBy: { dataType: 'string' },
+      page: { dataType: 'double' },
+      currencyPair: { dataType: 'string', required: true },
+      type: { ref: 'UExchangeRateType' },
+      asOf: { dataType: 'datetime' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IUserSignupReq: {
     dataType: 'refObject',
     properties: {
@@ -1428,16 +1454,18 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsCurrencyController_getAll: Record<
+  const argsMoneyController_getAllCurrencies: Record<
     string,
     TsoaRoute.ParameterSchema
   > = {};
   app.get(
-    '/api/v1/currencies',
-    ...fetchMiddlewares<RequestHandler>(CurrencyController),
-    ...fetchMiddlewares<RequestHandler>(CurrencyController.prototype.getAll),
+    '/api/v1/money/currencies',
+    ...fetchMiddlewares<RequestHandler>(MoneyController),
+    ...fetchMiddlewares<RequestHandler>(
+      MoneyController.prototype.getAllCurrencies
+    ),
 
-    async function CurrencyController_getAll(
+    async function MoneyController_getAllCurrencies(
       request: ExRequest,
       response: ExResponse,
       next: any
@@ -1447,15 +1475,64 @@ export function RegisterRoutes(app: Router) {
       let validatedArgs: any[] = [];
       try {
         validatedArgs = templateService.getValidatedArgs({
-          args: argsCurrencyController_getAll,
+          args: argsMoneyController_getAllCurrencies,
           request,
           response,
         });
 
-        const controller = new CurrencyController();
+        const controller = new MoneyController();
 
         await templateService.apiHandler({
-          methodName: 'getAll',
+          methodName: 'getAllCurrencies',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsMoneyController_getExchangeRates: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    query: {
+      in: 'queries',
+      name: 'query',
+      required: true,
+      ref: 'IExchangeRateQueryParam',
+    },
+  };
+  app.get(
+    '/api/v1/money/exchange-rates',
+    ...fetchMiddlewares<RequestHandler>(MoneyController),
+    ...fetchMiddlewares<RequestHandler>(
+      MoneyController.prototype.getExchangeRates
+    ),
+
+    async function MoneyController_getExchangeRates(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsMoneyController_getExchangeRates,
+          request,
+          response,
+        });
+
+        const controller = new MoneyController();
+
+        await templateService.apiHandler({
+          methodName: 'getExchangeRates',
           controller,
           response,
           next,

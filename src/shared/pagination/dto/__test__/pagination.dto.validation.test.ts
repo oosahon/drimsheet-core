@@ -1,5 +1,5 @@
 import {
-  paginationQueryValidationSchema,
+  paginationDtoValidation,
   paginationSortDirectionValidationSchema,
 } from '../pagination.dto.validation';
 
@@ -22,7 +22,7 @@ describe('Pagination DTO Validation', () => {
     });
   });
 
-  describe('paginationQueryValidationSchema', () => {
+  describe('paginationDtoValidation', () => {
     it('should validate a correct pagination query payload', () => {
       const payload = {
         limit: 50,
@@ -32,14 +32,14 @@ describe('Pagination DTO Validation', () => {
         search: 'search term',
       };
 
-      const result = paginationQueryValidationSchema.safeParse(payload);
+      const result = paginationDtoValidation.safeParse(payload);
       expect(result.success).toBe(true);
     });
 
     it('should validate with optional fields omitted', () => {
       const payload = {};
 
-      const result = paginationQueryValidationSchema.safeParse(payload);
+      const result = paginationDtoValidation.safeParse(payload);
       expect(result.success).toBe(true);
     });
 
@@ -48,7 +48,7 @@ describe('Pagination DTO Validation', () => {
         limit: 0,
       };
 
-      const result = paginationQueryValidationSchema.safeParse(payload);
+      const result = paginationDtoValidation.safeParse(payload);
       expect(result.success).toBe(false);
     });
 
@@ -57,7 +57,7 @@ describe('Pagination DTO Validation', () => {
         limit: 201,
       };
 
-      const result = paginationQueryValidationSchema.safeParse(payload);
+      const result = paginationDtoValidation.safeParse(payload);
       expect(result.success).toBe(false);
     });
 
@@ -66,7 +66,7 @@ describe('Pagination DTO Validation', () => {
         page: 0,
       };
 
-      const result = paginationQueryValidationSchema.safeParse(payload);
+      const result = paginationDtoValidation.safeParse(payload);
       expect(result.success).toBe(false);
     });
   });

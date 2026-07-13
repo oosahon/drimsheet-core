@@ -14,7 +14,7 @@ import {
   ULedgerType,
 } from '../../../../domain/ledger/shared/types/ledger.types';
 import appError from '../../../../shared/errors/app.error';
-import { paginationQueryValidationSchema } from '../../../../shared/pagination/dto/pagination.dto.validation';
+import { paginationDtoValidation } from '../../../../shared/pagination/dto/pagination.dto.validation';
 
 // =========== error keys start ===========
 const invalidTypeKey = new ledgerAccountError.InvalidType().errorKey;
@@ -44,7 +44,7 @@ export const ledgerAccountSubTypeValidation = z.enum(
 );
 
 export const getLedgerAccountQueryValidationSchema = z.object({
-  ..._.omit(paginationQueryValidationSchema.shape, ['orderBy']),
+  ..._.omit(paginationDtoValidation.shape, ['orderBy']),
   type: ledgerAccountTypeValidation.optional(),
   subType: ledgerAccountSubTypeValidation.optional(),
   behavior: z.string(defaultErrorKey).optional(),
