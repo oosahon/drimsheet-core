@@ -5,11 +5,11 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contr
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
-import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
-import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import appError from '../../../../shared/errors/app.error';
 import { IEvent } from '../../../../shared/events/types/event.types';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
 

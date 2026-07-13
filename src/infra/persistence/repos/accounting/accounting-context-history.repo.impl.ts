@@ -1,6 +1,6 @@
 import IAccountingContextHistoryRepo from '../../../../domain/accounting/repos/accounting-context-history.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { accountingContextHistoryInAudit } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import accountingContextHistoryMapper from '../../mappers/accounting/accounting-context-history.mapper';
 
 const accountingContextHistoryRepo: IAccountingContextHistoryRepo = {

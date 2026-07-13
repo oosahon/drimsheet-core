@@ -1,7 +1,7 @@
 import journalLineError from '../../../../domain/journal-entry/errors/journal-line.error';
 import IJournalLineHistoryRepo from '../../../../domain/journal-entry/repos/journal-line-history.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { journalLineHistoryInAudit } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import journalLineHistoryMapper from '../../mappers/journal-entry/journal-line-history.mapper';
 
 const journalLineHistoryRepo: IJournalLineHistoryRepo = {

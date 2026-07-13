@@ -20,11 +20,11 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contr
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
+import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext, {
   mockClientSession,
-} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
-import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
-import { TEntityId } from '../../../../shared/types/uuid';
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import makeCreateOpeningBalanceUseCase from '../create-opening-balance.usecase';
 

@@ -1,8 +1,8 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
+import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
 import mockAppContext, {
   mockClientSession,
-} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
-import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 import authError from '../../errors/auth.error';

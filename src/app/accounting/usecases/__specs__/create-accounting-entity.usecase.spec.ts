@@ -16,25 +16,21 @@ import mockAccountingPeriodRepo from '../../../../domain/accounting/repos/__mock
 import mockFiscalYearRepo from '../../../../domain/accounting/repos/__mocks__/fiscal-year.repo.impl.mock';
 import mockReportingContextRepo from '../../../../domain/accounting/repos/__mocks__/reporting-context.repo.impl.mock';
 import mockReportingPeriodRepo from '../../../../domain/accounting/repos/__mocks__/reporting-period.repo.impl.mock';
-import mockLedgerDomainServices from '../../../../domain/ledger/services/__mocks__/ledger.service.mock';
+import mockAssetAccountService from '../../../../domain/ledger/asset-account/services/__mocks__/asset-account.service.mock';
+import mockEquityAccountService from '../../../../domain/ledger/equity-account/services/__mocks__/equity-account.service.mock';
+import mockExpenseAccountService from '../../../../domain/ledger/expense-account/services/__mocks__/expense-account.service.mock';
+import mockLiabilityAccountService from '../../../../domain/ledger/liability-account/services/__mocks__/liability-account.service.mock';
+import mockRevenueAccountService from '../../../../domain/ledger/revenue-account/services/__mocks__/revenue-account.service.mock';
 import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
-import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { IEntityDelta } from '../../../../shared/history/types/history.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 
 describe('createAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
-
-  const {
-    assetAccount: mockAssetAccountService,
-    liabilityAccount: mockLiabilityAccountService,
-    equityAccount: mockEquityAccountService,
-    revenueAccount: mockRevenueAccountService,
-    expenseAccount: mockExpenseAccountService,
-  } = mockLedgerDomainServices;
 
   const getUseCase = () =>
     createAccountingEntityUseCase({

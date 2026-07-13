@@ -1,6 +1,6 @@
 import { IUser } from '../../../domain/user/types/user.types';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import appError from '../../../shared/errors/app.error';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import userMapper from '../dtos/user/user.dto.mapper';
 
 interface IDependencies {

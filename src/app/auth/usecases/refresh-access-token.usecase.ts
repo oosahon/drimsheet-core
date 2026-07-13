@@ -1,8 +1,8 @@
 import IUserRepo from '../../../domain/user/repos/user.repo';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
 import appError from '../../../shared/errors/app.error';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';

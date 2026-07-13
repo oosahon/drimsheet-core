@@ -1,6 +1,6 @@
 import IFiscalYearHistoryRepo from '../../../../domain/accounting/repos/fiscal-year-history.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { fiscalYearHistoryInAudit } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import fiscalYearHistoryMapper from '../../mappers/accounting/fiscal-year-history.mapper';
 
 const fiscalYearHistoryRepo: IFiscalYearHistoryRepo = {

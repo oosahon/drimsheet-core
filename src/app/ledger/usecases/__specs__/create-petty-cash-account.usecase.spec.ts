@@ -22,16 +22,17 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contr
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
-import mockLedgerDomainServices from '../../../../domain/ledger/services/__mocks__/ledger.service.mock';
+import mockAssetAccountService from '../../../../domain/ledger/asset-account/services/__mocks__/asset-account.service.mock';
+import mockLedgerAccountPersistenceService from '../../../../domain/ledger/shared/services/__mocks__/ledger-account-persistence.service.mock';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import mockFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/services/__mocks__/fx-lot-cost-basis.service.mock';
-import mockAppContext, {
-  mockClientSession,
-} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
-import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import appError from '../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../shared/types/uuid';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.contract.mock';
 import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.contract.mock';
 import { IPettyCashAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
@@ -145,9 +146,11 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(null);
-    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue(
-      [mockPettyCashAccount, mockEvents, mockPettyCashAudit]
-    );
+    mockAssetAccountService.makePettyCashSubAccount.mockResolvedValue([
+      mockPettyCashAccount,
+      mockEvents,
+      mockPettyCashAudit,
+    ]);
     mockOpeningBalanceEntryService.create.mockResolvedValue([
       mockOpeningBalanceJournalEntry,
       mockOpeningBalanceEvents,
@@ -159,11 +162,11 @@ describe('createPettyCashSubAccountUseCase', () => {
     makeCreatePettyCashAccountUseCase({
       appContext: mockAppContext,
       eventBus: mockEventBus,
-      assetAccountService: mockLedgerDomainServices.assetAccount,
+      assetAccountService: mockAssetAccountService,
       openingBalanceEntryService: mockOpeningBalanceEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       repoService: mockRepoService,
-      ledgerAccountPersistenceService: mockLedgerDomainServices.persistence,
+      ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
       fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
       fxCostBasisService: mockFxCostBasisLotDomainService,
       exchangeRateService: mockExchangeRateService,
@@ -175,7 +178,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     await useCase(validPayload);
 
     expect(
-      mockLedgerDomainServices.assetAccount.makePettyCashSubAccount
+      mockAssetAccountService.makePettyCashSubAccount
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
@@ -188,7 +191,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       { correlationId }
     );
 
-    expect(mockLedgerDomainServices.persistence.create).toHaveBeenCalledWith(
+    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledWith(
       mockPettyCashAccount,
       mockAccountingEntity.functionalCurrencyCode,
       expect.objectContaining({
@@ -251,7 +254,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     await useCase({ ...validPayload, openingBalance: null });
 
     expect(mockJournalEntryPersistenceService.create).not.toHaveBeenCalled();
-    expect(mockLedgerDomainServices.persistence.create).toHaveBeenCalledWith(
+    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledWith(
       mockPettyCashAccount,
       mockAccountingEntity.functionalCurrencyCode,
       expect.objectContaining({
@@ -278,7 +281,7 @@ describe('createPettyCashSubAccountUseCase', () => {
   it('should throw an error if the control account is not found', async () => {
     const useCase = getUseCase();
 
-    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
+    mockAssetAccountService.makePettyCashSubAccount.mockRejectedValue(
       new appError.Base('app_error_control_account_not_found')
     );
 
@@ -313,7 +316,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IAppContextData);
 
-    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockRejectedValue(
+    mockAssetAccountService.makePettyCashSubAccount.mockRejectedValue(
       new appError.Base('app_error_access_denied')
     );
 
@@ -456,9 +459,11 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     // 2. Setup mock resolves for this test block
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockForexControlAccount);
-    mockLedgerDomainServices.assetAccount.makePettyCashSubAccount.mockResolvedValue(
-      [mockForexPettyCashAccount, mockForexEvents, mockForexPettyCashAudit]
-    );
+    mockAssetAccountService.makePettyCashSubAccount.mockResolvedValue([
+      mockForexPettyCashAccount,
+      mockForexEvents,
+      mockForexPettyCashAudit,
+    ]);
     mockOpeningBalanceEntryService.create.mockResolvedValue([
       mockForexOpeningBalanceJournalEntry,
       mockForexOpeningBalanceEvents,

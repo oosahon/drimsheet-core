@@ -12,20 +12,20 @@ import {
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import mockLedgerDomainServices from '../../../../domain/ledger/services/__mocks__/ledger.service.mock';
 import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockLedgerAccountService from '../../../../domain/ledger/shared/services/__mocks__/ledger-account.service.mock';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockAppContext, {
-  mockClientSession,
-} from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
-import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import appError from '../../../../shared/errors/app.error';
 import { IPaginationDto } from '../../../../shared/pagination/dto/pagination.dto';
 import { EPaginationSortDirection } from '../../../../shared/pagination/types/pagination.types';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import mockAccountTransactionQueryRepo from '../../contracts/__mocks__/account-transaction.query.repo.contract.mock';
 import ledgerAppError from '../../errors/ledger.error';
 import makeGetAccountTransactionsUseCase from '../get-account-transactions.usecase';
@@ -49,7 +49,7 @@ describe('getAccountTransactionsUseCase', () => {
     makeGetAccountTransactionsUseCase({
       appContext: mockAppContext,
       ledgerAccountRepo: mockLedgerAccountRepo,
-      ledgerAccountService: mockLedgerDomainServices.ledgerAccount,
+      ledgerAccountService: mockLedgerAccountService,
       accountTransactionQueryRepo: mockAccountTransactionQueryRepo,
     });
 
@@ -122,9 +122,7 @@ describe('getAccountTransactionsUseCase', () => {
       clientSession: mockClientSession,
     } satisfies IAppContextData);
     mockLedgerAccountRepo.findById.mockResolvedValue(ledgerAccount);
-    mockLedgerDomainServices.ledgerAccount.validateAccountAccess.mockResolvedValue(
-      true
-    );
+    mockLedgerAccountService.validateAccountAccess.mockResolvedValue(true);
     mockAccountTransactionQueryRepo.findAllByAccountId.mockResolvedValue({
       data: [
         {
@@ -167,9 +165,11 @@ describe('getAccountTransactionsUseCase', () => {
       ledgerAccount.id,
       { correlationId }
     );
-    expect(
-      mockLedgerDomainServices.ledgerAccount.validateAccountAccess
-    ).toHaveBeenCalledWith(ledgerAccount.id, user.id, { correlationId });
+    expect(mockLedgerAccountService.validateAccountAccess).toHaveBeenCalledWith(
+      ledgerAccount.id,
+      user.id,
+      { correlationId }
+    );
     expect(
       mockAccountTransactionQueryRepo.findAllByAccountId
     ).toHaveBeenCalledWith(ledgerAccount.id, {
@@ -238,7 +238,7 @@ describe('getAccountTransactionsUseCase', () => {
     );
 
     expect(
-      mockLedgerDomainServices.ledgerAccount.validateAccountAccess
+      mockLedgerAccountService.validateAccountAccess
     ).not.toHaveBeenCalled();
     expect(
       mockAccountTransactionQueryRepo.findAllByAccountId
@@ -247,9 +247,7 @@ describe('getAccountTransactionsUseCase', () => {
 
   it('throws Forbidden when the user cannot access the account', async () => {
     const useCase = getUseCase();
-    mockLedgerDomainServices.ledgerAccount.validateAccountAccess.mockResolvedValue(
-      false
-    );
+    mockLedgerAccountService.validateAccountAccess.mockResolvedValue(false);
 
     await expect(useCase(ledgerAccount.id, pagination)).rejects.toThrow(
       appError.Forbidden

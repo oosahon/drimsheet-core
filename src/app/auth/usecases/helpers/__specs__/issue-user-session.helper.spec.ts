@@ -1,14 +1,14 @@
 import userEntity from '../../../../../domain/user/entities/user.entity';
-import { IAppContextData } from '../../../../../shared/contracts/app-context.contract';
 import { IEvent } from '../../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import { IAppContextData } from '../../../../_internal/contracts/app-context.contract';
 import makeIssueUserSessionHelper from '../issue-user-session.helper';
 
-import mockAppContext, {
-  mockClientSession,
-} from '../../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockAppContext, {
+  mockClientSession,
+} from '../../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import mockAuthService from '../../../contracts/__mocks__/auth-service.contract.mock';
 import mockUserSessionRepo from '../../../contracts/__mocks__/user-session.repo.contract.mock';
 

@@ -1,11 +1,11 @@
 import { RequestHandler, Response } from 'express';
+import IAppContext from '../../../app/_internal/contracts/app-context.contract';
 import IAuthService from '../../../app/auth/contracts/auth-service.contract';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import { IUser } from '../../../domain/user/types/user.types';
 import { NODE_ENV, WEB_APP_URL } from '../../../infra/config/vars.config';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import ILogger from '../../../shared/contracts/logger.contract';
 import getAccountingEntityFromRequest from '../helpers/get-accounting-entity-from-request.helper';
 import getAuthUserFromRequest from '../helpers/get-auth-user-from-request.helper';

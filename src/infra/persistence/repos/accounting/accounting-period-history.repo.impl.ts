@@ -1,6 +1,6 @@
 import IAccountingPeriodHistoryRepo from '../../../../domain/accounting/repos/accounting-period-history.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { accountingPeriodHistoryInAudit } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import accountingPeriodHistoryMapper from '../../mappers/accounting/accounting-period-history.mapper';
 
 const accountingPeriodHistoryRepo: IAccountingPeriodHistoryRepo = {

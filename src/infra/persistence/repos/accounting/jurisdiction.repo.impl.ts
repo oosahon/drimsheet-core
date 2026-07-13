@@ -1,6 +1,6 @@
 import IJurisdictionRepo from '../../../../domain/accounting/repos/jurisdiction.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { jurisdictionsInCore } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import jurisdictionMapper from '../../mappers/accounting/jurisdiction.mapper';
 
 const jurisdictionRepo: IJurisdictionRepo = {

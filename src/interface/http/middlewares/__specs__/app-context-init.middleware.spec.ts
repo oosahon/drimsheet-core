@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
+import IAppContext from '../../../../app/_internal/contracts/app-context.contract';
 import IAuthService from '../../../../app/auth/contracts/auth-service.contract';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
-import IAppContext from '../../../../shared/contracts/app-context.contract';
 import ILogger from '../../../../shared/contracts/logger.contract';
 import makeAppContextInitMiddleware from '../app-context-init.middleware';
 

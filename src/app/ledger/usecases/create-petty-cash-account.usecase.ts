@@ -10,7 +10,6 @@ import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import { IFxCostBasisLotAcquisition } from '../../../domain/subledger/fx-cost-basis/types/acquisition.types';
 import IFxCostBasisLotDomainService from '../../../domain/subledger/fx-cost-basis/types/lot.service.types';
 import { IFxCostBasisLot } from '../../../domain/subledger/fx-cost-basis/types/lot.types';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
@@ -21,6 +20,7 @@ import { IEvent } from '../../../shared/events/types/event.types';
 import historyValue from '../../../shared/history/history.vo';
 import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import { IOpeningBalanceDto } from '../../journal-entry/dtos/opening-balance/opening-balance.dto';

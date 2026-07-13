@@ -4,11 +4,11 @@ import ILedgerAccountRepo, {
 } from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../domain/money/values/money.vo';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import paginationValue from '../../../shared/pagination/pagination.vo';
 import { IPaginatedResponse } from '../../../shared/pagination/types/pagination.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import {
   IGetLedgerAccountsQuery,
   ILedgerAccountDto,

@@ -2,12 +2,12 @@ import { EJournalEntrySourceType } from '../../../domain/journal-entry/types/jou
 import { IJournalLineInput } from '../../../domain/journal-entry/types/journal-line.types';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
 import ITransactionEntryService from '../../bookkeeping/contracts/transaction-entry.service.contract';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';

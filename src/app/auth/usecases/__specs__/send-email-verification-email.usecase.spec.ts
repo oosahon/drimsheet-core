@@ -1,12 +1,12 @@
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
-import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
-import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import appError from '../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../shared/types/uuid';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import mockTransactionalEmailService from '../../../notification/contracts/__mocks__/transactional-email-service.contract.mock';
 import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
 import authError from '../../errors/auth.error';

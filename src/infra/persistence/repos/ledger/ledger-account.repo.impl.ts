@@ -12,7 +12,6 @@ import ILedgerAccountRepo, {
   ELedgerAccountSortBy,
 } from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import drizzleFilters from '../../../../shared/helpers/drizzle-filters';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
 import paginationValue from '../../../../shared/pagination/pagination.vo';
 import {
@@ -20,6 +19,7 @@ import {
   ledgerAccountBalancesInCore,
   ledgerAccountsInCore,
 } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import ledgerAccountMapper from '../../mappers/ledger/ledger-account.mapper';
 import ledgerAccountHistoryRepo from './ledger-account-history.repo.impl';
 

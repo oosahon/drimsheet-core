@@ -5,9 +5,9 @@ import { IEvent } from '../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeUserCreatedEventHandler from '../user-created-event.handler';
 
-import mockAppContext from '../../../../shared/contracts/__mocks__/app-context.contract.mock';
 import MockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
-import { IAppContextData } from '../../../../shared/contracts/app-context.contract';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 
 describe('makeUserCreatedEventHandler', () => {
   const sendEmailVerificationEmail = jest.fn();

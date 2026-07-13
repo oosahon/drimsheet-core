@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/values/email.vo';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import ILogger from '../../../shared/contracts/logger.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
 import IAuthService from '../contracts/auth-service.contract';
 import authError from '../errors/auth.error';

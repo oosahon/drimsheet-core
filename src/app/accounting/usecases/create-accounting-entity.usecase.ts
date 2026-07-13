@@ -22,7 +22,6 @@ import ILiabilityAccountService from '../../../domain/ledger/liability-account/t
 import IRevenueAccountService from '../../../domain/ledger/revenue-account/types/revenue-account.service.types';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
@@ -33,6 +32,7 @@ import eventValue from '../../../shared/events/event.vo';
 import getEntitiesAndEvents from '../../../shared/helpers/get-entities-and-events';
 import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import currencyMapper from '../../money/dtos/currency/currency.dto.mapper';
 import { IAccountingEntityCreationDto } from '../dtos/accounting/accounting.dto';
 import { accountingEntityOnboardingDtoSchema } from '../dtos/accounting/accounting.dto.validation';

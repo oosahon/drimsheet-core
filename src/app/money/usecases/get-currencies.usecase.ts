@@ -1,5 +1,5 @@
 import ICurrencyRepo from '../../../domain/money/repos/currency.repo';
-import IAppContext from '../../../shared/contracts/app-context.contract';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import { ICurrencyDto } from '../dtos/currency/currency.dto';
 
 interface IDependencies {

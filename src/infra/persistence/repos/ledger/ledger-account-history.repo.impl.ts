@@ -1,6 +1,6 @@
 import ILedgerAccountHistoryRepo from '../../../../domain/ledger/shared/repos/ledger-account-history.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { ledgerAccountHistoryInAudit } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import ledgerAccountHistoryMapper from '../../mappers/ledger/ledger-account-history.mapper';
 
 const ledgerAccountHistoryRepo: ILedgerAccountHistoryRepo = {

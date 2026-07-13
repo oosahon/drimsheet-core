@@ -1,6 +1,6 @@
 import IJurisdictionAccountingStandardRepo from '../../../../domain/accounting/repos/jurisdiction-accounting-standard.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { jurisdictionAccountingStandardsInCore } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import jurisdictionAccountingStandardMapper from '../../mappers/accounting/jurisdiction-accounting-standard.mapper';
 
 const jurisdictionAccountingStandardRepo: IJurisdictionAccountingStandardRepo =

@@ -1,10 +1,10 @@
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/values/email.vo';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import eventValue from '../../../shared/events/event.vo';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
 import IAuthService, {
   EAuthStrategy,

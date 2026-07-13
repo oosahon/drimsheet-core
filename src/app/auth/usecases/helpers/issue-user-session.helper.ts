@@ -1,5 +1,4 @@
 import { IUser } from '../../../../domain/user/types/user.types';
-import IAppContext from '../../../../shared/contracts/app-context.contract';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
@@ -7,6 +6,7 @@ import {
 } from '../../../../shared/contracts/repo.contract';
 import { IEvent } from '../../../../shared/events/types/event.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import IAppContext from '../../../_internal/contracts/app-context.contract';
 import IAuthService from '../../contracts/auth-service.contract';
 import IUserSessionRepo from '../../contracts/user-session.repo.contract';
 import { IAccessToken } from '../../dtos/auth/auth.dto';

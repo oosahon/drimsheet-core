@@ -1,6 +1,6 @@
 import IUserPreferencesRepo from '../../../domain/user/repos/user-preferences.repo';
-import IAppContext from '../../../shared/contracts/app-context.contract';
 import appError from '../../../shared/errors/app.error';
+import IAppContext from '../../_internal/contracts/app-context.contract';
 
 interface IDependencies {
   appContext: IAppContext;

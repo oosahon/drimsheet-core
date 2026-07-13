@@ -1,6 +1,6 @@
 import IJournalEntryHistoryRepo from '../../../../domain/journal-entry/repos/journal-entry-history.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { journalEntryHistoryInAudit } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import journalEntryHistoryMapper from '../../mappers/journal-entry/journal-entry-history.mapper';
 
 const journalEntryHistoryRepo: IJournalEntryHistoryRepo = {

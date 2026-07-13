@@ -1,6 +1,6 @@
 import IUserHistoryRepo from '../../../../domain/user/repos/user-history.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { userProfileHistoryInAudit } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import userHistoryMapper from '../../mappers/user/user-history.mapper';
 
 const userHistoryRepo: IUserHistoryRepo = {

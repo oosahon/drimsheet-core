@@ -1,7 +1,7 @@
 import IAccountingPeriodRepo from '../../../../domain/accounting/repos/accounting-period.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
 import { accountingPeriodsInCore } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import accountingPeriodMapper from '../../mappers/accounting/accounting-period.mapper';
 import accountingPeriodHistoryRepo from './accounting-period-history.repo.impl';
 

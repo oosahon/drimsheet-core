@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import IUserPreferencesRepo from '../../../../domain/user/repos/user-preferences.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { userPreferencesInCore } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import userPreferencesMapper from '../../mappers/user/user-preferences.mapper';
 
 const userPreferencesRepo: IUserPreferencesRepo = {

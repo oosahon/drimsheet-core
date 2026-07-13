@@ -1,6 +1,6 @@
 import { IAccountingStandardRepo } from '../../../../domain/accounting/repos/accounting-standards.repo';
-import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { accountingStandardsInCore } from '../../../config/drizzle/schema';
+import getDbQuery from '../../helpers/get-db-query';
 import accountingStandardMapper from '../../mappers/accounting/accounting-standard.mapper';
 
 const accountingStandardRepo: IAccountingStandardRepo = {
