@@ -1,7 +1,7 @@
 import IUserHistoryRepo from '../../../../domain/user/repos/user-history.repo';
+import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { userProfileHistoryInAudit } from '../../../config/drizzle/schema';
 import userHistoryMapper from '../../mappers/user/user-history.mapper';
-import getDbQuery from '../helpers/query';
 
 const userHistoryRepo: IUserHistoryRepo = {
   save: async (history, options) => {

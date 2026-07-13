@@ -1,7 +1,7 @@
 import IJournalEntryHistoryRepo from '../../../../domain/journal-entry/repos/journal-entry-history.repo';
+import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { journalEntryHistoryInAudit } from '../../../config/drizzle/schema';
 import journalEntryHistoryMapper from '../../mappers/journal-entry/journal-entry-history.mapper';
-import getDbQuery from '../helpers/query';
 
 const journalEntryHistoryRepo: IJournalEntryHistoryRepo = {
   create: async (header, history, options) => {

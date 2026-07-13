@@ -1,8 +1,8 @@
 import journalLineError from '../../../../domain/journal-entry/errors/journal-line.error';
 import IJournalLineHistoryRepo from '../../../../domain/journal-entry/repos/journal-line-history.repo';
+import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { journalLineHistoryInAudit } from '../../../config/drizzle/schema';
 import journalLineHistoryMapper from '../../mappers/journal-entry/journal-line-history.mapper';
-import getDbQuery from '../helpers/query';
 
 const journalLineHistoryRepo: IJournalLineHistoryRepo = {
   create: async (payload, historyPayload, accountingEntityId, options) => {

@@ -1,11 +1,11 @@
 import IFxCostBasisLotAcquisitionRepo from '../../../../../domain/subledger/fx-cost-basis/repos/acquisition.repo';
+import getDbQuery from '../../../../../shared/helpers/get-db-query';
 import {
   subledgerFxCostBasisLotAcquisitionHistoryInAudit,
   subledgerFxCostBasisLotAcquisitionsInCore,
 } from '../../../../config/drizzle/schema';
 import fxCostBasisLotAcquisitionHistoryMapper from '../../../mappers/subledger/fx-cost-basis/acquisition-history.mapper';
 import fxCostBasisLotAcquisitionMapper from '../../../mappers/subledger/fx-cost-basis/acquisition.mapper';
-import getDbQuery from '../../helpers/query';
 
 const fxCostBasisLotAcquisitionRepo: IFxCostBasisLotAcquisitionRepo = {
   create: async (payload, options) => {

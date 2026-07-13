@@ -1,7 +1,7 @@
 import IReportingPeriodHistoryRepo from '../../../../domain/accounting/repos/reporting-period-history.repo';
+import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { reportingPeriodHistoryInAudit } from '../../../config/drizzle/schema';
 import reportingPeriodHistoryMapper from '../../mappers/accounting/reporting-period-history.mapper';
-import getDbQuery from '../helpers/query';
 
 const reportingPeriodHistoryRepo: IReportingPeriodHistoryRepo = {
   save: async (periods, histories, options) => {

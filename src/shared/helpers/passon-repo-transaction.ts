@@ -1,7 +1,4 @@
-import {
-  IRepoOptions,
-  ITransactionContext,
-} from '../../../../shared/types/repo.types';
+import { IRepoOptions, ITransactionContext } from '../types/repo.types';
 
 export default function passOnRepoTransaction(
   options: IRepoOptions,

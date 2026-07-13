@@ -1,7 +1,7 @@
 import IJurisdictionRepo from '../../../../domain/accounting/repos/jurisdiction.repo';
+import getDbQuery from '../../../../shared/helpers/get-db-query';
 import { jurisdictionsInCore } from '../../../config/drizzle/schema';
 import jurisdictionMapper from '../../mappers/accounting/jurisdiction.mapper';
-import getDbQuery from '../helpers/query';
 
 const jurisdictionRepo: IJurisdictionRepo = {
   create: async (domain, options) => {

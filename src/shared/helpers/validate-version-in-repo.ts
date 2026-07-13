@@ -1,6 +1,6 @@
-import repoError from '../../../../shared/errors/repo.error';
-import { IWriteRepoOptions } from '../../../../shared/types/repo.types';
-import numberUtils from '../../../../shared/utils/number';
+import repoError from '../errors/repo.error';
+import { IWriteRepoOptions } from '../types/repo.types';
+import numberUtils from '../utils/number';
 
 export default function validateVersionInOptions(options: IWriteRepoOptions) {
   if (!options.expectedVersion) {

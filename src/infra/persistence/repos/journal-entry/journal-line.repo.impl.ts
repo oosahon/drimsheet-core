@@ -1,11 +1,11 @@
 import { and, eq, ilike, sql } from 'drizzle-orm';
 import IJournalLineRepo from '../../../../domain/journal-entry/repos/journal-line.repo';
+import drizzleFilters from '../../../../shared/helpers/drizzle-filters';
+import getDbQuery from '../../../../shared/helpers/get-db-query';
+import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
 import paginationValue from '../../../../shared/value-objects/pagination.vo';
 import { journalLinesInCore } from '../../../config/drizzle/schema';
 import journalLineMapper from '../../mappers/journal-entry/journal-line.mapper';
-import drizzleFilters from '../helpers/filters';
-import passOnRepoTransaction from '../helpers/passon-repo-transaction';
-import getDbQuery from '../helpers/query';
 import journalLineHistoryRepo from './journal-line-history.repo.impl';
 
 const journalLineRepo: IJournalLineRepo = {

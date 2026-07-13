@@ -2,7 +2,7 @@ import { asc, desc } from 'drizzle-orm';
 import {
   EPaginationSortDirection,
   UPaginationSortDirection,
-} from '../../../../shared/types/pagination.types';
+} from '../types/pagination.types';
 
 function getSortDirection(direction?: UPaginationSortDirection) {
   return direction === EPaginationSortDirection.Asc ? asc : desc;
