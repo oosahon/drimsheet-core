@@ -1,3 +1,4 @@
+import * as varsConfig from '../../../infra/config/vars.config';
 import accountingDomainServices from '../../../infra/ioc/services/accounting.service';
 import authService from '../../../infra/ioc/services/auth.service';
 import authUseCase from '../../../infra/ioc/usecases/auth.usecases';
@@ -33,7 +34,8 @@ const middlewares = {
     accountingRepos.accountingEntity,
     authService,
     userRepos.user,
-    observability.logger
+    observability.logger,
+    varsConfig
   ),
 
   errorHandler: makeErrorHandlerMiddleware(),

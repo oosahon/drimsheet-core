@@ -122,6 +122,7 @@ describe('openingBalanceEntryService', () => {
         accountingEntity,
         postingAccount,
         amount,
+        timestamp,
         null,
         mockOptions
       );
@@ -198,6 +199,7 @@ describe('openingBalanceEntryService', () => {
           accountingEntity,
           controlAccount,
           amount,
+          timestamp,
           null,
           mockOptions
         )
@@ -233,6 +235,7 @@ describe('openingBalanceEntryService', () => {
           accountingEntity,
           postingAccount,
           amount,
+          timestamp,
           exchangeRate,
           mockOptions
         )
@@ -278,6 +281,7 @@ describe('openingBalanceEntryService', () => {
           accountingEntity,
           postingAccount,
           amount,
+          timestamp,
           null,
           mockOptions
         )
@@ -302,6 +306,7 @@ describe('openingBalanceEntryService', () => {
           accountingEntity,
           postingAccount,
           amount,
+          timestamp,
           null,
           mockOptions
         )

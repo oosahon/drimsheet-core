@@ -45,6 +45,7 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
         accountingEntity,
         account,
         amount,
+        payload.date,
         exchangeRate,
         trace
       );

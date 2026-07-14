@@ -1,24 +1,15 @@
 import { Request, Response } from 'express';
 import IAppContext from '../../../../app/_internal/contracts/app-context.contract';
-import IAuthService from '../../../../app/auth/contracts/auth-service.contract';
+import IAuthService, {
+  IAuthTokenPayload,
+} from '../../../../app/auth/contracts/auth-service.contract';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import ILogger from '../../../../shared/contracts/logger.contract';
+import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import makeAppContextInitMiddleware from '../app-context-init.middleware';
-
-let mockWebAppUrl = 'http://localhost:3000';
-let mockNodeEnv = 'test';
-
-jest.mock('../../../../infra/config/vars.config', () => ({
-  get NODE_ENV() {
-    return mockNodeEnv;
-  },
-  get WEB_APP_URL() {
-    return mockWebAppUrl;
-  },
-}));
 
 describe('makeAppContextInitMiddleware', () => {
   let mockAppContext: jest.Mocked<IAppContext>;
@@ -26,6 +17,7 @@ describe('makeAppContextInitMiddleware', () => {
   let mockAuthService: jest.Mocked<IAuthService>;
   let mockUserRepo: jest.Mocked<IUserRepo>;
   let mockLogger: jest.Mocked<ILogger>;
+  let mockVarsConfig: Partial<IVarsConfig>;
 
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
@@ -54,6 +46,11 @@ describe('makeAppContextInitMiddleware', () => {
       info: jest.fn(),
     } as unknown as jest.Mocked<ILogger>;
 
+    mockVarsConfig = {
+      WEB_APP_URL: 'http://localhost:3000',
+      NODE_ENV: 'test',
+    };
+
     mockReq = {
       headers: {},
       cookies: {},
@@ -66,9 +63,6 @@ describe('makeAppContextInitMiddleware', () => {
 
     mockNext = jest.fn();
 
-    // Reset mocks between tests
-    mockWebAppUrl = 'http://localhost:3000';
-    mockNodeEnv = 'test';
     jest.clearAllMocks();
   });
 
@@ -78,7 +72,8 @@ describe('makeAppContextInitMiddleware', () => {
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
-      mockLogger
+      mockLogger,
+      mockVarsConfig as IVarsConfig
     );
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);
@@ -93,7 +88,9 @@ describe('makeAppContextInitMiddleware', () => {
 
   it('should authenticate user when authorization header is valid', async () => {
     mockReq.headers = { authorization: 'Bearer valid_token' };
-    mockAuthService.getAuthUser.mockResolvedValue({ id: 'user-id-123' } as any);
+    mockAuthService.getAuthUser.mockResolvedValue({
+      id: 'user-id-123',
+    } as IAuthTokenPayload);
     mockUserRepo.findById.mockResolvedValue({
       id: 'user-id-123',
       email: 'test@example.com',
@@ -104,7 +101,8 @@ describe('makeAppContextInitMiddleware', () => {
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
-      mockLogger
+      mockLogger,
+      mockVarsConfig as IVarsConfig
     );
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);
@@ -124,7 +122,9 @@ describe('makeAppContextInitMiddleware', () => {
       authorization: 'Bearer valid_token',
       'x-accounting-entity-id': validUUID,
     };
-    mockAuthService.getAuthUser.mockResolvedValue({ id: 'user-id-123' } as any);
+    mockAuthService.getAuthUser.mockResolvedValue({
+      id: 'user-id-123',
+    } as IAuthTokenPayload);
     mockUserRepo.findById.mockResolvedValue({ id: 'user-id-123' } as IUser);
 
     mockAccountingEntityRepo.findById.mockResolvedValue({
@@ -137,7 +137,8 @@ describe('makeAppContextInitMiddleware', () => {
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
-      mockLogger
+      mockLogger,
+      mockVarsConfig as IVarsConfig
     );
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);
@@ -149,13 +150,15 @@ describe('makeAppContextInitMiddleware', () => {
   });
 
   it('should implement client session methods correctly with undefined domain on localhost', async () => {
-    mockWebAppUrl = 'http://localhost:3000'; // local
+    mockVarsConfig.WEB_APP_URL = 'http://localhost:3000'; // local
+
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
-      mockLogger
+      mockLogger,
+      mockVarsConfig as IVarsConfig
     );
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);
@@ -195,15 +198,16 @@ describe('makeAppContextInitMiddleware', () => {
   });
 
   it('should set cookie domain appropriately when hostname is not localhost', async () => {
-    mockWebAppUrl = 'https://production.purpleledger.app'; // production
-    mockNodeEnv = 'production';
+    mockVarsConfig.WEB_APP_URL = 'https://production.purpleledger.app'; // production
+    mockVarsConfig.NODE_ENV = 'production';
 
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
       mockAccountingEntityRepo,
       mockAuthService,
       mockUserRepo,
-      mockLogger
+      mockLogger,
+      mockVarsConfig as IVarsConfig
     );
 
     await middleware(mockReq as Request, mockRes as Response, mockNext);

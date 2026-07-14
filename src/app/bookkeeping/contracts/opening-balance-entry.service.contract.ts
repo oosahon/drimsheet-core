@@ -10,6 +10,7 @@ export default interface IOpeningBalanceEntryService {
     accountingEntity: IAccountingEntity,
     account: ILedgerAccount,
     amount: IMoney,
+    effectiveDate: Date,
     exchangeRate: IExchangeRate | null,
     repoOptions: IReadRepoOptions
   ): Promise<TAuditedJournalEntry>;

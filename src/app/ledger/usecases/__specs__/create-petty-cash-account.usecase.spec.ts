@@ -74,10 +74,12 @@ describe('createPettyCashSubAccountUseCase', () => {
     openingBalance: {
       amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
       exchangeRate: null,
+      date: new Date('2026-03-14T00:00:00.000Z'),
     },
     isControlAccount: false,
     controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
   };
+  const validOpeningBalance = validPayload.openingBalance!;
 
   const [mockPettyCashAccount, mockEvents, mockPettyCashAudit] =
     cashAndEquivalentAccountEntity.makePettyCashAccount(
@@ -105,8 +107,8 @@ describe('createPettyCashSubAccountUseCase', () => {
     sourceType: EJournalEntrySourceType.OpeningBalance,
     counterPartyId: null,
     status: EJournalEntryStatus.Posted,
-    effectiveDate: new Date(),
-    postedAt: new Date(),
+    effectiveDate: validOpeningBalance.date,
+    postedAt: validOpeningBalance.date,
     voidedAt: null,
     voidingEntryId: null,
     memo: 'Opening balance',
@@ -235,6 +237,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       expect.objectContaining({
         amount: 1000n,
       }),
+      validOpeningBalance.date,
       null,
       { correlationId }
     );
@@ -356,6 +359,7 @@ describe('createPettyCashSubAccountUseCase', () => {
           asOf: '2026-03-14T00:00:00.000Z' as unknown as Date,
           source: 'bank',
         },
+        date: new Date('2026-03-14T00:00:00.000Z'),
       },
       isControlAccount: false,
       controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
@@ -390,8 +394,8 @@ describe('createPettyCashSubAccountUseCase', () => {
       sourceType: EJournalEntrySourceType.OpeningBalance,
       counterPartyId: null,
       status: EJournalEntryStatus.Posted,
-      effectiveDate: new Date(),
-      postedAt: new Date(),
+      effectiveDate: forexPayload.openingBalance!.date,
+      postedAt: forexPayload.openingBalance!.date,
       voidedAt: null,
       voidingEntryId: null,
       memo: 'Opening balance',
@@ -548,6 +552,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       openingBalance: {
         amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
         exchangeRate: null,
+        date: new Date('2026-03-14T00:00:00.000Z'),
       },
       isControlAccount: false,
       controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,

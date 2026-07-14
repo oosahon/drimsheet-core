@@ -92,8 +92,8 @@ describe('createOpeningBalanceUseCase', () => {
         sourceType: EJournalEntrySourceType.OpeningBalance,
         counterPartyId: null,
         status: EJournalEntryStatus.Posted,
-        effectiveDate: new Date(),
-        postedAt: new Date(),
+        effectiveDate: new Date('2026-04-24T00:00:00.000Z'),
+        postedAt: new Date('2026-04-24T00:00:00.000Z'),
         voidedAt: null,
         voidingEntryId: null,
         memo: 'Opening balance',
@@ -139,6 +139,7 @@ describe('createOpeningBalanceUseCase', () => {
       accountId: mockAssetAccount.id,
       amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
       exchangeRate: null,
+      date: new Date('2026-04-24T00:00:00.000Z'),
     };
 
     await useCase(payload);
@@ -154,6 +155,7 @@ describe('createOpeningBalanceUseCase', () => {
         amount: 1000n,
         currency: SYSTEM_CURRENCIES.NGN,
       }),
+      payload.date,
       null,
       { correlationId }
     );
@@ -203,6 +205,7 @@ describe('createOpeningBalanceUseCase', () => {
         asOf: '2026-04-24T00:00:00.000Z' as unknown as Date,
         source: 'test',
       },
+      date: new Date('2026-04-24T00:00:00.000Z'),
     };
 
     await useCase(payload);
@@ -228,6 +231,7 @@ describe('createOpeningBalanceUseCase', () => {
       accountId: mockAssetAccount.id,
       amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
       exchangeRate: null,
+      date: new Date('2026-04-24T00:00:00.000Z'),
     };
 
     await expect(useCase(payload)).rejects.toThrow(

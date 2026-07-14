@@ -14,6 +14,7 @@ describe('Asset Account DTO Validation', () => {
             isMinorUnit: true,
           },
           exchangeRate: null,
+          date: new Date('2026-07-13T18:00:00.000Z'),
         },
       };
 
@@ -45,6 +46,7 @@ describe('Asset Account DTO Validation', () => {
             isMinorUnit: true,
           },
           exchangeRate: null,
+          date: new Date('2026-07-13T18:00:00.000Z'),
         },
       };
 

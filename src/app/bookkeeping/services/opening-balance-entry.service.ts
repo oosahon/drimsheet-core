@@ -22,7 +22,14 @@ export default function makeOpeningBalanceEntryService(
   deps: IDependencies
 ): IOpeningBalanceEntryService {
   return {
-    async create(accountingEntity, account, amount, exchangeRate, repoOptions) {
+    async create(
+      accountingEntity,
+      account,
+      amount,
+      effectiveDate,
+      exchangeRate,
+      repoOptions
+    ) {
       if (account.isControlAccount) {
         throw new journalEntryError.ControlAccountOpeningBalanceNotAllowed({
           accountId: account.id,
@@ -78,15 +85,13 @@ export default function makeOpeningBalanceEntryService(
         side: journalLineEntity.getOppositeSide(account.normalBalance),
       };
 
-      const timestamp = new Date();
-
       const journalEntry = journalEntryEntity.make({
         accountingEntityId: account.accountingEntityId,
         sourceType: EJournalEntrySourceType.OpeningBalance,
         counterPartyId: null,
         status: EJournalEntryStatus.Posted,
-        effectiveDate: timestamp,
-        postedAt: timestamp,
+        effectiveDate,
+        postedAt: effectiveDate,
         voidedAt: null,
         voidingEntryId: null,
         memo: 'Opening balance',
