@@ -5,6 +5,11 @@ import { moneyDtoValidation } from '../../../money/dtos/money/money.dto.validati
 export const openingBalanceDtoValidation = z.object({
   amount: moneyDtoValidation,
   exchangeRate: exchangeRateDtoValidation.nullable(),
+  date: z
+    .date('Invalid opening balance date')
+    .refine((value) => value.getTime() <= Date.now(), {
+      message: 'Opening balance date cannot be in the future',
+    }),
 });
 
 export const openingBalanceCreationReqValidation = z.object({

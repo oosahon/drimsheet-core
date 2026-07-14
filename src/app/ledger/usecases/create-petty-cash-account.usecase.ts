@@ -165,6 +165,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
         accountingEntity,
         account,
         moneyMapper.fromDto(payload.openingBalance.amount),
+        payload.openingBalance.date,
         exchangeRate,
         trace
       );
