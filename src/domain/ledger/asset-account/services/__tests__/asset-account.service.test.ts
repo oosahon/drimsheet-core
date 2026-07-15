@@ -40,7 +40,7 @@ describe('assetAccountService', () => {
     const validCurrency: any = {
       code: 'USD',
       name: 'US Dollar',
-      minorUnit: 2n,
+      minorUnit: 2,
       symbol: '$',
     };
 

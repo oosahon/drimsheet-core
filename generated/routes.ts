@@ -10,7 +10,7 @@ import { LedgerController } from './../src/interface/http/controllers/ledger.con
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { JournalEntryController } from './../src/interface/http/controllers/journal-entry.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { MoneyController } from './../src/interface/http/controllers/currency.controller';
+import { CurrencyController } from './../src/interface/http/controllers/currency.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { AuthController } from './../src/interface/http/controllers/auth.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -1455,18 +1455,18 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsMoneyController_getAllCurrencies: Record<
+  const argsCurrencyController_getAllCurrencies: Record<
     string,
     TsoaRoute.ParameterSchema
   > = {};
   app.get(
-    '/api/v1/money/currencies',
-    ...fetchMiddlewares<RequestHandler>(MoneyController),
+    '/api/v1/currencies',
+    ...fetchMiddlewares<RequestHandler>(CurrencyController),
     ...fetchMiddlewares<RequestHandler>(
-      MoneyController.prototype.getAllCurrencies
+      CurrencyController.prototype.getAllCurrencies
     ),
 
-    async function MoneyController_getAllCurrencies(
+    async function CurrencyController_getAllCurrencies(
       request: ExRequest,
       response: ExResponse,
       next: any
@@ -1476,12 +1476,12 @@ export function RegisterRoutes(app: Router) {
       let validatedArgs: any[] = [];
       try {
         validatedArgs = templateService.getValidatedArgs({
-          args: argsMoneyController_getAllCurrencies,
+          args: argsCurrencyController_getAllCurrencies,
           request,
           response,
         });
 
-        const controller = new MoneyController();
+        const controller = new CurrencyController();
 
         await templateService.apiHandler({
           methodName: 'getAllCurrencies',
@@ -1497,7 +1497,7 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsMoneyController_getExchangeRates: Record<
+  const argsCurrencyController_getExchangeRates: Record<
     string,
     TsoaRoute.ParameterSchema
   > = {
@@ -1509,13 +1509,13 @@ export function RegisterRoutes(app: Router) {
     },
   };
   app.get(
-    '/api/v1/money/exchange-rates',
-    ...fetchMiddlewares<RequestHandler>(MoneyController),
+    '/api/v1/currencies/exchange-rates',
+    ...fetchMiddlewares<RequestHandler>(CurrencyController),
     ...fetchMiddlewares<RequestHandler>(
-      MoneyController.prototype.getExchangeRates
+      CurrencyController.prototype.getExchangeRates
     ),
 
-    async function MoneyController_getExchangeRates(
+    async function CurrencyController_getExchangeRates(
       request: ExRequest,
       response: ExResponse,
       next: any
@@ -1525,12 +1525,12 @@ export function RegisterRoutes(app: Router) {
       let validatedArgs: any[] = [];
       try {
         validatedArgs = templateService.getValidatedArgs({
-          args: argsMoneyController_getExchangeRates,
+          args: argsCurrencyController_getExchangeRates,
           request,
           response,
         });
 
-        const controller = new MoneyController();
+        const controller = new CurrencyController();
 
         await templateService.apiHandler({
           methodName: 'getExchangeRates',

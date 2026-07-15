@@ -1,5 +1,6 @@
 import * as winston from 'winston';
 import ILogger from '../../shared/contracts/logger.contract';
+import safeJSON from '../../shared/utils/safe-json';
 
 winston.addColors({
   error: 'red',
@@ -22,7 +23,7 @@ const winstonLogger = winston.createLogger({
         winston.format.printf(
           ({ level, message, timestamp, stack, ...meta }) => {
             const metaStr = Object.keys(meta).length
-              ? JSON.stringify(meta)
+              ? safeJSON.stringify(meta)
               : '';
             return `${timestamp} [${level}]: ${stack || message} ${metaStr}`;
           }

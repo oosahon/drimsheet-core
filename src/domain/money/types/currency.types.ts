@@ -4,7 +4,7 @@ export interface ICurrency {
   code: UCurrencyCode;
   symbol: string;
   name: string;
-  minorUnit: bigint;
+  minorUnit: number;
 }
 
 export interface ICurrencyWithEntityDates extends ICurrency {

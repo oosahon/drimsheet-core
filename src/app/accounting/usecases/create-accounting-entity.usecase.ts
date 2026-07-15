@@ -307,7 +307,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
 
     await deps.repoService.runInTransaction(transactionFn);
 
-    await deps.appContext.set({ accountingEntity });
+    deps.appContext.set({ accountingEntity });
 
     // =============== Publish events ===============
     const allEvents = [

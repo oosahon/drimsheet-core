@@ -15,7 +15,7 @@ const currencyMapper = {
   toRepo(currency: ICurrency): ICurrencyModel {
     return {
       ...currency,
-      minorUnit: Number(currency.minorUnit),
+      minorUnit: currency.minorUnit,
     } as ICurrencyModel;
   },
 
@@ -24,7 +24,7 @@ const currencyMapper = {
       code: currency.code as UCurrencyCode,
       symbol: currency.symbol,
       name: currency.name,
-      minorUnit: BigInt(currency.minorUnit),
+      minorUnit: currency.minorUnit,
     };
   },
 

@@ -21,7 +21,7 @@ function isValidFactor(factor: IFactor) {
  * Normalizes an amount to its minor unit.
  */
 function getNormalizedMinorUnit(amount: bigint | number, currency: ICurrency) {
-  const normalizer = 10n ** currency.minorUnit;
+  const normalizer = 10n ** BigInt(currency.minorUnit);
   const normalizedAmount = Math.round(
     Number.parseFloat(amount.toString()) * Number(normalizer)
   );

@@ -1807,7 +1807,7 @@
         }
       }
     },
-    "/money/currencies": {
+    "/currencies": {
       "get": {
         "operationId": "getAllCurrencies",
         "responses": {
@@ -1826,12 +1826,12 @@
           }
         },
         "description": "Gets all system currencies",
-        "tags": ["Money"],
+        "tags": ["Currency"],
         "security": [],
         "parameters": []
       }
     },
-    "/money/exchange-rates": {
+    "/currencies/exchange-rates": {
       "get": {
         "operationId": "getExchangeRates",
         "responses": {
@@ -1850,7 +1850,7 @@
           }
         },
         "description": "Gets all system exchange",
-        "tags": ["Money"],
+        "tags": ["Currency"],
         "security": [],
         "parameters": [
           {

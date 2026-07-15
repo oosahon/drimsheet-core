@@ -9,7 +9,7 @@ describe('Money Mapper', () => {
     code: 'USD',
     symbol: '$',
     name: 'US Dollar',
-    minorUnit: 2n,
+    minorUnit: 2,
   };
 
   const moneyDomain: IMoney = {

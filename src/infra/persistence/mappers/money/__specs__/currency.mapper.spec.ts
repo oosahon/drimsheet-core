@@ -9,7 +9,7 @@ describe('Currency Mapper', () => {
         code: 'USD',
         symbol: '$',
         name: 'US Dollar',
-        minorUnit: 2n,
+        minorUnit: 2,
       };
 
       const expectedRepoModel = {
@@ -36,7 +36,7 @@ describe('Currency Mapper', () => {
         code: 'NGN',
         symbol: '₦',
         name: 'Nigerian Naira',
-        minorUnit: 2n,
+        minorUnit: 2,
       };
 
       expect(currencyMapper.toDomain(repoModel as ICurrencyModel)).toEqual(
@@ -53,7 +53,7 @@ describe('Currency Mapper', () => {
         code: 'USD',
         symbol: '$',
         name: 'US Dollar',
-        minorUnit: 2n,
+        minorUnit: 2,
       };
 
       expect(currencyMapper.fromInterface(code)).toEqual(

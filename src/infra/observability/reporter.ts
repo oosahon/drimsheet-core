@@ -1,6 +1,7 @@
 import Sentry from '@sentry/node';
 import IReporter from '../../shared/contracts/reporter.contract';
 import errorUtils from '../../shared/utils/error';
+import safeJSON from '../../shared/utils/safe-json';
 import { NODE_ENV, SENTRY_DSN } from '../config/vars.config';
 import appContext from '../runtime/app-context';
 import logger from './logger';
@@ -22,7 +23,7 @@ const reporter: IReporter = {
       const correlationId = getCorrelationId();
       const parsedError = errorUtils.parseError(error);
 
-      const loggerError = JSON.stringify({
+      const loggerError = safeJSON.stringify({
         ...parsedError,
         ...context,
         correlationId,
@@ -42,13 +43,13 @@ const reporter: IReporter = {
       if (NODE_ENV === 'local') {
         logger.error(error, { context });
       }
-      logger.error(JSON.stringify(errorUtils.parseError(error)));
+      logger.error(safeJSON.stringify(errorUtils.parseError(error)));
     }
   },
   reportAbuse(message, meta) {
     try {
       const correlationId = getCorrelationId();
-      const loggerError = JSON.stringify({
+      const loggerError = safeJSON.stringify({
         level: 'warning',
         message,
         ...meta,
@@ -67,7 +68,7 @@ const reporter: IReporter = {
       if (NODE_ENV === 'local') {
         logger.error(error);
       }
-      logger.error(JSON.stringify(errorUtils.parseError(error)));
+      logger.error(safeJSON.stringify(errorUtils.parseError(error)));
     }
   },
 };

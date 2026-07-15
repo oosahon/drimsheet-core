@@ -23,8 +23,10 @@ export default function makeGetCurrenciesUseCase(deps: IDependencies) {
     });
 
     return res.map((currency) => ({
-      ...currency,
-      minorUnit: Number(currency.minorUnit),
+      code: currency.code,
+      symbol: currency.symbol,
+      name: currency.name,
+      minorUnit: currency.minorUnit,
     }));
   };
 }

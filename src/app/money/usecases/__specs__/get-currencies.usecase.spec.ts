@@ -24,8 +24,8 @@ describe('makeGetCurrenciesUseCase', () => {
     } as IAppContextData);
 
     const mockCurrencies = [
-      { code: 'USD', symbol: '$', name: 'US Dollar', minorUnit: 2n },
-      { code: 'EUR', symbol: '€', name: 'Euro', minorUnit: 2n },
+      { code: 'USD', symbol: '$', name: 'US Dollar', minorUnit: 2 },
+      { code: 'EUR', symbol: '€', name: 'Euro', minorUnit: 2 },
     ] as ICurrency[];
 
     mockCurrencyRepo.findAll.mockResolvedValue(mockCurrencies);
@@ -38,11 +38,6 @@ describe('makeGetCurrenciesUseCase', () => {
 
     expect(mockAppContext.get).toHaveBeenCalledTimes(1);
     expect(mockCurrencyRepo.findAll).toHaveBeenCalledWith({ correlationId });
-    expect(result).toEqual(
-      mockCurrencies.map((c) => ({
-        ...c,
-        minorUnit: Number(c.minorUnit),
-      }))
-    );
+    expect(result).toEqual(mockCurrencies);
   });
 });

@@ -21,7 +21,7 @@ describe('Retained Earning Entity', () => {
     code: 'USD',
     name: 'US Dollar',
     symbol: '$',
-    minorUnit: 2n,
+    minorUnit: 2,
   };
 
   const validParent = {

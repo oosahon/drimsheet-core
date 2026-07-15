@@ -15,13 +15,13 @@ import {
 } from '../../../infra/ioc/usecases/money.usecases';
 import middlewares from '../middlewares';
 
-@Route('money')
-@Tags('Money')
-export class MoneyController extends Controller {
+@Route('currencies')
+@Tags('Currency')
+export class CurrencyController extends Controller {
   /**
    * Gets all system currencies
    */
-  @Get('/currencies')
+  @Get('/')
   @OperationId('getAllCurrencies')
   @SuccessResponse('200')
   @Middlewares(middlewares.isOptionalAuthenticatedUser)
@@ -35,7 +35,6 @@ export class MoneyController extends Controller {
   @Get('/exchange-rates')
   @OperationId('getExchangeRates')
   @SuccessResponse('200')
-  @Middlewares(middlewares.isAuthenticatedUser)
   public async getExchangeRates(@Queries() query: IExchangeRateQueryParam) {
     return exchangeRateUseCases.get(query);
   }
