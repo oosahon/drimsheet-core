@@ -455,6 +455,7 @@ const models: TsoaRoute.Models = {
         ],
         required: true,
       },
+      date: { dataType: 'datetime', required: true },
     },
     additionalProperties: false,
   },

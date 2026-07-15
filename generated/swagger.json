@@ -510,9 +510,13 @@
               }
             ],
             "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
           }
         },
-        "required": ["amount", "exchangeRate"],
+        "required": ["amount", "exchangeRate", "date"],
         "type": "object",
         "additionalProperties": false
       },
