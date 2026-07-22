@@ -1,7 +1,13 @@
+import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '../../../shared/contracts/repo.contract';
 import eventValue from '../../../shared/events/event.vo';
+import { IEvent } from '../../../shared/events/types/event.types';
 import historyValue from '../../../shared/history/history.vo';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
@@ -19,6 +25,7 @@ interface IDependencies {
   eventBus: IEventBus;
   openingBalanceEntryService: IOpeningBalanceEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
+  repoService: IRepoService;
 }
 
 export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
@@ -50,19 +57,39 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
         trace
       );
 
+    const [updatedAccount, accountEvents, accountAudit] =
+      ledgerAccountEntity.updateOpeningBalanceDate(account, payload.date);
+
     const actor = historyValue.getUserActor(user.id);
+    const accountHistory = historyValue.make(
+      accountAudit,
+      actor,
+      correlationId
+    );
     const headerHistory = historyValue.make(audit.header, actor, correlationId);
     const lineHistories = audit.lines.map((lineAudit) =>
       historyValue.make(lineAudit, actor, correlationId)
     );
 
-    await deps.journalEntryPersistenceService.create(
-      journalEntry,
-      headerHistory,
-      lineHistories,
-      trace
-    );
+    const transactionFn: TRepoTransactionFn = async (tx) => {
+      const repoOptions = { ...trace, tx };
 
-    deps.eventBus.publish(eventValue.enrichAll(journalEvents, trace));
+      await deps.ledgerAccountRepo.update(updatedAccount, {
+        ...repoOptions,
+        history: accountHistory,
+      });
+
+      await deps.journalEntryPersistenceService.create(
+        journalEntry,
+        headerHistory,
+        lineHistories,
+        repoOptions
+      );
+    };
+
+    await deps.repoService.runInTransaction(transactionFn);
+
+    const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];
+    deps.eventBus.publish(eventValue.enrichAll(allEvents, trace));
   };
 }

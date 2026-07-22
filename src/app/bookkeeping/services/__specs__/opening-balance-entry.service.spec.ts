@@ -252,6 +252,30 @@ describe('openingBalanceEntryService', () => {
       );
     });
 
+    it('should reject accounts that already have openingBalanceDate set without making repo calls', async () => {
+      const { accountingEntity, amount, postingAccount } = makeFixture();
+      const accountWithOpeningDate = {
+        ...postingAccount,
+        openingBalanceDate: new Date('2026-01-01'),
+      };
+
+      await expect(
+        service.create(
+          accountingEntity,
+          accountWithOpeningDate,
+          amount,
+          timestamp,
+          null,
+          mockOptions
+        )
+      ).rejects.toThrow(journalEntryError.ExistingOpeningBalance);
+
+      expect(
+        mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId
+      ).not.toHaveBeenCalled();
+      expect(mockLedgerAccountRepo.findBySubType).not.toHaveBeenCalled();
+    });
+
     it('should reject accounts that already have an opening balance adjustment', async () => {
       const { accountingEntity, amount, postingAccount, user } = makeFixture();
       const existingBalance = ledgerAccountBalanceEntity.make({

@@ -5,6 +5,7 @@ import messaging from '../../messaging';
 import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
 import bookkeepingServices from '../services/bookkeeping.service';
+import repoService from '../services/repo.service';
 
 const journalEntryUseCases = {
   createOpeningBalance: makeCreateOpeningBalanceUseCase({
@@ -13,6 +14,7 @@ const journalEntryUseCases = {
     eventBus: messaging.eventBus,
     openingBalanceEntryService: bookkeepingServices.openingBalanceEntry,
     journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
+    repoService: repoService,
   }),
 
   createPayment: makeCreatePaymentJournalEntryUseCase({

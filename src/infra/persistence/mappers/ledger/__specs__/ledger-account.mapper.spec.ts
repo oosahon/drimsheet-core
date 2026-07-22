@@ -33,6 +33,7 @@ describe('Ledger Account Mapper', () => {
     contraAccountRule: 'contra_not_applicable',
     adjunctAccountRule: 'adjunct_not_applicable',
     meta: { description: 'Main cash account' },
+    openingBalanceDate: null,
     createdBy: 'user-1' as TEntityId,
     createdAt,
     updatedAt,
@@ -57,6 +58,7 @@ describe('Ledger Account Mapper', () => {
     contraAccountRule: 'contra_not_applicable',
     adjunctAccountRule: 'adjunct_not_applicable',
     meta: { description: 'Main cash account' },
+    openingBalanceDate: null,
     createdBy: 'user-1',
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
@@ -79,6 +81,15 @@ describe('Ledger Account Mapper', () => {
         repoModel
       );
     });
+    it('should map a domain ledger account with openingBalanceDate to a repo model', () => {
+      const openingDate = new Date('2026-01-01T00:00:00.000Z');
+      const domainWithDate = {
+        ...domainLedgerAccount,
+        openingBalanceDate: openingDate,
+      };
+      const mapped = ledgerAccountMapper.toRepo(domainWithDate);
+      expect(mapped.openingBalanceDate).toBe('2026-01-01');
+    });
   });
 
   describe('toDomain', () => {
@@ -90,6 +101,16 @@ describe('Ledger Account Mapper', () => {
       expect(ledgerAccountMapper.toDomain(payload)).toEqual(
         domainLedgerAccount
       );
+    });
+
+    it('should map a repo model with openingBalanceDate to a domain ledger account', () => {
+      const payload: Parameters<typeof ledgerAccountMapper.toDomain>[0] = {
+        ...repoModel,
+        openingBalanceDate: '2026-01-01',
+        currency: currencyRepoModel,
+      };
+      const domain = ledgerAccountMapper.toDomain(payload);
+      expect(domain.openingBalanceDate).toEqual(new Date('2026-01-01'));
     });
   });
 
@@ -124,6 +145,7 @@ describe('Ledger Account Mapper', () => {
         contraAccountRule: domainLedgerAccount.contraAccountRule,
         adjunctAccountRule: domainLedgerAccount.adjunctAccountRule,
         meta: undefined,
+        openingBalanceDate: null,
         createdBy: domainLedgerAccount.createdBy,
         createdAt,
         updatedAt,

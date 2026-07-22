@@ -11,12 +11,10 @@ import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/t
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import {
-  EExchangeRateType,
-  IExchangeRate,
-} from '../../../../domain/money/types/exchange-rate.types';
+import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
@@ -130,9 +128,10 @@ describe('createOpeningBalanceUseCase', () => {
       eventBus: mockEventBus,
       openingBalanceEntryService: mockOpeningBalanceEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
+      repoService: mockRepoService,
     });
 
-  it('should successfully record opening balance', async () => {
+  it('should successfully record opening balance and update account openingBalanceDate', async () => {
     const useCase = getUseCase();
 
     const payload = {
@@ -159,6 +158,16 @@ describe('createOpeningBalanceUseCase', () => {
       null,
       { correlationId }
     );
+    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
+    expect(mockLedgerAccountRepo.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: mockAssetAccount.id,
+        openingBalanceDate: payload.date,
+      }),
+      expect.objectContaining({
+        correlationId,
+      })
+    );
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalledWith(
       expect.objectContaining({
         accountingEntityId: mockAccountingEntity.id,
@@ -171,7 +180,7 @@ describe('createOpeningBalanceUseCase', () => {
           correlationId,
         }),
       ]),
-      { correlationId }
+      expect.objectContaining({ correlationId })
     );
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
@@ -182,17 +191,6 @@ describe('createOpeningBalanceUseCase', () => {
     mockLedgerAccountRepo.findById
       .mockReset()
       .mockResolvedValueOnce(mockAssetAccount);
-
-    const mockExchangeRate: IExchangeRate = {
-      currencyPair: 'USD/NGN',
-      baseCurrencyCode: 'USD',
-      targetCurrencyCode: 'NGN',
-      rate: 1500,
-      type: EExchangeRateType.Official,
-      asOf: '2026-04-24T00:00:00.000Z' as unknown as Date,
-      source: 'test',
-      createdAt: new Date(),
-    };
 
     const payload = {
       accountId: mockAssetAccount.id,
@@ -218,8 +216,30 @@ describe('createOpeningBalanceUseCase', () => {
         correlationId,
       }),
       expect.any(Array),
-      { correlationId }
+      expect.objectContaining({ correlationId })
     );
+  });
+
+  it('should not persist or publish events when opening balance entry creation fails', async () => {
+    const useCase = getUseCase();
+
+    mockOpeningBalanceEntryService.create.mockRejectedValueOnce(
+      new Error('Entry creation failed')
+    );
+
+    const payload = {
+      accountId: mockAssetAccount.id,
+      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      exchangeRate: null,
+      date: new Date('2026-04-24T00:00:00.000Z'),
+    };
+
+    await expect(useCase(payload)).rejects.toThrow('Entry creation failed');
+
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(mockLedgerAccountRepo.update).not.toHaveBeenCalled();
+    expect(mockJournalEntryPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('should throw ErrorResourceNotFound if the account is not found', async () => {

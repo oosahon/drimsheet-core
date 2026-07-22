@@ -194,7 +194,10 @@ describe('createPettyCashSubAccountUseCase', () => {
     );
 
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledWith(
-      mockPettyCashAccount,
+      expect.objectContaining({
+        id: mockPettyCashAccount.id,
+        openingBalanceDate: validOpeningBalance.date,
+      }),
       mockAccountingEntity.functionalCurrencyCode,
       expect.objectContaining({
         correlationId,

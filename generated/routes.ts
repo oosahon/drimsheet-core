@@ -273,6 +273,14 @@ const models: TsoaRoute.Models = {
       contraAccountRule: { ref: 'UContraAccountRule', required: true },
       adjunctAccountRule: { ref: 'UAdjunctAccountRule', required: true },
       meta: { ref: 'Record_string.string_' },
+      openingBalanceDate: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
       createdBy: { ref: 'TEntityId', required: true },
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },

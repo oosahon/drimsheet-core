@@ -25,7 +25,7 @@ describe('Ledger Account Shared Entity', () => {
     minorUnit: 2,
   };
 
-  const validPayload: TCreationOmits<ILedgerAccount> = {
+  const validPayload: TCreationOmits<ILedgerAccount, 'openingBalanceDate'> = {
     code: '101001',
     materializedPath: '101001',
     accountingEntityId: validUUID1,
@@ -393,6 +393,84 @@ describe('Ledger Account Shared Entity', () => {
         materializedPath: '12345',
       };
       expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
+    });
+
+    it('should initialize openingBalanceDate to null by default', () => {
+      const [account] = ledgerAccountEntity.make(validPayload);
+      expect(account.openingBalanceDate).toBeNull();
+    });
+  });
+
+  describe('updateOpeningBalanceDate', () => {
+    it('should update openingBalanceDate and return updated entity, event, and audit', () => {
+      const [account] = ledgerAccountEntity.make(validPayload);
+      const openingDate = new Date('2026-01-01');
+
+      const [updatedAccount, events, audit] =
+        ledgerAccountEntity.updateOpeningBalanceDate(account, openingDate);
+
+      expect(updatedAccount.openingBalanceDate).toEqual(openingDate);
+      expect(updatedAccount.updatedAt.getTime()).toBeGreaterThanOrEqual(
+        account.updatedAt.getTime()
+      );
+      expect(Object.isFrozen(updatedAccount)).toBe(true);
+      expect(account.openingBalanceDate).toBeNull(); // immutability
+
+      expect(events).toHaveLength(1);
+      expect(events[0].type).toBe(ELedgerAccountEvent.Updated);
+      expect(events[0].data).toEqual(updatedAccount);
+
+      expect(audit.action).toBe(ELedgerAccountAuditAction.Updated);
+      expect(audit.diff.before).toEqual(account);
+      expect(audit.diff.after).toEqual(updatedAccount);
+    });
+
+    it('should throw when openingBalanceDate is invalid or in the future', () => {
+      const [account] = ledgerAccountEntity.make(validPayload);
+
+      expect(() =>
+        // @ts-expect-error testing invalid date
+        ledgerAccountEntity.updateOpeningBalanceDate(account, null)
+      ).toThrow();
+      expect(() =>
+        ledgerAccountEntity.updateOpeningBalanceDate(
+          account,
+          new Date('invalid')
+        )
+      ).toThrow();
+
+      const futureDate = new Date(Date.now() + 86400000 * 10);
+      expect(() =>
+        ledgerAccountEntity.updateOpeningBalanceDate(account, futureDate)
+      ).toThrow();
+    });
+
+    it('should throw when account is a control account', () => {
+      const controlPayload = { ...validPayload, isControlAccount: true };
+      const [controlAccount] = ledgerAccountEntity.make(controlPayload);
+
+      expect(() =>
+        ledgerAccountEntity.updateOpeningBalanceDate(
+          controlAccount,
+          new Date('2026-01-01')
+        )
+      ).toThrow();
+    });
+
+    it('should throw when openingBalanceDate is already set', () => {
+      const [account] = ledgerAccountEntity.make(validPayload);
+      const openingDate = new Date('2026-01-01');
+      const [updatedAccount] = ledgerAccountEntity.updateOpeningBalanceDate(
+        account,
+        openingDate
+      );
+
+      expect(() =>
+        ledgerAccountEntity.updateOpeningBalanceDate(
+          updatedAccount,
+          new Date('2026-02-01')
+        )
+      ).toThrow();
     });
   });
 });

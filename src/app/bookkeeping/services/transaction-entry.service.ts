@@ -1,7 +1,8 @@
-import _ from 'lodash';
+import lodash from 'lodash';
 import getTransactionRule from '../../../domain/accounting/rules/bookkeeping/transaction.rule';
 import journalEntryEntity from '../../../domain/journal-entry/entities/journal-entry.entity';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
+import { EJournalEntryStatus } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLineMakePayload } from '../../../domain/journal-entry/types/journal-line.types';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import ITransactionEntryService from '../contracts/transaction-entry.service.contract';
@@ -50,7 +51,7 @@ export default function makeTransactionEntryService(
         });
       }
 
-      const missingDestinationAccountIds = _.difference(
+      const missingDestinationAccountIds = lodash.difference(
         destinationAccountIds,
         destinationAccounts.map((account) => account.id)
       );
@@ -59,6 +60,28 @@ export default function makeTransactionEntryService(
         throw new journalEntryError.AccountNotFound({
           cause: { accountIds: missingDestinationAccountIds },
         });
+      }
+
+      if (header.status !== EJournalEntryStatus.Draft) {
+        const allAccounts = [sourceAccount, ...destinationAccounts];
+        const offendingAccounts = allAccounts.filter(
+          (account) =>
+            account.openingBalanceDate !== null &&
+            header.effectiveDate.getTime() <
+              account.openingBalanceDate.getTime()
+        );
+
+        if (offendingAccounts.length > 0) {
+          throw new journalEntryError.EntryPredatesAccountOpeningBalance({
+            cause: {
+              effectiveDate: header.effectiveDate,
+              offendingAccounts: offendingAccounts.map((account) => ({
+                accountId: account.id,
+                openingBalanceDate: account.openingBalanceDate,
+              })),
+            },
+          });
+        }
       }
 
       const rule = getTransactionRule(header.sourceType);

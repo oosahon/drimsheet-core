@@ -25,6 +25,7 @@ const ledgerAccountMapper = {
       contraAccountRule: payload.contraAccountRule,
       adjunctAccountRule: payload.adjunctAccountRule,
       meta: undefined, // TODO: replace with actual metadata when its decided
+      openingBalanceDate: payload.openingBalanceDate ?? null,
       createdBy: payload.createdBy,
       createdAt: payload.createdAt,
       updatedAt: payload.updatedAt,

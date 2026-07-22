@@ -264,6 +264,11 @@
           "meta": {
             "$ref": "#/components/schemas/Record_string.string_"
           },
+          "openingBalanceDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
           "createdBy": {
             "$ref": "#/components/schemas/TEntityId"
           },
@@ -300,6 +305,7 @@
           "status",
           "contraAccountRule",
           "adjunctAccountRule",
+          "openingBalanceDate",
           "createdBy",
           "createdAt",
           "updatedAt",

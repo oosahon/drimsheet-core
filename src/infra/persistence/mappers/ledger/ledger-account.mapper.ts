@@ -5,7 +5,12 @@ import { IMoney } from '../../../../domain/money/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { ledgerAccountsInCore } from '../../../config/drizzle/schema';
 import currencyMapper, { ICurrencyModel } from '../money/currency.mapper';
-import { fromCommonRepoDates, toCommonRepoDates } from '../shared/date';
+import {
+  fromCommonRepoDates,
+  fromRepoDate,
+  toCommonRepoDates,
+  toRepoDateOnly,
+} from '../shared/date';
 import moneyMapper from '../shared/money.mapper';
 
 export interface ILedgerAccountModel extends InferSelectModel<
@@ -32,6 +37,9 @@ const ledgerAccountMapper = {
       contraAccountRule: account.contraAccountRule,
       adjunctAccountRule: account.adjunctAccountRule,
       meta: account.meta,
+      openingBalanceDate: account.openingBalanceDate
+        ? toRepoDateOnly(account.openingBalanceDate)
+        : null,
       createdBy: account.createdBy,
       ...toCommonRepoDates(account),
     };
@@ -60,6 +68,9 @@ const ledgerAccountMapper = {
       contraAccountRule: model.contraAccountRule,
       adjunctAccountRule: model.adjunctAccountRule,
       meta: model.meta as object | null,
+      openingBalanceDate: model.openingBalanceDate
+        ? fromRepoDate(model.openingBalanceDate)
+        : null,
       createdBy: model.createdBy as TEntityId,
       ...fromCommonRepoDates(model),
     };
@@ -86,6 +97,7 @@ const ledgerAccountMapper = {
       contraAccountRule: payload.contraAccountRule,
       adjunctAccountRule: payload.adjunctAccountRule,
       meta: undefined, // TODO: replace with actual metadata when its decided
+      openingBalanceDate: payload.openingBalanceDate ?? null,
       createdBy: payload.createdBy,
       createdAt: payload.createdAt,
       updatedAt: payload.updatedAt,

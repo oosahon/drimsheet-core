@@ -37,6 +37,19 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
     });
   },
 
+  update: async (account, options) => {
+    await getDbQuery(options).transaction(async (tx) => {
+      await tx
+        .update(ledgerAccountsInCore)
+        .set(ledgerAccountMapper.toRepo(account))
+        .where(eq(ledgerAccountsInCore.id, account.id));
+      await ledgerAccountHistoryRepo.save(
+        options.history,
+        passOnRepoTransaction(options, tx)
+      );
+    });
+  },
+
   findById: async (id, options) => {
     const result = await getDbQuery(options)
       .select({
