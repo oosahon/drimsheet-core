@@ -16,6 +16,9 @@ import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
 describe('makeSignupWithEmailUsecase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUserRepo.create.mockReset().mockResolvedValue(undefined);
+    mockUserAuthRepo.create.mockReset().mockResolvedValue(undefined);
+    mockEventBus.publish.mockReset().mockResolvedValue(undefined);
   });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
@@ -104,7 +107,23 @@ describe('makeSignupWithEmailUsecase', () => {
       history: expect.any(Object),
     });
 
-    expect(mockEventBus.publish).toHaveBeenCalled();
+    expect(mockUserAuthRepo.create).toHaveBeenCalledTimes(1);
+    expect(mockUserAuthRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: savedUserArgs[0].id,
+        password: 'hashed-password',
+        failedLoginAttempts: 0,
+        strategy: ['email'],
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+      }),
+      {
+        correlationId,
+        tx: 'mock-tx',
+      }
+    );
+
+    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
     const publishCalls = (mockEventBus.publish as jest.Mock).mock.calls;
     expect(publishCalls.length).toBeGreaterThan(0);
     publishCalls.forEach(([events]) => {
@@ -116,6 +135,116 @@ describe('makeSignupWithEmailUsecase', () => {
         });
       });
     });
+  });
+
+  it('should wait for event publication to complete', async () => {
+    const correlationId = '854e4567-e89b-42d3-a456-426614174001';
+    mockAppContext.get.mockReturnValue({
+      correlationId,
+      idempotencyKey: 'test-idemp-key',
+    } as IAppContextData);
+    mockAuthService.isPermittedEmail.mockReturnValue(true);
+    mockUserRepo.findByEmail.mockResolvedValue(null);
+    mockAuthService.hashPassword.mockResolvedValue('hashed-password');
+
+    let completePublication: (() => void) | undefined;
+    const publication = new Promise<void>((resolve) => {
+      completePublication = resolve;
+    });
+    mockEventBus.publish.mockReturnValue(publication);
+
+    const usecase = makeSignupWithEmailUsecase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
+
+    let signupCompleted = false;
+    const signup = usecase({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'johndoe@example.com',
+      password: 'SecurePassword123!',
+    }).then(() => {
+      signupCompleted = true;
+    });
+
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    const completedBeforePublication = signupCompleted;
+
+    completePublication?.();
+    await signup;
+
+    expect(completedBeforePublication).toBe(false);
+  });
+
+  it('should not create auth data or publish when user creation fails', async () => {
+    mockAppContext.get.mockReturnValue({
+      correlationId: '854e4567-e89b-42d3-a456-426614174001',
+      idempotencyKey: 'test-idemp-key',
+    } as IAppContextData);
+    mockAuthService.isPermittedEmail.mockReturnValue(true);
+    mockUserRepo.findByEmail.mockResolvedValue(null);
+    mockAuthService.hashPassword.mockResolvedValue('hashed-password');
+    mockUserRepo.create.mockRejectedValue(new Error('user create failed'));
+
+    const usecase = makeSignupWithEmailUsecase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
+
+    await expect(
+      usecase({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@example.com',
+        password: 'SecurePassword123!',
+      })
+    ).rejects.toThrow('user create failed');
+
+    expect(mockUserAuthRepo.create).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('should not publish when auth data creation fails', async () => {
+    mockAppContext.get.mockReturnValue({
+      correlationId: '854e4567-e89b-42d3-a456-426614174001',
+      idempotencyKey: 'test-idemp-key',
+    } as IAppContextData);
+    mockAuthService.isPermittedEmail.mockReturnValue(true);
+    mockUserRepo.findByEmail.mockResolvedValue(null);
+    mockAuthService.hashPassword.mockResolvedValue('hashed-password');
+    mockUserAuthRepo.create.mockRejectedValue(
+      new Error('user auth create failed')
+    );
+
+    const usecase = makeSignupWithEmailUsecase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      authService: mockAuthService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      repoService: mockRepoService,
+    });
+
+    await expect(
+      usecase({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'johndoe@example.com',
+        password: 'SecurePassword123!',
+      })
+    ).rejects.toThrow('user auth create failed');
+
+    expect(mockUserRepo.create).toHaveBeenCalledTimes(1);
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('should throw appError.Conflict if user already exists', async () => {

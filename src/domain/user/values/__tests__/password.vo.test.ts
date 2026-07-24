@@ -1,3 +1,4 @@
+import userValueObjectError from '../../errors/user-value-object.error';
 import password from '../password.vo';
 
 describe('Password Value Object', () => {
@@ -7,17 +8,18 @@ describe('Password Value Object', () => {
       expect(password.make(validPassword)).toBe(validPassword);
     });
 
-    it('should trim surrounding whitespace from a valid password', () => {
+    it('should preserve surrounding whitespace in a valid password', () => {
       const validPassword = '  StrongPassword1!  ';
-      expect(password.make(validPassword)).toBe('StrongPassword1!');
+      expect(password.make(validPassword)).toBe(validPassword);
     });
 
     it('should throw an AppError if the input is not a string', () => {
-      const invalidInputs = [null, undefined, 123, {}, []];
+      const invalidInputs: unknown[] = [null, undefined, 123, {}, []];
 
       invalidInputs.forEach((input) => {
-        expect(() => password.make(input as any)).toThrow();
-        expect(() => password.make(input as any)).toThrow();
+        expect(() => password.make(input)).toThrow(
+          userValueObjectError.InvalidType
+        );
       });
     });
 
