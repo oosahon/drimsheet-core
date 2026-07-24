@@ -1,8 +1,10 @@
 import { ELedgerAccountSortBy } from '../../../../../domain/ledger/shared/repos/ledger-account.repo';
+import { ELedgerAccountBehavior } from '../../../../../domain/ledger/shared/types/account-behaviors.tyypes';
 import { ELedgerAccountSubType } from '../../../../../domain/ledger/shared/types/ledger-aggregate.types';
 import { ELedgerType } from '../../../../../domain/ledger/shared/types/ledger.types';
 import {
   getLedgerAccountQueryValidationSchema,
+  ledgerAccountBehaviorValidation,
   ledgerAccountOrderByValidationSchema,
   ledgerAccountSubTypeValidation,
   ledgerAccountTypeValidation,
@@ -69,6 +71,26 @@ describe('Ledger Account DTO Validation', () => {
     });
   });
 
+  describe('ledgerAccountBehaviorValidation', () => {
+    it('should validate valid behaviors', () => {
+      expect(
+        ledgerAccountBehaviorValidation.safeParse(ELedgerAccountBehavior.Bank)
+          .success
+      ).toBe(true);
+      expect(
+        ledgerAccountBehaviorValidation.safeParse(
+          ELedgerAccountBehavior.Default
+        ).success
+      ).toBe(true);
+    });
+
+    it('should fail on invalid behaviors', () => {
+      expect(
+        ledgerAccountBehaviorValidation.safeParse('invalid_behavior').success
+      ).toBe(false);
+    });
+  });
+
   describe('getLedgerAccountQueryValidationSchema', () => {
     it('should validate correct queries', () => {
       const payload = {
@@ -76,7 +98,7 @@ describe('Ledger Account DTO Validation', () => {
         page: 1,
         type: ELedgerType.Asset,
         subType: ELedgerAccountSubType.CashAndCashEquivalent,
-        behavior: 'regularBehavior',
+        behavior: ELedgerAccountBehavior.Bank,
         isControlAccount: true,
         orderBy: ELedgerAccountSortBy.AccountName,
       };

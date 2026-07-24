@@ -1,5 +1,6 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { ILedgerAccountDto } from '../../../../app/ledger/dtos/ledger-account/ledger-account.dto';
+import { ULedgerAccountBehavior } from '../../../../domain/ledger/shared/types/account-behaviors.tyypes';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { IMoney } from '../../../../domain/money/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -89,7 +90,7 @@ const ledgerAccountMapper = {
       type: payload.type,
       normalBalance: payload.normalBalance,
       subType: payload.subType,
-      behavior: payload.behavior,
+      behavior: payload.behavior as ULedgerAccountBehavior,
       isControlAccount: payload.isControlAccount,
       controlAccountId: payload.controlAccountId ?? undefined,
       name: payload.name,
