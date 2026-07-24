@@ -39,6 +39,8 @@ const EErrorKeys = {
     'journal_entry_error_transfer_not_permitted_on_account',
   UnsupportedSourceType: 'journal_entry_error_unsupported_source_type',
   InvalidJournalEntry: 'journal_entry_error_invalid_journal_entry',
+  EntryPredatesAccountOpeningBalance:
+    'journal_entry_error_entry_predates_account_opening_balance',
 } as const satisfies Record<string, TErrorPrefix>;
 
 const journalEntryError = Object.freeze({

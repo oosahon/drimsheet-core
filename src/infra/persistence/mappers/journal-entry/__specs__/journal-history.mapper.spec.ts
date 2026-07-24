@@ -66,7 +66,7 @@ describe('journal history mappers', () => {
       userId: actorId,
       actorType: 'user',
       action: 'created',
-      diff: audit.header.diff,
+      diff: history.diff,
       correlationId,
       entityVersion: 1,
       occurredAt: entry.updatedAt.toISOString(),

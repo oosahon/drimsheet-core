@@ -84,7 +84,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
       official_rate: {
         type: 'jsonb',
-        notNull: true,
       },
 
       created_at: {

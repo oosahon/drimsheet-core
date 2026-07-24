@@ -279,5 +279,122 @@ describe('transferTransactionEntryService', () => {
         )
       ).rejects.toThrow(accountingError.TransferNotPermittedOnAccount);
     });
+
+    it('should throw if effective date predates source account openingBalanceDate', async () => {
+      const sourceWithOpening = {
+        ...sourceAccount,
+        openingBalanceDate: new Date('2026-04-01T00:00:00.000Z'),
+      };
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceWithOpening);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        destinationAccount,
+      ]);
+
+      const earlierHeader = {
+        ...header,
+        effectiveDate: new Date('2026-03-01T00:00:00.000Z'),
+      };
+
+      await expect(
+        service.create(
+          sourceLine,
+          [destinationLine],
+          earlierHeader,
+          mockOptions
+        )
+      ).rejects.toThrow(journalEntryError.EntryPredatesAccountOpeningBalance);
+    });
+
+    it('should throw if effective date predates destination account openingBalanceDate', async () => {
+      const destWithOpening = {
+        ...destinationAccount,
+        openingBalanceDate: new Date('2026-04-01T00:00:00.000Z'),
+      };
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceAccount);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        destWithOpening,
+      ]);
+
+      const earlierHeader = {
+        ...header,
+        effectiveDate: new Date('2026-03-01T00:00:00.000Z'),
+      };
+
+      await expect(
+        service.create(
+          sourceLine,
+          [destinationLine],
+          earlierHeader,
+          mockOptions
+        )
+      ).rejects.toThrow(journalEntryError.EntryPredatesAccountOpeningBalance);
+    });
+
+    it('should allow transaction when effective date equals account openingBalanceDate', async () => {
+      const openingDate = new Date('2026-03-15T00:00:00.000Z');
+      const sourceWithOpening = {
+        ...sourceAccount,
+        openingBalanceDate: openingDate,
+      };
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceWithOpening);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        destinationAccount,
+      ]);
+
+      const [journalEntry] = await service.create(
+        sourceLine,
+        [destinationLine],
+        header,
+        mockOptions
+      );
+
+      expect(journalEntry).toBeDefined();
+    });
+
+    it('should allow transaction when effective date is after account openingBalanceDate', async () => {
+      const sourceWithOpening = {
+        ...sourceAccount,
+        openingBalanceDate: new Date('2026-01-01T00:00:00.000Z'),
+      };
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceWithOpening);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        destinationAccount,
+      ]);
+
+      const [journalEntry] = await service.create(
+        sourceLine,
+        [destinationLine],
+        header,
+        mockOptions
+      );
+
+      expect(journalEntry).toBeDefined();
+    });
+
+    it('should allow draft transactions predating account openingBalanceDate', async () => {
+      const sourceWithOpening = {
+        ...sourceAccount,
+        openingBalanceDate: new Date('2026-04-01T00:00:00.000Z'),
+      };
+      mockLedgerAccountRepo.findById.mockResolvedValueOnce(sourceWithOpening);
+      mockLedgerAccountRepo.findAllByIds.mockResolvedValueOnce([
+        destinationAccount,
+      ]);
+
+      const draftHeader = {
+        ...header,
+        status: EJournalEntryStatus.Draft,
+        effectiveDate: new Date('2026-03-01T00:00:00.000Z'),
+      };
+
+      const [journalEntry] = await service.create(
+        sourceLine,
+        [destinationLine],
+        draftHeader,
+        mockOptions
+      );
+
+      expect(journalEntry.status).toBe(EJournalEntryStatus.Draft);
+    });
   });
 });

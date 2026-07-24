@@ -1,6 +1,7 @@
 import { IJournalEntry } from '../../../domain/journal-entry/types/journal-entry.types';
 import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
 import { ICashAndCashEquivalentAccount } from '../../../domain/ledger/asset-account/types/asset-account.types';
+import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
 import ILedgerAccountPersistenceService from '../../../domain/ledger/shared/types/ledger-account-persistence.service.types';
 import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
 import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
@@ -15,6 +16,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import eventValue from '../../../shared/events/event.vo';
 import { IEvent } from '../../../shared/events/types/event.types';
 import historyValue from '../../../shared/history/history.vo';
@@ -22,6 +24,7 @@ import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
+import { ILedgerAccountBalancePropagationService } from '../../bookkeeping/contracts/ledger-account-balance-adjustment-service.contract';
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import { IOpeningBalanceDto } from '../../journal-entry/dtos/opening-balance/opening-balance.dto';
 import IExchangeRateAppService from '../../money/contracts/exchange-rate.service.contract';
@@ -37,6 +40,8 @@ interface IDependencies {
   assetAccountService: IAssetAccountService;
   openingBalanceEntryService: IOpeningBalanceEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
+  balancePropagationService: ILedgerAccountBalancePropagationService;
+  reporter: IReporter;
   repoService: IRepoService;
   ledgerAccountPersistenceService: ILedgerAccountPersistenceService;
   fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
@@ -170,12 +175,21 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
         trace
       );
 
+    const [updatedAccount, updateEvents, updateAudit] =
+      ledgerAccountEntity.updateOpeningBalanceDate(
+        account,
+        payload.openingBalance.date
+      );
+
     const fxLotData = await getFxLotData(
-      account,
+      updatedAccount,
       journalEntry,
       exchangeRate,
       trace
     );
+
+    const updateHistory = historyValue.make(updateAudit, actor, correlationId);
+    const combinedAccountHistory = [...accountHistory, updateHistory];
 
     let lotEvents: IEvent<IFxCostBasisLot>[] = [];
     let acquisitionEvents: IEvent<IFxCostBasisLotAcquisition>[] = [];
@@ -185,11 +199,11 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       const repoOptions = { ...trace, tx };
 
       await deps.ledgerAccountPersistenceService.create(
-        account,
+        updatedAccount,
         accountingEntity.functionalCurrencyCode,
         {
           ...repoOptions,
-          history: accountHistory,
+          history: combinedAccountHistory,
         }
       );
 
@@ -229,14 +243,19 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
 
     await deps.repoService.runInTransaction(dbTransactionFn);
 
+    await deps.balancePropagationService
+      .propagate(journalEntry, trace)
+      .catch(deps.reporter.report);
+
     const allEvents: IEvent<unknown>[] = [
       ...accountEvents,
+      ...updateEvents,
       ...journalEvents,
       ...lotEvents,
       ...acquisitionEvents,
     ];
     deps.eventBus.publish(eventValue.enrichAll(allEvents, trace));
 
-    return account;
+    return updatedAccount;
   };
 }

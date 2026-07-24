@@ -107,6 +107,9 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         type: toSchemaString(adjunctAccountRule),
         notNull: true,
       },
+      opening_balance_date: {
+        type: 'date',
+      },
       meta: {
         type: 'jsonb',
       },

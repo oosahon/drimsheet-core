@@ -47,6 +47,8 @@ const ledgerUseCases = {
     assetAccountService: ledgerDomainServices.assetAccount,
     openingBalanceEntryService: bookkeepingServices.openingBalanceEntry,
     journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
+    balancePropagationService: bookkeepingServices.balancePropagation,
+    reporter: observability.reporter,
     repoService,
     ledgerAccountPersistenceService: ledgerDomainServices.persistence,
     fxCostBasisPersistenceService: fxCostBasisService.persistence,

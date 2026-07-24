@@ -1,5 +1,6 @@
 import { TEntityId } from '../types/uuid';
 import dateUtils from '../utils/date';
+import safeJSON from '../utils/safe-json';
 import stringUtils from '../utils/string';
 import historyError from './history.error';
 import {
@@ -79,7 +80,7 @@ function make<T extends object>(
   const history: IHistory<T> = {
     entityId: delta.entityId,
     action: delta.action,
-    diff: delta.diff,
+    diff: safeJSON.normalize(delta.diff),
     occurredAt: delta.occurredAt,
     actor: actor,
     correlationId,

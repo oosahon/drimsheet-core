@@ -4,6 +4,7 @@ import exchangeRateValue from '../../../../../../domain/money/values/exchange-ra
 import moneyValue from '../../../../../../domain/money/values/money.vo';
 import { IFxCostBasisLotAcquisition } from '../../../../../../domain/subledger/fx-cost-basis/types/acquisition.types';
 import { TEntityId } from '../../../../../../shared/types/uuid';
+import exchangeRateMapper from '../../../money/exchange-rate.mapper';
 import fxCostBasisLotAcquisitionMapper, {
   IFxCostBasisLotAcquisitionModel,
 } from '../acquisition.mapper';
@@ -68,7 +69,7 @@ describe('FX Cost-Basis Lot Acquisition Mapper', () => {
         costBasisCurrency: SYSTEM_CURRENCIES.NGN.code,
         acquisitionRate,
         acquisitionDate: '2026-04-09',
-        officialRate,
+        officialRate: exchangeRateMapper.toRepo(officialRate),
         createdAt: createdAt.toISOString(),
       };
 

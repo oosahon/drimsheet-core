@@ -114,34 +114,6 @@ export const subledgerFxCostBasisLotStatusInCore = core.enum(
   ['open', 'closed']
 );
 
-export const pgmigrations = pgTable('pgmigrations', {
-  id: serial().primaryKey().notNull(),
-  name: varchar({ length: 255 }).notNull(),
-  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
-});
-
-export const usersInCore = core.table(
-  'users',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .primaryKey()
-      .notNull(),
-    firstName: varchar('first_name', { length: 100 }).notNull(),
-    lastName: varchar('last_name', { length: 100 }).notNull(),
-    email: varchar({ length: 200 }).notNull(),
-    emailVerified: boolean('email_verified').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [unique('users_email_key').on(table.email)]
-);
-
 export const userAuthInCore = core.table(
   'user_auth',
   {
@@ -163,6 +135,28 @@ export const userAuthInCore = core.table(
       name: 'user_auth_user_id_fkey',
     }).onDelete('cascade'),
   ]
+);
+
+export const usersInCore = core.table(
+  'users',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    firstName: varchar('first_name', { length: 100 }).notNull(),
+    lastName: varchar('last_name', { length: 100 }).notNull(),
+    email: varchar({ length: 200 }).notNull(),
+    emailVerified: boolean('email_verified').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [unique('users_email_key').on(table.email)]
 );
 
 export const userSessionsInCore = core.table(
@@ -542,6 +536,7 @@ export const ledgerAccountsInCore = core.table(
     adjunctAccountRule: adjunctAccountRuleInCore(
       'adjunct_account_rule'
     ).notNull(),
+    openingBalanceDate: date('opening_balance_date'),
     meta: jsonb(),
     createdBy: uuid('created_by').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
@@ -980,6 +975,12 @@ export const accountingEntityHistoryInAudit = audit.table(
   ]
 );
 
+export const pgmigrations = pgTable('pgmigrations', {
+  id: serial().primaryKey().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
+});
+
 export const accountingContextHistoryInAudit = audit.table(
   'accounting_context_history',
   {
@@ -1286,20 +1287,20 @@ export const journalLineHistoryInAudit = audit.table(
     index('journal_line_history_entry_timeline_idx').using(
       'btree',
       table.journalEntryId.asc().nullsLast().op('int8_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('int8_ops')
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('uuid_ops')
     ),
     index('journal_line_history_tenant_timeline_idx').using(
       'btree',
       table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('timestamptz_ops')
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     index('journal_line_history_timeline_idx').using(
       'btree',
       table.journalLineId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('timestamptz_ops')
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('uuid_ops')
     ),
     foreignKey({
       columns: [table.userId],
@@ -1441,7 +1442,7 @@ export const subledgerFxCostBasisLotAcquisitionsInCore = core.table(
     costBasisCurrency: varchar('cost_basis_currency', { length: 3 }).notNull(),
     acquisitionRate: jsonb('acquisition_rate').notNull(),
     acquisitionDate: date('acquisition_date').notNull(),
-    officialRate: jsonb('official_rate').notNull(),
+    officialRate: jsonb('official_rate'),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
       .notNull(),

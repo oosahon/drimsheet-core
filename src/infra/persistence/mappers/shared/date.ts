@@ -11,11 +11,11 @@ interface ICommonDomainDates {
 }
 
 export function toRepoDate(date: Date): string {
-  return date.toISOString();
+  return new Date(date).toISOString();
 }
 
 export function toRepoDateOnly(date: Date): string {
-  return date.toISOString().split('T')[0];
+  return new Date(date).toISOString().split('T')[0];
 }
 
 export function fromRepoDate(date: string): Date {

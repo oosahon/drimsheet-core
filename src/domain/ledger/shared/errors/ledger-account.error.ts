@@ -24,6 +24,12 @@ const EErrorKeys = {
     'ledger_error_ledger_account_invalid_materialized_path',
   InvalidParentMaterializedPath:
     'ledger_error_ledger_account_invalid_parent_materialized_path',
+  InvalidOpeningBalanceDate:
+    'ledger_error_ledger_account_invalid_opening_balance_date',
+  ForbiddenControlAccountOpeningBalanceDate:
+    'ledger_error_ledger_account_forbidden_control_account_opening_balance_date',
+  OpeningBalanceDateAlreadySet:
+    'ledger_error_ledger_account_opening_balance_date_already_set',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type ULedgerAccountError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

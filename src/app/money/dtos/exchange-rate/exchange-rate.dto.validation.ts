@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { omit } from 'lodash';
 import z from 'zod';
 import exchangeRateError from '../../../../domain/money/errors/exchange-rate.error';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
@@ -17,13 +17,7 @@ export const exchangeRateDtoValidation = z.object({
     .number('Rate must be a valid number')
     .positive('Rate must be positive'),
   type: z.enum(EExchangeRateType),
-  asOf: z
-    .string()
-    .refine(
-      (value) => !isNaN(Date.parse(value)),
-      new exchangeRateError.InvalidDate().errorKey
-    )
-    .transform((value) => new Date(value)),
+  asOf: z.coerce.date(new exchangeRateError.InvalidDate().errorKey),
   source: z
     .string()
     .min(2, 'Invalid source: must be at least 2 characters')
@@ -31,7 +25,7 @@ export const exchangeRateDtoValidation = z.object({
 });
 
 export const exchangeRateQueryParamValidation = z.object({
-  ..._.omit(paginationDtoValidation.shape, ['search', 'sortDirection']),
+  ...omit(paginationDtoValidation.shape, ['search', 'sortDirection']),
   currencyPair: currencyPairValidation,
   type: z.enum(EExchangeRateType).optional(),
   asOf: exchangeRateDtoValidation.shape.asOf.optional(),

@@ -36,6 +36,12 @@ export default function makeOpeningBalanceEntryService(
         });
       }
 
+      if (account.openingBalanceDate !== null) {
+        throw new journalEntryError.ExistingOpeningBalance({
+          accountId: account.id,
+        });
+      }
+
       const functionalCurrency = currencyEntity.getByCode(
         accountingEntity.functionalCurrencyCode
       );

@@ -14,6 +14,7 @@ const fxCostBasisLotAcquisitionHistoryMapper = {
     const lotId = history.diff.after?.lotId ?? history.diff.before?.lotId;
 
     if (!lotId) {
+      // TODO: create persistence error
       throw new Error('Lot ID is required in acquisition history diff');
     }
 
@@ -22,6 +23,7 @@ const fxCostBasisLotAcquisitionHistoryMapper = {
       history.diff.before?.accountingEntityId;
 
     if (!accountingEntityId) {
+      // TODO: create persistence error
       throw new Error(
         'Accounting Entity ID is required in acquisition history diff'
       );

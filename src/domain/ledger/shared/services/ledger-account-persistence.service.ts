@@ -22,20 +22,6 @@ export default function makeLedgerAccountPersistenceService(
 ): ILedgerAccountPersistenceService {
   return {
     async create(account, functionalCurrencyCode, repoOptions) {
-      const isExisting = await deps.ledgerAccountBalanceRepo.findByAccountId(
-        account.id,
-        account.accountingEntityId,
-        repoOptions
-      );
-
-      if (isExisting) {
-        deps.logger.info(
-          `Skipping creation of ledger account balance (${account.id}) because it already exists`,
-          { correlationId: repoOptions.correlationId }
-        );
-        return;
-      }
-
       const functionalCurrency = currencyEntity.getByCode(
         functionalCurrencyCode
       );

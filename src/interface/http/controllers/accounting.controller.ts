@@ -11,6 +11,7 @@ import {
   Tags,
 } from 'tsoa';
 import { IAccountingEntityCreationDto } from '../../../app/accounting/dtos/accounting/accounting.dto';
+import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import accountingUsecases from '../../../infra/ioc/usecases/accounting.usecases';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import middlewares from '../middlewares';
@@ -57,5 +58,19 @@ export class AccountingController extends Controller {
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getUserAccountingEntities() {
     return await accountingUsecases.getUserAccountingEntities();
+  }
+
+  /**
+   * Get active accounting entity
+   */
+  @Get('/accounting-entity')
+  @OperationId('getActiveAccountingEntity')
+  @SuccessResponse('200')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('409')
+  @Middlewares(middlewares.isAuthenticatedUser)
+  public async getActiveAccountingEntity(): Promise<IAccountingEntity> {
+    return await accountingUsecases.getActiveAccountingEntity();
   }
 }

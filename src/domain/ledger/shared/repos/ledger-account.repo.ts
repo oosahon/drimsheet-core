@@ -45,6 +45,11 @@ export default interface ILedgerAccountRepo {
     options: IWriteRepoOptions<ILedgerAccountHistory | ILedgerAccountHistory[]>
   ): Promise<void>;
 
+  update(
+    account: ILedgerAccount,
+    options: IWriteRepoOptions<ILedgerAccountHistory>
+  ): Promise<void>;
+
   findById(
     id: TEntityId,
     options: IReadRepoOptions

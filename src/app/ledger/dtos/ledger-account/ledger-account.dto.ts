@@ -1,4 +1,5 @@
 import { ULedgerAccountSortBy } from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+import { ULedgerAccountBehavior } from '../../../../domain/ledger/shared/types/account-behaviors.tyypes';
 import { ULedgerAccountSubType } from '../../../../domain/ledger/shared/types/ledger-aggregate.types';
 import {
   UAdjunctAccountRule,
@@ -26,7 +27,7 @@ export interface ILedgerAccountDto {
   type: ULedgerType;
   normalBalance: UNormalBalance;
   subType: any;
-  behavior: string;
+  behavior: ULedgerAccountBehavior;
   isControlAccount: boolean;
   controlAccountId?: TEntityId;
   name: string;
@@ -34,6 +35,7 @@ export interface ILedgerAccountDto {
   contraAccountRule: UContraAccountRule;
   adjunctAccountRule: UAdjunctAccountRule;
   meta?: Record<string, string>; // TODO: replace with actual metadata when its decided
+  openingBalanceDate: Date | null;
   createdBy: TEntityId;
   createdAt: Date;
   updatedAt: Date;
