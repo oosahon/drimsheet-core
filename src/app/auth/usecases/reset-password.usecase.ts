@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
@@ -13,30 +12,9 @@ import IAuthService from '../contracts/auth-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import { IAccessToken, IResetPasswordReq } from '../dtos/auth/auth.dto';
+import { resetPasswordReqValidation } from '../dtos/auth/auth.dto.validation';
 import authError from '../errors/auth.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
-
-const validationSchema = z
-  .object({
-    token: z
-      .string({ message: 'Token is required' })
-      .min(1, 'Token is required'),
-    password: z
-      .string({ message: 'Password is required' })
-      .min(8, { message: 'Password must be at least 8 characters' })
-      .max(100, { message: 'Password must be at most 100 characters' })
-      .regex(/(?=.*[0-9])/, {
-        message: 'Password must contain at least one number',
-      })
-      .regex(/(?=.*[^A-Za-z0-9])/, {
-        message: 'Password must contain at least one special character',
-      }),
-    confirmPassword: z.string({ message: 'Confirm password is required' }),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ['confirmPassword'],
-  });
 
 interface IDependencies {
   appContext: IAppContext;
@@ -50,7 +28,7 @@ interface IDependencies {
 
 export default function makeResetPasswordUseCase(deps: IDependencies) {
   return async (payload: IResetPasswordReq): Promise<IAccessToken> => {
-    zodValidationRunner(validationSchema, payload);
+    zodValidationRunner(resetPasswordReqValidation, payload);
 
     const { correlationId, idempotencyKey } = deps.appContext.get();
 

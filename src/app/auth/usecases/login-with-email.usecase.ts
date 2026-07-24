@@ -1,4 +1,3 @@
-import z from 'zod';
 import userEvents from '../../../domain/user/events/user.events';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/values/email.vo';
@@ -13,15 +12,9 @@ import IAuthService, {
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import { IAccessToken, IEmailLoginReq } from '../dtos/auth/auth.dto';
+import { emailLoginReqValidation } from '../dtos/auth/auth.dto.validation';
 import authError from '../errors/auth.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
-
-const validationSchema = z.object({
-  email: z.email({ message: 'Email is required' }),
-  password: z
-    .string({ message: 'Password is required' })
-    .max(100, { message: 'Password must be at most 100 characters' }),
-});
 
 interface IDependencies {
   reqContext: IAppContext;
@@ -35,7 +28,7 @@ interface IDependencies {
 
 export default function makeLoginWithEmailUseCase(deps: IDependencies) {
   return async (payload: IEmailLoginReq): Promise<IAccessToken> => {
-    zodValidationRunner(validationSchema, payload);
+    zodValidationRunner(emailLoginReqValidation, payload);
 
     const { correlationId } = deps.reqContext.get();
 

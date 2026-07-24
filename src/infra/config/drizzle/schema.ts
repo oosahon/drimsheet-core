@@ -955,8 +955,8 @@ export const accountingEntityHistoryInAudit = audit.table(
   (table) => [
     index('accounting_entity_history_timeline_idx').using(
       'btree',
-      table.accountingEntityId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
       table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
@@ -1287,20 +1287,20 @@ export const journalLineHistoryInAudit = audit.table(
     index('journal_line_history_entry_timeline_idx').using(
       'btree',
       table.journalEntryId.asc().nullsLast().op('int8_ops'),
-      table.occurredAt.desc().nullsFirst().op('int8_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     index('journal_line_history_tenant_timeline_idx').using(
       'btree',
       table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('int8_ops'),
-      table.id.desc().nullsFirst().op('int8_ops')
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
     index('journal_line_history_timeline_idx').using(
       'btree',
       table.journalLineId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
     foreignKey({
       columns: [table.userId],
@@ -1512,9 +1512,9 @@ export const subledgerFxCostBasisLotAcquisitionHistoryInAudit = audit.table(
     ),
     index('subledger_fx_cost_basis_lot_acquisition_history_timeline_idx').using(
       'btree',
-      table.acquisitionId.asc().nullsLast().op('int8_ops'),
-      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
-      table.id.desc().nullsFirst().op('int8_ops')
+      table.acquisitionId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('uuid_ops')
     ),
     foreignKey({
       columns: [table.userId],

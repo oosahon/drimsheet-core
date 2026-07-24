@@ -13,7 +13,6 @@ import IAuthService, {
 } from '../contracts/auth-service.contract';
 import authError from '../errors/auth.error';
 
-// TODO [PUR-21]: refactor services
 interface IDependencies {
   cacheStorage: ICacheStorage;
   varsConfig: IVarsConfig;

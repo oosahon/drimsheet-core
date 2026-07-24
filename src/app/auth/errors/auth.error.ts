@@ -15,6 +15,12 @@ const EErrorKeys = {
   WrongStrategy: 'auth_error_wrong_strategy',
   EmailRequired: 'auth_error_email_required',
   UserNotFound: 'auth_error_user_not_found',
+  InvalidFirstName: 'auth_error_invalid_first_name',
+  InvalidLastName: 'auth_error_invalid_last_name',
+  InvalidEmail: 'auth_error_invalid_email',
+  InvalidPassword: 'auth_error_invalid_password',
+  InvalidConfirmPassword: 'auth_error_invalid_confirm_password',
+  PasswordsDoNotMatch: 'auth_error_passwords_do_not_match',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UErrorKeys = (typeof EErrorKeys)[keyof typeof EErrorKeys];
