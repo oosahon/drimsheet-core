@@ -1,32 +1,33 @@
-import {
-  EAccountingEntityType,
-  IAccountingEntity,
-} from '../../../../domain/accounting/types/accounting-entity.types';
-import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
-import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
-import { IUser } from '../../../../domain/user/types/user.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
-import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
-
 import mockAccountingContextRepo from '../../../../domain/accounting/repos/__mocks__/accounting-context.repo.impl.mock';
 import mockAccountingEntityRepo from '../../../../domain/accounting/repos/__mocks__/accounting-entity.repo.impl.mock';
 import mockAccountingPeriodRepo from '../../../../domain/accounting/repos/__mocks__/accounting-period.repo.impl.mock';
 import mockFiscalYearRepo from '../../../../domain/accounting/repos/__mocks__/fiscal-year.repo.impl.mock';
 import mockReportingContextRepo from '../../../../domain/accounting/repos/__mocks__/reporting-context.repo.impl.mock';
 import mockReportingPeriodRepo from '../../../../domain/accounting/repos/__mocks__/reporting-period.repo.impl.mock';
+import {
+  EAccountingEntityType,
+  IAccountingEntity,
+} from '../../../../domain/accounting/types/accounting-entity.types';
+import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
+import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import mockAssetAccountService from '../../../../domain/ledger/asset-account/services/__mocks__/asset-account.service.mock';
 import mockEquityAccountService from '../../../../domain/ledger/equity-account/services/__mocks__/equity-account.service.mock';
 import mockExpenseAccountService from '../../../../domain/ledger/expense-account/services/__mocks__/expense-account.service.mock';
 import mockLiabilityAccountService from '../../../../domain/ledger/liability-account/services/__mocks__/liability-account.service.mock';
 import mockRevenueAccountService from '../../../../domain/ledger/revenue-account/services/__mocks__/revenue-account.service.mock';
-import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import mockLedgerAccountPersistenceService from '../../../../domain/ledger/shared/services/__mocks__/ledger-account-persistence.service.mock';
+import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
+import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
 import { IEntityDelta } from '../../../../shared/history/types/history.types';
+import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
+import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
 
 describe('createAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -42,7 +43,7 @@ describe('createAccountingEntityUseCase', () => {
       accountingContextRepo: mockAccountingContextRepo,
       reportingPeriodRepo: mockReportingPeriodRepo,
       reportingContextRepo: mockReportingContextRepo,
-      ledgerAccountRepo: mockLedgerAccountRepo,
+      ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
       eventBus: mockEventBus,
       assetAccountService: mockAssetAccountService,
       liabilityAccountService: mockLiabilityAccountService,
@@ -89,8 +90,15 @@ describe('createAccountingEntityUseCase', () => {
 
     mockAccountingEntityRepo.findByUserId.mockResolvedValue([]);
 
+    const [mockAccount] = cashAndEquivalentAccountEntity.makeHeader({
+      name: 'Cash',
+      accountingEntityId: generateUUID(),
+      currency: SYSTEM_CURRENCIES.USD,
+      createdBy: mockUserId,
+    });
+
     mockAssetAccountService.bootstrapHeaderAccounts.mockResolvedValue({
-      accounts: [],
+      accounts: [mockAccount],
       events: [],
       audits: [],
     });
@@ -153,7 +161,7 @@ describe('createAccountingEntityUseCase', () => {
     expect(mockAccountingContextRepo.create).toHaveBeenCalled();
     expect(mockReportingPeriodRepo.create).toHaveBeenCalled();
     expect(mockReportingContextRepo.create).toHaveBeenCalled();
-    expect(mockLedgerAccountRepo.create).toHaveBeenCalled();
+    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalled();
 
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
@@ -197,18 +205,25 @@ describe('createAccountingEntityUseCase', () => {
   });
 
   it('maps ledger account audits into history entries when account services return non-empty audits', async () => {
+    const [mockAccount] = cashAndEquivalentAccountEntity.makeHeader({
+      name: 'Cash',
+      accountingEntityId: generateUUID(),
+      currency: SYSTEM_CURRENCIES.USD,
+      createdBy: mockUserId,
+    });
+
     const mockAudit = {
-      entityId: generateUUID(),
+      entityId: mockAccount.id,
       action: 'created',
       diff: {
         before: null,
-        after: { id: generateUUID(), name: 'Cash Account' },
+        after: mockAccount,
       },
       occurredAt: new Date(),
     } as unknown as IEntityDelta<ILedgerAccount>;
 
     mockAssetAccountService.bootstrapHeaderAccounts.mockResolvedValue({
-      accounts: [],
+      accounts: [mockAccount],
       events: [],
       audits: [mockAudit],
     });
@@ -217,8 +232,9 @@ describe('createAccountingEntityUseCase', () => {
 
     await useCase(validPayload);
 
-    const ledgerCreateCall = mockLedgerAccountRepo.create.mock.calls[0];
-    const options = ledgerCreateCall[1];
+    const ledgerCreateCall =
+      mockLedgerAccountPersistenceService.create.mock.calls[0];
+    const options = ledgerCreateCall[2];
     const histories = options.history as unknown[];
 
     expect(histories).toHaveLength(1);

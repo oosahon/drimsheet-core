@@ -6,6 +6,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import eventValue from '../../../shared/events/event.vo';
 import { IEvent } from '../../../shared/events/types/event.types';
 import historyValue from '../../../shared/history/history.vo';
@@ -13,6 +14,7 @@ import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
+import { ILedgerAccountBalancePropagationService } from '../../bookkeeping/contracts/ledger-account-balance-adjustment-service.contract';
 import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
 import ledgerAppError from '../../ledger/errors/ledger.error';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';
@@ -25,6 +27,8 @@ interface IDependencies {
   eventBus: IEventBus;
   openingBalanceEntryService: IOpeningBalanceEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
+  balancePropagationService: ILedgerAccountBalancePropagationService;
+  reporter: IReporter;
   repoService: IRepoService;
 }
 
@@ -88,6 +92,10 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
     };
 
     await deps.repoService.runInTransaction(transactionFn);
+
+    await deps.balancePropagationService
+      .propagate(journalEntry, trace)
+      .catch(deps.reporter.report);
 
     const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];
     deps.eventBus.publish(eventValue.enrichAll(allEvents, trace));

@@ -20,7 +20,7 @@ import IEquityAccountService from '../../../domain/ledger/equity-account/types/e
 import IExpenseAccountService from '../../../domain/ledger/expense-account/types/expense-account.service.types';
 import ILiabilityAccountService from '../../../domain/ledger/liability-account/types/liability-account.service.types';
 import IRevenueAccountService from '../../../domain/ledger/revenue-account/types/revenue-account.service.types';
-import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import ILedgerAccountPersistenceService from '../../../domain/ledger/shared/types/ledger-account-persistence.service.types';
 import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
@@ -46,7 +46,7 @@ interface IDependencies {
   accountingContextRepo: IAccountingContextRepo;
   reportingPeriodRepo: IReportingPeriodRepo;
   reportingContextRepo: IReportingContextRepo;
-  ledgerAccountRepo: ILedgerAccountRepo;
+  ledgerAccountPersistenceService: ILedgerAccountPersistenceService;
   eventBus: IEventBus;
   assetAccountService: IAssetAccountService;
   liabilityAccountService: ILiabilityAccountService;
@@ -299,10 +299,17 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         ...options,
         history: reportingContextHistory,
       });
-      await deps.ledgerAccountRepo.create(ledgerAccounts, {
-        ...options,
-        history: ledgerAccountHistories,
-      });
+
+      for (const ledgerAccount of ledgerAccounts) {
+        await deps.ledgerAccountPersistenceService.create(
+          ledgerAccount,
+          accountingEntity.functionalCurrencyCode,
+          {
+            ...options,
+            history: ledgerAccountHistories,
+          }
+        );
+      }
     };
 
     await deps.repoService.runInTransaction(transactionFn);

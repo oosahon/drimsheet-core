@@ -15,7 +15,9 @@ import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
+import mockLedgerAccountBalancePropagationService from '../../../bookkeeping/contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -128,6 +130,8 @@ describe('createOpeningBalanceUseCase', () => {
       eventBus: mockEventBus,
       openingBalanceEntryService: mockOpeningBalanceEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
+      balancePropagationService: mockLedgerAccountBalancePropagationService,
+      reporter: mockReporter,
       repoService: mockRepoService,
     });
 
@@ -182,6 +186,9 @@ describe('createOpeningBalanceUseCase', () => {
       ]),
       expect.objectContaining({ correlationId })
     );
+    expect(
+      mockLedgerAccountBalancePropagationService.propagate
+    ).toHaveBeenCalledWith(expect.anything(), { correlationId });
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
@@ -200,7 +207,7 @@ describe('createOpeningBalanceUseCase', () => {
         targetCurrencyCode: 'NGN',
         rate: 1500,
         type: EExchangeRateType.Official,
-        asOf: '2026-04-24T00:00:00.000Z' as unknown as Date,
+        asOf: new Date('2026-04-24T00:00:00.000Z'),
         source: 'test',
       },
       date: new Date('2026-04-24T00:00:00.000Z'),

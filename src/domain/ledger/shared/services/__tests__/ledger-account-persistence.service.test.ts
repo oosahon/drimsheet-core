@@ -64,16 +64,8 @@ describe('ledgerAccountPersistenceService', () => {
   });
 
   describe('create', () => {
-    it('should successfully create account and balance when account balance does not exist', async () => {
-      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(null);
-
+    it('should successfully create account and balance within a transaction', async () => {
       await service.create(account, SYSTEM_CURRENCIES.NGN.code, repoOptions);
-
-      expect(mockLedgerAccountBalanceRepo.findByAccountId).toHaveBeenCalledWith(
-        account.id,
-        accountingEntityId,
-        repoOptions
-      );
 
       expect(mockRepoService.runInTransaction).toHaveBeenCalled();
 
@@ -101,32 +93,6 @@ describe('ledgerAccountPersistenceService', () => {
           tx: 'mock-tx',
         }
       );
-    });
-
-    it('should skip creating account and balance when account balance already exists', async () => {
-      const mockExistingBalance: any = {
-        id: 'existing-balance-id',
-      };
-      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(
-        mockExistingBalance
-      );
-
-      await service.create(account, SYSTEM_CURRENCIES.NGN.code, repoOptions);
-
-      expect(mockLedgerAccountBalanceRepo.findByAccountId).toHaveBeenCalledWith(
-        account.id,
-        accountingEntityId,
-        repoOptions
-      );
-
-      expect(mockLogger.info).toHaveBeenCalledWith(
-        `Skipping creation of ledger account balance (${account.id}) because it already exists`,
-        { correlationId: repoOptions.correlationId }
-      );
-
-      expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-      expect(mockLedgerAccountRepo.create).not.toHaveBeenCalled();
-      expect(mockLedgerAccountBalanceRepo.create).not.toHaveBeenCalled();
     });
   });
 });

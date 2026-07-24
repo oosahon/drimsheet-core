@@ -144,6 +144,27 @@ describe('Short Term Loan Liability Entity', () => {
     });
   });
 
+  describe('makeHeader', () => {
+    it('should successfully create a header short term debt account', () => {
+      const [account, events] = shortTermLoanAccountEntity.makeHeader({
+        name: 'Short Term Debt Header',
+        accountingEntityId: validUUID1,
+        currency: validCurrency,
+        createdBy: validUUID2,
+      });
+
+      expect(account.code).toBe('200000');
+      expect(account.materializedPath).toBe('200000');
+      expect(account.isControlAccount).toBe(true);
+      expect(account.controlAccountId).toBeNull();
+      expect(account.behavior).toBe(
+        ELiabilityAccountBehavior.DefaultShortTermDebt
+      );
+      expect(account.meta).toBeNull();
+      expect(events).toHaveLength(2);
+    });
+  });
+
   describe('makeCreditCardAccountMeta', () => {
     const validMeta: ICreditCardAccountMeta = {
       cardIssuer: 'Test Bank',

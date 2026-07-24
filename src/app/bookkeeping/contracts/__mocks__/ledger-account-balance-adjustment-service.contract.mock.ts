@@ -2,7 +2,7 @@ import { ILedgerAccountBalancePropagationService } from '../ledger-account-balan
 
 const mockLedgerAccountBalancePropagationService: jest.Mocked<ILedgerAccountBalancePropagationService> =
   {
-    propagate: jest.fn(),
+    propagate: jest.fn().mockResolvedValue(undefined),
   };
 
 export default mockLedgerAccountBalancePropagationService;

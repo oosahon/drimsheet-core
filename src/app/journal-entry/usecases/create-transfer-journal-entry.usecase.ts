@@ -3,12 +3,14 @@ import { IJournalLineInput } from '../../../domain/journal-entry/types/journal-l
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
+import { ILedgerAccountBalancePropagationService } from '../../bookkeeping/contracts/ledger-account-balance-adjustment-service.contract';
 import ITransactionEntryService from '../../bookkeeping/contracts/transaction-entry.service.contract';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import { ITransactionJournalEntryReq } from '../dtos/transaction-journal-entry/transaction-journal-entry.dto';
@@ -18,6 +20,8 @@ interface IDependencies {
   appContext: IAppContext;
   transactionEntryService: ITransactionEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
+  balancePropagationService: ILedgerAccountBalancePropagationService;
+  reporter: IReporter;
   eventBus: IEventBus;
 }
 
@@ -97,6 +101,10 @@ export default function makeCreateTransferJournalEntryUseCase(
       lineHistories,
       trace
     );
+
+    await deps.balancePropagationService
+      .propagate(journalEntry, trace)
+      .catch(deps.reporter.report);
 
     deps.eventBus.publish(eventValue.enrichAll(events, trace));
   };

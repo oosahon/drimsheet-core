@@ -4,16 +4,12 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
-import IReporter from '../../../shared/contracts/reporter.contract';
 import IJournalEntryPersistenceService from '../contracts/journal-entry-persistence.service.contract';
-import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-adjustment-service.contract';
 
 interface IDependencies {
   repoService: IRepoService;
   journalEntryRepo: IJournalEntryRepo;
   journalLineRepo: IJournalLineRepo;
-  balancePropagationService: ILedgerAccountBalancePropagationService;
-  reporter: IReporter;
 }
 
 export default function makeJournalEntryPersistenceService(
@@ -38,12 +34,6 @@ export default function makeJournalEntryPersistenceService(
       };
 
       await deps.repoService.runInTransaction(transactionFn, repoOptions.tx);
-
-      // This should not cause the journal entry creation to fail.
-      // We can simply run the propagation manually IF it does fail for some reason.
-      await deps.balancePropagationService
-        .propagate(entry, repoOptions)
-        .catch(deps.reporter.report);
     },
   };
 }

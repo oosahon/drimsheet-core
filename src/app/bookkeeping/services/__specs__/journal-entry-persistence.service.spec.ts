@@ -17,8 +17,6 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-acco
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
-import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
 
 import moneyValue from '../../../../domain/money/values/money.vo';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
@@ -31,8 +29,6 @@ describe('journalEntryPersistenceService', () => {
     repoService: mockRepoService,
     journalEntryRepo: mockJournalEntryRepo,
     journalLineRepo: mockJournalLineRepo,
-    balancePropagationService: mockLedgerAccountBalancePropagationService,
-    reporter: mockReporter,
   });
 
   const mockOptions: IRepoOptions = {
@@ -155,9 +151,6 @@ describe('journalEntryPersistenceService', () => {
     jest.clearAllMocks();
     mockJournalEntryRepo.create.mockResolvedValue(undefined);
     mockJournalLineRepo.create.mockResolvedValue(undefined);
-    mockLedgerAccountBalancePropagationService.propagate.mockResolvedValue(
-      undefined
-    );
   });
 
   afterEach(() => {
@@ -165,7 +158,7 @@ describe('journalEntryPersistenceService', () => {
   });
 
   describe('create', () => {
-    it('should persist the journal entry header and lines in a transaction, then propagate balances', async () => {
+    it('should persist the journal entry header and lines in a transaction', async () => {
       const { headerHistory, journalEntry, linesHistory } = makeFixture();
       const { lines, ...header } = journalEntry;
 
@@ -188,12 +181,9 @@ describe('journalEntryPersistenceService', () => {
         history: linesHistory,
         accountingEntityId: journalEntry.accountingEntityId,
       });
-      expect(
-        mockLedgerAccountBalancePropagationService.propagate
-      ).toHaveBeenCalledWith(journalEntry, mockOptions);
     });
 
-    it('should stop before creating lines or propagating balances if header persistence fails', async () => {
+    it('should stop before creating lines if header persistence fails', async () => {
       const { headerHistory, journalEntry, linesHistory } = makeFixture();
       const error = new Error('header persistence failed');
 
@@ -205,12 +195,9 @@ describe('journalEntryPersistenceService', () => {
 
       expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
       expect(mockJournalLineRepo.create).not.toHaveBeenCalled();
-      expect(
-        mockLedgerAccountBalancePropagationService.propagate
-      ).not.toHaveBeenCalled();
     });
 
-    it('should stop before propagating balances if line persistence fails', async () => {
+    it('should fail if line persistence fails', async () => {
       const { headerHistory, journalEntry, linesHistory } = makeFixture();
       const error = new Error('line persistence failed');
 
@@ -222,29 +209,6 @@ describe('journalEntryPersistenceService', () => {
 
       expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
       expect(mockJournalLineRepo.create).toHaveBeenCalledTimes(1);
-      expect(
-        mockLedgerAccountBalancePropagationService.propagate
-      ).not.toHaveBeenCalled();
-    });
-
-    it('should catch and report balance propagation errors after persistence succeeds', async () => {
-      const { headerHistory, journalEntry, linesHistory } = makeFixture();
-      const error = new Error('balance propagation failed');
-
-      mockLedgerAccountBalancePropagationService.propagate.mockRejectedValue(
-        error
-      );
-
-      await expect(
-        service.create(journalEntry, headerHistory, linesHistory, mockOptions)
-      ).resolves.toBeUndefined();
-
-      expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
-      expect(mockJournalLineRepo.create).toHaveBeenCalledTimes(1);
-      expect(
-        mockLedgerAccountBalancePropagationService.propagate
-      ).toHaveBeenCalledWith(journalEntry, mockOptions);
-      expect(mockReporter.report).toHaveBeenCalledWith(error);
     });
   });
 });

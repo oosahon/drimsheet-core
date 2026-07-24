@@ -17,7 +17,7 @@ export const exchangeRateDtoValidation = z.object({
     .number('Rate must be a valid number')
     .positive('Rate must be positive'),
   type: z.enum(EExchangeRateType),
-  asOf: z.date(new exchangeRateError.InvalidDate().errorKey),
+  asOf: z.coerce.date(new exchangeRateError.InvalidDate().errorKey),
   source: z
     .string()
     .min(2, 'Invalid source: must be at least 2 characters')

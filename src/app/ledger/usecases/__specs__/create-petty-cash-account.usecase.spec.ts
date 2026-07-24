@@ -19,7 +19,9 @@ import fxCostBasisLotEntity from '../../../../domain/subledger/fx-cost-basis/ent
 import { EFxCostBasisLotStatus } from '../../../../domain/subledger/fx-cost-basis/types/lot.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
+import mockLedgerAccountBalancePropagationService from '../../../bookkeeping/contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
 import mockAssetAccountService from '../../../../domain/ledger/asset-account/services/__mocks__/asset-account.service.mock';
@@ -167,6 +169,8 @@ describe('createPettyCashSubAccountUseCase', () => {
       assetAccountService: mockAssetAccountService,
       openingBalanceEntryService: mockOpeningBalanceEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
+      balancePropagationService: mockLedgerAccountBalancePropagationService,
+      reporter: mockReporter,
       repoService: mockRepoService,
       ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
       fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
@@ -244,6 +248,10 @@ describe('createPettyCashSubAccountUseCase', () => {
       null,
       { correlationId }
     );
+
+    expect(
+      mockLedgerAccountBalancePropagationService.propagate
+    ).toHaveBeenCalledWith(mockOpeningBalanceJournalEntry, { correlationId });
 
     expect(mockEventBus.publish).toHaveBeenCalledWith(
       expect.arrayContaining([
@@ -359,7 +367,7 @@ describe('createPettyCashSubAccountUseCase', () => {
           targetCurrencyCode: 'NGN',
           rate: 1500,
           type: EExchangeRateType.Negotiated,
-          asOf: '2026-03-14T00:00:00.000Z' as unknown as Date,
+          asOf: new Date('2026-03-14T00:00:00.000Z'),
           source: 'bank',
         },
         date: new Date('2026-03-14T00:00:00.000Z'),

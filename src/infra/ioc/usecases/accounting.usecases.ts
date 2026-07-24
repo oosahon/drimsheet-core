@@ -4,7 +4,6 @@ import makeGetJurisdictionsUseCase from '../../../app/accounting/usecases/get-ju
 import makeGetUserAccountingEntitiesUseCase from '../../../app/accounting/usecases/get-user-accounting-entities.usecase';
 import messaging from '../../messaging';
 import accountingRepos from '../../persistence/repos/accounting';
-import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
 import ledgerDomainServices from '../services/ledger.service';
 import repoService from '../services/repo.service';
@@ -19,7 +18,7 @@ const accountingUsecases = Object.freeze({
     accountingContextRepo: accountingRepos.accountingContext,
     reportingPeriodRepo: accountingRepos.reportingPeriod,
     reportingContextRepo: accountingRepos.reportingContext,
-    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    ledgerAccountPersistenceService: ledgerDomainServices.persistence,
     eventBus: messaging.eventBus,
     assetAccountService: ledgerDomainServices.assetAccount,
     liabilityAccountService: ledgerDomainServices.liabilityAccount,

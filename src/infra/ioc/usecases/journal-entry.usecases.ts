@@ -2,6 +2,7 @@ import makeCreateOpeningBalanceUseCase from '../../../app/journal-entry/usecases
 import makeCreatePaymentJournalEntryUseCase from '../../../app/journal-entry/usecases/create-payment-journal-entry.usecase';
 import makeCreateTransferJournalEntryUseCase from '../../../app/journal-entry/usecases/create-transfer-journal-entry.usecase';
 import messaging from '../../messaging';
+import observability from '../../observability';
 import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
 import bookkeepingServices from '../services/bookkeeping.service';
@@ -14,6 +15,8 @@ const journalEntryUseCases = {
     eventBus: messaging.eventBus,
     openingBalanceEntryService: bookkeepingServices.openingBalanceEntry,
     journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
+    balancePropagationService: bookkeepingServices.balancePropagation,
+    reporter: observability.reporter,
     repoService: repoService,
   }),
 
@@ -21,6 +24,8 @@ const journalEntryUseCases = {
     appContext: appContext,
     transactionEntryService: bookkeepingServices.transactionEntry,
     journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
+    balancePropagationService: bookkeepingServices.balancePropagation,
+    reporter: observability.reporter,
     eventBus: messaging.eventBus,
   }),
 
@@ -28,6 +33,8 @@ const journalEntryUseCases = {
     appContext: appContext,
     transactionEntryService: bookkeepingServices.transactionEntry,
     journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
+    balancePropagationService: bookkeepingServices.balancePropagation,
+    reporter: observability.reporter,
     eventBus: messaging.eventBus,
   }),
 };

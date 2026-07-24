@@ -10,8 +10,9 @@ import {
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import retainedEarningsEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
 import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
@@ -73,9 +74,9 @@ describe('ledgerAccountBalancePropagationService', () => {
         }
       );
 
-    const [equityAccount] = openingBalanceEquityLedgerEntity.make(
+    const [equityAccount] = retainedEarningsEquityLedgerEntity.make(
       {
-        name: 'Opening Balance Equity',
+        name: 'Retained Earnings',
         accountingEntityId: accountingEntity.id,
         currency: SYSTEM_CURRENCIES.NGN,
         createdBy: user.id,
@@ -328,6 +329,32 @@ describe('ledgerAccountBalancePropagationService', () => {
       expect(
         mockLedgerAccountBalanceAdjustmentQueue.add
       ).not.toHaveBeenCalled();
+    });
+
+    it('should skip balance adjustment for OpeningBalance equity accounts', async () => {
+      const { equityAccount, journalEntry, postingAccount } = makeJournalEntry(
+        EJournalEntryStatus.Posted
+      );
+
+      const openingBalanceAccount = {
+        ...equityAccount,
+        subType: 'opening_balance',
+      } as unknown as ILedgerAccount;
+
+      mockLedgerAccountRepo.findById.mockImplementation(async (accountId) => {
+        if (accountId === postingAccount.id) return postingAccount;
+        if (accountId === equityAccount.id) return openingBalanceAccount;
+        return null;
+      });
+
+      await service.propagate(journalEntry, mockOptions);
+
+      expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledTimes(
+        1
+      );
+      expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledWith(
+        expect.objectContaining({ ledgerAccountId: postingAccount.id })
+      );
     });
   });
 });
