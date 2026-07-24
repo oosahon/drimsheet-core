@@ -1,4 +1,5 @@
 import makeCreateAccountingEntityUseCase from '../../../app/accounting/usecases/create-accounting-entity.usecase';
+import makeGetCurrentAccountingEntityUseCase from '../../../app/accounting/usecases/get-active-accounting-entity.usecase';
 import makeGetJurisdictionsUseCase from '../../../app/accounting/usecases/get-jurisdictions.usecase';
 import makeGetUserAccountingEntitiesUseCase from '../../../app/accounting/usecases/get-user-accounting-entities.usecase';
 import messaging from '../../messaging';
@@ -32,6 +33,10 @@ const accountingUsecases = Object.freeze({
   getUserAccountingEntities: makeGetUserAccountingEntitiesUseCase({
     appContext: appContext,
     accountingEntityRepo: accountingRepos.accountingEntity,
+  }),
+
+  getActiveAccountingEntity: makeGetCurrentAccountingEntityUseCase({
+    appContext,
   }),
 });
 
