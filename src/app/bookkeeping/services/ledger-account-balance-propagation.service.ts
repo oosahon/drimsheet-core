@@ -6,6 +6,7 @@ import {
 } from '../../../domain/journal-entry/types/journal-entry.types';
 import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.types';
 import { ELedgerAccountBalanceEffect } from '../../../domain/ledger/account-balance/types/ledger-account-balance.types';
+import { EEquitySubType } from '../../../domain/ledger/equity-account/types/equity-account.types';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
 import { IMoney } from '../../../domain/money/types/money.types';
@@ -87,6 +88,10 @@ export default function makeLedgerAccountBalancePropagationService(
 
         if (!account) {
           throw new journalEntryError.AccountNotFound({ cause: { accountId } });
+        }
+
+        if (account.subType === EEquitySubType.OpeningBalance) {
+          continue;
         }
 
         validateLines(journalLines, account);

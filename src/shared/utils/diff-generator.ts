@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { isEqual } from 'lodash';
 import { IDiff } from '../types/diff.types';
 
 export default function generateDiff<T extends object>(
@@ -16,6 +16,6 @@ export default function generateDiff<T extends object>(
   return {
     before,
     after,
-    hasChanges: !_.isEqual(after, before),
+    hasChanges: !isEqual(after, before),
   };
 }

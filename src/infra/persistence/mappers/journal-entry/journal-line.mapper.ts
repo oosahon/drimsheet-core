@@ -43,6 +43,8 @@ const journalLineMapper = {
   },
 
   toRepo(payload: IJournalLine): IJournalLineModel {
+    console.log('>>>>>>>>>>>>>>>', payload);
+
     return {
       id: payload.id,
       entryId: payload.entryId,
