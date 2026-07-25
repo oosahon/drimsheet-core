@@ -10,7 +10,7 @@ description: Use when creating or changing domain entities, value objects, or th
 - [Folder Responsibility](../../rules/folder-responsibility.md)
 - [Domain Modeling](../../rules/domain-modeling.md)
 - [Error Creation](../../rules/error-creation.md)
-- [Testing](../../rules/testing.md)
+- [Domain Unit Tests](../../rules/testing/domain.md)
 
 ## Entity Pattern
 

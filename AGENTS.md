@@ -9,6 +9,13 @@ Read this before changing the repository.
 3. For code changes, follow `.agents/workflow/implementation.md`.
 4. Always follow `.agents/rules/folder-responsibility.md`.
 
+## Planning
+
+- Whenever the user asks for a plan or the agent decides to create or present
+  one, load `.agents/skills/planner/SKILL.md`.
+- Create every plan from `.agents/templates/implementation-plan.md` and save it
+  under `.agents/plans`.
+
 ## Core Rules
 
 - Put behavior in the folder that owns it.
