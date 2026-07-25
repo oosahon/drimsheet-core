@@ -146,7 +146,7 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IUser: {
+  IUserProfileDto: {
     dataType: 'refObject',
     properties: {
       id: { ref: 'TEntityId', required: true },
@@ -156,14 +156,6 @@ const models: TsoaRoute.Models = {
       lastName: { dataType: 'string', required: true },
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: {
-        dataType: 'union',
-        subSchemas: [
-          { dataType: 'datetime' },
-          { dataType: 'enum', enums: [null] },
-        ],
-        required: true,
-      },
     },
     additionalProperties: false,
   },

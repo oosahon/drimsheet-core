@@ -120,7 +120,7 @@
         "type": "object",
         "additionalProperties": false
       },
-      "IUser": {
+      "IUserProfileDto": {
         "properties": {
           "id": {
             "$ref": "#/components/schemas/TEntityId"
@@ -144,11 +144,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "deletedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           }
         },
         "required": [
@@ -158,8 +153,7 @@
           "firstName",
           "lastName",
           "createdAt",
-          "updatedAt",
-          "deletedAt"
+          "updatedAt"
         ],
         "type": "object",
         "additionalProperties": false
@@ -1466,7 +1460,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IUser"
+                  "$ref": "#/components/schemas/IUserProfileDto"
                 }
               }
             }
