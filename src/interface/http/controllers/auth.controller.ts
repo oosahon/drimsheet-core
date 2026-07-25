@@ -156,7 +156,9 @@ export class AuthController extends Controller {
   @Post('logout')
   @OperationId('logout')
   @SuccessResponse('200')
+  @Response<IHttpErrorDto>('500')
   public async logout() {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.logout();
   }
 }

@@ -118,7 +118,6 @@ const authUseCase = {
     reqContext: appContext,
     tokenService: authService.token,
     userSessionRepo: userRepos.userSession,
-    logger: observability.logger,
   }),
 };
 
