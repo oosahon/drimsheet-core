@@ -123,7 +123,7 @@ describe('POST /auth/login-with-email', () => {
         cause: {
           used: 6,
           limit: 5,
-          message: 'Too many authentication attempts, please try again later.',
+          message: 'auth_error_too_many_requests',
         },
       });
       expect(loginWithEmailSpy).toHaveBeenCalledTimes(5);

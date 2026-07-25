@@ -307,4 +307,69 @@ describe('makeResetPasswordUseCase', () => {
       userId: mockUser.id,
     });
   });
+
+  it('reports claim release failure when cleanup fails during error handling', async () => {
+    const mockUser = {
+      id: generateUUID(),
+      email: emailValue.make('cleanup-failure@example.com'),
+      emailVerified: true,
+    } as IUser;
+
+    const tokenPayload = {
+      id: mockUser.id,
+      owner: 'claim-owner',
+    };
+
+    mockAuthService.claimPasswordResetToken.mockResolvedValue(tokenPayload);
+    const dbError = new Error('Database lookup failure');
+    mockUserRepo.findById.mockRejectedValue(dbError);
+
+    const cleanupError = new Error('Redis connection failure');
+    mockAuthService.releasePasswordResetTokenClaim.mockRejectedValue(
+      cleanupError
+    );
+
+    await expect(getUseCase()(getValidPayload())).rejects.toThrow(dbError);
+
+    expect(mockReporter.report).toHaveBeenCalledWith(cleanupError, {
+      operation: 'release-password-reset-token-claim',
+      userId: mockUser.id,
+    });
+  });
+
+  it('does not release claim if error is thrown after commit', async () => {
+    const mockUser = {
+      id: generateUUID(),
+      email: emailValue.make('after-commit-failure@example.com'),
+      emailVerified: true,
+    } as IUser;
+
+    const tokenPayload = {
+      id: mockUser.id,
+      owner: 'claim-owner',
+    };
+
+    mockAuthService.claimPasswordResetToken.mockResolvedValue(tokenPayload);
+    mockUserRepo.findById.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue({
+      userId: mockUser.id,
+      strategy: [EAuthStrategy.Email],
+    } as IUserAuth);
+    mockPasswordService.hash.mockResolvedValue('new-hash');
+    mockAuthService.generateAccessToken.mockResolvedValue('access-token');
+    mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
+
+    // Force an error after commit
+    mockClientSession.setRefreshToken.mockImplementationOnce(() => {
+      throw new Error('Context error after commit');
+    });
+
+    await expect(getUseCase()(getValidPayload())).rejects.toThrow(
+      'Context error after commit'
+    );
+
+    expect(
+      mockAuthService.releasePasswordResetTokenClaim
+    ).not.toHaveBeenCalled();
+  });
 });

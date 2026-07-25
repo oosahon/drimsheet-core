@@ -105,7 +105,7 @@ describe('POST /auth/signup-with-email', () => {
         cause: {
           used: 6,
           limit: 5,
-          message: 'Too many signup attempts, please try again later.',
+          message: 'auth_error_too_many_requests',
         },
       });
       expect(signupWithEmailSpy).toHaveBeenCalledTimes(5);

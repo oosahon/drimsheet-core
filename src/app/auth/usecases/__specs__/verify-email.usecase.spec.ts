@@ -203,4 +203,32 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
     expect(mockEventBus.publish).toHaveBeenCalledWith([]);
   });
+
+  it('should release signup token claim and rethrow generic error', async () => {
+    const token = 'valid-token';
+    const decodedToken = {
+      id: 'some-user-uuid',
+      email: 'johndoe@example.com',
+    };
+
+    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
+    const dbError = new Error('Database connection failed');
+    mockUserRepo.findById.mockRejectedValue(dbError);
+
+    const usecase = makeVerifyEmailAddressUseCase({
+      tokenService: mockAuthService,
+      userRepo: mockUserRepo,
+      appContext: mockAppContext,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
+
+    await expect(usecase(token)).rejects.toThrow('Database connection failed');
+
+    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.releaseSignupTokenClaim).toHaveBeenCalledWith(
+      decodedToken.id
+    );
+  });
 });

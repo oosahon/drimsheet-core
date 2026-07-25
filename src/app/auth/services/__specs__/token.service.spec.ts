@@ -76,6 +76,41 @@ describe('makeTokenService', () => {
         authError.InvalidToken
       );
     });
+
+    it('should throw InvalidToken if signup token is already claimed (concurrent claim)', async () => {
+      const token = await tokenService.generateSignupToken({ id: userId });
+
+      // Simulate an active claim by another process
+      await cacheStorage.set(
+        `app:auth:signup-token-claim:${userId}`,
+        token,
+        30
+      );
+
+      // Verify throws InvalidToken when attempting to claim
+      await expect(tokenService.verifySignupToken(token)).rejects.toThrow(
+        authError.InvalidToken
+      );
+    });
+
+    it('should successfully release signup token claim', async () => {
+      const token = await tokenService.generateSignupToken({ id: userId });
+
+      // Set active claim
+      await cacheStorage.set(
+        `app:auth:signup-token-claim:${userId}`,
+        token,
+        30
+      );
+
+      // Release it
+      await tokenService.releaseSignupTokenClaim(userId);
+
+      // Verify that the claim key was deleted
+      expect(cacheStorage.del).toHaveBeenCalledWith(
+        `app:auth:signup-token-claim:${userId}`
+      );
+    });
   });
 
   describe('generatePasswordResetToken & verifyPasswordResetToken', () => {
@@ -167,6 +202,19 @@ describe('makeTokenService', () => {
       await expect(
         tokenService.claimPasswordResetToken(token)
       ).resolves.toMatchObject({ id: userId });
+    });
+
+    it('claims a password reset token correctly when it does not contain an expiration claim', async () => {
+      // Sign token without exp
+      const token = sign(
+        { id: userId, type: 'reset' },
+        varsConfig.JWT_SECRET_KEY
+      );
+      await cacheStorage.set(`app:auth:reset-token:${userId}`, token, 900);
+
+      const claim = await tokenService.claimPasswordResetToken(token);
+      expect(claim.id).toBe(userId);
+      expect(claim.owner).toBeDefined();
     });
   });
 

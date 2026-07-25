@@ -22,9 +22,47 @@ describe('sanitizer', () => {
         123 as unknown as string
       );
     });
+    it('sanitizes plain text matching SENSITIVE_TEXT_REGEX without query parameters', () => {
+      expect(sanitizeUrl('password=123')).toBe('password=[REDACTED]');
+      expect(sanitizeUrl('token: abc')).toBe('token: [REDACTED]');
+    });
+
+    it('handles URLSearchParams construction error gracefully', () => {
+      const spy = jest
+        .spyOn(global, 'URLSearchParams')
+        .mockImplementationOnce(() => {
+          throw new Error('Mock search params error');
+        });
+      const url = 'https://example.com/api?token=123';
+      // Should fall back to return the original match because of the error in URLSearchParams
+      expect(sanitizeUrl(url)).toBe(url);
+      spy.mockRestore();
+    });
   });
 
   describe('sanitizeData', () => {
+    it('returns null and undefined unchanged', () => {
+      expect(sanitizeData(null)).toBeNull();
+      expect(sanitizeData(undefined)).toBeUndefined();
+    });
+
+    it('returns primitive non-object types unchanged', () => {
+      expect(sanitizeData(123)).toBe(123);
+      expect(sanitizeData(true)).toBe(true);
+    });
+
+    it('returns Date and RegExp instances unchanged', () => {
+      const date = new Date();
+      const regex = /abc/g;
+      expect(sanitizeData(date)).toBe(date);
+      expect(sanitizeData(regex)).toBe(regex);
+    });
+
+    it('returns Buffer instances unchanged', () => {
+      const buffer = Buffer.from('test');
+      expect(sanitizeData(buffer)).toBe(buffer);
+    });
+
     it('redacts sensitive keys in plain objects', () => {
       const input = {
         username: 'john_doe',
@@ -93,6 +131,15 @@ describe('sanitizer', () => {
       expect(sanitized.message).toContain('code=%5BREDACTED%5D');
       expect(sanitized.secretKey).toBe('[REDACTED]');
       expect(sanitized.context).toEqual({ token: '[REDACTED]' });
+    });
+
+    it('sanitizes Error object instances without stack trace', () => {
+      const err = new Error('Failed with URL: https://auth.com?code=12345');
+      delete err.stack;
+
+      const sanitized = sanitizeData(err) as Error;
+      expect(sanitized.message).toContain('code=%5BREDACTED%5D');
+      expect(sanitized.stack).toBeUndefined();
     });
   });
 });
