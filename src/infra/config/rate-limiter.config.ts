@@ -64,6 +64,61 @@ export function makeIpRateLimitKey(input: unknown): string {
   return `ip:${ipKeyGenerator(input, 64)}`;
 }
 
+export function makeHashedRateLimitKey(
+  action: RateLimitAction,
+  input: unknown,
+  secret: string
+): string | undefined {
+  if (typeof input !== 'string' || input.trim().length === 0) {
+    return undefined;
+  }
+
+  try {
+    const digest = createHmac('sha256', secret)
+      .update(input.trim())
+      .digest('hex');
+    return `hashed:${action}:${digest}`;
+  } catch {
+    return undefined;
+  }
+}
+
+const rateLimiter = {
+  default: configureRateLimiter({
+    windowMs: 1000 * 60,
+    max: 5,
+    message: 'Too many authentication attempts, please try again later.',
+    keyGenerator: (req) =>
+      makeAccountRateLimitKey(
+        'signup-with-email',
+        req.body?.email,
+        process.env.JWT_SECRET_KEY || 'secret'
+      ),
+  }),
+
+  verifyEmail: configureRateLimiter({
+    windowMs: 1000 * 60 * 15,
+    max: 5,
+    message: 'Too many email verification attempts, please try again later.',
+    keyGenerator: (req) =>
+      makeHashedRateLimitKey(
+        'verify-email',
+        req.body?.token,
+        process.env.JWT_SECRET_KEY || 'secret'
+      ),
+  }),
+
+  getPasswordResetLink: configureRateLimiter({
+    windowMs: 1000 * 60 * 5,
+    max: 5,
+    message:
+      'Too many password reset requests for this account, please try again.',
+    keyGenerator: (req) => req.body?.email,
+  }),
+};
+
+export { rateLimiter };
+
 export function configureRateLimiter(config: IConfig) {
   return rateLimit({
     windowMs: config.windowMs,

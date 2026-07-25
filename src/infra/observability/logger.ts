@@ -1,6 +1,7 @@
 import * as winston from 'winston';
 import ILogger from '../../shared/contracts/logger.contract';
 import safeJSON from '../../shared/utils/safe-json';
+import { sanitizeData, SENSITIVE_KEYS } from '../../shared/utils/sanitizer';
 
 winston.addColors({
   error: 'red',
@@ -9,15 +10,35 @@ winston.addColors({
   debug: 'grey',
 });
 
+const redactSensitiveDataFormat = winston.format((info) => {
+  if (typeof info.message === 'string') {
+    info.message = sanitizeData(info.message) as string;
+  }
+
+  for (const [key, value] of Object.entries(info)) {
+    if (key === 'level' || key === 'message' || key === 'timestamp') {
+      continue;
+    }
+    if (SENSITIVE_KEYS.has(key.toLowerCase())) {
+      (info as Record<string, unknown>)[key] = '[REDACTED]';
+    } else {
+      (info as Record<string, unknown>)[key] = sanitizeData(value);
+    }
+  }
+  return info;
+});
+
 const winstonLogger = winston.createLogger({
   level: 'debug',
   format: winston.format.combine(
     winston.format.errors({ stack: true }),
+    redactSensitiveDataFormat(),
     winston.format.json()
   ),
   transports: [
     new winston.transports.Console({
       format: winston.format.combine(
+        redactSensitiveDataFormat(),
         winston.format.colorize({ all: true }),
         winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
         winston.format.printf(
@@ -37,18 +58,26 @@ const logger: ILogger = {
   info: (message, meta) => winstonLogger.info(message, meta),
   warn: (message, meta) => winstonLogger.warn(message, meta),
   error: (message, meta) => {
-    if (message instanceof Error) {
-      winstonLogger.error(message.message, {
-        stack: message.stack,
-        ...(typeof meta === 'object' && meta !== null ? meta : {}),
+    const sanitizedMsg = sanitizeData(message);
+    const sanitizedMeta = sanitizeData(meta);
+
+    if (sanitizedMsg instanceof Error) {
+      winstonLogger.error(sanitizedMsg.message, {
+        stack: sanitizedMsg.stack,
+        ...(typeof sanitizedMeta === 'object' && sanitizedMeta !== null
+          ? (sanitizedMeta as Record<string, unknown>)
+          : {}),
       });
-    } else if (meta instanceof Error) {
-      winstonLogger.error(String(message), {
-        stack: meta.stack,
-        message: meta.message,
+    } else if (sanitizedMeta instanceof Error) {
+      winstonLogger.error(String(sanitizedMsg), {
+        stack: sanitizedMeta.stack,
+        message: sanitizedMeta.message,
       });
     } else {
-      winstonLogger.error(String(message), meta as Record<string, unknown>);
+      winstonLogger.error(
+        String(sanitizedMsg),
+        sanitizedMeta as Record<string, unknown>
+      );
     }
   },
   debug: (message, meta) => winstonLogger.debug(message, meta),

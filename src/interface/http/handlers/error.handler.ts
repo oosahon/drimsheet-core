@@ -40,6 +40,7 @@ function makeHttpErrorHandler(deps: IDependencies) {
     // @ts-ignore
     delete req?.file?.buffer;
     delete req?.body?.password;
+    delete req?.body?.token;
 
     req.files?.length &&
       // @ts-ignore

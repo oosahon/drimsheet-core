@@ -5,6 +5,7 @@ import {
   TRepoTransactionFn,
 } from '../../../../shared/contracts/repo.contract';
 import { IEvent } from '../../../../shared/events/types/event.types';
+import { ITransactionContext } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import IAppContext from '../../../_internal/contracts/app-context.contract';
 import ITokenService from '../../contracts/token-service.contract';
@@ -19,6 +20,7 @@ export interface IIssueUserSessionDeps {
   eventBus: IEventBus;
   repoService: IRepoService;
   events: IEvent<unknown>[] | IEvent<unknown>;
+  tx?: ITransactionContext;
 }
 
 export default async function makeIssueUserSessionHelper({
@@ -29,36 +31,46 @@ export default async function makeIssueUserSessionHelper({
   eventBus,
   repoService,
   events,
+  tx,
 }: IIssueUserSessionDeps): Promise<IAccessToken> {
   const { correlationId, clientSession } = reqContext.get();
 
   const accessToken = await tokenService.generateAccessToken(user);
   const refreshToken = await tokenService.generateRefreshToken(user);
 
-  const repoTransaction: TRepoTransactionFn = async (tx) => {
+  const repoTransaction: TRepoTransactionFn = async (transactionTx) => {
     const existingClientRefreshToken = clientSession.getRefreshToken();
 
     if (existingClientRefreshToken) {
-      await userSessionRepo.delete(user.id, existingClientRefreshToken, {
+      let oldUserId = user.id;
+      try {
+        const decodedOld = tokenService.verifyRefreshToken(
+          existingClientRefreshToken
+        );
+        oldUserId = decodedOld.id;
+      } catch {
+        // use default user.id fallback if unparseable
+      }
+      await userSessionRepo.delete(oldUserId, existingClientRefreshToken, {
         correlationId,
-        tx,
+        tx: transactionTx,
       });
     }
 
     const existingDbRefreshToken = await userSessionRepo.findByRefreshToken(
       user.id,
       refreshToken,
-      { correlationId, tx, lock: 'update' }
+      { correlationId, tx: transactionTx, lock: 'update' }
     );
 
-    // This is in the off chance that use user makes the request twice
+    // This is in the off chance that the user makes the request twice
     if (existingDbRefreshToken) {
       await userSessionRepo.delete(
         user.id,
         existingDbRefreshToken.refreshToken,
         {
           correlationId,
-          tx,
+          tx: transactionTx,
         }
       );
     }
@@ -72,15 +84,15 @@ export default async function makeIssueUserSessionHelper({
         lastLoginAt: timestamp,
         createdAt: timestamp,
       },
-      { correlationId, tx }
+      { correlationId, tx: transactionTx }
     );
   };
 
-  await repoService.runInTransaction(repoTransaction);
+  await repoService.runInTransaction(repoTransaction, tx);
 
   clientSession.setRefreshToken(refreshToken);
 
-  eventBus.publish(events);
+  await eventBus.publish(events);
 
   return { accessToken };
 }

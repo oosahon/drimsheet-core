@@ -19,10 +19,11 @@ export default function makeRequestLoggerMiddleware(
 
     const handleFinish = () => {
       const duration = Math.round(performance.now() - start);
+      const url = req.originalUrl;
 
       const responseLog = {
         method: req.method,
-        url: req.originalUrl,
+        url,
         statusCode: res.statusCode,
         duration: `${duration}ms`,
         responseSize: parseInt(
@@ -39,13 +40,10 @@ export default function makeRequestLoggerMiddleware(
       const isSlowRequest = duration > SLOW_REQUEST_THRESHOLD;
 
       if (isSlowRequest) {
-        reporter.report(
-          new Error(`[SLOW]: ${req.method} ${req.originalUrl}`),
-          responseLog
-        );
+        reporter.report(new Error(`[SLOW]: ${req.method} ${url}`), responseLog);
       }
 
-      const resTitle = `[${res.statusCode}] ${req.method} ${req.originalUrl}`;
+      const resTitle = `[${res.statusCode}] ${req.method} ${url}`;
 
       if (isServerError) {
         // error is already being reported in src/interface/http/handlers/error.handler.ts

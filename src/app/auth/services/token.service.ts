@@ -33,10 +33,9 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
 
   const verifyAuthToken = (token: string) => {
     try {
-      return verify(
-        token,
-        deps.varsConfig.JWT_SECRET_KEY
-      ) as IAuthTokenPayload & {
+      return verify(token, deps.varsConfig.JWT_SECRET_KEY, {
+        algorithms: ['HS256'],
+      }) as IAuthTokenPayload & {
         type: string;
       };
     } catch (err) {
@@ -53,7 +52,7 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
         type: 'signup',
       },
       deps.varsConfig.JWT_SECRET_KEY,
-      { expiresIn: '1day' }
+      { expiresIn: '1day', algorithm: 'HS256' }
     );
 
     await deps.cacheStorage.set(
@@ -64,12 +63,10 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
     return token;
   };
 
-  const verifySignupToken: ITokenService['verifySignupToken'] = async (
-    token
-  ) => {
+  const claimSignupToken: ITokenService['claimSignupToken'] = async (token) => {
     const decoded = verifyAuthToken(token);
 
-    if (decoded.type !== 'signup') {
+    if (decoded.type !== 'signup' || !decoded.id) {
       throw new authError.InvalidToken();
     }
 
@@ -81,8 +78,36 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
       throw new authError.InvalidToken();
     }
 
-    await deps.cacheStorage.del(`app:auth:signup-token:${decoded.id}`);
+    const claimed = await deps.cacheStorage.setIfNotExists(
+      `app:auth:signup-token-claim:${decoded.id}`,
+      token,
+      30
+    );
 
+    if (!claimed) {
+      throw new authError.InvalidToken();
+    }
+
+    return decoded;
+  };
+
+  const finalizeSignupToken: ITokenService['finalizeSignupToken'] = async (
+    id
+  ) => {
+    await deps.cacheStorage.del(`app:auth:signup-token:${id}`);
+    await deps.cacheStorage.del(`app:auth:signup-token-claim:${id}`);
+  };
+
+  const releaseSignupTokenClaim: ITokenService['releaseSignupTokenClaim'] =
+    async (id) => {
+      await deps.cacheStorage.del(`app:auth:signup-token-claim:${id}`);
+    };
+
+  const verifySignupToken: ITokenService['verifySignupToken'] = async (
+    token
+  ) => {
+    const decoded = await claimSignupToken(token);
+    await finalizeSignupToken(decoded.id);
     return decoded;
   };
 
@@ -177,6 +202,9 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
   return Object.freeze({
     generateSignupToken,
     verifySignupToken,
+    claimSignupToken,
+    finalizeSignupToken,
+    releaseSignupTokenClaim,
     generateAccessToken,
     generateRefreshToken,
     verifyRefreshToken,

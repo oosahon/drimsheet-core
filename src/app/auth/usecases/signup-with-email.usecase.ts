@@ -84,5 +84,7 @@ export default function makeSignupWithEmailUsecase(deps: IDependencies) {
     );
 
     await deps.eventBus.publish(enrichedUserEvents);
+
+    await deps.emailVerificationService.send(user, correlationId);
   };
 }

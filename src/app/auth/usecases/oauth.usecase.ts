@@ -18,7 +18,7 @@ interface IDependencies {
 export default function makeOauthUsecase(deps: IDependencies) {
   return {
     handleGoogleCallback: async (user: IUser): Promise<string> => {
-      const { accessToken } = await makeIssueUserSessionHelper({
+      await makeIssueUserSessionHelper({
         user,
         reqContext: deps.reqContext,
         tokenService: deps.tokenService,
@@ -28,7 +28,7 @@ export default function makeOauthUsecase(deps: IDependencies) {
         events: [],
       });
 
-      return `${deps.webAppUrl}/auth/oauth-confirmation?access_token=${accessToken}`;
+      return `${deps.webAppUrl}/auth/oauth-confirmation`;
     },
   };
 }

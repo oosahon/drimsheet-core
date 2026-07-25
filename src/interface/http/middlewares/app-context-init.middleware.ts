@@ -19,28 +19,20 @@ function handleSetRefreshToken(
   token: string,
   varsConfig: IVarsConfig
 ) {
-  const hostname = new URL(varsConfig.WEB_APP_URL).hostname;
-  const cookieDomain =
-    hostname === 'localhost' || hostname === '127.0.0.1' ? undefined : hostname;
-
   res.cookie('refresh_token', token, {
     httpOnly: true,
     secure: varsConfig.NODE_ENV === 'production',
-    domain: cookieDomain,
+    path: '/api/v1/auth',
     sameSite: 'lax',
-    maxAge: 1000 * 60 * 60 * 24 * 7,
+    maxAge: 1000 * 60 * 60 * 24 * 15,
   });
 }
 
 function handleClearRefreshToken(res: Response, varsConfig: IVarsConfig) {
-  const hostname = new URL(varsConfig.WEB_APP_URL).hostname;
-  const cookieDomain =
-    hostname === 'localhost' || hostname === '127.0.0.1' ? undefined : hostname;
-
   res.clearCookie('refresh_token', {
     httpOnly: true,
     secure: varsConfig.NODE_ENV === 'production',
-    domain: cookieDomain,
+    path: '/api/v1/auth',
     sameSite: 'lax',
   });
 }

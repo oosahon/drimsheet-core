@@ -52,7 +52,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
       email: 'johndoe@example.com',
     };
 
-    mockAuthService.verifySignupToken.mockResolvedValue(decodedToken as never);
+    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
@@ -69,9 +69,11 @@ describe('makeVerifyEmailAddressUseCase', () => {
     const result = await usecase(token);
 
     expect(mockAppContext.get).toHaveBeenCalledTimes(2);
-    expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
       correlationId,
+      lock: 'update',
+      tx: 'mock-tx',
     });
 
     expect(mockUserRepo.update).toHaveBeenCalledTimes(1);
@@ -113,7 +115,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   it('should propagate AuthError if token is invalid or expired', async () => {
     const token = 'invalid-token';
-    mockAuthService.verifySignupToken.mockRejectedValue(
+    mockAuthService.claimSignupToken.mockRejectedValue(
       new authError.InvalidToken()
     );
 
@@ -128,7 +130,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
     await expect(usecase(token)).rejects.toThrow(authError.Base);
 
-    expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).not.toHaveBeenCalled();
     expect(mockUserRepo.update).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
@@ -141,7 +143,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
       email: 'johndoe@example.com',
     };
 
-    mockAuthService.verifySignupToken.mockResolvedValue(decodedToken as never);
+    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
     mockUserRepo.findById.mockResolvedValue(null);
 
     const usecase = makeVerifyEmailAddressUseCase({
@@ -155,9 +157,11 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
     await expect(usecase(token)).rejects.toThrow(authError.InvalidToken);
 
-    expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
       correlationId,
+      lock: 'update',
+      tx: 'mock-tx',
     });
     expect(mockUserRepo.update).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
@@ -176,7 +180,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
       email: 'johndoe@example.com',
     };
 
-    mockAuthService.verifySignupToken.mockResolvedValue(decodedToken as never);
+    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');

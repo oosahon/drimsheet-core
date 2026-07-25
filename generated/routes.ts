@@ -846,6 +846,14 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IVerifyEmailReq: {
+    dataType: 'refObject',
+    properties: {
+      token: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IEmailLoginReq: {
     dataType: 'refObject',
     properties: {
@@ -1659,7 +1667,12 @@ export function RegisterRoutes(app: Router) {
     string,
     TsoaRoute.ParameterSchema
   > = {
-    token: { in: 'query', name: 'token', required: true, dataType: 'string' },
+    payload: {
+      in: 'body',
+      name: 'payload',
+      required: true,
+      ref: 'IVerifyEmailReq',
+    },
   };
   app.post(
     '/api/v1/auth/signup/complete',
@@ -1872,7 +1885,7 @@ export function RegisterRoutes(app: Router) {
           response,
           next,
           validatedArgs,
-          successStatus: undefined,
+          successStatus: 302,
         });
       } catch (err) {
         return next(err);
@@ -1914,7 +1927,7 @@ export function RegisterRoutes(app: Router) {
           response,
           next,
           validatedArgs,
-          successStatus: undefined,
+          successStatus: 302,
         });
       } catch (err) {
         return next(err);

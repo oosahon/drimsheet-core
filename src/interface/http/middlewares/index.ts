@@ -20,8 +20,8 @@ import makeRequestLoggerMiddleware from './request-logger.middleware';
 const middlewares = {
   initiateLoginWithGoogle: makeInitiateLoginWithGoogleMiddleware(),
 
-  completeLoginWithGoogle: makeCompleteLoginWithGoogleMiddleware(
-    authUseCase.oAuth.handleGoogleCallback
+  completeLoginWithGoogle: makeCompleteLoginWithGoogleMiddleware((user) =>
+    authUseCase.oAuth.handleGoogleCallback(user)
   ),
 
   isOptionalAuthenticatedUser: makeIsOptionalAuthenticatedUserMiddleware(

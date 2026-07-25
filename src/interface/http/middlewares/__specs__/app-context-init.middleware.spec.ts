@@ -175,8 +175,9 @@ describe('makeAppContextInitMiddleware', () => {
       'new_token',
       expect.objectContaining({
         httpOnly: true,
-        domain: undefined,
+        path: '/api/v1/auth',
         sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24 * 15,
       })
     );
 
@@ -191,13 +192,13 @@ describe('makeAppContextInitMiddleware', () => {
       'refresh_token',
       expect.objectContaining({
         httpOnly: true,
-        domain: undefined,
+        path: '/api/v1/auth',
         sameSite: 'lax',
       })
     );
   });
 
-  it('should set cookie domain appropriately when hostname is not localhost', async () => {
+  it('should set cookie path and secure appropriately in production', async () => {
     mockVarsConfig.WEB_APP_URL = 'https://production.purpleledger.app'; // production
     mockVarsConfig.NODE_ENV = 'production';
 
@@ -223,8 +224,9 @@ describe('makeAppContextInitMiddleware', () => {
       expect.objectContaining({
         httpOnly: true,
         secure: true,
-        domain: 'production.purpleledger.app',
+        path: '/api/v1/auth',
         sameSite: 'lax',
+        maxAge: 1000 * 60 * 60 * 24 * 15,
       })
     );
 
@@ -235,7 +237,7 @@ describe('makeAppContextInitMiddleware', () => {
       expect.objectContaining({
         httpOnly: true,
         secure: true,
-        domain: 'production.purpleledger.app',
+        path: '/api/v1/auth',
         sameSite: 'lax',
       })
     );

@@ -76,9 +76,7 @@ describe('makeOauthUsecase', () => {
 
       expect(mockEventBus.publish).toHaveBeenCalled();
 
-      expect(redirectUrl).toBe(
-        'http://localhost:3000/auth/oauth-confirmation?access_token=mock-access-token'
-      );
+      expect(redirectUrl).toBe('http://localhost:3000/auth/oauth-confirmation');
     });
 
     it('should delete existing session if a previous refresh token is present', async () => {

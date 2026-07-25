@@ -4,6 +4,10 @@ import { IUser } from '../../types/user.types';
 import emailValue from '../../values/email.vo';
 
 function validate(user: IUser) {
+  if (user.deletedAt !== null) {
+    throw new userError.InvalidAction({ reason: 'User is deleted' });
+  }
+
   stringUtils.validateUUID(user.id, userError.InvalidValue);
 
   stringUtils.sanitizeAndValidate(

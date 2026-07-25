@@ -5,7 +5,6 @@ import {
   Middlewares,
   OperationId,
   Post,
-  Query,
   Response,
   Route,
   SuccessResponse,
@@ -15,28 +14,12 @@ import {
   IEmailLoginReq,
   IResetPasswordReq,
   IUserSignupReq,
+  IVerifyEmailReq,
 } from '../../../app/auth/dtos/auth/auth.dto';
-import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
+import { rateLimiter } from '../../../infra/config/rate-limiter.config';
 import authUseCase from '../../../infra/ioc/usecases/auth.usecases';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import middlewares from '../middlewares';
-
-const rateLimiter = {
-  default: configureRateLimiter({
-    windowMs: 1000 * 60,
-    max: 5,
-    message: 'Too many authentication attempts, please try again later.',
-    keyGenerator: (req) => req.body?.email || (req.query?.token as string),
-  }),
-
-  getPasswordResetLink: configureRateLimiter({
-    windowMs: 1000 * 60 * 5,
-    max: 5,
-    message:
-      'Too many password reset requests for this account, please try again.',
-    keyGenerator: (req) => req.body?.email,
-  }),
-};
 
 @Route('auth')
 @Tags('Auth')
@@ -62,10 +45,13 @@ export class AuthController extends Controller {
   @OperationId('verifyEmail')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
-  @Middlewares(rateLimiter.default)
-  public async verifyEmail(@Query() token: string) {
-    return await authUseCase.verifyEmail(token);
+  @Response<IHttpErrorDto>('429')
+  @Middlewares(rateLimiter.verifyEmail)
+  public async verifyEmail(@Body() payload: IVerifyEmailReq) {
+    this.setHeader('Cache-Control', 'no-store');
+    return await authUseCase.verifyEmail(payload.token);
   }
 
   /**
@@ -114,6 +100,7 @@ export class AuthController extends Controller {
    */
   @Get('google')
   @OperationId('loginWithGoogle')
+  @SuccessResponse('302')
   @Middlewares(middlewares.initiateLoginWithGoogle)
   public loginWithGoogle() {
     return;
@@ -125,6 +112,8 @@ export class AuthController extends Controller {
    */
   @Get('google/callback')
   @OperationId('loginWithGoogleCallback')
+  @SuccessResponse('302')
+  @Response<IHttpErrorDto>('401')
   @Middlewares(middlewares.completeLoginWithGoogle)
   public async loginWithGoogleCallback() {
     return;
@@ -137,8 +126,10 @@ export class AuthController extends Controller {
   @OperationId('refreshAccessToken')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
   public async refreshAccessToken() {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.refreshAccessToken();
   }
 

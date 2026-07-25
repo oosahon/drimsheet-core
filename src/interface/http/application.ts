@@ -2,6 +2,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import express, { Router } from 'express';
 import helmet from 'helmet';
+import passport from 'passport';
 import { RegisterRoutes } from '../../../generated/routes';
 import cors from '../../infra/server/cors';
 import rateLimiter from '../../infra/server/rate-limiter';
@@ -41,6 +42,7 @@ export default function createApplication(
   app.use(compression());
 
   app.use(cookieParser());
+  app.use(passport.initialize());
 
   app.use(middlewares.appContext);
 

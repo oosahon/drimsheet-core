@@ -1029,6 +1029,16 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IVerifyEmailReq": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": ["token"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IEmailLoginReq": {
         "properties": {
           "email": {
@@ -2043,7 +2053,27 @@
               }
             }
           },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
             "description": "",
             "content": {
               "application/json": {
@@ -2057,16 +2087,17 @@
         "description": "\nVerify user email",
         "tags": ["Auth"],
         "security": [],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "token",
-            "required": true,
-            "schema": {
-              "type": "string"
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IVerifyEmailReq"
+              }
             }
           }
-        ]
+        }
       }
     },
     "/auth/login-with-email": {
@@ -2225,8 +2256,8 @@
       "get": {
         "operationId": "loginWithGoogle",
         "responses": {
-          "204": {
-            "description": "No content"
+          "302": {
+            "description": ""
           }
         },
         "description": "Start the Google OAuth flow.\nRedirects the user to Google for authentication.",
@@ -2239,8 +2270,18 @@
       "get": {
         "operationId": "loginWithGoogleCallback",
         "responses": {
-          "204": {
-            "description": "No content"
+          "302": {
+            "description": ""
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "Google OAuth callback.\nExchanges the Google user profile for an auth token and redirects to the client.",
@@ -2264,6 +2305,16 @@
             }
           },
           "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
             "description": "",
             "content": {
               "application/json": {

@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
 import { usersInCore as users } from '../../../config/drizzle/schema';
@@ -31,12 +31,13 @@ const userRepo: IUserRepo = {
   },
 
   findByEmail: async (email, options) => {
-    const query = getDbQuery(options);
-
-    const result = await query
+    const baseQuery = getDbQuery(options)
       .select()
       .from(users)
-      .where(eq(users.email, email));
+      .where(and(eq(users.email, email), isNull(users.deletedAt)));
+
+    const query = options?.lock ? baseQuery.for(options.lock) : baseQuery;
+    const result = await query;
 
     if (!result.length) return null;
 
@@ -44,9 +45,13 @@ const userRepo: IUserRepo = {
   },
 
   findById: async (userId, options) => {
-    const query = getDbQuery(options);
+    const baseQuery = getDbQuery(options)
+      .select()
+      .from(users)
+      .where(and(eq(users.id, userId), isNull(users.deletedAt)));
 
-    const result = await query.select().from(users).where(eq(users.id, userId));
+    const query = options?.lock ? baseQuery.for(options.lock) : baseQuery;
+    const result = await query;
 
     if (!result.length) return null;
 
