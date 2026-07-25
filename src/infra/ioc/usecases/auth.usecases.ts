@@ -1,5 +1,5 @@
 import makeEmailVerificationService from '../../../app/auth/services/email-verification.service';
-import makeGoogleOAuthHelper from '../../../app/auth/usecases/helpers/oauth-handler-google.helper';
+import makeGoogleOAuthHelper from '../../../app/auth/usecases/helpers/google-oauth.helper';
 import makeLoginWithEmailUseCase from '../../../app/auth/usecases/login-with-email.usecase';
 import makeLogoutUseCase from '../../../app/auth/usecases/logout.usecase';
 import makeOauthUsecase from '../../../app/auth/usecases/oauth.usecase';

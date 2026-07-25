@@ -39,6 +39,7 @@
   "app_error_unprocessable",
   "auth_error_email_required",
   "auth_error_expired_token",
+  "auth_error_inconsistent_user_auth_internal_server_error",
   "auth_error_invalid_confirm_password",
   "auth_error_invalid_credentials",
   "auth_error_invalid_email",

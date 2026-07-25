@@ -9,10 +9,12 @@ import {
 import appError from '../../../../shared/errors/app.error';
 import eventValue from '../../../../shared/events/event.vo';
 import historyValue from '../../../../shared/history/history.vo';
+import { ERepoLock } from '../../../../shared/types/repo.types';
 import IAppContext from '../../../_internal/contracts/app-context.contract';
 import { EAuthStrategy } from '../../contracts/auth.types';
 import IUserAuthRepo from '../../contracts/user-auth.repo.contract';
 import { IOAuthProfile, TOAuthDoneCallback } from '../../dtos/auth/auth.dto';
+import authError from '../../errors/auth.error';
 
 export default function makeGoogleOAuthHelper(
   eventBus: IEventBus,
@@ -23,7 +25,11 @@ export default function makeGoogleOAuthHelper(
 ) {
   return async (profile: IOAuthProfile, done: TOAuthDoneCallback) => {
     try {
-      if (!profile.email) {
+      if (
+        !profile.providerSubject ||
+        !profile.email ||
+        !profile.emailVerified
+      ) {
         const error = new appError.BadRequest();
         return done(error, false);
       }
@@ -34,14 +40,27 @@ export default function makeGoogleOAuthHelper(
       const existingUser = await userRepo.findByEmail(email, { correlationId });
 
       if (existingUser) {
-        const userAuth = await userAuthRepo.findByUserId(existingUser.id, {
-          correlationId,
-        });
+        await repoService.runInTransaction(async (tx) => {
+          const userAuth = await userAuthRepo.findByUserId(existingUser.id, {
+            correlationId,
+            tx,
+            lock: ERepoLock.Update,
+          });
 
-        if (userAuth && !userAuth.strategy.includes(EAuthStrategy.Google)) {
-          userAuth.strategy.push(EAuthStrategy.Google);
-          await userAuthRepo.update(userAuth, { correlationId });
-        }
+          if (!userAuth) {
+            throw new authError.InconsistentUserAuth();
+          }
+
+          if (!userAuth.strategy.includes(EAuthStrategy.Google)) {
+            await userAuthRepo.update(
+              {
+                ...userAuth,
+                strategy: [...userAuth.strategy, EAuthStrategy.Google],
+              },
+              { correlationId, tx }
+            );
+          }
+        });
 
         return done(null, existingUser);
       }
@@ -82,7 +101,7 @@ export default function makeGoogleOAuthHelper(
         eventValue.enrich(e, { correlationId, idempotencyKey })
       );
 
-      eventBus.publish(enrichedUserEvents);
+      await eventBus.publish(enrichedUserEvents);
 
       return done(null, user);
     } catch (error) {

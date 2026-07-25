@@ -11,6 +11,18 @@ import {
   GOOGLE_AUTH_SECRET,
 } from './vars.config';
 
+export function mapGoogleProfile(profile: Profile) {
+  const primaryEmail = profile.emails?.[0];
+
+  return {
+    providerSubject: profile.id,
+    firstName: profile.name?.givenName || '',
+    lastName: profile.name?.familyName || '',
+    email: primaryEmail?.value || '',
+    emailVerified: primaryEmail?.verified === true,
+  };
+}
+
 export default function setupOAuth() {
   if (!GOOGLE_AUTH_CLIENT_ID || !GOOGLE_AUTH_SECRET) {
     return;
@@ -30,13 +42,10 @@ export default function setupOAuth() {
         done: VerifyCallback
       ) => {
         try {
-          const gUser = {
-            firstName: profile.name?.givenName || '',
-            lastName: profile.name?.familyName || '',
-            email: profile.emails?.[0].value || '',
-          };
-
-          await authUseCase.makeGoogleOAuthHelper(gUser, done);
+          await authUseCase.makeGoogleOAuthHelper(
+            mapGoogleProfile(profile),
+            done
+          );
         } catch (error) {
           done(error as Error, false);
         }

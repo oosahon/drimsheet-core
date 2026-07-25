@@ -19,6 +19,8 @@ const EErrorKeys = {
   InvalidPassword: 'auth_error_invalid_password',
   InvalidConfirmPassword: 'auth_error_invalid_confirm_password',
   PasswordsDoNotMatch: 'auth_error_passwords_do_not_match',
+  InconsistentUserAuth:
+    'auth_error_inconsistent_user_auth_internal_server_error',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UErrorKeys = (typeof EErrorKeys)[keyof typeof EErrorKeys];

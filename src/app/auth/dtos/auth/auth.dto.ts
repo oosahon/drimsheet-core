@@ -31,7 +31,9 @@ export interface IVerifyEmailReq {
 }
 
 export interface IOAuthProfile {
+  providerSubject: string;
   email: string;
+  emailVerified: boolean;
   firstName: string;
   lastName: string;
 }

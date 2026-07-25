@@ -2322,6 +2322,16 @@
         "responses": {
           "302": {
             "description": ""
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "Start the Google OAuth flow.\nRedirects the user to Google for authentication.",
@@ -2338,6 +2348,16 @@
             "description": ""
           },
           "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
             "description": "",
             "content": {
               "application/json": {

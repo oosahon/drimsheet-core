@@ -6,6 +6,7 @@ import appError from '../../../shared/errors/app.error';
 
 export function makeInitiateLoginWithGoogleMiddleware(): RequestHandler {
   return (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
     const stateToken = randomBytes(32).toString('hex');
     res.cookie('oauth_state', stateToken, {
       httpOnly: true,
@@ -27,6 +28,7 @@ export function makeCompleteLoginWithGoogleMiddleware(
   handleGoogleCallback: (user: IUser) => Promise<string>
 ): RequestHandler {
   return (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
     const stateCookie = req.cookies?.oauth_state;
     const queryState = req.query?.state;
 
@@ -50,7 +52,11 @@ export function makeCompleteLoginWithGoogleMiddleware(
       'google',
       { session: false },
       (err: unknown, user?: IUser | false) => {
-        if (err || !user) {
+        if (err) {
+          return next(err);
+        }
+
+        if (!user) {
           return next(new appError.Unauthorized());
         }
 

@@ -115,6 +115,7 @@ export class AuthController extends Controller {
   @Get('google')
   @OperationId('loginWithGoogle')
   @SuccessResponse('302')
+  @Response<IHttpErrorDto>('500')
   @Middlewares(middlewares.initiateLoginWithGoogle)
   public loginWithGoogle() {
     return;
@@ -128,6 +129,7 @@ export class AuthController extends Controller {
   @OperationId('loginWithGoogleCallback')
   @SuccessResponse('302')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('500')
   @Middlewares(middlewares.completeLoginWithGoogle)
   public async loginWithGoogleCallback() {
     return;
