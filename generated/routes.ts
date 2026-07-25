@@ -146,7 +146,7 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IUser: {
+  IUserProfileDto: {
     dataType: 'refObject',
     properties: {
       id: { ref: 'TEntityId', required: true },
@@ -156,14 +156,6 @@ const models: TsoaRoute.Models = {
       lastName: { dataType: 'string', required: true },
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
-      deletedAt: {
-        dataType: 'union',
-        subSchemas: [
-          { dataType: 'datetime' },
-          { dataType: 'enum', enums: [null] },
-        ],
-        required: true,
-      },
     },
     additionalProperties: false,
   },
@@ -846,11 +838,27 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IVerifyEmailReq: {
+    dataType: 'refObject',
+    properties: {
+      token: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IEmailLoginReq: {
     dataType: 'refObject',
     properties: {
       email: { dataType: 'string', required: true },
       password: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IRequestPasswordResetReq: {
+    dataType: 'refObject',
+    properties: {
+      email: { dataType: 'string', required: true },
     },
     additionalProperties: false,
   },
@@ -1136,7 +1144,7 @@ export function RegisterRoutes(app: Router) {
   //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
   // ###########################################################################################################
 
-  const argsUserController_getCurrencies: Record<
+  const argsUserController_getUserPreferences: Record<
     string,
     TsoaRoute.ParameterSchema
   > = {};
@@ -1144,9 +1152,11 @@ export function RegisterRoutes(app: Router) {
     '/api/v1/users/preferences',
     authenticateMiddleware([{ bearerAuth: [] }]),
     ...fetchMiddlewares<RequestHandler>(UserController),
-    ...fetchMiddlewares<RequestHandler>(UserController.prototype.getCurrencies),
+    ...fetchMiddlewares<RequestHandler>(
+      UserController.prototype.getUserPreferences
+    ),
 
-    async function UserController_getCurrencies(
+    async function UserController_getUserPreferences(
       request: ExRequest,
       response: ExResponse,
       next: any
@@ -1156,7 +1166,7 @@ export function RegisterRoutes(app: Router) {
       let validatedArgs: any[] = [];
       try {
         validatedArgs = templateService.getValidatedArgs({
-          args: argsUserController_getCurrencies,
+          args: argsUserController_getUserPreferences,
           request,
           response,
         });
@@ -1164,7 +1174,7 @@ export function RegisterRoutes(app: Router) {
         const controller = new UserController();
 
         await templateService.apiHandler({
-          methodName: 'getCurrencies',
+          methodName: 'getUserPreferences',
           controller,
           response,
           next,
@@ -1659,7 +1669,12 @@ export function RegisterRoutes(app: Router) {
     string,
     TsoaRoute.ParameterSchema
   > = {
-    token: { in: 'query', name: 'token', required: true, dataType: 'string' },
+    payload: {
+      in: 'body',
+      name: 'payload',
+      required: true,
+      ref: 'IVerifyEmailReq',
+    },
   };
   app.post(
     '/api/v1/auth/signup/complete',
@@ -1749,8 +1764,7 @@ export function RegisterRoutes(app: Router) {
       in: 'body',
       name: 'payload',
       required: true,
-      dataType: 'nestedObjectLiteral',
-      nestedProperties: { email: { dataType: 'string', required: true } },
+      ref: 'IRequestPasswordResetReq',
     },
   };
   app.post(
@@ -1872,7 +1886,7 @@ export function RegisterRoutes(app: Router) {
           response,
           next,
           validatedArgs,
-          successStatus: undefined,
+          successStatus: 302,
         });
       } catch (err) {
         return next(err);
@@ -1914,7 +1928,7 @@ export function RegisterRoutes(app: Router) {
           response,
           next,
           validatedArgs,
-          successStatus: undefined,
+          successStatus: 302,
         });
       } catch (err) {
         return next(err);

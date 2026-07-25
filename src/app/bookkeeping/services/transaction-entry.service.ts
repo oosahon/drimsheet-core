@@ -1,4 +1,4 @@
-import lodash from 'lodash';
+import { difference } from 'lodash';
 import getTransactionRule from '../../../domain/accounting/rules/bookkeeping/transaction.rule';
 import journalEntryEntity from '../../../domain/journal-entry/entities/journal-entry.entity';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
@@ -51,7 +51,7 @@ export default function makeTransactionEntryService(
         });
       }
 
-      const missingDestinationAccountIds = lodash.difference(
+      const missingDestinationAccountIds = difference(
         destinationAccountIds,
         destinationAccounts.map((account) => account.id)
       );

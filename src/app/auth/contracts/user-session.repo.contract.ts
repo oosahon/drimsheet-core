@@ -2,7 +2,7 @@ import {
   IReadRepoOptions,
   IWriteRepoOptions,
 } from '../../../shared/types/repo.types';
-import { IUserSession } from './auth-service.contract';
+import { IUserSession } from './auth.types';
 
 export default interface IUserSessionRepo {
   create(userSession: IUserSession, options: IWriteRepoOptions): Promise<void>;
@@ -22,5 +22,7 @@ export default interface IUserSessionRepo {
     userId: string,
     refreshToken: string,
     options: IWriteRepoOptions
-  ): Promise<void>;
+  ): Promise<boolean>;
+
+  deleteAllByUserId(userId: string, options: IWriteRepoOptions): Promise<void>;
 }

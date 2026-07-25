@@ -2,11 +2,9 @@ import { z } from 'zod';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/values/email.vo';
 import ILogger from '../../../shared/contracts/logger.contract';
-import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
-import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
-import IAuthService from '../contracts/auth-service.contract';
+import IEmailVerificationService from '../contracts/email-verification-service.contract';
 import authError from '../errors/auth.error';
 
 const validationSchema = z.object({
@@ -16,10 +14,8 @@ const validationSchema = z.object({
 interface IDependencies {
   appContext: IAppContext;
   logger: ILogger;
-  authService: IAuthService;
   userRepo: IUserRepo;
-  transactionalEmailService: ITransactionalEmailService;
-  varsConfig: IVarsConfig;
+  emailVerificationService: IEmailVerificationService;
 }
 
 export default function makeSendEmailVerificationEmailUseCase(
@@ -52,16 +48,6 @@ export default function makeSendEmailVerificationEmailUseCase(
       return;
     }
 
-    const verificationToken = await deps.authService.generateSignupToken({
-      id: user.id,
-    });
-
-    const verificationLink = `${deps.varsConfig.WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
-
-    await deps.transactionalEmailService.sendEmailVerification({
-      user,
-      verificationLink,
-      correlationId,
-    });
+    await deps.emailVerificationService.send(user, correlationId);
   };
 }

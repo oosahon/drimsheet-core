@@ -5,7 +5,6 @@ import {
   Middlewares,
   OperationId,
   Post,
-  Query,
   Response,
   Route,
   SuccessResponse,
@@ -13,30 +12,15 @@ import {
 } from 'tsoa';
 import {
   IEmailLoginReq,
+  IRequestPasswordResetReq,
   IResetPasswordReq,
   IUserSignupReq,
+  IVerifyEmailReq,
 } from '../../../app/auth/dtos/auth/auth.dto';
-import { configureRateLimiter } from '../../../infra/config/rate-limiter.config';
+import { rateLimiter } from '../../../infra/config/rate-limiter.config';
 import authUseCase from '../../../infra/ioc/usecases/auth.usecases';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import middlewares from '../middlewares';
-
-const rateLimiter = {
-  default: configureRateLimiter({
-    windowMs: 1000 * 60,
-    max: 5,
-    message: 'Too many authentication attempts, please try again later.',
-    keyGenerator: (req) => req.body?.email || (req.query?.token as string),
-  }),
-
-  getPasswordResetLink: configureRateLimiter({
-    windowMs: 1000 * 60 * 5,
-    max: 5,
-    message:
-      'Too many password reset requests for this account, please try again.',
-    keyGenerator: (req) => req.body?.email,
-  }),
-};
 
 @Route('auth')
 @Tags('Auth')
@@ -49,9 +33,9 @@ export class AuthController extends Controller {
   @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('422')
-  @Middlewares(rateLimiter.default)
+  @Response<IHttpErrorDto>('429')
   public async signupWithEmail(@Body() body: IUserSignupReq) {
-    return await authUseCase.signupWithEmail(body);
+    await authUseCase.signupWithEmail(body);
   }
 
   /**
@@ -62,10 +46,13 @@ export class AuthController extends Controller {
   @OperationId('verifyEmail')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
-  @Middlewares(rateLimiter.default)
-  public async verifyEmail(@Query() token: string) {
-    return await authUseCase.verifyEmail(token);
+  @Response<IHttpErrorDto>('429')
+  @Middlewares(rateLimiter.verifyEmail)
+  public async verifyEmail(@Body() payload: IVerifyEmailReq) {
+    this.setHeader('Cache-Control', 'no-store');
+    return await authUseCase.verifyEmail(payload.token);
   }
 
   /**
@@ -75,9 +62,12 @@ export class AuthController extends Controller {
   @OperationId('loginWithEmail')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
-  @Middlewares(rateLimiter.default)
+  @Response<IHttpErrorDto>('429')
+  @Middlewares(rateLimiter.loginWithEmail)
   public async loginWithEmail(@Body() body: IEmailLoginReq) {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.loginWithEmail(body);
   }
 
@@ -87,11 +77,16 @@ export class AuthController extends Controller {
    */
   @Post('/get-password-reset-link')
   @OperationId('getPasswordResetLink')
-  @Middlewares(rateLimiter.getPasswordResetLink)
+  @Middlewares(
+    rateLimiter.getPasswordResetLink,
+    rateLimiter.getPasswordResetLinkByIp
+  )
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('422')
-  public async getPasswordResetLink(@Body() payload: { email: string }) {
+  @Response<IHttpErrorDto>('429')
+  public async getPasswordResetLink(@Body() payload: IRequestPasswordResetReq) {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.getPasswordResetLink(payload.email);
   }
 
@@ -103,8 +98,13 @@ export class AuthController extends Controller {
   @OperationId('resetPassword')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('429')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(rateLimiter.resetPassword, rateLimiter.resetPasswordByIp)
   public async resetPassword(@Body() payload: IResetPasswordReq) {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.resetPassword(payload);
   }
 
@@ -114,6 +114,8 @@ export class AuthController extends Controller {
    */
   @Get('google')
   @OperationId('loginWithGoogle')
+  @SuccessResponse('302')
+  @Response<IHttpErrorDto>('500')
   @Middlewares(middlewares.initiateLoginWithGoogle)
   public loginWithGoogle() {
     return;
@@ -125,6 +127,9 @@ export class AuthController extends Controller {
    */
   @Get('google/callback')
   @OperationId('loginWithGoogleCallback')
+  @SuccessResponse('302')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('500')
   @Middlewares(middlewares.completeLoginWithGoogle)
   public async loginWithGoogleCallback() {
     return;
@@ -136,9 +141,12 @@ export class AuthController extends Controller {
   @Post('refresh-access-token')
   @OperationId('refreshAccessToken')
   @SuccessResponse('200')
-  @Response<IHttpErrorDto>('400')
-  @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('429')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(rateLimiter.refreshAccessToken)
   public async refreshAccessToken() {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.refreshAccessToken();
   }
 
@@ -148,7 +156,9 @@ export class AuthController extends Controller {
   @Post('logout')
   @OperationId('logout')
   @SuccessResponse('200')
+  @Response<IHttpErrorDto>('500')
   public async logout() {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.logout();
   }
 }

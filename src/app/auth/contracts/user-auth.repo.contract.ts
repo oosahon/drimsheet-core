@@ -2,7 +2,7 @@ import {
   IReadRepoOptions,
   IWriteRepoOptions,
 } from '../../../shared/types/repo.types';
-import { IUserAuth } from './auth-service.contract';
+import { IUserAuth } from './auth.types';
 
 export default interface IUserAuthRepo {
   create(userAuth: IUserAuth, options: IWriteRepoOptions): Promise<void>;

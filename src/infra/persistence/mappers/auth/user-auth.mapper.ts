@@ -3,7 +3,7 @@ import { InferSelectModel } from 'drizzle-orm';
 import {
   IUserAuth,
   UAuthStrategy,
-} from '../../../../app/auth/contracts/auth-service.contract';
+} from '../../../../app/auth/contracts/auth.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { userAuthInCore } from '../../../config/drizzle/schema';
 import { fromRepoDate, toRepoDate } from '../shared/date';

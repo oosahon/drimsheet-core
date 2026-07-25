@@ -120,7 +120,7 @@
         "type": "object",
         "additionalProperties": false
       },
-      "IUser": {
+      "IUserProfileDto": {
         "properties": {
           "id": {
             "$ref": "#/components/schemas/TEntityId"
@@ -144,11 +144,6 @@
           "updatedAt": {
             "type": "string",
             "format": "date-time"
-          },
-          "deletedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
           }
         },
         "required": [
@@ -158,8 +153,7 @@
           "firstName",
           "lastName",
           "createdAt",
-          "updatedAt",
-          "deletedAt"
+          "updatedAt"
         ],
         "type": "object",
         "additionalProperties": false
@@ -1029,6 +1023,16 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IVerifyEmailReq": {
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": ["token"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IEmailLoginReq": {
         "properties": {
           "email": {
@@ -1039,6 +1043,16 @@
           }
         },
         "required": ["email", "password"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IRequestPasswordResetReq": {
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": ["email"],
         "type": "object",
         "additionalProperties": false
       },
@@ -1415,6 +1429,16 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "Get user preferences",
@@ -1436,7 +1460,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IUser"
+                  "$ref": "#/components/schemas/IUserProfileDto"
                 }
               }
             }
@@ -1991,6 +2015,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "User signup with email and password",
@@ -2033,7 +2067,27 @@
               }
             }
           },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
             "description": "",
             "content": {
               "application/json": {
@@ -2047,16 +2101,17 @@
         "description": "\nVerify user email",
         "tags": ["Auth"],
         "security": [],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "token",
-            "required": true,
-            "schema": {
-              "type": "string"
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IVerifyEmailReq"
+              }
             }
           }
-        ]
+        }
       }
     },
     "/auth/login-with-email": {
@@ -2083,7 +2138,27 @@
               }
             }
           },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
             "description": "",
             "content": {
               "application/json": {
@@ -2136,6 +2211,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "\nGet password reset link",
@@ -2147,13 +2232,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "properties": {
-                  "email": {
-                    "type": "string"
-                  }
-                },
-                "required": ["email"],
-                "type": "object"
+                "$ref": "#/components/schemas/IRequestPasswordResetReq"
               }
             }
           }
@@ -2184,7 +2263,37 @@
               }
             }
           },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
             "description": "",
             "content": {
               "application/json": {
@@ -2215,8 +2324,18 @@
       "get": {
         "operationId": "loginWithGoogle",
         "responses": {
-          "204": {
-            "description": "No content"
+          "302": {
+            "description": ""
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "Start the Google OAuth flow.\nRedirects the user to Google for authentication.",
@@ -2229,8 +2348,28 @@
       "get": {
         "operationId": "loginWithGoogleCallback",
         "responses": {
-          "204": {
-            "description": "No content"
+          "302": {
+            "description": ""
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "Google OAuth callback.\nExchanges the Google user profile for an auth token and redirects to the client.",
@@ -2253,7 +2392,7 @@
               }
             }
           },
-          "400": {
+          "401": {
             "description": "",
             "content": {
               "application/json": {
@@ -2263,7 +2402,17 @@
               }
             }
           },
-          "422": {
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
             "description": "",
             "content": {
               "application/json": {
@@ -2286,6 +2435,16 @@
         "responses": {
           "200": {
             "description": ""
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "Logout user",

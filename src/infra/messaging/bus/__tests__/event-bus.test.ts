@@ -1,0 +1,107 @@
+import eventError from '../../../../shared/events/event.error';
+import eventValue from '../../../../shared/events/event.vo';
+import reporter from '../../../observability/reporter';
+import eventBus from '../event-bus';
+
+jest.mock('../../../observability/reporter', () => ({
+  __esModule: true,
+  default: {
+    report: jest.fn(),
+  },
+}));
+
+describe('eventBus', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('waits for subscribers to finish', async () => {
+    const eventType = 'domain:test:awaited-publication';
+    let finishHandler: (() => void) | undefined;
+    const handlerCompletion = new Promise<void>((resolve) => {
+      finishHandler = resolve;
+    });
+    eventBus.subscribe(eventType, async () => handlerCompletion);
+
+    let publicationCompleted = false;
+    const publication = eventBus
+      .publish(eventValue.make({ type: eventType, data: { id: 'test' } }))
+      .then(() => {
+        publicationCompleted = true;
+      });
+
+    await new Promise<void>((resolve) => setImmediate(resolve));
+    expect(publicationCompleted).toBe(false);
+
+    finishHandler?.();
+    await publication;
+
+    expect(publicationCompleted).toBe(true);
+  });
+
+  it('propagates subscriber failures', async () => {
+    const eventType = 'domain:test:failed-publication';
+    const failure = new Error('subscriber failed');
+    eventBus.subscribe(eventType, async () => {
+      throw failure;
+    });
+
+    await expect(
+      eventBus.publish(
+        eventValue.make({ type: eventType, data: { id: 'test' } })
+      )
+    ).rejects.toBe(failure);
+  });
+
+  it('reports and propagates invalid published event types', async () => {
+    const invalidEvent = eventValue.make({
+      type: 'app:test:invalid-publication',
+      data: { id: 'test' },
+    });
+
+    await expect(eventBus.publish(invalidEvent)).rejects.toBeInstanceOf(
+      eventError.InvalidType
+    );
+    expect(reporter.report).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports invalid subscriptions and returns a safe unsubscribe', () => {
+    const unsubscribe = eventBus.subscribe(
+      'app:test:invalid-subscription',
+      async () => undefined
+    );
+
+    expect(reporter.report).toHaveBeenCalledTimes(1);
+    expect(unsubscribe()).toBeUndefined();
+  });
+
+  it('allows a subscriber to unsubscribe', async () => {
+    const eventType = 'domain:test:unsubscribe';
+    const handler = jest.fn(async () => undefined);
+    const unsubscribe = eventBus.subscribe(eventType, handler);
+    unsubscribe();
+
+    await eventBus.publish(
+      eventValue.make({ type: eventType, data: { id: 'test' } })
+    );
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('publishes an event array', async () => {
+    const firstType = 'domain:test:array-first';
+    const secondType = 'domain:test:array-second';
+    const firstHandler = jest.fn(async () => undefined);
+    const secondHandler = jest.fn(async () => undefined);
+    eventBus.subscribe(firstType, firstHandler);
+    eventBus.subscribe(secondType, secondHandler);
+
+    await eventBus.publish([
+      eventValue.make({ type: firstType, data: { id: 'first' } }),
+      eventValue.make({ type: secondType, data: { id: 'second' } }),
+    ]);
+
+    expect(firstHandler).toHaveBeenCalledTimes(1);
+    expect(secondHandler).toHaveBeenCalledTimes(1);
+  });
+});

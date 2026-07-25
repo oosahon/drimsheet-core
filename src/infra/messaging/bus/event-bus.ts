@@ -18,14 +18,14 @@ const eventBus: IEventBus = {
       const eventsArray = Array.isArray(event) ? event : [event];
       for (const event of eventsArray) {
         validateEventType(event.type);
-
-        if (event.type.startsWith('domain:')) {
-          emitter.emit(event.type, event);
-        }
+        await Promise.all(
+          emitter.listeners(event.type).map((handler) => handler(event))
+        );
       }
       // TODO add redis pub/sub
     } catch (error) {
       reporter.report(error);
+      throw error;
     }
   },
 
@@ -37,6 +37,7 @@ const eventBus: IEventBus = {
       // TODO add redis pub/sub
     } catch (error) {
       reporter.report(error);
+      return () => undefined;
     }
   },
 };

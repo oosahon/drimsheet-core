@@ -1,4 +1,5 @@
-import makeGoogleOAuthHelper from '../../../app/auth/usecases/helpers/oauth-handler-google.helper';
+import makeEmailVerificationService from '../../../app/auth/services/email-verification.service';
+import makeGoogleOAuthHelper from '../../../app/auth/usecases/helpers/google-oauth.helper';
 import makeLoginWithEmailUseCase from '../../../app/auth/usecases/login-with-email.usecase';
 import makeLogoutUseCase from '../../../app/auth/usecases/logout.usecase';
 import makeOauthUsecase from '../../../app/auth/usecases/oauth.usecase';
@@ -11,33 +12,42 @@ import makeVerifyEmailAddressUseCase from '../../../app/auth/usecases/verify-ema
 import * as varsConfig from '../../config/vars.config';
 import messaging from '../../messaging';
 import observability from '../../observability';
+import cacheStorage from '../../persistence/cache/cache-storage.impl';
 import userRepos from '../../persistence/repos/user';
 import appContext from '../../runtime/app-context';
 import authService from '../services/auth.service';
 import notificationService from '../services/notification.service';
 import repoService from '../services/repo.service';
 
+const emailVerificationService = makeEmailVerificationService({
+  cacheStorage,
+  tokenService: authService.token,
+  transactionalEmailService: notificationService.transactionalEmail,
+  varsConfig,
+});
+
+const sendEmailVerificationEmail = makeSendEmailVerificationEmailUseCase({
+  appContext: appContext,
+  logger: observability.logger,
+  userRepo: userRepos.user,
+  emailVerificationService,
+});
+
 const authUseCase = {
   signupWithEmail: makeSignupWithEmailUsecase({
     appContext: appContext,
     userRepo: userRepos.user,
-    authService,
+    passwordService: authService.password,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
     repoService,
+    emailVerificationService,
   }),
 
-  sendEmailVerificationEmail: makeSendEmailVerificationEmailUseCase({
-    appContext: appContext,
-    logger: observability.logger,
-    authService,
-    userRepo: userRepos.user,
-    transactionalEmailService: notificationService.transactionalEmail,
-    varsConfig: varsConfig,
-  }),
+  sendEmailVerificationEmail,
 
   verifyEmail: makeVerifyEmailAddressUseCase({
-    authService,
+    tokenService: authService.token,
     userRepo: userRepos.user,
     appContext: appContext,
     eventBus: messaging.eventBus,
@@ -48,7 +58,8 @@ const authUseCase = {
   loginWithEmail: makeLoginWithEmailUseCase({
     reqContext: appContext,
     userRepo: userRepos.user,
-    authService,
+    passwordService: authService.password,
+    tokenService: authService.token,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
     userSessionRepo: userRepos.userSession,
@@ -58,7 +69,7 @@ const authUseCase = {
   getPasswordResetLink: makeRequestPasswordResetUseCase({
     appContext: appContext,
     userRepo: userRepos.user,
-    authService,
+    tokenService: authService.token,
     transactionEmailService: notificationService.transactionalEmail,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
@@ -68,16 +79,18 @@ const authUseCase = {
   resetPassword: makeResetPasswordUseCase({
     appContext: appContext,
     userRepo: userRepos.user,
-    authService,
+    passwordService: authService.password,
+    tokenService: authService.token,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
     userSessionRepo: userRepos.userSession,
     repoService,
+    reporter: observability.reporter,
   }),
 
   oAuth: makeOauthUsecase({
     reqContext: appContext,
-    authService,
+    tokenService: authService.token,
     eventBus: messaging.eventBus,
     userSessionRepo: userRepos.userSession,
     repoService,
@@ -95,7 +108,7 @@ const authUseCase = {
   refreshAccessToken: makeRefreshAccessTokenUseCase({
     reqContext: appContext,
     userRepo: userRepos.user,
-    authService,
+    tokenService: authService.token,
     eventBus: messaging.eventBus,
     userSessionRepo: userRepos.userSession,
     repoService,
@@ -103,9 +116,8 @@ const authUseCase = {
 
   logout: makeLogoutUseCase({
     reqContext: appContext,
-    authService,
+    tokenService: authService.token,
     userSessionRepo: userRepos.userSession,
-    logger: observability.logger,
   }),
 };
 

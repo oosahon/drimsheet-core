@@ -1,0 +1,155 @@
+import { Express } from 'express';
+import request from 'supertest';
+import { IResetPasswordReq } from '../../../src/app/auth/dtos/auth/auth.dto';
+import authError from '../../../src/app/auth/errors/auth.error';
+import {
+  makeIpRateLimitKey,
+  rateLimiter,
+} from '../../../src/infra/config/rate-limiter.config';
+import authUseCase from '../../../src/infra/ioc/usecases/auth.usecases';
+import { createApplication } from '../../../src/infra/server';
+import appError from '../../../src/shared/errors/app.error';
+
+const ENDPOINT = '/api/v1/auth/reset-password';
+let payloadSequence = 0;
+
+describe('POST /auth/reset-password', () => {
+  let app: Express;
+  let validPayload: IResetPasswordReq;
+  let resetPasswordSpy: jest.SpiedFunction<typeof authUseCase.resetPassword>;
+
+  beforeEach(async () => {
+    payloadSequence += 1;
+    validPayload = {
+      token: `opaque-reset-credential-${payloadSequence}`,
+      password: 'AnalyticalEngine1!',
+      confirmPassword: 'AnalyticalEngine1!',
+    };
+    await rateLimiter.resetPasswordByIp.resetKey(
+      makeIpRateLimitKey('::ffff:127.0.0.1')
+    );
+    resetPasswordSpy = jest
+      .spyOn(authUseCase, 'resetPassword')
+      .mockResolvedValue({ accessToken: 'mock-access-token' });
+    app = createApplication();
+  });
+
+  afterEach(() => resetPasswordSpy.mockRestore());
+
+  describe('200 Response', () => {
+    it('returns only an uncached access token and forwards the payload', async () => {
+      const response = await request(app).post(ENDPOINT).send(validPayload);
+
+      expect(response.status).toBe(200);
+      expect(response.headers['cache-control']).toContain('no-store');
+      expect(response.body).toEqual({ accessToken: 'mock-access-token' });
+      expect(resetPasswordSpy).toHaveBeenCalledWith(validPayload);
+      const body = JSON.stringify(response.body);
+      expect(body).not.toContain(validPayload.token);
+      expect(body).not.toContain(validPayload.password);
+    });
+  });
+
+  describe('401 Response', () => {
+    it.each([
+      new authError.InvalidToken(),
+      new authError.MalformedToken(),
+      new authError.ExpiredToken(),
+    ])('sanitizes reset-token failures', async (error) => {
+      resetPasswordSpy.mockRejectedValueOnce(error);
+
+      const response = await request(app).post(ENDPOINT).send(validPayload);
+
+      expect(response.status).toBe(401);
+      expect(JSON.stringify(response.body)).not.toContain(validPayload.token);
+      expect(JSON.stringify(response.body)).not.toContain(
+        validPayload.password
+      );
+    });
+  });
+
+  describe('422 Response', () => {
+    it('rejects missing fields before invoking the use case', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .send({ token: validPayload.token });
+
+      expect(response.status).toBe(422);
+      expect(resetPasswordSpy).not.toHaveBeenCalled();
+    });
+
+    it('sanitizes application password validation failures', async () => {
+      resetPasswordSpy.mockRejectedValueOnce(
+        new appError.UnprocessableEntity([
+          { field: 'password', message: 'auth_error_invalid_password' },
+        ])
+      );
+
+      const response = await request(app).post(ENDPOINT).send(validPayload);
+
+      expect(response.status).toBe(422);
+      expect(JSON.stringify(response.body)).not.toContain(validPayload.token);
+      expect(JSON.stringify(response.body)).not.toContain(
+        validPayload.password
+      );
+    });
+  });
+
+  describe('429 Response', () => {
+    it('limits repeated attempts for the same token before orchestration', async () => {
+      const responses = [];
+      for (let index = 0; index < 6; index += 1) {
+        responses.push(await request(app).post(ENDPOINT).send(validPayload));
+      }
+
+      expect(responses.slice(0, 5).map(({ status }) => status)).toEqual([
+        200, 200, 200, 200, 200,
+      ]);
+      expect(responses[5].status).toBe(429);
+      expect(resetPasswordSpy).toHaveBeenCalledTimes(5);
+    });
+
+    it('limits rotating token values by IP before orchestration', async () => {
+      const responses = [];
+      for (let index = 0; index < 21; index += 1) {
+        responses.push(
+          await request(app)
+            .post(ENDPOINT)
+            .send({
+              ...validPayload,
+              token: `rotating-credential-${payloadSequence}-${index}`,
+            })
+        );
+      }
+
+      expect(responses.slice(0, 20).every(({ status }) => status === 200)).toBe(
+        true
+      );
+      expect(responses[20].status).toBe(429);
+      expect(resetPasswordSpy).toHaveBeenCalledTimes(20);
+    });
+  });
+
+  describe('500 Response', () => {
+    it('sanitizes unexpected dependency failures', async () => {
+      resetPasswordSpy.mockRejectedValueOnce(
+        new Error(
+          `${validPayload.token}:${validPayload.password}:${validPayload.confirmPassword}`
+        )
+      );
+
+      const response = await request(app).post(ENDPOINT).send(validPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_internal_server_error',
+      });
+      const body = JSON.stringify(response.body);
+      expect(body).not.toContain(validPayload.token);
+      expect(body).not.toContain(validPayload.password);
+      expect(body).not.toContain('opaque-reset-credential');
+      expect(body).not.toContain('AnalyticalEngine');
+    });
+  });
+});

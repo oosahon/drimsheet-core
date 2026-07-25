@@ -1,7 +1,7 @@
 import {
   EAuthStrategy,
   IUserAuth,
-} from '../../../../../app/auth/contracts/auth-service.contract';
+} from '../../../../../app/auth/contracts/auth.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import userAuthMapper, { IUserAuthModel } from '../user-auth.mapper';
 

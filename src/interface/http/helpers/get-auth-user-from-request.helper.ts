@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import IAuthService from '../../../app/auth/contracts/auth-service.contract';
+import ITokenService from '../../../app/auth/contracts/token-service.contract';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import { IUser } from '../../../domain/user/types/user.types';
 import ILogger from '../../../shared/contracts/logger.contract';
@@ -7,7 +7,7 @@ import getHttpHeaderValue, { getCorrelationId } from './get-http-header-value';
 
 export default async function getAuthUserFromRequest(
   req: Request,
-  authService: IAuthService,
+  tokenService: ITokenService,
   logger: ILogger,
   userRepo: IUserRepo
 ): Promise<IUser | null> {
@@ -16,11 +16,13 @@ export default async function getAuthUserFromRequest(
 
   if (!bearerToken) return null;
 
-  const token = bearerToken.split(' ')[1];
+  const parts = bearerToken.trim().split(/\s+/);
+  if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer' || !parts[1]) {
+    return null;
+  }
+  const token = parts[1];
 
-  if (!token) return null;
-
-  const authUser = await authService.getAuthUser(token);
+  const authUser = await tokenService.getAuthUser(token);
 
   const user = await userRepo.findById(authUser.id, { correlationId });
 

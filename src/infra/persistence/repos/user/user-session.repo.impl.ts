@@ -44,14 +44,22 @@ const userSessionRepo: IUserSessionRepo = {
   delete: async (userId, refreshToken, options) => {
     const query = getDbQuery(options);
 
-    await query
+    const deleted = await query
       .delete(userSessions)
       .where(
         and(
           eq(userSessions.userId, userId),
           eq(userSessions.refreshToken, refreshToken)
         )
-      );
+      )
+      .returning({ id: userSessions.id });
+
+    return deleted.length === 1;
+  },
+
+  deleteAllByUserId: async (userId, options) => {
+    const query = getDbQuery(options);
+    await query.delete(userSessions).where(eq(userSessions.userId, userId));
   },
 };
 

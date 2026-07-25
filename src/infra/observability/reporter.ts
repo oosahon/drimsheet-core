@@ -2,17 +2,17 @@ import Sentry from '@sentry/node';
 import IReporter from '../../shared/contracts/reporter.contract';
 import errorUtils from '../../shared/utils/error';
 import safeJSON from '../../shared/utils/safe-json';
-import { NODE_ENV, SENTRY_DSN } from '../config/vars.config';
+import { sanitizeData } from '../../shared/utils/sanitizer';
+import { NODE_ENV } from '../config/vars.config';
 import appContext from '../runtime/app-context';
 import logger from './logger';
 
-Sentry.init({ dsn: SENTRY_DSN, sendDefaultPii: true, environment: NODE_ENV });
+// TODO: add tests for observability
 
 const getCorrelationId = () => {
   try {
     return appContext.get().correlationId;
-  } catch (error) {
-    logger.error(error);
+  } catch {
     return undefined;
   }
 };
@@ -21,38 +21,47 @@ const reporter: IReporter = {
   report(error, context) {
     try {
       const correlationId = getCorrelationId();
-      const parsedError = errorUtils.parseError(error);
+      const sanitizedError = sanitizeData(error);
+      const sanitizedContext =
+        (sanitizeData(context) as Record<string, unknown>) || {};
+      const parsedError = errorUtils.parseError(sanitizedError);
 
       const loggerError = safeJSON.stringify({
         ...parsedError,
-        ...context,
+        ...sanitizedContext,
         correlationId,
       });
 
       logger.error(loggerError);
 
       if (NODE_ENV === 'local') {
-        logger.error(error, { context });
+        logger.error(sanitizedError, { context: sanitizedContext });
       }
 
-      Sentry.captureException(error, {
-        ...context,
+      Sentry.captureException(sanitizedError, {
+        ...sanitizedContext,
         extra: { ...parsedError, correlationId },
       });
-    } catch (error) {
+    } catch (err) {
       if (NODE_ENV === 'local') {
-        logger.error(error, { context });
+        logger.error(err, { context: sanitizeData(context) });
       }
-      logger.error(safeJSON.stringify(errorUtils.parseError(error)));
+      logger.error(safeJSON.stringify(errorUtils.parseError(err)));
     }
   },
+
   reportAbuse(message, meta) {
     try {
       const correlationId = getCorrelationId();
+      const sanitizedMessage =
+        (sanitizeData(message) as string) || String(message);
+      const sanitizedMeta =
+        (sanitizeData(meta) as Record<string, unknown>) || {};
+
       const loggerError = safeJSON.stringify({
         level: 'warning',
-        message,
-        ...meta,
+        message: sanitizedMessage,
+        ...sanitizedMeta,
         correlationId,
       });
 
@@ -60,15 +69,15 @@ const reporter: IReporter = {
 
       if (NODE_ENV === 'local') return;
 
-      Sentry.captureMessage(message, {
+      Sentry.captureMessage(sanitizedMessage, {
         level: 'warning',
-        extra: { ...meta, correlationId },
+        extra: { ...sanitizedMeta, correlationId },
       });
-    } catch (error) {
+    } catch (err) {
       if (NODE_ENV === 'local') {
-        logger.error(error);
+        logger.error(err);
       }
-      logger.error(safeJSON.stringify(errorUtils.parseError(error)));
+      logger.error(safeJSON.stringify(errorUtils.parseError(err)));
     }
   },
 };

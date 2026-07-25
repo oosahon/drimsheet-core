@@ -8,10 +8,11 @@ import mockAppContext, {
   mockClientSession,
 } from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockPasswordService from '../../contracts/__mocks__/password-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
-import { IUserAuth } from '../../contracts/auth-service.contract';
+import { IUserAuth } from '../../contracts/auth.types';
 import authError from '../../errors/auth.error';
 import makeLoginWithEmailUseCase from '../login-with-email.usecase';
 
@@ -50,7 +51,8 @@ describe('makeLoginWithEmailUseCase', () => {
     makeLoginWithEmailUseCase({
       reqContext: mockAppContext,
       userRepo: mockUserRepo,
-      authService: mockAuthService,
+      passwordService: mockPasswordService,
+      tokenService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
       userSessionRepo: mockUserSessionRepo,
@@ -77,7 +79,7 @@ describe('makeLoginWithEmailUseCase', () => {
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
-    mockAuthService.comparePassword.mockResolvedValue(true);
+    mockPasswordService.compare.mockResolvedValue(true);
     mockAuthService.generateAccessToken.mockResolvedValue('auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
 
@@ -91,7 +93,7 @@ describe('makeLoginWithEmailUseCase', () => {
         correlationId,
       }
     );
-    expect(mockAuthService.comparePassword).toHaveBeenCalledWith(
+    expect(mockPasswordService.compare).toHaveBeenCalledWith(
       validPayload.password,
       mockUserAuth.password
     );
@@ -135,7 +137,7 @@ describe('makeLoginWithEmailUseCase', () => {
     await expect(usecase(validPayload)).rejects.toThrow(
       authError.InvalidCredentials
     );
-    expect(mockAuthService.comparePassword).not.toHaveBeenCalled();
+    expect(mockPasswordService.compare).not.toHaveBeenCalled();
   });
 
   it('should throw authError.InvalidCredentials if userAuth record is not found', async () => {
@@ -149,7 +151,7 @@ describe('makeLoginWithEmailUseCase', () => {
     );
   });
 
-  it('should throw authError.AccountLocked if max login attempts reached', async () => {
+  it('should throw authError.InvalidCredentials if max login attempts reached', async () => {
     mockUserRepo.findByEmail.mockResolvedValue(getMockUser());
     mockUserAuthRepo.findByUserId.mockResolvedValue(
       getMockUserAuth({ failedLoginAttempts: 5 })
@@ -158,11 +160,11 @@ describe('makeLoginWithEmailUseCase', () => {
     const usecase = getUseCase();
 
     await expect(usecase(validPayload)).rejects.toThrow(
-      authError.AccountLocked
+      authError.InvalidCredentials
     );
   });
 
-  it('should throw authError.WrongStrategy and increment failed attempts if user has no password set', async () => {
+  it('should throw authError.InvalidCredentials and increment failed attempts if user has no password set', async () => {
     const mockUser = getMockUser();
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(
@@ -172,16 +174,16 @@ describe('makeLoginWithEmailUseCase', () => {
     const usecase = getUseCase();
 
     await expect(usecase(validPayload)).rejects.toThrow(
-      authError.WrongStrategy
+      authError.InvalidCredentials
     );
-    expect(mockAuthService.comparePassword).not.toHaveBeenCalled();
+    expect(mockPasswordService.compare).not.toHaveBeenCalled();
     expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
       mockUser.id,
       { correlationId }
     );
   });
 
-  it('should throw authError.WrongStrategy and increment failed attempts if strategy does not include email', async () => {
+  it('should throw authError.InvalidCredentials and increment failed attempts if strategy does not include email', async () => {
     const mockUser = getMockUser();
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(
@@ -191,7 +193,7 @@ describe('makeLoginWithEmailUseCase', () => {
     const usecase = getUseCase();
 
     await expect(usecase(validPayload)).rejects.toThrow(
-      authError.WrongStrategy
+      authError.InvalidCredentials
     );
     expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
       mockUser.id,
@@ -205,14 +207,14 @@ describe('makeLoginWithEmailUseCase', () => {
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(getMockUserAuth());
-    mockAuthService.comparePassword.mockResolvedValue(false);
+    mockPasswordService.compare.mockResolvedValue(false);
 
     const usecase = getUseCase();
 
     await expect(usecase(payload)).rejects.toThrow(
       authError.InvalidCredentials
     );
-    expect(mockAuthService.comparePassword).toHaveBeenCalledWith(
+    expect(mockPasswordService.compare).toHaveBeenCalledWith(
       payload.password,
       'hashed-password'
     );
@@ -229,7 +231,7 @@ describe('makeLoginWithEmailUseCase', () => {
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(getMockUserAuth());
-    mockAuthService.comparePassword.mockResolvedValue(true);
+    mockPasswordService.compare.mockResolvedValue(true);
     mockAuthService.generateAccessToken.mockResolvedValue('auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
 

@@ -1287,20 +1287,20 @@ export const journalLineHistoryInAudit = audit.table(
     index('journal_line_history_entry_timeline_idx').using(
       'btree',
       table.journalEntryId.asc().nullsLast().op('int8_ops'),
-      table.occurredAt.desc().nullsFirst().op('int8_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     index('journal_line_history_tenant_timeline_idx').using(
       'btree',
       table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('int8_ops'),
-      table.id.desc().nullsFirst().op('int8_ops')
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
     index('journal_line_history_timeline_idx').using(
       'btree',
       table.journalLineId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
     ),
     foreignKey({
       columns: [table.userId],

@@ -7,7 +7,9 @@ import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
-import IAuthService from '../contracts/auth-service.contract';
+import ITokenService, {
+  IAuthTokenPayload,
+} from '../contracts/token-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import { IAccessToken } from '../dtos/auth/auth.dto';
 import authError from '../errors/auth.error';
@@ -18,7 +20,7 @@ const validationSchema = z.object({
 });
 
 interface IDependencies {
-  authService: IAuthService;
+  tokenService: ITokenService;
   userRepo: IUserRepo;
   appContext: IAppContext;
   eventBus: IEventBus;
@@ -32,46 +34,81 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
 
     const { correlationId } = deps.appContext.get();
 
-    const decodedToken = await deps.authService.verifySignupToken(token);
+    let decodedToken: IAuthTokenPayload | undefined;
 
-    const user = await deps.userRepo.findById(decodedToken.id, {
-      correlationId,
-    });
+    try {
+      decodedToken = await deps.tokenService.claimSignupToken(token);
 
-    if (!user) {
-      throw new authError.InvalidToken();
-    }
+      let resultSession!: IAccessToken;
 
-    if (user.emailVerified) {
-      return makeIssueUserSessionHelper({
-        user,
-        reqContext: deps.appContext,
-        authService: deps.authService,
-        userSessionRepo: deps.userSessionRepo,
-        eventBus: deps.eventBus,
-        repoService: deps.repoService,
-        events: [],
+      await deps.repoService.runInTransaction(async (tx) => {
+        const user = await deps.userRepo.findById(decodedToken!.id, {
+          correlationId,
+          lock: 'update',
+          tx,
+        });
+
+        if (!user) {
+          throw new authError.InvalidToken();
+        }
+
+        if (user.emailVerified) {
+          resultSession = await makeIssueUserSessionHelper({
+            user,
+            reqContext: deps.appContext,
+            tokenService: deps.tokenService,
+            userSessionRepo: deps.userSessionRepo,
+            eventBus: deps.eventBus,
+            repoService: deps.repoService,
+            events: [],
+            tx,
+          });
+          return;
+        }
+
+        const [updatedUser, events, userAuditDelta] =
+          userEntity.verifyEmail(user);
+
+        const history = historyValue.make(
+          userAuditDelta!,
+          historyValue.getUserActor(user.id),
+          correlationId
+        );
+
+        await deps.userRepo.update(updatedUser, {
+          correlationId,
+          history,
+          tx,
+        });
+
+        resultSession = await makeIssueUserSessionHelper({
+          user: updatedUser,
+          reqContext: deps.appContext,
+          tokenService: deps.tokenService,
+          userSessionRepo: deps.userSessionRepo,
+          eventBus: deps.eventBus,
+          repoService: deps.repoService,
+          events: eventValue.enrichAll(events, { correlationId }),
+          tx,
+        });
       });
+
+      await deps.tokenService.finalizeSignupToken(decodedToken.id);
+
+      return resultSession;
+    } catch (error) {
+      if (decodedToken?.id) {
+        await deps.tokenService.releaseSignupTokenClaim(decodedToken.id);
+      }
+      if (
+        error &&
+        typeof error === 'object' &&
+        'name' in error &&
+        (error.name === 'AuthError' || error.name === 'UserError')
+      ) {
+        throw new authError.InvalidToken();
+      }
+      throw error;
     }
-
-    const [updatedUser, events, userAuditDelta] = userEntity.verifyEmail(user);
-
-    const history = historyValue.make(
-      userAuditDelta!,
-      historyValue.getUserActor(user.id),
-      correlationId
-    );
-
-    await deps.userRepo.update(updatedUser, { correlationId, history });
-
-    return makeIssueUserSessionHelper({
-      user: updatedUser,
-      reqContext: deps.appContext,
-      authService: deps.authService,
-      userSessionRepo: deps.userSessionRepo,
-      eventBus: deps.eventBus,
-      repoService: deps.repoService,
-      events: eventValue.enrichAll(events, { correlationId }),
-    });
   };
 }

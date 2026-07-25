@@ -1,79 +1,51 @@
-import z from 'zod';
 import userEntity from '../../../domain/user/entities/user.entity';
 import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/values/email.vo';
-import passwordValue from '../../../domain/user/values/password.vo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
-import appError from '../../../shared/errors/app.error';
 import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
-import IAuthService, {
-  EAuthStrategy,
-} from '../contracts/auth-service.contract';
+import { EAuthStrategy } from '../contracts/auth.types';
+import IEmailVerificationService from '../contracts/email-verification-service.contract';
+import IPasswordService from '../contracts/password-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import { IUserSignupReq } from '../dtos/auth/auth.dto';
-
-const validationSchema = z.object({
-  firstName: z
-    .string()
-    .min(1, { message: 'First name is required' })
-    .max(100, { message: 'First name must be at most 100 characters' }),
-  lastName: z
-    .string()
-    .min(1, { message: 'Last name is required' })
-    .max(100, { message: 'Last name must be at most 100 characters' }),
-  email: z.email(),
-  password: z
-    .string({ message: 'Password is required' })
-    .min(8, { message: 'Password must be at least 8 characters' })
-    .max(100, { message: 'Password must be at most 50 characters' })
-    .regex(/(?=.*[0-9])/, {
-      message: 'Password must contain at least one number',
-    })
-    .regex(/(?=.*[^A-Za-z0-9])/, {
-      message: 'Password must contain at least one special character',
-    }),
-});
+import { userSignupReqValidation } from '../dtos/auth/auth.dto.validation';
 
 interface IDependencies {
   appContext: IAppContext;
   userRepo: IUserRepo;
-  authService: IAuthService;
+  passwordService: IPasswordService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
   repoService: IRepoService;
+  emailVerificationService: IEmailVerificationService;
 }
 
 export default function makeSignupWithEmailUsecase(deps: IDependencies) {
-  return async (payload: IUserSignupReq) => {
-    zodValidationRunner(validationSchema, payload);
+  return async (payload: IUserSignupReq): Promise<void> => {
+    zodValidationRunner(userSignupReqValidation, payload);
 
     const { correlationId, idempotencyKey } = deps.appContext.get();
 
     const email = emailValue.make(payload.email);
 
-    const isPermittedEmail = deps.authService.isPermittedEmail(email);
-
-    if (!isPermittedEmail) {
-      throw new appError.Forbidden();
-    }
+    const password = deps.passwordService.makePassword(payload.password);
+    const passwordHash = await deps.passwordService.hash(password);
 
     const existingUser = await deps.userRepo.findByEmail(email, {
       correlationId,
     });
 
     if (existingUser) {
-      throw new appError.Conflict();
+      await deps.emailVerificationService.send(existingUser, correlationId);
+      return;
     }
-
-    const password = passwordValue.make(payload.password);
-    const passwordHash = await deps.authService.hashPassword(password);
 
     const [user, userEvents, userAudit] = userEntity.make({
       firstName: payload.firstName,
@@ -111,6 +83,8 @@ export default function makeSignupWithEmailUsecase(deps: IDependencies) {
       eventValue.enrich(e, { correlationId, idempotencyKey })
     );
 
-    deps.eventBus.publish(enrichedUserEvents);
+    await deps.eventBus.publish(enrichedUserEvents);
+
+    await deps.emailVerificationService.send(user, correlationId);
   };
 }

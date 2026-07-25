@@ -1,6 +1,6 @@
 import { RequestHandler, Response } from 'express';
 import IAppContext from '../../../app/_internal/contracts/app-context.contract';
-import IAuthService from '../../../app/auth/contracts/auth-service.contract';
+import ITokenService from '../../../app/auth/contracts/token-service.contract';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../domain/user/repos/user.repo';
@@ -19,28 +19,20 @@ function handleSetRefreshToken(
   token: string,
   varsConfig: IVarsConfig
 ) {
-  const hostname = new URL(varsConfig.WEB_APP_URL).hostname;
-  const cookieDomain =
-    hostname === 'localhost' || hostname === '127.0.0.1' ? undefined : hostname;
-
   res.cookie('refresh_token', token, {
     httpOnly: true,
     secure: varsConfig.NODE_ENV === 'production',
-    domain: cookieDomain,
+    path: '/api/v1/auth',
     sameSite: 'lax',
-    maxAge: 1000 * 60 * 60 * 24 * 7,
+    maxAge: 1000 * 60 * 60 * 24 * 15,
   });
 }
 
 function handleClearRefreshToken(res: Response, varsConfig: IVarsConfig) {
-  const hostname = new URL(varsConfig.WEB_APP_URL).hostname;
-  const cookieDomain =
-    hostname === 'localhost' || hostname === '127.0.0.1' ? undefined : hostname;
-
   res.clearCookie('refresh_token', {
     httpOnly: true,
     secure: varsConfig.NODE_ENV === 'production',
-    domain: cookieDomain,
+    path: '/api/v1/auth',
     sameSite: 'lax',
   });
 }
@@ -53,7 +45,7 @@ function handleClearRefreshToken(res: Response, varsConfig: IVarsConfig) {
 export default function makeAppContextInitMiddleware(
   appContext: IAppContext,
   accountingEntityRepo: IAccountingEntityRepo,
-  authService: IAuthService,
+  tokenService: ITokenService,
   userRepo: IUserRepo,
   logger: ILogger,
   varsConfig: IVarsConfig
@@ -64,7 +56,7 @@ export default function makeAppContextInitMiddleware(
 
     const user = await getAuthUserFromRequest(
       req,
-      authService,
+      tokenService,
       logger,
       userRepo
     );

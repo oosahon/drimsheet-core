@@ -1,6 +1,5 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IUserSession } from '../../contracts/auth-service.contract';
 import authError from '../../errors/auth.error';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
@@ -11,7 +10,7 @@ import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contrac
 import mockAppContext, {
   mockClientSession,
 } from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 
 jest.mock('../helpers/issue-user-session.helper');
@@ -25,7 +24,7 @@ describe('refreshAccessTokenUseCase', () => {
     makeRefreshAccessTokenUseCase({
       reqContext: mockAppContext,
       userRepo: mockUserRepo,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,
@@ -49,9 +48,7 @@ describe('refreshAccessTokenUseCase', () => {
       id: mockUserId,
     } as unknown as IUser);
 
-    mockUserSessionRepo.findByRefreshToken.mockResolvedValue({
-      id: 'session-id',
-    } as unknown as IUserSession);
+    mockUserSessionRepo.delete.mockResolvedValue(true);
 
     (makeIssueUserSessionHelper as jest.Mock).mockResolvedValue({
       token: 'new-token',
@@ -62,6 +59,7 @@ describe('refreshAccessTokenUseCase', () => {
     mockClientSession.getRefreshToken.mockReturnValue(undefined);
     const useCase = getUseCase();
     await expect(useCase()).rejects.toThrow('app_error_unauthorized');
+    expect(mockClientSession.clearRefreshToken).toHaveBeenCalled();
   });
 
   it('propagates AuthError if refresh token is invalid', async () => {
@@ -70,18 +68,26 @@ describe('refreshAccessTokenUseCase', () => {
     });
     const useCase = getUseCase();
     await expect(useCase()).rejects.toThrow(authError.Base);
+    expect(mockClientSession.clearRefreshToken).toHaveBeenCalled();
   });
 
   it('throws appError.Unauthorized if user is not found', async () => {
     mockUserRepo.findById.mockResolvedValue(null);
     const useCase = getUseCase();
     await expect(useCase()).rejects.toThrow('app_error_unauthorized');
+    expect(mockClientSession.clearRefreshToken).toHaveBeenCalled();
   });
 
   it('throws appError.Unauthorized if session is not found in DB', async () => {
-    mockUserSessionRepo.findByRefreshToken.mockResolvedValue(null);
+    mockUserSessionRepo.delete.mockResolvedValue(false);
+    (makeIssueUserSessionHelper as jest.Mock).mockImplementationOnce(
+      async ({ beforeCreate }) => {
+        await beforeCreate('mock-tx');
+      }
+    );
     const useCase = getUseCase();
     await expect(useCase()).rejects.toThrow('app_error_unauthorized');
+    expect(mockClientSession.clearRefreshToken).toHaveBeenCalled();
   });
 
   it('successfully returns the new user session', async () => {
@@ -90,14 +96,33 @@ describe('refreshAccessTokenUseCase', () => {
 
     expect(result).toEqual({ token: 'new-token' });
 
-    expect(makeIssueUserSessionHelper).toHaveBeenCalledWith({
-      user: { id: mockUserId },
-      reqContext: mockAppContext,
-      authService: mockAuthService,
-      userSessionRepo: mockUserSessionRepo,
-      eventBus: mockEventBus,
-      repoService: mockRepoService,
-      events: [],
-    });
+    expect(makeIssueUserSessionHelper).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user: { id: mockUserId },
+        reqContext: mockAppContext,
+        tokenService: mockAuthService,
+        userSessionRepo: mockUserSessionRepo,
+        eventBus: mockEventBus,
+        repoService: mockRepoService,
+        events: [],
+        replaceExistingClientSession: false,
+      })
+    );
+
+    const helperArgs = (makeIssueUserSessionHelper as jest.Mock).mock
+      .calls[0][0];
+    await helperArgs.beforeCreate('mock-tx');
+    expect(mockUserSessionRepo.delete).toHaveBeenCalledWith(
+      mockUserId,
+      mockRefreshToken,
+      { correlationId, tx: 'mock-tx' }
+    );
+  });
+
+  it('does not clear the cookie for an unexpected failure', async () => {
+    mockUserRepo.findById.mockRejectedValue(new Error('database unavailable'));
+
+    await expect(getUseCase()()).rejects.toThrow('database unavailable');
+    expect(mockClientSession.clearRefreshToken).not.toHaveBeenCalled();
   });
 });

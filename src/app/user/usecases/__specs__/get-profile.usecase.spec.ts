@@ -6,7 +6,7 @@ import userMapper from '../../dtos/user/user.dto.mapper';
 import makeGetAuthUserProfileUseCase from '../get-profile.usecase';
 
 jest.mock('../../dtos/user/user.dto.mapper', () => ({
-  toInterface: jest.fn(),
+  toProfileDto: jest.fn(),
 }));
 
 describe('makeGetAuthUserProfileUseCase', () => {
@@ -25,7 +25,7 @@ describe('makeGetAuthUserProfileUseCase', () => {
     } as IAppContextData);
 
     const mappedUser = { id: 'test-user-id', email: 'test@example.com' };
-    (userMapper.toInterface as jest.Mock).mockReturnValue(mappedUser);
+    (userMapper.toProfileDto as jest.Mock).mockReturnValue(mappedUser);
 
     const usecase = makeGetAuthUserProfileUseCase({
       appContext: mockAppContext,
@@ -33,11 +33,11 @@ describe('makeGetAuthUserProfileUseCase', () => {
     const result = await usecase();
 
     expect(mockAppContext.get).toHaveBeenCalledTimes(1);
-    expect(userMapper.toInterface).toHaveBeenCalledWith(mockUser);
+    expect(userMapper.toProfileDto).toHaveBeenCalledWith(mockUser);
     expect(result).toEqual(mappedUser);
   });
 
-  it('should throw appError.Unauthorized if user is not in request context', async () => {
+  it('should throw appError.Unauthorized if user is not in request context (undefined user)', async () => {
     mockAppContext.get.mockReturnValue({} as IAppContextData);
 
     const usecase = makeGetAuthUserProfileUseCase({
@@ -46,6 +46,43 @@ describe('makeGetAuthUserProfileUseCase', () => {
 
     await expect(usecase()).rejects.toThrow('app_error_unauthorized');
     expect(mockAppContext.get).toHaveBeenCalledTimes(1);
-    expect(userMapper.toInterface).not.toHaveBeenCalled();
+    expect(userMapper.toProfileDto).not.toHaveBeenCalled();
+  });
+
+  it('should throw appError.Unauthorized if user is empty object sentinel', async () => {
+    mockAppContext.get.mockReturnValue({
+      user: {} as IUser,
+    } as IAppContextData);
+
+    const usecase = makeGetAuthUserProfileUseCase({
+      appContext: mockAppContext,
+    });
+
+    await expect(usecase()).rejects.toThrow('app_error_unauthorized');
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
+    expect(userMapper.toProfileDto).not.toHaveBeenCalled();
+  });
+
+  it('should propagate error if mapper throws', async () => {
+    const mockUser = {
+      id: 'test-user-id' as TEntityId,
+      email: 'test@example.com',
+    } as IUser;
+
+    mockAppContext.get.mockReturnValue({
+      user: mockUser,
+    } as IAppContextData);
+
+    (userMapper.toProfileDto as jest.Mock).mockImplementation(() => {
+      throw new Error('Mapper failure');
+    });
+
+    const usecase = makeGetAuthUserProfileUseCase({
+      appContext: mockAppContext,
+    });
+
+    await expect(usecase()).rejects.toThrow('Mapper failure');
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
+    expect(userMapper.toProfileDto).toHaveBeenCalledWith(mockUser);
   });
 });

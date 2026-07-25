@@ -1,9 +1,8 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
 import mockAppContext, {
   mockClientSession,
 } from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 import authError from '../../errors/auth.error';
 import makeLogoutUseCase from '../logout.usecase';
@@ -31,13 +30,13 @@ describe('makeLogoutUseCase', () => {
   const getUseCase = () =>
     makeLogoutUseCase({
       reqContext: mockAppContext,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
-      logger: mockLogger,
     });
 
-  it('should clear refresh token and delete session if valid refresh token is present', async () => {
+  it('should delete a valid refresh-token session before clearing the cookie', async () => {
     mockClientSession.getRefreshToken.mockReturnValue('valid-refresh-token');
+    mockUserSessionRepo.delete.mockResolvedValue(true);
 
     const usecase = getUseCase();
     await usecase();
@@ -51,9 +50,12 @@ describe('makeLogoutUseCase', () => {
       { correlationId }
     );
     expect(mockClientSession.clearRefreshToken).toHaveBeenCalled();
+    expect(mockUserSessionRepo.delete.mock.invocationCallOrder[0]).toBeLessThan(
+      mockClientSession.clearRefreshToken.mock.invocationCallOrder[0]
+    );
   });
 
-  it('should only clear cookie if refresh token is null', async () => {
+  it('should clear the cookie without verification when no token is present', async () => {
     mockClientSession.getRefreshToken.mockReturnValue(null);
 
     const usecase = getUseCase();
@@ -64,35 +66,75 @@ describe('makeLogoutUseCase', () => {
     expect(mockClientSession.clearRefreshToken).toHaveBeenCalled();
   });
 
-  it('should clear cookie and ignore delete if refresh token is invalid', async () => {
-    mockClientSession.getRefreshToken.mockReturnValue('invalid-refresh-token');
-    mockAuthService.verifyRefreshToken.mockImplementation(() => {
-      throw new authError.InvalidToken();
-    });
+  it.each([
+    ['invalid', new authError.InvalidToken()],
+    ['expired', new authError.ExpiredToken()],
+  ])(
+    'should clear the cookie when the refresh token is %s',
+    async (_, error) => {
+      mockClientSession.getRefreshToken.mockReturnValue(
+        'unusable-refresh-token'
+      );
+      mockAuthService.verifyRefreshToken.mockImplementation(() => {
+        throw error;
+      });
+
+      const usecase = getUseCase();
+      await usecase();
+
+      expect(mockAuthService.verifyRefreshToken).toHaveBeenCalledWith(
+        'unusable-refresh-token'
+      );
+      expect(mockUserSessionRepo.delete).not.toHaveBeenCalled();
+      expect(mockClientSession.clearRefreshToken).toHaveBeenCalled();
+    }
+  );
+
+  it('should clear the cookie when the valid token session is already absent', async () => {
+    mockClientSession.getRefreshToken.mockReturnValue('valid-refresh-token');
+    mockUserSessionRepo.delete.mockResolvedValue(false);
 
     const usecase = getUseCase();
     await usecase();
 
-    expect(mockAuthService.verifyRefreshToken).toHaveBeenCalledWith(
-      'invalid-refresh-token'
+    expect(mockUserSessionRepo.delete).toHaveBeenCalledWith(
+      mockUser.id,
+      'valid-refresh-token',
+      { correlationId }
     );
-    expect(mockUserSessionRepo.delete).not.toHaveBeenCalled();
     expect(mockClientSession.clearRefreshToken).toHaveBeenCalled();
   });
 
-  it('should clear cookie and catch exception if verifyThrows', async () => {
+  it('should propagate unexpected verification failures without clearing the cookie', async () => {
     mockClientSession.getRefreshToken.mockReturnValue('error-refresh-token');
+    const error = new Error('Some error');
     mockAuthService.verifyRefreshToken.mockImplementation(() => {
-      throw new Error('Some error');
+      throw error;
     });
 
     const usecase = getUseCase();
-    await usecase();
+    await expect(usecase()).rejects.toBe(error);
 
     expect(mockAuthService.verifyRefreshToken).toHaveBeenCalledWith(
       'error-refresh-token'
     );
     expect(mockUserSessionRepo.delete).not.toHaveBeenCalled();
-    expect(mockClientSession.clearRefreshToken).toHaveBeenCalled();
+    expect(mockClientSession.clearRefreshToken).not.toHaveBeenCalled();
+  });
+
+  it('should propagate persistence failures without clearing the cookie', async () => {
+    mockClientSession.getRefreshToken.mockReturnValue('valid-refresh-token');
+    const error = new Error('Database unavailable');
+    mockUserSessionRepo.delete.mockRejectedValue(error);
+
+    const usecase = getUseCase();
+    await expect(usecase()).rejects.toBe(error);
+
+    expect(mockUserSessionRepo.delete).toHaveBeenCalledWith(
+      mockUser.id,
+      'valid-refresh-token',
+      { correlationId }
+    );
+    expect(mockClientSession.clearRefreshToken).not.toHaveBeenCalled();
   });
 });

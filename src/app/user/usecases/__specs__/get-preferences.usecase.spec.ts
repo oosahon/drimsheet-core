@@ -58,4 +58,29 @@ describe('makeGetUserPreferencesUseCase', () => {
     expect(mockAppContext.get).toHaveBeenCalledTimes(1);
     expect(mockUserPreferencesRepo.findById).not.toHaveBeenCalled();
   });
+
+  it('should throw appError.ResourceNotFound if user preferences row does not exist', async () => {
+    const correlationId = 'test-corr-id';
+    const mockUser = {
+      id: 'test-user-id' as TEntityId,
+    } as IUser;
+
+    mockAppContext.get.mockReturnValue({
+      correlationId,
+      user: mockUser,
+    } as IAppContextData);
+
+    mockUserPreferencesRepo.findById.mockResolvedValue(null);
+
+    const usecase = makeGetUserPreferencesUseCase({
+      appContext: mockAppContext,
+      userPreferencesRepo: mockUserPreferencesRepo,
+    });
+
+    await expect(usecase()).rejects.toThrow('app_error_resource_not_found');
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
+    expect(mockUserPreferencesRepo.findById).toHaveBeenCalledWith(mockUser.id, {
+      correlationId,
+    });
+  });
 });

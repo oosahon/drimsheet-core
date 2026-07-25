@@ -9,7 +9,7 @@ import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.cont
 import mockAppContext, {
   mockClientSession,
 } from '../../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAuthService from '../../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../../contracts/__mocks__/token-service.contract.mock';
 import mockUserSessionRepo from '../../../contracts/__mocks__/user-session.repo.contract.mock';
 
 jest.mock('../../../../../shared/utils/uuid-generator', () => ({
@@ -51,7 +51,7 @@ describe('makeIssueUserSessionHelper', () => {
     makeIssueUserSessionHelper({
       user: mockUser,
       reqContext: mockAppContext,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,
       repoService: mockRepoService,
@@ -143,5 +143,38 @@ describe('makeIssueUserSessionHelper', () => {
       'new-refresh-token',
       { correlationId: 'test-corr-id', tx: 'mock-tx' }
     );
+  });
+
+  it('runs refresh-token consumption in the session transaction', async () => {
+    const beforeCreate = jest.fn().mockResolvedValue(undefined);
+
+    await makeIssueUserSessionHelper({
+      user: mockUser,
+      reqContext: mockAppContext,
+      tokenService: mockAuthService,
+      userSessionRepo: mockUserSessionRepo,
+      eventBus: mockEventBus,
+      repoService: mockRepoService,
+      events: mockEvents,
+      beforeCreate,
+      replaceExistingClientSession: false,
+    });
+
+    expect(beforeCreate).toHaveBeenCalledWith('mock-tx');
+    expect(mockUserSessionRepo.delete).not.toHaveBeenCalled();
+    expect(beforeCreate.mock.invocationCallOrder[0]).toBeLessThan(
+      mockUserSessionRepo.create.mock.invocationCallOrder[0]
+    );
+  });
+
+  it('does not expose credentials when the transaction rolls back', async () => {
+    mockRepoService.runInTransaction.mockRejectedValueOnce(
+      new Error('transaction failed')
+    );
+
+    await expect(runHelper()).rejects.toThrow('transaction failed');
+
+    expect(mockClientSession.setRefreshToken).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 });

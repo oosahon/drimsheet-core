@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import { ICorrelationId } from '../../shared/types/correlation-id.types';
 import reporter from '../observability/reporter';
-import { queueConnection } from './redis.config';
+import { getQueueConnection } from './redis.config';
 
 export function registerBullMQWorker<T extends ICorrelationId>(
   name: string,
@@ -18,7 +18,7 @@ export function registerBullMQWorker<T extends ICorrelationId>(
       }
     },
     {
-      connection: queueConnection,
+      connection: getQueueConnection(),
     }
   );
 }

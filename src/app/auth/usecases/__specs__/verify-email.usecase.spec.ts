@@ -9,7 +9,7 @@ import mockAppContext, {
   mockClientSession,
 } from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import authError from '../../errors/auth.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
@@ -26,7 +26,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -52,13 +52,13 @@ describe('makeVerifyEmailAddressUseCase', () => {
       email: 'johndoe@example.com',
     };
 
-    mockAuthService.verifySignupToken.mockResolvedValue(decodedToken as never);
+    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -69,9 +69,11 @@ describe('makeVerifyEmailAddressUseCase', () => {
     const result = await usecase(token);
 
     expect(mockAppContext.get).toHaveBeenCalledTimes(2);
-    expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
       correlationId,
+      lock: 'update',
+      tx: 'mock-tx',
     });
 
     expect(mockUserRepo.update).toHaveBeenCalledTimes(1);
@@ -113,12 +115,12 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   it('should propagate AuthError if token is invalid or expired', async () => {
     const token = 'invalid-token';
-    mockAuthService.verifySignupToken.mockRejectedValue(
+    mockAuthService.claimSignupToken.mockRejectedValue(
       new authError.InvalidToken()
     );
 
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -128,7 +130,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
     await expect(usecase(token)).rejects.toThrow(authError.Base);
 
-    expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).not.toHaveBeenCalled();
     expect(mockUserRepo.update).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
@@ -141,11 +143,11 @@ describe('makeVerifyEmailAddressUseCase', () => {
       email: 'johndoe@example.com',
     };
 
-    mockAuthService.verifySignupToken.mockResolvedValue(decodedToken as never);
+    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
     mockUserRepo.findById.mockResolvedValue(null);
 
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -155,9 +157,11 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
     await expect(usecase(token)).rejects.toThrow(authError.InvalidToken);
 
-    expect(mockAuthService.verifySignupToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
     expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
       correlationId,
+      lock: 'update',
+      tx: 'mock-tx',
     });
     expect(mockUserRepo.update).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
@@ -176,13 +180,13 @@ describe('makeVerifyEmailAddressUseCase', () => {
       email: 'johndoe@example.com',
     };
 
-    mockAuthService.verifySignupToken.mockResolvedValue(decodedToken as never);
+    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -198,5 +202,33 @@ describe('makeVerifyEmailAddressUseCase', () => {
     expect(result).toEqual({ accessToken: 'new-auth-token' });
 
     expect(mockEventBus.publish).toHaveBeenCalledWith([]);
+  });
+
+  it('should release signup token claim and rethrow generic error', async () => {
+    const token = 'valid-token';
+    const decodedToken = {
+      id: 'some-user-uuid',
+      email: 'johndoe@example.com',
+    };
+
+    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
+    const dbError = new Error('Database connection failed');
+    mockUserRepo.findById.mockRejectedValue(dbError);
+
+    const usecase = makeVerifyEmailAddressUseCase({
+      tokenService: mockAuthService,
+      userRepo: mockUserRepo,
+      appContext: mockAppContext,
+      eventBus: mockEventBus,
+      userSessionRepo: mockUserSessionRepo,
+      repoService: mockRepoService,
+    });
+
+    await expect(usecase(token)).rejects.toThrow('Database connection failed');
+
+    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
+    expect(mockAuthService.releaseSignupTokenClaim).toHaveBeenCalledWith(
+      decodedToken.id
+    );
   });
 });

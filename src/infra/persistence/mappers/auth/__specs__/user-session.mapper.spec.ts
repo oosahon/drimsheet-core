@@ -1,4 +1,4 @@
-import { IUserSession } from '../../../../../app/auth/contracts/auth-service.contract';
+import { IUserSession } from '../../../../../app/auth/contracts/auth.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import userSessionMapper, { IUserSessionModel } from '../user-session.mapper';
 
