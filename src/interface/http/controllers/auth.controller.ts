@@ -49,9 +49,9 @@ export class AuthController extends Controller {
   @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('422')
-  @Middlewares(rateLimiter.default)
+  @Response<IHttpErrorDto>('429')
   public async signupWithEmail(@Body() body: IUserSignupReq) {
-    return await authUseCase.signupWithEmail(body);
+    await authUseCase.signupWithEmail(body);
   }
 
   /**

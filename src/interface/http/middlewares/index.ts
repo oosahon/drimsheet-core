@@ -32,7 +32,7 @@ const middlewares = {
   appContext: makeAppContextInitMiddleware(
     appContext,
     accountingRepos.accountingEntity,
-    authService,
+    authService.token,
     userRepos.user,
     observability.logger,
     varsConfig

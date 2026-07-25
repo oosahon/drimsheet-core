@@ -9,7 +9,7 @@ import mockAppContext, {
   mockClientSession,
 } from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import authError from '../../errors/auth.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
@@ -26,7 +26,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -58,7 +58,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -118,7 +118,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     );
 
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -145,7 +145,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     mockUserRepo.findById.mockResolvedValue(null);
 
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,
@@ -182,7 +182,7 @@ describe('makeVerifyEmailAddressUseCase', () => {
     mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
 
     const usecase = makeVerifyEmailAddressUseCase({
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userRepo: mockUserRepo,
       appContext: mockAppContext,
       eventBus: mockEventBus,

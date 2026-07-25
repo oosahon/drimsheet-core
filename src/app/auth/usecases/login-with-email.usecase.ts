@@ -6,9 +6,9 @@ import { IRepoService } from '../../../shared/contracts/repo.contract';
 import eventValue from '../../../shared/events/event.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
-import IAuthService, {
-  EAuthStrategy,
-} from '../contracts/auth-service.contract';
+import { EAuthStrategy } from '../contracts/auth.types';
+import IPasswordService from '../contracts/password-service.contract';
+import ITokenService from '../contracts/token-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import { IAccessToken, IEmailLoginReq } from '../dtos/auth/auth.dto';
@@ -19,7 +19,8 @@ import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 interface IDependencies {
   reqContext: IAppContext;
   userRepo: IUserRepo;
-  authService: IAuthService;
+  passwordService: IPasswordService;
+  tokenService: ITokenService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
   userSessionRepo: IUserSessionRepo;
@@ -64,7 +65,7 @@ export default function makeLoginWithEmailUseCase(deps: IDependencies) {
       throw new authError.WrongStrategy();
     }
 
-    const isValidPassword = await deps.authService.comparePassword(
+    const isValidPassword = await deps.passwordService.compare(
       payload.password,
       userAuth.password
     );
@@ -89,7 +90,7 @@ export default function makeLoginWithEmailUseCase(deps: IDependencies) {
     return makeIssueUserSessionHelper({
       user,
       reqContext: deps.reqContext,
-      authService: deps.authService,
+      tokenService: deps.tokenService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,
       repoService: deps.repoService,

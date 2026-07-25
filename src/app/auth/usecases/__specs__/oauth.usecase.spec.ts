@@ -6,7 +6,7 @@ import mockAppContext, {
   mockClientSession,
 } from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 import makeOauthUsecase from '../oauth.usecase';
 
@@ -36,7 +36,7 @@ describe('makeOauthUsecase', () => {
   const getUseCase = () =>
     makeOauthUsecase({
       reqContext: mockAppContext,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,

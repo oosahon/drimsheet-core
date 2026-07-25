@@ -1,5 +1,10 @@
 import z from 'zod';
 import authError from '../../errors/auth.error';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  satisfiesPasswordComplexity,
+} from '../../policies/password.policy';
 
 const invalidFirstNameError = new authError.InvalidFirstName().errorKey;
 const invalidLastNameError = new authError.InvalidLastName().errorKey;
@@ -15,10 +20,9 @@ const passwordsDoNotMatchError = new authError.PasswordsDoNotMatch().errorKey;
  */
 export const validatePassword = z
   .string(invalidPasswordError)
-  .min(8, invalidPasswordError)
-  .max(100, invalidPasswordError)
-  .regex(/(?=.*[0-9])/, invalidPasswordError)
-  .regex(/(?=.*[^A-Za-z0-9])/, invalidPasswordError);
+  .min(PASSWORD_MIN_LENGTH, invalidPasswordError)
+  .max(PASSWORD_MAX_LENGTH, invalidPasswordError)
+  .refine(satisfiesPasswordComplexity, invalidPasswordError);
 
 /**
  * Validation schema for user signup request payload.
@@ -32,7 +36,11 @@ export const userSignupReqValidation = z.object({
     .string(invalidLastNameError)
     .min(1, invalidLastNameError)
     .max(100, invalidLastNameError),
-  email: z.email(invalidEmailError),
+  email: z
+    .string(invalidEmailError)
+    .trim()
+    .toLowerCase()
+    .pipe(z.email(invalidEmailError)),
   password: validatePassword,
 });
 
@@ -44,7 +52,7 @@ export const emailLoginReqValidation = z.object({
   password: z
     .string(invalidPasswordError)
     .min(1, invalidPasswordError)
-    .max(100, invalidPasswordError),
+    .max(PASSWORD_MAX_LENGTH, invalidPasswordError),
 });
 
 /**

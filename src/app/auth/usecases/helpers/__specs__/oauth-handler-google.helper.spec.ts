@@ -7,10 +7,7 @@ import mockUserRepo from '../../../../../domain/user/repos/__mocks__/user.repo.i
 import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
 import mockAppContext from '../../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import { IAppContextData } from '../../../../_internal/contracts/app-context.contract';
-import {
-  EAuthStrategy,
-  IUserAuth,
-} from '../../../contracts/auth-service.contract';
+import { EAuthStrategy, IUserAuth } from '../../../contracts/auth.types';
 import { IOAuthProfile } from '../../../dtos/auth/auth.dto';
 import makeGoogleOAuthHelper from '../oauth-handler-google.helper';
 

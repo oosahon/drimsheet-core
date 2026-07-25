@@ -11,10 +11,11 @@ import mockAppContext, {
   mockClientSession,
 } from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockPasswordService from '../../contracts/__mocks__/password-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
-import { IUserAuth } from '../../contracts/auth-service.contract';
+import { IUserAuth } from '../../contracts/auth.types';
 import authError from '../../errors/auth.error';
 import makeResetPasswordUseCase from '../reset-password.usecase';
 
@@ -31,6 +32,9 @@ describe('makeResetPasswordUseCase', () => {
       idempotencyKey,
       clientSession: mockClientSession,
     } as unknown as IAppContextData);
+    mockPasswordService.makePassword
+      .mockReset()
+      .mockImplementation((input) => input as string);
   });
 
   afterEach(() => {
@@ -47,7 +51,8 @@ describe('makeResetPasswordUseCase', () => {
     makeResetPasswordUseCase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      authService: mockAuthService,
+      passwordService: mockPasswordService,
+      tokenService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
       userSessionRepo: mockUserSessionRepo,
@@ -122,7 +127,7 @@ describe('makeResetPasswordUseCase', () => {
       password: 'old-hash',
     } as unknown as IUserAuth;
     mockUserAuthRepo.findByUserId.mockResolvedValue(existingUserAuth);
-    mockAuthService.hashPassword.mockResolvedValue('new-hash');
+    mockPasswordService.hash.mockResolvedValue('new-hash');
     mockAuthService.generateAccessToken.mockResolvedValue('mock-auth-token');
     mockAuthService.generateRefreshToken.mockResolvedValue(
       'mock-refresh-token'
@@ -139,7 +144,10 @@ describe('makeResetPasswordUseCase', () => {
     expect(mockUserRepo.findById).toHaveBeenCalledWith(mockUser.id, {
       correlationId,
     });
-    expect(mockAuthService.hashPassword).toHaveBeenCalledWith(payload.password);
+    expect(mockPasswordService.makePassword).toHaveBeenCalledWith(
+      payload.password
+    );
+    expect(mockPasswordService.hash).toHaveBeenCalledWith(payload.password);
     expect(mockAuthService.generateAccessToken).toHaveBeenCalledWith(mockUser);
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();

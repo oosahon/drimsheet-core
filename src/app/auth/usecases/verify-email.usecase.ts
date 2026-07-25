@@ -7,7 +7,7 @@ import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
-import IAuthService from '../contracts/auth-service.contract';
+import ITokenService from '../contracts/token-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import { IAccessToken } from '../dtos/auth/auth.dto';
 import authError from '../errors/auth.error';
@@ -18,7 +18,7 @@ const validationSchema = z.object({
 });
 
 interface IDependencies {
-  authService: IAuthService;
+  tokenService: ITokenService;
   userRepo: IUserRepo;
   appContext: IAppContext;
   eventBus: IEventBus;
@@ -32,7 +32,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
 
     const { correlationId } = deps.appContext.get();
 
-    const decodedToken = await deps.authService.verifySignupToken(token);
+    const decodedToken = await deps.tokenService.verifySignupToken(token);
 
     const user = await deps.userRepo.findById(decodedToken.id, {
       correlationId,
@@ -46,7 +46,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
       return makeIssueUserSessionHelper({
         user,
         reqContext: deps.appContext,
-        authService: deps.authService,
+        tokenService: deps.tokenService,
         userSessionRepo: deps.userSessionRepo,
         eventBus: deps.eventBus,
         repoService: deps.repoService,
@@ -67,7 +67,7 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
     return makeIssueUserSessionHelper({
       user: updatedUser,
       reqContext: deps.appContext,
-      authService: deps.authService,
+      tokenService: deps.tokenService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,
       repoService: deps.repoService,

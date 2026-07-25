@@ -6,16 +6,15 @@ import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import eventValue from '../../../shared/events/event.vo';
 import IAppContext from '../../_internal/contracts/app-context.contract';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
-import IAuthService, {
-  EAuthStrategy,
-} from '../contracts/auth-service.contract';
+import { EAuthStrategy } from '../contracts/auth.types';
+import ITokenService from '../contracts/token-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import authError from '../errors/auth.error';
 
 interface IDependencies {
   appContext: IAppContext;
   userRepo: IUserRepo;
-  authService: IAuthService;
+  tokenService: ITokenService;
   transactionEmailService: ITransactionalEmailService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
@@ -44,7 +43,7 @@ export default function makeRequestPasswordResetUseCase(deps: IDependencies) {
       throw new authError.WrongStrategy();
     }
 
-    const resetToken = await deps.authService.generatePasswordResetToken(user);
+    const resetToken = await deps.tokenService.generatePasswordResetToken(user);
     const resetLink = `${deps.varsConfig.WEB_APP_URL}/auth/reset-password?token=${resetToken}`;
 
     await deps.transactionEmailService.sendPasswordResetLink({

@@ -4,11 +4,11 @@ import { ICacheStorage } from '../../../../shared/contracts/cache-storage.contra
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import authError from '../../errors/auth.error';
-import makeAuthService from '../auth.service';
+import makeTokenService from '../token.service';
 
-describe('makeAuthService', () => {
+describe('makeTokenService', () => {
   let cacheStorage: ICacheStorage;
-  let authService: ReturnType<typeof makeAuthService>;
+  let tokenService: ReturnType<typeof makeTokenService>;
   let varsConfig: IVarsConfig;
 
   beforeEach(() => {
@@ -18,28 +18,9 @@ describe('makeAuthService', () => {
       NODE_ENV: 'test',
     } as IVarsConfig;
 
-    authService = makeAuthService({
+    tokenService = makeTokenService({
       cacheStorage,
       varsConfig,
-      nonProdEmailWhitelist: ['osahonoboite@gmail.com'],
-    });
-  });
-
-  describe('hashPassword & comparePassword', () => {
-    it('should correctly hash and compare passwords', async () => {
-      const password = 'mySecretPassword123!';
-      const hash = await authService.hashPassword(password);
-
-      expect(hash).not.toBe(password);
-
-      const isMatch = await authService.comparePassword(password, hash);
-      expect(isMatch).toBe(true);
-
-      const isNotMatch = await authService.comparePassword(
-        'wrongPassword',
-        hash
-      );
-      expect(isNotMatch).toBe(false);
     });
   });
 
@@ -47,14 +28,14 @@ describe('makeAuthService', () => {
     const userId = 'user-123' as TEntityId;
 
     it('should successfully generate and verify a signup token', async () => {
-      const token = await authService.generateSignupToken({ id: userId });
+      const token = await tokenService.generateSignupToken({ id: userId });
       expect(cacheStorage.set).toHaveBeenCalledWith(
         `app:auth:signup-token:${userId}`,
         token,
         expect.any(Number)
       );
 
-      const decoded = await authService.verifySignupToken(token);
+      const decoded = await tokenService.verifySignupToken(token);
       expect(decoded.id).toBe(userId);
 
       // It should delete the token after successful verification
@@ -64,26 +45,26 @@ describe('makeAuthService', () => {
     });
 
     it('should throw InvalidToken if token type is incorrect', async () => {
-      const wrongToken = await authService.generateAccessToken({ id: userId });
+      const wrongToken = await tokenService.generateAccessToken({ id: userId });
 
-      await expect(authService.verifySignupToken(wrongToken)).rejects.toThrow(
+      await expect(tokenService.verifySignupToken(wrongToken)).rejects.toThrow(
         authError.InvalidToken
       );
     });
 
     it('should throw InvalidToken if token is missing from cache', async () => {
-      const token = await authService.generateSignupToken({ id: userId });
+      const token = await tokenService.generateSignupToken({ id: userId });
 
       // Manually delete from cache to simulate expiry/consumption
       await cacheStorage.del(`app:auth:signup-token:${userId}`);
 
-      await expect(authService.verifySignupToken(token)).rejects.toThrow(
+      await expect(tokenService.verifySignupToken(token)).rejects.toThrow(
         authError.InvalidToken
       );
     });
 
     it('should throw InvalidToken if cached token does not match provided token', async () => {
-      const token = await authService.generateSignupToken({ id: userId });
+      const token = await tokenService.generateSignupToken({ id: userId });
 
       // Tamper with the cache
       await cacheStorage.set(
@@ -91,7 +72,7 @@ describe('makeAuthService', () => {
         'some-other-token'
       );
 
-      await expect(authService.verifySignupToken(token)).rejects.toThrow(
+      await expect(tokenService.verifySignupToken(token)).rejects.toThrow(
         authError.InvalidToken
       );
     });
@@ -101,7 +82,7 @@ describe('makeAuthService', () => {
     const userId = 'user-456' as TEntityId;
 
     it('should successfully generate and verify a reset token', async () => {
-      const token = await authService.generatePasswordResetToken({
+      const token = await tokenService.generatePasswordResetToken({
         id: userId,
       });
       expect(cacheStorage.set).toHaveBeenCalledWith(
@@ -110,7 +91,7 @@ describe('makeAuthService', () => {
         expect.any(Number)
       );
 
-      const decoded = await authService.verifyPasswordResetToken(token);
+      const decoded = await tokenService.verifyPasswordResetToken(token);
       expect(decoded.id).toBe(userId);
 
       // It should delete the token after successful verification
@@ -120,23 +101,23 @@ describe('makeAuthService', () => {
     });
 
     it('should throw InvalidToken if token type is incorrect', async () => {
-      const wrongToken = await authService.generateAccessToken({ id: userId });
+      const wrongToken = await tokenService.generateAccessToken({ id: userId });
 
       await expect(
-        authService.verifyPasswordResetToken(wrongToken)
+        tokenService.verifyPasswordResetToken(wrongToken)
       ).rejects.toThrow(authError.InvalidToken);
     });
 
     it('should throw InvalidToken if token is missing from cache', async () => {
-      const token = await authService.generatePasswordResetToken({
+      const token = await tokenService.generatePasswordResetToken({
         id: userId,
       });
 
       await cacheStorage.del(`app:auth:reset-token:${userId}`);
 
-      await expect(authService.verifyPasswordResetToken(token)).rejects.toThrow(
-        authError.InvalidToken
-      );
+      await expect(
+        tokenService.verifyPasswordResetToken(token)
+      ).rejects.toThrow(authError.InvalidToken);
     });
   });
 
@@ -144,8 +125,8 @@ describe('makeAuthService', () => {
     const userId = 'user-789' as TEntityId;
 
     it('should successfully generate and decode an access token', async () => {
-      const token = await authService.generateAccessToken({ id: userId });
-      const decoded = await authService.getAuthUser(token);
+      const token = await tokenService.generateAccessToken({ id: userId });
+      const decoded = await tokenService.getAuthUser(token);
 
       expect(decoded.id).toBe(userId);
     });
@@ -160,21 +141,23 @@ describe('makeAuthService', () => {
         }
       );
 
-      await expect(authService.getAuthUser(expiredToken)).rejects.toThrow(
+      await expect(tokenService.getAuthUser(expiredToken)).rejects.toThrow(
         authError.ExpiredToken
       );
     });
 
     it('should throw InvalidToken if token type is not access', async () => {
-      const wrongToken = await authService.generateRefreshToken({ id: userId });
+      const wrongToken = await tokenService.generateRefreshToken({
+        id: userId,
+      });
 
-      await expect(authService.getAuthUser(wrongToken)).rejects.toThrow(
+      await expect(tokenService.getAuthUser(wrongToken)).rejects.toThrow(
         authError.InvalidToken
       );
     });
 
     it('should throw MalformedToken for complete garbage tokens', async () => {
-      await expect(authService.getAuthUser('not.a.real.jwt')).rejects.toThrow(
+      await expect(tokenService.getAuthUser('not.a.real.jwt')).rejects.toThrow(
         authError.MalformedToken
       );
     });
@@ -184,7 +167,7 @@ describe('makeAuthService', () => {
       jest.spyOn(jwt, 'verify').mockImplementationOnce(() => {
         throw new jwt.NotBeforeError('jwt not active', new Date());
       });
-      await expect(authService.getAuthUser('some-token')).rejects.toThrow(
+      await expect(tokenService.getAuthUser('some-token')).rejects.toThrow(
         authError.InvalidToken
       );
     });
@@ -194,7 +177,7 @@ describe('makeAuthService', () => {
       jest.spyOn(jwt, 'verify').mockImplementationOnce(() => {
         throw new Error('unknown error');
       });
-      await expect(authService.getAuthUser('some-token')).rejects.toThrow(
+      await expect(tokenService.getAuthUser('some-token')).rejects.toThrow(
         authError.InvalidToken
       );
     });
@@ -204,48 +187,17 @@ describe('makeAuthService', () => {
     const userId = 'user-999' as TEntityId;
 
     it('should successfully generate and verify a refresh token', async () => {
-      const token = await authService.generateRefreshToken({ id: userId });
-      const decoded = await authService.verifyRefreshToken(token);
+      const token = await tokenService.generateRefreshToken({ id: userId });
+      const decoded = await tokenService.verifyRefreshToken(token);
 
       expect(decoded.id).toBe(userId);
     });
 
     it('should throw InvalidToken if token type is incorrect', async () => {
-      const wrongToken = await authService.generateAccessToken({ id: userId });
+      const wrongToken = await tokenService.generateAccessToken({ id: userId });
 
-      expect(() => authService.verifyRefreshToken(wrongToken)).toThrow(
+      expect(() => tokenService.verifyRefreshToken(wrongToken)).toThrow(
         authError.InvalidToken
-      );
-    });
-  });
-
-  describe('isPermittedEmail', () => {
-    it('should return true for any email in test environments', () => {
-      expect(authService.isPermittedEmail('random@email.com')).toBe(true);
-    });
-
-    it('should return true for any email in production environment', () => {
-      const prodAuthService = makeAuthService({
-        cacheStorage,
-        varsConfig: { ...varsConfig, NODE_ENV: 'production' },
-        nonProdEmailWhitelist: ['osahonoboite@gmail.com'],
-      });
-
-      expect(prodAuthService.isPermittedEmail('random@email.com')).toBe(true);
-    });
-
-    it('should use nonProdEmailWhitelist in staging environment', () => {
-      const stagingAuthService = makeAuthService({
-        cacheStorage,
-        varsConfig: { ...varsConfig, NODE_ENV: 'staging' },
-        nonProdEmailWhitelist: ['osahonoboite@gmail.com'],
-      });
-
-      expect(
-        stagingAuthService.isPermittedEmail('osahonoboite@gmail.com')
-      ).toBe(true);
-      expect(stagingAuthService.isPermittedEmail('random@email.com')).toBe(
-        false
       );
     });
   });

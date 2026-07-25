@@ -7,14 +7,14 @@ import {
 import { IEvent } from '../../../../shared/events/types/event.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import IAppContext from '../../../_internal/contracts/app-context.contract';
-import IAuthService from '../../contracts/auth-service.contract';
+import ITokenService from '../../contracts/token-service.contract';
 import IUserSessionRepo from '../../contracts/user-session.repo.contract';
 import { IAccessToken } from '../../dtos/auth/auth.dto';
 
 export interface IIssueUserSessionDeps {
   user: IUser;
   reqContext: IAppContext;
-  authService: IAuthService;
+  tokenService: ITokenService;
   userSessionRepo: IUserSessionRepo;
   eventBus: IEventBus;
   repoService: IRepoService;
@@ -24,7 +24,7 @@ export interface IIssueUserSessionDeps {
 export default async function makeIssueUserSessionHelper({
   user,
   reqContext,
-  authService,
+  tokenService,
   userSessionRepo,
   eventBus,
   repoService,
@@ -32,8 +32,8 @@ export default async function makeIssueUserSessionHelper({
 }: IIssueUserSessionDeps): Promise<IAccessToken> {
   const { correlationId, clientSession } = reqContext.get();
 
-  const accessToken = await authService.generateAccessToken(user);
-  const refreshToken = await authService.generateRefreshToken(user);
+  const accessToken = await tokenService.generateAccessToken(user);
+  const refreshToken = await tokenService.generateRefreshToken(user);
 
   const repoTransaction: TRepoTransactionFn = async (tx) => {
     const existingClientRefreshToken = clientSession.getRefreshToken();

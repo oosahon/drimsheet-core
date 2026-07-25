@@ -1,6 +1,6 @@
 import { RequestHandler, Response } from 'express';
 import IAppContext from '../../../app/_internal/contracts/app-context.contract';
-import IAuthService from '../../../app/auth/contracts/auth-service.contract';
+import ITokenService from '../../../app/auth/contracts/token-service.contract';
 import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../domain/user/repos/user.repo';
@@ -53,7 +53,7 @@ function handleClearRefreshToken(res: Response, varsConfig: IVarsConfig) {
 export default function makeAppContextInitMiddleware(
   appContext: IAppContext,
   accountingEntityRepo: IAccountingEntityRepo,
-  authService: IAuthService,
+  tokenService: ITokenService,
   userRepo: IUserRepo,
   logger: ILogger,
   varsConfig: IVarsConfig
@@ -64,7 +64,7 @@ export default function makeAppContextInitMiddleware(
 
     const user = await getAuthUserFromRequest(
       req,
-      authService,
+      tokenService,
       logger,
       userRepo
     );

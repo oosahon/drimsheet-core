@@ -1,6 +1,6 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IUserSession } from '../../contracts/auth-service.contract';
+import { IUserSession } from '../../contracts/auth.types';
 import authError from '../../errors/auth.error';
 import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
@@ -11,7 +11,7 @@ import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contrac
 import mockAppContext, {
   mockClientSession,
 } from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 
 jest.mock('../helpers/issue-user-session.helper');
@@ -25,7 +25,7 @@ describe('refreshAccessTokenUseCase', () => {
     makeRefreshAccessTokenUseCase({
       reqContext: mockAppContext,
       userRepo: mockUserRepo,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       eventBus: mockEventBus,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,
@@ -93,7 +93,7 @@ describe('refreshAccessTokenUseCase', () => {
     expect(makeIssueUserSessionHelper).toHaveBeenCalledWith({
       user: { id: mockUserId },
       reqContext: mockAppContext,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,
       repoService: mockRepoService,

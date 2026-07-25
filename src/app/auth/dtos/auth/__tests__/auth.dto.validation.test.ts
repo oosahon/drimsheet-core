@@ -1,4 +1,5 @@
 import {
+  emailLoginReqValidation,
   userSignupReqValidation,
   validatePassword,
 } from '../auth.dto.validation';
@@ -24,6 +25,17 @@ describe('auth DTO validation', () => {
       expect(password).toHaveLength(128);
       expect(validatePassword.safeParse(password).success).toBe(true);
     });
+
+    it('accepts the exact minimum length', () => {
+      expect(validatePassword.safeParse('Aa1!aaaa').success).toBe(true);
+    });
+
+    it.each(['Aa1!aaa', `Aa1!${'a'.repeat(125)}`])(
+      'rejects passwords outside the shared length boundaries',
+      (password) => {
+        expect(validatePassword.safeParse(password).success).toBe(false);
+      }
+    );
   });
 
   describe('userSignupReqValidation', () => {
@@ -32,7 +44,7 @@ describe('auth DTO validation', () => {
       const result = userSignupReqValidation.safeParse({
         firstName: 'John',
         lastName: 'Doe',
-        email: 'john@example.com',
+        email: '  JOHN@EXAMPLE.COM  ',
         password,
       });
 
@@ -41,6 +53,20 @@ describe('auth DTO validation', () => {
         throw result.error;
       }
       expect(result.data.password).toBe(password);
+      expect(result.data.email).toBe('john@example.com');
+    });
+  });
+
+  describe('emailLoginReqValidation', () => {
+    it('accepts a previously registered 128-character password', () => {
+      const password = `Aa1!${'a'.repeat(124)}`;
+
+      expect(
+        emailLoginReqValidation.safeParse({
+          email: 'user@example.com',
+          password,
+        }).success
+      ).toBe(true);
     });
   });
 });

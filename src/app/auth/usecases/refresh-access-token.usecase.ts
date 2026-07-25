@@ -3,14 +3,14 @@ import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
 import appError from '../../../shared/errors/app.error';
 import IAppContext from '../../_internal/contracts/app-context.contract';
-import IAuthService from '../contracts/auth-service.contract';
+import ITokenService from '../contracts/token-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 interface IDependencies {
   reqContext: IAppContext;
   userRepo: IUserRepo;
-  authService: IAuthService;
+  tokenService: ITokenService;
   eventBus: IEventBus;
   userSessionRepo: IUserSessionRepo;
   repoService: IRepoService;
@@ -26,7 +26,7 @@ export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
       throw new appError.Unauthorized();
     }
 
-    const decoded = deps.authService.verifyRefreshToken(refreshToken);
+    const decoded = deps.tokenService.verifyRefreshToken(refreshToken);
 
     const user = await deps.userRepo.findById(decoded.id, { correlationId });
 
@@ -47,7 +47,7 @@ export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
     return makeIssueUserSessionHelper({
       user,
       reqContext: deps.reqContext,
-      authService: deps.authService,
+      tokenService: deps.tokenService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,
       repoService: deps.repoService,

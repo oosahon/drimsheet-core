@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import IAppContext from '../../../../app/_internal/contracts/app-context.contract';
-import IAuthService, {
+import ITokenService, {
   IAuthTokenPayload,
-} from '../../../../app/auth/contracts/auth-service.contract';
+} from '../../../../app/auth/contracts/token-service.contract';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
@@ -14,7 +14,7 @@ import makeAppContextInitMiddleware from '../app-context-init.middleware';
 describe('makeAppContextInitMiddleware', () => {
   let mockAppContext: jest.Mocked<IAppContext>;
   let mockAccountingEntityRepo: jest.Mocked<IAccountingEntityRepo>;
-  let mockAuthService: jest.Mocked<IAuthService>;
+  let mockAuthService: jest.Mocked<ITokenService>;
   let mockUserRepo: jest.Mocked<IUserRepo>;
   let mockLogger: jest.Mocked<ILogger>;
   let mockVarsConfig: Partial<IVarsConfig>;
@@ -35,7 +35,7 @@ describe('makeAppContextInitMiddleware', () => {
 
     mockAuthService = {
       getAuthUser: jest.fn(),
-    } as unknown as jest.Mocked<IAuthService>;
+    } as unknown as jest.Mocked<ITokenService>;
 
     mockUserRepo = {
       findById: jest.fn(),

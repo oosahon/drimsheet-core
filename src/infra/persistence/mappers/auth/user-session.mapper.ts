@@ -1,5 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IUserSession } from '../../../../app/auth/contracts/auth-service.contract';
+import { IUserSession } from '../../../../app/auth/contracts/auth.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { userSessionsInCore } from '../../../config/drizzle/schema';
 import { fromRepoDate, toRepoDate } from '../shared/date';

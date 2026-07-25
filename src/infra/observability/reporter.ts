@@ -2,17 +2,16 @@ import Sentry from '@sentry/node';
 import IReporter from '../../shared/contracts/reporter.contract';
 import errorUtils from '../../shared/utils/error';
 import safeJSON from '../../shared/utils/safe-json';
-import { NODE_ENV, SENTRY_DSN } from '../config/vars.config';
+import { NODE_ENV } from '../config/vars.config';
 import appContext from '../runtime/app-context';
 import logger from './logger';
 
-Sentry.init({ dsn: SENTRY_DSN, sendDefaultPii: true, environment: NODE_ENV });
+// TODO: add tests for observability
 
 const getCorrelationId = () => {
   try {
     return appContext.get().correlationId;
-  } catch (error) {
-    logger.error(error);
+  } catch {
     return undefined;
   }
 };

@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import IAuthService from '../../../../app/auth/contracts/auth-service.contract';
+import ITokenService from '../../../../app/auth/contracts/token-service.contract';
 import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import ILogger from '../../../../shared/contracts/logger.contract';
@@ -7,7 +7,7 @@ import getAuthUserFromRequest from '../get-auth-user-from-request.helper';
 
 describe('getAuthUserFromRequest', () => {
   let mockReq: Partial<Request>;
-  let mockAuthService: jest.Mocked<IAuthService>;
+  let mockAuthService: jest.Mocked<ITokenService>;
   let mockLogger: jest.Mocked<ILogger>;
   let mockUserRepo: jest.Mocked<IUserRepo>;
 
@@ -18,7 +18,7 @@ describe('getAuthUserFromRequest', () => {
 
     mockAuthService = {
       getAuthUser: jest.fn(),
-    } as unknown as jest.Mocked<IAuthService>;
+    } as unknown as jest.Mocked<ITokenService>;
 
     mockLogger = {
       error: jest.fn(),

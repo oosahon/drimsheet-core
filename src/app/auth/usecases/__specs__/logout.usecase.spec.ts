@@ -3,7 +3,7 @@ import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.m
 import mockAppContext, {
   mockClientSession,
 } from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
 import authError from '../../errors/auth.error';
 import makeLogoutUseCase from '../logout.usecase';
@@ -31,7 +31,7 @@ describe('makeLogoutUseCase', () => {
   const getUseCase = () =>
     makeLogoutUseCase({
       reqContext: mockAppContext,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       logger: mockLogger,
     });

@@ -2,7 +2,7 @@ import {
   IReadRepoOptions,
   IWriteRepoOptions,
 } from '../../../shared/types/repo.types';
-import { IUserSession } from './auth-service.contract';
+import { IUserSession } from './auth.types';
 
 export default interface IUserSessionRepo {
   create(userSession: IUserSession, options: IWriteRepoOptions): Promise<void>;

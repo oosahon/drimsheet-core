@@ -9,9 +9,9 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import mockTransactionalEmailService from '../../../notification/contracts/__mocks__/transactional-email-service.contract.mock';
-import mockAuthService from '../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
-import { IUserAuth } from '../../contracts/auth-service.contract';
+import { IUserAuth } from '../../contracts/auth.types';
 import authError from '../../errors/auth.error';
 import makeRequestPasswordResetUseCase from '../request-password-reset.usecase';
 
@@ -41,7 +41,7 @@ describe('makeRequestPasswordResetUseCase', () => {
     const usecase = makeRequestPasswordResetUseCase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       transactionEmailService: mockTransactionalEmailService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -92,7 +92,7 @@ describe('makeRequestPasswordResetUseCase', () => {
     const usecase = makeRequestPasswordResetUseCase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       transactionEmailService: mockTransactionalEmailService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -150,7 +150,7 @@ describe('makeRequestPasswordResetUseCase', () => {
     const usecase = makeRequestPasswordResetUseCase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       transactionEmailService: mockTransactionalEmailService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,

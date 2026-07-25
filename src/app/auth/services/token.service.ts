@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import {
   JsonWebTokenError,
   NotBeforeError,
@@ -8,18 +7,17 @@ import {
 } from 'jsonwebtoken';
 import { ICacheStorage } from '../../../shared/contracts/cache-storage.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
-import IAuthService, {
+import ITokenService, {
   IAuthTokenPayload,
-} from '../contracts/auth-service.contract';
+} from '../contracts/token-service.contract';
 import authError from '../errors/auth.error';
 
 interface IDependencies {
   cacheStorage: ICacheStorage;
   varsConfig: IVarsConfig;
-  nonProdEmailWhitelist: string[];
 }
 
-export default function makeAuthService(deps: IDependencies): IAuthService {
+export default function makeTokenService(deps: IDependencies): ITokenService {
   const handleJwtError = (err: unknown): never => {
     if (err instanceof TokenExpiredError) {
       throw new authError.ExpiredToken();
@@ -46,13 +44,7 @@ export default function makeAuthService(deps: IDependencies): IAuthService {
     }
   };
 
-  const hashPassword: IAuthService['hashPassword'] = async (password) => {
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
-    return hash;
-  };
-
-  const generateSignupToken: IAuthService['generateSignupToken'] = async ({
+  const generateSignupToken: ITokenService['generateSignupToken'] = async ({
     id,
   }) => {
     const token = sign(
@@ -72,7 +64,7 @@ export default function makeAuthService(deps: IDependencies): IAuthService {
     return token;
   };
 
-  const verifySignupToken: IAuthService['verifySignupToken'] = async (
+  const verifySignupToken: ITokenService['verifySignupToken'] = async (
     token
   ) => {
     const decoded = verifyAuthToken(token);
@@ -94,14 +86,7 @@ export default function makeAuthService(deps: IDependencies): IAuthService {
     return decoded;
   };
 
-  const comparePassword: IAuthService['comparePassword'] = async (
-    passwordString,
-    hashedPassword
-  ) => {
-    return await bcrypt.compare(passwordString, hashedPassword);
-  };
-
-  const generateAccessToken: IAuthService['generateAccessToken'] = async ({
+  const generateAccessToken: ITokenService['generateAccessToken'] = async ({
     id,
   }) => {
     const ttlSeconds = 60 * 15; // 15 minutes
@@ -112,7 +97,7 @@ export default function makeAuthService(deps: IDependencies): IAuthService {
     return token;
   };
 
-  const generateRefreshToken: IAuthService['generateRefreshToken'] = async ({
+  const generateRefreshToken: ITokenService['generateRefreshToken'] = async ({
     id,
   }) => {
     const ttlSeconds = 60 * 60 * 24 * 15; // 15 days
@@ -128,7 +113,7 @@ export default function makeAuthService(deps: IDependencies): IAuthService {
     return token;
   };
 
-  const verifyRefreshToken: IAuthService['verifyRefreshToken'] = (token) => {
+  const verifyRefreshToken: ITokenService['verifyRefreshToken'] = (token) => {
     const { type, ...decoded } = verifyAuthToken(token);
 
     if (type !== 'refresh') {
@@ -138,7 +123,7 @@ export default function makeAuthService(deps: IDependencies): IAuthService {
     return decoded;
   };
 
-  const generatePasswordResetToken: IAuthService['generatePasswordResetToken'] =
+  const generatePasswordResetToken: ITokenService['generatePasswordResetToken'] =
     async ({ id }) => {
       const ttlSeconds = 2 * 60 * 60; // 2 hours
       const token = sign(
@@ -158,7 +143,7 @@ export default function makeAuthService(deps: IDependencies): IAuthService {
       return token;
     };
 
-  const verifyPasswordResetToken: IAuthService['verifyPasswordResetToken'] =
+  const verifyPasswordResetToken: ITokenService['verifyPasswordResetToken'] =
     async (token) => {
       const decoded = verifyAuthToken(token);
 
@@ -179,7 +164,7 @@ export default function makeAuthService(deps: IDependencies): IAuthService {
       return decoded;
     };
 
-  const getAuthUser: IAuthService['getAuthUser'] = async (token) => {
+  const getAuthUser: ITokenService['getAuthUser'] = async (token) => {
     const decoded = verifyAuthToken(token);
 
     if (decoded.type !== 'access') {
@@ -189,29 +174,14 @@ export default function makeAuthService(deps: IDependencies): IAuthService {
     return decoded;
   };
 
-  const isPermittedEmail: IAuthService['isPermittedEmail'] = (email) => {
-    if (
-      deps.varsConfig.NODE_ENV === 'local' ||
-      deps.varsConfig.NODE_ENV === 'test'
-    )
-      return true;
-
-    const isProd = deps.varsConfig.NODE_ENV === 'production';
-    return isProd ? true : deps.nonProdEmailWhitelist.includes(email);
-  };
-
   return Object.freeze({
-    hashPassword,
     generateSignupToken,
     verifySignupToken,
-    comparePassword,
     generateAccessToken,
     generateRefreshToken,
     verifyRefreshToken,
     generatePasswordResetToken,
     verifyPasswordResetToken,
-    verifyAuthToken,
     getAuthUser,
-    isPermittedEmail,
   });
 }

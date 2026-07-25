@@ -9,7 +9,7 @@ import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.cont
 import mockAppContext, {
   mockClientSession,
 } from '../../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAuthService from '../../../contracts/__mocks__/auth-service.contract.mock';
+import mockAuthService from '../../../contracts/__mocks__/token-service.contract.mock';
 import mockUserSessionRepo from '../../../contracts/__mocks__/user-session.repo.contract.mock';
 
 jest.mock('../../../../../shared/utils/uuid-generator', () => ({
@@ -51,7 +51,7 @@ describe('makeIssueUserSessionHelper', () => {
     makeIssueUserSessionHelper({
       user: mockUser,
       reqContext: mockAppContext,
-      authService: mockAuthService,
+      tokenService: mockAuthService,
       userSessionRepo: mockUserSessionRepo,
       eventBus: mockEventBus,
       repoService: mockRepoService,

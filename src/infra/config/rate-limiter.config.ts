@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
+import { createHmac } from 'node:crypto';
+import emailValue from '../../domain/user/values/email.vo';
 
 /**
  * 700 requests per 15 minutes
@@ -20,8 +22,47 @@ interface IConfig {
   ) => string | undefined | Promise<string | undefined>;
 }
 
+interface IRateLimitRequest extends Request {
+  rateLimit: {
+    used: number;
+    limit: number;
+  };
+}
+
 import appError from '../../shared/errors/app.error';
 import reporter from '../observability/reporter';
+
+export type RateLimitAction =
+  | 'signup-with-email'
+  | 'login-with-email'
+  | 'verify-email'
+  | 'get-password-reset-link';
+
+export function makeAccountRateLimitKey(
+  action: RateLimitAction,
+  input: unknown,
+  secret: string
+): string | undefined {
+  if (typeof input !== 'string') {
+    return undefined;
+  }
+
+  try {
+    const email = emailValue.make(input);
+    const digest = createHmac('sha256', secret).update(email).digest('hex');
+    return `account:${action}:${digest}`;
+  } catch {
+    return undefined;
+  }
+}
+
+export function makeIpRateLimitKey(input: unknown): string {
+  if (typeof input !== 'string' || input.length === 0) {
+    return 'ip:unknown';
+  }
+
+  return `ip:${ipKeyGenerator(input, 64)}`;
+}
 
 export function configureRateLimiter(config: IConfig) {
   return rateLimit({
@@ -32,20 +73,25 @@ export function configureRateLimiter(config: IConfig) {
       ? {
           keyGenerator: async (req: Request, res: Response) => {
             const key = await config.keyGenerator!(req, res);
-            return key || (req.ip ? ipKeyGenerator(req.ip, 64) : 'unknown-ip');
+            return key || makeIpRateLimitKey(req.ip);
           },
         }
-      : { ipv6Subnet: 64 }),
+      : {
+          keyGenerator: (req: Request) => makeIpRateLimitKey(req.ip),
+        }),
+    // The configured generators delegate IPv6 normalization to
+    // makeIpRateLimitKey; express-rate-limit cannot detect that through a helper.
+    validate: { keyGeneratorIpFallback: false },
     legacyHeaders: false,
     standardHeaders: true,
     handler: (req, res, next, options) => {
-      const rateLimitInfo = (req as any).rateLimit;
+      const rateLimitInfo = (req as IRateLimitRequest).rateLimit;
 
-      if (rateLimitInfo && rateLimitInfo.used === rateLimitInfo.limit + 1) {
+      if (rateLimitInfo.used === rateLimitInfo.limit + 1) {
         reporter.reportAbuse('Too many requests to API', {
           method: req.method,
           url: req.originalUrl,
-          ip: req.ip || req.headers['x-forwarded-for'],
+          ip: req.ip,
           userAgent: req.headers['user-agent'],
         });
       }

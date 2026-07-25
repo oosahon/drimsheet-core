@@ -8,7 +8,8 @@ import {
 import eventValue from '../../../shared/events/event.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
-import IAuthService from '../contracts/auth-service.contract';
+import IPasswordService from '../contracts/password-service.contract';
+import ITokenService from '../contracts/token-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import { IAccessToken, IResetPasswordReq } from '../dtos/auth/auth.dto';
@@ -19,7 +20,8 @@ import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 interface IDependencies {
   appContext: IAppContext;
   userRepo: IUserRepo;
-  authService: IAuthService;
+  passwordService: IPasswordService;
+  tokenService: ITokenService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
   userSessionRepo: IUserSessionRepo;
@@ -32,7 +34,7 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
 
     const { correlationId, idempotencyKey } = deps.appContext.get();
 
-    const tokenPayload = await deps.authService.verifyPasswordResetToken(
+    const tokenPayload = await deps.tokenService.verifyPasswordResetToken(
       payload.token
     );
 
@@ -55,7 +57,8 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
       throw new authError.InvalidToken();
     }
 
-    const passwordHash = await deps.authService.hashPassword(payload.password);
+    const password = deps.passwordService.makePassword(payload.password);
+    const passwordHash = await deps.passwordService.hash(password);
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
       await deps.userAuthRepo.update(
@@ -75,7 +78,7 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
     return makeIssueUserSessionHelper({
       user: existingUser,
       reqContext: deps.appContext,
-      authService: deps.authService,
+      tokenService: deps.tokenService,
       userSessionRepo: deps.userSessionRepo,
       eventBus: deps.eventBus,
       repoService: deps.repoService,
