@@ -1,15 +1,30 @@
 import { Express } from 'express';
 import request from 'supertest';
+import {
+  makeHashedRateLimitKey,
+  rateLimiter,
+} from '../../../src/infra/config/rate-limiter.config';
 import authUseCase from '../../../src/infra/ioc/usecases/auth.usecases';
 import { createApplication } from '../../../src/infra/server';
 
 const ENDPOINT = '/api/v1/auth/signup/complete';
+let tokenSequence = 0;
 
 describe('POST /auth/signup/complete', () => {
   let app: Express;
+  let rateLimitToken: string;
   let verifyEmailSpy: jest.SpiedFunction<typeof authUseCase.verifyEmail>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    tokenSequence += 1;
+    rateLimitToken = `rate-limit-token-attempt-${tokenSequence}`;
+    await rateLimiter.verifyEmail.resetKey(
+      makeHashedRateLimitKey(
+        'verify-email',
+        rateLimitToken,
+        process.env.JWT_SECRET_KEY || 'secret'
+      )!
+    );
     verifyEmailSpy = jest
       .spyOn(authUseCase, 'verifyEmail')
       .mockResolvedValue({ accessToken: 'mock-access-token' });
@@ -86,9 +101,7 @@ describe('POST /auth/signup/complete', () => {
       const responses = [];
       for (let index = 0; index < 6; index += 1) {
         responses.push(
-          await request(app)
-            .post(ENDPOINT)
-            .send({ token: 'rate-limit-token-attempt' })
+          await request(app).post(ENDPOINT).send({ token: rateLimitToken })
         );
       }
 

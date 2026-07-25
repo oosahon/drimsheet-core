@@ -2,6 +2,11 @@ import { Express } from 'express';
 import request from 'supertest';
 import { IEmailLoginReq } from '../../../src/app/auth/dtos/auth/auth.dto';
 import authError from '../../../src/app/auth/errors/auth.error';
+import {
+  makeAccountRateLimitKey,
+  makeIpRateLimitKey,
+  rateLimiter,
+} from '../../../src/infra/config/rate-limiter.config';
 import authUseCase from '../../../src/infra/ioc/usecases/auth.usecases';
 import { createApplication } from '../../../src/infra/server';
 import appError from '../../../src/shared/errors/app.error';
@@ -13,11 +18,31 @@ const validPayload: IEmailLoginReq = {
   password: 'AnalyticalEngine1!',
 };
 
+const rateLimitEmails = [
+  validPayload.email,
+  'invalid-credentials@example.com',
+  'validation-error@example.com',
+  'repeated-attempts@example.com',
+  'bucket@example.com',
+  'unexpected-error@example.com',
+];
+
 describe('POST /auth/login-with-email', () => {
   let app: Express;
   let loginWithEmailSpy: jest.SpiedFunction<typeof authUseCase.loginWithEmail>;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    const secret = process.env.JWT_SECRET_KEY || 'secret';
+    await Promise.all([
+      ...rateLimitEmails.map((email) =>
+        rateLimiter.loginWithEmail.resetKey(
+          makeAccountRateLimitKey('login-with-email', email, secret)!
+        )
+      ),
+      rateLimiter.loginWithEmail.resetKey(
+        makeIpRateLimitKey('::ffff:127.0.0.1')
+      ),
+    ]);
     loginWithEmailSpy = jest
       .spyOn(authUseCase, 'loginWithEmail')
       .mockResolvedValue({ accessToken: 'mock-access-token' });

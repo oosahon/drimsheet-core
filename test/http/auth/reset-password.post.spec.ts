@@ -115,7 +115,10 @@ describe('POST /auth/reset-password', () => {
         responses.push(
           await request(app)
             .post(ENDPOINT)
-            .send({ ...validPayload, token: `rotating-credential-${index}` })
+            .send({
+              ...validPayload,
+              token: `rotating-credential-${payloadSequence}-${index}`,
+            })
         );
       }
 

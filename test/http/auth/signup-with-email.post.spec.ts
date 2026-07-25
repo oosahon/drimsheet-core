@@ -129,16 +129,17 @@ describe('POST /auth/signup-with-email', () => {
     });
 
     it('protects the application by IP even when email addresses rotate', async () => {
-      const responses = await Promise.all(
-        Array.from({ length: 22 }, (_, index) =>
-          request(app)
+      const responses = [];
+      for (let index = 0; index < 22; index += 1) {
+        responses.push(
+          await request(app)
             .post(ENDPOINT)
             .send({
               ...validPayload,
               email: `rotating-account-${index}@example.com`,
             })
-        )
-      );
+        );
+      }
 
       expect(responses.filter(({ status }) => status === 201)).toHaveLength(20);
       expect(responses.filter(({ status }) => status === 429)).toHaveLength(2);
