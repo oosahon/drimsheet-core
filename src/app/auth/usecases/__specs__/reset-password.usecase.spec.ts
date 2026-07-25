@@ -3,6 +3,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import appError from '../../../../shared/errors/app.error';
 import { IEvent } from '../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -15,7 +16,7 @@ import mockPasswordService from '../../contracts/__mocks__/password-service.cont
 import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
-import { IUserAuth } from '../../contracts/auth.types';
+import { EAuthStrategy, IUserAuth } from '../../contracts/auth.types';
 import authError from '../../errors/auth.error';
 import makeResetPasswordUseCase from '../reset-password.usecase';
 
@@ -57,6 +58,7 @@ describe('makeResetPasswordUseCase', () => {
       userAuthRepo: mockUserAuthRepo,
       userSessionRepo: mockUserSessionRepo,
       repoService: mockRepoService,
+      reporter: mockReporter,
     });
 
   it('should explicitly fail validation if passwords do not match', async () => {
@@ -84,6 +86,7 @@ describe('makeResetPasswordUseCase', () => {
   it('should throw an error if user cannot be found in DB', async () => {
     mockAuthService.claimPasswordResetToken.mockResolvedValue({
       id: 'internal-id' as TEntityId,
+      owner: 'claim-owner',
     });
     mockUserRepo.findById.mockResolvedValue(null);
 
@@ -91,11 +94,18 @@ describe('makeResetPasswordUseCase', () => {
     const payload = getValidPayload();
 
     await expect(usecase(payload)).rejects.toThrow(authError.InvalidToken);
+    expect(mockAuthService.releasePasswordResetTokenClaim).toHaveBeenCalledWith(
+      {
+        id: 'internal-id',
+        owner: 'claim-owner',
+      }
+    );
   });
 
   it('should throw an error if the user auth record cannot be found in DB', async () => {
     mockAuthService.claimPasswordResetToken.mockResolvedValue({
       id: 'internal-id' as TEntityId,
+      owner: 'claim-owner',
     });
     mockUserRepo.findById.mockResolvedValue({ id: 'internal-id' } as IUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(null);
@@ -120,6 +130,7 @@ describe('makeResetPasswordUseCase', () => {
 
     mockAuthService.claimPasswordResetToken.mockResolvedValue({
       id: mockUser.id,
+      owner: 'claim-owner',
     });
     mockUserRepo.findById.mockResolvedValue(mockUser);
     const existingUserAuth = {
@@ -172,10 +183,14 @@ describe('makeResetPasswordUseCase', () => {
       }),
       { correlationId, tx: 'mock-tx' }
     );
-    expect(mockAuthService.finalizePasswordResetToken).toHaveBeenCalledWith(
-      mockUser.id
-    );
+    expect(mockAuthService.finalizePasswordResetToken).toHaveBeenCalledWith({
+      id: mockUser.id,
+      owner: 'claim-owner',
+    });
     expect(mockEventBus.publish).toHaveBeenCalled();
+    expect(mockClientSession.setRefreshToken).toHaveBeenCalledWith(
+      'mock-refresh-token'
+    );
 
     const publishedArgs = (mockEventBus.publish as jest.Mock).mock
       .calls[0] as IEvent<IUser>[];
@@ -207,6 +222,7 @@ describe('makeResetPasswordUseCase', () => {
 
     mockAuthService.claimPasswordResetToken.mockResolvedValue({
       id: mockUser.id,
+      owner: 'claim-owner',
     });
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(existingUserAuth);
@@ -227,5 +243,68 @@ describe('makeResetPasswordUseCase', () => {
       },
       { correlationId, tx: 'mock-tx' }
     );
+  });
+
+  it('returns committed success and reports token finalization failure', async () => {
+    const mockUser = {
+      id: generateUUID(),
+      email: emailValue.make('committed@example.com'),
+      emailVerified: true,
+    } as IUser;
+    mockAuthService.claimPasswordResetToken.mockResolvedValue({
+      id: mockUser.id,
+      owner: 'claim-owner',
+    });
+    mockUserRepo.findById.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue({
+      userId: mockUser.id,
+      strategy: [EAuthStrategy.Email],
+    } as IUserAuth);
+    mockPasswordService.hash.mockResolvedValue('new-hash');
+    mockAuthService.generateAccessToken.mockResolvedValue('access-token');
+    mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
+    const failure = new Error('cache unavailable');
+    mockAuthService.finalizePasswordResetToken.mockRejectedValue(failure);
+
+    await expect(getUseCase()(getValidPayload())).resolves.toEqual({
+      accessToken: 'access-token',
+    });
+    expect(mockReporter.report).toHaveBeenCalledWith(failure, {
+      operation: 'finalize-password-reset-token',
+      userId: mockUser.id,
+    });
+    expect(
+      mockAuthService.releasePasswordResetTokenClaim
+    ).not.toHaveBeenCalled();
+  });
+
+  it('returns committed success and reports event publication failure', async () => {
+    const mockUser = {
+      id: generateUUID(),
+      email: emailValue.make('event-failure@example.com'),
+      emailVerified: true,
+    } as IUser;
+    mockAuthService.claimPasswordResetToken.mockResolvedValue({
+      id: mockUser.id,
+      owner: 'claim-owner',
+    });
+    mockUserRepo.findById.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue({
+      userId: mockUser.id,
+      strategy: [EAuthStrategy.Email],
+    } as IUserAuth);
+    mockPasswordService.hash.mockResolvedValue('new-hash');
+    mockAuthService.generateAccessToken.mockResolvedValue('access-token');
+    mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
+    const failure = new Error('event bus unavailable');
+    mockEventBus.publish.mockRejectedValue(failure);
+
+    await expect(getUseCase()(getValidPayload())).resolves.toEqual({
+      accessToken: 'access-token',
+    });
+    expect(mockReporter.report).toHaveBeenCalledWith(failure, {
+      operation: 'publish-password-reset-event',
+      userId: mockUser.id,
+    });
   });
 });

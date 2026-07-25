@@ -18,6 +18,24 @@ const cacheStorage: ICacheStorage = {
     return result === 'OK';
   },
 
+  deleteIfValueMatches: async (key, value, additionalKeys = []) => {
+    const stringValue = safeJSON.stringify(value);
+    const script = `
+      if redis.call('GET', KEYS[1]) ~= ARGV[1] then
+        return 0
+      end
+      return redis.call('DEL', unpack(KEYS))
+    `;
+    const result = await getRedis().eval(
+      script,
+      1 + additionalKeys.length,
+      key,
+      ...additionalKeys,
+      stringValue
+    );
+    return Number(result) > 0;
+  },
+
   get: async (key) => {
     const result = await getRedis().get(key);
     return result ? JSON.parse(result) : null;

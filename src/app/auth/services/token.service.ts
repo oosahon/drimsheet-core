@@ -5,6 +5,7 @@ import {
   TokenExpiredError,
   verify,
 } from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
 import { ICacheStorage } from '../../../shared/contracts/cache-storage.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import ITokenService, {
@@ -36,6 +37,7 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
       return verify(token, deps.varsConfig.JWT_SECRET_KEY, {
         algorithms: ['HS256'],
       }) as IAuthTokenPayload & {
+        exp?: number;
         type: string;
       };
     } catch (err) {
@@ -184,33 +186,45 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
         throw new authError.InvalidToken();
       }
 
+      const owner = randomUUID();
+      const nowSeconds = Math.floor(Date.now() / 1000);
+      const claimTtlSeconds = Math.max(
+        1,
+        (decoded.exp ?? nowSeconds + 1) - nowSeconds
+      );
       const claimed = await deps.cacheStorage.setIfNotExists(
         `app:auth:reset-token-claim:${decoded.id}`,
-        token,
-        30
+        owner,
+        claimTtlSeconds
       );
       if (!claimed) {
         throw new authError.InvalidToken();
       }
 
-      return decoded;
+      return { id: decoded.id, owner };
     };
 
   const finalizePasswordResetToken: ITokenService['finalizePasswordResetToken'] =
-    async (id) => {
-      await deps.cacheStorage.del(`app:auth:reset-token:${id}`);
-      await deps.cacheStorage.del(`app:auth:reset-token-claim:${id}`);
+    async (claim) => {
+      await deps.cacheStorage.deleteIfValueMatches(
+        `app:auth:reset-token-claim:${claim.id}`,
+        claim.owner,
+        [`app:auth:reset-token:${claim.id}`]
+      );
     };
 
   const releasePasswordResetTokenClaim: ITokenService['releasePasswordResetTokenClaim'] =
-    async (id) => {
-      await deps.cacheStorage.del(`app:auth:reset-token-claim:${id}`);
+    async (claim) => {
+      await deps.cacheStorage.deleteIfValueMatches(
+        `app:auth:reset-token-claim:${claim.id}`,
+        claim.owner
+      );
     };
 
   const verifyPasswordResetToken: ITokenService['verifyPasswordResetToken'] =
     async (token) => {
       const decoded = await claimPasswordResetToken(token);
-      await finalizePasswordResetToken(decoded.id);
+      await finalizePasswordResetToken(decoded);
       return decoded;
     };
 

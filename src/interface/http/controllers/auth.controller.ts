@@ -98,8 +98,13 @@ export class AuthController extends Controller {
   @OperationId('resetPassword')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('429')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(rateLimiter.resetPassword, rateLimiter.resetPasswordByIp)
   public async resetPassword(@Body() payload: IResetPasswordReq) {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.resetPassword(payload);
   }
 

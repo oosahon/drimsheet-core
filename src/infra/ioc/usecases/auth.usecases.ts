@@ -85,6 +85,7 @@ const authUseCase = {
     userAuthRepo: userRepos.userAuth,
     userSessionRepo: userRepos.userSession,
     repoService,
+    reporter: observability.reporter,
   }),
 
   oAuth: makeOauthUsecase({

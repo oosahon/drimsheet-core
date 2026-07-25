@@ -10,8 +10,8 @@
 
 - Name each top-level `describe` block `<VERB> <endpoint>`.
 - Group tests immediately beneath the endpoint by expected HTTP status code,
-  using numeric `describe` blocks such as `describe('200')` or
-  `describe('422')`.
+  using numeric `describe` blocks such as `describe('200 Response')` or
+  `describe('422 Response')`.
 - Put a test that exercises multiple response statuses under the status that
   represents its primary expected outcome.
 

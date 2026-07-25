@@ -20,7 +20,7 @@ describe('POST /auth/signup/complete', () => {
     verifyEmailSpy.mockRestore();
   });
 
-  describe('200', () => {
+  describe('200 Response', () => {
     it('returns an access token with Cache-Control no-store for valid verification', async () => {
       const response = await request(app)
         .post(ENDPOINT)
@@ -34,7 +34,7 @@ describe('POST /auth/signup/complete', () => {
     });
   });
 
-  describe('401', () => {
+  describe('401 Response', () => {
     it('sanitizes invalid or expired token errors', async () => {
       const authErrorModule =
         require('../../../src/app/auth/errors/auth.error').default;
@@ -55,7 +55,7 @@ describe('POST /auth/signup/complete', () => {
     });
   });
 
-  describe('422', () => {
+  describe('422 Response', () => {
     it('rejects an invalid request payload before invoking the use case', async () => {
       const response = await request(app).post(ENDPOINT).send({});
 
@@ -81,7 +81,7 @@ describe('POST /auth/signup/complete', () => {
     });
   });
 
-  describe('429', () => {
+  describe('429 Response', () => {
     it('enforces rate limiting on repeated verification attempts', async () => {
       const responses = [];
       for (let index = 0; index < 6; index += 1) {
@@ -109,7 +109,7 @@ describe('POST /auth/signup/complete', () => {
     });
   });
 
-  describe('500', () => {
+  describe('500 Response', () => {
     it('sanitizes unexpected internal errors without leaking the token', async () => {
       verifyEmailSpy.mockRejectedValueOnce(
         new Error(

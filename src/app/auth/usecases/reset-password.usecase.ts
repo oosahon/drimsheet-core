@@ -5,6 +5,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import eventValue from '../../../shared/events/event.vo';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
@@ -27,6 +28,7 @@ interface IDependencies {
   userAuthRepo: IUserAuthRepo;
   userSessionRepo: IUserSessionRepo;
   repoService: IRepoService;
+  reporter: IReporter;
 }
 
 export default function makeResetPasswordUseCase(deps: IDependencies) {
@@ -94,17 +96,38 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
       };
       await deps.repoService.runInTransaction(repoTransaction);
       committed = true;
-      await deps.tokenService.finalizePasswordResetToken(existingUser.id);
+      try {
+        await deps.tokenService.finalizePasswordResetToken(tokenPayload);
+      } catch (error) {
+        deps.reporter.report(error, {
+          operation: 'finalize-password-reset-token',
+          userId: existingUser.id,
+        });
+      }
       deps.appContext.get().clientSession.setRefreshToken(refreshToken);
 
       const event = userEvents.passwordReset(existingUser);
-      await deps.eventBus.publish(
-        eventValue.enrich(event, { correlationId, idempotencyKey })
-      );
+      try {
+        await deps.eventBus.publish(
+          eventValue.enrich(event, { correlationId, idempotencyKey })
+        );
+      } catch (error) {
+        deps.reporter.report(error, {
+          operation: 'publish-password-reset-event',
+          userId: existingUser.id,
+        });
+      }
       return { accessToken };
     } catch (error) {
       if (!committed) {
-        await deps.tokenService.releasePasswordResetTokenClaim(tokenPayload.id);
+        try {
+          await deps.tokenService.releasePasswordResetTokenClaim(tokenPayload);
+        } catch (cleanupError) {
+          deps.reporter.report(cleanupError, {
+            operation: 'release-password-reset-token-claim',
+            userId: tokenPayload.id,
+          });
+        }
       }
       throw error;
     }

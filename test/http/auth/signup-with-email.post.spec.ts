@@ -54,7 +54,7 @@ describe('POST /auth/signup-with-email', () => {
     });
   });
 
-  describe('422', () => {
+  describe('422 Response', () => {
     it('rejects an invalid request shape before invoking the use case', async () => {
       const { password: _password, ...missingPassword } = validPayload;
 
@@ -75,7 +75,7 @@ describe('POST /auth/signup-with-email', () => {
     });
   });
 
-  describe('429', () => {
+  describe('429 Response', () => {
     it('shares an account bucket across email case and whitespace variants', async () => {
       const variants = [
         'rate-limit@example.com',
@@ -146,7 +146,7 @@ describe('POST /auth/signup-with-email', () => {
     });
   });
 
-  describe('500', () => {
+  describe('500 Response', () => {
     it('sanitizes unexpected errors', async () => {
       signupWithEmailSpy.mockRejectedValueOnce(
         new Error(`persistence failed for ${validPayload.password}`)

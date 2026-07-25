@@ -64,7 +64,7 @@ describe('GET /api/v1/auth/google/callback', () => {
     handleGoogleCallbackSpy.mockRestore();
   });
 
-  describe('401', () => {
+  describe('401 Response', () => {
     it('rejects callback with 401 when oauth_state cookie or query state parameter is missing or mismatched', async () => {
       const response = await request(app)
         .get('/api/v1/auth/google/callback?state=invalid-state')
@@ -106,7 +106,7 @@ describe('POST /api/v1/auth/refresh-access-token', () => {
     refreshSpy.mockRestore();
   });
 
-  describe('200', () => {
+  describe('200 Response', () => {
     it('returns Cache-Control: no-store header on refresh access token response', async () => {
       const response = await request(app)
         .post('/api/v1/auth/refresh-access-token')

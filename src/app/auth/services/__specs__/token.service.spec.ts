@@ -94,9 +94,10 @@ describe('makeTokenService', () => {
       const decoded = await tokenService.verifyPasswordResetToken(token);
       expect(decoded.id).toBe(userId);
 
-      // It should delete the token after successful verification
-      expect(cacheStorage.del).toHaveBeenCalledWith(
-        `app:auth:reset-token:${userId}`
+      expect(cacheStorage.deleteIfValueMatches).toHaveBeenCalledWith(
+        `app:auth:reset-token-claim:${userId}`,
+        expect.any(String),
+        [`app:auth:reset-token:${userId}`]
       );
     });
 
@@ -137,7 +138,32 @@ describe('makeTokenService', () => {
         1
       );
 
-      await tokenService.releasePasswordResetTokenClaim(userId);
+      const successfulClaim = claims.find(
+        (claim) => claim.status === 'fulfilled'
+      );
+      if (!successfulClaim || successfulClaim.status !== 'fulfilled') {
+        throw new Error('Expected a successful reset-token claim');
+      }
+      await tokenService.releasePasswordResetTokenClaim(successfulClaim.value);
+      await expect(
+        tokenService.claimPasswordResetToken(token)
+      ).resolves.toMatchObject({ id: userId });
+    });
+
+    it('does not let a stale owner release or finalize another claim', async () => {
+      const token = await tokenService.generatePasswordResetToken({
+        id: userId,
+      });
+      const claim = await tokenService.claimPasswordResetToken(token);
+      const staleClaim = { ...claim, owner: 'stale-owner' };
+
+      await tokenService.releasePasswordResetTokenClaim(staleClaim);
+      await expect(tokenService.claimPasswordResetToken(token)).rejects.toThrow(
+        authError.InvalidToken
+      );
+
+      await tokenService.finalizePasswordResetToken(staleClaim);
+      await tokenService.releasePasswordResetTokenClaim(claim);
       await expect(
         tokenService.claimPasswordResetToken(token)
       ).resolves.toMatchObject({ id: userId });

@@ -36,7 +36,8 @@ export type RateLimitAction =
   | 'signup-with-email'
   | 'login-with-email'
   | 'verify-email'
-  | 'get-password-reset-link';
+  | 'get-password-reset-link'
+  | 'reset-password';
 
 export function makeAccountRateLimitKey(
   action: RateLimitAction,
@@ -125,6 +126,25 @@ const rateLimiter = {
     windowMs: 1000 * 60 * 5,
     max: 20,
     message: 'Too many password reset requests, please try again later.',
+    keyGenerator: (req) => makeIpRateLimitKey(req.ip),
+  }),
+
+  resetPassword: configureRateLimiter({
+    windowMs: 1000 * 60 * 15,
+    max: 5,
+    message: 'Too many password reset attempts, please try again later.',
+    keyGenerator: (req) =>
+      makeHashedRateLimitKey(
+        'reset-password',
+        req.body?.token,
+        process.env.JWT_SECRET_KEY || 'secret'
+      ),
+  }),
+
+  resetPasswordByIp: configureRateLimiter({
+    windowMs: 1000 * 60 * 15,
+    max: 20,
+    message: 'Too many password reset attempts, please try again later.',
     keyGenerator: (req) => makeIpRateLimitKey(req.ip),
   }),
 };

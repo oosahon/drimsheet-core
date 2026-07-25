@@ -28,7 +28,7 @@ describe('POST /auth/login-with-email', () => {
     loginWithEmailSpy.mockRestore();
   });
 
-  describe('200', () => {
+  describe('200 Response', () => {
     it('returns an uncached access token without leaking the password', async () => {
       const response = await request(app).post(ENDPOINT).send(validPayload);
 
@@ -42,7 +42,7 @@ describe('POST /auth/login-with-email', () => {
     });
   });
 
-  describe('401', () => {
+  describe('401 Response', () => {
     it('returns the invalid-credentials response for login failures', async () => {
       loginWithEmailSpy.mockRejectedValueOnce(
         new authError.InvalidCredentials()
@@ -66,7 +66,7 @@ describe('POST /auth/login-with-email', () => {
     });
   });
 
-  describe('422', () => {
+  describe('422 Response', () => {
     it('rejects a missing password before invoking the use case', async () => {
       const response = await request(app)
         .post(ENDPOINT)
@@ -100,7 +100,7 @@ describe('POST /auth/login-with-email', () => {
     });
   });
 
-  describe('429', () => {
+  describe('429 Response', () => {
     it('limits repeated attempts for one account', async () => {
       const rateLimitedPayload = {
         ...validPayload,
@@ -173,7 +173,7 @@ describe('POST /auth/login-with-email', () => {
     });
   });
 
-  describe('500', () => {
+  describe('500 Response', () => {
     it('sanitizes unexpected errors', async () => {
       loginWithEmailSpy.mockRejectedValueOnce(
         new Error(`failed with ${validPayload.password}`)
