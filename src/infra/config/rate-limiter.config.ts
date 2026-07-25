@@ -1,7 +1,10 @@
 import { Request, Response } from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { createHmac } from 'node:crypto';
+import authError from '../../app/auth/errors/auth.error';
 import emailValue from '../../domain/user/values/email.vo';
+import appError from '../../shared/errors/app.error';
+import reporter from '../observability/reporter';
 
 /**
  * 700 requests per 15 minutes
@@ -9,8 +12,9 @@ import emailValue from '../../domain/user/values/email.vo';
 export const RATE_LIMITER_WINDOW_MS = 15 * 60 * 1000;
 export const RATE_LIMITER_MAX = 700;
 
-export const RATE_LIMITER_MESSAGE =
-  'Too many requests from this IP, please try again later.';
+export const RATE_LIMITER_MESSAGE = new appError.TooManyRequests().errorKey;
+export const AUTH_RATE_LIMITER_MESSAGE = new authError.TooManyRequests()
+  .errorKey;
 
 interface IConfig {
   windowMs: number;
@@ -28,9 +32,6 @@ interface IRateLimitRequest extends Request {
     limit: number;
   };
 }
-
-import appError from '../../shared/errors/app.error';
-import reporter from '../observability/reporter';
 
 export type RateLimitAction =
   | 'signup-with-email'
@@ -89,7 +90,7 @@ const rateLimiter = {
   loginWithEmail: configureRateLimiter({
     windowMs: 1000 * 60,
     max: 5,
-    message: 'Too many authentication attempts, please try again later.',
+    message: AUTH_RATE_LIMITER_MESSAGE,
     keyGenerator: (req) =>
       makeAccountRateLimitKey(
         'login-with-email',
@@ -101,7 +102,7 @@ const rateLimiter = {
   verifyEmail: configureRateLimiter({
     windowMs: 1000 * 60 * 15,
     max: 5,
-    message: 'Too many email verification attempts, please try again later.',
+    message: AUTH_RATE_LIMITER_MESSAGE,
     keyGenerator: (req) =>
       makeHashedRateLimitKey(
         'verify-email',
@@ -113,8 +114,7 @@ const rateLimiter = {
   getPasswordResetLink: configureRateLimiter({
     windowMs: 1000 * 60 * 5,
     max: 5,
-    message:
-      'Too many password reset requests for this account, please try again.',
+    message: AUTH_RATE_LIMITER_MESSAGE,
     keyGenerator: (req) =>
       makeAccountRateLimitKey(
         'get-password-reset-link',
@@ -126,14 +126,14 @@ const rateLimiter = {
   getPasswordResetLinkByIp: configureRateLimiter({
     windowMs: 1000 * 60 * 5,
     max: 20,
-    message: 'Too many password reset requests, please try again later.',
+    message: AUTH_RATE_LIMITER_MESSAGE,
     keyGenerator: (req) => makeIpRateLimitKey(req.ip),
   }),
 
   resetPassword: configureRateLimiter({
     windowMs: 1000 * 60 * 15,
     max: 5,
-    message: 'Too many password reset attempts, please try again later.',
+    message: AUTH_RATE_LIMITER_MESSAGE,
     keyGenerator: (req) =>
       makeHashedRateLimitKey(
         'reset-password',
@@ -145,14 +145,14 @@ const rateLimiter = {
   resetPasswordByIp: configureRateLimiter({
     windowMs: 1000 * 60 * 15,
     max: 20,
-    message: 'Too many password reset attempts, please try again later.',
+    message: AUTH_RATE_LIMITER_MESSAGE,
     keyGenerator: (req) => makeIpRateLimitKey(req.ip),
   }),
 
   refreshAccessToken: configureRateLimiter({
     windowMs: 1000 * 60,
     max: 10,
-    message: 'Too many token refresh attempts, please try again later.',
+    message: AUTH_RATE_LIMITER_MESSAGE,
     keyGenerator: (req) =>
       makeHashedRateLimitKey(
         'refresh-access-token',

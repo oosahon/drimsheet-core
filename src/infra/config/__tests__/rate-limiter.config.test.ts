@@ -1,4 +1,6 @@
 import {
+  AUTH_RATE_LIMITER_MESSAGE,
+  RATE_LIMITER_MESSAGE,
   makeAccountRateLimitKey,
   makeHashedRateLimitKey,
   makeIpRateLimitKey,
@@ -10,6 +12,16 @@ jest.mock('../../observability/reporter', () => ({
     reportAbuse: jest.fn(),
   },
 }));
+
+describe('rate limiter messages', () => {
+  it('uses an auth error key for auth rate limits', () => {
+    expect(AUTH_RATE_LIMITER_MESSAGE).toBe('auth_error_too_many_requests');
+  });
+
+  it('uses an app error key for the default rate limit', () => {
+    expect(RATE_LIMITER_MESSAGE).toBe('app_error_too_many_requests');
+  });
+});
 
 describe('makeAccountRateLimitKey', () => {
   const secret = 'test-rate-limit-secret';

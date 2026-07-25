@@ -1,12 +1,10 @@
 import { RequestHandler } from 'express';
 import {
+  AUTH_RATE_LIMITER_MESSAGE,
   configureRateLimiter,
   makeAccountRateLimitKey,
 } from '../../../infra/config/rate-limiter.config';
 import { JWT_SECRET_KEY } from '../../../infra/config/vars.config';
-
-const SIGNUP_RATE_LIMIT_MESSAGE =
-  'Too many signup attempts, please try again later.';
 
 export default function makeSignupRateLimitMiddlewares(): [
   RequestHandler,
@@ -15,13 +13,13 @@ export default function makeSignupRateLimitMiddlewares(): [
   const ipRateLimiter = configureRateLimiter({
     windowMs: 1000 * 60,
     max: 20,
-    message: SIGNUP_RATE_LIMIT_MESSAGE,
+    message: AUTH_RATE_LIMITER_MESSAGE,
   });
 
   const accountRateLimiter = configureRateLimiter({
     windowMs: 1000 * 60,
     max: 5,
-    message: SIGNUP_RATE_LIMIT_MESSAGE,
+    message: AUTH_RATE_LIMITER_MESSAGE,
     keyGenerator: (req) =>
       makeAccountRateLimitKey(
         'signup-with-email',

@@ -51,6 +51,7 @@
   "auth_error_malformed_token",
   "auth_error_missing_token",
   "auth_error_passwords_do_not_match",
+  "auth_error_too_many_requests",
   "auth_error_user_not_found",
   "currency_error_exchange_rate_invalid_date",
   "currency_error_exchange_rate_invalid_pair",
