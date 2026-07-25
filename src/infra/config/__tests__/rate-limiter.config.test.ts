@@ -60,6 +60,18 @@ describe('makeAccountRateLimitKey', () => {
     expect(key).not.toContain(email);
     expect(key).not.toContain('private.person');
   });
+
+  it('protects reset requests with the same normalized PII-free key', () => {
+    const email = 'Private.Person@example.com';
+    const key = makeAccountRateLimitKey(
+      'get-password-reset-link',
+      `  ${email}  `,
+      secret
+    );
+
+    expect(key).toMatch(/^account:get-password-reset-link:[a-f0-9]{64}$/);
+    expect(key).not.toContain(email.toLowerCase());
+  });
 });
 
 describe('makeIpRateLimitKey', () => {

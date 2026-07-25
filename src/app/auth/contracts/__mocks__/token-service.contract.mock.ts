@@ -11,6 +11,9 @@ const mockTokenService: jest.Mocked<ITokenService> = {
   verifyRefreshToken: jest.fn(),
   generatePasswordResetToken: jest.fn(),
   verifyPasswordResetToken: jest.fn(),
+  claimPasswordResetToken: jest.fn(),
+  finalizePasswordResetToken: jest.fn(),
+  releasePasswordResetTokenClaim: jest.fn(),
   getAuthUser: jest.fn(),
 };
 

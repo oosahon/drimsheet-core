@@ -113,7 +113,19 @@ const rateLimiter = {
     max: 5,
     message:
       'Too many password reset requests for this account, please try again.',
-    keyGenerator: (req) => req.body?.email,
+    keyGenerator: (req) =>
+      makeAccountRateLimitKey(
+        'get-password-reset-link',
+        req.body?.email,
+        process.env.JWT_SECRET_KEY || 'secret'
+      ),
+  }),
+
+  getPasswordResetLinkByIp: configureRateLimiter({
+    windowMs: 1000 * 60 * 5,
+    max: 20,
+    message: 'Too many password reset requests, please try again later.',
+    keyGenerator: (req) => makeIpRateLimitKey(req.ip),
   }),
 };
 

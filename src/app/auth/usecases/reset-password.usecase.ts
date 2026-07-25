@@ -6,6 +6,7 @@ import {
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
 import eventValue from '../../../shared/events/event.vo';
+import generateUUID from '../../../shared/utils/uuid-generator';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
 import { EAuthStrategy } from '../contracts/auth.types';
@@ -16,7 +17,6 @@ import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import { IAccessToken, IResetPasswordReq } from '../dtos/auth/auth.dto';
 import { resetPasswordReqValidation } from '../dtos/auth/auth.dto.validation';
 import authError from '../errors/auth.error';
-import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -35,62 +35,78 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
 
     const { correlationId, idempotencyKey } = deps.appContext.get();
 
-    const tokenPayload = await deps.tokenService.verifyPasswordResetToken(
+    const tokenPayload = await deps.tokenService.claimPasswordResetToken(
       payload.token
     );
-
-    const existingUser = await deps.userRepo.findById(tokenPayload.id, {
-      correlationId,
-    });
-
-    if (!existingUser) {
-      throw new authError.InvalidToken();
-    }
-
-    const existingUserAuth = await deps.userAuthRepo.findByUserId(
-      existingUser.id,
-      {
+    let committed = false;
+    try {
+      const existingUser = await deps.userRepo.findById(tokenPayload.id, {
         correlationId,
+      });
+
+      if (!existingUser) {
+        throw new authError.InvalidToken();
       }
-    );
 
-    if (!existingUserAuth) {
-      throw new authError.InvalidToken();
-    }
-
-    const password = deps.passwordService.makePassword(payload.password);
-    const passwordHash = await deps.passwordService.hash(password);
-
-    const repoTransaction: TRepoTransactionFn = async (tx) => {
-      await deps.userAuthRepo.update(
-        {
-          ...existingUserAuth,
-          password: passwordHash,
-          failedLoginAttempts: 0,
-          strategy: Array.from(
-            new Set([...existingUserAuth.strategy, EAuthStrategy.Email])
-          ),
-        },
-        { correlationId, tx }
+      const existingUserAuth = await deps.userAuthRepo.findByUserId(
+        existingUser.id,
+        { correlationId }
       );
-    };
-    await deps.repoService.runInTransaction(repoTransaction);
 
-    const event = userEvents.passwordReset(existingUser);
+      if (!existingUserAuth) {
+        throw new authError.InvalidToken();
+      }
 
-    const enrichedEvent = eventValue.enrich(event, {
-      correlationId,
-      idempotencyKey,
-    });
+      const password = deps.passwordService.makePassword(payload.password);
+      const passwordHash = await deps.passwordService.hash(password);
+      const accessToken =
+        await deps.tokenService.generateAccessToken(existingUser);
+      const refreshToken =
+        await deps.tokenService.generateRefreshToken(existingUser);
 
-    return makeIssueUserSessionHelper({
-      user: existingUser,
-      reqContext: deps.appContext,
-      tokenService: deps.tokenService,
-      userSessionRepo: deps.userSessionRepo,
-      eventBus: deps.eventBus,
-      repoService: deps.repoService,
-      events: enrichedEvent,
-    });
+      const repoTransaction: TRepoTransactionFn = async (tx) => {
+        await deps.userAuthRepo.update(
+          {
+            ...existingUserAuth,
+            password: passwordHash,
+            failedLoginAttempts: 0,
+            strategy: Array.from(
+              new Set([...existingUserAuth.strategy, EAuthStrategy.Email])
+            ),
+          },
+          { correlationId, tx }
+        );
+        await deps.userSessionRepo.deleteAllByUserId(existingUser.id, {
+          correlationId,
+          tx,
+        });
+        const timestamp = new Date();
+        await deps.userSessionRepo.create(
+          {
+            id: generateUUID(),
+            userId: existingUser.id,
+            refreshToken,
+            lastLoginAt: timestamp,
+            createdAt: timestamp,
+          },
+          { correlationId, tx }
+        );
+      };
+      await deps.repoService.runInTransaction(repoTransaction);
+      committed = true;
+      await deps.tokenService.finalizePasswordResetToken(existingUser.id);
+      deps.appContext.get().clientSession.setRefreshToken(refreshToken);
+
+      const event = userEvents.passwordReset(existingUser);
+      await deps.eventBus.publish(
+        eventValue.enrich(event, { correlationId, idempotencyKey })
+      );
+      return { accessToken };
+    } catch (error) {
+      if (!committed) {
+        await deps.tokenService.releasePasswordResetTokenClaim(tokenPayload.id);
+      }
+      throw error;
+    }
   };
 }

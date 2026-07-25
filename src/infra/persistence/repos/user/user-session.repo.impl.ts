@@ -53,6 +53,11 @@ const userSessionRepo: IUserSessionRepo = {
         )
       );
   },
+
+  deleteAllByUserId: async (userId, options) => {
+    const query = getDbQuery(options);
+    await query.delete(userSessions).where(eq(userSessions.userId, userId));
+  },
 };
 
 export default userSessionRepo;

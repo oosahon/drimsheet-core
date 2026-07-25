@@ -14,7 +14,7 @@ export default function makeTransactionalEmailService(
     async sendEmailVerification(payload) {
       const { correlationId, user, verificationLink } = payload;
 
-      deps.transactionalEmailQueue.add({
+      await deps.transactionalEmailQueue.add({
         emails: [user.email],
         subject: 'Action Required: Verify Your Email Address',
         html: emailVerificationEmail({
@@ -28,16 +28,30 @@ export default function makeTransactionalEmailService(
     async sendPasswordResetLink(payload) {
       const { correlationId, user, resetLink } = payload;
 
-      deps.transactionalEmailQueue.add({
+      await deps.transactionalEmailQueue.add({
         emails: [user.email],
         subject: 'Reset your password',
         html: passwordResetRequestEmail({
           subject: 'Password Reset Request',
-          firstName: user.firstName,
+          firstName: escapeHtml(user.firstName),
           passwordResetLink: resetLink,
         }),
         correlationId,
       });
     },
   };
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(
+    /[&<>"']/g,
+    (character) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      })[character]!
+  );
 }

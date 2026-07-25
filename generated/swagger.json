@@ -1052,6 +1052,16 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IRequestPasswordResetReq": {
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": ["email"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IResetPasswordReq": {
         "properties": {
           "token": {
@@ -2197,6 +2207,16 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "\nGet password reset link",
@@ -2208,13 +2228,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "properties": {
-                  "email": {
-                    "type": "string"
-                  }
-                },
-                "required": ["email"],
-                "type": "object"
+                "$ref": "#/components/schemas/IRequestPasswordResetReq"
               }
             }
           }

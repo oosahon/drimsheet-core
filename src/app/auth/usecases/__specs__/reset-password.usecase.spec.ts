@@ -71,7 +71,7 @@ describe('makeResetPasswordUseCase', () => {
   });
 
   it('should propagate AuthError if the reset token is invalid or expired', async () => {
-    mockAuthService.verifyPasswordResetToken.mockRejectedValue(
+    mockAuthService.claimPasswordResetToken.mockRejectedValue(
       new authError.InvalidToken()
     );
 
@@ -82,7 +82,7 @@ describe('makeResetPasswordUseCase', () => {
   });
 
   it('should throw an error if user cannot be found in DB', async () => {
-    mockAuthService.verifyPasswordResetToken.mockResolvedValue({
+    mockAuthService.claimPasswordResetToken.mockResolvedValue({
       id: 'internal-id' as TEntityId,
     });
     mockUserRepo.findById.mockResolvedValue(null);
@@ -94,7 +94,7 @@ describe('makeResetPasswordUseCase', () => {
   });
 
   it('should throw an error if the user auth record cannot be found in DB', async () => {
-    mockAuthService.verifyPasswordResetToken.mockResolvedValue({
+    mockAuthService.claimPasswordResetToken.mockResolvedValue({
       id: 'internal-id' as TEntityId,
     });
     mockUserRepo.findById.mockResolvedValue({ id: 'internal-id' } as IUser);
@@ -118,7 +118,7 @@ describe('makeResetPasswordUseCase', () => {
       deletedAt: null,
     };
 
-    mockAuthService.verifyPasswordResetToken.mockResolvedValue({
+    mockAuthService.claimPasswordResetToken.mockResolvedValue({
       id: mockUser.id,
     });
     mockUserRepo.findById.mockResolvedValue(mockUser);
@@ -139,7 +139,7 @@ describe('makeResetPasswordUseCase', () => {
     const payload = getValidPayload();
     const result = await usecase(payload);
 
-    expect(mockAuthService.verifyPasswordResetToken).toHaveBeenCalledWith(
+    expect(mockAuthService.claimPasswordResetToken).toHaveBeenCalledWith(
       payload.token
     );
     expect(mockUserRepo.findById).toHaveBeenCalledWith(mockUser.id, {
@@ -160,6 +160,20 @@ describe('makeResetPasswordUseCase', () => {
         strategy: ['email'],
       },
       { correlationId, tx: 'mock-tx' }
+    );
+    expect(mockUserSessionRepo.deleteAllByUserId).toHaveBeenCalledWith(
+      mockUser.id,
+      { correlationId, tx: 'mock-tx' }
+    );
+    expect(mockUserSessionRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: mockUser.id,
+        refreshToken: 'mock-refresh-token',
+      }),
+      { correlationId, tx: 'mock-tx' }
+    );
+    expect(mockAuthService.finalizePasswordResetToken).toHaveBeenCalledWith(
+      mockUser.id
     );
     expect(mockEventBus.publish).toHaveBeenCalled();
 
@@ -191,7 +205,7 @@ describe('makeResetPasswordUseCase', () => {
       strategy: ['google'],
     } as unknown as IUserAuth;
 
-    mockAuthService.verifyPasswordResetToken.mockResolvedValue({
+    mockAuthService.claimPasswordResetToken.mockResolvedValue({
       id: mockUser.id,
     });
     mockUserRepo.findById.mockResolvedValue(mockUser);

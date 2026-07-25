@@ -5,6 +5,7 @@ const mockUserSessionRepo: jest.Mocked<IUserSessionRepo> = {
   findByRefreshToken: jest.fn(),
   findAllByUserId: jest.fn(),
   delete: jest.fn(),
+  deleteAllByUserId: jest.fn(),
 };
 
 export default mockUserSessionRepo;

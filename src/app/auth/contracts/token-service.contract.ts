@@ -15,5 +15,8 @@ export default interface ITokenService {
   verifyRefreshToken(token: string): IAuthTokenPayload;
   generatePasswordResetToken(payload: IAuthTokenPayload): Promise<string>;
   verifyPasswordResetToken(token: string): Promise<IAuthTokenPayload>;
+  claimPasswordResetToken(token: string): Promise<IAuthTokenPayload>;
+  finalizePasswordResetToken(id: string): Promise<void>;
+  releasePasswordResetTokenClaim(id: string): Promise<void>;
   getAuthUser(token: string): Promise<IAuthTokenPayload>;
 }

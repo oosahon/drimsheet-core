@@ -15,6 +15,13 @@ const invalidConfirmPasswordError = new authError.InvalidConfirmPassword()
   .errorKey;
 const passwordsDoNotMatchError = new authError.PasswordsDoNotMatch().errorKey;
 
+const emailValidation = z
+  .string(invalidEmailError)
+  .trim()
+  .toLowerCase()
+  .max(254, invalidEmailError)
+  .pipe(z.email(invalidEmailError));
+
 /**
  * Validation schema for password creation / update fields.
  */
@@ -36,11 +43,7 @@ export const userSignupReqValidation = z.object({
     .string(invalidLastNameError)
     .min(1, invalidLastNameError)
     .max(100, invalidLastNameError),
-  email: z
-    .string(invalidEmailError)
-    .trim()
-    .toLowerCase()
-    .pipe(z.email(invalidEmailError)),
+  email: emailValidation,
   password: validatePassword,
 });
 
@@ -48,15 +51,15 @@ export const userSignupReqValidation = z.object({
  * Validation schema for email login request payload.
  */
 export const emailLoginReqValidation = z.object({
-  email: z
-    .string(invalidEmailError)
-    .trim()
-    .toLowerCase()
-    .pipe(z.email(invalidEmailError)),
+  email: emailValidation,
   password: z
     .string(invalidPasswordError)
     .min(1, invalidPasswordError)
     .max(PASSWORD_MAX_LENGTH, invalidPasswordError),
+});
+
+export const requestPasswordResetReqValidation = z.object({
+  email: emailValidation,
 });
 
 /**

@@ -863,6 +863,14 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IRequestPasswordResetReq: {
+    dataType: 'refObject',
+    properties: {
+      email: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IResetPasswordReq: {
     dataType: 'refObject',
     properties: {
@@ -1762,8 +1770,7 @@ export function RegisterRoutes(app: Router) {
       in: 'body',
       name: 'payload',
       required: true,
-      dataType: 'nestedObjectLiteral',
-      nestedProperties: { email: { dataType: 'string', required: true } },
+      ref: 'IRequestPasswordResetReq',
     },
   };
   app.post(

@@ -119,6 +119,29 @@ describe('makeTokenService', () => {
         tokenService.verifyPasswordResetToken(token)
       ).rejects.toThrow(authError.InvalidToken);
     });
+
+    it('allows exactly one concurrent claim and permits retry after release', async () => {
+      const token = await tokenService.generatePasswordResetToken({
+        id: userId,
+      });
+
+      const claims = await Promise.allSettled([
+        tokenService.claimPasswordResetToken(token),
+        tokenService.claimPasswordResetToken(token),
+      ]);
+
+      expect(
+        claims.filter(({ status }) => status === 'fulfilled')
+      ).toHaveLength(1);
+      expect(claims.filter(({ status }) => status === 'rejected')).toHaveLength(
+        1
+      );
+
+      await tokenService.releasePasswordResetTokenClaim(userId);
+      await expect(
+        tokenService.claimPasswordResetToken(token)
+      ).resolves.toMatchObject({ id: userId });
+    });
   });
 
   describe('generateAccessToken & getAuthUser', () => {

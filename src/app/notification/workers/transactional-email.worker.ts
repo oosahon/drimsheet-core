@@ -13,6 +13,14 @@ export default function makeTransactionalEmailWorker(deps: IDependencies) {
   return async (payload: ITransactionalEmailDto) => {
     zodValidationRunner(transactionalEmailDtoSchema, payload);
 
-    await deps.mailer.send(payload).catch(deps.reporter.report);
+    try {
+      await deps.mailer.send(payload);
+    } catch (error) {
+      deps.reporter.report(error, {
+        type: 'transactional-email-delivery',
+        correlationId: payload.correlationId,
+      });
+      throw error;
+    }
   };
 }

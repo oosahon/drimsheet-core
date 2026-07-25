@@ -22,6 +22,10 @@ export interface IResetPasswordReq {
   confirmPassword: string;
 }
 
+export interface IRequestPasswordResetReq {
+  email: string;
+}
+
 export interface IVerifyEmailReq {
   token: string;
 }

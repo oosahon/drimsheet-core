@@ -46,7 +46,11 @@ export default function makeTransactionalEmailQueue(
           getConfig(payload)
         );
       } catch (error) {
-        reporter.report(error, { job: payload });
+        reporter.report(error, {
+          type: TRANSACTIONAL_EMAIL_QUEUE_NAME,
+          correlationId: payload.correlationId,
+        });
+        throw error;
       }
     },
   };

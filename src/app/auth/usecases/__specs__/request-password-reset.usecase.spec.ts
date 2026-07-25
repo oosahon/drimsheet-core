@@ -4,6 +4,7 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
+import appError from '../../../../shared/errors/app.error';
 import eventValue from '../../../../shared/events/event.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
@@ -60,6 +61,49 @@ describe('makeRequestPasswordResetUseCase', () => {
       mockTransactionalEmailService.sendPasswordResetLink
     ).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it.each(['', 'not-an-email', `${'a'.repeat(243)}@example.com`])(
+    'rejects invalid email input before repository access',
+    async (userEmail) => {
+      const usecase = makeRequestPasswordResetUseCase({
+        appContext: mockAppContext,
+        userRepo: mockUserRepo,
+        tokenService: mockAuthService,
+        transactionEmailService: mockTransactionalEmailService,
+        eventBus: mockEventBus,
+        userAuthRepo: mockUserAuthRepo,
+        varsConfig: mockVarsConfig,
+      });
+
+      await expect(usecase(userEmail)).rejects.toThrow(
+        appError.UnprocessableEntity
+      );
+      expect(mockUserRepo.findByEmail).not.toHaveBeenCalled();
+    }
+  );
+
+  it('does not issue a credential when the auth record is missing', async () => {
+    mockUserRepo.findByEmail.mockResolvedValue({
+      id: 'test-user-id',
+    } as IUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(null);
+    const usecase = makeRequestPasswordResetUseCase({
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      tokenService: mockAuthService,
+      transactionEmailService: mockTransactionalEmailService,
+      eventBus: mockEventBus,
+      userAuthRepo: mockUserAuthRepo,
+      varsConfig: mockVarsConfig,
+    });
+
+    await usecase('found@example.com');
+
+    expect(mockAuthService.generatePasswordResetToken).not.toHaveBeenCalled();
+    expect(
+      mockTransactionalEmailService.sendPasswordResetLink
+    ).not.toHaveBeenCalled();
   });
 
   it('should generate token, send email, and publish event if user is found', async () => {

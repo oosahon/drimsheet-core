@@ -12,6 +12,7 @@ import {
 } from 'tsoa';
 import {
   IEmailLoginReq,
+  IRequestPasswordResetReq,
   IResetPasswordReq,
   IUserSignupReq,
   IVerifyEmailReq,
@@ -76,11 +77,16 @@ export class AuthController extends Controller {
    */
   @Post('/get-password-reset-link')
   @OperationId('getPasswordResetLink')
-  @Middlewares(rateLimiter.getPasswordResetLink)
+  @Middlewares(
+    rateLimiter.getPasswordResetLink,
+    rateLimiter.getPasswordResetLinkByIp
+  )
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('422')
-  public async getPasswordResetLink(@Body() payload: { email: string }) {
+  @Response<IHttpErrorDto>('429')
+  public async getPasswordResetLink(@Body() payload: IRequestPasswordResetReq) {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.getPasswordResetLink(payload.email);
   }
 

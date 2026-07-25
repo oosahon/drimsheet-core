@@ -168,11 +168,11 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
       return token;
     };
 
-  const verifyPasswordResetToken: ITokenService['verifyPasswordResetToken'] =
+  const claimPasswordResetToken: ITokenService['claimPasswordResetToken'] =
     async (token) => {
       const decoded = verifyAuthToken(token);
 
-      if (decoded.type !== 'reset') {
+      if (decoded.type !== 'reset' || !decoded.id) {
         throw new authError.InvalidToken();
       }
 
@@ -184,8 +184,33 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
         throw new authError.InvalidToken();
       }
 
-      await deps.cacheStorage.del(`app:auth:reset-token:${decoded.id}`);
+      const claimed = await deps.cacheStorage.setIfNotExists(
+        `app:auth:reset-token-claim:${decoded.id}`,
+        token,
+        30
+      );
+      if (!claimed) {
+        throw new authError.InvalidToken();
+      }
 
+      return decoded;
+    };
+
+  const finalizePasswordResetToken: ITokenService['finalizePasswordResetToken'] =
+    async (id) => {
+      await deps.cacheStorage.del(`app:auth:reset-token:${id}`);
+      await deps.cacheStorage.del(`app:auth:reset-token-claim:${id}`);
+    };
+
+  const releasePasswordResetTokenClaim: ITokenService['releasePasswordResetTokenClaim'] =
+    async (id) => {
+      await deps.cacheStorage.del(`app:auth:reset-token-claim:${id}`);
+    };
+
+  const verifyPasswordResetToken: ITokenService['verifyPasswordResetToken'] =
+    async (token) => {
+      const decoded = await claimPasswordResetToken(token);
+      await finalizePasswordResetToken(decoded.id);
       return decoded;
     };
 
@@ -210,6 +235,9 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
     verifyRefreshToken,
     generatePasswordResetToken,
     verifyPasswordResetToken,
+    claimPasswordResetToken,
+    finalizePasswordResetToken,
+    releasePasswordResetTokenClaim,
     getAuthUser,
   });
 }
