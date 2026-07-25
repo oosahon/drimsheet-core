@@ -22,7 +22,7 @@ export default interface IUserSessionRepo {
     userId: string,
     refreshToken: string,
     options: IWriteRepoOptions
-  ): Promise<void>;
+  ): Promise<boolean>;
 
   deleteAllByUserId(userId: string, options: IWriteRepoOptions): Promise<void>;
 }

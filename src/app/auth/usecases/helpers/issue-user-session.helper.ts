@@ -21,6 +21,8 @@ export interface IIssueUserSessionDeps {
   repoService: IRepoService;
   events: IEvent<unknown>[] | IEvent<unknown>;
   tx?: ITransactionContext;
+  beforeCreate?: (tx: ITransactionContext) => Promise<void>;
+  replaceExistingClientSession?: boolean;
 }
 
 export default async function makeIssueUserSessionHelper({
@@ -32,6 +34,8 @@ export default async function makeIssueUserSessionHelper({
   repoService,
   events,
   tx,
+  beforeCreate,
+  replaceExistingClientSession = true,
 }: IIssueUserSessionDeps): Promise<IAccessToken> {
   const { correlationId, clientSession } = reqContext.get();
 
@@ -39,9 +43,11 @@ export default async function makeIssueUserSessionHelper({
   const refreshToken = await tokenService.generateRefreshToken(user);
 
   const repoTransaction: TRepoTransactionFn = async (transactionTx) => {
+    await beforeCreate?.(transactionTx);
+
     const existingClientRefreshToken = clientSession.getRefreshToken();
 
-    if (existingClientRefreshToken) {
+    if (replaceExistingClientSession && existingClientRefreshToken) {
       let oldUserId = user.id;
       try {
         const decodedOld = tokenService.verifyRefreshToken(

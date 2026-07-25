@@ -1,5 +1,6 @@
 import {
   makeAccountRateLimitKey,
+  makeHashedRateLimitKey,
   makeIpRateLimitKey,
 } from '../rate-limiter.config';
 
@@ -93,4 +94,27 @@ describe('makeIpRateLimitKey', () => {
   it('uses a stable non-PII fallback for missing addresses', () => {
     expect(makeIpRateLimitKey(undefined)).toBe('ip:unknown');
   });
+});
+
+describe('makeHashedRateLimitKey', () => {
+  it('uses a stable HMAC key without exposing the refresh token', () => {
+    const token = 'private-refresh-token';
+    const key = makeHashedRateLimitKey(
+      'refresh-access-token',
+      token,
+      'test-secret'
+    );
+
+    expect(key).toMatch(/^hashed:refresh-access-token:[a-f0-9]{64}$/);
+    expect(key).not.toContain(token);
+  });
+
+  it.each([undefined, null, 42, {}, [], '  '])(
+    'falls back to the IP bucket for malformed input %#',
+    (input) => {
+      expect(
+        makeHashedRateLimitKey('refresh-access-token', input, 'test-secret')
+      ).toBeUndefined();
+    }
+  );
 });

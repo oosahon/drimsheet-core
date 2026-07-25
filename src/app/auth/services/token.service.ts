@@ -119,6 +119,8 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
     const ttlSeconds = 60 * 15; // 15 minutes
     const token = sign({ id, type: 'access' }, deps.varsConfig.JWT_SECRET_KEY, {
       expiresIn: ttlSeconds,
+      algorithm: 'HS256',
+      jwtid: randomUUID(),
     });
 
     return token;
@@ -134,7 +136,11 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
         type: 'refresh',
       },
       deps.varsConfig.JWT_SECRET_KEY,
-      { expiresIn: ttlSeconds }
+      {
+        expiresIn: ttlSeconds,
+        algorithm: 'HS256',
+        jwtid: randomUUID(),
+      }
     );
 
     return token;

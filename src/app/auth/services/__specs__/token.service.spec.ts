@@ -1,4 +1,4 @@
-import { sign } from 'jsonwebtoken';
+import { decode, sign } from 'jsonwebtoken';
 import { makeMockCacheStorage } from '../../../../shared/contracts/__mocks__/cache-storage.contract.mock';
 import { ICacheStorage } from '../../../../shared/contracts/cache-storage.contract';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
@@ -180,6 +180,22 @@ describe('makeTokenService', () => {
       expect(decoded.id).toBe(userId);
     });
 
+    it('issues unique access tokens for the same user in the same second', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-01-01T00:00:00Z'));
+
+      const first = await tokenService.generateAccessToken({ id: userId });
+      const second = await tokenService.generateAccessToken({ id: userId });
+
+      expect(first).not.toBe(second);
+      expect(decode(first)).toMatchObject({ id: userId, type: 'access' });
+      expect(decode(second)).toMatchObject({ id: userId, type: 'access' });
+      expect((decode(first) as { jti: string }).jti).not.toBe(
+        (decode(second) as { jti: string }).jti
+      );
+
+      jest.useRealTimers();
+    });
+
     it('should throw ExpiredToken for expired access tokens', async () => {
       // Manually sign an expired token
       const expiredToken = sign(
@@ -240,6 +256,22 @@ describe('makeTokenService', () => {
       const decoded = await tokenService.verifyRefreshToken(token);
 
       expect(decoded.id).toBe(userId);
+    });
+
+    it('issues unique refresh tokens for the same user in the same second', async () => {
+      jest.useFakeTimers().setSystemTime(new Date('2026-01-01T00:00:00Z'));
+
+      const first = await tokenService.generateRefreshToken({ id: userId });
+      const second = await tokenService.generateRefreshToken({ id: userId });
+
+      expect(first).not.toBe(second);
+      expect(decode(first)).toMatchObject({ id: userId, type: 'refresh' });
+      expect(decode(second)).toMatchObject({ id: userId, type: 'refresh' });
+      expect((decode(first) as { jti: string }).jti).not.toBe(
+        (decode(second) as { jti: string }).jti
+      );
+
+      jest.useRealTimers();
     });
 
     it('should throw InvalidToken if token type is incorrect', async () => {

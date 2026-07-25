@@ -2,9 +2,11 @@ import IUserRepo from '../../../domain/user/repos/user.repo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
 import appError from '../../../shared/errors/app.error';
+import { ITransactionContext } from '../../../shared/types/repo.types';
 import IAppContext from '../../_internal/contracts/app-context.contract';
 import ITokenService from '../contracts/token-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
+import authError from '../errors/auth.error';
 import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
 
 interface IDependencies {
@@ -23,35 +25,50 @@ export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
     const refreshToken = clientSession.getRefreshToken();
 
     if (!refreshToken) {
+      clientSession.clearRefreshToken();
       throw new appError.Unauthorized();
     }
 
-    const decoded = deps.tokenService.verifyRefreshToken(refreshToken);
+    try {
+      const decoded = deps.tokenService.verifyRefreshToken(refreshToken);
 
-    const user = await deps.userRepo.findById(decoded.id, { correlationId });
+      const user = await deps.userRepo.findById(decoded.id, { correlationId });
 
-    if (!user) {
-      throw new appError.Unauthorized();
+      if (!user) {
+        throw new appError.Unauthorized();
+      }
+
+      const consumePresentedSession = async (tx: ITransactionContext) => {
+        const deleted = await deps.userSessionRepo.delete(
+          user.id,
+          refreshToken,
+          { correlationId, tx }
+        );
+
+        if (!deleted) {
+          throw new appError.Unauthorized();
+        }
+      };
+
+      return await makeIssueUserSessionHelper({
+        user,
+        reqContext: deps.reqContext,
+        tokenService: deps.tokenService,
+        userSessionRepo: deps.userSessionRepo,
+        eventBus: deps.eventBus,
+        repoService: deps.repoService,
+        events: [],
+        beforeCreate: consumePresentedSession,
+        replaceExistingClientSession: false,
+      });
+    } catch (error) {
+      if (
+        error instanceof authError.Base ||
+        error instanceof appError.Unauthorized
+      ) {
+        clientSession.clearRefreshToken();
+      }
+      throw error;
     }
-
-    const existingRefreshToken = await deps.userSessionRepo.findByRefreshToken(
-      user.id,
-      refreshToken,
-      { correlationId }
-    );
-
-    if (!existingRefreshToken) {
-      throw new appError.Unauthorized();
-    }
-
-    return makeIssueUserSessionHelper({
-      user,
-      reqContext: deps.reqContext,
-      tokenService: deps.tokenService,
-      userSessionRepo: deps.userSessionRepo,
-      eventBus: deps.eventBus,
-      repoService: deps.repoService,
-      events: [],
-    });
   };
 }

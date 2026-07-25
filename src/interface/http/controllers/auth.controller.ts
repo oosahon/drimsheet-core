@@ -141,9 +141,10 @@ export class AuthController extends Controller {
   @Post('refresh-access-token')
   @OperationId('refreshAccessToken')
   @SuccessResponse('200')
-  @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
-  @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('429')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(rateLimiter.refreshAccessToken)
   public async refreshAccessToken() {
     this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.refreshAccessToken();

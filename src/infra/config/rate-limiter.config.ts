@@ -37,7 +37,8 @@ export type RateLimitAction =
   | 'login-with-email'
   | 'verify-email'
   | 'get-password-reset-link'
-  | 'reset-password';
+  | 'reset-password'
+  | 'refresh-access-token';
 
 export function makeAccountRateLimitKey(
   action: RateLimitAction,
@@ -146,6 +147,18 @@ const rateLimiter = {
     max: 20,
     message: 'Too many password reset attempts, please try again later.',
     keyGenerator: (req) => makeIpRateLimitKey(req.ip),
+  }),
+
+  refreshAccessToken: configureRateLimiter({
+    windowMs: 1000 * 60,
+    max: 10,
+    message: 'Too many token refresh attempts, please try again later.',
+    keyGenerator: (req) =>
+      makeHashedRateLimitKey(
+        'refresh-access-token',
+        req.cookies?.refresh_token,
+        process.env.JWT_SECRET_KEY || 'secret'
+      ),
   }),
 };
 
