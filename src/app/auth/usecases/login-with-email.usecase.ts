@@ -52,7 +52,7 @@ export default function makeLoginWithEmailUseCase(deps: IDependencies) {
     const MAX_LOGIN_ATTEMPTS = 5;
 
     if (userAuth.failedLoginAttempts >= MAX_LOGIN_ATTEMPTS) {
-      throw new authError.AccountLocked();
+      throw new authError.InvalidCredentials();
     }
 
     if (
@@ -62,7 +62,7 @@ export default function makeLoginWithEmailUseCase(deps: IDependencies) {
       await deps.userAuthRepo.incrementFailedLoginAttempts(user.id, {
         correlationId,
       });
-      throw new authError.WrongStrategy();
+      throw new authError.InvalidCredentials();
     }
 
     const isValidPassword = await deps.passwordService.compare(

@@ -11,8 +11,6 @@ const EErrorKeys = {
   MalformedToken: 'auth_error_malformed_token',
   MissingToken: 'auth_error_missing_token',
   InvalidCredentials: 'auth_error_invalid_credentials',
-  AccountLocked: 'auth_error_account_locked',
-  WrongStrategy: 'auth_error_wrong_strategy',
   EmailRequired: 'auth_error_email_required',
   UserNotFound: 'auth_error_user_not_found',
   InvalidFirstName: 'auth_error_invalid_first_name',

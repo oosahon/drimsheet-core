@@ -61,9 +61,12 @@ export class AuthController extends Controller {
   @OperationId('loginWithEmail')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
-  @Middlewares(rateLimiter.default)
+  @Response<IHttpErrorDto>('429')
+  @Middlewares(rateLimiter.loginWithEmail)
   public async loginWithEmail(@Body() body: IEmailLoginReq) {
+    this.setHeader('Cache-Control', 'no-store');
     return await authUseCase.loginWithEmail(body);
   }
 

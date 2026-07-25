@@ -59,12 +59,12 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   journalEntryHistoryInAudits: many(journalEntryHistoryInAudit),
   accountingEntityHistoryInAudits: many(accountingEntityHistoryInAudit),
   accountingContextHistoryInAudits: many(accountingContextHistoryInAudit),
-  accountingPeriodHistoryInAudits: many(accountingPeriodHistoryInAudit),
   reportingContextHistoryInAudits: many(reportingContextHistoryInAudit),
+  accountingPeriodHistoryInAudits: many(accountingPeriodHistoryInAudit),
   reportingPeriodHistoryInAudits: many(reportingPeriodHistoryInAudit),
   fiscalYearHistoryInAudits: many(fiscalYearHistoryInAudit),
-  userProfileHistoryInAudits: many(userProfileHistoryInAudit),
   journalLineHistoryInAudits: many(journalLineHistoryInAudit),
+  userProfileHistoryInAudits: many(userProfileHistoryInAudit),
   subledgerFxCostBasisLotHistoryInAudits: many(
     subledgerFxCostBasisLotHistoryInAudit
   ),
@@ -556,21 +556,21 @@ export const accountingContextHistoryInAuditRelations = relations(
   })
 );
 
-export const accountingPeriodHistoryInAuditRelations = relations(
-  accountingPeriodHistoryInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [accountingPeriodHistoryInAudit.userId],
-      references: [usersInCore.id],
-    }),
-  })
-);
-
 export const reportingContextHistoryInAuditRelations = relations(
   reportingContextHistoryInAudit,
   ({ one }) => ({
     usersInCore: one(usersInCore, {
       fields: [reportingContextHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const accountingPeriodHistoryInAuditRelations = relations(
+  accountingPeriodHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [accountingPeriodHistoryInAudit.userId],
       references: [usersInCore.id],
     }),
   })
@@ -596,21 +596,21 @@ export const fiscalYearHistoryInAuditRelations = relations(
   })
 );
 
-export const userProfileHistoryInAuditRelations = relations(
-  userProfileHistoryInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userProfileHistoryInAudit.userId],
-      references: [usersInCore.id],
-    }),
-  })
-);
-
 export const journalLineHistoryInAuditRelations = relations(
   journalLineHistoryInAudit,
   ({ one }) => ({
     usersInCore: one(usersInCore, {
       fields: [journalLineHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
+export const userProfileHistoryInAuditRelations = relations(
+  userProfileHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [userProfileHistoryInAudit.userId],
       references: [usersInCore.id],
     }),
   })

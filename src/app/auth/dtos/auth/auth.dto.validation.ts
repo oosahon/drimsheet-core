@@ -48,7 +48,11 @@ export const userSignupReqValidation = z.object({
  * Validation schema for email login request payload.
  */
 export const emailLoginReqValidation = z.object({
-  email: z.email(invalidEmailError),
+  email: z
+    .string(invalidEmailError)
+    .trim()
+    .toLowerCase()
+    .pipe(z.email(invalidEmailError)),
   password: z
     .string(invalidPasswordError)
     .min(1, invalidPasswordError)

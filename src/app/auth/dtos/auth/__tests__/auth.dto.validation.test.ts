@@ -58,6 +58,28 @@ describe('auth DTO validation', () => {
   });
 
   describe('emailLoginReqValidation', () => {
+    it('normalizes email case and whitespace', () => {
+      const result = emailLoginReqValidation.safeParse({
+        email: '  USER@EXAMPLE.COM  ',
+        password: 'Password1!',
+      });
+
+      expect(result.success).toBe(true);
+      if (!result.success) {
+        throw result.error;
+      }
+      expect(result.data.email).toBe('user@example.com');
+    });
+
+    it('rejects a malformed email', () => {
+      expect(
+        emailLoginReqValidation.safeParse({
+          email: 'not-an-email',
+          password: 'Password1!',
+        }).success
+      ).toBe(false);
+    });
+
     it('accepts a previously registered 128-character password', () => {
       const password = `Aa1!${'a'.repeat(124)}`;
 

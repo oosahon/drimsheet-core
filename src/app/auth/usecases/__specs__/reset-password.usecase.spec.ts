@@ -125,6 +125,7 @@ describe('makeResetPasswordUseCase', () => {
     const existingUserAuth = {
       userId: mockUser.id,
       password: 'old-hash',
+      strategy: ['email'],
     } as unknown as IUserAuth;
     mockUserAuthRepo.findByUserId.mockResolvedValue(existingUserAuth);
     mockPasswordService.hash.mockResolvedValue('new-hash');
@@ -152,7 +153,12 @@ describe('makeResetPasswordUseCase', () => {
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
     expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
-      { ...existingUserAuth, password: 'new-hash', failedLoginAttempts: 0 },
+      {
+        ...existingUserAuth,
+        password: 'new-hash',
+        failedLoginAttempts: 0,
+        strategy: ['email'],
+      },
       { correlationId, tx: 'mock-tx' }
     );
     expect(mockEventBus.publish).toHaveBeenCalled();
@@ -165,5 +171,47 @@ describe('makeResetPasswordUseCase', () => {
     expect(result).toEqual({
       accessToken: 'mock-auth-token',
     });
+  });
+
+  it('adds the email strategy when a Google-only user creates a password', async () => {
+    const mockUser: IUser = {
+      id: generateUUID(),
+      email: emailValue.make('google-user@example.com'),
+      emailVerified: true,
+      firstName: 'Grace',
+      lastName: 'Hopper',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
+    };
+    const existingUserAuth = {
+      userId: mockUser.id,
+      password: null,
+      failedLoginAttempts: 0,
+      strategy: ['google'],
+    } as unknown as IUserAuth;
+
+    mockAuthService.verifyPasswordResetToken.mockResolvedValue({
+      id: mockUser.id,
+    });
+    mockUserRepo.findById.mockResolvedValue(mockUser);
+    mockUserAuthRepo.findByUserId.mockResolvedValue(existingUserAuth);
+    mockPasswordService.hash.mockResolvedValue('new-hash');
+    mockAuthService.generateAccessToken.mockResolvedValue('mock-auth-token');
+    mockAuthService.generateRefreshToken.mockResolvedValue(
+      'mock-refresh-token'
+    );
+
+    await getUseCase()(getValidPayload());
+
+    expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
+      {
+        ...existingUserAuth,
+        password: 'new-hash',
+        failedLoginAttempts: 0,
+        strategy: ['google', 'email'],
+      },
+      { correlationId, tx: 'mock-tx' }
+    );
   });
 });

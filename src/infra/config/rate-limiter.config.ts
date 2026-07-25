@@ -84,13 +84,13 @@ export function makeHashedRateLimitKey(
 }
 
 const rateLimiter = {
-  default: configureRateLimiter({
+  loginWithEmail: configureRateLimiter({
     windowMs: 1000 * 60,
     max: 5,
     message: 'Too many authentication attempts, please try again later.',
     keyGenerator: (req) =>
       makeAccountRateLimitKey(
-        'signup-with-email',
+        'login-with-email',
         req.body?.email,
         process.env.JWT_SECRET_KEY || 'secret'
       ),

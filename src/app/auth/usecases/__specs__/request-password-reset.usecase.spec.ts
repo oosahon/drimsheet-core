@@ -12,7 +12,6 @@ import mockTransactionalEmailService from '../../../notification/contracts/__moc
 import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
 import { IUserAuth } from '../../contracts/auth.types';
-import authError from '../../errors/auth.error';
 import makeRequestPasswordResetUseCase from '../request-password-reset.usecase';
 
 describe('makeRequestPasswordResetUseCase', () => {
@@ -124,7 +123,7 @@ describe('makeRequestPasswordResetUseCase', () => {
     );
   });
 
-  it('should throw ErrorBadRequest if user strategy does not include email', async () => {
+  it('should send a reset link if the user only has Google authentication', async () => {
     const userEmail = 'found@example.com';
     const mockUser: IUser = {
       id: 'test-user-id' as TEntityId,
@@ -146,6 +145,9 @@ describe('makeRequestPasswordResetUseCase', () => {
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
+    mockAuthService.generatePasswordResetToken.mockResolvedValue(
+      'google-user-reset-token'
+    );
 
     const usecase = makeRequestPasswordResetUseCase({
       appContext: mockAppContext,
@@ -157,12 +159,19 @@ describe('makeRequestPasswordResetUseCase', () => {
       varsConfig: mockVarsConfig,
     });
 
-    await expect(usecase(userEmail)).rejects.toThrow(authError.WrongStrategy);
+    await usecase(userEmail);
 
-    expect(mockAuthService.generatePasswordResetToken).not.toHaveBeenCalled();
+    expect(mockAuthService.generatePasswordResetToken).toHaveBeenCalledWith(
+      mockUser
+    );
     expect(
       mockTransactionalEmailService.sendPasswordResetLink
-    ).not.toHaveBeenCalled();
-    expect(mockEventBus.publish).not.toHaveBeenCalled();
+    ).toHaveBeenCalledWith({
+      user: mockUser,
+      resetLink:
+        'https://test-app.com/auth/reset-password?token=google-user-reset-token',
+      correlationId,
+    });
+    expect(mockEventBus.publish).toHaveBeenCalled();
   });
 });

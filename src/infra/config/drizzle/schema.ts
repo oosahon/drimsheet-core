@@ -1029,54 +1029,6 @@ export const accountingContextHistoryInAudit = audit.table(
   ]
 );
 
-export const accountingPeriodHistoryInAudit = audit.table(
-  'accounting_period_history',
-  {
-    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
-    accountingPeriodId: uuid('accounting_period_id').notNull(),
-    accountingEntityId: uuid('accounting_entity_id').notNull(),
-    userId: uuid('user_id'),
-    actorType: historyActorTypeInAudit('actor_type').notNull(),
-    action: varchar({ length: 50 }).notNull(),
-    diff: jsonb().notNull(),
-    correlationId: varchar('correlation_id', { length: 255 }),
-    occurredAt: timestamp('occurred_at', {
-      withTimezone: true,
-      mode: 'string',
-    }).notNull(),
-    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    index('accounting_period_history_tenant_timeline_idx').using(
-      'btree',
-      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('int8_ops'),
-      table.id.desc().nullsFirst().op('timestamptz_ops')
-    ),
-    index('accounting_period_history_timeline_idx').using(
-      'btree',
-      table.accountingPeriodId.asc().nullsLast().op('int8_ops'),
-      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
-      table.id.desc().nullsFirst().op('int8_ops')
-    ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'accounting_period_history_user_id_fkey',
-    }).onDelete('set null'),
-    check(
-      'accounting_period_history_actor_check',
-      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
-    ),
-    check(
-      'accounting_period_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-  ]
-);
-
 export const reportingContextHistoryInAudit = audit.table(
   'reporting_context_history',
   {
@@ -1120,6 +1072,54 @@ export const reportingContextHistoryInAudit = audit.table(
     ),
     check(
       'reporting_context_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+    ),
+  ]
+);
+
+export const accountingPeriodHistoryInAudit = audit.table(
+  'accounting_period_history',
+  {
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
+    accountingPeriodId: uuid('accounting_period_id').notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    userId: uuid('user_id'),
+    actorType: historyActorTypeInAudit('actor_type').notNull(),
+    action: varchar({ length: 50 }).notNull(),
+    diff: jsonb().notNull(),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    occurredAt: timestamp('occurred_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('accounting_period_history_tenant_timeline_idx').using(
+      'btree',
+      table.accountingEntityId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('timestamptz_ops')
+    ),
+    index('accounting_period_history_timeline_idx').using(
+      'btree',
+      table.accountingPeriodId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'accounting_period_history_user_id_fkey',
+    }).onDelete('set null'),
+    check(
+      'accounting_period_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'accounting_period_history_diff_check',
       sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
@@ -1221,47 +1221,6 @@ export const fiscalYearHistoryInAudit = audit.table(
   ]
 );
 
-export const userProfileHistoryInAudit = audit.table(
-  'user_profile_history',
-  {
-    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
-    userProfileId: uuid('user_profile_id').notNull(),
-    userId: uuid('user_id'),
-    actorType: historyActorTypeInAudit('actor_type').notNull(),
-    action: varchar({ length: 50 }).notNull(),
-    diff: jsonb().notNull(),
-    correlationId: varchar('correlation_id', { length: 255 }),
-    occurredAt: timestamp('occurred_at', {
-      withTimezone: true,
-      mode: 'string',
-    }).notNull(),
-    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    index('user_profile_history_timeline_idx').using(
-      'btree',
-      table.userProfileId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('int8_ops')
-    ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'user_profile_history_user_id_fkey',
-    }).onDelete('set null'),
-    check(
-      'user_profile_history_actor_check',
-      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
-    ),
-    check(
-      'user_profile_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
-  ]
-);
-
 export const journalLineHistoryInAudit = audit.table(
   'journal_line_history',
   {
@@ -1313,6 +1272,47 @@ export const journalLineHistoryInAudit = audit.table(
     ),
     check(
       'journal_line_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+    ),
+  ]
+);
+
+export const userProfileHistoryInAudit = audit.table(
+  'user_profile_history',
+  {
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
+    userProfileId: uuid('user_profile_id').notNull(),
+    userId: uuid('user_id'),
+    actorType: historyActorTypeInAudit('actor_type').notNull(),
+    action: varchar({ length: 50 }).notNull(),
+    diff: jsonb().notNull(),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    occurredAt: timestamp('occurred_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('user_profile_history_timeline_idx').using(
+      'btree',
+      table.userProfileId.asc().nullsLast().op('timestamptz_ops'),
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_profile_history_user_id_fkey',
+    }).onDelete('set null'),
+    check(
+      'user_profile_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'user_profile_history_diff_check',
       sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
   ]
@@ -1403,9 +1403,9 @@ export const subledgerFxCostBasisLotHistoryInAudit = audit.table(
     ),
     index('subledger_fx_cost_basis_lot_history_timeline_idx').using(
       'btree',
-      table.lotId.asc().nullsLast().op('uuid_ops'),
-      table.occurredAt.desc().nullsFirst().op('int8_ops'),
-      table.id.desc().nullsFirst().op('uuid_ops')
+      table.lotId.asc().nullsLast().op('int8_ops'),
+      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
     ),
     foreignKey({
       columns: [table.userId],

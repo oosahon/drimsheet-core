@@ -8,6 +8,7 @@ import {
 import eventValue from '../../../shared/events/event.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import IAppContext from '../../_internal/contracts/app-context.contract';
+import { EAuthStrategy } from '../contracts/auth.types';
 import IPasswordService from '../contracts/password-service.contract';
 import ITokenService from '../contracts/token-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';
@@ -62,7 +63,14 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
 
     const repoTransaction: TRepoTransactionFn = async (tx) => {
       await deps.userAuthRepo.update(
-        { ...existingUserAuth, password: passwordHash, failedLoginAttempts: 0 },
+        {
+          ...existingUserAuth,
+          password: passwordHash,
+          failedLoginAttempts: 0,
+          strategy: Array.from(
+            new Set([...existingUserAuth.strategy, EAuthStrategy.Email])
+          ),
+        },
         { correlationId, tx }
       );
     };
