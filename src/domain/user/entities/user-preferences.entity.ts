@@ -12,8 +12,8 @@ import {
   IUserPreferences,
 } from '../types/user-preferences.types';
 
-function makeAppPreferences(appPreferences: IUserAppPreferences) {
-  const { theme, appUsageMode } = appPreferences;
+function makeAppPreferences(appPreferences?: IUserAppPreferences | null) {
+  const { theme, appUsageMode } = appPreferences || {};
   const isInvalidTheme =
     theme && !Object.values(EAppThemePreference).includes(theme);
   const isInvalidUsageMode =
@@ -71,9 +71,21 @@ function update(entity: IUserPreferences, payload: Partial<IUserPreferences>) {
   return [updatedEntity, [event]] as const;
 }
 
+function rehydrate(payload: IUserPreferences): IUserPreferences {
+  stringUtils.validateUUID(payload.id, userError.InvalidValue);
+
+  return Object.freeze({
+    id: payload.id,
+    appPreferences: makeAppPreferences(payload.appPreferences),
+    createdAt: payload.createdAt,
+    updatedAt: payload.updatedAt,
+  });
+}
+
 const userPreferencesEntity = Object.freeze({
   make,
   update,
+  rehydrate,
 });
 
 export default userPreferencesEntity;

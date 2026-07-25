@@ -16,9 +16,11 @@ export default async function getAuthUserFromRequest(
 
   if (!bearerToken) return null;
 
-  const token = bearerToken.split(' ')[1];
-
-  if (!token) return null;
+  const parts = bearerToken.trim().split(/\s+/);
+  if (parts.length !== 2 || parts[0].toLowerCase() !== 'bearer' || !parts[1]) {
+    return null;
+  }
+  const token = parts[1];
 
   const authUser = await tokenService.getAuthUser(token);
 

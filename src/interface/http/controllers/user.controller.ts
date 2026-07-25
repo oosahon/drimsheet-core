@@ -23,9 +23,10 @@ export class UserController extends Controller {
   @OperationId('getUserPreferences')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('404')
   @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
-  public async getCurrencies() {
+  public async getUserPreferences() {
     return userUseCase.getPreferences();
   }
 

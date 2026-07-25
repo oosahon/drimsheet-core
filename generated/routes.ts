@@ -1152,7 +1152,7 @@ export function RegisterRoutes(app: Router) {
   //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
   // ###########################################################################################################
 
-  const argsUserController_getCurrencies: Record<
+  const argsUserController_getUserPreferences: Record<
     string,
     TsoaRoute.ParameterSchema
   > = {};
@@ -1160,9 +1160,11 @@ export function RegisterRoutes(app: Router) {
     '/api/v1/users/preferences',
     authenticateMiddleware([{ bearerAuth: [] }]),
     ...fetchMiddlewares<RequestHandler>(UserController),
-    ...fetchMiddlewares<RequestHandler>(UserController.prototype.getCurrencies),
+    ...fetchMiddlewares<RequestHandler>(
+      UserController.prototype.getUserPreferences
+    ),
 
-    async function UserController_getCurrencies(
+    async function UserController_getUserPreferences(
       request: ExRequest,
       response: ExResponse,
       next: any
@@ -1172,7 +1174,7 @@ export function RegisterRoutes(app: Router) {
       let validatedArgs: any[] = [];
       try {
         validatedArgs = templateService.getValidatedArgs({
-          args: argsUserController_getCurrencies,
+          args: argsUserController_getUserPreferences,
           request,
           response,
         });
@@ -1180,7 +1182,7 @@ export function RegisterRoutes(app: Router) {
         const controller = new UserController();
 
         await templateService.apiHandler({
-          methodName: 'getCurrencies',
+          methodName: 'getUserPreferences',
           controller,
           response,
           next,

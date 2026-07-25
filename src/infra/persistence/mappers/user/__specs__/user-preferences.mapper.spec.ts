@@ -7,7 +7,7 @@ describe('User Preferences Mapper', () => {
   const updatedAt = new Date('2026-04-10T12:30:00Z');
 
   const domainPreferences: IUserPreferences = {
-    id: 'pref-1' as TEntityId,
+    id: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
     appPreferences: {
       theme: 'dark',
     },
@@ -16,7 +16,7 @@ describe('User Preferences Mapper', () => {
   };
 
   const repoModel: Parameters<typeof userPreferencesMapper.toDomain>[0] = {
-    id: 'pref-1',
+    id: '123e4567-e89b-12d3-a456-426614174000',
     appPreferences: {
       theme: 'dark',
     },
@@ -37,6 +37,32 @@ describe('User Preferences Mapper', () => {
       expect(userPreferencesMapper.toDomain(repoModel)).toEqual(
         domainPreferences
       );
+    });
+
+    it('should throw UserPreferencesError for invalid theme', () => {
+      const invalidRepoModel = {
+        ...repoModel,
+        appPreferences: {
+          theme: 'invalid-theme',
+        },
+      };
+
+      expect(() =>
+        userPreferencesMapper.toDomain(invalidRepoModel as any)
+      ).toThrow();
+    });
+
+    it('should throw UserPreferencesError for invalid usage mode', () => {
+      const invalidRepoModel = {
+        ...repoModel,
+        appPreferences: {
+          appUsageMode: 'invalid-mode',
+        },
+      };
+
+      expect(() =>
+        userPreferencesMapper.toDomain(invalidRepoModel as any)
+      ).toThrow();
     });
   });
 });

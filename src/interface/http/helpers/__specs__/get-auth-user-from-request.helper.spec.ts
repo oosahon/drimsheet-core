@@ -52,6 +52,48 @@ describe('getAuthUserFromRequest', () => {
     expect(result).toBeNull();
   });
 
+  it('should return null if authorization header has wrong scheme', async () => {
+    mockReq.headers = { authorization: 'Basic valid-token' };
+    const result = await getAuthUserFromRequest(
+      mockReq as Request,
+      mockAuthService,
+      mockLogger,
+      mockUserRepo
+    );
+    expect(result).toBeNull();
+    expect(mockAuthService.getAuthUser).not.toHaveBeenCalled();
+  });
+
+  it('should return null if authorization header has extra segments', async () => {
+    mockReq.headers = { authorization: 'Bearer valid-token extra' };
+    const result = await getAuthUserFromRequest(
+      mockReq as Request,
+      mockAuthService,
+      mockLogger,
+      mockUserRepo
+    );
+    expect(result).toBeNull();
+    expect(mockAuthService.getAuthUser).not.toHaveBeenCalled();
+  });
+
+  it('should handle malformed spacing and still succeed for valid scheme and token', async () => {
+    mockReq.headers = { authorization: '  Bearer   valid-token  ' };
+    const authPayload = { id: 'user-123', exp: 12345 };
+    const user = { id: 'user-123', email: 'test@example.com' } as IUser;
+
+    mockAuthService.getAuthUser.mockResolvedValue(authPayload as any);
+    mockUserRepo.findById.mockResolvedValue(user);
+
+    const result = await getAuthUserFromRequest(
+      mockReq as Request,
+      mockAuthService,
+      mockLogger,
+      mockUserRepo
+    );
+    expect(mockAuthService.getAuthUser).toHaveBeenCalledWith('valid-token');
+    expect(result).toEqual(user);
+  });
+
   it('should propagate error if decoding token fails', async () => {
     mockReq.headers = {
       authorization: 'Bearer invalid-token',
