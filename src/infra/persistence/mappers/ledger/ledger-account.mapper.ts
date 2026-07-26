@@ -1,8 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { ILedgerAccountDto } from '../../../../app/ledger/dtos/ledger-account/ledger-account.dto';
-import { ULedgerAccountBehavior } from '../../../../domain/ledger/shared/types/account-behaviors.tyypes';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
-import { IMoney } from '../../../../domain/money/types/money.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { ledgerAccountsInCore } from '../../../config/drizzle/schema';
 import currencyMapper, { ICurrencyModel } from '../money/currency.mapper';
@@ -12,7 +9,6 @@ import {
   toCommonRepoDates,
   toRepoDateOnly,
 } from '../shared/date';
-import moneyMapper from '../shared/money.mapper';
 
 export interface ILedgerAccountModel extends InferSelectModel<
   typeof ledgerAccountsInCore
@@ -74,37 +70,6 @@ const ledgerAccountMapper = {
         : null,
       createdBy: model.createdBy as TEntityId,
       ...fromCommonRepoDates(model),
-    };
-  },
-
-  toDto(
-    payload: ILedgerAccount,
-    balance: IMoney,
-    functionalBalance: IMoney
-  ): ILedgerAccountDto {
-    return {
-      id: payload.id,
-      code: payload.code,
-      materializedPath: payload.materializedPath,
-      accountingEntityId: payload.accountingEntityId,
-      type: payload.type,
-      normalBalance: payload.normalBalance,
-      subType: payload.subType,
-      behavior: payload.behavior as ULedgerAccountBehavior,
-      isControlAccount: payload.isControlAccount,
-      controlAccountId: payload.controlAccountId ?? undefined,
-      name: payload.name,
-      status: payload.status,
-      contraAccountRule: payload.contraAccountRule,
-      adjunctAccountRule: payload.adjunctAccountRule,
-      meta: undefined, // TODO: replace with actual metadata when its decided
-      openingBalanceDate: payload.openingBalanceDate ?? null,
-      createdBy: payload.createdBy,
-      createdAt: payload.createdAt,
-      updatedAt: payload.updatedAt,
-      deletedAt: payload.deletedAt ?? undefined,
-      balance: moneyMapper.toDto(balance),
-      functionalBalance: moneyMapper.toDto(functionalBalance),
     };
   },
 };

@@ -18,7 +18,6 @@ import { EAppUsageModePreference } from '../../../../domain/user/types/user-pref
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
 import mockAccountsBootstrapService from '../../../ledger/contracts/__mocks__/accounts-bootstrap.service.contract.mock';
@@ -80,7 +79,6 @@ describe('createAccountingEntityUseCase', () => {
       accountingEntityService: mockAccountingDomainServices.accountingEntity,
       accountsBootstrapService: mockAccountsBootstrapService,
       eventBus: mockEventBus,
-      reporter: mockReporter,
     });
 
   beforeEach(() => {
@@ -194,23 +192,6 @@ describe('createAccountingEntityUseCase', () => {
     ).toBeLessThan(mockAppContext.set.mock.invocationCallOrder[0]);
     expect(mockAppContext.set.mock.invocationCallOrder[0]).toBeLessThan(
       mockEventBus.publish.mock.invocationCallOrder[0]
-    );
-  });
-
-  it('reports publication failures and returns the committed entity', async () => {
-    const error = new Error('event bus unavailable');
-    mockEventBus.publish.mockRejectedValueOnce(error);
-
-    await expect(getUseCase()(validPayload)).resolves.toBe(accountingEntity);
-    expect(mockReporter.report).toHaveBeenCalledWith(
-      error,
-      expect.objectContaining({
-        correlationId,
-        accountingEntityId: accountingEntity.id,
-        eventTypes: expect.arrayContaining([
-          expect.stringMatching(/accounting:entity/i),
-        ]),
-      })
     );
   });
 });

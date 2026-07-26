@@ -1,4 +1,3 @@
-import eventError from '../../../../shared/events/event.error';
 import eventValue from '../../../../shared/events/event.vo';
 import reporter from '../../../observability/reporter';
 import eventBus from '../event-bus';
@@ -39,7 +38,7 @@ describe('eventBus', () => {
     expect(publicationCompleted).toBe(true);
   });
 
-  it('propagates subscriber failures', async () => {
+  it('reports subscriber failures once and resolves', async () => {
     const eventType = 'domain:test:failed-publication';
     const failure = new Error('subscriber failed');
     eventBus.subscribe(eventType, async () => {
@@ -50,19 +49,22 @@ describe('eventBus', () => {
       eventBus.publish(
         eventValue.make({ type: eventType, data: { id: 'test' } })
       )
-    ).rejects.toBe(failure);
+    ).resolves.toBeUndefined();
+    expect(reporter.report).toHaveBeenCalledWith(failure, {
+      eventTypes: [eventType],
+    });
   });
 
-  it('reports and propagates invalid published event types', async () => {
+  it('reports invalid published event types and resolves', async () => {
     const invalidEvent = eventValue.make({
       type: 'app:test:invalid-publication',
       data: { id: 'test' },
     });
 
-    await expect(eventBus.publish(invalidEvent)).rejects.toBeInstanceOf(
-      eventError.InvalidType
-    );
-    expect(reporter.report).toHaveBeenCalledTimes(1);
+    await expect(eventBus.publish(invalidEvent)).resolves.toBeUndefined();
+    expect(reporter.report).toHaveBeenCalledWith(expect.any(Error), {
+      eventTypes: [invalidEvent.type],
+    });
   });
 
   it('reports invalid subscriptions and returns a safe unsubscribe', () => {

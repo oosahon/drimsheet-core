@@ -6,7 +6,6 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
-import IReporter from '../../../shared/contracts/reporter.contract';
 import eventValue from '../../../shared/events/event.vo';
 import { IEvent } from '../../../shared/events/types/event.types';
 import historyValue from '../../../shared/history/history.vo';
@@ -28,7 +27,6 @@ interface IDependencies {
   openingBalanceEntryService: IOpeningBalanceEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
-  reporter: IReporter;
   repoService: IRepoService;
 }
 
@@ -93,9 +91,7 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
 
     await deps.repoService.runInTransaction(transactionFn);
 
-    await deps.balancePropagationService
-      .propagate(journalEntry, trace)
-      .catch(deps.reporter.report);
+    await deps.balancePropagationService.propagate(journalEntry, trace);
 
     const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];
     deps.eventBus.publish(eventValue.enrichAll(allEvents, trace));

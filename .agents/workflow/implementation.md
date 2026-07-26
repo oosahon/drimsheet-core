@@ -9,14 +9,25 @@ Use this for ordinary code changes.
    Plans do not override current rules or established local patterns.
 4. Name the owner of every invariant, decision, side effect, transaction, and
    new behavior: domain, app, interface, infra, or shared.
-5. Justify each proposed service as a named capability. If it only shortens a
+5. Before editing, run the ownership checks that match the change:
+   - For HTTP outputs, search for an existing app DTO and mapper before adding
+     response contracts or exposing domain entities.
+   - For reusable failure behavior, inspect every caller before assigning
+     rejection, best-effort handling, or reporting ownership.
+   - For transactions, review callback shape separately for responsibility
+     creep and name preparation versus persistence phases.
+   - For owner APIs, reject expansions that only re-export another helper for
+     call-site convenience.
+6. Justify each proposed service as a named capability. If it only shortens a
    use case, do not extract it.
-6. Keep orchestration, policy, mapping, persistence, and delivery concerns
+7. Keep orchestration, policy, mapping, persistence, and delivery concerns
    distinct without forcing each concern into a separate service.
-7. Make the smallest coherent change and follow nearby readability patterns.
-8. Add or update tests at the owning layer.
-9. Run focused validation, then broader validation when risk is higher.
+8. Make the smallest coherent change and follow nearby readability patterns.
+9. Add or update tests at the owning layer.
+10. Run focused validation, then broader validation when risk is higher.
 
 Follow [Service Ownership](../rules/service-ownership.md),
 [Inversion of Control](../rules/ioc.md), and
-[Readability](../rules/readability.md) when those concerns are in scope.
+[Readability](../rules/readability.md) when those concerns are in scope. Follow
+[DTOs](../rules/dto.md) and [Mappers](../rules/mapper.md) for HTTP outputs or
+cross-layer conversion, and [Use Cases](../rules/usecase.md) for transactions.

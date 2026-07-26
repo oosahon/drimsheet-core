@@ -18,6 +18,7 @@ import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.
 import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import mockLedgerAccountBalanceAdjustmentQueue from '../../../ledger/contracts/__mocks__/ledger-balance-adjustment-queue.contract.mock';
 import makeLedgerAccountBalancePropagationService from '../ledger-account-balance-propagation.service';
@@ -26,6 +27,7 @@ describe('ledgerAccountBalancePropagationService', () => {
   const service = makeLedgerAccountBalancePropagationService({
     ledgerAccountRepo: mockLedgerAccountRepo,
     ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
+    reporter: mockReporter,
   });
 
   const mockOptions: IReadRepoOptions = {
@@ -292,7 +294,7 @@ describe('ledgerAccountBalancePropagationService', () => {
       ).not.toHaveBeenCalled();
     });
 
-    it('should throw if a journal line account cannot be found', async () => {
+    it('should report and absorb a missing journal-line account', async () => {
       const { journalEntry, postingAccount } = makeJournalEntry(
         EJournalEntryStatus.Posted
       );
@@ -301,7 +303,7 @@ describe('ledgerAccountBalancePropagationService', () => {
 
       await expect(
         service.propagate(journalEntry, mockOptions)
-      ).rejects.toThrow(journalEntryError.AccountNotFound);
+      ).resolves.toBeUndefined();
 
       expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
         postingAccount.id,
@@ -310,9 +312,17 @@ describe('ledgerAccountBalancePropagationService', () => {
       expect(
         mockLedgerAccountBalanceAdjustmentQueue.add
       ).not.toHaveBeenCalled();
+      expect(mockReporter.report).toHaveBeenCalledWith(
+        expect.any(journalEntryError.AccountNotFound),
+        {
+          correlationId: mockOptions.correlationId,
+          accountingEntityId: journalEntry.accountingEntityId,
+          journalEntryId: journalEntry.id,
+        }
+      );
     });
 
-    it('should throw if journal line currencies do not match the ledger account', async () => {
+    it('should report and absorb mismatched journal-line currencies', async () => {
       const { journalEntry, postingAccount } =
         makeForeignCurrencyJournalEntry();
 
@@ -320,7 +330,7 @@ describe('ledgerAccountBalancePropagationService', () => {
 
       await expect(
         service.propagate(journalEntry, mockOptions)
-      ).rejects.toThrow(journalEntryError.MismatchedJournalLines);
+      ).resolves.toBeUndefined();
 
       expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
         postingAccount.id,
@@ -329,6 +339,39 @@ describe('ledgerAccountBalancePropagationService', () => {
       expect(
         mockLedgerAccountBalanceAdjustmentQueue.add
       ).not.toHaveBeenCalled();
+      expect(mockReporter.report).toHaveBeenCalledWith(
+        expect.any(journalEntryError.MismatchedJournalLines),
+        {
+          correlationId: mockOptions.correlationId,
+          accountingEntityId: journalEntry.accountingEntityId,
+          journalEntryId: journalEntry.id,
+        }
+      );
+    });
+
+    it('should report and absorb queue delivery failures', async () => {
+      const { equityAccount, journalEntry, postingAccount } = makeJournalEntry(
+        EJournalEntryStatus.Posted
+      );
+      const failure = new Error('balance queue unavailable');
+
+      mockLedgerAccountRepo.findById.mockImplementation(async (accountId) => {
+        if (accountId === postingAccount.id) return postingAccount;
+        if (accountId === equityAccount.id) return equityAccount;
+        return null;
+      });
+      mockLedgerAccountBalanceAdjustmentQueue.add.mockRejectedValueOnce(
+        failure
+      );
+
+      await expect(
+        service.propagate(journalEntry, mockOptions)
+      ).resolves.toBeUndefined();
+      expect(mockReporter.report).toHaveBeenCalledWith(failure, {
+        correlationId: mockOptions.correlationId,
+        accountingEntityId: journalEntry.accountingEntityId,
+        journalEntryId: journalEntry.id,
+      });
     });
 
     it('should skip balance adjustment for OpeningBalance equity accounts', async () => {

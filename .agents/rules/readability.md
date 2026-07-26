@@ -11,6 +11,12 @@
   persistence operations when it improves scanning.
 - Follow the nearest established presentation pattern before introducing a new
   one.
+- Use `Pick`, `Omit`, or bespoke dependency interfaces only when they express an
+  independently meaningful boundary, reusable contract, or enforced layer
+  separation.
+- For private helpers owned by the same factory or capability, prefer the
+  existing dependency type. Do not narrow dependencies solely to document which
+  properties the helper currently reads.
 
 Prefer:
 

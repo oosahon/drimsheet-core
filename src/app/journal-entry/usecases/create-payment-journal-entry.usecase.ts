@@ -3,7 +3,6 @@ import { IJournalLineInput } from '../../../domain/journal-entry/types/journal-l
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
-import IReporter from '../../../shared/contracts/reporter.contract';
 import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
 import { TEntityId } from '../../../shared/types/uuid';
@@ -21,7 +20,6 @@ interface IDependencies {
   transactionEntryService: ITransactionEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
-  reporter: IReporter;
   eventBus: IEventBus;
 }
 
@@ -102,9 +100,7 @@ export default function makeCreatePaymentJournalEntryUseCase(
       trace
     );
 
-    await deps.balancePropagationService
-      .propagate(journalEntry, trace)
-      .catch(deps.reporter.report);
+    await deps.balancePropagationService.propagate(journalEntry, trace);
 
     deps.eventBus.publish(eventValue.enrichAll(events, trace));
   };

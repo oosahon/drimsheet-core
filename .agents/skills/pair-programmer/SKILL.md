@@ -16,6 +16,11 @@ description: Use when implementing code changes in this repository.
 
 Load [Use Cases](../../rules/usecase.md) for use-case changes and
 [Inversion of Control](../../rules/ioc.md) for wiring changes.
+Load [DTOs](../../rules/dto.md) and [Mappers](../../rules/mapper.md) when HTTP
+outputs or cross-layer conversion are in scope.
+Emphasize [Use Cases](../../rules/usecase.md) and
+[Service Ownership](../../rules/service-ownership.md) when transactions or
+failure semantics change.
 
 ## Work
 

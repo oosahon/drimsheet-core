@@ -11,6 +11,8 @@ import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-accou
 import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
 import { IMoney } from '../../../domain/money/types/money.types';
 import moneyValue from '../../../domain/money/values/money.vo';
+import IReporter from '../../../shared/contracts/reporter.contract';
+import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import ILedgerBalanceAdjustmentQueue from '../../ledger/contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
@@ -65,77 +67,93 @@ function validateLines(journalLines: IJournalLine[], account: ILedgerAccount) {
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
   ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
+  reporter: IReporter;
+}
+
+async function propagateBalanceAdjustments(
+  deps: IDependencies,
+  journalEntry: IJournalEntry,
+  repoOptions: IReadRepoOptions
+) {
+  try {
+    if (journalEntry.status === EJournalEntryStatus.Draft) {
+      return;
+    }
+
+    const allAdjustments: ILedgerAccountBalanceAdjustmentDto[] = [];
+
+    const accountMap = getAccountMap(journalEntry);
+
+    for (const [accountId, journalLines] of accountMap.entries()) {
+      const account = await deps.ledgerAccountRepo.findById(
+        accountId,
+        repoOptions
+      );
+
+      if (!account) {
+        throw new journalEntryError.AccountNotFound({ cause: { accountId } });
+      }
+
+      if (account.subType === EEquitySubType.OpeningBalance) {
+        continue;
+      }
+
+      validateLines(journalLines, account);
+
+      let balanceDelta: IMoney = moneyValue.makeZeroAmount(account.currency);
+      let functionalBalanceDelta: IMoney = moneyValue.makeZeroAmount(
+        journalLines[0].functionalAmount.currency
+      );
+
+      for (const line of journalLines) {
+        const effect = balanceEffectRule.derive(account, line.side);
+
+        if (effect === ELedgerAccountBalanceEffect.Increase) {
+          balanceDelta = moneyValue.add(balanceDelta, line.amount);
+          functionalBalanceDelta = moneyValue.add(
+            functionalBalanceDelta,
+            line.functionalAmount
+          );
+        } else {
+          balanceDelta = moneyValue.subtract(balanceDelta, line.amount);
+          functionalBalanceDelta = moneyValue.subtract(
+            functionalBalanceDelta,
+            line.functionalAmount
+          );
+        }
+      }
+
+      allAdjustments.push({
+        journalEntry: {
+          id: journalEntry.id,
+          createdBy: journalEntry.createdBy,
+        },
+        correlationId: repoOptions.correlationId,
+        balanceDelta: moneyMapper.toDto(balanceDelta),
+        functionalBalanceDelta: moneyMapper.toDto(functionalBalanceDelta),
+        ledgerAccountId: accountId,
+      });
+    }
+
+    await Promise.all(
+      allAdjustments.map((adjustment) =>
+        deps.ledgerBalanceAdjustmentQueue.add(adjustment)
+      )
+    );
+  } catch (error) {
+    deps.reporter.report(error, {
+      correlationId: repoOptions.correlationId,
+      accountingEntityId: journalEntry.accountingEntityId,
+      journalEntryId: journalEntry.id,
+    });
+  }
 }
 
 export default function makeLedgerAccountBalancePropagationService(
   deps: IDependencies
 ): ILedgerAccountBalancePropagationService {
   return {
-    async propagate(journalEntry, repoOptions) {
-      if (journalEntry.status === EJournalEntryStatus.Draft) {
-        return;
-      }
-
-      const allAdjustments: ILedgerAccountBalanceAdjustmentDto[] = [];
-
-      const accountMap = getAccountMap(journalEntry);
-
-      for (const [accountId, journalLines] of accountMap.entries()) {
-        const account = await deps.ledgerAccountRepo.findById(
-          accountId,
-          repoOptions
-        );
-
-        if (!account) {
-          throw new journalEntryError.AccountNotFound({ cause: { accountId } });
-        }
-
-        if (account.subType === EEquitySubType.OpeningBalance) {
-          continue;
-        }
-
-        validateLines(journalLines, account);
-
-        let balanceDelta: IMoney = moneyValue.makeZeroAmount(account.currency);
-        let functionalBalanceDelta: IMoney = moneyValue.makeZeroAmount(
-          journalLines[0].functionalAmount.currency
-        );
-
-        for (const line of journalLines) {
-          const effect = balanceEffectRule.derive(account, line.side);
-
-          if (effect === ELedgerAccountBalanceEffect.Increase) {
-            balanceDelta = moneyValue.add(balanceDelta, line.amount);
-            functionalBalanceDelta = moneyValue.add(
-              functionalBalanceDelta,
-              line.functionalAmount
-            );
-          } else {
-            balanceDelta = moneyValue.subtract(balanceDelta, line.amount);
-            functionalBalanceDelta = moneyValue.subtract(
-              functionalBalanceDelta,
-              line.functionalAmount
-            );
-          }
-        }
-
-        allAdjustments.push({
-          journalEntry: {
-            id: journalEntry.id,
-            createdBy: journalEntry.createdBy,
-          },
-          correlationId: repoOptions.correlationId,
-          balanceDelta: moneyMapper.toDto(balanceDelta),
-          functionalBalanceDelta: moneyMapper.toDto(functionalBalanceDelta),
-          ledgerAccountId: accountId,
-        });
-      }
-
-      await Promise.all(
-        allAdjustments.map((adjustment) =>
-          deps.ledgerBalanceAdjustmentQueue.add(adjustment)
-        )
-      );
-    },
+    propagate: (journalEntry, repoOptions) =>
+      propagateBalanceAdjustments(deps, journalEntry, repoOptions),
   };
 }

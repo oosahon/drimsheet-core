@@ -4,8 +4,12 @@ import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
 import mockLedgerAccountRepo from '../../../shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TCashLedgerCode } from '../../../shared/types/ledger-code.types';
-import { ILedgerAccount } from '../../../shared/types/ledger.types';
+import {
+  ELedgerType,
+  ILedgerAccount,
+} from '../../../shared/types/ledger.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
+import { EAssetSubType } from '../../types/asset-account.types';
 import makeAssetAccountService from '../asset-account.service';
 
 describe('assetAccountService', () => {
@@ -48,6 +52,9 @@ describe('assetAccountService', () => {
       id: controlAccountId,
       code: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       materializedPath: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+      type: ELedgerType.Asset,
+      subType: EAssetSubType.CashAndCashEquivalent,
+      isControlAccount: true,
     } as ILedgerAccount;
 
     const mockLatestAccount = {
@@ -132,6 +139,29 @@ describe('assetAccountService', () => {
           service.makePettyCashSubAccount(validPayload, mockOptions)
         ).rejects.toThrow();
       });
+
+      it.each([
+        { type: ELedgerType.Liability },
+        { subType: EAssetSubType.Receivables },
+        { isControlAccount: false },
+      ])(
+        'should reject an invalid repository-resolved control account: %o',
+        async (invalidRole) => {
+          mockLedgerAccountRepo.findByCode.mockResolvedValueOnce({
+            ...mockControlAccount,
+            ...invalidRole,
+          });
+
+          await expect(
+            service.makePettyCashSubAccount(validPayload, mockOptions)
+          ).rejects.toThrow(
+            'ledger_error_asset_account_invalid_control_account'
+          );
+          expect(
+            mockLedgerAccountRepo.findLatestBySubType
+          ).not.toHaveBeenCalled();
+        }
+      );
     });
 
     describe('Payload Validations (Domain bubbling)', () => {

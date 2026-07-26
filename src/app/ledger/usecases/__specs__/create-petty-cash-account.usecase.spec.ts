@@ -19,11 +19,11 @@ import fxCostBasisLotEntity from '../../../../domain/subledger/fx-cost-basis/ent
 import { EFxCostBasisLotStatus } from '../../../../domain/subledger/fx-cost-basis/types/lot.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockLedgerAccountBalancePropagationService from '../../../bookkeeping/contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
 import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
 
+import mockAccountingPeriodService from '../../../../domain/accounting/services/__mocks__/accounting-period.service.mock';
 import mockAssetAccountService from '../../../../domain/ledger/asset-account/services/__mocks__/asset-account.service.mock';
 import mockLedgerAccountPersistenceService from '../../../../domain/ledger/shared/services/__mocks__/ledger-account-persistence.service.mock';
 import moneyValue from '../../../../domain/money/values/money.vo';
@@ -167,10 +167,10 @@ describe('createPettyCashSubAccountUseCase', () => {
       appContext: mockAppContext,
       eventBus: mockEventBus,
       assetAccountService: mockAssetAccountService,
+      accountingPeriodService: mockAccountingPeriodService,
       openingBalanceEntryService: mockOpeningBalanceEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       balancePropagationService: mockLedgerAccountBalancePropagationService,
-      reporter: mockReporter,
       repoService: mockRepoService,
       ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
       fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
@@ -181,7 +181,30 @@ describe('createPettyCashSubAccountUseCase', () => {
   it('should successfully create a petty cash sub-account and record opening balance', async () => {
     const useCase = getUseCase();
 
-    await useCase(validPayload);
+    const result = await useCase(validPayload);
+
+    expect(result).toMatchObject({
+      id: mockPettyCashAccount.id,
+      openingBalanceDate: validOpeningBalance.date,
+      balance: {
+        amount: 1000,
+        currencyCode: 'NGN',
+        isMinorUnit: true,
+      },
+      functionalBalance: {
+        amount: 1000,
+        currencyCode: 'NGN',
+        isMinorUnit: true,
+      },
+    });
+
+    expect(
+      mockAccountingPeriodService.validatePostingPeriod
+    ).toHaveBeenCalledWith(mockAccountingEntity.id, validOpeningBalance.date, {
+      correlationId,
+      tx: 'mock-tx',
+      lock: 'share',
+    });
 
     expect(
       mockAssetAccountService.makePettyCashSubAccount
@@ -194,7 +217,7 @@ describe('createPettyCashSubAccountUseCase', () => {
         accountingEntity: mockAccountingEntity,
         controlAccountCode: validPayload.controlAccountCode,
       }),
-      { correlationId }
+      { correlationId, tx: 'mock-tx', lock: 'update' }
     );
 
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledWith(
@@ -246,7 +269,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       }),
       validOpeningBalance.date,
       null,
-      { correlationId }
+      { correlationId, tx: 'mock-tx' }
     );
 
     expect(
@@ -265,7 +288,21 @@ describe('createPettyCashSubAccountUseCase', () => {
   it('should successfully create a petty cash sub-account without opening balance', async () => {
     const useCase = getUseCase();
 
-    await useCase({ ...validPayload, openingBalance: null });
+    const result = await useCase({ ...validPayload, openingBalance: null });
+
+    expect(result).toMatchObject({
+      id: mockPettyCashAccount.id,
+      balance: {
+        amount: 0,
+        currencyCode: 'NGN',
+        isMinorUnit: true,
+      },
+      functionalBalance: {
+        amount: 0,
+        currencyCode: 'NGN',
+        isMinorUnit: true,
+      },
+    });
 
     expect(mockJournalEntryPersistenceService.create).not.toHaveBeenCalled();
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledWith(
@@ -290,6 +327,57 @@ describe('createPettyCashSubAccountUseCase', () => {
       ])
     );
     expect(mockOpeningBalanceEntryService.create).not.toHaveBeenCalled();
+    expect(
+      mockAccountingPeriodService.validatePostingPeriod
+    ).not.toHaveBeenCalled();
+  });
+
+  it('does not allocate or persist when posting-period validation fails', async () => {
+    const failure = new Error('posting period is closed');
+    mockAccountingPeriodService.validatePostingPeriod.mockRejectedValueOnce(
+      failure
+    );
+
+    await expect(getUseCase()(validPayload)).rejects.toBe(failure);
+    expect(
+      mockAssetAccountService.makePettyCashSubAccount
+    ).not.toHaveBeenCalled();
+    expect(mockLedgerAccountPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('does not run post-commit work when the transaction fails', async () => {
+    const failure = new Error('transaction failed');
+    mockRepoService.runInTransaction.mockRejectedValueOnce(failure);
+
+    await expect(getUseCase()(validPayload)).rejects.toBe(failure);
+    expect(
+      mockLedgerAccountBalancePropagationService.propagate
+    ).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('awaits event publication after the transaction commits', async () => {
+    let finishPublication: (() => void) | undefined;
+    mockEventBus.publish.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        finishPublication = resolve;
+      })
+    );
+
+    let settled = false;
+    const creation = getUseCase()({ ...validPayload, openingBalance: null });
+    void creation.then(() => {
+      settled = true;
+    });
+    await new Promise(process.nextTick);
+
+    expect(mockEventBus.publish).toHaveBeenCalled();
+    expect(settled).toBe(false);
+
+    finishPublication?.();
+    await creation;
+    expect(settled).toBe(true);
   });
 
   it('should throw an error if the control account is not found', async () => {
@@ -496,7 +584,21 @@ describe('createPettyCashSubAccountUseCase', () => {
     });
 
     // 3. Execute Usecase
-    await useCase(forexPayload);
+    const result = await useCase(forexPayload);
+
+    expect(result).toMatchObject({
+      id: mockForexPettyCashAccount.id,
+      balance: {
+        amount: 1000,
+        currencyCode: 'USD',
+        isMinorUnit: true,
+      },
+      functionalBalance: {
+        amount: 1500000,
+        currencyCode: 'NGN',
+        isMinorUnit: true,
+      },
+    });
 
     // 4. Assert calls
     expect(mockFxCostBasisLotDomainService.acquire).toHaveBeenCalledWith({
