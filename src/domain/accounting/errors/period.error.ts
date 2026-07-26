@@ -12,6 +12,8 @@ const EErrorKeys = {
   InvalidInterval: 'accounting_error_period_invalid_interval',
   FiscalYearExceedsJurisdictionLimit:
     'accounting_error_period_fiscal_year_exceeds_jurisdiction_limit',
+  PostingDateNotCovered: 'accounting_error_period_posting_date_not_covered',
+  PostingPeriodNotOpen: 'accounting_error_period_posting_period_not_open',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UPeriodError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

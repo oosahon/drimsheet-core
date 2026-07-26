@@ -1,11 +1,14 @@
-import { InferInsertModel } from 'drizzle-orm';
+import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { IAccountingPeriod } from '../../../../domain/accounting/types/period.types';
+import { TEntityId } from '../../../../shared/types/uuid';
 import { accountingPeriodsInCore } from '../../../config/drizzle/schema';
-import { toRepoDate, toRepoDateOnly } from '../shared/date';
-
-// TODO [PUR-22]: move repo mappers to infra layer
+import { fromRepoDate, toRepoDate, toRepoDateOnly } from '../shared/date';
 
 export interface IAccountingPeriodRepoModel extends InferInsertModel<
+  typeof accountingPeriodsInCore
+> {}
+
+export interface IAccountingPeriodModel extends InferSelectModel<
   typeof accountingPeriodsInCore
 > {}
 
@@ -24,6 +27,22 @@ const accountingPeriodMapper = {
       closedAt: domain.closedAt ? toRepoDate(domain.closedAt) : null,
       updatedAt: toRepoDate(domain.updatedAt),
     };
+  },
+
+  toDomain(payload: IAccountingPeriodModel): IAccountingPeriod {
+    return Object.freeze({
+      id: payload.id as TEntityId,
+      name: payload.name,
+      accountingEntityId: payload.accountingEntityId as TEntityId,
+      fiscalYearId: payload.fiscalYearId as TEntityId,
+      unit: payload.unit,
+      count: payload.count,
+      startDate: fromRepoDate(payload.startDate),
+      endDate: fromRepoDate(payload.endDate),
+      status: payload.status,
+      closedAt: payload.closedAt ? fromRepoDate(payload.closedAt) : null,
+      updatedAt: fromRepoDate(payload.updatedAt),
+    });
   },
 };
 

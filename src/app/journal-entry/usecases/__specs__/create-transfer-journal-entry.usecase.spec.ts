@@ -13,7 +13,6 @@ import {
 } from '../../../../domain/money/types/exchange-rate.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
 import mockLedgerAccountBalancePropagationService from '../../../bookkeeping/contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
 import mockTransactionEntryService from '../../../bookkeeping/contracts/__mocks__/transaction-entry.service.contract.mock';
@@ -107,7 +106,6 @@ describe('createTransferJournalEntryUseCase', () => {
       transactionEntryService: mockTransactionEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       balancePropagationService: mockLedgerAccountBalancePropagationService,
-      reporter: mockReporter,
       eventBus: mockEventBus,
     });
 

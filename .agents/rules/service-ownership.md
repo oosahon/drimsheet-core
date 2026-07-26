@@ -19,8 +19,23 @@ owner. Do not create a service merely to shorten a use case.
 - Own reusable application capabilities that coordinate domain behavior or
   ports, such as bootstrapping all ledger account families.
 - Have an independently meaningful contract and focused tests.
+- Define failure semantics in the service contract: whether the capability
+  rejects or is best-effort.
+- For best-effort capabilities, the implementation catches and reports failures
+  exactly once. Callers await the capability without repeating catches or
+  reporter calls.
 - Do not duplicate a single use case or hide its workflow behind a generic
   `onboarding`, `manager`, or `persistence` name.
+
+## Factories And Implementations
+
+- Service factories construct capabilities and bind dependencies.
+- Service implementation functions own runtime behavior, including error
+  handling, reporting policy, retries, and best-effort semantics.
+- Do not move catches or reporting into a factory to make a call site shorter.
+- When changing reusable failure semantics, inspect every caller and remove
+  redundant reporting, impossible rejection tests, and stale reporter
+  dependencies.
 
 ## Use Cases
 

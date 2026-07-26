@@ -221,6 +221,21 @@ export default function makeAssetAccountService(
       });
     }
 
+    const isValidControlAccount =
+      controlAccount.type === ELedgerType.Asset &&
+      controlAccount.subType === EAssetSubType.CashAndCashEquivalent &&
+      controlAccount.isControlAccount;
+
+    if (!isValidControlAccount) {
+      throw new assetAccountError.InvalidControlAccount({
+        controlAccountId: controlAccount.id,
+        controlAccountLedgerCode,
+        type: controlAccount.type,
+        subType: controlAccount.subType,
+        isControlAccount: controlAccount.isControlAccount,
+      });
+    }
+
     const latest = await deps.ledgerAccountRepo.findLatestBySubType(
       payload.accountingEntity.id,
       ELedgerType.Asset,

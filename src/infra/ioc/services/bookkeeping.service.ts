@@ -3,6 +3,7 @@ import makeLedgerAccountBalancePropagationService from '../../../app/bookkeeping
 import makeOpeningBalanceEntryService from '../../../app/bookkeeping/services/opening-balance-entry.service';
 import makeTransactionEntryService from '../../../app/bookkeeping/services/transaction-entry.service';
 import messaging from '../../messaging';
+import observability from '../../observability';
 import journalEntryRepos from '../../persistence/repos/journal-entry';
 import ledgerRepos from '../../persistence/repos/ledger';
 import repoService from './repo.service';
@@ -19,6 +20,7 @@ const openingBalanceEntry = makeOpeningBalanceEntryService({
 const balancePropagation = makeLedgerAccountBalancePropagationService({
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
   ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+  reporter: observability.reporter,
 });
 
 const journalEntryPersistence = makeJournalEntryPersistenceService({

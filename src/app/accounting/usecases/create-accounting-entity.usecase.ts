@@ -13,7 +13,6 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
-import IReporter from '../../../shared/contracts/reporter.contract';
 import appError from '../../../shared/errors/app.error';
 import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
@@ -36,7 +35,6 @@ interface IDependencies {
   accountingEntityService: IAccountingEntityService;
   accountsBootstrapService: IAccountsBootstrapService;
   eventBus: IEventBus;
-  reporter: IReporter;
 }
 
 export default function createAccountingEntityUseCase(deps: IDependencies) {
@@ -207,13 +205,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
 
     const enrichedEvents = eventValue.enrichAll(events, trace);
 
-    await deps.eventBus.publish(enrichedEvents).catch((error) => {
-      deps.reporter.report(error, {
-        correlationId,
-        accountingEntityId: accountingEntity.id,
-        eventTypes: enrichedEvents.map((event) => event.type),
-      });
-    });
+    await deps.eventBus.publish(enrichedEvents);
 
     return accountingEntity;
   };

@@ -278,36 +278,6 @@ describe('makeResetPasswordUseCase', () => {
     ).not.toHaveBeenCalled();
   });
 
-  it('returns committed success and reports event publication failure', async () => {
-    const mockUser = {
-      id: generateUUID(),
-      email: emailValue.make('event-failure@example.com'),
-      emailVerified: true,
-    } as IUser;
-    mockAuthService.claimPasswordResetToken.mockResolvedValue({
-      id: mockUser.id,
-      owner: 'claim-owner',
-    });
-    mockUserRepo.findById.mockResolvedValue(mockUser);
-    mockUserAuthRepo.findByUserId.mockResolvedValue({
-      userId: mockUser.id,
-      strategy: [EAuthStrategy.Email],
-    } as IUserAuth);
-    mockPasswordService.hash.mockResolvedValue('new-hash');
-    mockAuthService.generateAccessToken.mockResolvedValue('access-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
-    const failure = new Error('event bus unavailable');
-    mockEventBus.publish.mockRejectedValue(failure);
-
-    await expect(getUseCase()(getValidPayload())).resolves.toEqual({
-      accessToken: 'access-token',
-    });
-    expect(mockReporter.report).toHaveBeenCalledWith(failure, {
-      operation: 'publish-password-reset-event',
-      userId: mockUser.id,
-    });
-  });
-
   it('reports claim release failure when cleanup fails during error handling', async () => {
     const mockUser = {
       id: generateUUID(),

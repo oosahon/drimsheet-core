@@ -13,7 +13,10 @@ import {
   Tags,
 } from 'tsoa';
 import { IPettyCashAccountCreationReq } from '../../../app/ledger/dtos/asset-account/asset-account.dto';
-import { IGetLedgerAccountsQuery } from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
+import {
+  IGetLedgerAccountsQuery,
+  ILedgerAccountDto,
+} from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
 import ledgerUseCases from '../../../infra/ioc/usecases/ledger.usecases';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import { IPaginationDto } from '../../../shared/pagination/dto/pagination.dto';
@@ -42,13 +45,18 @@ export class LedgerController extends Controller {
   @Tags('Asset Accounts')
   @Post('/asset/petty-cash')
   @OperationId('createPettyCashAccount')
-  @SuccessResponse('200')
+  @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
-  @Middlewares(middlewares.isAuthenticatedUser)
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.accountingEntityAccess
+  )
   public async createPettyCashAccount(
     @Body() body: IPettyCashAccountCreationReq
-  ): Promise<unknown> {
+  ): Promise<ILedgerAccountDto> {
     return await ledgerUseCases.createPettyCashAccount(body);
   }
 

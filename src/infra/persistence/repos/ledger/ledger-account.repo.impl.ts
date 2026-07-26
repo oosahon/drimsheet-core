@@ -85,7 +85,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
   findByCode: async (code, accountingEntityId, options) => {
     const dbQuery = getDbQuery(options);
 
-    const result = await dbQuery
+    const baseQuery = dbQuery
       .select({
         ...getTableColumns(ledgerAccountsInCore),
         currency: getTableColumns(currenciesInCore),
@@ -101,6 +101,8 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
           eq(ledgerAccountsInCore.code, code)
         )
       );
+    const query = options.lock ? baseQuery.for(options.lock) : baseQuery;
+    const result = await query;
 
     return result.map(ledgerAccountMapper.toDomain)[0] ?? null;
   },
@@ -155,7 +157,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
   findLatestBySubType: async (accountingEntityId, type, subType, options) => {
     const dbQuery = getDbQuery(options);
 
-    const [result] = await dbQuery
+    const baseQuery = dbQuery
       .select({
         id: ledgerAccountsInCore.id,
         code: ledgerAccountsInCore.code,
@@ -171,6 +173,8 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
       )
       .orderBy(desc(ledgerAccountsInCore.code))
       .limit(1);
+    const query = options.lock ? baseQuery.for(options.lock) : baseQuery;
+    const [result] = await query;
 
     return result as unknown as ReturnType<
       ILedgerAccountRepo['findLatestBySubType']

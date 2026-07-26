@@ -3,7 +3,6 @@ import makeGetCurrentAccountingEntityUseCase from '../../../app/accounting/useca
 import makeGetJurisdictionsUseCase from '../../../app/accounting/usecases/get-jurisdictions.usecase';
 import makeGetUserAccountingEntitiesUseCase from '../../../app/accounting/usecases/get-user-accounting-entities.usecase';
 import messaging from '../../messaging';
-import observability from '../../observability';
 import accountingRepos from '../../persistence/repos/accounting';
 import appContext from '../../runtime/app-context';
 import accountingServices from '../services/accounting.service';
@@ -24,7 +23,6 @@ const accountingUsecases = Object.freeze({
     accountingEntityService: accountingServices.accountingEntity,
     accountsBootstrapService: ledgerServices.accountsBootstrap,
     eventBus: messaging.eventBus,
-    reporter: observability.reporter,
   }),
 
   getJurisdictions: makeGetJurisdictionsUseCase(),

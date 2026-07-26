@@ -107,16 +107,9 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
       deps.appContext.get().clientSession.setRefreshToken(refreshToken);
 
       const event = userEvents.passwordReset(existingUser);
-      try {
-        await deps.eventBus.publish(
-          eventValue.enrich(event, { correlationId, idempotencyKey })
-        );
-      } catch (error) {
-        deps.reporter.report(error, {
-          operation: 'publish-password-reset-event',
-          userId: existingUser.id,
-        });
-      }
+      await deps.eventBus.publish(
+        eventValue.enrich(event, { correlationId, idempotencyKey })
+      );
       return { accessToken };
     } catch (error) {
       if (!committed) {

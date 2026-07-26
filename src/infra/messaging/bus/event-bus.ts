@@ -14,6 +14,10 @@ const validateEventType = (eventType: string) => {
 
 const eventBus: IEventBus = {
   publish: async (event) => {
+    const eventTypes = (Array.isArray(event) ? event : [event]).map(
+      ({ type }) => type
+    );
+
     try {
       const eventsArray = Array.isArray(event) ? event : [event];
       for (const event of eventsArray) {
@@ -24,8 +28,7 @@ const eventBus: IEventBus = {
       }
       // TODO add redis pub/sub
     } catch (error) {
-      reporter.report(error);
-      throw error;
+      reporter.report(error, { eventTypes });
     }
   },
 
