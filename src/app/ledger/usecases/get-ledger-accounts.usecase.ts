@@ -15,6 +15,7 @@ import {
 } from '../dtos/ledger-account/ledger-account.dto';
 import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';
 import { getLedgerAccountQueryValidationSchema } from '../dtos/ledger-account/ledger-account.dto.validation';
+import ledgerAppError from '../errors/ledger.error';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -63,7 +64,7 @@ export default function makeGetLedgerAccountsUsecase(deps: IDependencies) {
 
       if (!balance) {
         deps.reporter.report(
-          new Error(`No balance found for ledger account with id ${account.id}`)
+          new ledgerAppError.BalanceNotFound({ accountId: account.id })
         );
 
         const zeroBalance = moneyValue.makeZeroAmount(account.currency);

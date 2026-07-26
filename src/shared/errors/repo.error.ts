@@ -7,6 +7,7 @@ type TErrorPrefix = `repo_error_${string}`;
 const EErrorKeys = {
   VersionNotFound: 'repo_error_version_not_found',
   VersionRequired: 'repo_error_version_required',
+  MissingHistory: 'repo_error_missing_history',
 } as const satisfies TErrorKeys<TErrorPrefix>;
 
 class RepoError extends DomainError<TErrorPrefix> {

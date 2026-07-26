@@ -8,6 +8,8 @@ import {
   UJurisdictionCode,
 } from '../../../../domain/accounting/config/jurisdictions.config';
 import { MAX_GENERATED_PERIODS } from '../../../../domain/accounting/config/period-limits.config';
+import accountingError from '../../../../domain/accounting/errors/accounting.error';
+import periodError from '../../../../domain/accounting/errors/period.error';
 import {
   EAccountingEntityType,
   UAccountingEntityType,
@@ -27,7 +29,7 @@ export const jurisdictionCodeValidation = z.enum(
     UJurisdictionCode,
     ...UJurisdictionCode[],
   ],
-  'Unsupported operating country code'
+  new accountingError.InvalidJurisdictionCode().errorKey
 );
 
 /**
@@ -38,7 +40,7 @@ export const accountingEntityTypeValidation = z.enum(
     UAccountingEntityType,
     ...UAccountingEntityType[],
   ],
-  'Unsupported accounting entity type'
+  new accountingError.InvalidAccountingEntityType().errorKey
 );
 
 /**
@@ -49,7 +51,7 @@ export const accountingStandardCodeValidation = z.enum(
     UAccountingStandardCode,
     ...UAccountingStandardCode[],
   ],
-  'Unsupported accounting standard code'
+  new accountingError.InvalidAccountingStandardCode().errorKey
 );
 
 /**
@@ -79,7 +81,7 @@ export const fiscalYearCreationDtoSchema = z
       context.addIssue({
         code: 'custom',
         path: ['endDate'],
-        message: 'Fiscal year end date must be after its start date',
+        message: new periodError.InvalidDateRange().errorKey,
       });
     }
   });

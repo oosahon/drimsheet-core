@@ -1,4 +1,5 @@
 import IReportingPeriodHistoryRepo from '../../../../domain/accounting/repos/reporting-period-history.repo';
+import repoError from '../../../../shared/errors/repo.error';
 import { reportingPeriodHistoryInAudit } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
 import reportingPeriodHistoryMapper from '../../mappers/accounting/reporting-period-history.mapper';
@@ -15,7 +16,7 @@ const reportingPeriodHistoryRepo: IReportingPeriodHistoryRepo = {
       const history = historyByPeriodId.get(period.id);
 
       if (!history) {
-        throw new Error(`Missing history for reporting period ${period.id}`);
+        throw new repoError.MissingHistory({ periodId: period.id });
       }
 
       return reportingPeriodHistoryMapper.toRepo(period, history);

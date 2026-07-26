@@ -82,7 +82,7 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
 
     expect(() =>
       fxCostBasisLotAcquisitionHistoryMapper.toRepo(history)
-    ).toThrow('Lot ID is required in acquisition history diff');
+    ).toThrow('repo_error_missing_history');
   });
 
   it('throws an error if accounting entity ID cannot be found in the diff', () => {
@@ -105,6 +105,6 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
 
     expect(() =>
       fxCostBasisLotAcquisitionHistoryMapper.toRepo(history)
-    ).toThrow('Accounting Entity ID is required in acquisition history diff');
+    ).toThrow('repo_error_missing_history');
   });
 });

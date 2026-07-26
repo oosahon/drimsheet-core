@@ -7,6 +7,8 @@ type TErrorKeyPrefix = `ledger_error_asset_account_${string}`;
 const EErrorKeys = {
   ControlAccountNotFound:
     'ledger_error_asset_account_control_account_not_found',
+  OpeningBalanceCurrencyMismatch:
+    'ledger_error_asset_account_opening_balance_currency_mismatch',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UAssetAccountError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

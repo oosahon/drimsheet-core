@@ -8,6 +8,7 @@ const EErrorKeys = {
   InvalidType: 'ledger_error_ledger_account_invalid_type',
   InvalidNormalBalance: 'ledger_error_ledger_account_invalid_normal_balance',
   InvalidCode: 'ledger_error_ledger_account_invalid_code',
+  InvalidName: 'ledger_error_ledger_account_invalid_name',
   InvalidStatus: 'ledger_error_ledger_account_invalid_status',
   InvalidContraRule: 'ledger_error_ledger_account_invalid_contra_rule',
   InvalidAdjunctRule: 'ledger_error_ledger_account_invalid_adjunct_rule',

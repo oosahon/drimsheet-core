@@ -54,7 +54,7 @@ describe('Asset Account DTO Validation', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toBe(
-          'Opening balance currency must match account currency'
+          'ledger_error_asset_account_opening_balance_currency_mismatch'
         );
       }
     });

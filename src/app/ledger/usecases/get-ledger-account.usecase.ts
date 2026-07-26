@@ -47,9 +47,7 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
     );
 
     if (!balance) {
-      deps.reporter.report(
-        new Error(`No balance found for ledger account with id ${accountId}`)
-      );
+      deps.reporter.report(new ledgerAppError.BalanceNotFound({ accountId }));
 
       const zeroBalance = moneyValue.makeZeroAmount(account.currency);
       const zeroFunctionalBalance = moneyValue.makeZeroAmount(

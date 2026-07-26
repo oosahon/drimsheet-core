@@ -1,5 +1,6 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IFxCostBasisLotHistory } from '../../../../../domain/subledger/fx-cost-basis/types/lot.types';
+import repoError from '../../../../../shared/errors/repo.error';
 import { subledgerFxCostBasisLotHistoryInAudit } from '../../../../config/drizzle/schema';
 import { toRepoDate } from '../../shared/date';
 
@@ -16,7 +17,10 @@ const fxCostBasisLotHistoryMapper = {
       history.diff.before?.accountingEntityId;
 
     if (!accountingEntityId) {
-      throw new Error('Accounting Entity ID is required in lot history diff');
+      throw new repoError.MissingHistory({
+        entity: 'lot',
+        field: 'accountingEntityId',
+      });
     }
 
     return {

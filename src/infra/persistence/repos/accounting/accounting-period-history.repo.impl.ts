@@ -1,4 +1,5 @@
 import IAccountingPeriodHistoryRepo from '../../../../domain/accounting/repos/accounting-period-history.repo';
+import repoError from '../../../../shared/errors/repo.error';
 import { accountingPeriodHistoryInAudit } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
 import accountingPeriodHistoryMapper from '../../mappers/accounting/accounting-period-history.mapper';
@@ -17,7 +18,7 @@ const accountingPeriodHistoryRepo: IAccountingPeriodHistoryRepo = {
       const history = historyByPeriodId.get(period.id);
 
       if (!history) {
-        throw new Error(`Missing history for accounting period ${period.id}`);
+        throw new repoError.MissingHistory({ periodId: period.id });
       }
 
       return accountingPeriodHistoryMapper.toRepo(period, history);

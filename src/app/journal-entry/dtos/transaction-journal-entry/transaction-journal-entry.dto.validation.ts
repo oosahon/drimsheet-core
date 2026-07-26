@@ -9,7 +9,7 @@ export const transactionJournalEntryReqValidation = z.object({
   sourceLine: journalLineReqValidation,
   destinationLines: z
     .array(journalLineReqValidation)
-    .min(1, 'At least one destination line is required'),
+    .min(1, new journalEntryError.InvalidLineItems().errorKey),
   status: journalEntryStatusValidation,
   effectiveDate: z.date(new journalEntryError.InvalidEffectiveDate().errorKey),
   postedAt: z

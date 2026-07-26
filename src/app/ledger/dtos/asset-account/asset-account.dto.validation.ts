@@ -1,4 +1,6 @@
 import z from 'zod';
+import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
+import ledgerAccountError from '../../../../domain/ledger/shared/errors/ledger-account.error';
 import { openingBalanceDtoValidation } from '../../../journal-entry/dtos/opening-balance/opening-balance.dto.validation';
 import { currencyCodeValidation } from '../../../money/dtos/currency/currency.dto.validation';
 
@@ -6,8 +8,8 @@ export const pettyCashCreationReqValidation = z
   .object({
     name: z
       .string()
-      .min(1, 'Name is required')
-      .max(100, 'Name must be at most 100 characters long'),
+      .min(1, new ledgerAccountError.InvalidName().errorKey)
+      .max(100, new ledgerAccountError.InvalidName().errorKey),
     currencyCode: currencyCodeValidation,
     isControlAccount: z.boolean(),
     controlAccountCode: z.string().optional(),
@@ -22,7 +24,7 @@ export const pettyCashCreationReqValidation = z
       return true;
     },
     {
-      message: 'Opening balance currency must match account currency',
+      message: new assetAccountError.OpeningBalanceCurrencyMismatch().errorKey,
       path: ['openingBalance', 'amount', 'currencyCode'],
     }
   );
