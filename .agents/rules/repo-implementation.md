@@ -20,4 +20,6 @@ Repositories are storage adapters. Keep them boring.
 - Emails, queues, HTTP calls, cache side effects, or service calls.
 - Convenience methods that combine use-case steps.
 
-If storing or loading needs multi-step coordination, put that coordination in an app, domain, or persistence service and inject narrow repo methods into it.
+Keep workflow-specific coordination and transaction ordering in the owning use
+case. Extract a service only when the coordination is an independently reusable
+capability. Follow [Service Ownership](service-ownership.md).

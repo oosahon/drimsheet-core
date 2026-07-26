@@ -129,7 +129,6 @@ describe('Accounting DTO Validation', () => {
     it.each([
       ['equal dates', '2026-01-01', '2026-01-01'],
       ['reversed dates', '2026-02-01', '2026-01-01'],
-      ['more than 18 months', '2026-01-01', '2027-07-02'],
     ])('should reject %s', (_label, startDate, endDate) => {
       expect(
         fiscalYearCreationDtoSchema.safeParse({
@@ -139,22 +138,22 @@ describe('Accounting DTO Validation', () => {
       ).toBe(false);
     });
 
-    it('should accept an 18-month fiscal year boundary', () => {
+    it('should leave fiscal-year maximum policy to the domain', () => {
       expect(
         fiscalYearCreationDtoSchema.safeParse({
           startDate: new Date('2026-01-01'),
-          endDate: new Date('2027-07-01'),
+          endDate: new Date('2028-07-01'),
         }).success
       ).toBe(true);
     });
 
-    it('should enforce the 18-month boundary from a month-end start date', () => {
+    it('should accept long ranges from a month-end start date', () => {
       expect(
         fiscalYearCreationDtoSchema.safeParse({
           startDate: new Date('2026-08-31'),
           endDate: new Date('2028-03-01'),
         }).success
-      ).toBe(false);
+      ).toBe(true);
       expect(
         fiscalYearCreationDtoSchema.safeParse({
           startDate: new Date('2026-08-31'),

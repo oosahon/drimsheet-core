@@ -6,6 +6,7 @@ const AD: IJurisdiction = {
   code: 'AD',
   name: 'Andorra',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -17,6 +18,7 @@ const AE: IJurisdiction = {
   code: 'AE',
   name: 'United Arab Emirates',
   currency: SYSTEM_CURRENCIES.AED,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -28,6 +30,7 @@ const AR: IJurisdiction = {
   code: 'AR',
   name: 'Argentina',
   currency: SYSTEM_CURRENCIES.ARS,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -39,6 +42,7 @@ const AT: IJurisdiction = {
   code: 'AT',
   name: 'Austria',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -50,6 +54,7 @@ const AU: IJurisdiction = {
   code: 'AU',
   name: 'Australia',
   currency: SYSTEM_CURRENCIES.AUD,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['AASB'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -61,6 +66,7 @@ const BD: IJurisdiction = {
   code: 'BD',
   name: 'Bangladesh',
   currency: SYSTEM_CURRENCIES.BDT,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -72,6 +78,7 @@ const BE: IJurisdiction = {
   code: 'BE',
   name: 'Belgium',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -83,6 +90,7 @@ const BR: IJurisdiction = {
   code: 'BR',
   name: 'Brazil',
   currency: SYSTEM_CURRENCIES.BRL,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -94,6 +102,7 @@ const CA: IJurisdiction = {
   code: 'CA',
   name: 'Canada',
   currency: SYSTEM_CURRENCIES.CAD,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['ASPE'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -105,6 +114,7 @@ const CH: IJurisdiction = {
   code: 'CH',
   name: 'Switzerland',
   currency: SYSTEM_CURRENCIES.CHF,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SWISS_GAAP_FER'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -116,6 +126,7 @@ const CI: IJurisdiction = {
   code: 'CI',
   name: 'Ivory Coast',
   currency: SYSTEM_CURRENCIES.XOF,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SYSCOHADA'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -127,6 +138,7 @@ const CL: IJurisdiction = {
   code: 'CL',
   name: 'Chile',
   currency: SYSTEM_CURRENCIES.CLP,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -138,6 +150,7 @@ const CM: IJurisdiction = {
   code: 'CM',
   name: 'Cameroon',
   currency: SYSTEM_CURRENCIES.XAF,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SYSCOHADA'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -149,6 +162,7 @@ const CN: IJurisdiction = {
   code: 'CN',
   name: 'China',
   currency: SYSTEM_CURRENCIES.CNY,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['CAS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -160,6 +174,7 @@ const CO: IJurisdiction = {
   code: 'CO',
   name: 'Colombia',
   currency: SYSTEM_CURRENCIES.COP,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -171,6 +186,7 @@ const CY: IJurisdiction = {
   code: 'CY',
   name: 'Cyprus',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -182,6 +198,7 @@ const CZ: IJurisdiction = {
   code: 'CZ',
   name: 'Czech Republic',
   currency: SYSTEM_CURRENCIES.CZK,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -193,6 +210,7 @@ const DE: IJurisdiction = {
   code: 'DE',
   name: 'Germany',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['HGB'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -204,6 +222,7 @@ const DK: IJurisdiction = {
   code: 'DK',
   name: 'Denmark',
   currency: SYSTEM_CURRENCIES.DKK,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -215,6 +234,7 @@ const DZ: IJurisdiction = {
   code: 'DZ',
   name: 'Algeria',
   currency: SYSTEM_CURRENCIES.DZD,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SCF'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -226,6 +246,7 @@ const EE: IJurisdiction = {
   code: 'EE',
   name: 'Estonia',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -237,6 +258,7 @@ const EG: IJurisdiction = {
   code: 'EG',
   name: 'Egypt',
   currency: SYSTEM_CURRENCIES.EGP,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['EAS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -248,6 +270,7 @@ const ES: IJurisdiction = {
   code: 'ES',
   name: 'Spain',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PGC'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -259,6 +282,7 @@ const FI: IJurisdiction = {
   code: 'FI',
   name: 'Finland',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -270,6 +294,7 @@ const FR: IJurisdiction = {
   code: 'FR',
   name: 'France',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PCG'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -281,6 +306,7 @@ const GB: IJurisdiction = {
   code: 'GB',
   name: 'United Kingdom',
   currency: SYSTEM_CURRENCIES.GBP,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['UK_GAAP'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -292,6 +318,7 @@ const GH: IJurisdiction = {
   code: 'GH',
   name: 'Ghana',
   currency: SYSTEM_CURRENCIES.GHS,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -303,6 +330,7 @@ const GR: IJurisdiction = {
   code: 'GR',
   name: 'Greece',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -314,6 +342,7 @@ const HK: IJurisdiction = {
   code: 'HK',
   name: 'Hong Kong',
   currency: SYSTEM_CURRENCIES.HKD,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['HKFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -325,6 +354,7 @@ const HR: IJurisdiction = {
   code: 'HR',
   name: 'Croatia',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -336,6 +366,7 @@ const HU: IJurisdiction = {
   code: 'HU',
   name: 'Hungary',
   currency: SYSTEM_CURRENCIES.HUF,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -347,6 +378,7 @@ const ID: IJurisdiction = {
   code: 'ID',
   name: 'Indonesia',
   currency: SYSTEM_CURRENCIES.IDR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PSAK'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -358,6 +390,7 @@ const IE: IJurisdiction = {
   code: 'IE',
   name: 'Ireland',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -369,6 +402,7 @@ const IL: IJurisdiction = {
   code: 'IL',
   name: 'Israel',
   currency: SYSTEM_CURRENCIES.ILS,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['ISRAELI_GAAP'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -380,6 +414,7 @@ const IN: IJurisdiction = {
   code: 'IN',
   name: 'India',
   currency: SYSTEM_CURRENCIES.INR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IND_AS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -391,6 +426,7 @@ const IT: IJurisdiction = {
   code: 'IT',
   name: 'Italy',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['OIC'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -402,6 +438,7 @@ const JP: IJurisdiction = {
   code: 'JP',
   name: 'Japan',
   currency: SYSTEM_CURRENCIES.JPY,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['J_GAAP'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -413,6 +450,7 @@ const KE: IJurisdiction = {
   code: 'KE',
   name: 'Kenya',
   currency: SYSTEM_CURRENCIES.KES,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -424,6 +462,7 @@ const KR: IJurisdiction = {
   code: 'KR',
   name: 'South Korea',
   currency: SYSTEM_CURRENCIES.KRW,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['K_IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -435,6 +474,7 @@ const LT: IJurisdiction = {
   code: 'LT',
   name: 'Lithuania',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -446,6 +486,7 @@ const LU: IJurisdiction = {
   code: 'LU',
   name: 'Luxembourg',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -457,6 +498,7 @@ const LV: IJurisdiction = {
   code: 'LV',
   name: 'Latvia',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -468,6 +510,7 @@ const MA: IJurisdiction = {
   code: 'MA',
   name: 'Morocco',
   currency: SYSTEM_CURRENCIES.MAD,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['CGNC'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -479,6 +522,7 @@ const MC: IJurisdiction = {
   code: 'MC',
   name: 'Monaco',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PCG'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -490,6 +534,7 @@ const MT: IJurisdiction = {
   code: 'MT',
   name: 'Malta',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -501,6 +546,7 @@ const MX: IJurisdiction = {
   code: 'MX',
   name: 'Mexico',
   currency: SYSTEM_CURRENCIES.MXN,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['NIF'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -512,6 +558,7 @@ const MY: IJurisdiction = {
   code: 'MY',
   name: 'Malaysia',
   currency: SYSTEM_CURRENCIES.MYR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['MFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -523,6 +570,7 @@ const NG: IJurisdiction = {
   code: 'NG',
   name: 'Nigeria',
   currency: SYSTEM_CURRENCIES.NGN,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -534,6 +582,7 @@ const NL: IJurisdiction = {
   code: 'NL',
   name: 'Netherlands',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['RJ'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -545,6 +594,7 @@ const NO: IJurisdiction = {
   code: 'NO',
   name: 'Norway',
   currency: SYSTEM_CURRENCIES.NOK,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -556,6 +606,7 @@ const NZ: IJurisdiction = {
   code: 'NZ',
   name: 'New Zealand',
   currency: SYSTEM_CURRENCIES.NZD,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['NZ_IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -567,6 +618,7 @@ const PE: IJurisdiction = {
   code: 'PE',
   name: 'Peru',
   currency: SYSTEM_CURRENCIES.PEN,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -578,6 +630,7 @@ const PH: IJurisdiction = {
   code: 'PH',
   name: 'Philippines',
   currency: SYSTEM_CURRENCIES.PHP,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['PFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -589,6 +642,7 @@ const PK: IJurisdiction = {
   code: 'PK',
   name: 'Pakistan',
   currency: SYSTEM_CURRENCIES.PKR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -600,6 +654,7 @@ const PL: IJurisdiction = {
   code: 'PL',
   name: 'Poland',
   currency: SYSTEM_CURRENCIES.PLN,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -611,6 +666,7 @@ const PT: IJurisdiction = {
   code: 'PT',
   name: 'Portugal',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -622,6 +678,7 @@ const RO: IJurisdiction = {
   code: 'RO',
   name: 'Romania',
   currency: SYSTEM_CURRENCIES.RON,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -633,6 +690,7 @@ const RU: IJurisdiction = {
   code: 'RU',
   name: 'Russia',
   currency: SYSTEM_CURRENCIES.RUB,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['RAS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -644,6 +702,7 @@ const SA: IJurisdiction = {
   code: 'SA',
   name: 'Saudi Arabia',
   currency: SYSTEM_CURRENCIES.SAR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -655,6 +714,7 @@ const SE: IJurisdiction = {
   code: 'SE',
   name: 'Sweden',
   currency: SYSTEM_CURRENCIES.SEK,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -666,6 +726,7 @@ const SG: IJurisdiction = {
   code: 'SG',
   name: 'Singapore',
   currency: SYSTEM_CURRENCIES.SGD,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -677,6 +738,7 @@ const SI: IJurisdiction = {
   code: 'SI',
   name: 'Slovenia',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -688,6 +750,7 @@ const SK: IJurisdiction = {
   code: 'SK',
   name: 'Slovakia',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -699,6 +762,7 @@ const SM: IJurisdiction = {
   code: 'SM',
   name: 'San Marino',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['OIC'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -710,6 +774,7 @@ const SN: IJurisdiction = {
   code: 'SN',
   name: 'Senegal',
   currency: SYSTEM_CURRENCIES.XOF,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['SYSCOHADA'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -721,6 +786,7 @@ const TH: IJurisdiction = {
   code: 'TH',
   name: 'Thailand',
   currency: SYSTEM_CURRENCIES.THB,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['THAI_FRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -732,6 +798,7 @@ const TR: IJurisdiction = {
   code: 'TR',
   name: 'Turkey',
   currency: SYSTEM_CURRENCIES.TRY,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['TFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -743,6 +810,7 @@ const TW: IJurisdiction = {
   code: 'TW',
   name: 'Taiwan',
   currency: SYSTEM_CURRENCIES.TWD,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['TIFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -754,6 +822,7 @@ const TZ: IJurisdiction = {
   code: 'TZ',
   name: 'Tanzania',
   currency: SYSTEM_CURRENCIES.TZS,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -765,6 +834,7 @@ const UA: IJurisdiction = {
   code: 'UA',
   name: 'Ukraine',
   currency: SYSTEM_CURRENCIES.UAH,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -776,6 +846,7 @@ const UG: IJurisdiction = {
   code: 'UG',
   name: 'Uganda',
   currency: SYSTEM_CURRENCIES.UGX,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -787,6 +858,7 @@ const US: IJurisdiction = {
   code: 'US',
   name: 'United States',
   currency: SYSTEM_CURRENCIES.USD,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['US_GAAP'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -798,6 +870,7 @@ const VA: IJurisdiction = {
   code: 'VA',
   name: 'Vatican City',
   currency: SYSTEM_CURRENCIES.EUR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['OIC'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -809,6 +882,7 @@ const VN: IJurisdiction = {
   code: 'VN',
   name: 'Vietnam',
   currency: SYSTEM_CURRENCIES.VND,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['VAS'],
     [EAccountingEntityType.SoleTrader]: [],
@@ -820,6 +894,7 @@ const ZA: IJurisdiction = {
   code: 'ZA',
   name: 'South Africa',
   currency: SYSTEM_CURRENCIES.ZAR,
+  maxFiscalMonths: 18,
   accountingStandards: {
     [EAccountingEntityType.Individual]: ['IFRS'],
     [EAccountingEntityType.SoleTrader]: [],

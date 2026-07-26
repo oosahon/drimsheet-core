@@ -1176,6 +1176,7 @@ const models: TsoaRoute.Models = {
       code: { dataType: 'string', required: true },
       name: { dataType: 'string', required: true },
       currencyCode: { dataType: 'string', required: true },
+      maxFiscalMonths: { dataType: 'double', required: true },
       accountingStandards: { ref: 'IAccountingStandardDto', required: true },
     },
     additionalProperties: false,

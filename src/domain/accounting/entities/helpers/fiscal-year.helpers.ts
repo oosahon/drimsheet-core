@@ -15,7 +15,7 @@ function validateStartAndEndDate(
     end: payload.endDate,
   });
 
-  const isInvalidDistance = monthDistance > 23 || monthDistance < 1;
+  const isInvalidDistance = monthDistance < 1;
 
   if (isInvalidDistance) {
     throw new periodError.InvalidDateRange();

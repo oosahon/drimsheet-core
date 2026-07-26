@@ -1,7 +1,67 @@
+import { TAuditedEntity } from '../../../shared/events/types/event.types';
 import { TEntityId } from '../../../shared/types/uuid';
-import { IAccountingEntity } from './accounting-entity.types';
+import { UCurrencyCode } from '../../money/config/currencies.config';
+import { UAccountingStandardCode } from '../config/accounting-standards.config';
+import { UJurisdictionCode } from '../config/jurisdictions.config';
+import {
+  IAccountingEntity,
+  UAccountingEntityType,
+} from './accounting-entity.types';
+import { IAccountingContext, IReportingContext } from './context.types';
+import { IFiscalYear } from './fiscal-year.types';
+import {
+  IAccountingPeriod,
+  IReportingPeriod,
+  UPeriodUnit,
+} from './period.types';
+
+export interface IAccountingEntityCreationInput {
+  name: string;
+  type: UAccountingEntityType;
+  ownerId: TEntityId;
+  functionalCurrencyCode: UCurrencyCode;
+  reportingCurrencyCode: UCurrencyCode;
+  jurisdictionCode: UJurisdictionCode;
+  accountingStandardCode: UAccountingStandardCode;
+  fiscalYear: { startDate: Date; endDate: Date };
+  accountingPeriod: { unit: UPeriodUnit; count: number };
+  reportingPeriod: { unit: UPeriodUnit; count: number };
+}
+
+export interface IAccountingEntityCreationResult {
+  accountingEntity: TAuditedEntity<
+    IAccountingEntity,
+    IAccountingEntity,
+    IAccountingEntity
+  >;
+  fiscalYear: TAuditedEntity<IFiscalYear, IFiscalYear, IFiscalYear>;
+  accountingPeriods: TAuditedEntity<
+    IAccountingPeriod,
+    IAccountingPeriod,
+    IAccountingPeriod
+  >[];
+  accountingContext: TAuditedEntity<
+    IAccountingContext,
+    IAccountingContext,
+    IAccountingContext
+  >;
+  reportingPeriods: TAuditedEntity<
+    IReportingPeriod,
+    IReportingPeriod,
+    IReportingPeriod
+  >[];
+  reportingContext: TAuditedEntity<
+    IReportingContext,
+    IReportingContext,
+    IReportingContext
+  >;
+}
 
 export default interface IAccountingEntityService {
+  create(
+    input: IAccountingEntityCreationInput
+  ): IAccountingEntityCreationResult;
+
   grantUserAccess(
     accountingEntity: IAccountingEntity,
     userId: TEntityId

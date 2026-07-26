@@ -1417,11 +1417,21 @@
           "currencyCode": {
             "type": "string"
           },
+          "maxFiscalMonths": {
+            "type": "number",
+            "format": "double"
+          },
           "accountingStandards": {
             "$ref": "#/components/schemas/IAccountingStandardDto"
           }
         },
-        "required": ["code", "name", "currencyCode", "accountingStandards"],
+        "required": [
+          "code",
+          "name",
+          "currencyCode",
+          "maxFiscalMonths",
+          "accountingStandards"
+        ],
         "type": "object",
         "additionalProperties": false
       }
