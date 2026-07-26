@@ -59,6 +59,11 @@ rollouts.
 Add, rename, or remove subsections as needed. Do not manufacture multiple steps
 for work that has one coherent implementation.
 
+Identify the owner of each invariant, side effect, and transaction. For every
+proposed service, state the named reusable capability it represents and cite
+the existing contract or IoC seam it follows. Do not propose a service merely
+to shorten a use case.
+
 ## Test Plan
 
 - **Unit or component:** describe behaviors, boundaries, and expected location.

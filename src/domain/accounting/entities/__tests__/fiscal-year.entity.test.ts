@@ -114,13 +114,13 @@ describe('fiscalYearEntity', () => {
         ).toThrow();
       });
 
-      it('throws InvalidDateRange if duration is greater than 23 months', () => {
+      it('accepts a duration greater than 23 months for policy validation elsewhere', () => {
         expect(() =>
           fiscalYearEntity.validateStartAndEndDate({
             startDate: new Date('2026-05-01T00:00:00.000Z'),
             endDate: new Date('2028-06-01T00:00:00.000Z'),
           })
-        ).toThrow();
+        ).not.toThrow();
       });
     });
 

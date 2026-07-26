@@ -15,7 +15,8 @@ Use the folder that owns the behavior.
 - Domain must not know HTTP, Express, TSOA, Redis, Drizzle, env vars, cookies, queues, or logging.
 - Controllers and middlewares orchestrate only. Business or app decisions go to domain/app.
 - Use cases orchestrate domain/app behavior. Extract non-trivial rules to domain services, entities, values, or app policies.
-- Repositories store and retrieve data only. Multi-step persistence behavior belongs in a service.
+- Repositories store and retrieve data only. Keep workflow-specific
+  transactions with their use case unless persistence is a reusable capability.
 - Config files configure adapters. They are not helper folders.
 - Shared must not contain product-specific rules or framework assumptions.
 - Helpers inherit the owner of the behavior they contain.
@@ -29,3 +30,6 @@ Use the folder that owns the behavior.
 5. Pure cross-layer utility? `src/shared`.
 
 See `eslint.config.mjs` for enforced import boundaries.
+
+For service extraction and transaction ownership, follow
+[Service Ownership](service-ownership.md).

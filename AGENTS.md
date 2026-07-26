@@ -8,6 +8,9 @@ Read this before changing the repository.
 2. Load the skill for the task from `.agents/skills/<skill>/SKILL.md`.
 3. For code changes, follow `.agents/workflow/implementation.md`.
 4. Always follow `.agents/rules/folder-responsibility.md`.
+5. Follow `.agents/rules/service-ownership.md` and
+   `.agents/rules/readability.md` for implementation changes.
+6. Follow `.agents/rules/ioc.md` when changing dependency wiring.
 
 ## Planning
 
@@ -20,10 +23,13 @@ Read this before changing the repository.
 
 - Put behavior in the folder that owns it.
 - Keep repositories limited to data storage and retrieval.
-- Keep controllers, middlewares, and use cases orchestration-only.
+- Keep controllers and middlewares delivery-only. Keep business decisions out
+  of use cases; workflow transactions remain application orchestration.
 - Use domain entities/values/services or app policies for decisions.
 - Keep rules concise. Link to existing rules instead of duplicating them.
 - Do not invent architecture when local rules or patterns already exist.
+- Treat saved plans as implementation artifacts, not architectural authority.
+  Revalidate them against durable rules and current code before editing.
 
 ## Skills
 

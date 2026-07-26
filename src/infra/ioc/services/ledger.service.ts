@@ -1,3 +1,4 @@
+import makeAccountsBootstrapService from '../../../app/ledger/services/accounts-bootstrap.service';
 import makeAssetAccountService from '../../../domain/ledger/asset-account/services/asset-account.service';
 import makeEquityAccountService from '../../../domain/ledger/equity-account/services/equity-account.service';
 import makeExpenseAccountService from '../../../domain/ledger/expense-account/services/expense-account.service';
@@ -33,8 +34,15 @@ const persistence = makeLedgerAccountPersistenceService({
   repoService,
   logger: observability.logger,
 });
+const accountsBootstrap = makeAccountsBootstrapService({
+  assetAccountService: assetAccount,
+  liabilityAccountService: liabilityAccount,
+  equityAccountService: equityAccount,
+  revenueAccountService: revenueAccount,
+  expenseAccountService: expenseAccount,
+});
 
-const ledgerDomainServices = Object.freeze({
+const ledgerServices = Object.freeze({
   ledgerAccount,
   assetAccount,
   liabilityAccount,
@@ -42,6 +50,7 @@ const ledgerDomainServices = Object.freeze({
   revenueAccount,
   expenseAccount,
   persistence,
+  accountsBootstrap,
 });
 
-export default ledgerDomainServices;
+export default ledgerServices;

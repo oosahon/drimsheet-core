@@ -7,3 +7,6 @@
 - `plans/`: one-time plans, investigations, and implementation notes.
 
 Keep rules centralized. Skills should link to rules and workflows, not duplicate them.
+
+Durable rules and the current repository take precedence over saved plans.
+Revalidate a plan before implementation.

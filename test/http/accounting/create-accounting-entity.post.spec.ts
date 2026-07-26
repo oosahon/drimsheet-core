@@ -2,6 +2,7 @@ import { Express } from 'express';
 import request from 'supertest';
 import { IAccountingEntityCreationDto } from '../../../src/app/accounting/dtos/accounting/accounting.dto';
 import authError from '../../../src/app/auth/errors/auth.error';
+import periodError from '../../../src/domain/accounting/errors/period.error';
 import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../src/domain/user/types/user.types';
 import authService from '../../../src/infra/ioc/services/auth.service';
@@ -50,6 +51,8 @@ jest.mock('../../../src/infra/persistence/repos/user', () => ({
 
 const ENDPOINT = '/api/v1/accounting/accounting-entity';
 const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
+const maximumFiscalYearEndDate = new Date('2027-07-01T00:00:00.000Z');
+const overLimitFiscalYearEndDate = new Date('2027-07-01T00:00:00.001Z');
 
 const validPayload: IAccountingEntityCreationDto = {
   name: 'Ada Consulting',
@@ -115,6 +118,48 @@ describe('POST /accounting/accounting-entity', () => {
       expect(mockCreateAccountingEntity).toHaveBeenCalledWith({
         ...validPayload,
       });
+    });
+  });
+
+  describe('400 Response', () => {
+    it('maps a jurisdiction fiscal year limit violation', async () => {
+      const overLimitPayload = {
+        ...validPayload,
+        fiscalYear: {
+          ...validPayload.fiscalYear,
+          endDate: overLimitFiscalYearEndDate,
+        },
+      };
+
+      mockCreateAccountingEntity.mockRejectedValue(
+        new periodError.FiscalYearExceedsJurisdictionLimit({
+          jurisdictionCode: validPayload.jurisdictionCode,
+          maxFiscalMonths: 18,
+          startDate: validPayload.fiscalYear.startDate,
+          endDate: overLimitFiscalYearEndDate,
+          maximumEndDate: maximumFiscalYearEndDate,
+        })
+      );
+
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(overLimitPayload);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        name: 'PeriodError',
+        errorKey:
+          'accounting_error_period_fiscal_year_exceeds_jurisdiction_limit',
+        cause: {
+          jurisdictionCode: validPayload.jurisdictionCode,
+          maxFiscalMonths: 18,
+          startDate: validPayload.fiscalYear.startDate.toISOString(),
+          endDate: overLimitFiscalYearEndDate.toISOString(),
+          maximumEndDate: maximumFiscalYearEndDate.toISOString(),
+        },
+      });
+      expect(mockCreateAccountingEntity).toHaveBeenCalledWith(overLimitPayload);
     });
   });
 

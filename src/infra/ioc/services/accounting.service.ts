@@ -1,12 +1,9 @@
 import makeAccountingEntityService from '../../../domain/accounting/services/accounting-entity.service';
-import accountingRepos from '../../persistence/repos/accounting';
 
-const accountingEntity = makeAccountingEntityService({
-  accountingEntityRepo: accountingRepos.accountingEntity,
-});
+const accountingEntity = makeAccountingEntityService();
 
-const accountingDomainServices = Object.freeze({
+const accountingServices = Object.freeze({
   accountingEntity,
 });
 
-export default accountingDomainServices;
+export default accountingServices;

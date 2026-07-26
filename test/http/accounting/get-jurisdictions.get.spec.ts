@@ -20,6 +20,7 @@ const jurisdictions = Object.values(SYSTEM_JURISDICTIONS).map(
     code: jurisdiction.code,
     name: jurisdiction.name,
     currencyCode: jurisdiction.currency.code,
+    maxFiscalMonths: jurisdiction.maxFiscalMonths,
     accountingStandards: jurisdiction.accountingStandards,
   })
 );

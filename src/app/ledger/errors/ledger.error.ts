@@ -10,6 +10,7 @@ const EErrorKeys = {
   BalanceNotFound: 'app_error_ledger_balance_not_found',
   InvalidSubtype: 'app_error_ledger_invalid_sub_type',
   ExchangeRateRequired: 'app_error_ledger_exchange_rate_required',
+  InconsistentBootstrap: 'app_error_ledger_inconsistent_bootstrap',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type ULedgerError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

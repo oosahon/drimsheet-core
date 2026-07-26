@@ -28,6 +28,7 @@ describe('getJurisdictionsUseCase', () => {
         code: firstSystemJurisdiction.code,
         name: firstSystemJurisdiction.name,
         currencyCode: firstSystemJurisdiction.currency.code,
+        maxFiscalMonths: firstSystemJurisdiction.maxFiscalMonths,
         accountingStandards: firstSystemJurisdiction.accountingStandards,
       });
     }
@@ -45,6 +46,7 @@ describe('getJurisdictionsUseCase', () => {
         code: sysJurisdiction.code,
         name: sysJurisdiction.name,
         currencyCode: sysJurisdiction.currency.code,
+        maxFiscalMonths: sysJurisdiction.maxFiscalMonths,
         accountingStandards: sysJurisdiction.accountingStandards,
       });
     }

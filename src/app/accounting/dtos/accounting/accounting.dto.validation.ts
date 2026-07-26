@@ -7,10 +7,7 @@ import {
   SYSTEM_JURISDICTIONS,
   UJurisdictionCode,
 } from '../../../../domain/accounting/config/jurisdictions.config';
-import {
-  MAX_FISCAL_YEAR_MONTHS,
-  MAX_GENERATED_PERIODS,
-} from '../../../../domain/accounting/config/period-limits.config';
+import { MAX_GENERATED_PERIODS } from '../../../../domain/accounting/config/period-limits.config';
 import {
   EAccountingEntityType,
   UAccountingEntityType,
@@ -19,7 +16,6 @@ import {
   EPeriodUnit,
   UPeriodUnit,
 } from '../../../../domain/accounting/types/period.types';
-import dateUtils from '../../../../shared/utils/date';
 import { currencyCodeValidation } from '../../../money/dtos/currency/currency.dto.validation';
 import { userAppUsageModePreferenceValidation } from '../../../user/dtos/user/user.dto.validation';
 
@@ -84,20 +80,6 @@ export const fiscalYearCreationDtoSchema = z
         code: 'custom',
         path: ['endDate'],
         message: 'Fiscal year end date must be after its start date',
-      });
-      return;
-    }
-
-    const maximumEndDate = dateUtils.addMonthsToDate(
-      startDate,
-      MAX_FISCAL_YEAR_MONTHS
-    );
-
-    if (endDate > maximumEndDate) {
-      context.addIssue({
-        code: 'custom',
-        path: ['endDate'],
-        message: `Fiscal year cannot exceed ${MAX_FISCAL_YEAR_MONTHS} months`,
       });
     }
   });

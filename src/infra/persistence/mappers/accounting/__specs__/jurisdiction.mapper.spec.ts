@@ -10,6 +10,7 @@ describe('Jurisdiction Mapper', () => {
         code: 'NG',
         name: 'Nigeria',
         currency: SYSTEM_CURRENCIES.NGN,
+        maxFiscalMonths: 18,
         accountingStandards: {
           [EAccountingEntityType.Individual]: ['IFRS'],
           [EAccountingEntityType.SoleTrader]: ['IFRS'],

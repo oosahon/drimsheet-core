@@ -7,6 +7,7 @@ export interface IJurisdiction {
   name: string;
   currency: ICurrency;
   accountingStandards: Record<UAccountingEntityType, UAccountingStandardCode[]>;
+  maxFiscalMonths: number;
 }
 
 export interface IJurisdictionAccountingStandard {

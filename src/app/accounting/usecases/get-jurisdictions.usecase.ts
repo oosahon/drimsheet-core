@@ -7,6 +7,7 @@ export default function makeGetJurisdictionsUseCase() {
       code: jurisdiction.code,
       name: jurisdiction.name,
       currencyCode: jurisdiction.currency.code,
+      maxFiscalMonths: jurisdiction.maxFiscalMonths,
       accountingStandards: jurisdiction.accountingStandards,
     }));
   };

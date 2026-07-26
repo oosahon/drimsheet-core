@@ -20,5 +20,7 @@ description: Use when adding, changing, or reviewing tests in this repository.
 
 ## Commands
 
-- All tests: `yarn test`
-- Coverage: `yarn test --coverage`
+- All tests: `npm test -- --runInBand`
+- Coverage: `npm test -- --coverage --runInBand`
+- Lint: `npm run lint`
+- Build: `npm run build`

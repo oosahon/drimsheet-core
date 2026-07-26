@@ -52,5 +52,6 @@ export interface IJurisdictionDto {
   code: string;
   name: string;
   currencyCode: string;
+  maxFiscalMonths: number;
   accountingStandards: IAccountingStandardDto;
 }

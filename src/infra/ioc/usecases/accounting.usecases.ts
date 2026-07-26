@@ -6,33 +6,31 @@ import messaging from '../../messaging';
 import observability from '../../observability';
 import accountingRepos from '../../persistence/repos/accounting';
 import appContext from '../../runtime/app-context';
-import ledgerDomainServices from '../services/ledger.service';
+import accountingServices from '../services/accounting.service';
+import ledgerServices from '../services/ledger.service';
 import repoService from '../services/repo.service';
 
 const accountingUsecases = Object.freeze({
   createAccountingEntity: makeCreateAccountingEntityUseCase({
     appContext,
-    repoService,
     accountingEntityRepo: accountingRepos.accountingEntity,
     fiscalYearRepo: accountingRepos.fiscalYear,
     accountingPeriodRepo: accountingRepos.accountingPeriod,
     accountingContextRepo: accountingRepos.accountingContext,
     reportingPeriodRepo: accountingRepos.reportingPeriod,
     reportingContextRepo: accountingRepos.reportingContext,
-    ledgerAccountPersistenceService: ledgerDomainServices.persistence,
+    repoService,
+    ledgerAccountPersistenceService: ledgerServices.persistence,
+    accountingEntityService: accountingServices.accountingEntity,
+    accountsBootstrapService: ledgerServices.accountsBootstrap,
     eventBus: messaging.eventBus,
     reporter: observability.reporter,
-    assetAccountService: ledgerDomainServices.assetAccount,
-    liabilityAccountService: ledgerDomainServices.liabilityAccount,
-    equityAccountService: ledgerDomainServices.equityAccount,
-    revenueAccountService: ledgerDomainServices.revenueAccount,
-    expenseAccountService: ledgerDomainServices.expenseAccount,
   }),
 
   getJurisdictions: makeGetJurisdictionsUseCase(),
 
   getUserAccountingEntities: makeGetUserAccountingEntitiesUseCase({
-    appContext: appContext,
+    appContext,
     accountingEntityRepo: accountingRepos.accountingEntity,
   }),
 
