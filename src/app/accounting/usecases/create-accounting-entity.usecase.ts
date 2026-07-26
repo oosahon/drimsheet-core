@@ -27,6 +27,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
+import IReporter from '../../../shared/contracts/reporter.contract';
 import appError from '../../../shared/errors/app.error';
 import eventValue from '../../../shared/events/event.vo';
 import getEntitiesAndEvents from '../../../shared/helpers/get-entities-and-events';
@@ -48,6 +49,7 @@ interface IDependencies {
   reportingContextRepo: IReportingContextRepo;
   ledgerAccountPersistenceService: ILedgerAccountPersistenceService;
   eventBus: IEventBus;
+  reporter: IReporter;
   assetAccountService: IAssetAccountService;
   liabilityAccountService: ILiabilityAccountService;
   equityAccountService: IEquityAccountService;
@@ -272,6 +274,18 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       ...expenseAccountAudits,
     ].map((audit) => historyValue.make(audit, actor, correlationId));
 
+    const ledgerAccountHistoriesByEntityId = new Map(
+      ledgerAccountHistories.map((history) => [history.entityId, history])
+    );
+
+    const isInconsistentHistories =
+      ledgerAccountHistoriesByEntityId.size !== ledgerAccounts.length ||
+      ledgerAccountHistories.length !== ledgerAccounts.length;
+
+    if (isInconsistentHistories) {
+      throw new appError.InternalServerError();
+    }
+
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const options = { correlationId, tx };
 
@@ -301,12 +315,20 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       });
 
       for (const ledgerAccount of ledgerAccounts) {
+        const ledgerAccountHistory = ledgerAccountHistoriesByEntityId.get(
+          ledgerAccount.id
+        );
+
+        if (!ledgerAccountHistory) {
+          throw new appError.InternalServerError();
+        }
+
         await deps.ledgerAccountPersistenceService.create(
           ledgerAccount,
           accountingEntity.functionalCurrencyCode,
           {
             ...options,
-            history: ledgerAccountHistories,
+            history: [ledgerAccountHistory],
           }
         );
       }
@@ -331,7 +353,13 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       ...eventValue.enrichAll(expenseAccountEvents, trace),
     ];
 
-    deps.eventBus.publish(allEvents);
+    await deps.eventBus.publish(allEvents).catch((error) => {
+      deps.reporter.report(error, {
+        correlationId,
+        accountingEntityId: accountingEntity.id,
+        eventTypes: allEvents.map((event) => event.type),
+      });
+    });
 
     return accountingEntity;
   };

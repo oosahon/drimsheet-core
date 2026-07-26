@@ -1256,6 +1256,46 @@
         "type": "object",
         "additionalProperties": false
       },
+      "UAccountingStandardCode": {
+        "type": "string",
+        "enum": [
+          "AASB",
+          "ASPE",
+          "CAS",
+          "CGNC",
+          "EAS",
+          "HGB",
+          "HKFRS",
+          "IFRS",
+          "IND_AS",
+          "ISRAELI_GAAP",
+          "J_GAAP",
+          "K_IFRS",
+          "MFRS",
+          "NIF",
+          "NZ_IFRS",
+          "OIC",
+          "PCG",
+          "PFRS",
+          "PGC",
+          "PSAK",
+          "RAS",
+          "RJ",
+          "SCF",
+          "SFRS",
+          "SWISS_GAAP_FER",
+          "SYSCOHADA",
+          "TFRS",
+          "THAI_FRS",
+          "TIFRS",
+          "UK_GAAP",
+          "US_GAAP",
+          "VAS",
+          "LOCAL_GAAP",
+          "CASH_BASIS"
+        ],
+        "nullable": false
+      },
       "IFiscalYearCreationDto": {
         "description": "Fiscal year creation DTO",
         "properties": {
@@ -1282,8 +1322,10 @@
             "$ref": "#/components/schemas/UPeriodUnit"
           },
           "count": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1,
+            "maximum": 550
           }
         },
         "required": ["unit", "count"],
@@ -1300,16 +1342,16 @@
             "$ref": "#/components/schemas/UAccountingEntityType"
           },
           "jurisdictionCode": {
-            "type": "string"
+            "$ref": "#/components/schemas/UJurisdictionCode"
           },
           "accountingStandardCode": {
-            "type": "string"
+            "$ref": "#/components/schemas/UAccountingStandardCode"
           },
           "functionalCurrencyCode": {
-            "type": "string"
+            "$ref": "#/components/schemas/UCurrencyCode"
           },
           "reportingCurrencyCode": {
-            "type": "string"
+            "$ref": "#/components/schemas/UCurrencyCode"
           },
           "fiscalYear": {
             "$ref": "#/components/schemas/IFiscalYearCreationDto"

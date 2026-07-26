@@ -69,6 +69,12 @@ export const up = (pgm: MigrationBuilder) => {
       ifNotExists: true,
     }
   );
+
+  pgm.createIndex(accountingEntitiesTable, ['owner_id'], {
+    name: 'accounting_entities_unique_individual_owner_idx',
+    unique: true,
+    where: "type = 'individual'",
+  });
 };
 
 export const down = (pgm: MigrationBuilder) => {

@@ -50,6 +50,20 @@ describe('Period Helpers - getIntervals', () => {
       expect(() => periodHelpers.getIntervals(payload)).toThrow();
     });
 
+    it.each([1.5, Number.POSITIVE_INFINITY, 551])(
+      'throws InvalidInterval if count is unsafe: %s',
+      (count) => {
+        expect(() =>
+          periodHelpers.getIntervals({
+            startDate: new Date(`${futureYear}-01-01`),
+            endDate: new Date(`${futureYear + 2}-12-31`),
+            unit: EPeriodUnit.Day,
+            count,
+          })
+        ).toThrow();
+      }
+    );
+
     it('throws InvalidInterval if the total full-unit distance is less than count', () => {
       const payload = {
         startDate: new Date(`${futureYear}-01-01`),

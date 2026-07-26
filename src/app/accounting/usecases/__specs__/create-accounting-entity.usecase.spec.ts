@@ -22,6 +22,7 @@ import { EAppUsageModePreference } from '../../../../domain/user/types/user-pref
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import { IEntityDelta } from '../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
@@ -45,6 +46,7 @@ describe('createAccountingEntityUseCase', () => {
       reportingContextRepo: mockReportingContextRepo,
       ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
       eventBus: mockEventBus,
+      reporter: mockReporter,
       assetAccountService: mockAssetAccountService,
       liabilityAccountService: mockLiabilityAccountService,
       equityAccountService: mockEquityAccountService,
@@ -90,17 +92,18 @@ describe('createAccountingEntityUseCase', () => {
 
     mockAccountingEntityRepo.findByUserId.mockResolvedValue([]);
 
-    const [mockAccount] = cashAndEquivalentAccountEntity.makeHeader({
-      name: 'Cash',
-      accountingEntityId: generateUUID(),
-      currency: SYSTEM_CURRENCIES.USD,
-      createdBy: mockUserId,
-    });
+    const [mockAccount, , mockAccountAudit] =
+      cashAndEquivalentAccountEntity.makeHeader({
+        name: 'Cash',
+        accountingEntityId: generateUUID(),
+        currency: SYSTEM_CURRENCIES.USD,
+        createdBy: mockUserId,
+      });
 
     mockAssetAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [mockAccount],
       events: [],
-      audits: [],
+      audits: [mockAccountAudit],
     });
     mockLiabilityAccountService.bootstrapHeaderAccounts.mockResolvedValue({
       accounts: [],
@@ -122,6 +125,7 @@ describe('createAccountingEntityUseCase', () => {
       events: [],
       audits: [],
     });
+    mockEventBus.publish.mockResolvedValue();
   });
 
   it('throws ErrorBadRequest for unsupported entity type', async () => {
@@ -202,6 +206,15 @@ describe('createAccountingEntityUseCase', () => {
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
     expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalled();
+    expect(
+      mockAssetAccountService.bootstrapHeaderAccounts
+    ).toHaveBeenCalledWith(expect.any(Object), { correlationId }, false);
+    expect(
+      mockLiabilityAccountService.bootstrapHeaderAccounts
+    ).toHaveBeenCalledWith(expect.any(Object), { correlationId }, false);
+    expect(
+      mockEquityAccountService.bootstrapHeaderAccounts
+    ).toHaveBeenCalledWith(expect.any(Object), { correlationId });
   });
 
   it('maps ledger account audits into history entries when account services return non-empty audits', async () => {
@@ -246,5 +259,155 @@ describe('createAccountingEntityUseCase', () => {
       },
       correlationId,
     });
+  });
+
+  it('persists exactly one matching history for each ledger account', async () => {
+    const [secondAccount, , secondAudit] =
+      cashAndEquivalentAccountEntity.makeHeader({
+        name: 'Bank',
+        accountingEntityId: generateUUID(),
+        currency: SYSTEM_CURRENCIES.USD,
+        createdBy: mockUserId,
+      });
+    const [firstAccount, , firstAudit] =
+      cashAndEquivalentAccountEntity.makeHeader({
+        name: 'Cash',
+        accountingEntityId: generateUUID(),
+        currency: SYSTEM_CURRENCIES.USD,
+        createdBy: mockUserId,
+      });
+
+    mockAssetAccountService.bootstrapHeaderAccounts.mockResolvedValue({
+      accounts: [firstAccount, secondAccount],
+      events: [],
+      audits: [firstAudit, secondAudit],
+    });
+
+    await getUseCase()(validPayload);
+
+    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledTimes(2);
+    for (const [account, , options] of mockLedgerAccountPersistenceService
+      .create.mock.calls) {
+      expect(options.history).toHaveLength(1);
+      expect(options.history[0].entityId).toBe(account.id);
+      expect(options).toMatchObject({ correlationId, tx: 'mock-tx' });
+    }
+  });
+
+  it('rejects inconsistent ledger bootstrap output before persistence', async () => {
+    const [, , orphanAudit] = cashAndEquivalentAccountEntity.makeHeader({
+      name: 'Orphan account audit',
+      accountingEntityId: generateUUID(),
+      currency: SYSTEM_CURRENCIES.USD,
+      createdBy: mockUserId,
+    });
+
+    mockAssetAccountService.bootstrapHeaderAccounts.mockResolvedValue({
+      accounts: [],
+      events: [],
+      audits: [orphanAudit],
+    });
+
+    await expect(getUseCase()(validPayload)).rejects.toThrow(
+      'app_error_internal_server_error'
+    );
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+  });
+
+  it('does not update context or publish events when persistence fails', async () => {
+    mockAccountingEntityRepo.create.mockRejectedValueOnce(
+      new Error('database failure')
+    );
+
+    await expect(getUseCase()(validPayload)).rejects.toThrow(
+      'database failure'
+    );
+
+    expect(mockAppContext.set).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('updates context after commit and awaits successful event publication', async () => {
+    let resolvePublication: (() => void) | undefined;
+    mockEventBus.publish.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        resolvePublication = resolve;
+      })
+    );
+
+    const resultPromise = getUseCase()(validPayload);
+    await new Promise(process.nextTick);
+
+    expect(mockAppContext.set).toHaveBeenCalledWith({
+      accountingEntity: expect.any(Object),
+    });
+
+    let settled = false;
+    void resultPromise.then(() => {
+      settled = true;
+    });
+    await new Promise(process.nextTick);
+    expect(settled).toBe(false);
+
+    resolvePublication?.();
+    await expect(resultPromise).resolves.toMatchObject({
+      ownerId: mockUserId,
+      type: EAccountingEntityType.Individual,
+    });
+    expect(
+      mockRepoService.runInTransaction.mock.invocationCallOrder[0]
+    ).toBeLessThan(mockAppContext.set.mock.invocationCallOrder[0]);
+    expect(mockAppContext.set.mock.invocationCallOrder[0]).toBeLessThan(
+      mockEventBus.publish.mock.invocationCallOrder[0]
+    );
+  });
+
+  it('reports event publication failures and still returns the committed entity', async () => {
+    const publicationError = new Error('event bus unavailable');
+    mockEventBus.publish.mockRejectedValueOnce(publicationError);
+
+    await expect(getUseCase()(validPayload)).resolves.toMatchObject({
+      ownerId: mockUserId,
+    });
+
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      publicationError,
+      expect.objectContaining({
+        correlationId,
+        accountingEntityId: expect.any(String),
+        eventTypes: expect.arrayContaining([
+          expect.stringMatching(/accounting:entity/i),
+        ]),
+      })
+    );
+  });
+
+  it('throws InternalServerError when bootstrapped ledger accounts and history mapping keys do not match', async () => {
+    const [mockAccount] = cashAndEquivalentAccountEntity.makeHeader({
+      name: 'Cash',
+      accountingEntityId: generateUUID(),
+      currency: SYSTEM_CURRENCIES.USD,
+      createdBy: mockUserId,
+    });
+
+    const mismatchedAudit = {
+      entityId: generateUUID(),
+      action: 'created',
+      diff: {
+        before: null,
+        after: mockAccount,
+      },
+      occurredAt: new Date(),
+    } as unknown as IEntityDelta<ILedgerAccount>;
+
+    mockAssetAccountService.bootstrapHeaderAccounts.mockResolvedValue({
+      accounts: [mockAccount],
+      events: [],
+      audits: [mismatchedAudit],
+    });
+
+    await expect(getUseCase()(validPayload)).rejects.toThrow(
+      'app_error_internal_server_error'
+    );
   });
 });

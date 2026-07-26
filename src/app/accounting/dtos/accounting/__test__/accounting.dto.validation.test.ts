@@ -125,6 +125,43 @@ describe('Accounting DTO Validation', () => {
           .success
       ).toBe(false);
     });
+
+    it.each([
+      ['equal dates', '2026-01-01', '2026-01-01'],
+      ['reversed dates', '2026-02-01', '2026-01-01'],
+      ['more than 18 months', '2026-01-01', '2027-07-02'],
+    ])('should reject %s', (_label, startDate, endDate) => {
+      expect(
+        fiscalYearCreationDtoSchema.safeParse({
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+        }).success
+      ).toBe(false);
+    });
+
+    it('should accept an 18-month fiscal year boundary', () => {
+      expect(
+        fiscalYearCreationDtoSchema.safeParse({
+          startDate: new Date('2026-01-01'),
+          endDate: new Date('2027-07-01'),
+        }).success
+      ).toBe(true);
+    });
+
+    it('should enforce the 18-month boundary from a month-end start date', () => {
+      expect(
+        fiscalYearCreationDtoSchema.safeParse({
+          startDate: new Date('2026-08-31'),
+          endDate: new Date('2028-03-01'),
+        }).success
+      ).toBe(false);
+      expect(
+        fiscalYearCreationDtoSchema.safeParse({
+          startDate: new Date('2026-08-31'),
+          endDate: new Date('2028-02-29'),
+        }).success
+      ).toBe(true);
+    });
   });
 
   describe('periodCreationDtoSchema', () => {
@@ -142,6 +179,27 @@ describe('Accounting DTO Validation', () => {
         count: 'twelve',
       };
       expect(periodCreationDtoSchema.safeParse(payload).success).toBe(false);
+    });
+
+    it.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, 551])(
+      'should reject unsafe count %s',
+      (count) => {
+        expect(
+          periodCreationDtoSchema.safeParse({
+            unit: EPeriodUnit.Day,
+            count,
+          }).success
+        ).toBe(false);
+      }
+    );
+
+    it.each([1, 550])('should accept boundary count %s', (count) => {
+      expect(
+        periodCreationDtoSchema.safeParse({
+          unit: EPeriodUnit.Day,
+          count,
+        }).success
+      ).toBe(true);
     });
   });
 

@@ -1,8 +1,11 @@
+import { UAccountingStandardCode } from '../../../../domain/accounting/config/accounting-standards.config';
+import { UJurisdictionCode } from '../../../../domain/accounting/config/jurisdictions.config';
 import {
   EAccountingEntityType,
   UAccountingEntityType,
 } from '../../../../domain/accounting/types/accounting-entity.types';
 import { UPeriodUnit } from '../../../../domain/accounting/types/period.types';
+import { UCurrencyCode } from '../../../../domain/money/config/currencies.config';
 import { UAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 
 /**
@@ -15,6 +18,11 @@ export interface IFiscalYearCreationDto {
 
 export interface IPeriodCreationDto {
   unit: UPeriodUnit;
+  /**
+   * @isInt
+   * @minimum 1
+   * @maximum 550
+   */
   count: number;
 }
 
@@ -24,10 +32,10 @@ export interface IPeriodCreationDto {
 export interface IAccountingEntityCreationDto {
   name: string;
   entityType: UAccountingEntityType;
-  jurisdictionCode: string;
-  accountingStandardCode: string;
-  functionalCurrencyCode: string;
-  reportingCurrencyCode: string;
+  jurisdictionCode: UJurisdictionCode;
+  accountingStandardCode: UAccountingStandardCode;
+  functionalCurrencyCode: UCurrencyCode;
+  reportingCurrencyCode: UCurrencyCode;
   fiscalYear: IFiscalYearCreationDto;
   accountingPeriod: IPeriodCreationDto;
   reportingPeriod: IPeriodCreationDto;

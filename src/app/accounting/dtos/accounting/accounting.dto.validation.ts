@@ -8,6 +8,10 @@ import {
   UJurisdictionCode,
 } from '../../../../domain/accounting/config/jurisdictions.config';
 import {
+  MAX_FISCAL_YEAR_MONTHS,
+  MAX_GENERATED_PERIODS,
+} from '../../../../domain/accounting/config/period-limits.config';
+import {
   EAccountingEntityType,
   UAccountingEntityType,
 } from '../../../../domain/accounting/types/accounting-entity.types';
@@ -15,6 +19,7 @@ import {
   EPeriodUnit,
   UPeriodUnit,
 } from '../../../../domain/accounting/types/period.types';
+import dateUtils from '../../../../shared/utils/date';
 import { currencyCodeValidation } from '../../../money/dtos/currency/currency.dto.validation';
 import { userAppUsageModePreferenceValidation } from '../../../user/dtos/user/user.dto.validation';
 
@@ -68,14 +73,38 @@ export const periodUnitValidation = z.enum(
 /**
  * Fiscal year creation DTO schema
  */
-export const fiscalYearCreationDtoSchema = z.object({
-  startDate: z.date(),
-  endDate: z.date(),
-});
+export const fiscalYearCreationDtoSchema = z
+  .object({
+    startDate: z.date(),
+    endDate: z.date(),
+  })
+  .superRefine(({ startDate, endDate }, context) => {
+    if (endDate <= startDate) {
+      context.addIssue({
+        code: 'custom',
+        path: ['endDate'],
+        message: 'Fiscal year end date must be after its start date',
+      });
+      return;
+    }
+
+    const maximumEndDate = dateUtils.addMonthsToDate(
+      startDate,
+      MAX_FISCAL_YEAR_MONTHS
+    );
+
+    if (endDate > maximumEndDate) {
+      context.addIssue({
+        code: 'custom',
+        path: ['endDate'],
+        message: `Fiscal year cannot exceed ${MAX_FISCAL_YEAR_MONTHS} months`,
+      });
+    }
+  });
 
 export const periodCreationDtoSchema = z.object({
   unit: periodUnitValidation,
-  count: z.number(),
+  count: z.number().int().positive().max(MAX_GENERATED_PERIODS),
 });
 export const accountingEntityOnboardingDtoSchema = z.object({
   name: z.string(),
