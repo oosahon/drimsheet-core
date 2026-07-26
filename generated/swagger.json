@@ -2598,7 +2598,17 @@
               }
             }
           },
-          "409": {
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
             "description": "",
             "content": {
               "application/json": {
@@ -2628,6 +2638,16 @@
                     "$ref": "#/components/schemas/IJurisdictionDto"
                   },
                   "type": "array"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
                 }
               }
             }
@@ -2676,7 +2696,7 @@
               }
             }
           },
-          "409": {
+          "500": {
             "description": "",
             "content": {
               "application/json": {

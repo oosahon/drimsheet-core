@@ -3,6 +3,7 @@ import IAccountingEntityRepo from '../accounting-entity.repo';
 const mockAccountingEntityRepo: jest.Mocked<IAccountingEntityRepo> = {
   create: jest.fn(),
   findById: jest.fn(),
+  findByIdAndUserId: jest.fn(),
   findByUserId: jest.fn(),
 };
 

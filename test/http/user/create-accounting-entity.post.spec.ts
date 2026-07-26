@@ -34,7 +34,7 @@ jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
   __esModule: true,
   default: {
     accountingEntity: {
-      findById: jest.fn(),
+      findByIdAndUserId: jest.fn(),
     },
   },
 }));
@@ -83,7 +83,7 @@ describe('POST /accounting/accounting-entity', () => {
   const mockGetAuthUser = authService.token.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
   const mockFindAccountingEntity = accountingRepos.accountingEntity
-    .findById as jest.Mock;
+    .findByIdAndUserId as jest.Mock;
   const mockCreateAccountingEntity =
     accountingUsecases.createAccountingEntity as jest.Mock;
 

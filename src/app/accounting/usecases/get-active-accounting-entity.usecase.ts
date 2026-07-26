@@ -1,4 +1,5 @@
 import IAppContext from '../../_internal/contracts/app-context.contract';
+import accountingAppError from '../errors/accounting.error';
 
 interface IDeps {
   appContext: IAppContext;
@@ -7,6 +8,10 @@ interface IDeps {
 export default function makeGetCurrentAccountingEntityUseCase(deps: IDeps) {
   return async () => {
     const { accountingEntity } = deps.appContext.get();
+
+    if (!accountingEntity.id) {
+      throw new accountingAppError.ActiveEntityNotFound();
+    }
 
     return accountingEntity;
   };

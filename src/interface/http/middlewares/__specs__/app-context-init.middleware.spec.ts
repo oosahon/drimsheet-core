@@ -30,7 +30,7 @@ describe('makeAppContextInitMiddleware', () => {
     } as unknown as jest.Mocked<IAppContext>;
 
     mockAccountingEntityRepo = {
-      findById: jest.fn(),
+      findByIdAndUserId: jest.fn(),
     } as unknown as jest.Mocked<IAccountingEntityRepo>;
 
     mockAuthService = {
@@ -127,7 +127,7 @@ describe('makeAppContextInitMiddleware', () => {
     } as IAuthTokenPayload);
     mockUserRepo.findById.mockResolvedValue({ id: 'user-id-123' } as IUser);
 
-    mockAccountingEntityRepo.findById.mockResolvedValue({
+    mockAccountingEntityRepo.findByIdAndUserId.mockResolvedValue({
       id: validUUID,
       ownerId: 'user-id-123', // Matches user id
     } as IAccountingEntity);

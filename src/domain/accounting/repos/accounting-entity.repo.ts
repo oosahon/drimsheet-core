@@ -20,6 +20,12 @@ export default interface IAccountingEntityRepo {
     options: IReadRepoOptions
   ): Promise<IAccountingEntity | null>;
 
+  findByIdAndUserId(
+    id: TEntityId,
+    userId: TEntityId,
+    options: IReadRepoOptions
+  ): Promise<IAccountingEntity | null>;
+
   findByUserId(
     userId: TEntityId,
     options: IReadRepoOptions,

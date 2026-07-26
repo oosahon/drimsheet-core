@@ -13,7 +13,7 @@ describe('getAccountingEntityFromRequest', () => {
 
   beforeEach(() => {
     mockRepo = {
-      findById: jest.fn(),
+      findByIdAndUserId: jest.fn(),
     } as unknown as jest.Mocked<IAccountingEntityRepo>;
 
     mockReq = {
@@ -52,7 +52,7 @@ describe('getAccountingEntityFromRequest', () => {
       'x-accounting-entity-id': validUUID,
       'x-correlation-id': 'correlation-123',
     };
-    mockRepo.findById.mockResolvedValue(null);
+    mockRepo.findByIdAndUserId.mockResolvedValue(null);
 
     const result = await getAccountingEntityFromRequest(
       mockReq as Request,
@@ -60,9 +60,11 @@ describe('getAccountingEntityFromRequest', () => {
       validUserId
     );
 
-    expect(mockRepo.findById).toHaveBeenCalledWith(validUUID, {
-      correlationId: 'correlation-123',
-    });
+    expect(mockRepo.findByIdAndUserId).toHaveBeenCalledWith(
+      validUUID,
+      validUserId,
+      { correlationId: 'correlation-123' }
+    );
     expect(result).toBeNull();
   });
 
@@ -72,7 +74,7 @@ describe('getAccountingEntityFromRequest', () => {
       id: validUUID,
       name: 'Test Entity',
     } as IAccountingEntity;
-    mockRepo.findById.mockResolvedValue(mockEntity);
+    mockRepo.findByIdAndUserId.mockResolvedValue(mockEntity);
 
     const result = await getAccountingEntityFromRequest(
       mockReq as Request,
@@ -80,8 +82,9 @@ describe('getAccountingEntityFromRequest', () => {
       validUserId
     );
 
-    expect(mockRepo.findById).toHaveBeenCalledWith(
+    expect(mockRepo.findByIdAndUserId).toHaveBeenCalledWith(
       validUUID,
+      validUserId,
       expect.any(Object)
     );
     expect(result).toEqual(mockEntity);

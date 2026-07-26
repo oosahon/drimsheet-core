@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
+import accountingAppError from '../../../../app/accounting/errors/accounting.error';
 import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
 import appError from '../../../../shared/errors/app.error';
@@ -141,6 +142,27 @@ describe('makeHttpErrorHandler', () => {
     });
     expect(mockLogger.error).toHaveBeenCalledWith(error);
     expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('maps an absent active accounting entity to 404', () => {
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'test',
+    });
+
+    handler(
+      mockReq as unknown as Request,
+      mockRes as Response,
+      new accountingAppError.ActiveEntityNotFound()
+    );
+
+    expect(mockStatus).toHaveBeenCalledWith(404);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'AccountingAppError',
+      errorKey: 'app_error_accounting_active_entity_not_found',
+      cause: undefined,
+    });
   });
 
   it('should handle AppError without logging outside local', () => {

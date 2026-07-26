@@ -1,0 +1,174 @@
+import { Express } from 'express';
+import request from 'supertest';
+import accountingAppError from '../../../src/app/accounting/errors/accounting.error';
+import authError from '../../../src/app/auth/errors/auth.error';
+import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
+import { IUser } from '../../../src/domain/user/types/user.types';
+import authService from '../../../src/infra/ioc/services/auth.service';
+import accountingUsecases from '../../../src/infra/ioc/usecases/accounting.usecases';
+import accountingRepos from '../../../src/infra/persistence/repos/accounting';
+import userRepos from '../../../src/infra/persistence/repos/user';
+import { createApplication } from '../../../src/infra/server';
+import { TEntityId } from '../../../src/shared/types/uuid';
+
+jest.mock('../../../src/infra/ioc/services/auth.service', () => ({
+  __esModule: true,
+  default: { password: {}, token: { getAuthUser: jest.fn() } },
+}));
+
+jest.mock('../../../src/infra/ioc/usecases/accounting.usecases', () => ({
+  __esModule: true,
+  default: {
+    createAccountingEntity: jest.fn(),
+    getJurisdictions: jest.fn(),
+    getUserAccountingEntities: jest.fn(),
+    getActiveAccountingEntity: jest.fn(),
+  },
+}));
+
+jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
+  __esModule: true,
+  default: {
+    accountingEntity: { findByIdAndUserId: jest.fn() },
+  },
+}));
+
+jest.mock('../../../src/infra/persistence/repos/user', () => ({
+  __esModule: true,
+  default: { user: { findById: jest.fn() } },
+}));
+
+const ENDPOINT = '/api/v1/accounting/accounting-entity';
+const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
+const entity: IAccountingEntity = {
+  id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+  ownerId: userId,
+  name: 'Ada Consulting',
+  type: 'individual',
+  functionalCurrencyCode: 'USD',
+  jurisdictionCode: 'US',
+  createdAt: new Date('2026-07-26T10:00:00.000Z'),
+  updatedAt: new Date('2026-07-26T10:00:00.000Z'),
+};
+
+describe('GET /accounting/accounting-entity', () => {
+  let app: Express;
+  const mockGetAuthUser = authService.token.getAuthUser as jest.Mock;
+  const mockFindUser = userRepos.user.findById as jest.Mock;
+  const mockFindEntity = accountingRepos.accountingEntity
+    .findByIdAndUserId as jest.Mock;
+  const mockGetActiveEntity =
+    accountingUsecases.getActiveAccountingEntity as jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockGetAuthUser.mockResolvedValue({ id: userId });
+    mockFindUser.mockResolvedValue({ id: userId } as IUser);
+    mockFindEntity.mockResolvedValue(entity);
+    mockGetActiveEntity.mockResolvedValue(entity);
+    app = createApplication();
+  });
+
+  describe('200 Response', () => {
+    it('returns the selected owned entity contract with security headers', async () => {
+      const response = await request(app)
+        .get(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .set('x-accounting-entity-id', entity.id);
+
+      expect(response.status).toBe(200);
+      expect(response.type).toBe('application/json');
+      expect(response.headers['x-content-type-options']).toBe('nosniff');
+      expect(response.body).toEqual({
+        ...entity,
+        createdAt: entity.createdAt.toISOString(),
+        updatedAt: entity.updatedAt.toISOString(),
+      });
+      expect(mockFindEntity).toHaveBeenCalledWith(
+        entity.id,
+        userId,
+        expect.any(Object)
+      );
+      expect(mockGetActiveEntity).toHaveBeenCalledWith();
+    });
+  });
+
+  describe('400 Response', () => {
+    it('rejects a malformed entity ID before orchestration', async () => {
+      const response = await request(app)
+        .get(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .set('x-accounting-entity-id', 'not-a-uuid');
+
+      expect(response.status).toBe(400);
+      expect(mockGetActiveEntity).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('401 Response', () => {
+    it('rejects missing authorization', async () => {
+      const response = await request(app)
+        .get(ENDPOINT)
+        .set('x-accounting-entity-id', entity.id);
+
+      expect(response.status).toBe(401);
+      expect(mockGetActiveEntity).not.toHaveBeenCalled();
+    });
+
+    it('rejects an expired token', async () => {
+      mockGetAuthUser.mockRejectedValue(new authError.ExpiredToken());
+
+      const response = await request(app)
+        .get(ENDPOINT)
+        .set('Authorization', 'Bearer expired-token')
+        .set('x-accounting-entity-id', entity.id);
+
+      expect(response.status).toBe(401);
+      expect(mockGetActiveEntity).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('404 Response', () => {
+    it.each([
+      ['missing ID', undefined],
+      ['unknown ID', entity.id],
+      ['inaccessible ID', entity.id],
+    ])('does not disclose entity existence for %s', async (_label, id) => {
+      mockFindEntity.mockResolvedValue(null);
+      mockGetActiveEntity.mockRejectedValue(
+        new accountingAppError.ActiveEntityNotFound()
+      );
+      const requestBuilder = request(app)
+        .get(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token');
+      if (id) requestBuilder.set('x-accounting-entity-id', id);
+
+      const response = await requestBuilder;
+
+      expect(response.status).toBe(404);
+      expect(response.body).toEqual({
+        name: 'AccountingAppError',
+        errorKey: 'app_error_accounting_active_entity_not_found',
+      });
+      expect(JSON.stringify(response.body)).not.toContain(entity.name);
+    });
+  });
+
+  describe('500 Response', () => {
+    it('sanitizes unexpected failures', async () => {
+      mockGetActiveEntity.mockRejectedValue(new Error('database credentials'));
+
+      const response = await request(app)
+        .get(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .set('x-accounting-entity-id', entity.id);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_internal_server_error',
+      });
+      expect(JSON.stringify(response.body)).not.toContain('credentials');
+    });
+  });
+});

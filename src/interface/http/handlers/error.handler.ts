@@ -14,6 +14,7 @@ const errorKeyToStatusCode: Record<string, number> = {
   app_error_payment_required: 402,
   app_error_forbidden: 403,
   app_error_resource_not_found: 404,
+  app_error_accounting_active_entity_not_found: 404,
   app_error_conflict: 409,
   app_error_unprocessable: 422,
   app_error_too_many_requests: 429,
