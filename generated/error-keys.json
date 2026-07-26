@@ -17,6 +17,7 @@
   "accounting_error_period_past_end_date",
   "accounting_error_standard_invalid",
   "accounting_error_transfer_not_permitted_on_account",
+  "app_error_accounting_active_entity_not_found",
   "app_error_bad_request",
   "app_error_conflict",
   "app_error_forbidden",
