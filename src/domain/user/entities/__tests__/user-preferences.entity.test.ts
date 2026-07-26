@@ -96,6 +96,30 @@ describe('User Preferences Entity', () => {
         userPreferencesEntity.make('invalid-id' as any, payload)
       ).toThrow();
     });
+
+    it('should create user preferences entity successfully when appPreferences is undefined', () => {
+      const validUserId = generateUUID();
+      const payload = {} as unknown as TCreationOmits<IUserPreferences>;
+
+      const [result] = userPreferencesEntity.make(validUserId, payload);
+
+      expect(result.id).toBe(validUserId);
+      expect(result.appPreferences.theme).toBeUndefined();
+      expect(result.appPreferences.appUsageMode).toBeUndefined();
+    });
+
+    it('should create user preferences entity successfully when appPreferences is null', () => {
+      const validUserId = generateUUID();
+      const payload = {
+        appPreferences: null as any,
+      } as unknown as TCreationOmits<IUserPreferences>;
+
+      const [result] = userPreferencesEntity.make(validUserId, payload);
+
+      expect(result.id).toBe(validUserId);
+      expect(result.appPreferences.theme).toBeUndefined();
+      expect(result.appPreferences.appUsageMode).toBeUndefined();
+    });
   });
 
   describe('update', () => {
@@ -212,6 +236,39 @@ describe('User Preferences Entity', () => {
       expect(() =>
         userPreferencesEntity.update(initialEntity, updatePayload)
       ).toThrow();
+    });
+  });
+
+  describe('rehydrate', () => {
+    it('should rehydrate user preferences successfully', () => {
+      const validUserId = generateUUID();
+      const payload: IUserPreferences = {
+        id: validUserId,
+        appPreferences: { theme: 'light', appUsageMode: 'power_user' },
+        createdAt: new Date('2026-03-13T00:00:00.000Z'),
+        updatedAt: new Date('2026-03-13T00:00:00.000Z'),
+      };
+
+      const result = userPreferencesEntity.rehydrate(payload);
+
+      expect(result.id).toBe(validUserId);
+      expect(result.appPreferences.theme).toBe('light');
+      expect(result.appPreferences.appUsageMode).toBe('power_user');
+      expect(result.createdAt).toEqual(payload.createdAt);
+      expect(result.updatedAt).toEqual(payload.updatedAt);
+      expect(Object.isFrozen(result)).toBe(true);
+      expect(Object.isFrozen(result.appPreferences)).toBe(true);
+    });
+
+    it('should throw an error for invalid userId format during rehydration', () => {
+      const payload: IUserPreferences = {
+        id: 'invalid-id' as any,
+        appPreferences: { theme: 'light', appUsageMode: 'power_user' },
+        createdAt: new Date('2026-03-13T00:00:00.000Z'),
+        updatedAt: new Date('2026-03-13T00:00:00.000Z'),
+      };
+
+      expect(() => userPreferencesEntity.rehydrate(payload)).toThrow();
     });
   });
 });

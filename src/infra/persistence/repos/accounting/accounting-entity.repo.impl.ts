@@ -32,6 +32,22 @@ const accountingEntityRepo: IAccountingEntityRepo = {
     return result ? accountingEntityMapper.toDomain(result) : null;
   },
 
+  findByIdAndUserId: async (id, userId, options) => {
+    const query = getDbQuery(options);
+
+    const [result] = await query
+      .select()
+      .from(accountingEntitiesInCore)
+      .where(
+        and(
+          eq(accountingEntitiesInCore.id, id),
+          eq(accountingEntitiesInCore.ownerId, userId)
+        )
+      );
+
+    return result ? accountingEntityMapper.toDomain(result) : null;
+  },
+
   findByUserId: async (userId, options, type) => {
     const query = getDbQuery(options);
 

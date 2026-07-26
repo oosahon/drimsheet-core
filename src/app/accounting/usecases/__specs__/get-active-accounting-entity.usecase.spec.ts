@@ -2,6 +2,7 @@ import accountingEntityEntity from '../../../../domain/accounting/entities/accou
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import accountingAppError from '../../errors/accounting.error';
 import makeGetCurrentAccountingEntityUseCase from '../get-active-accounting-entity.usecase';
 
 describe('getActiveAccountingEntityUseCase', () => {
@@ -38,5 +39,16 @@ describe('getActiveAccountingEntityUseCase', () => {
     expect(result).toBeDefined();
     expect(result).toEqual(mockAccountingEntity);
     expect(mockAppContext.get).toHaveBeenCalled();
+  });
+
+  it('throws when no active accounting entity is selected', async () => {
+    mockAppContext.get.mockReturnValue({
+      correlationId,
+      accountingEntity: {},
+    } as unknown as ReturnType<typeof mockAppContext.get>);
+
+    await expect(getUseCase()()).rejects.toThrow(
+      accountingAppError.ActiveEntityNotFound
+    );
   });
 });

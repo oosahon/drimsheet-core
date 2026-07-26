@@ -21,9 +21,13 @@ export default async function getAccountingEntityFromRequest(
 
   if (!isValidUUID) throw new appError.BadRequest();
 
-  const accountingEntity = await repo.findById(id as TEntityId, {
-    correlationId: getCorrelationId(req),
-  });
+  const accountingEntity = await repo.findByIdAndUserId(
+    id as TEntityId,
+    userId,
+    {
+      correlationId: getCorrelationId(req),
+    }
+  );
 
   if (!accountingEntity) return null;
 

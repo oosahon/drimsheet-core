@@ -1,5 +1,6 @@
 import dateUtils from '../../../../shared/utils/date';
 import numberUtils from '../../../../shared/utils/number';
+import { MAX_GENERATED_PERIODS } from '../../config/period-limits.config';
 import accountingError from '../../errors/accounting.error';
 import errors from '../../errors/period.error';
 import {
@@ -68,7 +69,10 @@ function getIntervals(
 
   validateStartAndEndDate({ startDate, endDate });
 
-  const isValidCount = numberUtils.isPositiveNumber(count);
+  const isValidCount =
+    numberUtils.isPositiveNumber(count) &&
+    Number.isInteger(count) &&
+    count <= MAX_GENERATED_PERIODS;
   if (!isValidCount) {
     throw new errors.InvalidInterval();
   }

@@ -10,7 +10,10 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IAccountingEntityCreationDto } from '../../../app/accounting/dtos/accounting/accounting.dto';
+import {
+  IAccountingEntityCreationDto,
+  IJurisdictionDto,
+} from '../../../app/accounting/dtos/accounting/accounting.dto';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
 import accountingUsecases from '../../../infra/ioc/usecases/accounting.usecases';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
@@ -42,7 +45,8 @@ export class AccountingController extends Controller {
   @Get('/jurisdictions')
   @OperationId('getJurisdictions')
   @SuccessResponse('200')
-  public async getJurisdictions() {
+  @Response<IHttpErrorDto>('500')
+  public async getJurisdictions(): Promise<IJurisdictionDto[]> {
     return await accountingUsecases.getJurisdictions();
   }
 
@@ -54,9 +58,9 @@ export class AccountingController extends Controller {
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
-  @Response<IHttpErrorDto>('409')
+  @Response<IHttpErrorDto>('500')
   @Middlewares(middlewares.isAuthenticatedUser)
-  public async getUserAccountingEntities() {
+  public async getUserAccountingEntities(): Promise<IAccountingEntity[]> {
     return await accountingUsecases.getUserAccountingEntities();
   }
 
@@ -68,7 +72,8 @@ export class AccountingController extends Controller {
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
-  @Response<IHttpErrorDto>('409')
+  @Response<IHttpErrorDto>('404')
+  @Response<IHttpErrorDto>('500')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getActiveAccountingEntity(): Promise<IAccountingEntity> {
     return await accountingUsecases.getActiveAccountingEntity();
