@@ -22,6 +22,7 @@ const EErrorKeys = {
   CounterpartyIdNotAllowed: 'journal_entry_error_counterparty_id_not_allowed',
   InvalidPostingDate: 'journal_entry_error_invalid_posting_date',
   InvalidEffectiveDate: 'journal_entry_error_invalid_effective_date',
+  InvalidOpeningBalanceDate: 'journal_entry_error_invalid_opening_balance_date',
   InvalidVoidedAt: 'journal_entry_error_invalid_voided_at',
   InvalidCounterpartyId: 'journal_entry_error_invalid_counterparty_id',
   InvalidMemo: 'journal_entry_error_invalid_memo',

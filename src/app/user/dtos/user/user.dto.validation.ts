@@ -1,4 +1,5 @@
 import z from 'zod';
+import userPreferencesError from '../../../../domain/user/errors/user-preferences.error';
 import {
   EAppUsageModePreference,
   UAppUsageModePreference,
@@ -9,5 +10,5 @@ export const userAppUsageModePreferenceValidation = z.enum(
     UAppUsageModePreference,
     ...UAppUsageModePreference[],
   ],
-  'Unsupported user app usage mode'
+  new userPreferencesError.InvalidAppUsageMode().errorKey
 );

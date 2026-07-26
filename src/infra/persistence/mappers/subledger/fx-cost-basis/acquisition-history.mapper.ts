@@ -1,5 +1,6 @@
 import { InferSelectModel } from 'drizzle-orm';
 import { IFxCostBasisLotAcquisitionHistory } from '../../../../../domain/subledger/fx-cost-basis/types/acquisition.types';
+import repoError from '../../../../../shared/errors/repo.error';
 import { subledgerFxCostBasisLotAcquisitionHistoryInAudit } from '../../../../config/drizzle/schema';
 import { toRepoDate } from '../../shared/date';
 
@@ -14,8 +15,10 @@ const fxCostBasisLotAcquisitionHistoryMapper = {
     const lotId = history.diff.after?.lotId ?? history.diff.before?.lotId;
 
     if (!lotId) {
-      // TODO: create persistence error
-      throw new Error('Lot ID is required in acquisition history diff');
+      throw new repoError.MissingHistory({
+        entity: 'acquisition',
+        field: 'lotId',
+      });
     }
 
     const accountingEntityId =
@@ -23,10 +26,10 @@ const fxCostBasisLotAcquisitionHistoryMapper = {
       history.diff.before?.accountingEntityId;
 
     if (!accountingEntityId) {
-      // TODO: create persistence error
-      throw new Error(
-        'Accounting Entity ID is required in acquisition history diff'
-      );
+      throw new repoError.MissingHistory({
+        entity: 'acquisition',
+        field: 'accountingEntityId',
+      });
     }
 
     return {

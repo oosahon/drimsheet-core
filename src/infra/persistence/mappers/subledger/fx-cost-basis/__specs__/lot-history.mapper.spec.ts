@@ -86,7 +86,7 @@ describe('FX Cost-Basis Lot History Mapper', () => {
     } as unknown as IFxCostBasisLotHistory;
 
     expect(() => fxCostBasisLotHistoryMapper.toRepo(history)).toThrow(
-      'Accounting Entity ID is required in lot history diff'
+      'repo_error_missing_history'
     );
   });
 });

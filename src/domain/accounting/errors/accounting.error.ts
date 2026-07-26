@@ -9,6 +9,11 @@ const EErrorKeys = {
   InvalidAction: 'accounting_error_invalid_action',
   InvalidId: 'accounting_error_invalid_id',
   InvalidDate: 'accounting_error_invalid_date',
+  InvalidJurisdictionCode: 'accounting_error_invalid_jurisdiction_code',
+  InvalidAccountingEntityType:
+    'accounting_error_invalid_accounting_entity_type',
+  InvalidAccountingStandardCode:
+    'accounting_error_invalid_accounting_standard_code',
   TransferNotPermittedOnAccount:
     'accounting_error_transfer_not_permitted_on_account',
   PaymentNotPermittedOnAccount:

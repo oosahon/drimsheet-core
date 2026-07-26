@@ -8,20 +8,20 @@ import { currencyCodeValidation } from '../currency/currency.dto.validation';
 // TODO: enforce custom error for dto validations
 export const currencyPairValidation = z
   .string()
-  .regex(/^[A-Z]{3}\/[A-Z]{3}$/, 'Invalid currency pair');
+  .regex(/^[A-Z]{3}\/[A-Z]{3}$/, new exchangeRateError.InvalidPair().errorKey);
 
 export const exchangeRateDtoValidation = z.object({
   baseCurrencyCode: currencyCodeValidation,
   targetCurrencyCode: currencyCodeValidation,
   rate: z
-    .number('Rate must be a valid number')
-    .positive('Rate must be positive'),
+    .number(new exchangeRateError.InvalidRate().errorKey)
+    .positive(new exchangeRateError.InvalidRate().errorKey),
   type: z.enum(EExchangeRateType),
   asOf: z.coerce.date(new exchangeRateError.InvalidDate().errorKey),
   source: z
     .string()
-    .min(2, 'Invalid source: must be at least 2 characters')
-    .max(100, 'Invalid source: must be at most 100 characters'),
+    .min(2, new exchangeRateError.InvalidSource().errorKey)
+    .max(100, new exchangeRateError.InvalidSource().errorKey),
 });
 
 export const exchangeRateQueryParamValidation = z.object({

@@ -1,4 +1,5 @@
 import corsMiddleware, { CorsOptions } from 'cors';
+import appError from '../../shared/errors/app.error';
 import { CORS_WHITELIST } from '../config/cors.config';
 
 export default function cors() {
@@ -8,10 +9,10 @@ export default function cors() {
       if (!origin) {
         return callback(null, true);
       }
-      if (CORS_WHITELIST.indexOf(origin) !== -1) {
+      if (CORS_WHITELIST.includes(origin)) {
         callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new appError.Forbidden());
       }
     },
   };

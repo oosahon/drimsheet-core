@@ -6,6 +6,7 @@ type TErrorKeyPrefix = `user_error_user_preferences_${string}`;
 
 const EErrorKeys = {
   InvalidAppPreferences: 'user_error_user_preferences_invalid_app_preferences',
+  InvalidAppUsageMode: 'user_error_user_preferences_invalid_app_usage_mode',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UUserPreferencesError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

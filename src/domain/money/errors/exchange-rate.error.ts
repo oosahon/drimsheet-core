@@ -10,6 +10,8 @@ const EErrorKeys = {
   NotFound: 'currency_error_exchange_rate_not_found',
   UpdateNotPermitted: 'currency_error_exchange_rate_update_not_permitted',
   InvalidDate: 'currency_error_exchange_rate_invalid_date',
+  InvalidRate: 'currency_error_exchange_rate_invalid_rate',
+  InvalidSource: 'currency_error_exchange_rate_invalid_source',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UExchangeRateError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

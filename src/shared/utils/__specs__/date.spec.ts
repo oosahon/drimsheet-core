@@ -282,26 +282,26 @@ describe('dateUtils', () => {
 
       expect(() =>
         dateUtils.getDaysDistance({ start: invalidDate, end: validDate })
-      ).toThrow('Invalid dates');
+      ).toThrow('date_error_invalid_dates');
       expect(() =>
         dateUtils.getDaysDistance({ start: validDate, end: invalidDate })
-      ).toThrow('Invalid dates');
+      ).toThrow('date_error_invalid_dates');
 
       expect(() =>
         dateUtils.getWeekDistance({ start: invalidDate, end: validDate })
-      ).toThrow('Invalid dates');
+      ).toThrow('date_error_invalid_dates');
 
       expect(() =>
         dateUtils.getMonthDistance({ start: invalidDate, end: validDate })
-      ).toThrow('Invalid dates');
+      ).toThrow('date_error_invalid_dates');
 
       expect(() =>
         dateUtils.getQuarterDistance({ start: invalidDate, end: validDate })
-      ).toThrow('Invalid dates');
+      ).toThrow('date_error_invalid_dates');
 
       expect(() =>
         dateUtils.getYearDistance({ start: invalidDate, end: validDate })
-      ).toThrow('Invalid dates');
+      ).toThrow('date_error_invalid_dates');
     });
   });
 
@@ -337,19 +337,19 @@ describe('dateUtils', () => {
       const invalidDate = 'invalid-date' as any;
 
       expect(() => dateUtils.addDaysToDate(invalidDate, 1)).toThrow(
-        'Invalid date'
+        'date_error_invalid_date'
       );
       expect(() => dateUtils.addWeeksToDate(invalidDate, 1)).toThrow(
-        'Invalid date'
+        'date_error_invalid_date'
       );
       expect(() => dateUtils.addMonthsToDate(invalidDate, 1)).toThrow(
-        'Invalid date'
+        'date_error_invalid_date'
       );
       expect(() => dateUtils.addQuartersToDate(invalidDate, 1)).toThrow(
-        'Invalid date'
+        'date_error_invalid_date'
       );
       expect(() => dateUtils.addYearsToDate(invalidDate, 1)).toThrow(
-        'Invalid date'
+        'date_error_invalid_date'
       );
     });
   });
