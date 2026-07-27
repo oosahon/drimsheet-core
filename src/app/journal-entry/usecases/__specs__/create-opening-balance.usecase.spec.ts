@@ -16,15 +16,15 @@ import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
-import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockLedgerAccountBalancePropagationService from '../../../bookkeeping/contracts/__mocks__/ledger-account-balance-adjustment-service.mock';
-import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.mock';
+import mockLedgerAccountBalancePropagationService from '../../../ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
+import mockJournalEntryPersistenceService from '../../contracts/__mocks__/journal-entry-persistence.service.mock';
+import mockOpeningBalanceEntryService from '../../contracts/__mocks__/opening-balance-entry.service.mock';
 
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+} from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import makeCreateOpeningBalanceUseCase from '../create-opening-balance.usecase';
 

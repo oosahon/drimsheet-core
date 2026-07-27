@@ -6,8 +6,8 @@ import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.
 import mockLogger from '../../../../shared/contracts/__mocks__/logger.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
 import makeIngestExchangeRateUseCase from '../ingest-exchange-rate.usecase';
 

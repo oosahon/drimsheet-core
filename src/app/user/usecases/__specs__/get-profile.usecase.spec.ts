@@ -1,7 +1,7 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import userMapper from '../../dtos/user/user.dto.mapper';
 import makeGetAuthUserProfileUseCase from '../get-profile.usecase';
 

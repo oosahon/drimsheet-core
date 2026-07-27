@@ -8,8 +8,8 @@ import observability from '../../observability';
 import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
 import accountingServices from '../services/accounting';
-import bookkeepingServices from '../services/bookkeeping';
 import fxCostBasisService from '../services/fx-lot-cost-basis';
+import journalEntryServices from '../services/journal-entry';
 import ledgerServices from '../services/ledger';
 import currencyServices from '../services/money';
 import repoService from '../services/repo';
@@ -46,9 +46,10 @@ const ledgerUseCases = {
     eventBus: messaging.eventBus,
     assetAccountService: ledgerServices.assetAccount,
     accountingPeriodService: accountingServices.accountingPeriod,
-    openingBalanceEntryService: bookkeepingServices.openingBalanceEntry,
-    journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
-    balancePropagationService: bookkeepingServices.balancePropagation,
+    openingBalanceEntryService: journalEntryServices.openingBalanceEntry,
+    journalEntryPersistenceService:
+      journalEntryServices.journalEntryPersistence,
+    balancePropagationService: ledgerServices.balancePropagation,
     repoService,
     ledgerAccountPersistenceService: ledgerServices.persistence,
     fxCostBasisPersistenceService: fxCostBasisService.persistence,

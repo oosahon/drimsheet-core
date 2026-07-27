@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import { performance } from 'node:perf_hooks';
-import IAppContext from '../../../app/_internal/contracts/app-context.contract';
+import IAppContext from '../../../app/context/contracts/app-context.contract';
 import ILogger from '../../../shared/contracts/logger.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
 

@@ -1,4 +1,4 @@
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import ITokenService from '../contracts/token-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import authError from '../errors/auth.error';

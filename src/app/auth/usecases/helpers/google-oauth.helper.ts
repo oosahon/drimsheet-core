@@ -10,7 +10,7 @@ import appError from '../../../../shared/errors/app.error';
 import eventValue from '../../../../shared/events/event.vo';
 import historyValue from '../../../../shared/history/history.vo';
 import { ERepoLock } from '../../../../shared/types/repo.types';
-import IAppContext from '../../../_internal/contracts/app-context.contract';
+import IAppContext from '../../../context/contracts/app-context.contract';
 import { EAuthStrategy } from '../../contracts/auth.types';
 import IUserAuthRepo from '../../contracts/user-auth.repo.contract';
 import { IOAuthProfile, TOAuthDoneCallback } from '../../dtos/auth/auth.dto';

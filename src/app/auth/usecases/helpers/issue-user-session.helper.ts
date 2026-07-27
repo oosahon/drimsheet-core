@@ -7,7 +7,7 @@ import {
 import { IEvent } from '../../../../shared/events/types/event.types';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import IAppContext from '../../../_internal/contracts/app-context.contract';
+import IAppContext from '../../../context/contracts/app-context.contract';
 import ITokenService from '../../contracts/token-service.contract';
 import IUserSessionRepo from '../../contracts/user-session.repo.contract';
 import { IAccessToken } from '../../dtos/auth/auth.dto';

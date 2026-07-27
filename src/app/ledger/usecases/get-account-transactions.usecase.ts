@@ -7,7 +7,7 @@ import { paginationDtoValidation } from '../../../shared/pagination/dto/paginati
 import { IPaginatedResponse } from '../../../shared/pagination/types/pagination.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import IAccountTransactionQueryRepo from '../contracts/account-transaction.query.repo.contract';
 import { IAccountTransactionRes } from '../dtos/account-transaction/account-transaction.dto';
 import accountTransactionMapper from '../dtos/account-transaction/account-transaction.dto.mapper';

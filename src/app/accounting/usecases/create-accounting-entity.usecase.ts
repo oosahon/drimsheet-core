@@ -16,7 +16,7 @@ import appError from '../../../shared/errors/app.error';
 import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import IAccountsBootstrapService from '../../ledger/contracts/accounts-bootstrap.service.contract';
 import ILedgerAccountPersistenceService from '../../ledger/contracts/ledger-account-persistence.service.contract';
 import { IAccountingEntityCreationDto } from '../dtos/accounting/accounting.dto';

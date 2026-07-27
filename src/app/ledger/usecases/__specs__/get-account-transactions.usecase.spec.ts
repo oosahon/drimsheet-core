@@ -24,8 +24,8 @@ import { IPaginationDto } from '../../../../shared/pagination/dto/pagination.dto
 import { EPaginationSortDirection } from '../../../../shared/pagination/types/pagination.types';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+} from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import mockAccountTransactionQueryRepo from '../../contracts/__mocks__/account-transaction.query.repo.mock';
 import ledgerAppError from '../../errors/ledger.error';
 import makeGetAccountTransactionsUseCase from '../get-account-transactions.usecase';

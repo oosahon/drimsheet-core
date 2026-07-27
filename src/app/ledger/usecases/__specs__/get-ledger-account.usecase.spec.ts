@@ -14,7 +14,7 @@ import moneyValue from '../../../../domain/money/values/money.vo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { MockReporter } from '../../../../shared/contracts/__mocks__/reporter.mock';
 import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.mock';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import ledgerAccountMapper from '../../dtos/ledger-account/ledger-account.dto.mapper';
 import makeGetLedgerAccountUseCase from '../get-ledger-account.usecase';
 

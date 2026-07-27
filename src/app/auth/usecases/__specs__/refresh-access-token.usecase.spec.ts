@@ -10,7 +10,7 @@ import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.mock';
+} from '../../../context/contracts/__mocks__/app-context.mock';
 import mockAuthService from '../../contracts/__mocks__/token-service.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
 

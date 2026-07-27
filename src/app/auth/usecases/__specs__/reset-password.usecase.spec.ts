@@ -11,8 +11,8 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+} from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import mockPasswordService from '../../contracts/__mocks__/password-service.mock';
 import mockAuthService from '../../contracts/__mocks__/token-service.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';

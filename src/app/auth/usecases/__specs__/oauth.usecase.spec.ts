@@ -5,8 +5,8 @@ import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+} from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import mockAuthService from '../../contracts/__mocks__/token-service.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
 import makeOauthUsecase from '../oauth.usecase';

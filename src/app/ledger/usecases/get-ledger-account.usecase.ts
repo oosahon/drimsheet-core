@@ -7,7 +7,7 @@ import IReporter from '../../../shared/contracts/reporter.contract';
 import appError from '../../../shared/errors/app.error';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';
 import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';
 import ledgerAppError from '../errors/ledger.error';

@@ -9,7 +9,7 @@ import {
 import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import { EAuthStrategy } from '../contracts/auth.types';
 import IEmailVerificationService from '../contracts/email-verification-service.contract';
 import IPasswordService from '../contracts/password-service.contract';

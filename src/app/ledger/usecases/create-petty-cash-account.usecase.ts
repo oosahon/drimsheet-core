@@ -37,14 +37,14 @@ import {
   IRepoOptions,
 } from '../../../shared/types/repo.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../_internal/contracts/app-context.contract';
-import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
-import { ILedgerAccountBalancePropagationService } from '../../bookkeeping/contracts/ledger-account-balance-adjustment-service.contract';
-import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
+import IJournalEntryPersistenceService from '../../journal-entry/contracts/journal-entry-persistence.service.contract';
+import IOpeningBalanceEntryService from '../../journal-entry/contracts/opening-balance-entry.service.contract';
 import { IOpeningBalanceDto } from '../../journal-entry/dtos/opening-balance/opening-balance.dto';
 import IExchangeRateAppService from '../../money/contracts/exchange-rate.service.contract';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import IFxCostBasisPersistenceService from '../../subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
+import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-propagation.service.contract';
 import ILedgerAccountPersistenceService from '../contracts/ledger-account-persistence.service.contract';
 import { IPettyCashAccountCreationReq } from '../dtos/asset-account/asset-account.dto';
 import { pettyCashCreationReqValidation } from '../dtos/asset-account/asset-account.dto.validation';

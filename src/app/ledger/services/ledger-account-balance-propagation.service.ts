@@ -14,10 +14,10 @@ import moneyValue from '../../../domain/money/values/money.vo';
 import IReporter from '../../../shared/contracts/reporter.contract';
 import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
-import ILedgerBalanceAdjustmentQueue from '../../ledger/contracts/ledger-balance-adjustment-queue.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';
-import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-adjustment-service.contract';
+import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-propagation.service.contract';
+import ILedgerBalanceAdjustmentQueue from '../contracts/ledger-balance-adjustment-queue.contract';
+import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 
 function getAccountMap(
   journalEntry: IJournalEntry

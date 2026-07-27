@@ -19,7 +19,7 @@ import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock'
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.mock';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import mockAccountsBootstrapService from '../../../ledger/contracts/__mocks__/accounts-bootstrap.service.mock';
 import mockLedgerAccountPersistenceService from '../../../ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
 import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
