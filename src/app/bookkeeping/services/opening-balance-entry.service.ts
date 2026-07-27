@@ -30,6 +30,7 @@ export default function makeOpeningBalanceEntryService(
       exchangeRate,
       repoOptions
     ) {
+      // TODO: move this to a domain decision
       if (account.isControlAccount) {
         throw new journalEntryError.ControlAccountOpeningBalanceNotAllowed({
           accountId: account.id,

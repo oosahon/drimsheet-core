@@ -1,43 +1,40 @@
+import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
+import { EQUITY_LEDGER_CODES } from '../../../../domain/ledger/equity-account/config/equity-codes.config';
+import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import retainedEarningAccountEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
+import { IEquityLedgerAccount } from '../../../../domain/ledger/equity-account/types/equity-account.types';
+import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+import { TEquityLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
+import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import {
   IEvent,
   TAuditedEntity,
 } from '../../../../shared/events/types/event.types';
 import { IEntityDelta } from '../../../../shared/history/types/history.types';
-import currencyEntity from '../../../money/entities/currency.entity';
-import ILedgerAccountRepo from '../../shared/repos/ledger-account.repo';
-import { TEquityLedgerCode } from '../../shared/types/ledger-code.types';
-import { ILedgerAccount } from '../../shared/types/ledger.types';
-import { EQUITY_LEDGER_CODES } from '../config/equity-codes.config';
-import openingBalanceEquityLedgerEntity from '../entities/opening-balance-equity.entity';
-import retainedEarningAccountEntity from '../entities/retained-earning.entity';
-import IEquityAccountService from '../types/equity-account.service.types';
-import { IEquityLedgerAccount } from '../types/equity-account.types';
-
-type TBootstrapHeaders = IEquityAccountService['bootstrapHeaderAccounts'];
+import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
 }
 
-export default function makeEquityAccountService(
-  deps: IDependencies
-): IEquityAccountService {
-  /**
-   * Bootstraps header equity accounts for a new accounting entity
-   *  - Retained Earnings:         301000
-   *  - Opening Balance Equity:    399000
-   */
-  const bootstrapHeaderAccounts: TBootstrapHeaders = async (
+interface IEquityAccountsBootstrapInput {
+  accountingEntity: IAccountingEntity;
+  repoOptions: IReadRepoOptions;
+}
+
+export default function makeEquityAccountsBootstrapHelper(deps: IDependencies) {
+  return async ({
     accountingEntity,
-    repoOptions
-  ) => {
+    repoOptions,
+  }: IEquityAccountsBootstrapInput) => {
     const accountingEntityId = accountingEntity.id;
     const functionalCurrency = currencyEntity.getByCode(
       accountingEntity.functionalCurrencyCode
     );
     const createdBy = accountingEntity.ownerId;
 
-    const getExistingAccounts = async <T extends IEquityLedgerAccount>(
+    const getExistingAccount = async <T extends IEquityLedgerAccount>(
       code: TEquityLedgerCode
     ) => {
       return (await deps.ledgerAccountRepo.findByCode(
@@ -53,12 +50,9 @@ export default function makeEquityAccountService(
       ILedgerAccount
     >[] = [];
 
-    /**
-     * ==================== Retained Earnings ====================
-     */
     const retainedEarningsCode = EQUITY_LEDGER_CODES.RETAINED_EARNINGS.HEADER;
     const existingRetainedEarnings =
-      await getExistingAccounts(retainedEarningsCode);
+      await getExistingAccount(retainedEarningsCode);
 
     if (!existingRetainedEarnings) {
       const retainedEarningsAccount = retainedEarningAccountEntity.make(
@@ -73,12 +67,9 @@ export default function makeEquityAccountService(
       allAccounts.push(retainedEarningsAccount);
     }
 
-    /**
-     * ==================== Opening Balance Equity ====================
-     */
     const openingBalanceEquityCode =
       EQUITY_LEDGER_CODES.OPENING_BALANCE_EQUITY.HEADER;
-    const existingOpeningBalanceEquity = await getExistingAccounts(
+    const existingOpeningBalanceEquity = await getExistingAccount(
       openingBalanceEquityCode
     );
 
@@ -107,8 +98,4 @@ export default function makeEquityAccountService(
 
     return { accounts, events, audits };
   };
-
-  return Object.freeze({
-    bootstrapHeaderAccounts,
-  });
 }

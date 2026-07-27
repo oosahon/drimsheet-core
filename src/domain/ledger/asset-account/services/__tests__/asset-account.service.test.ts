@@ -2,6 +2,7 @@ import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
+import { ICurrency } from '../../../../money/types/currency.types';
 import mockLedgerAccountRepo from '../../../shared/repos/__mocks__/ledger-account.repo.impl.mock';
 import { TCashLedgerCode } from '../../../shared/types/ledger-code.types';
 import {
@@ -41,7 +42,7 @@ describe('assetAccountService', () => {
       ownerId,
     } as IAccountingEntity;
 
-    const validCurrency: any = {
+    const validCurrency: ICurrency = {
       code: 'USD',
       name: 'US Dollar',
       minorUnit: 2,
@@ -215,125 +216,16 @@ describe('assetAccountService', () => {
       it('should throw if currency code is invalid', async () => {
         const payload = {
           ...validPayload,
-          currency: { ...validCurrency, code: 'INVALID' },
+          currency: {
+            ...validCurrency,
+            code: 'INVALID',
+          } as unknown as ICurrency,
         };
 
         await expect(
           service.makePettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow();
       });
-    });
-  });
-
-  describe('bootstrapHeaderAccounts', () => {
-    const ownerId = generateUUID();
-    const entityId = generateUUID();
-
-    const validAccountingEntity = {
-      id: entityId,
-      ownerId,
-      functionalCurrencyCode: 'USD',
-    } as IAccountingEntity;
-
-    it('should bootstrap posting accounts when shouldBootstrapPostingAccounts is true', async () => {
-      mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
-      mockLedgerAccountRepo.findBySubType.mockResolvedValue([]);
-      mockLedgerAccountRepo.findByBehavior.mockResolvedValue([
-        {
-          id: generateUUID(),
-          code: '102002',
-          materializedPath: '102000.102002',
-        } as any,
-      ]);
-
-      const { accounts, events } = await service.bootstrapHeaderAccounts(
-        validAccountingEntity,
-        mockOptions,
-        true
-      );
-
-      const suspenseAccount = accounts.find(
-        (a: any) => a.name === 'Asset Suspense Account'
-      );
-      const statutoryReceivablesDefault = accounts.find(
-        (a: any) => a.name === 'Statutory Receivables (Default)'
-      );
-
-      expect(suspenseAccount).toBeDefined();
-      expect(statutoryReceivablesDefault).toBeDefined();
-      expect(accounts.length).toBeGreaterThan(0);
-      expect(events.length).toBeGreaterThan(0);
-    });
-
-    it('should not recreate header accounts if they already exist (partial bootstrap)', async () => {
-      const mockExistingHeader = {
-        id: generateUUID(),
-        code: '100000',
-        materializedPath: '100000',
-      } as any;
-      mockLedgerAccountRepo.findByCode.mockResolvedValue(mockExistingHeader);
-
-      const { accounts, events } = await service.bootstrapHeaderAccounts(
-        validAccountingEntity,
-        mockOptions,
-        false
-      );
-
-      // If they all exist, no accounts are created here and shouldBootstrapPostingAccounts is false
-      expect(accounts.length).toBe(0);
-      expect(events.length).toBe(0);
-    });
-
-    it('should not bootstrap posting accounts if shouldBootstrapPostingAccounts is false', async () => {
-      mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
-
-      const { accounts, events } = await service.bootstrapHeaderAccounts(
-        validAccountingEntity,
-        mockOptions,
-        false
-      );
-
-      const suspenseAccount = accounts.find(
-        (a: any) => a.name === 'Asset Suspense Account'
-      );
-
-      expect(suspenseAccount).toBeUndefined();
-      // Should still create the 4 header accounts:
-      // Cash, Receivables, Trade Receivables, Statutory Receivables
-      expect(accounts.length).toBe(4);
-    });
-    it('should not recreate individual posting accounts if they already exist', async () => {
-      mockLedgerAccountRepo.findByCode.mockResolvedValue(null);
-
-      // Mock existing Suspense account
-      mockLedgerAccountRepo.findBySubType.mockResolvedValue([
-        { id: generateUUID(), name: 'Asset Suspense Account' } as any,
-      ]);
-
-      // Mock existing Statutory Receivables (Header + Default = length 2)
-      mockLedgerAccountRepo.findByBehavior.mockResolvedValue([
-        { id: generateUUID(), name: 'Statutory Receivables Header' } as any,
-        { id: generateUUID(), name: 'Statutory Receivables (Default)' } as any,
-      ]);
-
-      const { accounts, events } = await service.bootstrapHeaderAccounts(
-        validAccountingEntity,
-        mockOptions,
-        true
-      );
-
-      // Should only contain the 4 headers (Cash, Receivables, Trade Receivables, Statutory Receivables Header)
-      // because individual posting accounts already exist
-      expect(accounts.length).toBe(4);
-      const suspenseAccount = accounts.find(
-        (a: any) => a.name === 'Asset Suspense Account'
-      );
-      const statutoryReceivablesDefault = accounts.find(
-        (a: any) => a.name === 'Statutory Receivables (Default)'
-      );
-
-      expect(suspenseAccount).toBeUndefined();
-      expect(statutoryReceivablesDefault).toBeUndefined();
     });
   });
 });

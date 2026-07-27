@@ -10,7 +10,7 @@ import appContext from '../../runtime/app-context';
 import accountingServices from '../services/accounting';
 import bookkeepingServices from '../services/bookkeeping';
 import fxCostBasisService from '../services/fx-lot-cost-basis';
-import ledgerDomainServices from '../services/ledger';
+import ledgerServices from '../services/ledger';
 import currencyServices from '../services/money';
 import repoService from '../services/repo';
 
@@ -44,13 +44,13 @@ const ledgerUseCases = {
   createPettyCashAccount: makeCreatePettyCashAccountUseCase({
     appContext: appContext,
     eventBus: messaging.eventBus,
-    assetAccountService: ledgerDomainServices.assetAccount,
+    assetAccountService: ledgerServices.assetAccount,
     accountingPeriodService: accountingServices.accountingPeriod,
     openingBalanceEntryService: bookkeepingServices.openingBalanceEntry,
     journalEntryPersistenceService: bookkeepingServices.journalEntryPersistence,
     balancePropagationService: bookkeepingServices.balancePropagation,
     repoService,
-    ledgerAccountPersistenceService: ledgerDomainServices.persistence,
+    ledgerAccountPersistenceService: ledgerServices.persistence,
     fxCostBasisPersistenceService: fxCostBasisService.persistence,
     fxCostBasisService: fxCostBasisService.domain,
     exchangeRateService: currencyServices.exchangeRate,

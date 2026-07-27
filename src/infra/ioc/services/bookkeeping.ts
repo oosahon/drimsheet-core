@@ -1,16 +1,11 @@
 import makeJournalEntryPersistenceService from '../../../app/bookkeeping/services/journal-entry-persistence.service';
 import makeLedgerAccountBalancePropagationService from '../../../app/bookkeeping/services/ledger-account-balance-propagation.service';
 import makeOpeningBalanceEntryService from '../../../app/bookkeeping/services/opening-balance-entry.service';
-import makeTransactionEntryService from '../../../app/bookkeeping/services/transaction-entry.service';
 import messaging from '../../messaging';
 import observability from '../../observability';
 import journalEntryRepos from '../../persistence/repos/journal-entry';
 import ledgerRepos from '../../persistence/repos/ledger';
 import repoService from './repo';
-
-const transactionEntry = makeTransactionEntryService({
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-});
 
 const openingBalanceEntry = makeOpeningBalanceEntryService({
   ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
@@ -30,7 +25,6 @@ const journalEntryPersistence = makeJournalEntryPersistenceService({
 });
 
 const bookkeepingServices = Object.freeze({
-  transactionEntry,
   openingBalanceEntry,
   balancePropagation,
   journalEntryPersistence,

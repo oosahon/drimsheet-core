@@ -1,18 +1,15 @@
-import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
-import IEquityAccountService from '../../../domain/ledger/equity-account/types/equity-account.service.types';
-import IExpenseAccountService from '../../../domain/ledger/expense-account/types/expense-account.service.types';
-import ILiabilityAccountService from '../../../domain/ledger/liability-account/types/liability-account.service.types';
-import IRevenueAccountService from '../../../domain/ledger/revenue-account/types/revenue-account.service.types';
+import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
 import IAccountsBootstrapService from '../contracts/accounts-bootstrap.service.contract';
 import ledgerAppError from '../errors/ledger.error';
+import makeAssetAccountsBootstrapHelper from './helpers/asset-accounts-bootstrap.helper';
+import makeEquityAccountsBootstrapHelper from './helpers/equity-accounts-bootstrap.helper';
+import makeExpenseAccountsBootstrapHelper from './helpers/expense-accounts-bootstrap.helper';
+import makeLiabilityAccountsBootstrapHelper from './helpers/liability-accounts-bootstrap.helper';
+import makeRevenueAccountsBootstrapHelper from './helpers/revenue-accounts-bootstrap.helper';
 
 interface IDependencies {
-  assetAccountService: IAssetAccountService;
-  liabilityAccountService: ILiabilityAccountService;
-  equityAccountService: IEquityAccountService;
-  revenueAccountService: IRevenueAccountService;
-  expenseAccountService: IExpenseAccountService;
+  ledgerAccountRepo: ILedgerAccountRepo;
 }
 
 type TBootstrap = IAccountsBootstrapService['bootstrap'];
@@ -20,57 +17,62 @@ type TBootstrap = IAccountsBootstrapService['bootstrap'];
 export default function makeAccountsBootstrapService(
   deps: IDependencies
 ): IAccountsBootstrapService {
+  const bootstrapAssetAccounts = makeAssetAccountsBootstrapHelper(deps);
+  const bootstrapLiabilityAccounts = makeLiabilityAccountsBootstrapHelper(deps);
+  const bootstrapEquityAccounts = makeEquityAccountsBootstrapHelper(deps);
+  const bootstrapRevenueAccounts = makeRevenueAccountsBootstrapHelper(deps);
+  const bootstrapExpenseAccounts = makeExpenseAccountsBootstrapHelper(deps);
+
   const bootstrap: TBootstrap = async (
     accountingEntity,
     repoOptions,
     shouldBootstrapPostingAccounts
   ) => {
-    const asset = await deps.assetAccountService.bootstrapHeaderAccounts(
+    const assetAccountsBootstrap = await bootstrapAssetAccounts({
       accountingEntity,
       repoOptions,
-      shouldBootstrapPostingAccounts
-    );
-    const liability =
-      await deps.liabilityAccountService.bootstrapHeaderAccounts(
-        accountingEntity,
-        repoOptions,
-        shouldBootstrapPostingAccounts
-      );
-    const equity = await deps.equityAccountService.bootstrapHeaderAccounts(
-      accountingEntity,
-      repoOptions
-    );
-    const revenue = await deps.revenueAccountService.bootstrapHeaderAccounts(
+      shouldBootstrapPostingAccounts,
+    });
+    const liabilityAccountsBootstrap = await bootstrapLiabilityAccounts({
       accountingEntity,
       repoOptions,
-      shouldBootstrapPostingAccounts
-    );
-    const expense = await deps.expenseAccountService.bootstrapHeaderAccounts(
+      shouldBootstrapPostingAccounts,
+    });
+    const equityAccountsBootstrap = await bootstrapEquityAccounts({
       accountingEntity,
       repoOptions,
-      shouldBootstrapPostingAccounts
-    );
+    });
+    const revenueAccountsBootstrap = await bootstrapRevenueAccounts({
+      accountingEntity,
+      repoOptions,
+      shouldBootstrapPostingAccounts,
+    });
+    const expenseAccountsBootstrap = await bootstrapExpenseAccounts({
+      accountingEntity,
+      repoOptions,
+      shouldBootstrapPostingAccounts,
+    });
 
     const accounts: ILedgerAccount[] = [
-      ...asset.accounts,
-      ...liability.accounts,
-      ...equity.accounts,
-      ...revenue.accounts,
-      ...expense.accounts,
+      ...assetAccountsBootstrap.accounts,
+      ...liabilityAccountsBootstrap.accounts,
+      ...equityAccountsBootstrap.accounts,
+      ...revenueAccountsBootstrap.accounts,
+      ...expenseAccountsBootstrap.accounts,
     ];
     const audits = [
-      ...asset.audits,
-      ...liability.audits,
-      ...equity.audits,
-      ...revenue.audits,
-      ...expense.audits,
+      ...assetAccountsBootstrap.audits,
+      ...liabilityAccountsBootstrap.audits,
+      ...equityAccountsBootstrap.audits,
+      ...revenueAccountsBootstrap.audits,
+      ...expenseAccountsBootstrap.audits,
     ];
     const events = [
-      ...asset.events,
-      ...liability.events,
-      ...equity.events,
-      ...revenue.events,
-      ...expense.events,
+      ...assetAccountsBootstrap.events,
+      ...liabilityAccountsBootstrap.events,
+      ...equityAccountsBootstrap.events,
+      ...revenueAccountsBootstrap.events,
+      ...expenseAccountsBootstrap.events,
     ];
     const auditEntityIds = new Set(audits.map(({ entityId }) => entityId));
 
