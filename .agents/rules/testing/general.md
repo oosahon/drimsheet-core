@@ -10,6 +10,17 @@
 - Run the narrowest useful test first, then broader validation when risk
   justifies it.
 
+## Shared Mocks
+
+- Shared `*.mock.ts` files define typed contract shapes with bare `jest.fn()`
+  methods only.
+- Do not put implementations, internal state, fixtures, default return values,
+  or default resolved or rejected values in shared mocks.
+- Reset shared mocks and configure their behavior in the owning spec's setup or
+  in the individual test that needs it.
+- Keep stateful or behaviorally realistic test doubles local to the owning spec;
+  they are fakes, not shared mocks.
+
 ## Naming
 
 - Domain unit tests use `.test.ts` files inside `__tests__`.

@@ -4,7 +4,7 @@ import {
   Profile,
   VerifyCallback,
 } from 'passport-google-oauth20';
-import authUseCase from '../ioc/usecases/auth.usecases';
+import authUseCase from '../ioc/usecases/auth';
 import {
   GOOGLE_AUTH_CALLBACK_URL,
   GOOGLE_AUTH_CLIENT_ID,

@@ -1,10 +1,10 @@
 import { Express } from 'express';
 import request from 'supertest';
 import { SYSTEM_JURISDICTIONS } from '../../../src/domain/accounting/config/jurisdictions.config';
-import accountingUsecases from '../../../src/infra/ioc/usecases/accounting.usecases';
+import accountingUsecases from '../../../src/infra/ioc/usecases/accounting';
 import { createApplication } from '../../../src/infra/server';
 
-jest.mock('../../../src/infra/ioc/usecases/accounting.usecases', () => ({
+jest.mock('../../../src/infra/ioc/usecases/accounting', () => ({
   __esModule: true,
   default: {
     createAccountingEntity: jest.fn(),

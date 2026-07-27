@@ -6,7 +6,6 @@ import IReportingContextRepo from '../../../domain/accounting/repos/reporting-co
 import IReportingPeriodRepo from '../../../domain/accounting/repos/reporting-period.repo';
 import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
 import { EAccountingEntityType } from '../../../domain/accounting/types/accounting-entity.types';
-import ILedgerAccountPersistenceService from '../../../domain/ledger/shared/types/ledger-account-persistence.service.types';
 import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
@@ -17,8 +16,9 @@ import appError from '../../../shared/errors/app.error';
 import eventValue from '../../../shared/events/event.vo';
 import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import IAccountsBootstrapService from '../../ledger/contracts/accounts-bootstrap.service.contract';
+import ILedgerAccountPersistenceService from '../../ledger/contracts/ledger-account-persistence.service.contract';
 import { IAccountingEntityCreationDto } from '../dtos/accounting/accounting.dto';
 import { accountingEntityOnboardingDtoSchema } from '../dtos/accounting/accounting.dto.validation';
 

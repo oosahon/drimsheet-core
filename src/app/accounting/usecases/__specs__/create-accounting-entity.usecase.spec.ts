@@ -12,15 +12,16 @@ import {
 } from '../../../../domain/accounting/types/accounting-entity.types';
 import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import mockLedgerAccountPersistenceService from '../../../../domain/ledger/shared/services/__mocks__/ledger-account-persistence.service.mock';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAccountsBootstrapService from '../../../ledger/contracts/__mocks__/accounts-bootstrap.service.contract.mock';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
+import mockAccountsBootstrapService from '../../../ledger/contracts/__mocks__/accounts-bootstrap.service.mock';
+import mockLedgerAccountPersistenceService from '../../../ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
 import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
 
@@ -83,6 +84,11 @@ describe('createAccountingEntityUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
     mockAppContext.get.mockReturnValue({
       correlationId,
       user: { id: userId } as IUser,

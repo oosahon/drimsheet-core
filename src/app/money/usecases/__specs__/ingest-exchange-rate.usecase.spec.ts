@@ -3,11 +3,11 @@ import currencyError from '../../../../domain/money/errors/currency.error';
 import exchangeRateError from '../../../../domain/money/errors/exchange-rate.error';
 import exchangeRateRepoMock from '../../../../domain/money/repos/__mocks__/exchange-rate-repo.impl.mock';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockLogger from '../../../../shared/contracts/__mocks__/logger.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
 import makeIngestExchangeRateUseCase from '../ingest-exchange-rate.usecase';
 

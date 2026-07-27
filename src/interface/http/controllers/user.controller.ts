@@ -9,7 +9,7 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import userUseCase from '../../../infra/ioc/usecases/user.usecases';
+import userUseCase from '../../../infra/ioc/usecases/user';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import middlewares from '../middlewares';
 

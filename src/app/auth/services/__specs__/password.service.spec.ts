@@ -1,8 +1,20 @@
+import mockHasher from '../../../../shared/contracts/__mocks__/hasher.mock';
 import authError from '../../errors/auth.error';
 import makePasswordService from '../password.service';
 
 describe('makePasswordService', () => {
-  const passwordService = makePasswordService();
+  let passwordService: ReturnType<typeof makePasswordService>;
+
+  beforeEach(() => {
+    mockHasher.genSalt.mockReset().mockResolvedValue('mock-salt');
+    mockHasher.hash.mockReset().mockResolvedValue('hashed-password');
+    mockHasher.compare
+      .mockReset()
+      .mockResolvedValueOnce(true)
+      .mockResolvedValueOnce(false);
+
+    passwordService = makePasswordService({ hasher: mockHasher });
+  });
 
   describe('makePassword', () => {
     it('returns a valid password without normalizing it', () => {
@@ -42,9 +54,17 @@ describe('makePasswordService', () => {
     const hash = await passwordService.hash(password);
 
     expect(hash).not.toBe(password);
+    expect(mockHasher.genSalt).toHaveBeenCalledWith(10);
+    expect(mockHasher.hash).toHaveBeenCalledWith(password, 'mock-salt');
     await expect(passwordService.compare(password, hash)).resolves.toBe(true);
     await expect(passwordService.compare('wrongPassword', hash)).resolves.toBe(
       false
+    );
+    expect(mockHasher.compare).toHaveBeenNthCalledWith(1, password, hash);
+    expect(mockHasher.compare).toHaveBeenNthCalledWith(
+      2,
+      'wrongPassword',
+      hash
     );
   });
 });

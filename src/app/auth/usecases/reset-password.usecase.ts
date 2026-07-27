@@ -9,7 +9,7 @@ import IReporter from '../../../shared/contracts/reporter.contract';
 import eventValue from '../../../shared/events/event.vo';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import { EAuthStrategy } from '../contracts/auth.types';
 import IPasswordService from '../contracts/password-service.contract';
 import ITokenService from '../contracts/token-service.contract';

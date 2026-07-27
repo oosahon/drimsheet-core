@@ -1,16 +1,17 @@
 import userEntity from '../../../../../domain/user/entities/user.entity';
 import { IEvent } from '../../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
-import { IAppContextData } from '../../../../_internal/contracts/app-context.contract';
+import { IAppContextData } from '../../../../context/contracts/app-context.contract';
 import makeIssueUserSessionHelper from '../issue-user-session.helper';
 
-import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '../../../../../shared/types/repo.types';
 import mockAppContext, {
   mockClientSession,
-} from '../../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAuthService from '../../../contracts/__mocks__/token-service.contract.mock';
-import mockUserSessionRepo from '../../../contracts/__mocks__/user-session.repo.contract.mock';
+} from '../../../../context/contracts/__mocks__/app-context.mock';
+import mockAuthService from '../../../contracts/__mocks__/token-service.mock';
+import mockUserSessionRepo from '../../../contracts/__mocks__/user-session.repo.mock';
 
 jest.mock('../../../../../shared/utils/uuid-generator', () => ({
   __esModule: true,
@@ -31,6 +32,11 @@ describe('makeIssueUserSessionHelper', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
 
     mockAppContext.get.mockReturnValue({
       correlationId: 'test-corr-id',

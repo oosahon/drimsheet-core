@@ -9,8 +9,6 @@ import rateLimiter from '../../infra/server/rate-limiter';
 import swagger from '../../infra/server/swagger';
 import middlewares from './middlewares';
 import makeSignupRateLimitMiddlewares from './middlewares/signup-rate-limit.middleware';
-import internalRouter from './routes/internal.routes';
-
 interface IApplicationDependencies {
   bullMqDashboardRouter?: Router;
 }
@@ -47,8 +45,6 @@ export default function createApplication(
   app.use(middlewares.appContext);
 
   app.use(middlewares.requestLogger);
-
-  app.use('/internal', internalRouter);
 
   RegisterRoutes(app);
 

@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+import IHasher from '../../../shared/contracts/hasher.contract';
 import IPasswordService from '../contracts/password-service.contract';
 import authError from '../errors/auth.error';
 import {
@@ -7,7 +7,13 @@ import {
   satisfiesPasswordComplexity,
 } from '../policies/password.policy';
 
-export default function makePasswordService(): IPasswordService {
+interface IDependencies {
+  hasher: IHasher;
+}
+
+export default function makePasswordService(
+  deps: IDependencies
+): IPasswordService {
   return {
     makePassword(input) {
       if (
@@ -23,12 +29,12 @@ export default function makePasswordService(): IPasswordService {
     },
 
     async hash(password) {
-      const salt = await bcrypt.genSalt(10);
-      return bcrypt.hash(password, salt);
+      const salt = await deps.hasher.genSalt(10);
+      return deps.hasher.hash(password, salt);
     },
 
     async compare(password, hashedPassword) {
-      return bcrypt.compare(password, hashedPassword);
+      return deps.hasher.compare(password, hashedPassword);
     },
   };
 }

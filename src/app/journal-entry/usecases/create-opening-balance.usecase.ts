@@ -11,12 +11,12 @@ import { IEvent } from '../../../shared/events/types/event.types';
 import historyValue from '../../../shared/history/history.vo';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../_internal/contracts/app-context.contract';
-import IJournalEntryPersistenceService from '../../bookkeeping/contracts/journal-entry-persistence.service.contract';
-import { ILedgerAccountBalancePropagationService } from '../../bookkeeping/contracts/ledger-account-balance-adjustment-service.contract';
-import IOpeningBalanceEntryService from '../../bookkeeping/contracts/opening-balance-entry.service.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
+import { ILedgerAccountBalancePropagationService } from '../../ledger/contracts/ledger-account-balance-propagation.service.contract';
 import ledgerAppError from '../../ledger/errors/ledger.error';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';
+import IJournalEntryPersistenceService from '../contracts/journal-entry-persistence.service.contract';
+import IOpeningBalanceEntryService from '../contracts/opening-balance-entry.service.contract';
 import { IOpeningBalanceCreationReq } from '../dtos/opening-balance/opening-balance.dto';
 import { openingBalanceCreationReqValidation } from '../dtos/opening-balance/opening-balance.dto.validation';
 

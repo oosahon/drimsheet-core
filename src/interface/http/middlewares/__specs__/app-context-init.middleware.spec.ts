@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import IAppContext from '../../../../app/_internal/contracts/app-context.contract';
 import ITokenService, {
   IAuthTokenPayload,
 } from '../../../../app/auth/contracts/token-service.contract';
+import IAppContext from '../../../../app/context/contracts/app-context.contract';
 import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import IUserRepo from '../../../../domain/user/repos/user.repo';

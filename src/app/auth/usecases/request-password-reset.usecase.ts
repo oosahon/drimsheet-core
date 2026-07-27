@@ -4,7 +4,7 @@ import IEventBus from '../../../shared/contracts/event-bus.contract';
 import IVarsConfig from '../../../shared/contracts/vars-config.contract';
 import eventValue from '../../../shared/events/event.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
 import ITokenService from '../contracts/token-service.contract';
 import IUserAuthRepo from '../contracts/user-auth.repo.contract';

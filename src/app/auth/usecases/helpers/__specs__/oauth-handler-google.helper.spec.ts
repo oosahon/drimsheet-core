@@ -1,12 +1,13 @@
 import { IUser } from '../../../../../domain/user/types/user.types';
 import emailValue from '../../../../../domain/user/values/email.vo';
-import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockUserAuthRepo from '../../../contracts/__mocks__/user-auth.repo.contract.mock';
+import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockUserAuthRepo from '../../../contracts/__mocks__/user-auth.repo.mock';
 
 import mockUserRepo from '../../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
-import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
-import mockAppContext from '../../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import { IAppContextData } from '../../../../_internal/contracts/app-context.contract';
+import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '../../../../../shared/types/repo.types';
+import mockAppContext from '../../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../../context/contracts/app-context.contract';
 import { EAuthStrategy, IUserAuth } from '../../../contracts/auth.types';
 import { IOAuthProfile } from '../../../dtos/auth/auth.dto';
 import makeGoogleOAuthHelper from '../google-oauth.helper';
@@ -17,6 +18,11 @@ describe('makeGoogleOAuthHelper', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
     mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,

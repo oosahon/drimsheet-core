@@ -1,13 +1,8 @@
-import {
-  JsonWebTokenError,
-  NotBeforeError,
-  sign,
-  TokenExpiredError,
-  verify,
-} from 'jsonwebtoken';
 import { randomUUID } from 'node:crypto';
 import { ICacheStorage } from '../../../shared/contracts/cache-storage.contract';
-import IVarsConfig from '../../../shared/contracts/vars-config.contract';
+import ITokenCodec, {
+  TTokenVerificationFailure,
+} from '../../../shared/contracts/token-codec.contract';
 import ITokenService, {
   IAuthTokenPayload,
 } from '../contracts/token-service.contract';
@@ -15,46 +10,46 @@ import authError from '../errors/auth.error';
 
 interface IDependencies {
   cacheStorage: ICacheStorage;
-  varsConfig: IVarsConfig;
+  tokenCodec: ITokenCodec;
 }
 
 export default function makeTokenService(deps: IDependencies): ITokenService {
-  const handleJwtError = (err: unknown): never => {
-    if (err instanceof TokenExpiredError) {
+  const handleTokenVerificationFailure = (
+    reason: TTokenVerificationFailure
+  ): never => {
+    if (reason === 'expired') {
       throw new authError.ExpiredToken();
     }
-    if (err instanceof NotBeforeError) {
+    if (reason === 'not-active') {
       throw new authError.InvalidToken();
     }
-    if (err instanceof JsonWebTokenError) {
+    if (reason === 'malformed') {
       throw new authError.MalformedToken();
     }
     throw new authError.InvalidToken();
   };
 
   const verifyAuthToken = (token: string) => {
-    try {
-      return verify(token, deps.varsConfig.JWT_SECRET_KEY, {
-        algorithms: ['HS256'],
-      }) as IAuthTokenPayload & {
-        exp?: number;
-        type: string;
-      };
-    } catch (err) {
-      return handleJwtError(err);
+    const verification = deps.tokenCodec.verify<
+      IAuthTokenPayload & { exp?: number; type: string }
+    >(token);
+
+    if (!verification.valid) {
+      return handleTokenVerificationFailure(verification.reason);
     }
+
+    return verification.payload;
   };
 
   const generateSignupToken: ITokenService['generateSignupToken'] = async ({
     id,
   }) => {
-    const token = sign(
+    const token = deps.tokenCodec.encode(
       {
         id,
         type: 'signup',
       },
-      deps.varsConfig.JWT_SECRET_KEY,
-      { expiresIn: '1day', algorithm: 'HS256' }
+      { expiresInSeconds: 60 * 60 * 24 }
     );
 
     await deps.cacheStorage.set(
@@ -117,11 +112,13 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
     id,
   }) => {
     const ttlSeconds = 60 * 15; // 15 minutes
-    const token = sign({ id, type: 'access' }, deps.varsConfig.JWT_SECRET_KEY, {
-      expiresIn: ttlSeconds,
-      algorithm: 'HS256',
-      jwtid: randomUUID(),
-    });
+    const token = deps.tokenCodec.encode(
+      { id, type: 'access' },
+      {
+        expiresInSeconds: ttlSeconds,
+        tokenId: randomUUID(),
+      }
+    );
 
     return token;
   };
@@ -130,16 +127,14 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
     id,
   }) => {
     const ttlSeconds = 60 * 60 * 24 * 15; // 15 days
-    const token = sign(
+    const token = deps.tokenCodec.encode(
       {
         id,
         type: 'refresh',
       },
-      deps.varsConfig.JWT_SECRET_KEY,
       {
-        expiresIn: ttlSeconds,
-        algorithm: 'HS256',
-        jwtid: randomUUID(),
+        expiresInSeconds: ttlSeconds,
+        tokenId: randomUUID(),
       }
     );
 
@@ -159,13 +154,12 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
   const generatePasswordResetToken: ITokenService['generatePasswordResetToken'] =
     async ({ id }) => {
       const ttlSeconds = 2 * 60 * 60; // 2 hours
-      const token = sign(
+      const token = deps.tokenCodec.encode(
         {
           id,
           type: 'reset',
         },
-        deps.varsConfig.JWT_SECRET_KEY,
-        { expiresIn: ttlSeconds }
+        { expiresInSeconds: ttlSeconds }
       );
       await deps.cacheStorage.set(
         `app:auth:reset-token:${id}`,

@@ -9,6 +9,7 @@ description: Use when creating or changing domain services, coordinated domain c
 
 - [Implementation Workflow](../../workflow/implementation.md)
 - [Folder Responsibility](../../rules/folder-responsibility.md)
+- [Service Philosophy](../../rules/service-philosophy.md)
 - [Service Ownership](../../rules/service-ownership.md)
 - [Domain Modeling](../../rules/domain-modeling.md)
 - [Error Creation](../../rules/error-creation.md)
@@ -20,6 +21,8 @@ description: Use when creating or changing domain services, coordinated domain c
 - Inspect the nearby service, type contract, mock, tests, repositories, and IoC
   before editing.
 - Name the domain capability and the invariants it owns.
+- Confirm the service can complete the service-philosophy sentence with a clear
+  domain owner.
 - Keep the service dependency-free unless persisted state is required for an
   invariant.
 - Keep workflow persistence, transactions, context updates, event publication,

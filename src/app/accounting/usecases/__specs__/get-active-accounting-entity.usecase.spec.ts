@@ -1,7 +1,7 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import accountingAppError from '../../errors/accounting.error';
 import makeGetCurrentAccountingEntityUseCase from '../get-active-accounting-entity.usecase';
 

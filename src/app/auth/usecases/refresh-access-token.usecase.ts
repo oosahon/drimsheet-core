@@ -3,7 +3,7 @@ import IEventBus from '../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../shared/contracts/repo.contract';
 import appError from '../../../shared/errors/app.error';
 import { ITransactionContext } from '../../../shared/types/repo.types';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import ITokenService from '../contracts/token-service.contract';
 import IUserSessionRepo from '../contracts/user-session.repo.contract';
 import authError from '../errors/auth.error';

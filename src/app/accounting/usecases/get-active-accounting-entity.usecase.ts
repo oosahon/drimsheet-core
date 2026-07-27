@@ -1,4 +1,4 @@
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import accountingAppError from '../errors/accounting.error';
 
 interface IDeps {

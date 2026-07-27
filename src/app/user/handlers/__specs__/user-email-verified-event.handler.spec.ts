@@ -5,9 +5,9 @@ import { IEvent } from '../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import makeUserEmailVerifiedEventHandler from '../user-email-verified-event.handler';
 
-import MockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+import MockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
 
 describe('makeUserEmailVerifiedEventHandler', () => {
   beforeEach(() => {

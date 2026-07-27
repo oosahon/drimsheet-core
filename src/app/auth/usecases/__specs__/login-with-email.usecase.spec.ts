@@ -1,17 +1,18 @@
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import appError from '../../../../shared/errors/app.error';
+import { ITransactionContext } from '../../../../shared/types/repo.types';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockPasswordService from '../../contracts/__mocks__/password-service.contract.mock';
-import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
-import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
+} from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
+import mockPasswordService from '../../contracts/__mocks__/password-service.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.mock';
+import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
 import { IUserAuth } from '../../contracts/auth.types';
 import authError from '../../errors/auth.error';
 import makeLoginWithEmailUseCase from '../login-with-email.usecase';
@@ -21,6 +22,11 @@ describe('makeLoginWithEmailUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
     mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,

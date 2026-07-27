@@ -21,8 +21,14 @@ This document provides guidelines for contributing to this project to ensure a s
 
 ### Pragmatic Functional OOP
 
-- All entities, services, repos, and use-cases are pure functions (causing no side effect).
-- All similar functions are grouped in an immutable object
+- Domain entities, values, and pure rules should avoid side effects.
+  Repositories and application services may perform controlled side effects
+  such as persistence, cache claims, queueing, transactions, and reporting when
+  those effects belong to their layer.
+- Services should represent named capabilities with clear ownership. See
+  [Service Philosophy](.agents/rules/service-philosophy.md) and
+  [Service Ownership](.agents/rules/service-ownership.md).
+- All similar functions are grouped in an immutable object.
 - Function/Methods do not call external services directly. Dependencies are wired up in `index.ts` of each feature or sub-layer.\
   for example, `src/app/bookkeeping/usecases/index.ts` or `src/infra/services/index.ts`.
 

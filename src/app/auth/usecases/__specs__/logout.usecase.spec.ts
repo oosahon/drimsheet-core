@@ -1,14 +1,15 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
+} from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
+import mockAuthService from '../../contracts/__mocks__/token-service.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
 import authError from '../../errors/auth.error';
 import makeLogoutUseCase from '../logout.usecase';
 
 describe('makeLogoutUseCase', () => {
-  const correlationId = '854e4567-e89b-42d3-a456-426614174001'; // This is what is defined in app-context.mock.ts
+  const correlationId = '854e4567-e89b-42d3-a456-426614174001';
 
   const [mockUser] = userEntity.make({
     email: 'johndoe@example.com',
@@ -19,9 +20,10 @@ describe('makeLogoutUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // The mockAppContext is automatically returning the default payload
-    // including the mockClientSession and 'mock-correlation-id'
+    mockAppContext.get.mockReset().mockReturnValue({
+      clientSession: mockClientSession,
+      correlationId,
+    } as unknown as IAppContextData);
     mockAuthService.verifyRefreshToken.mockReturnValue({
       id: mockUser.id,
     });

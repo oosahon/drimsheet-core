@@ -3,7 +3,7 @@ import IUserRepo from '../../../domain/user/repos/user.repo';
 import emailValue from '../../../domain/user/values/email.vo';
 import ILogger from '../../../shared/contracts/logger.contract';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import IEmailVerificationService from '../contracts/email-verification-service.contract';
 import authError from '../errors/auth.error';
 

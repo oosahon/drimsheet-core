@@ -12,7 +12,7 @@ import { IExchangeRateQueryParam } from '../../../app/money/dtos/exchange-rate/e
 import {
   currencyUseCase,
   exchangeRateUseCases,
-} from '../../../infra/ioc/usecases/money.usecases';
+} from '../../../infra/ioc/usecases/money';
 import middlewares from '../middlewares';
 
 @Route('currencies')

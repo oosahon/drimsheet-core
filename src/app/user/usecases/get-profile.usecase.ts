@@ -1,5 +1,5 @@
 import appError from '../../../shared/errors/app.error';
-import IAppContext from '../../_internal/contracts/app-context.contract';
+import IAppContext from '../../context/contracts/app-context.contract';
 import { IUserProfileDto } from '../dtos/user/user.dto';
 import userMapper from '../dtos/user/user.dto.mapper';
 

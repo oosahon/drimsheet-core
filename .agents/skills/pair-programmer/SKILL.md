@@ -10,6 +10,7 @@ description: Use when implementing code changes in this repository.
 - [Contributor](../contributor/SKILL.md)
 - [Implementation Workflow](../../workflow/implementation.md)
 - [Folder Responsibility](../../rules/folder-responsibility.md)
+- [Service Philosophy](../../rules/service-philosophy.md)
 - [Service Ownership](../../rules/service-ownership.md)
 - [Readability](../../rules/readability.md)
 - [Artifact Creation](../../rules/artifact-creation.md)

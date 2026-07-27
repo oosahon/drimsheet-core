@@ -1,11 +1,11 @@
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
-import mockLogger from '../../../../shared/contracts/__mocks__/logger.contract.mock';
+import mockLogger from '../../../../shared/contracts/__mocks__/logger.mock';
 import appError from '../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import IEmailVerificationService from '../../contracts/email-verification-service.contract';
 import authError from '../../errors/auth.error';
 import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';

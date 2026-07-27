@@ -2,12 +2,12 @@ import { Express } from 'express';
 import request from 'supertest';
 import authError from '../../../src/app/auth/errors/auth.error';
 import { IUser } from '../../../src/domain/user/types/user.types';
-import authService from '../../../src/infra/ioc/services/auth.service';
+import authService from '../../../src/infra/ioc/services/auth';
 import userRepos from '../../../src/infra/persistence/repos/user';
 import { createApplication } from '../../../src/infra/server';
 import { TEntityId } from '../../../src/shared/types/uuid';
 
-jest.mock('../../../src/infra/ioc/services/auth.service', () => {
+jest.mock('../../../src/infra/ioc/services/auth', () => {
   return {
     __esModule: true,
     default: {

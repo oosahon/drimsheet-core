@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import IAppContext from '../../../app/_internal/contracts/app-context.contract';
+import IAppContext from '../../../app/context/contracts/app-context.contract';
 import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
 
 export default function makeAccountingEntityAccessMiddleware(

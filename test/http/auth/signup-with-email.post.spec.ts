@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import request from 'supertest';
 import { IUserSignupReq } from '../../../src/app/auth/dtos/auth/auth.dto';
-import authUseCase from '../../../src/infra/ioc/usecases/auth.usecases';
+import authUseCase from '../../../src/infra/ioc/usecases/auth';
 import { createApplication } from '../../../src/infra/server';
 
 const ENDPOINT = '/api/v1/auth/signup-with-email';
