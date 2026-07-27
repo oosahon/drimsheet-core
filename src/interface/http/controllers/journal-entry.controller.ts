@@ -10,7 +10,7 @@ import {
   Tags,
 } from 'tsoa';
 import { ITransactionJournalEntryReq } from '../../../app/journal-entry/dtos/transaction-journal-entry/transaction-journal-entry.dto';
-import journalEntryUseCases from '../../../infra/ioc/usecases/journal-entry.usecases';
+import journalEntryUseCases from '../../../infra/ioc/usecases/journal-entry';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import middlewares from '../middlewares';
 

@@ -5,13 +5,14 @@ import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
 import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
 
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '../../../../shared/types/repo.types';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
-import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
+} from '../../../_internal/contracts/__mocks__/app-context.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
 
 jest.mock('../helpers/issue-user-session.helper');
 
@@ -32,6 +33,11 @@ describe('refreshAccessTokenUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
 
     mockAppContext.get.mockReturnValue({
       correlationId,

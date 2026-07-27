@@ -18,9 +18,9 @@ import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.
 import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import mockLedgerAccountBalanceAdjustmentQueue from '../../../ledger/contracts/__mocks__/ledger-balance-adjustment-queue.contract.mock';
+import mockLedgerAccountBalanceAdjustmentQueue from '../../../ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import makeLedgerAccountBalancePropagationService from '../ledger-account-balance-propagation.service';
 
 describe('ledgerAccountBalancePropagationService', () => {

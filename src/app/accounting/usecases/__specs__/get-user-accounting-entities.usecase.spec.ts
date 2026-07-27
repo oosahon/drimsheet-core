@@ -3,7 +3,7 @@ import mockAccountingEntityRepo from '../../../../domain/accounting/repos/__mock
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.mock';
 import makeGetUserAccountingEntitiesUseCase from '../get-user-accounting-entities.usecase';
 
 describe('getUserAccountingEntitiesUseCase', () => {

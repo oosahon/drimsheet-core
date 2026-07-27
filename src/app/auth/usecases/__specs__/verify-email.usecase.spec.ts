@@ -1,15 +1,16 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
 
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import appError from '../../../../shared/errors/app.error';
+import { ITransactionContext } from '../../../../shared/types/repo.types';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+} from '../../../_internal/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.mock';
 import authError from '../../errors/auth.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
 
@@ -18,6 +19,11 @@ describe('makeVerifyEmailAddressUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
     mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,

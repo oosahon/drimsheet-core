@@ -1,7 +1,7 @@
 import * as varsConfig from '../../../infra/config/vars.config';
-import accountingDomainServices from '../../../infra/ioc/services/accounting.service';
-import authService from '../../../infra/ioc/services/auth.service';
-import authUseCase from '../../../infra/ioc/usecases/auth.usecases';
+import accountingDomainServices from '../../../infra/ioc/services/accounting';
+import authService from '../../../infra/ioc/services/auth';
+import authUseCase from '../../../infra/ioc/usecases/auth';
 import observability from '../../../infra/observability';
 import accountingRepos from '../../../infra/persistence/repos/accounting';
 import userRepos from '../../../infra/persistence/repos/user';

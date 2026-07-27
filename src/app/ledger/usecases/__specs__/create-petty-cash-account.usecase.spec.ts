@@ -18,25 +18,26 @@ import fxCostBasisLotAcquisitionEntity from '../../../../domain/subledger/fx-cos
 import fxCostBasisLotEntity from '../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
 import { EFxCostBasisLotStatus } from '../../../../domain/subledger/fx-cost-basis/types/lot.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
-import mockLedgerAccountBalancePropagationService from '../../../bookkeeping/contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
-import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.contract.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.mock';
+import mockLedgerAccountBalancePropagationService from '../../../bookkeeping/contracts/__mocks__/ledger-account-balance-adjustment-service.mock';
+import mockOpeningBalanceEntryService from '../../../bookkeeping/contracts/__mocks__/opening-balance-entry.service.mock';
 
 import mockAccountingPeriodService from '../../../../domain/accounting/services/__mocks__/accounting-period.service.mock';
 import mockAssetAccountService from '../../../../domain/ledger/asset-account/services/__mocks__/asset-account.service.mock';
-import mockLedgerAccountPersistenceService from '../../../../domain/ledger/shared/services/__mocks__/ledger-account-persistence.service.mock';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import mockFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/services/__mocks__/fx-lot-cost-basis.service.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import appError from '../../../../shared/errors/app.error';
+import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+} from '../../../_internal/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.contract.mock';
-import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.contract.mock';
+import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.mock';
+import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
+import mockLedgerAccountPersistenceService from '../../contracts/__mocks__/ledger-account-persistence.service.mock';
 import { IPettyCashAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
 import makeCreatePettyCashAccountUseCase from '../create-petty-cash-account.usecase';
 
@@ -140,6 +141,14 @@ describe('createPettyCashSubAccountUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
+    mockLedgerAccountBalancePropagationService.propagate
+      .mockReset()
+      .mockResolvedValue();
 
     mockAppContext.get.mockReturnValue({
       correlationId,

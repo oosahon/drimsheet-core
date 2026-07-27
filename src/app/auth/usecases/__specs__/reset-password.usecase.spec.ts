@@ -1,21 +1,22 @@
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.contract.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
+import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
 import appError from '../../../../shared/errors/app.error';
 import { IEvent } from '../../../../shared/events/types/event.types';
+import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+} from '../../../_internal/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockPasswordService from '../../contracts/__mocks__/password-service.contract.mock';
-import mockAuthService from '../../contracts/__mocks__/token-service.contract.mock';
-import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.contract.mock';
+import mockPasswordService from '../../contracts/__mocks__/password-service.mock';
+import mockAuthService from '../../contracts/__mocks__/token-service.mock';
+import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
 import { EAuthStrategy, IUserAuth } from '../../contracts/auth.types';
 import authError from '../../errors/auth.error';
 import makeResetPasswordUseCase from '../reset-password.usecase';
@@ -26,6 +27,11 @@ describe('makeResetPasswordUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2023-01-01T00:00:00.000Z'));
     mockAppContext.get.mockReturnValue({

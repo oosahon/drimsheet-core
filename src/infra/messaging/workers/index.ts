@@ -3,8 +3,8 @@ import { ILedgerAccountBalanceAdjustmentDto } from '../../../app/ledger/dtos/led
 import { TRANSACTIONAL_EMAIL_QUEUE_NAME } from '../../../app/notification/contracts/transactional-email-queue.contract';
 import { ITransactionalEmailDto } from '../../../app/notification/dtos/transactional-email/transactional-email.dto';
 import { registerBullMQWorker } from '../../config/bullmq.config';
-import ledgerWorkers from '../../ioc/workers/ledger.workers';
-import notificationWorkers from '../../ioc/workers/notification.workers';
+import ledgerWorkers from '../../ioc/workers/ledger';
+import notificationWorkers from '../../ioc/workers/notification';
 
 function workerRegistration() {
   registerBullMQWorker<ITransactionalEmailDto>(

@@ -12,28 +12,40 @@ interface IDependencies {
   journalLineRepo: IJournalLineRepo;
 }
 
+/**
+  Creates a new journal line and header in the persistence layer.
+  Ensures there are no invariance.
+ */
+function makeCreate(
+  deps: IDependencies
+): IJournalEntryPersistenceService['create'] {
+  return async (entry, headerHistory, linesHistory, repoOptions) => {
+    const transactionFn: TRepoTransactionFn = async (tx) => {
+      const writeOptions = { ...repoOptions, tx };
+      const { lines, ...header } = entry;
+
+      await deps.journalEntryRepo.create(header, {
+        ...writeOptions,
+        history: headerHistory,
+      });
+
+      await deps.journalLineRepo.create(lines, {
+        ...writeOptions,
+        history: linesHistory,
+        accountingEntityId: header.accountingEntityId,
+      });
+    };
+
+    await deps.repoService.runInTransaction(transactionFn, repoOptions.tx);
+  };
+}
+
 export default function makeJournalEntryPersistenceService(
   deps: IDependencies
-): IJournalEntryPersistenceService {
-  return {
-    async create(entry, headerHistory, linesHistory, repoOptions) {
-      const transactionFn: TRepoTransactionFn = async (tx) => {
-        const writeOptions = { ...repoOptions, tx };
-        const { lines, ...header } = entry;
+) {
+  const service: IJournalEntryPersistenceService = Object.freeze({
+    create: makeCreate(deps),
+  });
 
-        await deps.journalEntryRepo.create(header, {
-          ...writeOptions,
-          history: headerHistory,
-        });
-
-        await deps.journalLineRepo.create(lines, {
-          ...writeOptions,
-          history: linesHistory,
-          accountingEntityId: header.accountingEntityId,
-        });
-      };
-
-      await deps.repoService.runInTransaction(transactionFn, repoOptions.tx);
-    },
-  };
+  return service;
 }

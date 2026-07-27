@@ -27,6 +27,7 @@ Use this for ordinary code changes.
 10. Run focused validation, then broader validation when risk is higher.
 
 Follow [Service Ownership](../rules/service-ownership.md),
+[Service Philosophy](../rules/service-philosophy.md),
 [Inversion of Control](../rules/ioc.md), and
 [Readability](../rules/readability.md) when those concerns are in scope. Follow
 [DTOs](../rules/dto.md) and [Mappers](../rules/mapper.md) for HTTP outputs or

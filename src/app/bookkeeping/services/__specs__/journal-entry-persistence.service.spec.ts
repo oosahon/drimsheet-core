@@ -19,9 +19,12 @@ import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.co
 import userEntity from '../../../../domain/user/entities/user.entity';
 
 import moneyValue from '../../../../domain/money/values/money.vo';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { EHistoryActorType } from '../../../../shared/history/types/history.types';
-import { IRepoOptions } from '../../../../shared/types/repo.types';
+import {
+  IRepoOptions,
+  ITransactionContext,
+} from '../../../../shared/types/repo.types';
 import makeJournalEntryPersistenceService from '../journal-entry-persistence.service';
 
 describe('journalEntryPersistenceService', () => {
@@ -149,6 +152,11 @@ describe('journalEntryPersistenceService', () => {
     jest.useFakeTimers();
     jest.setSystemTime(timestamp);
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
     mockJournalEntryRepo.create.mockResolvedValue(undefined);
     mockJournalLineRepo.create.mockResolvedValue(undefined);
   });

@@ -7,7 +7,7 @@ import {
   makeIpRateLimitKey,
   rateLimiter,
 } from '../../../src/infra/config/rate-limiter.config';
-import authUseCase from '../../../src/infra/ioc/usecases/auth.usecases';
+import authUseCase from '../../../src/infra/ioc/usecases/auth';
 import { createApplication } from '../../../src/infra/server';
 import appError from '../../../src/shared/errors/app.error';
 

@@ -1,26 +1,99 @@
-import { decode, sign } from 'jsonwebtoken';
-import { makeMockCacheStorage } from '../../../../shared/contracts/__mocks__/cache-storage.contract.mock';
-import { ICacheStorage } from '../../../../shared/contracts/cache-storage.contract';
-import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
+import mockCacheStorage from '../../../../shared/contracts/__mocks__/cache-storage.mock';
+import mockTokenCodec from '../../../../shared/contracts/__mocks__/token-codec.mock';
+import {
+  ITokenEncodingOptions,
+  TTokenVerification,
+} from '../../../../shared/contracts/token-codec.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import authError from '../../errors/auth.error';
 import makeTokenService from '../token.service';
 
+interface IMockTokenPayload extends Record<string, unknown> {
+  exp?: number;
+  jti?: string;
+}
+
+const serializeMockToken = (payload: IMockTokenPayload) =>
+  Buffer.from(JSON.stringify(payload)).toString('base64url');
+
+const deserializeMockToken = (token: string): IMockTokenPayload =>
+  JSON.parse(
+    Buffer.from(token, 'base64url').toString('utf8')
+  ) as IMockTokenPayload;
+
+const configureCacheStorage = () => {
+  const store = new Map<string, unknown>();
+
+  mockCacheStorage.get
+    .mockReset()
+    .mockImplementation(async <T>(key: string) =>
+      store.has(key) ? (store.get(key) as T) : null
+    );
+  mockCacheStorage.set
+    .mockReset()
+    .mockImplementation(async <T>(key: string, value: T) => {
+      store.set(key, value);
+    });
+  mockCacheStorage.setIfNotExists
+    .mockReset()
+    .mockImplementation(async <T>(key: string, value: T) => {
+      if (store.has(key)) return false;
+
+      store.set(key, value);
+      return true;
+    });
+  mockCacheStorage.deleteIfValueMatches
+    .mockReset()
+    .mockImplementation(
+      async <T>(key: string, value: T, additionalKeys: string[] = []) => {
+        if (store.get(key) !== value) return false;
+
+        store.delete(key);
+        additionalKeys.forEach((additionalKey) => store.delete(additionalKey));
+        return true;
+      }
+    );
+  mockCacheStorage.del.mockReset().mockImplementation(async (key: string) => {
+    store.delete(key);
+  });
+};
+
 describe('makeTokenService', () => {
-  let cacheStorage: ICacheStorage;
   let tokenService: ReturnType<typeof makeTokenService>;
-  let varsConfig: IVarsConfig;
 
   beforeEach(() => {
-    cacheStorage = makeMockCacheStorage();
-    varsConfig = {
-      JWT_SECRET_KEY: 'test-secret-key',
-      NODE_ENV: 'test',
-    } as IVarsConfig;
+    configureCacheStorage();
+    mockTokenCodec.encode
+      .mockReset()
+      .mockImplementation(
+        (payload: Record<string, unknown>, options: ITokenEncodingOptions) =>
+          serializeMockToken({
+            ...payload,
+            exp: Math.floor(Date.now() / 1000) + options.expiresInSeconds,
+            ...(options.tokenId ? { jti: options.tokenId } : {}),
+          })
+      );
+    mockTokenCodec.verify
+      .mockReset()
+      .mockImplementation(
+        <TPayload>(token: string): TTokenVerification<TPayload> => {
+          try {
+            const payload = deserializeMockToken(token);
+
+            if (payload.exp && payload.exp <= Math.floor(Date.now() / 1000)) {
+              return { reason: 'expired', valid: false };
+            }
+
+            return { payload: payload as TPayload, valid: true };
+          } catch {
+            return { reason: 'malformed', valid: false };
+          }
+        }
+      );
 
     tokenService = makeTokenService({
-      cacheStorage,
-      varsConfig,
+      cacheStorage: mockCacheStorage,
+      tokenCodec: mockTokenCodec,
     });
   });
 
@@ -29,7 +102,7 @@ describe('makeTokenService', () => {
 
     it('should successfully generate and verify a signup token', async () => {
       const token = await tokenService.generateSignupToken({ id: userId });
-      expect(cacheStorage.set).toHaveBeenCalledWith(
+      expect(mockCacheStorage.set).toHaveBeenCalledWith(
         `app:auth:signup-token:${userId}`,
         token,
         expect.any(Number)
@@ -39,7 +112,7 @@ describe('makeTokenService', () => {
       expect(decoded.id).toBe(userId);
 
       // It should delete the token after successful verification
-      expect(cacheStorage.del).toHaveBeenCalledWith(
+      expect(mockCacheStorage.del).toHaveBeenCalledWith(
         `app:auth:signup-token:${userId}`
       );
     });
@@ -56,7 +129,7 @@ describe('makeTokenService', () => {
       const token = await tokenService.generateSignupToken({ id: userId });
 
       // Manually delete from cache to simulate expiry/consumption
-      await cacheStorage.del(`app:auth:signup-token:${userId}`);
+      await mockCacheStorage.del(`app:auth:signup-token:${userId}`);
 
       await expect(tokenService.verifySignupToken(token)).rejects.toThrow(
         authError.InvalidToken
@@ -67,7 +140,7 @@ describe('makeTokenService', () => {
       const token = await tokenService.generateSignupToken({ id: userId });
 
       // Tamper with the cache
-      await cacheStorage.set(
+      await mockCacheStorage.set(
         `app:auth:signup-token:${userId}`,
         'some-other-token'
       );
@@ -81,7 +154,7 @@ describe('makeTokenService', () => {
       const token = await tokenService.generateSignupToken({ id: userId });
 
       // Simulate an active claim by another process
-      await cacheStorage.set(
+      await mockCacheStorage.set(
         `app:auth:signup-token-claim:${userId}`,
         token,
         30
@@ -97,7 +170,7 @@ describe('makeTokenService', () => {
       const token = await tokenService.generateSignupToken({ id: userId });
 
       // Set active claim
-      await cacheStorage.set(
+      await mockCacheStorage.set(
         `app:auth:signup-token-claim:${userId}`,
         token,
         30
@@ -107,7 +180,7 @@ describe('makeTokenService', () => {
       await tokenService.releaseSignupTokenClaim(userId);
 
       // Verify that the claim key was deleted
-      expect(cacheStorage.del).toHaveBeenCalledWith(
+      expect(mockCacheStorage.del).toHaveBeenCalledWith(
         `app:auth:signup-token-claim:${userId}`
       );
     });
@@ -120,7 +193,7 @@ describe('makeTokenService', () => {
       const token = await tokenService.generatePasswordResetToken({
         id: userId,
       });
-      expect(cacheStorage.set).toHaveBeenCalledWith(
+      expect(mockCacheStorage.set).toHaveBeenCalledWith(
         `app:auth:reset-token:${userId}`,
         token,
         expect.any(Number)
@@ -129,7 +202,7 @@ describe('makeTokenService', () => {
       const decoded = await tokenService.verifyPasswordResetToken(token);
       expect(decoded.id).toBe(userId);
 
-      expect(cacheStorage.deleteIfValueMatches).toHaveBeenCalledWith(
+      expect(mockCacheStorage.deleteIfValueMatches).toHaveBeenCalledWith(
         `app:auth:reset-token-claim:${userId}`,
         expect.any(String),
         [`app:auth:reset-token:${userId}`]
@@ -149,7 +222,7 @@ describe('makeTokenService', () => {
         id: userId,
       });
 
-      await cacheStorage.del(`app:auth:reset-token:${userId}`);
+      await mockCacheStorage.del(`app:auth:reset-token:${userId}`);
 
       await expect(
         tokenService.verifyPasswordResetToken(token)
@@ -205,12 +278,10 @@ describe('makeTokenService', () => {
     });
 
     it('claims a password reset token correctly when it does not contain an expiration claim', async () => {
-      // Sign token without exp
-      const token = sign(
-        { id: userId, type: 'reset' },
-        varsConfig.JWT_SECRET_KEY
-      );
-      await cacheStorage.set(`app:auth:reset-token:${userId}`, token, 900);
+      const token = Buffer.from(
+        JSON.stringify({ id: userId, type: 'reset' })
+      ).toString('base64url');
+      await mockCacheStorage.set(`app:auth:reset-token:${userId}`, token, 900);
 
       const claim = await tokenService.claimPasswordResetToken(token);
       expect(claim.id).toBe(userId);
@@ -235,23 +306,25 @@ describe('makeTokenService', () => {
       const second = await tokenService.generateAccessToken({ id: userId });
 
       expect(first).not.toBe(second);
-      expect(decode(first)).toMatchObject({ id: userId, type: 'access' });
-      expect(decode(second)).toMatchObject({ id: userId, type: 'access' });
-      expect((decode(first) as { jti: string }).jti).not.toBe(
-        (decode(second) as { jti: string }).jti
+      expect(deserializeMockToken(first)).toMatchObject({
+        id: userId,
+        type: 'access',
+      });
+      expect(deserializeMockToken(second)).toMatchObject({
+        id: userId,
+        type: 'access',
+      });
+      expect(deserializeMockToken(first).jti).not.toBe(
+        deserializeMockToken(second).jti
       );
 
       jest.useRealTimers();
     });
 
     it('should throw ExpiredToken for expired access tokens', async () => {
-      // Manually sign an expired token
-      const expiredToken = sign(
+      const expiredToken = mockTokenCodec.encode(
         { id: userId, type: 'access' },
-        varsConfig.JWT_SECRET_KEY,
-        {
-          expiresIn: '-1s',
-        }
+        { expiresInSeconds: -1 }
       );
 
       await expect(tokenService.getAuthUser(expiredToken)).rejects.toThrow(
@@ -276,20 +349,20 @@ describe('makeTokenService', () => {
     });
 
     it('should throw InvalidToken for NotBeforeError', async () => {
-      const jwt = require('jsonwebtoken');
-      jest.spyOn(jwt, 'verify').mockImplementationOnce(() => {
-        throw new jwt.NotBeforeError('jwt not active', new Date());
-      });
+      mockTokenCodec.verify.mockImplementationOnce(() => ({
+        reason: 'not-active',
+        valid: false,
+      }));
       await expect(tokenService.getAuthUser('some-token')).rejects.toThrow(
         authError.InvalidToken
       );
     });
 
     it('should throw InvalidToken for unknown error during verification', async () => {
-      const jwt = require('jsonwebtoken');
-      jest.spyOn(jwt, 'verify').mockImplementationOnce(() => {
-        throw new Error('unknown error');
-      });
+      mockTokenCodec.verify.mockImplementationOnce(() => ({
+        reason: 'invalid',
+        valid: false,
+      }));
       await expect(tokenService.getAuthUser('some-token')).rejects.toThrow(
         authError.InvalidToken
       );
@@ -313,10 +386,16 @@ describe('makeTokenService', () => {
       const second = await tokenService.generateRefreshToken({ id: userId });
 
       expect(first).not.toBe(second);
-      expect(decode(first)).toMatchObject({ id: userId, type: 'refresh' });
-      expect(decode(second)).toMatchObject({ id: userId, type: 'refresh' });
-      expect((decode(first) as { jti: string }).jti).not.toBe(
-        (decode(second) as { jti: string }).jti
+      expect(deserializeMockToken(first)).toMatchObject({
+        id: userId,
+        type: 'refresh',
+      });
+      expect(deserializeMockToken(second)).toMatchObject({
+        id: userId,
+        type: 'refresh',
+      });
+      expect(deserializeMockToken(first).jti).not.toBe(
+        deserializeMockToken(second).jti
       );
 
       jest.useRealTimers();

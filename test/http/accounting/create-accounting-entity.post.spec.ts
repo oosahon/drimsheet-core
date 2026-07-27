@@ -5,15 +5,15 @@ import authError from '../../../src/app/auth/errors/auth.error';
 import periodError from '../../../src/domain/accounting/errors/period.error';
 import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../src/domain/user/types/user.types';
-import authService from '../../../src/infra/ioc/services/auth.service';
-import accountingUsecases from '../../../src/infra/ioc/usecases/accounting.usecases';
+import authService from '../../../src/infra/ioc/services/auth';
+import accountingUsecases from '../../../src/infra/ioc/usecases/accounting';
 import accountingRepos from '../../../src/infra/persistence/repos/accounting';
 import userRepos from '../../../src/infra/persistence/repos/user';
 import { createApplication } from '../../../src/infra/server';
 import appError from '../../../src/shared/errors/app.error';
 import { TEntityId } from '../../../src/shared/types/uuid';
 
-jest.mock('../../../src/infra/ioc/services/auth.service', () => ({
+jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
   default: {
     password: {},
@@ -21,7 +21,7 @@ jest.mock('../../../src/infra/ioc/services/auth.service', () => ({
   },
 }));
 
-jest.mock('../../../src/infra/ioc/usecases/accounting.usecases', () => ({
+jest.mock('../../../src/infra/ioc/usecases/accounting', () => ({
   __esModule: true,
   default: {
     createAccountingEntity: jest.fn(),

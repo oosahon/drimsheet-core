@@ -6,9 +6,10 @@ import fxCostBasisLotEntity from '../../../../../domain/subledger/fx-cost-basis/
 import mockFxCostBasisLotAcquisitionRepo from '../../../../../domain/subledger/fx-cost-basis/repos/__mocks__/acquisition.repo.impl.mock';
 import mockFxCostBasisLotRepo from '../../../../../domain/subledger/fx-cost-basis/repos/__mocks__/lot.repo.impl.mock';
 import { EFxCostBasisLotStatus } from '../../../../../domain/subledger/fx-cost-basis/types/lot.types';
-import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.mock';
 import historyValue from '../../../../../shared/history/history.vo';
 import { EHistoryActorType } from '../../../../../shared/history/types/history.types';
+import { ITransactionContext } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import makeFxLotCostBasisPersistenceService from '../fx-cost-basis-persistence.service';
@@ -41,6 +42,11 @@ describe('fxCostBasisPersistenceService', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockRepoService.runInTransaction
+      .mockReset()
+      .mockImplementation(async (transactionFn) =>
+        transactionFn('mock-tx' as unknown as ITransactionContext)
+      );
   });
 
   it('should successfully persist lot and acquisition in transaction when invariants are met', async () => {

@@ -8,7 +8,6 @@ import IAssetAccountService from '../../../domain/ledger/asset-account/types/ass
 import { ICashAndCashEquivalentAccount } from '../../../domain/ledger/asset-account/types/asset-account.types';
 import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
 import { ILedgerAccountHistory } from '../../../domain/ledger/shared/types/ledger-account-audit.types';
-import ILedgerAccountPersistenceService from '../../../domain/ledger/shared/types/ledger-account-persistence.service.types';
 import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
 import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
@@ -46,6 +45,7 @@ import { IOpeningBalanceDto } from '../../journal-entry/dtos/opening-balance/ope
 import IExchangeRateAppService from '../../money/contracts/exchange-rate.service.contract';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import IFxCostBasisPersistenceService from '../../subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
+import ILedgerAccountPersistenceService from '../contracts/ledger-account-persistence.service.contract';
 import { IPettyCashAccountCreationReq } from '../dtos/asset-account/asset-account.dto';
 import { pettyCashCreationReqValidation } from '../dtos/asset-account/asset-account.dto.validation';
 import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';

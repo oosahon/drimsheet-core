@@ -17,7 +17,7 @@ import {
   IGetLedgerAccountsQuery,
   ILedgerAccountDto,
 } from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
-import ledgerUseCases from '../../../infra/ioc/usecases/ledger.usecases';
+import ledgerUseCases from '../../../infra/ioc/usecases/ledger';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import { IPaginationDto } from '../../../shared/pagination/dto/pagination.dto';
 import { TEntityId } from '../../../shared/types/uuid';

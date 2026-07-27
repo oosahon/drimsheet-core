@@ -1,5 +1,8 @@
 # Service Ownership
 
+Follow [Service Philosophy](service-philosophy.md) for the doctrine, layer
+questions, and disposition vocabulary.
+
 Extract a service only when it represents a named capability with a clear
 owner. Do not create a service merely to shorten a use case.
 
@@ -21,6 +24,8 @@ owner. Do not create a service merely to shorten a use case.
 - Have an independently meaningful contract and focused tests.
 - Define failure semantics in the service contract: whether the capability
   rejects or is best-effort.
+- May own transactions when the reusable capability protects a multi-repository
+  atomicity boundary.
 - For best-effort capabilities, the implementation catches and reports failures
   exactly once. Callers await the capability without repeating catches or
   reporter calls.
@@ -44,7 +49,8 @@ owner. Do not create a service merely to shorten a use case.
   application context updates, and event publication when those steps belong
   only to that workflow.
 - Extract persistence only when it is a reusable capability with an independent
-  contract used by more than one workflow.
+  contract. Services with one production caller are allowed in a growing
+  application, but must be highlighted and scrutinized during review.
 
 ## Decision Check
 

@@ -12,15 +12,15 @@ import {
   IExchangeRate,
 } from '../../../../domain/money/types/exchange-rate.types';
 import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.contract.mock';
-import mockLedgerAccountBalancePropagationService from '../../../bookkeeping/contracts/__mocks__/ledger-account-balance-adjustment-service.contract.mock';
-import mockTransactionEntryService from '../../../bookkeeping/contracts/__mocks__/transaction-entry.service.contract.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockJournalEntryPersistenceService from '../../../bookkeeping/contracts/__mocks__/journal-entry-persistence.service.mock';
+import mockLedgerAccountBalancePropagationService from '../../../bookkeeping/contracts/__mocks__/ledger-account-balance-adjustment-service.mock';
+import mockTransactionEntryService from '../../../bookkeeping/contracts/__mocks__/transaction-entry.service.mock';
 
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext, {
   mockClientSession,
-} from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+} from '../../../_internal/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import makeCreateTransferJournalEntryUseCase from '../create-transfer-journal-entry.usecase';
 
@@ -85,6 +85,9 @@ describe('createTransferJournalEntryUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockLedgerAccountBalancePropagationService.propagate
+      .mockReset()
+      .mockResolvedValue();
 
     mockAppContext.get.mockReturnValue({
       correlationId,

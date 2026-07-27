@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import request from 'supertest';
-import authUseCase from '../../../src/infra/ioc/usecases/auth.usecases';
+import authUseCase from '../../../src/infra/ioc/usecases/auth';
 import appContext from '../../../src/infra/runtime/app-context';
 import { createApplication } from '../../../src/infra/server';
 

@@ -1,16 +1,16 @@
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.contract.mock';
-import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.contract.mock';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
 
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.contract.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import appError from '../../../../shared/errors/app.error';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
-import mockPasswordService from '../../contracts/__mocks__/password-service.contract.mock';
+import mockPasswordService from '../../contracts/__mocks__/password-service.mock';
 import IEmailVerificationService from '../../contracts/email-verification-service.contract';
 import { IUserSignupReq } from '../../dtos/auth/auth.dto';
 import makeSignupWithEmailUsecase from '../signup-with-email.usecase';

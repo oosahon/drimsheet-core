@@ -2,7 +2,7 @@ import exchangeRateRepoMock from '../../../../domain/money/repos/__mocks__/excha
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
 import appError from '../../../../shared/errors/app.error';
-import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.contract.mock';
+import mockAppContext from '../../../_internal/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../_internal/contracts/app-context.contract';
 import { IExchangeRateQueryParam } from '../../dtos/exchange-rate/exchange-rate.dto';
 import makeGetExchangeRateUseCase from '../get-exchange-rates.usecase';

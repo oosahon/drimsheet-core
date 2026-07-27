@@ -1,6 +1,5 @@
 import balanceEffectRule from '../../../domain/accounting/rules/bookkeeping/balance-effect.rule';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
-import { ILedgerAccountService } from '../../../domain/ledger/shared/types/ledger-account.service.types';
 import appError from '../../../shared/errors/app.error';
 import { IPaginationDto } from '../../../shared/pagination/dto/pagination.dto';
 import paginationMapper from '../../../shared/pagination/dto/pagination.dto.mapper';
@@ -17,7 +16,6 @@ import ledgerAppError from '../errors/ledger.error';
 interface IDependencies {
   appContext: IAppContext;
   ledgerAccountRepo: ILedgerAccountRepo;
-  ledgerAccountService: ILedgerAccountService;
   accountTransactionQueryRepo: IAccountTransactionQueryRepo;
 }
 
@@ -41,12 +39,7 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
       throw new ledgerAppError.AccountNotFound();
     }
 
-    const canAccessAccount =
-      await deps.ledgerAccountService.validateAccountAccess(
-        ledgerAccount.id,
-        user.id,
-        trace
-      );
+    const canAccessAccount = ledgerAccount?.createdBy === user.id;
 
     if (!canAccessAccount) {
       throw new appError.Forbidden();

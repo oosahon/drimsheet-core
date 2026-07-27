@@ -15,7 +15,7 @@ import {
   IJurisdictionDto,
 } from '../../../app/accounting/dtos/accounting/accounting.dto';
 import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
-import accountingUsecases from '../../../infra/ioc/usecases/accounting.usecases';
+import accountingUsecases from '../../../infra/ioc/usecases/accounting';
 import { IHttpErrorDto } from '../../../shared/errors/error.dto';
 import middlewares from '../middlewares';
 

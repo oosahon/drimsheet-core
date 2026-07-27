@@ -5,14 +5,14 @@ import { ILedgerAccountDto } from '../../../src/app/ledger/dtos/ledger-account/l
 import periodError from '../../../src/domain/accounting/errors/period.error';
 import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../src/domain/user/types/user.types';
-import authService from '../../../src/infra/ioc/services/auth.service';
-import ledgerUseCases from '../../../src/infra/ioc/usecases/ledger.usecases';
+import authService from '../../../src/infra/ioc/services/auth';
+import ledgerUseCases from '../../../src/infra/ioc/usecases/ledger';
 import accountingRepos from '../../../src/infra/persistence/repos/accounting';
 import userRepos from '../../../src/infra/persistence/repos/user';
 import { createApplication } from '../../../src/infra/server';
 import { TEntityId } from '../../../src/shared/types/uuid';
 
-jest.mock('../../../src/infra/ioc/services/auth.service', () => ({
+jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
   default: {
     password: {},
@@ -20,7 +20,7 @@ jest.mock('../../../src/infra/ioc/services/auth.service', () => ({
   },
 }));
 
-jest.mock('../../../src/infra/ioc/usecases/ledger.usecases', () => ({
+jest.mock('../../../src/infra/ioc/usecases/ledger', () => ({
   __esModule: true,
   default: {
     getLedgerAccounts: jest.fn(),
