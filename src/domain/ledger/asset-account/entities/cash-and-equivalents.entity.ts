@@ -1,5 +1,4 @@
 import { TAuditedEntity } from '../../../../shared/events/types/event.types';
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import stringUtils from '../../../../shared/utils/string';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
 import ledgerError from '../../shared/errors/ledger.error';
@@ -20,6 +19,7 @@ import {
   IPettyCashAccount,
   IPettyCashAccountMeta,
 } from '../types/asset-account.types';
+import bankAccountValue from '../values/bank-account.vo';
 import helpers from './helpers/cash.entity.helpers';
 
 interface IScopeDetails {
@@ -159,7 +159,16 @@ function makePettyCashAccount(
  * @returns [ICashAndCashEquivalentAccount, ICashCreationEvent]
  */
 function makeBankAccount(
-  payload: TCreationOmits<IBankAccount>,
+  payload: Pick<
+    IBankAccount,
+    | 'name'
+    | 'currency'
+    | 'isControlAccount'
+    | 'controlAccountId'
+    | 'createdBy'
+    | 'accountingEntityId'
+    | 'meta'
+  >,
   scope: IScopeDetails | null
 ): TAuditedEntity<
   ICashAndCashEquivalentAccount,
@@ -176,7 +185,7 @@ function makeBankAccount(
       isControlAccount: payload.isControlAccount,
       controlAccountId: payload.controlAccountId,
       behavior: EAssetAccountBehavior.Bank,
-      meta: helpers.makeBankAccountMeta(payload.meta),
+      meta: bankAccountValue.make(payload.meta),
     },
     scope
   );

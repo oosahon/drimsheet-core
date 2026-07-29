@@ -1024,6 +1024,45 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IBankAccountCreationReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "controlAccountCode": {
+            "type": "string"
+          },
+          "bankAccount": {
+            "properties": {
+              "accountNumber": {
+                "type": "string"
+              },
+              "accountName": {
+                "type": "string"
+              },
+              "bankName": {
+                "type": "string"
+              }
+            },
+            "required": ["accountNumber", "accountName", "bankName"],
+            "type": "object"
+          },
+          "openingBalance": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IOpeningBalanceDto"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "required": ["name", "currencyCode", "bankAccount", "openingBalance"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "UAccountingEntityType": {
         "type": "string",
         "enum": ["individual", "sole_trader", "private_company"]
@@ -2452,6 +2491,87 @@
         "tags": ["Auth"],
         "security": [],
         "parameters": []
+      }
+    },
+    "/accounts/asset/bank": {
+      "post": {
+        "operationId": "createBankAccount",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ILedgerAccountDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new asset bank sub account",
+        "tags": ["Asset Accounts", "Accounts"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IBankAccountCreationReq"
+              }
+            }
+          }
+        }
       }
     },
     "/accounting/accounting-entity": {

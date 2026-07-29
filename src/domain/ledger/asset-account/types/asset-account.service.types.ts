@@ -5,7 +5,10 @@ import { IAccountingEntity } from '../../../accounting/types/accounting-entity.t
 import { ICurrency } from '../../../money/types/currency.types';
 import { TCashLedgerCode } from '../../shared/types/ledger-code.types';
 import { ILedgerAccount } from '../../shared/types/ledger.types';
-import { ICashAndCashEquivalentAccount } from './asset-account.types';
+import {
+  IBankValue,
+  ICashAndCashEquivalentAccount,
+} from './asset-account.types';
 
 interface IMakePettyCashPayload {
   name: string;
@@ -16,9 +19,29 @@ interface IMakePettyCashPayload {
   controlAccountCode?: TCashLedgerCode;
 }
 
+interface IMakeBankPayload {
+  name: string;
+  currency: ICurrency;
+  userId: TEntityId;
+  accountingEntity: IAccountingEntity;
+  controlAccountCode?: TCashLedgerCode;
+  bankValue: IBankValue;
+}
+
 export default interface IAssetAccountService {
   makePettyCashSubAccount(
     payload: IMakePettyCashPayload,
+    repoOptions: IReadRepoOptions
+  ): Promise<
+    TAuditedEntity<
+      ICashAndCashEquivalentAccount,
+      ICashAndCashEquivalentAccount,
+      ILedgerAccount
+    >
+  >;
+
+  makeBankSubAccount(
+    payload: IMakeBankPayload,
     repoOptions: IReadRepoOptions
   ): Promise<
     TAuditedEntity<

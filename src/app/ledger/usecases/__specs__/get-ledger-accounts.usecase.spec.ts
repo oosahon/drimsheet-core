@@ -47,15 +47,10 @@ describe('makeGetLedgerAccountsUsecase', () => {
       currency: usdCurrency,
       createdBy: generateUUID(),
       meta: {
+        countryCode: 'US',
         bankName: 'Test Bank',
         accountNumber: '1234567890',
         accountName: 'Main Account',
-        sortCode: null,
-        swiftCode: null,
-        iban: null,
-        routingNumber: null,
-        branchCode: null,
-        lastReconciliationDate: null,
       },
     } as unknown as TCreationOmits<IBankAccount>,
     null
@@ -70,15 +65,10 @@ describe('makeGetLedgerAccountsUsecase', () => {
       currency: eurCurrency,
       createdBy: generateUUID(),
       meta: {
+        countryCode: 'US',
         bankName: 'Test Bank',
         accountNumber: '1234567891',
         accountName: 'Control Account',
-        sortCode: null,
-        swiftCode: null,
-        iban: null,
-        routingNumber: null,
-        branchCode: null,
-        lastReconciliationDate: null,
       },
     } as unknown as TCreationOmits<IBankAccount>,
     null

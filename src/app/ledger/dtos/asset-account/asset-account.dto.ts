@@ -7,3 +7,15 @@ export interface IPettyCashAccountCreationReq {
   controlAccountCode?: string;
   openingBalance: IOpeningBalanceDto | null;
 }
+
+export interface IBankAccountCreationReq {
+  name: string;
+  currencyCode: string;
+  controlAccountCode?: string;
+  bankAccount: {
+    bankName: string;
+    accountName: string;
+    accountNumber: string;
+  };
+  openingBalance: IOpeningBalanceDto | null;
+}

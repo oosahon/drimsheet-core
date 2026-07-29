@@ -1573,3 +1573,38 @@ export const jurisdictionAccountingStandardsInCore = core.table(
     }),
   ]
 );
+
+export const bankAccountsInCore = core.table(
+  'bank_accounts',
+  {
+    bankName: varchar('bank_name', { length: 100 }).notNull(),
+    accountNumber: varchar('account_number', { length: 34 }).notNull(),
+    accountName: varchar('account_name', { length: 100 }).notNull(),
+    countryCode: varchar('country_code', { length: 2 }).notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    ledgerAccountId: uuid('ledger_account_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'bank_accounts_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.ledgerAccountId],
+      foreignColumns: [ledgerAccountsInCore.id],
+      name: 'bank_accounts_ledger_account_id_fkey',
+    }).onDelete('cascade'),
+    primaryKey({
+      columns: [table.bankName, table.accountNumber],
+      name: 'bank_accounts_pkey',
+    }),
+    unique('bank_accounts_ledger_account_id_uk').on(table.ledgerAccountId),
+  ]
+);

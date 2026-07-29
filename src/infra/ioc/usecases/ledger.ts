@@ -1,4 +1,5 @@
 import makeAdjustLedgerAccountBalanceUseCase from '../../../app/ledger/usecases/adjust-ledger-account-balance.usecase';
+import makeCreateBankAccountUseCase from '../../../app/ledger/usecases/create-bank-account.usecase';
 import makeCreatePettyCashAccountUseCase from '../../../app/ledger/usecases/create-petty-cash-account.usecase';
 import makeGetAccountTransactionsUseCase from '../../../app/ledger/usecases/get-account-transactions.usecase';
 import makeGetBanksUseCase from '../../../app/ledger/usecases/get-banks.usecase';
@@ -49,6 +50,23 @@ const ledgerUseCases = {
     eventBus: messaging.eventBus,
     assetAccountService: ledgerServices.assetAccount,
     accountingPeriodService: accountingServices.accountingPeriod,
+    openingBalanceEntryService: journalEntryServices.openingBalanceEntry,
+    journalEntryPersistenceService:
+      journalEntryServices.journalEntryPersistence,
+    balancePropagationService: ledgerServices.balancePropagation,
+    repoService,
+    ledgerAccountPersistenceService: ledgerServices.persistence,
+    fxCostBasisPersistenceService: fxCostBasisService.persistence,
+    fxCostBasisService: fxCostBasisService.domain,
+    exchangeRateService: currencyServices.exchangeRate,
+  }),
+
+  createBankAccount: makeCreateBankAccountUseCase({
+    appContext: appContext,
+    eventBus: messaging.eventBus,
+    assetAccountService: ledgerServices.assetAccount,
+    accountingPeriodService: accountingServices.accountingPeriod,
+    bankAccountRepo: ledgerRepos.bankAccount,
     openingBalanceEntryService: journalEntryServices.openingBalanceEntry,
     journalEntryPersistenceService:
       journalEntryServices.journalEntryPersistence,

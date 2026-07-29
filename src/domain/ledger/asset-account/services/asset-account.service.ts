@@ -1,14 +1,7 @@
 import ILedgerAccountRepo from '../../shared/repos/ledger-account.repo';
-import { TCashLedgerCode } from '../../shared/types/ledger-code.types';
-import { ELedgerType } from '../../shared/types/ledger.types';
-import { ASSET_LEDGER_CODES } from '../config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../entities/cash-and-equivalents.entity';
-import assetAccountError from '../errors/asset-account.error';
+import resolveCashSubAccountScope from '../entities/helpers/cash-sub-account-scope.helper';
 import IAssetAccountService from '../types/asset-account.service.types';
-import { EAssetSubType } from '../types/asset-account.types';
-
-type TCreatePettyCashSubAccount =
-  IAssetAccountService['makePettyCashSubAccount'];
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
@@ -20,66 +13,56 @@ export default function makeAssetAccountService(
   /**
    * Create a new petty cash account
    */
-  const makePettyCashSubAccount: TCreatePettyCashSubAccount = async (
+  const makePettyCashSubAccount: IAssetAccountService['makePettyCashSubAccount'] =
+    async (payload, repoOptions) => {
+      const { controlAccount, factoryContext } =
+        await resolveCashSubAccountScope(
+          deps.ledgerAccountRepo,
+          payload.accountingEntity.id,
+          payload.controlAccountCode,
+          repoOptions
+        );
+
+      const factoryPayload = {
+        name: payload.name,
+        currency: payload.currency,
+        isControlAccount: payload.isControlAccount,
+        createdBy: payload.userId,
+        controlAccountId: controlAccount.id,
+        accountingEntityId: payload.accountingEntity.id,
+      };
+
+      return cashAndEquivalentAccountEntity.makePettyCashAccount(
+        factoryPayload,
+        factoryContext
+      );
+    };
+
+  /**
+   * Create a new bank sub account
+   */
+  const makeBankSubAccount: IAssetAccountService['makeBankSubAccount'] = async (
     payload,
     repoOptions
   ) => {
-    const controlAccountLedgerCode =
-      payload.controlAccountCode ??
-      ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER;
-
-    const controlAccount = await deps.ledgerAccountRepo.findByCode(
-      controlAccountLedgerCode,
+    const { controlAccount, factoryContext } = await resolveCashSubAccountScope(
+      deps.ledgerAccountRepo,
       payload.accountingEntity.id,
-      repoOptions
-    );
-
-    if (!controlAccount) {
-      throw new assetAccountError.ControlAccountNotFound({
-        controlAccountLedgerCode,
-      });
-    }
-
-    const isValidControlAccount =
-      controlAccount.type === ELedgerType.Asset &&
-      controlAccount.subType === EAssetSubType.CashAndCashEquivalent &&
-      controlAccount.isControlAccount;
-
-    if (!isValidControlAccount) {
-      throw new assetAccountError.InvalidControlAccount({
-        controlAccountId: controlAccount.id,
-        controlAccountLedgerCode,
-        type: controlAccount.type,
-        subType: controlAccount.subType,
-        isControlAccount: controlAccount.isControlAccount,
-      });
-    }
-
-    const latest = await deps.ledgerAccountRepo.findLatestBySubType(
-      payload.accountingEntity.id,
-      ELedgerType.Asset,
-      EAssetSubType.CashAndCashEquivalent,
+      payload.controlAccountCode,
       repoOptions
     );
 
     const factoryPayload = {
       name: payload.name,
       currency: payload.currency,
-      isControlAccount: payload.isControlAccount,
+      isControlAccount: false,
       createdBy: payload.userId,
       controlAccountId: controlAccount.id,
       accountingEntityId: payload.accountingEntity.id,
+      meta: payload.bankValue,
     };
 
-    const precedingCode = latest?.code ?? controlAccount.code;
-    const materializedPath = controlAccount.materializedPath;
-
-    const factoryContext = {
-      precedingCode: precedingCode as TCashLedgerCode,
-      parentMaterializedPath: materializedPath as TCashLedgerCode,
-    };
-
-    return cashAndEquivalentAccountEntity.makePettyCashAccount(
+    return cashAndEquivalentAccountEntity.makeBankAccount(
       factoryPayload,
       factoryContext
     );
@@ -87,5 +70,6 @@ export default function makeAssetAccountService(
 
   return Object.freeze({
     makePettyCashSubAccount,
+    makeBankSubAccount,
   });
 }

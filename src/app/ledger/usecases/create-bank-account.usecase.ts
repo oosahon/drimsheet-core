@@ -1,6 +1,9 @@
 import IAccountingPeriodService from '../../../domain/accounting/types/accounting-period.service.types';
+import assetAccountError from '../../../domain/ledger/asset-account/errors/asset-account.error';
+import IBankAccountRepo from '../../../domain/ledger/asset-account/repos/bank-account.repo';
 import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
 import { ICashAndCashEquivalentAccount } from '../../../domain/ledger/asset-account/types/asset-account.types';
+import bankAccountValue from '../../../domain/ledger/asset-account/values/bank-account.vo';
 import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import IFxCostBasisLotDomainService from '../../../domain/subledger/fx-cost-basis/types/lot.service.types';
@@ -24,8 +27,8 @@ import IExchangeRateAppService from '../../money/contracts/exchange-rate.service
 import IFxCostBasisPersistenceService from '../../subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
 import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-propagation.service.contract';
 import ILedgerAccountPersistenceService from '../contracts/ledger-account-persistence.service.contract';
-import { IPettyCashAccountCreationReq } from '../dtos/asset-account/asset-account.dto';
-import { pettyCashCreationReqValidation } from '../dtos/asset-account/asset-account.dto.validation';
+import { IBankAccountCreationReq } from '../dtos/asset-account/asset-account.dto';
+import { bankAccountCreationReqValidation } from '../dtos/asset-account/asset-account.dto.validation';
 import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';
 import mapLedgerAccountToDto from './helpers/map-ledger-account-to-dto.helper';
 import prepareOpeningBalanceForAccountCreation from './helpers/prepare-opening-balance-for-account-creation.helper';
@@ -36,6 +39,7 @@ interface IDependencies {
   eventBus: IEventBus;
   accountingPeriodService: IAccountingPeriodService;
   assetAccountService: IAssetAccountService;
+  bankAccountRepo: IBankAccountRepo;
   openingBalanceEntryService: IOpeningBalanceEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
@@ -46,13 +50,20 @@ interface IDependencies {
   exchangeRateService: IExchangeRateAppService;
 }
 
-export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
+export default function makeCreateBankAccountUseCase(deps: IDependencies) {
   return async (
-    payload: IPettyCashAccountCreationReq
+    payload: IBankAccountCreationReq
   ): Promise<ILedgerAccountDto> => {
-    zodValidationRunner(pettyCashCreationReqValidation, payload);
+    zodValidationRunner(bankAccountCreationReqValidation, payload);
 
     const { correlationId, user, accountingEntity } = deps.appContext.get();
+
+    const bankVal = bankAccountValue.make({
+      countryCode: accountingEntity.jurisdictionCode,
+      bankName: payload.bankAccount.bankName,
+      accountName: payload.bankAccount.accountName,
+      accountNumber: payload.bankAccount.accountNumber,
+    });
 
     validateOpeningBalanceExchangeRate(
       accountingEntity.functionalCurrencyCode,
@@ -63,16 +74,39 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
     const trace = { correlationId };
     const actor = historyValue.getUserActor(user.id);
 
+    const checkPreconditions = async (repoOptions: IReadRepoOptions) => {
+      const existing = await deps.bankAccountRepo.findOne(
+        bankVal.bankName,
+        bankVal.accountNumber,
+        repoOptions
+      );
+
+      if (existing) {
+        throw new assetAccountError.DuplicateBankAccount({
+          bankName: bankVal.bankName,
+          accountNumber: bankVal.accountNumber,
+        });
+      }
+
+      if (payload.openingBalance) {
+        await deps.accountingPeriodService.validatePostingPeriod(
+          accountingEntity.id,
+          payload.openingBalance.date,
+          { ...repoOptions, lock: ERepoLock.Share }
+        );
+      }
+    };
+
     const makeAccountCreation = async (repoOptions: IReadRepoOptions) => {
       const [account, events, audit] =
-        await deps.assetAccountService.makePettyCashSubAccount(
+        await deps.assetAccountService.makeBankSubAccount(
           {
             name: payload.name,
             currency: currencyEntity.getByCode(payload.currencyCode),
-            isControlAccount: payload.isControlAccount,
             userId: user.id,
             accountingEntity,
             controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
+            bankValue: bankVal,
           },
           { ...repoOptions, lock: ERepoLock.Update }
         );
@@ -85,13 +119,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
     };
 
     const prepareCreation = async (repoOptions: IReadRepoOptions) => {
-      if (payload.openingBalance) {
-        await deps.accountingPeriodService.validatePostingPeriod(
-          accountingEntity.id,
-          payload.openingBalance.date,
-          { ...repoOptions, lock: ERepoLock.Share }
-        );
-      }
+      await checkPreconditions(repoOptions);
 
       const accountCreation = await makeAccountCreation(repoOptions);
 
@@ -141,6 +169,13 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
         creation.account,
         accountingEntity.functionalCurrencyCode,
         { ...repoOptions, history: creation.accountHistory }
+      );
+
+      await deps.bankAccountRepo.create(
+        creation.account.id,
+        accountingEntity.id,
+        bankVal,
+        { ...repoOptions, history: null }
       );
 
       if (creation.openingBalanceResult?.journalEntryPersistence) {

@@ -228,4 +228,64 @@ describe('assetAccountService', () => {
       });
     });
   });
+
+  describe('makeBankSubAccount', () => {
+    const ownerId = generateUUID();
+    const entityId = generateUUID();
+    const controlAccountId = generateUUID();
+
+    const validAccountingEntity = {
+      id: entityId,
+      ownerId,
+    } as IAccountingEntity;
+
+    const validCurrency: ICurrency = {
+      code: 'USD',
+      name: 'US Dollar',
+      minorUnit: 2,
+      symbol: '$',
+    };
+
+    const mockControlAccount = {
+      id: controlAccountId,
+      code: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+      materializedPath: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+      type: ELedgerType.Asset,
+      subType: EAssetSubType.CashAndCashEquivalent,
+      isControlAccount: true,
+    } as ILedgerAccount;
+
+    const validBankValue = {
+      countryCode: 'US',
+      bankName: 'JPMorgan Chase',
+      accountName: 'Operating Account',
+      accountNumber: '1234567890',
+    };
+
+    const validBankPayload = {
+      name: 'Chase Operating Account',
+      currency: validCurrency,
+      userId: ownerId,
+      accountingEntity: validAccountingEntity,
+      bankValue: validBankValue,
+    };
+
+    it('creates a bank account successfully', async () => {
+      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
+        mockControlAccount
+      );
+      mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+
+      const [account, events] = await service.makeBankSubAccount(
+        validBankPayload,
+        mockOptions
+      );
+
+      expect(account.name).toBe('Chase Operating Account');
+      expect(account.behavior).toBe('bank');
+      expect(account.meta).toEqual(validBankValue);
+      expect(account.code).toBe('100001');
+      expect(events.length).toBeGreaterThan(0);
+    });
+  });
 });
