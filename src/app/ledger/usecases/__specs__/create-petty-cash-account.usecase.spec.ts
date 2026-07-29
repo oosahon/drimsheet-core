@@ -204,7 +204,6 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockAccountingPeriodService.validatePostingPeriod
     ).toHaveBeenCalledWith(mockAccountingEntity.id, validOpeningBalance.date, {
       correlationId,
-      tx: 'mock-tx',
       lock: 'share',
     });
 
@@ -219,7 +218,7 @@ describe('createPettyCashSubAccountUseCase', () => {
         accountingEntity: mockAccountingEntity,
         controlAccountCode: validPayload.controlAccountCode,
       }),
-      { correlationId, tx: 'mock-tx', lock: 'update' }
+      { correlationId, lock: 'update' }
     );
 
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalled();
@@ -361,6 +360,140 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     await expect(useCase(validPayload)).rejects.toThrow(
       'app_error_access_denied'
+    );
+  });
+
+  it('should create and persist FX acquisition data when currency is foreign and exchange rate is provided', async () => {
+    const foreignPayload: IPettyCashAccountCreationReq = {
+      ...validPayload,
+      currencyCode: 'USD',
+      openingBalance: {
+        amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
+        exchangeRate: {
+          baseCurrencyCode: 'USD',
+          targetCurrencyCode: 'NGN',
+          rate: 1500,
+          type: 'market' as any,
+          source: 'manual',
+          asOf: new Date('2026-03-14T00:00:00.000Z'),
+        },
+        date: new Date('2026-03-14T00:00:00.000Z'),
+      },
+    };
+
+    const [foreignPettyCashAccount] =
+      cashAndEquivalentAccountEntity.makePettyCashAccount(
+        {
+          name: foreignPayload.name,
+          currency: SYSTEM_CURRENCIES.USD,
+          isControlAccount: false,
+          createdBy: mockUser.id,
+          controlAccountId: mockControlAccount.id,
+          accountingEntityId: mockAccountingEntity.id,
+        },
+        {
+          precedingCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+          parentMaterializedPath:
+            mockControlAccount.materializedPath as TCashLedgerCode,
+        }
+      );
+
+    mockAssetAccountService.makePettyCashSubAccount.mockResolvedValueOnce([
+      foreignPettyCashAccount,
+      mockEvents,
+      mockPettyCashAudit,
+    ]);
+
+    const mockForeignJournalEntry = {
+      ...mockOpeningBalanceJournalEntry,
+      lines: [
+        {
+          accountId: foreignPettyCashAccount.id,
+          sequenceOrder: 1,
+          amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.USD },
+          functionalAmount: {
+            amount: 1500000n,
+            currency: SYSTEM_CURRENCIES.NGN,
+          },
+          exchangeRate: null,
+          side: EJournalSide.Debit,
+          description: 'Opening balance',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+      ],
+    };
+    mockOpeningBalanceEntryService.create.mockResolvedValueOnce([
+      mockForeignJournalEntry as any,
+      mockOpeningBalanceEvents,
+      mockOpeningBalanceAudit,
+    ]);
+
+    const mockLotData = {
+      lot: [
+        { id: '123e4567-e89b-12d3-a456-426614174099' as TEntityId },
+        [
+          {
+            type: 'fx_cost_basis_lot_created',
+            data: {},
+            occurredAt: new Date(),
+          },
+        ],
+        {
+          entityId: '123e4567-e89b-12d3-a456-426614174099' as TEntityId,
+          action: 'create',
+          diff: {
+            before: null,
+            after: { id: '123e4567-e89b-12d3-a456-426614174099' },
+          },
+          occurredAt: new Date(),
+        },
+      ],
+      acquisition: [
+        { id: '123e4567-e89b-12d3-a456-426614174098' as TEntityId },
+        [
+          {
+            type: 'fx_cost_basis_lot_acquisition_created',
+            data: {},
+            occurredAt: new Date(),
+          },
+        ],
+        {
+          entityId: '123e4567-e89b-12d3-a456-426614174098' as TEntityId,
+          action: 'create',
+          diff: {
+            before: null,
+            after: { id: '123e4567-e89b-12d3-a456-426614174098' },
+          },
+          occurredAt: new Date(),
+        },
+      ],
+    };
+    mockFxCostBasisLotDomainService.acquire.mockReturnValueOnce(
+      mockLotData as any
+    );
+    mockExchangeRateService.getOfficialRate.mockResolvedValueOnce({
+      rate: 1500,
+      currencyPair: { baseCurrencyCode: 'USD', quoteCurrencyCode: 'NGN' },
+      asOf: new Date('2026-03-14T00:00:00.000Z'),
+    } as any);
+
+    const useCase = getUseCase();
+    await useCase(foreignPayload);
+
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition
+    ).toHaveBeenCalledWith(
+      mockLotData.lot[0],
+      mockLotData.acquisition[0],
+      expect.objectContaining({
+        entityId: '123e4567-e89b-12d3-a456-426614174099',
+        correlationId,
+      }),
+      expect.objectContaining({
+        entityId: '123e4567-e89b-12d3-a456-426614174098',
+        correlationId,
+      }),
+      { correlationId, tx: 'mock-tx' }
     );
   });
 });

@@ -836,21 +836,23 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IBankDetailsCreationReq: {
+    dataType: 'refObject',
+    properties: {
+      bankName: { dataType: 'string', required: true },
+      accountName: { dataType: 'string', required: true },
+      accountNumber: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IBankAccountCreationReq: {
     dataType: 'refObject',
     properties: {
       name: { dataType: 'string', required: true },
       currencyCode: { dataType: 'string', required: true },
       controlAccountCode: { dataType: 'string' },
-      bankAccount: {
-        dataType: 'nestedObjectLiteral',
-        nestedProperties: {
-          accountNumber: { dataType: 'string', required: true },
-          accountName: { dataType: 'string', required: true },
-          bankName: { dataType: 'string', required: true },
-        },
-        required: true,
-      },
+      bankAccount: { ref: 'IBankDetailsCreationReq', required: true },
       openingBalance: {
         dataType: 'union',
         subSchemas: [

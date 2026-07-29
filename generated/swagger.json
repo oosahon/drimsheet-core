@@ -1024,6 +1024,22 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IBankDetailsCreationReq": {
+        "properties": {
+          "bankName": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string"
+          }
+        },
+        "required": ["bankName", "accountName", "accountNumber"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IBankAccountCreationReq": {
         "properties": {
           "name": {
@@ -1036,19 +1052,7 @@
             "type": "string"
           },
           "bankAccount": {
-            "properties": {
-              "accountNumber": {
-                "type": "string"
-              },
-              "accountName": {
-                "type": "string"
-              },
-              "bankName": {
-                "type": "string"
-              }
-            },
-            "required": ["accountNumber", "accountName", "bankName"],
-            "type": "object"
+            "$ref": "#/components/schemas/IBankDetailsCreationReq"
           },
           "openingBalance": {
             "allOf": [

@@ -88,7 +88,7 @@ describe('bankAccountRepoImpl', () => {
         ledgerAccountId,
         accountingEntityId,
         bankVal,
-        { correlationId: 'test-id', history: null }
+        { correlationId: 'test-id' }
       );
 
       expect(mockQuery.insert).toHaveBeenCalled();
@@ -119,7 +119,7 @@ describe('bankAccountRepoImpl', () => {
           ledgerAccountId,
           accountingEntityId,
           bankVal,
-          { correlationId: 'test-id', history: null }
+          { correlationId: 'test-id' }
         )
       ).rejects.toBeInstanceOf(assetAccountError.DuplicateBankAccount);
     });

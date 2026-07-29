@@ -31,6 +31,23 @@ export const pettyCashCreationReqValidation = z
     }
   );
 
+export const bankDetailsCreationReqValidation = z
+  .object({
+    bankName: z
+      .string()
+      .min(2, new ledgerError.InvalidValue().errorKey)
+      .max(100, new ledgerError.InvalidValue().errorKey),
+    accountName: z
+      .string()
+      .min(2, new ledgerError.InvalidValue().errorKey)
+      .max(100, new ledgerError.InvalidValue().errorKey),
+    accountNumber: z
+      .string()
+      .min(6, new ledgerError.InvalidValue().errorKey)
+      .max(34, new ledgerError.InvalidValue().errorKey),
+  })
+  .strict();
+
 export const bankAccountCreationReqValidation = z
   .object({
     name: z
@@ -42,22 +59,7 @@ export const bankAccountCreationReqValidation = z
       .string()
       .length(6, new ledgerAccountError.InvalidCode().errorKey)
       .optional(),
-    bankAccount: z
-      .object({
-        bankName: z
-          .string()
-          .min(2, new ledgerError.InvalidValue().errorKey)
-          .max(100, new ledgerError.InvalidValue().errorKey),
-        accountName: z
-          .string()
-          .min(2, new ledgerError.InvalidValue().errorKey)
-          .max(100, new ledgerError.InvalidValue().errorKey),
-        accountNumber: z
-          .string()
-          .min(6, new ledgerError.InvalidValue().errorKey)
-          .max(34, new ledgerError.InvalidValue().errorKey),
-      })
-      .strict(),
+    bankAccount: bankDetailsCreationReqValidation,
     openingBalance: openingBalanceDtoValidation.nullable(),
   })
   .strict()

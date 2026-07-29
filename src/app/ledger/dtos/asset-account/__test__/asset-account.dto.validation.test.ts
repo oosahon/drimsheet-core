@@ -1,5 +1,6 @@
 import {
   bankAccountCreationReqValidation,
+  bankDetailsCreationReqValidation,
   pettyCashCreationReqValidation,
 } from '../asset-account.dto.validation';
 
@@ -83,6 +84,26 @@ describe('Asset Account DTO Validation', () => {
       };
 
       const result = pettyCashCreationReqValidation.safeParse(payload);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('bankDetailsCreationReqValidation', () => {
+    it('should validate a correct bank details DTO', () => {
+      const result = bankDetailsCreationReqValidation.safeParse({
+        bankName: 'First Bank of Nigeria',
+        accountName: 'Company Operating Account',
+        accountNumber: '0123456789',
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should fail if bankName is too short', () => {
+      const result = bankDetailsCreationReqValidation.safeParse({
+        bankName: 'A',
+        accountName: 'Company Operating Account',
+        accountNumber: '0123456789',
+      });
       expect(result.success).toBe(false);
     });
   });

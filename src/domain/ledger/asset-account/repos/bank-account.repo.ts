@@ -21,6 +21,6 @@ export default interface IBankAccountRepo {
     ledgerAccountId: TEntityId,
     accountingEntityId: TEntityId,
     bankValue: IBankValue,
-    options: IWriteRepoOptions<null>
+    options: IWriteRepoOptions
   ): Promise<void>;
 }
