@@ -1,6 +1,7 @@
 import makeAdjustLedgerAccountBalanceUseCase from '../../../app/ledger/usecases/adjust-ledger-account-balance.usecase';
 import makeCreatePettyCashAccountUseCase from '../../../app/ledger/usecases/create-petty-cash-account.usecase';
 import makeGetAccountTransactionsUseCase from '../../../app/ledger/usecases/get-account-transactions.usecase';
+import makeGetBanksUseCase from '../../../app/ledger/usecases/get-banks.usecase';
 import makeGetLedgerAccountUseCase from '../../../app/ledger/usecases/get-ledger-account.usecase';
 import makeGetLedgerAccountsUsecase from '../../../app/ledger/usecases/get-ledger-accounts.usecase';
 import messaging from '../../messaging';
@@ -15,6 +16,8 @@ import currencyServices from '../services/money';
 import repoService from '../services/repo';
 
 const ledgerUseCases = {
+  getBanks: makeGetBanksUseCase(),
+
   getLedgerAccounts: makeGetLedgerAccountsUsecase({
     appContext: appContext,
     reporter: observability.reporter,

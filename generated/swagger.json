@@ -920,6 +920,32 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IBankDirectoryDto": {
+        "properties": {
+          "countryCode": {
+            "type": "string"
+          },
+          "bankCode": {
+            "type": "string"
+          },
+          "bankName": {
+            "type": "string"
+          }
+        },
+        "required": ["countryCode", "bankCode", "bankName"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IGetBanksQuery": {
+        "properties": {
+          "countryCode": {
+            "type": "string"
+          }
+        },
+        "required": ["countryCode"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IUserSignupReq": {
         "properties": {
           "firstName": {
@@ -1464,7 +1490,7 @@
         "parameters": []
       }
     },
-    "/ledger/accounts": {
+    "/ledger": {
       "get": {
         "operationId": "getLedgerAccounts",
         "responses": {
@@ -1588,7 +1614,7 @@
         ]
       }
     },
-    "/ledger/accounts/asset/petty-cash": {
+    "/ledger/asset/petty-cash": {
       "post": {
         "operationId": "createPettyCashAccount",
         "responses": {
@@ -1659,7 +1685,7 @@
         }
       }
     },
-    "/ledger/accounts/{accountId}": {
+    "/ledger/{accountId}": {
       "get": {
         "operationId": "getLedgerAccount",
         "responses": {
@@ -1719,7 +1745,7 @@
         ]
       }
     },
-    "/ledger/accounts/{accountId}/transactions": {
+    "/ledger/{accountId}/transactions": {
       "get": {
         "operationId": "listTransactions",
         "responses": {
@@ -1895,6 +1921,69 @@
             "required": false,
             "schema": {
               "format": "date-time",
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/banks": {
+      "get": {
+        "operationId": "getBanks",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/IBankDirectoryDto"
+                  },
+                  "type": "array"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get bank directory for a country",
+        "tags": ["Bank"],
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "countryCode",
+            "required": true,
+            "schema": {
               "type": "string"
             }
           }
