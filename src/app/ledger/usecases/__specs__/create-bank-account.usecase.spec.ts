@@ -10,8 +10,8 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-acco
 import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
 import mockBankAccountRepo from '../../../../domain/ledger/asset-account/repos/__mocks__/bank-account.repo.impl.mock';
 import IAssetAccountService from '../../../../domain/ledger/asset-account/types/asset-account.service.types';
-import { IBankValue } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import bankAccountValue from '../../../../domain/ledger/asset-account/values/bank.vo';
+import { IBankDetails } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import bankDetailsValue from '../../../../domain/ledger/asset-account/values/bank-details.vo';
 import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
@@ -69,7 +69,7 @@ describe('makeCreateBankAccountUseCase', () => {
     runInTransaction: jest.fn().mockImplementation((fn) => fn({})),
   } as unknown as jest.Mocked<IRepoService>;
 
-  const bankVal: IBankValue = bankAccountValue.make({
+  const bankDetails: IBankDetails = bankDetailsValue.make({
     countryCode: 'NG',
     bankName: 'First Bank of Nigeria',
     accountName: 'Company Operating Account',
@@ -96,7 +96,7 @@ describe('makeCreateBankAccountUseCase', () => {
         createdBy: userId,
         controlAccountId,
         accountingEntityId,
-        meta: bankVal,
+        meta: bankDetails,
       },
       {
         precedingCode: '100000' as TCashLedgerCode,
@@ -180,18 +180,18 @@ describe('makeCreateBankAccountUseCase', () => {
     expect(result.id).toBe(mockAccount.id);
     expect(result.name).toBe(validReq.name);
     expect(result.behavior).toBe('bank');
-    expect(result.meta).toEqual(bankVal);
+    expect(result.meta).toEqual(bankDetails);
 
     expect(mockBankAccountRepo.findOne).toHaveBeenCalledWith(
-      bankVal.bankName,
-      bankVal.accountNumber,
+      bankDetails.bankName,
+      bankDetails.accountNumber,
       expect.anything()
     );
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalled();
     expect(mockBankAccountRepo.create).toHaveBeenCalledWith(
       mockAccount.id,
       accountingEntityId,
-      bankVal,
+      bankDetails,
       expect.anything()
     );
     expect(mockEventBus.publish).toHaveBeenCalled();
@@ -255,7 +255,7 @@ describe('makeCreateBankAccountUseCase', () => {
         createdBy: userId,
         controlAccountId,
         accountingEntityId,
-        meta: bankAccountValue.make({
+        meta: bankDetailsValue.make({
           countryCode: 'NG',
           bankName: foreignReq.bankAccount.bankName,
           accountName: foreignReq.bankAccount.accountName,
@@ -360,7 +360,7 @@ describe('makeCreateBankAccountUseCase', () => {
   });
 
   it('rejects duplicate bank account across entities', async () => {
-    mockBankAccountRepo.findOne.mockResolvedValueOnce(bankVal);
+    mockBankAccountRepo.findOne.mockResolvedValueOnce(bankDetails);
 
     const useCase = makeCreateBankAccountUseCase(deps);
     await expect(useCase(validReq)).rejects.toBeInstanceOf(

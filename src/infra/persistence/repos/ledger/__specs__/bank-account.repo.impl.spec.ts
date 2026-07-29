@@ -1,6 +1,6 @@
 import assetAccountError from '../../../../../domain/ledger/asset-account/errors/asset-account.error';
-import { IBankValue } from '../../../../../domain/ledger/asset-account/types/asset-account.types';
-import bankAccountValue from '../../../../../domain/ledger/asset-account/values/bank.vo';
+import { IBankDetails } from '../../../../../domain/ledger/asset-account/types/asset-account.types';
+import bankDetailsValue from '../../../../../domain/ledger/asset-account/values/bank-details.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import bankAccountRepoImpl from '../bank-account.repo.impl';
 
@@ -16,7 +16,7 @@ describe('bankAccountRepoImpl', () => {
     '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const mockGetDbQuery = getDbQuery as jest.Mock;
 
-  const bankVal: IBankValue = bankAccountValue.make({
+  const bankDetails: IBankDetails = bankDetailsValue.make({
     countryCode: 'NG',
     bankName: 'First Bank of Nigeria',
     accountName: 'Company Operating Account',
@@ -24,10 +24,10 @@ describe('bankAccountRepoImpl', () => {
   });
 
   const rawRow = {
-    bankName: bankVal.bankName,
-    accountNumber: bankVal.accountNumber,
-    accountName: bankVal.accountName,
-    countryCode: bankVal.countryCode,
+    bankName: bankDetails.bankName,
+    accountNumber: bankDetails.accountNumber,
+    accountName: bankDetails.accountName,
+    countryCode: bankDetails.countryCode,
     accountingEntityId,
     ledgerAccountId,
     createdAt: '2026-03-14T00:00:00.000Z',
@@ -48,12 +48,12 @@ describe('bankAccountRepoImpl', () => {
       mockGetDbQuery.mockReturnValue(mockQuery);
 
       const result = await bankAccountRepoImpl.findOne(
-        bankVal.bankName,
-        bankVal.accountNumber,
+        bankDetails.bankName,
+        bankDetails.accountNumber,
         { correlationId: 'test-id' }
       );
 
-      expect(result).toEqual(bankVal);
+      expect(result).toEqual(bankDetails);
     });
 
     it('returns null when row does not exist', async () => {
@@ -87,15 +87,15 @@ describe('bankAccountRepoImpl', () => {
       await bankAccountRepoImpl.create(
         ledgerAccountId,
         accountingEntityId,
-        bankVal,
+        bankDetails,
         { correlationId: 'test-id' }
       );
 
       expect(mockQuery.insert).toHaveBeenCalled();
       expect(mockInsert.values).toHaveBeenCalledWith(
         expect.objectContaining({
-          bankName: bankVal.bankName,
-          accountNumber: bankVal.accountNumber,
+          bankName: bankDetails.bankName,
+          accountNumber: bankDetails.accountNumber,
           ledgerAccountId,
           accountingEntityId,
         })
@@ -118,7 +118,7 @@ describe('bankAccountRepoImpl', () => {
         bankAccountRepoImpl.create(
           ledgerAccountId,
           accountingEntityId,
-          bankVal,
+          bankDetails,
           { correlationId: 'test-id' }
         )
       ).rejects.toBeInstanceOf(assetAccountError.DuplicateBankAccount);

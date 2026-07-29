@@ -1,1 +1,1 @@
-export const bankAccountsTable = { schema: 'core', name: 'bank_accounts' };
+export const bankAccountsTable = { schema: 'core', name: 'bank_details' };

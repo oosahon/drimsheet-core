@@ -13,7 +13,7 @@ import {
   EAssetAccountBehavior,
   EAssetSubType,
   IBankAccountMeta,
-  IBankValue,
+  IBankDetails,
   ICashAndCashEquivalentAccount,
   IPettyCashAccount,
 } from '../../types/asset-account.types';
@@ -317,7 +317,7 @@ describe('Cash and Cash Equivalent Entity', () => {
   });
 
   describe('makeBankAccount', () => {
-    const validBankValue: IBankValue = {
+    const validBankValue: IBankDetails = {
       countryCode: 'US',
       bankName: 'Test Bank',
       accountNumber: '1234567890',

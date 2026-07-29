@@ -3,24 +3,24 @@ import {
   IWriteRepoOptions,
 } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { IBankValue } from '../types/asset-account.types';
+import { IBankDetails } from '../types/asset-account.types';
 
 export default interface IBankAccountRepo {
   findOne(
     bankName: string,
     accountNumber: string,
     options?: IReadRepoOptions
-  ): Promise<IBankValue | null>;
+  ): Promise<IBankDetails | null>;
 
   findByLedgerAccountId(
     ledgerAccountId: TEntityId,
     options?: IReadRepoOptions
-  ): Promise<IBankValue | null>;
+  ): Promise<IBankDetails | null>;
 
   create(
     ledgerAccountId: TEntityId,
     accountingEntityId: TEntityId,
-    bankValue: IBankValue,
+    bankValue: IBankDetails,
     options: IWriteRepoOptions
   ): Promise<void>;
 }

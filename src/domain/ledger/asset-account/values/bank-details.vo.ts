@@ -1,9 +1,9 @@
 import stringUtils from '../../../../shared/utils/string';
 import accountingEntityHelpers from '../../../accounting/entities/helpers/accounting-entity.entity.helpers';
 import ledgerError from '../../shared/errors/ledger.error';
-import { IBankValue } from '../types/asset-account.types';
+import { IBankDetails } from '../types/asset-account.types';
 
-function make(payload: IBankValue): Readonly<IBankValue> {
+function make(payload: IBankDetails): Readonly<IBankDetails> {
   const countryCode = payload?.countryCode?.trim()?.toUpperCase() ?? '';
 
   if (
@@ -39,8 +39,8 @@ function make(payload: IBankValue): Readonly<IBankValue> {
   });
 }
 
-const bankAccountValue = Object.freeze({
+const bankDetailsValue = Object.freeze({
   make,
 });
 
-export default bankAccountValue;
+export default bankDetailsValue;

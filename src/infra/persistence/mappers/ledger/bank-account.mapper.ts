@@ -1,18 +1,18 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IBankValue } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import bankAccountValue from '../../../../domain/ledger/asset-account/values/bank.vo';
+import { IBankDetails } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import bankDetailsValue from '../../../../domain/ledger/asset-account/values/bank-details.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { bankAccountsInCore } from '../../../config/drizzle/schema';
+import { bankDetailsInCore } from '../../../config/drizzle/schema';
 
 export interface IBankAccountModel extends InferSelectModel<
-  typeof bankAccountsInCore
+  typeof bankDetailsInCore
 > {}
 
 const bankAccountMapper = {
   toRepo(
     ledgerAccountId: TEntityId,
     accountingEntityId: TEntityId,
-    value: IBankValue
+    value: IBankDetails
   ): IBankAccountModel {
     return {
       bankName: value.bankName,
@@ -26,8 +26,8 @@ const bankAccountMapper = {
     };
   },
 
-  toDomain(record: IBankAccountModel): IBankValue {
-    return bankAccountValue.make({
+  toDomain(record: IBankAccountModel): IBankDetails {
+    return bankDetailsValue.make({
       countryCode: record.countryCode,
       bankName: record.bankName,
       accountName: record.accountName,

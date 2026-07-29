@@ -1,7 +1,7 @@
 import ledgerError from '../../../shared/errors/ledger.error';
-import bankAccountValue from '../bank.vo';
+import bankDetailsValue from '../bank-details.vo';
 
-describe('bankAccountValue', () => {
+describe('bankDetailsValue', () => {
   const validPayload = {
     countryCode: 'NG',
     bankName: 'First Bank of Nigeria',
@@ -11,7 +11,7 @@ describe('bankAccountValue', () => {
 
   describe('make', () => {
     it('creates a frozen bank account value for valid inputs', () => {
-      const result = bankAccountValue.make(validPayload);
+      const result = bankDetailsValue.make(validPayload);
 
       expect(result).toEqual({
         countryCode: 'NG',
@@ -23,7 +23,7 @@ describe('bankAccountValue', () => {
     });
 
     it('normalizes country code to uppercase and trims whitespace', () => {
-      const result = bankAccountValue.make({
+      const result = bankDetailsValue.make({
         ...validPayload,
         countryCode: 'ng',
         bankName: '  First Bank  ',
@@ -36,7 +36,7 @@ describe('bankAccountValue', () => {
     });
 
     it('preserves leading zeroes in account number', () => {
-      const result = bankAccountValue.make({
+      const result = bankDetailsValue.make({
         ...validPayload,
         accountNumber: '0001234567',
       });
@@ -46,7 +46,7 @@ describe('bankAccountValue', () => {
 
     it('rejects an invalid country code', () => {
       expect(() =>
-        bankAccountValue.make({
+        bankDetailsValue.make({
           ...validPayload,
           countryCode: 'INVALID',
         })
@@ -55,7 +55,7 @@ describe('bankAccountValue', () => {
 
     it('rejects short or empty bank name', () => {
       expect(() =>
-        bankAccountValue.make({
+        bankDetailsValue.make({
           ...validPayload,
           bankName: 'A',
         })
@@ -64,7 +64,7 @@ describe('bankAccountValue', () => {
 
     it('rejects short or empty account name', () => {
       expect(() =>
-        bankAccountValue.make({
+        bankDetailsValue.make({
           ...validPayload,
           accountName: 'A',
         })
@@ -73,7 +73,7 @@ describe('bankAccountValue', () => {
 
     it('rejects short account number', () => {
       expect(() =>
-        bankAccountValue.make({
+        bankDetailsValue.make({
           ...validPayload,
           accountNumber: '12345',
         })
@@ -81,12 +81,12 @@ describe('bankAccountValue', () => {
     });
 
     it('rejects null payload or undefined country code', () => {
-      expect(() => bankAccountValue.make(null as any)).toThrow(
+      expect(() => bankDetailsValue.make(null as any)).toThrow(
         ledgerError.InvalidValue
       );
 
       expect(() =>
-        bankAccountValue.make({
+        bankDetailsValue.make({
           ...validPayload,
           countryCode: undefined as any,
         })

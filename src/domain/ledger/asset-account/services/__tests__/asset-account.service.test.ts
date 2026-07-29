@@ -267,7 +267,7 @@ describe('assetAccountService', () => {
       currency: validCurrency,
       userId: ownerId,
       accountingEntity: validAccountingEntity,
-      bankValue: validBankValue,
+      bankDetails: validBankValue,
     };
 
     it('creates a bank account successfully', async () => {

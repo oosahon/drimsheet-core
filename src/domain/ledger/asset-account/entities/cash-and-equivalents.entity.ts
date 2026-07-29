@@ -19,7 +19,7 @@ import {
   IPettyCashAccount,
   IPettyCashAccountMeta,
 } from '../types/asset-account.types';
-import bankAccountValue from '../values/bank.vo';
+import bankDetailsValue from '../values/bank-details.vo';
 import helpers from './helpers/cash.entity.helpers';
 
 interface IScopeDetails {
@@ -185,7 +185,7 @@ function makeBankAccount(
       isControlAccount: payload.isControlAccount,
       controlAccountId: payload.controlAccountId,
       behavior: EAssetAccountBehavior.Bank,
-      meta: bankAccountValue.make(payload.meta),
+      meta: bankDetailsValue.make(payload.meta),
     },
     scope
   );

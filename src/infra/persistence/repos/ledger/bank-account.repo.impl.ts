@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm';
 import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
 import IBankAccountRepo from '../../../../domain/ledger/asset-account/repos/bank-account.repo';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
-import { bankAccountsInCore } from '../../../config/drizzle/schema';
+import { bankDetailsInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
 import bankAccountMapper from '../../mappers/ledger/bank-account.mapper';
 
@@ -10,11 +10,11 @@ const bankAccountRepoImpl: IBankAccountRepo = {
   findOne: async (bankName, accountNumber, options) => {
     const baseQuery = getDbQuery((options ?? {}) as IRepoOptions)
       .select()
-      .from(bankAccountsInCore)
+      .from(bankDetailsInCore)
       .where(
         and(
-          eq(bankAccountsInCore.bankName, bankName),
-          eq(bankAccountsInCore.accountNumber, accountNumber)
+          eq(bankDetailsInCore.bankName, bankName),
+          eq(bankDetailsInCore.accountNumber, accountNumber)
         )
       );
 
@@ -27,8 +27,8 @@ const bankAccountRepoImpl: IBankAccountRepo = {
   findByLedgerAccountId: async (ledgerAccountId, options) => {
     const baseQuery = getDbQuery((options ?? {}) as IRepoOptions)
       .select()
-      .from(bankAccountsInCore)
-      .where(eq(bankAccountsInCore.ledgerAccountId, ledgerAccountId));
+      .from(bankDetailsInCore)
+      .where(eq(bankDetailsInCore.ledgerAccountId, ledgerAccountId));
 
     const query = options?.lock ? baseQuery.for(options.lock) : baseQuery;
     const [result] = await query;
@@ -43,7 +43,7 @@ const bankAccountRepoImpl: IBankAccountRepo = {
         accountingEntityId,
         bankValue
       );
-      await getDbQuery(options).insert(bankAccountsInCore).values(model);
+      await getDbQuery(options).insert(bankDetailsInCore).values(model);
     } catch (err: unknown) {
       if (
         typeof err === 'object' &&

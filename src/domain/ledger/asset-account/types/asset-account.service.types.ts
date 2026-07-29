@@ -6,7 +6,7 @@ import { ICurrency } from '../../../money/types/currency.types';
 import { TCashLedgerCode } from '../../shared/types/ledger-code.types';
 import { ILedgerAccount } from '../../shared/types/ledger.types';
 import {
-  IBankValue,
+  IBankDetails,
   ICashAndCashEquivalentAccount,
 } from './asset-account.types';
 
@@ -25,7 +25,7 @@ interface IMakeBankPayload {
   userId: TEntityId;
   accountingEntity: IAccountingEntity;
   controlAccountCode?: TCashLedgerCode;
-  bankValue: IBankValue;
+  bankDetails: IBankDetails;
 }
 
 export default interface IAssetAccountService {

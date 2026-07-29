@@ -1,7 +1,7 @@
 import IAccountingPeriodService from '../../../domain/accounting/types/accounting-period.service.types';
 import IBankAccountRepo from '../../../domain/ledger/asset-account/repos/bank-account.repo';
 import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
-import bankAccountValue from '../../../domain/ledger/asset-account/values/bank.vo';
+import bankDetailsValue from '../../../domain/ledger/asset-account/values/bank-details.vo';
 import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
 import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
@@ -75,22 +75,24 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
 
     await helpers.checkForExistingBankAccount(deps, payload.bankAccount, trace);
 
-    const bankVal = bankAccountValue.make({
+    const bankDetails = bankDetailsValue.make({
       countryCode: accountingEntity.jurisdictionCode,
       bankName: payload.bankAccount.bankName,
       accountName: payload.bankAccount.accountName,
       accountNumber: payload.bankAccount.accountNumber,
     });
 
+    const creationPayload = {
+      name: payload.name,
+      currency: currencyEntity.getByCode(payload.currencyCode),
+      userId: user.id,
+      accountingEntity,
+      controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
+      bankDetails,
+    };
+
     const auditedAccount = await deps.assetAccountService.makeBankSubAccount(
-      {
-        name: payload.name,
-        currency: currencyEntity.getByCode(payload.currencyCode),
-        userId: user.id,
-        accountingEntity,
-        controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
-        bankValue: bankVal,
-      },
+      creationPayload,
       { ...trace, lock: ERepoLock.Update }
     );
 
@@ -99,7 +101,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
         deps,
         auditedAccount,
         accountingEntity,
-        bankVal,
+        bankDetails,
         actor,
         trace
       );
@@ -177,7 +179,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
       await deps.bankAccountRepo.create(
         updatedAccount.id,
         accountingEntity.id,
-        bankVal,
+        bankDetails,
         writeRepoOptions
       );
 

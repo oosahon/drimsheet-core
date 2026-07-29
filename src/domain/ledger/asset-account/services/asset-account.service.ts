@@ -59,7 +59,7 @@ export default function makeAssetAccountService(
       createdBy: payload.userId,
       controlAccountId: controlAccount.id,
       accountingEntityId: payload.accountingEntity.id,
-      meta: payload.bankValue,
+      meta: payload.bankDetails,
     };
 
     return cashAndEquivalentAccountEntity.makeBankAccount(

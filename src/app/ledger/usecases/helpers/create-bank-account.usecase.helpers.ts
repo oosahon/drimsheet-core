@@ -3,7 +3,7 @@ import IAccountingPeriodService from '../../../../domain/accounting/types/accoun
 import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
 import IBankAccountRepo from '../../../../domain/ledger/asset-account/repos/bank-account.repo';
 import {
-  IBankValue,
+  IBankDetails,
   ICashAndCashEquivalentAccount,
 } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
@@ -74,7 +74,7 @@ async function finalizeWithoutOpeningBalance(
     ILedgerAccount
   >,
   accountingEntity: IAccountingEntity,
-  bankDetails: IBankValue,
+  bankDetails: IBankDetails,
   actor: IHistoryActor,
   repoOptions: IReadRepoOptions
 ) {

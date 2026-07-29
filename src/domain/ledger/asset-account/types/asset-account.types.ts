@@ -118,7 +118,7 @@ export interface ICashAndCashEquivalentAccount extends IAssetLedgerAccount {
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctPermitted;
 }
 
-export interface IBankValue {
+export interface IBankDetails {
   countryCode: string;
   bankName: string;
   accountName: string;
@@ -140,7 +140,7 @@ export interface IBankAccountMeta {
 export interface IBankAccount extends ICashAndCashEquivalentAccount {
   controlAccountId: TEntityId;
   behavior: typeof ECashBehavior.Bank;
-  meta: IBankValue;
+  meta: IBankDetails;
 }
 
 export interface IPettyCashAccountMeta {
