@@ -19,7 +19,7 @@ import {
   IPettyCashAccount,
   IPettyCashAccountMeta,
 } from '../types/asset-account.types';
-import bankAccountValue from '../values/bank-account.vo';
+import bankAccountValue from '../values/bank.vo';
 import helpers from './helpers/cash.entity.helpers';
 
 interface IScopeDetails {

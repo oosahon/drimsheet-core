@@ -3,7 +3,7 @@ import assetAccountError from '../../../domain/ledger/asset-account/errors/asset
 import IBankAccountRepo from '../../../domain/ledger/asset-account/repos/bank-account.repo';
 import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
 import { ICashAndCashEquivalentAccount } from '../../../domain/ledger/asset-account/types/asset-account.types';
-import bankAccountValue from '../../../domain/ledger/asset-account/values/bank-account.vo';
+import bankAccountValue from '../../../domain/ledger/asset-account/values/bank.vo';
 import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import IFxCostBasisLotDomainService from '../../../domain/subledger/fx-cost-basis/types/lot.service.types';

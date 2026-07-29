@@ -5,7 +5,7 @@ import assetAccountError from '../../../../domain/ledger/asset-account/errors/as
 import mockBankAccountRepo from '../../../../domain/ledger/asset-account/repos/__mocks__/bank-account.repo.impl.mock';
 import IAssetAccountService from '../../../../domain/ledger/asset-account/types/asset-account.service.types';
 import { IBankValue } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import bankAccountValue from '../../../../domain/ledger/asset-account/values/bank-account.vo';
+import bankAccountValue from '../../../../domain/ledger/asset-account/values/bank.vo';
 import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import mockFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/services/__mocks__/fx-lot-cost-basis.service.mock';

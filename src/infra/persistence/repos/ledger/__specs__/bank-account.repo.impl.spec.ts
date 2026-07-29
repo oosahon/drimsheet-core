@@ -1,6 +1,6 @@
 import assetAccountError from '../../../../../domain/ledger/asset-account/errors/asset-account.error';
 import { IBankValue } from '../../../../../domain/ledger/asset-account/types/asset-account.types';
-import bankAccountValue from '../../../../../domain/ledger/asset-account/values/bank-account.vo';
+import bankAccountValue from '../../../../../domain/ledger/asset-account/values/bank.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import bankAccountRepoImpl from '../bank-account.repo.impl';
 

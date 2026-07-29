@@ -1,5 +1,5 @@
 import ledgerError from '../../../shared/errors/ledger.error';
-import bankAccountValue from '../bank-account.vo';
+import bankAccountValue from '../bank.vo';
 
 describe('bankAccountValue', () => {
   const validPayload = {
