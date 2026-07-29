@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { Server } from 'node:http';
 import request from 'supertest';
 import authUseCase from '../../../src/infra/ioc/usecases/auth';
 import appContext from '../../../src/infra/runtime/app-context';
@@ -7,17 +8,24 @@ import appError from '../../../src/shared/errors/app.error';
 
 describe('POST /api/v1/auth/refresh-access-token', () => {
   let app: Express;
+  let client: ReturnType<typeof request>;
   let refreshSpy: jest.SpiedFunction<typeof authUseCase.refreshAccessToken>;
+  let server: Server;
 
   beforeEach(() => {
     refreshSpy = jest
       .spyOn(authUseCase, 'refreshAccessToken')
       .mockResolvedValue({ accessToken: 'new-refreshed-access-token' });
     app = createApplication();
+    server = app.listen();
+    client = request(server);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     refreshSpy.mockRestore();
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
   });
 
   describe('200 Response', () => {
@@ -74,13 +82,16 @@ describe('POST /api/v1/auth/refresh-access-token', () => {
 
   describe('429 Response', () => {
     it('limits repeated attempts by refresh-token bucket', async () => {
-      const attempts = await Promise.all(
-        Array.from({ length: 11 }, () =>
-          request(app)
+      const attempts = [];
+
+      for (let index = 0; index < 11; index += 1) {
+        attempts.push(
+          await client
             .post('/api/v1/auth/refresh-access-token')
             .set('Cookie', ['refresh_token=rate-limited-private-token'])
-        )
-      );
+        );
+      }
+
       const response = attempts[attempts.length - 1];
 
       expect(response.status).toBe(429);

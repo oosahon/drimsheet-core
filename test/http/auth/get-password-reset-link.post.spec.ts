@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { Server } from 'node:http';
 import request from 'supertest';
 import { IRequestPasswordResetReq } from '../../../src/app/auth/dtos/auth/auth.dto';
 import {
@@ -14,9 +15,11 @@ const ENDPOINT = '/api/v1/auth/get-password-reset-link';
 
 describe('POST /auth/get-password-reset-link', () => {
   let app: Express;
+  let client: ReturnType<typeof request>;
   let getPasswordResetLinkSpy: jest.SpiedFunction<
     typeof authUseCase.getPasswordResetLink
   >;
+  let server: Server;
 
   beforeEach(async () => {
     getPasswordResetLinkSpy = jest
@@ -26,10 +29,15 @@ describe('POST /auth/get-password-reset-link', () => {
       makeIpRateLimitKey('::ffff:127.0.0.1')
     );
     app = createApplication();
+    server = app.listen();
+    client = request(server);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     getPasswordResetLinkSpy.mockRestore();
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
   });
 
   describe('200 Response', () => {
@@ -99,7 +107,7 @@ describe('POST /auth/get-password-reset-link', () => {
       const payload = { email: 'rate-limit-account@example.com' };
       const responses = [];
       for (let index = 0; index < 6; index += 1) {
-        responses.push(await request(app).post(ENDPOINT).send(payload));
+        responses.push(await client.post(ENDPOINT).send(payload));
       }
 
       expect(responses.slice(0, 5).map(({ status }) => status)).toEqual([
@@ -122,7 +130,7 @@ describe('POST /auth/get-password-reset-link', () => {
       const responses = [];
       for (let index = 0; index < 21; index += 1) {
         responses.push(
-          await request(app)
+          await client
             .post(ENDPOINT)
             .send({ email: `rotating-email-${index}@example.com` })
         );

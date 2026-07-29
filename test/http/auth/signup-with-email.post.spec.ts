@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { Server } from 'node:http';
 import request from 'supertest';
 import { IUserSignupReq } from '../../../src/app/auth/dtos/auth/auth.dto';
 import authUseCase from '../../../src/infra/ioc/usecases/auth';
@@ -15,19 +16,26 @@ const validPayload: IUserSignupReq = {
 
 describe('POST /auth/signup-with-email', () => {
   let app: Express;
+  let client: ReturnType<typeof request>;
   let signupWithEmailSpy: jest.SpiedFunction<
     typeof authUseCase.signupWithEmail
   >;
+  let server: Server;
 
   beforeEach(() => {
     signupWithEmailSpy = jest
       .spyOn(authUseCase, 'signupWithEmail')
       .mockResolvedValue(undefined);
     app = createApplication();
+    server = app.listen();
+    client = request(server);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     signupWithEmailSpy.mockRestore();
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
   });
 
   describe('201', () => {
@@ -89,9 +97,7 @@ describe('POST /auth/signup-with-email', () => {
       const responses = [];
       for (const email of variants) {
         responses.push(
-          await request(app)
-            .post(ENDPOINT)
-            .send({ ...validPayload, email })
+          await client.post(ENDPOINT).send({ ...validPayload, email })
         );
       }
 
@@ -115,7 +121,7 @@ describe('POST /auth/signup-with-email', () => {
       const responses = [];
       for (let index = 0; index < 6; index += 1) {
         responses.push(
-          await request(app)
+          await client
             .post(ENDPOINT)
             .send({ ...validPayload, email: `malformed-email-${index}` })
         );
@@ -132,12 +138,10 @@ describe('POST /auth/signup-with-email', () => {
       const responses = [];
       for (let index = 0; index < 22; index += 1) {
         responses.push(
-          await request(app)
-            .post(ENDPOINT)
-            .send({
-              ...validPayload,
-              email: `rotating-account-${index}@example.com`,
-            })
+          await client.post(ENDPOINT).send({
+            ...validPayload,
+            email: `rotating-account-${index}@example.com`,
+          })
         );
       }
 

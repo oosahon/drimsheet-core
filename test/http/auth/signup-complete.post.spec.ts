@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { Server } from 'node:http';
 import request from 'supertest';
 import {
   makeHashedRateLimitKey,
@@ -12,7 +13,9 @@ let tokenSequence = 0;
 
 describe('POST /auth/signup/complete', () => {
   let app: Express;
+  let client: ReturnType<typeof request>;
   let rateLimitToken: string;
+  let server: Server;
   let verifyEmailSpy: jest.SpiedFunction<typeof authUseCase.verifyEmail>;
 
   beforeEach(async () => {
@@ -29,10 +32,15 @@ describe('POST /auth/signup/complete', () => {
       .spyOn(authUseCase, 'verifyEmail')
       .mockResolvedValue({ accessToken: 'mock-access-token' });
     app = createApplication();
+    server = app.listen();
+    client = request(server);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     verifyEmailSpy.mockRestore();
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
   });
 
   describe('200 Response', () => {
@@ -101,7 +109,7 @@ describe('POST /auth/signup/complete', () => {
       const responses = [];
       for (let index = 0; index < 6; index += 1) {
         responses.push(
-          await request(app).post(ENDPOINT).send({ token: rateLimitToken })
+          await client.post(ENDPOINT).send({ token: rateLimitToken })
         );
       }
 
