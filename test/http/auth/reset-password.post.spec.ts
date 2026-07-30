@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { Server } from 'node:http';
 import request from 'supertest';
 import { IResetPasswordReq } from '../../../src/app/auth/dtos/auth/auth.dto';
 import authError from '../../../src/app/auth/errors/auth.error';
@@ -15,8 +16,10 @@ let payloadSequence = 0;
 
 describe('POST /auth/reset-password', () => {
   let app: Express;
+  let client: ReturnType<typeof request>;
   let validPayload: IResetPasswordReq;
   let resetPasswordSpy: jest.SpiedFunction<typeof authUseCase.resetPassword>;
+  let server: Server;
 
   beforeEach(async () => {
     payloadSequence += 1;
@@ -32,9 +35,16 @@ describe('POST /auth/reset-password', () => {
       .spyOn(authUseCase, 'resetPassword')
       .mockResolvedValue({ accessToken: 'mock-access-token' });
     app = createApplication();
+    server = app.listen();
+    client = request(server);
   });
 
-  afterEach(() => resetPasswordSpy.mockRestore());
+  afterEach(async () => {
+    resetPasswordSpy.mockRestore();
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
+  });
 
   describe('200 Response', () => {
     it('returns only an uncached access token and forwards the payload', async () => {
@@ -99,7 +109,7 @@ describe('POST /auth/reset-password', () => {
     it('limits repeated attempts for the same token before orchestration', async () => {
       const responses = [];
       for (let index = 0; index < 6; index += 1) {
-        responses.push(await request(app).post(ENDPOINT).send(validPayload));
+        responses.push(await client.post(ENDPOINT).send(validPayload));
       }
 
       expect(responses.slice(0, 5).map(({ status }) => status)).toEqual([
@@ -113,12 +123,10 @@ describe('POST /auth/reset-password', () => {
       const responses = [];
       for (let index = 0; index < 21; index += 1) {
         responses.push(
-          await request(app)
-            .post(ENDPOINT)
-            .send({
-              ...validPayload,
-              token: `rotating-credential-${payloadSequence}-${index}`,
-            })
+          await client.post(ENDPOINT).send({
+            ...validPayload,
+            token: `rotating-credential-${payloadSequence}-${index}`,
+          })
         );
       }
 

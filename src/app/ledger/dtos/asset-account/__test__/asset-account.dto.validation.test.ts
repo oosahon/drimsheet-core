@@ -1,4 +1,8 @@
-import { pettyCashCreationReqValidation } from '../asset-account.dto.validation';
+import {
+  bankAccountCreationReqValidation,
+  bankDetailsCreationReqValidation,
+  pettyCashCreationReqValidation,
+} from '../asset-account.dto.validation';
 
 describe('Asset Account DTO Validation', () => {
   describe('pettyCashCreationReqValidation', () => {
@@ -80,6 +84,81 @@ describe('Asset Account DTO Validation', () => {
       };
 
       const result = pettyCashCreationReqValidation.safeParse(payload);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('bankDetailsCreationReqValidation', () => {
+    it('should validate a correct bank details DTO', () => {
+      const result = bankDetailsCreationReqValidation.safeParse({
+        bankName: 'First Bank of Nigeria',
+        accountName: 'Company Operating Account',
+        accountNumber: '0123456789',
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it('should fail if bankName is too short', () => {
+      const result = bankDetailsCreationReqValidation.safeParse({
+        bankName: 'A',
+        accountName: 'Company Operating Account',
+        accountNumber: '0123456789',
+      });
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('bankAccountCreationReqValidation', () => {
+    const validPayload = {
+      name: 'Operations Bank Account',
+      currencyCode: 'NGN',
+      bankAccount: {
+        bankName: 'First Bank of Nigeria',
+        accountName: 'Company Operating Account',
+        accountNumber: '0123456789',
+      },
+      openingBalance: null,
+    };
+
+    it('should validate a valid bank account creation payload', () => {
+      const result = bankAccountCreationReqValidation.safeParse(validPayload);
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject strict unknown fields at root level', () => {
+      const result = bankAccountCreationReqValidation.safeParse({
+        ...validPayload,
+        isControlAccount: true,
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject strict unknown fields inside bankAccount object', () => {
+      const result = bankAccountCreationReqValidation.safeParse({
+        ...validPayload,
+        bankAccount: {
+          ...validPayload.bankAccount,
+          bankCode: '011',
+        },
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('should fail validation if openingBalance currency does not match account currency', () => {
+      const payload = {
+        ...validPayload,
+        openingBalance: {
+          amount: {
+            amount: 5000,
+            currencyCode: 'USD', // mismatch!
+            isMinorUnit: true,
+          },
+          exchangeRate: null,
+          date: new Date('2026-07-13T18:00:00.000Z'),
+        },
+      };
+
+      const result = bankAccountCreationReqValidation.safeParse(payload);
       expect(result.success).toBe(false);
     });
   });

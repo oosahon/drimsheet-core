@@ -10,6 +10,7 @@ const EErrorKeys = {
   InvalidControlAccount: 'ledger_error_asset_account_invalid_control_account',
   OpeningBalanceCurrencyMismatch:
     'ledger_error_asset_account_opening_balance_currency_mismatch',
+  DuplicateBankAccount: 'ledger_error_asset_account_duplicate_bank_account',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UAssetAccountError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

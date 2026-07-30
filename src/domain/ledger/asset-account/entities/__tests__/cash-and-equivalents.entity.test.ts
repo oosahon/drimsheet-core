@@ -12,8 +12,8 @@ import {
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-  IBankAccount,
   IBankAccountMeta,
+  IBankDetails,
   ICashAndCashEquivalentAccount,
   IPettyCashAccount,
 } from '../../types/asset-account.types';
@@ -317,28 +317,22 @@ describe('Cash and Cash Equivalent Entity', () => {
   });
 
   describe('makeBankAccount', () => {
-    const validBankAccountMeta: IBankAccountMeta = {
+    const validBankValue: IBankDetails = {
+      countryCode: 'US',
       bankName: 'Test Bank',
       accountNumber: '1234567890',
       accountName: 'Main Corporate Account',
-      sortCode: null,
-      swiftCode: null,
-      iban: null,
-      routingNumber: null,
-      branchCode: null,
-      lastReconciliationDate: null,
     };
 
-    const validBankPayload: TCreationOmits<IBankAccount> = {
+    const validBankPayload = {
       name: 'Operations Bank Account',
       accountingEntityId: validUUID1,
-
       isControlAccount: false,
       controlAccountId: validUUID3,
       currency: validCurrency,
-      meta: validBankAccountMeta,
+      meta: validBankValue,
       createdBy: validUUID2,
-    } as TCreationOmits<IBankAccount>;
+    };
 
     it('should successfully create a bank account', () => {
       const [account, events] = cashAndEquivalentAccountEntity.makeBankAccount(
@@ -358,7 +352,7 @@ describe('Cash and Cash Equivalent Entity', () => {
       expect(account.adjunctAccountRule).toBe(
         EAdjunctAccountRule.AdjunctPermitted
       );
-      expect(account.meta).toEqual(validBankAccountMeta);
+      expect(account.meta).toEqual(validBankValue);
       expect(events).toHaveLength(2);
     });
 

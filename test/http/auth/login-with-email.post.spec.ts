@@ -1,4 +1,5 @@
 import { Express } from 'express';
+import { Server } from 'node:http';
 import request from 'supertest';
 import { IEmailLoginReq } from '../../../src/app/auth/dtos/auth/auth.dto';
 import authError from '../../../src/app/auth/errors/auth.error';
@@ -29,7 +30,9 @@ const rateLimitEmails = [
 
 describe('POST /auth/login-with-email', () => {
   let app: Express;
+  let client: ReturnType<typeof request>;
   let loginWithEmailSpy: jest.SpiedFunction<typeof authUseCase.loginWithEmail>;
+  let server: Server;
 
   beforeEach(async () => {
     const secret = process.env.JWT_SECRET_KEY || 'secret';
@@ -47,10 +50,15 @@ describe('POST /auth/login-with-email', () => {
       .spyOn(authUseCase, 'loginWithEmail')
       .mockResolvedValue({ accessToken: 'mock-access-token' });
     app = createApplication();
+    server = app.listen();
+    client = request(server);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     loginWithEmailSpy.mockRestore();
+    await new Promise<void>((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
   });
 
   describe('200 Response', () => {
@@ -133,9 +141,7 @@ describe('POST /auth/login-with-email', () => {
       };
       const responses = [];
       for (let index = 0; index < 6; index += 1) {
-        responses.push(
-          await request(app).post(ENDPOINT).send(rateLimitedPayload)
-        );
+        responses.push(await client.post(ENDPOINT).send(rateLimitedPayload));
       }
 
       expect(responses.slice(0, 5).map(({ status }) => status)).toEqual([
@@ -167,9 +173,7 @@ describe('POST /auth/login-with-email', () => {
       const responses = [];
       for (const email of variants) {
         responses.push(
-          await request(app)
-            .post(ENDPOINT)
-            .send({ ...validPayload, email })
+          await client.post(ENDPOINT).send({ ...validPayload, email })
         );
       }
 
@@ -184,7 +188,7 @@ describe('POST /auth/login-with-email', () => {
       const responses = [];
       for (let index = 0; index < 6; index += 1) {
         responses.push(
-          await request(app)
+          await client
             .post(ENDPOINT)
             .send({ ...validPayload, email: `malformed-${index}` })
         );

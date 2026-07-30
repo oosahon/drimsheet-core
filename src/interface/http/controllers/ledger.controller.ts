@@ -23,7 +23,7 @@ import { IPaginationDto } from '../../../shared/pagination/dto/pagination.dto';
 import { TEntityId } from '../../../shared/types/uuid';
 import middlewares from '../middlewares';
 
-@Route('ledger/accounts')
+@Route('ledger')
 @Tags('Ledger')
 export class LedgerController extends Controller {
   /**

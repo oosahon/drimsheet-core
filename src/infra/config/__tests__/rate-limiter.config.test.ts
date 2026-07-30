@@ -1,9 +1,13 @@
+import appError from '../../../shared/errors/app.error';
+import reporter from '../../observability/reporter';
 import {
   AUTH_RATE_LIMITER_MESSAGE,
   RATE_LIMITER_MESSAGE,
+  configureRateLimiter,
   makeAccountRateLimitKey,
   makeHashedRateLimitKey,
   makeIpRateLimitKey,
+  rateLimiter,
 } from '../rate-limiter.config';
 
 jest.mock('../../observability/reporter', () => ({
@@ -129,4 +133,172 @@ describe('makeHashedRateLimitKey', () => {
       ).toBeUndefined();
     }
   );
+
+  it('returns undefined if createHmac throws', () => {
+    expect(
+      makeHashedRateLimitKey('refresh-access-token', 'token', 123 as any)
+    ).toBeUndefined();
+  });
+});
+
+describe('rateLimiter middleware instances', () => {
+  const originalEnv = process.env.JWT_SECRET_KEY;
+
+  beforeEach(() => {
+    delete process.env.JWT_SECRET_KEY;
+    jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    if (originalEnv !== undefined) {
+      process.env.JWT_SECRET_KEY = originalEnv;
+    } else {
+      delete process.env.JWT_SECRET_KEY;
+    }
+  });
+
+  it('handles loginWithEmail with valid email and fallback', async () => {
+    const next = jest.fn();
+    const reqWithEmail = {
+      body: { email: 'user@example.com' },
+      ip: '192.0.2.1',
+      headers: {},
+    } as any;
+    const res = { setHeader: jest.fn() } as any;
+
+    await rateLimiter.loginWithEmail(reqWithEmail, res, next);
+    expect(next).toHaveBeenCalled();
+
+    const reqWithoutEmail = {
+      body: {},
+      ip: '192.0.2.2',
+      headers: {},
+    } as any;
+    await rateLimiter.loginWithEmail(reqWithoutEmail, res, next);
+    expect(next).toHaveBeenCalledTimes(2);
+  });
+
+  it('handles verifyEmail', async () => {
+    const next = jest.fn();
+    const req = {
+      body: { token: 'valid-token' },
+      ip: '192.0.2.3',
+      headers: {},
+    } as any;
+    const res = { setHeader: jest.fn() } as any;
+
+    await rateLimiter.verifyEmail(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('handles getPasswordResetLink and getPasswordResetLinkByIp', async () => {
+    const next = jest.fn();
+    const req = {
+      body: { email: 'reset@example.com' },
+      ip: '192.0.2.4',
+      headers: {},
+    } as any;
+    const res = { setHeader: jest.fn() } as any;
+
+    await rateLimiter.getPasswordResetLink(req, res, next);
+    expect(next).toHaveBeenCalled();
+
+    await rateLimiter.getPasswordResetLinkByIp(req, res, next);
+    expect(next).toHaveBeenCalledTimes(2);
+  });
+
+  it('handles resetPassword and resetPasswordByIp', async () => {
+    const next = jest.fn();
+    const req = {
+      body: { token: 'password-reset-token' },
+      ip: '192.0.2.5',
+      headers: {},
+    } as any;
+    const res = { setHeader: jest.fn() } as any;
+
+    await rateLimiter.resetPassword(req, res, next);
+    expect(next).toHaveBeenCalled();
+
+    await rateLimiter.resetPasswordByIp(req, res, next);
+    expect(next).toHaveBeenCalledTimes(2);
+  });
+
+  it('handles refreshAccessToken with cookies and fallback', async () => {
+    const next = jest.fn();
+    const reqWithCookie = {
+      cookies: { refresh_token: 'cookie-token' },
+      ip: '192.0.2.6',
+      headers: {},
+    } as any;
+    const res = { setHeader: jest.fn() } as any;
+
+    await rateLimiter.refreshAccessToken(reqWithCookie, res, next);
+    expect(next).toHaveBeenCalled();
+
+    const reqWithoutCookie = {
+      cookies: {},
+      ip: '192.0.2.7',
+      headers: {},
+    } as any;
+    await rateLimiter.refreshAccessToken(reqWithoutCookie, res, next);
+    expect(next).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('configureRateLimiter', () => {
+  it('uses default IP keyGenerator when no custom keyGenerator is provided', async () => {
+    const limiter = configureRateLimiter({
+      windowMs: 60000,
+      max: 5,
+    });
+    const next = jest.fn();
+    const req = { ip: '192.0.2.10', headers: {} } as any;
+    const res = { setHeader: jest.fn() } as any;
+
+    await limiter(req, res, next);
+    expect(next).toHaveBeenCalled();
+  });
+
+  it('reports abuse on the first request exceeding the rate limit and passes TooManyRequests to next()', async () => {
+    const limiter = configureRateLimiter({
+      windowMs: 60000,
+      max: 1,
+    });
+
+    const createReq = () =>
+      ({
+        method: 'POST',
+        originalUrl: '/test-endpoint',
+        ip: '192.0.2.20',
+        headers: { 'user-agent': 'TestAgent' },
+      }) as any;
+
+    const res = { setHeader: jest.fn() } as any;
+    const next1 = jest.fn();
+
+    // First request passes
+    await limiter(createReq(), res, next1);
+    expect(next1).toHaveBeenCalledWith();
+
+    // Second request (hits = 2, max = 1, used === limit + 1) -> reports abuse & calls next(appError.TooManyRequests)
+    const next2 = jest.fn();
+    await limiter(createReq(), res, next2);
+    expect(reporter.reportAbuse).toHaveBeenCalledWith(
+      'Too many requests to API',
+      {
+        method: 'POST',
+        url: '/test-endpoint',
+        ip: '192.0.2.20',
+        userAgent: 'TestAgent',
+      }
+    );
+    expect(next2).toHaveBeenCalledWith(expect.any(appError.TooManyRequests));
+
+    // Third request (hits = 3, max = 1, used !== limit + 1) -> calls next(appError.TooManyRequests) without reporting abuse again
+    jest.clearAllMocks();
+    const next3 = jest.fn();
+    await limiter(createReq(), res, next3);
+    expect(reporter.reportAbuse).not.toHaveBeenCalled();
+    expect(next3).toHaveBeenCalledWith(expect.any(appError.TooManyRequests));
+  });
 });
