@@ -1,43 +1,80 @@
 import { TEntityId } from '../../../shared/types/uuid';
+import { IAddress } from '../../../shared/values/contact-details/types/address.types';
 
 export const ECounterpartyStatus = {
   Active: 'active',
   Archived: 'archived',
-};
+} as const;
 
 export type UCounterpartyStatus =
   (typeof ECounterpartyStatus)[keyof typeof ECounterpartyStatus];
+
+export const ECounterpartyType = {
+  Individual: 'individual',
+  Organization: 'organization',
+} as const;
+
+export type UCounterpartyType =
+  (typeof ECounterpartyType)[keyof typeof ECounterpartyType];
+
+export const ECounterpartyRole = {
+  Employer: 'employer',
+  Vendor: 'vendor',
+  Contractor: 'contractor',
+} as const;
+
+export type UCounterpartyRole =
+  (typeof ECounterpartyRole)[keyof typeof ECounterpartyRole];
 
 export interface ICounterparty {
   id: TEntityId;
   accountingEntityId: TEntityId;
   name: string;
   status: UCounterpartyStatus;
+  type: UCounterpartyType;
+  roles: UCounterpartyRole[];
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface IEmployerDetails {
-  counterpartyId: TEntityId;
-  legalName: string;
+  counterPartyId: TEntityId;
+  displayName: string | null;
+  address: IAddress;
   createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface IVendorContactPerson {
-  name: string;
 }
 
 export interface IVendorDetails {
-  counterpartyId: TEntityId;
-  legalName: string;
+  counterPartyId: TEntityId;
+  address: IAddress | null;
   createdAt: Date;
-  updatedAt: Date;
 }
 
-export interface ICustomerDetails {
-  counterpartyId: TEntityId;
-  legalName: string;
+export interface IContractorDetails {
+  counterPartyId: TEntityId;
+  address: IAddress;
   createdAt: Date;
-  updatedAt: Date;
+}
+
+export interface IMakeCounterpartyPayload {
+  accountingEntityId: TEntityId;
+  name: string;
+  type: UCounterpartyType;
+  status?: UCounterpartyStatus;
+}
+
+export interface IMakeEmployerDetailsPayload {
+  counterPartyId: TEntityId;
+  displayName?: string | null;
+  address: IAddress;
+}
+
+export interface IMakeVendorDetailsPayload {
+  counterPartyId: TEntityId;
+  address?: IAddress | null;
+}
+
+export interface IMakeContractorDetailsPayload {
+  counterPartyId: TEntityId;
+  address: IAddress;
 }
