@@ -1,5 +1,5 @@
-import historyError from '../../../../shared/history/history.error';
 import { TEntityId } from '../../../../shared/types/uuid';
+import historyError from '../../../../shared/values/history/history.error';
 import accountingContextEntity from '../../entities/accounting-context.entity';
 import accountingError from '../../errors/accounting.error';
 import {

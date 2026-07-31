@@ -1,7 +1,7 @@
 import { IReportingContext } from '../../../../../domain/accounting/types/context.types';
 import { IReportingContextHistory } from '../../../../../domain/accounting/types/reporting-context-audit.types';
-import { EHistoryActorType } from '../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import { EHistoryActorType } from '../../../../../shared/values/history/types/history.types';
 import { toRepoDate } from '../../shared/date';
 import reportingContextHistoryMapper from '../reporting-context-history.mapper';
 

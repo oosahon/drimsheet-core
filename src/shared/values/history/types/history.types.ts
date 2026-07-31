@@ -1,5 +1,5 @@
-import { IDiff } from '../../types/diff.types';
-import { TEntityId } from '../../types/uuid';
+import { IDiff } from '../../../types/diff.types';
+import { TEntityId } from '../../../types/uuid';
 
 export const EHistoryActorType = {
   User: 'user',

@@ -1,4 +1,4 @@
-import stringUtils from '../utils/string';
+import stringUtils from '../../utils/string';
 import fileAttachmentError from './file-attachment.error';
 import { IFileAttachment } from './types/file-attachment.types';
 

@@ -1,4 +1,4 @@
-import { TEntityId } from '../../types/uuid';
+import { TEntityId } from '../../../types/uuid';
 import historyError from '../history.error';
 import historyValue from '../history.vo';
 import { EHistoryActorType, IHistoryActor } from '../types/history.types';

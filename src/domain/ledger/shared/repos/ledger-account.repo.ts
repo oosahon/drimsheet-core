@@ -1,10 +1,10 @@
-import { IPaginatedResponse } from '../../../../shared/pagination/types/pagination.types';
 import {
   IPaginatedReadRepoOptions,
   IReadRepoOptions,
   IWriteRepoOptions,
 } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { IPaginatedResponse } from '../../../../shared/values/pagination/types/pagination.types';
 import { UAssetSubType } from '../../asset-account/types/asset-account.types';
 import { UEquitySubType } from '../../equity-account/types/equity-account.types';
 import { UExpenseSubType } from '../../expense-account/types/expense-account.types';

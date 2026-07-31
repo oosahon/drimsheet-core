@@ -12,16 +12,16 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../../shared/contracts/repo.contract';
-import eventValue from '../../../../shared/events/event.vo';
-import { TAuditedEntity } from '../../../../shared/events/types/event.types';
-import historyValue from '../../../../shared/history/history.vo';
-import { IHistoryActor } from '../../../../shared/history/types/history.types';
 import {
   ERepoLock,
   IReadRepoOptions,
   IRepoOptions,
 } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import eventValue from '../../../../shared/values/events/event.vo';
+import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
+import historyValue from '../../../../shared/values/history/history.vo';
+import { IHistoryActor } from '../../../../shared/values/history/types/history.types';
 import { IOpeningBalanceDto } from '../../../journal-entry/dtos/opening-balance/opening-balance.dto';
 import ILedgerAccountPersistenceService from '../../contracts/ledger-account-persistence.service.contract';
 import { IBankDetailsCreationReq } from '../../dtos/asset-account/asset-account.dto';

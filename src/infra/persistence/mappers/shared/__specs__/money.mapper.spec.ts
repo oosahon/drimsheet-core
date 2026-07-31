@@ -1,7 +1,7 @@
 import { IMoneyDto } from '../../../../../app/money/dtos/money/money.dto';
 import { ICurrency } from '../../../../../domain/money/types/currency.types';
 import { IMoney } from '../../../../../domain/money/types/money.types';
-import appError from '../../../../../shared/errors/app.error';
+import appError from '../../../../../shared/values/errors/app.error';
 import moneyMapper from '../money.mapper';
 
 describe('Money Mapper', () => {

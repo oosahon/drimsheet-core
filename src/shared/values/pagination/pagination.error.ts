@@ -1,6 +1,6 @@
+import { TErrorCause } from '../../types/error.types';
+import errorUtils from '../../utils/error';
 import DomainError from '../errors/domain.error';
-import { TErrorCause } from '../types/error.types';
-import errorUtils from '../utils/error';
 
 type TErrorKeyPrefix = `pagination_error_${string}`;
 

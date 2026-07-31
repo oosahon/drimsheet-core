@@ -1,5 +1,5 @@
-import { TAuditedEntity } from '../../../shared/events/types/event.types';
 import stringUtils from '../../../shared/utils/string';
+import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
 import accountingError from '../errors/accounting.error';
 import periodEvents from '../events/period.events';
 import { IFiscalYear } from '../types/fiscal-year.types';

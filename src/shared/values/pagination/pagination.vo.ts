@@ -1,4 +1,4 @@
-import numberUtils from '../utils/number';
+import numberUtils from '../../utils/number';
 import paginationError from './pagination.error';
 import {
   EPaginationSortDirection,

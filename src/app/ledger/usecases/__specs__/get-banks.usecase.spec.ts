@@ -1,4 +1,4 @@
-import appError from '../../../../shared/errors/app.error';
+import appError from '../../../../shared/values/errors/app.error';
 import makeGetBanksUseCase from '../get-banks.usecase';
 
 describe('makeGetBanksUseCase', () => {

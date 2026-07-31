@@ -1,4 +1,4 @@
-import { IApiValidationError, TErrorCause } from '../types/error.types';
+import { IApiValidationError, TErrorCause } from '../../types/error.types';
 
 export interface IHttpErrorDto {
   name: string;

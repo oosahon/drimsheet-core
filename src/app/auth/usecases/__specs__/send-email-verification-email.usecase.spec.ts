@@ -2,8 +2,8 @@ import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
 import mockLogger from '../../../../shared/contracts/__mocks__/logger.mock';
-import appError from '../../../../shared/errors/app.error';
 import { TEntityId } from '../../../../shared/types/uuid';
+import appError from '../../../../shared/values/errors/app.error';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import IEmailVerificationService from '../../contracts/email-verification-service.contract';

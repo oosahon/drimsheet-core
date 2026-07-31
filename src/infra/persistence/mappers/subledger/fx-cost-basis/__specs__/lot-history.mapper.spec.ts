@@ -4,8 +4,8 @@ import {
   EFxCostBasisLotStatus,
   IFxCostBasisLotHistory,
 } from '../../../../../../domain/subledger/fx-cost-basis/types/lot.types';
-import { EHistoryActorType } from '../../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../../shared/types/uuid';
+import { EHistoryActorType } from '../../../../../../shared/values/history/types/history.types';
 import fxCostBasisLotHistoryMapper from '../lot-history.mapper';
 
 describe('FX Cost-Basis Lot History Mapper', () => {

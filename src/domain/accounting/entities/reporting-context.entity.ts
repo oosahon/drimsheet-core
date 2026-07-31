@@ -1,7 +1,7 @@
-import { TAuditedEntity } from '../../../shared/events/types/event.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
 import currencyEntity from '../../money/entities/currency.entity';
 import accountingError from '../errors/accounting.error';
 import reportingContextEvents from '../events/reporting-context.events';

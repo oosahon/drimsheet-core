@@ -1,7 +1,7 @@
 import { and, eq, ilike, sql } from 'drizzle-orm';
 import IAccountTransactionQueryRepo from '../../../../../app/ledger/contracts/account-transaction.query.repo.contract';
 import drizzleFilters from '../../../../../shared/helpers/drizzle-filters';
-import paginationValue from '../../../../../shared/pagination/pagination.vo';
+import paginationValue from '../../../../../shared/values/pagination/pagination.vo';
 import {
   journalEntriesInCore,
   journalLinesInCore,

@@ -1,9 +1,9 @@
-import historyError from '../../../../shared/history/history.error';
-import { IEntityDelta } from '../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import dateUtils from '../../../../shared/utils/date';
 import generateDiff from '../../../../shared/utils/diff-generator';
 import stringUtils from '../../../../shared/utils/string';
+import historyError from '../../../../shared/values/history/history.error';
+import { IEntityDelta } from '../../../../shared/values/history/types/history.types';
 import accountingError from '../../errors/accounting.error';
 
 interface IAuditableEntity {

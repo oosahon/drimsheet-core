@@ -1,7 +1,7 @@
 import { IAccountingPeriodHistory } from '../../../../../domain/accounting/types/period-audit.types';
 import { IAccountingPeriod } from '../../../../../domain/accounting/types/period.types';
-import { EHistoryActorType } from '../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import { EHistoryActorType } from '../../../../../shared/values/history/types/history.types';
 import { toRepoDate } from '../../shared/date';
 import accountingPeriodHistoryMapper from '../accounting-period-history.mapper';
 

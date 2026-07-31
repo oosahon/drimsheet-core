@@ -1,4 +1,4 @@
-import appError from '../../../shared/errors/app.error';
+import appError from '../../../shared/values/errors/app.error';
 import reporter from '../../observability/reporter';
 import {
   AUTH_RATE_LIMITER_MESSAGE,

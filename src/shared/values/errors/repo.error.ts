@@ -1,5 +1,5 @@
-import { TErrorCause, TErrorKeys } from '../types/error.types';
-import errorUtils from '../utils/error';
+import { TErrorCause, TErrorKeys } from '../../types/error.types';
+import errorUtils from '../../utils/error';
 import DomainError from './domain.error';
 
 type TErrorPrefix = `repo_error_${string}`;

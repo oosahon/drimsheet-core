@@ -1,4 +1,4 @@
-import eventValue from '../../../shared/events/event.vo';
+import eventValue from '../../../shared/values/events/event.vo';
 import { IAccountingContext } from '../types/context.types';
 
 export const EAccountingContextEvents = {

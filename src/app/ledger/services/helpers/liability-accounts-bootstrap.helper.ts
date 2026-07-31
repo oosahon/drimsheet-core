@@ -20,12 +20,12 @@ import {
   ILedgerAccount,
 } from '../../../../domain/ledger/shared/types/ledger.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
+import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
   IEvent,
   TAuditedEntity,
-} from '../../../../shared/events/types/event.types';
-import { IEntityDelta } from '../../../../shared/history/types/history.types';
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
+} from '../../../../shared/values/events/types/event.types';
+import { IEntityDelta } from '../../../../shared/values/history/types/history.types';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

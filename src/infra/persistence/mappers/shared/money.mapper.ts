@@ -7,7 +7,7 @@ import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import currencyError from '../../../../domain/money/errors/currency.error';
 import { IMoney } from '../../../../domain/money/types/money.types';
 import moneyValue from '../../../../domain/money/values/money.vo';
-import appError from '../../../../shared/errors/app.error';
+import appError from '../../../../shared/values/errors/app.error';
 
 const moneyMapper = {
   toDto(money: IMoney): IMoneyDto {

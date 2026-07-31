@@ -19,7 +19,7 @@ import {
 } from '../../../app/auth/dtos/auth/auth.dto';
 import { rateLimiter } from '../../../infra/config/rate-limiter.config';
 import authUseCase from '../../../infra/ioc/usecases/auth';
-import { IHttpErrorDto } from '../../../shared/errors/error.dto';
+import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
 import middlewares from '../middlewares';
 
 @Route('auth')

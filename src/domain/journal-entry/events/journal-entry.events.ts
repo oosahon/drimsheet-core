@@ -1,4 +1,4 @@
-import eventValue from '../../../shared/events/event.vo';
+import eventValue from '../../../shared/values/events/event.vo';
 import { IJournalEntry } from '../types/journal-entry.types';
 
 export const EJournalEntryEvent = {

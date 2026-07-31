@@ -1,6 +1,6 @@
-import historyError from '../../../../shared/history/history.error';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import historyError from '../../../../shared/values/history/history.error';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import accountingEntityEntity from '../../entities/accounting-entity.entity';
 import accountingError from '../../errors/accounting.error';

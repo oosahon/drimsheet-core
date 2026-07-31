@@ -1,7 +1,7 @@
-import { TEntityWithEvents } from '../../../shared/events/types/event.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
+import { TEntityWithEvents } from '../../../shared/values/events/types/event.types';
 import userPreferencesError from '../errors/user-preferences.error';
 import userError from '../errors/user.error';
 import userEvents from '../events/user.events';

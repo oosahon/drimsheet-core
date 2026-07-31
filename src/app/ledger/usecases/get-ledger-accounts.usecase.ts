@@ -5,9 +5,9 @@ import ILedgerAccountRepo, {
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../domain/money/values/money.vo';
 import IReporter from '../../../shared/contracts/reporter.contract';
-import paginationValue from '../../../shared/pagination/pagination.vo';
-import { IPaginatedResponse } from '../../../shared/pagination/types/pagination.types';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import paginationValue from '../../../shared/values/pagination/pagination.vo';
+import { IPaginatedResponse } from '../../../shared/values/pagination/types/pagination.types';
 import IAppContext from '../../context/contracts/app-context.contract';
 import {
   IGetLedgerAccountsQuery,

@@ -1,6 +1,6 @@
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../../domain/money/values/money.vo';
-import appError from '../../../../../shared/errors/app.error';
+import appError from '../../../../../shared/values/errors/app.error';
 import { IMoneyDto } from '../money.dto';
 import moneyMapper from '../money.dto.mapper';
 

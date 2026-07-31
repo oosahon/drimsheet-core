@@ -1,5 +1,5 @@
-import { TAuditedEntity } from '../../../../shared/events/types/event.types';
 import stringUtils from '../../../../shared/utils/string';
+import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
 import ledgerError from '../../shared/errors/ledger.error';
 import { TReceivablesLedgerCode } from '../../shared/types/ledger-code.types';

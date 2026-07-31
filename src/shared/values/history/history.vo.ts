@@ -1,7 +1,7 @@
-import { TEntityId } from '../types/uuid';
-import dateUtils from '../utils/date';
-import safeJSON from '../utils/safe-json';
-import stringUtils from '../utils/string';
+import { TEntityId } from '../../types/uuid';
+import dateUtils from '../../utils/date';
+import safeJSON from '../../utils/safe-json';
+import stringUtils from '../../utils/string';
 import historyError from './history.error';
 import {
   EHistoryActorType,

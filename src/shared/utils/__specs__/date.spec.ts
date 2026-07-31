@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-import DomainError from '../../errors/domain.error';
+import DomainError from '../../values/errors/domain.error';
 import dateUtils from '../date';
 
 class TestError extends DomainError<'test_error'> {

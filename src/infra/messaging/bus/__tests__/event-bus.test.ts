@@ -1,4 +1,4 @@
-import eventValue from '../../../../shared/events/event.vo';
+import eventValue from '../../../../shared/values/events/event.vo';
 import reporter from '../../../observability/reporter';
 import eventBus from '../event-bus';
 

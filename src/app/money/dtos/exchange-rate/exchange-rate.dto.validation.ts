@@ -2,7 +2,7 @@ import { omit } from 'lodash';
 import z from 'zod';
 import exchangeRateError from '../../../../domain/money/errors/exchange-rate.error';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import { paginationDtoValidation } from '../../../../shared/pagination/dto/pagination.dto.validation';
+import { paginationDtoValidation } from '../../../../shared/values/pagination/dto/pagination.dto.validation';
 import { currencyCodeValidation } from '../currency/currency.dto.validation';
 
 // TODO: enforce custom error for dto validations

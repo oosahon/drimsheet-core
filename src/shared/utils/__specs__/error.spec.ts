@@ -1,5 +1,5 @@
-import appError from '../../errors/app.error';
-import DomainError from '../../errors/domain.error';
+import appError from '../../values/errors/app.error';
+import DomainError from '../../values/errors/domain.error';
 import errorUtils from '../error';
 
 describe('Error Value Objects', () => {

@@ -14,7 +14,7 @@ import {
   IGetBanksQuery,
 } from '../../../app/ledger/dtos/bank-directory/bank-directory.dto';
 import ledgerUseCases from '../../../infra/ioc/usecases/ledger';
-import { IHttpErrorDto } from '../../../shared/errors/error.dto';
+import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
 import middlewares from '../middlewares';
 
 @Route('banks')

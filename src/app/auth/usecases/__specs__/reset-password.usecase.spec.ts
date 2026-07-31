@@ -4,11 +4,11 @@ import emailValue from '../../../../domain/user/values/email.vo';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
-import appError from '../../../../shared/errors/app.error';
-import { IEvent } from '../../../../shared/events/types/event.types';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import appError from '../../../../shared/values/errors/app.error';
+import { IEvent } from '../../../../shared/values/events/types/event.types';
 import mockAppContext, {
   mockClientSession,
 } from '../../../context/contracts/__mocks__/app-context.mock';

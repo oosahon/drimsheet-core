@@ -1,8 +1,8 @@
 import { EUserEvents } from '../../../../domain/user/events/user.events';
 import { IUser } from '../../../../domain/user/types/user.types';
-import eventError from '../../../../shared/events/event.error';
-import { IEvent } from '../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import eventError from '../../../../shared/values/events/event.error';
+import { IEvent } from '../../../../shared/values/events/types/event.types';
 import makeUserEmailVerifiedEventHandler from '../user-email-verified-event.handler';
 
 import MockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';

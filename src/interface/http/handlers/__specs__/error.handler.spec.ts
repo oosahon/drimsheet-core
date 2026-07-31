@@ -3,8 +3,8 @@ import { ValidateError } from 'tsoa';
 import accountingAppError from '../../../../app/accounting/errors/accounting.error';
 import mockLogger from '../../../../shared/contracts/__mocks__/logger.mock';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
-import appError from '../../../../shared/errors/app.error';
-import DomainError from '../../../../shared/errors/domain.error';
+import appError from '../../../../shared/values/errors/app.error';
+import DomainError from '../../../../shared/values/errors/domain.error';
 import makeHttpErrorHandler from '../error.handler';
 
 interface IBufferedFile {

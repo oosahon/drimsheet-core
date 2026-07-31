@@ -2,7 +2,7 @@ import { RequestHandler } from 'express';
 import { randomBytes } from 'node:crypto';
 import passport from 'passport';
 import { IUser } from '../../../domain/user/types/user.types';
-import appError from '../../../shared/errors/app.error';
+import appError from '../../../shared/values/errors/app.error';
 
 export function makeInitiateLoginWithGoogleMiddleware(): RequestHandler {
   return (req, res, next) => {

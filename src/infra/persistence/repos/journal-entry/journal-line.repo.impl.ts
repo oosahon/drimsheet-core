@@ -2,7 +2,7 @@ import { and, eq, ilike, sql } from 'drizzle-orm';
 import IJournalLineRepo from '../../../../domain/journal-entry/repos/journal-line.repo';
 import drizzleFilters from '../../../../shared/helpers/drizzle-filters';
 import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import paginationValue from '../../../../shared/pagination/pagination.vo';
+import paginationValue from '../../../../shared/values/pagination/pagination.vo';
 import { journalLinesInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
 import journalLineMapper from '../../mappers/journal-entry/journal-line.mapper';

@@ -5,9 +5,9 @@ import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
 
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import appError from '../../../../shared/errors/app.error';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import appError from '../../../../shared/values/errors/app.error';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import mockPasswordService from '../../contracts/__mocks__/password-service.mock';

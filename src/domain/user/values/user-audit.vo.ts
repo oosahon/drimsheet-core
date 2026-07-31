@@ -1,7 +1,7 @@
-import historyError from '../../../shared/history/history.error';
 import dateUtils from '../../../shared/utils/date';
 import generateDiff from '../../../shared/utils/diff-generator';
 import stringUtils from '../../../shared/utils/string';
+import historyError from '../../../shared/values/history/history.error';
 import userError from '../errors/user.error';
 import {
   EUserEntityActions,

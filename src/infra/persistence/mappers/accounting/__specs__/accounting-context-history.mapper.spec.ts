@@ -1,7 +1,7 @@
 import { IAccountingContextHistory } from '../../../../../domain/accounting/types/accounting-context-audit.types';
 import { IAccountingContext } from '../../../../../domain/accounting/types/context.types';
-import { EHistoryActorType } from '../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import { EHistoryActorType } from '../../../../../shared/values/history/types/history.types';
 import accountingContextHistoryMapper from '../accounting-context-history.mapper';
 
 describe('accountingContextHistoryMapper', () => {

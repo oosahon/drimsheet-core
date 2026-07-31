@@ -1,6 +1,6 @@
 import { IAccountingEntityAuditHistory } from '../../../../../domain/accounting/types/accounting-entity-audit.types';
-import { EHistoryActorType } from '../../../../../shared/history/types/history.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import { EHistoryActorType } from '../../../../../shared/values/history/types/history.types';
 import { toRepoDate } from '../../shared/date';
 import accountingEntityHistoryMapper from '../accounting-entity-history.mapper';
 

@@ -1,5 +1,5 @@
-import { TErrorCause } from '../types/error.types';
-import errorUtils from '../utils/error';
+import { TErrorCause } from '../../types/error.types';
+import errorUtils from '../../utils/error';
 import DomainError from './domain.error';
 
 type TErrorKeyPrefix = `runtime_error_context_${string}`;

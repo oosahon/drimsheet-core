@@ -1,4 +1,4 @@
-import repoError from '../../errors/repo.error';
+import repoError from '../../values/errors/repo.error';
 import validateVersionInOptions from '../validate-version-in-repo';
 
 describe('validateVersionInOptions', () => {

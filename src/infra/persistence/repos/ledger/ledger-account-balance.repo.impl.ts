@@ -1,8 +1,8 @@
 import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import ILedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
-import repoError from '../../../../shared/errors/repo.error';
 import validateVersionInOptions from '../../../../shared/helpers/validate-version-in-repo';
+import repoError from '../../../../shared/values/errors/repo.error';
 import {
   currenciesInCore,
   ledgerAccountBalanceAdjustmentsInCore,
