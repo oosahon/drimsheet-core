@@ -1,20 +1,18 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+import { counterpartyHistoryTable } from '../config/counterparties';
 import { historyActorType } from '../config/history';
-import { ledgerAccountHistoryTable } from '../config/ledger-accounts';
 import { usersTable } from '../config/users';
 import toSchemaString from '../utils/to-schema-string';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
-  pgm.createType(historyActorType, ['user', 'system', 'migration']);
-
-  pgm.createTable(ledgerAccountHistoryTable, {
+  pgm.createTable(counterpartyHistoryTable, {
     id: {
       type: 'bigserial',
       primaryKey: true,
     },
-    ledger_account_id: {
+    counterparty_id: {
       type: 'uuid',
       notNull: true,
     },
@@ -54,8 +52,8 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   });
 
   pgm.addConstraint(
-    ledgerAccountHistoryTable,
-    'ledger_account_history_diff_check',
+    counterpartyHistoryTable,
+    'counterparty_history_diff_check',
     {
       check: `(
         jsonb_typeof(diff) = 'object'
@@ -68,9 +66,10 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       )`,
     }
   );
+
   pgm.addConstraint(
-    ledgerAccountHistoryTable,
-    'ledger_account_history_actor_check',
+    counterpartyHistoryTable,
+    'counterparty_history_actor_check',
     {
       check: `(
         (actor_type = 'user' AND user_id IS NOT NULL)
@@ -84,30 +83,30 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
   );
 
   pgm.createIndex(
-    ledgerAccountHistoryTable,
+    counterpartyHistoryTable,
     [
-      'ledger_account_id',
+      'counterparty_id',
       { name: 'occurred_at', sort: 'DESC' },
       { name: 'id', sort: 'DESC' },
     ],
     {
-      name: 'ledger_account_history_timeline_idx',
+      name: 'counterparty_history_timeline_idx',
     }
   );
+
   pgm.createIndex(
-    ledgerAccountHistoryTable,
+    counterpartyHistoryTable,
     [
       'accounting_entity_id',
       { name: 'occurred_at', sort: 'DESC' },
       { name: 'id', sort: 'DESC' },
     ],
     {
-      name: 'ledger_account_history_tenant_timeline_idx',
+      name: 'counterparty_history_tenant_timeline_idx',
     }
   );
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropTable(ledgerAccountHistoryTable);
-  pgm.dropType(historyActorType);
+  pgm.dropTable(counterpartyHistoryTable);
 }

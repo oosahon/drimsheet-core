@@ -6,8 +6,8 @@ import authService from '../../../src/infra/ioc/services/auth';
 import ledgerUseCases from '../../../src/infra/ioc/usecases/ledger';
 import userRepos from '../../../src/infra/persistence/repos/user';
 import { createApplication } from '../../../src/infra/server';
-import appError from '../../../src/shared/errors/app.error';
 import { TEntityId } from '../../../src/shared/types/uuid';
+import appError from '../../../src/shared/values/errors/app.error';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,

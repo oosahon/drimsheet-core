@@ -1,0 +1,9 @@
+{
+  "db": {
+    "database-url-var": "POSTGRES_URL",
+    "migrations-dir": "./db/migrations",
+    "migration-filename-format": "index",
+    "migration-file-language": "ts",
+    "timestamp": "false"
+  }
+}

@@ -9,12 +9,6 @@ import { usersTable } from '../config/users';
 import toSchemaString from '../utils/to-schema-string';
 
 export const up = (pgm: MigrationBuilder) => {
-  pgm.createType(accountingEntityType, [
-    'individual',
-    'sole_trader',
-    'private_company',
-  ]);
-
   pgm.createTable(
     accountingEntitiesTable,
     {
@@ -79,5 +73,4 @@ export const up = (pgm: MigrationBuilder) => {
 
 export const down = (pgm: MigrationBuilder) => {
   pgm.dropTable(accountingEntitiesTable);
-  pgm.dropType(accountingEntityType);
 };

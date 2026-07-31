@@ -1,14 +1,14 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 import {
   counterpartiesTable,
-  counterpartyContractorDetailsTable,
+  counterpartyContractorTable,
 } from '../config/counterparties';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(
-    counterpartyContractorDetailsTable,
+    counterpartyContractorTable,
     {
       counterparty_id: {
         type: 'uuid',
@@ -58,5 +58,5 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropTable(counterpartyContractorDetailsTable);
+  pgm.dropTable(counterpartyContractorTable);
 }

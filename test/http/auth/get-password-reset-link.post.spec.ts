@@ -9,7 +9,7 @@ import {
 import authUseCase from '../../../src/infra/ioc/usecases/auth';
 import { createApplication } from '../../../src/infra/server';
 
-import appError from '../../../src/shared/errors/app.error';
+import appError from '../../../src/shared/values/errors/app.error';
 
 const ENDPOINT = '/api/v1/auth/get-password-reset-link';
 

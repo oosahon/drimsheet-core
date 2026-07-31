@@ -37,20 +37,20 @@ export interface ICounterparty {
   updatedAt: Date;
 }
 
-export interface IEmployerDetails {
+export interface IEmployer {
   counterPartyId: TEntityId;
   displayName: string | null;
   address: IAddress;
   createdAt: Date;
 }
 
-export interface IVendorDetails {
+export interface IVendor {
   counterPartyId: TEntityId;
   address: IAddress | null;
   createdAt: Date;
 }
 
-export interface IContractorDetails {
+export interface IContractor {
   counterPartyId: TEntityId;
   address: IAddress;
   createdAt: Date;
@@ -63,18 +63,18 @@ export interface IMakeCounterpartyPayload {
   status?: UCounterpartyStatus;
 }
 
-export interface IMakeEmployerDetailsPayload {
+export interface IMakeEmployerPayload {
   counterPartyId: TEntityId;
   displayName?: string | null;
   address: IAddress;
 }
 
-export interface IMakeVendorDetailsPayload {
+export interface IMakeVendorPayload {
   counterPartyId: TEntityId;
   address?: IAddress | null;
 }
 
-export interface IMakeContractorDetailsPayload {
+export interface IMakeContractorPayload {
   counterPartyId: TEntityId;
   address: IAddress;
 }
