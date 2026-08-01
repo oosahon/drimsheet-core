@@ -2,7 +2,10 @@ import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAddress } from '../../../../shared/values/contact-details/types/address.types';
 import historyError from '../../../../shared/values/history/history.error';
 import counterpartyError from '../../errors/counterparty.error';
-import { EEmployerHistoryAction } from '../../types/counterparty-audit.types';
+import {
+  EEmployerHistoryAction,
+  IMakeEmployerAuditPayload,
+} from '../../types/counterparty-audit.types';
 import { IEmployer } from '../../types/counterparty.types';
 import employerAuditValue from '../employer-audit.vo';
 
@@ -38,6 +41,16 @@ describe('employerAuditValue', () => {
       expect(audit.diff.after).toEqual(mockDetails);
       expect(audit.occurredAt).toEqual(mockDetails.createdAt);
       expect(Object.isFrozen(audit)).toBe(true);
+    });
+
+    it.each([
+      null,
+      'invalid-payload',
+      { before: null, action: EEmployerHistoryAction.Created },
+    ])('should throw InvalidCounterpartyPayload for %p', (payload) => {
+      expect(() =>
+        employerAuditValue.make(payload as unknown as IMakeEmployerAuditPayload)
+      ).toThrow(counterpartyError.InvalidCounterpartyPayload);
     });
 
     it('should throw InvalidDiff if before and after are identical', () => {

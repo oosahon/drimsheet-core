@@ -2,7 +2,10 @@ import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAddress } from '../../../../shared/values/contact-details/types/address.types';
 import historyError from '../../../../shared/values/history/history.error';
 import counterpartyError from '../../errors/counterparty.error';
-import { EContractorHistoryAction } from '../../types/counterparty-audit.types';
+import {
+  EContractorHistoryAction,
+  IMakeContractorAuditPayload,
+} from '../../types/counterparty-audit.types';
 import { IContractor } from '../../types/counterparty.types';
 import contractorAuditValue from '../contractor-audit.vo';
 
@@ -37,6 +40,18 @@ describe('contractorAuditValue', () => {
       expect(audit.diff.after).toEqual(mockDetails);
       expect(audit.occurredAt).toEqual(mockDetails.createdAt);
       expect(Object.isFrozen(audit)).toBe(true);
+    });
+
+    it.each([
+      null,
+      'invalid-payload',
+      { before: null, action: EContractorHistoryAction.Created },
+    ])('should throw InvalidCounterpartyPayload for %p', (payload) => {
+      expect(() =>
+        contractorAuditValue.make(
+          payload as unknown as IMakeContractorAuditPayload
+        )
+      ).toThrow(counterpartyError.InvalidCounterpartyPayload);
     });
 
     it('should throw InvalidDiff if before and after are identical', () => {
