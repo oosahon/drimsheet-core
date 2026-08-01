@@ -832,6 +832,36 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IAddressDto: {
+    dataType: 'refObject',
+    properties: {
+      line1: { dataType: 'string', required: true },
+      line2: { dataType: 'string' },
+      city: { dataType: 'string', required: true },
+      region: { dataType: 'string' },
+      postalCode: { dataType: 'string' },
+      countryCode: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IVendorCreateReq: {
+    dataType: 'refObject',
+    properties: {
+      name: { dataType: 'string', required: true },
+      status: { ref: 'UCounterpartyStatus', required: true },
+      type: { ref: 'UCounterpartyType', required: true },
+      address: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IAddressDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IBankDirectoryDto: {
     dataType: 'refObject',
     properties: {
@@ -1672,6 +1702,50 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'createCounterparty',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsCounterpartyController_createVendor: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: { in: 'body', name: 'body', required: true, ref: 'IVendorCreateReq' },
+  };
+  app.post(
+    '/api/v1/counterparties/vendor',
+    ...fetchMiddlewares<RequestHandler>(CounterpartyController),
+    ...fetchMiddlewares<RequestHandler>(
+      CounterpartyController.prototype.createVendor
+    ),
+
+    async function CounterpartyController_createVendor(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsCounterpartyController_createVendor,
+          request,
+          response,
+        });
+
+        const controller = new CounterpartyController();
+
+        await templateService.apiHandler({
+          methodName: 'createVendor',
           controller,
           response,
           next,

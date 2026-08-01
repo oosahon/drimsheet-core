@@ -9,10 +9,8 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import {
-  ICounterpartyCreateReq,
-  ICounterpartyDto,
-} from '../../../app/counterparty/dtos/counterparty/counterparty.dto';
+import { ICounterpartyCreateReq } from '../../../app/counterparty/dtos/counterparty/counterparty.dto';
+import { IVendorCreateReq } from '../../../app/counterparty/dtos/vendor/vendor.dto';
 import counterpartyUseCases from '../../../infra/ioc/usecases/counterparty';
 import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
 import middlewares from '../middlewares';
@@ -35,9 +33,26 @@ export class CounterpartyController extends Controller {
     middlewares.isAuthenticatedUser,
     middlewares.accountingEntityAccess
   )
-  public async createCounterparty(
-    @Body() body: ICounterpartyCreateReq
-  ): Promise<ICounterpartyDto> {
+  public async createCounterparty(@Body() body: ICounterpartyCreateReq) {
     return await counterpartyUseCases.createCounterparty(body);
+  }
+
+  /**
+   * Create a new vendor
+   */
+  @Post('/vendor')
+  @OperationId('createVendor')
+  @SuccessResponse('201')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('409')
+  @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.accountingEntityAccess
+  )
+  public async createVendor(@Body() body: IVendorCreateReq) {
+    return await counterpartyUseCases.createVendor(body);
   }
 }

@@ -27,12 +27,14 @@ export const counterpartyTypeValidation = z.enum(
   invalidTypeKey
 );
 
+export const counterpartyNameValidation = z
+  .string(invalidNameKey)
+  .trim()
+  .min(1, invalidNameKey)
+  .max(255, invalidNameKey);
+
 export const counterpartyCreateReqValidation = z.object({
-  name: z
-    .string(invalidNameKey)
-    .trim()
-    .min(1, invalidNameKey)
-    .max(255, invalidNameKey),
+  name: counterpartyNameValidation,
   status: counterpartyStatusValidation,
   type: counterpartyTypeValidation,
 });
