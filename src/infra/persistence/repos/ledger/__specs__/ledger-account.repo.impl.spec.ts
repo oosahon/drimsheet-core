@@ -10,7 +10,7 @@ import ledgerAccountRepo from '../ledger-account.repo.impl';
 import ledgerAccountMapper from '../mappers/ledger-account.mapper';
 
 jest.mock('../../../helpers/get-db-query');
-jest.mock('../../../mappers/ledger/ledger-account.mapper');
+jest.mock('../mappers/ledger-account.mapper');
 
 describe('ledgerAccountRepoImpl allocation reads', () => {
   const accountingEntityId =

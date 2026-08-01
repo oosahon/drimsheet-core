@@ -9,7 +9,7 @@ import accountingEntityRepo from '../accounting-entity.repo.impl';
 import accountingEntityMapper from '../mappers/accounting-entity.mapper';
 
 jest.mock('../../../helpers/get-db-query');
-jest.mock('../../../mappers/accounting/accounting-entity.mapper');
+jest.mock('../mappers/accounting-entity.mapper');
 jest.mock('../accounting-entity-history.repo.impl');
 
 describe('AccountingEntityRepoImpl', () => {

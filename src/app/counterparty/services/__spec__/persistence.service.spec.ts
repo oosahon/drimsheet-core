@@ -2,12 +2,9 @@ import contractorEntity from '../../../../domain/counterparty/entities/contracto
 import counterpartyEntity from '../../../../domain/counterparty/entities/counterparty.entity';
 import employerEntity from '../../../../domain/counterparty/entities/employer.entity';
 import vendorEntity from '../../../../domain/counterparty/entities/vendor.entity';
-import mockContractorHistoryRepo from '../../../../domain/counterparty/repos/__mocks__/contractor-history.repo.impl.mock';
 import mockContractorRepo from '../../../../domain/counterparty/repos/__mocks__/contractor.repo.impl.mock';
 import mockCounterpartyRepo from '../../../../domain/counterparty/repos/__mocks__/counterparty.repo.impl.mock';
-import mockEmployerHistoryRepo from '../../../../domain/counterparty/repos/__mocks__/employer-history.repo.impl.mock';
 import mockEmployerRepo from '../../../../domain/counterparty/repos/__mocks__/employer.repo.impl.mock';
-import mockVendorHistoryRepo from '../../../../domain/counterparty/repos/__mocks__/vendor-history.repo.impl.mock';
 import mockVendorRepo from '../../../../domain/counterparty/repos/__mocks__/vendor.repo.impl.mock';
 import {
   IContractorHistory,
@@ -36,11 +33,8 @@ describe('counterpartyPersistenceService', () => {
   const service = makeCounterpartyPersistenceService({
     counterpartyRepo: mockCounterpartyRepo,
     vendorRepo: mockVendorRepo,
-    vendorHistoryRepo: mockVendorHistoryRepo,
     contractorRepo: mockContractorRepo,
-    contractorHistoryRepo: mockContractorHistoryRepo,
     employerRepo: mockEmployerRepo,
-    employerHistoryRepo: mockEmployerHistoryRepo,
     repoService: mockRepoService,
   });
 

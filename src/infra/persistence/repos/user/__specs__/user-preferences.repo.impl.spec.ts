@@ -5,7 +5,7 @@ import userPreferencesMapper from '../mappers/user-preferences.mapper';
 import userPreferencesRepo from '../user-preferences.repo.impl';
 
 jest.mock('../../../helpers/get-db-query');
-jest.mock('../../../mappers/user/user-preferences.mapper');
+jest.mock('../mappers/user-preferences.mapper');
 
 describe('UserPreferencesRepoImpl', () => {
   let mockQuery: any;

@@ -15,10 +15,10 @@ import counterpartyRepo from '../../counterparty.repo.impl';
 import counterpartyRoleMapper from '../counterparty-role.mapper';
 import counterpartyMapper from '../counterparty.mapper';
 
-jest.mock('../../../helpers/get-db-query');
-jest.mock('../../../mappers/counterparty/counterparty.mapper');
-jest.mock('../../../mappers/counterparty/counterparty-role.mapper');
-jest.mock('../counterparty-history.repo.impl');
+jest.mock('../../../../helpers/get-db-query');
+jest.mock('../counterparty.mapper');
+jest.mock('../counterparty-role.mapper');
+jest.mock('../../counterparty-history.repo.impl');
 
 describe('CounterpartyRepoImpl', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');

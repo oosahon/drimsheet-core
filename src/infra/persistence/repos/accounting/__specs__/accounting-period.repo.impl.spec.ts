@@ -9,7 +9,7 @@ import accountingPeriodRepo from '../accounting-period.repo.impl';
 import accountingPeriodMapper from '../mappers/accounting-period.mapper';
 
 jest.mock('../../../helpers/get-db-query');
-jest.mock('../../../mappers/accounting/accounting-period.mapper');
+jest.mock('../mappers/accounting-period.mapper');
 
 describe('accountingPeriodRepoImpl', () => {
   const accountingEntityId =
