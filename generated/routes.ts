@@ -851,13 +851,36 @@ const models: TsoaRoute.Models = {
       name: { dataType: 'string', required: true },
       status: { ref: 'UCounterpartyStatus', required: true },
       type: { ref: 'UCounterpartyType', required: true },
-      address: {
+      address: { ref: 'IAddressDto' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IContractorCreateReq: {
+    dataType: 'refObject',
+    properties: {
+      name: { dataType: 'string', required: true },
+      status: { ref: 'UCounterpartyStatus', required: true },
+      type: { ref: 'UCounterpartyType', required: true },
+      address: { ref: 'IAddressDto', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IEmployerCreateReq: {
+    dataType: 'refObject',
+    properties: {
+      name: { dataType: 'string', required: true },
+      status: { ref: 'UCounterpartyStatus', required: true },
+      type: { ref: 'UCounterpartyType', required: true },
+      displayName: {
         dataType: 'union',
         subSchemas: [
-          { ref: 'IAddressDto' },
+          { dataType: 'string' },
           { dataType: 'enum', enums: [null] },
         ],
       },
+      address: { ref: 'IAddressDto', required: true },
     },
     additionalProperties: false,
   },
@@ -1746,6 +1769,104 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'createVendor',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsCounterpartyController_createContractor: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'IContractorCreateReq',
+    },
+  };
+  app.post(
+    '/api/v1/counterparties/contractor',
+    ...fetchMiddlewares<RequestHandler>(CounterpartyController),
+    ...fetchMiddlewares<RequestHandler>(
+      CounterpartyController.prototype.createContractor
+    ),
+
+    async function CounterpartyController_createContractor(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsCounterpartyController_createContractor,
+          request,
+          response,
+        });
+
+        const controller = new CounterpartyController();
+
+        await templateService.apiHandler({
+          methodName: 'createContractor',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsCounterpartyController_createEmployer: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'IEmployerCreateReq',
+    },
+  };
+  app.post(
+    '/api/v1/counterparties/employer',
+    ...fetchMiddlewares<RequestHandler>(CounterpartyController),
+    ...fetchMiddlewares<RequestHandler>(
+      CounterpartyController.prototype.createEmployer
+    ),
+
+    async function CounterpartyController_createEmployer(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsCounterpartyController_createEmployer,
+          request,
+          response,
+        });
+
+        const controller = new CounterpartyController();
+
+        await templateService.apiHandler({
+          methodName: 'createEmployer',
           controller,
           response,
           next,

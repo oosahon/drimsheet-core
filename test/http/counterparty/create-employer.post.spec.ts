@@ -1,9 +1,7 @@
 import { Express } from 'express';
 import request from 'supertest';
-import {
-  ICounterpartyCreateReq,
-  ICounterpartyDto,
-} from '../../../src/app/counterparty/dtos/counterparty/counterparty.dto';
+import { ICounterpartyDto } from '../../../src/app/counterparty/dtos/counterparty/counterparty.dto';
+import { IEmployerCreateReq } from '../../../src/app/counterparty/dtos/employer/employer.dto';
 import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../src/domain/user/types/user.types';
 import authService from '../../../src/infra/ioc/services/auth';
@@ -46,15 +44,21 @@ jest.mock('../../../src/infra/persistence/repos/user', () => ({
   },
 }));
 
-const ENDPOINT = '/api/v1/counterparties';
+const ENDPOINT = '/api/v1/counterparties/employer';
 const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
 const counterpartyId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
 
-const validPayload: ICounterpartyCreateReq = {
-  name: 'Acme Corp',
+const validPayload: IEmployerCreateReq = {
+  name: 'MegaCorp Inc',
   status: 'active',
   type: 'organization',
+  displayName: 'MegaCorp',
+  address: {
+    line1: '44 Broad Street',
+    city: 'Lagos',
+    countryCode: 'NG',
+  },
 };
 
 const accountingEntity = {
@@ -64,32 +68,31 @@ const accountingEntity = {
   jurisdictionCode: 'NG',
 } as IAccountingEntity;
 
-const createdCounterparty: ICounterpartyDto = {
+const createdEmployerCounterparty: ICounterpartyDto = {
   id: counterpartyId,
   accountingEntityId,
   name: validPayload.name,
   status: validPayload.status,
   type: validPayload.type,
-  roles: [],
+  roles: ['employer'],
   createdAt: new Date('2026-08-01T08:00:00.000Z'),
   updatedAt: new Date('2026-08-01T08:00:00.000Z'),
 };
 
-describe('POST /counterparties', () => {
+describe('POST /counterparties/employer', () => {
   let app: Express;
   const mockGetAuthUser = authService.token.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
   const mockFindAccountingEntity = accountingRepos.accountingEntity
     .findByIdAndUserId as jest.Mock;
-  const mockCreateCounterparty =
-    counterpartyUseCases.createCounterparty as jest.Mock;
+  const mockCreateEmployer = counterpartyUseCases.createEmployer as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue({ id: userId } as IUser);
     mockFindAccountingEntity.mockResolvedValue(accountingEntity);
-    mockCreateCounterparty.mockResolvedValue(createdCounterparty);
+    mockCreateEmployer.mockResolvedValue(createdEmployerCounterparty);
     app = createApplication();
   });
 
@@ -101,24 +104,23 @@ describe('POST /counterparties', () => {
       .send(payload);
 
   describe('201 Response', () => {
-    it('returns 201 with the created counterparty DTO', async () => {
+    it('returns 201 with the created employer counterparty DTO', async () => {
       const response = await makeRequest();
 
       expect(response.status).toBe(201);
       expect(response.type).toBe('application/json');
       expect(response.body).toEqual({
-        ...createdCounterparty,
-        createdAt: createdCounterparty.createdAt.toISOString(),
-        updatedAt: createdCounterparty.updatedAt.toISOString(),
+        ...createdEmployerCounterparty,
+        createdAt: createdEmployerCounterparty.createdAt.toISOString(),
+        updatedAt: createdEmployerCounterparty.updatedAt.toISOString(),
       });
-      // The body in the controller is parsed as strings for Dates by TSOA,
-      // but express parses it, and supertest gets the object.
-      // The controller passes the parsed body (with converted Date objects) to the usecase.
-      expect(mockCreateCounterparty).toHaveBeenCalledWith(
+      expect(mockCreateEmployer).toHaveBeenCalledWith(
         expect.objectContaining({
           name: validPayload.name,
           status: validPayload.status,
           type: validPayload.type,
+          displayName: validPayload.displayName,
+          address: validPayload.address,
         })
       );
     });
@@ -135,7 +137,7 @@ describe('POST /counterparties', () => {
       expect(response.body.errorKey).toBe(
         'accounting_error_accounting_entity_unauthorized'
       );
-      expect(mockCreateCounterparty).not.toHaveBeenCalled();
+      expect(mockCreateEmployer).not.toHaveBeenCalled();
     });
   });
 
@@ -147,7 +149,7 @@ describe('POST /counterparties', () => {
         .send(validPayload);
 
       expect(response.status).toBe(401);
-      expect(mockCreateCounterparty).not.toHaveBeenCalled();
+      expect(mockCreateEmployer).not.toHaveBeenCalled();
     });
   });
 
@@ -161,12 +163,12 @@ describe('POST /counterparties', () => {
 
       expect(response.status).toBe(422);
       expect(response.body.errorKey).toBe('app_error_unprocessable');
-      expect(mockCreateCounterparty).not.toHaveBeenCalled();
+      expect(mockCreateEmployer).not.toHaveBeenCalled();
     });
 
     it('returns 422 if usecase validation fails (zod validation runner)', async () => {
-      const validationErrors = [{ field: 'name', message: 'invalid_name' }];
-      mockCreateCounterparty.mockRejectedValueOnce(
+      const validationErrors = [{ field: 'address.countryCode', message: 'x' }];
+      mockCreateEmployer.mockRejectedValueOnce(
         new appError.UnprocessableEntity(validationErrors)
       );
 
@@ -180,9 +182,7 @@ describe('POST /counterparties', () => {
 
   describe('500 Response', () => {
     it('sanitizes unexpected internal errors', async () => {
-      mockCreateCounterparty.mockRejectedValueOnce(
-        new Error('database failure')
-      );
+      mockCreateEmployer.mockRejectedValueOnce(new Error('database failure'));
 
       const response = await makeRequest();
 

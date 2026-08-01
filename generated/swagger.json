@@ -1030,15 +1030,52 @@
             "$ref": "#/components/schemas/UCounterpartyType"
           },
           "address": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/IAddressDto"
-              }
-            ],
-            "nullable": true
+            "$ref": "#/components/schemas/IAddressDto"
           }
         },
         "required": ["name", "status", "type"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IContractorCreateReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          },
+          "address": {
+            "$ref": "#/components/schemas/IAddressDto"
+          }
+        },
+        "required": ["name", "status", "type", "address"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IEmployerCreateReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "$ref": "#/components/schemas/IAddressDto"
+          }
+        },
+        "required": ["name", "status", "type", "address"],
         "type": "object",
         "additionalProperties": false
       },
@@ -2248,6 +2285,168 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/IVendorCreateReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/counterparties/contractor": {
+      "post": {
+        "operationId": "createContractor",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICounterpartyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new contractor",
+        "tags": ["Counterparty"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IContractorCreateReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/counterparties/employer": {
+      "post": {
+        "operationId": "createEmployer",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICounterpartyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new employer",
+        "tags": ["Counterparty"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IEmployerCreateReq"
               }
             }
           }
