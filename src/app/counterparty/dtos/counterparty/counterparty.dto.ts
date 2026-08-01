@@ -1,8 +1,10 @@
+import { UCounterpartySortBy } from '../../../../domain/counterparty/repos/counterparty.repo';
 import {
   UCounterpartyRole,
   UCounterpartyStatus,
   UCounterpartyType,
 } from '../../../../domain/counterparty/types/counterparty.types';
+import { IPaginationDto } from '../../../../shared/values/pagination/dto/pagination.dto';
 
 export interface ICounterpartyCreateReq {
   name: string;
@@ -19,4 +21,11 @@ export interface ICounterpartyDto {
   roles: UCounterpartyRole[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface IGetCounterpartiesQuery extends IPaginationDto {
+  roles?: UCounterpartyRole[];
+  type?: UCounterpartyType;
+  status?: UCounterpartyStatus;
+  orderBy?: UCounterpartySortBy;
 }

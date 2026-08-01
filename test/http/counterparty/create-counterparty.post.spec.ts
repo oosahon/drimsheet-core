@@ -29,6 +29,7 @@ jest.mock('../../../src/infra/ioc/usecases/counterparty', () => ({
     createVendor: jest.fn(),
     createContractor: jest.fn(),
     createEmployer: jest.fn(),
+    getCounterparties: jest.fn(),
   },
 }));
 

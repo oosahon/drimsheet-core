@@ -1,3 +1,4 @@
+import { ECounterpartySortBy } from '../../../../../domain/counterparty/repos/counterparty.repo';
 import { ICounterpartyHistory } from '../../../../../domain/counterparty/types/counterparty-audit.types';
 import {
   ICounterparty,
@@ -156,5 +157,185 @@ describe('CounterpartyRepoImpl', () => {
     await expect(counterpartyRepo.create(payload, options)).rejects.toBe(
       databaseError
     );
+  });
+
+  describe('findAll', () => {
+    const mockOptions = {
+      correlationId: 'test-correlation-id',
+      offset: 0,
+      limit: 10,
+      sortDirection: 'asc' as const,
+    };
+
+    it('returns empty paginated response when total count is 0', async () => {
+      const dbQuery = {
+        select: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockResolvedValue([]),
+      };
+      (getDbQuery as jest.Mock).mockReturnValue(dbQuery);
+
+      const result = await counterpartyRepo.findAll(
+        '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
+        mockOptions
+      );
+
+      expect(result.data).toEqual([]);
+      expect(result.meta.total).toBe(0);
+    });
+
+    it('queries counterparties, applies filters, and hydrates roles', async () => {
+      const mockCounterpartyRows = [
+        {
+          id: 'cp-1',
+          name: 'CP 1',
+          type: 'individual',
+          status: 'active',
+          createdAt: '2026-08-01T00:00:00.000Z',
+          updatedAt: '2026-08-01T00:00:00.000Z',
+        },
+        {
+          id: 'cp-2',
+          name: 'CP 2',
+          type: 'organization',
+          status: 'archived',
+          createdAt: '2026-08-02T00:00:00.000Z',
+          updatedAt: '2026-08-02T00:00:00.000Z',
+        },
+      ];
+      const mockRoleRows = [
+        { counterpartyId: 'cp-1', role: 'vendor' },
+        { counterpartyId: 'cp-1', role: 'employer' },
+      ];
+
+      const domainCounterparty1 = {
+        id: 'cp-1',
+        name: 'CP 1',
+        type: 'individual',
+        status: 'active',
+        roles: ['vendor', 'employer'],
+        createdAt: new Date('2026-08-01T00:00:00.000Z'),
+        updatedAt: new Date('2026-08-01T00:00:00.000Z'),
+      };
+
+      const domainCounterparty2 = {
+        id: 'cp-2',
+        name: 'CP 2',
+        type: 'organization',
+        status: 'archived',
+        roles: [],
+        createdAt: new Date('2026-08-02T00:00:00.000Z'),
+        updatedAt: new Date('2026-08-02T00:00:00.000Z'),
+      };
+
+      (counterpartyMapper.toDomain as jest.Mock).mockImplementation(
+        (row, roles) => {
+          if (row.id === 'cp-1') return domainCounterparty1;
+          if (row.id === 'cp-2') return domainCounterparty2;
+        }
+      );
+
+      const offsetMock = jest.fn().mockResolvedValue(mockCounterpartyRows);
+      const limitMock = jest.fn().mockReturnValue({ offset: offsetMock });
+      const orderByMock = jest.fn().mockReturnValue({ limit: limitMock });
+
+      const selectMock = jest.fn().mockImplementation(() => {
+        return {
+          from: jest.fn().mockImplementation((table) => {
+            if (table === counterpartyRolesInCore) {
+              return {
+                where: jest.fn().mockImplementation(() => {
+                  const res: any = {};
+                  res.then = (onfulfilled: any) =>
+                    Promise.resolve(mockRoleRows).then(onfulfilled);
+                  return res;
+                }),
+              };
+            }
+            return {
+              where: jest.fn().mockImplementation(() => {
+                const res: any = {
+                  orderBy: orderByMock,
+                };
+                res.then = (onfulfilled: any) =>
+                  Promise.resolve([{ count: 1 }]).then(onfulfilled);
+                return res;
+              }),
+            };
+          }),
+        };
+      });
+
+      const dbQuery = {
+        select: selectMock,
+      };
+
+      (getDbQuery as jest.Mock).mockReturnValue(dbQuery);
+
+      const result = await counterpartyRepo.findAll(
+        '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
+        {
+          correlationId: 'test-correlation-id',
+          offset: 0,
+          limit: 10,
+          type: 'individual',
+          status: 'active',
+          search: 'CP',
+          roles: ['vendor'],
+        }
+      );
+
+      expect(result.data).toEqual([domainCounterparty1, domainCounterparty2]);
+      expect(result.meta.total).toBe(1);
+      expect(counterpartyMapper.toDomain).toHaveBeenCalledWith(
+        mockCounterpartyRows[0],
+        ['vendor', 'employer']
+      );
+      expect(counterpartyMapper.toDomain).toHaveBeenCalledWith(
+        mockCounterpartyRows[1],
+        []
+      );
+    });
+
+    it('applies name sorting correctly', async () => {
+      const offsetMock = jest.fn().mockResolvedValue([]);
+      const limitMock = jest.fn().mockReturnValue({ offset: offsetMock });
+      const orderByMock = jest.fn().mockReturnValue({ limit: limitMock });
+
+      const selectMock = jest.fn().mockImplementation(() => {
+        return {
+          from: jest.fn().mockImplementation(() => {
+            return {
+              where: jest.fn().mockImplementation(() => {
+                const res: any = {
+                  orderBy: orderByMock,
+                };
+                res.then = (onfulfilled: any) =>
+                  Promise.resolve([{ count: 1 }]).then(onfulfilled);
+                return res;
+              }),
+            };
+          }),
+        };
+      });
+
+      const dbQuery = {
+        select: selectMock,
+      };
+
+      (getDbQuery as jest.Mock).mockReturnValue(dbQuery);
+
+      const result = await counterpartyRepo.findAll(
+        '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
+        {
+          correlationId: 'test-correlation-id',
+          offset: 0,
+          limit: 10,
+          orderBy: ECounterpartySortBy.Name,
+        }
+      );
+
+      expect(orderByMock).toHaveBeenCalled();
+    });
   });
 });
