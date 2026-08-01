@@ -29,7 +29,7 @@ describe('Counterparty Service', () => {
     jest.clearAllMocks();
   });
 
-  describe('createIndividual', () => {
+  describe('create', () => {
     it('should successfully create an individual counterparty', () => {
       const payload = {
         accountingEntityId,
@@ -37,7 +37,7 @@ describe('Counterparty Service', () => {
         type: ECounterpartyType.Individual,
       };
 
-      const [counterparty, events, audit] = service.createIndividual(payload);
+      const [counterparty, events, audit] = service.create(payload);
 
       expect(counterparty.name).toBe('John Doe');
       expect(counterparty.type).toBe(ECounterpartyType.Individual);

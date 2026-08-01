@@ -13,7 +13,7 @@ import {
 import { IWriteRepoOptions } from '../../../shared/types/repo.types';
 
 export default interface ICounterpartyPersistenceService {
-  createIndividual(
+  create(
     counterparty: ICounterparty,
     repoOptions: IWriteRepoOptions<ICounterpartyHistory>
   ): Promise<void>;

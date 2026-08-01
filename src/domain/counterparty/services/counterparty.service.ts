@@ -4,19 +4,13 @@ import employerEntity from '../entities/employer.entity';
 import vendorEntity from '../entities/vendor.entity';
 import { ECounterpartyEntityActions } from '../types/counterparty-audit.types';
 import ICounterpartyService from '../types/counterparty.service.types';
-import {
-  ECounterpartyRole,
-  ECounterpartyType,
-} from '../types/counterparty.types';
+import { ECounterpartyRole } from '../types/counterparty.types';
 import counterpartyAuditValue from '../values/counterparty-audit.vo';
 
 export default function makeCounterpartyService(): ICounterpartyService {
   return {
-    createIndividual(payload) {
-      return counterpartyEntity.make({
-        ...payload,
-        type: ECounterpartyType.Individual,
-      });
+    create(payload) {
+      return counterpartyEntity.make(payload);
     },
 
     createVendor(payload, vendorDetails) {

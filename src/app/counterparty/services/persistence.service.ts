@@ -13,9 +13,9 @@ interface IDependencies {
   repoService: IRepoService;
 }
 
-function makeCreateIndividual(
+function makeCreate(
   deps: IDependencies
-): ICounterpartyPersistenceService['createIndividual'] {
+): ICounterpartyPersistenceService['create'] {
   return async (counterparty, repoOptions) => {
     await deps.counterpartyRepo.create(counterparty, repoOptions);
   };
@@ -89,7 +89,7 @@ export default function makeCounterpartyPersistenceService(
   deps: IDependencies
 ): ICounterpartyPersistenceService {
   const service = {
-    createIndividual: makeCreateIndividual(deps),
+    create: makeCreate(deps),
     createVendor: makeCreateVendor(deps),
     createContractor: makeCreateContractor(deps),
     createEmployer: makeCreateEmployer(deps),

@@ -149,7 +149,7 @@ describe('counterpartyPersistenceService', () => {
     jest.useRealTimers();
   });
 
-  describe('createIndividual', () => {
+  describe('create', () => {
     it('should persist the counterparty directly without a transaction', async () => {
       const counterparty = makeCounterpartyFixture();
       const history = makeCounterpartyHistory(counterparty);
@@ -158,7 +158,7 @@ describe('counterpartyPersistenceService', () => {
         history,
       };
 
-      await service.createIndividual(counterparty, repoOptions);
+      await service.create(counterparty, repoOptions);
 
       expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
       expect(mockCounterpartyRepo.create).toHaveBeenCalledTimes(1);
@@ -179,9 +179,9 @@ describe('counterpartyPersistenceService', () => {
 
       mockCounterpartyRepo.create.mockRejectedValue(error);
 
-      await expect(
-        service.createIndividual(counterparty, repoOptions)
-      ).rejects.toThrow(error);
+      await expect(service.create(counterparty, repoOptions)).rejects.toThrow(
+        error
+      );
     });
   });
 

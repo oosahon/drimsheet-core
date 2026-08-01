@@ -24,7 +24,7 @@ interface ICreateEmployerResponse {
 }
 
 export default interface ICounterpartyService {
-  createIndividual(
+  create(
     payload: IMakeCounterpartyPayload
   ): TAuditedEntity<ICounterparty, ICounterparty, ICounterparty>;
 
