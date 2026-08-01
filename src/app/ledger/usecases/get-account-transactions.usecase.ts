@@ -1,12 +1,12 @@
 import balanceEffectRule from '../../../domain/accounting/rules/bookkeeping/balance-effect.rule';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
-import appError from '../../../shared/errors/app.error';
-import { IPaginationDto } from '../../../shared/pagination/dto/pagination.dto';
-import paginationMapper from '../../../shared/pagination/dto/pagination.dto.mapper';
-import { paginationDtoValidation } from '../../../shared/pagination/dto/pagination.dto.validation';
-import { IPaginatedResponse } from '../../../shared/pagination/types/pagination.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import appError from '../../../shared/values/errors/app.error';
+import { IPaginationDto } from '../../../shared/values/pagination/dto/pagination.dto';
+import paginationMapper from '../../../shared/values/pagination/dto/pagination.dto.mapper';
+import { paginationDtoValidation } from '../../../shared/values/pagination/dto/pagination.dto.validation';
+import { IPaginatedResponse } from '../../../shared/values/pagination/types/pagination.types';
 import IAppContext from '../../context/contracts/app-context.contract';
 import IAccountTransactionQueryRepo from '../contracts/account-transaction.query.repo.contract';
 import { IAccountTransactionRes } from '../dtos/account-transaction/account-transaction.dto';

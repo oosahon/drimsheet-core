@@ -1,0 +1,135 @@
+import { TEntityId } from '../../../../../shared/types/uuid';
+import generateUUID from '../../../../../shared/utils/uuid-generator';
+import counterpartyError from '../../../errors/counterparty.error';
+import {
+  ECounterpartyRole,
+  ECounterpartyStatus,
+  ECounterpartyType,
+  ICounterparty,
+} from '../../../types/counterparty.types';
+import counterpartyEntityHelpers from '../counterparty.entity.helpers';
+
+describe('counterpartyEntityHelpers', () => {
+  const validUUID = generateUUID();
+  const validUUID2 = generateUUID();
+
+  describe('validateAccountingEntityId', () => {
+    it('should pass for a valid UUID', () => {
+      expect(() =>
+        counterpartyEntityHelpers.validateAccountingEntityId(validUUID)
+      ).not.toThrow();
+    });
+
+    it('should throw InvalidAccountingEntityId error for invalid UUID', () => {
+      expect(() =>
+        counterpartyEntityHelpers.validateAccountingEntityId(
+          'invalid-uuid' as TEntityId
+        )
+      ).toThrow(counterpartyError.InvalidAccountingEntityId);
+    });
+  });
+
+  describe('validateName', () => {
+    it('should sanitize and return valid name', () => {
+      expect(counterpartyEntityHelpers.validateName('  Acme Corp  ')).toBe(
+        'Acme Corp'
+      );
+    });
+
+    it('should throw InvalidName error for empty name', () => {
+      expect(() => counterpartyEntityHelpers.validateName('')).toThrow(
+        counterpartyError.InvalidName
+      );
+    });
+  });
+
+  describe('validateType', () => {
+    it('should pass for valid types', () => {
+      expect(
+        counterpartyEntityHelpers.validateType(ECounterpartyType.Individual)
+      ).toBe(ECounterpartyType.Individual);
+      expect(
+        counterpartyEntityHelpers.validateType(ECounterpartyType.Organization)
+      ).toBe(ECounterpartyType.Organization);
+    });
+
+    it('should throw InvalidType error for invalid type', () => {
+      expect(() =>
+        counterpartyEntityHelpers.validateType('invalid' as any)
+      ).toThrow(counterpartyError.InvalidType);
+    });
+  });
+
+  describe('validateStatus', () => {
+    it('should pass for valid status', () => {
+      expect(
+        counterpartyEntityHelpers.validateStatus(ECounterpartyStatus.Active)
+      ).toBe(ECounterpartyStatus.Active);
+      expect(
+        counterpartyEntityHelpers.validateStatus(ECounterpartyStatus.Archived)
+      ).toBe(ECounterpartyStatus.Archived);
+    });
+
+    it('should throw InvalidStatus error for invalid status', () => {
+      expect(() =>
+        counterpartyEntityHelpers.validateStatus('invalid' as any)
+      ).toThrow(counterpartyError.InvalidStatus);
+    });
+  });
+
+  describe('validateRole', () => {
+    it('should pass for valid role', () => {
+      expect(
+        counterpartyEntityHelpers.validateRole(ECounterpartyRole.Vendor)
+      ).toBe(ECounterpartyRole.Vendor);
+    });
+
+    it('should throw InvalidRole error for invalid role', () => {
+      expect(() =>
+        counterpartyEntityHelpers.validateRole('invalid' as any)
+      ).toThrow(counterpartyError.InvalidRole);
+    });
+  });
+
+  describe('validateCounterparty', () => {
+    it('should pass for a valid counterparty entity', () => {
+      const validCounterparty: ICounterparty = {
+        id: validUUID,
+        accountingEntityId: validUUID2,
+        name: 'Jane Doe',
+        status: ECounterpartyStatus.Active,
+        type: ECounterpartyType.Individual,
+        roles: [ECounterpartyRole.Contractor],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      expect(() =>
+        counterpartyEntityHelpers.validateCounterparty(validCounterparty)
+      ).not.toThrow();
+    });
+
+    it('should throw InvalidCounterpartyEntity for null or non-object', () => {
+      expect(() =>
+        counterpartyEntityHelpers.validateCounterparty(null as any)
+      ).toThrow(counterpartyError.InvalidCounterpartyEntity);
+    });
+
+    it('should throw InvalidRole if roles is not an array', () => {
+      const invalidCounterparty: any = {
+        id: validUUID,
+        accountingEntityId: validUUID2,
+        name: 'Jane Doe',
+        status: ECounterpartyStatus.Active,
+        type: ECounterpartyType.Individual,
+        roles: 'not-an-array',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      expect(() =>
+        counterpartyEntityHelpers.validateCounterparty(invalidCounterparty)
+      ).toThrow(counterpartyError.InvalidRole);
+    });
+  });
+});

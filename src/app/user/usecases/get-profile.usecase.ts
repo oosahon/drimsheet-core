@@ -1,4 +1,4 @@
-import appError from '../../../shared/errors/app.error';
+import appError from '../../../shared/values/errors/app.error';
 import IAppContext from '../../context/contracts/app-context.contract';
 import { IUserProfileDto } from '../dtos/user/user.dto';
 import userMapper from '../dtos/user/user.dto.mapper';

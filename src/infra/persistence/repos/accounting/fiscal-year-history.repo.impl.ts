@@ -1,7 +1,7 @@
 import IFiscalYearHistoryRepo from '../../../../domain/accounting/repos/fiscal-year-history.repo';
 import { fiscalYearHistoryInAudit } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
-import fiscalYearHistoryMapper from '../../mappers/accounting/fiscal-year-history.mapper';
+import fiscalYearHistoryMapper from './mappers/fiscal-year-history.mapper';
 
 const fiscalYearHistoryRepo: IFiscalYearHistoryRepo = {
   save: async (fiscalYear, history, options) => {

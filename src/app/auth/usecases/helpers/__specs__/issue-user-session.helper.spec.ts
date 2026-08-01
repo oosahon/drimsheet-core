@@ -1,6 +1,6 @@
 import userEntity from '../../../../../domain/user/entities/user.entity';
-import { IEvent } from '../../../../../shared/events/types/event.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import { IEvent } from '../../../../../shared/values/events/types/event.types';
 import { IAppContextData } from '../../../../context/contracts/app-context.contract';
 import makeIssueUserSessionHelper from '../issue-user-session.helper';
 

@@ -920,6 +920,165 @@
         "type": "object",
         "additionalProperties": false
       },
+      "UCounterpartyStatus": {
+        "type": "string",
+        "enum": ["active", "archived"]
+      },
+      "UCounterpartyType": {
+        "type": "string",
+        "enum": ["individual", "organization"]
+      },
+      "UCounterpartyRole": {
+        "type": "string",
+        "enum": ["employer", "vendor", "contractor"]
+      },
+      "ICounterpartyDto": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "accountingEntityId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/UCounterpartyRole"
+            },
+            "type": "array"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "accountingEntityId",
+          "name",
+          "status",
+          "type",
+          "roles",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ICounterpartyCreateReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          }
+        },
+        "required": ["name", "status", "type"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IAddressDto": {
+        "properties": {
+          "line1": {
+            "type": "string"
+          },
+          "line2": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          },
+          "postalCode": {
+            "type": "string"
+          },
+          "countryCode": {
+            "type": "string"
+          }
+        },
+        "required": ["line1", "city", "countryCode"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IVendorCreateReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          },
+          "address": {
+            "$ref": "#/components/schemas/IAddressDto"
+          }
+        },
+        "required": ["name", "status", "type"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IContractorCreateReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          },
+          "address": {
+            "$ref": "#/components/schemas/IAddressDto"
+          }
+        },
+        "required": ["name", "status", "type", "address"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IEmployerCreateReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          },
+          "displayName": {
+            "type": "string",
+            "nullable": true
+          },
+          "address": {
+            "$ref": "#/components/schemas/IAddressDto"
+          }
+        },
+        "required": ["name", "status", "type", "address"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IBankDirectoryDto": {
         "properties": {
           "countryCode": {
@@ -1968,6 +2127,330 @@
             }
           }
         ]
+      }
+    },
+    "/counterparties": {
+      "post": {
+        "operationId": "createCounterparty",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICounterpartyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new counterparty",
+        "tags": ["Counterparty"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICounterpartyCreateReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/counterparties/vendor": {
+      "post": {
+        "operationId": "createVendor",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICounterpartyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new vendor",
+        "tags": ["Counterparty"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IVendorCreateReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/counterparties/contractor": {
+      "post": {
+        "operationId": "createContractor",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICounterpartyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new contractor",
+        "tags": ["Counterparty"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IContractorCreateReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/counterparties/employer": {
+      "post": {
+        "operationId": "createEmployer",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICounterpartyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new employer",
+        "tags": ["Counterparty"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IEmployerCreateReq"
+              }
+            }
+          }
+        }
       }
     },
     "/banks": {

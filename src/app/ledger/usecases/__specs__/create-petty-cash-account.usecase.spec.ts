@@ -18,9 +18,9 @@ import mockFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cos
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import appError from '../../../../shared/errors/app.error';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import appError from '../../../../shared/values/errors/app.error';
 import mockAppContext, {
   mockClientSession,
 } from '../../../context/contracts/__mocks__/app-context.mock';

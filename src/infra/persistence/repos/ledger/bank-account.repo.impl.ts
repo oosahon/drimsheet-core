@@ -4,7 +4,7 @@ import IBankAccountRepo from '../../../../domain/ledger/asset-account/repos/bank
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { bankDetailsInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
-import bankAccountMapper from '../../mappers/ledger/bank-account.mapper';
+import bankAccountMapper from './mappers/bank-account.mapper';
 
 const bankAccountRepoImpl: IBankAccountRepo = {
   findOne: async (bankName, accountNumber, options) => {

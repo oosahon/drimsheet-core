@@ -1,5 +1,5 @@
 import { UExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import { IPaginationDto } from '../../../../shared/pagination/dto/pagination.dto';
+import { IPaginationDto } from '../../../../shared/values/pagination/dto/pagination.dto';
 
 export interface IExchangeRateDto {
   baseCurrencyCode: string;

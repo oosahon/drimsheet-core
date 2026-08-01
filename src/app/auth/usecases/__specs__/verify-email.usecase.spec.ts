@@ -4,8 +4,8 @@ import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.moc
 
 import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import appError from '../../../../shared/errors/app.error';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
+import appError from '../../../../shared/values/errors/app.error';
 import mockAppContext, {
   mockClientSession,
 } from '../../../context/contracts/__mocks__/app-context.mock';

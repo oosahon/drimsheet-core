@@ -12,10 +12,10 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
-import appError from '../../../shared/errors/app.error';
-import eventValue from '../../../shared/events/event.vo';
-import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import appError from '../../../shared/values/errors/app.error';
+import eventValue from '../../../shared/values/events/event.vo';
+import historyValue from '../../../shared/values/history/history.vo';
 import IAppContext from '../../context/contracts/app-context.contract';
 import IAccountsBootstrapService from '../../ledger/contracts/accounts-bootstrap.service.contract';
 import ILedgerAccountPersistenceService from '../../ledger/contracts/ledger-account-persistence.service.contract';

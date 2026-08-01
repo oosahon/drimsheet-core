@@ -1,10 +1,10 @@
-import {
-  IEvent,
-  TAuditedEntity,
-} from '../../../shared/events/types/event.types';
 import { TCreationOmits } from '../../../shared/types/creation-omits.types';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import {
+  IEvent,
+  TAuditedEntity,
+} from '../../../shared/values/events/types/event.types';
 import userEvents from '../events/user.events';
 
 import userError from '../errors/user.error';

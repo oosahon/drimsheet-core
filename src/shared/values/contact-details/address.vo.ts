@@ -1,0 +1,95 @@
+import stringUtils from '../../utils/string';
+import addressError from './address.error';
+import { IAddress } from './types/address.types';
+
+export type TCreateAddressPayload = {
+  line1: string;
+  line2?: string | null;
+  city: string;
+  region?: string | null;
+  postalCode?: string | null;
+  countryCode: string;
+};
+
+function validateLine1(line1: string): string {
+  return stringUtils.sanitizeAndValidate(
+    line1,
+    { min: 1, max: 255 },
+    addressError.InvalidLine1
+  );
+}
+
+function validateCity(city: string): string {
+  return stringUtils.sanitizeAndValidate(
+    city,
+    { min: 1, max: 100 },
+    addressError.InvalidCity
+  );
+}
+
+function validateCountryCode(countryCode: string): string {
+  const sanitized = stringUtils
+    .sanitizeAndValidate(
+      countryCode,
+      { min: 2, max: 2 },
+      addressError.InvalidCountryCode
+    )
+    .toUpperCase();
+
+  if (!/^[A-Z]{2}$/.test(sanitized)) {
+    throw new addressError.InvalidCountryCode({ countryCode });
+  }
+
+  return sanitized;
+}
+
+function sanitizeOptionalString(value?: string | null): string | null {
+  if (
+    value === undefined ||
+    value === null ||
+    !stringUtils.isNonEmptyString(value)
+  ) {
+    return null;
+  }
+  return value.trim();
+}
+
+function make(payload: TCreateAddressPayload): Readonly<IAddress> {
+  if (!payload || typeof payload !== 'object') {
+    throw new addressError.InvalidAddress({ address: payload });
+  }
+
+  const line1 = validateLine1(payload.line1);
+  const city = validateCity(payload.city);
+  const countryCode = validateCountryCode(payload.countryCode);
+
+  const line2 = sanitizeOptionalString(payload.line2);
+  const region = sanitizeOptionalString(payload.region);
+  const postalCode = sanitizeOptionalString(payload.postalCode);
+
+  return Object.freeze({
+    line1,
+    line2,
+    city,
+    region,
+    postalCode,
+    countryCode,
+  });
+}
+
+function validate(address: IAddress): void {
+  if (!address || typeof address !== 'object') {
+    throw new addressError.InvalidAddress({ address });
+  }
+
+  validateLine1(address.line1);
+  validateCity(address.city);
+  validateCountryCode(address.countryCode);
+}
+
+const addressValue = Object.freeze({
+  make,
+  validate,
+});
+
+export default addressValue;

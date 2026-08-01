@@ -1,5 +1,5 @@
-import historyError from '../../../../shared/history/history.error';
 import { TEntityId } from '../../../../shared/types/uuid';
+import historyError from '../../../../shared/values/history/history.error';
 import userEntity from '../../entities/user.entity';
 import userError from '../../errors/user.error';
 import { EUserEntityActions } from '../../types/user-audit.types';

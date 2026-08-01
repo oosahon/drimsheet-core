@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import IAppContext, {
   IAppContextData,
 } from '../../app/context/contracts/app-context.contract';
-import runtimeError from '../../shared/errors/runtime.error';
+import runtimeError from '../../shared/values/errors/runtime.error';
 
 const asyncLocalStorage = new AsyncLocalStorage<IAppContextData>();
 

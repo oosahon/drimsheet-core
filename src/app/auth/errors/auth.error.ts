@@ -1,6 +1,6 @@
-import DomainError from '../../../shared/errors/domain.error';
 import { TErrorCause } from '../../../shared/types/error.types';
 import errorUtils from '../../../shared/utils/error';
+import DomainError from '../../../shared/values/errors/domain.error';
 
 type TErrorKeyPrefix = `auth_error_${string}`;
 

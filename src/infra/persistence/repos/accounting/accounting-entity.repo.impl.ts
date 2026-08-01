@@ -3,8 +3,8 @@ import IAccountingEntityRepo from '../../../../domain/accounting/repos/accountin
 import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
 import { accountingEntitiesInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
-import accountingEntityMapper from '../../mappers/accounting/accounting-entity.mapper';
 import accountingEntityHistoryRepo from './accounting-entity-history.repo.impl';
+import accountingEntityMapper from './mappers/accounting-entity.mapper';
 
 const accountingEntityRepo: IAccountingEntityRepo = {
   create: async (domain, options) => {

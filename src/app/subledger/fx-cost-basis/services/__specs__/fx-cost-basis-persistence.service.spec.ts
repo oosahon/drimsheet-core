@@ -7,11 +7,11 @@ import mockFxCostBasisLotAcquisitionRepo from '../../../../../domain/subledger/f
 import mockFxCostBasisLotRepo from '../../../../../domain/subledger/fx-cost-basis/repos/__mocks__/lot.repo.impl.mock';
 import { EFxCostBasisLotStatus } from '../../../../../domain/subledger/fx-cost-basis/types/lot.types';
 import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.mock';
-import historyValue from '../../../../../shared/history/history.vo';
-import { EHistoryActorType } from '../../../../../shared/history/types/history.types';
 import { ITransactionContext } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import historyValue from '../../../../../shared/values/history/history.vo';
+import { EHistoryActorType } from '../../../../../shared/values/history/types/history.types';
 import makeFxLotCostBasisPersistenceService from '../fx-cost-basis-persistence.service';
 
 describe('fxCostBasisPersistenceService', () => {

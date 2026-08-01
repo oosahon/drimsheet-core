@@ -1,6 +1,6 @@
-import appError from '../../../../shared/errors/app.error';
 import { TErrorCause } from '../../../../shared/types/error.types';
 import errorUtils from '../../../../shared/utils/error';
+import appError from '../../../../shared/values/errors/app.error';
 
 type TErrorKeyPrefix = `app_error_fx_cost_basis_${string}`;
 

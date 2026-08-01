@@ -1,9 +1,9 @@
 import { IMoney } from '../../../../domain/money/types/money.types';
+import { TEntityId } from '../../../../shared/types/uuid';
 import {
   IEntityDelta,
   IHistory,
-} from '../../../../shared/history/types/history.types';
-import { TEntityId } from '../../../../shared/types/uuid';
+} from '../../../../shared/values/history/types/history.types';
 import { IExchangeRate } from '../../../money/types/exchange-rate.types';
 
 export interface IFxCostBasisLotAcquisition {

@@ -4,9 +4,9 @@ import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-accou
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../domain/money/values/money.vo';
 import IReporter from '../../../shared/contracts/reporter.contract';
-import appError from '../../../shared/errors/app.error';
 import { TEntityId } from '../../../shared/types/uuid';
 import stringUtils from '../../../shared/utils/string';
+import appError from '../../../shared/values/errors/app.error';
 import IAppContext from '../../context/contracts/app-context.contract';
 import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';
 import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';

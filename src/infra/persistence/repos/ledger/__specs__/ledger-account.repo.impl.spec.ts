@@ -6,11 +6,11 @@ import {
 import { ERepoLock } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import getDbQuery from '../../../helpers/get-db-query';
-import ledgerAccountMapper from '../../../mappers/ledger/ledger-account.mapper';
 import ledgerAccountRepo from '../ledger-account.repo.impl';
+import ledgerAccountMapper from '../mappers/ledger-account.mapper';
 
 jest.mock('../../../helpers/get-db-query');
-jest.mock('../../../mappers/ledger/ledger-account.mapper');
+jest.mock('../mappers/ledger-account.mapper');
 
 describe('ledgerAccountRepoImpl allocation reads', () => {
   const accountingEntityId =

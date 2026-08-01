@@ -1,4 +1,4 @@
-import appError from '../../../../shared/errors/app.error';
+import appError from '../../../../shared/values/errors/app.error';
 import httpHandlers from '../../handlers';
 import makeIsAuthenticatedUserMiddleware from '../is-authenticated-user.middleware';
 

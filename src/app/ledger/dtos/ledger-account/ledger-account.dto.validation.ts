@@ -17,8 +17,8 @@ import {
   ELedgerType,
   ULedgerType,
 } from '../../../../domain/ledger/shared/types/ledger.types';
-import appError from '../../../../shared/errors/app.error';
-import { paginationDtoValidation } from '../../../../shared/pagination/dto/pagination.dto.validation';
+import appError from '../../../../shared/values/errors/app.error';
+import { paginationDtoValidation } from '../../../../shared/values/pagination/dto/pagination.dto.validation';
 
 // =========== error keys start ===========
 const invalidTypeKey = new ledgerAccountError.InvalidType().errorKey;

@@ -1,5 +1,5 @@
-import { IHistory } from '../../../shared/history/types/history.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { IHistory } from '../../../shared/values/history/types/history.types';
 
 /**
  * ================== Reusable Period Types ==================

@@ -20,11 +20,11 @@ import userEntity from '../../../../domain/user/entities/user.entity';
 
 import moneyValue from '../../../../domain/money/values/money.vo';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import { EHistoryActorType } from '../../../../shared/history/types/history.types';
 import {
   IRepoOptions,
   ITransactionContext,
 } from '../../../../shared/types/repo.types';
+import { EHistoryActorType } from '../../../../shared/values/history/types/history.types';
 import makeJournalEntryPersistenceService from '../journal-entry-persistence.service';
 
 describe('journalEntryPersistenceService', () => {

@@ -1,4 +1,4 @@
-import { IEvent, TEventHandler } from '../events/types/event.types';
+import { IEvent, TEventHandler } from '../values/events/types/event.types';
 
 export default interface IEventBus {
   /**

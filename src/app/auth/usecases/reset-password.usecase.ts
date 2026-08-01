@@ -6,9 +6,9 @@ import {
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
 import IReporter from '../../../shared/contracts/reporter.contract';
-import eventValue from '../../../shared/events/event.vo';
 import generateUUID from '../../../shared/utils/uuid-generator';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import eventValue from '../../../shared/values/events/event.vo';
 import IAppContext from '../../context/contracts/app-context.contract';
 import { EAuthStrategy } from '../contracts/auth.types';
 import IPasswordService from '../contracts/password-service.contract';

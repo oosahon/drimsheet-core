@@ -12,7 +12,7 @@ import {
 import { IBankAccountCreationReq } from '../../../app/ledger/dtos/asset-account/asset-account.dto';
 import { ILedgerAccountDto } from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
 import ledgerUseCases from '../../../infra/ioc/usecases/ledger';
-import { IHttpErrorDto } from '../../../shared/errors/error.dto';
+import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
 import middlewares from '../middlewares';
 
 @Route('accounts')

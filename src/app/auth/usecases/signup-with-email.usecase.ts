@@ -6,9 +6,9 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '../../../shared/contracts/repo.contract';
-import eventValue from '../../../shared/events/event.vo';
-import historyValue from '../../../shared/history/history.vo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import eventValue from '../../../shared/values/events/event.vo';
+import historyValue from '../../../shared/values/history/history.vo';
 import IAppContext from '../../context/contracts/app-context.contract';
 import { EAuthStrategy } from '../contracts/auth.types';
 import IEmailVerificationService from '../contracts/email-verification-service.contract';

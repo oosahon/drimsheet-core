@@ -1,4 +1,4 @@
-import DomainError from '../../errors/domain.error';
+import DomainError from '../../values/errors/domain.error';
 
 import numberUtils from '../number';
 

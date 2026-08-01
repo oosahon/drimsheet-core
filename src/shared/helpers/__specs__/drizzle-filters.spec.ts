@@ -1,5 +1,5 @@
 import { asc, desc } from 'drizzle-orm';
-import { EPaginationSortDirection } from '../../pagination/types/pagination.types';
+import { EPaginationSortDirection } from '../../values/pagination/types/pagination.types';
 import drizzleFilters from '../drizzle-filters';
 
 describe('drizzleFilters', () => {

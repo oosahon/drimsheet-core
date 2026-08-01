@@ -1,8 +1,8 @@
-import { TAuditedEntity } from '../../../shared/events/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
 import accountingError from '../errors/accounting.error';
 import periodError from '../errors/period.error';
 import periodEvents from '../events/period.events';

@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import dateError from '../errors/date.error';
 import { TErrorConstructor } from '../types/error.types';
+import dateError from '../values/errors/date.error';
 
 export interface IStartAndEndDates {
   start: Date;

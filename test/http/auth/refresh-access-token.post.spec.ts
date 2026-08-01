@@ -4,7 +4,7 @@ import request from 'supertest';
 import authUseCase from '../../../src/infra/ioc/usecases/auth';
 import appContext from '../../../src/infra/runtime/app-context';
 import { createApplication } from '../../../src/infra/server';
-import appError from '../../../src/shared/errors/app.error';
+import appError from '../../../src/shared/values/errors/app.error';
 
 describe('POST /api/v1/auth/refresh-access-token', () => {
   let app: Express;

@@ -3,8 +3,8 @@ import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-en
 import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
 import { journalEntriesInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
-import journalEntryMapper from '../../mappers/journal-entry/journal-entry.mapper';
 import journalEntryHistoryRepo from './journal-entry-history.repo.impl';
+import journalEntryMapper from './mappers/journal-entry.mapper';
 
 const journalEntryRepo: IJournalEntryRepo = {
   create: async (payload, options) => {

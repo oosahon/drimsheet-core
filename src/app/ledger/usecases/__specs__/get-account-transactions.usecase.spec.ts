@@ -19,9 +19,9 @@ import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.co
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import { IUser } from '../../../../domain/user/types/user.types';
-import appError from '../../../../shared/errors/app.error';
-import { IPaginationDto } from '../../../../shared/pagination/dto/pagination.dto';
-import { EPaginationSortDirection } from '../../../../shared/pagination/types/pagination.types';
+import appError from '../../../../shared/values/errors/app.error';
+import { IPaginationDto } from '../../../../shared/values/pagination/dto/pagination.dto';
+import { EPaginationSortDirection } from '../../../../shared/values/pagination/types/pagination.types';
 import mockAppContext, {
   mockClientSession,
 } from '../../../context/contracts/__mocks__/app-context.mock';

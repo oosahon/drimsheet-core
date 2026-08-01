@@ -1,4 +1,4 @@
-import eventValue from '../../../../shared/events/event.vo';
+import eventValue from '../../../../shared/values/events/event.vo';
 import { IFxCostBasisLotDisposition } from '../types/disposition.types';
 
 export const EFxCostBasisLotDispositionEvent = {

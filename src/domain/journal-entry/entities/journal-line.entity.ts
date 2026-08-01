@@ -1,9 +1,9 @@
 import moneyValue from '../../../domain/money/values/money.vo';
-import { IEvent } from '../../../shared/events/types/event.types';
 import dateUtils from '../../../shared/utils/date';
 import numberUtils from '../../../shared/utils/number';
 import stringUtils from '../../../shared/utils/string';
 import generateUUID from '../../../shared/utils/uuid-generator';
+import { IEvent } from '../../../shared/values/events/types/event.types';
 import journalLineError from '../errors/journal-line.error';
 import journalLineEvents from '../events/journal-line-item.events';
 import {

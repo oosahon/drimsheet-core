@@ -1,5 +1,5 @@
-import { IHistory } from '../../../shared/history/types/history.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { IHistory } from '../../../shared/values/history/types/history.types';
 import { UCurrencyCode } from '../../money/config/currencies.config';
 import { UJurisdictionCode } from '../config/jurisdictions.config';
 

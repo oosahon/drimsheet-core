@@ -2,10 +2,10 @@ import { and, eq, gte, lte } from 'drizzle-orm';
 import IAccountingPeriodRepo from '../../../../domain/accounting/repos/accounting-period.repo';
 import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
 import { accountingPeriodsInCore } from '../../../config/drizzle/schema';
+import { toRepoDateOnly } from '../../helpers/date.mapper';
 import getDbQuery from '../../helpers/get-db-query';
-import accountingPeriodMapper from '../../mappers/accounting/accounting-period.mapper';
-import { toRepoDateOnly } from '../../mappers/shared/date';
 import accountingPeriodHistoryRepo from './accounting-period-history.repo.impl';
+import accountingPeriodMapper from './mappers/accounting-period.mapper';
 
 const accountingPeriodRepoImpl: IAccountingPeriodRepo = {
   findByDate: async (accountingEntityId, date, options) => {
