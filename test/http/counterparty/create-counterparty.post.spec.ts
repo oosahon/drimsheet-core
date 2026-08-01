@@ -1,0 +1,193 @@
+import { Express } from 'express';
+import request from 'supertest';
+import {
+  ICounterpartyCreateReq,
+  ICounterpartyDto,
+} from '../../../src/app/counterparty/dtos/counterparty/counterparty.dto';
+import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
+import { IUser } from '../../../src/domain/user/types/user.types';
+import authService from '../../../src/infra/ioc/services/auth';
+import counterpartyUseCases from '../../../src/infra/ioc/usecases/counterparty';
+import accountingRepos from '../../../src/infra/persistence/repos/accounting';
+import userRepos from '../../../src/infra/persistence/repos/user';
+import { createApplication } from '../../../src/infra/server';
+import { TEntityId } from '../../../src/shared/types/uuid';
+import appError from '../../../src/shared/values/errors/app.error';
+
+jest.mock('../../../src/infra/ioc/services/auth', () => ({
+  __esModule: true,
+  default: {
+    password: {},
+    token: { getAuthUser: jest.fn() },
+  },
+}));
+
+jest.mock('../../../src/infra/ioc/usecases/counterparty', () => ({
+  __esModule: true,
+  default: {
+    createCounterparty: jest.fn(),
+  },
+}));
+
+jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
+  __esModule: true,
+  default: {
+    accountingEntity: { findByIdAndUserId: jest.fn() },
+  },
+}));
+
+jest.mock('../../../src/infra/persistence/repos/user', () => ({
+  __esModule: true,
+  default: {
+    user: { findById: jest.fn() },
+  },
+}));
+
+const ENDPOINT = '/api/v1/counterparties';
+const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
+const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
+const counterpartyId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+
+const validPayload: ICounterpartyCreateReq = {
+  name: 'Acme Corp',
+  status: 'active',
+  type: 'organization',
+};
+
+const accountingEntity = {
+  id: accountingEntityId,
+  ownerId: userId,
+  functionalCurrencyCode: 'NGN',
+  jurisdictionCode: 'NG',
+} as IAccountingEntity;
+
+const createdCounterparty: ICounterpartyDto = {
+  id: counterpartyId,
+  accountingEntityId,
+  name: validPayload.name,
+  status: validPayload.status,
+  type: validPayload.type,
+  roles: [],
+  createdAt: new Date('2026-08-01T08:00:00.000Z'),
+  updatedAt: new Date('2026-08-01T08:00:00.000Z'),
+};
+
+describe('POST /counterparties', () => {
+  let app: Express;
+  const mockGetAuthUser = authService.token.getAuthUser as jest.Mock;
+  const mockFindUser = userRepos.user.findById as jest.Mock;
+  const mockFindAccountingEntity = accountingRepos.accountingEntity
+    .findByIdAndUserId as jest.Mock;
+  const mockCreateCounterparty =
+    counterpartyUseCases.createCounterparty as jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockGetAuthUser.mockResolvedValue({ id: userId });
+    mockFindUser.mockResolvedValue({ id: userId } as IUser);
+    mockFindAccountingEntity.mockResolvedValue(accountingEntity);
+    mockCreateCounterparty.mockResolvedValue(createdCounterparty);
+    app = createApplication();
+  });
+
+  const makeRequest = (payload: object = validPayload) =>
+    request(app)
+      .post(ENDPOINT)
+      .set('Authorization', 'Bearer valid-token')
+      .set('x-accounting-entity-id', accountingEntityId)
+      .send(payload);
+
+  describe('201 Response', () => {
+    it('returns 201 with the created counterparty DTO', async () => {
+      const response = await makeRequest();
+
+      expect(response.status).toBe(201);
+      expect(response.type).toBe('application/json');
+      expect(response.body).toEqual({
+        ...createdCounterparty,
+        createdAt: createdCounterparty.createdAt.toISOString(),
+        updatedAt: createdCounterparty.updatedAt.toISOString(),
+      });
+      // The body in the controller is parsed as strings for Dates by TSOA,
+      // but express parses it, and supertest gets the object.
+      // The controller passes the parsed body (with converted Date objects) to the usecase.
+      expect(mockCreateCounterparty).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: validPayload.name,
+          status: validPayload.status,
+          type: validPayload.type,
+        })
+      );
+    });
+  });
+
+  describe('400 Response', () => {
+    it('rejects a missing active accounting entity header', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(validPayload);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errorKey).toBe(
+        'accounting_error_accounting_entity_unauthorized'
+      );
+      expect(mockCreateCounterparty).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('401 Response', () => {
+    it('rejects an unauthenticated request', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('x-accounting-entity-id', accountingEntityId)
+        .send(validPayload);
+
+      expect(response.status).toBe(401);
+      expect(mockCreateCounterparty).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('422 Response', () => {
+    it('rejects invalid payload with extra fields (TSOA validation)', async () => {
+      const invalidPayload = {
+        ...validPayload,
+        extraField: 'not allowed',
+      };
+      const response = await makeRequest(invalidPayload);
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(mockCreateCounterparty).not.toHaveBeenCalled();
+    });
+
+    it('returns 422 if usecase validation fails (zod validation runner)', async () => {
+      const validationErrors = [{ field: 'name', message: 'invalid_name' }];
+      mockCreateCounterparty.mockRejectedValueOnce(
+        new appError.UnprocessableEntity(validationErrors)
+      );
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.validationErrors).toEqual(validationErrors);
+    });
+  });
+
+  describe('500 Response', () => {
+    it('sanitizes unexpected internal errors', async () => {
+      mockCreateCounterparty.mockRejectedValueOnce(
+        new Error('database failure')
+      );
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_internal_server_error',
+      });
+    });
+  });
+});

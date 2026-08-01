@@ -30,12 +30,9 @@ describe('makeCreateCounterpartyUsecase', () => {
   let usecase: ReturnType<typeof makeCreateCounterpartyUsecase>;
 
   const validPayload: ICounterpartyCreateReq = {
-    id: validUuid,
     name: 'Jane Doe',
     status: 'active',
     type: 'individual',
-    createdAt: new Date(),
-    updatedAt: new Date(),
   };
 
   beforeEach(() => {

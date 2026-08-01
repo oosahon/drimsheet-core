@@ -5,12 +5,9 @@ import {
 } from '../../../../domain/counterparty/types/counterparty.types';
 
 export interface ICounterpartyCreateReq {
-  id: string;
   name: string;
   status: UCounterpartyStatus;
   type: UCounterpartyType;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface ICounterpartyDto {

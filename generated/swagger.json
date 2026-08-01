@@ -920,6 +920,79 @@
         "type": "object",
         "additionalProperties": false
       },
+      "UCounterpartyStatus": {
+        "type": "string",
+        "enum": ["active", "archived"]
+      },
+      "UCounterpartyType": {
+        "type": "string",
+        "enum": ["individual", "organization"]
+      },
+      "UCounterpartyRole": {
+        "type": "string",
+        "enum": ["employer", "vendor", "contractor"]
+      },
+      "ICounterpartyDto": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "accountingEntityId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/UCounterpartyRole"
+            },
+            "type": "array"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "accountingEntityId",
+          "name",
+          "status",
+          "type",
+          "roles",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ICounterpartyCreateReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          }
+        },
+        "required": ["name", "status", "type"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IBankDirectoryDto": {
         "properties": {
           "countryCode": {
@@ -1968,6 +2041,87 @@
             }
           }
         ]
+      }
+    },
+    "/counterparties": {
+      "post": {
+        "operationId": "createCounterparty",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ICounterpartyDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a new counterparty",
+        "tags": ["Counterparty"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ICounterpartyCreateReq"
+              }
+            }
+          }
+        }
       }
     },
     "/banks": {

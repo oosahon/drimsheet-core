@@ -7,14 +7,9 @@ import {
   UCounterpartyType,
 } from '../../../../domain/counterparty/types/counterparty.types';
 
-const invalidAccountingEntityIdKey =
-  new counterpartyError.InvalidAccountingEntityId().errorKey;
-const invalidCounterpartyIdKey = new counterpartyError.InvalidCounterpartyId()
-  .errorKey;
 const invalidNameKey = new counterpartyError.InvalidName().errorKey;
 const invalidTypeKey = new counterpartyError.InvalidType().errorKey;
 const invalidStatusKey = new counterpartyError.InvalidStatus().errorKey;
-const invalidDateKey = new counterpartyError.InvalidDate().errorKey;
 
 export const counterpartyStatusValidation = z.enum(
   Object.values(ECounterpartyStatus) as [
@@ -33,7 +28,6 @@ export const counterpartyTypeValidation = z.enum(
 );
 
 export const counterpartyCreateReqValidation = z.object({
-  id: z.uuid(invalidCounterpartyIdKey),
   name: z
     .string(invalidNameKey)
     .trim()
@@ -41,6 +35,4 @@ export const counterpartyCreateReqValidation = z.object({
     .max(255, invalidNameKey),
   status: counterpartyStatusValidation,
   type: counterpartyTypeValidation,
-  createdAt: z.date(invalidDateKey),
-  updatedAt: z.date(invalidDateKey),
 });
