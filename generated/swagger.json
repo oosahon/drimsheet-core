@@ -1079,6 +1079,61 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IPaginatedResponse_ICounterpartyDto_": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/ICounterpartyDto"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/IPaginationResponseMeta"
+          }
+        },
+        "required": ["data", "meta"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UCounterpartySortBy": {
+        "type": "string",
+        "enum": ["createdAt", "name"]
+      },
+      "IGetCounterpartiesQuery": {
+        "properties": {
+          "limit": {
+            "type": "number",
+            "format": "double"
+          },
+          "orderBy": {
+            "$ref": "#/components/schemas/UCounterpartySortBy"
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/UPaginationSortDirection"
+          },
+          "search": {
+            "type": "string"
+          },
+          "page": {
+            "type": "number",
+            "format": "double"
+          },
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/UCounterpartyRole"
+            },
+            "type": "array"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UCounterpartyStatus"
+          }
+        },
+        "type": "object",
+        "additionalProperties": false
+      },
       "IBankDirectoryDto": {
         "properties": {
           "countryCode": {
@@ -2208,6 +2263,143 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "getCounterparties",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPaginatedResponse_ICounterpartyDto_"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get counterparties",
+        "tags": ["Counterparty"],
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDirection",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UPaginationSortDirection"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "roles",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/UCounterpartyRole"
+              }
+            }
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UCounterpartyType"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UCounterpartyStatus"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UCounterpartySortBy"
+            }
+          }
+        ]
       }
     },
     "/counterparties/vendor": {

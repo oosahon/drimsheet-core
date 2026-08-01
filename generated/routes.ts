@@ -885,6 +885,49 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaginatedResponse_ICounterpartyDto_: {
+    dataType: 'refObject',
+    properties: {
+      data: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'ICounterpartyDto' },
+        required: true,
+      },
+      meta: { ref: 'IPaginationResponseMeta', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UCounterpartySortBy: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['createdAt'] },
+        { dataType: 'enum', enums: ['name'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IGetCounterpartiesQuery: {
+    dataType: 'refObject',
+    properties: {
+      limit: { dataType: 'double' },
+      orderBy: { ref: 'UCounterpartySortBy' },
+      sortDirection: { ref: 'UPaginationSortDirection' },
+      search: { dataType: 'string' },
+      page: { dataType: 'double' },
+      roles: {
+        dataType: 'array',
+        array: { dataType: 'refAlias', ref: 'UCounterpartyRole' },
+      },
+      type: { ref: 'UCounterpartyType' },
+      status: { ref: 'UCounterpartyStatus' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IBankDirectoryDto: {
     dataType: 'refObject',
     properties: {
@@ -1872,6 +1915,55 @@ export function RegisterRoutes(app: Router) {
           next,
           validatedArgs,
           successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsCounterpartyController_getCounterparties: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    query: {
+      in: 'queries',
+      name: 'query',
+      required: true,
+      ref: 'IGetCounterpartiesQuery',
+    },
+  };
+  app.get(
+    '/api/v1/counterparties',
+    ...fetchMiddlewares<RequestHandler>(CounterpartyController),
+    ...fetchMiddlewares<RequestHandler>(
+      CounterpartyController.prototype.getCounterparties
+    ),
+
+    async function CounterpartyController_getCounterparties(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsCounterpartyController_getCounterparties,
+          request,
+          response,
+        });
+
+        const controller = new CounterpartyController();
+
+        await templateService.apiHandler({
+          methodName: 'getCounterparties',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
         });
       } catch (err) {
         return next(err);

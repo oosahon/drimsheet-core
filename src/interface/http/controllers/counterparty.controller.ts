@@ -1,16 +1,21 @@
 import {
   Body,
   Controller,
+  Get,
   Middlewares,
   OperationId,
   Post,
+  Queries,
   Response,
   Route,
   SuccessResponse,
   Tags,
 } from 'tsoa';
 import { IContractorCreateReq } from '../../../app/counterparty/dtos/contractor/contractor.dto';
-import { ICounterpartyCreateReq } from '../../../app/counterparty/dtos/counterparty/counterparty.dto';
+import {
+  ICounterpartyCreateReq,
+  IGetCounterpartiesQuery,
+} from '../../../app/counterparty/dtos/counterparty/counterparty.dto';
 import { IEmployerCreateReq } from '../../../app/counterparty/dtos/employer/employer.dto';
 import { IVendorCreateReq } from '../../../app/counterparty/dtos/vendor/vendor.dto';
 import counterpartyUseCases from '../../../infra/ioc/usecases/counterparty';
@@ -94,5 +99,23 @@ export class CounterpartyController extends Controller {
   )
   public async createEmployer(@Body() body: IEmployerCreateReq) {
     return await counterpartyUseCases.createEmployer(body);
+  }
+
+  /**
+   * Get counterparties
+   */
+  @Get('/')
+  @OperationId('getCounterparties')
+  @SuccessResponse('200')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.accountingEntityAccess
+  )
+  public async getCounterparties(@Queries() query: IGetCounterpartiesQuery) {
+    return await counterpartyUseCases.getCounterparties(query);
   }
 }
