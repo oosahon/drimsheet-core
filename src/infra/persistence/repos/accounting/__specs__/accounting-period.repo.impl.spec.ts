@@ -5,8 +5,8 @@ import {
 } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import getDbQuery from '../../../helpers/get-db-query';
-import accountingPeriodMapper from '../../../mappers/accounting/accounting-period.mapper';
 import accountingPeriodRepo from '../accounting-period.repo.impl';
+import accountingPeriodMapper from '../mappers/accounting-period.mapper';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../../../mappers/accounting/accounting-period.mapper');

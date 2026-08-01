@@ -9,7 +9,7 @@ import {
   ledgerAccountBalancesInCore,
 } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
-import ledgerAccountBalanceMapper from '../../mappers/ledger/ledger-account-balance.mapper';
+import ledgerAccountBalanceMapper from './mappers/ledger-account-balance.mapper';
 
 const functionalCurrenciesInCore = alias(
   currenciesInCore,

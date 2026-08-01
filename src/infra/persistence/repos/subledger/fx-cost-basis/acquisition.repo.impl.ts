@@ -4,8 +4,8 @@ import {
   subledgerFxCostBasisLotAcquisitionsInCore,
 } from '../../../../config/drizzle/schema';
 import getDbQuery from '../../../helpers/get-db-query';
-import fxCostBasisLotAcquisitionHistoryMapper from '../../../mappers/subledger/fx-cost-basis/acquisition-history.mapper';
-import fxCostBasisLotAcquisitionMapper from '../../../mappers/subledger/fx-cost-basis/acquisition.mapper';
+import fxCostBasisLotAcquisitionHistoryMapper from '../mappers/fx-cost-basis/acquisition-history.mapper';
+import fxCostBasisLotAcquisitionMapper from '../mappers/fx-cost-basis/acquisition.mapper';
 
 const fxCostBasisLotAcquisitionRepo: IFxCostBasisLotAcquisitionRepo = {
   create: async (payload, options) => {

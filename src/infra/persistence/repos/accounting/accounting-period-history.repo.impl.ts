@@ -2,7 +2,7 @@ import IAccountingPeriodHistoryRepo from '../../../../domain/accounting/repos/ac
 import repoError from '../../../../shared/values/errors/repo.error';
 import { accountingPeriodHistoryInAudit } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
-import accountingPeriodHistoryMapper from '../../mappers/accounting/accounting-period-history.mapper';
+import accountingPeriodHistoryMapper from './mappers/accounting-period-history.mapper';
 
 const accountingPeriodHistoryRepo: IAccountingPeriodHistoryRepo = {
   save: async (payload, historyPayload, options) => {

@@ -5,8 +5,8 @@ import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transa
 import paginationValue from '../../../../shared/values/pagination/pagination.vo';
 import { journalLinesInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
-import journalLineMapper from '../../mappers/journal-entry/journal-line.mapper';
 import journalLineHistoryRepo from './journal-line-history.repo.impl';
+import journalLineMapper from './mappers/journal-line.mapper';
 
 const journalLineRepo: IJournalLineRepo = {
   create: async (payload, options) => {

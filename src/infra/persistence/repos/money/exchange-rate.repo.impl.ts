@@ -4,9 +4,9 @@ import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.
 import drizzleFilters from '../../../../shared/helpers/drizzle-filters';
 import paginationValue from '../../../../shared/values/pagination/pagination.vo';
 import { currencyExchangeRatesInCore } from '../../../config/drizzle/schema';
+import { toRepoDate } from '../../helpers/date.mapper';
 import getDbQuery from '../../helpers/get-db-query';
-import exchangeRateMapper from '../../mappers/money/exchange-rate.mapper';
-import { toRepoDate } from '../../mappers/shared/date';
+import exchangeRateMapper from './mappers/exchange-rate.mapper';
 
 const exchangeRateRepo: IExchangeRateRepo = {
   create: async (payload, options) => {

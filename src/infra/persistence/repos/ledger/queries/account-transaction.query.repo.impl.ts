@@ -7,7 +7,7 @@ import {
   journalLinesInCore,
 } from '../../../../config/drizzle/schema';
 import getDbQuery from '../../../helpers/get-db-query';
-import accountTransactionMapper from '../../../mappers/ledger/account-transaction.mapper';
+import accountTransactionMapper from '../mappers/account-transaction.mapper';
 
 const accountTransactionQueryRepo: IAccountTransactionQueryRepo = {
   findAllByAccountId: async (accountId, options) => {
