@@ -1,6 +1,7 @@
 import periodError from '../../../../domain/accounting/errors/period.error';
 import IAccountingPeriodService from '../../../../domain/accounting/types/accounting-period.service.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+import mockJournalEntryService from '../../../../domain/journal-entry/types/__mocks__/journal-entry.service.mock';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
@@ -21,7 +22,6 @@ import { IRepoService } from '../../../../shared/contracts/repo.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import IAppContext from '../../../context/contracts/app-context.contract';
 import mockJournalEntryPersistenceService from '../../../journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockOpeningBalanceEntryService from '../../../journal-entry/contracts/__mocks__/opening-balance-entry.service.mock';
 import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.mock';
 import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-propagation.service.mock';
@@ -159,7 +159,7 @@ describe('makeCreateBankAccountUseCase', () => {
     accountingPeriodService: mockAccountingPeriodService,
     assetAccountService: mockAssetAccountService,
     bankAccountRepo: mockBankAccountRepo,
-    openingBalanceEntryService: mockOpeningBalanceEntryService,
+    journalEntryService: mockJournalEntryService,
     journalEntryPersistenceService: mockJournalEntryPersistenceService,
     balancePropagationService: mockLedgerAccountBalancePropagationService,
     repoService: mockRepoService,
@@ -177,7 +177,7 @@ describe('makeCreateBankAccountUseCase', () => {
       [],
       mockAudit as any,
     ]);
-    mockOpeningBalanceEntryService.create.mockResolvedValue([
+    mockJournalEntryService.createOpeningBalance.mockResolvedValue([
       mockOpeningBalanceJournalEntry,
       mockOpeningBalanceEvents,
       mockOpeningBalanceAudit,
@@ -225,7 +225,7 @@ describe('makeCreateBankAccountUseCase', () => {
     expect(result.openingBalanceDate).toEqual(
       reqWithOpeningBalance.openingBalance?.date
     );
-    expect(mockOpeningBalanceEntryService.create).toHaveBeenCalled();
+    expect(mockJournalEntryService.createOpeningBalance).toHaveBeenCalled();
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalled();
     expect(mockBankAccountRepo.create).toHaveBeenCalled();
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
@@ -303,7 +303,7 @@ describe('makeCreateBankAccountUseCase', () => {
         },
       ],
     };
-    mockOpeningBalanceEntryService.create.mockResolvedValueOnce([
+    mockJournalEntryService.createOpeningBalance.mockResolvedValueOnce([
       mockForeignJournalEntry as any,
       mockOpeningBalanceEvents,
       mockOpeningBalanceAudit,

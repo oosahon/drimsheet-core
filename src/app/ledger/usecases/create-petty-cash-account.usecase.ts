@@ -1,4 +1,5 @@
 import IAccountingPeriodService from '../../../domain/accounting/types/accounting-period.service.types';
+import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
 import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
 import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
 import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
@@ -16,7 +17,6 @@ import { IEvent } from '../../../shared/values/events/types/event.types';
 import historyValue from '../../../shared/values/history/history.vo';
 import IAppContext from '../../context/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '../../journal-entry/contracts/journal-entry-persistence.service.contract';
-import IOpeningBalanceEntryService from '../../journal-entry/contracts/opening-balance-entry.service.contract';
 import IExchangeRateAppService from '../../money/contracts/exchange-rate.service.contract';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import IFxCostBasisPersistenceService from '../../subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
@@ -36,7 +36,7 @@ interface IDependencies {
   eventBus: IEventBus;
   accountingPeriodService: IAccountingPeriodService;
   assetAccountService: IAssetAccountService;
-  openingBalanceEntryService: IOpeningBalanceEntryService;
+  journalEntryService: IJournalEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
   repoService: IRepoService;
@@ -96,12 +96,16 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
     const exchangeRate = getOpeningBalanceExchangeRate(payload.openingBalance);
 
     const [journalEntry, journalEvents, journalAudit] =
-      await deps.openingBalanceEntryService.create(
-        accountingEntity,
-        auditedAccount[0],
-        moneyMapper.fromDto(payload.openingBalance.amount),
-        payload.openingBalance.date,
-        exchangeRate,
+      await deps.journalEntryService.createOpeningBalance(
+        {
+          accountingEntityId: accountingEntity.id,
+          functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
+          account: auditedAccount[0],
+          amount: moneyMapper.fromDto(payload.openingBalance.amount),
+          effectiveDate: payload.openingBalance.date,
+          exchangeRate,
+          createdBy: user.id,
+        },
         trace
       );
 

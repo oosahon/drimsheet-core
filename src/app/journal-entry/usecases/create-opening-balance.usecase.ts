@@ -1,3 +1,4 @@
+import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
 import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
@@ -16,7 +17,6 @@ import { ILedgerAccountBalancePropagationService } from '../../ledger/contracts/
 import ledgerAppError from '../../ledger/errors/ledger.error';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';
 import IJournalEntryPersistenceService from '../contracts/journal-entry-persistence.service.contract';
-import IOpeningBalanceEntryService from '../contracts/opening-balance-entry.service.contract';
 import { IOpeningBalanceCreationReq } from '../dtos/opening-balance/opening-balance.dto';
 import { openingBalanceCreationReqValidation } from '../dtos/opening-balance/opening-balance.dto.validation';
 
@@ -24,7 +24,7 @@ interface IDependencies {
   appContext: IAppContext;
   ledgerAccountRepo: ILedgerAccountRepo;
   eventBus: IEventBus;
-  openingBalanceEntryService: IOpeningBalanceEntryService;
+  journalEntryService: IJournalEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
   repoService: IRepoService;
@@ -50,12 +50,16 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
       : null;
 
     const [journalEntry, journalEvents, audit] =
-      await deps.openingBalanceEntryService.create(
-        accountingEntity,
-        account,
-        amount,
-        payload.date,
-        exchangeRate,
+      await deps.journalEntryService.createOpeningBalance(
+        {
+          accountingEntityId: accountingEntity.id,
+          functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
+          account,
+          amount,
+          effectiveDate: payload.date,
+          exchangeRate,
+          createdBy: account.createdBy,
+        },
         trace
       );
 
