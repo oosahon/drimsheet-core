@@ -1,22 +1,22 @@
-import userEntity from '../../../../domain/user/entities/user.entity';
-import IUserRepo from '../../../../domain/user/repos/user.repo';
-import emailValue from '../../../../domain/user/values/email.vo';
-import IEventBus from '../../../../shared/contracts/event-bus.contract';
+import userEntity from '../../../domain/user/entities/user.entity';
+import IUserRepo from '../../../domain/user/repos/user.repo';
+import emailValue from '../../../domain/user/values/email.vo';
+import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../../shared/contracts/repo.contract';
-import { ERepoLock } from '../../../../shared/types/repo.types';
-import appError from '../../../../shared/values/errors/app.error';
-import eventValue from '../../../../shared/values/events/event.vo';
-import historyValue from '../../../../shared/values/history/history.vo';
-import IAppContext from '../../../context/contracts/app-context.contract';
-import { EAuthStrategy } from '../../contracts/auth.types';
-import IUserAuthRepo from '../../contracts/user-auth.repo.contract';
-import { IOAuthProfile, TOAuthDoneCallback } from '../../dtos/auth/auth.dto';
-import authError from '../../errors/auth.error';
+} from '../../../shared/contracts/repo.contract';
+import { ERepoLock } from '../../../shared/types/repo.types';
+import appError from '../../../shared/values/errors/app.error';
+import eventValue from '../../../shared/values/events/event.vo';
+import historyValue from '../../../shared/values/history/history.vo';
+import IAppContext from '../../context/contracts/app-context.contract';
+import { EAuthStrategy } from '../contracts/auth.types';
+import IUserAuthRepo from '../contracts/user-auth.repo.contract';
+import { IOAuthProfile, TOAuthDoneCallback } from '../dtos/auth/auth.dto';
+import authError from '../errors/auth.error';
 
-export default function makeGoogleOAuthHelper(
+export default function makeLoginWithGoogleUseCase(
   eventBus: IEventBus,
   appContext: IAppContext,
   userRepo: IUserRepo,
