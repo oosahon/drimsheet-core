@@ -12,6 +12,8 @@
   - [Interest Income](#interest-income)
   - [Gain on Sale of Assets](#gain-on-sale-of-assets)
   - [Unrealized Gains](#unrealized-gains)
+  - [Grants](#grants)
+  - [Gifts](#gifts)
 - [Application Bootstrap](#application-bootstrap)
   - [Individual](#individual)
 
@@ -41,6 +43,8 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 | Interest Income   | `404xxx`   | —                                                                                   | 🔲 Types only  |
 | Gain on Sale      | `405xxx`   | [`06-gain-on-sale.entity.ts`](../revenue/entities/gain-on-sale.entity.ts)           | ✅ Implemented |
 | Unrealized Gains  | `406xxx`   | [`07-unrealized-gain.entity.ts`](../revenue/entities/unrealized-gain.entity.ts)     | ✅ Implemented |
+| Grants            | `407xxx`   | [`grants.entity.ts`](../revenue/entities/grants.entity.ts)                          | ✅ Implemented |
+| Gifts             | `408xxx`   | [`gifts.entity.ts`](../revenue/entities/gifts.entity.ts)                            | ✅ Implemented |
 
 > [!NOTE]
 > Entity files are named by their COA prefix (e.g. `02-` = `401xxx`, `04-` = `403xxx`) to make it explicit which accounts have been implemented and which are pending.
@@ -179,6 +183,46 @@ The `UnrealizedGain` entity ([`07-unrealized-gain.entity.ts`](../revenue/entitie
 - `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
 - Accepts `isControlAccount`, `controlAccountId`, and `meta` via payload
 
+### Grants
+
+- **Ledger codes**: 407xxx
+- **Description**: accounts used to track grant income recognized by the accounting entity. Conditional or deferred grant recognition is handled outside the account taxonomy.
+- **Main reporting hierarchy**: Non-Operating Revenues / Grants
+
+#### Behaviors
+
+| Sub-Class | Reporting Hierarchy | Behaviors                                                                                                                                                                                                                            |
+| --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Grants    | /                   | <ul><li>Captures recognized grant income in its own reporting bucket</li><li>Does not encode restriction or deferred recognition policy in the ledger code</li><li>Automatically closed to Retained Earnings at period-end</li></ul> |
+
+#### Entity Details
+
+The `Grants` entity ([`grants.entity.ts`](../revenue/entities/grants.entity.ts)) creates accounts with:
+
+- Fixed `behavior: 'grants'` / `subType: 'grants'`
+- `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
+- Accepts `isControlAccount`, `controlAccountId`, and `meta` via payload
+
+### Gifts
+
+- **Ledger codes**: 408xxx
+- **Description**: accounts used to track voluntary gifts or donations received by the accounting entity.
+- **Main reporting hierarchy**: Non-Operating Revenues / Gifts
+
+#### Behaviors
+
+| Sub-Class | Reporting Hierarchy | Behaviors                                                                                                                                                                            |
+| --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Gifts     | /                   | <ul><li>Captures voluntary gifts and donations received</li><li>Represents gifts received, not gifts given</li><li>Automatically closed to Retained Earnings at period-end</li></ul> |
+
+#### Entity Details
+
+The `Gifts` entity ([`gifts.entity.ts`](../revenue/entities/gifts.entity.ts)) creates accounts with:
+
+- Fixed `behavior: 'gifts'` / `subType: 'gifts'`
+- `contraAccountRule: 'contra_not_permitted'` / `adjunctAccountRule: 'adjunct_not_permitted'`
+- Accepts `isControlAccount`, `controlAccountId`, and `meta` via payload
+
 ## Application Bootstrap
 
 For non-power users, we want to bootstrap their ledger accounts with a set of default accounts based on their domain.
@@ -196,6 +240,8 @@ For the individual MVP, the following revenue accounts will be bootstrapped:
 
 - Gain on Sale of Assets: `405000` (control account)
 - Unrealized Gains: `406000` (control account)
+- Grants: `407000` (control account)
+- Gifts: `408000` (control account)
 
 > [!NOTE]
 > Sales (`400xxx`), Subscriptions (`402xxx`), and Interest Income (`404xxx`) are **not** bootstrapped for the individual MVP. Type definitions exist for future use.

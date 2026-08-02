@@ -48,6 +48,8 @@ The following ledger accounts are in scope for the individual MVP. Accounts are 
 | Employment Income    | `403xxx`   | `04-employment-income.entity.ts` | ✅ Implemented |
 | Gain on Asset Sale   | `405xxx`   | `06-gain-on-sale.entity.ts`      | ✅ Implemented |
 | Unrealized Gain      | `406xxx`   | `07-unrealized-gain.entity.ts`   | ✅ Implemented |
+| Grants               | `407xxx`   | `grants.entity.ts`               | ✅ Implemented |
+| Gifts                | `408xxx`   | `gifts.entity.ts`                | ✅ Implemented |
 
 ### Expenses
 

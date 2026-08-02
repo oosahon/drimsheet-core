@@ -7,6 +7,8 @@
 import {
   TEmploymentIncomeLedgerCode,
   TGainOnAssetSaleLedgerCode,
+  TGiftsLedgerCode,
+  TGrantsLedgerCode,
   TServicesLedgerCode,
   TUnrealizedGainLedgerCode,
 } from '../../shared/types/ledger-code.types';
@@ -27,9 +29,19 @@ const UNREALIZED_GAINS: Record<string, TUnrealizedGainLedgerCode> = {
   HEADER: '406000',
 } as const;
 
+const GRANTS: Record<string, TGrantsLedgerCode> = {
+  HEADER: '407000',
+} as const;
+
+const GIFTS: Record<string, TGiftsLedgerCode> = {
+  HEADER: '408000',
+} as const;
+
 export const REVENUE_LEDGER_CODES = {
   SERVICES,
   EMPLOYMENT_INCOME,
   GAIN_ON_ASSET_SALE,
   UNREALIZED_GAINS,
+  GRANTS,
+  GIFTS,
 };

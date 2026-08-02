@@ -132,6 +132,12 @@ declare const UnrealizedGainPrefix = '406';
 export type TUnrealizedGainLedgerCode =
   `${typeof UnrealizedGainPrefix}${string}`;
 
+declare const GrantsPrefix = '407';
+export type TGrantsLedgerCode = `${typeof GrantsPrefix}${string}`;
+
+declare const GiftsPrefix = '408';
+export type TGiftsLedgerCode = `${typeof GiftsPrefix}${string}`;
+
 /**
  * ===================== EXPENSE LEDGER CODES =====================
  * @see {@link ../__docs__/05-expense-accounts.md} to understand the structure of expense ledger codes
