@@ -3,15 +3,11 @@ import makeGetAuthUserProfileUseCase from '../../../app/user/usecases/get-profil
 import userRepos from '../../persistence/repos/user';
 import appContext from '../../runtime/app-context';
 
-const userUseCase = {
-  getPreferences: makeGetUserPreferencesUseCase({
-    appContext: appContext,
-    userPreferencesRepo: userRepos.userPreferences,
-  }),
+export const getUserPreferencesUseCase = makeGetUserPreferencesUseCase({
+  appContext: appContext,
+  userPreferencesRepo: userRepos.userPreferences,
+});
 
-  getAuthUserProfile: makeGetAuthUserProfileUseCase({
-    appContext: appContext,
-  }),
-};
-
-export default userUseCase;
+export const getAuthUserProfileUseCase = makeGetAuthUserProfileUseCase({
+  appContext: appContext,
+});

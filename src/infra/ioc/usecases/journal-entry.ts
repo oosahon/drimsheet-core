@@ -6,19 +6,15 @@ import {
   journalEntryPersistenceService,
   journalEntryService,
 } from '../services/journal-entry';
-import ledgerServices from '../services/ledger';
-import repoService from '../services/repo';
+import { ledgerAccountBalancePropagationService } from '../services/ledger';
+import { repoService } from '../services/repo';
 
-const journalEntryUseCases = {
-  createOpeningBalance: makeCreateOpeningBalanceUseCase({
-    appContext: appContext,
-    ledgerAccountRepo: ledgerRepos.ledgerAccount,
-    eventBus: messaging.eventBus,
-    journalEntryService,
-    journalEntryPersistenceService,
-    balancePropagationService: ledgerServices.balancePropagation,
-    repoService: repoService,
-  }),
-};
-
-export default journalEntryUseCases;
+export const createOpeningBalanceUseCase = makeCreateOpeningBalanceUseCase({
+  appContext: appContext,
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+  eventBus: messaging.eventBus,
+  journalEntryService,
+  journalEntryPersistenceService,
+  balancePropagationService: ledgerAccountBalancePropagationService,
+  repoService: repoService,
+});

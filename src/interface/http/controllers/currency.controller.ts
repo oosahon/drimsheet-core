@@ -10,8 +10,8 @@ import {
 } from 'tsoa';
 import { IExchangeRateQueryParam } from '../../../app/money/dtos/exchange-rate/exchange-rate.dto';
 import {
-  currencyUseCase,
-  exchangeRateUseCases,
+  getAllCurrenciesUseCase,
+  getExchangeRateUseCase,
 } from '../../../infra/ioc/usecases/money';
 import middlewares from '../middlewares';
 
@@ -26,7 +26,7 @@ export class CurrencyController extends Controller {
   @SuccessResponse('200')
   @Middlewares(middlewares.isOptionalAuthenticatedUser)
   public async getAllCurrencies() {
-    return currencyUseCase.getAll();
+    return getAllCurrenciesUseCase();
   }
 
   /**
@@ -36,6 +36,6 @@ export class CurrencyController extends Controller {
   @OperationId('getExchangeRates')
   @SuccessResponse('200')
   public async getExchangeRates(@Queries() query: IExchangeRateQueryParam) {
-    return exchangeRateUseCases.get(query);
+    return getExchangeRateUseCase(query);
   }
 }

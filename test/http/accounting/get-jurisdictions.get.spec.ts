@@ -1,17 +1,15 @@
 import { Express } from 'express';
 import request from 'supertest';
 import { SYSTEM_JURISDICTIONS } from '../../../src/domain/accounting/config/jurisdictions.config';
-import accountingUsecases from '../../../src/infra/ioc/usecases/accounting';
+import * as accountingUsecases from '../../../src/infra/ioc/usecases/accounting';
 import { createApplication } from '../../../src/infra/server';
 
 jest.mock('../../../src/infra/ioc/usecases/accounting', () => ({
   __esModule: true,
-  default: {
-    createAccountingEntity: jest.fn(),
-    getJurisdictions: jest.fn(),
-    getUserAccountingEntities: jest.fn(),
-    getActiveAccountingEntity: jest.fn(),
-  },
+  createAccountingEntityUseCase: jest.fn(),
+  getJurisdictionsUseCase: jest.fn(),
+  getUserAccountingEntitiesUseCase: jest.fn(),
+  getActiveAccountingEntityUseCase: jest.fn(),
 }));
 
 const ENDPOINT = '/api/v1/accounting/jurisdictions';
@@ -27,7 +25,8 @@ const jurisdictions = Object.values(SYSTEM_JURISDICTIONS).map(
 
 describe('GET /accounting/jurisdictions', () => {
   let app: Express;
-  const mockGetJurisdictions = accountingUsecases.getJurisdictions as jest.Mock;
+  const mockGetJurisdictions =
+    accountingUsecases.getJurisdictionsUseCase as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

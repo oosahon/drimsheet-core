@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import passport from 'passport';
 import request from 'supertest';
-import authUseCase from '../../../src/infra/ioc/usecases/auth';
+import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
 import { createApplication } from '../../../src/infra/server';
 
 class CallbackGoogleStrategy extends passport.Strategy {
@@ -22,7 +22,7 @@ class CallbackGoogleStrategy extends passport.Strategy {
 describe('GET /api/v1/auth/google/callback', () => {
   let app: Express;
   let handleGoogleCallbackSpy: jest.SpiedFunction<
-    typeof authUseCase.oAuth.handleGoogleCallback
+    typeof authUseCase.oAuthUseCase.handleGoogleCallback
   >;
 
   beforeAll(() => {
@@ -32,7 +32,7 @@ describe('GET /api/v1/auth/google/callback', () => {
   beforeEach(() => {
     CallbackGoogleStrategy.outcome = 'success';
     handleGoogleCallbackSpy = jest
-      .spyOn(authUseCase.oAuth, 'handleGoogleCallback')
+      .spyOn(authUseCase.oAuthUseCase, 'handleGoogleCallback')
       .mockResolvedValue('http://localhost:3000/auth/oauth-confirmation');
     app = createApplication();
   });

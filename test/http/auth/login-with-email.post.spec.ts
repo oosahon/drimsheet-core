@@ -8,7 +8,7 @@ import {
   makeIpRateLimitKey,
   rateLimiter,
 } from '../../../src/infra/config/rate-limiter.config';
-import authUseCase from '../../../src/infra/ioc/usecases/auth';
+import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
 import { createApplication } from '../../../src/infra/server';
 import appError from '../../../src/shared/values/errors/app.error';
 
@@ -31,7 +31,9 @@ const rateLimitEmails = [
 describe('POST /auth/login-with-email', () => {
   let app: Express;
   let client: ReturnType<typeof request>;
-  let loginWithEmailSpy: jest.SpiedFunction<typeof authUseCase.loginWithEmail>;
+  let loginWithEmailSpy: jest.SpiedFunction<
+    typeof authUseCase.loginWithEmailUseCase
+  >;
   let server: Server;
 
   beforeEach(async () => {
@@ -47,7 +49,7 @@ describe('POST /auth/login-with-email', () => {
       ),
     ]);
     loginWithEmailSpy = jest
-      .spyOn(authUseCase, 'loginWithEmail')
+      .spyOn(authUseCase, 'loginWithEmailUseCase')
       .mockResolvedValue({ accessToken: 'mock-access-token' });
     app = createApplication();
     server = app.listen();

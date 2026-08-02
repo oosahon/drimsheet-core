@@ -6,7 +6,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import mockTransactionalEmailService from '../../../notification/contracts/__mocks__/transactional-email-service.mock';
 import mockTokenService from '../../contracts/__mocks__/token-service.mock';
 import makeEmailVerificationService, {
-  EMAIL_VERIFICATION_COOLDOWN_SECONDS,
+  EMAIL_VERIFICATION_COOL_DOWN_SECONDS,
 } from '../email-verification.service';
 
 describe('makeEmailVerificationService', () => {
@@ -44,7 +44,7 @@ describe('makeEmailVerificationService', () => {
     expect(mockCacheStorage.setIfNotExists).toHaveBeenCalledWith(
       `app:auth:email-verification-cooldown:${user.id}`,
       true,
-      EMAIL_VERIFICATION_COOLDOWN_SECONDS
+      EMAIL_VERIFICATION_COOL_DOWN_SECONDS
     );
     expect(
       mockTransactionalEmailService.sendEmailVerification

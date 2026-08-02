@@ -6,7 +6,7 @@ import {
   makeIpRateLimitKey,
   rateLimiter,
 } from '../../../src/infra/config/rate-limiter.config';
-import authUseCase from '../../../src/infra/ioc/usecases/auth';
+import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
 import { createApplication } from '../../../src/infra/server';
 
 import appError from '../../../src/shared/values/errors/app.error';
@@ -17,13 +17,13 @@ describe('POST /auth/get-password-reset-link', () => {
   let app: Express;
   let client: ReturnType<typeof request>;
   let getPasswordResetLinkSpy: jest.SpiedFunction<
-    typeof authUseCase.getPasswordResetLink
+    typeof authUseCase.getPasswordResetLinkUseCase
   >;
   let server: Server;
 
   beforeEach(async () => {
     getPasswordResetLinkSpy = jest
-      .spyOn(authUseCase, 'getPasswordResetLink')
+      .spyOn(authUseCase, 'getPasswordResetLinkUseCase')
       .mockResolvedValue(undefined);
     await rateLimiter.getPasswordResetLinkByIp.resetKey(
       makeIpRateLimitKey('::ffff:127.0.0.1')

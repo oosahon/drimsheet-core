@@ -5,8 +5,8 @@ import { ILedgerAccountDto } from '../../../src/app/ledger/dtos/ledger-account/l
 import periodError from '../../../src/domain/accounting/errors/period.error';
 import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../src/domain/user/types/user.types';
-import authService from '../../../src/infra/ioc/services/auth';
-import ledgerUseCases from '../../../src/infra/ioc/usecases/ledger';
+import { tokenService } from '../../../src/infra/ioc/services/auth';
+import * as ledgerUseCases from '../../../src/infra/ioc/usecases/ledger';
 import accountingRepos from '../../../src/infra/persistence/repos/accounting';
 import userRepos from '../../../src/infra/persistence/repos/user';
 import { createApplication } from '../../../src/infra/server';
@@ -14,21 +14,16 @@ import { TEntityId } from '../../../src/shared/types/uuid';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
-  default: {
-    password: {},
-    token: { getAuthUser: jest.fn() },
-  },
+  tokenService: { getAuthUser: jest.fn() },
 }));
 
 jest.mock('../../../src/infra/ioc/usecases/ledger', () => ({
   __esModule: true,
-  default: {
-    getLedgerAccounts: jest.fn(),
-    getLedgerAccount: jest.fn(),
-    adjustLedgerAccountBalance: jest.fn(),
-    getAccountTransactions: jest.fn(),
-    createPettyCashAccount: jest.fn(),
-  },
+  getLedgerAccountsUseCase: jest.fn(),
+  getLedgerAccountUseCase: jest.fn(),
+  adjustLedgerAccountBalanceUseCase: jest.fn(),
+  getAccountTransactionsUseCase: jest.fn(),
+  createPettyCashAccountUseCase: jest.fn(),
 }));
 
 jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
@@ -102,12 +97,12 @@ const createdAccount: ILedgerAccountDto = {
 
 describe('POST /ledger/asset/petty-cash', () => {
   let app: Express;
-  const mockGetAuthUser = authService.token.getAuthUser as jest.Mock;
+  const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
   const mockFindAccountingEntity = accountingRepos.accountingEntity
     .findByIdAndUserId as jest.Mock;
   const mockCreatePettyCashAccount =
-    ledgerUseCases.createPettyCashAccount as jest.Mock;
+    ledgerUseCases.createPettyCashAccountUseCase as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

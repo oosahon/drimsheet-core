@@ -3,7 +3,7 @@ import request from 'supertest';
 import authError from '../../../src/app/auth/errors/auth.error';
 import { IUserPreferences } from '../../../src/domain/user/types/user-preferences.types';
 import { IUser } from '../../../src/domain/user/types/user.types';
-import authService from '../../../src/infra/ioc/services/auth';
+import { tokenService } from '../../../src/infra/ioc/services/auth';
 import userRepos from '../../../src/infra/persistence/repos/user';
 import { createApplication } from '../../../src/infra/server';
 import { TEntityId } from '../../../src/shared/types/uuid';
@@ -11,11 +11,8 @@ import { TEntityId } from '../../../src/shared/types/uuid';
 jest.mock('../../../src/infra/ioc/services/auth', () => {
   return {
     __esModule: true,
-    default: {
-      password: {},
-      token: {
-        getAuthUser: jest.fn(),
-      },
+    tokenService: {
+      getAuthUser: jest.fn(),
     },
   };
 });
@@ -38,7 +35,7 @@ const ENDPOINT = '/api/v1/users/preferences';
 
 describe('GET /users/preferences', () => {
   let app: Express;
-  const mockGetAuthUser = authService.token.getAuthUser as jest.Mock;
+  const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
   const mockFindPreferences = userRepos.userPreferences.findById as jest.Mock;
 

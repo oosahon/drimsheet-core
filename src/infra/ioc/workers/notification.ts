@@ -6,11 +6,7 @@ import observability from '../../observability';
 
 const mailer = NODE_ENV === 'test' ? internalMailer : zeptoMail.notifications;
 
-const notificationWorkers = {
-  transactionalEmail: makeTransactionalEmailWorker({
-    mailer,
-    reporter: observability.reporter,
-  }),
-};
-
-export default notificationWorkers;
+export const transactionalEmailWorker = makeTransactionalEmailWorker({
+  mailer,
+  reporter: observability.reporter,
+});

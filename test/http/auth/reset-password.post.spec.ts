@@ -7,7 +7,7 @@ import {
   makeIpRateLimitKey,
   rateLimiter,
 } from '../../../src/infra/config/rate-limiter.config';
-import authUseCase from '../../../src/infra/ioc/usecases/auth';
+import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
 import { createApplication } from '../../../src/infra/server';
 import appError from '../../../src/shared/values/errors/app.error';
 
@@ -18,7 +18,9 @@ describe('POST /auth/reset-password', () => {
   let app: Express;
   let client: ReturnType<typeof request>;
   let validPayload: IResetPasswordReq;
-  let resetPasswordSpy: jest.SpiedFunction<typeof authUseCase.resetPassword>;
+  let resetPasswordSpy: jest.SpiedFunction<
+    typeof authUseCase.resetPasswordUseCase
+  >;
   let server: Server;
 
   beforeEach(async () => {
@@ -32,7 +34,7 @@ describe('POST /auth/reset-password', () => {
       makeIpRateLimitKey('::ffff:127.0.0.1')
     );
     resetPasswordSpy = jest
-      .spyOn(authUseCase, 'resetPassword')
+      .spyOn(authUseCase, 'resetPasswordUseCase')
       .mockResolvedValue({ accessToken: 'mock-access-token' });
     app = createApplication();
     server = app.listen();

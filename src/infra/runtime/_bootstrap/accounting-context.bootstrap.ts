@@ -1,7 +1,7 @@
 import { SYSTEM_ACCOUNTING_STANDARDS } from '../../../domain/accounting/config/accounting-standards.config';
 import { SYSTEM_JURISDICTIONS } from '../../../domain/accounting/config/jurisdictions.config';
 import { IJurisdictionAccountingStandard } from '../../../domain/accounting/types/jurisdiction.types';
-import repoService from '../../ioc/services/repo';
+import { repoService } from '../../ioc/services/repo';
 import observability from '../../observability';
 import accountingRepos from '../../persistence/repos/accounting';
 

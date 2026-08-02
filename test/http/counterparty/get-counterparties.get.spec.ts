@@ -2,8 +2,8 @@ import { Express } from 'express';
 import request from 'supertest';
 import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../src/domain/user/types/user.types';
-import authService from '../../../src/infra/ioc/services/auth';
-import counterpartyUseCases from '../../../src/infra/ioc/usecases/counterparty';
+import { tokenService } from '../../../src/infra/ioc/services/auth';
+import * as counterpartyUseCases from '../../../src/infra/ioc/usecases/counterparty';
 import accountingRepos from '../../../src/infra/persistence/repos/accounting';
 import userRepos from '../../../src/infra/persistence/repos/user';
 import { createApplication } from '../../../src/infra/server';
@@ -12,21 +12,16 @@ import appError from '../../../src/shared/values/errors/app.error';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
-  default: {
-    password: {},
-    token: { getAuthUser: jest.fn() },
-  },
+  tokenService: { getAuthUser: jest.fn() },
 }));
 
 jest.mock('../../../src/infra/ioc/usecases/counterparty', () => ({
   __esModule: true,
-  default: {
-    createCounterparty: jest.fn(),
-    createVendor: jest.fn(),
-    createContractor: jest.fn(),
-    createEmployer: jest.fn(),
-    getCounterparties: jest.fn(),
-  },
+  createCounterpartyUseCase: jest.fn(),
+  createVendorUseCase: jest.fn(),
+  createContractorUseCase: jest.fn(),
+  createEmployerUseCase: jest.fn(),
+  getCounterpartiesUseCase: jest.fn(),
 }));
 
 jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
@@ -72,12 +67,12 @@ const mockResult = {
 
 describe('GET /counterparties', () => {
   let app: Express;
-  const mockGetAuthUser = authService.token.getAuthUser as jest.Mock;
+  const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
   const mockFindAccountingEntity = accountingRepos.accountingEntity
     .findByIdAndUserId as jest.Mock;
   const mockGetCounterparties =
-    counterpartyUseCases.getCounterparties as jest.Mock;
+    counterpartyUseCases.getCounterpartiesUseCase as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

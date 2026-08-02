@@ -1,12 +1,9 @@
 import makeLedgerAccountBalanceAdjustmentWorker from '../../../app/ledger/workers/ledger-account-balance-adjustment.worker';
 import observability from '../../observability';
-import ledgerUseCases from '../usecases/ledger';
+import { adjustLedgerAccountBalanceUseCase } from '../usecases/ledger';
 
-const ledgerWorkers = {
-  ledgerAccountBalanceAdjustment: makeLedgerAccountBalanceAdjustmentWorker({
+export const ledgerAccountBalanceAdjustmentWorker =
+  makeLedgerAccountBalanceAdjustmentWorker({
     reporter: observability.reporter,
-    adjustLedgerAccountBalance: ledgerUseCases.adjustLedgerAccountBalance,
-  }),
-};
-
-export default ledgerWorkers;
+    adjustLedgerAccountBalance: adjustLedgerAccountBalanceUseCase,
+  });

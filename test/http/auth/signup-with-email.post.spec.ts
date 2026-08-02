@@ -2,7 +2,7 @@ import { Express } from 'express';
 import { Server } from 'node:http';
 import request from 'supertest';
 import { IUserSignupReq } from '../../../src/app/auth/dtos/auth/auth.dto';
-import authUseCase from '../../../src/infra/ioc/usecases/auth';
+import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
 import { createApplication } from '../../../src/infra/server';
 
 const ENDPOINT = '/api/v1/auth/signup-with-email';
@@ -18,13 +18,13 @@ describe('POST /auth/signup-with-email', () => {
   let app: Express;
   let client: ReturnType<typeof request>;
   let signupWithEmailSpy: jest.SpiedFunction<
-    typeof authUseCase.signupWithEmail
+    typeof authUseCase.signupWithEmailUseCase
   >;
   let server: Server;
 
   beforeEach(() => {
     signupWithEmailSpy = jest
-      .spyOn(authUseCase, 'signupWithEmail')
+      .spyOn(authUseCase, 'signupWithEmailUseCase')
       .mockResolvedValue(undefined);
     app = createApplication();
     server = app.listen();

@@ -6,47 +6,40 @@ import makeGetCounterpartiesUsecase from '../../../app/counterparty/usecases/get
 import messaging from '../../messaging';
 import counterpartyRepos from '../../persistence/repos/counterparty';
 import appContext from '../../runtime/app-context';
-import counterpartyServices from '../services/counterparty';
+import {
+  counterpartyPersistenceService,
+  counterpartyService,
+} from '../services/counterparty';
 
-const createCounterparty = makeCreateCounterpartyUsecase({
+export const createCounterpartyUseCase = makeCreateCounterpartyUsecase({
   appContext,
-  counterpartyService: counterpartyServices.counterparty,
-  counterpartyPersistenceService: counterpartyServices.persistence,
+  counterpartyService,
+  counterpartyPersistenceService,
   eventBus: messaging.eventBus,
 });
 
-const createVendor = makeCreateVendorUsecase({
+export const createVendorUseCase = makeCreateVendorUsecase({
   appContext,
-  counterpartyService: counterpartyServices.counterparty,
-  counterpartyPersistenceService: counterpartyServices.persistence,
+  counterpartyService,
+  counterpartyPersistenceService,
   eventBus: messaging.eventBus,
 });
 
-const createContractor = makeCreateContractorUsecase({
+export const createContractorUseCase = makeCreateContractorUsecase({
   appContext,
-  counterpartyService: counterpartyServices.counterparty,
-  counterpartyPersistenceService: counterpartyServices.persistence,
+  counterpartyService,
+  counterpartyPersistenceService,
   eventBus: messaging.eventBus,
 });
 
-const createEmployer = makeCreateEmployerUsecase({
+export const createEmployerUseCase = makeCreateEmployerUsecase({
   appContext,
-  counterpartyService: counterpartyServices.counterparty,
-  counterpartyPersistenceService: counterpartyServices.persistence,
+  counterpartyService,
+  counterpartyPersistenceService,
   eventBus: messaging.eventBus,
 });
 
-const getCounterparties = makeGetCounterpartiesUsecase({
+export const getCounterpartiesUseCase = makeGetCounterpartiesUsecase({
   appContext,
   counterpartyRepo: counterpartyRepos.counterparty,
 });
-
-const counterpartyUseCases = Object.freeze({
-  createCounterparty,
-  createVendor,
-  createContractor,
-  createEmployer,
-  getCounterparties,
-});
-
-export default counterpartyUseCases;

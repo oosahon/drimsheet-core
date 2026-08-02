@@ -11,7 +11,7 @@ import {
 } from 'tsoa';
 import { IBankAccountCreationReq } from '../../../app/ledger/dtos/asset-account/asset-account.dto';
 import { ILedgerAccountDto } from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
-import ledgerUseCases from '../../../infra/ioc/usecases/ledger';
+import { createBankAccountUseCase } from '../../../infra/ioc/usecases/ledger';
 import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
 import middlewares from '../middlewares';
 
@@ -38,6 +38,6 @@ export class AccountsController extends Controller {
     @Body() body: IBankAccountCreationReq
   ): Promise<ILedgerAccountDto> {
     this.setStatus(201);
-    return await ledgerUseCases.createBankAccount(body);
+    return await createBankAccountUseCase(body);
   }
 }

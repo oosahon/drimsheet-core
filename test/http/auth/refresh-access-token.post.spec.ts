@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import { Server } from 'node:http';
 import request from 'supertest';
-import authUseCase from '../../../src/infra/ioc/usecases/auth';
+import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
 import appContext from '../../../src/infra/runtime/app-context';
 import { createApplication } from '../../../src/infra/server';
 import appError from '../../../src/shared/values/errors/app.error';
@@ -9,12 +9,14 @@ import appError from '../../../src/shared/values/errors/app.error';
 describe('POST /api/v1/auth/refresh-access-token', () => {
   let app: Express;
   let client: ReturnType<typeof request>;
-  let refreshSpy: jest.SpiedFunction<typeof authUseCase.refreshAccessToken>;
+  let refreshSpy: jest.SpiedFunction<
+    typeof authUseCase.refreshAccessTokenUseCase
+  >;
   let server: Server;
 
   beforeEach(() => {
     refreshSpy = jest
-      .spyOn(authUseCase, 'refreshAccessToken')
+      .spyOn(authUseCase, 'refreshAccessTokenUseCase')
       .mockResolvedValue({ accessToken: 'new-refreshed-access-token' });
     app = createApplication();
     server = app.listen();

@@ -4,26 +4,20 @@ import makeIngestExchangeRateUseCase from '../../../app/money/usecases/ingest-ex
 import observability from '../../observability';
 import currencyRepos from '../../persistence/repos/money';
 import appContext from '../../runtime/app-context';
-import repoService from '../services/repo';
+import { repoService } from '../services/repo';
 
-// TODO [PUR-26]: use named exports for all iocs
-
-export const currencyUseCase = Object.freeze({
-  getAll: makeGetCurrenciesUseCase({
-    currencyRepo: currencyRepos.currency,
-    appContext,
-  }),
+export const getAllCurrenciesUseCase = makeGetCurrenciesUseCase({
+  currencyRepo: currencyRepos.currency,
+  appContext,
 });
 
-export const exchangeRateUseCases = Object.freeze({
-  ingest: makeIngestExchangeRateUseCase({
-    exchangeRateRepo: currencyRepos.exchangeRate,
-    repoService,
-    logger: observability.logger,
-  }),
+export const ingestExchangeRateUseCase = makeIngestExchangeRateUseCase({
+  exchangeRateRepo: currencyRepos.exchangeRate,
+  repoService,
+  logger: observability.logger,
+});
 
-  get: makeGetExchangeRateUseCase({
-    exchangeRateRepo: currencyRepos.exchangeRate,
-    appContext,
-  }),
+export const getExchangeRateUseCase = makeGetExchangeRateUseCase({
+  exchangeRateRepo: currencyRepos.exchangeRate,
+  appContext,
 });
