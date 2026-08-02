@@ -1,11 +1,22 @@
-import mockCounterpartyDomainServices from '../../../../domain/counterparty/services/__mocks__/counterparty.service.mock';
 import makeCounterpartyService from '../../../../domain/counterparty/services/counterparty.service';
+import ICounterpartyService from '../../../../domain/counterparty/types/counterparty.service.types';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import IAppContext from '../../../context/contracts/app-context.contract';
 import mockCounterpartyPersistenceService from '../../contracts/__mocks__/persistence.service.mock';
 import { ICounterpartyCreateReq } from '../../dtos/counterparty/counterparty.dto';
 import makeCreateCounterpartyUsecase from '../create-counterparty.usecase';
+
+const counterparty: jest.Mocked<ICounterpartyService> = {
+  create: jest.fn(),
+  createVendor: jest.fn(),
+  createContractor: jest.fn(),
+  createEmployer: jest.fn(),
+};
+
+const mockCounterpartyDomainServices = Object.freeze({
+  counterparty,
+});
 
 describe('makeCreateCounterpartyUsecase', () => {
   const validUuid = '123e4567-e89b-12d3-a456-426614174000';

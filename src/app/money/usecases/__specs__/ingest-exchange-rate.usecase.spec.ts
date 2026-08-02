@@ -1,7 +1,7 @@
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import currencyError from '../../../../domain/money/errors/currency.error';
 import exchangeRateError from '../../../../domain/money/errors/exchange-rate.error';
-import exchangeRateRepoMock from '../../../../domain/money/repos/__mocks__/exchange-rate-repo.impl.mock';
+import IExchangeRateRepo from '../../../../domain/money/repos/exchange-rate.repo';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import mockLogger from '../../../../shared/contracts/__mocks__/logger.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
@@ -10,6 +10,12 @@ import mockAppContext from '../../../context/contracts/__mocks__/app-context.moc
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
 import makeIngestExchangeRateUseCase from '../ingest-exchange-rate.usecase';
+
+const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
+  create: jest.fn(),
+  find: jest.fn(),
+  findByPairAndDate: jest.fn(),
+};
 
 jest.mock('../../../../shared/utils/uuid-generator', () => ({
   __esModule: true,

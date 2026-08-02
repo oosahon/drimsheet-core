@@ -1,16 +1,23 @@
+import IUserRepo from '../../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../../domain/user/types/user.types';
 import emailValue from '../../../../../domain/user/values/email.vo';
 import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockUserAuthRepo from '../../../contracts/__mocks__/user-auth.repo.mock';
-
-import mockUserRepo from '../../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../../shared/types/repo.types';
 import mockAppContext from '../../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../../context/contracts/app-context.contract';
+import mockUserAuthRepo from '../../../contracts/__mocks__/user-auth.repo.mock';
 import { EAuthStrategy, IUserAuth } from '../../../contracts/auth.types';
 import { IOAuthProfile } from '../../../dtos/auth/auth.dto';
 import makeGoogleOAuthHelper from '../google-oauth.helper';
+
+const mockUserRepo: jest.Mocked<IUserRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findByEmail: jest.fn(),
+  findById: jest.fn(),
+  delete: jest.fn(),
+};
 
 describe('makeGoogleOAuthHelper', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';

@@ -1,8 +1,14 @@
-import exchangeRateRepoMock from '../../../../domain/money/repos/__mocks__/exchange-rate-repo.impl.mock';
+import IExchangeRateRepo from '../../../../domain/money/repos/exchange-rate.repo';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import makeExchangeRateAppService from '../exchange-rate.service';
+
+const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
+  create: jest.fn(),
+  find: jest.fn(),
+  findByPairAndDate: jest.fn(),
+};
 
 describe('ExchangeRateAppService', () => {
   const mockRepoOptions: IReadRepoOptions = { correlationId: 'test-corr-id' };

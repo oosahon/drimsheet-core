@@ -1,11 +1,11 @@
-import mockAccountingContextRepo from '../../../../domain/accounting/repos/__mocks__/accounting-context.repo.impl.mock';
-import mockAccountingEntityRepo from '../../../../domain/accounting/repos/__mocks__/accounting-entity.repo.impl.mock';
-import mockAccountingPeriodRepo from '../../../../domain/accounting/repos/__mocks__/accounting-period.repo.impl.mock';
-import mockFiscalYearRepo from '../../../../domain/accounting/repos/__mocks__/fiscal-year.repo.impl.mock';
-import mockReportingContextRepo from '../../../../domain/accounting/repos/__mocks__/reporting-context.repo.impl.mock';
-import mockReportingPeriodRepo from '../../../../domain/accounting/repos/__mocks__/reporting-period.repo.impl.mock';
-import mockAccountingDomainServices from '../../../../domain/accounting/services/__mocks__/accounting.service.mock';
+import IAccountingContextRepo from '../../../../domain/accounting/repos/accounting-context.repo';
+import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
+import IAccountingPeriodRepo from '../../../../domain/accounting/repos/accounting-period.repo';
+import IFiscalYearRepo from '../../../../domain/accounting/repos/fiscal-year.repo';
+import IReportingContextRepo from '../../../../domain/accounting/repos/reporting-context.repo';
+import IReportingPeriodRepo from '../../../../domain/accounting/repos/reporting-period.repo';
 import makeAccountingEntityService from '../../../../domain/accounting/services/accounting-entity.service';
+import IAccountingEntityService from '../../../../domain/accounting/types/accounting-entity.service.types';
 import {
   EAccountingEntityType,
   IAccountingEntity,
@@ -24,6 +24,44 @@ import mockAccountsBootstrapService from '../../../ledger/contracts/__mocks__/ac
 import mockLedgerAccountPersistenceService from '../../../ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
 import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
+
+const mockAccountingContextRepo: jest.Mocked<IAccountingContextRepo> = {
+  create: jest.fn(),
+};
+
+const mockAccountingEntityRepo: jest.Mocked<IAccountingEntityRepo> = {
+  create: jest.fn(),
+  findById: jest.fn(),
+  findByIdAndUserId: jest.fn(),
+  findByUserId: jest.fn(),
+};
+
+const mockAccountingPeriodRepo: jest.Mocked<IAccountingPeriodRepo> = {
+  findByDate: jest.fn(),
+  create: jest.fn(),
+};
+
+const mockFiscalYearRepo: jest.Mocked<IFiscalYearRepo> = {
+  create: jest.fn(),
+};
+
+const mockReportingContextRepo: jest.Mocked<IReportingContextRepo> = {
+  create: jest.fn(),
+};
+
+const mockReportingPeriodRepo: jest.Mocked<IReportingPeriodRepo> = {
+  create: jest.fn(),
+};
+
+const accountingEntity: jest.Mocked<IAccountingEntityService> = {
+  create: jest.fn(),
+  grantUserAccess: jest.fn(),
+  validateAccess: jest.fn(),
+};
+
+const mockAccountingDomainServices = Object.freeze({
+  accountingEntity,
+});
 
 describe('createAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';

@@ -1,6 +1,8 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
+import ILedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import ledgerAccountEntity from '../../../../domain/ledger/shared/entities/ledger-account.entity';
+import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -18,8 +20,25 @@ import mockAppContext from '../../../context/contracts/__mocks__/app-context.moc
 import ledgerAccountMapper from '../../dtos/ledger-account/ledger-account.dto.mapper';
 import makeGetLedgerAccountUseCase from '../get-ledger-account.usecase';
 
-import mockLedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/__mocks__/ledger-account-balance.repo.impl.mock';
-import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+const mockLedgerAccountBalanceRepo: jest.Mocked<ILedgerAccountBalanceRepo> = {
+  create: jest.fn(),
+  adjustBalance: jest.fn(),
+  findByAccountId: jest.fn(),
+  findAdjustmentsByAccountId: jest.fn(),
+  findAllByAccountIds: jest.fn(),
+};
+
+const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findById: jest.fn(),
+  findAllByIds: jest.fn(),
+  findByCode: jest.fn(),
+  findBySubType: jest.fn(),
+  findByBehavior: jest.fn(),
+  findLatestBySubType: jest.fn(),
+  findAll: jest.fn(),
+};
 
 describe('getLedgerAccountUseCase', () => {
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;

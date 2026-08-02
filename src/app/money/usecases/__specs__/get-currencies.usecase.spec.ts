@@ -1,8 +1,14 @@
-import mockCurrencyRepo from '../../../../domain/money/repos/__mocks__/currency.repo.impl.mock';
+import ICurrencyRepo from '../../../../domain/money/repos/currency.repo';
 import { ICurrency } from '../../../../domain/money/types/currency.types';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import makeGetCurrenciesUseCase from '../get-currencies.usecase';
+
+const mockCurrencyRepo: jest.Mocked<ICurrencyRepo> = {
+  create: jest.fn(),
+  findByCode: jest.fn(),
+  findAll: jest.fn(),
+};
 
 /**
  * ========= USECASE TESTS =========

@@ -1,18 +1,25 @@
+import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import authError from '../../errors/auth.error';
-import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
-import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
-
-import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
+import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext, {
   mockClientSession,
 } from '../../../context/contracts/__mocks__/app-context.mock';
 import mockAuthService from '../../contracts/__mocks__/token-service.mock';
 import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
+import authError from '../../errors/auth.error';
+import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
+import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
+
+const mockUserRepo: jest.Mocked<IUserRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findByEmail: jest.fn(),
+  findById: jest.fn(),
+  delete: jest.fn(),
+};
 
 jest.mock('../helpers/issue-user-session.helper');
 

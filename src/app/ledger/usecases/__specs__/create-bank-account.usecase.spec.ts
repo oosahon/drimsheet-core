@@ -8,14 +8,14 @@ import {
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
-import mockBankAccountRepo from '../../../../domain/ledger/asset-account/repos/__mocks__/bank-account.repo.impl.mock';
+import IBankAccountRepo from '../../../../domain/ledger/asset-account/repos/bank-account.repo';
 import IAssetAccountService from '../../../../domain/ledger/asset-account/types/asset-account.service.types';
 import { IBankDetails } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import bankDetailsValue from '../../../../domain/ledger/asset-account/values/bank-details.vo';
 import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
-import mockFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/services/__mocks__/fx-lot-cost-basis.service.mock';
+import IFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/types/lot.service.types';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../../shared/contracts/repo.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -28,6 +28,17 @@ import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks_
 import ILedgerAccountPersistenceService from '../../contracts/ledger-account-persistence.service.contract';
 import { IBankAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
 import makeCreateBankAccountUseCase from '../create-bank-account.usecase';
+
+const mockBankAccountRepo: jest.Mocked<IBankAccountRepo> = {
+  findOne: jest.fn(),
+  findByLedgerAccountId: jest.fn(),
+  create: jest.fn(),
+};
+
+const mockFxCostBasisLotDomainService: jest.Mocked<IFxCostBasisLotDomainService> =
+  {
+    acquire: jest.fn(),
+  };
 
 describe('makeCreateBankAccountUseCase', () => {
   const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;

@@ -4,10 +4,22 @@ import {
   ILiabilityLedgerAccount,
   IStatutoryPayableAccount,
 } from '../../../../../domain/ledger/liability-account/types/liability-account.types';
-import mockLedgerAccountRepo from '../../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import ILedgerAccountRepo from '../../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import makeLiabilityAccountsBootstrapHelper from '../liability-accounts-bootstrap.helper';
+
+const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findById: jest.fn(),
+  findAllByIds: jest.fn(),
+  findByCode: jest.fn(),
+  findBySubType: jest.fn(),
+  findByBehavior: jest.fn(),
+  findLatestBySubType: jest.fn(),
+  findAll: jest.fn(),
+};
 
 describe('liabilityAccountsBootstrapHelper', () => {
   const bootstrapLiabilityAccounts = makeLiabilityAccountsBootstrapHelper({

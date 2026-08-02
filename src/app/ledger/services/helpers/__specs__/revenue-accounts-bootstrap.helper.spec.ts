@@ -1,10 +1,22 @@
 import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
 import { REVENUE_LEDGER_CODES } from '../../../../../domain/ledger/revenue-account/config/revenue-codes.config';
 import { IRevenueLedgerAccount } from '../../../../../domain/ledger/revenue-account/types/revenue-account.types';
-import mockLedgerAccountRepo from '../../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import ILedgerAccountRepo from '../../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import makeRevenueAccountsBootstrapHelper from '../revenue-accounts-bootstrap.helper';
+
+const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findById: jest.fn(),
+  findAllByIds: jest.fn(),
+  findByCode: jest.fn(),
+  findBySubType: jest.fn(),
+  findByBehavior: jest.fn(),
+  findLatestBySubType: jest.fn(),
+  findAll: jest.fn(),
+};
 
 describe('revenueAccountsBootstrapHelper', () => {
   const bootstrapRevenueAccounts = makeRevenueAccountsBootstrapHelper({
