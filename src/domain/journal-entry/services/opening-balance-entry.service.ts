@@ -6,21 +6,21 @@ import currencyEntity from '../../money/entities/currency.entity';
 import journalEntryEntity from '../entities/journal-entry.entity';
 import journalLineEntity from '../entities/journal-line.entity';
 import journalEntryError from '../errors/journal-entry.error';
-import { IJournalEntryService } from '../types/journal-entry.service.types';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
 } from '../types/journal-entry.types';
 import { IJournalLineMakePayload } from '../types/journal-line.types';
+import { IOpeningBalanceEntryService } from '../types/opening-balance-entry.service.types';
 
 interface IDependencies {
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
   ledgerAccountRepo: ILedgerAccountRepo;
 }
 
-function makeCreateOpeningBalance(
+function makeCreate(
   deps: IDependencies
-): IJournalEntryService['createOpeningBalance'] {
+): IOpeningBalanceEntryService['create'] {
   return async (payload, repoOptions) => {
     const {
       accountingEntityId,
@@ -108,10 +108,10 @@ function makeCreateOpeningBalance(
   };
 }
 
-export default function makeJournalEntryService(
+export default function makeOpeningBalanceEntryService(
   deps: IDependencies
-): IJournalEntryService {
+): IOpeningBalanceEntryService {
   return Object.freeze({
-    createOpeningBalance: makeCreateOpeningBalance(deps),
+    create: makeCreate(deps),
   });
 }

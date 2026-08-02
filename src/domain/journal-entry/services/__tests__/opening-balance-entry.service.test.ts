@@ -22,7 +22,7 @@ import {
   EJournalEntryStatus,
 } from '../../types/journal-entry.types';
 import { EJournalSide } from '../../types/journal-line.types';
-import makeJournalEntryService from '../journal-entry.service';
+import makeOpeningBalanceEntryService from '../opening-balance-entry.service';
 
 const mockLedgerAccountBalanceRepo: jest.Mocked<ILedgerAccountBalanceRepo> = {
   create: jest.fn(),
@@ -44,8 +44,8 @@ const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   findAll: jest.fn(),
 };
 
-describe('journalEntryService', () => {
-  const service = makeJournalEntryService({
+describe('openingBalanceEntryService', () => {
+  const service = makeOpeningBalanceEntryService({
     ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
@@ -143,7 +143,7 @@ describe('journalEntryService', () => {
     jest.useRealTimers();
   });
 
-  describe('createOpeningBalance', () => {
+  describe('create', () => {
     it('should create a posted opening balance journal entry', async () => {
       const fixture = makeFixture();
       const { accountingEntity, amount, equityAccount, postingAccount, user } =
@@ -154,7 +154,7 @@ describe('journalEntryService', () => {
       );
       mockLedgerAccountRepo.findBySubType.mockResolvedValue([equityAccount]);
 
-      const [journalEntry, events, audit] = await service.createOpeningBalance(
+      const [journalEntry, events, audit] = await service.create(
         makePayload(fixture),
         mockOptions
       );
@@ -230,9 +230,7 @@ describe('journalEntryService', () => {
         account: fixture.controlAccount,
       };
 
-      await expect(
-        service.createOpeningBalance(payload, mockOptions)
-      ).rejects.toThrow(
+      await expect(service.create(payload, mockOptions)).rejects.toThrow(
         journalEntryError.ControlAccountOpeningBalanceNotAllowed
       );
 
@@ -261,10 +259,7 @@ describe('journalEntryService', () => {
       ]);
 
       await expect(
-        service.createOpeningBalance(
-          { ...makePayload(fixture), exchangeRate },
-          mockOptions
-        )
+        service.create({ ...makePayload(fixture), exchangeRate }, mockOptions)
       ).rejects.toThrow(journalLineError.UnsupportedExchangeRate);
 
       expect(
@@ -286,7 +281,7 @@ describe('journalEntryService', () => {
       };
 
       await expect(
-        service.createOpeningBalance(
+        service.create(
           { ...makePayload(fixture), account: accountWithOpeningDate },
           mockOptions
         )
@@ -323,7 +318,7 @@ describe('journalEntryService', () => {
       );
 
       await expect(
-        service.createOpeningBalance(makePayload(fixture), mockOptions)
+        service.create(makePayload(fixture), mockOptions)
       ).rejects.toThrow(journalEntryError.ExistingOpeningBalance);
 
       expect(
@@ -341,7 +336,7 @@ describe('journalEntryService', () => {
       mockLedgerAccountRepo.findBySubType.mockResolvedValue([]);
 
       await expect(
-        service.createOpeningBalance(makePayload(fixture), mockOptions)
+        service.create(makePayload(fixture), mockOptions)
       ).rejects.toThrow(journalEntryError.UnConfiguredOpeningBalanceAccount);
 
       expect(mockLedgerAccountRepo.findBySubType).toHaveBeenCalledWith(

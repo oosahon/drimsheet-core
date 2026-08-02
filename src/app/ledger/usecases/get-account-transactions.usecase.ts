@@ -1,4 +1,4 @@
-import balanceEffectRule from '../../../domain/accounting/rules/bookkeeping/balance-effect.rule';
+import ledgerBalanceEffectRule from '../../../domain/accounting/rules/ledger-balance-effect.rule';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
@@ -53,7 +53,7 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
 
     const data: IAccountTransactionRes[] = transactions.data.map((trx) => ({
       ...accountTransactionMapper.toDto(trx),
-      balanceEffect: balanceEffectRule.derive(ledgerAccount, trx.side),
+      balanceEffect: ledgerBalanceEffectRule(ledgerAccount, trx.side),
     }));
 
     return {

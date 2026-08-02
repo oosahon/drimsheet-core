@@ -16,7 +16,7 @@ import {
 } from '../services/fx-lot-cost-basis';
 import {
   journalEntryPersistenceService,
-  journalEntryService,
+  openingBalanceEntryService,
 } from '../services/journal-entry';
 import {
   assetAccountService,
@@ -60,7 +60,7 @@ export const createPettyCashAccountUseCase = makeCreatePettyCashAccountUseCase({
   eventBus: messaging.eventBus,
   assetAccountService,
   accountingPeriodService,
-  journalEntryService,
+  openingBalanceEntryService,
   journalEntryPersistenceService,
   balancePropagationService: ledgerAccountBalancePropagationService,
   repoService,
@@ -76,7 +76,7 @@ export const createBankAccountUseCase = makeCreateBankAccountUseCase({
   assetAccountService,
   accountingPeriodService,
   bankAccountRepo: ledgerRepos.bankAccount,
-  journalEntryService,
+  openingBalanceEntryService,
   journalEntryPersistenceService,
   balancePropagationService: ledgerAccountBalancePropagationService,
   repoService,
