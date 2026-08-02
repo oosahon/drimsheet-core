@@ -2,11 +2,15 @@ import { IAccountingEntity } from '../../../../domain/accounting/types/accountin
 import { REVENUE_LEDGER_CODES } from '../../../../domain/ledger/revenue-account/config/revenue-codes.config';
 import employmentIncomeAccountEntity from '../../../../domain/ledger/revenue-account/entities/employment-income.entity';
 import gainOnAssetSaleAccountEntity from '../../../../domain/ledger/revenue-account/entities/gain-on-sale.entity';
+import giftsAccountEntity from '../../../../domain/ledger/revenue-account/entities/gifts.entity';
+import grantsAccountEntity from '../../../../domain/ledger/revenue-account/entities/grants.entity';
 import servicesAccountEntity from '../../../../domain/ledger/revenue-account/entities/services.entity';
 import unrealizedGainAccountEntity from '../../../../domain/ledger/revenue-account/entities/unrealized-gain.entity';
 import {
   IEmploymentIncomeAccount,
   IGainOnAssetSaleAccount,
+  IGiftsAccount,
+  IGrantsAccount,
   IRevenueLedgerAccount,
   IServicesAccount,
   IUnrealizedGainAccount,
@@ -15,6 +19,8 @@ import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-ac
 import {
   TEmploymentIncomeLedgerCode,
   TGainOnAssetSaleLedgerCode,
+  TGiftsLedgerCode,
+  TGrantsLedgerCode,
   TRevenueLedgerCode,
   TServicesLedgerCode,
   TUnrealizedGainLedgerCode,
@@ -45,6 +51,8 @@ interface IRevenuePostingAccountsBootstrapInput {
     employmentIncomeHeader: IEmploymentIncomeAccount;
     gainOnAssetSaleHeader: IGainOnAssetSaleAccount;
     unrealizedGainHeader: IUnrealizedGainAccount;
+    grantsHeader: IGrantsAccount;
+    giftsHeader: IGiftsAccount;
   };
 }
 
@@ -143,6 +151,42 @@ export default function makeRevenueAccountsBootstrapHelper(
       }
     );
     revenueAccounts.push(unrealizedGainsAccount);
+
+    const grantsAccount = grantsAccountEntity.make(
+      {
+        name: 'Grants (Default)',
+        createdBy: ownerId,
+        accountingEntityId,
+        currency: functionalCurrency,
+        isControlAccount: false,
+        controlAccountId: headers.grantsHeader.id,
+        meta: null,
+      },
+      {
+        precedingCode: headers.grantsHeader.code as TGrantsLedgerCode,
+        parentMaterializedPath: headers.grantsHeader
+          .materializedPath as TGrantsLedgerCode,
+      }
+    );
+    revenueAccounts.push(grantsAccount);
+
+    const giftsAccount = giftsAccountEntity.make(
+      {
+        name: 'Gifts (Default)',
+        createdBy: ownerId,
+        accountingEntityId,
+        currency: functionalCurrency,
+        isControlAccount: false,
+        controlAccountId: headers.giftsHeader.id,
+        meta: null,
+      },
+      {
+        precedingCode: headers.giftsHeader.code as TGiftsLedgerCode,
+        parentMaterializedPath: headers.giftsHeader
+          .materializedPath as TGiftsLedgerCode,
+      }
+    );
+    revenueAccounts.push(giftsAccount);
 
     return revenueAccounts;
   };
@@ -250,6 +294,38 @@ export default function makeRevenueAccountsBootstrapHelper(
       unrealizedGainHeader = existingUnrealizedGain as IUnrealizedGainAccount;
     }
 
+    const grantsCode = REVENUE_LEDGER_CODES.GRANTS.HEADER;
+    const existingGrants = await getExistingAccount(grantsCode);
+
+    let grantsHeader: IGrantsAccount;
+
+    if (!existingGrants) {
+      const grantsAccount = grantsAccountEntity.makeHeader({
+        ...basePayload,
+        name: 'Grants',
+      });
+      grantsHeader = grantsAccount[0] as IGrantsAccount;
+      allAccounts.push(grantsAccount);
+    } else {
+      grantsHeader = existingGrants as IGrantsAccount;
+    }
+
+    const giftsCode = REVENUE_LEDGER_CODES.GIFTS.HEADER;
+    const existingGifts = await getExistingAccount(giftsCode);
+
+    let giftsHeader: IGiftsAccount;
+
+    if (!existingGifts) {
+      const giftsAccount = giftsAccountEntity.makeHeader({
+        ...basePayload,
+        name: 'Gifts',
+      });
+      giftsHeader = giftsAccount[0] as IGiftsAccount;
+      allAccounts.push(giftsAccount);
+    } else {
+      giftsHeader = existingGifts as IGiftsAccount;
+    }
+
     if (shouldBootstrapPostingAccounts) {
       const postingAccounts = bootstrapPostingAccounts({
         accountingEntity,
@@ -258,6 +334,8 @@ export default function makeRevenueAccountsBootstrapHelper(
           employmentIncomeHeader,
           gainOnAssetSaleHeader,
           unrealizedGainHeader,
+          grantsHeader,
+          giftsHeader,
         },
       });
       allAccounts.push(...postingAccounts);

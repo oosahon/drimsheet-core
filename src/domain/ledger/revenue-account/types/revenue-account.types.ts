@@ -1,6 +1,8 @@
 import {
   TEmploymentIncomeLedgerCode,
   TGainOnAssetSaleLedgerCode,
+  TGiftsLedgerCode,
+  TGrantsLedgerCode,
   TInterestIncomeLedgerCode,
   TRevenueLedgerCode,
   TSalesLedgerCode,
@@ -23,6 +25,8 @@ export const ERevenueSubType = {
   InterestIncome: 'interest_income',
   GainOnAssetSale: 'gain_on_asset_sale',
   UnrealizedGains: 'unrealized_gains',
+  Grants: 'grants',
+  Gifts: 'gifts',
 } as const;
 
 export type URevenueSubType =
@@ -36,6 +40,8 @@ export const ERevenueAccountBehavior = {
   InterestIncome: 'interest_income',
   GainOnAssetSale: 'gain_on_asset_sale',
   UnrealizedGains: 'unrealized_gains',
+  Grants: 'grants',
+  Gifts: 'gifts',
 } as const;
 
 export type URevenueAccountBehavior =
@@ -128,6 +134,30 @@ export interface IUnrealizedGainAccount extends IRevenueLedgerAccount {
   code: TUnrealizedGainLedgerCode;
   subType: typeof ERevenueSubType.UnrealizedGains;
   behavior: typeof ERevenueAccountBehavior.UnrealizedGains;
+  contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
+  adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
+}
+
+/**
+ * =============== Grants ===============
+ * code: 407xxx
+ */
+export interface IGrantsAccount extends IRevenueLedgerAccount {
+  code: TGrantsLedgerCode;
+  subType: typeof ERevenueSubType.Grants;
+  behavior: typeof ERevenueAccountBehavior.Grants;
+  contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
+  adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
+}
+
+/**
+ * =============== Gifts ===============
+ * code: 408xxx
+ */
+export interface IGiftsAccount extends IRevenueLedgerAccount {
+  code: TGiftsLedgerCode;
+  subType: typeof ERevenueSubType.Gifts;
+  behavior: typeof ERevenueAccountBehavior.Gifts;
   contraAccountRule: typeof EContraAccountRule.ContraNotPermitted;
   adjunctAccountRule: typeof EAdjunctAccountRule.AdjunctNotPermitted;
 }

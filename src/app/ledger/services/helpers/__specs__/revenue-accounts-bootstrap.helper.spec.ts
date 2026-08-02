@@ -50,12 +50,24 @@ describe('revenueAccountsBootstrapHelper', () => {
       shouldBootstrapPostingAccounts: false,
     });
 
-    expect(accounts).toHaveLength(4);
+    expect(accounts).toHaveLength(6);
     expect(events.length).toBeGreaterThan(0);
     expect(audits).toHaveLength(accounts.length);
     expect(accounts.some(({ name }) => name === 'Services')).toBe(true);
+    expect(accounts.some(({ name }) => name === 'Grants')).toBe(true);
+    expect(accounts.some(({ name }) => name === 'Gifts')).toBe(true);
     expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
       REVENUE_LEDGER_CODES.SERVICES.HEADER,
+      accountingEntity.id,
+      repoOptions
+    );
+    expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
+      REVENUE_LEDGER_CODES.GRANTS.HEADER,
+      accountingEntity.id,
+      repoOptions
+    );
+    expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
+      REVENUE_LEDGER_CODES.GIFTS.HEADER,
       accountingEntity.id,
       repoOptions
     );
@@ -70,10 +82,20 @@ describe('revenueAccountsBootstrapHelper', () => {
       shouldBootstrapPostingAccounts: true,
     });
 
-    expect(accounts).toHaveLength(8);
+    expect(accounts).toHaveLength(12);
     expect(accounts.some(({ name }) => name === 'Services (Default)')).toBe(
       true
     );
+    expect(
+      accounts.some(
+        ({ code, name }) => code === '407001' && name === 'Grants (Default)'
+      )
+    ).toBe(true);
+    expect(
+      accounts.some(
+        ({ code, name }) => code === '408001' && name === 'Gifts (Default)'
+      )
+    ).toBe(true);
   });
 
   it('skips header accounts that already exist', async () => {

@@ -2,6 +2,8 @@ import eventValue from '../../../../shared/values/events/event.vo';
 import {
   IEmploymentIncomeAccount,
   IGainOnAssetSaleAccount,
+  IGiftsAccount,
+  IGrantsAccount,
   IServicesAccount,
   IUnrealizedGainAccount,
 } from '../types/revenue-account.types';
@@ -13,6 +15,8 @@ export const ERevenueLedgerEvent = {
   GainOnAssetSaleCreated: 'domain:ledger:revenue:account:gain-on-sale:created',
   UnrealizedGainsCreated:
     'domain:ledger:revenue:account:unrealized-gains:created',
+  GrantsCreated: 'domain:ledger:revenue:account:grants:created',
+  GiftsCreated: 'domain:ledger:revenue:account:gifts:created',
 } as const;
 
 function makeServicesAccountCreatedEvent(payload: IServicesAccount) {
@@ -49,11 +53,27 @@ function makeUnrealizedGainsAccountCreatedEvent(
   });
 }
 
+function makeGrantsAccountCreatedEvent(payload: IGrantsAccount) {
+  return eventValue.make<IGrantsAccount>({
+    type: ERevenueLedgerEvent.GrantsCreated,
+    data: payload,
+  });
+}
+
+function makeGiftsAccountCreatedEvent(payload: IGiftsAccount) {
+  return eventValue.make<IGiftsAccount>({
+    type: ERevenueLedgerEvent.GiftsCreated,
+    data: payload,
+  });
+}
+
 const revenueAccountEvents = Object.freeze({
   servicesCreated: makeServicesAccountCreatedEvent,
   employmentIncomeCreated: makeEmploymentIncomeAccountCreatedEvent,
   GainOnAssetSaleCreated: makeGainOnAssetSaleAccountCreatedEvent,
   unrealizedGainsCreated: makeUnrealizedGainsAccountCreatedEvent,
+  grantsCreated: makeGrantsAccountCreatedEvent,
+  giftsCreated: makeGiftsAccountCreatedEvent,
 });
 
 export default revenueAccountEvents;
