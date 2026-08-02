@@ -1,4 +1,4 @@
-import balanceEffectRule from '../../../domain/accounting/rules/bookkeeping/balance-effect.rule';
+import ledgerBalanceEffectRule from '../../../domain/accounting/rules/ledger-balance-effect.rule';
 import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
 import {
   EJournalEntryStatus,
@@ -106,7 +106,7 @@ async function propagateBalanceAdjustments(
       );
 
       for (const line of journalLines) {
-        const effect = balanceEffectRule.derive(account, line.side);
+        const effect = ledgerBalanceEffectRule(account, line.side);
 
         if (effect === ELedgerAccountBalanceEffect.Increase) {
           balanceDelta = moneyValue.add(balanceDelta, line.amount);

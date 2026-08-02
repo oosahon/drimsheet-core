@@ -1,10 +1,10 @@
 import makeJournalEntryPersistenceService from '../../../app/journal-entry/services/journal-entry-persistence.service';
-import makeJournalEntryService from '../../../domain/journal-entry/services/journal-entry.service';
+import makeOpeningBalanceEntryService from '../../../domain/journal-entry/services/opening-balance-entry.service';
 import journalEntryRepos from '../../persistence/repos/journal-entry';
 import ledgerRepos from '../../persistence/repos/ledger';
 import { repoService } from './repo';
 
-export const journalEntryService = makeJournalEntryService({
+export const openingBalanceEntryService = makeOpeningBalanceEntryService({
   ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
 });

@@ -1,3 +1,4 @@
+// TODO: move to payment-entry service
 import { EJournalSide } from '../../../journal-entry/types/journal-line.types';
 import { EAssetAccountBehavior } from '../../../ledger/asset-account/types/asset-account.types';
 import { EExpenseSubType } from '../../../ledger/expense-account/types/expense-account.types';
@@ -65,14 +66,14 @@ function enforcer(source: ILedgerAccount, destinations: ILedgerAccount[]) {
     });
   }
 
-  const unpermittedDestinations = destinations.filter(
+  const unPermittedDestinations = destinations.filter(
     (acc) => !ALLOWED_DESTINATION_SUBTYPES.includes(acc.subType)
   );
 
-  if (unpermittedDestinations.length > 0) {
+  if (unPermittedDestinations.length > 0) {
     throw new accountingError.PaymentNotPermittedOnAccount({
       cause: {
-        accounts: unpermittedDestinations.map(({ id, subType }) => ({
+        accounts: unPermittedDestinations.map(({ id, subType }) => ({
           id,
           subType,
         })),

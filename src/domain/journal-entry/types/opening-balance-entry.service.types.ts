@@ -18,8 +18,8 @@ export interface ICreateOpeningBalancePayload {
   createdBy: TEntityId;
 }
 
-export interface IJournalEntryService {
-  createOpeningBalance(
+export interface IOpeningBalanceEntryService {
+  create(
     payload: ICreateOpeningBalancePayload,
     repoOptions: IReadRepoOptions
   ): Promise<TAuditedJournalEntry>;
