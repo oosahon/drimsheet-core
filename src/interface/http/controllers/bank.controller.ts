@@ -13,7 +13,7 @@ import {
   IBankDirectoryDto,
   IGetBanksQuery,
 } from '../../../app/ledger/dtos/bank-directory/bank-directory.dto';
-import ledgerUseCases from '../../../infra/ioc/usecases/ledger';
+import { getBanksUseCase } from '../../../infra/ioc/usecases/ledger';
 import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
 import middlewares from '../middlewares';
 
@@ -33,6 +33,6 @@ export class BankController extends Controller {
   public async getBanks(
     @Queries() query: IGetBanksQuery
   ): Promise<IBankDirectoryDto[]> {
-    return await ledgerUseCases.getBanks(query);
+    return await getBanksUseCase(query);
   }
 }

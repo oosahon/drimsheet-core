@@ -15,110 +15,105 @@ import observability from '../../observability';
 import cacheStorage from '../../persistence/cache/cache-storage.impl';
 import userRepos from '../../persistence/repos/user';
 import appContext from '../../runtime/app-context';
-import authService from '../services/auth';
-import notificationService from '../services/notification';
-import repoService from '../services/repo';
+import { passwordService, tokenService } from '../services/auth';
+import { transactionalEmailService } from '../services/notification';
+import { repoService } from '../services/repo';
 
 const emailVerificationService = makeEmailVerificationService({
   cacheStorage,
-  tokenService: authService.token,
-  transactionalEmailService: notificationService.transactionalEmail,
+  tokenService,
+  transactionalEmailService,
   varsConfig,
 });
 
-const sendEmailVerificationEmail = makeSendEmailVerificationEmailUseCase({
+export const sendEmailVerificationEmailUseCase =
+  makeSendEmailVerificationEmailUseCase({
+    appContext: appContext,
+    logger: observability.logger,
+    userRepo: userRepos.user,
+    emailVerificationService,
+  });
+
+export const signupWithEmailUseCase = makeSignupWithEmailUsecase({
   appContext: appContext,
-  logger: observability.logger,
   userRepo: userRepos.user,
+  passwordService,
+  eventBus: messaging.eventBus,
+  userAuthRepo: userRepos.userAuth,
+  repoService,
   emailVerificationService,
 });
 
-const authUseCase = {
-  signupWithEmail: makeSignupWithEmailUsecase({
-    appContext: appContext,
-    userRepo: userRepos.user,
-    passwordService: authService.password,
-    eventBus: messaging.eventBus,
-    userAuthRepo: userRepos.userAuth,
-    repoService,
-    emailVerificationService,
-  }),
+export const verifyEmailUseCase = makeVerifyEmailAddressUseCase({
+  tokenService,
+  userRepo: userRepos.user,
+  appContext: appContext,
+  eventBus: messaging.eventBus,
+  userSessionRepo: userRepos.userSession,
+  repoService,
+});
 
-  sendEmailVerificationEmail,
+export const loginWithEmailUseCase = makeLoginWithEmailUseCase({
+  reqContext: appContext,
+  userRepo: userRepos.user,
+  passwordService,
+  tokenService,
+  eventBus: messaging.eventBus,
+  userAuthRepo: userRepos.userAuth,
+  userSessionRepo: userRepos.userSession,
+  repoService,
+});
 
-  verifyEmail: makeVerifyEmailAddressUseCase({
-    tokenService: authService.token,
-    userRepo: userRepos.user,
-    appContext: appContext,
-    eventBus: messaging.eventBus,
-    userSessionRepo: userRepos.userSession,
-    repoService,
-  }),
+export const getPasswordResetLinkUseCase = makeRequestPasswordResetUseCase({
+  appContext: appContext,
+  userRepo: userRepos.user,
+  tokenService,
+  transactionEmailService: transactionalEmailService,
+  eventBus: messaging.eventBus,
+  userAuthRepo: userRepos.userAuth,
+  varsConfig: varsConfig,
+});
 
-  loginWithEmail: makeLoginWithEmailUseCase({
-    reqContext: appContext,
-    userRepo: userRepos.user,
-    passwordService: authService.password,
-    tokenService: authService.token,
-    eventBus: messaging.eventBus,
-    userAuthRepo: userRepos.userAuth,
-    userSessionRepo: userRepos.userSession,
-    repoService,
-  }),
+export const resetPasswordUseCase = makeResetPasswordUseCase({
+  appContext: appContext,
+  userRepo: userRepos.user,
+  passwordService,
+  tokenService,
+  eventBus: messaging.eventBus,
+  userAuthRepo: userRepos.userAuth,
+  userSessionRepo: userRepos.userSession,
+  repoService,
+  reporter: observability.reporter,
+});
 
-  getPasswordResetLink: makeRequestPasswordResetUseCase({
-    appContext: appContext,
-    userRepo: userRepos.user,
-    tokenService: authService.token,
-    transactionEmailService: notificationService.transactionalEmail,
-    eventBus: messaging.eventBus,
-    userAuthRepo: userRepos.userAuth,
-    varsConfig: varsConfig,
-  }),
+export const oAuthUseCase = makeOauthUsecase({
+  reqContext: appContext,
+  tokenService,
+  eventBus: messaging.eventBus,
+  userSessionRepo: userRepos.userSession,
+  repoService,
+  webAppUrl: varsConfig.WEB_APP_URL,
+});
 
-  resetPassword: makeResetPasswordUseCase({
-    appContext: appContext,
-    userRepo: userRepos.user,
-    passwordService: authService.password,
-    tokenService: authService.token,
-    eventBus: messaging.eventBus,
-    userAuthRepo: userRepos.userAuth,
-    userSessionRepo: userRepos.userSession,
-    repoService,
-    reporter: observability.reporter,
-  }),
+export const googleOAuthHelper = makeGoogleOAuthHelper(
+  messaging.eventBus,
+  appContext,
+  userRepos.user,
+  userRepos.userAuth,
+  repoService
+);
 
-  oAuth: makeOauthUsecase({
-    reqContext: appContext,
-    tokenService: authService.token,
-    eventBus: messaging.eventBus,
-    userSessionRepo: userRepos.userSession,
-    repoService,
-    webAppUrl: varsConfig.WEB_APP_URL,
-  }),
+export const refreshAccessTokenUseCase = makeRefreshAccessTokenUseCase({
+  reqContext: appContext,
+  userRepo: userRepos.user,
+  tokenService,
+  eventBus: messaging.eventBus,
+  userSessionRepo: userRepos.userSession,
+  repoService,
+});
 
-  makeGoogleOAuthHelper: makeGoogleOAuthHelper(
-    messaging.eventBus,
-    appContext,
-    userRepos.user,
-    userRepos.userAuth,
-    repoService
-  ),
-
-  refreshAccessToken: makeRefreshAccessTokenUseCase({
-    reqContext: appContext,
-    userRepo: userRepos.user,
-    tokenService: authService.token,
-    eventBus: messaging.eventBus,
-    userSessionRepo: userRepos.userSession,
-    repoService,
-  }),
-
-  logout: makeLogoutUseCase({
-    reqContext: appContext,
-    tokenService: authService.token,
-    userSessionRepo: userRepos.userSession,
-  }),
-};
-
-export default authUseCase;
+export const logoutUseCase = makeLogoutUseCase({
+  reqContext: appContext,
+  tokenService,
+  userSessionRepo: userRepos.userSession,
+});

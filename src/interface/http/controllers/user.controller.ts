@@ -9,7 +9,10 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import userUseCase from '../../../infra/ioc/usecases/user';
+import {
+  getAuthUserProfileUseCase,
+  getUserPreferencesUseCase,
+} from '../../../infra/ioc/usecases/user';
 import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
 import middlewares from '../middlewares';
 
@@ -27,7 +30,7 @@ export class UserController extends Controller {
   @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getUserPreferences() {
-    return userUseCase.getPreferences();
+    return getUserPreferencesUseCase();
   }
 
   /**
@@ -40,6 +43,6 @@ export class UserController extends Controller {
   @Security('bearerAuth')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getAuthUserProfile() {
-    return userUseCase.getAuthUserProfile();
+    return getAuthUserProfileUseCase();
   }
 }

@@ -4,7 +4,7 @@ import ITransactionalEmailService from '../../notification/contracts/transaction
 import IEmailVerificationService from '../contracts/email-verification-service.contract';
 import ITokenService from '../contracts/token-service.contract';
 
-export const EMAIL_VERIFICATION_COOLDOWN_SECONDS = 60;
+export const EMAIL_VERIFICATION_COOL_DOWN_SECONDS = 60;
 
 interface IDependencies {
   cacheStorage: ICacheStorage;
@@ -13,7 +13,7 @@ interface IDependencies {
   varsConfig: IVarsConfig;
 }
 
-function getCooldownKey(userId: string): string {
+function getCoolDownKey(userId: string): string {
   return `app:auth:email-verification-cooldown:${userId}`;
 }
 
@@ -22,11 +22,11 @@ export default function makeEmailVerificationService(
 ): IEmailVerificationService {
   return {
     async send(user, correlationId) {
-      const cooldownKey = getCooldownKey(user.id);
+      const coolDownKey = getCoolDownKey(user.id);
       const acquired = await deps.cacheStorage.setIfNotExists(
-        cooldownKey,
+        coolDownKey,
         true,
-        EMAIL_VERIFICATION_COOLDOWN_SECONDS
+        EMAIL_VERIFICATION_COOL_DOWN_SECONDS
       );
 
       if (!acquired) return false;
@@ -45,7 +45,7 @@ export default function makeEmailVerificationService(
 
         return true;
       } catch (error) {
-        await deps.cacheStorage.del(cooldownKey);
+        await deps.cacheStorage.del(coolDownKey);
         throw error;
       }
     },

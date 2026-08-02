@@ -5,7 +5,7 @@ import {
   makeHashedRateLimitKey,
   rateLimiter,
 } from '../../../src/infra/config/rate-limiter.config';
-import authUseCase from '../../../src/infra/ioc/usecases/auth';
+import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
 import { createApplication } from '../../../src/infra/server';
 
 const ENDPOINT = '/api/v1/auth/signup/complete';
@@ -16,7 +16,7 @@ describe('POST /auth/signup/complete', () => {
   let client: ReturnType<typeof request>;
   let rateLimitToken: string;
   let server: Server;
-  let verifyEmailSpy: jest.SpiedFunction<typeof authUseCase.verifyEmail>;
+  let verifyEmailSpy: jest.SpiedFunction<typeof authUseCase.verifyEmailUseCase>;
 
   beforeEach(async () => {
     tokenSequence += 1;
@@ -29,7 +29,7 @@ describe('POST /auth/signup/complete', () => {
       )!
     );
     verifyEmailSpy = jest
-      .spyOn(authUseCase, 'verifyEmail')
+      .spyOn(authUseCase, 'verifyEmailUseCase')
       .mockResolvedValue({ accessToken: 'mock-access-token' });
     app = createApplication();
     server = app.listen();

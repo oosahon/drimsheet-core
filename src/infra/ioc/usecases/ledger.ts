@@ -9,75 +9,79 @@ import messaging from '../../messaging';
 import observability from '../../observability';
 import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
-import accountingServices from '../services/accounting';
-import fxCostBasisService from '../services/fx-lot-cost-basis';
+import { accountingPeriodService } from '../services/accounting';
+import {
+  fxCostBasisLotService,
+  fxCostBasisPersistenceService,
+} from '../services/fx-lot-cost-basis';
 import {
   journalEntryPersistenceService,
   journalEntryService,
 } from '../services/journal-entry';
-import ledgerServices from '../services/ledger';
-import currencyServices from '../services/money';
-import repoService from '../services/repo';
+import {
+  assetAccountService,
+  ledgerAccountBalancePropagationService,
+  ledgerAccountPersistenceService,
+} from '../services/ledger';
+import { exchangeRateService } from '../services/money';
+import { repoService } from '../services/repo';
 
-const ledgerUseCases = {
-  getBanks: makeGetBanksUseCase(),
+export const getBanksUseCase = makeGetBanksUseCase();
 
-  getLedgerAccounts: makeGetLedgerAccountsUsecase({
-    appContext: appContext,
-    reporter: observability.reporter,
-    ledgerAccountRepo: ledgerRepos.ledgerAccount,
-    ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
-  }),
+export const getLedgerAccountsUseCase = makeGetLedgerAccountsUsecase({
+  appContext: appContext,
+  reporter: observability.reporter,
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+  ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+});
 
-  getLedgerAccount: makeGetLedgerAccountUseCase({
-    appContext: appContext,
-    ledgerAccountRepo: ledgerRepos.ledgerAccount,
-    reporter: observability.reporter,
-    ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
-  }),
+export const getLedgerAccountUseCase = makeGetLedgerAccountUseCase({
+  appContext: appContext,
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+  reporter: observability.reporter,
+  ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+});
 
-  adjustLedgerAccountBalance: makeAdjustLedgerAccountBalanceUseCase({
+export const adjustLedgerAccountBalanceUseCase =
+  makeAdjustLedgerAccountBalanceUseCase({
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
     ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
-  }),
+  });
 
-  getAccountTransactions: makeGetAccountTransactionsUseCase({
-    appContext: appContext,
-    ledgerAccountRepo: ledgerRepos.ledgerAccount,
-    accountTransactionQueryRepo: ledgerRepos.queries.accountTransaction,
-  }),
+export const getAccountTransactionsUseCase = makeGetAccountTransactionsUseCase({
+  appContext: appContext,
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+  accountTransactionQueryRepo: ledgerRepos.queries.accountTransaction,
+});
 
-  createPettyCashAccount: makeCreatePettyCashAccountUseCase({
-    appContext: appContext,
-    eventBus: messaging.eventBus,
-    assetAccountService: ledgerServices.assetAccount,
-    accountingPeriodService: accountingServices.accountingPeriod,
-    journalEntryService,
-    journalEntryPersistenceService,
-    balancePropagationService: ledgerServices.balancePropagation,
-    repoService,
-    ledgerAccountPersistenceService: ledgerServices.persistence,
-    fxCostBasisPersistenceService: fxCostBasisService.persistence,
-    fxCostBasisService: fxCostBasisService.domain,
-    exchangeRateService: currencyServices.exchangeRate,
-  }),
+export const createPettyCashAccountUseCase = makeCreatePettyCashAccountUseCase({
+  appContext: appContext,
+  eventBus: messaging.eventBus,
+  assetAccountService,
+  accountingPeriodService,
+  journalEntryService,
+  journalEntryPersistenceService,
+  balancePropagationService: ledgerAccountBalancePropagationService,
+  repoService,
+  ledgerAccountPersistenceService,
+  fxCostBasisPersistenceService,
+  fxCostBasisService: fxCostBasisLotService,
+  exchangeRateService,
+});
 
-  createBankAccount: makeCreateBankAccountUseCase({
-    appContext: appContext,
-    eventBus: messaging.eventBus,
-    assetAccountService: ledgerServices.assetAccount,
-    accountingPeriodService: accountingServices.accountingPeriod,
-    bankAccountRepo: ledgerRepos.bankAccount,
-    journalEntryService,
-    journalEntryPersistenceService,
-    balancePropagationService: ledgerServices.balancePropagation,
-    repoService,
-    ledgerAccountPersistenceService: ledgerServices.persistence,
-    fxCostBasisPersistenceService: fxCostBasisService.persistence,
-    fxCostBasisService: fxCostBasisService.domain,
-    exchangeRateService: currencyServices.exchangeRate,
-  }),
-};
-
-export default ledgerUseCases;
+export const createBankAccountUseCase = makeCreateBankAccountUseCase({
+  appContext: appContext,
+  eventBus: messaging.eventBus,
+  assetAccountService,
+  accountingPeriodService,
+  bankAccountRepo: ledgerRepos.bankAccount,
+  journalEntryService,
+  journalEntryPersistenceService,
+  balancePropagationService: ledgerAccountBalancePropagationService,
+  repoService,
+  ledgerAccountPersistenceService,
+  fxCostBasisPersistenceService,
+  fxCostBasisService: fxCostBasisLotService,
+  exchangeRateService,
+});

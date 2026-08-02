@@ -17,7 +17,12 @@ import {
   IGetLedgerAccountsQuery,
   ILedgerAccountDto,
 } from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
-import ledgerUseCases from '../../../infra/ioc/usecases/ledger';
+import {
+  createPettyCashAccountUseCase,
+  getAccountTransactionsUseCase,
+  getLedgerAccountUseCase,
+  getLedgerAccountsUseCase,
+} from '../../../infra/ioc/usecases/ledger';
 import { TEntityId } from '../../../shared/types/uuid';
 import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
 import { IPaginationDto } from '../../../shared/values/pagination/dto/pagination.dto';
@@ -36,7 +41,7 @@ export class LedgerController extends Controller {
   @Response<IHttpErrorDto>('422')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getLedgerAccounts(@Queries() query: IGetLedgerAccountsQuery) {
-    return await ledgerUseCases.getLedgerAccounts(query);
+    return await getLedgerAccountsUseCase(query);
   }
 
   /**
@@ -57,7 +62,7 @@ export class LedgerController extends Controller {
   public async createPettyCashAccount(
     @Body() body: IPettyCashAccountCreationReq
   ): Promise<ILedgerAccountDto> {
-    return await ledgerUseCases.createPettyCashAccount(body);
+    return await createPettyCashAccountUseCase(body);
   }
 
   /**
@@ -71,7 +76,7 @@ export class LedgerController extends Controller {
   @Response<IHttpErrorDto>('403')
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getLedgerAccount(@Path() accountId: string) {
-    return await ledgerUseCases.getLedgerAccount(accountId as TEntityId);
+    return await getLedgerAccountUseCase(accountId as TEntityId);
   }
 
   /**
@@ -89,9 +94,6 @@ export class LedgerController extends Controller {
     @Path('accountId') accountId: string,
     @Queries() pagination: IPaginationDto
   ) {
-    return ledgerUseCases.getAccountTransactions(
-      accountId as TEntityId,
-      pagination
-    );
+    return getAccountTransactionsUseCase(accountId as TEntityId, pagination);
   }
 }

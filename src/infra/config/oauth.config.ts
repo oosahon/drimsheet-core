@@ -4,7 +4,7 @@ import {
   Profile,
   VerifyCallback,
 } from 'passport-google-oauth20';
-import authUseCase from '../ioc/usecases/auth';
+import { googleOAuthHelper } from '../ioc/usecases/auth';
 import {
   GOOGLE_AUTH_CALLBACK_URL,
   GOOGLE_AUTH_CLIENT_ID,
@@ -42,10 +42,7 @@ export default function setupOAuth() {
         done: VerifyCallback
       ) => {
         try {
-          await authUseCase.makeGoogleOAuthHelper(
-            mapGoogleProfile(profile),
-            done
-          );
+          await googleOAuthHelper(mapGoogleProfile(profile), done);
         } catch (error) {
           done(error as Error, false);
         }

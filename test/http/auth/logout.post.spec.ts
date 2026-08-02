@@ -1,15 +1,15 @@
 import { Express } from 'express';
 import request from 'supertest';
-import authUseCase from '../../../src/infra/ioc/usecases/auth';
+import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
 import appContext from '../../../src/infra/runtime/app-context';
 import { createApplication } from '../../../src/infra/server';
 
 describe('POST /api/v1/auth/logout', () => {
   let app: Express;
-  let logoutSpy: jest.SpiedFunction<typeof authUseCase.logout>;
+  let logoutSpy: jest.SpiedFunction<typeof authUseCase.logoutUseCase>;
 
   beforeEach(() => {
-    logoutSpy = jest.spyOn(authUseCase, 'logout').mockResolvedValue();
+    logoutSpy = jest.spyOn(authUseCase, 'logoutUseCase').mockResolvedValue();
     app = createApplication();
   });
 

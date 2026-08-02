@@ -2,8 +2,8 @@ import { Express } from 'express';
 import request from 'supertest';
 import { IBankDirectoryDto } from '../../../src/app/ledger/dtos/bank-directory/bank-directory.dto';
 import { IUser } from '../../../src/domain/user/types/user.types';
-import authService from '../../../src/infra/ioc/services/auth';
-import ledgerUseCases from '../../../src/infra/ioc/usecases/ledger';
+import { tokenService } from '../../../src/infra/ioc/services/auth';
+import * as ledgerUseCases from '../../../src/infra/ioc/usecases/ledger';
 import userRepos from '../../../src/infra/persistence/repos/user';
 import { createApplication } from '../../../src/infra/server';
 import { TEntityId } from '../../../src/shared/types/uuid';
@@ -11,11 +11,8 @@ import appError from '../../../src/shared/values/errors/app.error';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
-  default: {
-    password: {},
-    token: {
-      getAuthUser: jest.fn(),
-    },
+  tokenService: {
+    getAuthUser: jest.fn(),
   },
 }));
 
@@ -30,14 +27,12 @@ jest.mock('../../../src/infra/persistence/repos/user', () => ({
 
 jest.mock('../../../src/infra/ioc/usecases/ledger', () => ({
   __esModule: true,
-  default: {
-    getBanks: jest.fn(),
-    getLedgerAccounts: jest.fn(),
-    getLedgerAccount: jest.fn(),
-    adjustLedgerAccountBalance: jest.fn(),
-    getAccountTransactions: jest.fn(),
-    createPettyCashAccount: jest.fn(),
-  },
+  getBanksUseCase: jest.fn(),
+  getLedgerAccountsUseCase: jest.fn(),
+  getLedgerAccountUseCase: jest.fn(),
+  adjustLedgerAccountBalanceUseCase: jest.fn(),
+  getAccountTransactionsUseCase: jest.fn(),
+  createPettyCashAccountUseCase: jest.fn(),
 }));
 
 const ENDPOINT = '/api/v1/banks';
@@ -61,9 +56,9 @@ const dummyBanks: IBankDirectoryDto[] = [
 
 describe('GET /banks', () => {
   let app: Express;
-  const mockGetAuthUser = authService.token.getAuthUser as jest.Mock;
+  const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
-  const mockGetBanks = ledgerUseCases.getBanks as jest.Mock;
+  const mockGetBanks = ledgerUseCases.getBanksUseCase as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

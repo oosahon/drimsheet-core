@@ -5,7 +5,7 @@ import {
   IRabbitMQConsumerConfig,
   registerRabbitMQConsumer,
 } from '../../config/rabbitmq.config';
-import currencyWorkers from '../../ioc/workers/money';
+import { exchangeRateIngestionWorker } from '../../ioc/workers/money';
 
 export default async function registerExchangeRateConsumer(
   reporter: IReporter
@@ -22,7 +22,7 @@ export default async function registerExchangeRateConsumer(
     },
     queue: 'pl-core.exchange-rate.ingested',
     routingKey: 'exchange-rate.ingested',
-    processor: currencyWorkers.exchangeRateIngestion,
+    processor: exchangeRateIngestionWorker,
   };
 
   await registerRabbitMQConsumer(connection, config, reporter);

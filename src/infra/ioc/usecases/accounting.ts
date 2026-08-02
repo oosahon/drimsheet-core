@@ -5,36 +5,37 @@ import makeGetUserAccountingEntitiesUseCase from '../../../app/accounting/usecas
 import messaging from '../../messaging';
 import accountingRepos from '../../persistence/repos/accounting';
 import appContext from '../../runtime/app-context';
-import accountingServices from '../services/accounting';
-import ledgerServices from '../services/ledger';
-import repoService from '../services/repo';
+import { accountingEntityService } from '../services/accounting';
+import {
+  accountsBootstrapService,
+  ledgerAccountPersistenceService,
+} from '../services/ledger';
+import { repoService } from '../services/repo';
 
-const accountingUsecases = Object.freeze({
-  createAccountingEntity: makeCreateAccountingEntityUseCase({
-    appContext,
-    accountingEntityRepo: accountingRepos.accountingEntity,
-    fiscalYearRepo: accountingRepos.fiscalYear,
-    accountingPeriodRepo: accountingRepos.accountingPeriod,
-    accountingContextRepo: accountingRepos.accountingContext,
-    reportingPeriodRepo: accountingRepos.reportingPeriod,
-    reportingContextRepo: accountingRepos.reportingContext,
-    repoService,
-    ledgerAccountPersistenceService: ledgerServices.persistence,
-    accountingEntityService: accountingServices.accountingEntity,
-    accountsBootstrapService: ledgerServices.accountsBootstrap,
-    eventBus: messaging.eventBus,
-  }),
-
-  getJurisdictions: makeGetJurisdictionsUseCase(),
-
-  getUserAccountingEntities: makeGetUserAccountingEntitiesUseCase({
-    appContext,
-    accountingEntityRepo: accountingRepos.accountingEntity,
-  }),
-
-  getActiveAccountingEntity: makeGetCurrentAccountingEntityUseCase({
-    appContext,
-  }),
+export const createAccountingEntityUseCase = makeCreateAccountingEntityUseCase({
+  appContext,
+  accountingEntityRepo: accountingRepos.accountingEntity,
+  fiscalYearRepo: accountingRepos.fiscalYear,
+  accountingPeriodRepo: accountingRepos.accountingPeriod,
+  accountingContextRepo: accountingRepos.accountingContext,
+  reportingPeriodRepo: accountingRepos.reportingPeriod,
+  reportingContextRepo: accountingRepos.reportingContext,
+  repoService,
+  ledgerAccountPersistenceService,
+  accountingEntityService,
+  accountsBootstrapService,
+  eventBus: messaging.eventBus,
 });
 
-export default accountingUsecases;
+export const getJurisdictionsUseCase = makeGetJurisdictionsUseCase();
+
+export const getUserAccountingEntitiesUseCase =
+  makeGetUserAccountingEntitiesUseCase({
+    appContext,
+    accountingEntityRepo: accountingRepos.accountingEntity,
+  });
+
+export const getActiveAccountingEntityUseCase =
+  makeGetCurrentAccountingEntityUseCase({
+    appContext,
+  });

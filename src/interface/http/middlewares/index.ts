@@ -1,7 +1,7 @@
 import * as varsConfig from '../../../infra/config/vars.config';
-import accountingDomainServices from '../../../infra/ioc/services/accounting';
-import authService from '../../../infra/ioc/services/auth';
-import authUseCase from '../../../infra/ioc/usecases/auth';
+import { accountingEntityService } from '../../../infra/ioc/services/accounting';
+import { tokenService } from '../../../infra/ioc/services/auth';
+import { oAuthUseCase } from '../../../infra/ioc/usecases/auth';
 import observability from '../../../infra/observability';
 import accountingRepos from '../../../infra/persistence/repos/accounting';
 import userRepos from '../../../infra/persistence/repos/user';
@@ -21,7 +21,7 @@ const middlewares = {
   initiateLoginWithGoogle: makeInitiateLoginWithGoogleMiddleware(),
 
   completeLoginWithGoogle: makeCompleteLoginWithGoogleMiddleware((user) =>
-    authUseCase.oAuth.handleGoogleCallback(user)
+    oAuthUseCase.handleGoogleCallback(user)
   ),
 
   isOptionalAuthenticatedUser: makeIsOptionalAuthenticatedUserMiddleware(
@@ -32,7 +32,7 @@ const middlewares = {
   appContext: makeAppContextInitMiddleware(
     appContext,
     accountingRepos.accountingEntity,
-    authService.token,
+    tokenService,
     userRepos.user,
     observability.logger,
     varsConfig
@@ -42,7 +42,7 @@ const middlewares = {
 
   isAuthenticatedUser: makeIsAuthenticatedUserMiddleware(
     appContext,
-    accountingDomainServices.accountingEntity
+    accountingEntityService
   ),
 
   requestLogger: makeRequestLoggerMiddleware(
@@ -52,7 +52,7 @@ const middlewares = {
   ),
 
   accountingEntityAccess: makeAccountingEntityAccessMiddleware(
-    accountingDomainServices.accountingEntity,
+    accountingEntityService,
     appContext
   ),
 };

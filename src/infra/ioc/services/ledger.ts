@@ -5,30 +5,26 @@ import makeAssetAccountService from '../../../domain/ledger/asset-account/servic
 import messaging from '../../messaging';
 import observability from '../../observability';
 import ledgerRepos from '../../persistence/repos/ledger';
-import repoService from './repo';
+import { repoService } from './repo';
 
-const assetAccount = makeAssetAccountService({
+export const assetAccountService = makeAssetAccountService({
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
-});
-const persistence = makeLedgerAccountPersistenceService({
-  ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  repoService,
-});
-const accountsBootstrap = makeAccountsBootstrapService({
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-});
-const balancePropagation = makeLedgerAccountBalancePropagationService({
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
-  reporter: observability.reporter,
 });
 
-const ledgerServices = Object.freeze({
-  assetAccount,
-  persistence,
-  accountsBootstrap,
-  balancePropagation,
+export const ledgerAccountPersistenceService =
+  makeLedgerAccountPersistenceService({
+    ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    repoService,
+  });
+
+export const accountsBootstrapService = makeAccountsBootstrapService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
 });
 
-export default ledgerServices;
+export const ledgerAccountBalancePropagationService =
+  makeLedgerAccountBalancePropagationService({
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+    reporter: observability.reporter,
+  });

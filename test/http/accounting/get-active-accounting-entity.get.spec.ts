@@ -4,8 +4,8 @@ import accountingAppError from '../../../src/app/accounting/errors/accounting.er
 import authError from '../../../src/app/auth/errors/auth.error';
 import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../src/domain/user/types/user.types';
-import authService from '../../../src/infra/ioc/services/auth';
-import accountingUsecases from '../../../src/infra/ioc/usecases/accounting';
+import { tokenService } from '../../../src/infra/ioc/services/auth';
+import * as accountingUsecases from '../../../src/infra/ioc/usecases/accounting';
 import accountingRepos from '../../../src/infra/persistence/repos/accounting';
 import userRepos from '../../../src/infra/persistence/repos/user';
 import { createApplication } from '../../../src/infra/server';
@@ -13,17 +13,15 @@ import { TEntityId } from '../../../src/shared/types/uuid';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
-  default: { password: {}, token: { getAuthUser: jest.fn() } },
+  tokenService: { getAuthUser: jest.fn() },
 }));
 
 jest.mock('../../../src/infra/ioc/usecases/accounting', () => ({
   __esModule: true,
-  default: {
-    createAccountingEntity: jest.fn(),
-    getJurisdictions: jest.fn(),
-    getUserAccountingEntities: jest.fn(),
-    getActiveAccountingEntity: jest.fn(),
-  },
+  createAccountingEntityUseCase: jest.fn(),
+  getJurisdictionsUseCase: jest.fn(),
+  getUserAccountingEntitiesUseCase: jest.fn(),
+  getActiveAccountingEntityUseCase: jest.fn(),
 }));
 
 jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
@@ -53,12 +51,12 @@ const entity: IAccountingEntity = {
 
 describe('GET /accounting/accounting-entity', () => {
   let app: Express;
-  const mockGetAuthUser = authService.token.getAuthUser as jest.Mock;
+  const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
   const mockFindEntity = accountingRepos.accountingEntity
     .findByIdAndUserId as jest.Mock;
   const mockGetActiveEntity =
-    accountingUsecases.getActiveAccountingEntity as jest.Mock;
+    accountingUsecases.getActiveAccountingEntityUseCase as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();

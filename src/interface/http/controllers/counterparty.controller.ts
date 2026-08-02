@@ -18,7 +18,13 @@ import {
 } from '../../../app/counterparty/dtos/counterparty/counterparty.dto';
 import { IEmployerCreateReq } from '../../../app/counterparty/dtos/employer/employer.dto';
 import { IVendorCreateReq } from '../../../app/counterparty/dtos/vendor/vendor.dto';
-import counterpartyUseCases from '../../../infra/ioc/usecases/counterparty';
+import {
+  createContractorUseCase,
+  createCounterpartyUseCase,
+  createEmployerUseCase,
+  createVendorUseCase,
+  getCounterpartiesUseCase,
+} from '../../../infra/ioc/usecases/counterparty';
 import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
 import middlewares from '../middlewares';
 
@@ -41,7 +47,7 @@ export class CounterpartyController extends Controller {
     middlewares.accountingEntityAccess
   )
   public async createCounterparty(@Body() body: ICounterpartyCreateReq) {
-    return await counterpartyUseCases.createCounterparty(body);
+    return await createCounterpartyUseCase(body);
   }
 
   /**
@@ -60,7 +66,7 @@ export class CounterpartyController extends Controller {
     middlewares.accountingEntityAccess
   )
   public async createVendor(@Body() body: IVendorCreateReq) {
-    return await counterpartyUseCases.createVendor(body);
+    return await createVendorUseCase(body);
   }
 
   /**
@@ -79,7 +85,7 @@ export class CounterpartyController extends Controller {
     middlewares.accountingEntityAccess
   )
   public async createContractor(@Body() body: IContractorCreateReq) {
-    return await counterpartyUseCases.createContractor(body);
+    return await createContractorUseCase(body);
   }
 
   /**
@@ -98,7 +104,7 @@ export class CounterpartyController extends Controller {
     middlewares.accountingEntityAccess
   )
   public async createEmployer(@Body() body: IEmployerCreateReq) {
-    return await counterpartyUseCases.createEmployer(body);
+    return await createEmployerUseCase(body);
   }
 
   /**
@@ -116,6 +122,6 @@ export class CounterpartyController extends Controller {
     middlewares.accountingEntityAccess
   )
   public async getCounterparties(@Queries() query: IGetCounterpartiesQuery) {
-    return await counterpartyUseCases.getCounterparties(query);
+    return await getCounterpartiesUseCase(query);
   }
 }
