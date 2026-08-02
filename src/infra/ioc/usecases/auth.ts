@@ -1,6 +1,6 @@
 import makeEmailVerificationService from '../../../app/auth/services/email-verification.service';
-import makeGoogleOAuthHelper from '../../../app/auth/usecases/helpers/google-oauth.helper';
 import makeLoginWithEmailUseCase from '../../../app/auth/usecases/login-with-email.usecase';
+import makeLoginWithGoogleUseCase from '../../../app/auth/usecases/login-with-google.usecase';
 import makeLogoutUseCase from '../../../app/auth/usecases/logout.usecase';
 import makeOauthUsecase from '../../../app/auth/usecases/oauth.usecase';
 import makeRefreshAccessTokenUseCase from '../../../app/auth/usecases/refresh-access-token.usecase';
@@ -95,7 +95,7 @@ export const oAuthUseCase = makeOauthUsecase({
   webAppUrl: varsConfig.WEB_APP_URL,
 });
 
-export const googleOAuthHelper = makeGoogleOAuthHelper(
+export const loginWithGoogleUseCase = makeLoginWithGoogleUseCase(
   messaging.eventBus,
   appContext,
   userRepos.user,

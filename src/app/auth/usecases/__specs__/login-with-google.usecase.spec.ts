@@ -1,15 +1,15 @@
-import IUserRepo from '../../../../../domain/user/repos/user.repo';
-import { IUser } from '../../../../../domain/user/types/user.types';
-import emailValue from '../../../../../domain/user/values/email.vo';
-import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../../shared/types/repo.types';
-import mockAppContext from '../../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../../context/contracts/app-context.contract';
-import mockUserAuthRepo from '../../../contracts/__mocks__/user-auth.repo.mock';
-import { EAuthStrategy, IUserAuth } from '../../../contracts/auth.types';
-import { IOAuthProfile } from '../../../dtos/auth/auth.dto';
-import makeGoogleOAuthHelper from '../google-oauth.helper';
+import IUserRepo from '../../../../domain/user/repos/user.repo';
+import { IUser } from '../../../../domain/user/types/user.types';
+import emailValue from '../../../../domain/user/values/email.vo';
+import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '../../../../shared/types/repo.types';
+import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '../../../context/contracts/app-context.contract';
+import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
+import { EAuthStrategy, IUserAuth } from '../../contracts/auth.types';
+import { IOAuthProfile } from '../../dtos/auth/auth.dto';
+import makeLoginWithGoogleUseCase from '../login-with-google.usecase';
 
 const mockUserRepo: jest.Mocked<IUserRepo> = {
   create: jest.fn(),
@@ -19,7 +19,7 @@ const mockUserRepo: jest.Mocked<IUserRepo> = {
   delete: jest.fn(),
 };
 
-describe('makeGoogleOAuthHelper', () => {
+describe('makeLoginWithGoogleUseCase', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';
   const idempotencyKey = 'test-idemp-key';
 
@@ -59,8 +59,8 @@ describe('makeGoogleOAuthHelper', () => {
       ...overrides,
     }) as unknown as IUserAuth;
 
-  const getHelper = () =>
-    makeGoogleOAuthHelper(
+  const getUseCase = () =>
+    makeLoginWithGoogleUseCase(
       mockEventBus,
       mockAppContext,
       mockUserRepo,
@@ -69,7 +69,7 @@ describe('makeGoogleOAuthHelper', () => {
     );
 
   it('should return error if profile lacks an email address', async () => {
-    const helper = getHelper();
+    const useCase = getUseCase();
     const doneCallback = jest.fn();
 
     const invalidProfile = {
@@ -77,7 +77,7 @@ describe('makeGoogleOAuthHelper', () => {
       lastName: 'User',
     } as unknown as IOAuthProfile;
 
-    await helper(invalidProfile, doneCallback);
+    await useCase(invalidProfile, doneCallback);
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -95,10 +95,10 @@ describe('makeGoogleOAuthHelper', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
 
-    const helper = getHelper();
+    const useCase = getUseCase();
     const doneCallback = jest.fn();
 
-    await helper(validProfile, doneCallback);
+    await useCase(validProfile, doneCallback);
 
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(
       emailValue.normalize(validProfile.email),
@@ -132,10 +132,10 @@ describe('makeGoogleOAuthHelper', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
 
-    const helper = getHelper();
+    const useCase = getUseCase();
     const doneCallback = jest.fn();
 
-    await helper(validProfile, doneCallback);
+    await useCase(validProfile, doneCallback);
 
     expect(mockUserAuthRepo.update).not.toHaveBeenCalled();
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
@@ -145,7 +145,7 @@ describe('makeGoogleOAuthHelper', () => {
   it('should reject an unverified email before looking up a user', async () => {
     const doneCallback = jest.fn();
 
-    await getHelper()({ ...validProfile, emailVerified: false }, doneCallback);
+    await getUseCase()({ ...validProfile, emailVerified: false }, doneCallback);
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'app_error_bad_request' }),
@@ -157,7 +157,7 @@ describe('makeGoogleOAuthHelper', () => {
   it('should reject a missing provider subject before looking up a user', async () => {
     const doneCallback = jest.fn();
 
-    await getHelper()({ ...validProfile, providerSubject: '' }, doneCallback);
+    await getUseCase()({ ...validProfile, providerSubject: '' }, doneCallback);
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'app_error_bad_request' }),
@@ -172,7 +172,7 @@ describe('makeGoogleOAuthHelper', () => {
     mockUserAuthRepo.findByUserId.mockResolvedValue(null);
     const doneCallback = jest.fn();
 
-    await getHelper()(validProfile, doneCallback);
+    await getUseCase()(validProfile, doneCallback);
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -186,10 +186,10 @@ describe('makeGoogleOAuthHelper', () => {
   it('should create new user/userAuth in transaction if user does not exist', async () => {
     mockUserRepo.findByEmail.mockResolvedValue(null); // No user found
 
-    const helper = getHelper();
+    const useCase = getUseCase();
     const doneCallback = jest.fn();
 
-    await helper(validProfile, doneCallback);
+    await useCase(validProfile, doneCallback);
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
     expect(mockUserRepo.create).toHaveBeenCalledWith(
@@ -232,7 +232,7 @@ describe('makeGoogleOAuthHelper', () => {
     mockEventBus.publish.mockRejectedValue(publicationError);
     const doneCallback = jest.fn();
 
-    await getHelper()(validProfile, doneCallback);
+    await getUseCase()(validProfile, doneCallback);
 
     expect(doneCallback).toHaveBeenCalledWith(publicationError, false);
     expect(doneCallback).not.toHaveBeenCalledWith(null, expect.anything());
@@ -241,10 +241,10 @@ describe('makeGoogleOAuthHelper', () => {
   it('should catch and return systematic errors gracefully to done callback', async () => {
     mockUserRepo.findByEmail.mockRejectedValue(new Error('Database explosion'));
 
-    const helper = getHelper();
+    const useCase = getUseCase();
     const doneCallback = jest.fn();
 
-    await helper(validProfile, doneCallback);
+    await useCase(validProfile, doneCallback);
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'Database explosion' }),
@@ -255,10 +255,10 @@ describe('makeGoogleOAuthHelper', () => {
   it('should catch non-Error exceptions and map to ErrorInternalServerError', async () => {
     mockUserRepo.findByEmail.mockRejectedValue('String error');
 
-    const helper = getHelper();
+    const useCase = getUseCase();
     const doneCallback = jest.fn();
 
-    await helper(validProfile, doneCallback);
+    await useCase(validProfile, doneCallback);
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({
