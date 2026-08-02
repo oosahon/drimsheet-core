@@ -1,8 +1,8 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import mockLedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/__mocks__/ledger-account-balance.repo.impl.mock';
+import ILedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import mockLedgerAccountRepo from '../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccountHistory } from '../../../../domain/ledger/shared/types/ledger-account-audit.types';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
@@ -13,6 +13,26 @@ import {
   IWriteRepoOptions,
 } from '../../../../shared/types/repo.types';
 import makeLedgerAccountPersistenceService from '../ledger-account-persistence.service';
+
+const mockLedgerAccountBalanceRepo: jest.Mocked<ILedgerAccountBalanceRepo> = {
+  create: jest.fn(),
+  adjustBalance: jest.fn(),
+  findByAccountId: jest.fn(),
+  findAdjustmentsByAccountId: jest.fn(),
+  findAllByAccountIds: jest.fn(),
+};
+
+const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findById: jest.fn(),
+  findAllByIds: jest.fn(),
+  findByCode: jest.fn(),
+  findBySubType: jest.fn(),
+  findByBehavior: jest.fn(),
+  findLatestBySubType: jest.fn(),
+  findAll: jest.fn(),
+};
 
 describe('ledgerAccountPersistenceService', () => {
   const service = makeLedgerAccountPersistenceService({

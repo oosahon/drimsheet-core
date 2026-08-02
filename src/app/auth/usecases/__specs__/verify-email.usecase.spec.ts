@@ -1,8 +1,6 @@
 import userEntity from '../../../../domain/user/entities/user.entity';
+import IUserRepo from '../../../../domain/user/repos/user.repo';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
-
-import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import appError from '../../../../shared/values/errors/app.error';
@@ -11,8 +9,17 @@ import mockAppContext, {
 } from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import mockAuthService from '../../contracts/__mocks__/token-service.mock';
+import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
 import authError from '../../errors/auth.error';
 import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
+
+const mockUserRepo: jest.Mocked<IUserRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findByEmail: jest.fn(),
+  findById: jest.fn(),
+  delete: jest.fn(),
+};
 
 describe('makeVerifyEmailAddressUseCase', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';

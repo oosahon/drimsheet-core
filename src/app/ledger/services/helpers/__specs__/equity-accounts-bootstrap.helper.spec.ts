@@ -1,10 +1,22 @@
 import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
 import { EQUITY_LEDGER_CODES } from '../../../../../domain/ledger/equity-account/config/equity-codes.config';
 import { IEquityLedgerAccount } from '../../../../../domain/ledger/equity-account/types/equity-account.types';
-import mockLedgerAccountRepo from '../../../../../domain/ledger/shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import ILedgerAccountRepo from '../../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import makeEquityAccountsBootstrapHelper from '../equity-accounts-bootstrap.helper';
+
+const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findById: jest.fn(),
+  findAllByIds: jest.fn(),
+  findByCode: jest.fn(),
+  findBySubType: jest.fn(),
+  findByBehavior: jest.fn(),
+  findLatestBySubType: jest.fn(),
+  findAll: jest.fn(),
+};
 
 describe('equityAccountsBootstrapHelper', () => {
   const bootstrapEquityAccounts = makeEquityAccountsBootstrapHelper({

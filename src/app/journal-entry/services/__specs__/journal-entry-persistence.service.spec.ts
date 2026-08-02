@@ -2,8 +2,8 @@ import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/juris
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
-import mockJournalEntryRepo from '../../../../domain/journal-entry/repos/__mocks__/journal-entry.repo.impl.mock';
-import mockJournalLineRepo from '../../../../domain/journal-entry/repos/__mocks__/journal-line.repo.impl.mock';
+import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
+import IJournalLineRepo from '../../../../domain/journal-entry/repos/journal-line.repo';
 import {
   IJournalEntryHistory,
   IJournalLineHistory,
@@ -16,9 +16,8 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import userEntity from '../../../../domain/user/entities/user.entity';
-
 import moneyValue from '../../../../domain/money/values/money.vo';
+import userEntity from '../../../../domain/user/entities/user.entity';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import {
   IRepoOptions,
@@ -26,6 +25,16 @@ import {
 } from '../../../../shared/types/repo.types';
 import { EHistoryActorType } from '../../../../shared/values/history/types/history.types';
 import makeJournalEntryPersistenceService from '../journal-entry-persistence.service';
+
+const mockJournalEntryRepo: jest.Mocked<IJournalEntryRepo> = {
+  create: jest.fn(),
+  findById: jest.fn(),
+};
+
+const mockJournalLineRepo: jest.Mocked<IJournalLineRepo> = {
+  create: jest.fn(),
+  findAllByAccountId: jest.fn(),
+};
 
 describe('journalEntryPersistenceService', () => {
   const service = makeJournalEntryPersistenceService({

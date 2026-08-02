@@ -3,7 +3,7 @@ import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
 import { ICurrency } from '../../../../money/types/currency.types';
-import mockLedgerAccountRepo from '../../../shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import ILedgerAccountRepo from '../../../shared/repos/ledger-account.repo';
 import { TCashLedgerCode } from '../../../shared/types/ledger-code.types';
 import {
   ELedgerType,
@@ -12,6 +12,18 @@ import {
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import { EAssetSubType } from '../../types/asset-account.types';
 import makeAssetAccountService from '../asset-account.service';
+
+const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findById: jest.fn(),
+  findAllByIds: jest.fn(),
+  findByCode: jest.fn(),
+  findBySubType: jest.fn(),
+  findByBehavior: jest.fn(),
+  findLatestBySubType: jest.fn(),
+  findAll: jest.fn(),
+};
 
 describe('assetAccountService', () => {
   const service = makeAssetAccountService({

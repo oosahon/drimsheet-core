@@ -11,6 +11,7 @@ Read this before changing the repository.
 5. Follow `.agents/rules/service-ownership.md` and
    `.agents/rules/readability.md` for implementation changes.
 6. Follow `.agents/rules/ioc.md` when changing dependency wiring.
+7. Follow `.agents/rules/testing/general.md` when adding or renaming tests.
 
 ## Planning
 

@@ -3,7 +3,7 @@ import {
   IReadRepoOptions,
 } from '../../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../../shared/types/uuid';
-import mockLedgerAccountRepo from '../../../../shared/repos/__mocks__/ledger-account.repo.impl.mock';
+import ILedgerAccountRepo from '../../../../shared/repos/ledger-account.repo';
 import { TCashLedgerCode } from '../../../../shared/types/ledger-code.types';
 import {
   ELedgerType,
@@ -13,6 +13,18 @@ import { ASSET_LEDGER_CODES } from '../../../config/asset-codes.config';
 import assetAccountError from '../../../errors/asset-account.error';
 import { EAssetSubType } from '../../../types/asset-account.types';
 import resolveCashSubAccountScope from '../cash-sub-account-scope.helper';
+
+const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findById: jest.fn(),
+  findAllByIds: jest.fn(),
+  findByCode: jest.fn(),
+  findBySubType: jest.fn(),
+  findByBehavior: jest.fn(),
+  findLatestBySubType: jest.fn(),
+  findAll: jest.fn(),
+};
 
 describe('resolveCashSubAccountScope', () => {
   const accountingEntityId =

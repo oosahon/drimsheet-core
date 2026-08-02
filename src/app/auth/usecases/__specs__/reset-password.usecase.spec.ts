@@ -1,4 +1,4 @@
-import mockUserRepo from '../../../../domain/user/repos/__mocks__/user.repo.impl.mock';
+import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
@@ -20,6 +20,14 @@ import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.moc
 import { EAuthStrategy, IUserAuth } from '../../contracts/auth.types';
 import authError from '../../errors/auth.error';
 import makeResetPasswordUseCase from '../reset-password.usecase';
+
+const mockUserRepo: jest.Mocked<IUserRepo> = {
+  create: jest.fn(),
+  update: jest.fn(),
+  findByEmail: jest.fn(),
+  findById: jest.fn(),
+  delete: jest.fn(),
+};
 
 describe('makeResetPasswordUseCase', () => {
   const correlationId = 'test-corr-id';

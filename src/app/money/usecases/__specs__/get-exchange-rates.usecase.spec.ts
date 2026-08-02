@@ -1,4 +1,4 @@
-import exchangeRateRepoMock from '../../../../domain/money/repos/__mocks__/exchange-rate-repo.impl.mock';
+import IExchangeRateRepo from '../../../../domain/money/repos/exchange-rate.repo';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
 import appError from '../../../../shared/values/errors/app.error';
@@ -6,6 +6,12 @@ import mockAppContext from '../../../context/contracts/__mocks__/app-context.moc
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import { IExchangeRateQueryParam } from '../../dtos/exchange-rate/exchange-rate.dto';
 import makeGetExchangeRateUseCase from '../get-exchange-rates.usecase';
+
+const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
+  create: jest.fn(),
+  find: jest.fn(),
+  findByPairAndDate: jest.fn(),
+};
 
 describe('makeGetExchangeRateUseCase', () => {
   const correlationId = 'test-correlation-id';

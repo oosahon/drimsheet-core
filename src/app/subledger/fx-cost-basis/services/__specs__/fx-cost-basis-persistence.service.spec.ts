@@ -3,8 +3,8 @@ import { EExchangeRateType } from '../../../../../domain/money/types/exchange-ra
 import moneyValue from '../../../../../domain/money/values/money.vo';
 import fxCostBasisLotAcquisitionEntity from '../../../../../domain/subledger/fx-cost-basis/entities/acquisition.entity';
 import fxCostBasisLotEntity from '../../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
-import mockFxCostBasisLotAcquisitionRepo from '../../../../../domain/subledger/fx-cost-basis/repos/__mocks__/acquisition.repo.impl.mock';
-import mockFxCostBasisLotRepo from '../../../../../domain/subledger/fx-cost-basis/repos/__mocks__/lot.repo.impl.mock';
+import IFxCostBasisLotAcquisitionRepo from '../../../../../domain/subledger/fx-cost-basis/repos/acquisition.repo';
+import IFxCostBasisLotRepo from '../../../../../domain/subledger/fx-cost-basis/repos/lot.repo';
 import { EFxCostBasisLotStatus } from '../../../../../domain/subledger/fx-cost-basis/types/lot.types';
 import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../../shared/types/repo.types';
@@ -13,6 +13,15 @@ import generateUUID from '../../../../../shared/utils/uuid-generator';
 import historyValue from '../../../../../shared/values/history/history.vo';
 import { EHistoryActorType } from '../../../../../shared/values/history/types/history.types';
 import makeFxLotCostBasisPersistenceService from '../fx-cost-basis-persistence.service';
+
+const mockFxCostBasisLotAcquisitionRepo: jest.Mocked<IFxCostBasisLotAcquisitionRepo> =
+  {
+    create: jest.fn(),
+  };
+
+const mockFxCostBasisLotRepo: jest.Mocked<IFxCostBasisLotRepo> = {
+  create: jest.fn(),
+};
 
 describe('fxCostBasisPersistenceService', () => {
   const correlationId = 'test-corr-id';

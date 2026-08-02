@@ -1,9 +1,14 @@
 import { ERepoLock } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import periodError from '../../errors/period.error';
-import mockAccountingPeriodRepo from '../../repos/__mocks__/accounting-period.repo.impl.mock';
+import IAccountingPeriodRepo from '../../repos/accounting-period.repo';
 import { EPeriodStatus, IAccountingPeriod } from '../../types/period.types';
 import makeAccountingPeriodService from '../accounting-period.service';
+
+const mockAccountingPeriodRepo: jest.Mocked<IAccountingPeriodRepo> = {
+  findByDate: jest.fn(),
+  create: jest.fn(),
+};
 
 describe('accountingPeriodService', () => {
   const accountingEntityId =

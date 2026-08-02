@@ -1,10 +1,17 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
-import mockAccountingEntityRepo from '../../../../domain/accounting/repos/__mocks__/accounting-entity.repo.impl.mock';
+import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import makeGetUserAccountingEntitiesUseCase from '../get-user-accounting-entities.usecase';
+
+const mockAccountingEntityRepo: jest.Mocked<IAccountingEntityRepo> = {
+  create: jest.fn(),
+  findById: jest.fn(),
+  findByIdAndUserId: jest.fn(),
+  findByUserId: jest.fn(),
+};
 
 describe('getUserAccountingEntitiesUseCase', () => {
   const correlationId = 'test-corr-id';
