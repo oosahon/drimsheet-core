@@ -2,7 +2,10 @@ import makeCreateOpeningBalanceUseCase from '../../../app/journal-entry/usecases
 import messaging from '../../messaging';
 import ledgerRepos from '../../persistence/repos/ledger';
 import appContext from '../../runtime/app-context';
-import journalEntryServices from '../services/journal-entry';
+import {
+  journalEntryPersistenceService,
+  journalEntryService,
+} from '../services/journal-entry';
 import ledgerServices from '../services/ledger';
 import repoService from '../services/repo';
 
@@ -11,9 +14,8 @@ const journalEntryUseCases = {
     appContext: appContext,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     eventBus: messaging.eventBus,
-    openingBalanceEntryService: journalEntryServices.openingBalanceEntry,
-    journalEntryPersistenceService:
-      journalEntryServices.journalEntryPersistence,
+    journalEntryService,
+    journalEntryPersistenceService,
     balancePropagationService: ledgerServices.balancePropagation,
     repoService: repoService,
   }),

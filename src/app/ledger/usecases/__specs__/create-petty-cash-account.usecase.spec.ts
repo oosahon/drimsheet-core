@@ -2,6 +2,7 @@ import accountingEntityEntity from '../../../../domain/accounting/entities/accou
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import IAccountingPeriodService from '../../../../domain/accounting/types/accounting-period.service.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+import mockJournalEntryService from '../../../../domain/journal-entry/types/__mocks__/journal-entry.service.mock';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
@@ -26,7 +27,6 @@ import mockAppContext, {
 } from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import mockJournalEntryPersistenceService from '../../../journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockOpeningBalanceEntryService from '../../../journal-entry/contracts/__mocks__/opening-balance-entry.service.mock';
 import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.mock';
 import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-propagation.service.mock';
@@ -183,7 +183,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockEvents,
       mockPettyCashAudit,
     ]);
-    mockOpeningBalanceEntryService.create.mockResolvedValue([
+    mockJournalEntryService.createOpeningBalance.mockResolvedValue([
       mockOpeningBalanceJournalEntry,
       mockOpeningBalanceEvents,
       mockOpeningBalanceAudit,
@@ -196,7 +196,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       eventBus: mockEventBus,
       assetAccountService: mockAssetAccountService,
       accountingPeriodService: mockAccountingPeriodService,
-      openingBalanceEntryService: mockOpeningBalanceEntryService,
+      journalEntryService: mockJournalEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       balancePropagationService: mockLedgerAccountBalancePropagationService,
       repoService: mockRepoService,
@@ -448,7 +448,7 @@ describe('createPettyCashSubAccountUseCase', () => {
         },
       ],
     };
-    mockOpeningBalanceEntryService.create.mockResolvedValueOnce([
+    mockJournalEntryService.createOpeningBalance.mockResolvedValueOnce([
       mockForeignJournalEntry as any,
       mockOpeningBalanceEvents,
       mockOpeningBalanceAudit,

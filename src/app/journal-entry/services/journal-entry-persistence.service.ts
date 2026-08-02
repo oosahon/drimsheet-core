@@ -16,6 +16,7 @@ interface IDependencies {
   Creates a new journal line and header in the persistence layer.
   Ensures there are no invariance.
  */
+
 function makeCreate(
   deps: IDependencies
 ): IJournalEntryPersistenceService['create'] {
