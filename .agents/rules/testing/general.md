@@ -26,6 +26,9 @@
 - Domain unit tests use `.test.ts` files inside `__tests__`.
 - Dependency-free DTO and mapper unit tests use `.test.ts` files inside
   `__tests__`, regardless of layer.
+- Other dependency-free tests under `src/shared/**` use `.test.ts` files inside
+  `__tests__`.
 - Other tests outside the domain layer use `.spec.ts` files inside `__specs__`.
+- Do not use singular `__test__` or `__spec__` directories.
 - HTTP integration specs follow
   [HTTP Integration](http-integration.md#file-naming).

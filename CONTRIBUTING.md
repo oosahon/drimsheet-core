@@ -147,8 +147,9 @@ We enforce a specific commit message format to generate clean changelogs and tra
 Our project follows these guidelines for testing:
 
 - **Test Proximity**: Test files should be kept near their test subjects.
-- **Domain tests**: Domain entity, service, and rule tests use nearby `__tests__` folders with `.test.ts` files. Domain entity factories are never mocked.
-- **Application, infrastructure, and interface tests**: App-layer mappers/use cases, infrastructure adapters, and HTTP helpers/middlewares use nearby `__specs__` folders with `.spec.ts` files.
+- **Dependency-free tests**: Domain tests, DTO tests, mapper tests, and `src/shared/**` tests use nearby `__tests__` folders with `.test.ts` files.
+- **Dependency-bearing tests**: Other application, infrastructure, and interface tests use nearby `__specs__` folders with `.spec.ts` files.
+- **Directory names**: Use plural test folders only: `__tests__` and `__specs__`.
 - **End-to-End (E2E) Tests**: All E2E testing is handled in the frontend repository.
 
 ## Reporting Bugs
