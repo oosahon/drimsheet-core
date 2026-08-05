@@ -102,18 +102,14 @@ function validateSourceType(sourceType: UJournalEntrySourceType) {
   }
 }
 
-function validateCounterpartyId(
+function validateCounterparties(
   sourceType: UJournalEntrySourceType,
-  counterPartyId: TEntityId | null
+  lines: IJournalLine[]
 ) {
-  if (sourceType === EJournalEntrySourceType.Transfer && counterPartyId) {
+  const hasCounterparty = lines.some((line) => line.counterPartyId !== null);
+
+  if (sourceType === EJournalEntrySourceType.Transfer && hasCounterparty) {
     throw new journalEntryError.CounterpartyIdNotAllowed();
-  }
-  if (counterPartyId) {
-    stringUtils.validateUUID(
-      counterPartyId,
-      journalEntryError.InvalidCounterpartyId
-    );
   }
 }
 
@@ -142,7 +138,7 @@ const journalEntryEntityHelpers = Object.freeze({
   isUniqueSequenceOrder,
   getMemo,
   validateSourceType,
-  validateCounterpartyId,
+  validateCounterparties,
   validatePostedAt,
   validateVoidedAt,
   validateVoidingEntryId,

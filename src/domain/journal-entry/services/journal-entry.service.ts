@@ -2,7 +2,6 @@ import IAccountingPeriodService from '../../accounting/types/accounting-period.s
 import ICounterpartyRepo from '../../counterparty/repos/counterparty.repo';
 import currencyEntity from '../../money/entities/currency.entity';
 import journalEntryEntity from '../entities/journal-entry.entity';
-import journalEntryError from '../errors/journal-entry.error';
 import { IJournalEntryService } from '../types/journal-entry.service.types';
 import { EJournalEntrySourceType } from '../types/journal-entry.types';
 import {
@@ -30,17 +29,11 @@ function makeCreateReceipt(
       repoOptions
     );
 
-    // TODO: move counterparty to journal line
-    const counterparty = await deps.counterpartyRepo.findById(
-      header.counterpartyId,
-      header.accountingEntityId,
+    await helpers.validateCounterparties(
+      payload,
+      deps.counterpartyRepo,
       repoOptions
     );
-    if (!counterparty) {
-      throw new journalEntryError.InvalidCounterpartyId({
-        id: header.counterpartyId,
-      });
-    }
 
     const functionalCurrency = currencyEntity.getByCode(
       header.functionalCurrencyCode
@@ -49,6 +42,7 @@ function makeCreateReceipt(
     const sourceLinesPayload: IJournalLineMakePayload[] = sourceLines.map(
       (line) => ({
         accountId: line.account.id,
+        counterPartyId: line.counterPartyId ?? null,
         sequenceOrder: line.sequenceOrder,
         amount: line.amount,
         exchangeRate: line.exchangeRate,
@@ -61,6 +55,7 @@ function makeCreateReceipt(
     const destinationLinesPayload: IJournalLineMakePayload[] =
       destinationLines.map((line) => ({
         accountId: line.account.id,
+        counterPartyId: line.counterPartyId ?? null,
         sequenceOrder: line.sequenceOrder,
         amount: line.amount,
         exchangeRate: line.exchangeRate,
@@ -72,7 +67,6 @@ function makeCreateReceipt(
     return journalEntryEntity.make({
       accountingEntityId: header.accountingEntityId,
       sourceType: EJournalEntrySourceType.Receipt,
-      counterPartyId: header.counterpartyId,
       effectiveDate: header.effectiveDate,
       postedAt: header.postedAt,
       memo: header.memo,

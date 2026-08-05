@@ -8,6 +8,7 @@ const accountTransactionMapper = {
       id: payload.id,
       entryId: payload.entryId,
       accountId: payload.accountId,
+      counterpartyId: payload.counterPartyId,
       sequenceOrder: payload.sequenceOrder,
       amount: moneyMapper.toDto(payload.amount),
       exchangeRate: payload.exchangeRate,
@@ -19,7 +20,6 @@ const accountTransactionMapper = {
       updatedAt: payload.updatedAt,
       header: {
         sourceType: payload.header.sourceType,
-        counterpartyId: payload.header.counterPartyId,
         memo: payload.header.memo,
         status: payload.header.status,
         effectiveDate: payload.header.effectiveDate,

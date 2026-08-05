@@ -596,14 +596,6 @@ const models: TsoaRoute.Models = {
     dataType: 'refObject',
     properties: {
       sourceType: { ref: 'UJournalEntrySourceType', required: true },
-      counterpartyId: {
-        dataType: 'union',
-        subSchemas: [
-          { dataType: 'string' },
-          { dataType: 'enum', enums: [null] },
-        ],
-        required: true,
-      },
       memo: {
         dataType: 'union',
         subSchemas: [
@@ -679,6 +671,14 @@ const models: TsoaRoute.Models = {
       id: { dataType: 'string', required: true },
       entryId: { dataType: 'string', required: true },
       accountId: { dataType: 'string', required: true },
+      counterpartyId: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
       sequenceOrder: { dataType: 'double', required: true },
       amount: { ref: 'IMoneyDto', required: true },
       exchangeRate: {

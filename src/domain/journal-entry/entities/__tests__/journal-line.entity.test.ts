@@ -35,6 +35,7 @@ describe('JournalLineItem Entity', () => {
 
       validPayload = {
         accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
+        counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
         sequenceOrder: 1,
         amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.EUR, false),
         exchangeRate: exchangeRateValue.make({
@@ -65,6 +66,7 @@ describe('JournalLineItem Entity', () => {
       expect(lineItem.id.length).toBeGreaterThan(0);
       expect(lineItem.entryId).toBe(validEntryPayload.id);
       expect(lineItem.accountId).toBe(validPayload.accountId);
+      expect(lineItem.counterPartyId).toBe(validPayload.counterPartyId);
       expect(lineItem.sequenceOrder).toBe(1);
       expect(lineItem.amount.currency).toEqual(SYSTEM_CURRENCIES.EUR);
       expect(lineItem.exchangeRate?.rate).toBe(1.1);
@@ -112,6 +114,15 @@ describe('JournalLineItem Entity', () => {
 
       expect(() =>
         journalLineEntity.make(validEntryPayload, invalidPayload)
+      ).toThrow();
+    });
+
+    it('should throw an AppError if counterparty ID is invalid', () => {
+      expect(() =>
+        journalLineEntity.make(validEntryPayload, {
+          ...validPayload,
+          counterPartyId: 'invalid' as TEntityId,
+        })
       ).toThrow();
     });
 

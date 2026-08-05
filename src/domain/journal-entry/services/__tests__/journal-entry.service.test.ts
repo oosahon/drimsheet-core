@@ -86,6 +86,11 @@ describe('journalEntryService', () => {
       name: 'Receipt Customer',
       type: ECounterpartyType.Organization,
     });
+    const [taxAuthority] = counterpartyEntity.make({
+      accountingEntityId: accountingEntity.id,
+      name: 'Tax Authority',
+      type: ECounterpartyType.Organization,
+    });
     const [sourceAccountWithoutOpeningDate] = servicesAccountEntity.make(
       {
         name: 'Service Revenue',
@@ -125,7 +130,6 @@ describe('journalEntryService', () => {
     const payload: ICreateReceiptEntryPayload = {
       header: {
         accountingEntityId: accountingEntity.id,
-        counterpartyId: counterparty.id,
         memo: 'Customer receipt',
         effectiveDate,
         postedAt,
@@ -135,6 +139,7 @@ describe('journalEntryService', () => {
       sourceLines: [
         {
           account: sourceAccount,
+          counterPartyId: counterparty.id,
           sequenceOrder: 1,
           amount,
           exchangeRate: null,
@@ -146,6 +151,7 @@ describe('journalEntryService', () => {
       destinationLines: [
         {
           account: destinationAccount,
+          counterPartyId: taxAuthority.id,
           sequenceOrder: 2,
           amount,
           exchangeRate: null,
@@ -159,6 +165,7 @@ describe('journalEntryService', () => {
     return {
       payload,
       counterparty,
+      taxAuthority,
       sourceAccount,
       destinationAccount,
       user,
@@ -180,8 +187,13 @@ describe('journalEntryService', () => {
   });
 
   it('creates a draft receipt with mapped lines, events, and audits', async () => {
-    const { payload, counterparty, sourceAccount, destinationAccount } =
-      makeReceiptFixture();
+    const {
+      payload,
+      counterparty,
+      taxAuthority,
+      sourceAccount,
+      destinationAccount,
+    } = makeReceiptFixture();
     mockCounterpartyRepo.findById.mockResolvedValue(counterparty);
 
     const [entry, events, audit] = await service.createReceipt(
@@ -193,7 +205,6 @@ describe('journalEntryService', () => {
       expect.objectContaining({
         accountingEntityId: payload.header.accountingEntityId,
         sourceType: EJournalEntrySourceType.Receipt,
-        counterPartyId: counterparty.id,
         status: EJournalEntryStatus.Draft,
         postedAt: null,
       })
@@ -201,12 +212,14 @@ describe('journalEntryService', () => {
     expect(entry.lines).toEqual([
       expect.objectContaining({
         accountId: sourceAccount.id,
+        counterPartyId: counterparty.id,
         sequenceOrder: 1,
         side: EJournalSide.Credit,
         description: 'Service payment',
       }),
       expect.objectContaining({
         accountId: destinationAccount.id,
+        counterPartyId: taxAuthority.id,
         sequenceOrder: 2,
         side: EJournalSide.Debit,
         description: 'Cash received',
@@ -234,6 +247,24 @@ describe('journalEntryService', () => {
       payload.header.accountingEntityId,
       repoOptions
     );
+    expect(mockCounterpartyRepo.findById).toHaveBeenCalledWith(
+      taxAuthority.id,
+      payload.header.accountingEntityId,
+      repoOptions
+    );
+  });
+
+  it('validates a repeated line counterparty once', async () => {
+    const { payload, counterparty } = makeReceiptFixture();
+    payload.destinationLines[0] = {
+      ...payload.destinationLines[0],
+      counterPartyId: counterparty.id,
+    };
+    mockCounterpartyRepo.findById.mockResolvedValue(counterparty);
+
+    await service.createReceipt(payload, repoOptions);
+
+    expect(mockCounterpartyRepo.findById).toHaveBeenCalledTimes(1);
   });
 
   it('creates a posted receipt when a posting date is provided', async () => {

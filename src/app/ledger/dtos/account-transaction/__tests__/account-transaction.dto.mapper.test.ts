@@ -18,6 +18,7 @@ describe('Account Transaction DTO Mapper', () => {
         id: 'tx-id-123' as unknown as TEntityId,
         entryId: 'entry-id-456' as unknown as TEntityId,
         accountId: 'account-id-789' as unknown as TEntityId,
+        counterPartyId: 'counterparty-id-111' as unknown as TEntityId,
         sequenceOrder: 1,
         amount: moneyAmount,
         exchangeRate: null,
@@ -30,7 +31,6 @@ describe('Account Transaction DTO Mapper', () => {
         updatedAt: new Date('2026-07-13T18:00:00Z'),
         header: {
           sourceType: 'transfer',
-          counterPartyId: 'counterparty-id-111' as unknown as TEntityId,
           memo: 'Test memo',
           status: 'posted',
           effectiveDate: new Date('2026-07-13T18:00:00Z'),
@@ -50,6 +50,7 @@ describe('Account Transaction DTO Mapper', () => {
         id: 'tx-id-123',
         entryId: 'entry-id-456',
         accountId: 'account-id-789',
+        counterpartyId: 'counterparty-id-111',
         sequenceOrder: 1,
         amount: {
           amount: 1000,
@@ -69,7 +70,6 @@ describe('Account Transaction DTO Mapper', () => {
         updatedAt: new Date('2026-07-13T18:00:00Z'),
         header: {
           sourceType: 'transfer',
-          counterpartyId: 'counterparty-id-111',
           memo: 'Test memo',
           status: 'posted',
           effectiveDate: new Date('2026-07-13T18:00:00Z'),

@@ -57,7 +57,6 @@ describe('Journal Entry Mapper', () => {
     return journalEntryEntity.make({
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.Transfer,
-      counterPartyId: null,
       effectiveDate: new Date('2026-05-01T00:00:00.000Z'),
       postedAt: new Date('2026-05-01T01:00:00.000Z'),
       memo: 'Cash transfer',
@@ -93,7 +92,6 @@ describe('Journal Entry Mapper', () => {
       expect(journalEntryMapper.toRepo(entry)).toEqual({
         id: entry.id,
         accountingEntityId: entry.accountingEntityId,
-        counterpartyId: null,
         sourceType: EJournalEntrySourceType.Transfer,
         memo: 'Cash transfer',
         status: EJournalEntryStatus.Posted,
@@ -127,7 +125,6 @@ describe('Journal Entry Mapper', () => {
       const entry = makeEntry();
       const model: IJournalEntrySelectModel = {
         ...journalEntryMapper.toRepo(entry),
-        counterpartyId: entry.counterPartyId,
         postedAt: entry.postedAt?.toISOString() ?? null,
         voidedAt: entry.voidedAt?.toISOString() ?? null,
         journalLinesInCores: entry.lines.map(journalLineMapper.toRepo),
@@ -140,14 +137,12 @@ describe('Journal Entry Mapper', () => {
       const entry = makeEntry();
       const model: IJournalEntrySelectModel = {
         ...journalEntryMapper.toRepo(entry),
-        counterpartyId: null,
         postedAt: null,
         voidedAt: null,
         journalLinesInCores: entry.lines.map(journalLineMapper.toRepo),
       };
 
       expect(journalEntryMapper.toDomain(model)).toMatchObject({
-        counterPartyId: null,
         postedAt: null,
         voidedAt: null,
       });
@@ -162,7 +157,6 @@ describe('Journal Entry Mapper', () => {
         id: entry.id,
         accountingEntityId: entry.accountingEntityId,
         sourceType: EJournalEntrySourceType.Transfer,
-        counterpartyId: null,
         memo: 'Cash transfer',
         status: EJournalEntryStatus.Posted,
         version: 1,

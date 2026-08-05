@@ -11,10 +11,13 @@ import {
   EJournalSide,
   UJournalSide,
 } from '../../../../domain/journal-entry/types/journal-line.types';
+import { counterpartyNameValidation } from '../../../counterparty/dtos/counterparty/counterparty.dto.validation';
 import { exchangeRateDtoValidation } from '../../../money/dtos/exchange-rate/exchange-rate.dto.validation';
 import { moneyDtoValidation } from '../../../money/dtos/money/money.dto.validation';
 
 const accountIdError = new journalLineError.InvalidAccountId().errorKey;
+const counterpartyIdError = new journalLineError.InvalidCounterpartyId()
+  .errorKey;
 const descriptionError = new journalLineError.InvalidDescription().errorKey;
 const journalSideError = new journalLineError.InvalidSide().errorKey;
 const sequenceOrderError = new journalLineError.InvalidSequenceOrder().errorKey;
@@ -48,6 +51,12 @@ export const journalEntryStatusValidation = z.enum(
 
 export const journalLineReqValidation = z.object({
   accountId: z.uuid(accountIdError),
+  counterparty: z
+    .object({
+      id: z.uuid(counterpartyIdError).optional(),
+      name: counterpartyNameValidation,
+    })
+    .nullable(),
   amount: moneyDtoValidation,
   exchangeRate: exchangeRateDtoValidation.nullable(),
   description: z

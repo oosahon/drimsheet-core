@@ -30,6 +30,7 @@ function make(
     payload.accountId,
     journalLineError.InvalidAccountId
   );
+  helpers.validateCounterpartyId(payload.counterPartyId ?? null);
   numberUtils.validateInteger(
     payload.sequenceOrder,
     journalLineError.InvalidSequenceOrder
@@ -59,6 +60,7 @@ function make(
     id: generateUUID(),
     entryId: entryPayload.id,
     accountId: payload.accountId,
+    counterPartyId: payload.counterPartyId ?? null,
     sequenceOrder: payload.sequenceOrder,
     amount: payload.amount,
     exchangeRate: payload.exchangeRate,

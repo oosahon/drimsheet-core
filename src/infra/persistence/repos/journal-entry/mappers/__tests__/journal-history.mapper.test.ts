@@ -17,7 +17,6 @@ describe('journal history mappers', () => {
     journalEntryEntity.make({
       accountingEntityId,
       sourceType: EJournalEntrySourceType.Transfer,
-      counterPartyId: null,
       effectiveDate: new Date('2026-06-14T00:00:00.000Z'),
       postedAt: null,
       memo: 'Transfer',

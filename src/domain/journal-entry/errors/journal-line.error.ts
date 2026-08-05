@@ -16,6 +16,8 @@ const EErrorKeys = {
   InvalidHeaderyEntryId:
     'journal_entry_error_journal_line_invalid_header_entry_id',
   InvalidAccountId: 'journal_entry_error_journal_line_invalid_account_id',
+  InvalidCounterpartyId:
+    'journal_entry_error_journal_line_invalid_counterparty_id',
   InvalidSequenceOrder:
     'journal_entry_error_journal_line_invalid_sequence_order',
   InvalidCreatedAt: 'journal_entry_error_journal_line_invalid_created_at',

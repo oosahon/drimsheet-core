@@ -106,7 +106,6 @@ describe('createOpeningBalanceUseCase', () => {
       journalEntryEntity.make({
         accountingEntityId: mockAccountingEntity.id,
         sourceType: EJournalEntrySourceType.OpeningBalance,
-        counterPartyId: null,
         effectiveDate: new Date('2026-04-24T00:00:00.000Z'),
         postedAt: new Date('2026-04-24T00:00:00.000Z'),
         memo: 'Opening balance',

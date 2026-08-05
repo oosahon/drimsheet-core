@@ -112,7 +112,6 @@ describe('ledgerAccountBalancePropagationService', () => {
     const [journalEntry] = journalEntryEntity.make({
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.Adjustment,
-      counterPartyId: null,
       effectiveDate: timestamp,
       postedAt: isPosted ? timestamp : null,
       memo: 'Balance propagation',
@@ -171,7 +170,6 @@ describe('ledgerAccountBalancePropagationService', () => {
     const [journalEntry] = journalEntryEntity.make({
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.Adjustment,
-      counterPartyId: null,
       effectiveDate: timestamp,
       postedAt: timestamp,
       memo: 'Foreign currency propagation',

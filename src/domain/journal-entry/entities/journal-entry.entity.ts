@@ -26,7 +26,6 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
   );
   stringUtils.validateUUID(payload.createdBy, journalEntryError.InvalidValue);
   helpers.validateSourceType(payload.sourceType);
-  helpers.validateCounterpartyId(payload.sourceType, payload.counterPartyId);
   dateUtils.validateDate(
     payload.effectiveDate,
     journalEntryError.InvalidEffectiveDate
@@ -43,6 +42,7 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
 
   const lines = linesWithEvents.map(([item]) => item);
   helpers.validateLine(lines);
+  helpers.validateCounterparties(payload.sourceType, lines);
 
   const status = payload.postedAt
     ? EJournalEntryStatus.Posted
@@ -52,7 +52,6 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
     id,
     accountingEntityId: payload.accountingEntityId,
     sourceType: payload.sourceType,
-    counterPartyId: payload.counterPartyId,
     lines,
     memo,
     status,
@@ -150,7 +149,6 @@ function makeTransitionedEntry(
     id: entry.id,
     accountingEntityId: entry.accountingEntityId,
     sourceType: entry.sourceType,
-    counterPartyId: entry.counterPartyId,
     lines: entry.lines,
     memo: entry.memo,
     status,

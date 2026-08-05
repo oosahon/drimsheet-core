@@ -9,13 +9,14 @@ import { IMoneyDto } from '../../../money/dtos/money/money.dto';
 
 export interface IJournalLineReq {
   accountId: string;
+  counterparty: ICounterpartyPayload | null;
   amount: IMoneyDto;
   exchangeRate: IExchangeRateDto | null;
   description: string | null;
   sequenceOrder: number;
 }
 
-interface ICounterpartyPayload {
+export interface ICounterpartyPayload {
   id?: string;
   name: string;
 }
@@ -28,6 +29,7 @@ export interface IJournalLineDto {
   id: string;
   entryId: string;
   accountId: string;
+  counterpartyId: string | null;
   sequenceOrder: number;
   amount: IMoneyDto;
   exchangeRate: IExchangeRate | null;
@@ -41,7 +43,6 @@ export interface IJournalLineDto {
 
 export interface IJournalHeaderDto {
   sourceType: UJournalEntrySourceType;
-  counterpartyId: string | null;
   memo: string | null;
   status: UJournalEntryStatus;
   effectiveDate: Date;

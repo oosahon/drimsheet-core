@@ -8,7 +8,6 @@ import { IJournalLineMeta } from './journal-line.types';
 
 interface IHeaderPayload {
   accountingEntityId: TEntityId;
-  counterpartyId: TEntityId;
   memo: string | null;
   effectiveDate: Date;
   postedAt: Date | null;
@@ -18,6 +17,7 @@ interface IHeaderPayload {
 
 interface ILinePayload {
   account: ILedgerAccount;
+  counterPartyId?: TEntityId | null;
   sequenceOrder: number;
   amount: IMoney;
   exchangeRate: IExchangeRate | null;

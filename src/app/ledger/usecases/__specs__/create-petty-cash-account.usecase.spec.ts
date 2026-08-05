@@ -124,7 +124,6 @@ describe('createPettyCashSubAccountUseCase', () => {
   ] = journalEntryEntity.make({
     accountingEntityId: mockAccountingEntity.id,
     sourceType: EJournalEntrySourceType.OpeningBalance,
-    counterPartyId: null,
     effectiveDate: validOpeningBalance.date,
     postedAt: validOpeningBalance.date,
     memo: 'Opening balance',

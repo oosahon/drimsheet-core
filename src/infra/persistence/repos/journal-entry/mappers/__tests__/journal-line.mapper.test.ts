@@ -17,6 +17,7 @@ describe('Journal Line Mapper', () => {
   const id = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
   const entryId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+  const counterPartyId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
   const amount = moneyValue.make(100_00, SYSTEM_CURRENCIES.USD, true);
   const functionalAmount = moneyValue.make(
     150_000_00,
@@ -40,6 +41,7 @@ describe('Journal Line Mapper', () => {
     id,
     entryId,
     accountId,
+    counterPartyId,
     sequenceOrder: 1,
     amount,
     exchangeRate: {
@@ -65,6 +67,7 @@ describe('Journal Line Mapper', () => {
     id,
     entryId,
     accountId,
+    counterpartyId: counterPartyId,
     sequenceOrder: 1,
     amount: 100_00,
     currencyCode: SYSTEM_CURRENCIES.USD.code,
@@ -107,6 +110,7 @@ describe('Journal Line Mapper', () => {
         id,
         entryId,
         accountId,
+        counterpartyId: counterPartyId,
         sequenceOrder: 1,
         amount: 100_00,
         currencyCode: SYSTEM_CURRENCIES.USD.code,
@@ -129,6 +133,7 @@ describe('Journal Line Mapper', () => {
         id,
         entryId,
         accountId,
+        counterpartyId: counterPartyId,
         sequenceOrder: 1,
         amount: {
           amount: 100_00,

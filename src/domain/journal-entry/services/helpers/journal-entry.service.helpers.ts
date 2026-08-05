@@ -1,4 +1,6 @@
+import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import dateUtils from '../../../../shared/utils/date';
+import ICounterpartyRepo from '../../../counterparty/repos/counterparty.repo';
 import journalEntryError from '../../errors/journal-entry.error';
 import journalEntryRuleValidator from '../../rules/entry-rule.validator';
 import receiptEntryRule from '../../rules/receipt-entry.rule';
@@ -64,6 +66,33 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
   }
 }
 
-const journalEntryServiceHelpers = Object.freeze({ validateAccounts });
+async function validateCounterparties(
+  payload: ICreateReceiptEntryPayload,
+  counterpartyRepo: ICounterpartyRepo,
+  repoOptions: IReadRepoOptions
+) {
+  const { header, sourceLines, destinationLines } = payload;
+  const counterPartyIds = new Set(
+    [...sourceLines, ...destinationLines].flatMap((line) =>
+      line.counterPartyId ? [line.counterPartyId] : []
+    )
+  );
+
+  for (const counterPartyId of counterPartyIds) {
+    const counterparty = await counterpartyRepo.findById(
+      counterPartyId,
+      header.accountingEntityId,
+      repoOptions
+    );
+    if (!counterparty) {
+      throw new journalEntryError.InvalidCounterpartyId({ id: counterPartyId });
+    }
+  }
+}
+
+const journalEntryServiceHelpers = Object.freeze({
+  validateAccounts,
+  validateCounterparties,
+});
 
 export default journalEntryServiceHelpers;

@@ -71,6 +71,10 @@ describe('Journal Entry DTO Validation', () => {
     it('should validate a correct journal line payload', () => {
       const payload = {
         accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+        counterparty: {
+          id: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
+          name: 'Acme Corp',
+        },
         amount: {
           amount: 1500,
           currencyCode: 'USD',
@@ -88,6 +92,7 @@ describe('Journal Entry DTO Validation', () => {
     it('should validate correct payload with optional exchangeRate', () => {
       const payload = {
         accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+        counterparty: null,
         amount: {
           amount: 1500,
           currencyCode: 'USD',
@@ -107,6 +112,43 @@ describe('Journal Entry DTO Validation', () => {
 
       const result = journalLineReqValidation.safeParse(payload);
       expect(result.success).toBe(true);
+    });
+
+    it('should validate a named counterparty without an ID', () => {
+      const result = journalLineReqValidation.safeParse({
+        accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+        counterparty: { name: 'New supplier' },
+        amount: {
+          amount: 1500,
+          currencyCode: 'USD',
+          isMinorUnit: true,
+        },
+        exchangeRate: null,
+        description: 'New counterparty transaction',
+        sequenceOrder: 1,
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should fail validation on invalid counterparty UUID', () => {
+      const result = journalLineReqValidation.safeParse({
+        accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+        counterparty: {
+          id: 'invalid-counterparty-id',
+          name: 'Acme Corp',
+        },
+        amount: {
+          amount: 1500,
+          currencyCode: 'USD',
+          isMinorUnit: true,
+        },
+        exchangeRate: null,
+        description: 'Test transaction description',
+        sequenceOrder: 1,
+      });
+
+      expect(result.success).toBe(false);
     });
 
     it('should fail validation on invalid account UUID', () => {

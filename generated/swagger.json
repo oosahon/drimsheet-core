@@ -637,10 +637,6 @@
           "sourceType": {
             "$ref": "#/components/schemas/UJournalEntrySourceType"
           },
-          "counterpartyId": {
-            "type": "string",
-            "nullable": true
-          },
           "memo": {
             "type": "string",
             "nullable": true
@@ -684,7 +680,6 @@
         },
         "required": [
           "sourceType",
-          "counterpartyId",
           "memo",
           "status",
           "effectiveDate",
@@ -757,6 +752,10 @@
           "accountId": {
             "type": "string"
           },
+          "counterpartyId": {
+            "type": "string",
+            "nullable": true
+          },
           "sequenceOrder": {
             "type": "number",
             "format": "double"
@@ -805,6 +804,7 @@
           "id",
           "entryId",
           "accountId",
+          "counterpartyId",
           "sequenceOrder",
           "amount",
           "exchangeRate",

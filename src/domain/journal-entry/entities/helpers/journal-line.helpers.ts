@@ -1,4 +1,5 @@
 import { IMoney } from '../../../../domain/money/types/money.types';
+import { TEntityId } from '../../../../shared/types/uuid';
 import stringUtils from '../../../../shared/utils/string';
 import { ICurrency } from '../../../money/types/currency.types';
 import { IExchangeRate } from '../../../money/types/exchange-rate.types';
@@ -9,6 +10,15 @@ import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
 function validateSide(side: UJournalSide) {
   if (!Object.values(EJournalSide).includes(side)) {
     throw new journalLineError.InvalidSide({ side });
+  }
+}
+
+function validateCounterpartyId(counterPartyId: TEntityId | null) {
+  if (counterPartyId !== null) {
+    stringUtils.validateUUID(
+      counterPartyId,
+      journalLineError.InvalidCounterpartyId
+    );
   }
 }
 
@@ -80,6 +90,7 @@ function getOppositeSide(side: UJournalSide): UJournalSide {
 
 const journalLineEntityHelpers = Object.freeze({
   validateSide,
+  validateCounterpartyId,
   getDescription,
   validateExchangeRate,
   getOppositeSide,

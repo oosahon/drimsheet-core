@@ -9,6 +9,10 @@ describe('Transaction DTO Validation', () => {
     const payload = {
       sourceLine: {
         accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+        counterparty: {
+          id: '3b4c1064-a09e-4e4f-b6a3-23945cc87f76',
+          name: 'Customer',
+        },
         amount: {
           amount: 1000,
           currencyCode: 'USD',
@@ -22,6 +26,7 @@ describe('Transaction DTO Validation', () => {
       destinationLines: [
         {
           accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
+          counterparty: null,
           amount: {
             amount: 1000,
             currencyCode: 'USD',

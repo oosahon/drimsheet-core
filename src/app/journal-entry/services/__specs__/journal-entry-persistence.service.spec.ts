@@ -99,7 +99,6 @@ describe('journalEntryPersistenceService', () => {
     const [journalEntry, , audit] = journalEntryEntity.make({
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.OpeningBalance,
-      counterPartyId: null,
       effectiveDate: timestamp,
       postedAt: timestamp,
       memo: 'Opening balance',

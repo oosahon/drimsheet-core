@@ -19,6 +19,7 @@ export interface IJournalLine {
   id: TEntityId;
   entryId: TEntityId;
   accountId: TEntityId;
+  counterPartyId: TEntityId | null;
   sequenceOrder: number;
   amount: IMoney;
   exchangeRate: IExchangeRate | null; // if null, functionalAmount === amount
@@ -40,6 +41,7 @@ export interface IJournalLineMakePayload extends Pick<
   | 'side'
   | 'description'
 > {
+  counterPartyId?: TEntityId | null;
   functionalCurrency: ICurrency;
 }
 

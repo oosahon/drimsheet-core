@@ -8,7 +8,6 @@ import { IJournalLine } from './journal-line.types';
 export interface IAccountTransaction extends IJournalLine {
   header: {
     sourceType: UJournalEntrySourceType;
-    counterPartyId: TEntityId | null;
     memo: string | null;
     status: UJournalEntryStatus;
     effectiveDate: Date;

@@ -92,7 +92,6 @@ describe('getAccountTransactionsUseCase', () => {
     [journalEntry] = journalEntryEntity.make({
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.Transfer,
-      counterPartyId: null,
       effectiveDate: new Date('2026-05-01T00:00:00.000Z'),
       postedAt: new Date('2026-05-01T00:00:00.000Z'),
       memo: 'Cash transfer',
@@ -135,7 +134,6 @@ describe('getAccountTransactionsUseCase', () => {
           ...journalEntry.lines[0],
           header: {
             sourceType: journalEntry.sourceType,
-            counterPartyId: journalEntry.counterPartyId,
             memo: journalEntry.memo,
             status: journalEntry.status,
             effectiveDate: journalEntry.effectiveDate,
@@ -187,6 +185,7 @@ describe('getAccountTransactionsUseCase', () => {
           id: journalEntry.lines[0].id,
           entryId: journalEntry.id,
           accountId: ledgerAccount.id,
+          counterpartyId: journalEntry.lines[0].counterPartyId,
           sequenceOrder: 1,
           amount: {
             amount: 100_00,
@@ -206,7 +205,6 @@ describe('getAccountTransactionsUseCase', () => {
           updatedAt: journalEntry.updatedAt,
           header: {
             sourceType: journalEntry.sourceType,
-            counterpartyId: journalEntry.counterPartyId,
             memo: journalEntry.memo,
             status: journalEntry.status,
             effectiveDate: journalEntry.effectiveDate,

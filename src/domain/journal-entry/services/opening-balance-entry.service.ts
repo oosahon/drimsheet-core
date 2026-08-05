@@ -69,6 +69,7 @@ function makeCreate(
 
     const accountSide: IJournalLineMakePayload = {
       accountId: account.id,
+      counterPartyId: null,
       functionalCurrency,
       amount,
       exchangeRate,
@@ -79,6 +80,7 @@ function makeCreate(
 
     const equitySide: IJournalLineMakePayload = {
       accountId: equityAccount.id,
+      counterPartyId: null,
       functionalCurrency,
       amount,
       exchangeRate,
@@ -90,7 +92,6 @@ function makeCreate(
     const journalEntry = journalEntryEntity.make({
       accountingEntityId,
       sourceType: EJournalEntrySourceType.OpeningBalance,
-      counterPartyId: null,
       effectiveDate,
       postedAt: effectiveDate,
       memo: 'Opening balance',
