@@ -6,7 +6,6 @@ import {
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
-  EJournalEntryStatus,
   IJournalEntry,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
@@ -94,11 +93,8 @@ describe('getAccountTransactionsUseCase', () => {
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.Transfer,
       counterPartyId: null,
-      status: EJournalEntryStatus.Posted,
       effectiveDate: new Date('2026-05-01T00:00:00.000Z'),
       postedAt: new Date('2026-05-01T00:00:00.000Z'),
-      voidedAt: null,
-      voidingEntryId: null,
       memo: 'Cash transfer',
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       createdBy: user.id,

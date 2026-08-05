@@ -8,10 +8,7 @@ import {
   IJournalEntryHistory,
   IJournalLineHistory,
 } from '../../../../domain/journal-entry/types/journal-entry-audit.types';
-import {
-  EJournalEntrySourceType,
-  EJournalEntryStatus,
-} from '../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
@@ -103,11 +100,8 @@ describe('journalEntryPersistenceService', () => {
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.OpeningBalance,
       counterPartyId: null,
-      status: EJournalEntryStatus.Posted,
       effectiveDate: timestamp,
       postedAt: timestamp,
-      voidedAt: null,
-      voidingEntryId: null,
       memo: 'Opening balance',
       createdBy: user.id,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,

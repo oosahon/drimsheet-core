@@ -2,10 +2,7 @@ import periodError from '../../../../domain/accounting/errors/period.error';
 import IAccountingPeriodService from '../../../../domain/accounting/types/accounting-period.service.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import mockOpeningBalanceEntryService from '../../../../domain/journal-entry/types/__mocks__/opening-balance-entry.service.mock';
-import {
-  EJournalEntrySourceType,
-  EJournalEntryStatus,
-} from '../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
@@ -123,11 +120,8 @@ describe('makeCreateBankAccountUseCase', () => {
     accountingEntityId,
     sourceType: EJournalEntrySourceType.OpeningBalance,
     counterPartyId: null,
-    status: EJournalEntryStatus.Posted,
     effectiveDate: new Date('2026-03-01T00:00:00.000Z'),
     postedAt: new Date('2026-03-01T00:00:00.000Z'),
-    voidedAt: null,
-    voidingEntryId: null,
     memo: 'Opening balance',
     createdBy: userId,
     functionalCurrency: SYSTEM_CURRENCIES.NGN,

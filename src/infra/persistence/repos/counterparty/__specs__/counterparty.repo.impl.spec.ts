@@ -338,4 +338,123 @@ describe('CounterpartyRepoImpl', () => {
       expect(orderByMock).toHaveBeenCalled();
     });
   });
+
+  describe('findById', () => {
+    const readOptions = {
+      correlationId: 'test-correlation-id',
+    };
+
+    it('returns a counterparty with all of its roles', async () => {
+      const counterpartyRow = {
+        id: payload.id,
+        accountingEntityId: payload.accountingEntityId,
+        name: payload.name,
+        status: payload.status,
+        type: payload.type,
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
+      };
+      const roleRows = [{ role: 'vendor' }, { role: 'employer' }];
+      const domainCounterparty = {
+        ...payload,
+        roles: ['vendor', 'employer'] as UCounterpartyRole[],
+      };
+
+      const counterpartyLimit = jest.fn().mockResolvedValue([counterpartyRow]);
+      const counterpartyWhere = jest
+        .fn()
+        .mockReturnValue({ limit: counterpartyLimit });
+      const roleWhere = jest.fn().mockResolvedValue(roleRows);
+      const from = jest
+        .fn()
+        .mockReturnValueOnce({ where: counterpartyWhere })
+        .mockReturnValueOnce({ where: roleWhere });
+      const dbQuery = {
+        select: jest.fn().mockReturnValue({ from }),
+      };
+
+      (getDbQuery as jest.Mock).mockReturnValue(dbQuery);
+      (counterpartyMapper.toDomain as jest.Mock).mockReturnValue(
+        domainCounterparty
+      );
+
+      const result = await counterpartyRepo.findById(
+        payload.id,
+        payload.accountingEntityId,
+        readOptions
+      );
+
+      expect(result).toBe(domainCounterparty);
+      expect(counterpartyMapper.toDomain).toHaveBeenCalledWith(
+        counterpartyRow,
+        ['vendor', 'employer']
+      );
+    });
+
+    it('returns a counterparty with an empty roles array when it has no roles', async () => {
+      const counterpartyRow = {
+        id: payload.id,
+        accountingEntityId: payload.accountingEntityId,
+        name: payload.name,
+        status: payload.status,
+        type: payload.type,
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
+      };
+      const domainCounterparty = { ...payload, roles: [] };
+      const counterpartyLimit = jest.fn().mockResolvedValue([counterpartyRow]);
+      const counterpartyWhere = jest
+        .fn()
+        .mockReturnValue({ limit: counterpartyLimit });
+      const roleWhere = jest.fn().mockResolvedValue([]);
+      const from = jest
+        .fn()
+        .mockReturnValueOnce({ where: counterpartyWhere })
+        .mockReturnValueOnce({ where: roleWhere });
+      const dbQuery = {
+        select: jest.fn().mockReturnValue({ from }),
+      };
+
+      (getDbQuery as jest.Mock).mockReturnValue(dbQuery);
+      (counterpartyMapper.toDomain as jest.Mock).mockReturnValue(
+        domainCounterparty
+      );
+
+      const result = await counterpartyRepo.findById(
+        payload.id,
+        payload.accountingEntityId,
+        readOptions
+      );
+
+      expect(result).toBe(domainCounterparty);
+      expect(counterpartyMapper.toDomain).toHaveBeenCalledWith(
+        counterpartyRow,
+        []
+      );
+    });
+
+    it('returns null without querying roles when the counterparty is absent', async () => {
+      const counterpartyLimit = jest.fn().mockResolvedValue([]);
+      const counterpartyWhere = jest
+        .fn()
+        .mockReturnValue({ limit: counterpartyLimit });
+      const dbQuery = {
+        select: jest.fn().mockReturnValue({
+          from: jest.fn().mockReturnValue({ where: counterpartyWhere }),
+        }),
+      };
+
+      (getDbQuery as jest.Mock).mockReturnValue(dbQuery);
+
+      const result = await counterpartyRepo.findById(
+        payload.id,
+        payload.accountingEntityId,
+        readOptions
+      );
+
+      expect(result).toBeNull();
+      expect(dbQuery.select).toHaveBeenCalledTimes(1);
+      expect(counterpartyMapper.toDomain).not.toHaveBeenCalled();
+    });
+  });
 });

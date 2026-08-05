@@ -3,6 +3,8 @@ import { IJournalEntry } from '../types/journal-entry.types';
 
 export const EJournalEntryEvent = {
   Created: 'domain:journal-entry:created',
+  Voided: 'domain:journal-entry:voided',
+  Archived: 'domain:journal-entry:archived',
 } as const;
 
 export type UJournalEntryEvent =
@@ -15,8 +17,24 @@ function makeJournalEntryCreatedEvent(payload: IJournalEntry) {
   });
 }
 
+function makeJournalEntryVoidedEvent(payload: IJournalEntry) {
+  return eventValue.make<IJournalEntry>({
+    type: EJournalEntryEvent.Voided,
+    data: payload,
+  });
+}
+
+function makeJournalEntryArchivedEvent(payload: IJournalEntry) {
+  return eventValue.make<IJournalEntry>({
+    type: EJournalEntryEvent.Archived,
+    data: payload,
+  });
+}
+
 const journalEntryEvents = Object.freeze({
   created: makeJournalEntryCreatedEvent,
+  voided: makeJournalEntryVoidedEvent,
+  archived: makeJournalEntryArchivedEvent,
 });
 
 export default journalEntryEvents;

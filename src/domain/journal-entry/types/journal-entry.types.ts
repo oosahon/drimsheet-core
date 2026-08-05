@@ -55,14 +55,15 @@ export interface IJournalEntryMakePayload extends Pick<
   | 'accountingEntityId'
   | 'sourceType'
   | 'counterPartyId'
-  | 'status'
   | 'effectiveDate'
   | 'postedAt'
-  | 'voidedAt'
-  | 'voidingEntryId'
   | 'memo'
   | 'createdBy'
 > {
   functionalCurrency: ICurrency;
   lines: IJournalLineMakePayload[];
+}
+
+export interface IVoidJournalEntryPayload {
+  voidingEntryId: TEntityId;
 }

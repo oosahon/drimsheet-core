@@ -1,6 +1,7 @@
 import moneyValue from '../../../../domain/money/values/money.vo';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
+import journalEntryError from '../../errors/journal-entry.error';
 import { EJournalEntryEvent } from '../../events/journal-entry.events';
 import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
 import {
@@ -37,13 +38,10 @@ describe('JournalEntry Entity', () => {
         accountingEntityId: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
         sourceType: EJournalEntrySourceType.Expense,
         counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
-        status: EJournalEntryStatus.Draft,
         effectiveDate: new Date('2026-04-15T00:00:00.000Z'),
         memo: 'Test entry memo',
         functionalCurrency: SYSTEM_CURRENCIES.USD,
         postedAt: null,
-        voidedAt: null,
-        voidingEntryId: null,
         createdBy: '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d' as TEntityId,
         lines: [
           {
@@ -132,19 +130,17 @@ describe('JournalEntry Entity', () => {
       expect(entry.lines[0].description).toBe('Test entry memo');
     });
 
-    it('should successfully create when optional dates and ids are provided', () => {
+    it('should create posted entries with the supplied posting date', () => {
       const payload: TMakePayload = {
         ...validPayload,
         postedAt: new Date('2026-04-16T00:00:00.000Z'),
-        voidedAt: new Date('2026-04-17T00:00:00.000Z'),
-        voidingEntryId: '4c6e83ef-2a1b-4c3d-8d9e-5e6f7a8b9c0d' as TEntityId,
       };
 
       const [entry] = journalEntryEntity.make(payload);
 
       expect(entry.postedAt).toEqual(payload.postedAt);
-      expect(entry.voidedAt).toEqual(payload.voidedAt);
-      expect(entry.voidingEntryId).toBe(payload.voidingEntryId);
+      expect(entry.voidedAt).toBeNull();
+      expect(entry.voidingEntryId).toBeNull();
     });
 
     it('should throw an AppError if accountingEntityId is invalid', () => {
@@ -165,15 +161,6 @@ describe('JournalEntry Entity', () => {
       ).toThrow();
     });
 
-    it('should throw an AppError if voidingEntryId is invalid', () => {
-      expect(() =>
-        journalEntryEntity.make({
-          ...validPayload,
-          voidingEntryId: 'invalid' as TEntityId,
-        })
-      ).toThrow();
-    });
-
     it('should throw an AppError if effectiveDate is invalid', () => {
       expect(() =>
         journalEntryEntity.make({
@@ -190,24 +177,6 @@ describe('JournalEntry Entity', () => {
           postedAt: new Date('invalid'),
         })
       ).toThrow();
-    });
-
-    it('should throw an AppError if voidedAt is invalid', () => {
-      expect(() =>
-        journalEntryEntity.make({
-          ...validPayload,
-          voidedAt: new Date('invalid'),
-        })
-      ).toThrow();
-    });
-
-    it('should throw an AppError if status is invalid', () => {
-      const invalidPayload = {
-        ...validPayload,
-        status: 'invalid' as UJournalEntryStatus,
-      };
-
-      expect(() => journalEntryEntity.make(invalidPayload)).toThrow();
     });
 
     it('should throw an AppError if there are only debits or only credits', () => {
@@ -397,13 +366,126 @@ describe('JournalEntry Entity', () => {
         ).toThrow();
       });
     });
+  });
 
-    describe('validateStatus with Archived', () => {
-      it('should not throw for Archived status', () => {
-        expect(() =>
-          journalEntryEntity.validateStatus(EJournalEntryStatus.Archived)
-        ).not.toThrow();
+  describe('lifecycle transitions', () => {
+    function makeEntry(postedAt: Date | null) {
+      return journalEntryEntity.make({
+        accountingEntityId: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
+        sourceType: EJournalEntrySourceType.Expense,
+        counterPartyId: null,
+        effectiveDate: new Date('2026-04-15T00:00:00.000Z'),
+        postedAt,
+        memo: 'Test entry memo',
+        functionalCurrency: SYSTEM_CURRENCIES.USD,
+        createdBy: '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d' as TEntityId,
+        lines: [
+          {
+            accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
+            sequenceOrder: 1,
+            amount: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
+            exchangeRate: null,
+            side: EJournalSide.Debit,
+            description: 'Debit',
+            functionalCurrency: SYSTEM_CURRENCIES.USD,
+          },
+          {
+            accountId: 'e682fcb3-e6dc-54ed-9f7d-304c08c1b810' as TEntityId,
+            sequenceOrder: 2,
+            amount: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
+            exchangeRate: null,
+            side: EJournalSide.Credit,
+            description: 'Credit',
+            functionalCurrency: SYSTEM_CURRENCIES.USD,
+          },
+        ],
+      })[0];
+    }
+
+    it('should void a posted entry with audit and event metadata', () => {
+      const entry = makeEntry(new Date('2026-04-15T00:00:00.000Z'));
+      const voidingEntryId =
+        '4c6e83ef-2a1b-4c3d-8d9e-5e6f7a8b9c0d' as TEntityId;
+
+      const [voidedEntry, events, audit] = journalEntryEntity.void(entry, {
+        voidingEntryId,
       });
+
+      expect(voidedEntry).toEqual(
+        expect.objectContaining({
+          status: EJournalEntryStatus.Voided,
+          postedAt: entry.postedAt,
+          voidedAt: new Date('2026-04-15T00:00:00.000Z'),
+          voidingEntryId,
+          version: 2,
+        })
+      );
+      expect(Object.isFrozen(voidedEntry)).toBe(true);
+      expect(events).toEqual([
+        expect.objectContaining({ type: EJournalEntryEvent.Voided }),
+      ]);
+      expect(audit.action).toBe(EJournalEntryAuditAction.Voided);
+      expect(audit.diff.before).toEqual(
+        expect.objectContaining({ id: entry.id })
+      );
+    });
+
+    it('should reject voiding a draft entry', () => {
+      const draftEntry = makeEntry(null);
+
+      expect(() =>
+        journalEntryEntity.void(draftEntry, {
+          voidingEntryId: '4c6e83ef-2a1b-4c3d-8d9e-5e6f7a8b9c0d' as TEntityId,
+        })
+      ).toThrow(journalEntryError.InvalidStatusTransition);
+    });
+
+    it('should reject an invalid voiding entry id', () => {
+      expect(() =>
+        journalEntryEntity.void(
+          makeEntry(new Date('2026-04-15T00:00:00.000Z')),
+          {
+            voidingEntryId: 'invalid' as TEntityId,
+          }
+        )
+      ).toThrow(journalEntryError.InvalidValue);
+    });
+
+    it('should archive draft and posted entries with audit and event metadata', () => {
+      const entry = makeEntry(new Date('2026-04-15T00:00:00.000Z'));
+
+      const [archivedEntry, events, audit] = journalEntryEntity.archive(entry);
+
+      expect(archivedEntry).toEqual(
+        expect.objectContaining({
+          status: EJournalEntryStatus.Archived,
+          version: 2,
+        })
+      );
+      expect(events).toEqual([
+        expect.objectContaining({ type: EJournalEntryEvent.Archived }),
+      ]);
+      expect(audit.action).toBe(EJournalEntryAuditAction.Archived);
+    });
+
+    it('should archive a draft entry', () => {
+      const [archivedEntry] = journalEntryEntity.archive(makeEntry(null));
+
+      expect(archivedEntry.status).toBe(EJournalEntryStatus.Archived);
+      expect(archivedEntry.postedAt).toBeNull();
+    });
+
+    it('should reject archiving a voided entry', () => {
+      const [voidedEntry] = journalEntryEntity.void(
+        makeEntry(new Date('2026-04-15T00:00:00.000Z')),
+        {
+          voidingEntryId: '4c6e83ef-2a1b-4c3d-8d9e-5e6f7a8b9c0d' as TEntityId,
+        }
+      );
+
+      expect(() => journalEntryEntity.archive(voidedEntry)).toThrow(
+        journalEntryError.InvalidStatusTransition
+      );
     });
   });
 });

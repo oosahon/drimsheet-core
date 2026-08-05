@@ -15,6 +15,15 @@ export interface IJournalLineReq {
   sequenceOrder: number;
 }
 
+interface ICounterpartyPayload {
+  id?: string;
+  name: string;
+}
+
+export interface IJournalHeaderCreateReq {
+  sourceType: UJournalEntrySourceType;
+}
+
 export interface IJournalLineDto {
   id: string;
   entryId: string;

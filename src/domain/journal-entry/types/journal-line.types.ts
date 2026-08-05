@@ -33,11 +33,14 @@ export interface IJournalLine {
 
 export interface IJournalLineMakePayload extends Pick<
   IJournalLine,
-  'accountId' | 'sequenceOrder' | 'amount' | 'exchangeRate' | 'side'
+  | 'accountId'
+  | 'sequenceOrder'
+  | 'amount'
+  | 'exchangeRate'
+  | 'side'
+  | 'description'
 > {
   functionalCurrency: ICurrency;
-  // TODO: use `null` instead of undefined
-  description: string | null;
 }
 
 export type IJournalLineInput = Omit<IJournalLineMakePayload, 'side'>;

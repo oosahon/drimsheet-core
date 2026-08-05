@@ -19,6 +19,19 @@ function validateStatus(status: UJournalEntryStatus) {
   }
 }
 
+function validateTransition(
+  currentStatus: UJournalEntryStatus,
+  nextStatus: UJournalEntryStatus,
+  allowedStatuses: UJournalEntryStatus[]
+) {
+  if (!allowedStatuses.includes(currentStatus)) {
+    throw new journalEntryError.InvalidStatusTransition({
+      currentStatus,
+      nextStatus,
+    });
+  }
+}
+
 function isUniqueSequenceOrder(lines: IJournalLine[]) {
   const sequenceOrders = lines.map((item) => item.sequenceOrder);
   const uniqueSequenceOrders = new Set(sequenceOrders);
@@ -124,6 +137,7 @@ function validateVoidingEntryId(value: TEntityId | null) {
 
 const journalEntryEntityHelpers = Object.freeze({
   validateStatus,
+  validateTransition,
   validateLine,
   isUniqueSequenceOrder,
   getMemo,

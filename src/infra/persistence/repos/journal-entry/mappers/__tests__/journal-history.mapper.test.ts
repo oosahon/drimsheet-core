@@ -1,8 +1,5 @@
 import journalEntryEntity from '../../../../../../domain/journal-entry/entities/journal-entry.entity';
-import {
-  EJournalEntrySourceType,
-  EJournalEntryStatus,
-} from '../../../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalEntrySourceType } from '../../../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../../../domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
 import { TEntityId } from '../../../../../../shared/types/uuid';
@@ -21,11 +18,8 @@ describe('journal history mappers', () => {
       accountingEntityId,
       sourceType: EJournalEntrySourceType.Transfer,
       counterPartyId: null,
-      status: EJournalEntryStatus.Draft,
       effectiveDate: new Date('2026-06-14T00:00:00.000Z'),
       postedAt: null,
-      voidedAt: null,
-      voidingEntryId: null,
       memo: 'Transfer',
       createdBy: actorId,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,

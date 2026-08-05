@@ -6,10 +6,7 @@ import currencyEntity from '../../money/entities/currency.entity';
 import journalEntryEntity from '../entities/journal-entry.entity';
 import journalLineEntity from '../entities/journal-line.entity';
 import journalEntryError from '../errors/journal-entry.error';
-import {
-  EJournalEntrySourceType,
-  EJournalEntryStatus,
-} from '../types/journal-entry.types';
+import { EJournalEntrySourceType } from '../types/journal-entry.types';
 import { IJournalLineMakePayload } from '../types/journal-line.types';
 import { IOpeningBalanceEntryService } from '../types/opening-balance-entry.service.types';
 
@@ -93,11 +90,8 @@ function makeCreate(
       accountingEntityId,
       sourceType: EJournalEntrySourceType.OpeningBalance,
       counterPartyId: null,
-      status: EJournalEntryStatus.Posted,
       effectiveDate,
       postedAt: effectiveDate,
-      voidedAt: null,
-      voidingEntryId: null,
       memo: 'Opening balance',
       createdBy,
       functionalCurrency,
