@@ -1,6 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
 import { accountingEntitiesTable } from '../config/accounting-entity';
-import { counterpartiesTable } from '../config/counterparties';
 import {
   journalEntriesTable,
   journalEntrySourceType,
@@ -46,12 +45,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       notNull: true,
     },
 
-    counterparty_id: {
-      type: 'uuid',
-      references: counterpartiesTable,
-      notNull: false,
-    },
-
     memo: {
       type: 'varchar(100)',
     },
@@ -78,6 +71,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       type: 'uuid',
       references: journalEntriesTable,
     },
+
     version: {
       type: 'integer',
       notNull: true,

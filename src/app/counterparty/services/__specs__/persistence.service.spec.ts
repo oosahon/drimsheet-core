@@ -36,6 +36,7 @@ const mockContractorRepo: jest.Mocked<IContractorRepo> = {
 const mockCounterpartyRepo: jest.Mocked<ICounterpartyRepo> = {
   create: jest.fn(),
   findAll: jest.fn(),
+  findById: jest.fn(),
 };
 
 const mockEmployerRepo: jest.Mocked<IEmployerRepo> = {

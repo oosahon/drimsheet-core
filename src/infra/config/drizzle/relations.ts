@@ -516,7 +516,7 @@ export const counterpartiesInCoreRelations = relations(
     counterpartyVendorsInCores: many(counterpartyVendorsInCore),
     counterpartyEmployersInCores: many(counterpartyEmployersInCore),
     counterpartyContractorsInCores: many(counterpartyContractorsInCore),
-    journalEntriesInCores: many(journalEntriesInCore),
+    journalLinesInCores: many(journalLinesInCore),
     counterpartyRolesInCores: many(counterpartyRolesInCore),
   })
 );
@@ -598,10 +598,6 @@ export const journalEntriesInCoreRelations = relations(
       fields: [journalEntriesInCore.accountingEntityId],
       references: [accountingEntitiesInCore.id],
     }),
-    counterpartiesInCore: one(counterpartiesInCore, {
-      fields: [journalEntriesInCore.counterpartyId],
-      references: [counterpartiesInCore.id],
-    }),
     journalEntriesInCore: one(journalEntriesInCore, {
       fields: [journalEntriesInCore.voidingEntryId],
       references: [journalEntriesInCore.id],
@@ -657,6 +653,10 @@ export const journalLinesInCoreRelations = relations(
     ledgerAccountsInCore: one(ledgerAccountsInCore, {
       fields: [journalLinesInCore.accountId],
       references: [ledgerAccountsInCore.id],
+    }),
+    counterpartiesInCore: one(counterpartiesInCore, {
+      fields: [journalLinesInCore.counterpartyId],
+      references: [counterpartiesInCore.id],
     }),
     currenciesInCore_currencyCode: one(currenciesInCore, {
       fields: [journalLinesInCore.currencyCode],

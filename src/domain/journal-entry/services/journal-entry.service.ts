@@ -1,0 +1,92 @@
+import IAccountingPeriodService from '../../accounting/types/accounting-period.service.types';
+import ICounterpartyRepo from '../../counterparty/repos/counterparty.repo';
+import currencyEntity from '../../money/entities/currency.entity';
+import journalEntryEntity from '../entities/journal-entry.entity';
+import journalEntryError from '../errors/journal-entry.error';
+import { IJournalEntryService } from '../types/journal-entry.service.types';
+import { EJournalEntrySourceType } from '../types/journal-entry.types';
+import {
+  EJournalSide,
+  IJournalLineMakePayload,
+} from '../types/journal-line.types';
+import helpers from './helpers/journal-entry.service.helpers';
+
+interface IDependencies {
+  counterpartyRepo: ICounterpartyRepo;
+  accountingPeriodService: IAccountingPeriodService;
+}
+
+function makeCreateReceipt(
+  deps: IDependencies
+): IJournalEntryService['createReceipt'] {
+  return async (payload, repoOptions) => {
+    const { header, sourceLines, destinationLines } = payload;
+
+    await helpers.validateAccounts(payload);
+
+    await deps.accountingPeriodService.validatePostingPeriod(
+      header.accountingEntityId,
+      header.effectiveDate,
+      repoOptions
+    );
+
+    // TODO: move counterparty to journal line
+    const counterparty = await deps.counterpartyRepo.findById(
+      header.counterpartyId,
+      header.accountingEntityId,
+      repoOptions
+    );
+    if (!counterparty) {
+      throw new journalEntryError.InvalidCounterpartyId({
+        id: header.counterpartyId,
+      });
+    }
+
+    const functionalCurrency = currencyEntity.getByCode(
+      header.functionalCurrencyCode
+    );
+
+    const sourceLinesPayload: IJournalLineMakePayload[] = sourceLines.map(
+      (line) => ({
+        accountId: line.account.id,
+        sequenceOrder: line.sequenceOrder,
+        amount: line.amount,
+        exchangeRate: line.exchangeRate,
+        side: EJournalSide.Credit,
+        description: line.description,
+        functionalCurrency,
+      })
+    );
+
+    const destinationLinesPayload: IJournalLineMakePayload[] =
+      destinationLines.map((line) => ({
+        accountId: line.account.id,
+        sequenceOrder: line.sequenceOrder,
+        amount: line.amount,
+        exchangeRate: line.exchangeRate,
+        side: EJournalSide.Debit,
+        description: line.description,
+        functionalCurrency,
+      }));
+
+    return journalEntryEntity.make({
+      accountingEntityId: header.accountingEntityId,
+      sourceType: EJournalEntrySourceType.Receipt,
+      counterPartyId: header.counterpartyId,
+      effectiveDate: header.effectiveDate,
+      postedAt: header.postedAt,
+      memo: header.memo,
+      createdBy: header.createdBy,
+      functionalCurrency,
+      lines: [...sourceLinesPayload, ...destinationLinesPayload],
+    });
+  };
+}
+
+export default function makeJournalEntryService(
+  deps: IDependencies
+): IJournalEntryService {
+  return Object.freeze({
+    createReceipt: makeCreateReceipt(deps),
+  });
+}

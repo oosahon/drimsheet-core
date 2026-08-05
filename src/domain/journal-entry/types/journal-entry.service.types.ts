@@ -32,8 +32,8 @@ export interface ICreateReceiptEntryPayload {
   destinationLines: ILinePayload[];
 }
 
-export interface IReceiptEntryService {
-  create(
+export interface IJournalEntryService {
+  createReceipt(
     payload: ICreateReceiptEntryPayload,
     repoOptions: IReadRepoOptions
   ): Promise<TAuditedJournalEntry>;

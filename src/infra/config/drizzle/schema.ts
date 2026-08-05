@@ -1329,7 +1329,6 @@ export const journalEntriesInCore = core.table(
     id: uuid().primaryKey().notNull(),
     accountingEntityId: uuid('accounting_entity_id').notNull(),
     sourceType: journalEntrySourceTypeInCore('source_type').notNull(),
-    counterpartyId: uuid('counterparty_id'),
     memo: varchar({ length: 100 }),
     status: journalEntryStatusInCore().notNull(),
     effectiveDate: date('effective_date').notNull(),
@@ -1351,11 +1350,6 @@ export const journalEntriesInCore = core.table(
       foreignColumns: [accountingEntitiesInCore.id],
       name: 'journal_entries_accounting_entity_id_fkey',
     }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.counterpartyId],
-      foreignColumns: [counterpartiesInCore.id],
-      name: 'journal_entries_counterparty_id_fkey',
-    }),
     foreignKey({
       columns: [table.voidingEntryId],
       foreignColumns: [table.id],
@@ -1446,6 +1440,7 @@ export const journalLinesInCore = core.table(
     id: uuid().primaryKey().notNull(),
     entryId: uuid('entry_id').notNull(),
     accountId: uuid('account_id').notNull(),
+    counterpartyId: uuid('counterparty_id'),
     sequenceOrder: integer('sequence_order').notNull(),
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     amount: bigint({ mode: 'number' }).notNull(),
@@ -1478,6 +1473,11 @@ export const journalLinesInCore = core.table(
       foreignColumns: [ledgerAccountsInCore.id],
       name: 'journal_lines_account_id_fkey',
     }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.counterpartyId],
+      foreignColumns: [counterpartiesInCore.id],
+      name: 'journal_lines_counterparty_id_fkey',
+    }),
     foreignKey({
       columns: [table.currencyCode],
       foreignColumns: [currenciesInCore.code],

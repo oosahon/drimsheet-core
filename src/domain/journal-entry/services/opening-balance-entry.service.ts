@@ -10,6 +10,7 @@ import { EJournalEntrySourceType } from '../types/journal-entry.types';
 import { IJournalLineMakePayload } from '../types/journal-line.types';
 import { IOpeningBalanceEntryService } from '../types/opening-balance-entry.service.types';
 
+// TODO: move to journal entry service
 interface IDependencies {
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
   ledgerAccountRepo: ILedgerAccountRepo;
