@@ -637,10 +637,6 @@
           "sourceType": {
             "$ref": "#/components/schemas/UJournalEntrySourceType"
           },
-          "counterpartyId": {
-            "type": "string",
-            "nullable": true
-          },
           "memo": {
             "type": "string",
             "nullable": true
@@ -684,7 +680,6 @@
         },
         "required": [
           "sourceType",
-          "counterpartyId",
           "memo",
           "status",
           "effectiveDate",
@@ -757,6 +752,10 @@
           "accountId": {
             "type": "string"
           },
+          "counterpartyId": {
+            "type": "string",
+            "nullable": true
+          },
           "sequenceOrder": {
             "type": "number",
             "format": "double"
@@ -805,6 +804,7 @@
           "id",
           "entryId",
           "accountId",
+          "counterpartyId",
           "sequenceOrder",
           "amount",
           "exchangeRate",
@@ -856,6 +856,248 @@
             "format": "double"
           }
         },
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IJournalLineDto": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "entryId": {
+            "type": "string"
+          },
+          "accountId": {
+            "type": "string"
+          },
+          "counterpartyId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sequenceOrder": {
+            "type": "number",
+            "format": "double"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "exchangeRate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IExchangeRate"
+              }
+            ],
+            "nullable": true
+          },
+          "functionalAmount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "side": {
+            "$ref": "#/components/schemas/UJournalSide"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number",
+            "format": "double"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "entryId",
+          "accountId",
+          "counterpartyId",
+          "sequenceOrder",
+          "amount",
+          "exchangeRate",
+          "functionalAmount",
+          "side",
+          "description",
+          "version",
+          "createdAt",
+          "updatedAt"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IJournalEntryDto": {
+        "properties": {
+          "sourceType": {
+            "$ref": "#/components/schemas/UJournalEntrySourceType"
+          },
+          "memo": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/UJournalEntryStatus"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "voidedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "voidingEntryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "version": {
+            "type": "number",
+            "format": "double"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "accountingEntityId": {
+            "type": "string"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/IJournalLineDto"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "sourceType",
+          "memo",
+          "status",
+          "effectiveDate",
+          "postedAt",
+          "voidedAt",
+          "voidingEntryId",
+          "version",
+          "createdBy",
+          "createdAt",
+          "updatedAt",
+          "id",
+          "accountingEntityId",
+          "lines"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UCounterpartyType": {
+        "type": "string",
+        "enum": ["individual", "organization"]
+      },
+      "IJournalCounterpartyReq": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/UCounterpartyType"
+          }
+        },
+        "required": ["name"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IReceiptEntryLineReq": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "counterparty": {
+            "$ref": "#/components/schemas/IJournalCounterpartyReq"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "exchangeRate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IExchangeRateDto"
+              }
+            ],
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "sequenceOrder": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "accountId",
+          "counterparty",
+          "amount",
+          "exchangeRate",
+          "description",
+          "sequenceOrder"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IReceiptEntryReq": {
+        "properties": {
+          "sourceLine": {
+            "$ref": "#/components/schemas/IReceiptEntryLineReq"
+          },
+          "destinationLines": {
+            "items": {
+              "$ref": "#/components/schemas/IReceiptEntryLineReq"
+            },
+            "type": "array"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "memo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sourceLine",
+          "destinationLines",
+          "effectiveDate",
+          "postedAt",
+          "memo"
+        ],
         "type": "object",
         "additionalProperties": false
       },
@@ -927,10 +1169,6 @@
       "UCounterpartyStatus": {
         "type": "string",
         "enum": ["active", "archived"]
-      },
-      "UCounterpartyType": {
-        "type": "string",
-        "enum": ["individual", "organization"]
       },
       "UCounterpartyRole": {
         "type": "string",
@@ -2086,6 +2324,77 @@
             }
           }
         ]
+      }
+    },
+    "/journal-entries/receipt": {
+      "post": {
+        "operationId": "createReceipt",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IJournalEntryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create receipt journal entry",
+        "tags": ["Journal Entry"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IReceiptEntryReq"
+              }
+            }
+          }
+        }
       }
     },
     "/currencies": {

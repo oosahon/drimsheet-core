@@ -163,7 +163,6 @@ describe('openingBalanceEntryService', () => {
         expect.objectContaining({
           accountingEntityId: accountingEntity.id,
           sourceType: EJournalEntrySourceType.OpeningBalance,
-          counterPartyId: null,
           memo: 'Opening balance',
           status: EJournalEntryStatus.Posted,
           effectiveDate: timestamp,
@@ -181,9 +180,9 @@ describe('openingBalanceEntryService', () => {
       expect(journalEntry.lines).toEqual([
         expect.objectContaining({
           accountId: postingAccount.id,
+          counterpartyId: null,
           sequenceOrder: 1,
           amount,
-          functionalAmount: amount,
           exchangeRate: null,
           side: EJournalSide.Debit,
           description: 'Opening balance',
@@ -193,9 +192,9 @@ describe('openingBalanceEntryService', () => {
         }),
         expect.objectContaining({
           accountId: equityAccount.id,
+          counterpartyId: null,
           sequenceOrder: 2,
           amount,
-          functionalAmount: amount,
           exchangeRate: null,
           side: EJournalSide.Credit,
           description: 'Opening balance',

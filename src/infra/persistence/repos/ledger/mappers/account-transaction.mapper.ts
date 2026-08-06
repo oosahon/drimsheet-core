@@ -16,7 +16,6 @@ const accountTransactionMapper = {
       ...journalLineMapper.toDomain(payload.line),
       header: {
         sourceType: payload.header.sourceType,
-        counterPartyId: (payload.header.counterpartyId as TEntityId) ?? null,
         memo: payload.header.memo,
         status: payload.header.status,
         effectiveDate: fromRepoDate(payload.header.effectiveDate),
@@ -40,7 +39,6 @@ const accountTransactionMapper = {
       ...journalLineMapper.toDto(payload),
       header: {
         sourceType: payload.header.sourceType,
-        counterpartyId: payload.header.counterPartyId,
         memo: payload.header.memo,
         status: payload.header.status,
         effectiveDate: payload.header.effectiveDate,

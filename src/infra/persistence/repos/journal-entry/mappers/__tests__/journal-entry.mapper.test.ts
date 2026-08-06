@@ -57,12 +57,8 @@ describe('Journal Entry Mapper', () => {
     return journalEntryEntity.make({
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.Transfer,
-      counterPartyId: null,
-      status: EJournalEntryStatus.Posted,
       effectiveDate: new Date('2026-05-01T00:00:00.000Z'),
       postedAt: new Date('2026-05-01T01:00:00.000Z'),
-      voidedAt: new Date('2026-05-01T02:00:00.000Z'),
-      voidingEntryId: null,
       memo: 'Cash transfer',
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       createdBy: user.id,
@@ -96,13 +92,12 @@ describe('Journal Entry Mapper', () => {
       expect(journalEntryMapper.toRepo(entry)).toEqual({
         id: entry.id,
         accountingEntityId: entry.accountingEntityId,
-        counterpartyId: null,
         sourceType: EJournalEntrySourceType.Transfer,
         memo: 'Cash transfer',
         status: EJournalEntryStatus.Posted,
         effectiveDate: entry.effectiveDate.toISOString(),
         postedAt: entry.postedAt?.toISOString(),
-        voidedAt: entry.voidedAt?.toISOString(),
+        voidedAt: null,
         voidingEntryId: null,
         version: 1,
         createdBy: entry.createdBy,
@@ -123,6 +118,17 @@ describe('Journal Entry Mapper', () => {
         voidedAt: null,
       });
     });
+
+    it('maps voidedAt to repo date string if present', () => {
+      const entry = {
+        ...makeEntry(),
+        voidedAt: new Date('2026-05-01T02:00:00.000Z'),
+      };
+
+      expect(journalEntryMapper.toRepo(entry)).toMatchObject({
+        voidedAt: '2026-05-01T02:00:00.000Z',
+      });
+    });
   });
 
   describe('toDomain', () => {
@@ -130,7 +136,6 @@ describe('Journal Entry Mapper', () => {
       const entry = makeEntry();
       const model: IJournalEntrySelectModel = {
         ...journalEntryMapper.toRepo(entry),
-        counterpartyId: entry.counterPartyId,
         postedAt: entry.postedAt?.toISOString() ?? null,
         voidedAt: entry.voidedAt?.toISOString() ?? null,
         journalLinesInCores: entry.lines.map(journalLineMapper.toRepo),
@@ -143,17 +148,30 @@ describe('Journal Entry Mapper', () => {
       const entry = makeEntry();
       const model: IJournalEntrySelectModel = {
         ...journalEntryMapper.toRepo(entry),
-        counterpartyId: null,
         postedAt: null,
         voidedAt: null,
         journalLinesInCores: entry.lines.map(journalLineMapper.toRepo),
       };
 
       expect(journalEntryMapper.toDomain(model)).toMatchObject({
-        counterPartyId: null,
         postedAt: null,
         voidedAt: null,
       });
+    });
+
+    it('maps truthy repo voidedAt to domain Date if present', () => {
+      const entry = {
+        ...makeEntry(),
+        voidedAt: new Date('2026-05-01T02:00:00.000Z'),
+      };
+      const model: IJournalEntrySelectModel = {
+        ...journalEntryMapper.toRepo(entry),
+        postedAt: entry.postedAt?.toISOString() ?? null,
+        voidedAt: '2026-05-01T02:00:00.000Z',
+        journalLinesInCores: entry.lines.map(journalLineMapper.toRepo),
+      };
+
+      expect(journalEntryMapper.toDomain(model)).toEqual(entry);
     });
   });
 
@@ -165,7 +183,6 @@ describe('Journal Entry Mapper', () => {
         id: entry.id,
         accountingEntityId: entry.accountingEntityId,
         sourceType: EJournalEntrySourceType.Transfer,
-        counterpartyId: null,
         memo: 'Cash transfer',
         status: EJournalEntryStatus.Posted,
         version: 1,

@@ -5,9 +5,8 @@ import {
 import { IJournalLineReq } from '../journal-entry/journal-entry.dto';
 
 export interface IJournalEntryReq {
-  sourceLine: IJournalLineReq;
-  // TODO: include counterparty when module is available
   sourceType: UJournalEntrySourceType;
+  sourceLine: IJournalLineReq;
   destinationLines: IJournalLineReq[];
   status: UJournalEntryStatus;
   effectiveDate: Date;

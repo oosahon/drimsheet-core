@@ -23,7 +23,6 @@ const journalEntryMapper = {
       id: payload.id as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
       sourceType: payload.sourceType,
-      counterPartyId: (payload.counterpartyId as TEntityId) ?? null,
       memo: payload.memo,
       status: payload.status,
       lines: payload.journalLinesInCores.map((line) =>
@@ -44,7 +43,6 @@ const journalEntryMapper = {
     return {
       id: payload.id,
       accountingEntityId: payload.accountingEntityId,
-      counterpartyId: payload.counterPartyId,
       sourceType: payload.sourceType,
       memo: payload.memo,
       status: payload.status,
@@ -64,7 +62,6 @@ const journalEntryMapper = {
       id: payload.id,
       accountingEntityId: payload.accountingEntityId,
       sourceType: payload.sourceType,
-      counterpartyId: payload.counterPartyId,
       lines: payload.lines.map(journalLineMapper.toDto),
       memo: payload.memo,
       status: payload.status,

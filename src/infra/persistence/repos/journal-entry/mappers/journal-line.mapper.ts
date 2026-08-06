@@ -22,6 +22,7 @@ const journalLineMapper = {
       id: payload.id as TEntityId,
       entryId: payload.entryId as TEntityId,
       accountId: payload.accountId as TEntityId,
+      counterpartyId: (payload.counterpartyId as TEntityId) ?? null,
       sequenceOrder: payload.sequenceOrder,
       amount: moneyMapper.fromRepo(payload.amount, payload.currencyCode),
       exchangeRate: payload.exchangeRate
@@ -47,6 +48,7 @@ const journalLineMapper = {
       id: payload.id,
       entryId: payload.entryId,
       accountId: payload.accountId,
+      counterpartyId: payload.counterpartyId,
       sequenceOrder: payload.sequenceOrder,
       ...moneyMapper.toRepo(payload.amount),
       exchangeRate: payload.exchangeRate,
@@ -66,6 +68,7 @@ const journalLineMapper = {
       id: payload.id,
       entryId: payload.entryId,
       accountId: payload.accountId,
+      counterpartyId: payload.counterpartyId,
       sequenceOrder: payload.sequenceOrder,
       amount: moneyMapper.toDto(payload.amount),
       exchangeRate: payload.exchangeRate,

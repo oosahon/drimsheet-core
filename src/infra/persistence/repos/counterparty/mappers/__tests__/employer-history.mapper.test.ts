@@ -6,7 +6,7 @@ import employerHistoryMapper from '../employer-history.mapper';
 describe('employerHistoryMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');
   const employer: IEmployer = {
-    counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     displayName: 'Acme Corp Inc',
     address: {
       line1: '123 Main St',
@@ -20,7 +20,7 @@ describe('employerHistoryMapper', () => {
   };
 
   const history: IEmployerHistory = {
-    entityId: employer.counterPartyId,
+    entityId: employer.counterpartyId,
     action: 'created',
     actor: {
       type: 'user',
@@ -38,7 +38,7 @@ describe('employerHistoryMapper', () => {
     const result = employerHistoryMapper.toRepo(history);
 
     expect(result).toEqual({
-      counterpartyId: employer.counterPartyId,
+      counterpartyId: employer.counterpartyId,
       actorType: 'user',
       action: 'created',
       userId: '123e4567-e89b-12d3-a456-426614174003',

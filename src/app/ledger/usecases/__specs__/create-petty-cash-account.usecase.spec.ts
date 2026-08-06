@@ -3,10 +3,7 @@ import { EAccountingEntityType } from '../../../../domain/accounting/types/accou
 import IAccountingPeriodService from '../../../../domain/accounting/types/accounting-period.service.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import mockOpeningBalanceEntryService from '../../../../domain/journal-entry/types/__mocks__/opening-balance-entry.service.mock';
-import {
-  EJournalEntrySourceType,
-  EJournalEntryStatus,
-} from '../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/asset-account/config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
@@ -127,12 +124,8 @@ describe('createPettyCashSubAccountUseCase', () => {
   ] = journalEntryEntity.make({
     accountingEntityId: mockAccountingEntity.id,
     sourceType: EJournalEntrySourceType.OpeningBalance,
-    counterPartyId: null,
-    status: EJournalEntryStatus.Posted,
     effectiveDate: validOpeningBalance.date,
     postedAt: validOpeningBalance.date,
-    voidedAt: null,
-    voidingEntryId: null,
     memo: 'Opening balance',
     createdBy: mockUser.id,
     functionalCurrency: SYSTEM_CURRENCIES.NGN,

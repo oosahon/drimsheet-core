@@ -125,6 +125,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
       id: '123e4567-e89b-12d3-a456-426614174010' as TEntityId,
       createdBy: mockUser.id,
     },
+    accountingEntityId: mockAccountingEntity.id,
     balanceDelta: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
     functionalBalanceDelta: {
       amount: 1000,
@@ -141,6 +142,7 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
 
     expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
       mockAssetAccount.id,
+      mockAccountingEntity.id,
       { correlationId }
     );
     expect(mockLedgerAccountBalanceRepo.findByAccountId).toHaveBeenCalledWith(

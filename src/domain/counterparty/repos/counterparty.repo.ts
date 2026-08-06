@@ -1,5 +1,6 @@
 import {
   IPaginatedReadRepoOptions,
+  IReadRepoOptions,
   IWriteRepoOptions,
 } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
@@ -40,4 +41,10 @@ export default interface ICounterpartyRepo {
     accountingEntityId: TEntityId,
     options: IFindAllOptions
   ): Promise<IPaginatedResponse<ICounterparty>>;
+
+  findById(
+    id: TEntityId,
+    accountingEntityId: TEntityId,
+    options: IReadRepoOptions
+  ): Promise<ICounterparty | null>;
 }

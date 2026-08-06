@@ -83,10 +83,10 @@ function validateGreaterThan<T extends Error>(
 }
 
 function isLessThan(
-  date: Date | string | number,
-  dateToCompare: Date | string | number
+  dateToValidate: Date | string | number,
+  referenceDate: Date | string | number
 ) {
-  return dayjs(date).isBefore(dayjs(dateToCompare));
+  return dayjs(dateToValidate).isBefore(dayjs(referenceDate));
 }
 
 function validateLessThan<T extends Error>(

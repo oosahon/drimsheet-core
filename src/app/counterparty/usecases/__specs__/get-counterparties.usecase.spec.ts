@@ -9,6 +9,7 @@ import makeGetCounterpartiesUsecase from '../get-counterparties.usecase';
 const mockCounterpartyRepo: jest.Mocked<ICounterpartyRepo> = {
   create: jest.fn(),
   findAll: jest.fn(),
+  findById: jest.fn(),
 };
 
 describe('makeGetCounterpartiesUsecase', () => {

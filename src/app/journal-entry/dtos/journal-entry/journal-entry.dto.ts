@@ -1,3 +1,4 @@
+import { UCounterpartyType } from '../../../../domain/counterparty/types/counterparty.types';
 import {
   UJournalEntrySourceType,
   UJournalEntryStatus,
@@ -9,16 +10,28 @@ import { IMoneyDto } from '../../../money/dtos/money/money.dto';
 
 export interface IJournalLineReq {
   accountId: string;
+  counterparty: IJournalCounterpartyReq | null;
   amount: IMoneyDto;
   exchangeRate: IExchangeRateDto | null;
   description: string | null;
   sequenceOrder: number;
 }
 
+export interface IJournalCounterpartyReq {
+  id?: string;
+  name: string;
+  type?: UCounterpartyType;
+}
+
+export interface IJournalHeaderCreateReq {
+  sourceType: UJournalEntrySourceType;
+}
+
 export interface IJournalLineDto {
   id: string;
   entryId: string;
   accountId: string;
+  counterpartyId: string | null;
   sequenceOrder: number;
   amount: IMoneyDto;
   exchangeRate: IExchangeRate | null;
@@ -32,7 +45,6 @@ export interface IJournalLineDto {
 
 export interface IJournalHeaderDto {
   sourceType: UJournalEntrySourceType;
-  counterpartyId: string | null;
   memo: string | null;
   status: UJournalEntryStatus;
   effectiveDate: Date;

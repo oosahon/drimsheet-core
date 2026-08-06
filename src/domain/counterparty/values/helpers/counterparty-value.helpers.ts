@@ -4,9 +4,9 @@ import addressValue from '../../../../shared/values/contact-details/address.vo';
 import { IAddress } from '../../../../shared/values/contact-details/types/address.types';
 import counterpartyError from '../../errors/counterparty.error';
 
-function validateCounterpartyId(counterPartyId: TEntityId): void {
+function validateCounterpartyId(counterpartyId: TEntityId): void {
   stringUtils.validateUUID(
-    counterPartyId,
+    counterpartyId,
     counterpartyError.InvalidCounterpartyId
   );
 }

@@ -15,7 +15,7 @@ jest.mock('../employer-history.repo.impl');
 describe('EmployerRepoImpl', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');
   const payload: IEmployer = {
-    counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     displayName: 'Acme Corp Inc',
     address: {
       line1: '123 Main St',
@@ -29,7 +29,7 @@ describe('EmployerRepoImpl', () => {
   };
 
   const history: IEmployerHistory = {
-    entityId: payload.counterPartyId,
+    entityId: payload.counterpartyId,
     action: 'created',
     actor: {
       type: 'user',
@@ -64,7 +64,7 @@ describe('EmployerRepoImpl', () => {
           callback(tx)
       ),
     };
-    const repoValue = { counterpartyId: payload.counterPartyId };
+    const repoValue = { counterpartyId: payload.counterpartyId };
 
     (getDbQuery as jest.Mock).mockReturnValue(query);
     (employerMapper.toRepo as jest.Mock).mockReturnValue(repoValue);

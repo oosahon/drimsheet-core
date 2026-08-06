@@ -1,0 +1,300 @@
+import { Express } from 'express';
+import request from 'supertest';
+import authError from '../../../src/app/auth/errors/auth.error';
+import { IJournalEntryDto } from '../../../src/app/journal-entry/dtos/journal-entry/journal-entry.dto';
+import { IReceiptEntryReq } from '../../../src/app/journal-entry/dtos/receipt-entry/receipt-entry.dto';
+import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
+import { IUser } from '../../../src/domain/user/types/user.types';
+import { tokenService } from '../../../src/infra/ioc/services/auth';
+import { createReceiptUseCase } from '../../../src/infra/ioc/usecases/journal-entry';
+import accountingRepos from '../../../src/infra/persistence/repos/accounting';
+import userRepos from '../../../src/infra/persistence/repos/user';
+import { createApplication } from '../../../src/infra/server';
+import { TEntityId } from '../../../src/shared/types/uuid';
+import appError from '../../../src/shared/values/errors/app.error';
+
+jest.mock('../../../src/infra/ioc/services/auth', () => ({
+  __esModule: true,
+  tokenService: { getAuthUser: jest.fn() },
+}));
+
+jest.mock('../../../src/infra/ioc/usecases/journal-entry', () => ({
+  __esModule: true,
+  createReceiptUseCase: jest.fn(),
+}));
+
+jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
+  __esModule: true,
+  default: {
+    accountingEntity: { findByIdAndUserId: jest.fn() },
+  },
+}));
+
+jest.mock('../../../src/infra/persistence/repos/user', () => ({
+  __esModule: true,
+  default: {
+    user: { findById: jest.fn() },
+  },
+}));
+
+const ENDPOINT = '/api/v1/journal-entries/receipt';
+const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
+const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
+
+const validPayload: IReceiptEntryReq = {
+  sourceLine: {
+    accountId: '123e4567-e89b-12d3-a456-426614174005',
+    counterparty: { name: 'Jane Doe' },
+    amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+    exchangeRate: null,
+    description: 'Revenue line',
+    sequenceOrder: 1,
+  },
+  destinationLines: [
+    {
+      accountId: '123e4567-e89b-12d3-a456-426614174008',
+      counterparty: { name: 'Jane Doe' },
+      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      exchangeRate: null,
+      description: 'Cash line',
+      sequenceOrder: 2,
+    },
+  ],
+  effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
+  postedAt: null,
+  memo: 'Receipt memo',
+};
+
+const accountingEntity = {
+  id: accountingEntityId,
+  ownerId: userId,
+  functionalCurrencyCode: 'NGN',
+  jurisdictionCode: 'NG',
+} as IAccountingEntity;
+
+const createdReceipt: IJournalEntryDto = {
+  id: '123e4567-e89b-12d3-a456-426614174003',
+  accountingEntityId,
+  sourceType: 'receipt',
+  memo: 'Receipt memo',
+  status: 'draft',
+  effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
+  postedAt: null,
+  voidedAt: null,
+  voidingEntryId: null,
+  version: 1,
+  createdBy: userId,
+  createdAt: new Date('2026-08-06T08:00:00.000Z'),
+  updatedAt: new Date('2026-08-06T08:00:00.000Z'),
+  lines: [
+    {
+      id: '123e4567-e89b-12d3-a456-426614174004',
+      entryId: '123e4567-e89b-12d3-a456-426614174003',
+      accountId: '123e4567-e89b-12d3-a456-426614174005',
+      counterpartyId: '123e4567-e89b-12d3-a456-426614174006',
+      sequenceOrder: 1,
+      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      exchangeRate: null,
+      functionalAmount: {
+        amount: 1000,
+        currencyCode: 'NGN',
+        isMinorUnit: true,
+      },
+      side: 'credit',
+      description: 'Revenue line',
+      version: 1,
+      createdAt: new Date('2026-08-06T08:00:00.000Z'),
+      updatedAt: new Date('2026-08-06T08:00:00.000Z'),
+    },
+    {
+      id: '123e4567-e89b-12d3-a456-426614174007',
+      entryId: '123e4567-e89b-12d3-a456-426614174003',
+      accountId: '123e4567-e89b-12d3-a456-426614174008',
+      counterpartyId: '123e4567-e89b-12d3-a456-426614174006',
+      sequenceOrder: 2,
+      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      exchangeRate: null,
+      functionalAmount: {
+        amount: 1000,
+        currencyCode: 'NGN',
+        isMinorUnit: true,
+      },
+      side: 'debit',
+      description: 'Cash line',
+      version: 1,
+      createdAt: new Date('2026-08-06T08:00:00.000Z'),
+      updatedAt: new Date('2026-08-06T08:00:00.000Z'),
+    },
+  ],
+};
+
+describe('POST /journal-entries/receipt', () => {
+  let app: Express;
+  const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
+  const mockFindUser = userRepos.user.findById as jest.Mock;
+  const mockFindAccountingEntity = accountingRepos.accountingEntity
+    .findByIdAndUserId as jest.Mock;
+  const mockCreateReceiptUseCase = createReceiptUseCase as jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockGetAuthUser.mockResolvedValue({ id: userId });
+    mockFindUser.mockResolvedValue({ id: userId } as IUser);
+    mockFindAccountingEntity.mockResolvedValue(accountingEntity);
+    mockCreateReceiptUseCase.mockResolvedValue(createdReceipt);
+    app = createApplication();
+  });
+
+  const makeRequest = (payload: object = validPayload) =>
+    request(app)
+      .post(ENDPOINT)
+      .set('Authorization', 'Bearer valid-token')
+      .set('x-accounting-entity-id', accountingEntityId)
+      .send(payload);
+
+  describe('201 Response', () => {
+    it('returns 201 with the created receipt DTO', async () => {
+      const response = await makeRequest();
+
+      expect(response.status).toBe(201);
+      expect(response.type).toBe('application/json');
+      expect(response.body).toEqual({
+        ...createdReceipt,
+        effectiveDate: createdReceipt.effectiveDate.toISOString(),
+        createdAt: createdReceipt.createdAt.toISOString(),
+        updatedAt: createdReceipt.updatedAt.toISOString(),
+        lines: createdReceipt.lines.map((line) => ({
+          ...line,
+          createdAt: line.createdAt.toISOString(),
+          updatedAt: line.updatedAt.toISOString(),
+        })),
+      });
+
+      expect(mockCreateReceiptUseCase).toHaveBeenCalledWith({
+        ...validPayload,
+        effectiveDate: expect.any(Date),
+      });
+    });
+  });
+
+  describe('400 Response', () => {
+    it('rejects a missing active accounting entity header', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(validPayload);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errorKey).toBe(
+        'accounting_error_accounting_entity_unauthorized'
+      );
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+
+    it('rejects an invalid accounting entity ID format', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .set('x-accounting-entity-id', 'invalid-uuid')
+        .send(validPayload);
+
+      expect(response.status).toBe(400);
+      expect(response.body.errorKey).toBe('app_error_bad_request');
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('401 Response', () => {
+    it('rejects an unauthenticated request', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('x-accounting-entity-id', accountingEntityId)
+        .send(validPayload);
+
+      expect(response.status).toBe(401);
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+
+    it('rejects a nonexistent user', async () => {
+      mockFindUser.mockResolvedValue(null);
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(401);
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+
+    it('rejects an expired token', async () => {
+      mockGetAuthUser.mockRejectedValue(new authError.ExpiredToken());
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(401);
+      expect(response.body.errorKey).toBe('auth_error_expired_token');
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('403 Response', () => {
+    it('rejects a caller-supplied foreign accounting entity context', async () => {
+      mockFindAccountingEntity.mockResolvedValue({
+        ...accountingEntity,
+        ownerId: '999e4567-e89b-12d3-a456-426614174999',
+      });
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        name: 'Forbidden',
+        errorKey: 'app_error_forbidden',
+      });
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('422 Response', () => {
+    it('rejects invalid payload with extra fields (TSOA validation)', async () => {
+      const invalidPayload = {
+        ...validPayload,
+        extraField: 'not allowed',
+      };
+      const response = await makeRequest(invalidPayload);
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+
+    it('returns 422 if usecase validation fails (zod validation runner)', async () => {
+      const validationErrors = [
+        { field: 'sourceLine.accountId', message: 'required' },
+      ];
+      mockCreateReceiptUseCase.mockRejectedValueOnce(
+        new appError.UnprocessableEntity(validationErrors)
+      );
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.validationErrors).toEqual(validationErrors);
+    });
+  });
+
+  describe('500 Response', () => {
+    it('sanitizes unexpected internal errors', async () => {
+      mockCreateReceiptUseCase.mockRejectedValueOnce(
+        new Error('database failure')
+      );
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_internal_server_error',
+      });
+    });
+  });
+});

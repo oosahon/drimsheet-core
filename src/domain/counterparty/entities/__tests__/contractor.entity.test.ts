@@ -4,7 +4,7 @@ import counterpartyError from '../../errors/counterparty.error';
 import contractorEntity from '../contractor.entity';
 
 describe('Contractor Entity', () => {
-  const counterPartyId = generateUUID();
+  const counterpartyId = generateUUID();
   const address: IAddress = {
     line1: '123 Main St',
     line2: null,
@@ -26,11 +26,11 @@ describe('Contractor Entity', () => {
   describe('make', () => {
     it('should create valid contractor', () => {
       const [contractor, events, audit] = contractorEntity.make({
-        counterPartyId,
+        counterpartyId,
         address,
       });
 
-      expect(contractor.counterPartyId).toBe(counterPartyId);
+      expect(contractor.counterpartyId).toBe(counterpartyId);
       expect(contractor.address).toEqual(address);
       expect(contractor.createdAt).toEqual(
         new Date('2026-07-31T12:00:00.000Z')
@@ -49,7 +49,7 @@ describe('Contractor Entity', () => {
     it('should throw error if address is missing', () => {
       expect(() =>
         contractorEntity.make({
-          counterPartyId,
+          counterpartyId,
           address: null as any,
         })
       ).toThrow(counterpartyError.InvalidAddress);
@@ -59,7 +59,7 @@ describe('Contractor Entity', () => {
   describe('update', () => {
     it('should update contractor and create correct audit diff', () => {
       const [beforeContractor] = contractorEntity.make({
-        counterPartyId,
+        counterpartyId,
         address,
       });
 
@@ -77,7 +77,7 @@ describe('Contractor Entity', () => {
         }
       );
 
-      expect(afterContractor.counterPartyId).toBe(counterPartyId);
+      expect(afterContractor.counterpartyId).toBe(counterpartyId);
       expect(afterContractor.address).toEqual(newAddress);
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe('domain:counterparty:contractor:updated');

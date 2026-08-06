@@ -6,6 +6,7 @@ export const ledgerAccountBalanceAdjustmentDtoSchema = z.object({
     id: z.uuid(),
     createdBy: z.uuid(),
   }),
+  accountingEntityId: z.uuid(),
   balanceDelta: moneyDtoValidation,
   functionalBalanceDelta: moneyDtoValidation,
   ledgerAccountId: z.uuid(),

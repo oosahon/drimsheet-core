@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+import { counterpartiesTable } from '../config/counterparties';
 import { currenciesTable } from '../config/currencies';
 import {
   journalEntriesTable,
@@ -18,65 +19,85 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       type: 'uuid',
       primaryKey: true,
     },
+
     entry_id: {
       type: 'uuid',
       notNull: true,
       references: journalEntriesTable,
       onDelete: 'CASCADE',
     },
+
     account_id: {
       type: 'uuid',
       notNull: true,
       references: ledgerAccountsTable,
       onDelete: 'CASCADE',
     },
+
+    counterparty_id: {
+      type: 'uuid',
+      references: counterpartiesTable,
+      notNull: false,
+    },
+
     sequence_order: {
       type: 'integer',
       notNull: true,
     },
+
     amount: {
       type: 'bigint',
       notNull: true,
     },
+
     currency_code: {
       type: 'varchar(3)',
       notNull: true,
       references: currenciesTable,
       onDelete: 'RESTRICT',
     },
+
     exchange_rate: {
       type: 'jsonb',
     },
+
     functional_amount: {
       type: 'bigint',
       notNull: true,
     },
+
     functional_currency_code: {
       type: 'varchar(3)',
       notNull: true,
       references: currenciesTable,
       onDelete: 'RESTRICT',
     },
+
     side: {
       type: toSchemaString(journalSide),
       notNull: true,
     },
+
     description: {
       type: 'varchar(100)',
     },
+
     meta: {
       type: 'jsonb',
     },
+
     version: {
       type: 'integer',
       notNull: true,
       default: 1,
     },
+
     created_at: {
       type: 'timestamptz',
       notNull: true,
       default: pgm.func('now()'),
     },
+
     updated_at: {
       type: 'timestamptz',
       notNull: true,

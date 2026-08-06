@@ -1,5 +1,6 @@
 import { TEntityId } from '../../../shared/types/uuid';
 import { IAddress } from '../../../shared/values/contact-details/types/address.types';
+import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
 
 export const ECounterpartyStatus = {
   Active: 'active',
@@ -38,20 +39,20 @@ export interface ICounterparty {
 }
 
 export interface IEmployer {
-  counterPartyId: TEntityId;
+  counterpartyId: TEntityId;
   displayName: string | null;
   address: IAddress;
   createdAt: Date;
 }
 
 export interface IVendor {
-  counterPartyId: TEntityId;
+  counterpartyId: TEntityId;
   address: IAddress | null;
   createdAt: Date;
 }
 
 export interface IContractor {
-  counterPartyId: TEntityId;
+  counterpartyId: TEntityId;
   address: IAddress;
   createdAt: Date;
 }
@@ -64,17 +65,23 @@ export interface IMakeCounterpartyPayload {
 }
 
 export interface IMakeEmployerPayload {
-  counterPartyId: TEntityId;
+  counterpartyId: TEntityId;
   displayName?: string | null;
   address: IAddress;
 }
 
 export interface IMakeVendorPayload {
-  counterPartyId: TEntityId;
+  counterpartyId: TEntityId;
   address?: IAddress | null;
 }
 
 export interface IMakeContractorPayload {
-  counterPartyId: TEntityId;
+  counterpartyId: TEntityId;
   address: IAddress;
 }
+
+export type TAuditedCounterparty = TAuditedEntity<
+  ICounterparty,
+  ICounterparty,
+  ICounterparty
+>;

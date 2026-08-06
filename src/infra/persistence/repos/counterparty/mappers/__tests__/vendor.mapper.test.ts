@@ -5,7 +5,7 @@ import vendorMapper, { IVendorModel } from '../vendor.mapper';
 describe('vendorMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');
   const entityWithAddress: IVendor = {
-    counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     address: {
       line1: '123 Main St',
       line2: 'Suite 100',
@@ -29,7 +29,7 @@ describe('vendorMapper', () => {
   };
 
   const entityWithoutAddress: IVendor = {
-    counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     address: null,
     createdAt: now,
   };

@@ -298,6 +298,7 @@ describe('ledgerAccountBalanceEntity', () => {
         id,
         entryId: '423e4567-e89b-12d3-a456-426614174003' as TEntityId,
         accountId,
+        counterpartyId: null,
         sequenceOrder: 1,
         amount: { amount: 100n, currency: currencyEntity.getByCode('NGN') },
         exchangeRate: null,

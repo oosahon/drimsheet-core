@@ -8,11 +8,11 @@ import vendorAuditValue from '../values/vendor-audit.vo';
 function make(
   payload: IMakeVendorPayload
 ): TAuditedEntity<IVendor, IVendor, IVendor> {
-  helpers.validateCounterpartyId(payload.counterPartyId);
+  helpers.validateCounterpartyId(payload.counterpartyId);
   const address = helpers.validateAddress(payload.address, false);
 
   const vendor: IVendor = Object.freeze({
-    counterPartyId: payload.counterPartyId,
+    counterpartyId: payload.counterpartyId,
     address,
     createdAt: new Date(),
   });
@@ -30,12 +30,12 @@ function make(
 
 function update(
   before: IVendor,
-  payload: Omit<IMakeVendorPayload, 'counterPartyId'>
+  payload: Omit<IMakeVendorPayload, 'counterpartyId'>
 ): TAuditedEntity<IVendor, IVendor, IVendor> {
   const address = helpers.validateAddress(payload.address, false);
 
   const updatedVendor: IVendor = Object.freeze({
-    counterPartyId: before.counterPartyId,
+    counterpartyId: before.counterpartyId,
     address,
     createdAt: before.createdAt,
   });

@@ -20,7 +20,7 @@ describe('VendorHistoryRepoImpl', () => {
     diff: {
       before: null,
       after: {
-        counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+        counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
         address: null,
         createdAt: now,
       },

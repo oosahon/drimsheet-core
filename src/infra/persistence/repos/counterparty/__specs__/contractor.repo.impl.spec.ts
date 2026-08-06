@@ -15,7 +15,7 @@ jest.mock('../contractor-history.repo.impl');
 describe('ContractorRepoImpl', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');
   const payload: IContractor = {
-    counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     address: {
       line1: '123 Main St',
       line2: 'Suite 100',
@@ -28,7 +28,7 @@ describe('ContractorRepoImpl', () => {
   };
 
   const history: IContractorHistory = {
-    entityId: payload.counterPartyId,
+    entityId: payload.counterpartyId,
     action: 'created',
     actor: {
       type: 'user',
@@ -63,7 +63,7 @@ describe('ContractorRepoImpl', () => {
           callback(tx)
       ),
     };
-    const repoValue = { counterpartyId: payload.counterPartyId };
+    const repoValue = { counterpartyId: payload.counterpartyId };
 
     (getDbQuery as jest.Mock).mockReturnValue(query);
     (contractorMapper.toRepo as jest.Mock).mockReturnValue(repoValue);

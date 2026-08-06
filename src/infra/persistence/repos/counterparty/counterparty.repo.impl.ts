@@ -127,6 +127,35 @@ const counterpartyRepo: ICounterpartyRepo = {
       options
     );
   },
+
+  async findById(id, accountingEntityId, options) {
+    const dbQuery = getDbQuery(options);
+
+    const [result] = await dbQuery
+      .select()
+      .from(counterpartiesInCore)
+      .where(
+        and(
+          eq(counterpartiesInCore.id, id),
+          eq(counterpartiesInCore.accountingEntityId, accountingEntityId)
+        )
+      )
+      .limit(1);
+
+    if (!result) {
+      return null;
+    }
+
+    const roles = await dbQuery
+      .select()
+      .from(counterpartyRolesInCore)
+      .where(eq(counterpartyRolesInCore.counterpartyId, result.id));
+
+    return counterpartyMapper.toDomain(
+      result,
+      roles.map((role) => role.role as UCounterpartyRole)
+    );
+  },
 };
 
 export default counterpartyRepo;

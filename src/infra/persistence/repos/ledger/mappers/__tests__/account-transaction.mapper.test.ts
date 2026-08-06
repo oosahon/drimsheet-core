@@ -15,7 +15,7 @@ describe('Account Transaction Mapper', () => {
   const id = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
   const entryId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
-  const counterPartyId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
+  const counterpartyId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
   const createdBy = '123e4567-e89b-12d3-a456-426614174005' as TEntityId;
   const createdAt = new Date('2026-05-01T00:00:00.000Z');
   const updatedAt = new Date('2026-05-01T01:00:00.000Z');
@@ -27,6 +27,7 @@ describe('Account Transaction Mapper', () => {
     id,
     entryId,
     accountId,
+    counterpartyId,
     sequenceOrder: 1,
     amount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
     exchangeRate: null,
@@ -39,7 +40,6 @@ describe('Account Transaction Mapper', () => {
     updatedAt,
     header: {
       sourceType: EJournalEntrySourceType.Transfer,
-      counterPartyId,
       memo: 'Cash transfer',
       status: EJournalEntryStatus.Posted,
       effectiveDate,
@@ -57,6 +57,7 @@ describe('Account Transaction Mapper', () => {
     id,
     entryId,
     accountId,
+    counterpartyId: counterpartyId,
     sequenceOrder: 1,
     amount: 100_00,
     currencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -75,7 +76,6 @@ describe('Account Transaction Mapper', () => {
     id: entryId,
     accountingEntityId: '123e4567-e89b-12d3-a456-426614174006',
     sourceType: EJournalEntrySourceType.Transfer,
-    counterpartyId: counterPartyId,
     memo: 'Cash transfer',
     status: EJournalEntryStatus.Posted,
     effectiveDate: effectiveDate.toISOString(),
@@ -98,14 +98,13 @@ describe('Account Transaction Mapper', () => {
       expect(accountTransactionMapper.toDomain(model)).toEqual(transaction);
     });
 
-    it('maps nullable journal header fields to domain nulls', () => {
+    it('maps nullable journal fields to domain nulls', () => {
       const result = accountTransactionMapper.toDomain({
-        line: lineModel,
+        line: { ...lineModel, counterpartyId: null },
         header: {
           id: entryId,
           accountingEntityId: '123e4567-e89b-12d3-a456-426614174006',
           sourceType: EJournalEntrySourceType.Transfer,
-          counterpartyId: null,
           memo: null,
           status: EJournalEntryStatus.Posted,
           effectiveDate: effectiveDate.toISOString(),
@@ -119,8 +118,10 @@ describe('Account Transaction Mapper', () => {
         },
       });
 
+      expect(result).toMatchObject({
+        counterpartyId: null,
+      });
       expect(result.header).toMatchObject({
-        counterPartyId: null,
         memo: null,
         postedAt: null,
         voidedAt: null,
@@ -135,6 +136,7 @@ describe('Account Transaction Mapper', () => {
         id,
         entryId,
         accountId,
+        counterpartyId: counterpartyId,
         sequenceOrder: 1,
         amount: {
           amount: 100_00,
@@ -154,7 +156,6 @@ describe('Account Transaction Mapper', () => {
         updatedAt,
         header: {
           sourceType: transaction.header.sourceType,
-          counterpartyId: counterPartyId,
           memo: transaction.header.memo,
           status: transaction.header.status,
           effectiveDate,
@@ -169,11 +170,12 @@ describe('Account Transaction Mapper', () => {
       });
     });
 
-    it('maps nullable journal header fields to DTO nulls', () => {
+    it('maps nullable journal fields to DTO nulls', () => {
       const result = accountTransactionMapper.toDto({
         id,
         entryId,
         accountId,
+        counterpartyId: null,
         sequenceOrder: 1,
         amount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
         exchangeRate: null,
@@ -186,7 +188,6 @@ describe('Account Transaction Mapper', () => {
         updatedAt,
         header: {
           sourceType: EJournalEntrySourceType.Transfer,
-          counterPartyId: null,
           memo: null,
           status: EJournalEntryStatus.Posted,
           effectiveDate,
@@ -200,8 +201,10 @@ describe('Account Transaction Mapper', () => {
         },
       });
 
-      expect(result.header).toMatchObject({
+      expect(result).toMatchObject({
         counterpartyId: null,
+      });
+      expect(result.header).toMatchObject({
         memo: null,
         postedAt: null,
         voidedAt: null,

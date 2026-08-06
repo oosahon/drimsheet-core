@@ -6,11 +6,14 @@ import journalEntryEvents from '../events/journal-entry.events';
 import {
   EJournalEntryAuditAction,
   TAuditedJournalEntry,
+  TAuditedJournalEntryTransition,
 } from '../types/journal-entry-audit.types';
 import {
+  EJournalEntryStatus,
   IJournalEntry,
   IJournalEntryMakePayload,
   IJournalHeader,
+  IVoidJournalEntryPayload,
 } from '../types/journal-entry.types';
 import journalEntryAudit from '../values/journal-entry-audit.vo';
 import helpers from './helpers/journal-entry.entity.helpers';
@@ -23,19 +26,15 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
   );
   stringUtils.validateUUID(payload.createdBy, journalEntryError.InvalidValue);
   helpers.validateSourceType(payload.sourceType);
-  helpers.validateCounterpartyId(payload.sourceType, payload.counterPartyId);
-  helpers.validateStatus(payload.status);
   dateUtils.validateDate(
     payload.effectiveDate,
     journalEntryError.InvalidEffectiveDate
   );
-  helpers.validatePostedAt(payload.postedAt);
-  helpers.validateVoidedAt(payload.voidedAt);
-  helpers.validateVoidingEntryId(payload.voidingEntryId);
-
   const id = generateUUID();
   const timestamp = new Date();
   const memo = helpers.getMemo(payload.memo);
+
+  helpers.validatePostedAt(payload.postedAt);
 
   const linesWithEvents = payload.lines.map((item) =>
     journalLineEntity.make({ id, memo, createdAt: timestamp }, item)
@@ -43,19 +42,23 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
 
   const lines = linesWithEvents.map(([item]) => item);
   helpers.validateLine(lines);
+  helpers.validateCounterparties(payload.sourceType, lines);
+
+  const status = payload.postedAt
+    ? EJournalEntryStatus.Posted
+    : EJournalEntryStatus.Draft;
 
   const entry: IJournalEntry = {
     id,
     accountingEntityId: payload.accountingEntityId,
     sourceType: payload.sourceType,
-    counterPartyId: payload.counterPartyId,
     lines,
     memo,
-    status: payload.status,
+    status,
     effectiveDate: payload.effectiveDate,
     postedAt: payload.postedAt,
-    voidedAt: payload.voidedAt,
-    voidingEntryId: payload.voidingEntryId,
+    voidedAt: null,
+    voidingEntryId: null,
     version: 1,
     createdBy: payload.createdBy,
     createdAt: timestamp,
@@ -82,8 +85,88 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
   ];
 }
 
+function voidEntry(
+  entry: IJournalEntry,
+  payload: IVoidJournalEntryPayload
+): TAuditedJournalEntryTransition {
+  helpers.validateTransition(entry.status, EJournalEntryStatus.Voided, [
+    EJournalEntryStatus.Posted,
+  ]);
+  helpers.validateVoidingEntryId(payload.voidingEntryId);
+
+  const timestamp = new Date();
+  const voidedEntry = makeTransitionedEntry(
+    entry,
+    EJournalEntryStatus.Voided,
+    timestamp,
+    timestamp,
+    payload.voidingEntryId
+  );
+  const event = journalEntryEvents.voided(voidedEntry);
+  const { lines: _lines, ...header } = voidedEntry;
+  const audit = journalEntryAudit.make({
+    before: entry,
+    after: header,
+    action: EJournalEntryAuditAction.Voided,
+  });
+
+  return [voidedEntry, [event], audit];
+}
+
+function archive(entry: IJournalEntry): TAuditedJournalEntryTransition {
+  helpers.validateTransition(entry.status, EJournalEntryStatus.Archived, [
+    EJournalEntryStatus.Draft,
+    EJournalEntryStatus.Posted,
+  ]);
+
+  const timestamp = new Date();
+  const archivedEntry = makeTransitionedEntry(
+    entry,
+    EJournalEntryStatus.Archived,
+    timestamp,
+    entry.voidedAt,
+    entry.voidingEntryId
+  );
+  const event = journalEntryEvents.archived(archivedEntry);
+  const { lines: _lines, ...header } = archivedEntry;
+  const audit = journalEntryAudit.make({
+    before: entry,
+    after: header,
+    action: EJournalEntryAuditAction.Archived,
+  });
+
+  return [archivedEntry, [event], audit];
+}
+
+function makeTransitionedEntry(
+  entry: IJournalEntry,
+  status: IJournalEntry['status'],
+  updatedAt: Date,
+  voidedAt: Date | null,
+  voidingEntryId: IJournalEntry['voidingEntryId']
+) {
+  return Object.freeze({
+    id: entry.id,
+    accountingEntityId: entry.accountingEntityId,
+    sourceType: entry.sourceType,
+    lines: entry.lines,
+    memo: entry.memo,
+    status,
+    effectiveDate: entry.effectiveDate,
+    postedAt: entry.postedAt,
+    voidedAt,
+    voidingEntryId,
+    version: entry.version + 1,
+    createdBy: entry.createdBy,
+    createdAt: entry.createdAt,
+    updatedAt,
+  });
+}
+
 const journalEntryEntity = Object.freeze({
   make,
+  void: voidEntry,
+  archive,
 
   ...helpers,
 });

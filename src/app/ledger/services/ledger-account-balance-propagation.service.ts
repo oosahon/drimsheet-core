@@ -87,6 +87,7 @@ async function propagateBalanceAdjustments(
     for (const [accountId, journalLines] of accountMap.entries()) {
       const account = await deps.ledgerAccountRepo.findById(
         accountId,
+        journalEntry.accountingEntityId,
         repoOptions
       );
 
@@ -128,6 +129,7 @@ async function propagateBalanceAdjustments(
           id: journalEntry.id,
           createdBy: journalEntry.createdBy,
         },
+        accountingEntityId: journalEntry.accountingEntityId,
         correlationId: repoOptions.correlationId,
         balanceDelta: moneyMapper.toDto(balanceDelta),
         functionalBalanceDelta: moneyMapper.toDto(functionalBalanceDelta),

@@ -19,6 +19,19 @@ function validateStatus(status: UJournalEntryStatus) {
   }
 }
 
+function validateTransition(
+  currentStatus: UJournalEntryStatus,
+  nextStatus: UJournalEntryStatus,
+  allowedStatuses: UJournalEntryStatus[]
+) {
+  if (!allowedStatuses.includes(currentStatus)) {
+    throw new journalEntryError.InvalidStatusTransition({
+      currentStatus,
+      nextStatus,
+    });
+  }
+}
+
 function isUniqueSequenceOrder(lines: IJournalLine[]) {
   const sequenceOrders = lines.map((item) => item.sequenceOrder);
   const uniqueSequenceOrders = new Set(sequenceOrders);
@@ -89,18 +102,14 @@ function validateSourceType(sourceType: UJournalEntrySourceType) {
   }
 }
 
-function validateCounterpartyId(
+function validateCounterparties(
   sourceType: UJournalEntrySourceType,
-  counterPartyId: TEntityId | null
+  lines: IJournalLine[]
 ) {
-  if (sourceType === EJournalEntrySourceType.Transfer && counterPartyId) {
+  const hasCounterparty = lines.some((line) => line.counterpartyId !== null);
+
+  if (sourceType === EJournalEntrySourceType.Transfer && hasCounterparty) {
     throw new journalEntryError.CounterpartyIdNotAllowed();
-  }
-  if (counterPartyId) {
-    stringUtils.validateUUID(
-      counterPartyId,
-      journalEntryError.InvalidCounterpartyId
-    );
   }
 }
 
@@ -124,11 +133,12 @@ function validateVoidingEntryId(value: TEntityId | null) {
 
 const journalEntryEntityHelpers = Object.freeze({
   validateStatus,
+  validateTransition,
   validateLine,
   isUniqueSequenceOrder,
   getMemo,
   validateSourceType,
-  validateCounterpartyId,
+  validateCounterparties,
   validatePostedAt,
   validateVoidedAt,
   validateVoidingEntryId,

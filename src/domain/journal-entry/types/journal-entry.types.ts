@@ -33,7 +33,6 @@ export interface IJournalHeader {
   id: TEntityId;
   accountingEntityId: TEntityId;
   sourceType: UJournalEntrySourceType;
-  counterPartyId: TEntityId | null;
   memo: string | null;
   status: UJournalEntryStatus;
   effectiveDate: Date;
@@ -54,15 +53,15 @@ export interface IJournalEntryMakePayload extends Pick<
   IJournalEntry,
   | 'accountingEntityId'
   | 'sourceType'
-  | 'counterPartyId'
-  | 'status'
   | 'effectiveDate'
   | 'postedAt'
-  | 'voidedAt'
-  | 'voidingEntryId'
   | 'memo'
   | 'createdBy'
 > {
   functionalCurrency: ICurrency;
   lines: IJournalLineMakePayload[];
+}
+
+export interface IVoidJournalEntryPayload {
+  voidingEntryId: TEntityId;
 }

@@ -6,7 +6,6 @@ import {
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
-  EJournalEntryStatus,
   IJournalEntry,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
@@ -93,12 +92,8 @@ describe('getAccountTransactionsUseCase', () => {
     [journalEntry] = journalEntryEntity.make({
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.Transfer,
-      counterPartyId: null,
-      status: EJournalEntryStatus.Posted,
       effectiveDate: new Date('2026-05-01T00:00:00.000Z'),
       postedAt: new Date('2026-05-01T00:00:00.000Z'),
-      voidedAt: null,
-      voidingEntryId: null,
       memo: 'Cash transfer',
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       createdBy: user.id,
@@ -139,7 +134,6 @@ describe('getAccountTransactionsUseCase', () => {
           ...journalEntry.lines[0],
           header: {
             sourceType: journalEntry.sourceType,
-            counterPartyId: journalEntry.counterPartyId,
             memo: journalEntry.memo,
             status: journalEntry.status,
             effectiveDate: journalEntry.effectiveDate,
@@ -173,6 +167,7 @@ describe('getAccountTransactionsUseCase', () => {
 
     expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
       ledgerAccount.id,
+      accountingEntity.id,
       { correlationId }
     );
     expect(
@@ -191,6 +186,7 @@ describe('getAccountTransactionsUseCase', () => {
           id: journalEntry.lines[0].id,
           entryId: journalEntry.id,
           accountId: ledgerAccount.id,
+          counterpartyId: journalEntry.lines[0].counterpartyId,
           sequenceOrder: 1,
           amount: {
             amount: 100_00,
@@ -210,7 +206,6 @@ describe('getAccountTransactionsUseCase', () => {
           updatedAt: journalEntry.updatedAt,
           header: {
             sourceType: journalEntry.sourceType,
-            counterpartyId: journalEntry.counterPartyId,
             memo: journalEntry.memo,
             status: journalEntry.status,
             effectiveDate: journalEntry.effectiveDate,

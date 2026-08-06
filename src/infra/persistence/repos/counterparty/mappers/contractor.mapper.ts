@@ -11,7 +11,7 @@ export interface IContractorModel extends InferSelectModel<
 const contractorMapper = {
   toRepo(entity: IContractor): IContractorModel {
     return {
-      counterpartyId: entity.counterPartyId,
+      counterpartyId: entity.counterpartyId,
       addressLine1: entity.address.line1,
       addressLine2: entity.address.line2,
       addressCity: entity.address.city,
@@ -24,7 +24,7 @@ const contractorMapper = {
 
   toDomain(payload: IContractorModel): IContractor {
     return Object.freeze({
-      counterPartyId: payload.counterpartyId as TEntityId,
+      counterpartyId: payload.counterpartyId as TEntityId,
       address: Object.freeze({
         line1: payload.addressLine1,
         line2: payload.addressLine2,

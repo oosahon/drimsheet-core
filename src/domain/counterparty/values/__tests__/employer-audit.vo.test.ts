@@ -10,7 +10,7 @@ import { IEmployer } from '../../types/counterparty.types';
 import employerAuditValue from '../employer-audit.vo';
 
 describe('employerAuditValue', () => {
-  const counterPartyId = generateUUID();
+  const counterpartyId = generateUUID();
   const address: IAddress = {
     line1: '123 Main St',
     line2: null,
@@ -21,7 +21,7 @@ describe('employerAuditValue', () => {
   };
 
   const mockDetails: IEmployer = Object.freeze({
-    counterPartyId,
+    counterpartyId,
     displayName: 'MegaCorp',
     address,
     createdAt: new Date('2026-07-31T12:00:00.000Z'),
@@ -35,7 +35,7 @@ describe('employerAuditValue', () => {
         action: EEmployerHistoryAction.Created,
       });
 
-      expect(audit.entityId).toBe(counterPartyId);
+      expect(audit.entityId).toBe(counterpartyId);
       expect(audit.action).toBe(EEmployerHistoryAction.Created);
       expect(audit.diff.before).toBeNull();
       expect(audit.diff.after).toEqual(mockDetails);
@@ -65,7 +65,7 @@ describe('employerAuditValue', () => {
 
     it('should throw InvalidCounterpartyId if after details has invalid counterparty id', () => {
       const invalidDetails: IEmployer = Object.freeze({
-        counterPartyId: 'invalid-id' as any,
+        counterpartyId: 'invalid-id' as any,
         displayName: 'MegaCorp',
         address,
         createdAt: mockDetails.createdAt,

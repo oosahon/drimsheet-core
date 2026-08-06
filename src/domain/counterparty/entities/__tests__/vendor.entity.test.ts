@@ -3,7 +3,7 @@ import { IAddress } from '../../../../shared/values/contact-details/types/addres
 import vendorEntity from '../vendor.entity';
 
 describe('Vendor Entity', () => {
-  const counterPartyId = generateUUID();
+  const counterpartyId = generateUUID();
   const address: IAddress = {
     line1: '123 Main St',
     line2: null,
@@ -25,11 +25,11 @@ describe('Vendor Entity', () => {
   describe('make', () => {
     it('should create a valid vendor with address', () => {
       const [vendor, events, audit] = vendorEntity.make({
-        counterPartyId,
+        counterpartyId,
         address,
       });
 
-      expect(vendor.counterPartyId).toBe(counterPartyId);
+      expect(vendor.counterpartyId).toBe(counterpartyId);
       expect(vendor.address).toEqual(address);
       expect(vendor.createdAt).toEqual(new Date('2026-07-31T12:00:00.000Z'));
       expect(Object.isFrozen(vendor)).toBe(true);
@@ -45,11 +45,11 @@ describe('Vendor Entity', () => {
 
     it('should create a valid vendor without address', () => {
       const [vendor, events, audit] = vendorEntity.make({
-        counterPartyId,
+        counterpartyId,
         address: null,
       });
 
-      expect(vendor.counterPartyId).toBe(counterPartyId);
+      expect(vendor.counterpartyId).toBe(counterpartyId);
       expect(vendor.address).toBeNull();
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe('domain:counterparty:vendor:created');
@@ -60,7 +60,7 @@ describe('Vendor Entity', () => {
   describe('update', () => {
     it('should update vendor and create correct audit diff', () => {
       const [beforeVendor] = vendorEntity.make({
-        counterPartyId,
+        counterpartyId,
         address,
       });
 
@@ -75,7 +75,7 @@ describe('Vendor Entity', () => {
         address: newAddress,
       });
 
-      expect(afterVendor.counterPartyId).toBe(counterPartyId);
+      expect(afterVendor.counterpartyId).toBe(counterpartyId);
       expect(afterVendor.address).toEqual(newAddress);
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe('domain:counterparty:vendor:updated');

@@ -30,16 +30,16 @@ export default interface ICounterpartyService {
 
   createVendor(
     payload: IMakeCounterpartyPayload,
-    vendor: TCreationOmits<IVendor, 'counterPartyId'>
+    vendor: TCreationOmits<IVendor, 'counterpartyId'>
   ): ICreateVendorResponse;
 
   createContractor(
     payload: IMakeCounterpartyPayload,
-    contractor: TCreationOmits<IContractor, 'counterPartyId'>
+    contractor: TCreationOmits<IContractor, 'counterpartyId'>
   ): ICreateContractorResponse;
 
   createEmployer(
     payload: IMakeCounterpartyPayload,
-    employer: TCreationOmits<IEmployer, 'counterPartyId'>
+    employer: TCreationOmits<IEmployer, 'counterpartyId'>
   ): ICreateEmployerResponse;
 }

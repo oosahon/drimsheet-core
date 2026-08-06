@@ -3,11 +3,7 @@ import accountingEntityEntity from '../../../../domain/accounting/entities/accou
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
-import {
-  EJournalEntrySourceType,
-  EJournalEntryStatus,
-  UJournalEntryStatus,
-} from '../../../../domain/journal-entry/types/journal-entry.types';
+import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import retainedEarningsEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
@@ -106,7 +102,7 @@ describe('ledgerAccountBalancePropagationService', () => {
     };
   }
 
-  function makeJournalEntry(status: UJournalEntryStatus) {
+  function makeJournalEntry(isPosted: boolean) {
     const { accountingEntity, equityAccount, postingAccount, user } =
       makeFixture();
     const debitAmount = moneyValue.make(100000n, SYSTEM_CURRENCIES.NGN, true);
@@ -116,12 +112,8 @@ describe('ledgerAccountBalancePropagationService', () => {
     const [journalEntry] = journalEntryEntity.make({
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.Adjustment,
-      counterPartyId: null,
-      status,
       effectiveDate: timestamp,
-      postedAt: status === EJournalEntryStatus.Posted ? timestamp : null,
-      voidedAt: null,
-      voidingEntryId: null,
+      postedAt: isPosted ? timestamp : null,
       memo: 'Balance propagation',
       createdBy: user.id,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
@@ -178,12 +170,8 @@ describe('ledgerAccountBalancePropagationService', () => {
     const [journalEntry] = journalEntryEntity.make({
       accountingEntityId: accountingEntity.id,
       sourceType: EJournalEntrySourceType.Adjustment,
-      counterPartyId: null,
-      status: EJournalEntryStatus.Posted,
       effectiveDate: timestamp,
       postedAt: timestamp,
-      voidedAt: null,
-      voidingEntryId: null,
       memo: 'Foreign currency propagation',
       createdBy: user.id,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
@@ -228,9 +216,8 @@ describe('ledgerAccountBalancePropagationService', () => {
 
   describe('propagate', () => {
     it('should enqueue running balance adjustments for each posted journal line grouped by account', async () => {
-      const { equityAccount, journalEntry, postingAccount } = makeJournalEntry(
-        EJournalEntryStatus.Posted
-      );
+      const { equityAccount, journalEntry, postingAccount } =
+        makeJournalEntry(true);
 
       mockLedgerAccountRepo.findById.mockImplementation(async (accountId) => {
         if (accountId === postingAccount.id) return postingAccount;
@@ -243,11 +230,13 @@ describe('ledgerAccountBalancePropagationService', () => {
       expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
         1,
         postingAccount.id,
+        journalEntry.accountingEntityId,
         mockOptions
       );
       expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
         2,
         equityAccount.id,
+        journalEntry.accountingEntityId,
         mockOptions
       );
       expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledTimes(
@@ -260,6 +249,7 @@ describe('ledgerAccountBalancePropagationService', () => {
           id: journalEntry.id,
           createdBy: journalEntry.createdBy,
         },
+        accountingEntityId: journalEntry.accountingEntityId,
         correlationId: mockOptions.correlationId,
         balanceDelta: {
           amount: 60000,
@@ -280,6 +270,7 @@ describe('ledgerAccountBalancePropagationService', () => {
           id: journalEntry.id,
           createdBy: journalEntry.createdBy,
         },
+        accountingEntityId: journalEntry.accountingEntityId,
         correlationId: mockOptions.correlationId,
         balanceDelta: {
           amount: 60000,
@@ -296,7 +287,7 @@ describe('ledgerAccountBalancePropagationService', () => {
     });
 
     it('should skip draft journal entries', async () => {
-      const { journalEntry } = makeJournalEntry(EJournalEntryStatus.Draft);
+      const { journalEntry } = makeJournalEntry(false);
 
       await service.propagate(journalEntry, mockOptions);
 
@@ -307,9 +298,7 @@ describe('ledgerAccountBalancePropagationService', () => {
     });
 
     it('should report and absorb a missing journal-line account', async () => {
-      const { journalEntry, postingAccount } = makeJournalEntry(
-        EJournalEntryStatus.Posted
-      );
+      const { journalEntry, postingAccount } = makeJournalEntry(true);
 
       mockLedgerAccountRepo.findById.mockResolvedValue(null);
 
@@ -319,6 +308,7 @@ describe('ledgerAccountBalancePropagationService', () => {
 
       expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
         postingAccount.id,
+        journalEntry.accountingEntityId,
         mockOptions
       );
       expect(
@@ -346,6 +336,7 @@ describe('ledgerAccountBalancePropagationService', () => {
 
       expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
         postingAccount.id,
+        journalEntry.accountingEntityId,
         mockOptions
       );
       expect(
@@ -362,9 +353,8 @@ describe('ledgerAccountBalancePropagationService', () => {
     });
 
     it('should report and absorb queue delivery failures', async () => {
-      const { equityAccount, journalEntry, postingAccount } = makeJournalEntry(
-        EJournalEntryStatus.Posted
-      );
+      const { equityAccount, journalEntry, postingAccount } =
+        makeJournalEntry(true);
       const failure = new Error('balance queue unavailable');
 
       mockLedgerAccountRepo.findById.mockImplementation(async (accountId) => {
@@ -387,9 +377,8 @@ describe('ledgerAccountBalancePropagationService', () => {
     });
 
     it('should skip balance adjustment for OpeningBalance equity accounts', async () => {
-      const { equityAccount, journalEntry, postingAccount } = makeJournalEntry(
-        EJournalEntryStatus.Posted
-      );
+      const { equityAccount, journalEntry, postingAccount } =
+        makeJournalEntry(true);
 
       const openingBalanceAccount = {
         ...equityAccount,

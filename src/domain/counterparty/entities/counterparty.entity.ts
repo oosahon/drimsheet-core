@@ -7,14 +7,13 @@ import {
   ECounterpartyStatus,
   ICounterparty,
   IMakeCounterpartyPayload,
+  TAuditedCounterparty,
   UCounterpartyRole,
 } from '../types/counterparty.types';
 import counterpartyAuditValue from '../values/counterparty-audit.vo';
 import helpers from './helpers/counterparty.entity.helpers';
 
-function make(
-  payload: IMakeCounterpartyPayload
-): TAuditedEntity<ICounterparty, ICounterparty, ICounterparty> {
+function make(payload: IMakeCounterpartyPayload): TAuditedCounterparty {
   helpers.validateAccountingEntityId(payload.accountingEntityId);
   const name = helpers.validateName(payload.name);
   const type = helpers.validateType(payload.type);

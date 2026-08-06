@@ -59,3 +59,9 @@ export type TAuditedJournalEntry = [
     lines: IJournalLineAudit[];
   },
 ];
+
+export type TAuditedJournalEntryTransition = [
+  IJournalEntry,
+  IEvent<IJournalEntry>[],
+  IJournalEntryAudit,
+];

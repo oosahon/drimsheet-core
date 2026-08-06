@@ -50,7 +50,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
     });
   },
 
-  findById: async (id, options) => {
+  findById: async (id, accountingEntityId, options) => {
     const result = await getDbQuery(options)
       .select({
         ...getTableColumns(ledgerAccountsInCore),
@@ -61,7 +61,12 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
         currenciesInCore,
         eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
       )
-      .where(eq(ledgerAccountsInCore.id, id));
+      .where(
+        and(
+          eq(ledgerAccountsInCore.id, id),
+          eq(ledgerAccountsInCore.accountingEntityId, accountingEntityId)
+        )
+      );
 
     return result.map(ledgerAccountMapper.toDomain)[0] ?? null;
   },

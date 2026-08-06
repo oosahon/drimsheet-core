@@ -26,12 +26,13 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
   ): Promise<IPaginatedResponse<IAccountTransactionRes>> => {
     zodValidationRunner(paginationDtoValidation, pagination);
 
-    const { user, correlationId } = deps.appContext.get();
+    const { user, correlationId, accountingEntity } = deps.appContext.get();
 
     const trace = { correlationId };
 
     const ledgerAccount = await deps.ledgerAccountRepo.findById(
       accountId,
+      accountingEntity.id,
       trace
     );
 

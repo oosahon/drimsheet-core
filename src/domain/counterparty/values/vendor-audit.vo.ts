@@ -15,7 +15,7 @@ function make(payload: IMakeVendorAuditPayload): Readonly<IVendorAudit> {
   }
 
   stringUtils.validateUUID(
-    payload.after.counterPartyId,
+    payload.after.counterpartyId,
     counterpartyError.InvalidCounterpartyId
   );
   stringUtils.validateIsInEnum(
@@ -38,7 +38,7 @@ function make(payload: IMakeVendorAuditPayload): Readonly<IVendorAudit> {
   }
 
   const audit: IVendorAudit = {
-    entityId: payload.after.counterPartyId,
+    entityId: payload.after.counterpartyId,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.createdAt,
