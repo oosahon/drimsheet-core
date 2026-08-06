@@ -1,5 +1,5 @@
 import IAccountingPeriodService from '../../../domain/accounting/types/accounting-period.service.types';
-import { IOpeningBalanceEntryService } from '../../../domain/journal-entry/types/opening-balance-entry.service.types';
+import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
 import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
 import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
 import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
@@ -36,7 +36,7 @@ interface IDependencies {
   eventBus: IEventBus;
   accountingPeriodService: IAccountingPeriodService;
   assetAccountService: IAssetAccountService;
-  openingBalanceEntryService: IOpeningBalanceEntryService;
+  journalEntryService: IJournalEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
   repoService: IRepoService;
@@ -96,7 +96,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
     const exchangeRate = getOpeningBalanceExchangeRate(payload.openingBalance);
 
     const [journalEntry, journalEvents, journalAudit] =
-      await deps.openingBalanceEntryService.create(
+      await deps.journalEntryService.createOpeningBalance(
         {
           accountingEntityId: accountingEntity.id,
           functionalCurrencyCode: accountingEntity.functionalCurrencyCode,

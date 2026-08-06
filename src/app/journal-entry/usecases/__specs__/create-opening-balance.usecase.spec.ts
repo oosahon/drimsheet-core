@@ -1,7 +1,6 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
-import mockOpeningBalanceEntryService from '../../../../domain/journal-entry/types/__mocks__/opening-balance-entry.service.mock';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
@@ -22,6 +21,7 @@ import { IAppContextData } from '../../../context/contracts/app-context.contract
 import mockLedgerAccountBalancePropagationService from '../../../ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import mockJournalEntryPersistenceService from '../../contracts/__mocks__/journal-entry-persistence.service.mock';
+import mockJournalEntryService from '../../contracts/__mocks__/journal-entry.service.mock';
 import makeCreateOpeningBalanceUseCase from '../create-opening-balance.usecase';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
@@ -102,7 +102,7 @@ describe('createOpeningBalanceUseCase', () => {
 
     mockLedgerAccountRepo.findById.mockResolvedValueOnce(mockAssetAccount);
 
-    mockOpeningBalanceEntryService.create.mockResolvedValue(
+    mockJournalEntryService.createOpeningBalance.mockResolvedValue(
       journalEntryEntity.make({
         accountingEntityId: mockAccountingEntity.id,
         sourceType: EJournalEntrySourceType.OpeningBalance,
@@ -140,7 +140,7 @@ describe('createOpeningBalanceUseCase', () => {
       appContext: mockAppContext,
       ledgerAccountRepo: mockLedgerAccountRepo,
       eventBus: mockEventBus,
-      openingBalanceEntryService: mockOpeningBalanceEntryService,
+      journalEntryService: mockJournalEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       balancePropagationService: mockLedgerAccountBalancePropagationService,
       repoService: mockRepoService,
@@ -163,7 +163,7 @@ describe('createOpeningBalanceUseCase', () => {
       mockAccountingEntity.id,
       { correlationId }
     );
-    expect(mockOpeningBalanceEntryService.create).toHaveBeenCalledWith(
+    expect(mockJournalEntryService.createOpeningBalance).toHaveBeenCalledWith(
       {
         accountingEntityId: mockAccountingEntity.id,
         functionalCurrencyCode: mockAccountingEntity.functionalCurrencyCode,
@@ -246,7 +246,7 @@ describe('createOpeningBalanceUseCase', () => {
   it('should not persist or publish events when opening balance entry creation fails', async () => {
     const useCase = getUseCase();
 
-    mockOpeningBalanceEntryService.create.mockRejectedValueOnce(
+    mockJournalEntryService.createOpeningBalance.mockRejectedValueOnce(
       new Error('Entry creation failed')
     );
 

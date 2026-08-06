@@ -1,43 +1,47 @@
 import dateUtils from '../../../../shared/utils/date';
+import { ILedgerAccount } from '../../../ledger/shared/types/ledger.types';
 import journalEntryError from '../../errors/journal-entry.error';
 import journalEntryRuleValidator from '../../rules/entry-rule.validator';
 import receiptEntryRule from '../../rules/receipt-entry.rule';
+import { IJournalEntryRule } from '../../types/entry.rules.types';
 import { ICreateReceiptEntryPayload } from '../../types/journal-entry.service.types';
 
-async function validateAccounts(payload: ICreateReceiptEntryPayload) {
-  const { header, sourceLine, destinationLines } = payload;
-
-  // const allAccounts = sourceLines
-  //   .map((sl) => sl.account)
-  //   .concat(destinationLines.map((dl) => dl.account));
-
-  const allAccounts = destinationLines
-    .map((v) => v.account)
-    .concat(sourceLine.account);
-
-  // Assert that all sources are permitted
-  const isValidSource = journalEntryRuleValidator(
-    sourceLine.account,
-    receiptEntryRule.source
-  );
+function validateAccountsAgainstRule(
+  sourceAccount: ILedgerAccount,
+  destinationAccounts: ILedgerAccount[],
+  rule: IJournalEntryRule
+) {
+  const isValidSource = journalEntryRuleValidator(sourceAccount, rule.source);
 
   if (!isValidSource) {
     throw new journalEntryError.InvalidSourceType({
-      account: sourceLine.account,
+      account: sourceAccount,
     });
   }
 
-  // Assert that all destinations are permitted
-  const invalidDestinations = destinationLines
-    .map((v) => v.account)
-    .filter(
-      (acc) => !journalEntryRuleValidator(acc, receiptEntryRule.destination)
-    );
+  const invalidDestinations = destinationAccounts.filter(
+    (account) => !journalEntryRuleValidator(account, rule.destination)
+  );
+
   if (invalidDestinations.length > 0) {
     throw new journalEntryError.InvalidDestinationAccount({
       invalidDestinations,
     });
   }
+}
+
+async function validateAccounts(payload: ICreateReceiptEntryPayload) {
+  const { header, sourceLine, destinationLines } = payload;
+
+  const allAccounts = destinationLines
+    .map((v) => v.account)
+    .concat(sourceLine.account);
+
+  validateAccountsAgainstRule(
+    sourceLine.account,
+    destinationLines.map((line) => line.account),
+    receiptEntryRule
+  );
 
   // Assert that all accounts belong to the same accounting entity
   const wrongAccountingEntities = allAccounts.filter(
@@ -94,6 +98,7 @@ async function validateCounterparties(payload: ICreateReceiptEntryPayload) {
 
 const journalEntryServiceHelpers = Object.freeze({
   validateAccounts,
+  validateAccountsAgainstRule,
   validateCounterparties,
 });
 

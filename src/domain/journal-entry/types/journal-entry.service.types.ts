@@ -32,7 +32,22 @@ export interface ICreateReceiptEntryPayload {
   destinationLines: ILinePayload[];
 }
 
+export interface ICreateOpeningBalancePayload {
+  accountingEntityId: TEntityId;
+  functionalCurrencyCode: string;
+  account: ILedgerAccount;
+  amount: IMoney;
+  effectiveDate: Date;
+  exchangeRate: IExchangeRate | null;
+  createdBy: TEntityId;
+}
+
 export interface IJournalEntryService {
+  createOpeningBalance(
+    payload: ICreateOpeningBalancePayload,
+    repoOptions: IReadRepoOptions
+  ): Promise<TAuditedJournalEntry>;
+
   createReceipt(
     payload: ICreateReceiptEntryPayload,
     repoOptions: IReadRepoOptions
