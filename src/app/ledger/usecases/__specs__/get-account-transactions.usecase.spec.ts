@@ -11,7 +11,6 @@ import {
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
@@ -25,20 +24,9 @@ import mockAppContext, {
 } from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import mockAccountTransactionQueryRepo from '../../contracts/__mocks__/account-transaction.query.repo.mock';
+import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import ledgerAppError from '../../errors/ledger.error';
 import makeGetAccountTransactionsUseCase from '../get-account-transactions.usecase';
-
-const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findById: jest.fn(),
-  findAllByIds: jest.fn(),
-  findByCode: jest.fn(),
-  findBySubType: jest.fn(),
-  findByBehavior: jest.fn(),
-  findLatestBySubType: jest.fn(),
-  findAll: jest.fn(),
-};
 
 describe('getAccountTransactionsUseCase', () => {
   const correlationId = 'test-correlation-id';

@@ -1,6 +1,6 @@
 import { Request } from 'express';
 import ITokenService from '../../../../app/auth/contracts/token-service.contract';
-import IUserRepo from '../../../../domain/user/repos/user.repo';
+import { mockUserRepo as mockUserRepoCentral } from '../../../../app/user/contracts/__mocks__/user.repos.mock';
 import { IUser } from '../../../../domain/user/types/user.types';
 import ILogger from '../../../../shared/contracts/logger.contract';
 import getAuthUserFromRequest from '../get-auth-user-from-request.helper';
@@ -9,7 +9,7 @@ describe('getAuthUserFromRequest', () => {
   let mockReq: Partial<Request>;
   let mockAuthService: jest.Mocked<ITokenService>;
   let mockLogger: jest.Mocked<ILogger>;
-  let mockUserRepo: jest.Mocked<IUserRepo>;
+  const mockUserRepo = mockUserRepoCentral;
 
   beforeEach(() => {
     mockReq = {
@@ -24,10 +24,7 @@ describe('getAuthUserFromRequest', () => {
       error: jest.fn(),
     } as unknown as jest.Mocked<ILogger>;
 
-    mockUserRepo = {
-      findById: jest.fn(),
-    } as unknown as jest.Mocked<IUserRepo>;
-
+    mockUserRepo.findById.mockReset();
     jest.clearAllMocks();
   });
 

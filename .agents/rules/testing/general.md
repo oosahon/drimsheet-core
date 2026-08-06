@@ -21,6 +21,13 @@
 - Keep stateful or behaviorally realistic test doubles local to the owning spec;
   they are fakes, not shared mocks.
 
+## Domain Contract Mocks
+
+- To avoid duplicate test maintenance, domain repository and domain-service contracts have shared mocks centralized in their corresponding app feature folder under `src/app/<feature>/contracts/__mocks__/`.
+- Repository mocks are aggregated in `repos.mocks.ts` (e.g., `src/app/accounting/contracts/__mocks__/repos.mocks.ts`), and domain service mocks are placed in `domain.services.mock.ts`.
+- Declare each mock as a named export typed using `jest.Mocked<IContract>`, with every interface method defined as a bare `jest.fn()`.
+- **Layer Boundary constraint:** Application, interface, and infrastructure tests MUST use these centralized mocks instead of composing them locally. Domain tests (under `src/domain/**/__tests__`) MUST NOT import app-layer mocks (enforced by `eslint.config.mjs`) and must continue to compose their mocks locally.
+
 ## Naming
 
 - Domain unit tests use `.test.ts` files inside `__tests__`.

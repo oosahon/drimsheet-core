@@ -1,20 +1,18 @@
 import { Request } from 'express';
-import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
+import { mockAccountingEntityRepo } from '../../../../app/accounting/contracts/__mocks__/accounting.repos.mock';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import appError from '../../../../shared/values/errors/app.error';
 import getAccountingEntityFromRequest from '../get-accounting-entity-from-request.helper';
 
 describe('getAccountingEntityFromRequest', () => {
-  let mockRepo: jest.Mocked<IAccountingEntityRepo>;
+  const mockRepo = mockAccountingEntityRepo;
   let mockReq: Partial<Request>;
   const validUUID = '123e4567-e89b-12d3-a456-426614174000';
   const validUserId = 'user-id-123' as TEntityId;
 
   beforeEach(() => {
-    mockRepo = {
-      findByIdAndUserId: jest.fn(),
-    } as unknown as jest.Mocked<IAccountingEntityRepo>;
+    mockRepo.findByIdAndUserId.mockReset();
 
     mockReq = {
       headers: {},

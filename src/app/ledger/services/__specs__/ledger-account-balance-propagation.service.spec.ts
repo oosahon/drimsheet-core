@@ -7,7 +7,6 @@ import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import retainedEarningsEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
@@ -17,19 +16,8 @@ import userEntity from '../../../../domain/user/entities/user.entity';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import mockLedgerAccountBalanceAdjustmentQueue from '../../contracts/__mocks__/ledger-balance-adjustment-queue.mock';
+import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import makeLedgerAccountBalancePropagationService from '../ledger-account-balance-propagation.service';
-
-const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findById: jest.fn(),
-  findAllByIds: jest.fn(),
-  findByCode: jest.fn(),
-  findBySubType: jest.fn(),
-  findByBehavior: jest.fn(),
-  findLatestBySubType: jest.fn(),
-  findAll: jest.fn(),
-};
 
 describe('ledgerAccountBalancePropagationService', () => {
   const service = makeLedgerAccountBalancePropagationService({

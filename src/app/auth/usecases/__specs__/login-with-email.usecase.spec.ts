@@ -1,4 +1,3 @@
-import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
@@ -9,6 +8,7 @@ import mockAppContext, {
   mockClientSession,
 } from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
+import { mockUserRepo } from '../../../user/contracts/__mocks__/user.repos.mock';
 import mockPasswordService from '../../contracts/__mocks__/password-service.mock';
 import mockAuthService from '../../contracts/__mocks__/token-service.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
@@ -16,14 +16,6 @@ import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.moc
 import { IUserAuth } from '../../contracts/auth.types';
 import authError from '../../errors/auth.error';
 import makeLoginWithEmailUseCase from '../login-with-email.usecase';
-
-const mockUserRepo: jest.Mocked<IUserRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findByEmail: jest.fn(),
-  findById: jest.fn(),
-  delete: jest.fn(),
-};
 
 describe('makeLoginWithEmailUseCase', () => {
   const correlationId = 'test-corr-id';

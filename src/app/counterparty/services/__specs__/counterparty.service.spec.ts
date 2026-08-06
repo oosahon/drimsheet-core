@@ -1,18 +1,12 @@
 import counterpartyError from '../../../../domain/counterparty/errors/counterparty.error';
-import ICounterpartyRepo from '../../../../domain/counterparty/repos/counterparty.repo';
 import makeCounterpartyService from '../../../../domain/counterparty/services/counterparty.service';
 import {
   ECounterpartyType,
   ICounterparty,
 } from '../../../../domain/counterparty/types/counterparty.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import { mockCounterpartyRepo } from '../../contracts/__mocks__/counterparty.repos.mock';
 import makeCounterpartyAppService from '../counterparty.service';
-
-const mockCounterpartyRepo: jest.Mocked<ICounterpartyRepo> = {
-  create: jest.fn(),
-  findAll: jest.fn(),
-  findById: jest.fn(),
-};
 
 const domainService = makeCounterpartyService();
 

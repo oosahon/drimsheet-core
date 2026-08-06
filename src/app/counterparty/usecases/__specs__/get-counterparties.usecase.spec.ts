@@ -1,16 +1,10 @@
-import ICounterpartyRepo from '../../../../domain/counterparty/repos/counterparty.repo';
 import { ICounterparty } from '../../../../domain/counterparty/types/counterparty.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
+import { mockCounterpartyRepo } from '../../contracts/__mocks__/counterparty.repos.mock';
 import { IGetCounterpartiesQuery } from '../../dtos/counterparty/counterparty.dto';
 import makeGetCounterpartiesUsecase from '../get-counterparties.usecase';
-
-const mockCounterpartyRepo: jest.Mocked<ICounterpartyRepo> = {
-  create: jest.fn(),
-  findAll: jest.fn(),
-  findById: jest.fn(),
-};
 
 describe('makeGetCounterpartiesUsecase', () => {
   const getUseCase = () =>

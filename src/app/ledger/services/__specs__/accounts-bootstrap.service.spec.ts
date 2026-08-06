@@ -1,9 +1,9 @@
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import IAccountsBootstrapService from '../../contracts/accounts-bootstrap.service.contract';
 import makeAccountsBootstrapService from '../accounts-bootstrap.service';
 import makeAssetAccountsBootstrapHelper from '../helpers/asset-accounts-bootstrap.helper';
@@ -11,18 +11,6 @@ import makeEquityAccountsBootstrapHelper from '../helpers/equity-accounts-bootst
 import makeExpenseAccountsBootstrapHelper from '../helpers/expense-accounts-bootstrap.helper';
 import makeLiabilityAccountsBootstrapHelper from '../helpers/liability-accounts-bootstrap.helper';
 import makeRevenueAccountsBootstrapHelper from '../helpers/revenue-accounts-bootstrap.helper';
-
-const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findById: jest.fn(),
-  findAllByIds: jest.fn(),
-  findByCode: jest.fn(),
-  findBySubType: jest.fn(),
-  findByBehavior: jest.fn(),
-  findLatestBySubType: jest.fn(),
-  findAll: jest.fn(),
-};
 
 jest.mock('../helpers/asset-accounts-bootstrap.helper');
 jest.mock('../helpers/equity-accounts-bootstrap.helper');

@@ -8,7 +8,6 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import servicesAccountEntity from '../../../../domain/ledger/revenue-account/entities/services.entity';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
@@ -24,23 +23,12 @@ import mockCounterpartyAppService from '../../../counterparty/contracts/__mocks_
 import mockCounterpartyPersistenceService from '../../../counterparty/contracts/__mocks__/persistence.service.mock';
 import { ICounterpartyFindOrCreateRes } from '../../../counterparty/contracts/counterparty.service.contract';
 import mockLedgerAccountBalancePropagationService from '../../../ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
+import { mockLedgerAccountRepo } from '../../../ledger/contracts/__mocks__/ledger.repos.mock';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import mockJournalEntryPersistenceService from '../../contracts/__mocks__/journal-entry-persistence.service.mock';
 import mockJournalEntryService from '../../contracts/__mocks__/journal-entry.service.mock';
 import journalEntryDtoMapper from '../../dtos/journal-entry/journal-entry.dto.mapper';
 import makeCreateReceiptUsecase from '../create-receipt.usecase';
-
-const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findById: jest.fn(),
-  findAllByIds: jest.fn(),
-  findByCode: jest.fn(),
-  findBySubType: jest.fn(),
-  findByBehavior: jest.fn(),
-  findLatestBySubType: jest.fn(),
-  findAll: jest.fn(),
-};
 
 describe('makeCreateReceiptUsecase', () => {
   const correlationId = 'test-correlation-id';
