@@ -15,7 +15,7 @@ describe('Account Transaction Mapper', () => {
   const id = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
   const entryId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
-  const counterPartyId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
+  const counterpartyId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
   const createdBy = '123e4567-e89b-12d3-a456-426614174005' as TEntityId;
   const createdAt = new Date('2026-05-01T00:00:00.000Z');
   const updatedAt = new Date('2026-05-01T01:00:00.000Z');
@@ -27,7 +27,7 @@ describe('Account Transaction Mapper', () => {
     id,
     entryId,
     accountId,
-    counterPartyId,
+    counterpartyId,
     sequenceOrder: 1,
     amount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
     exchangeRate: null,
@@ -57,7 +57,7 @@ describe('Account Transaction Mapper', () => {
     id,
     entryId,
     accountId,
-    counterpartyId: counterPartyId,
+    counterpartyId: counterpartyId,
     sequenceOrder: 1,
     amount: 100_00,
     currencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -119,7 +119,7 @@ describe('Account Transaction Mapper', () => {
       });
 
       expect(result).toMatchObject({
-        counterPartyId: null,
+        counterpartyId: null,
       });
       expect(result.header).toMatchObject({
         memo: null,
@@ -136,7 +136,7 @@ describe('Account Transaction Mapper', () => {
         id,
         entryId,
         accountId,
-        counterpartyId: counterPartyId,
+        counterpartyId: counterpartyId,
         sequenceOrder: 1,
         amount: {
           amount: 100_00,
@@ -175,7 +175,7 @@ describe('Account Transaction Mapper', () => {
         id,
         entryId,
         accountId,
-        counterPartyId: null,
+        counterpartyId: null,
         sequenceOrder: 1,
         amount: moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true),
         exchangeRate: null,

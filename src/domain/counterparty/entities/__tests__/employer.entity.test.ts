@@ -4,7 +4,7 @@ import counterpartyError from '../../errors/counterparty.error';
 import employerEntity from '../employer.entity';
 
 describe('Employer Entity', () => {
-  const counterPartyId = generateUUID();
+  const counterpartyId = generateUUID();
   const address: IAddress = {
     line1: '123 Main St',
     line2: null,
@@ -26,12 +26,12 @@ describe('Employer Entity', () => {
   describe('make', () => {
     it('should create valid employer with address and display name', () => {
       const [employer, events, audit] = employerEntity.make({
-        counterPartyId,
+        counterpartyId,
         displayName: '  MegaCorp Inc  ',
         address,
       });
 
-      expect(employer.counterPartyId).toBe(counterPartyId);
+      expect(employer.counterpartyId).toBe(counterpartyId);
       expect(employer.displayName).toBe('MegaCorp Inc');
       expect(employer.address).toEqual(address);
       expect(employer.createdAt).toEqual(new Date('2026-07-31T12:00:00.000Z'));
@@ -49,7 +49,7 @@ describe('Employer Entity', () => {
     it('should throw error if address is missing', () => {
       expect(() =>
         employerEntity.make({
-          counterPartyId,
+          counterpartyId,
           displayName: 'MegaCorp Inc',
           address: null as any,
         })
@@ -60,7 +60,7 @@ describe('Employer Entity', () => {
   describe('update', () => {
     it('should update employer and create correct audit diff', () => {
       const [beforeEmployer] = employerEntity.make({
-        counterPartyId,
+        counterpartyId,
         displayName: 'MegaCorp',
         address,
       });
@@ -80,7 +80,7 @@ describe('Employer Entity', () => {
         }
       );
 
-      expect(afterEmployer.counterPartyId).toBe(counterPartyId);
+      expect(afterEmployer.counterpartyId).toBe(counterpartyId);
       expect(afterEmployer.displayName).toBe('MegaCorp Updated');
       expect(afterEmployer.address).toEqual(newAddress);
       expect(events).toHaveLength(1);

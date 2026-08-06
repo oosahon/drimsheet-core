@@ -11,11 +11,11 @@ import helpers from '../values/helpers/counterparty-value.helpers';
 function make(
   payload: IMakeContractorPayload
 ): TAuditedEntity<IContractor, IContractor, IContractor> {
-  helpers.validateCounterpartyId(payload.counterPartyId);
+  helpers.validateCounterpartyId(payload.counterpartyId);
   const address = helpers.validateAddress(payload.address, true)!;
 
   const contractor: IContractor = Object.freeze({
-    counterPartyId: payload.counterPartyId,
+    counterpartyId: payload.counterpartyId,
     address,
     createdAt: new Date(),
   });
@@ -33,12 +33,12 @@ function make(
 
 function update(
   before: IContractor,
-  payload: Omit<IMakeContractorPayload, 'counterPartyId'>
+  payload: Omit<IMakeContractorPayload, 'counterpartyId'>
 ): TAuditedEntity<IContractor, IContractor, IContractor> {
   const address = helpers.validateAddress(payload.address, true)!;
 
   const updatedContractor: IContractor = Object.freeze({
-    counterPartyId: before.counterPartyId,
+    counterpartyId: before.counterpartyId,
     address,
     createdAt: before.createdAt,
   });

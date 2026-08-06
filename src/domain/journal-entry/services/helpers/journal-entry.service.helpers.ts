@@ -1,24 +1,30 @@
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import dateUtils from '../../../../shared/utils/date';
-import ICounterpartyRepo from '../../../counterparty/repos/counterparty.repo';
 import journalEntryError from '../../errors/journal-entry.error';
 import journalEntryRuleValidator from '../../rules/entry-rule.validator';
 import receiptEntryRule from '../../rules/receipt-entry.rule';
 import { ICreateReceiptEntryPayload } from '../../types/journal-entry.service.types';
 
 async function validateAccounts(payload: ICreateReceiptEntryPayload) {
-  const { header, sourceLines, destinationLines } = payload;
+  const { header, sourceLine, destinationLines } = payload;
 
-  const allAccounts = sourceLines
-    .map((sl) => sl.account)
-    .concat(destinationLines.map((dl) => dl.account));
+  // const allAccounts = sourceLines
+  //   .map((sl) => sl.account)
+  //   .concat(destinationLines.map((dl) => dl.account));
+
+  const allAccounts = destinationLines
+    .map((v) => v.account)
+    .concat(sourceLine.account);
 
   // Assert that all sources are permitted
-  const invalidSources = sourceLines
-    .map((v) => v.account)
-    .filter((acc) => !journalEntryRuleValidator(acc, receiptEntryRule.source));
-  if (invalidSources.length > 0) {
-    throw new journalEntryError.InvalidSourceType({ invalidSources });
+  const isValidSource = journalEntryRuleValidator(
+    sourceLine.account,
+    receiptEntryRule.source
+  );
+
+  if (!isValidSource) {
+    throw new journalEntryError.InvalidSourceType({
+      account: sourceLine.account,
+    });
   }
 
   // Assert that all destinations are permitted
@@ -55,7 +61,7 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
   const erringEffectiveDates = allAccounts.filter(
     (acc) =>
       acc.openingBalanceDate === null ||
-      dateUtils.isLessThan(acc.openingBalanceDate, header.effectiveDate)
+      dateUtils.isLessThan(header.effectiveDate, acc.openingBalanceDate)
   );
 
   if (erringEffectiveDates.length) {
@@ -66,27 +72,23 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
   }
 }
 
-async function validateCounterparties(
-  payload: ICreateReceiptEntryPayload,
-  counterpartyRepo: ICounterpartyRepo,
-  repoOptions: IReadRepoOptions
-) {
-  const { header, sourceLines, destinationLines } = payload;
-  const counterPartyIds = new Set(
-    [...sourceLines, ...destinationLines].flatMap((line) =>
-      line.counterPartyId ? [line.counterPartyId] : []
+async function validateCounterparties(payload: ICreateReceiptEntryPayload) {
+  const { header, sourceLine, destinationLines } = payload;
+
+  const allCounterparties = new Set(
+    [sourceLine, ...destinationLines].flatMap((line) =>
+      line.counterparty ? [line.counterparty] : []
     )
   );
 
-  for (const counterPartyId of counterPartyIds) {
-    const counterparty = await counterpartyRepo.findById(
-      counterPartyId,
-      header.accountingEntityId,
-      repoOptions
-    );
-    if (!counterparty) {
-      throw new journalEntryError.InvalidCounterpartyId({ id: counterPartyId });
-    }
+  const invalidCounterparties = Array.from(allCounterparties).filter(
+    (cp) => cp.accountingEntityId !== header.accountingEntityId
+  );
+
+  if (invalidCounterparties.length) {
+    throw new journalEntryError.InvalidCounterpartyId({
+      invalidCounterparties,
+    });
   }
 }
 

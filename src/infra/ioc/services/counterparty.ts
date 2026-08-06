@@ -1,3 +1,4 @@
+import makeCounterpartyAppService from '../../../app/counterparty/services/counterparty.service';
 import makeCounterpartyPersistenceService from '../../../app/counterparty/services/persistence.service';
 import makeCounterpartyService from '../../../domain/counterparty/services/counterparty.service';
 import counterpartyRepos from '../../persistence/repos/counterparty';
@@ -13,3 +14,8 @@ export const counterpartyPersistenceService =
     employerRepo: counterpartyRepos.employer,
     repoService: repoService,
   });
+
+export const counterpartyAppService = makeCounterpartyAppService({
+  counterpartyRepo: counterpartyRepos.counterparty,
+  counterpartyService,
+});

@@ -9,7 +9,6 @@ import {
   IAccountingPeriod,
 } from '../../../accounting/types/period.types';
 import counterpartyEntity from '../../../counterparty/entities/counterparty.entity';
-import ICounterpartyRepo from '../../../counterparty/repos/counterparty.repo';
 import { ECounterpartyType } from '../../../counterparty/types/counterparty.types';
 import cashAndEquivalentAccountEntity from '../../../ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../ledger/asset-account/types/asset-account.types';
@@ -32,12 +31,6 @@ import {
 } from '../../types/journal-entry.types';
 import { EJournalSide } from '../../types/journal-line.types';
 import makeJournalEntryService from '../journal-entry.service';
-
-const mockCounterpartyRepo: jest.Mocked<ICounterpartyRepo> = {
-  create: jest.fn(),
-  findAll: jest.fn(),
-  findById: jest.fn(),
-};
 
 const mockAccountingPeriodService: jest.Mocked<IAccountingPeriodService> = {
   validatePostingPeriod: jest.fn(),
@@ -63,7 +56,6 @@ describe('journalEntryService', () => {
     updatedAt: timestamp,
   };
   const service = makeJournalEntryService({
-    counterpartyRepo: mockCounterpartyRepo,
     accountingPeriodService: mockAccountingPeriodService,
   });
 
@@ -139,7 +131,7 @@ describe('journalEntryService', () => {
       sourceLines: [
         {
           account: sourceAccount,
-          counterPartyId: counterparty.id,
+          counterparty,
           sequenceOrder: 1,
           amount,
           exchangeRate: null,
@@ -151,7 +143,7 @@ describe('journalEntryService', () => {
       destinationLines: [
         {
           account: destinationAccount,
-          counterPartyId: taxAuthority.id,
+          counterparty: taxAuthority,
           sequenceOrder: 2,
           amount,
           exchangeRate: null,
@@ -194,7 +186,6 @@ describe('journalEntryService', () => {
       sourceAccount,
       destinationAccount,
     } = makeReceiptFixture();
-    mockCounterpartyRepo.findById.mockResolvedValue(counterparty);
 
     const [entry, events, audit] = await service.createReceipt(
       payload,
@@ -212,14 +203,14 @@ describe('journalEntryService', () => {
     expect(entry.lines).toEqual([
       expect.objectContaining({
         accountId: sourceAccount.id,
-        counterPartyId: counterparty.id,
+        counterpartyId: counterparty.id,
         sequenceOrder: 1,
         side: EJournalSide.Credit,
         description: 'Service payment',
       }),
       expect.objectContaining({
         accountId: destinationAccount.id,
-        counterPartyId: taxAuthority.id,
+        counterpartyId: taxAuthority.id,
         sequenceOrder: 2,
         side: EJournalSide.Debit,
         description: 'Cash received',
@@ -242,34 +233,10 @@ describe('journalEntryService', () => {
       payload.header.effectiveDate,
       repoOptions
     );
-    expect(mockCounterpartyRepo.findById).toHaveBeenCalledWith(
-      counterparty.id,
-      payload.header.accountingEntityId,
-      repoOptions
-    );
-    expect(mockCounterpartyRepo.findById).toHaveBeenCalledWith(
-      taxAuthority.id,
-      payload.header.accountingEntityId,
-      repoOptions
-    );
-  });
-
-  it('validates a repeated line counterparty once', async () => {
-    const { payload, counterparty } = makeReceiptFixture();
-    payload.destinationLines[0] = {
-      ...payload.destinationLines[0],
-      counterPartyId: counterparty.id,
-    };
-    mockCounterpartyRepo.findById.mockResolvedValue(counterparty);
-
-    await service.createReceipt(payload, repoOptions);
-
-    expect(mockCounterpartyRepo.findById).toHaveBeenCalledTimes(1);
   });
 
   it('creates a posted receipt when a posting date is provided', async () => {
-    const { payload, counterparty } = makeReceiptFixture(timestamp);
-    mockCounterpartyRepo.findById.mockResolvedValue(counterparty);
+    const { payload } = makeReceiptFixture(timestamp);
 
     const [entry] = await service.createReceipt(payload, repoOptions);
 
@@ -354,9 +321,59 @@ describe('journalEntryService', () => {
     );
   });
 
-  it('rejects a missing counterparty after validating the posting period', async () => {
+  it('allows an entry after the account opening balance date', async () => {
     const { payload } = makeReceiptFixture();
-    mockCounterpartyRepo.findById.mockResolvedValue(null);
+    const openingBalanceDate = new Date('2026-08-01T10:00:00.000Z');
+    payload.sourceLines[0] = {
+      ...payload.sourceLines[0],
+      account: {
+        ...payload.sourceLines[0].account,
+        openingBalanceDate,
+      },
+    };
+    payload.destinationLines[0] = {
+      ...payload.destinationLines[0],
+      account: {
+        ...payload.destinationLines[0].account,
+        openingBalanceDate,
+      },
+    };
+
+    const [entry] = await service.createReceipt(payload, repoOptions);
+
+    expect(entry.effectiveDate).toBe(payload.header.effectiveDate);
+  });
+
+  it('rejects an entry before the account opening balance date', async () => {
+    const { payload } = makeReceiptFixture();
+    const openingBalanceDate = new Date('2026-08-04T09:00:00.000Z');
+    payload.sourceLines[0] = {
+      ...payload.sourceLines[0],
+      account: {
+        ...payload.sourceLines[0].account,
+        openingBalanceDate,
+      },
+    };
+
+    await expect(service.createReceipt(payload, repoOptions)).rejects.toThrow(
+      journalEntryError.EffectiveDateIsBeforeOpeningDate
+    );
+    expect(
+      mockAccountingPeriodService.validatePostingPeriod
+    ).not.toHaveBeenCalled();
+  });
+
+  it('rejects a counterparty belonging to another accounting entity after validating the posting period', async () => {
+    const { payload } = makeReceiptFixture();
+    const [invalidCounterparty] = counterpartyEntity.make({
+      accountingEntityId: generateUUID(),
+      name: 'Other Customer',
+      type: ECounterpartyType.Organization,
+    });
+    payload.sourceLines[0] = {
+      ...payload.sourceLines[0],
+      counterparty: invalidCounterparty,
+    };
 
     await expect(service.createReceipt(payload, repoOptions)).rejects.toThrow(
       journalEntryError.InvalidCounterpartyId

@@ -230,11 +230,13 @@ describe('ledgerAccountBalancePropagationService', () => {
       expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
         1,
         postingAccount.id,
+        journalEntry.accountingEntityId,
         mockOptions
       );
       expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
         2,
         equityAccount.id,
+        journalEntry.accountingEntityId,
         mockOptions
       );
       expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledTimes(
@@ -247,6 +249,7 @@ describe('ledgerAccountBalancePropagationService', () => {
           id: journalEntry.id,
           createdBy: journalEntry.createdBy,
         },
+        accountingEntityId: journalEntry.accountingEntityId,
         correlationId: mockOptions.correlationId,
         balanceDelta: {
           amount: 60000,
@@ -267,6 +270,7 @@ describe('ledgerAccountBalancePropagationService', () => {
           id: journalEntry.id,
           createdBy: journalEntry.createdBy,
         },
+        accountingEntityId: journalEntry.accountingEntityId,
         correlationId: mockOptions.correlationId,
         balanceDelta: {
           amount: 60000,
@@ -304,6 +308,7 @@ describe('ledgerAccountBalancePropagationService', () => {
 
       expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
         postingAccount.id,
+        journalEntry.accountingEntityId,
         mockOptions
       );
       expect(
@@ -331,6 +336,7 @@ describe('ledgerAccountBalancePropagationService', () => {
 
       expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
         postingAccount.id,
+        journalEntry.accountingEntityId,
         mockOptions
       );
       expect(

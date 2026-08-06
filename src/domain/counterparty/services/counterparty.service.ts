@@ -22,7 +22,7 @@ export default function makeCounterpartyService(): ICounterpartyService {
 
       const vendor = vendorEntity.make({
         ...vendorDetails,
-        counterPartyId: updatedCounterparty.id,
+        counterpartyId: updatedCounterparty.id,
       });
 
       const mergedEvents = [...makeEvents, ...addRoleEvents];
@@ -47,7 +47,7 @@ export default function makeCounterpartyService(): ICounterpartyService {
 
       const contractor = contractorEntity.make({
         ...contractorDetails,
-        counterPartyId: updatedCounterparty.id,
+        counterpartyId: updatedCounterparty.id,
       });
 
       const mergedEvents = [...makeEvents, ...addRoleEvents];
@@ -72,7 +72,7 @@ export default function makeCounterpartyService(): ICounterpartyService {
 
       const employer = employerEntity.make({
         ...employerDetails,
-        counterPartyId: updatedCounterparty.id,
+        counterpartyId: updatedCounterparty.id,
       });
 
       const mergedEvents = [...makeEvents, ...addRoleEvents];

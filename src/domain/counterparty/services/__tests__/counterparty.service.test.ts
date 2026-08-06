@@ -69,7 +69,7 @@ describe('Counterparty Service', () => {
 
       expect(counterparty.name).toBe('Acme Vendor');
       expect(counterparty.roles).toEqual([ECounterpartyRole.Vendor]);
-      expect(vendorDetailsObj.counterPartyId).toBe(counterparty.id);
+      expect(vendorDetailsObj.counterpartyId).toBe(counterparty.id);
       expect(vendorDetailsObj.address).toEqual(address);
 
       expect(events).toHaveLength(2);
@@ -125,7 +125,7 @@ describe('Counterparty Service', () => {
 
       expect(counterparty.name).toBe('Bob Builder');
       expect(counterparty.roles).toEqual([ECounterpartyRole.Contractor]);
-      expect(contractorDetailsObj.counterPartyId).toBe(counterparty.id);
+      expect(contractorDetailsObj.counterpartyId).toBe(counterparty.id);
       expect(contractorDetailsObj.address).toEqual(address);
 
       expect(events).toHaveLength(2);
@@ -168,7 +168,7 @@ describe('Counterparty Service', () => {
 
       expect(counterparty.name).toBe('MegaCorp Inc');
       expect(counterparty.roles).toEqual([ECounterpartyRole.Employer]);
-      expect(employerDetailsObj.counterPartyId).toBe(counterparty.id);
+      expect(employerDetailsObj.counterpartyId).toBe(counterparty.id);
       expect(employerDetailsObj.displayName).toBe('MegaCorp');
       expect(employerDetailsObj.address).toEqual(address);
 

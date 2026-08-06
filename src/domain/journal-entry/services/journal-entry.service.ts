@@ -1,5 +1,4 @@
 import IAccountingPeriodService from '../../accounting/types/accounting-period.service.types';
-import ICounterpartyRepo from '../../counterparty/repos/counterparty.repo';
 import currencyEntity from '../../money/entities/currency.entity';
 import journalEntryEntity from '../entities/journal-entry.entity';
 import { IJournalEntryService } from '../types/journal-entry.service.types';
@@ -11,7 +10,6 @@ import {
 import helpers from './helpers/journal-entry.service.helpers';
 
 interface IDependencies {
-  counterpartyRepo: ICounterpartyRepo;
   accountingPeriodService: IAccountingPeriodService;
 }
 
@@ -19,7 +17,7 @@ function makeCreateReceipt(
   deps: IDependencies
 ): IJournalEntryService['createReceipt'] {
   return async (payload, repoOptions) => {
-    const { header, sourceLines, destinationLines } = payload;
+    const { header, sourceLine, destinationLines } = payload;
 
     await helpers.validateAccounts(payload);
 
@@ -29,33 +27,26 @@ function makeCreateReceipt(
       repoOptions
     );
 
-    await helpers.validateCounterparties(
-      payload,
-      deps.counterpartyRepo,
-      repoOptions
-    );
+    await helpers.validateCounterparties(payload);
 
     const functionalCurrency = currencyEntity.getByCode(
       header.functionalCurrencyCode
     );
 
-    const sourceLinesPayload: IJournalLineMakePayload[] = sourceLines.map(
-      (line) => ({
-        accountId: line.account.id,
-        counterPartyId: line.counterPartyId ?? null,
-        sequenceOrder: line.sequenceOrder,
-        amount: line.amount,
-        exchangeRate: line.exchangeRate,
-        side: EJournalSide.Credit,
-        description: line.description,
-        functionalCurrency,
-      })
-    );
-
+    const sourceLinesPayload: IJournalLineMakePayload = {
+      accountId: sourceLine.account.id,
+      counterpartyId: sourceLine.counterparty?.id,
+      sequenceOrder: sourceLine.sequenceOrder,
+      amount: sourceLine.amount,
+      exchangeRate: sourceLine.exchangeRate,
+      side: EJournalSide.Credit,
+      description: sourceLine.description,
+      functionalCurrency,
+    };
     const destinationLinesPayload: IJournalLineMakePayload[] =
       destinationLines.map((line) => ({
         accountId: line.account.id,
-        counterPartyId: line.counterPartyId ?? null,
+        counterpartyId: line.counterparty?.id,
         sequenceOrder: line.sequenceOrder,
         amount: line.amount,
         exchangeRate: line.exchangeRate,
@@ -72,7 +63,7 @@ function makeCreateReceipt(
       memo: header.memo,
       createdBy: header.createdBy,
       functionalCurrency,
-      lines: [...sourceLinesPayload, ...destinationLinesPayload],
+      lines: [sourceLinesPayload, ...destinationLinesPayload],
     });
   };
 }

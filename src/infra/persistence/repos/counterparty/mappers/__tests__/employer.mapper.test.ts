@@ -5,7 +5,7 @@ import employerMapper, { IEmployerModel } from '../employer.mapper';
 describe('employerMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');
   const entity: IEmployer = {
-    counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     displayName: 'Acme Corp Inc',
     address: {
       line1: '123 Main St',

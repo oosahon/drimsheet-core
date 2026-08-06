@@ -106,7 +106,7 @@ function validateCounterparties(
   sourceType: UJournalEntrySourceType,
   lines: IJournalLine[]
 ) {
-  const hasCounterparty = lines.some((line) => line.counterPartyId !== null);
+  const hasCounterparty = lines.some((line) => line.counterpartyId !== null);
 
   if (sourceType === EJournalEntrySourceType.Transfer && hasCounterparty) {
     throw new journalEntryError.CounterpartyIdNotAllowed();

@@ -17,7 +17,7 @@ function make(
   }
 
   stringUtils.validateUUID(
-    payload.after.counterPartyId,
+    payload.after.counterpartyId,
     counterpartyError.InvalidCounterpartyId
   );
   stringUtils.validateIsInEnum(
@@ -40,7 +40,7 @@ function make(
   }
 
   const audit: IContractorAudit = {
-    entityId: payload.after.counterPartyId,
+    entityId: payload.after.counterpartyId,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.createdAt,

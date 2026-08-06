@@ -13,10 +13,10 @@ function validateSide(side: UJournalSide) {
   }
 }
 
-function validateCounterpartyId(counterPartyId: TEntityId | null) {
-  if (counterPartyId !== null) {
+function validateCounterpartyId(counterpartyId: TEntityId | null) {
+  if (counterpartyId !== null) {
     stringUtils.validateUUID(
-      counterPartyId,
+      counterpartyId,
       journalLineError.InvalidCounterpartyId
     );
   }

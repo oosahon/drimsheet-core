@@ -27,7 +27,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     },
 
     name: {
-      type: 'varchar(100)',
+      type: 'varchar(255)',
       notNull: true,
     },
 

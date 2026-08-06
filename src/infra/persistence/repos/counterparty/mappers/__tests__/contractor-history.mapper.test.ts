@@ -6,7 +6,7 @@ import contractorHistoryMapper from '../contractor-history.mapper';
 describe('contractorHistoryMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');
   const contractor: IContractor = {
-    counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     address: {
       line1: '123 Main St',
       line2: 'Suite 100',
@@ -19,7 +19,7 @@ describe('contractorHistoryMapper', () => {
   };
 
   const history: IContractorHistory = {
-    entityId: contractor.counterPartyId,
+    entityId: contractor.counterpartyId,
     action: 'created',
     actor: {
       type: 'user',
@@ -37,7 +37,7 @@ describe('contractorHistoryMapper', () => {
     const result = contractorHistoryMapper.toRepo(history);
 
     expect(result).toEqual({
-      counterpartyId: contractor.counterPartyId,
+      counterpartyId: contractor.counterpartyId,
       actorType: 'user',
       action: 'created',
       userId: '123e4567-e89b-12d3-a456-426614174003',

@@ -10,7 +10,7 @@ import { IVendor } from '../../types/counterparty.types';
 import vendorAuditValue from '../vendor-audit.vo';
 
 describe('vendorAuditValue', () => {
-  const counterPartyId = generateUUID();
+  const counterpartyId = generateUUID();
   const address: IAddress = {
     line1: '123 Main St',
     line2: null,
@@ -21,7 +21,7 @@ describe('vendorAuditValue', () => {
   };
 
   const mockDetails: IVendor = Object.freeze({
-    counterPartyId,
+    counterpartyId,
     address,
     createdAt: new Date('2026-07-31T12:00:00.000Z'),
   });
@@ -34,7 +34,7 @@ describe('vendorAuditValue', () => {
         action: EVendorHistoryAction.Created,
       });
 
-      expect(audit.entityId).toBe(counterPartyId);
+      expect(audit.entityId).toBe(counterpartyId);
       expect(audit.action).toBe(EVendorHistoryAction.Created);
       expect(audit.diff.before).toBeNull();
       expect(audit.diff.after).toEqual(mockDetails);
@@ -64,7 +64,7 @@ describe('vendorAuditValue', () => {
 
     it('should throw InvalidCounterpartyId if after details has invalid counterparty id', () => {
       const invalidDetails: IVendor = Object.freeze({
-        counterPartyId: 'invalid-id' as any,
+        counterpartyId: 'invalid-id' as any,
         address,
         createdAt: mockDetails.createdAt,
       });

@@ -96,14 +96,14 @@ describe('counterpartyPersistenceService', () => {
     } as unknown as ICounterpartyHistory;
   }
 
-  function makeVendorFixture(counterPartyId: TEntityId): IVendor {
-    const [vendor] = vendorEntity.make({ counterPartyId, address });
+  function makeVendorFixture(counterpartyId: TEntityId): IVendor {
+    const [vendor] = vendorEntity.make({ counterpartyId, address });
     return vendor;
   }
 
   function makeVendorHistory(vendor: IVendor): IVendorHistory {
     return {
-      entityId: vendor.counterPartyId,
+      entityId: vendor.counterpartyId,
       action: 'created',
       actor,
       correlationId,
@@ -112,14 +112,14 @@ describe('counterpartyPersistenceService', () => {
     } as unknown as IVendorHistory;
   }
 
-  function makeContractorFixture(counterPartyId: TEntityId): IContractor {
-    const [contractor] = contractorEntity.make({ counterPartyId, address });
+  function makeContractorFixture(counterpartyId: TEntityId): IContractor {
+    const [contractor] = contractorEntity.make({ counterpartyId, address });
     return contractor;
   }
 
   function makeContractorHistory(contractor: IContractor): IContractorHistory {
     return {
-      entityId: contractor.counterPartyId,
+      entityId: contractor.counterpartyId,
       action: 'created',
       actor,
       correlationId,
@@ -128,9 +128,9 @@ describe('counterpartyPersistenceService', () => {
     } as unknown as IContractorHistory;
   }
 
-  function makeEmployerFixture(counterPartyId: TEntityId): IEmployer {
+  function makeEmployerFixture(counterpartyId: TEntityId): IEmployer {
     const [employer] = employerEntity.make({
-      counterPartyId,
+      counterpartyId,
       address,
       displayName: 'Test Employer Co.',
     });
@@ -139,7 +139,7 @@ describe('counterpartyPersistenceService', () => {
 
   function makeEmployerHistory(employer: IEmployer): IEmployerHistory {
     return {
-      entityId: employer.counterPartyId,
+      entityId: employer.counterpartyId,
       action: 'created',
       actor,
       correlationId,

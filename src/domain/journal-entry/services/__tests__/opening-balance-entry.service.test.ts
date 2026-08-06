@@ -180,7 +180,7 @@ describe('openingBalanceEntryService', () => {
       expect(journalEntry.lines).toEqual([
         expect.objectContaining({
           accountId: postingAccount.id,
-          counterPartyId: null,
+          counterpartyId: null,
           sequenceOrder: 1,
           amount,
           functionalAmount: amount,
@@ -193,7 +193,7 @@ describe('openingBalanceEntryService', () => {
         }),
         expect.objectContaining({
           accountId: equityAccount.id,
-          counterPartyId: null,
+          counterpartyId: null,
           sequenceOrder: 2,
           amount,
           functionalAmount: amount,

@@ -160,6 +160,7 @@ describe('createOpeningBalanceUseCase', () => {
 
     expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
       mockAssetAccount.id,
+      mockAccountingEntity.id,
       { correlationId }
     );
     expect(mockOpeningBalanceEntryService.create).toHaveBeenCalledWith(

@@ -70,9 +70,9 @@ Preserve unrelated staged and working-tree changes during implementation.
   - `getMemo`: null/empty memo vs valid memo vs too-long memo (throws `InvalidMemo`)
   - `validateSourceType`: valid source type vs invalid source type (throws `InvalidSourceType`)
   - `validateCounterpartyId`:
-    - Transfer with counterPartyId (throws `CounterpartyIdNotAllowed`)
+    - Transfer with counterpartyId (throws `CounterpartyIdNotAllowed`)
     - Invalid UUID format (throws `InvalidCounterpartyId`)
-    - Valid counterPartyId (no throw)
+    - Valid counterpartyId (no throw)
   - `validatePostedAt`: null/undefined vs valid Date vs invalid Date (throws `InvalidPostingDate`)
   - `validateVoidedAt`: null/undefined vs valid Date vs invalid Date (throws `InvalidVoidedAt`)
   - `validateVoidingEntryId`: null/undefined vs valid UUID vs invalid UUID (throws `InvalidValue`)

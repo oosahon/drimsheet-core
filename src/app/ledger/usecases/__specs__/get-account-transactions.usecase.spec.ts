@@ -167,6 +167,7 @@ describe('getAccountTransactionsUseCase', () => {
 
     expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
       ledgerAccount.id,
+      accountingEntity.id,
       { correlationId }
     );
     expect(
@@ -185,7 +186,7 @@ describe('getAccountTransactionsUseCase', () => {
           id: journalEntry.lines[0].id,
           entryId: journalEntry.id,
           accountId: ledgerAccount.id,
-          counterpartyId: journalEntry.lines[0].counterPartyId,
+          counterpartyId: journalEntry.lines[0].counterpartyId,
           sequenceOrder: 1,
           amount: {
             amount: 100_00,

@@ -1,5 +1,6 @@
 import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
+import { ICounterparty } from '../../counterparty/types/counterparty.types';
 import { ILedgerAccount } from '../../ledger/shared/types/ledger.types';
 import { IExchangeRate } from '../../money/types/exchange-rate.types';
 import { IMoney } from '../../money/types/money.types';
@@ -17,18 +18,17 @@ interface IHeaderPayload {
 
 interface ILinePayload {
   account: ILedgerAccount;
-  counterPartyId?: TEntityId | null;
+  counterparty: ICounterparty | null;
   sequenceOrder: number;
   amount: IMoney;
   exchangeRate: IExchangeRate | null;
-  functionalAmount: IMoney;
   description: string | null;
   meta: IJournalLineMeta | null;
 }
 
 export interface ICreateReceiptEntryPayload {
   header: IHeaderPayload;
-  sourceLines: ILinePayload[];
+  sourceLine: ILinePayload;
   destinationLines: ILinePayload[];
 }
 

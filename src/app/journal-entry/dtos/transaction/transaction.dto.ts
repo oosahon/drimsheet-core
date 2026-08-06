@@ -5,8 +5,8 @@ import {
 import { IJournalLineReq } from '../journal-entry/journal-entry.dto';
 
 export interface IJournalEntryReq {
-  sourceLine: IJournalLineReq;
   sourceType: UJournalEntrySourceType;
+  sourceLine: IJournalLineReq;
   destinationLines: IJournalLineReq[];
   status: UJournalEntryStatus;
   effectiveDate: Date;

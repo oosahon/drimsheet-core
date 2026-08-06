@@ -45,7 +45,7 @@ describe('JournalEntry Entity', () => {
         lines: [
           {
             accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
-            counterPartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
+            counterpartyId: '3c5d72bc-1d2a-4a8b-8c0d-1e2f3a4b5c6d' as TEntityId,
             sequenceOrder: 1,
             amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.USD, false),
             exchangeRate: null,
@@ -55,7 +55,7 @@ describe('JournalEntry Entity', () => {
           },
           {
             accountId: 'e682fcb3-e6dc-54ed-9f7d-304c08c1b810' as TEntityId,
-            counterPartyId: null,
+            counterpartyId: null,
             sequenceOrder: 2,
             amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.USD, false),
             exchangeRate: null,
@@ -74,7 +74,7 @@ describe('JournalEntry Entity', () => {
       expect(entry.id.length).toBeGreaterThan(0);
       expect(entry.accountingEntityId).toBe(validPayload.accountingEntityId);
       expect(entry.sourceType).toBe(validPayload.sourceType);
-      expect(entry).not.toHaveProperty('counterPartyId');
+      expect(entry).not.toHaveProperty('counterpartyId');
       expect(entry.memo).toBe('Test entry memo');
       expect(entry.status).toBe(EJournalEntryStatus.Draft);
       expect(entry.effectiveDate).toEqual(validPayload.effectiveDate);
@@ -89,8 +89,8 @@ describe('JournalEntry Entity', () => {
       expect(entry.lines).toHaveLength(2);
       expect(entry.lines[0].entryId).toBe(entry.id);
       expect(entry.lines[0].accountId).toBe(validPayload.lines[0].accountId);
-      expect(entry.lines[0].counterPartyId).toBe(
-        validPayload.lines[0].counterPartyId
+      expect(entry.lines[0].counterpartyId).toBe(
+        validPayload.lines[0].counterpartyId
       );
       expect(entry.lines[1].entryId).toBe(entry.id);
 
@@ -262,7 +262,7 @@ describe('JournalEntry Entity', () => {
           lines: [
             {
               ...validPayload.lines[0],
-              counterPartyId: 'invalid' as TEntityId,
+              counterpartyId: 'invalid' as TEntityId,
             },
             validPayload.lines[1],
           ],
@@ -298,7 +298,7 @@ describe('JournalEntry Entity', () => {
           id: '1' as TEntityId,
           entryId: '2' as TEntityId,
           accountId: '3' as TEntityId,
-          counterPartyId: null,
+          counterpartyId: null,
           sequenceOrder: 1,
           amount: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
           exchangeRate: null,

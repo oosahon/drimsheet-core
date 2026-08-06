@@ -4,11 +4,11 @@
 
 Move counterparty attribution from the journal-entry header to individual journal lines so a single balanced entry can represent postings involving multiple counterparties, such as a customer and a tax authority.
 
-The header will no longer expose `counterPartyId`; each line will expose a nullable `counterPartyId`. The persistence schema and generated Drizzle artifacts are already staged; this plan covers the remaining domain and application integration. Preserve all unrelated staged and working-tree changes during implementation.
+The header will no longer expose `counterpartyId`; each line will expose a nullable `counterpartyId`. The persistence schema and generated Drizzle artifacts are already staged; this plan covers the remaining domain and application integration. Preserve all unrelated staged and working-tree changes during implementation.
 
 ## Context
 
-`IJournalHeader` and `IJournalEntryMakePayload` currently own `counterPartyId`, while `IJournalLine` and `IJournalLineMakePayload` do not. The journal-entry entity validates the header value and persists it through the header mapper. The receipt service also verifies the single header counterparty through `ICounterpartyRepo`.
+`IJournalHeader` and `IJournalEntryMakePayload` currently own `counterpartyId`, while `IJournalLine` and `IJournalLineMakePayload` do not. The journal-entry entity validates the header value and persists it through the header mapper. The receipt service also verifies the single header counterparty through `ICounterpartyRepo`.
 
 The staged baseline migrations now remove `counterparty_id` from `core.journal_entries` and add a nullable foreign key on `core.journal_lines`. The generated Drizzle schema and relations already reflect the same ownership. Persistence mappers and the account-transaction query still read and write the old header field, so the application contract must now catch up.
 
@@ -28,7 +28,7 @@ The staged baseline migrations now remove `counterparty_id` from `core.journal_e
 
 ### Expected Changes
 
-- `src/domain/journal-entry/types/journal-entry.types.ts` and `src/domain/journal-entry/types/journal-line.types.ts` - remove the header property and add nullable line-level `counterPartyId` to the entity and creation/input payload types.
+- `src/domain/journal-entry/types/journal-entry.types.ts` and `src/domain/journal-entry/types/journal-line.types.ts` - remove the header property and add nullable line-level `counterpartyId` to the entity and creation/input payload types.
 - `src/domain/journal-entry/entities/**` - validate and construct the line property, retain the transfer restriction at aggregate level, and remove header-level construction and transition copying.
 - `src/domain/journal-entry/services/**` - change receipt creation contracts and map counterparties from each source/destination line; validate each distinct referenced counterparty belongs to the entry accounting entity.
 - `src/app/journal-entry/**` - move request and response counterparty fields from header DTOs to line DTOs and update Zod validation.
@@ -51,8 +51,8 @@ The staged baseline migrations now remove `counterparty_id` from `core.journal_e
 
 ### 1. Relocate The Domain State And Invariants
 
-- Remove `counterPartyId` from `IJournalHeader`, `IJournalEntry`, and the header portion of `IJournalEntryMakePayload`.
-- Add `counterPartyId: TEntityId | null` to `IJournalLine`, `IJournalLineMakePayload`, and `IJournalLineInput`. Keep the existing domain spelling (`counterPartyId`) and translate it to transport/storage `counterpartyId` at the existing mapper boundaries.
+- Remove `counterpartyId` from `IJournalHeader`, `IJournalEntry`, and the header portion of `IJournalEntryMakePayload`.
+- Add `counterpartyId: TEntityId | null` to `IJournalLine`, `IJournalLineMakePayload`, and `IJournalLineInput`. Keep the existing domain spelling (`counterpartyId`) and translate it to transport/storage `counterpartyId` at the existing mapper boundaries.
 - Move nullable UUID validation into `journalLineEntity`/its helper, because the line owns the state. The journal-entry aggregate continues to own the source-type rule: a `transfer` entry cannot contain a non-null counterparty on any line. Validate this after line construction and before events/audits are produced.
 - Do not add a new service for this relocation. The aggregate remains dependency-free and owns syntax/state invariants; the existing journal-entry domain service owns the repository-backed existence and tenant checks.
 - Existing opening-balance construction should explicitly create two counterparty-free lines and should no longer set any header counterparties.
@@ -74,7 +74,7 @@ The staged baseline migrations now remove `counterparty_id` from `core.journal_e
 
 - Remove `counterpartyId` from journal-entry persistence, DTO, and header audit mapping. Add it to journal-line persistence and DTO mapping so new line history diffs include the line attribution.
 - Update entry retrieval to hydrate counterparties entirely through mapped lines. Update the generated Drizzle relationships from `counterparty -> journal entries` to `counterparty -> journal lines` and add the reciprocal line relation.
-- Simplify `IAccountTransaction` so it inherits `counterPartyId` from `IJournalLine`; remove it from the nested header shape. Update its infrastructure and app mappers so existing account-transaction consumers receive `counterpartyId` alongside `accountId`, `side`, and `amount`.
+- Simplify `IAccountTransaction` so it inherits `counterpartyId` from `IJournalLine`; remove it from the nested header shape. Update its infrastructure and app mappers so existing account-transaction consumers receive `counterpartyId` alongside `accountId`, `side`, and `amount`.
 - Preserve entry and line audit history as immutable records. Existing header history snapshots retain their historical header field; new line history snapshots contain the field. No rewrite of audit history is needed.
 
 ### 5. Cover The Relocated Behavior
@@ -83,7 +83,7 @@ The staged baseline migrations now remove `counterparty_id` from `core.journal_e
 - Update journal-line entity tests to assert the field is retained in the immutable line, event payload, and audit snapshot.
 - Update journal-entry service tests for multiple counterparties across a receipt's lines, deduplicated repository lookups, missing/wrong-tenant counterparties, and unchanged account/period validation ordering.
 - Update mapper and account-transaction tests to prove the database column, line DTO, and query response round-trip both non-null and null values.
-- Update application persistence, opening-balance, balance-propagation, and ledger use-case fixtures that currently set `counterPartyId` on the header.
+- Update application persistence, opening-balance, balance-propagation, and ledger use-case fixtures that currently set `counterpartyId` on the header.
 
 ## Test Plan
 
@@ -123,7 +123,7 @@ A clean-database migration check requires a configured `POSTGRES_URL` and must r
 
 ## Completion Criteria
 
-- `counterPartyId` exists on journal lines and no longer exists on the journal entry header, request header DTO, response header DTO, or header persistence model.
+- `counterpartyId` exists on journal lines and no longer exists on the journal entry header, request header DTO, response header DTO, or header persistence model.
 - A journal entry can create, persist, retrieve, emit, audit, and return lines with two or more distinct counterparties.
 - Every non-null line counterparty is syntactically valid and repository validated against the entry accounting entity; transfer entries reject all non-null line counterparties.
 - The remaining code reads and writes the staged journal-line foreign key, while no remaining production path accesses the removed header column.

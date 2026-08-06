@@ -39,6 +39,7 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
 
     const account = await deps.ledgerAccountRepo.findById(
       payload.accountId as TEntityId,
+      accountingEntity.id,
       trace
     );
 

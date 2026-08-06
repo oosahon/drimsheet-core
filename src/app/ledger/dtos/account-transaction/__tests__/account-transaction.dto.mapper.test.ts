@@ -18,7 +18,7 @@ describe('Account Transaction DTO Mapper', () => {
         id: 'tx-id-123' as unknown as TEntityId,
         entryId: 'entry-id-456' as unknown as TEntityId,
         accountId: 'account-id-789' as unknown as TEntityId,
-        counterPartyId: 'counterparty-id-111' as unknown as TEntityId,
+        counterpartyId: 'counterparty-id-111' as unknown as TEntityId,
         sequenceOrder: 1,
         amount: moneyAmount,
         exchangeRate: null,

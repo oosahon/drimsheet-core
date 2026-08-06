@@ -11,7 +11,7 @@ export interface IEmployerModel extends InferSelectModel<
 const employerMapper = {
   toRepo(entity: IEmployer): IEmployerModel {
     return {
-      counterpartyId: entity.counterPartyId,
+      counterpartyId: entity.counterpartyId,
       displayName: entity.displayName,
       addressLine1: entity.address.line1,
       addressLine2: entity.address.line2,
@@ -25,7 +25,7 @@ const employerMapper = {
 
   toDomain(payload: IEmployerModel): IEmployer {
     return Object.freeze({
-      counterPartyId: payload.counterpartyId as TEntityId,
+      counterpartyId: payload.counterpartyId as TEntityId,
       displayName: payload.displayName,
       address: Object.freeze({
         line1: payload.addressLine1,

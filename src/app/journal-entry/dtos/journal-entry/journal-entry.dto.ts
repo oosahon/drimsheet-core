@@ -1,3 +1,4 @@
+import { UCounterpartyType } from '../../../../domain/counterparty/types/counterparty.types';
 import {
   UJournalEntrySourceType,
   UJournalEntryStatus,
@@ -9,16 +10,17 @@ import { IMoneyDto } from '../../../money/dtos/money/money.dto';
 
 export interface IJournalLineReq {
   accountId: string;
-  counterparty: ICounterpartyPayload | null;
+  counterparty: IJournalCounterpartyReq | null;
   amount: IMoneyDto;
   exchangeRate: IExchangeRateDto | null;
   description: string | null;
   sequenceOrder: number;
 }
 
-export interface ICounterpartyPayload {
+export interface IJournalCounterpartyReq {
   id?: string;
   name: string;
+  type?: UCounterpartyType;
 }
 
 export interface IJournalHeaderCreateReq {

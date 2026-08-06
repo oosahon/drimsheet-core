@@ -111,9 +111,11 @@ describe('getLedgerAccountUseCase', () => {
     await expect(useCase(mockAccountId)).rejects.toThrow(
       'app_error_ledger_account_not_found'
     );
-    expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(mockAccountId, {
-      correlationId,
-    });
+    expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
+      mockAccountId,
+      mockAccountingEntityId,
+      { correlationId }
+    );
   });
 
   it('throws app_error_forbidden if the user does not own the account', async () => {

@@ -6,13 +6,13 @@ import vendorHistoryMapper from '../vendor-history.mapper';
 describe('vendorHistoryMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');
   const vendor: IVendor = {
-    counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     address: null,
     createdAt: now,
   };
 
   const history: IVendorHistory = {
-    entityId: vendor.counterPartyId,
+    entityId: vendor.counterpartyId,
     action: 'created',
     actor: {
       type: 'user',
@@ -30,7 +30,7 @@ describe('vendorHistoryMapper', () => {
     const result = vendorHistoryMapper.toRepo(history);
 
     expect(result).toEqual({
-      counterpartyId: vendor.counterPartyId,
+      counterpartyId: vendor.counterpartyId,
       actorType: 'user',
       action: 'created',
       userId: '123e4567-e89b-12d3-a456-426614174003',

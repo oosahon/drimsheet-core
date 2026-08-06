@@ -18,6 +18,7 @@ describe('Ledger Account Balance Adjustment DTO Validation', () => {
         isMinorUnit: true,
       },
       ledgerAccountId: '3c4c1064-a09e-4e4f-b6a3-23945cc87f76',
+      accountingEntityId: '4c4c1064-a09e-4e4f-b6a3-23945cc87f77',
     };
 
     const result = ledgerAccountBalanceAdjustmentDtoSchema.safeParse(payload);
@@ -41,6 +42,7 @@ describe('Ledger Account Balance Adjustment DTO Validation', () => {
         isMinorUnit: true,
       },
       ledgerAccountId: '3c4c1064-a09e-4e4f-b6a3-23945cc87f76',
+      accountingEntityId: '4c4c1064-a09e-4e4f-b6a3-23945cc87f77',
     };
 
     const result = ledgerAccountBalanceAdjustmentDtoSchema.safeParse(payload);

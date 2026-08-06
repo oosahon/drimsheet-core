@@ -20,7 +20,8 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
   return async (payload: ILedgerAccountBalanceAdjustmentDto) => {
     zodValidationRunner(ledgerAccountBalanceAdjustmentDtoSchema, payload);
 
-    const { correlationId, journalEntry, ledgerAccountId } = payload;
+    const { correlationId, journalEntry, ledgerAccountId, accountingEntityId } =
+      payload;
 
     const balanceDelta = moneyMapper.fromDto(payload.balanceDelta);
     const functionalBalanceDelta = moneyMapper.fromDto(
@@ -31,6 +32,7 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
 
     const account = await deps.ledgerAccountRepo.findById(
       ledgerAccountId,
+      accountingEntityId,
       repoOptions
     );
 

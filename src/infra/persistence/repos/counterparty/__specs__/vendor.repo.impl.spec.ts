@@ -15,13 +15,13 @@ jest.mock('../vendor-history.repo.impl');
 describe('VendorRepoImpl', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');
   const payload: IVendor = {
-    counterPartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
+    counterpartyId: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     address: null,
     createdAt: now,
   };
 
   const history: IVendorHistory = {
-    entityId: payload.counterPartyId,
+    entityId: payload.counterpartyId,
     action: 'created',
     actor: {
       type: 'user',
@@ -56,7 +56,7 @@ describe('VendorRepoImpl', () => {
           callback(tx)
       ),
     };
-    const repoValue = { counterpartyId: payload.counterPartyId };
+    const repoValue = { counterpartyId: payload.counterpartyId };
 
     (getDbQuery as jest.Mock).mockReturnValue(query);
     (vendorMapper.toRepo as jest.Mock).mockReturnValue(repoValue);

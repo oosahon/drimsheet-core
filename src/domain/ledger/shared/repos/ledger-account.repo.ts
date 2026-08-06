@@ -52,6 +52,7 @@ export default interface ILedgerAccountRepo {
 
   findById(
     id: TEntityId,
+    accountingEntityId: TEntityId,
     options: IReadRepoOptions
   ): Promise<ILedgerAccount | null>;
 

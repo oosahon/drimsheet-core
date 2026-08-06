@@ -27,7 +27,11 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
 
     const trace = { correlationId };
 
-    const account = await deps.ledgerAccountRepo.findById(accountId, trace);
+    const account = await deps.ledgerAccountRepo.findById(
+      accountId,
+      accountingEntity.id,
+      trace
+    );
 
     if (!account) {
       throw new ledgerAppError.AccountNotFound();

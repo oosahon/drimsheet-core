@@ -1,26 +1,16 @@
 import { TEntityId } from '../../../../../shared/types/uuid';
-import ICounterpartyRepo from '../../../../counterparty/repos/counterparty.repo';
 import { ICounterparty } from '../../../../counterparty/types/counterparty.types';
 import journalEntryError from '../../../errors/journal-entry.error';
 import { ICreateReceiptEntryPayload } from '../../../types/journal-entry.service.types';
 import journalEntryServiceHelpers from '../journal-entry.service.helpers';
 
-const mockCounterpartyRepo: jest.Mocked<ICounterpartyRepo> = {
-  create: jest.fn(),
-  findAll: jest.fn(),
-  findById: jest.fn(),
-};
-
 describe('journalEntryServiceHelpers', () => {
   const accountingEntityId =
     '4b4c1064-a09e-4e4f-b6a3-23945cc87f74' as TEntityId;
-  const counterpartyId = '1b4c1064-a09e-4e4f-b6a3-23945cc87f75' as TEntityId;
-  const taxAuthorityId = '2b4c1064-a09e-4e4f-b6a3-23945cc87f76' as TEntityId;
-  const repoOptions = { correlationId: 'journal-entry-helper-test' };
 
   function makePayload(
-    sourceCounterpartyId: TEntityId | null = counterpartyId,
-    destinationCounterpartyId: TEntityId | null = taxAuthorityId
+    sourceCounterparty: ICounterparty | null,
+    destinationCounterparty: ICounterparty | null
   ): ICreateReceiptEntryPayload {
     return {
       header: {
@@ -32,56 +22,42 @@ describe('journalEntryServiceHelpers', () => {
         createdBy: accountingEntityId,
       },
       sourceLines: [
-        { counterPartyId: sourceCounterpartyId },
-      ] as ICreateReceiptEntryPayload['sourceLines'],
+        { counterparty: sourceCounterparty },
+      ] as unknown as ICreateReceiptEntryPayload['sourceLines'],
       destinationLines: [
-        { counterPartyId: destinationCounterpartyId },
-      ] as ICreateReceiptEntryPayload['destinationLines'],
+        { counterparty: destinationCounterparty },
+      ] as unknown as ICreateReceiptEntryPayload['destinationLines'],
     };
   }
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('validateCounterparties', () => {
-    it('validates each unique line counterparty in the accounting entity', async () => {
-      const payload = makePayload(counterpartyId, counterpartyId);
-      mockCounterpartyRepo.findById.mockResolvedValue({} as ICounterparty);
-
-      await journalEntryServiceHelpers.validateCounterparties(
-        payload,
-        mockCounterpartyRepo,
-        repoOptions
-      );
-
-      expect(mockCounterpartyRepo.findById).toHaveBeenCalledTimes(1);
-      expect(mockCounterpartyRepo.findById).toHaveBeenCalledWith(
-        counterpartyId,
+    it('succeeds when all counterparties belong to the accounting entity', async () => {
+      const counterparty = {
         accountingEntityId,
-        repoOptions
-      );
+      } as ICounterparty;
+      const payload = makePayload(counterparty, counterparty);
+
+      await expect(
+        journalEntryServiceHelpers.validateCounterparties(payload)
+      ).resolves.not.toThrow();
     });
 
-    it('does not query the repository when every line has no counterparty', async () => {
-      await journalEntryServiceHelpers.validateCounterparties(
-        makePayload(null, null),
-        mockCounterpartyRepo,
-        repoOptions
-      );
+    it('succeeds when every line has no counterparty', async () => {
+      const payload = makePayload(null, null);
 
-      expect(mockCounterpartyRepo.findById).not.toHaveBeenCalled();
+      await expect(
+        journalEntryServiceHelpers.validateCounterparties(payload)
+      ).resolves.not.toThrow();
     });
 
     it('throws when a line counterparty does not belong to the accounting entity', async () => {
-      mockCounterpartyRepo.findById.mockResolvedValue(null);
+      const invalidCounterparty = {
+        accountingEntityId: 'different-entity-id' as TEntityId,
+      } as ICounterparty;
+      const payload = makePayload(invalidCounterparty, null);
 
       await expect(
-        journalEntryServiceHelpers.validateCounterparties(
-          makePayload(),
-          mockCounterpartyRepo,
-          repoOptions
-        )
+        journalEntryServiceHelpers.validateCounterparties(payload)
       ).rejects.toThrow(journalEntryError.InvalidCounterpartyId);
     });
   });

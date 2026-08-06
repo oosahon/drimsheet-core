@@ -11,7 +11,7 @@ export interface IVendorModel extends InferSelectModel<
 const vendorMapper = {
   toRepo(entity: IVendor): IVendorModel {
     return {
-      counterpartyId: entity.counterPartyId,
+      counterpartyId: entity.counterpartyId,
       addressLine1: entity.address?.line1 ?? null,
       addressLine2: entity.address?.line2 ?? null,
       addressCity: entity.address?.city ?? null,
@@ -28,7 +28,7 @@ const vendorMapper = {
       payload.addressCity !== null &&
       payload.addressCountryCode !== null;
     return Object.freeze({
-      counterPartyId: payload.counterpartyId as TEntityId,
+      counterpartyId: payload.counterpartyId as TEntityId,
       address: hasAddress
         ? Object.freeze({
             line1: payload.addressLine1!,
