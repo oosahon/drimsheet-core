@@ -1,11 +1,4 @@
-import IAccountingContextRepo from '../../../../domain/accounting/repos/accounting-context.repo';
-import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
-import IAccountingPeriodRepo from '../../../../domain/accounting/repos/accounting-period.repo';
-import IFiscalYearRepo from '../../../../domain/accounting/repos/fiscal-year.repo';
-import IReportingContextRepo from '../../../../domain/accounting/repos/reporting-context.repo';
-import IReportingPeriodRepo from '../../../../domain/accounting/repos/reporting-period.repo';
 import makeAccountingEntityService from '../../../../domain/accounting/services/accounting-entity.service';
-import IAccountingEntityService from '../../../../domain/accounting/types/accounting-entity.service.types';
 import {
   EAccountingEntityType,
   IAccountingEntity,
@@ -22,45 +15,20 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import mockAccountsBootstrapService from '../../../ledger/contracts/__mocks__/accounts-bootstrap.service.mock';
 import mockLedgerAccountPersistenceService from '../../../ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
+import { mockAccountingEntityService } from '../../contracts/__mocks__/accounting.domain.services.mock';
+import {
+  mockAccountingContextRepo,
+  mockAccountingEntityRepo,
+  mockAccountingPeriodRepo,
+  mockFiscalYearRepo,
+  mockReportingContextRepo,
+  mockReportingPeriodRepo,
+} from '../../contracts/__mocks__/accounting.repos.mock';
 import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
 import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
 
-const mockAccountingContextRepo: jest.Mocked<IAccountingContextRepo> = {
-  create: jest.fn(),
-};
-
-const mockAccountingEntityRepo: jest.Mocked<IAccountingEntityRepo> = {
-  create: jest.fn(),
-  findById: jest.fn(),
-  findByIdAndUserId: jest.fn(),
-  findByUserId: jest.fn(),
-};
-
-const mockAccountingPeriodRepo: jest.Mocked<IAccountingPeriodRepo> = {
-  findByDate: jest.fn(),
-  create: jest.fn(),
-};
-
-const mockFiscalYearRepo: jest.Mocked<IFiscalYearRepo> = {
-  create: jest.fn(),
-};
-
-const mockReportingContextRepo: jest.Mocked<IReportingContextRepo> = {
-  create: jest.fn(),
-};
-
-const mockReportingPeriodRepo: jest.Mocked<IReportingPeriodRepo> = {
-  create: jest.fn(),
-};
-
-const accountingEntity: jest.Mocked<IAccountingEntityService> = {
-  create: jest.fn(),
-  grantUserAccess: jest.fn(),
-  validateAccess: jest.fn(),
-};
-
 const mockAccountingDomainServices = Object.freeze({
-  accountingEntity,
+  accountingEntity: mockAccountingEntityService,
 });
 
 describe('createAccountingEntityUseCase', () => {

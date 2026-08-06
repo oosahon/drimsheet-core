@@ -1,10 +1,8 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import ILedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import { ILedgerAccountBalance } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { IBankAccount } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
@@ -12,28 +10,12 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
+import {
+  mockLedgerAccountBalanceRepo,
+  mockLedgerAccountRepo,
+} from '../../contracts/__mocks__/ledger.repos.mock';
 import { IGetLedgerAccountsQuery } from '../../dtos/ledger-account/ledger-account.dto';
 import makeGetLedgerAccountsUsecase from '../get-ledger-accounts.usecase';
-
-const mockLedgerAccountBalanceRepo: jest.Mocked<ILedgerAccountBalanceRepo> = {
-  create: jest.fn(),
-  adjustBalance: jest.fn(),
-  findByAccountId: jest.fn(),
-  findAdjustmentsByAccountId: jest.fn(),
-  findAllByAccountIds: jest.fn(),
-};
-
-const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findById: jest.fn(),
-  findAllByIds: jest.fn(),
-  findByCode: jest.fn(),
-  findBySubType: jest.fn(),
-  findByBehavior: jest.fn(),
-  findLatestBySubType: jest.fn(),
-  findAll: jest.fn(),
-};
 
 describe('makeGetLedgerAccountsUsecase', () => {
   const getUseCase = () =>

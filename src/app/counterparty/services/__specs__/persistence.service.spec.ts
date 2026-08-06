@@ -2,10 +2,6 @@ import contractorEntity from '../../../../domain/counterparty/entities/contracto
 import counterpartyEntity from '../../../../domain/counterparty/entities/counterparty.entity';
 import employerEntity from '../../../../domain/counterparty/entities/employer.entity';
 import vendorEntity from '../../../../domain/counterparty/entities/vendor.entity';
-import IContractorRepo from '../../../../domain/counterparty/repos/contractor.repo';
-import ICounterpartyRepo from '../../../../domain/counterparty/repos/counterparty.repo';
-import IEmployerRepo from '../../../../domain/counterparty/repos/employer.repo';
-import IVendorRepo from '../../../../domain/counterparty/repos/vendor.repo';
 import {
   IContractorHistory,
   ICounterpartyHistory,
@@ -27,25 +23,13 @@ import {
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { EHistoryActorType } from '../../../../shared/values/history/types/history.types';
+import {
+  mockContractorRepo,
+  mockCounterpartyRepo,
+  mockEmployerRepo,
+  mockVendorRepo,
+} from '../../contracts/__mocks__/counterparty.repos.mock';
 import makeCounterpartyPersistenceService from '../persistence.service';
-
-const mockContractorRepo: jest.Mocked<IContractorRepo> = {
-  create: jest.fn(),
-};
-
-const mockCounterpartyRepo: jest.Mocked<ICounterpartyRepo> = {
-  create: jest.fn(),
-  findAll: jest.fn(),
-  findById: jest.fn(),
-};
-
-const mockEmployerRepo: jest.Mocked<IEmployerRepo> = {
-  create: jest.fn(),
-};
-
-const mockVendorRepo: jest.Mocked<IVendorRepo> = {
-  create: jest.fn(),
-};
 
 describe('counterpartyPersistenceService', () => {
   const service = makeCounterpartyPersistenceService({

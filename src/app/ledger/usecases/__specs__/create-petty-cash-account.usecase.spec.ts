@@ -1,23 +1,20 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import IAccountingPeriodService from '../../../../domain/accounting/types/accounting-period.service.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/asset-account/config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import IAssetAccountService from '../../../../domain/ledger/asset-account/types/asset-account.service.types';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import IFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/types/lot.service.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import appError from '../../../../shared/values/errors/app.error';
+import { mockAccountingPeriodService } from '../../../accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext, {
   mockClientSession,
 } from '../../../context/contracts/__mocks__/app-context.mock';
@@ -25,37 +22,14 @@ import { IAppContextData } from '../../../context/contracts/app-context.contract
 import mockJournalEntryPersistenceService from '../../../journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
 import mockJournalEntryService from '../../../journal-entry/contracts/__mocks__/journal-entry.service.mock';
 import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.mock';
+import { mockFxCostBasisLotDomainService } from '../../../subledger/contracts/__mocks__/subledger.domain.services.mock';
 import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-propagation.service.mock';
 import mockLedgerAccountPersistenceService from '../../contracts/__mocks__/ledger-account-persistence.service.mock';
+import { mockAssetAccountService } from '../../contracts/__mocks__/ledger.domain.services.mock';
+import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import { IPettyCashAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
 import makeCreatePettyCashAccountUseCase from '../create-petty-cash-account.usecase';
-
-const mockAccountingPeriodService: jest.Mocked<IAccountingPeriodService> = {
-  validatePostingPeriod: jest.fn(),
-};
-
-const mockAssetAccountService: jest.Mocked<IAssetAccountService> = {
-  makePettyCashSubAccount: jest.fn(),
-  makeBankSubAccount: jest.fn(),
-};
-
-const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findById: jest.fn(),
-  findAllByIds: jest.fn(),
-  findByCode: jest.fn(),
-  findBySubType: jest.fn(),
-  findByBehavior: jest.fn(),
-  findLatestBySubType: jest.fn(),
-  findAll: jest.fn(),
-};
-
-const mockFxCostBasisLotDomainService: jest.Mocked<IFxCostBasisLotDomainService> =
-  {
-    acquire: jest.fn(),
-  };
 
 describe('createPettyCashSubAccountUseCase', () => {
   const correlationId = 'test-corr-id';

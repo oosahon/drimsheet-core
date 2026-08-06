@@ -1,37 +1,19 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
-import ILedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
+import {
+  mockLedgerAccountBalanceRepo,
+  mockLedgerAccountRepo,
+} from '../../contracts/__mocks__/ledger.repos.mock';
 import ILedgerBalanceAdjustmentQueue from '../../contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '../../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 import ledgerAppError from '../../errors/ledger.error';
 import makeAdjustLedgerAccountBalanceUseCase from '../adjust-ledger-account-balance.usecase';
-
-const mockLedgerAccountBalanceRepo: jest.Mocked<ILedgerAccountBalanceRepo> = {
-  create: jest.fn(),
-  adjustBalance: jest.fn(),
-  findByAccountId: jest.fn(),
-  findAdjustmentsByAccountId: jest.fn(),
-  findAllByAccountIds: jest.fn(),
-};
-
-const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findById: jest.fn(),
-  findAllByIds: jest.fn(),
-  findByCode: jest.fn(),
-  findBySubType: jest.fn(),
-  findByBehavior: jest.fn(),
-  findLatestBySubType: jest.fn(),
-  findAll: jest.fn(),
-};
 
 describe('makeAdjustLedgerAccountBalanceUseCase', () => {
   const correlationId = 'test-corr-id';

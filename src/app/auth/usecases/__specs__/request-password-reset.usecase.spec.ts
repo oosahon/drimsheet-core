@@ -1,5 +1,4 @@
 import userEvents from '../../../../domain/user/events/user.events';
-import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import emailValue from '../../../../domain/user/values/email.vo';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
@@ -10,18 +9,11 @@ import eventValue from '../../../../shared/values/events/event.vo';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import mockTransactionalEmailService from '../../../notification/contracts/__mocks__/transactional-email-service.mock';
+import { mockUserRepo } from '../../../user/contracts/__mocks__/user.repos.mock';
 import mockAuthService from '../../contracts/__mocks__/token-service.mock';
 import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
 import { IUserAuth } from '../../contracts/auth.types';
 import makeRequestPasswordResetUseCase from '../request-password-reset.usecase';
-
-const mockUserRepo: jest.Mocked<IUserRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findByEmail: jest.fn(),
-  findById: jest.fn(),
-  delete: jest.fn(),
-};
 
 describe('makeRequestPasswordResetUseCase', () => {
   const correlationId = 'test-corr-id';

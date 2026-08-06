@@ -1,14 +1,10 @@
-import IUserPreferencesRepo from '../../../../domain/user/repos/user-preferences.repo';
 import { IUserPreferences } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
+import { mockUserPreferencesRepo } from '../../contracts/__mocks__/user.repos.mock';
 import makeGetUserPreferencesUseCase from '../get-preferences.usecase';
-
-const mockUserPreferencesRepo: jest.Mocked<IUserPreferencesRepo> = {
-  findById: jest.fn(),
-};
 
 describe('makeGetUserPreferencesUseCase', () => {
   beforeEach(() => {

@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
+import { mockAccountingEntityRepo as mockAccountingEntityRepoCentral } from '../../../../app/accounting/contracts/__mocks__/accounting.repos.mock';
 import ITokenService, {
   IAuthTokenPayload,
 } from '../../../../app/auth/contracts/token-service.contract';
 import IAppContext from '../../../../app/context/contracts/app-context.contract';
-import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
+import { mockUserRepo as mockUserRepoCentral } from '../../../../app/user/contracts/__mocks__/user.repos.mock';
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import IUserRepo from '../../../../domain/user/repos/user.repo';
 import { IUser } from '../../../../domain/user/types/user.types';
 import ILogger from '../../../../shared/contracts/logger.contract';
 import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
@@ -13,9 +13,9 @@ import makeAppContextInitMiddleware from '../app-context-init.middleware';
 
 describe('makeAppContextInitMiddleware', () => {
   let mockAppContext: jest.Mocked<IAppContext>;
-  let mockAccountingEntityRepo: jest.Mocked<IAccountingEntityRepo>;
+  const mockAccountingEntityRepo = mockAccountingEntityRepoCentral;
   let mockAuthService: jest.Mocked<ITokenService>;
-  let mockUserRepo: jest.Mocked<IUserRepo>;
+  const mockUserRepo = mockUserRepoCentral;
   let mockLogger: jest.Mocked<ILogger>;
   let mockVarsConfig: Partial<IVarsConfig>;
 
@@ -29,17 +29,13 @@ describe('makeAppContextInitMiddleware', () => {
       get: jest.fn(),
     } as unknown as jest.Mocked<IAppContext>;
 
-    mockAccountingEntityRepo = {
-      findByIdAndUserId: jest.fn(),
-    } as unknown as jest.Mocked<IAccountingEntityRepo>;
+    mockAccountingEntityRepo.findByIdAndUserId.mockReset();
 
     mockAuthService = {
       getAuthUser: jest.fn(),
     } as unknown as jest.Mocked<ITokenService>;
 
-    mockUserRepo = {
-      findById: jest.fn(),
-    } as unknown as jest.Mocked<IUserRepo>;
+    mockUserRepo.findById.mockReset();
 
     mockLogger = {
       error: jest.fn(),

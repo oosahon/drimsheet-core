@@ -2,8 +2,6 @@ import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/juris
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
-import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
-import IJournalLineRepo from '../../../../domain/journal-entry/repos/journal-line.repo';
 import {
   IJournalEntryHistory,
   IJournalLineHistory,
@@ -21,17 +19,11 @@ import {
   ITransactionContext,
 } from '../../../../shared/types/repo.types';
 import { EHistoryActorType } from '../../../../shared/values/history/types/history.types';
+import {
+  mockJournalEntryRepo,
+  mockJournalLineRepo,
+} from '../../contracts/__mocks__/journal-entry.repos.mock';
 import makeJournalEntryPersistenceService from '../journal-entry-persistence.service';
-
-const mockJournalEntryRepo: jest.Mocked<IJournalEntryRepo> = {
-  create: jest.fn(),
-  findById: jest.fn(),
-};
-
-const mockJournalLineRepo: jest.Mocked<IJournalLineRepo> = {
-  create: jest.fn(),
-  findAllByAccountId: jest.fn(),
-};
 
 describe('journalEntryPersistenceService', () => {
   const service = makeJournalEntryPersistenceService({

@@ -6,7 +6,6 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import { IUser } from '../../../../domain/user/types/user.types';
@@ -19,22 +18,11 @@ import mockAppContext, {
 } from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
 import mockLedgerAccountBalancePropagationService from '../../../ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
+import { mockLedgerAccountRepo } from '../../../ledger/contracts/__mocks__/ledger.repos.mock';
 import ledgerAppError from '../../../ledger/errors/ledger.error';
 import mockJournalEntryPersistenceService from '../../contracts/__mocks__/journal-entry-persistence.service.mock';
 import mockJournalEntryService from '../../contracts/__mocks__/journal-entry.service.mock';
 import makeCreateOpeningBalanceUseCase from '../create-opening-balance.usecase';
-
-const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
-  create: jest.fn(),
-  update: jest.fn(),
-  findById: jest.fn(),
-  findAllByIds: jest.fn(),
-  findByCode: jest.fn(),
-  findBySubType: jest.fn(),
-  findByBehavior: jest.fn(),
-  findLatestBySubType: jest.fn(),
-  findAll: jest.fn(),
-};
 
 describe('createOpeningBalanceUseCase', () => {
   const correlationId = 'test-corr-id';

@@ -1,41 +1,30 @@
 import periodError from '../../../../domain/accounting/errors/period.error';
-import IAccountingPeriodService from '../../../../domain/accounting/types/accounting-period.service.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
-import IBankAccountRepo from '../../../../domain/ledger/asset-account/repos/bank-account.repo';
-import IAssetAccountService from '../../../../domain/ledger/asset-account/types/asset-account.service.types';
 import { IBankDetails } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import bankDetailsValue from '../../../../domain/ledger/asset-account/values/bank-details.vo';
 import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
-import IFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/types/lot.service.types';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';
 import { IRepoService } from '../../../../shared/contracts/repo.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
+import { mockAccountingPeriodService } from '../../../accounting/contracts/__mocks__/accounting.domain.services.mock';
 import IAppContext from '../../../context/contracts/app-context.contract';
 import mockJournalEntryPersistenceService from '../../../journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
 import mockJournalEntryService from '../../../journal-entry/contracts/__mocks__/journal-entry.service.mock';
 import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.mock';
+import { mockFxCostBasisLotDomainService } from '../../../subledger/contracts/__mocks__/subledger.domain.services.mock';
 import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-propagation.service.mock';
+import { mockAssetAccountService } from '../../contracts/__mocks__/ledger.domain.services.mock';
+import { mockBankAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import ILedgerAccountPersistenceService from '../../contracts/ledger-account-persistence.service.contract';
 import { IBankAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
 import makeCreateBankAccountUseCase from '../create-bank-account.usecase';
-
-const mockBankAccountRepo: jest.Mocked<IBankAccountRepo> = {
-  findOne: jest.fn(),
-  findByLedgerAccountId: jest.fn(),
-  create: jest.fn(),
-};
-
-const mockFxCostBasisLotDomainService: jest.Mocked<IFxCostBasisLotDomainService> =
-  {
-    acquire: jest.fn(),
-  };
 
 describe('makeCreateBankAccountUseCase', () => {
   const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
@@ -58,15 +47,6 @@ describe('makeCreateBankAccountUseCase', () => {
   const mockEventBus: jest.Mocked<IEventBus> = {
     publish: jest.fn(),
   } as unknown as jest.Mocked<IEventBus>;
-
-  const mockAccountingPeriodService: jest.Mocked<IAccountingPeriodService> = {
-    validatePostingPeriod: jest.fn(),
-  };
-
-  const mockAssetAccountService: jest.Mocked<IAssetAccountService> = {
-    makePettyCashSubAccount: jest.fn(),
-    makeBankSubAccount: jest.fn(),
-  };
 
   const mockLedgerAccountPersistenceService: jest.Mocked<ILedgerAccountPersistenceService> =
     {

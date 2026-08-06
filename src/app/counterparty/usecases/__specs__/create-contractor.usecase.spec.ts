@@ -1,5 +1,4 @@
 import makeCounterpartyService from '../../../../domain/counterparty/services/counterparty.service';
-import ICounterpartyService from '../../../../domain/counterparty/types/counterparty.service.types';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';
 import { TEntityId } from '../../../../shared/types/uuid';
 import IAppContext from '../../../context/contracts/app-context.contract';
@@ -7,15 +6,10 @@ import mockCounterpartyPersistenceService from '../../contracts/__mocks__/persis
 import { IContractorCreateReq } from '../../dtos/contractor/contractor.dto';
 import makeCreateContractorUsecase from '../create-contractor.usecase';
 
-const counterparty: jest.Mocked<ICounterpartyService> = {
-  create: jest.fn(),
-  createVendor: jest.fn(),
-  createContractor: jest.fn(),
-  createEmployer: jest.fn(),
-};
+import { mockCounterpartyService } from '../../contracts/__mocks__/counterparty.domain.services.mock';
 
 const mockCounterpartyDomainServices = Object.freeze({
-  counterparty,
+  counterparty: mockCounterpartyService,
 });
 
 describe('makeCreateContractorUsecase', () => {
