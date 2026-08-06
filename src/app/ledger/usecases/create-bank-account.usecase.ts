@@ -1,5 +1,5 @@
 import IAccountingPeriodService from '../../../domain/accounting/types/accounting-period.service.types';
-import { IOpeningBalanceEntryService } from '../../../domain/journal-entry/types/opening-balance-entry.service.types';
+import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
 import IBankAccountRepo from '../../../domain/ledger/asset-account/repos/bank-account.repo';
 import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
 import bankDetailsValue from '../../../domain/ledger/asset-account/values/bank-details.vo';
@@ -39,7 +39,7 @@ interface IDependencies {
   accountingPeriodService: IAccountingPeriodService;
   assetAccountService: IAssetAccountService;
   bankAccountRepo: IBankAccountRepo;
-  openingBalanceEntryService: IOpeningBalanceEntryService;
+  journalEntryService: IJournalEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
   repoService: IRepoService;
@@ -110,7 +110,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
     const exchangeRate = getOpeningBalanceExchangeRate(payload.openingBalance);
 
     const [journalEntry, journalEvents, journalAudit] =
-      await deps.openingBalanceEntryService.create(
+      await deps.journalEntryService.createOpeningBalance(
         {
           accountingEntityId: accountingEntity.id,
           functionalCurrencyCode: accountingEntity.functionalCurrencyCode,

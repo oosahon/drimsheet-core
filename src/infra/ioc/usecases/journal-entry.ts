@@ -10,7 +10,6 @@ import {
 import {
   journalEntryPersistenceService,
   journalEntryService,
-  openingBalanceEntryService,
 } from '../services/journal-entry';
 import { ledgerAccountBalancePropagationService } from '../services/ledger';
 import { repoService } from '../services/repo';
@@ -19,7 +18,7 @@ export const createOpeningBalanceUseCase = makeCreateOpeningBalanceUseCase({
   appContext: appContext,
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
   eventBus: messaging.eventBus,
-  openingBalanceEntryService,
+  journalEntryService,
   journalEntryPersistenceService,
   balancePropagationService: ledgerAccountBalancePropagationService,
   repoService: repoService,

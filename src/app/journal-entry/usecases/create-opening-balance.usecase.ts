@@ -1,4 +1,4 @@
-import { IOpeningBalanceEntryService } from '../../../domain/journal-entry/types/opening-balance-entry.service.types';
+import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
 import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
@@ -24,7 +24,7 @@ interface IDependencies {
   appContext: IAppContext;
   ledgerAccountRepo: ILedgerAccountRepo;
   eventBus: IEventBus;
-  openingBalanceEntryService: IOpeningBalanceEntryService;
+  journalEntryService: IJournalEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
   repoService: IRepoService;
@@ -51,7 +51,7 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
       : null;
 
     const [journalEntry, journalEvents, audit] =
-      await deps.openingBalanceEntryService.create(
+      await deps.journalEntryService.createOpeningBalance(
         {
           accountingEntityId: accountingEntity.id,
           functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
