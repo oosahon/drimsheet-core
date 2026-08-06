@@ -128,18 +128,15 @@ describe('journalEntryService', () => {
         functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
         createdBy: user.id,
       },
-      sourceLines: [
-        {
-          account: sourceAccount,
-          counterparty,
-          sequenceOrder: 1,
-          amount,
-          exchangeRate: null,
-          functionalAmount: amount,
-          description: 'Service payment',
-          meta: null,
-        },
-      ],
+      sourceLine: {
+        account: sourceAccount,
+        counterparty,
+        sequenceOrder: 1,
+        amount,
+        exchangeRate: null,
+        description: 'Service payment',
+        meta: null,
+      },
       destinationLines: [
         {
           account: destinationAccount,
@@ -147,7 +144,6 @@ describe('journalEntryService', () => {
           sequenceOrder: 2,
           amount,
           exchangeRate: null,
-          functionalAmount: amount,
           description: 'Cash received',
           meta: null,
         },
@@ -246,8 +242,8 @@ describe('journalEntryService', () => {
 
   it('rejects a non-permitted source account', async () => {
     const { payload } = makeReceiptFixture();
-    payload.sourceLines[0] = {
-      ...payload.sourceLines[0],
+    payload.sourceLine = {
+      ...payload.sourceLine,
       account: payload.destinationLines[0].account,
     };
 
@@ -263,7 +259,7 @@ describe('journalEntryService', () => {
     const { payload } = makeReceiptFixture();
     payload.destinationLines[0] = {
       ...payload.destinationLines[0],
-      account: payload.sourceLines[0].account,
+      account: payload.sourceLine.account,
     };
 
     await expect(service.createReceipt(payload, repoOptions)).rejects.toThrow(
@@ -324,10 +320,10 @@ describe('journalEntryService', () => {
   it('allows an entry after the account opening balance date', async () => {
     const { payload } = makeReceiptFixture();
     const openingBalanceDate = new Date('2026-08-01T10:00:00.000Z');
-    payload.sourceLines[0] = {
-      ...payload.sourceLines[0],
+    payload.sourceLine = {
+      ...payload.sourceLine,
       account: {
-        ...payload.sourceLines[0].account,
+        ...payload.sourceLine.account,
         openingBalanceDate,
       },
     };
@@ -347,10 +343,10 @@ describe('journalEntryService', () => {
   it('rejects an entry before the account opening balance date', async () => {
     const { payload } = makeReceiptFixture();
     const openingBalanceDate = new Date('2026-08-04T09:00:00.000Z');
-    payload.sourceLines[0] = {
-      ...payload.sourceLines[0],
+    payload.sourceLine = {
+      ...payload.sourceLine,
       account: {
-        ...payload.sourceLines[0].account,
+        ...payload.sourceLine.account,
         openingBalanceDate,
       },
     };
@@ -370,8 +366,8 @@ describe('journalEntryService', () => {
       name: 'Other Customer',
       type: ECounterpartyType.Organization,
     });
-    payload.sourceLines[0] = {
-      ...payload.sourceLines[0],
+    payload.sourceLine = {
+      ...payload.sourceLine,
       counterparty: invalidCounterparty,
     };
 

@@ -21,9 +21,9 @@ describe('journalEntryServiceHelpers', () => {
         functionalCurrencyCode: 'NGN',
         createdBy: accountingEntityId,
       },
-      sourceLines: [
-        { counterparty: sourceCounterparty },
-      ] as unknown as ICreateReceiptEntryPayload['sourceLines'],
+      sourceLine: {
+        counterparty: sourceCounterparty,
+      } as unknown as ICreateReceiptEntryPayload['sourceLine'],
       destinationLines: [
         { counterparty: destinationCounterparty },
       ] as unknown as ICreateReceiptEntryPayload['destinationLines'],
