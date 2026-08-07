@@ -36,11 +36,14 @@ describe('journalEntryRuleValidator', () => {
   let account: ILedgerAccount;
 
   beforeAll(async () => {
-    [account] = await cashAccountService.createHeader({
-      name: 'Cash on Hand',
-      userId,
-      accountingEntity,
-    });
+    [account] = await cashAccountService.createHeader(
+      {
+        name: 'Cash on Hand',
+        userId,
+        accountingEntity,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
   });
 
   it('permits an account when all restrictions are wildcards', () => {

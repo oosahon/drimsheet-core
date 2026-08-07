@@ -50,11 +50,14 @@ describe('ledgerAccountPersistenceService', () => {
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
       jurisdictionCode: 'NG',
     });
-    [account] = await cashAccountService.createHeader({
-      name: 'Cash',
-      accountingEntity,
-      userId: user.id,
-    });
+    [account] = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
 
     repoOptions = {
       correlationId: 'test-correlation-id',

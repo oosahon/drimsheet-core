@@ -49,11 +49,14 @@ describe('makeGetLedgerAccountsUsecase', () => {
 
   beforeAll(async () => {
     const userId = generateUUID();
-    const [cashHeader] = await cashAccountService.createHeader({
-      name: 'Cash and Cash Equivalents',
-      accountingEntity,
-      userId,
-    });
+    const [cashHeader] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Cash Equivalents',
+        accountingEntity,
+        userId,
+      },
+      { correlationId }
+    );
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(cashHeader);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
     [ledgerAccount] = await cashAccountService.createBankSubAccount(

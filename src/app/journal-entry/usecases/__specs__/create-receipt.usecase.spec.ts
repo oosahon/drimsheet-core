@@ -100,11 +100,14 @@ describe('makeCreateReceiptUsecase', () => {
   let journalEntryAudit: TJournalEntryResult[2];
 
   beforeAll(async () => {
-    [destinationAccount] = await cashAccountService.createHeader({
-      name: 'Cash',
-      accountingEntity,
-      userId: user.id,
-    });
+    [destinationAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId }
+    );
     [journalEntry, journalEntryEvents, journalEntryAudit] =
       journalEntryEntity.make({
         accountingEntityId: accountingEntity.id,

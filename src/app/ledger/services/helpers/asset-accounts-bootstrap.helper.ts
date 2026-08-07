@@ -1,5 +1,4 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import receivablesAccountEntity from '../../../../domain/ledger/asset-account/entities/receivables.entity';
 import assetSuspenseAccountEntity from '../../../../domain/ledger/asset-account/entities/suspense-account.entity';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
@@ -19,6 +18,7 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../../../domain/ledger/types/ledger.types';
+import { IReceivablesAccountService } from '../../../../domain/ledger/types/receivables-account.service.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
@@ -30,6 +30,7 @@ import { IEntityDelta } from '../../../../shared/values/history/types/history.ty
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
   cashAccountService: ICashAccountService;
+  receivablesAccountService: IReceivablesAccountService;
 }
 
 interface IAssetAccountsBootstrapInput {
@@ -92,22 +93,18 @@ export default function makeAssetAccountsBootstrapHelper(deps: IDependencies) {
       )) as IStatutoryReceivableAccount[];
 
     if (existingStatutoryReceivables.length === 1) {
-      const account = receivablesAccountEntity.makeStatutoryReceivableAccount(
-        {
-          name: 'Statutory Receivables (Default)',
-          createdBy: ownerId,
-          accountingEntityId,
-          currency: functionalCurrency,
-          isControlAccount: false,
-          controlAccountId: headers.statutoryReceivablesHeader.id,
-        },
-        {
-          precedingCode: headers.statutoryReceivablesHeader
-            .code as TReceivablesLedgerCode,
-          parentMaterializedPath: headers.statutoryReceivablesHeader
-            .materializedPath as TReceivablesLedgerCode,
-        }
-      );
+      const account =
+        await deps.receivablesAccountService.createStatutoryReceivableSubAccount(
+          {
+            name: 'Statutory Receivables (Default)',
+            userId: ownerId,
+            accountingEntity,
+            currency: functionalCurrency,
+            isControlAccount: false,
+            controlAccountCode: headers.statutoryReceivablesHeader.code,
+          },
+          repoOptions
+        );
       assetAccounts.push(account);
     }
 
@@ -145,11 +142,14 @@ export default function makeAssetAccountsBootstrapHelper(deps: IDependencies) {
     const existingCashHeader = await getExistingAccount(cashHeaderCode);
 
     if (!existingCashHeader) {
-      const cashHeader = await deps.cashAccountService.createHeader({
-        name: 'Cash and Cash Equivalents',
-        userId: createdBy,
-        accountingEntity,
-      });
+      const cashHeader = await deps.cashAccountService.createHeader(
+        {
+          name: 'Cash and Cash Equivalents',
+          userId: createdBy,
+          accountingEntity,
+        },
+        repoOptions
+      );
       allAccounts.push(cashHeader);
     }
 
@@ -158,39 +158,36 @@ export default function makeAssetAccountsBootstrapHelper(deps: IDependencies) {
       await getExistingAccount<IReceivablesAccount>(receivablesHeaderCode);
 
     if (!existingReceivablesHeader) {
-      const receivables = receivablesAccountEntity.makeHeader({
-        name: 'Receivables',
-        createdBy,
-        accountingEntityId,
-        currency: functionalCurrency,
-      });
+      const receivables = await deps.receivablesAccountService.createHeader(
+        {
+          name: 'Receivables',
+          userId: createdBy,
+          accountingEntity,
+        },
+        repoOptions
+      );
       existingReceivablesHeader = receivables[0];
       allAccounts.push(receivables);
     }
 
     const tradeReceivablesCode = ASSET_LEDGER_CODES.RECEIVABLES.TRADE;
-    let existingTradeReceivables =
+    const existingTradeReceivables =
       await getExistingAccount<IReceivablesAccount>(tradeReceivablesCode);
 
     if (!existingTradeReceivables) {
       const tradeReceivables =
-        receivablesAccountEntity.makeTradeReceivableAccount(
+        await deps.receivablesAccountService.createTradeReceivableSubAccount(
           {
             name: 'Trade Receivables',
-            createdBy,
-            accountingEntityId,
+            userId: createdBy,
+            accountingEntity,
             currency: functionalCurrency,
             isControlAccount: true,
-            controlAccountId: existingReceivablesHeader.id,
-          },
-          {
-            precedingCode:
+            controlAccountCode:
               existingReceivablesHeader.code as TReceivablesLedgerCode,
-            parentMaterializedPath:
-              existingReceivablesHeader.materializedPath as TReceivablesLedgerCode,
-          }
+          },
+          repoOptions
         );
-      existingTradeReceivables = tradeReceivables[0];
       allAccounts.push(tradeReceivables);
     }
 
@@ -203,21 +200,17 @@ export default function makeAssetAccountsBootstrapHelper(deps: IDependencies) {
 
     if (!existingStatutoryReceivables) {
       const statutoryReceivables =
-        receivablesAccountEntity.makeStatutoryReceivableAccount(
+        await deps.receivablesAccountService.createStatutoryReceivableSubAccount(
           {
             name: 'Statutory Receivables',
-            createdBy,
-            accountingEntityId,
+            userId: createdBy,
+            accountingEntity,
             currency: functionalCurrency,
             isControlAccount: true,
-            controlAccountId: existingReceivablesHeader.id,
+            controlAccountCode:
+              existingReceivablesHeader.code as TReceivablesLedgerCode,
           },
-          {
-            precedingCode:
-              existingTradeReceivables.code as TReceivablesLedgerCode,
-            parentMaterializedPath:
-              existingReceivablesHeader.materializedPath as TReceivablesLedgerCode,
-          }
+          repoOptions
         );
       statutoryReceivablesHeader =
         statutoryReceivables[0] as IStatutoryReceivableAccount;

@@ -2,7 +2,10 @@ import { EAccountingEntityType } from '../../../../domain/accounting/types/accou
 import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import { mockAssetAccountService } from '../../contracts/__mocks__/ledger.domain.services.mock';
+import {
+  mockAssetAccountService,
+  mockReceivablesAccountService,
+} from '../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import IAccountsBootstrapService from '../../contracts/accounts-bootstrap.service.contract';
 import makeAccountsBootstrapService from '../accounts-bootstrap.service';
@@ -88,11 +91,14 @@ describe('accountsBootstrapService', () => {
       mockBootstrapExpenseAccounts
     );
 
-    const [account, , audit] = await cashAccountService.createHeader({
-      name: 'Cash',
-      accountingEntity,
-      userId,
-    });
+    const [account, , audit] = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity,
+        userId,
+      },
+      repoOptions
+    );
     mockBootstrapAssetAccounts.mockResolvedValue({
       accounts: [account],
       events: [],
@@ -122,6 +128,7 @@ describe('accountsBootstrapService', () => {
     service = makeAccountsBootstrapService({
       ledgerAccountRepo: mockLedgerAccountRepo,
       cashAccountService: mockAssetAccountService,
+      receivablesAccountService: mockReceivablesAccountService,
     });
   });
 
@@ -131,6 +138,7 @@ describe('accountsBootstrapService', () => {
     expect(mockMakeAssetAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
       cashAccountService: mockAssetAccountService,
+      receivablesAccountService: mockReceivablesAccountService,
     });
     expect(mockMakeLiabilityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
@@ -170,11 +178,14 @@ describe('accountsBootstrapService', () => {
   });
 
   it('rejects inconsistent accounts and audits', async () => {
-    const orphanAccount = await cashAccountService.createHeader({
-      name: 'Orphan',
-      accountingEntity,
-      userId,
-    });
+    const orphanAccount = await cashAccountService.createHeader(
+      {
+        name: 'Orphan',
+        accountingEntity,
+        userId,
+      },
+      repoOptions
+    );
     mockBootstrapAssetAccounts.mockResolvedValue({
       accounts: [],
       events: [],
@@ -187,11 +198,14 @@ describe('accountsBootstrapService', () => {
   });
 
   it('rejects accounts without matching audit entity IDs', async () => {
-    const [account] = await cashAccountService.createHeader({
-      name: 'Cash',
-      accountingEntity,
-      userId,
-    });
+    const [account] = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity,
+        userId,
+      },
+      repoOptions
+    );
 
     mockBootstrapAssetAccounts.mockResolvedValue({
       accounts: [account],

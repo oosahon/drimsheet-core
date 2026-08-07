@@ -128,11 +128,14 @@ describe('journalEntryService', () => {
       },
       null
     );
-    const [cashHeader] = await cashAccountService.createHeader({
-      name: 'Cash and Cash Equivalents',
-      accountingEntity,
-      userId: user.id,
-    });
+    const [cashHeader] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Cash Equivalents',
+        accountingEntity,
+        userId: user.id,
+      },
+      repoOptions
+    );
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(cashHeader);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
     const [destinationAccountWithoutOpeningDate] =
@@ -317,11 +320,14 @@ describe('journalEntryService', () => {
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
       jurisdictionCode: 'NG',
     });
-    const [otherCashHeader] = await cashAccountService.createHeader({
-      name: 'Other Entity Cash Header',
-      accountingEntity: otherAccountingEntity,
-      userId: user.id,
-    });
+    const [otherCashHeader] = await cashAccountService.createHeader(
+      {
+        name: 'Other Entity Cash Header',
+        accountingEntity: otherAccountingEntity,
+        userId: user.id,
+      },
+      repoOptions
+    );
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(otherCashHeader);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
     const [account] = await cashAccountService.createPettyCashSubAccount(
@@ -347,11 +353,14 @@ describe('journalEntryService', () => {
 
   it('rejects a control account', async () => {
     const { payload, accountingEntity, user } = await makeReceiptFixture();
-    const [controlAccount] = await cashAccountService.createHeader({
-      name: 'Cash Control',
-      accountingEntity,
-      userId: user.id,
-    });
+    const [controlAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash Control',
+        accountingEntity,
+        userId: user.id,
+      },
+      repoOptions
+    );
     payload.destinationLines[0] = {
       ...payload.destinationLines[0],
       account: controlAccount,
@@ -439,11 +448,14 @@ describe('journalEntryService', () => {
         functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
         jurisdictionCode: 'NG',
       });
-      const [controlAccount] = await cashAccountService.createHeader({
-        name: 'Cash and Cash Equivalents',
-        accountingEntity,
-        userId: user.id,
-      });
+      const [controlAccount] = await cashAccountService.createHeader(
+        {
+          name: 'Cash and Cash Equivalents',
+          accountingEntity,
+          userId: user.id,
+        },
+        repoOptions
+      );
       mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
       mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
       const [postingAccount] =

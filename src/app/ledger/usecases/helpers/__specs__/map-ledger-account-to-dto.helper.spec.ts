@@ -19,11 +19,14 @@ describe('mapLedgerAccountToDto', () => {
   let mockAccount: ILedgerAccount;
 
   beforeAll(async () => {
-    const [controlAccount] = await cashAccountService.createHeader({
-      name: 'Cash',
-      accountingEntity,
-      userId: mockUser,
-    });
+    const [controlAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity,
+        userId: mockUser,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
     [mockAccount] = await cashAccountService.createPettyCashSubAccount(

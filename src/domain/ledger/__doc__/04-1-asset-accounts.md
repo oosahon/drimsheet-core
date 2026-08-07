@@ -35,11 +35,11 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group             | Code Block | Entity File                                                                     | Status         |
+| Account Group             | Code Block | Implementation File                                                             | Status         |
 | ------------------------- | ---------- | ------------------------------------------------------------------------------- | -------------- |
 | Cash and Cash Equivalents | `100xxx`   | [`cash-account.service.ts`](../services/cash-account.service.ts)                | ✅ Implemented |
 | Short Term Investments    | `101xxx`   | —                                                                               | 🔲 Types only  |
-| Receivables               | `102xxx`   | [`02-receivables.entity.ts`](../asset/entities/receivables.entity.ts)           | ✅ Implemented |
+| Receivables               | `102xxx`   | [`receivables-account.service.ts`](../services/receivables-account.service.ts)  | ✅ Implemented |
 | Inventories               | `103xxx`   | —                                                                               | 🔲 Types only  |
 | Accrued Income            | `104xxx`   | —                                                                               | 🔲 Types only  |
 | Prepayments               | `105xxx`   | —                                                                               | 🔲 Types only  |
@@ -119,13 +119,13 @@ The cash-account service ([`cash-account.service.ts`](../services/cash-account.s
 | Trade Receivables     | /                   | <ul><li>Requires invoice or debit note transaction for creation</li><li>Requires payment, credit note, or write-off transaction for settlement</li><li>Supports automated aging</li><li>Supports contra accounts (for doubtful accounts)</li><li>Supports adjunct accounts (for interest on overdue accounts)</li></ul> |
 | Statutory Receivables | /                   | <ul><li>Tax credit note or counterparty invoice transaction for creation</li><li>Requires statutory payment transaction for settlement (computed net of payables)</li><li>Does not support contra accounts</li><li>Does not support adjunct accounts</li></ul>                                                          |
 
-#### Entity Details
+#### Domain Service Details
 
-The `Receivables` entity ([`02-receivables.entity.ts`](../asset/entities/receivables.entity.ts)) exposes:
+The receivables account domain service ([`receivables-account.service.ts`](../services/receivables-account.service.ts)) exposes:
 
-- `make()` — base factory accepting `behavior`, `contraAccountRule`, and `adjunctAccountRule` parameters
-- `makeStatutoryReceivableAccount()` — validates `IStatutoryReceivableAccountMeta` (taxAuthority, taxType per [`tax.types.ts`](../shared/types/tax.types.ts))
-- `makeTradeReceivableAccount()` — validates `ITradeReceivableAccountMeta` (counterpartyId, invoiceId)
+- `createHeader()` — creates the default receivables control account
+- `createStatutoryReceivableSubAccount()` — creates a statutory receivable beneath a valid receivables control account
+- `createTradeReceivableSubAccount()` — creates a trade receivable beneath a valid receivables control account
 
 ### Inventories
 

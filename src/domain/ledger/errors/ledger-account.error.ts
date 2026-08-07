@@ -15,6 +15,7 @@ const EErrorKeys = {
   InvalidStatus: 'ledger_error_ledger_account_invalid_status',
   InvalidContraRule: 'ledger_error_ledger_account_invalid_contra_rule',
   InvalidAdjunctRule: 'ledger_error_ledger_account_invalid_adjunct_rule',
+  HeaderAccountAlreadyExists: 'ledger_error_header_account_already_exists',
   InvalidSubType: 'ledger_error_ledger_account_invalid_sub_type',
   InvalidBehavior: 'ledger_error_ledger_account_invalid_behavior',
   InvalidControlAccountStatus:

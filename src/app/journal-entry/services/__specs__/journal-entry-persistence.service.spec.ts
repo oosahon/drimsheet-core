@@ -59,11 +59,14 @@ describe('journalEntryPersistenceService', () => {
       jurisdictionCode,
     });
 
-    const [controlAccount] = await cashAccountService.createHeader({
-      name: 'Cash and Cash Equivalents',
-      accountingEntity,
-      userId: user.id,
-    });
+    const [controlAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Cash Equivalents',
+        accountingEntity,
+        userId: user.id,
+      },
+      mockOptions
+    );
 
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);

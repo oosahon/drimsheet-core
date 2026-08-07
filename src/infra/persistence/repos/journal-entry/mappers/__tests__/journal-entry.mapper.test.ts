@@ -43,16 +43,22 @@ describe('Journal Entry Mapper', () => {
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
       jurisdictionCode: 'NG',
     });
-    const [debitAccount] = await cashAccountService.createHeader({
-      name: 'Debit Cash',
-      accountingEntity,
-      userId: user.id,
-    });
-    const [creditAccount] = await cashAccountService.createHeader({
-      name: 'Credit Cash',
-      accountingEntity,
-      userId: user.id,
-    });
+    const [debitAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Debit Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
+    const [creditAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Credit Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
 
     const amount = moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true);
 

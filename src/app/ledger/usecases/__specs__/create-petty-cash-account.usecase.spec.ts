@@ -76,11 +76,14 @@ describe('createPettyCashSubAccountUseCase', () => {
   let mockOpeningBalanceAudit: TJournalEntryResult[2];
 
   beforeAll(async () => {
-    [mockControlAccount] = await cashAccountService.createHeader({
-      name: 'Cash and Equivalents',
-      accountingEntity: mockAccountingEntity,
-      userId: mockUser.id,
-    });
+    [mockControlAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Equivalents',
+        accountingEntity: mockAccountingEntity,
+        userId: mockUser.id,
+      },
+      { correlationId }
+    );
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
     [mockPettyCashAccount, mockEvents, mockPettyCashAudit] =

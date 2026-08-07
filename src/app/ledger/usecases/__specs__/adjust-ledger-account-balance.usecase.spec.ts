@@ -53,11 +53,14 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
   };
 
   beforeAll(async () => {
-    [mockAssetAccount] = await cashAccountService.createHeader({
-      name: 'Cash',
-      accountingEntity: mockAccountingEntity,
-      userId: mockUser.id,
-    });
+    [mockAssetAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity: mockAccountingEntity,
+        userId: mockUser.id,
+      },
+      { correlationId }
+    );
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(mockAssetAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
     [mockAssetAccountWithControl] =

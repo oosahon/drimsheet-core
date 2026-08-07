@@ -62,11 +62,14 @@ describe('createOpeningBalanceUseCase', () => {
   );
 
   beforeAll(async () => {
-    const [controlAccount] = await cashAccountService.createHeader({
-      name: 'Cash and Cash Equivalents',
-      accountingEntity: mockAccountingEntity,
-      userId: mockUser.id,
-    });
+    const [controlAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Cash Equivalents',
+        accountingEntity: mockAccountingEntity,
+        userId: mockUser.id,
+      },
+      { correlationId }
+    );
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
     [mockAssetAccount] = await cashAccountService.createPettyCashSubAccount(

@@ -89,11 +89,14 @@ describe('createAccountingEntityUseCase', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    const auditedAccount = await cashAccountService.createHeader({
-      name: 'Cash',
-      accountingEntity,
-      userId,
-    });
+    const auditedAccount = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity,
+        userId,
+      },
+      { correlationId }
+    );
     [mockAccount] = auditedAccount;
     const mockAudit = auditedAccount[2];
     ledger = {

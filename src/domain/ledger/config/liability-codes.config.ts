@@ -20,8 +20,10 @@ const PAYABLES: Record<string, TPayablesLedgerCode> = {
   STATUTORY: '201002',
 } as const;
 
-const SUSPENSE_ACCOUNTS = {
-  HEADER: '299000' as TLiabilitySuspenseLedgerCode,
+type TSuspenseKeys = 'PREFIX' | 'INITIAL';
+const SUSPENSE_ACCOUNTS: Record<TSuspenseKeys, TLiabilitySuspenseLedgerCode> = {
+  PREFIX: '299',
+  INITIAL: '299000',
 } as const;
 
 export const LIABILITY_LEDGER_CODES = {

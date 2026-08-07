@@ -7,8 +7,7 @@ import {
   EAssetAccountBehavior,
   EAssetSubType,
 } from '../types/asset-account.types';
-import ICashAccountService from '../types/cash-account.service.types';
-import { TCashLedgerCode } from '../types/ledger-code.types';
+import { TReceivablesLedgerCode } from '../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -16,25 +15,26 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../types/ledger.types';
-import bankDetailsValue from '../values/bank-details.vo';
+import { IReceivablesAccountService } from '../types/receivables-account.service.types';
 import controlAccountResolverHelper from './helpers/control-account-resolver';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
 }
 
-const LEDGER_CODE = ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS;
+const LEDGER_CODE = ASSET_LEDGER_CODES.RECEIVABLES;
 
 /**
  *
- * Creates a new cash account header account
+ * Creates a statutory receivable header account
  *
- * @returns Audited ICashAndCashEquivalentAccount
+ * @param deps IDependencies
+ * @returns Audited IReceivablesAccount
  *
  */
 function makeCreateHeader(
   deps: IDependencies
-): ICashAccountService['createHeader'] {
+): IReceivablesAccountService['createHeader'] {
   return async (payload, repoOptions) => {
     const existingHeader = await deps.ledgerAccountRepo.findByCode(
       LEDGER_CODE.HEADER,
@@ -59,8 +59,8 @@ function makeCreateHeader(
       materializedPath: LEDGER_CODE.HEADER,
       normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
       type: ELedgerType.Asset,
-      subType: EAssetSubType.CashAndCashEquivalent,
-      behavior: EAssetAccountBehavior.DefaultCash,
+      subType: EAssetSubType.Receivables,
+      behavior: EAssetAccountBehavior.DefaultReceivables,
       isControlAccount: true,
       controlAccountId: null,
       currency,
@@ -75,26 +75,28 @@ function makeCreateHeader(
 
 /**
  *
- * Creates a new petty cash account
+ * Creates a statutory receivable sub account account
  *
  * @param deps IDependencies
- * @returns Audited ICashAndCashEquivalentAccount
+ * @returns Audited IReceivablesAccount
  *
  */
-function makeCreatePettyCashSubAccount(
+function makeCreateStatutoryReceivableSubAccount(
   deps: IDependencies
-): ICashAccountService['createPettyCashSubAccount'] {
+): IReceivablesAccountService['createStatutoryReceivableSubAccount'] {
   return async (payload, repoOptions) => {
     const validator = (controlAccount: ILedgerAccount) => {
       return (
         controlAccount.type === ELedgerType.Asset &&
-        controlAccount.subType === EAssetSubType.CashAndCashEquivalent &&
-        controlAccount.isControlAccount
+        controlAccount.subType === EAssetSubType.Receivables &&
+        controlAccount.isControlAccount &&
+        (controlAccount.behavior === EAssetAccountBehavior.DefaultReceivables ||
+          controlAccount.behavior === EAssetAccountBehavior.StatutoryReceivable)
       );
     };
 
     const { controlAccount, factoryContext } =
-      await controlAccountResolverHelper<TCashLedgerCode>({
+      await controlAccountResolverHelper<TReceivablesLedgerCode>({
         ledgerAccountRepo: deps.ledgerAccountRepo,
         accountingEntityId: payload.accountingEntity.id,
         controlAccountCode: payload.controlAccountCode,
@@ -108,7 +110,7 @@ function makeCreatePettyCashSubAccount(
     );
 
     const materializedPath =
-      ledgerAccountEntity.getMaterializedPath<TCashLedgerCode>(
+      ledgerAccountEntity.getMaterializedPath<TReceivablesLedgerCode>(
         factoryContext.parentMaterializedPath,
         code
       );
@@ -120,8 +122,71 @@ function makeCreatePettyCashSubAccount(
       materializedPath,
       normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
       type: ELedgerType.Asset,
-      subType: EAssetSubType.CashAndCashEquivalent,
-      behavior: EAssetAccountBehavior.PettyCash,
+      subType: EAssetSubType.Receivables,
+      behavior: EAssetAccountBehavior.StatutoryReceivable,
+      isControlAccount: payload.isControlAccount,
+      controlAccountId: controlAccount.id,
+      currency: payload.currency,
+      meta: null,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy: payload.userId,
+    });
+  };
+}
+
+/**
+ *
+ * Creates a trade receivable sub account account
+ *
+ * @param deps IDependencies
+ * @returns Audited IReceivablesAccount
+ *
+ */
+function makeCreateTradeReceivableSubAccount(
+  deps: IDependencies
+): IReceivablesAccountService['createTradeReceivableSubAccount'] {
+  return async (payload, repoOptions) => {
+    const validator = (controlAccount: ILedgerAccount) => {
+      return (
+        controlAccount.type === ELedgerType.Asset &&
+        controlAccount.subType === EAssetSubType.Receivables &&
+        controlAccount.isControlAccount &&
+        (controlAccount.behavior === EAssetAccountBehavior.DefaultReceivables ||
+          controlAccount.behavior === EAssetAccountBehavior.TradeReceivable)
+      );
+    };
+
+    const { controlAccount, factoryContext } =
+      await controlAccountResolverHelper<TReceivablesLedgerCode>({
+        ledgerAccountRepo: deps.ledgerAccountRepo,
+        accountingEntityId: payload.accountingEntity.id,
+        controlAccountCode: payload.controlAccountCode,
+        repoOptions,
+        validator,
+      });
+
+    const code = ledgerAccountEntity.getSubLedgerCode(
+      LEDGER_CODE.PREFIX,
+      factoryContext.precedingCode
+    );
+
+    const materializedPath =
+      ledgerAccountEntity.getMaterializedPath<TReceivablesLedgerCode>(
+        factoryContext.parentMaterializedPath,
+        code
+      );
+
+    return ledgerAccountEntity.make({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntity.id,
+      code,
+      materializedPath,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+      type: ELedgerType.Asset,
+      subType: EAssetSubType.Receivables,
+      behavior: EAssetAccountBehavior.TradeReceivable,
       isControlAccount: payload.isControlAccount,
       controlAccountId: controlAccount.id,
       currency: payload.currency,
@@ -134,82 +199,14 @@ function makeCreatePettyCashSubAccount(
   };
 }
 
-/**
- *
- * Creates a new petty cash account
- *
- * @param deps IDependencies
- * @returns Audited ICashAndCashEquivalentAccount
- *
- */
-function makeCreateBankSubAccount(
-  deps: IDependencies
-): ICashAccountService['createBankSubAccount'] {
-  const validator = (controlAccount: ILedgerAccount) => {
-    return (
-      controlAccount.type === ELedgerType.Asset &&
-      controlAccount.subType === EAssetSubType.CashAndCashEquivalent &&
-      (controlAccount.behavior === EAssetAccountBehavior.DefaultCash ||
-        controlAccount.behavior === EAssetAccountBehavior.Bank) &&
-      controlAccount.isControlAccount
-    );
-  };
-
-  return async (payload, repoOptions) => {
-    const { controlAccount, factoryContext } =
-      await controlAccountResolverHelper<TCashLedgerCode>({
-        ledgerAccountRepo: deps.ledgerAccountRepo,
-        accountingEntityId: payload.accountingEntity.id,
-        controlAccountCode: payload.controlAccountCode,
-        repoOptions,
-        validator,
-      });
-
-    const code = ledgerAccountEntity.getSubLedgerCode(
-      LEDGER_CODE.PREFIX,
-      factoryContext.precedingCode
-    );
-
-    const materializedPath =
-      ledgerAccountEntity.getMaterializedPath<TCashLedgerCode>(
-        factoryContext.parentMaterializedPath,
-        code
-      );
-
-    return ledgerAccountEntity.make({
-      name: payload.name,
-      accountingEntityId: payload.accountingEntity.id,
-      code,
-      materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
-      type: ELedgerType.Asset,
-      subType: EAssetSubType.CashAndCashEquivalent,
-      behavior: EAssetAccountBehavior.Bank,
-      isControlAccount: payload.isControlAccount,
-      controlAccountId: controlAccount.id,
-      currency: payload.currency,
-      meta: bankDetailsValue.make(payload.bankDetails),
-      status: ELedgerAccountStatus.Active,
-      contraAccountRule: EContraAccountRule.ContraPermitted,
-      adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
-      createdBy: payload.userId,
-    });
-  };
-}
-
-/**
- * ================================ MAIN SERVICE ================================
- * @param deps
- * @returns d
- */
-
-export default function makeCashAccountService(
-  deps: IDependencies
-): ICashAccountService {
-  const service: ICashAccountService = {
+export default function makeReceivablesAccountService(deps: IDependencies) {
+  const service: IReceivablesAccountService = {
     createHeader: makeCreateHeader(deps),
-    createPettyCashSubAccount: makeCreatePettyCashSubAccount(deps),
-    createBankSubAccount: makeCreateBankSubAccount(deps),
+
+    createStatutoryReceivableSubAccount:
+      makeCreateStatutoryReceivableSubAccount(deps),
+
+    createTradeReceivableSubAccount: makeCreateTradeReceivableSubAccount(deps),
   };
 
   return Object.freeze(service);

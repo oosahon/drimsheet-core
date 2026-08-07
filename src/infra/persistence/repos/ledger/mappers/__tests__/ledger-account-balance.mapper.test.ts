@@ -40,11 +40,14 @@ describe('Ledger Account Balance Mapper', () => {
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
       jurisdictionCode: 'NG',
     });
-    const [account] = await cashAccountService.createHeader({
-      name: 'Cash',
-      accountingEntity,
-      userId: user.id,
-    });
+    const [account] = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
     const balance = ledgerAccountBalanceEntity.make({
       ledgerAccountId: account.id,
       accountingEntityId: accountingEntity.id,

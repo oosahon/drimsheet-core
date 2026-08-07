@@ -3,57 +3,46 @@ import { TEntityId } from '../../../shared/types/uuid';
 import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
 import { ICurrency } from '../../money/types/currency.types';
-import {
-  IBankDetails,
-  ICashAndCashEquivalentAccount,
-} from './asset-account.types';
-import { TCashLedgerCode } from './ledger-code.types';
+import { IReceivablesAccount } from './asset-account.types';
+import { TReceivablesLedgerCode } from './ledger-code.types';
 import { ILedgerAccount } from './ledger.types';
 
-interface IMakeHeaderPayload {
-  name: string;
-  userId: TEntityId;
-  accountingEntity: IAccountingEntity;
-}
-
-interface IMakePettyCashPayload {
-  name: string;
-  currency: ICurrency;
-  isControlAccount: boolean;
-  userId: TEntityId;
-  accountingEntity: IAccountingEntity;
-  controlAccountCode?: TCashLedgerCode;
-}
-
-interface IMakeBankPayload {
-  name: string;
-  currency: ICurrency;
-  isControlAccount: boolean;
-  userId: TEntityId;
-  accountingEntity: IAccountingEntity;
-  controlAccountCode?: TCashLedgerCode;
-  bankDetails: IBankDetails;
-}
-
 type TReturnType = TAuditedEntity<
-  ICashAndCashEquivalentAccount,
-  ICashAndCashEquivalentAccount,
+  IReceivablesAccount,
+  IReceivablesAccount,
   ILedgerAccount
 >;
 
-export default interface ICashAccountService {
+interface ICreateHeaderPayload {
+  name: string;
+  userId: TEntityId;
+  accountingEntity: IAccountingEntity;
+}
+
+interface ICreateReceivableSubAccountPayload {
+  name: string;
+  userId: TEntityId;
+  accountingEntity: IAccountingEntity;
+  currency: ICurrency;
+  isControlAccount: boolean;
+  controlAccountCode?: TReceivablesLedgerCode;
+  controlAccount?: ILedgerAccount;
+  precedingCode?: TReceivablesLedgerCode;
+}
+
+export interface IReceivablesAccountService {
   createHeader(
-    payload: IMakeHeaderPayload,
+    payload: ICreateHeaderPayload,
     repoOptions: IReadRepoOptions
   ): Promise<TReturnType>;
 
-  createPettyCashSubAccount(
-    payload: IMakePettyCashPayload,
+  createStatutoryReceivableSubAccount(
+    payload: ICreateReceivableSubAccountPayload,
     repoOptions: IReadRepoOptions
   ): Promise<TReturnType>;
 
-  createBankSubAccount(
-    payload: IMakeBankPayload,
+  createTradeReceivableSubAccount(
+    payload: ICreateReceivableSubAccountPayload,
     repoOptions: IReadRepoOptions
   ): Promise<TReturnType>;
 }

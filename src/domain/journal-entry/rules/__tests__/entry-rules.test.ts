@@ -1,11 +1,11 @@
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
-import receivablesAccountEntity from '../../../ledger/asset-account/entities/receivables.entity';
 import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
 import payableAccountEntity from '../../../ledger/liability-account/entities/payables.entity';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
 import makeCashAccountService from '../../../ledger/services/cash-account.service';
+import makeReceivablesAccountService from '../../../ledger/services/receivables-account.service';
 import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import journalEntryRuleValidator from '../entry-rule.validator';
@@ -34,21 +34,31 @@ describe('journal entry rules', () => {
     findAll: jest.fn(),
   };
   const cashAccountService = makeCashAccountService({ ledgerAccountRepo });
+  const receivablesAccountService = makeReceivablesAccountService({
+    ledgerAccountRepo,
+  });
+  const repoOptions = { correlationId: 'test-correlation-id' };
   let cashAccount: ILedgerAccount;
+  let receivableAccount: ILedgerAccount;
 
   beforeAll(async () => {
-    [cashAccount] = await cashAccountService.createHeader({
-      name: 'Cash on Hand',
-      userId: createdBy,
-      accountingEntity,
-    });
-  });
+    [cashAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash on Hand',
+        userId: createdBy,
+        accountingEntity,
+      },
+      repoOptions
+    );
 
-  const [receivableAccount] = receivablesAccountEntity.makeHeader({
-    name: 'Receivables',
-    accountingEntityId,
-    currency,
-    createdBy,
+    [receivableAccount] = await receivablesAccountService.createHeader(
+      {
+        name: 'Receivables',
+        userId: createdBy,
+        accountingEntity,
+      },
+      repoOptions
+    );
   });
 
   const [openingBalanceEquityAccount] = openingBalanceEquityLedgerEntity.make(

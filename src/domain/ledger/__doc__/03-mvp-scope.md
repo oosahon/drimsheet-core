@@ -16,11 +16,11 @@ The following ledger accounts are in scope for the individual MVP. Accounts are 
 
 ### Assets
 
-| Account                        | Code Block | Entity File                     | Status         |
-| ------------------------------ | ---------- | ------------------------------- | -------------- |
-| Cash and Cash Equivalents      | `100xxx`   | `cash-account.service.ts`       | ✅ Implemented |
-| Receivables (Tax Credits)      | `102xxx`   | `02-receivables.entity.ts`      | ✅ Implemented |
-| Suspense (Bank Reconciliation) | `199xxx`   | `99-suspense-account.entity.ts` | ✅ Implemented |
+| Account                        | Code Block | Implementation File              | Status         |
+| ------------------------------ | ---------- | -------------------------------- | -------------- |
+| Cash and Cash Equivalents      | `100xxx`   | `cash-account.service.ts`        | ✅ Implemented |
+| Receivables (Tax Credits)      | `102xxx`   | `receivables-account.service.ts` | ✅ Implemented |
+| Suspense (Bank Reconciliation) | `199xxx`   | `99-suspense-account.entity.ts`  | ✅ Implemented |
 
 ### Liabilities
 

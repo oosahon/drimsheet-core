@@ -97,11 +97,14 @@ describe('makeCreateBankAccountUseCase', () => {
   let mockOpeningBalanceAudit: TJournalEntryResult[2];
 
   beforeAll(async () => {
-    const [controlAccount] = await cashAccountService.createHeader({
-      name: 'Cash and Cash Equivalents',
-      accountingEntity,
-      userId,
-    });
+    const [controlAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Cash Equivalents',
+        accountingEntity,
+        userId,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
     controlAccountId = controlAccount.id;
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
@@ -258,11 +261,14 @@ describe('makeCreateBankAccountUseCase', () => {
       },
     };
 
-    const [controlAccount] = await cashAccountService.createHeader({
-      name: 'Cash and Cash Equivalents',
-      accountingEntity,
-      userId,
-    });
+    const [controlAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Cash Equivalents',
+        accountingEntity,
+        userId,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
     const [foreignMockAccount] = await cashAccountService.createBankSubAccount(

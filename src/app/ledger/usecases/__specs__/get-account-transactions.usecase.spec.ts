@@ -72,11 +72,14 @@ describe('getAccountTransactionsUseCase', () => {
       jurisdictionCode: 'NG',
     });
 
-    [ledgerAccount] = await cashAccountService.createHeader({
-      name: 'Main Cash',
-      accountingEntity,
-      userId: user.id,
-    });
+    [ledgerAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Main Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId }
+    );
 
     const amount = moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true);
     [journalEntry] = journalEntryEntity.make({
