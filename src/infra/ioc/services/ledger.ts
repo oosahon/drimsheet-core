@@ -20,6 +20,7 @@ export const ledgerAccountPersistenceService =
 
 export const accountsBootstrapService = makeAccountsBootstrapService({
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
+  cashAccountService,
 });
 
 export const ledgerAccountBalancePropagationService =

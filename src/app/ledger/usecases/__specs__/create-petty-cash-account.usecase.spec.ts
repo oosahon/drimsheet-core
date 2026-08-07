@@ -3,10 +3,8 @@ import { EAccountingEntityType } from '../../../../domain/accounting/types/accou
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
-import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
-import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
+import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
@@ -47,19 +45,9 @@ describe('createPettyCashSubAccountUseCase', () => {
     jurisdictionCode: 'NG',
   });
 
-  const [mockControlAccount] = cashAndEquivalentAccountEntity.make(
-    {
-      name: 'Cash and Equivalents',
-      accountingEntityId: mockAccountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      isControlAccount: true,
-      controlAccountId: null,
-      behavior: EAssetAccountBehavior.DefaultCash,
-      meta: null,
-      createdBy: mockUser.id,
-    },
-    null
-  );
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   const validPayload: IPettyCashAccountCreationReq = {
     name: 'Petty Cash',
@@ -74,55 +62,72 @@ describe('createPettyCashSubAccountUseCase', () => {
   };
   const validOpeningBalance = validPayload.openingBalance!;
 
-  const [mockPettyCashAccount, mockEvents, mockPettyCashAudit] =
-    cashAndEquivalentAccountEntity.makePettyCashAccount(
-      {
-        name: validPayload.name,
-        currency: SYSTEM_CURRENCIES.NGN,
-        isControlAccount: false,
-        createdBy: mockUser.id,
-        controlAccountId: mockControlAccount.id,
-        accountingEntityId: mockAccountingEntity.id,
-      },
-      {
-        precedingCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
-        parentMaterializedPath:
-          mockControlAccount.materializedPath as TCashLedgerCode,
-      }
-    );
+  type TCashAccountResult = Awaited<
+    ReturnType<typeof cashAccountService.createPettyCashSubAccount>
+  >;
+  let mockControlAccount: TCashAccountResult[0];
+  let mockPettyCashAccount: TCashAccountResult[0];
+  let mockEvents: TCashAccountResult[1];
+  let mockPettyCashAudit: TCashAccountResult[2];
 
-  const [
-    mockOpeningBalanceJournalEntry,
-    mockOpeningBalanceEvents,
-    mockOpeningBalanceAudit,
-  ] = journalEntryEntity.make({
-    accountingEntityId: mockAccountingEntity.id,
-    sourceType: EJournalEntrySourceType.OpeningBalance,
-    effectiveDate: validOpeningBalance.date,
-    postedAt: validOpeningBalance.date,
-    memo: 'Opening balance',
-    createdBy: mockUser.id,
-    functionalCurrency: SYSTEM_CURRENCIES.NGN,
-    lines: [
-      {
-        accountId: mockPettyCashAccount.id,
-        sequenceOrder: 1,
-        amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
-        exchangeRate: null,
-        side: EJournalSide.Debit,
-        description: 'Opening balance',
-        functionalCurrency: SYSTEM_CURRENCIES.NGN,
-      },
-      {
-        accountId: mockControlAccount.id,
-        sequenceOrder: 2,
-        amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
-        exchangeRate: null,
-        side: EJournalSide.Credit,
-        description: 'Opening balance',
-        functionalCurrency: SYSTEM_CURRENCIES.NGN,
-      },
-    ],
+  type TJournalEntryResult = ReturnType<typeof journalEntryEntity.make>;
+  let mockOpeningBalanceJournalEntry: TJournalEntryResult[0];
+  let mockOpeningBalanceEvents: TJournalEntryResult[1];
+  let mockOpeningBalanceAudit: TJournalEntryResult[2];
+
+  beforeAll(async () => {
+    [mockControlAccount] = await cashAccountService.createHeader({
+      name: 'Cash and Equivalents',
+      accountingEntity: mockAccountingEntity,
+      userId: mockUser.id,
+    });
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(mockControlAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    [mockPettyCashAccount, mockEvents, mockPettyCashAudit] =
+      await cashAccountService.createPettyCashSubAccount(
+        {
+          name: validPayload.name,
+          currency: SYSTEM_CURRENCIES.NGN,
+          isControlAccount: false,
+          userId: mockUser.id,
+          controlAccountCode: mockControlAccount.code,
+          accountingEntity: mockAccountingEntity,
+        },
+        { correlationId }
+      );
+    [
+      mockOpeningBalanceJournalEntry,
+      mockOpeningBalanceEvents,
+      mockOpeningBalanceAudit,
+    ] = journalEntryEntity.make({
+      accountingEntityId: mockAccountingEntity.id,
+      sourceType: EJournalEntrySourceType.OpeningBalance,
+      effectiveDate: validOpeningBalance.date,
+      postedAt: validOpeningBalance.date,
+      memo: 'Opening balance',
+      createdBy: mockUser.id,
+      functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      lines: [
+        {
+          accountId: mockPettyCashAccount.id,
+          sequenceOrder: 1,
+          amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+          exchangeRate: null,
+          side: EJournalSide.Debit,
+          description: 'Opening balance',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+        {
+          accountId: mockControlAccount.id,
+          sequenceOrder: 2,
+          amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+          exchangeRate: null,
+          side: EJournalSide.Credit,
+          description: 'Opening balance',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+      ],
+    });
   });
 
   beforeEach(() => {
@@ -161,7 +166,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     makeCreatePettyCashAccountUseCase({
       appContext: mockAppContext,
       eventBus: mockEventBus,
-      assetAccountService: mockAssetAccountService,
+      cashAccountService: mockAssetAccountService,
       accountingPeriodService: mockAccountingPeriodService,
       journalEntryService: mockJournalEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
@@ -374,21 +379,19 @@ describe('createPettyCashSubAccountUseCase', () => {
       },
     };
 
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(mockControlAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
     const [foreignPettyCashAccount] =
-      cashAndEquivalentAccountEntity.makePettyCashAccount(
+      await cashAccountService.createPettyCashSubAccount(
         {
           name: foreignPayload.name,
           currency: SYSTEM_CURRENCIES.USD,
           isControlAccount: false,
-          createdBy: mockUser.id,
-          controlAccountId: mockControlAccount.id,
-          accountingEntityId: mockAccountingEntity.id,
+          userId: mockUser.id,
+          controlAccountCode: mockControlAccount.code,
+          accountingEntity: mockAccountingEntity,
         },
-        {
-          precedingCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
-          parentMaterializedPath:
-            mockControlAccount.materializedPath as TCashLedgerCode,
-        }
+        { correlationId }
       );
 
     mockAssetAccountService.createPettyCashSubAccount.mockResolvedValueOnce([

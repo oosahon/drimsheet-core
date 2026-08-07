@@ -5,9 +5,7 @@
  */
 
 import {
-  TAssetSuspenseLedgerCode,
   TCashLedgerCode,
-  TLiabilitySuspenseLedgerCode,
   TReceivablesLedgerCode,
 } from '../types/ledger-code.types';
 
@@ -18,15 +16,12 @@ const CASH_AND_EQUIVALENTS: Record<TCashKeys, TCashLedgerCode> = {
   HEADER: '100000',
 } as const;
 
-const RECEIVABLES: Record<string, TReceivablesLedgerCode> = {
+type TReceivablesKeys = 'PREFIX' | 'HEADER' | 'TRADE' | 'STATUTORY';
+const RECEIVABLES: Record<TReceivablesKeys, TReceivablesLedgerCode> = {
+  PREFIX: '102',
   HEADER: '102000',
   TRADE: '102001',
   STATUTORY: '102002',
-} as const;
-
-const SUSPENSE_ACCOUNTS = {
-  ASSET: '199001' as TAssetSuspenseLedgerCode,
-  LIABILITY: '299001' as TLiabilitySuspenseLedgerCode,
 } as const;
 
 export const ASSET_LEDGER_CODES = {
@@ -34,5 +29,5 @@ export const ASSET_LEDGER_CODES = {
 
   RECEIVABLES,
 
-  SUSPENSE_ACCOUNTS,
+  SUSPENSE_ACCOUNT: '199000',
 };

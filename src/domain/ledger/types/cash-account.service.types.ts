@@ -12,7 +12,6 @@ import { ILedgerAccount } from './ledger.types';
 
 interface IMakeHeaderPayload {
   name: string;
-  currency: ICurrency;
   userId: TEntityId;
   accountingEntity: IAccountingEntity;
 }

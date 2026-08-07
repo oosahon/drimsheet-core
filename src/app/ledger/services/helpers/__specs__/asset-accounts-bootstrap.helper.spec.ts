@@ -1,5 +1,6 @@
 import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
 import { ASSET_LEDGER_CODES } from '../../../../../domain/ledger/config/asset-codes.config';
+import makeCashAccountService from '../../../../../domain/ledger/services/cash-account.service';
 import {
   IAssetLedgerAccount,
   IStatutoryReceivableAccount,
@@ -12,6 +13,9 @@ import makeAssetAccountsBootstrapHelper from '../asset-accounts-bootstrap.helper
 describe('assetAccountsBootstrapHelper', () => {
   const bootstrapAssetAccounts = makeAssetAccountsBootstrapHelper({
     ledgerAccountRepo: mockLedgerAccountRepo,
+    cashAccountService: makeCashAccountService({
+      ledgerAccountRepo: mockLedgerAccountRepo,
+    }),
   });
   const repoOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',

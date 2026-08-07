@@ -1,4 +1,5 @@
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
+import ICashAccountService from '../../../domain/ledger/types/cash-account.service.types';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IAccountsBootstrapService from '../contracts/accounts-bootstrap.service.contract';
 import ledgerAppError from '../errors/ledger.error';
@@ -10,6 +11,7 @@ import makeRevenueAccountsBootstrapHelper from './helpers/revenue-accounts-boots
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
+  cashAccountService: ICashAccountService;
 }
 
 type TBootstrap = IAccountsBootstrapService['bootstrap'];
@@ -18,10 +20,21 @@ export default function makeAccountsBootstrapService(
   deps: IDependencies
 ): IAccountsBootstrapService {
   const bootstrapAssetAccounts = makeAssetAccountsBootstrapHelper(deps);
-  const bootstrapLiabilityAccounts = makeLiabilityAccountsBootstrapHelper(deps);
-  const bootstrapEquityAccounts = makeEquityAccountsBootstrapHelper(deps);
-  const bootstrapRevenueAccounts = makeRevenueAccountsBootstrapHelper(deps);
-  const bootstrapExpenseAccounts = makeExpenseAccountsBootstrapHelper(deps);
+  const ledgerAccountDependencies = {
+    ledgerAccountRepo: deps.ledgerAccountRepo,
+  };
+  const bootstrapLiabilityAccounts = makeLiabilityAccountsBootstrapHelper(
+    ledgerAccountDependencies
+  );
+  const bootstrapEquityAccounts = makeEquityAccountsBootstrapHelper(
+    ledgerAccountDependencies
+  );
+  const bootstrapRevenueAccounts = makeRevenueAccountsBootstrapHelper(
+    ledgerAccountDependencies
+  );
+  const bootstrapExpenseAccounts = makeExpenseAccountsBootstrapHelper(
+    ledgerAccountDependencies
+  );
 
   const bootstrap: TBootstrap = async (
     accountingEntity,

@@ -1,28 +1,42 @@
-import cashAndEquivalentAccountEntity from '../../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { TCashLedgerCode } from '../../../../../domain/ledger/types/ledger-code.types';
+import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
+import makeCashAccountService from '../../../../../domain/ledger/services/cash-account.service';
+import { ILedgerAccount } from '../../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
 import mapLedgerAccountToDto from '../map-ledger-account-to-dto.helper';
 
 describe('mapLedgerAccountToDto', () => {
   const mockUser = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
-  const mockAccountingEntityId =
-    '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
+  const accountingEntity = {
+    id: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
+    ownerId: mockUser,
+    functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+  } as IAccountingEntity;
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
+  let mockAccount: ILedgerAccount;
 
-  const [mockAccount] = cashAndEquivalentAccountEntity.makePettyCashAccount(
-    {
-      name: 'Petty Cash',
-      currency: SYSTEM_CURRENCIES.NGN,
-      isControlAccount: false,
-      createdBy: mockUser,
-      controlAccountId: '123e4567-e89b-12d3-a456-426614174003' as TEntityId,
-      accountingEntityId: mockAccountingEntityId,
-    },
-    {
-      precedingCode: '100000' as TCashLedgerCode,
-      parentMaterializedPath: '100000' as TCashLedgerCode,
-    }
-  );
+  beforeAll(async () => {
+    const [controlAccount] = await cashAccountService.createHeader({
+      name: 'Cash',
+      accountingEntity,
+      userId: mockUser,
+    });
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    [mockAccount] = await cashAccountService.createPettyCashSubAccount(
+      {
+        name: 'Petty Cash',
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        userId: mockUser,
+        accountingEntity,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
+  });
 
   it('returns DTO with zero balances when journalEntry is null', () => {
     const dto = mapLedgerAccountToDto(mockAccount, null, 'NGN');

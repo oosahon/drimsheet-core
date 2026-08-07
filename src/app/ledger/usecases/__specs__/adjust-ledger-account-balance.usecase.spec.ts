@@ -1,8 +1,8 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import ledgerAccountBalanceEntity from '../../../../domain/ledger/entities/ledger-account-balance.entity';
-import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
+import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
+import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
 import { TEntityId } from '../../../../shared/types/uuid';
@@ -37,53 +37,71 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     jurisdictionCode: 'NG',
   });
 
-  const [mockAssetAccount] = cashAndEquivalentAccountEntity.make(
-    {
-      name: 'Cash',
-      accountingEntityId: mockAccountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      isControlAccount: false,
-      controlAccountId: null,
-      behavior: EAssetAccountBehavior.DefaultCash,
-      meta: null,
-      createdBy: mockUser.id,
-    },
-    { precedingCode: '100000', parentMaterializedPath: '100000' }
-  );
-
-  const [mockAssetAccountWithControl] = cashAndEquivalentAccountEntity.make(
-    {
-      name: 'USD Cash Subaccount',
-      accountingEntityId: mockAccountingEntity.id,
-      currency: SYSTEM_CURRENCIES.USD,
-      isControlAccount: false,
-      controlAccountId: '123e4567-e89b-12d3-a456-426614174003' as TEntityId,
-      behavior: EAssetAccountBehavior.DefaultCash,
-      meta: null,
-      createdBy: mockUser.id,
-    },
-    { precedingCode: '100000', parentMaterializedPath: '100000' }
-  );
-
-  const mockExistingBalance = ledgerAccountBalanceEntity.make({
-    ledgerAccountId: mockAssetAccount.id,
-    accountingEntityId: mockAccountingEntity.id,
-    accountMaterializedPath: mockAssetAccount.materializedPath,
-    currencyCode: SYSTEM_CURRENCIES.NGN.code,
-    functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
   });
-
-  const mockExistingBalanceWithControl = ledgerAccountBalanceEntity.make({
-    ledgerAccountId: mockAssetAccountWithControl.id,
-    accountingEntityId: mockAccountingEntity.id,
-    accountMaterializedPath: mockAssetAccountWithControl.materializedPath,
-    currencyCode: SYSTEM_CURRENCIES.USD.code,
-    functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
-  });
+  let mockAssetAccount: ICashAndCashEquivalentAccount;
+  let mockAssetAccountWithControl: ICashAndCashEquivalentAccount;
+  let mockExistingBalance: ReturnType<typeof ledgerAccountBalanceEntity.make>;
+  let mockExistingBalanceWithControl: ReturnType<
+    typeof ledgerAccountBalanceEntity.make
+  >;
+  let validPayload: ILedgerAccountBalanceAdjustmentDto;
 
   const mockQueue: ILedgerBalanceAdjustmentQueue = {
     add: jest.fn(),
   };
+
+  beforeAll(async () => {
+    [mockAssetAccount] = await cashAccountService.createHeader({
+      name: 'Cash',
+      accountingEntity: mockAccountingEntity,
+      userId: mockUser.id,
+    });
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(mockAssetAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    [mockAssetAccountWithControl] =
+      await cashAccountService.createPettyCashSubAccount(
+        {
+          name: 'USD Cash Subaccount',
+          currency: SYSTEM_CURRENCIES.USD,
+          isControlAccount: false,
+          controlAccountCode: mockAssetAccount.code,
+          accountingEntity: mockAccountingEntity,
+          userId: mockUser.id,
+        },
+        { correlationId }
+      );
+    mockExistingBalance = ledgerAccountBalanceEntity.make({
+      ledgerAccountId: mockAssetAccount.id,
+      accountingEntityId: mockAccountingEntity.id,
+      accountMaterializedPath: mockAssetAccount.materializedPath,
+      currencyCode: SYSTEM_CURRENCIES.NGN.code,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    });
+    mockExistingBalanceWithControl = ledgerAccountBalanceEntity.make({
+      ledgerAccountId: mockAssetAccountWithControl.id,
+      accountingEntityId: mockAccountingEntity.id,
+      accountMaterializedPath: mockAssetAccountWithControl.materializedPath,
+      currencyCode: SYSTEM_CURRENCIES.USD.code,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    });
+    validPayload = {
+      correlationId,
+      journalEntry: {
+        id: '123e4567-e89b-12d3-a456-426614174010' as TEntityId,
+        createdBy: mockUser.id,
+      },
+      accountingEntityId: mockAccountingEntity.id,
+      balanceDelta: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      functionalBalanceDelta: {
+        amount: 1000,
+        currencyCode: 'NGN',
+        isMinorUnit: true,
+      },
+      ledgerAccountId: mockAssetAccount.id,
+    };
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -100,22 +118,6 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
       ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
       ledgerBalanceAdjustmentQueue: mockQueue,
     });
-
-  const validPayload: ILedgerAccountBalanceAdjustmentDto = {
-    correlationId,
-    journalEntry: {
-      id: '123e4567-e89b-12d3-a456-426614174010' as TEntityId,
-      createdBy: mockUser.id,
-    },
-    accountingEntityId: mockAccountingEntity.id,
-    balanceDelta: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-    functionalBalanceDelta: {
-      amount: 1000,
-      currencyCode: 'NGN',
-      isMinorUnit: true,
-    },
-    ledgerAccountId: mockAssetAccount.id,
-  };
 
   it('should successfully adjust balance for same currency account', async () => {
     const useCase = getUseCase();

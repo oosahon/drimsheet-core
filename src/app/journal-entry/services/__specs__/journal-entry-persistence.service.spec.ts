@@ -8,8 +8,8 @@ import {
 } from '../../../../domain/journal-entry/types/journal-entry-audit.types';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
@@ -19,6 +19,7 @@ import {
   ITransactionContext,
 } from '../../../../shared/types/repo.types';
 import { EHistoryActorType } from '../../../../shared/values/history/types/history.types';
+import { mockLedgerAccountRepo } from '../../../ledger/contracts/__mocks__/ledger.repos.mock';
 import {
   mockJournalEntryRepo,
   mockJournalLineRepo,
@@ -31,6 +32,9 @@ describe('journalEntryPersistenceService', () => {
     journalEntryRepo: mockJournalEntryRepo,
     journalLineRepo: mockJournalLineRepo,
   });
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   const mockOptions: IRepoOptions = {
     correlationId: 'test-correlation-id',
@@ -39,7 +43,7 @@ describe('journalEntryPersistenceService', () => {
   const jurisdictionCode: keyof typeof SYSTEM_JURISDICTIONS = 'NG';
   const timestamp = new Date('2026-06-15T10:30:00.000Z');
 
-  function makeFixture() {
+  async function makeFixture() {
     const [user] = userEntity.make({
       email: 'journal.persistence@example.com',
       emailVerified: true,
@@ -55,26 +59,24 @@ describe('journalEntryPersistenceService', () => {
       jurisdictionCode,
     });
 
-    const [controlAccount] = cashAndEquivalentAccountEntity.makeHeader({
+    const [controlAccount] = await cashAccountService.createHeader({
       name: 'Cash and Cash Equivalents',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      createdBy: user.id,
+      accountingEntity,
+      userId: user.id,
     });
 
-    const [cashAccount] = cashAndEquivalentAccountEntity.makePettyCashAccount(
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    const [cashAccount] = await cashAccountService.createPettyCashSubAccount(
       {
         name: 'Main Petty Cash',
-        accountingEntityId: accountingEntity.id,
         currency: SYSTEM_CURRENCIES.NGN,
         isControlAccount: false,
-        controlAccountId: controlAccount.id,
-        createdBy: user.id,
+        controlAccountCode: controlAccount.code,
+        accountingEntity,
+        userId: user.id,
       },
-      {
-        parentMaterializedPath: controlAccount.code,
-        precedingCode: controlAccount.code,
-      }
+      mockOptions
     );
 
     const [equityAccount] = openingBalanceEquityLedgerEntity.make(
@@ -161,7 +163,7 @@ describe('journalEntryPersistenceService', () => {
 
   describe('create', () => {
     it('should persist the journal entry header and lines in a transaction', async () => {
-      const { headerHistory, journalEntry, linesHistory } = makeFixture();
+      const { headerHistory, journalEntry, linesHistory } = await makeFixture();
       const { lines, ...header } = journalEntry;
 
       await service.create(
@@ -186,7 +188,7 @@ describe('journalEntryPersistenceService', () => {
     });
 
     it('should stop before creating lines if header persistence fails', async () => {
-      const { headerHistory, journalEntry, linesHistory } = makeFixture();
+      const { headerHistory, journalEntry, linesHistory } = await makeFixture();
       const error = new Error('header persistence failed');
 
       mockJournalEntryRepo.create.mockRejectedValue(error);
@@ -200,7 +202,7 @@ describe('journalEntryPersistenceService', () => {
     });
 
     it('should fail if line persistence fails', async () => {
-      const { headerHistory, journalEntry, linesHistory } = makeFixture();
+      const { headerHistory, journalEntry, linesHistory } = await makeFixture();
       const error = new Error('line persistence failed');
 
       mockJournalLineRepo.create.mockRejectedValue(error);

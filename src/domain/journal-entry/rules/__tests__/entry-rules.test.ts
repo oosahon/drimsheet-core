@@ -1,9 +1,12 @@
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import cashAndEquivalentAccountEntity from '../../../ledger/asset-account/entities/cash-and-equivalents.entity';
+import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import receivablesAccountEntity from '../../../ledger/asset-account/entities/receivables.entity';
 import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
 import payableAccountEntity from '../../../ledger/liability-account/entities/payables.entity';
+import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
+import makeCashAccountService from '../../../ledger/services/cash-account.service';
+import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import journalEntryRuleValidator from '../entry-rule.validator';
 import openingBalanceEntryRule from '../opening-balance-entry.rule';
@@ -14,24 +17,32 @@ describe('journal entry rules', () => {
   const createdBy = generateUUID();
   const currency = SYSTEM_CURRENCIES.NGN;
 
-  const [cashAccount] = cashAndEquivalentAccountEntity.make(
-    {
+  const accountingEntity = {
+    id: accountingEntityId,
+    ownerId: createdBy,
+    functionalCurrencyCode: currency.code,
+  } as IAccountingEntity;
+  const ledgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+    create: jest.fn(),
+    update: jest.fn(),
+    findById: jest.fn(),
+    findAllByIds: jest.fn(),
+    findByCode: jest.fn(),
+    findBySubType: jest.fn(),
+    findByBehavior: jest.fn(),
+    findLatestBySubType: jest.fn(),
+    findAll: jest.fn(),
+  };
+  const cashAccountService = makeCashAccountService({ ledgerAccountRepo });
+  let cashAccount: ILedgerAccount;
+
+  beforeAll(async () => {
+    [cashAccount] = await cashAccountService.createHeader({
       name: 'Cash on Hand',
-      accountingEntityId,
-      currency,
-      isControlAccount: false,
-      controlAccountId: null,
-      behavior: cashAndEquivalentAccountEntity.makeHeader({
-        name: 'Cash Header',
-        accountingEntityId,
-        currency,
-        createdBy,
-      })[0].behavior,
-      meta: null,
-      createdBy,
-    },
-    null
-  );
+      userId: createdBy,
+      accountingEntity,
+    });
+  });
 
   const [receivableAccount] = receivablesAccountEntity.makeHeader({
     name: 'Receivables',

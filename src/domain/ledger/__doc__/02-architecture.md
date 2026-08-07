@@ -70,7 +70,7 @@ Entity files are named by their COA prefix to make it explicit which accounts ha
 
 ```
 01-asset-account/
-├── 00-cash-and-equivalents.entity.ts   ← 100xxx ✅
+├── cash-account.service.ts             ← 100xxx ✅
 ├── 02-receivables.entity.ts            ← 102xxx ✅
 └── 99-suspense-account.entity.ts       ← 199xxx ✅
                                            101xxx (Short Term Investments) — not yet implemented

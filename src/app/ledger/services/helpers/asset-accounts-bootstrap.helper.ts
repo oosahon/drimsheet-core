@@ -1,5 +1,4 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import receivablesAccountEntity from '../../../../domain/ledger/asset-account/entities/receivables.entity';
 import assetSuspenseAccountEntity from '../../../../domain/ledger/asset-account/entities/suspense-account.entity';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
@@ -11,6 +10,7 @@ import {
   IReceivablesAccount,
   IStatutoryReceivableAccount,
 } from '../../../../domain/ledger/types/asset-account.types';
+import ICashAccountService from '../../../../domain/ledger/types/cash-account.service.types';
 import {
   TAssetLedgerCode,
   TReceivablesLedgerCode,
@@ -29,6 +29,7 @@ import { IEntityDelta } from '../../../../shared/values/history/types/history.ty
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
+  cashAccountService: ICashAccountService;
 }
 
 interface IAssetAccountsBootstrapInput {
@@ -144,11 +145,10 @@ export default function makeAssetAccountsBootstrapHelper(deps: IDependencies) {
     const existingCashHeader = await getExistingAccount(cashHeaderCode);
 
     if (!existingCashHeader) {
-      const cashHeader = cashAndEquivalentAccountEntity.makeHeader({
+      const cashHeader = await deps.cashAccountService.createHeader({
         name: 'Cash and Cash Equivalents',
-        createdBy,
-        accountingEntityId,
-        currency: functionalCurrency,
+        userId: createdBy,
+        accountingEntity,
       });
       allAccounts.push(cashHeader);
     }

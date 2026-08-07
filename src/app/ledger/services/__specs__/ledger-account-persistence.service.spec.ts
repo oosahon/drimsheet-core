@@ -1,6 +1,6 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
 import { ILedgerAccountHistory } from '../../../../domain/ledger/types/ledger-account-audit.types';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
@@ -22,11 +22,14 @@ describe('ledgerAccountPersistenceService', () => {
     ledgerAccountRepo: mockLedgerAccountRepo,
     repoService: mockRepoService,
   });
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   let repoOptions: IWriteRepoOptions<ILedgerAccountHistory[]>;
   let account: ILedgerAccount;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
     mockRepoService.runInTransaction
       .mockReset()
@@ -47,11 +50,10 @@ describe('ledgerAccountPersistenceService', () => {
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
       jurisdictionCode: 'NG',
     });
-    [account] = cashAndEquivalentAccountEntity.makeHeader({
+    [account] = await cashAccountService.createHeader({
       name: 'Cash',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      createdBy: user.id,
+      accountingEntity,
+      userId: user.id,
     });
 
     repoOptions = {

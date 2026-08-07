@@ -5,10 +5,13 @@ import { IAccountingEntity } from '../../../accounting/types/accounting-entity.t
 import { ICurrency } from '../../../money/types/currency.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
-import { EAssetSubType } from '../../types/asset-account.types';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+} from '../../types/asset-account.types';
 import { TCashLedgerCode } from '../../types/ledger-code.types';
 import { ELedgerType, ILedgerAccount } from '../../types/ledger.types';
-import makeAssetAccountService from '../cash-account.service';
+import makeCashAccountService from '../cash-account.service';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   create: jest.fn(),
@@ -22,8 +25,8 @@ const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   findAll: jest.fn(),
 };
 
-describe('assetAccountService', () => {
-  const service = makeAssetAccountService({
+describe('cashAccountService', () => {
+  const service = makeCashAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
   const mockOptions: IReadRepoOptions = {
@@ -64,6 +67,7 @@ describe('assetAccountService', () => {
       materializedPath: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       type: ELedgerType.Asset,
       subType: EAssetSubType.CashAndCashEquivalent,
+      behavior: EAssetAccountBehavior.DefaultCash,
       isControlAccount: true,
     } as ILedgerAccount;
 
@@ -261,6 +265,7 @@ describe('assetAccountService', () => {
       materializedPath: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       type: ELedgerType.Asset,
       subType: EAssetSubType.CashAndCashEquivalent,
+      behavior: EAssetAccountBehavior.DefaultCash,
       isControlAccount: true,
     } as ILedgerAccount;
 
@@ -274,6 +279,7 @@ describe('assetAccountService', () => {
     const validBankPayload = {
       name: 'Chase Operating Account',
       currency: validCurrency,
+      isControlAccount: false,
       userId: ownerId,
       accountingEntity: validAccountingEntity,
       bankDetails: validBankValue,

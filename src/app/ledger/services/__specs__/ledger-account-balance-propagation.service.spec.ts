@@ -5,8 +5,8 @@ import journalEntryEntity from '../../../../domain/journal-entry/entities/journa
 import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import retainedEarningsEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
+import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
@@ -25,6 +25,9 @@ describe('ledgerAccountBalancePropagationService', () => {
     ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
     reporter: mockReporter,
   });
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   const mockOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
@@ -33,7 +36,7 @@ describe('ledgerAccountBalancePropagationService', () => {
   const jurisdictionCode: keyof typeof SYSTEM_JURISDICTIONS = 'NG';
   const timestamp = new Date('2026-06-15T10:30:00.000Z');
 
-  function makeFixture() {
+  async function makeFixture() {
     const [user] = userEntity.make({
       email: 'balance.propagation@example.com',
       emailVerified: true,
@@ -49,28 +52,23 @@ describe('ledgerAccountBalancePropagationService', () => {
       jurisdictionCode,
     });
 
-    const [controlAccount] = cashAndEquivalentAccountEntity.makeHeader({
+    const [controlAccount] = await cashAccountService.createHeader({
       name: 'Cash and Cash Equivalents',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      createdBy: user.id,
+      accountingEntity,
+      userId: user.id,
     });
-
-    const [postingAccount] =
-      cashAndEquivalentAccountEntity.makePettyCashAccount(
-        {
-          name: 'Main Petty Cash',
-          accountingEntityId: accountingEntity.id,
-          currency: SYSTEM_CURRENCIES.NGN,
-          isControlAccount: false,
-          controlAccountId: controlAccount.id,
-          createdBy: user.id,
-        },
-        {
-          parentMaterializedPath: controlAccount.code,
-          precedingCode: controlAccount.code,
-        }
-      );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    const [postingAccount] = await cashAccountService.createPettyCashSubAccount(
+      {
+        name: 'Main Petty Cash',
+        accountingEntity,
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        userId: user.id,
+      },
+      mockOptions
+    );
 
     const [equityAccount] = retainedEarningsEquityLedgerEntity.make(
       {
@@ -90,9 +88,9 @@ describe('ledgerAccountBalancePropagationService', () => {
     };
   }
 
-  function makeJournalEntry(isPosted: boolean) {
+  async function makeJournalEntry(isPosted: boolean) {
     const { accountingEntity, equityAccount, postingAccount, user } =
-      makeFixture();
+      await makeFixture();
     const debitAmount = moneyValue.make(100000n, SYSTEM_CURRENCIES.NGN, true);
     const creditAmount = moneyValue.make(40000n, SYSTEM_CURRENCIES.NGN, true);
     const offsetAmount = moneyValue.make(60000n, SYSTEM_CURRENCIES.NGN, true);
@@ -143,9 +141,9 @@ describe('ledgerAccountBalancePropagationService', () => {
     };
   }
 
-  function makeForeignCurrencyJournalEntry() {
+  async function makeForeignCurrencyJournalEntry() {
     const { accountingEntity, equityAccount, postingAccount, user } =
-      makeFixture();
+      await makeFixture();
     const exchangeRate = exchangeRateValue.make({
       baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
       targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -205,7 +203,7 @@ describe('ledgerAccountBalancePropagationService', () => {
   describe('propagate', () => {
     it('should enqueue running balance adjustments for each posted journal line grouped by account', async () => {
       const { equityAccount, journalEntry, postingAccount } =
-        makeJournalEntry(true);
+        await makeJournalEntry(true);
 
       mockLedgerAccountRepo.findById.mockImplementation(async (accountId) => {
         if (accountId === postingAccount.id) return postingAccount;
@@ -275,7 +273,7 @@ describe('ledgerAccountBalancePropagationService', () => {
     });
 
     it('should skip draft journal entries', async () => {
-      const { journalEntry } = makeJournalEntry(false);
+      const { journalEntry } = await makeJournalEntry(false);
 
       await service.propagate(journalEntry, mockOptions);
 
@@ -286,7 +284,7 @@ describe('ledgerAccountBalancePropagationService', () => {
     });
 
     it('should report and absorb a missing journal-line account', async () => {
-      const { journalEntry, postingAccount } = makeJournalEntry(true);
+      const { journalEntry, postingAccount } = await makeJournalEntry(true);
 
       mockLedgerAccountRepo.findById.mockResolvedValue(null);
 
@@ -314,7 +312,7 @@ describe('ledgerAccountBalancePropagationService', () => {
 
     it('should report and absorb mismatched journal-line currencies', async () => {
       const { journalEntry, postingAccount } =
-        makeForeignCurrencyJournalEntry();
+        await makeForeignCurrencyJournalEntry();
 
       mockLedgerAccountRepo.findById.mockResolvedValue(postingAccount);
 
@@ -342,7 +340,7 @@ describe('ledgerAccountBalancePropagationService', () => {
 
     it('should report and absorb queue delivery failures', async () => {
       const { equityAccount, journalEntry, postingAccount } =
-        makeJournalEntry(true);
+        await makeJournalEntry(true);
       const failure = new Error('balance queue unavailable');
 
       mockLedgerAccountRepo.findById.mockImplementation(async (accountId) => {
@@ -366,7 +364,7 @@ describe('ledgerAccountBalancePropagationService', () => {
 
     it('should skip balance adjustment for OpeningBalance equity accounts', async () => {
       const { equityAccount, journalEntry, postingAccount } =
-        makeJournalEntry(true);
+        await makeJournalEntry(true);
 
       const openingBalanceAccount = {
         ...equityAccount,

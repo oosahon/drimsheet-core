@@ -1,8 +1,8 @@
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
+import { mockAssetAccountService } from '../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import IAccountsBootstrapService from '../../contracts/accounts-bootstrap.service.contract';
 import makeAccountsBootstrapService from '../accounts-bootstrap.service';
@@ -51,6 +51,9 @@ const mockBootstrapRevenueAccounts: jest.MockedFunction<
 > = jest.fn();
 
 describe('accountsBootstrapService', () => {
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
   const accountingEntity = {
     id: generateUUID(),
@@ -66,7 +69,7 @@ describe('accountsBootstrapService', () => {
 
   let service: IAccountsBootstrapService;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
 
     mockMakeAssetAccountsBootstrapHelper.mockReturnValue(
@@ -85,11 +88,10 @@ describe('accountsBootstrapService', () => {
       mockBootstrapExpenseAccounts
     );
 
-    const [account, , audit] = cashAndEquivalentAccountEntity.makeHeader({
+    const [account, , audit] = await cashAccountService.createHeader({
       name: 'Cash',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.USD,
-      createdBy: userId,
+      accountingEntity,
+      userId,
     });
     mockBootstrapAssetAccounts.mockResolvedValue({
       accounts: [account],
@@ -119,6 +121,7 @@ describe('accountsBootstrapService', () => {
 
     service = makeAccountsBootstrapService({
       ledgerAccountRepo: mockLedgerAccountRepo,
+      cashAccountService: mockAssetAccountService,
     });
   });
 
@@ -127,6 +130,7 @@ describe('accountsBootstrapService', () => {
 
     expect(mockMakeAssetAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
+      cashAccountService: mockAssetAccountService,
     });
     expect(mockMakeLiabilityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
@@ -166,17 +170,15 @@ describe('accountsBootstrapService', () => {
   });
 
   it('rejects inconsistent accounts and audits', async () => {
+    const orphanAccount = await cashAccountService.createHeader({
+      name: 'Orphan',
+      accountingEntity,
+      userId,
+    });
     mockBootstrapAssetAccounts.mockResolvedValue({
       accounts: [],
       events: [],
-      audits: [
-        cashAndEquivalentAccountEntity.makeHeader({
-          name: 'Orphan',
-          accountingEntityId: accountingEntity.id,
-          currency: SYSTEM_CURRENCIES.USD,
-          createdBy: userId,
-        })[2],
-      ],
+      audits: [orphanAccount[2]],
     });
 
     await expect(
@@ -185,11 +187,10 @@ describe('accountsBootstrapService', () => {
   });
 
   it('rejects accounts without matching audit entity IDs', async () => {
-    const [account] = cashAndEquivalentAccountEntity.makeHeader({
+    const [account] = await cashAccountService.createHeader({
       name: 'Cash',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.USD,
-      createdBy: userId,
+      accountingEntity,
+      userId,
     });
 
     mockBootstrapAssetAccounts.mockResolvedValue({

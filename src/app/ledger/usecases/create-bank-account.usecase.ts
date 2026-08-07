@@ -85,6 +85,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
     const creationPayload = {
       name: payload.name,
       currency: currencyEntity.getByCode(payload.currencyCode),
+      isControlAccount: false,
       userId: user.id,
       accountingEntity,
       controlAccountCode: payload.controlAccountCode as TCashLedgerCode,

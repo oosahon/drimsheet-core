@@ -1,28 +1,47 @@
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import cashAndEquivalentAccountEntity from '../../../ledger/asset-account/entities/cash-and-equivalents.entity';
+import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
+import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
+import makeCashAccountService from '../../../ledger/services/cash-account.service';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
 } from '../../../ledger/types/asset-account.types';
-import { ELedgerType } from '../../../ledger/types/ledger.types';
+import {
+  ELedgerType,
+  ILedgerAccount,
+} from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import { IJournalEntryRulePermits } from '../../types/entry.rules.types';
 import journalEntryRuleValidator from '../entry-rule.validator';
 
 describe('journalEntryRuleValidator', () => {
-  const [account] = cashAndEquivalentAccountEntity.make(
-    {
+  const userId = generateUUID();
+  const accountingEntity = {
+    id: generateUUID(),
+    ownerId: userId,
+    functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+  } as IAccountingEntity;
+  const ledgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+    create: jest.fn(),
+    update: jest.fn(),
+    findById: jest.fn(),
+    findAllByIds: jest.fn(),
+    findByCode: jest.fn(),
+    findBySubType: jest.fn(),
+    findByBehavior: jest.fn(),
+    findLatestBySubType: jest.fn(),
+    findAll: jest.fn(),
+  };
+  const cashAccountService = makeCashAccountService({ ledgerAccountRepo });
+  let account: ILedgerAccount;
+
+  beforeAll(async () => {
+    [account] = await cashAccountService.createHeader({
       name: 'Cash on Hand',
-      accountingEntityId: generateUUID(),
-      currency: SYSTEM_CURRENCIES.NGN,
-      isControlAccount: false,
-      controlAccountId: null,
-      behavior: EAssetAccountBehavior.DefaultCash,
-      meta: null,
-      createdBy: generateUUID(),
-    },
-    null
-  );
+      userId,
+      accountingEntity,
+    });
+  });
 
   it('permits an account when all restrictions are wildcards', () => {
     const permits: IJournalEntryRulePermits = {

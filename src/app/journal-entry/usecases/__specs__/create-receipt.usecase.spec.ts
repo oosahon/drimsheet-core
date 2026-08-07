@@ -5,9 +5,9 @@ import { ECounterpartyType } from '../../../../domain/counterparty/types/counter
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import servicesAccountEntity from '../../../../domain/ledger/revenue-account/entities/services.entity';
-import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
+import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
+import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
@@ -66,19 +66,10 @@ describe('makeCreateReceiptUsecase', () => {
     null
   );
 
-  const [destinationAccount] = cashAndEquivalentAccountEntity.make(
-    {
-      name: 'Cash',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      isControlAccount: false,
-      controlAccountId: null,
-      behavior: EAssetAccountBehavior.DefaultCash,
-      meta: null,
-      createdBy: user.id,
-    },
-    null
-  );
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
+  let destinationAccount: ICashAndCashEquivalentAccount;
 
   const counterpartyService = makeCounterpartyService();
   const newCounterparty = counterpartyService.create({
@@ -103,38 +94,50 @@ describe('makeCreateReceiptUsecase', () => {
     data: existingCounterparty,
   };
 
-  const [journalEntry, journalEntryEvents, journalEntryAudit] =
-    journalEntryEntity.make({
-      accountingEntityId: accountingEntity.id,
-      sourceType: EJournalEntrySourceType.Receipt,
-      effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
-      postedAt: new Date('2026-08-06T00:00:00.000Z'),
-      memo: 'Receipt',
-      createdBy: user.id,
-      functionalCurrency: SYSTEM_CURRENCIES.NGN,
-      lines: [
-        {
-          accountId: sourceAccount.id,
-          counterpartyId: newCounterparty[0].id,
-          sequenceOrder: 1,
-          amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
-          exchangeRate: null,
-          side: EJournalSide.Credit,
-          description: 'Revenue',
-          functionalCurrency: SYSTEM_CURRENCIES.NGN,
-        },
-        {
-          accountId: destinationAccount.id,
-          counterpartyId: newCounterparty[0].id,
-          sequenceOrder: 2,
-          amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
-          exchangeRate: null,
-          side: EJournalSide.Debit,
-          description: 'Cash',
-          functionalCurrency: SYSTEM_CURRENCIES.NGN,
-        },
-      ],
+  type TJournalEntryResult = ReturnType<typeof journalEntryEntity.make>;
+  let journalEntry: TJournalEntryResult[0];
+  let journalEntryEvents: TJournalEntryResult[1];
+  let journalEntryAudit: TJournalEntryResult[2];
+
+  beforeAll(async () => {
+    [destinationAccount] = await cashAccountService.createHeader({
+      name: 'Cash',
+      accountingEntity,
+      userId: user.id,
     });
+    [journalEntry, journalEntryEvents, journalEntryAudit] =
+      journalEntryEntity.make({
+        accountingEntityId: accountingEntity.id,
+        sourceType: EJournalEntrySourceType.Receipt,
+        effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
+        postedAt: new Date('2026-08-06T00:00:00.000Z'),
+        memo: 'Receipt',
+        createdBy: user.id,
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        lines: [
+          {
+            accountId: sourceAccount.id,
+            counterpartyId: newCounterparty[0].id,
+            sequenceOrder: 1,
+            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+            exchangeRate: null,
+            side: EJournalSide.Credit,
+            description: 'Revenue',
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+          },
+          {
+            accountId: destinationAccount.id,
+            counterpartyId: newCounterparty[0].id,
+            sequenceOrder: 2,
+            amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+            exchangeRate: null,
+            side: EJournalSide.Debit,
+            description: 'Cash',
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+          },
+        ],
+      });
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
