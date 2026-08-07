@@ -1,10 +1,10 @@
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
+import ledgerAccountError from '../../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../../shared/repos/ledger-account.repo';
 import { TCashLedgerCode } from '../../../types/ledger-code.types';
 import { ELedgerType, ILedgerAccount } from '../../../types/ledger.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
-import assetAccountError from '../../errors/asset-account.error';
 import { EAssetSubType } from '../../types/asset-account.types';
 
 export interface ICashSubAccountScope {
@@ -31,7 +31,7 @@ const resolveCashSubAccountScope = async (
   );
 
   if (!controlAccount) {
-    throw new assetAccountError.ControlAccountNotFound({
+    throw new ledgerAccountError.ControlAccountNotFound({
       controlAccountLedgerCode,
     });
   }
@@ -42,7 +42,7 @@ const resolveCashSubAccountScope = async (
     controlAccount.isControlAccount;
 
   if (!isValidControlAccount) {
-    throw new assetAccountError.InvalidControlAccount({
+    throw new ledgerAccountError.InvalidControlAccount({
       controlAccountId: controlAccount.id,
       controlAccountLedgerCode,
       type: controlAccount.type,

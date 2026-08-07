@@ -1,10 +1,7 @@
 import z from 'zod';
-import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
-import ledgerAccountError from '../../../../domain/ledger/shared/errors/ledger-account.error';
+import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
 import { openingBalanceDtoValidation } from '../../../journal-entry/dtos/opening-balance/opening-balance.dto.validation';
 import { currencyCodeValidation } from '../../../money/dtos/currency/currency.dto.validation';
-
-import ledgerError from '../../../../domain/ledger/shared/errors/ledger.error';
 
 export const pettyCashCreationReqValidation = z
   .object({
@@ -26,7 +23,7 @@ export const pettyCashCreationReqValidation = z
       return true;
     },
     {
-      message: new assetAccountError.OpeningBalanceCurrencyMismatch().errorKey,
+      message: new ledgerAccountError.OpeningBalanceCurrencyMismatch().errorKey,
       path: ['openingBalance', 'amount', 'currencyCode'],
     }
   );
@@ -35,16 +32,16 @@ export const bankDetailsCreationReqValidation = z
   .object({
     bankName: z
       .string()
-      .min(2, new ledgerError.InvalidValue().errorKey)
-      .max(100, new ledgerError.InvalidValue().errorKey),
+      .min(2, new ledgerAccountError.InvalidBankName().errorKey)
+      .max(100, new ledgerAccountError.InvalidBankName().errorKey),
     accountName: z
       .string()
-      .min(2, new ledgerError.InvalidValue().errorKey)
-      .max(100, new ledgerError.InvalidValue().errorKey),
+      .min(2, new ledgerAccountError.InvalidBankAccountName().errorKey)
+      .max(100, new ledgerAccountError.InvalidBankAccountName().errorKey),
     accountNumber: z
       .string()
-      .min(6, new ledgerError.InvalidValue().errorKey)
-      .max(34, new ledgerError.InvalidValue().errorKey),
+      .min(6, new ledgerAccountError.InvalidBankAccountNumber().errorKey)
+      .max(34, new ledgerAccountError.InvalidBankAccountNumber().errorKey),
   })
   .strict();
 
@@ -71,7 +68,7 @@ export const bankAccountCreationReqValidation = z
       return true;
     },
     {
-      message: new assetAccountError.OpeningBalanceCurrencyMismatch().errorKey,
+      message: new ledgerAccountError.OpeningBalanceCurrencyMismatch().errorKey,
       path: ['openingBalance', 'amount', 'currencyCode'],
     }
   );

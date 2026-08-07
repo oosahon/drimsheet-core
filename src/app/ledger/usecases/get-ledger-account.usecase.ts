@@ -1,5 +1,5 @@
 import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
-import ledgerError from '../../../domain/ledger/shared/errors/ledger.error';
+import ledgerAccountError from '../../../domain/ledger/errors/ledger-account.error';
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../domain/money/values/money.vo';
@@ -21,7 +21,7 @@ interface IDependencies {
 
 export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
   return async (accountId: TEntityId): Promise<ILedgerAccountDto> => {
-    stringUtils.validateUUID(accountId, ledgerError.InvalidId);
+    stringUtils.validateUUID(accountId, ledgerAccountError.InvalidId);
 
     const { correlationId, accountingEntity, user } = deps.appContext.get();
 

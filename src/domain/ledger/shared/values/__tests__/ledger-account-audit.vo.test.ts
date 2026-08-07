@@ -2,6 +2,7 @@ import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import historyError from '../../../../../shared/values/history/history.error';
 import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
+import ledgerAccountError from '../../../errors/ledger-account.error';
 import {
   ELedgerAccountAuditAction,
   ULedgerAccountAuditAction,
@@ -14,7 +15,6 @@ import {
   ENormalBalance,
 } from '../../../types/ledger.types';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
-import ledgerError from '../../errors/ledger.error';
 import ledgerAccountAudit from '../ledger-account-audit.vo';
 
 describe('ledgerAccountAudit', () => {
@@ -60,7 +60,7 @@ describe('ledgerAccountAudit', () => {
       expect(Object.isFrozen(audit)).toBe(true);
     });
 
-    it('throws ledgerError.InvalidId if the entity ID is invalid', () => {
+    it('throws ledgerAccountError.InvalidId if the entity ID is invalid', () => {
       const account = makeLedgerAccount();
 
       expect(() =>
@@ -72,10 +72,10 @@ describe('ledgerAccountAudit', () => {
           },
           action: ELedgerAccountAuditAction.Created,
         })
-      ).toThrow(ledgerError.InvalidId);
+      ).toThrow(ledgerAccountError.InvalidId);
     });
 
-    it('throws ledgerError.InvalidAction if the action is invalid', () => {
+    it('throws ledgerAccountError.InvalidAction if the action is invalid', () => {
       const account = makeLedgerAccount();
 
       expect(() =>
@@ -84,10 +84,10 @@ describe('ledgerAccountAudit', () => {
           after: account,
           action: 'invalid-action' as ULedgerAccountAuditAction,
         })
-      ).toThrow(ledgerError.InvalidAction);
+      ).toThrow(ledgerAccountError.InvalidAction);
     });
 
-    it('throws ledgerError.InvalidDate if updatedAt is invalid', () => {
+    it('throws ledgerAccountError.InvalidDate if updatedAt is invalid', () => {
       const account = makeLedgerAccount();
 
       expect(() =>
@@ -99,7 +99,7 @@ describe('ledgerAccountAudit', () => {
           },
           action: ELedgerAccountAuditAction.Created,
         })
-      ).toThrow(ledgerError.InvalidDate);
+      ).toThrow(ledgerAccountError.InvalidDate);
     });
 
     it('throws historyError.InvalidDiff if there are no changes', () => {

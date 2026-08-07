@@ -3,9 +3,9 @@ import journalEntryEntity from '../../../../domain/journal-entry/entities/journa
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
 import { IBankDetails } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import bankDetailsValue from '../../../../domain/ledger/asset-account/values/bank-details.vo';
+import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
@@ -348,7 +348,7 @@ describe('makeCreateBankAccountUseCase', () => {
 
     const useCase = makeCreateBankAccountUseCase(deps);
     await expect(useCase(validReq)).rejects.toBeInstanceOf(
-      assetAccountError.DuplicateBankAccount
+      ledgerAccountError.DuplicateBankAccount
     );
   });
 

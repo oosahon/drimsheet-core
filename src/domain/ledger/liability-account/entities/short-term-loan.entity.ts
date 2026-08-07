@@ -1,7 +1,7 @@
 import stringUtils from '../../../../shared/utils/string';
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
+import ledgerAccountError from '../../errors/ledger-account.error';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
-import ledgerError from '../../shared/errors/ledger.error';
 import { TShortTermDebtLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -56,7 +56,7 @@ function make(
   if (payload.controlAccountId) {
     stringUtils.validateUUID(
       payload.controlAccountId,
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidControlAccountId
     );
   }
 
@@ -121,7 +121,7 @@ function makeCreditCardAccountMeta(meta: ICreditCardAccountMeta) {
       min: 2,
       max: 100,
     },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidCardIssuer
   );
 
   const lastFourDigits = stringUtils.sanitizeAndValidate(
@@ -130,7 +130,7 @@ function makeCreditCardAccountMeta(meta: ICreditCardAccountMeta) {
       min: 4,
       max: 4,
     },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidLastFourDigits
   );
 
   return Object.freeze<ICreditCardAccountMeta>({
@@ -180,7 +180,10 @@ function makeCreditCardAccount(
 }
 
 function makeOverdraftAccountMeta(meta: IOverdraftAccountMeta) {
-  stringUtils.validateUUID(meta.linkedBankAccountId, ledgerError.InvalidValue);
+  stringUtils.validateUUID(
+    meta.linkedBankAccountId,
+    ledgerAccountError.InvalidLinkedBankAccountId
+  );
 
   return Object.freeze<IOverdraftAccountMeta>({
     linkedBankAccountId: meta.linkedBankAccountId,
@@ -233,7 +236,7 @@ function makeShortTermLoanAccountMeta(meta: IShortTermLoanAccountMeta) {
       min: 2,
       max: 100,
     },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidLenderName
   );
 
   return Object.freeze<IShortTermLoanAccountMeta>({

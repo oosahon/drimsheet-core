@@ -1,7 +1,7 @@
 import stringUtils from '../../../../shared/utils/string';
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
+import ledgerAccountError from '../../errors/ledger-account.error';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
-import ledgerError from '../../shared/errors/ledger.error';
 import { TPayablesLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -52,7 +52,7 @@ function make(
   if (payload.controlAccountId) {
     stringUtils.validateUUID(
       payload.controlAccountId,
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidControlAccountId
     );
   }
 
@@ -123,7 +123,7 @@ function makeStatutoryPayableAccountMeta(
       min: 2,
       max: 100,
     },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidTaxAuthority
   );
 
   const taxType = stringUtils.sanitizeAndValidate(
@@ -132,7 +132,7 @@ function makeStatutoryPayableAccountMeta(
       min: 2,
       max: 50,
     },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidTaxType
   );
 
   return Object.freeze<IStatutoryPayableAccountMeta>({
@@ -183,8 +183,11 @@ function makeTradePayableAccountMeta(
 ): ITradePayableAccountMeta | null {
   if (!meta) return null;
 
-  stringUtils.validateUUID(meta.counterpartyId, ledgerError.InvalidValue);
-  stringUtils.validateUUID(meta.invoiceId, ledgerError.InvalidValue);
+  stringUtils.validateUUID(
+    meta.counterpartyId,
+    ledgerAccountError.InvalidCounterpartyId
+  );
+  stringUtils.validateUUID(meta.invoiceId, ledgerAccountError.InvalidInvoiceId);
 
   return Object.freeze<ITradePayableAccountMeta>({
     counterpartyId: meta.counterpartyId,

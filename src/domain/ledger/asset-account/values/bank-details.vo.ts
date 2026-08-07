@@ -1,6 +1,6 @@
 import stringUtils from '../../../../shared/utils/string';
 import accountingEntityHelpers from '../../../accounting/entities/helpers/accounting-entity.entity.helpers';
-import ledgerError from '../../shared/errors/ledger.error';
+import ledgerAccountError from '../../errors/ledger-account.error';
 import { IBankDetails } from '../types/asset-account.types';
 
 function make(payload: IBankDetails): Readonly<IBankDetails> {
@@ -10,25 +10,27 @@ function make(payload: IBankDetails): Readonly<IBankDetails> {
     !payload ||
     !accountingEntityHelpers.isValidJurisdictionCode(countryCode)
   ) {
-    throw new ledgerError.InvalidValue({ countryCode: payload?.countryCode });
+    throw new ledgerAccountError.InvalidCountryCode({
+      countryCode: payload?.countryCode,
+    });
   }
 
   const bankName = stringUtils.sanitizeAndValidate(
     payload.bankName,
     { min: 2, max: 100 },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidBankName
   );
 
   const accountName = stringUtils.sanitizeAndValidate(
     payload.accountName,
     { min: 2, max: 100 },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidBankAccountName
   );
 
   const accountNumber = stringUtils.sanitizeAndValidate(
     payload.accountNumber,
     { min: 6, max: 34 },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidBankAccountNumber
   );
 
   return Object.freeze({

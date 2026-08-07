@@ -4,8 +4,8 @@ import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import stringUtils from '../../../../shared/utils/string';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import currencyEntity from '../../../money/entities/currency.entity';
+import ledgerAccountBalanceError from '../../errors/ledger-account-balance.error';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
-import ledgerAccountBalanceError from '../errors/ledger-account-balance.error';
 import {
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,

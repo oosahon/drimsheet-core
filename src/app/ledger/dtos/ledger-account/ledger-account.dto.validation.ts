@@ -1,6 +1,6 @@
 import { omit } from 'lodash';
 import z from 'zod';
-import ledgerAccountError from '../../../../domain/ledger/shared/errors/ledger-account.error';
+import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
 import {
   ELedgerAccountSortBy,
   ULedgerAccountSortBy,

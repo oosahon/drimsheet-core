@@ -1,6 +1,6 @@
-import { TErrorCause } from '../../../../shared/types/error.types';
-import errorUtils from '../../../../shared/utils/error';
-import DomainError from '../../../../shared/values/errors/domain.error';
+import { TErrorCause } from '../../../shared/types/error.types';
+import errorUtils from '../../../shared/utils/error';
+import DomainError from '../../../shared/values/errors/domain.error';
 
 type TErrorKeyPrefix = `ledger_balance_error_${string}`;
 
@@ -13,18 +13,18 @@ const EErrorKeys = {
   InvalidCreatorId: 'ledger_balance_error_invalid_creator_id',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
-type ULedgerBalanceError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
+type ULedgerAccountBalanceError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 
-class LedgerBalanceError extends DomainError<ULedgerBalanceError> {
-  constructor(key: ULedgerBalanceError, cause?: TErrorCause) {
+class LedgerAccountBalanceError extends DomainError<ULedgerAccountBalanceError> {
+  constructor(key: ULedgerAccountBalanceError, cause?: TErrorCause) {
     super(key, cause);
-    this.name = 'LedgerBalanceError';
+    this.name = 'LedgerAccountBalanceError';
   }
 }
 
 const ledgerAccountBalanceError = Object.freeze({
-  Base: LedgerBalanceError,
-  ...errorUtils.getMappedErrors(EErrorKeys, LedgerBalanceError),
+  Base: LedgerAccountBalanceError,
+  ...errorUtils.getMappedErrors(EErrorKeys, LedgerAccountBalanceError),
 });
 
 export default ledgerAccountBalanceError;

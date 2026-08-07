@@ -1,6 +1,6 @@
 import stringUtils from '../../../../../shared/utils/string';
+import ledgerAccountError from '../../../errors/ledger-account.error';
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import ledgerError from '../../../shared/errors/ledger.error';
 import { TCashLedgerCode } from '../../../types/ledger-code.types';
 import { IBankAccountMeta } from '../../types/asset-account.types';
 
@@ -35,7 +35,7 @@ function makeBankAccountMeta(meta: IBankAccountMeta) {
       min: 2,
       max: 100,
     },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidBankName
   );
 
   const accountNumber = stringUtils.sanitizeAndValidate(
@@ -44,7 +44,7 @@ function makeBankAccountMeta(meta: IBankAccountMeta) {
       min: 6,
       max: 34,
     },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidBankAccountNumber
   );
 
   const accountName = stringUtils.sanitizeAndValidate(
@@ -53,7 +53,7 @@ function makeBankAccountMeta(meta: IBankAccountMeta) {
       min: 2,
       max: 100,
     },
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidBankAccountName
   );
 
   let sortCode: string | null = null;
@@ -64,7 +64,7 @@ function makeBankAccountMeta(meta: IBankAccountMeta) {
         min: 6,
         max: 6,
       },
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidSortCode
     );
   }
 
@@ -76,7 +76,7 @@ function makeBankAccountMeta(meta: IBankAccountMeta) {
         min: 8,
         max: 11,
       },
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidSwiftCode
     );
   }
 
@@ -88,7 +88,7 @@ function makeBankAccountMeta(meta: IBankAccountMeta) {
         min: 15,
         max: 34,
       },
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidIban
     );
   }
 
@@ -100,7 +100,7 @@ function makeBankAccountMeta(meta: IBankAccountMeta) {
         min: 9,
         max: 9,
       },
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidRoutingNumber
     );
   }
 
@@ -112,7 +112,7 @@ function makeBankAccountMeta(meta: IBankAccountMeta) {
         min: 1,
         max: 10,
       },
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidBranchCode
     );
   }
 

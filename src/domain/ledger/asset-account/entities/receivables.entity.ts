@@ -1,7 +1,7 @@
 import stringUtils from '../../../../shared/utils/string';
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
+import ledgerAccountError from '../../errors/ledger-account.error';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
-import ledgerError from '../../shared/errors/ledger.error';
 import { TReceivablesLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -50,7 +50,7 @@ function make(
   if (payload.controlAccountId) {
     stringUtils.validateUUID(
       payload.controlAccountId,
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidControlAccountId
     );
   }
 

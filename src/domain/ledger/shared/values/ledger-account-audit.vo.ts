@@ -2,21 +2,24 @@ import dateUtils from '../../../../shared/utils/date';
 import generateDiff from '../../../../shared/utils/diff-generator';
 import stringUtils from '../../../../shared/utils/string';
 import historyError from '../../../../shared/values/history/history.error';
+import ledgerAccountError from '../../errors/ledger-account.error';
 import {
   ELedgerAccountAuditAction,
   ILedgerAccountAudit,
   IMakeLedgerAccountAuditPayload,
 } from '../../types/ledger-account-audit.types';
-import ledgerError from '../errors/ledger.error';
 
 function make(payload: IMakeLedgerAccountAuditPayload): ILedgerAccountAudit {
-  stringUtils.validateUUID(payload.after.id, ledgerError.InvalidId);
+  stringUtils.validateUUID(payload.after.id, ledgerAccountError.InvalidId);
   stringUtils.validateIsInEnum(
     payload.action,
     ELedgerAccountAuditAction,
-    ledgerError.InvalidAction
+    ledgerAccountError.InvalidAction
   );
-  dateUtils.validateDate(payload.after.updatedAt, ledgerError.InvalidDate);
+  dateUtils.validateDate(
+    payload.after.updatedAt,
+    ledgerAccountError.InvalidDate
+  );
 
   const { before, after, hasChanges } = generateDiff(
     payload.after,

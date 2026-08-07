@@ -4,10 +4,9 @@ import stringUtils from '../../../../shared/utils/string';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
 import currencyEntity from '../../../money/entities/currency.entity';
+import ledgerAccountError from '../../errors/ledger-account.error';
 import { ELedgerAccountAuditAction } from '../../types/ledger-account-audit.types';
 import { ILedgerAccount } from '../../types/ledger.types';
-import ledgerAccountError from '../errors/ledger-account.error';
-import ledgerError from '../errors/ledger.error';
 import ledgerAccountEvents from '../events/ledger-account.events';
 import ledgerAccountAudit from '../values/ledger-account-audit.vo';
 import helpers from './helpers/ledger-account.entity.helpers';
@@ -18,14 +17,14 @@ function make<T extends ILedgerAccount>(
   helpers.validateCode(payload.code);
   stringUtils.validateUUID(
     payload.accountingEntityId,
-    ledgerError.InvalidValue
+    ledgerAccountError.InvalidAccountingEntityId
   );
   helpers.validateType(payload.type);
 
   if (payload.controlAccountId) {
     stringUtils.validateUUID(
       payload.controlAccountId,
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidControlAccountId
     );
   }
 
@@ -34,7 +33,10 @@ function make<T extends ILedgerAccount>(
 
   helpers.validateContraRule(payload.contraAccountRule);
   helpers.validateAdjunctRule(payload.adjunctAccountRule);
-  stringUtils.validateUUID(payload.createdBy, ledgerError.InvalidValue);
+  stringUtils.validateUUID(
+    payload.createdBy,
+    ledgerAccountError.InvalidCreatorId
+  );
 
   helpers.validateSubType(payload.subType);
   helpers.validateBehavior(payload.behavior);
@@ -60,7 +62,7 @@ function make<T extends ILedgerAccount>(
     name: stringUtils.sanitizeAndValidate(
       payload.name,
       { min: 2, max: 100 },
-      ledgerError.InvalidValue
+      ledgerAccountError.InvalidName
     ),
     currency: payload.currency,
     status: payload.status,

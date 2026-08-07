@@ -1,4 +1,4 @@
-import ledgerError from '../../../shared/errors/ledger.error';
+import ledgerAccountError from '../../../errors/ledger-account.error';
 import bankDetailsValue from '../bank-details.vo';
 
 describe('bankDetailsValue', () => {
@@ -50,7 +50,7 @@ describe('bankDetailsValue', () => {
           ...validPayload,
           countryCode: 'INVALID',
         })
-      ).toThrow(ledgerError.InvalidValue);
+      ).toThrow(ledgerAccountError.InvalidCountryCode);
     });
 
     it('rejects short or empty bank name', () => {
@@ -59,7 +59,7 @@ describe('bankDetailsValue', () => {
           ...validPayload,
           bankName: 'A',
         })
-      ).toThrow(ledgerError.InvalidValue);
+      ).toThrow(ledgerAccountError.InvalidBankName);
     });
 
     it('rejects short or empty account name', () => {
@@ -68,7 +68,7 @@ describe('bankDetailsValue', () => {
           ...validPayload,
           accountName: 'A',
         })
-      ).toThrow(ledgerError.InvalidValue);
+      ).toThrow(ledgerAccountError.InvalidBankAccountName);
     });
 
     it('rejects short account number', () => {
@@ -77,12 +77,12 @@ describe('bankDetailsValue', () => {
           ...validPayload,
           accountNumber: '12345',
         })
-      ).toThrow(ledgerError.InvalidValue);
+      ).toThrow(ledgerAccountError.InvalidBankAccountNumber);
     });
 
     it('rejects null payload or undefined country code', () => {
       expect(() => bankDetailsValue.make(null as any)).toThrow(
-        ledgerError.InvalidValue
+        ledgerAccountError.InvalidCountryCode
       );
 
       expect(() =>
@@ -90,7 +90,7 @@ describe('bankDetailsValue', () => {
           ...validPayload,
           countryCode: undefined as any,
         })
-      ).toThrow(ledgerError.InvalidValue);
+      ).toThrow(ledgerAccountError.InvalidCountryCode);
     });
   });
 });
