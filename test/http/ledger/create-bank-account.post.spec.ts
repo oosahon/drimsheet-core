@@ -4,7 +4,7 @@ import { IBankAccountCreationReq } from '../../../src/app/ledger/dtos/asset-acco
 import { ILedgerAccountDto } from '../../../src/app/ledger/dtos/ledger-account/ledger-account.dto';
 import periodError from '../../../src/domain/accounting/errors/period.error';
 import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
-import assetAccountError from '../../../src/domain/ledger/asset-account/errors/asset-account.error';
+import ledgerAccountError from '../../../src/domain/ledger/errors/ledger-account.error';
 import { IUser } from '../../../src/domain/user/types/user.types';
 import { tokenService } from '../../../src/infra/ioc/services/auth';
 import * as ledgerUseCases from '../../../src/infra/ioc/usecases/ledger';
@@ -189,7 +189,7 @@ describe('POST /accounts/asset/bank', () => {
 
   it('maps a duplicate bank account error to 400 bad request', async () => {
     mockCreateBankAccount.mockRejectedValueOnce(
-      new assetAccountError.DuplicateBankAccount({
+      new ledgerAccountError.DuplicateBankAccount({
         bankName: validPayload.bankAccount.bankName,
         accountNumber: validPayload.bankAccount.accountNumber,
       })
