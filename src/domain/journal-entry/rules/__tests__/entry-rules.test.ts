@@ -1,11 +1,11 @@
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
-import payableAccountEntity from '../../../ledger/liability-account/entities/payables.entity';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
 import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
 import makeReceivablesAccountService from '../../../ledger/services/asset-account/receivables-account.service';
+import makePayablesAccountService from '../../../ledger/services/liability-account/payables.service';
 import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import journalEntryRuleValidator from '../entry-rule.validator';
@@ -37,9 +37,13 @@ describe('journal entry rules', () => {
   const receivablesAccountService = makeReceivablesAccountService({
     ledgerAccountRepo,
   });
+  const payablesAccountService = makePayablesAccountService({
+    ledgerAccountRepo,
+  });
   const repoOptions = { correlationId: 'test-correlation-id' };
   let cashAccount: ILedgerAccount;
   let receivableAccount: ILedgerAccount;
+  let liabilityAccount: ILedgerAccount;
 
   beforeAll(async () => {
     [cashAccount] = await cashAccountService.createHeader(
@@ -59,6 +63,16 @@ describe('journal entry rules', () => {
       },
       repoOptions
     );
+
+    [liabilityAccount] = await payablesAccountService.createHeader(
+      {
+        name: 'Accounts Payable',
+        createdBy,
+        accountingEntity,
+        currency,
+      },
+      repoOptions
+    );
   });
 
   const [openingBalanceEquityAccount] = openingBalanceEquityLedgerEntity.make(
@@ -73,13 +87,6 @@ describe('journal entry rules', () => {
 
   const [revenueAccount] = servicesAccountEntity.makeHeader({
     name: 'Service Revenue',
-    accountingEntityId,
-    currency,
-    createdBy,
-  });
-
-  const [liabilityAccount] = payableAccountEntity.makeHeader({
-    name: 'Accounts Payable',
     accountingEntityId,
     currency,
     createdBy,

@@ -4,6 +4,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import {
   mockAssetAccountService,
+  mockPayablesAccountService,
   mockReceivablesAccountService,
   mockSuspenseAccountService,
 } from '../../contracts/__mocks__/ledger.domain.services.mock';
@@ -131,6 +132,7 @@ describe('accountsBootstrapService', () => {
       cashAccountService: mockAssetAccountService,
       receivablesAccountService: mockReceivablesAccountService,
       suspenseAccountService: mockSuspenseAccountService,
+      payablesAccountService: mockPayablesAccountService,
     });
   });
 
@@ -142,10 +144,12 @@ describe('accountsBootstrapService', () => {
       cashAccountService: mockAssetAccountService,
       receivablesAccountService: mockReceivablesAccountService,
       suspenseAccountService: mockSuspenseAccountService,
+      payablesAccountService: mockPayablesAccountService,
     });
     expect(mockMakeLiabilityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
       suspenseAccountService: mockSuspenseAccountService,
+      payablesAccountService: mockPayablesAccountService,
     });
     expect(mockMakeEquityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,

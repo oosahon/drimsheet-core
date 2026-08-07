@@ -10,11 +10,15 @@ import {
   TShortTermDebtLedgerCode,
 } from '../types/ledger-code.types';
 
-const SHORT_TERM_DEBT: Record<string, TShortTermDebtLedgerCode> = {
+type TShortTermKeys = 'PREFIX' | 'HEADER';
+const SHORT_TERM_DEBT: Record<TShortTermKeys, TShortTermDebtLedgerCode> = {
+  PREFIX: '200',
   HEADER: '200000',
 } as const;
 
-const PAYABLES: Record<string, TPayablesLedgerCode> = {
+type TPayablesKeys = 'PREFIX' | 'HEADER' | 'TRADE' | 'STATUTORY';
+const PAYABLES: Record<TPayablesKeys, TPayablesLedgerCode> = {
+  PREFIX: '201',
   HEADER: '201000',
   TRADE: '201001',
   STATUTORY: '201002',

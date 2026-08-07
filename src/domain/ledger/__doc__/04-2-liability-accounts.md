@@ -35,7 +35,7 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 | Account Group     | Code Block | Entity File                                                                       | Status         |
 | ----------------- | ---------- | --------------------------------------------------------------------------------- | -------------- |
 | Short Term Debts  | `200xxx`   | [`00-short-term-loan.entity.ts`](../liability/entities/short-term-loan.entity.ts) | ✅ Implemented |
-| Payables          | `201xxx`   | [`03-payables.entity.ts`](../liability/entities/payables.entity.ts)               | ✅ Implemented |
+| Payables          | `201xxx`   | [`payables.service.ts`](../services/liability-account/payables.service.ts)        | ✅ Implemented |
 | Accrued Expenses  | `202xxx`   | —                                                                                 | 🔲 Types only  |
 | Deferred Revenues | `203xxx`   | —                                                                                 | 🔲 Types only  |
 | Long Term Loans   | `204xxx`   | —                                                                                 | 🔲 Types only  |
@@ -97,13 +97,13 @@ All short-term debt sub-types have `contraAccountRule: 'contra_permitted'` and `
 | Trade Payables     | /                   | <ul><li>Requires invoice or credit note transaction for creation</li><li>Requires payment or debit note transaction for settlement</li><li>Supports automated aging</li><li>Supports contra accounts (for early payment discounts)</li><li>Supports adjunct accounts (for interest on overdue accounts)</li></ul> |
 | Statutory Payables | /                   | <ul><li>Requires tax computation or manual entry for creation</li><li>Requires statutory payment transaction for settlement</li><li>Does not support contra accounts</li><li>Does not support adjunct accounts</li></ul>                                                                                          |
 
-#### Entity Details
+#### Service Details
 
-The `Payables` entity ([`03-payables.entity.ts`](../liability/entities/payables.entity.ts)) exposes:
+The payables account service ([`payables.service.ts`](../services/liability-account/payables.service.ts)) exposes:
 
-- `make()` — base factory accepting `behavior`, `contraAccountRule`, and `adjunctAccountRule` parameters
-- `makeStatutoryPayableAccount()` — validates `IStatutoryPayableAccountMeta` (taxAuthority, taxType); forces `ContraNotPermitted` and `AdjunctNotPermitted`
-- `makeTradePayableAccount()` — validates `ITradePayableAccountMeta` (counterpartyId, invoiceId); permits contra and adjunct
+- `createHeader()` — creates the `201000` payables control account
+- `createStatutoryPayableSubAccount()` — validates `IStatutoryPayableAccountMeta` (taxAuthority, taxType); forces `ContraNotPermitted` and `AdjunctNotPermitted`
+- `createTradePayableSubAccount()` — validates `ITradePayableAccountMeta` (counterpartyId, invoiceId); permits contra and adjunct
 
 > [!NOTE]
 > The ledger accepts any generic string for `taxType` in `IStatutoryPayableAccountMeta`. Specific tax policies and validation (e.g., Nigerian Tax Act types) are handled by the Accounting domain.

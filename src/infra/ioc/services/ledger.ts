@@ -3,6 +3,7 @@ import makeLedgerAccountBalancePropagationService from '../../../app/ledger/serv
 import makeLedgerAccountPersistenceService from '../../../app/ledger/services/ledger-account-persistence.service';
 import makeCashAccountService from '../../../domain/ledger/services/asset-account/cash-account.service';
 import makeReceivablesAccountService from '../../../domain/ledger/services/asset-account/receivables-account.service';
+import makePayablesAccountService from '../../../domain/ledger/services/liability-account/payables.service';
 import makeSuspenseAccountService from '../../../domain/ledger/services/suspense-account/suspense-account.service';
 import messaging from '../../messaging';
 import observability from '../../observability';
@@ -21,6 +22,10 @@ export const suspenseAccountService = makeSuspenseAccountService({
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
 });
 
+export const payablesAccountService = makePayablesAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
 export const ledgerAccountPersistenceService =
   makeLedgerAccountPersistenceService({
     ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
@@ -33,6 +38,7 @@ export const accountsBootstrapService = makeAccountsBootstrapService({
   cashAccountService,
   receivablesAccountService,
   suspenseAccountService,
+  payablesAccountService,
 });
 
 export const ledgerAccountBalancePropagationService =
