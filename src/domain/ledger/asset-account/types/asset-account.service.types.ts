@@ -29,7 +29,7 @@ interface IMakeBankPayload {
 }
 
 export default interface IAssetAccountService {
-  makePettyCashSubAccount(
+  createPettyCashSubAccount(
     payload: IMakePettyCashPayload,
     repoOptions: IReadRepoOptions
   ): Promise<
@@ -40,7 +40,7 @@ export default interface IAssetAccountService {
     >
   >;
 
-  makeBankSubAccount(
+  createBankSubAccount(
     payload: IMakeBankPayload,
     repoOptions: IReadRepoOptions
   ): Promise<

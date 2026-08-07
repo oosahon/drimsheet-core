@@ -145,7 +145,7 @@ describe('makeCreateBankAccountUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockBankAccountRepo.findOne.mockResolvedValue(null);
-    mockAssetAccountService.makeBankSubAccount.mockResolvedValue([
+    mockAssetAccountService.createBankSubAccount.mockResolvedValue([
       mockAccount,
       [],
       mockAudit as any,
@@ -252,7 +252,7 @@ describe('makeCreateBankAccountUseCase', () => {
       }
     );
 
-    mockAssetAccountService.makeBankSubAccount.mockResolvedValueOnce([
+    mockAssetAccountService.createBankSubAccount.mockResolvedValueOnce([
       foreignMockAccount,
       [],
       mockAudit as any,

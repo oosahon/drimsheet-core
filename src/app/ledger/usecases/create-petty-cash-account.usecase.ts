@@ -71,7 +71,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
     );
 
     const auditedAccount =
-      await deps.assetAccountService.makePettyCashSubAccount(
+      await deps.assetAccountService.createPettyCashSubAccount(
         {
           name: payload.name,
           currency: currencyEntity.getByCode(payload.currencyCode),

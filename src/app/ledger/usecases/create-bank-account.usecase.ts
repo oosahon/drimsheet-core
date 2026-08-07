@@ -91,7 +91,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
       bankDetails,
     };
 
-    const auditedAccount = await deps.assetAccountService.makeBankSubAccount(
+    const auditedAccount = await deps.assetAccountService.createBankSubAccount(
       creationPayload,
       { ...trace, lock: ERepoLock.Update }
     );

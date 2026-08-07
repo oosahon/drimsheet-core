@@ -40,7 +40,7 @@ describe('assetAccountService', () => {
     jest.useRealTimers();
   });
 
-  describe('makePettyCashSubAccount', () => {
+  describe('createPettyCashSubAccount', () => {
     const ownerId = generateUUID();
     const entityId = generateUUID();
     const controlAccountId = generateUUID();
@@ -91,7 +91,7 @@ describe('assetAccountService', () => {
           mockLatestAccount
         );
 
-        const [account, events] = await service.makePettyCashSubAccount(
+        const [account, events] = await service.createPettyCashSubAccount(
           validPayload,
           mockOptions
         );
@@ -122,7 +122,7 @@ describe('assetAccountService', () => {
           controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
         };
 
-        const [account, events] = await service.makePettyCashSubAccount(
+        const [account, events] = await service.createPettyCashSubAccount(
           payloadWithExplicitControlCode,
           mockOptions
         );
@@ -146,7 +146,7 @@ describe('assetAccountService', () => {
         mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
         await expect(
-          service.makePettyCashSubAccount(validPayload, mockOptions)
+          service.createPettyCashSubAccount(validPayload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -163,7 +163,7 @@ describe('assetAccountService', () => {
           });
 
           await expect(
-            service.makePettyCashSubAccount(validPayload, mockOptions)
+            service.createPettyCashSubAccount(validPayload, mockOptions)
           ).rejects.toThrow(
             'ledger_error_asset_account_invalid_control_account'
           );
@@ -189,7 +189,7 @@ describe('assetAccountService', () => {
         };
 
         await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
+          service.createPettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -203,7 +203,7 @@ describe('assetAccountService', () => {
         };
 
         await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
+          service.createPettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -218,7 +218,7 @@ describe('assetAccountService', () => {
         };
 
         await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
+          service.createPettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow();
       });
 
@@ -232,13 +232,13 @@ describe('assetAccountService', () => {
         };
 
         await expect(
-          service.makePettyCashSubAccount(payload, mockOptions)
+          service.createPettyCashSubAccount(payload, mockOptions)
         ).rejects.toThrow();
       });
     });
   });
 
-  describe('makeBankSubAccount', () => {
+  describe('createBankSubAccount', () => {
     const ownerId = generateUUID();
     const entityId = generateUUID();
     const controlAccountId = generateUUID();
@@ -285,7 +285,7 @@ describe('assetAccountService', () => {
       );
       mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
 
-      const [account, events] = await service.makeBankSubAccount(
+      const [account, events] = await service.createBankSubAccount(
         validBankPayload,
         mockOptions
       );

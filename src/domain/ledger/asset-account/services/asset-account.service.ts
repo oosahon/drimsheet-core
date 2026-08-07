@@ -13,7 +13,7 @@ export default function makeAssetAccountService(
   /**
    * Create a new petty cash account
    */
-  const makePettyCashSubAccount: IAssetAccountService['makePettyCashSubAccount'] =
+  const createPettyCashSubAccount: IAssetAccountService['createPettyCashSubAccount'] =
     async (payload, repoOptions) => {
       const { controlAccount, factoryContext } =
         await resolveCashSubAccountScope(
@@ -41,35 +41,34 @@ export default function makeAssetAccountService(
   /**
    * Create a new bank sub account
    */
-  const makeBankSubAccount: IAssetAccountService['makeBankSubAccount'] = async (
-    payload,
-    repoOptions
-  ) => {
-    const { controlAccount, factoryContext } = await resolveCashSubAccountScope(
-      deps.ledgerAccountRepo,
-      payload.accountingEntity.id,
-      payload.controlAccountCode,
-      repoOptions
-    );
+  const createBankSubAccount: IAssetAccountService['createBankSubAccount'] =
+    async (payload, repoOptions) => {
+      const { controlAccount, factoryContext } =
+        await resolveCashSubAccountScope(
+          deps.ledgerAccountRepo,
+          payload.accountingEntity.id,
+          payload.controlAccountCode,
+          repoOptions
+        );
 
-    const factoryPayload = {
-      name: payload.name,
-      currency: payload.currency,
-      isControlAccount: false,
-      createdBy: payload.userId,
-      controlAccountId: controlAccount.id,
-      accountingEntityId: payload.accountingEntity.id,
-      meta: payload.bankDetails,
+      const factoryPayload = {
+        name: payload.name,
+        currency: payload.currency,
+        isControlAccount: false,
+        createdBy: payload.userId,
+        controlAccountId: controlAccount.id,
+        accountingEntityId: payload.accountingEntity.id,
+        meta: payload.bankDetails,
+      };
+
+      return cashAndEquivalentAccountEntity.makeBankAccount(
+        factoryPayload,
+        factoryContext
+      );
     };
 
-    return cashAndEquivalentAccountEntity.makeBankAccount(
-      factoryPayload,
-      factoryContext
-    );
-  };
-
   return Object.freeze({
-    makePettyCashSubAccount,
-    makeBankSubAccount,
+    createPettyCashSubAccount,
+    createBankSubAccount,
   });
 }

@@ -145,7 +145,7 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockLedgerAccountRepo.findLatestBySubType.mockResolvedValue(null);
-    mockAssetAccountService.makePettyCashSubAccount.mockResolvedValue([
+    mockAssetAccountService.createPettyCashSubAccount.mockResolvedValue([
       mockPettyCashAccount,
       mockEvents,
       mockPettyCashAudit,
@@ -201,7 +201,7 @@ describe('createPettyCashSubAccountUseCase', () => {
     });
 
     expect(
-      mockAssetAccountService.makePettyCashSubAccount
+      mockAssetAccountService.createPettyCashSubAccount
     ).toHaveBeenCalledWith(
       expect.objectContaining({
         name: validPayload.name,
@@ -269,7 +269,7 @@ describe('createPettyCashSubAccountUseCase', () => {
 
     await expect(getUseCase()(validPayload)).rejects.toBe(failure);
     expect(
-      mockAssetAccountService.makePettyCashSubAccount
+      mockAssetAccountService.createPettyCashSubAccount
     ).not.toHaveBeenCalled();
     expect(mockLedgerAccountPersistenceService.create).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
@@ -312,7 +312,7 @@ describe('createPettyCashSubAccountUseCase', () => {
   it('should throw an error if the control account is not found', async () => {
     const useCase = getUseCase();
 
-    mockAssetAccountService.makePettyCashSubAccount.mockRejectedValue(
+    mockAssetAccountService.createPettyCashSubAccount.mockRejectedValue(
       new appError.Base('app_error_control_account_not_found')
     );
 
@@ -347,7 +347,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       accountingEntity: mockAccountingEntity,
     } as unknown as IAppContextData);
 
-    mockAssetAccountService.makePettyCashSubAccount.mockRejectedValue(
+    mockAssetAccountService.createPettyCashSubAccount.mockRejectedValue(
       new appError.Base('app_error_access_denied')
     );
 
@@ -391,7 +391,7 @@ describe('createPettyCashSubAccountUseCase', () => {
         }
       );
 
-    mockAssetAccountService.makePettyCashSubAccount.mockResolvedValueOnce([
+    mockAssetAccountService.createPettyCashSubAccount.mockResolvedValueOnce([
       foreignPettyCashAccount,
       mockEvents,
       mockPettyCashAudit,
