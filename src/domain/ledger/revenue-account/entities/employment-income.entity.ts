@@ -12,7 +12,7 @@ import {
   ERevenueAccountBehavior,
   ERevenueSubType,
   IEmploymentIncomeAccount,
-} from '../types/revenue-account.types';
+} from '../../types/revenue-account.types';
 import helpers from './helpers/employment-income.entity.helpers';
 
 interface IParentDetails {

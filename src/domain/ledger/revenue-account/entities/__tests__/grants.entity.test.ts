@@ -11,7 +11,7 @@ import {
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
-} from '../../types/revenue-account.types';
+} from '../../../types/revenue-account.types';
 import grantsAccountEntity from '../grants.entity';
 
 describe('Grants Revenue Entity', () => {

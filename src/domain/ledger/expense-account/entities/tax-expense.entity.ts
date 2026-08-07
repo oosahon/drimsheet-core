@@ -1,5 +1,10 @@
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+  IIncomeTaxExpenseAccount,
+} from '../../types/expense-account.types';
 import { TIncomeTaxLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -8,11 +13,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import {
-  EExpenseAccountBehavior,
-  EExpenseSubType,
-  IIncomeTaxExpenseAccount,
-} from '../types/expense-account.types';
 import helpers from './helpers/tax-expense.entity.helpers';
 
 interface IParentDetails {

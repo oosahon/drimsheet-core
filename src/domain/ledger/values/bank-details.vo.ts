@@ -1,7 +1,7 @@
 import stringUtils from '../../../shared/utils/string';
 import accountingEntityHelpers from '../../accounting/entities/helpers/accounting-entity.entity.helpers';
-import { IBankDetails } from '../asset-account/types/asset-account.types';
 import ledgerAccountError from '../errors/ledger-account.error';
+import { IBankDetails } from '../types/asset-account.types';
 
 function make(payload: IBankDetails): Readonly<IBankDetails> {
   const countryCode = payload?.countryCode?.trim()?.toUpperCase() ?? '';

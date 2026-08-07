@@ -4,13 +4,13 @@ import {
   TOpeningBalanceEquityLedgerCode,
   TReservesLedgerCode,
   TRetainedEarningsLedgerCode,
-} from '../../types/ledger-code.types';
+} from './ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerType,
   ILedgerAccount,
-} from '../../types/ledger.types';
+} from './ledger.types';
 
 export const EEquitySubType = {
   Capital: 'capital',

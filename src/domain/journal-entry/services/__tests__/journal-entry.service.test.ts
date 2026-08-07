@@ -11,14 +11,14 @@ import {
 import counterpartyEntity from '../../../counterparty/entities/counterparty.entity';
 import { ECounterpartyType } from '../../../counterparty/types/counterparty.types';
 import cashAndEquivalentAccountEntity from '../../../ledger/asset-account/entities/cash-and-equivalents.entity';
-import { EAssetAccountBehavior } from '../../../ledger/asset-account/types/asset-account.types';
 import ledgerAccountBalanceEntity from '../../../ledger/entities/ledger-account-balance.entity';
 import ledgerAccountEntity from '../../../ledger/entities/ledger-account.entity';
 import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
-import { EEquitySubType } from '../../../ledger/equity-account/types/equity-account.types';
 import ILedgerAccountBalanceRepo from '../../../ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
+import { EAssetAccountBehavior } from '../../../ledger/types/asset-account.types';
+import { EEquitySubType } from '../../../ledger/types/equity-account.types';
 import { ELedgerType } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import { EExchangeRateType } from '../../../money/types/exchange-rate.types';

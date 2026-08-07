@@ -12,7 +12,7 @@ import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
   ILiabilitySuspenseAccount,
-} from '../types/liability-account.types';
+} from '../../types/liability-account.types';
 import helpers from './helpers/suspense-account.entity.helpers';
 
 interface IParentDetails {

@@ -1,6 +1,14 @@
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+  IBankAccountMeta,
+  IBankDetails,
+  ICashAndCashEquivalentAccount,
+  IPettyCashAccount,
+} from '../../../types/asset-account.types';
 import { TCashLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -9,14 +17,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EAssetAccountBehavior,
-  EAssetSubType,
-  IBankAccountMeta,
-  IBankDetails,
-  ICashAndCashEquivalentAccount,
-  IPettyCashAccount,
-} from '../../types/asset-account.types';
 import cashAndEquivalentAccountEntity from '../cash-and-equivalents.entity';
 
 describe('Cash and Cash Equivalent Entity', () => {

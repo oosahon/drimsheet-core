@@ -1,4 +1,4 @@
-import { EAssetSubType } from '../../../../../domain/ledger/asset-account/types/asset-account.types';
+import { EAssetSubType } from '../../../../../domain/ledger/types/asset-account.types';
 import {
   ELedgerType,
   ILedgerAccount,

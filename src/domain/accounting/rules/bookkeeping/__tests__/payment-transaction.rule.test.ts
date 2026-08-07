@@ -1,14 +1,10 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import ledgerAccountEntity from '../../../../ledger/entities/ledger-account.entity';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../../../ledger/asset-account/types/asset-account.types';
-import ledgerAccountEntity from '../../../../ledger/entities/ledger-account.entity';
-import { EExpenseSubType } from '../../../../ledger/expense-account/types/expense-account.types';
-import {
-  ELiabilityAccountBehavior,
-  ELiabilitySubType,
-} from '../../../../ledger/liability-account/types/liability-account.types';
+} from '../../../../ledger/types/asset-account.types';
+import { EExpenseSubType } from '../../../../ledger/types/expense-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -16,6 +12,10 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../../../ledger/types/ledger.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
+} from '../../../../ledger/types/liability-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
 import accountingError from '../../../errors/accounting.error';
 import paymentTransactionRule from '../payment-transaction.rule';

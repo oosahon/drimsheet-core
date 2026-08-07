@@ -3,13 +3,6 @@ import { LIABILITY_LEDGER_CODES } from '../../../../domain/ledger/config/liabili
 import payableAccountEntity from '../../../../domain/ledger/liability-account/entities/payables.entity';
 import shortTermLoanAccountEntity from '../../../../domain/ledger/liability-account/entities/short-term-loan.entity';
 import liabilitySuspenseAccountEntity from '../../../../domain/ledger/liability-account/entities/suspense-account.entity';
-import {
-  ELiabilityAccountBehavior,
-  ELiabilitySubType,
-  ILiabilityLedgerAccount,
-  IPayableAccount,
-  IStatutoryPayableAccount,
-} from '../../../../domain/ledger/liability-account/types/liability-account.types';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
   TLiabilityLedgerCode,
@@ -19,6 +12,13 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../../../domain/ledger/types/ledger.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
+  ILiabilityLedgerAccount,
+  IPayableAccount,
+  IStatutoryPayableAccount,
+} from '../../../../domain/ledger/types/liability-account.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {

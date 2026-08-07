@@ -20,7 +20,7 @@ import {
   IShortTermDebtAccount,
   IShortTermLoanAccount,
   IShortTermLoanAccountMeta,
-} from '../types/liability-account.types';
+} from '../../types/liability-account.types';
 import helpers from './helpers/short-term-loan.entity.helpers';
 
 interface IParentDetails {

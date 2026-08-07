@@ -1,4 +1,9 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+  IDirectCostsAccount,
+} from '../../../types/expense-account.types';
 import { TDirectCostsLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -7,11 +12,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EExpenseAccountBehavior,
-  EExpenseSubType,
-  IDirectCostsAccount,
-} from '../../types/expense-account.types';
 import directCostsAccountEntity from '../direct-costs.entity';
 
 describe('Direct Costs Expense Entity', () => {

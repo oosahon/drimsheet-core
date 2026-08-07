@@ -39,7 +39,7 @@ The following table shows the behaviors of different equity account classes
 - **Main reporting hierarchy**: Equity / Capital
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`equity-account.types.ts`](../equity/types/equity-account.types.ts).\
+> Entity implementation pending. Types defined in [`equity-account.types.ts`](../types/equity-account.types.ts).\
 > Capital is **not relevant** for individual accounting entities — there is no concept of owner's equity in personal finance. The type exists for sole trader/company use.
 
 #### Behaviors
@@ -76,7 +76,7 @@ The `RetainedEarnings` entity ([`01-retained-earning.entity.ts`](../equity/entit
 - **Main reporting hierarchy**: Equity / Reserves
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`equity-account.types.ts`](../equity/types/equity-account.types.ts) with behavior: `RevaluationReserve`.\
+> Entity implementation pending. Types defined in [`equity-account.types.ts`](../types/equity-account.types.ts) with behavior: `RevaluationReserve`.\
 > Reserves are **not** bootstrapped for individuals. The type exists for power users or on-demand creation when an individual revalues PPE or long-term investments.
 
 #### Behaviors

@@ -1,4 +1,4 @@
-import { TEntityId } from '../../../../shared/types/uuid';
+import { TEntityId } from '../../../shared/types/uuid';
 import {
   TAccruedIncomeLedgerCode,
   TAssetLedgerCode,
@@ -13,18 +13,18 @@ import {
   TReceivablesLedgerCode,
   TROUAssetsLedgerCode,
   TShortTermInvestmentLedgerCode,
-} from '../../types/ledger-code.types';
+} from './ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerType,
   ILedgerAccount,
-} from '../../types/ledger.types';
+} from './ledger.types';
 import {
   ESuspenseSubType,
   ISuspenseLedgerAccount,
   USuspenseSubType,
-} from '../../types/suspense-account.types';
+} from './suspense-account.types';
 
 export const EAssetSubType = {
   CashAndCashEquivalent: 'cash_and_cash_equivalent',

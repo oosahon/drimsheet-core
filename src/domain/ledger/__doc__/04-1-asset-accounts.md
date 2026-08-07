@@ -94,7 +94,7 @@ The `CashAndCashEquivalents` entity ([`00-cash-and-equivalents.entity.ts`](../as
 - **Main reporting hierarchy**: Current Assets / Short Term Investments
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../asset/types/asset-account.types.ts) with behaviors: `StockAndETFs`, `Bonds`.
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts) with behaviors: `StockAndETFs`, `Bonds`.
 
 #### Behaviors
 
@@ -142,7 +142,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../asset/entities/receiva
 - **Main reporting hierarchy**: Current Assets / Accrued Income
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../asset/types/asset-account.types.ts).
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts).
 
 #### Behaviors
 
@@ -157,7 +157,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../asset/entities/receiva
 - **Main reporting hierarchy**: Current Assets / Prepayments
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../asset/types/asset-account.types.ts).
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts).
 
 #### Behaviors
 
@@ -174,7 +174,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../asset/entities/receiva
 - **Main reporting hierarchy**: Non-Current Assets / Long Term Investments
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../asset/types/asset-account.types.ts).
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts).
 
 #### Behaviors
 
@@ -191,7 +191,7 @@ The `Receivables` entity ([`02-receivables.entity.ts`](../asset/entities/receiva
 - **Main reporting hierarchy**: Non-Current Assets / Property, Plant & Equipment
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`asset-account.types.ts`](../asset/types/asset-account.types.ts).
+> Entity implementation pending. Types defined in [`asset-account.types.ts`](../types/asset-account.types.ts).
 
 > [!NOTE]
 > **Sub-class automation:**

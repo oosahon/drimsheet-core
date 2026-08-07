@@ -1,4 +1,4 @@
-import { TEntityId } from '../../../../shared/types/uuid';
+import { TEntityId } from '../../../shared/types/uuid';
 import {
   TAccruedExpenseLedgerCode,
   TDeferredRevenueLedgerCode,
@@ -9,18 +9,18 @@ import {
   TPayablesLedgerCode,
   TProvisionLedgerCode,
   TShortTermDebtLedgerCode,
-} from '../../types/ledger-code.types';
+} from './ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerType,
   ILedgerAccount,
-} from '../../types/ledger.types';
+} from './ledger.types';
 import {
   ESuspenseSubType,
   ISuspenseLedgerAccount,
   USuspenseSubType,
-} from '../../types/suspense-account.types';
+} from './suspense-account.types';
 
 export const ELiabilitySubType = {
   ShortTermDebt: 'short_term_debt',

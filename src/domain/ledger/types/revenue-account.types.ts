@@ -9,13 +9,13 @@ import {
   TServicesLedgerCode,
   TSubscriptionsLedgerCode,
   TUnrealizedGainLedgerCode,
-} from '../../types/ledger-code.types';
+} from './ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerType,
   ILedgerAccount,
-} from '../../types/ledger.types';
+} from './ledger.types';
 
 export const ERevenueSubType = {
   Sales: 'sales',

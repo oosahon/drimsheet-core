@@ -1,9 +1,9 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import ledgerAccountEntity from '../../../../ledger/entities/ledger-account.entity';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../../../ledger/asset-account/types/asset-account.types';
-import ledgerAccountEntity from '../../../../ledger/entities/ledger-account.entity';
+} from '../../../../ledger/types/asset-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,

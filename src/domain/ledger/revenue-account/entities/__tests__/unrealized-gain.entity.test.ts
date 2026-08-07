@@ -10,7 +10,7 @@ import {
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
-} from '../../types/revenue-account.types';
+} from '../../../types/revenue-account.types';
 import unrealizedGainAccountEntity from '../unrealized-gain.entity';
 
 describe('Unrealized Gains Revenue Entity', () => {

@@ -8,6 +8,7 @@ import interestAccountEntity from '../../../../domain/ledger/expense-account/ent
 import rentAndUtilitiesAccountEntity from '../../../../domain/ledger/expense-account/entities/rent-and-utilities.entity';
 import taxExpenseAccountEntity from '../../../../domain/ledger/expense-account/entities/tax-expense.entity';
 import unrealizedLossAccountEntity from '../../../../domain/ledger/expense-account/entities/unrealized-loss.entity';
+import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
   EExpenseAccountBehavior,
   IAssetDisposalLossAccount,
@@ -19,8 +20,7 @@ import {
   IInterestAccount,
   IRentUtilitiesAccount,
   IUnrealizedLossAccount,
-} from '../../../../domain/ledger/expense-account/types/expense-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+} from '../../../../domain/ledger/types/expense-account.types';
 import {
   TAssetDisposalLossLedgerCode,
   TBankChargeLedgerCode,

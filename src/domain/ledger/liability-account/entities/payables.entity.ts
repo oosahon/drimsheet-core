@@ -18,7 +18,7 @@ import {
   IStatutoryPayableAccountMeta,
   ITradePayableAccount,
   ITradePayableAccountMeta,
-} from '../types/liability-account.types';
+} from '../../types/liability-account.types';
 import helpers from './helpers/payables.entity.helpers';
 
 interface IParentDetails {

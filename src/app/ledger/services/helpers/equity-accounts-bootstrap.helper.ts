@@ -2,8 +2,8 @@ import { IAccountingEntity } from '../../../../domain/accounting/types/accountin
 import { EQUITY_LEDGER_CODES } from '../../../../domain/ledger/config/equity-codes.config';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import retainedEarningAccountEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
-import { IEquityLedgerAccount } from '../../../../domain/ledger/equity-account/types/equity-account.types';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+import { IEquityLedgerAccount } from '../../../../domain/ledger/types/equity-account.types';
 import { TEquityLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';

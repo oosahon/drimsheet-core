@@ -133,7 +133,7 @@ The `Payables` entity ([`03-payables.entity.ts`](../liability/entities/payables.
 - **Main reporting hierarchy**: Non-Current Liabilities / Long Term Loans
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`liability-account.types.ts`](../liability/types/liability-account.types.ts) with behaviors: `Mortgage`, `OtherLongTermLoan`.
+> Entity implementation pending. Types defined in [`liability-account.types.ts`](../types/liability-account.types.ts) with behaviors: `Mortgage`, `OtherLongTermLoan`.
 
 #### Behaviors
 

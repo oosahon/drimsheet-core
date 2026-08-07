@@ -1,6 +1,6 @@
 // TODO: move to transfer entry service
 import { EJournalSide } from '../../../journal-entry/types/journal-line.types';
-import { EAssetAccountBehavior } from '../../../ledger/asset-account/types/asset-account.types';
+import { EAssetAccountBehavior } from '../../../ledger/types/asset-account.types';
 import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import accountingError from '../../errors/accounting.error';
 import { ITransactionRule } from '../../types/bookkeeping-rule.types';

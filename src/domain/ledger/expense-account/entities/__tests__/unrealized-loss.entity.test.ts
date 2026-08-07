@@ -1,4 +1,9 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+  IUnrealizedLossAccount,
+} from '../../../types/expense-account.types';
 import { TUnrealizedLossLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -7,11 +12,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EExpenseAccountBehavior,
-  EExpenseSubType,
-  IUnrealizedLossAccount,
-} from '../../types/expense-account.types';
 import unrealizedLossAccountEntity from '../unrealized-loss.entity';
 
 describe('Unrealized Loss Entity', () => {

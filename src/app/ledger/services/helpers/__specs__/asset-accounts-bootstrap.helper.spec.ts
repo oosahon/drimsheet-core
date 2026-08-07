@@ -1,9 +1,9 @@
 import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
+import { ASSET_LEDGER_CODES } from '../../../../../domain/ledger/config/asset-codes.config';
 import {
   IAssetLedgerAccount,
   IStatutoryReceivableAccount,
-} from '../../../../../domain/ledger/asset-account/types/asset-account.types';
-import { ASSET_LEDGER_CODES } from '../../../../../domain/ledger/config/asset-codes.config';
+} from '../../../../../domain/ledger/types/asset-account.types';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';

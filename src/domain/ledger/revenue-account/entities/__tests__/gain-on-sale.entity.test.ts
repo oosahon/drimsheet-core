@@ -10,7 +10,7 @@ import {
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
-} from '../../types/revenue-account.types';
+} from '../../../types/revenue-account.types';
 import GainOnAssetSaleAccountEntity from '../gain-on-sale.entity';
 
 describe('Gain on Sale Revenue Entity', () => {

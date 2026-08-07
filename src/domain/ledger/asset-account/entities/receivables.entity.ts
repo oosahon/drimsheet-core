@@ -2,6 +2,13 @@ import stringUtils from '../../../../shared/utils/string';
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+  IReceivablesAccount,
+  IStatutoryReceivableAccount,
+  ITradeReceivableAccount,
+} from '../../types/asset-account.types';
 import { TReceivablesLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -10,13 +17,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import {
-  EAssetAccountBehavior,
-  EAssetSubType,
-  IReceivablesAccount,
-  IStatutoryReceivableAccount,
-  ITradeReceivableAccount,
-} from '../types/asset-account.types';
 import helpers from './helpers/receivables.entity.helpers';
 
 interface IParentDetails {

@@ -1,4 +1,9 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+  IBankChargeAccount,
+} from '../../../types/expense-account.types';
 import { TBankChargeLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -7,11 +12,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EExpenseAccountBehavior,
-  EExpenseSubType,
-  IBankChargeAccount,
-} from '../../types/expense-account.types';
 import bankChargeAccountEntity from '../bank-charge.entity';
 
 describe('Bank Charge Expense Entity', () => {

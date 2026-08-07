@@ -12,7 +12,7 @@ import {
   ERevenueAccountBehavior,
   ERevenueSubType,
   IUnrealizedGainAccount,
-} from '../types/revenue-account.types';
+} from '../../types/revenue-account.types';
 import helpers from './helpers/unrealized-gain.entity.helpers';
 
 interface IParentDetails {

@@ -1,4 +1,8 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EEquityAccountBehavior,
+  EEquitySubType,
+} from '../../../types/equity-account.types';
 import { TRetainedEarningsLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -7,10 +11,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EEquityAccountBehavior,
-  EEquitySubType,
-} from '../../types/equity-account.types';
 import retainedEarningAccountEntity from '../retained-earning.entity';
 
 describe('Retained Earning Entity', () => {

@@ -7,6 +7,11 @@
  */
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+  IAssetSuspenseAccount,
+} from '../../types/asset-account.types';
 import { TAssetSuspenseLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -15,11 +20,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import {
-  EAssetAccountBehavior,
-  EAssetSubType,
-  IAssetSuspenseAccount,
-} from '../types/asset-account.types';
 import helpers from './helpers/suspense-account.entity.helpers';
 
 interface IParentDetails {

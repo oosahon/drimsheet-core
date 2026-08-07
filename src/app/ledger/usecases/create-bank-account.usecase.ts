@@ -1,8 +1,8 @@
 import IAccountingPeriodService from '../../../domain/accounting/types/accounting-period.service.types';
 import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
-import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
 import ledgerAccountEntity from '../../../domain/ledger/entities/ledger-account.entity';
 import IBankAccountRepo from '../../../domain/ledger/repos/bank-account.repo';
+import IAssetAccountService from '../../../domain/ledger/types/asset-account.service.types';
 import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
 import bankDetailsValue from '../../../domain/ledger/values/bank-details.vo';
 import currencyEntity from '../../../domain/money/entities/currency.entity';

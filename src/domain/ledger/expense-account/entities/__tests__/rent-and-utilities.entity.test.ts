@@ -1,4 +1,9 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+  IRentUtilitiesAccount,
+} from '../../../types/expense-account.types';
 import { TRentUtilitiesLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -7,11 +12,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EExpenseAccountBehavior,
-  EExpenseSubType,
-  IRentUtilitiesAccount,
-} from '../../types/expense-account.types';
 import rentAndUtilitiesAccountEntity from '../rent-and-utilities.entity';
 
 describe('Rent and Utilities Expense Entity', () => {

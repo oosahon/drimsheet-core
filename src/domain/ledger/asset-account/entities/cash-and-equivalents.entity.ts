@@ -2,6 +2,14 @@ import stringUtils from '../../../../shared/utils/string';
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+  IBankAccount,
+  ICashAndCashEquivalentAccount,
+  IPettyCashAccount,
+  IPettyCashAccountMeta,
+} from '../../types/asset-account.types';
 import { TCashLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -11,14 +19,6 @@ import {
   ILedgerAccount,
 } from '../../types/ledger.types';
 import bankDetailsValue from '../../values/bank-details.vo';
-import {
-  EAssetAccountBehavior,
-  EAssetSubType,
-  IBankAccount,
-  ICashAndCashEquivalentAccount,
-  IPettyCashAccount,
-  IPettyCashAccountMeta,
-} from '../types/asset-account.types';
 import helpers from './helpers/cash.entity.helpers';
 
 interface IScopeDetails {

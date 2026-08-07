@@ -1,4 +1,4 @@
-import { EAssetSubType } from '../../ledger/asset-account/types/asset-account.types';
+import { EAssetSubType } from '../../ledger/types/asset-account.types';
 import { ELedgerType } from '../../ledger/types/ledger.types';
 import { IJournalEntryRule } from '../types/entry.rules.types';
 

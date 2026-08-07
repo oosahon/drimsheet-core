@@ -1,6 +1,6 @@
 import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
 import { EQUITY_LEDGER_CODES } from '../../../../../domain/ledger/config/equity-codes.config';
-import { IEquityLedgerAccount } from '../../../../../domain/ledger/equity-account/types/equity-account.types';
+import { IEquityLedgerAccount } from '../../../../../domain/ledger/types/equity-account.types';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';

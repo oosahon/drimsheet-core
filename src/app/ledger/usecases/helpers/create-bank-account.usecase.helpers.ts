@@ -1,11 +1,11 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import IAccountingPeriodService from '../../../../domain/accounting/types/accounting-period.service.types';
+import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
+import IBankAccountRepo from '../../../../domain/ledger/repos/bank-account.repo';
 import {
   IBankDetails,
   ICashAndCashEquivalentAccount,
-} from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
-import IBankAccountRepo from '../../../../domain/ledger/repos/bank-account.repo';
+} from '../../../../domain/ledger/types/asset-account.types';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';
 import {

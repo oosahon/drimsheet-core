@@ -1,4 +1,8 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+} from '../../../types/asset-account.types';
 import { TAssetSuspenseLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -7,10 +11,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EAssetAccountBehavior,
-  EAssetSubType,
-} from '../../types/asset-account.types';
 import assetSuspenseAccountEntity from '../suspense-account.entity';
 
 describe('Asset Suspense Account Entity', () => {

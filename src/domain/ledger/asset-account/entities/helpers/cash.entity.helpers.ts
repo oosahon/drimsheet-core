@@ -1,8 +1,8 @@
 import stringUtils from '../../../../../shared/utils/string';
 import ledgerAccountEntity from '../../../entities/ledger-account.entity';
 import ledgerAccountError from '../../../errors/ledger-account.error';
+import { IBankAccountMeta } from '../../../types/asset-account.types';
 import { TCashLedgerCode } from '../../../types/ledger-code.types';
-import { IBankAccountMeta } from '../../types/asset-account.types';
 
 function getCode(predecessorCode: TCashLedgerCode | null): TCashLedgerCode {
   if (predecessorCode === null) {

@@ -3,7 +3,7 @@ import cashAndEquivalentAccountEntity from '../../../ledger/asset-account/entiti
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../../ledger/asset-account/types/asset-account.types';
+} from '../../../ledger/types/asset-account.types';
 import { ELedgerType } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import { IJournalEntryRulePermits } from '../../types/entry.rules.types';

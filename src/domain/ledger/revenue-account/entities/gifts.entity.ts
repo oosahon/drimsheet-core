@@ -12,7 +12,7 @@ import {
   ERevenueAccountBehavior,
   ERevenueSubType,
   IGiftsAccount,
-} from '../types/revenue-account.types';
+} from '../../types/revenue-account.types';
 import helpers from './helpers/gifts.entity.helpers';
 
 interface IParentDetails {

@@ -5,13 +5,13 @@ import {
 } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { IPaginatedResponse } from '../../../shared/values/pagination/types/pagination.types';
-import { UAssetSubType } from '../asset-account/types/asset-account.types';
-import { UEquitySubType } from '../equity-account/types/equity-account.types';
-import { UExpenseSubType } from '../expense-account/types/expense-account.types';
-import { ULiabilitySubType } from '../liability-account/types/liability-account.types';
-import { URevenueSubType } from '../revenue-account/types/revenue-account.types';
+import { UAssetSubType } from '../types/asset-account.types';
+import { UEquitySubType } from '../types/equity-account.types';
+import { UExpenseSubType } from '../types/expense-account.types';
 import { ILedgerAccountHistory } from '../types/ledger-account-audit.types';
 import { ILedgerAccount, ULedgerType } from '../types/ledger.types';
+import { ULiabilitySubType } from '../types/liability-account.types';
+import { URevenueSubType } from '../types/revenue-account.types';
 
 export const ELedgerAccountSortBy = {
   AccountName: 'accountName',

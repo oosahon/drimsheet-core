@@ -10,7 +10,7 @@ import {
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
-} from '../../types/revenue-account.types';
+} from '../../../types/revenue-account.types';
 import employmentIncomeAccountEntity from '../employment-income.entity';
 
 describe('Employment Income Revenue Entity', () => {

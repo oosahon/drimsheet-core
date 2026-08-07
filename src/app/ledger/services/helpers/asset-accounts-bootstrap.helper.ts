@@ -2,15 +2,15 @@ import { IAccountingEntity } from '../../../../domain/accounting/types/accountin
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import receivablesAccountEntity from '../../../../domain/ledger/asset-account/entities/receivables.entity';
 import assetSuspenseAccountEntity from '../../../../domain/ledger/asset-account/entities/suspense-account.entity';
+import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
+import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
   IAssetLedgerAccount,
   IReceivablesAccount,
   IStatutoryReceivableAccount,
-} from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+} from '../../../../domain/ledger/types/asset-account.types';
 import {
   TAssetLedgerCode,
   TReceivablesLedgerCode,

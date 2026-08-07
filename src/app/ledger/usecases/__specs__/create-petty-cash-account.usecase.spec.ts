@@ -4,8 +4,8 @@ import journalEntryEntity from '../../../../domain/journal-entry/entities/journa
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
+import { EAssetAccountBehavior } from '../../../../domain/ledger/types/asset-account.types';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';

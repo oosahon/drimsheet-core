@@ -1,4 +1,9 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+  IAssetDisposalLossAccount,
+} from '../../../types/expense-account.types';
 import { TAssetDisposalLossLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -7,11 +12,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EExpenseAccountBehavior,
-  EExpenseSubType,
-  IAssetDisposalLossAccount,
-} from '../../types/expense-account.types';
 import assetDisposalLossAccountEntity from '../asset-disposal-loss.entity';
 
 describe('Asset Disposal Loss Entity', () => {

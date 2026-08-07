@@ -1,5 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IBankDetails } from '../../../../../domain/ledger/asset-account/types/asset-account.types';
+import { IBankDetails } from '../../../../../domain/ledger/types/asset-account.types';
 import bankDetailsValue from '../../../../../domain/ledger/values/bank-details.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import { bankDetailsInCore } from '../../../../config/drizzle/schema';

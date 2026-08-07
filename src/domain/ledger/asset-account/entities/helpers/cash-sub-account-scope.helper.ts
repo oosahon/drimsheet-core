@@ -3,9 +3,9 @@ import { TEntityId } from '../../../../../shared/types/uuid';
 import { ASSET_LEDGER_CODES } from '../../../config/asset-codes.config';
 import ledgerAccountError from '../../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
+import { EAssetSubType } from '../../../types/asset-account.types';
 import { TCashLedgerCode } from '../../../types/ledger-code.types';
 import { ELedgerType, ILedgerAccount } from '../../../types/ledger.types';
-import { EAssetSubType } from '../../types/asset-account.types';
 
 export interface ICashSubAccountScope {
   controlAccount: ILedgerAccount;

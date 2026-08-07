@@ -1,4 +1,9 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+  IInterestAccount,
+} from '../../../types/expense-account.types';
 import { TInterestLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -7,11 +12,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EExpenseAccountBehavior,
-  EExpenseSubType,
-  IInterestAccount,
-} from '../../types/expense-account.types';
 import interestAccountEntity from '../interest.entity';
 
 describe('Interest Expense Entity', () => {

@@ -15,13 +15,13 @@ import {
   TRentUtilitiesLedgerCode,
   TResearchDevLedgerCode,
   TUnrealizedLossLedgerCode,
-} from '../../types/ledger-code.types';
+} from './ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerType,
   ILedgerAccount,
-} from '../../types/ledger.types';
+} from './ledger.types';
 
 export const EExpenseSubType = {
   DirectCosts: 'direct_costs',

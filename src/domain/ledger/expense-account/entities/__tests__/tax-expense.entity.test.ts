@@ -1,4 +1,9 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+  IIncomeTaxExpenseAccount,
+} from '../../../types/expense-account.types';
 import { TIncomeTaxLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -7,11 +12,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EExpenseAccountBehavior,
-  EExpenseSubType,
-  IIncomeTaxExpenseAccount,
-} from '../../types/expense-account.types';
 import taxExpenseAccountEntity from '../tax-expense.entity';
 
 describe('Tax Expense Entity', () => {

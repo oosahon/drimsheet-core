@@ -1,12 +1,12 @@
 // TODO: move to payment-entry service
 import { EJournalSide } from '../../../journal-entry/types/journal-line.types';
-import { EAssetAccountBehavior } from '../../../ledger/asset-account/types/asset-account.types';
-import { EExpenseSubType } from '../../../ledger/expense-account/types/expense-account.types';
+import { EAssetAccountBehavior } from '../../../ledger/types/asset-account.types';
+import { EExpenseSubType } from '../../../ledger/types/expense-account.types';
+import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
-} from '../../../ledger/liability-account/types/liability-account.types';
-import { ILedgerAccount } from '../../../ledger/types/ledger.types';
+} from '../../../ledger/types/liability-account.types';
 import accountingError from '../../errors/accounting.error';
 import { ITransactionRule } from '../../types/bookkeeping-rule.types';
 

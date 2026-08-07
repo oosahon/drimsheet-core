@@ -1,4 +1,4 @@
-import IAssetAccountService from '../../../../domain/ledger/asset-account/types/asset-account.service.types';
+import IAssetAccountService from '../../../../domain/ledger/types/asset-account.service.types';
 
 export const mockAssetAccountService: jest.Mocked<IAssetAccountService> = {
   createPettyCashSubAccount: jest.fn(),

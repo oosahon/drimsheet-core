@@ -8,15 +8,6 @@ import grantsAccountEntity from '../../../../domain/ledger/revenue-account/entit
 import servicesAccountEntity from '../../../../domain/ledger/revenue-account/entities/services.entity';
 import unrealizedGainAccountEntity from '../../../../domain/ledger/revenue-account/entities/unrealized-gain.entity';
 import {
-  IEmploymentIncomeAccount,
-  IGainOnAssetSaleAccount,
-  IGiftsAccount,
-  IGrantsAccount,
-  IRevenueLedgerAccount,
-  IServicesAccount,
-  IUnrealizedGainAccount,
-} from '../../../../domain/ledger/revenue-account/types/revenue-account.types';
-import {
   TEmploymentIncomeLedgerCode,
   TGainOnAssetSaleLedgerCode,
   TGiftsLedgerCode,
@@ -26,6 +17,15 @@ import {
   TUnrealizedGainLedgerCode,
 } from '../../../../domain/ledger/types/ledger-code.types';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
+import {
+  IEmploymentIncomeAccount,
+  IGainOnAssetSaleAccount,
+  IGiftsAccount,
+  IGrantsAccount,
+  IRevenueLedgerAccount,
+  IServicesAccount,
+  IUnrealizedGainAccount,
+} from '../../../../domain/ledger/types/revenue-account.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {

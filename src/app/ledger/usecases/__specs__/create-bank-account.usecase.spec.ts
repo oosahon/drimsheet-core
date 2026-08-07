@@ -3,8 +3,8 @@ import journalEntryEntity from '../../../../domain/journal-entry/entities/journa
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { IBankDetails } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
+import { IBankDetails } from '../../../../domain/ledger/types/asset-account.types';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import bankDetailsValue from '../../../../domain/ledger/values/bank-details.vo';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';

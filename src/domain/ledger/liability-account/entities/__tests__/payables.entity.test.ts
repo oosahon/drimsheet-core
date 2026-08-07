@@ -14,7 +14,7 @@ import {
   IPayableAccount,
   IStatutoryPayableAccountMeta,
   ITradePayableAccountMeta,
-} from '../../types/liability-account.types';
+} from '../../../types/liability-account.types';
 import payableAccountEntity from '../payables.entity';
 
 describe('Payable Liability Entity', () => {

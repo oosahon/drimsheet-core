@@ -3,7 +3,7 @@ import { LIABILITY_LEDGER_CODES } from '../../../../../domain/ledger/config/liab
 import {
   ILiabilityLedgerAccount,
   IStatutoryPayableAccount,
-} from '../../../../../domain/ledger/liability-account/types/liability-account.types';
+} from '../../../../../domain/ledger/types/liability-account.types';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';

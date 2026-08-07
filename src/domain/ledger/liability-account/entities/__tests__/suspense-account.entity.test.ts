@@ -10,7 +10,7 @@ import {
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
-} from '../../types/liability-account.types';
+} from '../../../types/liability-account.types';
 import liabilitySuspenseAccountEntity from '../suspense-account.entity';
 
 describe('Liability Suspense Account Entity', () => {

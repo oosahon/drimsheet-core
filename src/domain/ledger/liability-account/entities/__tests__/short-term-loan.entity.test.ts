@@ -15,7 +15,7 @@ import {
   IOverdraftAccountMeta,
   IShortTermDebtAccount,
   IShortTermLoanAccountMeta,
-} from '../../types/liability-account.types';
+} from '../../../types/liability-account.types';
 import shortTermLoanAccountEntity from '../short-term-loan.entity';
 
 describe('Short Term Loan Liability Entity', () => {

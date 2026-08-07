@@ -1,5 +1,12 @@
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+  IReceivablesAccount,
+  IStatutoryReceivableAccount,
+  ITradeReceivableAccount,
+} from '../../../types/asset-account.types';
 import { TReceivablesLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -8,13 +15,6 @@ import {
   ELedgerType,
   ENormalBalance,
 } from '../../../types/ledger.types';
-import {
-  EAssetAccountBehavior,
-  EAssetSubType,
-  IReceivablesAccount,
-  IStatutoryReceivableAccount,
-  ITradeReceivableAccount,
-} from '../../types/asset-account.types';
 import receivablesAccountEntity from '../receivables.entity';
 
 describe('Receivables Entity', () => {

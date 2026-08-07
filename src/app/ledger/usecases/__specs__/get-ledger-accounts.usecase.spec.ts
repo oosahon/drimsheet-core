@@ -1,7 +1,7 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { IBankAccount } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import { IBankAccount } from '../../../../domain/ledger/types/asset-account.types';
 import { ILedgerAccountBalance } from '../../../../domain/ledger/types/ledger-account-balance.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../../domain/money/values/money.vo';
