@@ -116,7 +116,7 @@ describe('Cash and Cash Equivalent Entity', () => {
       expect(account.adjunctAccountRule).toBe(
         EAdjunctAccountRule.AdjunctPermitted
       );
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should validate controlAccountId when provided', () => {
@@ -299,7 +299,7 @@ describe('Cash and Cash Equivalent Entity', () => {
       );
       expect(account.meta).toEqual({ lastReconciliationDate: null });
       expect(Object.isFrozen(account.meta)).toBe(true);
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -353,7 +353,7 @@ describe('Cash and Cash Equivalent Entity', () => {
         EAdjunctAccountRule.AdjunctPermitted
       );
       expect(account.meta).toEqual(validBankValue);
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should throw if controlAccountId is invalid', () => {

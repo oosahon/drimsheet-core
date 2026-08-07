@@ -106,7 +106,7 @@ describe('Asset Suspense Account Entity', () => {
       expect(account.accountingEntityId).toBe(validUUID1);
       expect(account.createdBy).toBe(validUUID2);
       expect(account.currency).toEqual(validCurrency);
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should successfully create a suspense account when parent is null', () => {
@@ -118,7 +118,7 @@ describe('Asset Suspense Account Entity', () => {
       expect(account.code).toBe('199000');
       expect(account.materializedPath).toBe('199000');
       expect(account.type).toBe(ELedgerType.Asset);
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should throw if the payload values are invalid', () => {

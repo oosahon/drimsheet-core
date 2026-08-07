@@ -10,7 +10,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import assetAccountEvents from '../events/asset-account.events';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -60,7 +59,7 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const [account, [ledgerAccountCreatedEvent], audit] =
+  const [account, events, audit] =
     ledgerAccountEntity.make<IReceivablesAccount>({
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
@@ -81,8 +80,7 @@ function make(
       createdBy: payload.createdBy,
     });
 
-  const event = assetAccountEvents.receivablesCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event], audit];
+  return [account, events, audit];
 }
 
 function makeHeader(

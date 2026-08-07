@@ -8,7 +8,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import expenseAccountEvents from '../events/expense-account.events';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -40,8 +39,8 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const [account, [ledgerAccountCreatedEvent], audit] =
-    ledgerAccountEntity.make<IBankChargeAccount>({
+  const [account, events, audit] = ledgerAccountEntity.make<IBankChargeAccount>(
+    {
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
 
@@ -59,10 +58,10 @@ function make(
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
       createdBy: payload.createdBy,
-    });
+    }
+  );
 
-  const event = expenseAccountEvents.bankChargeCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event], audit];
+  return [account, events, audit];
 }
 
 function makeHeader(

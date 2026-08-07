@@ -8,7 +8,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import revenueAccountEvents from '../events/revenue-account.events';
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
@@ -44,7 +43,7 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const [account, [ledgerAccountCreatedEvent], audit] =
+  const [account, events, audit] =
     ledgerAccountEntity.make<IUnrealizedGainAccount>({
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
@@ -65,8 +64,7 @@ function make(
       createdBy: payload.createdBy,
     });
 
-  const event = revenueAccountEvents.unrealizedGainsCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event], audit];
+  return [account, events, audit];
 }
 
 function makeHeader(

@@ -8,7 +8,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import revenueAccountEvents from '../events/revenue-account.events';
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
@@ -40,29 +39,27 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const [account, [ledgerAccountCreatedEvent], audit] =
-    ledgerAccountEntity.make<IServicesAccount>({
-      name: payload.name,
-      accountingEntityId: payload.accountingEntityId,
+  const [account, events, audit] = ledgerAccountEntity.make<IServicesAccount>({
+    name: payload.name,
+    accountingEntityId: payload.accountingEntityId,
 
-      code,
-      materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
-      type: ELedgerType.Revenue,
-      subType: ERevenueSubType.Services,
-      behavior: ERevenueAccountBehavior.Services,
-      isControlAccount: payload.isControlAccount,
-      controlAccountId: payload.controlAccountId,
-      currency: payload.currency,
-      meta: payload.meta,
-      status: ELedgerAccountStatus.Active,
-      contraAccountRule: EContraAccountRule.ContraNotPermitted,
-      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
-      createdBy: payload.createdBy,
-    });
+    code,
+    materializedPath,
+    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue),
+    type: ELedgerType.Revenue,
+    subType: ERevenueSubType.Services,
+    behavior: ERevenueAccountBehavior.Services,
+    isControlAccount: payload.isControlAccount,
+    controlAccountId: payload.controlAccountId,
+    currency: payload.currency,
+    meta: payload.meta,
+    status: ELedgerAccountStatus.Active,
+    contraAccountRule: EContraAccountRule.ContraNotPermitted,
+    adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+    createdBy: payload.createdBy,
+  });
 
-  const event = revenueAccountEvents.servicesCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event], audit];
+  return [account, events, audit];
 }
 
 function makeHeader(

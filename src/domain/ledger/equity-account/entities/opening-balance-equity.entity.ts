@@ -8,7 +8,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import equityAccountEvents from '../events/equity-account.events';
 import {
   EEquityAccountBehavior,
   EEquitySubType,
@@ -38,7 +37,7 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const [account, [ledgerAccountCreatedEvent], audit] =
+  const [account, events, audit] =
     ledgerAccountEntity.make<IOpeningBalanceEquityAccount>({
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
@@ -59,8 +58,7 @@ function make(
       createdBy: payload.createdBy,
     });
 
-  const event = equityAccountEvents.openingBalanceEquityCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event], audit];
+  return [account, events, audit];
 }
 
 const openingBalanceEquityLedgerEntity = Object.freeze({

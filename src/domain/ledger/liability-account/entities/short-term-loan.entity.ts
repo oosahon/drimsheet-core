@@ -10,7 +10,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import liabilityAccountEvents from '../events/liability-account.events';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
@@ -66,7 +65,7 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const [account, [ledgerAccountCreatedEvent], audit] =
+  const [account, events, audit] =
     ledgerAccountEntity.make<IShortTermDebtAccount>({
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
@@ -89,8 +88,7 @@ function make(
       createdBy: payload.createdBy,
     });
 
-  const event = liabilityAccountEvents.shortTermLoanCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event], audit];
+  return [account, events, audit];
 }
 
 function makeHeader(

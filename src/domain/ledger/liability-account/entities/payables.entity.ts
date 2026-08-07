@@ -10,7 +10,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import liabilityAccountEvents from '../events/liability-account.events';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
@@ -62,31 +61,27 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const [account, [ledgerAccountCreatedEvent], audit] =
-    ledgerAccountEntity.make<IPayableAccount>({
-      name: payload.name,
-      accountingEntityId: payload.accountingEntityId,
+  const [account, events, audit] = ledgerAccountEntity.make<IPayableAccount>({
+    name: payload.name,
+    accountingEntityId: payload.accountingEntityId,
 
-      code,
-      materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(
-        ELedgerType.Liability
-      ),
-      type: ELedgerType.Liability,
-      subType: ELiabilitySubType.Payable,
-      behavior: payload.behavior,
-      isControlAccount: payload.isControlAccount,
-      controlAccountId: payload.controlAccountId,
-      currency: payload.currency,
-      meta: payload.meta,
-      status: ELedgerAccountStatus.Active,
-      contraAccountRule: payload.contraAccountRule,
-      adjunctAccountRule: payload.adjunctAccountRule,
-      createdBy: payload.createdBy,
-    });
+    code,
+    materializedPath,
+    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),
+    type: ELedgerType.Liability,
+    subType: ELiabilitySubType.Payable,
+    behavior: payload.behavior,
+    isControlAccount: payload.isControlAccount,
+    controlAccountId: payload.controlAccountId,
+    currency: payload.currency,
+    meta: payload.meta,
+    status: ELedgerAccountStatus.Active,
+    contraAccountRule: payload.contraAccountRule,
+    adjunctAccountRule: payload.adjunctAccountRule,
+    createdBy: payload.createdBy,
+  });
 
-  const event = liabilityAccountEvents.payableCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event], audit];
+  return [account, events, audit];
 }
 
 function makeHeader(

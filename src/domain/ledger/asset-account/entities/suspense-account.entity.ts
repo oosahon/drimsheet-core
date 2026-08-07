@@ -15,7 +15,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import assetAccountEvents from '../events/asset-account.events';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -47,7 +46,7 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const [account, [ledgerAccountCreatedEvent], audit] =
+  const [account, events, audit] =
     ledgerAccountEntity.make<IAssetSuspenseAccount>({
       name,
       accountingEntityId,
@@ -67,8 +66,7 @@ function make(
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
       createdBy,
     });
-  const event = assetAccountEvents.suspenseCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event], audit];
+  return [account, events, audit];
 }
 
 const assetSuspenseAccountEntity = Object.freeze({

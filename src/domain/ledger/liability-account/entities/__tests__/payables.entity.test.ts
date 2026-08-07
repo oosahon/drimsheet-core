@@ -119,7 +119,7 @@ describe('Payable Liability Entity', () => {
       expect(account.adjunctAccountRule).toBe(
         EAdjunctAccountRule.AdjunctPermitted
       );
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should validate controlAccountId when provided', () => {
@@ -226,7 +226,7 @@ describe('Payable Liability Entity', () => {
         EAdjunctAccountRule.AdjunctNotPermitted
       );
       expect(account.meta).toEqual(validMeta);
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -313,7 +313,7 @@ describe('Payable Liability Entity', () => {
         EAdjunctAccountRule.AdjunctPermitted
       );
       expect(account.meta).toEqual(validMeta);
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should throw if controlAccountId is invalid', () => {

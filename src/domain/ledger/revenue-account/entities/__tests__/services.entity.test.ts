@@ -107,7 +107,7 @@ describe('Services Revenue Entity', () => {
       expect(account.accountingEntityId).toBe(validUUID1);
       expect(account.createdBy).toBe(validUUID2);
       expect(account.currency).toEqual(validCurrency);
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should throw if payload values are invalid', () => {

@@ -8,7 +8,6 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
-import liabilityAccountEvents from '../events/liability-account.events';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
@@ -40,7 +39,7 @@ function make(
     parent?.parentMaterializedPath ?? null
   );
 
-  const [account, [ledgerAccountCreatedEvent], audit] =
+  const [account, events, audit] =
     ledgerAccountEntity.make<ILiabilitySuspenseAccount>({
       name,
       accountingEntityId,
@@ -62,8 +61,7 @@ function make(
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
       createdBy,
     });
-  const event = liabilityAccountEvents.suspenseCreated(account);
-  return [account, [ledgerAccountCreatedEvent, event], audit];
+  return [account, events, audit];
 }
 
 const liabilitySuspenseAccountEntity = Object.freeze({

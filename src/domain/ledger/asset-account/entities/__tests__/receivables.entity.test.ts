@@ -118,7 +118,7 @@ describe('Receivables Entity', () => {
       expect(account.adjunctAccountRule).toBe(
         EAdjunctAccountRule.AdjunctPermitted
       );
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should validate controlAccountId when provided', () => {
@@ -187,7 +187,7 @@ describe('Receivables Entity', () => {
         EAdjunctAccountRule.AdjunctNotPermitted
       );
       expect(account.meta).toBeNull();
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should throw if controlAccountId is invalid', () => {
@@ -244,7 +244,7 @@ describe('Receivables Entity', () => {
         EAdjunctAccountRule.AdjunctPermitted
       );
       expect(account.meta).toBeNull();
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should throw if controlAccountId is invalid', () => {

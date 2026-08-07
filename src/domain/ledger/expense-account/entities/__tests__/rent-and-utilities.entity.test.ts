@@ -117,7 +117,7 @@ describe('Rent and Utilities Expense Entity', () => {
       );
       expect(account.createdBy).toBe(validUUID2);
       expect(account.accountingEntityId).toBe(validUUID1);
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should successfully create a rent and utilities account with controlAccountId', () => {
@@ -133,7 +133,7 @@ describe('Rent and Utilities Expense Entity', () => {
       );
       expect(account.isControlAccount).toBe(true);
       expect(account.controlAccountId).toBe(validUUID3);
-      expect(events).toHaveLength(2);
+      expect(events).toHaveLength(1);
     });
 
     it('should throw if payload values are invalid', () => {
