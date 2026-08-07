@@ -1,7 +1,7 @@
-import ILedgerAccountRepo from '../../repos/ledger-account.repo';
-import cashAndEquivalentAccountEntity from '../entities/cash-and-equivalents.entity';
-import resolveCashSubAccountScope from '../entities/helpers/cash-sub-account-scope.helper';
-import IAssetAccountService from '../types/asset-account.service.types';
+import cashAndEquivalentAccountEntity from '../asset-account/entities/cash-and-equivalents.entity';
+import resolveCashSubAccountScope from '../asset-account/entities/helpers/cash-sub-account-scope.helper';
+import IAssetAccountService from '../asset-account/types/asset-account.service.types';
+import ILedgerAccountRepo from '../repos/ledger-account.repo';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
