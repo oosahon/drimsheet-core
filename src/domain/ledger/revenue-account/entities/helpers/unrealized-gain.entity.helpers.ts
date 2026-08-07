@@ -1,4 +1,4 @@
-import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
+import ledgerAccountEntity from '../../../entities/ledger-account.entity';
 import { TUnrealizedGainLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(

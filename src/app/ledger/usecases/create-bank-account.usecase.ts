@@ -3,7 +3,7 @@ import { IJournalEntryService } from '../../../domain/journal-entry/types/journa
 import IBankAccountRepo from '../../../domain/ledger/asset-account/repos/bank-account.repo';
 import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
 import bankDetailsValue from '../../../domain/ledger/asset-account/values/bank-details.vo';
-import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
+import ledgerAccountEntity from '../../../domain/ledger/entities/ledger-account.entity';
 import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import IFxCostBasisLotDomainService from '../../../domain/subledger/fx-cost-basis/types/lot.service.types';

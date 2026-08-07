@@ -1,6 +1,6 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
-import ledgerAccountEntity from '../../../../domain/ledger/shared/entities/ledger-account.entity';
+import ledgerAccountEntity from '../../../../domain/ledger/entities/ledger-account.entity';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,

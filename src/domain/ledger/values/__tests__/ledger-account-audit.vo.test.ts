@@ -1,20 +1,20 @@
-import { TEntityId } from '../../../../../shared/types/uuid';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import historyError from '../../../../../shared/values/history/history.error';
-import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
-import ledgerAccountError from '../../../errors/ledger-account.error';
+import { TEntityId } from '../../../../shared/types/uuid';
+import generateUUID from '../../../../shared/utils/uuid-generator';
+import historyError from '../../../../shared/values/history/history.error';
+import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
+import ledgerAccountEntity from '../../entities/ledger-account.entity';
+import ledgerAccountError from '../../errors/ledger-account.error';
 import {
   ELedgerAccountAuditAction,
   ULedgerAccountAuditAction,
-} from '../../../types/ledger-account-audit.types';
+} from '../../types/ledger-account-audit.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../types/ledger.types';
-import ledgerAccountEntity from '../../entities/ledger-account.entity';
+} from '../../types/ledger.types';
 import ledgerAccountAudit from '../ledger-account-audit.vo';
 
 describe('ledgerAccountAudit', () => {

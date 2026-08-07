@@ -6,7 +6,7 @@
  *
  */
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
-import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
+import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import { TAssetSuspenseLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,

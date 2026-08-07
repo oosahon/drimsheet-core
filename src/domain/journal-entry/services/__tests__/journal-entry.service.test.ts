@@ -14,11 +14,11 @@ import ledgerAccountBalanceEntity from '../../../ledger/account-balance/entities
 import ILedgerAccountBalanceRepo from '../../../ledger/account-balance/repos/ledger-account-balance.repo';
 import cashAndEquivalentAccountEntity from '../../../ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../ledger/asset-account/types/asset-account.types';
+import ledgerAccountEntity from '../../../ledger/entities/ledger-account.entity';
 import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
 import { EEquitySubType } from '../../../ledger/equity-account/types/equity-account.types';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
-import ledgerAccountEntity from '../../../ledger/shared/entities/ledger-account.entity';
 import { ELedgerType } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import { EExchangeRateType } from '../../../money/types/exchange-rate.types';

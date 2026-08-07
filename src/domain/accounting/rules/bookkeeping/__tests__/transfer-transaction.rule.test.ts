@@ -3,7 +3,7 @@ import {
   EAssetAccountBehavior,
   EAssetSubType,
 } from '../../../../ledger/asset-account/types/asset-account.types';
-import ledgerAccountEntity from '../../../../ledger/shared/entities/ledger-account.entity';
+import ledgerAccountEntity from '../../../../ledger/entities/ledger-account.entity';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,

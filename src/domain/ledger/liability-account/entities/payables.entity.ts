@@ -1,7 +1,7 @@
 import stringUtils from '../../../../shared/utils/string';
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
+import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
-import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
 import { TPayablesLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,

@@ -1,6 +1,6 @@
 import stringUtils from '../../../../../shared/utils/string';
+import ledgerAccountEntity from '../../../entities/ledger-account.entity';
 import ledgerAccountError from '../../../errors/ledger-account.error';
-import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
 import { TCashLedgerCode } from '../../../types/ledger-code.types';
 import { IBankAccountMeta } from '../../types/asset-account.types';
 

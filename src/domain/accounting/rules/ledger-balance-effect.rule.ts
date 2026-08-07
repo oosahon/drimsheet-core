@@ -1,8 +1,8 @@
 import journalLineEntity from '../../journal-entry/entities/journal-line.entity';
 import { UJournalSide } from '../../journal-entry/types/journal-line.types';
 import { ELedgerAccountBalanceEffect } from '../../ledger/account-balance/types/ledger-account-balance.types';
-import ledgerAccountEntityHelpers from '../../ledger/shared/entities/helpers/ledger-account.entity.helpers';
-import ledgerAccountEntity from '../../ledger/shared/entities/ledger-account.entity';
+import ledgerAccountEntityHelpers from '../../ledger/entities/helpers/ledger-account.entity.helpers';
+import ledgerAccountEntity from '../../ledger/entities/ledger-account.entity';
 import { ILedgerAccount } from '../../ledger/types/ledger.types';
 
 export default function ledgerBalanceEffectRule(
