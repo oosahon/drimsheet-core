@@ -2,7 +2,6 @@ import { IAccountingEntity } from '../../../../domain/accounting/types/accountin
 import { LIABILITY_LEDGER_CODES } from '../../../../domain/ledger/config/liability-codes.config';
 import payableAccountEntity from '../../../../domain/ledger/liability-account/entities/payables.entity';
 import shortTermLoanAccountEntity from '../../../../domain/ledger/liability-account/entities/short-term-loan.entity';
-import liabilitySuspenseAccountEntity from '../../../../domain/ledger/liability-account/entities/suspense-account.entity';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
   TLiabilityLedgerCode,
@@ -19,6 +18,7 @@ import {
   IPayableAccount,
   IStatutoryPayableAccount,
 } from '../../../../domain/ledger/types/liability-account.types';
+import { ISuspenseAccountService } from '../../../../domain/ledger/types/suspense-account.service.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
@@ -29,6 +29,7 @@ import { IEntityDelta } from '../../../../shared/values/history/types/history.ty
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
+  suspenseAccountService: ISuspenseAccountService;
 }
 
 interface ILiabilityAccountsBootstrapInput {
@@ -73,14 +74,14 @@ export default function makeLiabilityAccountsBootstrapHelper(
     );
 
     if (!existingSuspense.length) {
-      const account = liabilitySuspenseAccountEntity.make(
+      const account = await deps.suspenseAccountService.createLiabilitySuspense(
         {
           accountingEntityId,
           currency: functionalCurrency,
           name: 'Liability Suspense Account',
           createdBy: ownerId,
         },
-        null
+        repoOptions
       );
       liabilityAccounts.push(account);
     }

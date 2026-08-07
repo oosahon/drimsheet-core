@@ -32,16 +32,16 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group     | Code Block | Entity File                                                                         | Status         |
-| ----------------- | ---------- | ----------------------------------------------------------------------------------- | -------------- |
-| Short Term Debts  | `200xxx`   | [`00-short-term-loan.entity.ts`](../liability/entities/short-term-loan.entity.ts)   | ✅ Implemented |
-| Payables          | `201xxx`   | [`03-payables.entity.ts`](../liability/entities/payables.entity.ts)                 | ✅ Implemented |
-| Accrued Expenses  | `202xxx`   | —                                                                                   | 🔲 Types only  |
-| Deferred Revenues | `203xxx`   | —                                                                                   | 🔲 Types only  |
-| Long Term Loans   | `204xxx`   | —                                                                                   | 🔲 Types only  |
-| Lease Liabilities | `205xxx`   | —                                                                                   | 🔲 Types only  |
-| Provisions        | `206xxx`   | —                                                                                   | 🔲 Types only  |
-| Suspense          | `299xxx`   | [`99-suspense-account.entity.ts`](../liability/entities/suspense-account.entity.ts) | ✅ Implemented |
+| Account Group     | Code Block | Entity File                                                                       | Status         |
+| ----------------- | ---------- | --------------------------------------------------------------------------------- | -------------- |
+| Short Term Debts  | `200xxx`   | [`00-short-term-loan.entity.ts`](../liability/entities/short-term-loan.entity.ts) | ✅ Implemented |
+| Payables          | `201xxx`   | [`03-payables.entity.ts`](../liability/entities/payables.entity.ts)               | ✅ Implemented |
+| Accrued Expenses  | `202xxx`   | —                                                                                 | 🔲 Types only  |
+| Deferred Revenues | `203xxx`   | —                                                                                 | 🔲 Types only  |
+| Long Term Loans   | `204xxx`   | —                                                                                 | 🔲 Types only  |
+| Lease Liabilities | `205xxx`   | —                                                                                 | 🔲 Types only  |
+| Provisions        | `206xxx`   | —                                                                                 | 🔲 Types only  |
+| Suspense          | `299xxx`   | [`suspense-account.service.ts`](../services/suspense-account.service.ts)          | ✅ Implemented |
 
 > [!NOTE]
 > Entity files are named by their COA prefix (e.g. `00-` = `200xxx`, `03-` = `201xxx`) to make it explicit which accounts have been implemented and which are pending.
@@ -155,9 +155,9 @@ The `Payables` entity ([`03-payables.entity.ts`](../liability/entities/payables.
 - **Ledger codes**: 299xxx
 - **Description**: See [Suspense Accounts](./04-9-suspense-accounts.md) for more information.
 
-#### Entity Details
+#### Service Details
 
-The `LiabilitySuspense` entity ([`99-suspense-account.entity.ts`](../liability/entities/suspense-account.entity.ts)) creates accounts with:
+The suspense account service ([`suspense-account.service.ts`](../services/suspense-account.service.ts)) exposes `createLiabilitySuspense` and creates accounts with:
 
 - `subType: 'suspense'` / `behavior: 'default'`
 - `isControlAccount: false` / `controlAccountId: null`

@@ -35,20 +35,20 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group             | Code Block | Implementation File                                                             | Status         |
-| ------------------------- | ---------- | ------------------------------------------------------------------------------- | -------------- |
-| Cash and Cash Equivalents | `100xxx`   | [`cash-account.service.ts`](../services/cash-account.service.ts)                | ✅ Implemented |
-| Short Term Investments    | `101xxx`   | —                                                                               | 🔲 Types only  |
-| Receivables               | `102xxx`   | [`receivables-account.service.ts`](../services/receivables-account.service.ts)  | ✅ Implemented |
-| Inventories               | `103xxx`   | —                                                                               | 🔲 Types only  |
-| Accrued Income            | `104xxx`   | —                                                                               | 🔲 Types only  |
-| Prepayments               | `105xxx`   | —                                                                               | 🔲 Types only  |
-| Long Term Investments     | `106xxx`   | —                                                                               | 🔲 Types only  |
-| PPE                       | `107xxx`   | —                                                                               | 🔲 Types only  |
-| Intangible Assets         | `108xxx`   | —                                                                               | 🔲 Types only  |
-| Right-of-Use Assets       | `109xxx`   | —                                                                               | 🔲 Types only  |
-| Goodwill                  | `110xxx`   | —                                                                               | 🔲 Types only  |
-| Suspense                  | `199xxx`   | [`99-suspense-account.entity.ts`](../asset/entities/suspense-account.entity.ts) | ✅ Implemented |
+| Account Group             | Code Block | Implementation File                                                            | Status         |
+| ------------------------- | ---------- | ------------------------------------------------------------------------------ | -------------- |
+| Cash and Cash Equivalents | `100xxx`   | [`cash-account.service.ts`](../services/cash-account.service.ts)               | ✅ Implemented |
+| Short Term Investments    | `101xxx`   | —                                                                              | 🔲 Types only  |
+| Receivables               | `102xxx`   | [`receivables-account.service.ts`](../services/receivables-account.service.ts) | ✅ Implemented |
+| Inventories               | `103xxx`   | —                                                                              | 🔲 Types only  |
+| Accrued Income            | `104xxx`   | —                                                                              | 🔲 Types only  |
+| Prepayments               | `105xxx`   | —                                                                              | 🔲 Types only  |
+| Long Term Investments     | `106xxx`   | —                                                                              | 🔲 Types only  |
+| PPE                       | `107xxx`   | —                                                                              | 🔲 Types only  |
+| Intangible Assets         | `108xxx`   | —                                                                              | 🔲 Types only  |
+| Right-of-Use Assets       | `109xxx`   | —                                                                              | 🔲 Types only  |
+| Goodwill                  | `110xxx`   | —                                                                              | 🔲 Types only  |
+| Suspense                  | `199xxx`   | [`suspense-account.service.ts`](../services/suspense-account.service.ts)       | ✅ Implemented |
 
 > [!NOTE]
 > Entity files are named by their COA prefix (e.g. `00-` = `100xxx`, `02-` = `102xxx`) to make it explicit which accounts have been implemented and which are pending.
@@ -219,9 +219,9 @@ The receivables account domain service ([`receivables-account.service.ts`](../se
 - **Ledger codes**: 199xxx
 - **Description**: See [Suspense Accounts](./04-9-suspense-accounts.md) for more information.
 
-#### Entity Details
+#### Service Details
 
-The `AssetSuspense` entity ([`99-suspense-account.entity.ts`](../asset/entities/suspense-account.entity.ts)) creates accounts with:
+The suspense account service ([`suspense-account.service.ts`](../services/suspense-account.service.ts)) exposes `createAssetSuspense` and creates accounts with:
 
 - `subType: 'suspense'` / `behavior: 'default'`
 - `isControlAccount: false` / `controlAccountId: null`

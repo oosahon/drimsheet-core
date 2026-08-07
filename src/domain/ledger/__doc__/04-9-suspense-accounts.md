@@ -27,7 +27,7 @@ In the Asset ledger, a suspense account typically carries a debit balance. It re
 - Uncategorized credit-side journal activity during bank reconciliation
 - Uncleared/unidentified outgoing payments
 
-**Entity**: [`99-suspense-account.entity.ts`](../asset/entities/suspense-account.entity.ts)
+**Service method**: [`createAssetSuspense`](../services/suspense-account.service.ts)
 
 ## Liability Suspense Accounts (299xxx)
 
@@ -36,7 +36,7 @@ In the Liability ledger, a suspense account typically carries a credit balance. 
 - Uncategorized debit-side journal activity during bank reconciliation
 - Uncleared/unidentified incoming payments
 
-**Entity**: [`99-suspense-account.entity.ts`](../liability/entities/suspense-account.entity.ts)
+**Service method**: [`createLiabilitySuspense`](../services/suspense-account.service.ts)
 
 ## Shared Architecture
 

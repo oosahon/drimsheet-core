@@ -5,6 +5,7 @@ import generateUUID from '../../../../shared/utils/uuid-generator';
 import {
   mockAssetAccountService,
   mockReceivablesAccountService,
+  mockSuspenseAccountService,
 } from '../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import IAccountsBootstrapService from '../../contracts/accounts-bootstrap.service.contract';
@@ -129,6 +130,7 @@ describe('accountsBootstrapService', () => {
       ledgerAccountRepo: mockLedgerAccountRepo,
       cashAccountService: mockAssetAccountService,
       receivablesAccountService: mockReceivablesAccountService,
+      suspenseAccountService: mockSuspenseAccountService,
     });
   });
 
@@ -139,9 +141,11 @@ describe('accountsBootstrapService', () => {
       ledgerAccountRepo: mockLedgerAccountRepo,
       cashAccountService: mockAssetAccountService,
       receivablesAccountService: mockReceivablesAccountService,
+      suspenseAccountService: mockSuspenseAccountService,
     });
     expect(mockMakeLiabilityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
+      suspenseAccountService: mockSuspenseAccountService,
     });
     expect(mockMakeEquityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,

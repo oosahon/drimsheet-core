@@ -5,6 +5,7 @@ import {
   EAssetAccountBehavior,
   EAssetSubType,
   IAssetLedgerAccount,
+  IAssetSuspenseAccount,
   ICashAndCashEquivalentAccount,
   IReceivablesAccount,
   IStatutoryReceivableAccount,
@@ -21,6 +22,7 @@ import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   mockAssetAccountService,
   mockReceivablesAccountService,
+  mockSuspenseAccountService,
 } from '../../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
 import makeAssetAccountsBootstrapHelper from '../asset-accounts-bootstrap.helper';
@@ -30,6 +32,7 @@ describe('assetAccountsBootstrapHelper', () => {
     ledgerAccountRepo: mockLedgerAccountRepo,
     cashAccountService: mockAssetAccountService,
     receivablesAccountService: mockReceivablesAccountService,
+    suspenseAccountService: mockSuspenseAccountService,
   });
   const repoOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
@@ -124,6 +127,24 @@ describe('assetAccountsBootstrapHelper', () => {
     statutoryReceivables[0].id
   );
 
+  const assetSuspense = ledgerAccountEntity.make<IAssetSuspenseAccount>({
+    name: 'Asset Suspense Account',
+    code: ASSET_LEDGER_CODES.SUSPENSE_ACCOUNT.INITIAL,
+    materializedPath: ASSET_LEDGER_CODES.SUSPENSE_ACCOUNT.INITIAL,
+    accountingEntityId: accountingEntity.id,
+    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+    type: ELedgerType.Asset,
+    subType: EAssetSubType.Suspense,
+    behavior: EAssetAccountBehavior.Default,
+    isControlAccount: false,
+    controlAccountId: null,
+    currency: SYSTEM_CURRENCIES.USD,
+    meta: null,
+    status: ELedgerAccountStatus.Active,
+    contraAccountRule: EContraAccountRule.ContraNotPermitted,
+    adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+    createdBy: accountingEntity.ownerId,
+  });
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-03-15T00:00:00.000Z'));
@@ -132,6 +153,9 @@ describe('assetAccountsBootstrapHelper', () => {
     mockAssetAccountService.createHeader.mockResolvedValue(cashHeader);
     mockReceivablesAccountService.createHeader.mockResolvedValue(
       receivablesHeader
+    );
+    mockSuspenseAccountService.createAssetSuspense.mockResolvedValue(
+      assetSuspense
     );
     mockReceivablesAccountService.createTradeReceivableSubAccount.mockResolvedValue(
       tradeReceivables
@@ -199,6 +223,15 @@ describe('assetAccountsBootstrapHelper', () => {
     expect(
       mockReceivablesAccountService.createStatutoryReceivableSubAccount
     ).toHaveBeenCalledTimes(2);
+    expect(mockSuspenseAccountService.createAssetSuspense).toHaveBeenCalledWith(
+      {
+        accountingEntityId: accountingEntity.id,
+        currency: SYSTEM_CURRENCIES.USD,
+        name: 'Asset Suspense Account',
+        createdBy: accountingEntity.ownerId,
+      },
+      repoOptions
+    );
   });
 
   it('skips headers that already exist', async () => {

@@ -20,15 +20,15 @@ The following ledger accounts are in scope for the individual MVP. Accounts are 
 | ------------------------------ | ---------- | -------------------------------- | -------------- |
 | Cash and Cash Equivalents      | `100xxx`   | `cash-account.service.ts`        | ✅ Implemented |
 | Receivables (Tax Credits)      | `102xxx`   | `receivables-account.service.ts` | ✅ Implemented |
-| Suspense (Bank Reconciliation) | `199xxx`   | `99-suspense-account.entity.ts`  | ✅ Implemented |
+| Suspense (Bank Reconciliation) | `199xxx`   | `suspense-account.service.ts`    | ✅ Implemented |
 
 ### Liabilities
 
-| Account                        | Code Block | Entity File                     | Status         |
-| ------------------------------ | ---------- | ------------------------------- | -------------- |
-| Short Term Loan (Overdraft)    | `200xxx`   | `00-short-term-loan.entity.ts`  | ✅ Implemented |
-| Payables (Tax Obligations)     | `201xxx`   | `03-payables.entity.ts`         | ✅ Implemented |
-| Suspense (Bank Reconciliation) | `299xxx`   | `99-suspense-account.entity.ts` | ✅ Implemented |
+| Account                        | Code Block | Implementation File            | Status         |
+| ------------------------------ | ---------- | ------------------------------ | -------------- |
+| Short Term Loan (Overdraft)    | `200xxx`   | `00-short-term-loan.entity.ts` | ✅ Implemented |
+| Payables (Tax Obligations)     | `201xxx`   | `03-payables.entity.ts`        | ✅ Implemented |
+| Suspense (Bank Reconciliation) | `299xxx`   | `suspense-account.service.ts`  | ✅ Implemented |
 
 ### Equity
 

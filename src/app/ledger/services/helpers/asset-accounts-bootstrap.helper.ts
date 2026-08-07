@@ -1,5 +1,4 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import assetSuspenseAccountEntity from '../../../../domain/ledger/asset-account/entities/suspense-account.entity';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
@@ -19,6 +18,7 @@ import {
   ILedgerAccount,
 } from '../../../../domain/ledger/types/ledger.types';
 import { IReceivablesAccountService } from '../../../../domain/ledger/types/receivables-account.service.types';
+import { ISuspenseAccountService } from '../../../../domain/ledger/types/suspense-account.service.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
@@ -31,6 +31,7 @@ interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
   cashAccountService: ICashAccountService;
   receivablesAccountService: IReceivablesAccountService;
+  suspenseAccountService: ISuspenseAccountService;
 }
 
 interface IAssetAccountsBootstrapInput {
@@ -73,14 +74,14 @@ export default function makeAssetAccountsBootstrapHelper(deps: IDependencies) {
     );
 
     if (!existingSuspense.length) {
-      const account = assetSuspenseAccountEntity.make(
+      const account = await deps.suspenseAccountService.createAssetSuspense(
         {
           accountingEntityId,
           currency: functionalCurrency,
           name: 'Asset Suspense Account',
           createdBy: ownerId,
         },
-        null
+        repoOptions
       );
       assetAccounts.push(account);
     }

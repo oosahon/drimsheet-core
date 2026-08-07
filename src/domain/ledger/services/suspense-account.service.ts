@@ -16,6 +16,10 @@ import {
   ELedgerAccountStatus,
   ELedgerType,
 } from '../types/ledger.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
+} from '../types/liability-account.types';
 import { ISuspenseAccountService } from '../types/suspense-account.service.types';
 
 interface IDependencies {
@@ -70,7 +74,7 @@ function makeCreateLiabilitySuspense(
     const latest = await deps.ledgerAccountRepo.findLatestBySubType(
       payload.accountingEntityId,
       ELedgerType.Liability,
-      EAssetSubType.Suspense,
+      ELiabilitySubType.Suspense,
       repoOptions
     );
 
@@ -91,8 +95,8 @@ function makeCreateLiabilitySuspense(
       code,
       materializedPath: code,
       type: ELedgerType.Liability,
-      subType: EAssetSubType.Suspense,
-      behavior: EAssetAccountBehavior.Default,
+      subType: ELiabilitySubType.Suspense,
+      behavior: ELiabilityAccountBehavior.Default,
       meta: null,
       isControlAccount: false,
       controlAccountId: null,
