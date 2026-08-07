@@ -8,7 +8,7 @@ import ILedgerAccountRepo from '../../repos/ledger-account.repo';
 import { EAssetSubType } from '../../types/asset-account.types';
 import { TCashLedgerCode } from '../../types/ledger-code.types';
 import { ELedgerType, ILedgerAccount } from '../../types/ledger.types';
-import makeAssetAccountService from '../asset-account.service';
+import makeAssetAccountService from '../cash-account.service';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   create: jest.fn(),

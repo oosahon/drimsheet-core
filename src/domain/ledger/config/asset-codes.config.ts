@@ -11,7 +11,10 @@ import {
   TReceivablesLedgerCode,
 } from '../types/ledger-code.types';
 
-const CASH_AND_EQUIVALENTS: Record<string, TCashLedgerCode> = {
+type TCashKeys = 'PREFIX' | 'HEADER';
+
+const CASH_AND_EQUIVALENTS: Record<TCashKeys, TCashLedgerCode> = {
+  PREFIX: '100',
   HEADER: '100000',
 } as const;
 

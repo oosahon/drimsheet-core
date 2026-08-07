@@ -10,6 +10,13 @@ import {
 import { TCashLedgerCode } from './ledger-code.types';
 import { ILedgerAccount } from './ledger.types';
 
+interface IMakeHeaderPayload {
+  name: string;
+  currency: ICurrency;
+  userId: TEntityId;
+  accountingEntity: IAccountingEntity;
+}
+
 interface IMakePettyCashPayload {
   name: string;
   currency: ICurrency;
@@ -22,32 +29,29 @@ interface IMakePettyCashPayload {
 interface IMakeBankPayload {
   name: string;
   currency: ICurrency;
+  isControlAccount: boolean;
   userId: TEntityId;
   accountingEntity: IAccountingEntity;
   controlAccountCode?: TCashLedgerCode;
   bankDetails: IBankDetails;
 }
 
-export default interface IAssetAccountService {
+type TReturnType = TAuditedEntity<
+  ICashAndCashEquivalentAccount,
+  ICashAndCashEquivalentAccount,
+  ILedgerAccount
+>;
+
+export default interface ICashAccountService {
+  createHeader(payload: IMakeHeaderPayload): Promise<TReturnType>;
+
   createPettyCashSubAccount(
     payload: IMakePettyCashPayload,
     repoOptions: IReadRepoOptions
-  ): Promise<
-    TAuditedEntity<
-      ICashAndCashEquivalentAccount,
-      ICashAndCashEquivalentAccount,
-      ILedgerAccount
-    >
-  >;
+  ): Promise<TReturnType>;
 
   createBankSubAccount(
     payload: IMakeBankPayload,
     repoOptions: IReadRepoOptions
-  ): Promise<
-    TAuditedEntity<
-      ICashAndCashEquivalentAccount,
-      ICashAndCashEquivalentAccount,
-      ILedgerAccount
-    >
-  >;
+  ): Promise<TReturnType>;
 }
