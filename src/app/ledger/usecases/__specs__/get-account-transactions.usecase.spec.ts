@@ -9,7 +9,7 @@ import {
   IJournalEntry,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/types/ledger-account-balance.types';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';

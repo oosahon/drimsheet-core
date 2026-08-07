@@ -7,7 +7,7 @@ import {
   EJournalEntryStatus,
 } from '../../../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../../../domain/journal-entry/types/journal-line.types';
-import makeCashAccountService from '../../../../../../domain/ledger/services/cash-account.service';
+import makeCashAccountService from '../../../../../../domain/ledger/services/asset-account/cash-account.service';
 import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../../../domain/money/values/money.vo';
 import userEntity from '../../../../../../domain/user/entities/user.entity';

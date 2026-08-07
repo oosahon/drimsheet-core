@@ -1,16 +1,16 @@
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
-import { ICurrency } from '../../../money/types/currency.types';
-import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
-import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
+import { TEntityId } from '../../../../../shared/types/uuid';
+import generateUUID from '../../../../../shared/utils/uuid-generator';
+import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
+import { ICurrency } from '../../../../money/types/currency.types';
+import { ASSET_LEDGER_CODES } from '../../../config/asset-codes.config';
+import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../types/asset-account.types';
-import { TCashLedgerCode } from '../../types/ledger-code.types';
-import { ELedgerType, ILedgerAccount } from '../../types/ledger.types';
+} from '../../../types/asset-account.types';
+import { TCashLedgerCode } from '../../../types/ledger-code.types';
+import { ELedgerType, ILedgerAccount } from '../../../types/ledger.types';
 import makeCashAccountService from '../cash-account.service';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {

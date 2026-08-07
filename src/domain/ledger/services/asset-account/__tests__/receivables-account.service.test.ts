@@ -1,19 +1,19 @@
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
-import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
-import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
+import generateUUID from '../../../../../shared/utils/uuid-generator';
+import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
+import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
+import { ASSET_LEDGER_CODES } from '../../../config/asset-codes.config';
+import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../types/asset-account.types';
+} from '../../../types/asset-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerType,
   ILedgerAccount,
-} from '../../types/ledger.types';
+} from '../../../types/ledger.types';
 import makeReceivablesAccountService from '../receivables-account.service';
 
 const ledgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {

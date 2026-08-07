@@ -1,7 +1,7 @@
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
-import makeCashAccountService from '../../../ledger/services/cash-account.service';
+import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
 import {
   EAssetAccountBehavior,
   EAssetSubType,

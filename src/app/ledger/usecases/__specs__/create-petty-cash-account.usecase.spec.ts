@@ -4,7 +4,7 @@ import journalEntryEntity from '../../../../domain/journal-entry/entities/journa
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
-import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';

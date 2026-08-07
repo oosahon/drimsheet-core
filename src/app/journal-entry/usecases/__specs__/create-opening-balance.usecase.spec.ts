@@ -4,7 +4,7 @@ import journalEntryEntity from '../../../../domain/journal-entry/entities/journa
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
-import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';

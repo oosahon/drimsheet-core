@@ -4,7 +4,7 @@ import {
   IAccountingEntity,
 } from '../../../../domain/accounting/types/accounting-entity.types';
 import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
-import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';

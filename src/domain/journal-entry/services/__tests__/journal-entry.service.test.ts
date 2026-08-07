@@ -16,7 +16,7 @@ import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/ent
 import ILedgerAccountBalanceRepo from '../../../ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
-import makeCashAccountService from '../../../ledger/services/cash-account.service';
+import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
 import { EEquitySubType } from '../../../ledger/types/equity-account.types';
 import { ELedgerType } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';

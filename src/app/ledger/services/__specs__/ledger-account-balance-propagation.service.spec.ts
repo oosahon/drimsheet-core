@@ -6,7 +6,7 @@ import journalEntryError from '../../../../domain/journal-entry/errors/journal-e
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import retainedEarningsEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
-import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';

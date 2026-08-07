@@ -1,5 +1,5 @@
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import {

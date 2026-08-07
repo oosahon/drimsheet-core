@@ -1,26 +1,26 @@
-import { ASSET_LEDGER_CODES } from '../config/asset-codes.config';
-import { LIABILITY_LEDGER_CODES } from '../config/liability-codes.config';
-import ledgerAccountEntity from '../entities/ledger-account.entity';
-import ILedgerAccountRepo from '../repos/ledger-account.repo';
+import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
+import { LIABILITY_LEDGER_CODES } from '../../config/liability-codes.config';
+import ledgerAccountEntity from '../../entities/ledger-account.entity';
+import ILedgerAccountRepo from '../../repos/ledger-account.repo';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../types/asset-account.types';
+} from '../../types/asset-account.types';
 import {
   TAssetSuspenseLedgerCode,
   TLiabilitySuspenseLedgerCode,
-} from '../types/ledger-code.types';
+} from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
-} from '../types/ledger.types';
+} from '../../types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
-} from '../types/liability-account.types';
-import { ISuspenseAccountService } from '../types/suspense-account.service.types';
+} from '../../types/liability-account.types';
+import { ISuspenseAccountService } from '../../types/suspense-account.service.types';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

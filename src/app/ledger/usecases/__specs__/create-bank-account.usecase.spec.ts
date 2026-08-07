@@ -5,7 +5,7 @@ import journalEntryEntity from '../../../../domain/journal-entry/entities/journa
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
-import makeCashAccountService from '../../../../domain/ledger/services/cash-account.service';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { IBankDetails } from '../../../../domain/ledger/types/asset-account.types';
 import bankDetailsValue from '../../../../domain/ledger/values/bank-details.vo';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';

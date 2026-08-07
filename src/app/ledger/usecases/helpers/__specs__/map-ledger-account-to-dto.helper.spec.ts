@@ -1,5 +1,5 @@
 import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import makeCashAccountService from '../../../../../domain/ledger/services/cash-account.service';
+import makeCashAccountService from '../../../../../domain/ledger/services/asset-account/cash-account.service';
 import { ILedgerAccount } from '../../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
 import { TEntityId } from '../../../../../shared/types/uuid';

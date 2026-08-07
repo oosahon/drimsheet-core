@@ -4,8 +4,8 @@ import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/ent
 import payableAccountEntity from '../../../ledger/liability-account/entities/payables.entity';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
-import makeCashAccountService from '../../../ledger/services/cash-account.service';
-import makeReceivablesAccountService from '../../../ledger/services/receivables-account.service';
+import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
+import makeReceivablesAccountService from '../../../ledger/services/asset-account/receivables-account.service';
 import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import journalEntryRuleValidator from '../entry-rule.validator';
