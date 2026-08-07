@@ -1,14 +1,14 @@
-import { IMoney } from '../../../../../domain/money/types/money.types';
-import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import ledgerAccountBalanceAdjustmentEntityHelpers from '../../../../accounting/entities/helpers/ledger-account-balance-adjustment.entity.helper';
-import { IJournalLine } from '../../../../journal-entry/types/journal-line.types';
-import currencyEntity from '../../../../money/entities/currency.entity';
+import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
+import { TEntityId } from '../../../../shared/types/uuid';
+import ledgerAccountBalanceAdjustmentEntityHelpers from '../../../accounting/entities/helpers/ledger-account-balance-adjustment.entity.helper';
+import { IJournalLine } from '../../../journal-entry/types/journal-line.types';
+import currencyEntity from '../../../money/entities/currency.entity';
+import { IMoney } from '../../../money/types/money.types';
 import {
   ELedgerAccountBalanceEffect,
   ILedgerAccountBalanceAdjustment,
   ULedgerAccountBalanceEffect,
-} from '../../../types/ledger-account-balance.types';
+} from '../../types/ledger-account-balance.types';
 import ledgerAccountBalanceEntity from '../ledger-account-balance.entity';
 
 describe('ledgerAccountBalanceEntity', () => {

@@ -1,17 +1,17 @@
-import { IMoney } from '../../../../domain/money/types/money.types';
-import moneyValue from '../../../../domain/money/values/money.vo';
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import stringUtils from '../../../../shared/utils/string';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import currencyEntity from '../../../money/entities/currency.entity';
-import ledgerAccountEntity from '../../entities/ledger-account.entity';
-import ledgerAccountBalanceError from '../../errors/ledger-account-balance.error';
+import { TCreationOmits } from '../../../shared/types/creation-omits.types';
+import stringUtils from '../../../shared/utils/string';
+import generateUUID from '../../../shared/utils/uuid-generator';
+import currencyEntity from '../../money/entities/currency.entity';
+import { IMoney } from '../../money/types/money.types';
+import moneyValue from '../../money/values/money.vo';
+import ledgerAccountBalanceError from '../errors/ledger-account-balance.error';
 import {
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
   INewLedgerAccountBalanceAndAdjustment,
-} from '../../types/ledger-account-balance.types';
+} from '../types/ledger-account-balance.types';
 import helpers from './helpers/ledger-account-balance.entity.helpers';
+import ledgerAccountEntity from './ledger-account.entity';
 
 interface IMakePayload extends Pick<
   ILedgerAccountBalance,

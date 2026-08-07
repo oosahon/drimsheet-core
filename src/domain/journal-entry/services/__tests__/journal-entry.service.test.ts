@@ -10,9 +10,9 @@ import {
 } from '../../../accounting/types/period.types';
 import counterpartyEntity from '../../../counterparty/entities/counterparty.entity';
 import { ECounterpartyType } from '../../../counterparty/types/counterparty.types';
-import ledgerAccountBalanceEntity from '../../../ledger/account-balance/entities/ledger-account-balance.entity';
 import cashAndEquivalentAccountEntity from '../../../ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../ledger/asset-account/types/asset-account.types';
+import ledgerAccountBalanceEntity from '../../../ledger/entities/ledger-account-balance.entity';
 import ledgerAccountEntity from '../../../ledger/entities/ledger-account.entity';
 import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
 import { EEquitySubType } from '../../../ledger/equity-account/types/equity-account.types';

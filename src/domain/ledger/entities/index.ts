@@ -1,1 +1,1 @@
-export { default as ledgerAccountBalanceEntity } from '../account-balance/entities/ledger-account-balance.entity';
+export { default as ledgerAccountBalanceEntity } from './ledger-account-balance.entity';

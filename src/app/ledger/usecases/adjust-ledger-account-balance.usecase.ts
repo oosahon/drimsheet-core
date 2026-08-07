@@ -1,4 +1,4 @@
-import ledgerAccountBalanceEntity from '../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
+import ledgerAccountBalanceEntity from '../../../domain/ledger/entities/ledger-account-balance.entity';
 import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
