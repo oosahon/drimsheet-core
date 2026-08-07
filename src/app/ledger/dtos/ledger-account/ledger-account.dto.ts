@@ -1,4 +1,4 @@
-import { ULedgerAccountSortBy } from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+import { ULedgerAccountSortBy } from '../../../../domain/ledger/repos/ledger-account.repo';
 import { ULedgerAccountBehavior } from '../../../../domain/ledger/types/account-behaviors.tyypes';
 import { ULedgerAccountSubType } from '../../../../domain/ledger/types/ledger-aggregate.types';
 import {

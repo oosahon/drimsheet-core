@@ -10,7 +10,7 @@ import {
   IReceivablesAccount,
   IStatutoryReceivableAccount,
 } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
   TAssetLedgerCode,
   TReceivablesLedgerCode,

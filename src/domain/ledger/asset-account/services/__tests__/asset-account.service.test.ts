@@ -3,7 +3,7 @@ import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
 import { ICurrency } from '../../../../money/types/currency.types';
-import ILedgerAccountRepo from '../../../shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
 import { TCashLedgerCode } from '../../../types/ledger-code.types';
 import { ELedgerType, ILedgerAccount } from '../../../types/ledger.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';

@@ -20,7 +20,7 @@ import {
   IRentUtilitiesAccount,
   IUnrealizedLossAccount,
 } from '../../../../domain/ledger/expense-account/types/expense-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
   TAssetDisposalLossLedgerCode,
   TBankChargeLedgerCode,

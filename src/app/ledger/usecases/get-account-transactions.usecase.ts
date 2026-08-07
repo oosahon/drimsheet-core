@@ -1,5 +1,5 @@
 import ledgerBalanceEffectRule from '../../../domain/accounting/rules/ledger-balance-effect.rule';
-import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { TEntityId } from '../../../shared/types/uuid';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import appError from '../../../shared/values/errors/app.error';

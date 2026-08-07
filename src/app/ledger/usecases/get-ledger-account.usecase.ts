@@ -1,6 +1,6 @@
 import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
 import ledgerAccountError from '../../../domain/ledger/errors/ledger-account.error';
-import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../domain/money/values/money.vo';
 import IReporter from '../../../shared/contracts/reporter.contract';

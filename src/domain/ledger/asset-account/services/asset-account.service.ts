@@ -1,4 +1,4 @@
-import ILedgerAccountRepo from '../../shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../repos/ledger-account.repo';
 import cashAndEquivalentAccountEntity from '../entities/cash-and-equivalents.entity';
 import resolveCashSubAccountScope from '../entities/helpers/cash-sub-account-scope.helper';
 import IAssetAccountService from '../types/asset-account.service.types';

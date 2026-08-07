@@ -4,7 +4,7 @@ import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.
 import {
   ELedgerAccountSortBy,
   ULedgerAccountSortBy,
-} from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+} from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
   ELedgerAccountBehavior,
   ULedgerAccountBehavior,

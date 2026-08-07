@@ -4,7 +4,7 @@ import {
 } from '../../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../../shared/types/uuid';
 import ledgerAccountError from '../../../../errors/ledger-account.error';
-import ILedgerAccountRepo from '../../../../shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../../repos/ledger-account.repo';
 import { TCashLedgerCode } from '../../../../types/ledger-code.types';
 import { ELedgerType, ILedgerAccount } from '../../../../types/ledger.types';
 import { ASSET_LEDGER_CODES } from '../../../config/asset-codes.config';

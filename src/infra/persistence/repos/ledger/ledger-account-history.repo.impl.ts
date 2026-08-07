@@ -1,4 +1,4 @@
-import ILedgerAccountHistoryRepo from '../../../../domain/ledger/shared/repos/ledger-account-history.repo';
+import ILedgerAccountHistoryRepo from '../../../../domain/ledger/repos/ledger-account-history.repo';
 import { ledgerAccountHistoryInAudit } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
 import ledgerAccountHistoryMapper from './mappers/ledger-account-history.mapper';

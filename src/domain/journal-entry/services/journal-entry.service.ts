@@ -1,7 +1,7 @@
 import IAccountingPeriodService from '../../accounting/types/accounting-period.service.types';
 import ILedgerAccountBalanceRepo from '../../ledger/account-balance/repos/ledger-account-balance.repo';
 import { EEquitySubType } from '../../ledger/equity-account/types/equity-account.types';
-import ILedgerAccountRepo from '../../ledger/shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
 import { ELedgerType } from '../../ledger/types/ledger.types';
 import currencyEntity from '../../money/entities/currency.entity';
 import journalEntryEntity from '../entities/journal-entry.entity';

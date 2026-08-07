@@ -1,4 +1,5 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
+import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import { REVENUE_LEDGER_CODES } from '../../../../domain/ledger/revenue-account/config/revenue-codes.config';
 import employmentIncomeAccountEntity from '../../../../domain/ledger/revenue-account/entities/employment-income.entity';
 import gainOnAssetSaleAccountEntity from '../../../../domain/ledger/revenue-account/entities/gain-on-sale.entity';
@@ -15,7 +16,6 @@ import {
   IServicesAccount,
   IUnrealizedGainAccount,
 } from '../../../../domain/ledger/revenue-account/types/revenue-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
 import {
   TEmploymentIncomeLedgerCode,
   TGainOnAssetSaleLedgerCode,

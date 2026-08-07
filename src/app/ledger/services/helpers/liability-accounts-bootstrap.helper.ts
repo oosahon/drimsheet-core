@@ -10,7 +10,7 @@ import {
   IPayableAccount,
   IStatutoryPayableAccount,
 } from '../../../../domain/ledger/liability-account/types/liability-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
   TLiabilityLedgerCode,
   TPayablesLedgerCode,
