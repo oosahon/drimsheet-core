@@ -4,9 +4,9 @@ import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { IBankDetails } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import bankDetailsValue from '../../../../domain/ledger/asset-account/values/bank-details.vo';
 import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
 import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
+import bankDetailsValue from '../../../../domain/ledger/values/bank-details.vo';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';

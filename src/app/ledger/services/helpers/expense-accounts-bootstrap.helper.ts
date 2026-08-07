@@ -1,5 +1,5 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { EXPENSE_LEDGER_CODES } from '../../../../domain/ledger/expense-account/config/expense-codes.config';
+import { EXPENSE_LEDGER_CODES } from '../../../../domain/ledger/config/expense-codes.config';
 import assetDisposalLossAccountEntity from '../../../../domain/ledger/expense-account/entities/asset-disposal-loss.entity';
 import bankChargeAccountEntity from '../../../../domain/ledger/expense-account/entities/bank-charge.entity';
 import directCostsAccountEntity from '../../../../domain/ledger/expense-account/entities/direct-costs.entity';

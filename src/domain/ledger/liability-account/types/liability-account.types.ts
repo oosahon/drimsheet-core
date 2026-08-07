@@ -19,7 +19,7 @@ import {
 import {
   ESuspenseSubType,
   ISuspenseLedgerAccount,
-  TSuspenseSubType,
+  USuspenseSubType,
 } from '../../types/suspense-account.types';
 
 export const ELiabilitySubType = {
@@ -88,7 +88,7 @@ export interface ILiabilityLedgerAccount extends ILedgerAccount {
 export interface ILiabilitySuspenseAccount extends ISuspenseLedgerAccount {
   code: TLiabilitySuspenseLedgerCode;
   type: typeof ELedgerType.Liability;
-  subType: TSuspenseSubType;
+  subType: USuspenseSubType;
   behavior: typeof ELiabilityAccountBehavior.Default;
 }
 

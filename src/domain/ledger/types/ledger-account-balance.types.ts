@@ -1,5 +1,5 @@
-import { IMoney } from '../../../../domain/money/types/money.types';
-import { TEntityId } from '../../../../shared/types/uuid';
+import { TEntityId } from '../../../shared/types/uuid';
+import { IMoney } from '../../money/types/money.types';
 
 export interface ILedgerAccountBalance {
   ledgerAccountId: TEntityId;

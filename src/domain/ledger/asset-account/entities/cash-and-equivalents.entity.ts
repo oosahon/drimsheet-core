@@ -10,6 +10,7 @@ import {
   ELedgerType,
   ILedgerAccount,
 } from '../../types/ledger.types';
+import bankDetailsValue from '../../values/bank-details.vo';
 import assetAccountEvents from '../events/asset-account.events';
 import {
   EAssetAccountBehavior,
@@ -19,7 +20,6 @@ import {
   IPettyCashAccount,
   IPettyCashAccountMeta,
 } from '../types/asset-account.types';
-import bankDetailsValue from '../values/bank-details.vo';
 import helpers from './helpers/cash.entity.helpers';
 
 interface IScopeDetails {

@@ -7,7 +7,7 @@ import {
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
   INewLedgerAccountBalanceAndAdjustment,
-} from '../account-balance/types/ledger-account-balance.types';
+} from '../types/ledger-account-balance.types';
 
 export default interface ILedgerAccountBalanceRepo {
   create(

@@ -1,3 +1,9 @@
+/**
+ * NB: codes are defined on a need-to-have basis
+ * To see the full list of codes...
+ * @see {@link src/domain/accounting/__doc__/accounting.md}
+ */
+
 import {
   TAssetDisposalLossLedgerCode,
   TBankChargeLedgerCode,
@@ -7,7 +13,7 @@ import {
   TInterestLedgerCode,
   TRentUtilitiesLedgerCode,
   TUnrealizedLossLedgerCode,
-} from '../../types/ledger-code.types';
+} from '../types/ledger-code.types';
 
 const DIRECT_COSTS: Record<string, TDirectCostsLedgerCode> = {
   HEADER: '500000',

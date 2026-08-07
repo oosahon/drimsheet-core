@@ -1,5 +1,5 @@
 import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { EXPENSE_LEDGER_CODES } from '../../../../../domain/ledger/expense-account/config/expense-codes.config';
+import { EXPENSE_LEDGER_CODES } from '../../../../../domain/ledger/config/expense-codes.config';
 import { IExpenseLedgerAccount } from '../../../../../domain/ledger/expense-account/types/expense-account.types';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';

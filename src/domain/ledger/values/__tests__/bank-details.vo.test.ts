@@ -1,4 +1,4 @@
-import ledgerAccountError from '../../../errors/ledger-account.error';
+import ledgerAccountError from '../../errors/ledger-account.error';
 import bankDetailsValue from '../bank-details.vo';
 
 describe('bankDetailsValue', () => {

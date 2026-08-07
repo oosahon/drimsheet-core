@@ -1,5 +1,5 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { LIABILITY_LEDGER_CODES } from '../../../../domain/ledger/liability-account/config/liability-codes.config';
+import { LIABILITY_LEDGER_CODES } from '../../../../domain/ledger/config/liability-codes.config';
 import payableAccountEntity from '../../../../domain/ledger/liability-account/entities/payables.entity';
 import shortTermLoanAccountEntity from '../../../../domain/ledger/liability-account/entities/short-term-loan.entity';
 import liabilitySuspenseAccountEntity from '../../../../domain/ledger/liability-account/entities/suspense-account.entity';

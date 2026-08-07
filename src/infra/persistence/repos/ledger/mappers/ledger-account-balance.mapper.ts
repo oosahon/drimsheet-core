@@ -3,7 +3,7 @@ import {
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
   INewLedgerAccountBalanceAndAdjustment,
-} from '../../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
+} from '../../../../../domain/ledger/types/ledger-account-balance.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import {
   ledgerAccountBalanceAdjustmentsInCore,

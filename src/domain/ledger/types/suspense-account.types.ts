@@ -12,7 +12,7 @@ export const ESuspenseSubType = {
   Suspense: 'suspense',
 } as const;
 
-export type TSuspenseSubType =
+export type USuspenseSubType =
   (typeof ESuspenseSubType)[keyof typeof ESuspenseSubType];
 
 export const ESuspenseBehavior = {
@@ -24,7 +24,7 @@ export type TSuspenseBehavior =
 
 export interface ISuspenseLedgerAccount extends ILedgerAccount {
   code: TAssetSuspenseLedgerCode | TLiabilitySuspenseLedgerCode;
-  subType: TSuspenseSubType;
+  subType: USuspenseSubType;
   behavior: TSuspenseBehavior;
   isControlAccount: false;
   controlAccountId: null;

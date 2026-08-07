@@ -1,6 +1,6 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
+import { REVENUE_LEDGER_CODES } from '../../../../domain/ledger/config/revenue-codes.config';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
-import { REVENUE_LEDGER_CODES } from '../../../../domain/ledger/revenue-account/config/revenue-codes.config';
 import employmentIncomeAccountEntity from '../../../../domain/ledger/revenue-account/entities/employment-income.entity';
 import gainOnAssetSaleAccountEntity from '../../../../domain/ledger/revenue-account/entities/gain-on-sale.entity';
 import giftsAccountEntity from '../../../../domain/ledger/revenue-account/entities/gifts.entity';

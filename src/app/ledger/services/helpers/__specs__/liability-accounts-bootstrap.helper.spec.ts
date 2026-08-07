@@ -1,5 +1,5 @@
 import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { LIABILITY_LEDGER_CODES } from '../../../../../domain/ledger/liability-account/config/liability-codes.config';
+import { LIABILITY_LEDGER_CODES } from '../../../../../domain/ledger/config/liability-codes.config';
 import {
   ILiabilityLedgerAccount,
   IStatutoryPayableAccount,

@@ -2,7 +2,7 @@ import {
   EJournalSide,
   UJournalSide,
 } from '../../../journal-entry/types/journal-line.types';
-import { ELedgerAccountBalanceEffect } from '../../../ledger/account-balance/types/ledger-account-balance.types';
+import { ELedgerAccountBalanceEffect } from '../../../ledger/types/ledger-account-balance.types';
 import {
   ELedgerType,
   ENormalBalance,

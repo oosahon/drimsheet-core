@@ -8,7 +8,7 @@ import {
   ELedgerAccountBalanceEffect,
   ILedgerAccountBalanceAdjustment,
   ULedgerAccountBalanceEffect,
-} from '../../types/ledger-account-balance.types';
+} from '../../../types/ledger-account-balance.types';
 import ledgerAccountBalanceEntity from '../ledger-account-balance.entity';
 
 describe('ledgerAccountBalanceEntity', () => {

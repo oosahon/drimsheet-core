@@ -23,7 +23,7 @@ import {
 import {
   ESuspenseSubType,
   ISuspenseLedgerAccount,
-  TSuspenseSubType,
+  USuspenseSubType,
 } from '../../types/suspense-account.types';
 
 export const EAssetSubType = {
@@ -100,7 +100,7 @@ export interface IAssetLedgerAccount extends ILedgerAccount {
 export interface IAssetSuspenseAccount extends ISuspenseLedgerAccount {
   code: TAssetSuspenseLedgerCode;
   type: typeof ELedgerType.Asset;
-  subType: TSuspenseSubType;
+  subType: USuspenseSubType;
   behavior: typeof EAssetAccountBehavior.Default;
 }
 

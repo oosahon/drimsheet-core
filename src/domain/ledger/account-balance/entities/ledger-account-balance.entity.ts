@@ -10,7 +10,7 @@ import {
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
   INewLedgerAccountBalanceAndAdjustment,
-} from '../types/ledger-account-balance.types';
+} from '../../types/ledger-account-balance.types';
 import helpers from './helpers/ledger-account-balance.entity.helpers';
 
 interface IMakePayload extends Pick<
