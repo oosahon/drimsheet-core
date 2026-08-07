@@ -7,7 +7,7 @@ import {
   TInterestLedgerCode,
   TRentUtilitiesLedgerCode,
   TUnrealizedLossLedgerCode,
-} from '../../shared/types/ledger-code.types';
+} from '../../types/ledger-code.types';
 
 const DIRECT_COSTS: Record<string, TDirectCostsLedgerCode> = {
   HEADER: '500000',

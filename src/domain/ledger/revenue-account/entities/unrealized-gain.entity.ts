@@ -1,13 +1,13 @@
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
-import { TUnrealizedGainLedgerCode } from '../../shared/types/ledger-code.types';
+import { TUnrealizedGainLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ILedgerAccount,
-} from '../../shared/types/ledger.types';
+} from '../../types/ledger.types';
 import revenueAccountEvents from '../events/revenue-account.events';
 import {
   ERevenueAccountBehavior,

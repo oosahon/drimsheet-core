@@ -4,7 +4,7 @@ import {
   EAssetAccountBehavior,
   EAssetSubType,
 } from '../../../ledger/asset-account/types/asset-account.types';
-import { ELedgerType } from '../../../ledger/shared/types/ledger.types';
+import { ELedgerType } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import { IJournalEntryRulePermits } from '../../types/entry.rules.types';
 import journalEntryRuleValidator from '../entry-rule.validator';

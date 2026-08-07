@@ -11,7 +11,7 @@ import {
   TGrantsLedgerCode,
   TServicesLedgerCode,
   TUnrealizedGainLedgerCode,
-} from '../../shared/types/ledger-code.types';
+} from '../../types/ledger-code.types';
 
 const SERVICES: Record<string, TServicesLedgerCode> = {
   HEADER: '401000',

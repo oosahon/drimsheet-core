@@ -1,12 +1,12 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { TOpeningBalanceEquityLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TOpeningBalanceEquityLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../shared/types/ledger.types';
+} from '../../../types/ledger.types';
 import {
   EEquityAccountBehavior,
   EEquitySubType,

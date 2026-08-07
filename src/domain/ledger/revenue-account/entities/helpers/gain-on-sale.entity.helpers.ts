@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TGainOnAssetSaleLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TGainOnAssetSaleLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TGainOnAssetSaleLedgerCode | null

@@ -2,12 +2,12 @@ import dateUtils from '../../../../shared/utils/date';
 import generateDiff from '../../../../shared/utils/diff-generator';
 import stringUtils from '../../../../shared/utils/string';
 import historyError from '../../../../shared/values/history/history.error';
-import ledgerError from '../errors/ledger.error';
 import {
   ELedgerAccountAuditAction,
   ILedgerAccountAudit,
   IMakeLedgerAccountAuditPayload,
-} from '../types/ledger-account-audit.types';
+} from '../../types/ledger-account-audit.types';
+import ledgerError from '../errors/ledger.error';
 
 function make(payload: IMakeLedgerAccountAuditPayload): ILedgerAccountAudit {
   stringUtils.validateUUID(payload.after.id, ledgerError.InvalidId);

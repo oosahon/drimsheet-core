@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TAssetSuspenseLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TAssetSuspenseLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TAssetSuspenseLedgerCode | null

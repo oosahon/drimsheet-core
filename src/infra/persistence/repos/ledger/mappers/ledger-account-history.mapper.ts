@@ -1,5 +1,5 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { ILedgerAccountHistory } from '../../../../../domain/ledger/shared/types/ledger-account-audit.types';
+import { ILedgerAccountHistory } from '../../../../../domain/ledger/types/ledger-account-audit.types';
 import { ledgerAccountHistoryInAudit } from '../../../../config/drizzle/schema';
 import { toRepoDate } from '../../../helpers/date.mapper';
 

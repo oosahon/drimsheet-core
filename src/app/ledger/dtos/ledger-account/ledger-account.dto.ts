@@ -1,13 +1,13 @@
 import { ULedgerAccountSortBy } from '../../../../domain/ledger/shared/repos/ledger-account.repo';
-import { ULedgerAccountBehavior } from '../../../../domain/ledger/shared/types/account-behaviors.tyypes';
-import { ULedgerAccountSubType } from '../../../../domain/ledger/shared/types/ledger-aggregate.types';
+import { ULedgerAccountBehavior } from '../../../../domain/ledger/types/account-behaviors.tyypes';
+import { ULedgerAccountSubType } from '../../../../domain/ledger/types/ledger-aggregate.types';
 import {
   UAdjunctAccountRule,
   UContraAccountRule,
   ULedgerAccountStatus,
   ULedgerType,
   UNormalBalance,
-} from '../../../../domain/ledger/shared/types/ledger.types';
+} from '../../../../domain/ledger/types/ledger.types';
 import { TEntityId } from '../../../../shared/types/uuid';
 import { IPaginationDto } from '../../../../shared/values/pagination/dto/pagination.dto';
 import { IMoneyDto } from '../../../money/dtos/money/money.dto';

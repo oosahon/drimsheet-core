@@ -7,7 +7,7 @@ import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import retainedEarningsEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';

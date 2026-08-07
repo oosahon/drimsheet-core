@@ -10,7 +10,7 @@ import {
   ELedgerAccountStatus,
   ELedgerType,
   ILedgerAccount,
-} from '../../../../ledger/shared/types/ledger.types';
+} from '../../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
 import accountingError from '../../../errors/accounting.error';
 import transferTransactionRule from '../transfer-transaction.rule';

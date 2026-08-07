@@ -14,11 +14,11 @@ import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-ac
 import {
   TLiabilityLedgerCode,
   TPayablesLedgerCode,
-} from '../../../../domain/ledger/shared/types/ledger-code.types';
+} from '../../../../domain/ledger/types/ledger-code.types';
 import {
   ELedgerType,
   ILedgerAccount,
-} from '../../../../domain/ledger/shared/types/ledger.types';
+} from '../../../../domain/ledger/types/ledger.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {

@@ -7,7 +7,7 @@
 import {
   TOpeningBalanceEquityLedgerCode,
   TRetainedEarningsLedgerCode,
-} from '../../shared/types/ledger-code.types';
+} from '../../types/ledger-code.types';
 
 const RETAINED_EARNINGS: Record<string, TRetainedEarningsLedgerCode> = {
   HEADER: '301000',

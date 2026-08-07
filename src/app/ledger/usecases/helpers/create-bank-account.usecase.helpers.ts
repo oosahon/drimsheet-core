@@ -6,7 +6,7 @@ import {
   IBankDetails,
   ICashAndCashEquivalentAccount,
 } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';
 import {
   IRepoService,

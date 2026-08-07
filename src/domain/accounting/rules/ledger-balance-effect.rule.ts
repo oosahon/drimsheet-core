@@ -3,7 +3,7 @@ import { UJournalSide } from '../../journal-entry/types/journal-line.types';
 import { ELedgerAccountBalanceEffect } from '../../ledger/account-balance/types/ledger-account-balance.types';
 import ledgerAccountEntityHelpers from '../../ledger/shared/entities/helpers/ledger-account.entity.helpers';
 import ledgerAccountEntity from '../../ledger/shared/entities/ledger-account.entity';
-import { ILedgerAccount } from '../../ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../ledger/types/ledger.types';
 
 export default function ledgerBalanceEffectRule(
   account: Pick<ILedgerAccount, 'type' | 'normalBalance'>,

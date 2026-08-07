@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TBankChargeLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TBankChargeLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TBankChargeLedgerCode | null

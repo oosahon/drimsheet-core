@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TIncomeTaxLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TIncomeTaxLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TIncomeTaxLedgerCode | null

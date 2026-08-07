@@ -1,5 +1,5 @@
 import cashAndEquivalentAccountEntity from '../../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { TCashLedgerCode } from '../../../../../domain/ledger/shared/types/ledger-code.types';
+import { TCashLedgerCode } from '../../../../../domain/ledger/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import mapLedgerAccountToDto from '../map-ledger-account-to-dto.helper';

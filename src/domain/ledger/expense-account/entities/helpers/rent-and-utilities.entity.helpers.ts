@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TRentUtilitiesLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TRentUtilitiesLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TRentUtilitiesLedgerCode | null

@@ -1,5 +1,5 @@
 import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
-import { ILedgerAccount } from '../../../domain/ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import IAccountsBootstrapService from '../contracts/accounts-bootstrap.service.contract';
 import ledgerAppError from '../errors/ledger.error';
 import makeAssetAccountsBootstrapHelper from './helpers/asset-accounts-bootstrap.helper';

@@ -1,8 +1,7 @@
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { ELedgerAccountEvent } from '../../events/ledger-account.events';
-import { ELedgerAccountAuditAction } from '../../types/ledger-account-audit.types';
+import { ELedgerAccountAuditAction } from '../../../types/ledger-account-audit.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -10,7 +9,8 @@ import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../types/ledger.types';
+} from '../../../types/ledger.types';
+import { ELedgerAccountEvent } from '../../events/ledger-account.events';
 import ledgerAccountEntity from '../ledger-account.entity';
 
 describe('Ledger Account Shared Entity', () => {

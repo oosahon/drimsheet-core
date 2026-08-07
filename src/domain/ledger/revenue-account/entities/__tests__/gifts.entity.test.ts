@@ -1,13 +1,13 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { ICurrency } from '../../../../money/types/currency.types';
-import { TGiftsLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TGiftsLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../shared/types/ledger.types';
+} from '../../../types/ledger.types';
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,

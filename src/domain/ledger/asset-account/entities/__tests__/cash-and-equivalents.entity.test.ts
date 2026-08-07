@@ -1,14 +1,14 @@
 import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { TCashLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TCashLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../shared/types/ledger.types';
+} from '../../../types/ledger.types';
 import {
   EAssetAccountBehavior,
   EAssetSubType,

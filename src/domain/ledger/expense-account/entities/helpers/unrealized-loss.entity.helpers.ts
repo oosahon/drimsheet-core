@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TUnrealizedLossLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TUnrealizedLossLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TUnrealizedLossLedgerCode | null

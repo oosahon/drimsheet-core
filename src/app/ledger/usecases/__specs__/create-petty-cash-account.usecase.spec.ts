@@ -6,7 +6,7 @@ import { EJournalSide } from '../../../../domain/journal-entry/types/journal-lin
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/asset-account/config/asset-codes.config';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
+import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';

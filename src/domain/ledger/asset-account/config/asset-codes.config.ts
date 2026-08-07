@@ -9,7 +9,7 @@ import {
   TCashLedgerCode,
   TLiabilitySuspenseLedgerCode,
   TReceivablesLedgerCode,
-} from '../../shared/types/ledger-code.types';
+} from '../../types/ledger-code.types';
 
 const CASH_AND_EQUIVALENTS: Record<string, TCashLedgerCode> = {
   HEADER: '100000',

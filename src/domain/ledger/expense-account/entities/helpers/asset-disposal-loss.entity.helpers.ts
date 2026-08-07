@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TAssetDisposalLossLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TAssetDisposalLossLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TAssetDisposalLossLedgerCode | null

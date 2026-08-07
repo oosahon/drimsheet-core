@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TRetainedEarningsLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TRetainedEarningsLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TRetainedEarningsLedgerCode | null

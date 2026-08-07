@@ -8,7 +8,7 @@ import {
   ENormalBalance,
   ULedgerType,
   UNormalBalance,
-} from '../../../ledger/shared/types/ledger.types';
+} from '../../../ledger/types/ledger.types';
 import ledgerBalanceEffectRule from '../ledger-balance-effect.rule';
 
 describe('ledgerBalanceEffectRule', () => {

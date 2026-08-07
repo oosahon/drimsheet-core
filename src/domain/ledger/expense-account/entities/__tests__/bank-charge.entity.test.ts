@@ -1,12 +1,12 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { TBankChargeLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TBankChargeLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../shared/types/ledger.types';
+} from '../../../types/ledger.types';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,

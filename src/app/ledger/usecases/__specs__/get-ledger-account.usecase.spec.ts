@@ -8,7 +8,7 @@ import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../../../domain/ledger/shared/types/ledger.types';
+} from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import { IUser } from '../../../../domain/user/types/user.types';

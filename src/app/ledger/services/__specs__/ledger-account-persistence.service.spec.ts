@@ -1,8 +1,8 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { ILedgerAccountHistory } from '../../../../domain/ledger/shared/types/ledger-account-audit.types';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import { ILedgerAccountHistory } from '../../../../domain/ledger/types/ledger-account-audit.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import userEntity from '../../../../domain/user/entities/user.entity';
 import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';

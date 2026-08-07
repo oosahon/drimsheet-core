@@ -6,7 +6,7 @@ import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
 } from '../../../ledger/liability-account/types/liability-account.types';
-import { ILedgerAccount } from '../../../ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import accountingError from '../../errors/accounting.error';
 import { ITransactionRule } from '../../types/bookkeeping-rule.types';
 

@@ -13,18 +13,18 @@ import {
   TReceivablesLedgerCode,
   TROUAssetsLedgerCode,
   TShortTermInvestmentLedgerCode,
-} from '../../shared/types/ledger-code.types';
+} from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerType,
   ILedgerAccount,
-} from '../../shared/types/ledger.types';
+} from '../../types/ledger.types';
 import {
   ESuspenseSubType,
   ISuspenseLedgerAccount,
   TSuspenseSubType,
-} from '../../shared/types/suspense-account.types';
+} from '../../types/suspense-account.types';
 
 export const EAssetSubType = {
   CashAndCashEquivalent: 'cash_and_cash_equivalent',

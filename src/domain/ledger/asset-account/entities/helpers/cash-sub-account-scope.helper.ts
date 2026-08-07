@@ -1,11 +1,8 @@
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import ILedgerAccountRepo from '../../../shared/repos/ledger-account.repo';
-import { TCashLedgerCode } from '../../../shared/types/ledger-code.types';
-import {
-  ELedgerType,
-  ILedgerAccount,
-} from '../../../shared/types/ledger.types';
+import { TCashLedgerCode } from '../../../types/ledger-code.types';
+import { ELedgerType, ILedgerAccount } from '../../../types/ledger.types';
 import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import assetAccountError from '../../errors/asset-account.error';
 import { EAssetSubType } from '../../types/asset-account.types';

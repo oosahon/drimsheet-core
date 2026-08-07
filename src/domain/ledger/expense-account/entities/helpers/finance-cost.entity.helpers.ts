@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TFinanceCostLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TFinanceCostLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TFinanceCostLedgerCode | null

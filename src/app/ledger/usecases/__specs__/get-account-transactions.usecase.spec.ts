@@ -11,7 +11,7 @@ import {
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
 import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';

@@ -24,8 +24,8 @@ import {
   TRevenueLedgerCode,
   TServicesLedgerCode,
   TUnrealizedGainLedgerCode,
-} from '../../../../domain/ledger/shared/types/ledger-code.types';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+} from '../../../../domain/ledger/types/ledger-code.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {

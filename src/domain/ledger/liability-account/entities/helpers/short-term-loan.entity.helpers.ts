@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TShortTermDebtLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TShortTermDebtLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TShortTermDebtLedgerCode | null

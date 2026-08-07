@@ -19,7 +19,7 @@ import { EEquitySubType } from '../../../ledger/equity-account/types/equity-acco
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
 import ledgerAccountEntity from '../../../ledger/shared/entities/ledger-account.entity';
 import ILedgerAccountRepo from '../../../ledger/shared/repos/ledger-account.repo';
-import { ELedgerType } from '../../../ledger/shared/types/ledger.types';
+import { ELedgerType } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import { EExchangeRateType } from '../../../money/types/exchange-rate.types';
 import exchangeRateValue from '../../../money/values/exchange-rate.vo';

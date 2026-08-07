@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TLiabilitySuspenseLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TLiabilitySuspenseLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(
   predecessorCode: TLiabilitySuspenseLedgerCode | null

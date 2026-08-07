@@ -6,7 +6,7 @@ import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-acco
 import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
 import { IBankDetails } from '../../../../domain/ledger/asset-account/types/asset-account.types';
 import bankDetailsValue from '../../../../domain/ledger/asset-account/values/bank-details.vo';
-import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
+import { TCashLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';

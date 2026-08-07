@@ -8,15 +8,15 @@ import {
 import {
   ELedgerAccountBehavior,
   ULedgerAccountBehavior,
-} from '../../../../domain/ledger/shared/types/account-behaviors.tyypes';
+} from '../../../../domain/ledger/types/account-behaviors.tyypes';
 import {
   ELedgerAccountSubType,
   ULedgerAccountSubType,
-} from '../../../../domain/ledger/shared/types/ledger-aggregate.types';
+} from '../../../../domain/ledger/types/ledger-aggregate.types';
 import {
   ELedgerType,
   ULedgerType,
-} from '../../../../domain/ledger/shared/types/ledger.types';
+} from '../../../../domain/ledger/types/ledger.types';
 import appError from '../../../../shared/values/errors/app.error';
 import { paginationDtoValidation } from '../../../../shared/values/pagination/dto/pagination.dto.validation';
 

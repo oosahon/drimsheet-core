@@ -1,5 +1,5 @@
 import ledgerAccountEntity from '../../../shared/entities/ledger-account.entity';
-import { TGiftsLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TGiftsLedgerCode } from '../../../types/ledger-code.types';
 
 function getCode(predecessorCode: TGiftsLedgerCode | null): TGiftsLedgerCode {
   if (predecessorCode === null) {

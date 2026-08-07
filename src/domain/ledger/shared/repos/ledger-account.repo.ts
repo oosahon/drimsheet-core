@@ -10,8 +10,8 @@ import { UEquitySubType } from '../../equity-account/types/equity-account.types'
 import { UExpenseSubType } from '../../expense-account/types/expense-account.types';
 import { ULiabilitySubType } from '../../liability-account/types/liability-account.types';
 import { URevenueSubType } from '../../revenue-account/types/revenue-account.types';
-import { ILedgerAccountHistory } from '../types/ledger-account-audit.types';
-import { ILedgerAccount, ULedgerType } from '../types/ledger.types';
+import { ILedgerAccountHistory } from '../../types/ledger-account-audit.types';
+import { ILedgerAccount, ULedgerType } from '../../types/ledger.types';
 
 export const ELedgerAccountSortBy = {
   AccountName: 'accountName',

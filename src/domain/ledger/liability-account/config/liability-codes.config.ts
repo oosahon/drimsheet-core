@@ -8,7 +8,7 @@ import {
   TLiabilitySuspenseLedgerCode,
   TPayablesLedgerCode,
   TShortTermDebtLedgerCode,
-} from '../../shared/types/ledger-code.types';
+} from '../../types/ledger-code.types';
 
 const SHORT_TERM_DEBT: Record<string, TShortTermDebtLedgerCode> = {
   HEADER: '200000',

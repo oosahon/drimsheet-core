@@ -1,5 +1,5 @@
-import { ULedgerAccountBehavior } from '../../../../domain/ledger/shared/types/account-behaviors.tyypes';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import { ULedgerAccountBehavior } from '../../../../domain/ledger/types/account-behaviors.tyypes';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { IMoney } from '../../../../domain/money/types/money.types';
 import moneyMapper from '../../../money/dtos/money/money.dto.mapper';
 import { ILedgerAccountDto } from './ledger-account.dto';

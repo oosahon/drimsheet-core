@@ -1,12 +1,12 @@
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { TLiabilitySuspenseLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TLiabilitySuspenseLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../shared/types/ledger.types';
+} from '../../../types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,

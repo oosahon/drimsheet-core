@@ -1,13 +1,13 @@
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { TShortTermDebtLedgerCode } from '../../../shared/types/ledger-code.types';
+import { TShortTermDebtLedgerCode } from '../../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../shared/types/ledger.types';
+} from '../../../types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,

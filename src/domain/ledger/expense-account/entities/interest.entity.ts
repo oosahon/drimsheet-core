@@ -1,13 +1,13 @@
 import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
 import ledgerAccountEntity from '../../shared/entities/ledger-account.entity';
-import { TInterestLedgerCode } from '../../shared/types/ledger-code.types';
+import { TInterestLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ILedgerAccount,
-} from '../../shared/types/ledger.types';
+} from '../../types/ledger.types';
 import expenseAccountEvents from '../events/expense-account.events';
 import {
   EExpenseAccountBehavior,

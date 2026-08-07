@@ -2,7 +2,7 @@ import IAccountingPeriodService from '../../../domain/accounting/types/accountin
 import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
 import IAssetAccountService from '../../../domain/ledger/asset-account/types/asset-account.service.types';
 import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
-import { TCashLedgerCode } from '../../../domain/ledger/shared/types/ledger-code.types';
+import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import IFxCostBasisLotDomainService from '../../../domain/subledger/fx-cost-basis/types/lot.service.types';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
