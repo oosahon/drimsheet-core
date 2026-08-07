@@ -1,13 +1,13 @@
 import {
   IReadRepoOptions,
   IWriteRepoOptions,
-} from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
+} from '../../../shared/types/repo.types';
+import { TEntityId } from '../../../shared/types/uuid';
 import {
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
   INewLedgerAccountBalanceAndAdjustment,
-} from '../types/ledger-account-balance.types';
+} from '../account-balance/types/ledger-account-balance.types';
 
 export default interface ILedgerAccountBalanceRepo {
   create(

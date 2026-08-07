@@ -1,9 +1,9 @@
 import {
   IReadRepoOptions,
   IWriteRepoOptions,
-} from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import { IBankDetails } from '../types/asset-account.types';
+} from '../../../shared/types/repo.types';
+import { TEntityId } from '../../../shared/types/uuid';
+import { IBankDetails } from '../asset-account/types/asset-account.types';
 
 export default interface IBankAccountRepo {
   findOne(

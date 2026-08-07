@@ -11,12 +11,12 @@ import {
 import counterpartyEntity from '../../../counterparty/entities/counterparty.entity';
 import { ECounterpartyType } from '../../../counterparty/types/counterparty.types';
 import ledgerAccountBalanceEntity from '../../../ledger/account-balance/entities/ledger-account-balance.entity';
-import ILedgerAccountBalanceRepo from '../../../ledger/account-balance/repos/ledger-account-balance.repo';
 import cashAndEquivalentAccountEntity from '../../../ledger/asset-account/entities/cash-and-equivalents.entity';
 import { EAssetAccountBehavior } from '../../../ledger/asset-account/types/asset-account.types';
 import ledgerAccountEntity from '../../../ledger/entities/ledger-account.entity';
 import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
 import { EEquitySubType } from '../../../ledger/equity-account/types/equity-account.types';
+import ILedgerAccountBalanceRepo from '../../../ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
 import { ELedgerType } from '../../../ledger/types/ledger.types';

@@ -1,5 +1,5 @@
 import ledgerAccountBalanceEntity from '../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
-import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
+import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
 import moneyMapper from '../../money/dtos/money/money.dto.mapper';
