@@ -27,6 +27,21 @@ Include only findings confirmed through repository inspection, reproduction, or
 provided requirements. Put unresolved assumptions and decisions in their
 dedicated sections instead.
 
+## Implementation Basis
+
+| Decision or structural change | Basis                                               | Evidence or rationale                                     |
+| ----------------------------- | --------------------------------------------------- | --------------------------------------------------------- |
+| `<decision>`                  | Requirement, rule, precedent, or approved deviation | Cite paths and symbols, or record the approved rationale. |
+
+Classify every structural decision. For a local precedent, cite the concrete
+path and symbol that owns the same responsibility. If no suitable precedent
+exists, label the basis `Pending deviation`, record what was searched and why
+the closest candidates do not suffice, and resolve the decision before marking
+the plan implementation-ready. Use `Approved deviation` only when a prior user
+instruction specifically names and authorizes it, and cite that decision. A
+generic request to create or implement the plan is not approval. One row may
+cover a purely mechanical group of changes that follows the same precedent.
+
 ## Scope
 
 ### Expected Changes

@@ -57,7 +57,6 @@ function makeCreateAssetSuspense(
       meta: null,
       isControlAccount: false,
       controlAccountId: null,
-      // TODO: remove currency from suspense account
       currency: payload.currency,
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
@@ -100,7 +99,6 @@ function makeCreateLiabilitySuspense(
       meta: null,
       isControlAccount: false,
       controlAccountId: null,
-      // TODO: remove currency from suspense account
       currency: payload.currency,
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,

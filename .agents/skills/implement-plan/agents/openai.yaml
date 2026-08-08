@@ -1,0 +1,4 @@
+interface:
+  display_name: 'Implement Plan'
+  short_description: 'Execute saved plans without silent deviations'
+  default_prompt: 'Use $implement-plan to execute this saved plan against current repository rules and precedents.'

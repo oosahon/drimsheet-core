@@ -1,6 +1,6 @@
 # PR Review Workflow
 
-1. Read the ticket or request.
+1. Read the ticket or request and any governing implementation plan.
 2. Inspect the diff and nearby code.
 3. Review for correctness, security, architecture, and tests.
 4. Lead with findings, ordered by severity.
