@@ -1,14 +1,15 @@
-import ledgerAccountError from '../../../../../domain/ledger/errors/ledger-account.error';
-import { IBankDetails } from '../../../../../domain/ledger/types/asset-account.types';
-import bankDetailsValue from '../../../../../domain/ledger/values/bank-details.vo';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import bankAccountRepoImpl from '../bank-account.repo.impl';
+import { TEntityId } from '@shared/types/uuid';
+
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import { IBankDetails } from '@domain/ledger/types/asset-account.types';
+import bankDetailsValue from '@domain/ledger/values/bank-details.vo';
+
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import bankAccountRepoImpl from '@infra/persistence/repos/ledger/bank-account.repo.impl';
 
 jest.mock('../../../helpers/get-db-query', () => {
   return jest.fn();
 });
-
-import getDbQuery from '../../../helpers/get-db-query';
 
 describe('bankAccountRepoImpl', () => {
   const ledgerAccountId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;

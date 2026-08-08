@@ -26,8 +26,9 @@ Use this for ordinary code changes.
 8. Keep orchestration, policy, mapping, persistence, and delivery concerns
    distinct without forcing each concern into a separate service.
 9. Make the smallest coherent change and follow nearby readability patterns.
-10. Add or update tests at the owning layer.
-11. Run focused validation, then broader validation when risk is higher.
+10. Validate new imports against [Import Paths](../rules/import-paths.md).
+11. Add or update tests at the owning layer.
+12. Run focused validation, then broader validation when risk is higher.
 
 Follow [Service Ownership](../rules/service-ownership.md),
 [Service Philosophy](../rules/service-philosophy.md),

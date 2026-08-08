@@ -1,19 +1,19 @@
-import currencyEntity from '../../../money/entities/currency.entity';
-import { EQUITY_LEDGER_CODES } from '../../config/equity-codes.config';
-import ledgerAccountEntity from '../../entities/ledger-account.entity';
-import ledgerAccountError from '../../errors/ledger-account.error';
-import ILedgerAccountRepo from '../../repos/ledger-account.repo';
-import { IEquityAccountService } from '../../types/equity-account.service.types';
+import { EQUITY_LEDGER_CODES } from '@domain/ledger/config/equity-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import { IEquityAccountService } from '@domain/ledger/types/equity-account.service.types';
 import {
   EEquityAccountBehavior,
   EEquitySubType,
-} from '../../types/equity-account.types';
+} from '@domain/ledger/types/equity-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
-} from '../../types/ledger.types';
+} from '@domain/ledger/types/ledger.types';
+import currencyEntity from '@domain/money/entities/currency.entity';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

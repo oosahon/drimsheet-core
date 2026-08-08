@@ -10,14 +10,18 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
+
+import { IHttpErrorDto } from '@shared/values/errors/error.dto';
+
 import {
   IEmailLoginReq,
   IRequestPasswordResetReq,
   IResetPasswordReq,
   IUserSignupReq,
   IVerifyEmailReq,
-} from '../../../app/auth/dtos/auth/auth.dto';
-import { rateLimiter } from '../../../infra/config/rate-limiter.config';
+} from '@app/auth/dtos/auth/auth.dto';
+
+import { rateLimiter } from '@infra/config/rate-limiter.config';
 import {
   getPasswordResetLinkUseCase,
   loginWithEmailUseCase,
@@ -26,9 +30,9 @@ import {
   resetPasswordUseCase,
   signupWithEmailUseCase,
   verifyEmailUseCase,
-} from '../../../infra/ioc/usecases/auth';
-import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
-import middlewares from '../middlewares';
+} from '@infra/ioc/usecases/auth';
+
+import middlewares from '@interface/http/middlewares';
 
 @Route('auth')
 @Tags('Auth')

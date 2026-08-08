@@ -1,5 +1,6 @@
-import paginationValue from '../pagination.vo';
-import { IPaginationParams } from '../types/pagination.types';
+import paginationValue from '@shared/values/pagination/pagination.vo';
+import { IPaginationParams } from '@shared/values/pagination/types/pagination.types';
+
 import { IPaginationDto } from './pagination.dto';
 
 const paginationMapper = {

@@ -1,7 +1,9 @@
-import { IContractorHistory } from '../../../../../../domain/counterparty/types/counterparty-audit.types';
-import { IContractor } from '../../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import contractorHistoryMapper from '../contractor-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IContractorHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { IContractor } from '@domain/counterparty/types/counterparty.types';
+
+import contractorHistoryMapper from '@infra/persistence/repos/counterparty/mappers/contractor-history.mapper';
 
 describe('contractorHistoryMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');

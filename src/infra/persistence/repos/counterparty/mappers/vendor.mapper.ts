@@ -1,8 +1,14 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IVendor } from '../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyVendorsInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { IVendor } from '@domain/counterparty/types/counterparty.types';
+
+import { counterpartyVendorsInCore } from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface IVendorModel extends InferSelectModel<
   typeof counterpartyVendorsInCore

@@ -1,5 +1,5 @@
-import { userEventsRegistry } from '../../ioc/handlers/user';
-import messaging from '../../messaging';
+import { userEventsRegistry } from '@infra/ioc/handlers/user';
+import messaging from '@infra/messaging';
 
 export default function eventsRegistry() {
   const events = {

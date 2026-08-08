@@ -1,8 +1,9 @@
-import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
-import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
-import { IReadRepoOptions } from '../../../shared/types/repo.types';
-import { IEvent } from '../../../shared/values/events/types/event.types';
-import { IEntityDelta } from '../../../shared/values/history/types/history.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import { IEvent } from '@shared/values/events/types/event.types';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 export interface IAccountsBootstrapResult {
   entries: {

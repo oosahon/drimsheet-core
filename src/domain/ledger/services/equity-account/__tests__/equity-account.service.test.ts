@@ -1,24 +1,25 @@
-import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
-import { EQUITY_LEDGER_CODES } from '../../../config/equity-codes.config';
-import ledgerAccountEntity from '../../../entities/ledger-account.entity';
-import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { EQUITY_LEDGER_CODES } from '@domain/ledger/config/equity-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
 import {
   EEquityAccountBehavior,
   EEquitySubType,
   IOpeningBalanceEquityAccount,
   IRetainedEarningsAccount,
-} from '../../../types/equity-account.types';
+} from '@domain/ledger/types/equity-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../types/ledger.types';
-import makeEquityAccountService from '../equity-account.service';
+} from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   create: jest.fn(),

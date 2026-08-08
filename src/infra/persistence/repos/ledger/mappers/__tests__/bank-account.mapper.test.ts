@@ -1,5 +1,8 @@
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import bankAccountMapper, { IBankAccountModel } from '../bank-account.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import bankAccountMapper, {
+  IBankAccountModel,
+} from '@infra/persistence/repos/ledger/mappers/bank-account.mapper';
 
 describe('bankAccountMapper', () => {
   const ledgerAccountId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;

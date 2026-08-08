@@ -1,4 +1,4 @@
-import IPasswordService from '../password-service.contract';
+import IPasswordService from '@app/auth/contracts/password-service.contract';
 
 const mockPasswordService: jest.Mocked<IPasswordService> = {
   makePassword: jest.fn(),

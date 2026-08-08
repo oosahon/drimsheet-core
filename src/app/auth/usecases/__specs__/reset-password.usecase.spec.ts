@@ -1,25 +1,27 @@
-import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/values/email.vo';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
-import { ITransactionContext } from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import appError from '../../../../shared/values/errors/app.error';
-import { IEvent } from '../../../../shared/values/events/types/event.types';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+import appError from '@shared/values/errors/app.error';
+import { IEvent } from '@shared/values/events/types/event.types';
+
+import { IUser } from '@domain/user/types/user.types';
+import emailValue from '@domain/user/values/email.vo';
+
+import mockPasswordService from '@app/auth/contracts/__mocks__/password-service.mock';
+import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
+import mockUserAuthRepo from '@app/auth/contracts/__mocks__/user-auth.repo.mock';
+import mockUserSessionRepo from '@app/auth/contracts/__mocks__/user-session.repo.mock';
+import { EAuthStrategy, IUserAuth } from '@app/auth/contracts/auth.types';
+import authError from '@app/auth/errors/auth.error';
+import makeResetPasswordUseCase from '@app/auth/usecases/reset-password.usecase';
 import mockAppContext, {
   mockClientSession,
-} from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import { mockUserRepo } from '../../../user/contracts/__mocks__/user.repos.mock';
-import mockPasswordService from '../../contracts/__mocks__/password-service.mock';
-import mockAuthService from '../../contracts/__mocks__/token-service.mock';
-import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
-import { EAuthStrategy, IUserAuth } from '../../contracts/auth.types';
-import authError from '../../errors/auth.error';
-import makeResetPasswordUseCase from '../reset-password.usecase';
+} from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeResetPasswordUseCase', () => {
   const correlationId = 'test-corr-id';

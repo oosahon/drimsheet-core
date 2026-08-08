@@ -1,12 +1,13 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import historyError from '../../../../shared/values/history/history.error';
-import accountingContextEntity from '../../entities/accounting-context.entity';
-import accountingError from '../../errors/accounting.error';
+import { TEntityId } from '@shared/types/uuid';
+import historyError from '@shared/values/history/history.error';
+
+import accountingContextEntity from '@domain/accounting/entities/accounting-context.entity';
+import accountingError from '@domain/accounting/errors/accounting.error';
 import {
   EAccountingContextActions,
   UAccountingContextActions,
-} from '../../types/accounting-context-audit.types';
-import accountingContextAudit from '../accounting-context-audit.vo';
+} from '@domain/accounting/types/accounting-context-audit.types';
+import accountingContextAudit from '@domain/accounting/values/accounting-context-audit.vo';
 
 describe('accountingContextAudit', () => {
   const makeAccountingContext = () =>

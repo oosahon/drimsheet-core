@@ -1,5 +1,6 @@
-import { NODE_ENV } from '../../../infra/config/vars.config';
-import observability from '../../../infra/observability';
+import { NODE_ENV } from '@infra/config/vars.config';
+import observability from '@infra/observability';
+
 import makeHttpErrorHandler from './error.handler';
 
 const httpHandlers = {

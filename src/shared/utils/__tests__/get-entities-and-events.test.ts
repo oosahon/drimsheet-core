@@ -1,11 +1,11 @@
-import getEntitiesAndEvents from '../../helpers/get-entities-and-events';
-import { TEntityId } from '../../types/uuid';
+import getEntitiesAndEvents from '@shared/helpers/get-entities-and-events';
+import { TEntityId } from '@shared/types/uuid';
 import {
   IEvent,
   TAuditedEntity,
   TEntityWithEvents,
-} from '../../values/events/types/event.types';
-import { IEntityDelta } from '../../values/history/types/history.types';
+} from '@shared/values/events/types/event.types';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
 
 describe('getEntitiesAndEvents', () => {
   type TMockEntity = { id: number; name: string };

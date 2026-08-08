@@ -2,8 +2,12 @@ import {
   IPaginatedReadRepoOptions,
   IReadRepoOptions,
   IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
-import { IExchangeRate, UExchangeRateType } from '../types/exchange-rate.types';
+} from '@shared/types/repo.types';
+
+import {
+  IExchangeRate,
+  UExchangeRateType,
+} from '@domain/money/types/exchange-rate.types';
 
 interface IFindQuery {
   currencyPair: string;

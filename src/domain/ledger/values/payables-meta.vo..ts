@@ -1,9 +1,10 @@
-import stringUtils from '../../../shared/utils/string';
-import ledgerAccountError from '../errors/ledger-account.error';
+import stringUtils from '@shared/utils/string';
+
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import {
   IStatutoryPayableAccountMeta,
   ITradePayableAccountMeta,
-} from '../types/liability-account.types';
+} from '@domain/ledger/types/liability-account.types';
 
 function makeStatutoryMeta(
   meta: IStatutoryPayableAccountMeta | null

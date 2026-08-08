@@ -1,15 +1,16 @@
-import dateUtils from '../../../../shared/utils/date';
-import numberUtils from '../../../../shared/utils/number';
-import { MAX_GENERATED_PERIODS } from '../../config/period-limits.config';
-import accountingError from '../../errors/accounting.error';
-import errors from '../../errors/period.error';
+import dateUtils from '@shared/utils/date';
+import numberUtils from '@shared/utils/number';
+
+import { MAX_GENERATED_PERIODS } from '@domain/accounting/config/period-limits.config';
+import accountingError from '@domain/accounting/errors/accounting.error';
+import errors from '@domain/accounting/errors/period.error';
 import {
   EPeriodStatus,
   EPeriodUnit,
   IPeriod,
   UPeriodStatus,
   UPeriodUnit,
-} from '../../types/period.types';
+} from '@domain/accounting/types/period.types';
 
 function isValidUnit(unit: unknown): unit is UPeriodUnit {
   return Object.values(EPeriodUnit).includes(unit as UPeriodUnit);

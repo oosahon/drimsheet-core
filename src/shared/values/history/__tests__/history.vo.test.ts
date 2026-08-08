@@ -1,7 +1,10 @@
-import { TEntityId } from '../../../types/uuid';
-import historyError from '../history.error';
-import historyValue from '../history.vo';
-import { EHistoryActorType, IHistoryActor } from '../types/history.types';
+import { TEntityId } from '@shared/types/uuid';
+import historyError from '@shared/values/history/history.error';
+import historyValue from '@shared/values/history/history.vo';
+import {
+  EHistoryActorType,
+  IHistoryActor,
+} from '@shared/values/history/types/history.types';
 
 interface ITestSnapshot {
   id: TEntityId;

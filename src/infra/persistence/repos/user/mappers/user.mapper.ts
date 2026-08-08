@@ -1,11 +1,14 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IUser } from '../../../../../domain/user/types/user.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { usersInCore } from '../../../../config/drizzle/schema';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUser } from '@domain/user/types/user.types';
+
+import { usersInCore } from '@infra/config/drizzle/schema';
 import {
   fromCommonRepoDates,
   toCommonRepoDates,
-} from '../../../helpers/date.mapper';
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface IUserModel extends InferSelectModel<typeof usersInCore> {}
 

@@ -1,32 +1,34 @@
-import { ICounterpartyHistory } from '../../../domain/counterparty/types/counterparty-audit.types';
-import { ICounterparty } from '../../../domain/counterparty/types/counterparty.types';
-import {
-  ICreateReceiptEntryPayload,
-  IJournalEntryService,
-} from '../../../domain/journal-entry/types/journal-entry.service.types';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
+import IEventBus from '@shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
-import { TEntityId } from '../../../shared/types/uuid';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/values/events/event.vo';
-import { IEvent } from '../../../shared/values/events/types/event.types';
-import historyValue from '../../../shared/values/history/history.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import ICounterpartyAppService from '../../counterparty/contracts/counterparty.service.contract';
-import ICounterpartyPersistenceService from '../../counterparty/contracts/persistence.service.contract';
-import { ILedgerAccountBalancePropagationService } from '../../ledger/contracts/ledger-account-balance-propagation.service.contract';
-import ledgerAppError from '../../ledger/errors/ledger.error';
-import moneyMapper from '../../money/dtos/money/money.dto.mapper';
-import IJournalEntryPersistenceService from '../contracts/journal-entry-persistence.service.contract';
-import { IJournalEntryDto } from '../dtos/journal-entry/journal-entry.dto';
-import journalEntryDtoMapper from '../dtos/journal-entry/journal-entry.dto.mapper';
-import { IReceiptEntryReq } from '../dtos/receipt-entry/receipt-entry.dto';
-import { receiptEntryReqValidation } from '../dtos/receipt-entry/receipt-entry.dto.validation';
+} from '@shared/contracts/repo.contract';
+import { TEntityId } from '@shared/types/uuid';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import eventValue from '@shared/values/events/event.vo';
+import { IEvent } from '@shared/values/events/types/event.types';
+import historyValue from '@shared/values/history/history.vo';
+
+import { ICounterpartyHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
+import {
+  ICreateReceiptEntryPayload,
+  IJournalEntryService,
+} from '@domain/journal-entry/types/journal-entry.service.types';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import ICounterpartyAppService from '@app/counterparty/contracts/counterparty.service.contract';
+import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
+import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
+import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
+import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
+import { IReceiptEntryReq } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto';
+import { receiptEntryReqValidation } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto.validation';
+import { ILedgerAccountBalancePropagationService } from '@app/ledger/contracts/ledger-account-balance-propagation.service.contract';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
+import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
 
 interface IDependencies {
   appContext: IAppContext;

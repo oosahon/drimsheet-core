@@ -1,5 +1,5 @@
-import { IPaginationDto } from '../pagination.dto';
-import paginationMapper from '../pagination.dto.mapper';
+import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
+import paginationMapper from '@shared/values/pagination/dto/pagination.dto.mapper';
 
 describe('Pagination DTO Mapper', () => {
   describe('fromDto', () => {

@@ -1,9 +1,9 @@
 import {
   SYSTEM_CURRENCIES,
   UCurrencyCode,
-} from '../../../../domain/money/config/currencies.config';
-import currencyEntity from '../../../../domain/money/entities/currency.entity';
-import { ICurrency } from '../../../../domain/money/types/currency.types';
+} from '@domain/money/config/currencies.config';
+import currencyEntity from '@domain/money/entities/currency.entity';
+import { ICurrency } from '@domain/money/types/currency.types';
 
 const currencyMapper = {
   fromInterface(code: string): ICurrency {

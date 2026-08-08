@@ -2,9 +2,9 @@ import {
   EPeriodActions,
   IAccountingPeriodAudit,
   IMakePeriodAuditPayload,
-} from '../types/period-audit.types';
-import { IAccountingPeriod } from '../types/period.types';
-import accountingAuditHelpers from './helpers/accounting-audit.vo.helpers';
+} from '@domain/accounting/types/period-audit.types';
+import { IAccountingPeriod } from '@domain/accounting/types/period.types';
+import accountingAuditHelpers from '@domain/accounting/values/helpers/accounting-audit.vo.helpers';
 
 function make(
   payload: IMakePeriodAuditPayload<IAccountingPeriod>

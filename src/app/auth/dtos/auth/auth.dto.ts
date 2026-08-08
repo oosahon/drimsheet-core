@@ -1,4 +1,4 @@
-import { IUser } from '../../../../domain/user/types/user.types';
+import { IUser } from '@domain/user/types/user.types';
 
 export interface IUserSignupReq {
   firstName: string;

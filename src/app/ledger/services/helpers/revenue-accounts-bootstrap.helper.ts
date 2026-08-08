@@ -1,12 +1,19 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { REVENUE_LEDGER_CODES } from '../../../../domain/ledger/config/revenue-codes.config';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
-import { IEmploymentIncomeAccountService } from '../../../../domain/ledger/types/employment-income.service.types';
-import { IGainOnAssetSaleAccountService } from '../../../../domain/ledger/types/gain-on-sale.service.types';
-import { IGiftsAccountService } from '../../../../domain/ledger/types/gifts.service.types';
-import { IGrantsAccountService } from '../../../../domain/ledger/types/grants.service.types';
-import { TRevenueLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import {
+  IEvent,
+  TAuditedEntity,
+} from '@shared/values/events/types/event.types';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { REVENUE_LEDGER_CODES } from '@domain/ledger/config/revenue-codes.config';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import { IEmploymentIncomeAccountService } from '@domain/ledger/types/employment-income.service.types';
+import { IGainOnAssetSaleAccountService } from '@domain/ledger/types/gain-on-sale.service.types';
+import { IGiftsAccountService } from '@domain/ledger/types/gifts.service.types';
+import { IGrantsAccountService } from '@domain/ledger/types/grants.service.types';
+import { TRevenueLedgerCode } from '@domain/ledger/types/ledger-code.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import {
   IEmploymentIncomeAccount,
   IGainOnAssetSaleAccount,
@@ -15,15 +22,9 @@ import {
   IRevenueLedgerAccount,
   IServicesAccount,
   IUnrealizedGainAccount,
-} from '../../../../domain/ledger/types/revenue-account.types';
-import { IServicesAccountService } from '../../../../domain/ledger/types/services.service.types';
-import { IUnrealizedGainAccountService } from '../../../../domain/ledger/types/unrealized-gain.service.types';
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import {
-  IEvent,
-  TAuditedEntity,
-} from '../../../../shared/values/events/types/event.types';
-import { IEntityDelta } from '../../../../shared/values/history/types/history.types';
+} from '@domain/ledger/types/revenue-account.types';
+import { IServicesAccountService } from '@domain/ledger/types/services.service.types';
+import { IUnrealizedGainAccountService } from '@domain/ledger/types/unrealized-gain.service.types';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

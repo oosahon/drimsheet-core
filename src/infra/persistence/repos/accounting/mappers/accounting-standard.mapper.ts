@@ -1,6 +1,8 @@
 import { InferInsertModel } from 'drizzle-orm';
-import { IAccountingStandard } from '../../../../../domain/accounting/types/accounting-standards.types';
-import { accountingStandardsInCore } from '../../../../config/drizzle/schema';
+
+import { IAccountingStandard } from '@domain/accounting/types/accounting-standards.types';
+
+import { accountingStandardsInCore } from '@infra/config/drizzle/schema';
 
 export type IAccountingStandardModel = InferInsertModel<
   typeof accountingStandardsInCore

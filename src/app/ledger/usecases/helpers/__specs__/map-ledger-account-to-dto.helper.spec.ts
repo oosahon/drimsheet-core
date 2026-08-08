@@ -1,17 +1,19 @@
-import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import journalEntryEntity from '../../../../../domain/journal-entry/entities/journal-entry.entity';
-import { EJournalEntrySourceType } from '../../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../../domain/journal-entry/types/journal-line.types';
-import { ASSET_LEDGER_CODES } from '../../../../../domain/ledger/config/asset-codes.config';
-import makeCashAccountService from '../../../../../domain/ledger/services/asset-account/cash-account.service';
-import { ILedgerAccount } from '../../../../../domain/ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import { EExchangeRateType } from '../../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../../domain/money/values/exchange-rate.vo';
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
-import mapLedgerAccountToDto from '../map-ledger-account-to-dto.helper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import moneyValue from '@domain/money/values/money.vo';
+
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import mapLedgerAccountToDto from '@app/ledger/usecases/helpers/map-ledger-account-to-dto.helper';
 
 describe('mapLedgerAccountToDto', () => {
   const mockUser = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;

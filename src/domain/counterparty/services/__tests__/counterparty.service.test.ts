@@ -1,10 +1,11 @@
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IAddress } from '../../../../shared/values/contact-details/types/address.types';
+import generateUUID from '@shared/utils/uuid-generator';
+import { IAddress } from '@shared/values/contact-details/types/address.types';
+
+import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
 import {
   ECounterpartyRole,
   ECounterpartyType,
-} from '../../types/counterparty.types';
-import makeCounterpartyService from '../counterparty.service';
+} from '@domain/counterparty/types/counterparty.types';
 
 describe('Counterparty Service', () => {
   const accountingEntityId = generateUUID();

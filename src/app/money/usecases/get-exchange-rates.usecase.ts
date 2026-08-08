@@ -1,8 +1,10 @@
-import IExchangeRateRepo from '../../../domain/money/repos/exchange-rate.repo';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../context/contracts/app-context.contract';
-import { IExchangeRateQueryParam } from '../dtos/exchange-rate/exchange-rate.dto';
-import { exchangeRateQueryParamValidation } from '../dtos/exchange-rate/exchange-rate.dto.validation';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+
+import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import { IExchangeRateQueryParam } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
+import { exchangeRateQueryParamValidation } from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
 
 interface IDependencies {
   appContext: IAppContext;

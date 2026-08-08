@@ -10,19 +10,24 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
+
+import { IHttpErrorDto } from '@shared/values/errors/error.dto';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+
 import {
   IAccountingEntityCreationDto,
   IJurisdictionDto,
-} from '../../../app/accounting/dtos/accounting/accounting.dto';
-import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
+} from '@app/accounting/dtos/accounting/accounting.dto';
+
 import {
   createAccountingEntityUseCase,
   getActiveAccountingEntityUseCase,
   getJurisdictionsUseCase,
   getUserAccountingEntitiesUseCase,
-} from '../../../infra/ioc/usecases/accounting';
-import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
-import middlewares from '../middlewares';
+} from '@infra/ioc/usecases/accounting';
+
+import middlewares from '@interface/http/middlewares';
 
 @Route('accounting')
 @Tags('Accounting')

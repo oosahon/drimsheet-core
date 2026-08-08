@@ -1,10 +1,12 @@
-import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { IUser } from '../../../../domain/user/types/user.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { mockAccountingEntityRepo } from '../../contracts/__mocks__/accounting.repos.mock';
-import makeGetUserAccountingEntitiesUseCase from '../get-user-accounting-entities.usecase';
+import { TEntityId } from '@shared/types/uuid';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import { IUser } from '@domain/user/types/user.types';
+
+import { mockAccountingEntityRepo } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
+import makeGetUserAccountingEntitiesUseCase from '@app/accounting/usecases/get-user-accounting-entities.usecase';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 
 describe('getUserAccountingEntitiesUseCase', () => {
   const correlationId = 'test-corr-id';

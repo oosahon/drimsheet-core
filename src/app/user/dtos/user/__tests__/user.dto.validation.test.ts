@@ -1,5 +1,6 @@
-import { EAppUsageModePreference } from '../../../../../domain/user/types/user-preferences.types';
-import { userAppUsageModePreferenceValidation } from '../user.dto.validation';
+import { EAppUsageModePreference } from '@domain/user/types/user-preferences.types';
+
+import { userAppUsageModePreferenceValidation } from '@app/user/dtos/user/user.dto.validation';
 
 describe('User DTO Validation', () => {
   describe('userAppUsageModePreferenceValidation', () => {

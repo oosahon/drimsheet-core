@@ -1,13 +1,14 @@
-import { EUserEvents } from '../../../../domain/user/events/user.events';
-import { IUser } from '../../../../domain/user/types/user.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import eventError from '../../../../shared/values/events/event.error';
-import { IEvent } from '../../../../shared/values/events/types/event.types';
-import makeUserEmailVerifiedEventHandler from '../user-email-verified-event.handler';
+import MockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import { TEntityId } from '@shared/types/uuid';
+import eventError from '@shared/values/events/event.error';
+import { IEvent } from '@shared/values/events/types/event.types';
 
-import MockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
+import { EUserEvents } from '@domain/user/events/user.events';
+import { IUser } from '@domain/user/types/user.types';
+
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import makeUserEmailVerifiedEventHandler from '@app/user/handlers/user-email-verified-event.handler';
 
 describe('makeUserEmailVerifiedEventHandler', () => {
   beforeEach(() => {

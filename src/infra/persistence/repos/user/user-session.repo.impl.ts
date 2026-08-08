@@ -1,8 +1,10 @@
 import { and, eq } from 'drizzle-orm';
-import IUserSessionRepo from '../../../../app/auth/contracts/user-session.repo.contract';
-import { userSessionsInCore as userSessions } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
-import userSessionMapper from '../auth/mappers/user-session.mapper';
+
+import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
+
+import { userSessionsInCore as userSessions } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import userSessionMapper from '@infra/persistence/repos/auth/mappers/user-session.mapper';
 
 const userSessionRepo: IUserSessionRepo = {
   create: async (userSessionData, options) => {

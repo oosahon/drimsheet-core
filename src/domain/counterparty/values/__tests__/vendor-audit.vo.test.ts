@@ -1,13 +1,14 @@
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IAddress } from '../../../../shared/values/contact-details/types/address.types';
-import historyError from '../../../../shared/values/history/history.error';
-import counterpartyError from '../../errors/counterparty.error';
+import generateUUID from '@shared/utils/uuid-generator';
+import { IAddress } from '@shared/values/contact-details/types/address.types';
+import historyError from '@shared/values/history/history.error';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 import {
   EVendorHistoryAction,
   IMakeVendorAuditPayload,
-} from '../../types/counterparty-audit.types';
-import { IVendor } from '../../types/counterparty.types';
-import vendorAuditValue from '../vendor-audit.vo';
+} from '@domain/counterparty/types/counterparty-audit.types';
+import { IVendor } from '@domain/counterparty/types/counterparty.types';
+import vendorAuditValue from '@domain/counterparty/values/vendor-audit.vo';
 
 describe('vendorAuditValue', () => {
   const counterpartyId = generateUUID();

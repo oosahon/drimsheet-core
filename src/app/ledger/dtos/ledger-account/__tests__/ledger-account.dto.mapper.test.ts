@@ -1,8 +1,10 @@
-import { ILedgerAccount } from '../../../../../domain/ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import ledgerAccountMapper from '../ledger-account.dto.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
+
+import ledgerAccountMapper from '@app/ledger/dtos/ledger-account/ledger-account.dto.mapper';
 
 describe('Ledger Account DTO Mapper', () => {
   describe('toDto', () => {

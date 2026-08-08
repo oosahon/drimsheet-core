@@ -1,11 +1,13 @@
-import IExchangeRateIngestion from '../../../app/money/contracts/exchange-rate-ingestion.contract';
-import IReporter from '../../../shared/contracts/reporter.contract';
+import IReporter from '@shared/contracts/reporter.contract';
+
+import IExchangeRateIngestion from '@app/money/contracts/exchange-rate-ingestion.contract';
+
 import {
   connectRabbitMQ,
   IRabbitMQConsumerConfig,
   registerRabbitMQConsumer,
-} from '../../config/rabbitmq.config';
-import { exchangeRateIngestionWorker } from '../../ioc/workers/money';
+} from '@infra/config/rabbitmq.config';
+import { exchangeRateIngestionWorker } from '@infra/ioc/workers/money';
 
 export default async function registerExchangeRateConsumer(
   reporter: IReporter

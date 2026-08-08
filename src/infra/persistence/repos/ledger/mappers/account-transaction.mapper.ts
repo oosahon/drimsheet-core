@@ -1,11 +1,14 @@
-import { IAccountTransactionDto } from '../../../../../app/ledger/dtos/account-transaction/account-transaction.dto';
-import { IAccountTransaction } from '../../../../../domain/journal-entry/types/account-transaction.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { fromRepoDate } from '../../../helpers/date.mapper';
-import { IJournalEntryModel } from '../../journal-entry/mappers/journal-entry.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IAccountTransaction } from '@domain/journal-entry/types/account-transaction.types';
+
+import { IAccountTransactionDto } from '@app/ledger/dtos/account-transaction/account-transaction.dto';
+
+import { fromRepoDate } from '@infra/persistence/helpers/date.mapper';
+import { IJournalEntryModel } from '@infra/persistence/repos/journal-entry/mappers/journal-entry.mapper';
 import journalLineMapper, {
   IJournalLineModel,
-} from '../../journal-entry/mappers/journal-line.mapper';
+} from '@infra/persistence/repos/journal-entry/mappers/journal-line.mapper';
 
 const accountTransactionMapper = {
   toDomain(payload: {

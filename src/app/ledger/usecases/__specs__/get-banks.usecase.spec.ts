@@ -1,5 +1,6 @@
-import appError from '../../../../shared/values/errors/app.error';
-import makeGetBanksUseCase from '../get-banks.usecase';
+import appError from '@shared/values/errors/app.error';
+
+import makeGetBanksUseCase from '@app/ledger/usecases/get-banks.usecase';
 
 describe('makeGetBanksUseCase', () => {
   const getBanks = makeGetBanksUseCase();

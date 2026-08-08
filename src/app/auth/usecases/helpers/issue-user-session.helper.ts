@@ -1,16 +1,18 @@
-import { IUser } from '../../../../domain/user/types/user.types';
-import IEventBus from '../../../../shared/contracts/event-bus.contract';
+import IEventBus from '@shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../../shared/contracts/repo.contract';
-import { ITransactionContext } from '../../../../shared/types/repo.types';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IEvent } from '../../../../shared/values/events/types/event.types';
-import IAppContext from '../../../context/contracts/app-context.contract';
-import ITokenService from '../../contracts/token-service.contract';
-import IUserSessionRepo from '../../contracts/user-session.repo.contract';
-import { IAccessToken } from '../../dtos/auth/auth.dto';
+} from '@shared/contracts/repo.contract';
+import { ITransactionContext } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+import { IEvent } from '@shared/values/events/types/event.types';
+
+import { IUser } from '@domain/user/types/user.types';
+
+import ITokenService from '@app/auth/contracts/token-service.contract';
+import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
+import { IAccessToken } from '@app/auth/dtos/auth/auth.dto';
+import IAppContext from '@app/context/contracts/app-context.contract';
 
 export interface IIssueUserSessionDeps {
   user: IUser;

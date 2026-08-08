@@ -1,26 +1,28 @@
-import IAccountingContextRepo from '../../../domain/accounting/repos/accounting-context.repo';
-import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
-import IAccountingPeriodRepo from '../../../domain/accounting/repos/accounting-period.repo';
-import IFiscalYearRepo from '../../../domain/accounting/repos/fiscal-year.repo';
-import IReportingContextRepo from '../../../domain/accounting/repos/reporting-context.repo';
-import IReportingPeriodRepo from '../../../domain/accounting/repos/reporting-period.repo';
-import IAccountingEntityService from '../../../domain/accounting/types/accounting-entity.service.types';
-import { EAccountingEntityType } from '../../../domain/accounting/types/accounting-entity.types';
-import { EAppUsageModePreference } from '../../../domain/user/types/user-preferences.types';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
+import IEventBus from '@shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import appError from '../../../shared/values/errors/app.error';
-import eventValue from '../../../shared/values/events/event.vo';
-import historyValue from '../../../shared/values/history/history.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import IAccountsBootstrapService from '../../ledger/contracts/accounts-bootstrap.service.contract';
-import ILedgerAccountPersistenceService from '../../ledger/contracts/ledger-account-persistence.service.contract';
-import { IAccountingEntityCreationDto } from '../dtos/accounting/accounting.dto';
-import { accountingEntityOnboardingDtoSchema } from '../dtos/accounting/accounting.dto.validation';
+} from '@shared/contracts/repo.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import appError from '@shared/values/errors/app.error';
+import eventValue from '@shared/values/events/event.vo';
+import historyValue from '@shared/values/history/history.vo';
+
+import IAccountingContextRepo from '@domain/accounting/repos/accounting-context.repo';
+import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
+import IAccountingPeriodRepo from '@domain/accounting/repos/accounting-period.repo';
+import IFiscalYearRepo from '@domain/accounting/repos/fiscal-year.repo';
+import IReportingContextRepo from '@domain/accounting/repos/reporting-context.repo';
+import IReportingPeriodRepo from '@domain/accounting/repos/reporting-period.repo';
+import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import { EAppUsageModePreference } from '@domain/user/types/user-preferences.types';
+
+import { IAccountingEntityCreationDto } from '@app/accounting/dtos/accounting/accounting.dto';
+import { accountingEntityOnboardingDtoSchema } from '@app/accounting/dtos/accounting/accounting.dto.validation';
+import IAppContext from '@app/context/contracts/app-context.contract';
+import IAccountsBootstrapService from '@app/ledger/contracts/accounts-bootstrap.service.contract';
+import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
 
 interface IDependencies {
   appContext: IAppContext;

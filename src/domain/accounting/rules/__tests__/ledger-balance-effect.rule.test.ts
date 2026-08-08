@@ -1,15 +1,15 @@
+import ledgerBalanceEffectRule from '@domain/accounting/rules/ledger-balance-effect.rule';
 import {
   EJournalSide,
   UJournalSide,
-} from '../../../journal-entry/types/journal-line.types';
-import { ELedgerAccountBalanceEffect } from '../../../ledger/types/ledger-account-balance.types';
+} from '@domain/journal-entry/types/journal-line.types';
+import { ELedgerAccountBalanceEffect } from '@domain/ledger/types/ledger-account-balance.types';
 import {
   ELedgerType,
   ENormalBalance,
   ULedgerType,
   UNormalBalance,
-} from '../../../ledger/types/ledger.types';
-import ledgerBalanceEffectRule from '../ledger-balance-effect.rule';
+} from '@domain/ledger/types/ledger.types';
 
 describe('ledgerBalanceEffectRule', () => {
   it('increases balance when journal side matches normal balance', () => {

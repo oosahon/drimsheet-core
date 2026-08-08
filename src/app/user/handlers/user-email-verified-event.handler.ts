@@ -1,9 +1,11 @@
-import { EUserEvents } from '../../../domain/user/events/user.events';
-import { IUser } from '../../../domain/user/types/user.types';
-import IReporter from '../../../shared/contracts/reporter.contract';
-import { IEvent } from '../../../shared/values/events/types/event.types';
-import IAppContext from '../../context/contracts/app-context.contract';
-import validateEventAndSetAppContext from '../../context/helpers/validate-and-set-app-context';
+import IReporter from '@shared/contracts/reporter.contract';
+import { IEvent } from '@shared/values/events/types/event.types';
+
+import { EUserEvents } from '@domain/user/events/user.events';
+import { IUser } from '@domain/user/types/user.types';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import validateEventAndSetAppContext from '@app/context/helpers/validate-and-set-app-context';
 
 interface IDependencies {
   reporter: IReporter;

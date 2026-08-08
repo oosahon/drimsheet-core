@@ -1,4 +1,4 @@
-import ITokenService from '../token-service.contract';
+import ITokenService from '@app/auth/contracts/token-service.contract';
 
 const mockTokenService: jest.Mocked<ITokenService> = {
   generateSignupToken: jest.fn(),

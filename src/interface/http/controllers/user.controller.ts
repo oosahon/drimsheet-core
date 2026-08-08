@@ -9,12 +9,15 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
+
+import { IHttpErrorDto } from '@shared/values/errors/error.dto';
+
 import {
   getAuthUserProfileUseCase,
   getUserPreferencesUseCase,
-} from '../../../infra/ioc/usecases/user';
-import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
-import middlewares from '../middlewares';
+} from '@infra/ioc/usecases/user';
+
+import middlewares from '@interface/http/middlewares';
 
 @Route('users')
 @Tags('User')

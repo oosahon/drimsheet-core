@@ -1,10 +1,11 @@
-import makeGetCurrenciesUseCase from '../../../app/money/usecases/get-currencies.usecase';
-import makeGetExchangeRateUseCase from '../../../app/money/usecases/get-exchange-rates.usecase';
-import makeIngestExchangeRateUseCase from '../../../app/money/usecases/ingest-exchange-rate.usecase';
-import observability from '../../observability';
-import currencyRepos from '../../persistence/repos/money';
-import appContext from '../../runtime/app-context';
-import { repoService } from '../services/repo';
+import makeGetCurrenciesUseCase from '@app/money/usecases/get-currencies.usecase';
+import makeGetExchangeRateUseCase from '@app/money/usecases/get-exchange-rates.usecase';
+import makeIngestExchangeRateUseCase from '@app/money/usecases/ingest-exchange-rate.usecase';
+
+import { repoService } from '@infra/ioc/services/repo';
+import observability from '@infra/observability';
+import currencyRepos from '@infra/persistence/repos/money';
+import appContext from '@infra/runtime/app-context';
 
 export const getAllCurrenciesUseCase = makeGetCurrenciesUseCase({
   currencyRepo: currencyRepos.currency,

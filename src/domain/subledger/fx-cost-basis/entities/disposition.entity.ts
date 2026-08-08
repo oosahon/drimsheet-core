@@ -1,16 +1,17 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import dateUtils from '../../../../shared/utils/date';
-import stringUtils from '../../../../shared/utils/string';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
-import exchangeRateValue from '../../../money/values/exchange-rate.vo';
-import FxCostBasisLotDispositionError from '../errors/disposition.error';
-import FxCostBasisLotDispositionEvents from '../events/disposition.events';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import dateUtils from '@shared/utils/date';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import helpers from '@domain/subledger/fx-cost-basis/entities/helpers/disposition.entity.helpers';
+import FxCostBasisLotDispositionError from '@domain/subledger/fx-cost-basis/errors/disposition.error';
+import FxCostBasisLotDispositionEvents from '@domain/subledger/fx-cost-basis/events/disposition.events';
 import {
   EFxCostBasisLotDispositionAuditAction,
   IFxCostBasisLotDisposition,
-} from '../types/disposition.types';
-import helpers from './helpers/disposition.entity.helpers';
+} from '@domain/subledger/fx-cost-basis/types/disposition.types';
 
 function make(
   payload: TCreationOmits<IFxCostBasisLotDisposition>

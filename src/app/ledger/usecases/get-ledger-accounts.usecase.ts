@@ -1,21 +1,23 @@
-import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
+import IReporter from '@shared/contracts/reporter.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import paginationValue from '@shared/values/pagination/pagination.vo';
+import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
+
+import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo, {
   IFindAllLedgerAccountsOptions,
-} from '../../../domain/ledger/repos/ledger-account.repo';
-import currencyEntity from '../../../domain/money/entities/currency.entity';
-import moneyValue from '../../../domain/money/values/money.vo';
-import IReporter from '../../../shared/contracts/reporter.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import paginationValue from '../../../shared/values/pagination/pagination.vo';
-import { IPaginatedResponse } from '../../../shared/values/pagination/types/pagination.types';
-import IAppContext from '../../context/contracts/app-context.contract';
+} from '@domain/ledger/repos/ledger-account.repo';
+import currencyEntity from '@domain/money/entities/currency.entity';
+import moneyValue from '@domain/money/values/money.vo';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
 import {
   IGetLedgerAccountsQuery,
   ILedgerAccountDto,
-} from '../dtos/ledger-account/ledger-account.dto';
-import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';
-import { getLedgerAccountQueryValidationSchema } from '../dtos/ledger-account/ledger-account.dto.validation';
-import ledgerAppError from '../errors/ledger.error';
+} from '@app/ledger/dtos/ledger-account/ledger-account.dto';
+import ledgerAccountMapper from '@app/ledger/dtos/ledger-account/ledger-account.dto.mapper';
+import { getLedgerAccountQueryValidationSchema } from '@app/ledger/dtos/ledger-account/ledger-account.dto.validation';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
 
 interface IDependencies {
   appContext: IAppContext;

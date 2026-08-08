@@ -1,8 +1,11 @@
-import { RequestHandler } from 'express';
 import { randomBytes } from 'node:crypto';
+
+import { RequestHandler } from 'express';
 import passport from 'passport';
-import { IUser } from '../../../domain/user/types/user.types';
-import appError from '../../../shared/values/errors/app.error';
+
+import appError from '@shared/values/errors/app.error';
+
+import { IUser } from '@domain/user/types/user.types';
 
 export function makeInitiateLoginWithGoogleMiddleware(): RequestHandler {
   return (req, res, next) => {

@@ -1,5 +1,6 @@
-import registerWorkers from '../../messaging/workers';
-import setupServer from '../../server';
+import registerWorkers from '@infra/messaging/workers';
+import setupServer from '@infra/server';
+
 import { bootstrapAccountingContext } from './accounting-context.bootstrap';
 import eventsRegistry from './events.bootstrap';
 import registerRabbitMQConsumers from './rabbit-mq-consumers.bootstrap';

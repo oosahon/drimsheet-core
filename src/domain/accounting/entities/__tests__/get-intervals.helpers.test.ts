@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
-import { EPeriodUnit } from '../../types/period.types';
-import periodHelpers from '../helpers/period.helpers';
+
+import periodHelpers from '@domain/accounting/entities/helpers/period.helpers';
+import { EPeriodUnit } from '@domain/accounting/types/period.types';
 
 describe('Period Helpers - getIntervals', () => {
   const futureYear = dayjs().year() + 10; // Ensure dates are always in the future to pass `endDateIsInThePast` validation

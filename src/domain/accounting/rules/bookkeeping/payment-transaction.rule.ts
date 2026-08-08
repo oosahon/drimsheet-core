@@ -1,14 +1,14 @@
 // TODO: move to payment-entry service
-import { EJournalSide } from '../../../journal-entry/types/journal-line.types';
-import { EAssetAccountBehavior } from '../../../ledger/types/asset-account.types';
-import { EExpenseSubType } from '../../../ledger/types/expense-account.types';
-import { ILedgerAccount } from '../../../ledger/types/ledger.types';
+import accountingError from '@domain/accounting/errors/accounting.error';
+import { ITransactionRule } from '@domain/accounting/types/bookkeeping-rule.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import { EAssetAccountBehavior } from '@domain/ledger/types/asset-account.types';
+import { EExpenseSubType } from '@domain/ledger/types/expense-account.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
-} from '../../../ledger/types/liability-account.types';
-import accountingError from '../../errors/accounting.error';
-import { ITransactionRule } from '../../types/bookkeeping-rule.types';
+} from '@domain/ledger/types/liability-account.types';
 
 const { Bank, PettyCash } = EAssetAccountBehavior;
 const { CreditCard } = ELiabilityAccountBehavior;

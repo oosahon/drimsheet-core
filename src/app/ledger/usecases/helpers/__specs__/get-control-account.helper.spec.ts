@@ -1,13 +1,15 @@
-import accountingEntityEntity from '../../../../../domain/accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { ASSET_LEDGER_CODES } from '../../../../../domain/ledger/config/asset-codes.config';
-import ledgerAccountError from '../../../../../domain/ledger/errors/ledger-account.error';
-import makeCashAccountService from '../../../../../domain/ledger/services/asset-account/cash-account.service';
-import { TCashLedgerCode } from '../../../../../domain/ledger/types/ledger-code.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
-import ledgerAppError from '../../../errors/ledger.error';
-import getControlAccountHelper from '../get-control-account.helper';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import { TCashLedgerCode } from '@domain/ledger/types/ledger-code.types';
+
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
+import getControlAccountHelper from '@app/ledger/usecases/helpers/get-control-account.helper';
 
 describe('getControlAccountHelper', () => {
   const correlationId = 'test-correlation-id';

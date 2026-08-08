@@ -1,11 +1,11 @@
-import contractorEntity from '../entities/contractor.entity';
-import counterpartyEntity from '../entities/counterparty.entity';
-import employerEntity from '../entities/employer.entity';
-import vendorEntity from '../entities/vendor.entity';
-import { ECounterpartyEntityActions } from '../types/counterparty-audit.types';
-import ICounterpartyService from '../types/counterparty.service.types';
-import { ECounterpartyRole } from '../types/counterparty.types';
-import counterpartyAuditValue from '../values/counterparty-audit.vo';
+import contractorEntity from '@domain/counterparty/entities/contractor.entity';
+import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
+import employerEntity from '@domain/counterparty/entities/employer.entity';
+import vendorEntity from '@domain/counterparty/entities/vendor.entity';
+import { ECounterpartyEntityActions } from '@domain/counterparty/types/counterparty-audit.types';
+import ICounterpartyService from '@domain/counterparty/types/counterparty.service.types';
+import { ECounterpartyRole } from '@domain/counterparty/types/counterparty.types';
+import counterpartyAuditValue from '@domain/counterparty/values/counterparty-audit.vo';
 
 export default function makeCounterpartyService(): ICounterpartyService {
   return {

@@ -1,4 +1,5 @@
-import { EAccountingEntityType } from '../types/accounting-entity.types';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+
 import { SYSTEM_ACCOUNTING_STANDARDS } from './accounting-standards.config';
 
 export const countryAccountingStandardMap = {

@@ -1,9 +1,11 @@
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   EPeriodUnit,
   IReportingPeriod,
-} from '../../../../../../domain/accounting/types/period.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import reportingPeriodMapper from '../reporting-period.mapper';
+} from '@domain/accounting/types/period.types';
+
+import reportingPeriodMapper from '@infra/persistence/repos/accounting/mappers/reporting-period.mapper';
 
 describe('reportingPeriodMapper', () => {
   it('should map IReportingPeriod to IReportingPeriodRepoModel', () => {

@@ -1,8 +1,9 @@
-import { IFactor } from '../../../shared/types/number.types';
-import currencyEntity from '../entities/currency.entity';
-import moneyError from '../errors/money.error';
-import { ICurrency } from '../types/currency.types';
-import { IMoney } from '../types/money.types';
+import { IFactor } from '@shared/types/number.types';
+
+import currencyEntity from '@domain/money/entities/currency.entity';
+import moneyError from '@domain/money/errors/money.error';
+import { ICurrency } from '@domain/money/types/currency.types';
+import { IMoney } from '@domain/money/types/money.types';
 
 // TODO (i18n): translate error messages
 

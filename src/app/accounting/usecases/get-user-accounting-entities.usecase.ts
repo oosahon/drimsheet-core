@@ -1,5 +1,6 @@
-import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
-import IAppContext from '../../context/contracts/app-context.contract';
+import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
   appContext: IAppContext;

@@ -1,12 +1,14 @@
-import { SYSTEM_CURRENCIES } from '../../../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../../../domain/money/values/money.vo';
+import { TEntityId } from '@shared/types/uuid';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
 import {
   EFxCostBasisLotStatus,
   IFxCostBasisLotHistory,
-} from '../../../../../../../domain/subledger/fx-cost-basis/types/lot.types';
-import { TEntityId } from '../../../../../../../shared/types/uuid';
-import { EHistoryActorType } from '../../../../../../../shared/values/history/types/history.types';
-import fxCostBasisLotHistoryMapper from '../lot-history.mapper';
+} from '@domain/subledger/fx-cost-basis/types/lot.types';
+
+import fxCostBasisLotHistoryMapper from '@infra/persistence/repos/subledger/mappers/fx-cost-basis/lot-history.mapper';
 
 describe('FX Cost-Basis Lot History Mapper', () => {
   it('maps lot history to the repository model', () => {

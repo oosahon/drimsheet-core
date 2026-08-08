@@ -1,7 +1,8 @@
 import { Express } from 'express';
 import passport from 'passport';
 import request from 'supertest';
-import { createApplication } from '../../../src/infra/server';
+
+import { createApplication } from '@infra/server';
 
 class RedirectGoogleStrategy extends passport.Strategy {
   name = 'google';

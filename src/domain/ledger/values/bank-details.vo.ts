@@ -1,7 +1,8 @@
-import stringUtils from '../../../shared/utils/string';
-import accountingEntityHelpers from '../../accounting/entities/helpers/accounting-entity.entity.helpers';
-import ledgerAccountError from '../errors/ledger-account.error';
-import { IBankDetails } from '../types/asset-account.types';
+import stringUtils from '@shared/utils/string';
+
+import accountingEntityHelpers from '@domain/accounting/entities/helpers/accounting-entity.entity.helpers';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import { IBankDetails } from '@domain/ledger/types/asset-account.types';
 
 function make(payload: IBankDetails): Readonly<IBankDetails> {
   const countryCode = payload?.countryCode?.trim()?.toUpperCase() ?? '';

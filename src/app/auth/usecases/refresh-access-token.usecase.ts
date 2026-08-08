@@ -1,13 +1,15 @@
-import IUserRepo from '../../../domain/user/repos/user.repo';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
-import { IRepoService } from '../../../shared/contracts/repo.contract';
-import { ITransactionContext } from '../../../shared/types/repo.types';
-import appError from '../../../shared/values/errors/app.error';
-import IAppContext from '../../context/contracts/app-context.contract';
-import ITokenService from '../contracts/token-service.contract';
-import IUserSessionRepo from '../contracts/user-session.repo.contract';
-import authError from '../errors/auth.error';
-import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
+import IEventBus from '@shared/contracts/event-bus.contract';
+import { IRepoService } from '@shared/contracts/repo.contract';
+import { ITransactionContext } from '@shared/types/repo.types';
+import appError from '@shared/values/errors/app.error';
+
+import IUserRepo from '@domain/user/repos/user.repo';
+
+import ITokenService from '@app/auth/contracts/token-service.contract';
+import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
+import authError from '@app/auth/errors/auth.error';
+import makeIssueUserSessionHelper from '@app/auth/usecases/helpers/issue-user-session.helper';
+import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
   reqContext: IAppContext;

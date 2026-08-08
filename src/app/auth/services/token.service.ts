@@ -1,12 +1,14 @@
 import { randomUUID } from 'node:crypto';
-import { ICacheStorage } from '../../../shared/contracts/cache-storage.contract';
+
+import { ICacheStorage } from '@shared/contracts/cache-storage.contract';
 import ITokenCodec, {
   TTokenVerificationFailure,
-} from '../../../shared/contracts/token-codec.contract';
+} from '@shared/contracts/token-codec.contract';
+
 import ITokenService, {
   IAuthTokenPayload,
-} from '../contracts/token-service.contract';
-import authError from '../errors/auth.error';
+} from '@app/auth/contracts/token-service.contract';
+import authError from '@app/auth/errors/auth.error';
 
 interface IDependencies {
   cacheStorage: ICacheStorage;

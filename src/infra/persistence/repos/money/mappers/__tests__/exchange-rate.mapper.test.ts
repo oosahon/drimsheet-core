@@ -1,7 +1,8 @@
-import { EExchangeRateType } from '../../../../../../domain/money/types/exchange-rate.types';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+
 import exchangeRateMapper, {
   IExchangeRateModel,
-} from '../exchange-rate.mapper';
+} from '@infra/persistence/repos/money/mappers/exchange-rate.mapper';
 
 describe('Exchange Rate Mapper', () => {
   const asOf = new Date('2026-05-01T00:00:00.000Z');

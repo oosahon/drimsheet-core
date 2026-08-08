@@ -1,8 +1,10 @@
 import { Express } from 'express';
 import request from 'supertest';
-import { SYSTEM_JURISDICTIONS } from '../../../src/domain/accounting/config/jurisdictions.config';
-import * as accountingUsecases from '../../../src/infra/ioc/usecases/accounting';
-import { createApplication } from '../../../src/infra/server';
+
+import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
+
+import * as accountingUsecases from '@infra/ioc/usecases/accounting';
+import { createApplication } from '@infra/server';
 
 jest.mock('../../../src/infra/ioc/usecases/accounting', () => ({
   __esModule: true,

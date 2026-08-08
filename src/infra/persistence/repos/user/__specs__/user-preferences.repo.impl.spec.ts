@@ -1,8 +1,9 @@
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { userPreferencesInCore } from '../../../../config/drizzle/schema';
-import getDbQuery from '../../../helpers/get-db-query';
-import userPreferencesMapper from '../mappers/user-preferences.mapper';
-import userPreferencesRepo from '../user-preferences.repo.impl';
+import { TEntityId } from '@shared/types/uuid';
+
+import { userPreferencesInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import userPreferencesMapper from '@infra/persistence/repos/user/mappers/user-preferences.mapper';
+import userPreferencesRepo from '@infra/persistence/repos/user/user-preferences.repo.impl';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/user-preferences.mapper');

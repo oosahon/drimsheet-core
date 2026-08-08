@@ -1,4 +1,4 @@
-import { IOpeningBalanceDto } from '../../../journal-entry/dtos/opening-balance/opening-balance.dto';
+import { IOpeningBalanceDto } from '@app/journal-entry/dtos/opening-balance/opening-balance.dto';
 
 export interface IPettyCashAccountCreationReq {
   name: string;

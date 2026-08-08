@@ -1,10 +1,11 @@
+import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IJournalEntryHistory } from '@domain/journal-entry/types/journal-entry-audit.types';
 import {
-  IReadRepoOptions,
-  IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { IJournalEntryHistory } from '../types/journal-entry-audit.types';
-import { IJournalEntry, IJournalHeader } from '../types/journal-entry.types';
+  IJournalEntry,
+  IJournalHeader,
+} from '@domain/journal-entry/types/journal-entry.types';
 
 export default interface IJournalEntryRepo {
   create(

@@ -1,7 +1,8 @@
-import { TEntityId } from '../../../shared/types/uuid';
-import { IHistory } from '../../../shared/values/history/types/history.types';
-import { UCurrencyCode } from '../../money/config/currencies.config';
-import { UJurisdictionCode } from '../config/jurisdictions.config';
+import { TEntityId } from '@shared/types/uuid';
+import { IHistory } from '@shared/values/history/types/history.types';
+
+import { UJurisdictionCode } from '@domain/accounting/config/jurisdictions.config';
+import { UCurrencyCode } from '@domain/money/config/currencies.config';
 
 export const EAccountingEntityType = {
   Individual: 'individual',

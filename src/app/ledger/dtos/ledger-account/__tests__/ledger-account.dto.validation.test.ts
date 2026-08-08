@@ -1,14 +1,15 @@
-import { ELedgerAccountSortBy } from '../../../../../domain/ledger/repos/ledger-account.repo';
-import { ELedgerAccountBehavior } from '../../../../../domain/ledger/types/account-behaviors.tyypes';
-import { ELedgerAccountSubType } from '../../../../../domain/ledger/types/ledger-aggregate.types';
-import { ELedgerType } from '../../../../../domain/ledger/types/ledger.types';
+import { ELedgerAccountSortBy } from '@domain/ledger/repos/ledger-account.repo';
+import { ELedgerAccountBehavior } from '@domain/ledger/types/account-behaviors.tyypes';
+import { ELedgerAccountSubType } from '@domain/ledger/types/ledger-aggregate.types';
+import { ELedgerType } from '@domain/ledger/types/ledger.types';
+
 import {
   getLedgerAccountQueryValidationSchema,
   ledgerAccountBehaviorValidation,
   ledgerAccountOrderByValidationSchema,
   ledgerAccountSubTypeValidation,
   ledgerAccountTypeValidation,
-} from '../ledger-account.dto.validation';
+} from '@app/ledger/dtos/ledger-account/ledger-account.dto.validation';
 
 describe('Ledger Account DTO Validation', () => {
   describe('ledgerAccountTypeValidation', () => {

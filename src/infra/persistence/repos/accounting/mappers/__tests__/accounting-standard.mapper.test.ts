@@ -1,5 +1,6 @@
-import { IAccountingStandard } from '../../../../../../domain/accounting/types/accounting-standards.types';
-import accountingStandardMapper from '../accounting-standard.mapper';
+import { IAccountingStandard } from '@domain/accounting/types/accounting-standards.types';
+
+import accountingStandardMapper from '@infra/persistence/repos/accounting/mappers/accounting-standard.mapper';
 
 describe('Accounting Standard Mapper', () => {
   describe('toRepo', () => {

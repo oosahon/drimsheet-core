@@ -1,31 +1,29 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import {
+  IEvent,
+  TAuditedEntity,
+} from '@shared/values/events/types/event.types';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
   IAssetLedgerAccount,
   IReceivablesAccount,
   IStatutoryReceivableAccount,
-} from '../../../../domain/ledger/types/asset-account.types';
-import ICashAccountService from '../../../../domain/ledger/types/cash-account.service.types';
+} from '@domain/ledger/types/asset-account.types';
+import ICashAccountService from '@domain/ledger/types/cash-account.service.types';
 import {
   TAssetLedgerCode,
   TReceivablesLedgerCode,
-} from '../../../../domain/ledger/types/ledger-code.types';
-import {
-  ELedgerType,
-  ILedgerAccount,
-} from '../../../../domain/ledger/types/ledger.types';
-import { IReceivablesAccountService } from '../../../../domain/ledger/types/receivables-account.service.types';
-import { ISuspenseAccountService } from '../../../../domain/ledger/types/suspense-account.service.types';
-import currencyEntity from '../../../../domain/money/entities/currency.entity';
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import {
-  IEvent,
-  TAuditedEntity,
-} from '../../../../shared/values/events/types/event.types';
-import { IEntityDelta } from '../../../../shared/values/history/types/history.types';
+} from '@domain/ledger/types/ledger-code.types';
+import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { IReceivablesAccountService } from '@domain/ledger/types/receivables-account.service.types';
+import { ISuspenseAccountService } from '@domain/ledger/types/suspense-account.service.types';
+import currencyEntity from '@domain/money/entities/currency.entity';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

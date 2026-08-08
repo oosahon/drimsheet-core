@@ -1,14 +1,15 @@
-import dateUtils from '../../../../shared/utils/date';
-import numberUtils from '../../../../shared/utils/number';
-import stringUtils from '../../../../shared/utils/string';
-import currencyEntity from '../../entities/currency.entity';
-import currencyError from '../../errors/currency.error';
-import exchangeRateError from '../../errors/exchange-rate.error';
+import dateUtils from '@shared/utils/date';
+import numberUtils from '@shared/utils/number';
+import stringUtils from '@shared/utils/string';
+
+import currencyEntity from '@domain/money/entities/currency.entity';
+import currencyError from '@domain/money/errors/currency.error';
+import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import {
   EExchangeRateType,
   IExchangeRate,
   UExchangeRateType,
-} from '../../types/exchange-rate.types';
+} from '@domain/money/types/exchange-rate.types';
 
 function validateType(value: UExchangeRateType) {
   if (!Object.values(EExchangeRateType).includes(value)) {

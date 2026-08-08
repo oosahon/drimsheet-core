@@ -1,11 +1,14 @@
 import { z } from 'zod';
-import IUserRepo from '../../../domain/user/repos/user.repo';
-import emailValue from '../../../domain/user/values/email.vo';
-import ILogger from '../../../shared/contracts/logger.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import IAppContext from '../../context/contracts/app-context.contract';
-import IEmailVerificationService from '../contracts/email-verification-service.contract';
-import authError from '../errors/auth.error';
+
+import ILogger from '@shared/contracts/logger.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+
+import IUserRepo from '@domain/user/repos/user.repo';
+import emailValue from '@domain/user/values/email.vo';
+
+import IEmailVerificationService from '@app/auth/contracts/email-verification-service.contract';
+import authError from '@app/auth/errors/auth.error';
+import IAppContext from '@app/context/contracts/app-context.contract';
 
 const validationSchema = z.object({
   email: z.email(),

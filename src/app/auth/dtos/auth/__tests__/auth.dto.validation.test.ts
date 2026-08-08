@@ -2,7 +2,7 @@ import {
   emailLoginReqValidation,
   userSignupReqValidation,
   validatePassword,
-} from '../auth.dto.validation';
+} from '@app/auth/dtos/auth/auth.dto.validation';
 
 describe('auth DTO validation', () => {
   describe('validatePassword', () => {

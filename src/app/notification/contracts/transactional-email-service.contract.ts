@@ -1,5 +1,6 @@
-import { IUser } from '../../../domain/user/types/user.types';
-import { ICorrelationId } from '../../../shared/types/correlation-id.types';
+import { ICorrelationId } from '@shared/types/correlation-id.types';
+
+import { IUser } from '@domain/user/types/user.types';
 
 interface IEmailVerificationPayload extends ICorrelationId {
   user: IUser;

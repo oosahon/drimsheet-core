@@ -1,17 +1,18 @@
-import dateUtils from '../../../shared/utils/date';
-import currencyEntity from '../../money/entities/currency.entity';
-import accountingContextEntity from '../entities/accounting-context.entity';
-import accountingEntityEntity from '../entities/accounting-entity.entity';
-import accountingPeriodEntity from '../entities/accounting-period.entity';
-import fiscalYearEntity from '../entities/fiscal-year.entity';
-import periodEntity from '../entities/period.entity';
-import reportingContextEntity from '../entities/reporting-context.entity';
-import reportingPeriodEntity from '../entities/reporting-period.entity';
-import errors from '../errors/accounting-entity.error';
-import periodError from '../errors/period.error';
-import IAccountingEntityService from '../types/accounting-entity.service.types';
-import { IJurisdiction } from '../types/jurisdiction.types';
-import { EPeriodStatus } from '../types/period.types';
+import dateUtils from '@shared/utils/date';
+
+import accountingContextEntity from '@domain/accounting/entities/accounting-context.entity';
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import accountingPeriodEntity from '@domain/accounting/entities/accounting-period.entity';
+import fiscalYearEntity from '@domain/accounting/entities/fiscal-year.entity';
+import periodEntity from '@domain/accounting/entities/period.entity';
+import reportingContextEntity from '@domain/accounting/entities/reporting-context.entity';
+import reportingPeriodEntity from '@domain/accounting/entities/reporting-period.entity';
+import errors from '@domain/accounting/errors/accounting-entity.error';
+import periodError from '@domain/accounting/errors/period.error';
+import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
+import { IJurisdiction } from '@domain/accounting/types/jurisdiction.types';
+import { EPeriodStatus } from '@domain/accounting/types/period.types';
+import currencyEntity from '@domain/money/entities/currency.entity';
 
 type TCreate = IAccountingEntityService['create'];
 type TGrantUserAccess = IAccountingEntityService['grantUserAccess'];

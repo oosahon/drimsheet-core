@@ -1,23 +1,24 @@
-import makeEmailVerificationService from '../../../app/auth/services/email-verification.service';
-import makeLoginWithEmailUseCase from '../../../app/auth/usecases/login-with-email.usecase';
-import makeLoginWithGoogleUseCase from '../../../app/auth/usecases/login-with-google.usecase';
-import makeLogoutUseCase from '../../../app/auth/usecases/logout.usecase';
-import makeOauthUsecase from '../../../app/auth/usecases/oauth.usecase';
-import makeRefreshAccessTokenUseCase from '../../../app/auth/usecases/refresh-access-token.usecase';
-import makeRequestPasswordResetUseCase from '../../../app/auth/usecases/request-password-reset.usecase';
-import makeResetPasswordUseCase from '../../../app/auth/usecases/reset-password.usecase';
-import makeSendEmailVerificationEmailUseCase from '../../../app/auth/usecases/send-email-verification-email.usecase';
-import makeSignupWithEmailUsecase from '../../../app/auth/usecases/signup-with-email.usecase';
-import makeVerifyEmailAddressUseCase from '../../../app/auth/usecases/verify-email.usecase';
-import * as varsConfig from '../../config/vars.config';
-import messaging from '../../messaging';
-import observability from '../../observability';
-import cacheStorage from '../../persistence/cache/cache-storage.impl';
-import userRepos from '../../persistence/repos/user';
-import appContext from '../../runtime/app-context';
-import { passwordService, tokenService } from '../services/auth';
-import { transactionalEmailService } from '../services/notification';
-import { repoService } from '../services/repo';
+import makeEmailVerificationService from '@app/auth/services/email-verification.service';
+import makeLoginWithEmailUseCase from '@app/auth/usecases/login-with-email.usecase';
+import makeLoginWithGoogleUseCase from '@app/auth/usecases/login-with-google.usecase';
+import makeLogoutUseCase from '@app/auth/usecases/logout.usecase';
+import makeOauthUsecase from '@app/auth/usecases/oauth.usecase';
+import makeRefreshAccessTokenUseCase from '@app/auth/usecases/refresh-access-token.usecase';
+import makeRequestPasswordResetUseCase from '@app/auth/usecases/request-password-reset.usecase';
+import makeResetPasswordUseCase from '@app/auth/usecases/reset-password.usecase';
+import makeSendEmailVerificationEmailUseCase from '@app/auth/usecases/send-email-verification-email.usecase';
+import makeSignupWithEmailUsecase from '@app/auth/usecases/signup-with-email.usecase';
+import makeVerifyEmailAddressUseCase from '@app/auth/usecases/verify-email.usecase';
+
+import * as varsConfig from '@infra/config/vars.config';
+import { passwordService, tokenService } from '@infra/ioc/services/auth';
+import { transactionalEmailService } from '@infra/ioc/services/notification';
+import { repoService } from '@infra/ioc/services/repo';
+import messaging from '@infra/messaging';
+import observability from '@infra/observability';
+import cacheStorage from '@infra/persistence/cache/cache-storage.impl';
+import userRepos from '@infra/persistence/repos/user';
+import appContext from '@infra/runtime/app-context';
 
 const emailVerificationService = makeEmailVerificationService({
   cacheStorage,

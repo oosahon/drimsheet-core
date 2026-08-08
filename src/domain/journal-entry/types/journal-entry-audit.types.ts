@@ -1,8 +1,9 @@
-import { IEvent } from '../../../shared/values/events/types/event.types';
+import { IEvent } from '@shared/values/events/types/event.types';
 import {
   IEntityDelta,
   IHistory,
-} from '../../../shared/values/history/types/history.types';
+} from '@shared/values/history/types/history.types';
+
 import { IJournalEntry, IJournalHeader } from './journal-entry.types';
 import { IJournalLine } from './journal-line.types';
 

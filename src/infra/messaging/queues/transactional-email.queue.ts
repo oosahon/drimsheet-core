@@ -1,10 +1,13 @@
 import { Queue } from 'bullmq';
+
+import IReporter from '@shared/contracts/reporter.contract';
+
 import ITransactionalEmailQueue, {
   TRANSACTIONAL_EMAIL_QUEUE_NAME,
-} from '../../../app/notification/contracts/transactional-email-queue.contract';
-import { ITransactionalEmailDto } from '../../../app/notification/dtos/transactional-email/transactional-email.dto';
-import IReporter from '../../../shared/contracts/reporter.contract';
-import { getQueueConnection } from '../../config/redis.config';
+} from '@app/notification/contracts/transactional-email-queue.contract';
+import { ITransactionalEmailDto } from '@app/notification/dtos/transactional-email/transactional-email.dto';
+
+import { getQueueConnection } from '@infra/config/redis.config';
 
 let transactionalEmailQueue: Queue<ITransactionalEmailDto> | undefined;
 

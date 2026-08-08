@@ -1,18 +1,19 @@
-import makeCreateOpeningBalanceUseCase from '../../../app/journal-entry/usecases/create-opening-balance.usecase';
-import makeCreateReceiptUsecase from '../../../app/journal-entry/usecases/create-receipt.usecase';
-import messaging from '../../messaging';
-import ledgerRepos from '../../persistence/repos/ledger';
-import appContext from '../../runtime/app-context';
+import makeCreateOpeningBalanceUseCase from '@app/journal-entry/usecases/create-opening-balance.usecase';
+import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
+
 import {
   counterpartyAppService,
   counterpartyPersistenceService,
-} from '../services/counterparty';
+} from '@infra/ioc/services/counterparty';
 import {
   journalEntryPersistenceService,
   journalEntryService,
-} from '../services/journal-entry';
-import { ledgerAccountBalancePropagationService } from '../services/ledger';
-import { repoService } from '../services/repo';
+} from '@infra/ioc/services/journal-entry';
+import { ledgerAccountBalancePropagationService } from '@infra/ioc/services/ledger';
+import { repoService } from '@infra/ioc/services/repo';
+import messaging from '@infra/messaging';
+import ledgerRepos from '@infra/persistence/repos/ledger';
+import appContext from '@infra/runtime/app-context';
 
 export const createOpeningBalanceUseCase = makeCreateOpeningBalanceUseCase({
   appContext: appContext,

@@ -1,5 +1,6 @@
-import { IWriteRepoOptions } from '../../../shared/types/repo.types';
-import { IAccountingStandard } from '../types/accounting-standards.types';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+
+import { IAccountingStandard } from '@domain/accounting/types/accounting-standards.types';
 
 export interface IAccountingStandardRepo {
   create(

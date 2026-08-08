@@ -1,15 +1,19 @@
 import { Request, Response } from 'express';
-import { mockAccountingEntityRepo as mockAccountingEntityRepoCentral } from '../../../../app/accounting/contracts/__mocks__/accounting.repos.mock';
+
+import ILogger from '@shared/contracts/logger.contract';
+import IVarsConfig from '@shared/contracts/vars-config.contract';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { IUser } from '@domain/user/types/user.types';
+
+import { mockAccountingEntityRepo as mockAccountingEntityRepoCentral } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
 import ITokenService, {
   IAuthTokenPayload,
-} from '../../../../app/auth/contracts/token-service.contract';
-import IAppContext from '../../../../app/context/contracts/app-context.contract';
-import { mockUserRepo as mockUserRepoCentral } from '../../../../app/user/contracts/__mocks__/user.repos.mock';
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { IUser } from '../../../../domain/user/types/user.types';
-import ILogger from '../../../../shared/contracts/logger.contract';
-import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
-import makeAppContextInitMiddleware from '../app-context-init.middleware';
+} from '@app/auth/contracts/token-service.contract';
+import IAppContext from '@app/context/contracts/app-context.contract';
+import { mockUserRepo as mockUserRepoCentral } from '@app/user/contracts/__mocks__/user.repos.mock';
+
+import makeAppContextInitMiddleware from '@interface/http/middlewares/app-context-init.middleware';
 
 describe('makeAppContextInitMiddleware', () => {
   let mockAppContext: jest.Mocked<IAppContext>;

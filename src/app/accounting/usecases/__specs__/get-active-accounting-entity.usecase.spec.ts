@@ -1,9 +1,11 @@
-import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import accountingAppError from '../../errors/accounting.error';
-import makeGetCurrentAccountingEntityUseCase from '../get-active-accounting-entity.usecase';
+import { TEntityId } from '@shared/types/uuid';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+
+import accountingAppError from '@app/accounting/errors/accounting.error';
+import makeGetCurrentAccountingEntityUseCase from '@app/accounting/usecases/get-active-accounting-entity.usecase';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 
 describe('getActiveAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';

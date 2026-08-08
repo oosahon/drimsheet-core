@@ -1,8 +1,14 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IEmployer } from '../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyEmployersInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { IEmployer } from '@domain/counterparty/types/counterparty.types';
+
+import { counterpartyEmployersInCore } from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface IEmployerModel extends InferSelectModel<
   typeof counterpartyEmployersInCore

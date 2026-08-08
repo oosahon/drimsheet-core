@@ -1,6 +1,10 @@
-import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { EXPENSE_LEDGER_CODES } from '../../../../../domain/ledger/config/expense-codes.config';
-import ledgerAccountEntity from '../../../../../domain/ledger/entities/ledger-account.entity';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { EXPENSE_LEDGER_CODES } from '@domain/ledger/config/expense-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -15,19 +19,17 @@ import {
   IUnrealizedLossAccount,
   UExpenseAccountBehavior,
   UExpenseSubType,
-} from '../../../../../domain/ledger/types/expense-account.types';
-import { TExpenseLedgerCode } from '../../../../../domain/ledger/types/ledger-code.types';
+} from '@domain/ledger/types/expense-account.types';
+import { TExpenseLedgerCode } from '@domain/ledger/types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../../../domain/ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
-import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
+} from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+
 import {
   mockAssetDisposalLossAccountService,
   mockBankChargeAccountService,
@@ -37,9 +39,9 @@ import {
   mockRentAndUtilitiesAccountService,
   mockTaxExpenseAccountService,
   mockUnrealizedLossAccountService,
-} from '../../../contracts/__mocks__/ledger.domain.services.mock';
-import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
-import makeExpenseAccountsBootstrapHelper from '../expense-accounts-bootstrap.helper';
+} from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import makeExpenseAccountsBootstrapHelper from '@app/ledger/services/helpers/expense-accounts-bootstrap.helper';
 
 describe('expenseAccountsBootstrapHelper', () => {
   const services = {

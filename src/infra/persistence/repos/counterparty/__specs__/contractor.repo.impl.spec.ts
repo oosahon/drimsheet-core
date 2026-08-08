@@ -1,12 +1,14 @@
-import { IContractorHistory } from '../../../../../domain/counterparty/types/counterparty-audit.types';
-import { IContractor } from '../../../../../domain/counterparty/types/counterparty.types';
-import { IWriteRepoOptions } from '../../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyContractorsInCore } from '../../../../config/drizzle/schema';
-import getDbQuery from '../../../helpers/get-db-query';
-import contractorHistoryRepo from '../contractor-history.repo.impl';
-import contractorRepo from '../contractor.repo.impl';
-import contractorMapper from '../mappers/contractor.mapper';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IContractorHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { IContractor } from '@domain/counterparty/types/counterparty.types';
+
+import { counterpartyContractorsInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import contractorHistoryRepo from '@infra/persistence/repos/counterparty/contractor-history.repo.impl';
+import contractorRepo from '@infra/persistence/repos/counterparty/contractor.repo.impl';
+import contractorMapper from '@infra/persistence/repos/counterparty/mappers/contractor.mapper';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/contractor.mapper');

@@ -1,5 +1,6 @@
 import { isEqual } from 'lodash';
-import { IDiff } from '../types/diff.types';
+
+import { IDiff } from '@shared/types/diff.types';
 
 export default function generateDiff<T extends object>(
   after: T,

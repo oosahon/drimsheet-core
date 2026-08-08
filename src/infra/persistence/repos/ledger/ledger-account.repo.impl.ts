@@ -8,20 +8,24 @@ import {
   or,
   sql,
 } from 'drizzle-orm';
+
+import drizzleFilters from '@shared/helpers/drizzle-filters';
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+import paginationValue from '@shared/values/pagination/pagination.vo';
+
 import ILedgerAccountRepo, {
   ELedgerAccountSortBy,
-} from '../../../../domain/ledger/repos/ledger-account.repo';
-import drizzleFilters from '../../../../shared/helpers/drizzle-filters';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import paginationValue from '../../../../shared/values/pagination/pagination.vo';
+} from '@domain/ledger/repos/ledger-account.repo';
+
 import {
   currenciesInCore,
   ledgerAccountBalancesInCore,
   ledgerAccountsInCore,
-} from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
+} from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import ledgerAccountMapper from '@infra/persistence/repos/ledger/mappers/ledger-account.mapper';
+
 import ledgerAccountHistoryRepo from './ledger-account-history.repo.impl';
-import ledgerAccountMapper from './mappers/ledger-account.mapper';
 
 const ledgerAccountRepoImpl: ILedgerAccountRepo = {
   create: async (payload, options) => {

@@ -1,18 +1,21 @@
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import stringUtils from '../../../shared/utils/string';
-import generateUUID from '../../../shared/utils/uuid-generator';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
 import {
   IEvent,
   TAuditedEntity,
-} from '../../../shared/values/events/types/event.types';
-import userEvents from '../events/user.events';
+} from '@shared/values/events/types/event.types';
 
-import userError from '../errors/user.error';
-import { EUserEntityActions, IUserAudit } from '../types/user-audit.types';
-import { IUser } from '../types/user.types';
-import emailValue from '../values/email.vo';
-import userAudit from '../values/user-audit.vo';
-import helpers from './helpers/user.entity.helpers';
+import helpers from '@domain/user/entities/helpers/user.entity.helpers';
+import userError from '@domain/user/errors/user.error';
+import userEvents from '@domain/user/events/user.events';
+import {
+  EUserEntityActions,
+  IUserAudit,
+} from '@domain/user/types/user-audit.types';
+import { IUser } from '@domain/user/types/user.types';
+import emailValue from '@domain/user/values/email.vo';
+import userAudit from '@domain/user/values/user-audit.vo';
 
 function make(
   payload: TCreationOmits<IUser>

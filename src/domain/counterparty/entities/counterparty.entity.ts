@@ -1,17 +1,18 @@
-import generateUUID from '../../../shared/utils/uuid-generator';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import counterpartyError from '../errors/counterparty.error';
-import counterpartyEvents from '../events/counterparty.events';
-import { ECounterpartyEntityActions } from '../types/counterparty-audit.types';
+import generateUUID from '@shared/utils/uuid-generator';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import helpers from '@domain/counterparty/entities/helpers/counterparty.entity.helpers';
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
+import counterpartyEvents from '@domain/counterparty/events/counterparty.events';
+import { ECounterpartyEntityActions } from '@domain/counterparty/types/counterparty-audit.types';
 import {
   ECounterpartyStatus,
   ICounterparty,
   IMakeCounterpartyPayload,
   TAuditedCounterparty,
   UCounterpartyRole,
-} from '../types/counterparty.types';
-import counterpartyAuditValue from '../values/counterparty-audit.vo';
-import helpers from './helpers/counterparty.entity.helpers';
+} from '@domain/counterparty/types/counterparty.types';
+import counterpartyAuditValue from '@domain/counterparty/values/counterparty-audit.vo';
 
 function make(payload: IMakeCounterpartyPayload): TAuditedCounterparty {
   helpers.validateAccountingEntityId(payload.accountingEntityId);

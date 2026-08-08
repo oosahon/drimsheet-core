@@ -1,4 +1,4 @@
-import { getBanksQueryValidationSchema } from '../bank-directory.dto.validation';
+import { getBanksQueryValidationSchema } from '@app/ledger/dtos/bank-directory/bank-directory.dto.validation';
 
 describe('Bank Directory DTO Validation', () => {
   describe('getBanksQueryValidationSchema', () => {

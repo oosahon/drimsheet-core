@@ -1,24 +1,26 @@
-import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
-import ledgerAccountEntity from '../../../domain/ledger/entities/ledger-account.entity';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
+import IEventBus from '@shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
-import { TEntityId } from '../../../shared/types/uuid';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/values/events/event.vo';
-import { IEvent } from '../../../shared/values/events/types/event.types';
-import historyValue from '../../../shared/values/history/history.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import { ILedgerAccountBalancePropagationService } from '../../ledger/contracts/ledger-account-balance-propagation.service.contract';
-import ledgerAppError from '../../ledger/errors/ledger.error';
-import moneyMapper from '../../money/dtos/money/money.dto.mapper';
-import IJournalEntryPersistenceService from '../contracts/journal-entry-persistence.service.contract';
-import { IOpeningBalanceCreationReq } from '../dtos/opening-balance/opening-balance.dto';
-import { openingBalanceCreationReqValidation } from '../dtos/opening-balance/opening-balance.dto.validation';
+} from '@shared/contracts/repo.contract';
+import { TEntityId } from '@shared/types/uuid';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import eventValue from '@shared/values/events/event.vo';
+import { IEvent } from '@shared/values/events/types/event.types';
+import historyValue from '@shared/values/history/history.vo';
+
+import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
+import { IOpeningBalanceCreationReq } from '@app/journal-entry/dtos/opening-balance/opening-balance.dto';
+import { openingBalanceCreationReqValidation } from '@app/journal-entry/dtos/opening-balance/opening-balance.dto.validation';
+import { ILedgerAccountBalancePropagationService } from '@app/ledger/contracts/ledger-account-balance-propagation.service.contract';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
+import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
 
 interface IDependencies {
   appContext: IAppContext;

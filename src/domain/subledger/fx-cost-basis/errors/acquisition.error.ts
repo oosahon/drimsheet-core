@@ -1,6 +1,6 @@
-import { TErrorCause } from '../../../../shared/types/error.types';
-import errorUtils from '../../../../shared/utils/error';
-import DomainError from '../../../../shared/values/errors/domain.error';
+import { TErrorCause } from '@shared/types/error.types';
+import errorUtils from '@shared/utils/error';
+import DomainError from '@shared/values/errors/domain.error';
 
 type TErrorKeyPrefix = `fx_cost_basis_lot_acquisition_${string}`;
 

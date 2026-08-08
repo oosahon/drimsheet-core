@@ -1,7 +1,8 @@
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IAddress } from '../../../../shared/values/contact-details/types/address.types';
-import counterpartyError from '../../errors/counterparty.error';
-import contractorEntity from '../contractor.entity';
+import generateUUID from '@shared/utils/uuid-generator';
+import { IAddress } from '@shared/values/contact-details/types/address.types';
+
+import contractorEntity from '@domain/counterparty/entities/contractor.entity';
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 
 describe('Contractor Entity', () => {
   const counterpartyId = generateUUID();

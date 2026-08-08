@@ -12,21 +12,25 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IPettyCashAccountCreationReq } from '../../../app/ledger/dtos/asset-account/asset-account.dto';
+
+import { TEntityId } from '@shared/types/uuid';
+import { IHttpErrorDto } from '@shared/values/errors/error.dto';
+import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
+
+import { IPettyCashAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
 import {
   IGetLedgerAccountsQuery,
   ILedgerAccountDto,
-} from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
+} from '@app/ledger/dtos/ledger-account/ledger-account.dto';
+
 import {
   createPettyCashAccountUseCase,
   getAccountTransactionsUseCase,
-  getLedgerAccountUseCase,
   getLedgerAccountsUseCase,
-} from '../../../infra/ioc/usecases/ledger';
-import { TEntityId } from '../../../shared/types/uuid';
-import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
-import { IPaginationDto } from '../../../shared/values/pagination/dto/pagination.dto';
-import middlewares from '../middlewares';
+  getLedgerAccountUseCase,
+} from '@infra/ioc/usecases/ledger';
+
+import middlewares from '@interface/http/middlewares';
 
 @Route('ledger')
 @Tags('Ledger')

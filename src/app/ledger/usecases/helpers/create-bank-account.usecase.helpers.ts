@@ -1,30 +1,33 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import IAccountingPeriodService from '../../../../domain/accounting/types/accounting-period.service.types';
-import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
-import IBankAccountRepo from '../../../../domain/ledger/repos/bank-account.repo';
-import {
-  IBankDetails,
-  ICashAndCashEquivalentAccount,
-} from '../../../../domain/ledger/types/asset-account.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import IEventBus from '../../../../shared/contracts/event-bus.contract';
+import IEventBus from '@shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../../shared/contracts/repo.contract';
+} from '@shared/contracts/repo.contract';
 import {
   ERepoLock,
   IReadRepoOptions,
   IRepoOptions,
-} from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import eventValue from '../../../../shared/values/events/event.vo';
-import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
-import historyValue from '../../../../shared/values/history/history.vo';
-import { IHistoryActor } from '../../../../shared/values/history/types/history.types';
-import { IOpeningBalanceDto } from '../../../journal-entry/dtos/opening-balance/opening-balance.dto';
-import ILedgerAccountPersistenceService from '../../contracts/ledger-account-persistence.service.contract';
-import { IBankDetailsCreationReq } from '../../dtos/asset-account/asset-account.dto';
+} from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import eventValue from '@shared/values/events/event.vo';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+import historyValue from '@shared/values/history/history.vo';
+import { IHistoryActor } from '@shared/values/history/types/history.types';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import IAccountingPeriodService from '@domain/accounting/types/accounting-period.service.types';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import IBankAccountRepo from '@domain/ledger/repos/bank-account.repo';
+import {
+  IBankDetails,
+  ICashAndCashEquivalentAccount,
+} from '@domain/ledger/types/asset-account.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+
+import { IOpeningBalanceDto } from '@app/journal-entry/dtos/opening-balance/opening-balance.dto';
+import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
+import { IBankDetailsCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
+
 import mapLedgerAccountToDto from './map-ledger-account-to-dto.helper';
 
 interface IDependencies {

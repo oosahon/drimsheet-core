@@ -1,4 +1,4 @@
-import ITokenCodec from '../token-codec.contract';
+import ITokenCodec from '@shared/contracts/token-codec.contract';
 
 const mockTokenCodec: jest.Mocked<ITokenCodec> = {
   encode: jest.fn(),

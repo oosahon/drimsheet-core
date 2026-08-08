@@ -1,6 +1,7 @@
-import stringUtils from '../../utils/string';
+import stringUtils from '@shared/utils/string';
+import { IAddress } from '@shared/values/contact-details/types/address.types';
+
 import addressError from './address.error';
-import { IAddress } from './types/address.types';
 
 export type TCreateAddressPayload = {
   line1: string;

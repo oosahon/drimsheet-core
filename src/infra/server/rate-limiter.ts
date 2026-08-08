@@ -2,7 +2,7 @@ import {
   configureRateLimiter,
   RATE_LIMITER_MAX,
   RATE_LIMITER_WINDOW_MS,
-} from '../config/rate-limiter.config';
+} from '@infra/config/rate-limiter.config';
 
 export default function rateLimiter() {
   return configureRateLimiter({

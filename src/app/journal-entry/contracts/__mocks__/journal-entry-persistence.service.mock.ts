@@ -1,4 +1,4 @@
-import IJournalEntryPersistenceService from '../journal-entry-persistence.service.contract';
+import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
 
 const mockJournalEntryPersistenceService: jest.Mocked<IJournalEntryPersistenceService> =
   {

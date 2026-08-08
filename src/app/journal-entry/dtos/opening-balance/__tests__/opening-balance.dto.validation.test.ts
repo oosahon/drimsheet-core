@@ -1,7 +1,7 @@
 import {
   openingBalanceCreationReqValidation,
   openingBalanceDtoValidation,
-} from '../opening-balance.dto.validation';
+} from '@app/journal-entry/dtos/opening-balance/opening-balance.dto.validation';
 
 describe('Opening Balance DTO Validation', () => {
   beforeAll(() => {

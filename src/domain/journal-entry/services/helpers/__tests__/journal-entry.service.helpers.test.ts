@@ -1,8 +1,9 @@
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { ICounterparty } from '../../../../counterparty/types/counterparty.types';
-import journalEntryError from '../../../errors/journal-entry.error';
-import { ICreateReceiptEntryPayload } from '../../../types/journal-entry.service.types';
-import journalEntryServiceHelpers from '../journal-entry.service.helpers';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import journalEntryServiceHelpers from '@domain/journal-entry/services/helpers/journal-entry.service.helpers';
+import { ICreateReceiptEntryPayload } from '@domain/journal-entry/types/journal-entry.service.types';
 
 describe('journalEntryServiceHelpers', () => {
   const accountingEntityId =

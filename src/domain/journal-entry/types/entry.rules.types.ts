@@ -1,6 +1,6 @@
-import { ULedgerAccountBehavior } from '../../ledger/types/account-behaviors.tyypes';
-import { ULedgerAccountSubType } from '../../ledger/types/ledger-aggregate.types';
-import { ULedgerType } from '../../ledger/types/ledger.types';
+import { ULedgerAccountBehavior } from '@domain/ledger/types/account-behaviors.tyypes';
+import { ULedgerAccountSubType } from '@domain/ledger/types/ledger-aggregate.types';
+import { ULedgerType } from '@domain/ledger/types/ledger.types';
 
 export interface IJournalEntryRulePermits {
   permittedTypes: Set<ULedgerType> | '*';

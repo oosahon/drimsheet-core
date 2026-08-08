@@ -1,8 +1,9 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import userEvents from '../../events/user.events';
-import { IUserPreferences } from '../../types/user-preferences.types';
-import userPreferencesEntity from '../user-preferences.entity';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import userPreferencesEntity from '@domain/user/entities/user-preferences.entity';
+import userEvents from '@domain/user/events/user.events';
+import { IUserPreferences } from '@domain/user/types/user-preferences.types';
 
 describe('User Preferences Entity', () => {
   beforeEach(() => {

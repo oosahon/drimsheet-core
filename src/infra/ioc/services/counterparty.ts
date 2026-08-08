@@ -1,7 +1,10 @@
-import makeCounterpartyAppService from '../../../app/counterparty/services/counterparty.service';
-import makeCounterpartyPersistenceService from '../../../app/counterparty/services/persistence.service';
-import makeCounterpartyService from '../../../domain/counterparty/services/counterparty.service';
-import counterpartyRepos from '../../persistence/repos/counterparty';
+import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
+
+import makeCounterpartyAppService from '@app/counterparty/services/counterparty.service';
+import makeCounterpartyPersistenceService from '@app/counterparty/services/persistence.service';
+
+import counterpartyRepos from '@infra/persistence/repos/counterparty';
+
 import { repoService } from './repo';
 
 export const counterpartyService = makeCounterpartyService();

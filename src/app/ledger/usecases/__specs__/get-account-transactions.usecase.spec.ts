@@ -1,32 +1,34 @@
-import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
+import appError from '@shared/values/errors/app.error';
+import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
+import { EPaginationSortDirection } from '@shared/values/pagination/types/pagination.types';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
 import {
   EAccountingEntityType,
   IAccountingEntity,
-} from '../../../../domain/accounting/types/accounting-entity.types';
-import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+} from '@domain/accounting/types/accounting-entity.types';
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
   IJournalEntry,
-} from '../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
-import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/types/ledger-account-balance.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../domain/money/values/money.vo';
-import userEntity from '../../../../domain/user/entities/user.entity';
-import { IUser } from '../../../../domain/user/types/user.types';
-import appError from '../../../../shared/values/errors/app.error';
-import { IPaginationDto } from '../../../../shared/values/pagination/dto/pagination.dto';
-import { EPaginationSortDirection } from '../../../../shared/values/pagination/types/pagination.types';
+} from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import { ELedgerAccountBalanceEffect } from '@domain/ledger/types/ledger-account-balance.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
+import userEntity from '@domain/user/entities/user.entity';
+import { IUser } from '@domain/user/types/user.types';
+
 import mockAppContext, {
   mockClientSession,
-} from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import mockAccountTransactionQueryRepo from '../../contracts/__mocks__/account-transaction.query.repo.mock';
-import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
-import ledgerAppError from '../../errors/ledger.error';
-import makeGetAccountTransactionsUseCase from '../get-account-transactions.usecase';
+} from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import mockAccountTransactionQueryRepo from '@app/ledger/contracts/__mocks__/account-transaction.query.repo.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
+import makeGetAccountTransactionsUseCase from '@app/ledger/usecases/get-account-transactions.usecase';
 
 describe('getAccountTransactionsUseCase', () => {
   const correlationId = 'test-correlation-id';

@@ -1,5 +1,6 @@
 import { Profile } from 'passport-google-oauth20';
-import { mapGoogleProfile } from '../oauth.config';
+
+import { mapGoogleProfile } from '@infra/config/oauth.config';
 
 describe('mapGoogleProfile', () => {
   it('maps the stable Google subject and verified primary email', () => {

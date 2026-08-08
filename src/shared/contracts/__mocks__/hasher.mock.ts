@@ -1,4 +1,4 @@
-import IHasher from '../hasher.contract';
+import IHasher from '@shared/contracts/hasher.contract';
 
 const mockHasher: jest.Mocked<IHasher> = {
   hash: jest.fn(),

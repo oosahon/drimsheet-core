@@ -1,5 +1,5 @@
-import addressError from '../address.error';
-import addressValue from '../address.vo';
+import addressError from '@shared/values/contact-details/address.error';
+import addressValue from '@shared/values/contact-details/address.vo';
 
 describe('addressValue', () => {
   const validPayload = {

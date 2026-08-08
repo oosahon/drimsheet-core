@@ -1,17 +1,23 @@
 import { InferSelectModel } from 'drizzle-orm';
+
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   ILedgerAccountBalance,
   ILedgerAccountBalanceAdjustment,
   INewLedgerAccountBalanceAndAdjustment,
-} from '../../../../../domain/ledger/types/ledger-account-balance.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
+} from '@domain/ledger/types/ledger-account-balance.types';
+
 import {
   ledgerAccountBalanceAdjustmentsInCore,
   ledgerAccountBalancesInCore,
-} from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
-import moneyMapper from '../../../helpers/money.mapper';
-import { ICurrencyModel } from '../../money/mappers/currency.mapper';
+} from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
+import moneyMapper from '@infra/persistence/helpers/money.mapper';
+import { ICurrencyModel } from '@infra/persistence/repos/money/mappers/currency.mapper';
 
 export interface ILedgerAccountBalanceModel extends InferSelectModel<
   typeof ledgerAccountBalancesInCore

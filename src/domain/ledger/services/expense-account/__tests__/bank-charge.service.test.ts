@@ -1,14 +1,15 @@
-import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
-import { EXPENSE_LEDGER_CODES } from '../../../config/expense-codes.config';
-import ledgerAccountEntity from '../../../entities/ledger-account.entity';
-import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { EXPENSE_LEDGER_CODES } from '@domain/ledger/config/expense-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import makeBankChargeAccountService from '@domain/ledger/services/expense-account/bank-charge.service';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
-} from '../../../types/expense-account.types';
+} from '@domain/ledger/types/expense-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -16,8 +17,8 @@ import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../../types/ledger.types';
-import makeBankChargeAccountService from '../bank-charge.service';
+} from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   create: jest.fn(),

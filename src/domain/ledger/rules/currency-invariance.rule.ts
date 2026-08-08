@@ -1,6 +1,6 @@
-import { ICurrency } from '../../money/types/currency.types';
-import ledgerAccountError from '../errors/ledger-account.error';
-import { ILedgerAccount } from '../types/ledger.types';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { ICurrency } from '@domain/money/types/currency.types';
 
 interface ICurrencyInvarianceInput {
   controlAccount: Pick<

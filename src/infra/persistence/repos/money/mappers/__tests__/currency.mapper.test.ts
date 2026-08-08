@@ -1,6 +1,9 @@
-import currencyError from '../../../../../../domain/money/errors/currency.error';
-import { ICurrency } from '../../../../../../domain/money/types/currency.types';
-import currencyMapper, { ICurrencyModel } from '../currency.mapper';
+import currencyError from '@domain/money/errors/currency.error';
+import { ICurrency } from '@domain/money/types/currency.types';
+
+import currencyMapper, {
+  ICurrencyModel,
+} from '@infra/persistence/repos/money/mappers/currency.mapper';
 
 describe('Currency Mapper', () => {
   describe('toRepo', () => {

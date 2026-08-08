@@ -1,8 +1,12 @@
 import { Request } from 'express';
-import ITokenService from '../../../app/auth/contracts/token-service.contract';
-import IUserRepo from '../../../domain/user/repos/user.repo';
-import { IUser } from '../../../domain/user/types/user.types';
-import ILogger from '../../../shared/contracts/logger.contract';
+
+import ILogger from '@shared/contracts/logger.contract';
+
+import IUserRepo from '@domain/user/repos/user.repo';
+import { IUser } from '@domain/user/types/user.types';
+
+import ITokenService from '@app/auth/contracts/token-service.contract';
+
 import getHttpHeaderValue, { getCorrelationId } from './get-http-header-value';
 
 export default async function getAuthUserFromRequest(

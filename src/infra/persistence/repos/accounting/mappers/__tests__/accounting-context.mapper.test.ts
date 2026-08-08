@@ -1,7 +1,9 @@
-import { UAccountingStandardCode } from '../../../../../../domain/accounting/config/accounting-standards.config';
-import { IAccountingContext } from '../../../../../../domain/accounting/types/context.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import accountingContextMapper from '../accounting-context.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { UAccountingStandardCode } from '@domain/accounting/config/accounting-standards.config';
+import { IAccountingContext } from '@domain/accounting/types/context.types';
+
+import accountingContextMapper from '@infra/persistence/repos/accounting/mappers/accounting-context.mapper';
 
 describe('accountingContextMapper', () => {
   it('should map IAccountingContext to IAccountingContextRepoModel', () => {

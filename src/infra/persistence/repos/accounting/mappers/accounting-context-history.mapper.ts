@@ -1,8 +1,10 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IAccountingContextHistory } from '../../../../../domain/accounting/types/accounting-context-audit.types';
-import { IAccountingContext } from '../../../../../domain/accounting/types/context.types';
-import { accountingContextHistoryInAudit } from '../../../../config/drizzle/schema';
-import { toRepoDate } from '../../../helpers/date.mapper';
+
+import { IAccountingContextHistory } from '@domain/accounting/types/accounting-context-audit.types';
+import { IAccountingContext } from '@domain/accounting/types/context.types';
+
+import { accountingContextHistoryInAudit } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
 
 export interface IAccountingContextHistoryRepoModel extends InferSelectModel<
   typeof accountingContextHistoryInAudit

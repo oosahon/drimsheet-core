@@ -1,35 +1,37 @@
-import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import makeCounterpartyService from '../../../../domain/counterparty/services/counterparty.service';
-import { ECounterpartyType } from '../../../../domain/counterparty/types/counterparty.types';
-import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
-import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
-import makeServicesAccountService from '../../../../domain/ledger/services/revenue-account/services.service';
-import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
-import { IServicesAccount } from '../../../../domain/ledger/types/revenue-account.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
+import { ECounterpartyType } from '@domain/counterparty/types/counterparty.types';
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import makeServicesAccountService from '@domain/ledger/services/revenue-account/services.service';
+import { ICashAndCashEquivalentAccount } from '@domain/ledger/types/asset-account.types';
+import { IServicesAccount } from '@domain/ledger/types/revenue-account.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { IUser } from '@domain/user/types/user.types';
+
 import mockAppContext, {
   mockClientSession,
-} from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import mockCounterpartyAppService from '../../../counterparty/contracts/__mocks__/counterparty.service.mock';
-import mockCounterpartyPersistenceService from '../../../counterparty/contracts/__mocks__/persistence.service.mock';
-import { ICounterpartyFindOrCreateRes } from '../../../counterparty/contracts/counterparty.service.contract';
-import mockLedgerAccountBalancePropagationService from '../../../ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
-import { mockLedgerAccountRepo } from '../../../ledger/contracts/__mocks__/ledger.repos.mock';
-import ledgerAppError from '../../../ledger/errors/ledger.error';
-import mockJournalEntryPersistenceService from '../../contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockJournalEntryService from '../../contracts/__mocks__/journal-entry.service.mock';
-import journalEntryDtoMapper from '../../dtos/journal-entry/journal-entry.dto.mapper';
-import makeCreateReceiptUsecase from '../create-receipt.usecase';
+} from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import mockCounterpartyAppService from '@app/counterparty/contracts/__mocks__/counterparty.service.mock';
+import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
+import { ICounterpartyFindOrCreateRes } from '@app/counterparty/contracts/counterparty.service.contract';
+import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
+import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
+import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
+import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
+import mockLedgerAccountBalancePropagationService from '@app/ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
 
 describe('makeCreateReceiptUsecase', () => {
   const correlationId = 'test-correlation-id';

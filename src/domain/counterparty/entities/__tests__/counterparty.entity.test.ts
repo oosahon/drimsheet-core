@@ -1,13 +1,14 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import counterpartyError from '../../errors/counterparty.error';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 import {
   ECounterpartyRole,
   ECounterpartyStatus,
   ECounterpartyType,
   IMakeCounterpartyPayload,
-} from '../../types/counterparty.types';
-import counterpartyEntity from '../counterparty.entity';
+} from '@domain/counterparty/types/counterparty.types';
 
 describe('Counterparty Entity', () => {
   const accountingEntityId = generateUUID();

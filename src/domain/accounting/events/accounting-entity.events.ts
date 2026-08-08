@@ -1,5 +1,6 @@
-import eventValue from '../../../shared/values/events/event.vo';
-import { IAccountingEntity } from '../types/accounting-entity.types';
+import eventValue from '@shared/values/events/event.vo';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 
 export const EAccountingEntityEvents = {
   Created: 'domain:accounting:entity:created',

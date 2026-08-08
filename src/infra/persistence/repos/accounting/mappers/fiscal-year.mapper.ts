@@ -1,7 +1,12 @@
 import { InferInsertModel } from 'drizzle-orm';
-import { IFiscalYear } from '../../../../../domain/accounting/types/fiscal-year.types';
-import { fiscalYearsInCore } from '../../../../config/drizzle/schema';
-import { toRepoDate, toRepoDateOnly } from '../../../helpers/date.mapper';
+
+import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
+
+import { fiscalYearsInCore } from '@infra/config/drizzle/schema';
+import {
+  toRepoDate,
+  toRepoDateOnly,
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface IFiscalYearRepoModel extends InferInsertModel<
   typeof fiscalYearsInCore

@@ -1,4 +1,4 @@
-import passOnRepoTransaction from '../passon-repo-transaction';
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
 
 describe('passOnRepoTransaction', () => {
   it('should return a new object combining options and the transaction context', () => {

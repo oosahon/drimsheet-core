@@ -1,5 +1,5 @@
-import repoError from '../../values/errors/repo.error';
-import validateVersionInOptions from '../validate-version-in-repo';
+import validateVersionInOptions from '@shared/helpers/validate-version-in-repo';
+import repoError from '@shared/values/errors/repo.error';
 
 describe('validateVersionInOptions', () => {
   it('throws VersionRequired error when expectedVersion is undefined', () => {

@@ -1,6 +1,6 @@
-import IUserHistoryRepo from '../../../../domain/user/repos/user-history.repo';
-import IUserPreferencesRepo from '../../../../domain/user/repos/user-preferences.repo';
-import IUserRepo from '../../../../domain/user/repos/user.repo';
+import IUserHistoryRepo from '@domain/user/repos/user-history.repo';
+import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
+import IUserRepo from '@domain/user/repos/user.repo';
 
 export const mockUserHistoryRepo: jest.Mocked<IUserHistoryRepo> = {
   save: jest.fn(),

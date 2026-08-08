@@ -1,18 +1,16 @@
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
-import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
-import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
+import { IJournalEntryRulePermits } from '@domain/journal-entry/types/entry.rules.types';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../../ledger/types/asset-account.types';
-import {
-  ELedgerType,
-  ILedgerAccount,
-} from '../../../ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
-import { IJournalEntryRulePermits } from '../../types/entry.rules.types';
-import journalEntryRuleValidator from '../entry-rule.validator';
+} from '@domain/ledger/types/asset-account.types';
+import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
 describe('journalEntryRuleValidator', () => {
   const userId = generateUUID();

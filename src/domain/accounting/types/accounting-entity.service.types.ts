@@ -1,8 +1,10 @@
-import { TEntityId } from '../../../shared/types/uuid';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import { UCurrencyCode } from '../../money/config/currencies.config';
-import { UAccountingStandardCode } from '../config/accounting-standards.config';
-import { UJurisdictionCode } from '../config/jurisdictions.config';
+import { TEntityId } from '@shared/types/uuid';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import { UAccountingStandardCode } from '@domain/accounting/config/accounting-standards.config';
+import { UJurisdictionCode } from '@domain/accounting/config/jurisdictions.config';
+import { UCurrencyCode } from '@domain/money/config/currencies.config';
+
 import {
   IAccountingEntity,
   UAccountingEntityType,

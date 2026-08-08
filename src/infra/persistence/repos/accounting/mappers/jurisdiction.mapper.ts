@@ -1,6 +1,8 @@
 import { InferInsertModel } from 'drizzle-orm';
-import { IJurisdiction } from '../../../../../domain/accounting/types/jurisdiction.types';
-import { jurisdictionsInCore } from '../../../../config/drizzle/schema';
+
+import { IJurisdiction } from '@domain/accounting/types/jurisdiction.types';
+
+import { jurisdictionsInCore } from '@infra/config/drizzle/schema';
 
 export type IJurisdictionModel = InferInsertModel<typeof jurisdictionsInCore>;
 

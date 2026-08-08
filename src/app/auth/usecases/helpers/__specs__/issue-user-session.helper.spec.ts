@@ -1,17 +1,18 @@
-import userEntity from '../../../../../domain/user/entities/user.entity';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { IEvent } from '../../../../../shared/values/events/types/event.types';
-import { IAppContextData } from '../../../../context/contracts/app-context.contract';
-import makeIssueUserSessionHelper from '../issue-user-session.helper';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import { IEvent } from '@shared/values/events/types/event.types';
 
-import mockEventBus from '../../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../../shared/types/repo.types';
+import userEntity from '@domain/user/entities/user.entity';
+
+import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
+import mockUserSessionRepo from '@app/auth/contracts/__mocks__/user-session.repo.mock';
+import makeIssueUserSessionHelper from '@app/auth/usecases/helpers/issue-user-session.helper';
 import mockAppContext, {
   mockClientSession,
-} from '../../../../context/contracts/__mocks__/app-context.mock';
-import mockAuthService from '../../../contracts/__mocks__/token-service.mock';
-import mockUserSessionRepo from '../../../contracts/__mocks__/user-session.repo.mock';
+} from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
 
 jest.mock('../../../../../shared/utils/uuid-generator', () => ({
   __esModule: true,

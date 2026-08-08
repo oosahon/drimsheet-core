@@ -1,5 +1,6 @@
-import { sanitizeData } from '../../../shared/utils/sanitizer';
-import logger from '../logger';
+import { sanitizeData } from '@shared/utils/sanitizer';
+
+import logger from '@infra/observability/logger';
 
 describe('logger', () => {
   it('provides a functional ILogger interface', () => {

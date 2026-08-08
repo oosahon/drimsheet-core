@@ -1,8 +1,10 @@
-import IReportingPeriodHistoryRepo from '../../../../domain/accounting/repos/reporting-period-history.repo';
-import repoError from '../../../../shared/values/errors/repo.error';
-import { reportingPeriodHistoryInAudit } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
-import reportingPeriodHistoryMapper from './mappers/reporting-period-history.mapper';
+import repoError from '@shared/values/errors/repo.error';
+
+import IReportingPeriodHistoryRepo from '@domain/accounting/repos/reporting-period-history.repo';
+
+import { reportingPeriodHistoryInAudit } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import reportingPeriodHistoryMapper from '@infra/persistence/repos/accounting/mappers/reporting-period-history.mapper';
 
 const reportingPeriodHistoryRepo: IReportingPeriodHistoryRepo = {
   save: async (periods, histories, options) => {

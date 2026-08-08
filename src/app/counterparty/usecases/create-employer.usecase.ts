@@ -1,16 +1,18 @@
-import ICounterpartyService from '../../../domain/counterparty/types/counterparty.service.types';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import addressValue from '../../../shared/values/contact-details/address.vo';
-import eventValue from '../../../shared/values/events/event.vo';
-import { IEvent } from '../../../shared/values/events/types/event.types';
-import historyValue from '../../../shared/values/history/history.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import ICounterpartyPersistenceService from '../contracts/persistence.service.contract';
-import { ICounterpartyDto } from '../dtos/counterparty/counterparty.dto';
-import counterpartyDtoMapper from '../dtos/counterparty/counterparty.dto.mapper';
-import { IEmployerCreateReq } from '../dtos/employer/employer.dto';
-import { employerCreateReqValidation } from '../dtos/employer/employer.dto.validation';
+import IEventBus from '@shared/contracts/event-bus.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import addressValue from '@shared/values/contact-details/address.vo';
+import eventValue from '@shared/values/events/event.vo';
+import { IEvent } from '@shared/values/events/types/event.types';
+import historyValue from '@shared/values/history/history.vo';
+
+import ICounterpartyService from '@domain/counterparty/types/counterparty.service.types';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
+import { ICounterpartyDto } from '@app/counterparty/dtos/counterparty/counterparty.dto';
+import counterpartyDtoMapper from '@app/counterparty/dtos/counterparty/counterparty.dto.mapper';
+import { IEmployerCreateReq } from '@app/counterparty/dtos/employer/employer.dto';
+import { employerCreateReqValidation } from '@app/counterparty/dtos/employer/employer.dto.validation';
 
 interface IDependencies {
   appContext: IAppContext;

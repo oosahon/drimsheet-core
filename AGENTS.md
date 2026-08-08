@@ -8,10 +8,11 @@ Read this before changing the repository.
 2. Load the skill for the task from `.agents/skills/<skill>/SKILL.md`.
 3. For code changes, follow `.agents/workflow/implementation.md`.
 4. Always follow `.agents/rules/folder-responsibility.md`.
-5. Follow `.agents/rules/service-ownership.md` and
+5. Always follow `.agents/rules/import-paths.md`.
+6. Follow `.agents/rules/service-ownership.md` and
    `.agents/rules/readability.md` for implementation changes.
-6. Follow `.agents/rules/ioc.md` when changing dependency wiring.
-7. Follow `.agents/rules/testing/general.md` when adding or renaming tests.
+7. Follow `.agents/rules/ioc.md` when changing dependency wiring.
+8. Follow `.agents/rules/testing/general.md` when adding or renaming tests.
 
 ## Planning
 

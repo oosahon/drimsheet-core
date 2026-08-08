@@ -1,6 +1,7 @@
-import stringUtils from '../../../shared/utils/string';
-import ledgerAccountError from '../errors/ledger-account.error';
-import { ICreditCardAccountMeta } from '../types/liability-account.types';
+import stringUtils from '@shared/utils/string';
+
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import { ICreditCardAccountMeta } from '@domain/ledger/types/liability-account.types';
 
 function make(meta: ICreditCardAccountMeta) {
   const cardIssuer = stringUtils.sanitizeAndValidate(

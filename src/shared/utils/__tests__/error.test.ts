@@ -1,6 +1,6 @@
-import appError from '../../values/errors/app.error';
-import DomainError from '../../values/errors/domain.error';
-import errorUtils from '../error';
+import errorUtils from '@shared/utils/error';
+import appError from '@shared/values/errors/app.error';
+import DomainError from '@shared/values/errors/domain.error';
 
 describe('Error Value Objects', () => {
   describe('AppError', () => {

@@ -1,5 +1,6 @@
-import eventValue from '../../../../shared/values/events/event.vo';
-import { IFxCostBasisLotAcquisition } from '../types/acquisition.types';
+import eventValue from '@shared/values/events/event.vo';
+
+import { IFxCostBasisLotAcquisition } from '@domain/subledger/fx-cost-basis/types/acquisition.types';
 
 export const EFxCostBasisLotAcquisitionEvent = {
   Created: 'domain:subledger:fx-lot-acquisition:created',

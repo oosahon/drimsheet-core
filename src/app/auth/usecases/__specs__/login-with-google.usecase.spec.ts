@@ -1,15 +1,17 @@
-import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/values/email.vo';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../shared/types/repo.types';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import { mockUserRepo } from '../../../user/contracts/__mocks__/user.repos.mock';
-import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
-import { EAuthStrategy, IUserAuth } from '../../contracts/auth.types';
-import { IOAuthProfile } from '../../dtos/auth/auth.dto';
-import makeLoginWithGoogleUseCase from '../login-with-google.usecase';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+
+import { IUser } from '@domain/user/types/user.types';
+import emailValue from '@domain/user/values/email.vo';
+
+import mockUserAuthRepo from '@app/auth/contracts/__mocks__/user-auth.repo.mock';
+import { EAuthStrategy, IUserAuth } from '@app/auth/contracts/auth.types';
+import { IOAuthProfile } from '@app/auth/dtos/auth/auth.dto';
+import makeLoginWithGoogleUseCase from '@app/auth/usecases/login-with-google.usecase';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeLoginWithGoogleUseCase', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';

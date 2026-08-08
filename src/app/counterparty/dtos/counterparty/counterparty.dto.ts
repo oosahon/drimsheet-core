@@ -1,10 +1,11 @@
-import { UCounterpartySortBy } from '../../../../domain/counterparty/repos/counterparty.repo';
+import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
+
+import { UCounterpartySortBy } from '@domain/counterparty/repos/counterparty.repo';
 import {
   UCounterpartyRole,
   UCounterpartyStatus,
   UCounterpartyType,
-} from '../../../../domain/counterparty/types/counterparty.types';
-import { IPaginationDto } from '../../../../shared/values/pagination/dto/pagination.dto';
+} from '@domain/counterparty/types/counterparty.types';
 
 export interface ICounterpartyCreateReq {
   name: string;

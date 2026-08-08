@@ -1,9 +1,10 @@
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+
 import {
   IBankDirectoryDto,
   IGetBanksQuery,
-} from '../dtos/bank-directory/bank-directory.dto';
-import { getBanksQueryValidationSchema } from '../dtos/bank-directory/bank-directory.dto.validation';
+} from '@app/ledger/dtos/bank-directory/bank-directory.dto';
+import { getBanksQueryValidationSchema } from '@app/ledger/dtos/bank-directory/bank-directory.dto.validation';
 
 // TODO: Replace temporary static bank directory with provider-backed integration (e.g. Flutterwave/Paystack) in PUR-xx
 const TEMPORARY_DUMMY_BANKS: Record<

@@ -1,6 +1,7 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import { IJournalLine } from '../../../journal-entry/types/journal-line.types';
-import ledgerAccountBalanceAdjustmentError from '../../errors/ledger-account-balance-adjustment.error';
+import { TEntityId } from '@shared/types/uuid';
+
+import ledgerAccountBalanceAdjustmentError from '@domain/accounting/errors/ledger-account-balance-adjustment.error';
+import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
 
 function validateAccountId(accountId: TEntityId, journalLines: IJournalLine[]) {
   const isTheSame = journalLines.every((line) => line.accountId === accountId);

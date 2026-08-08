@@ -1,9 +1,13 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IJournalLineHistory } from '../../../../../domain/journal-entry/types/journal-entry-audit.types';
-import { IJournalLine } from '../../../../../domain/journal-entry/types/journal-line.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { journalLineHistoryInAudit } from '../../../../config/drizzle/schema';
-import { toRepoDate } from '../../../helpers/date.mapper';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { IJournalLineHistory } from '@domain/journal-entry/types/journal-entry-audit.types';
+import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
+
+import { journalLineHistoryInAudit } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
+
 import journalLineMapper from './journal-line.mapper';
 
 export interface IJournalLineHistoryModel extends InferSelectModel<

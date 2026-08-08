@@ -1,4 +1,5 @@
 import IORedis from 'ioredis';
+
 import { REDIS_URL } from './vars.config';
 
 let redis: IORedis | undefined;

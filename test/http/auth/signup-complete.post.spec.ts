@@ -1,12 +1,14 @@
-import { Express } from 'express';
 import { Server } from 'node:http';
+
+import { Express } from 'express';
 import request from 'supertest';
+
 import {
   makeHashedRateLimitKey,
   rateLimiter,
-} from '../../../src/infra/config/rate-limiter.config';
-import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
-import { createApplication } from '../../../src/infra/server';
+} from '@infra/config/rate-limiter.config';
+import * as authUseCase from '@infra/ioc/usecases/auth';
+import { createApplication } from '@infra/server';
 
 const ENDPOINT = '/api/v1/auth/signup/complete';
 let tokenSequence = 0;
@@ -59,8 +61,7 @@ describe('POST /auth/signup/complete', () => {
 
   describe('401 Response', () => {
     it('sanitizes invalid or expired token errors', async () => {
-      const authErrorModule =
-        require('../../../src/app/auth/errors/auth.error').default;
+      const authErrorModule = require('@app/auth/errors/auth.error').default;
       verifyEmailSpy.mockRejectedValueOnce(new authErrorModule.InvalidToken());
 
       const response = await request(app)

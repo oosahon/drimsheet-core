@@ -1,20 +1,20 @@
-import IAccountingPeriodService from '../../accounting/types/accounting-period.service.types';
-import ILedgerAccountBalanceRepo from '../../ledger/repos/ledger-account-balance.repo';
-import ILedgerAccountRepo from '../../ledger/repos/ledger-account.repo';
-import { EEquitySubType } from '../../ledger/types/equity-account.types';
-import { ELedgerType } from '../../ledger/types/ledger.types';
-import currencyEntity from '../../money/entities/currency.entity';
-import journalEntryEntity from '../entities/journal-entry.entity';
-import journalLineEntity from '../entities/journal-line.entity';
-import journalEntryError from '../errors/journal-entry.error';
-import openingBalanceEntryRule from '../rules/opening-balance-entry.rule';
-import { IJournalEntryService } from '../types/journal-entry.service.types';
-import { EJournalEntrySourceType } from '../types/journal-entry.types';
+import IAccountingPeriodService from '@domain/accounting/types/accounting-period.service.types';
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import journalLineEntity from '@domain/journal-entry/entities/journal-line.entity';
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
+import helpers from '@domain/journal-entry/services/helpers/journal-entry.service.helpers';
+import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
+import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
 import {
   EJournalSide,
   IJournalLineMakePayload,
-} from '../types/journal-line.types';
-import helpers from './helpers/journal-entry.service.helpers';
+} from '@domain/journal-entry/types/journal-line.types';
+import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
+import { ELedgerType } from '@domain/ledger/types/ledger.types';
+import currencyEntity from '@domain/money/entities/currency.entity';
 
 interface IDependencies {
   accountingPeriodService: IAccountingPeriodService;

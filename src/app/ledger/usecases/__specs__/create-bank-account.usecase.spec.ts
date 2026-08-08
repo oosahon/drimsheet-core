@@ -1,36 +1,38 @@
-import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
-import periodError from '../../../../domain/accounting/errors/period.error';
-import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
-import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
-import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
-import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
-import { IBankDetails } from '../../../../domain/ledger/types/asset-account.types';
-import bankDetailsValue from '../../../../domain/ledger/values/bank-details.vo';
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import currencyEntity from '../../../../domain/money/entities/currency.entity';
-import IEventBus from '../../../../shared/contracts/event-bus.contract';
-import { IRepoService } from '../../../../shared/contracts/repo.contract';
-import { TEntityId } from '../../../../shared/types/uuid';
-import { mockAccountingPeriodService } from '../../../accounting/contracts/__mocks__/accounting.domain.services.mock';
-import IAppContext from '../../../context/contracts/app-context.contract';
-import mockJournalEntryPersistenceService from '../../../journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockJournalEntryService from '../../../journal-entry/contracts/__mocks__/journal-entry.service.mock';
-import mockExchangeRateService from '../../../money/contracts/__mocks__/exchange-rate.service.mock';
-import { mockFxCostBasisLotDomainService } from '../../../subledger/contracts/__mocks__/subledger.domain.services.mock';
-import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
-import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-propagation.service.mock';
-import { mockAssetAccountService } from '../../contracts/__mocks__/ledger.domain.services.mock';
+import IEventBus from '@shared/contracts/event-bus.contract';
+import { IRepoService } from '@shared/contracts/repo.contract';
+import { TEntityId } from '@shared/types/uuid';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import periodError from '@domain/accounting/errors/period.error';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import { IBankDetails } from '@domain/ledger/types/asset-account.types';
+import bankDetailsValue from '@domain/ledger/values/bank-details.vo';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import currencyEntity from '@domain/money/entities/currency.entity';
+
+import { mockAccountingPeriodService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
+import IAppContext from '@app/context/contracts/app-context.contract';
+import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
+import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
+import mockLedgerAccountBalancePropagationService from '@app/ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
+import { mockAssetAccountService } from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
 import {
   mockBankAccountRepo,
   mockLedgerAccountRepo,
-} from '../../contracts/__mocks__/ledger.repos.mock';
-import ILedgerAccountPersistenceService from '../../contracts/ledger-account-persistence.service.contract';
-import { IBankAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
-import ledgerAppError from '../../errors/ledger.error';
-import makeCreateBankAccountUseCase from '../create-bank-account.usecase';
+} from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
+import { IBankAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
+import makeCreateBankAccountUseCase from '@app/ledger/usecases/create-bank-account.usecase';
+import mockExchangeRateService from '@app/money/contracts/__mocks__/exchange-rate.service.mock';
+import { mockFxCostBasisLotDomainService } from '@app/subledger/contracts/__mocks__/subledger.domain.services.mock';
+import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 
 describe('makeCreateBankAccountUseCase', () => {
   const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;

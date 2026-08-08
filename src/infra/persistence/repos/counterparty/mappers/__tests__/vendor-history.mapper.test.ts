@@ -1,7 +1,9 @@
-import { IVendorHistory } from '../../../../../../domain/counterparty/types/counterparty-audit.types';
-import { IVendor } from '../../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import vendorHistoryMapper from '../vendor-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IVendorHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { IVendor } from '@domain/counterparty/types/counterparty.types';
+
+import vendorHistoryMapper from '@infra/persistence/repos/counterparty/mappers/vendor-history.mapper';
 
 describe('vendorHistoryMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');

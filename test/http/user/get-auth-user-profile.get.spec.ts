@@ -1,11 +1,15 @@
 import { Express } from 'express';
 import request from 'supertest';
-import authError from '../../../src/app/auth/errors/auth.error';
-import { IUser } from '../../../src/domain/user/types/user.types';
-import { tokenService } from '../../../src/infra/ioc/services/auth';
-import userRepos from '../../../src/infra/persistence/repos/user';
-import { createApplication } from '../../../src/infra/server';
-import { TEntityId } from '../../../src/shared/types/uuid';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUser } from '@domain/user/types/user.types';
+
+import authError from '@app/auth/errors/auth.error';
+
+import { tokenService } from '@infra/ioc/services/auth';
+import userRepos from '@infra/persistence/repos/user';
+import { createApplication } from '@infra/server';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => {
   return {

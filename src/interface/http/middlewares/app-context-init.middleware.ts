@@ -1,18 +1,22 @@
 import { RequestHandler, Response } from 'express';
-import ITokenService from '../../../app/auth/contracts/token-service.contract';
-import IAppContext from '../../../app/context/contracts/app-context.contract';
-import IAccountingEntityRepo from '../../../domain/accounting/repos/accounting-entity.repo';
-import { IAccountingEntity } from '../../../domain/accounting/types/accounting-entity.types';
-import IUserRepo from '../../../domain/user/repos/user.repo';
-import { IUser } from '../../../domain/user/types/user.types';
-import ILogger from '../../../shared/contracts/logger.contract';
-import IVarsConfig from '../../../shared/contracts/vars-config.contract';
-import getAccountingEntityFromRequest from '../helpers/get-accounting-entity-from-request.helper';
-import getAuthUserFromRequest from '../helpers/get-auth-user-from-request.helper';
+
+import ILogger from '@shared/contracts/logger.contract';
+import IVarsConfig from '@shared/contracts/vars-config.contract';
+
+import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import IUserRepo from '@domain/user/repos/user.repo';
+import { IUser } from '@domain/user/types/user.types';
+
+import ITokenService from '@app/auth/contracts/token-service.contract';
+import IAppContext from '@app/context/contracts/app-context.contract';
+
+import getAccountingEntityFromRequest from '@interface/http/helpers/get-accounting-entity-from-request.helper';
+import getAuthUserFromRequest from '@interface/http/helpers/get-auth-user-from-request.helper';
 import {
   getCorrelationId,
   getIdempotencyKey,
-} from '../helpers/get-http-header-value';
+} from '@interface/http/helpers/get-http-header-value';
 
 function handleSetRefreshToken(
   res: Response,

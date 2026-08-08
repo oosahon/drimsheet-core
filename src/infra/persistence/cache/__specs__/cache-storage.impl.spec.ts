@@ -1,4 +1,4 @@
-import cacheStorage from '../cache-storage.impl';
+import cacheStorage from '@infra/persistence/cache/cache-storage.impl';
 
 const mockRedis = {
   set: jest.fn(),

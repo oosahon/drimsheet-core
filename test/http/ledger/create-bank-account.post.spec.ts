@@ -1,17 +1,21 @@
 import { Express } from 'express';
 import request from 'supertest';
-import { IBankAccountCreationReq } from '../../../src/app/ledger/dtos/asset-account/asset-account.dto';
-import { ILedgerAccountDto } from '../../../src/app/ledger/dtos/ledger-account/ledger-account.dto';
-import periodError from '../../../src/domain/accounting/errors/period.error';
-import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
-import ledgerAccountError from '../../../src/domain/ledger/errors/ledger-account.error';
-import { IUser } from '../../../src/domain/user/types/user.types';
-import { tokenService } from '../../../src/infra/ioc/services/auth';
-import * as ledgerUseCases from '../../../src/infra/ioc/usecases/ledger';
-import accountingRepos from '../../../src/infra/persistence/repos/accounting';
-import userRepos from '../../../src/infra/persistence/repos/user';
-import { createApplication } from '../../../src/infra/server';
-import { TEntityId } from '../../../src/shared/types/uuid';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import periodError from '@domain/accounting/errors/period.error';
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import { IUser } from '@domain/user/types/user.types';
+
+import { IBankAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
+import { ILedgerAccountDto } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
+
+import { tokenService } from '@infra/ioc/services/auth';
+import * as ledgerUseCases from '@infra/ioc/usecases/ledger';
+import accountingRepos from '@infra/persistence/repos/accounting';
+import userRepos from '@infra/persistence/repos/user';
+import { createApplication } from '@infra/server';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,

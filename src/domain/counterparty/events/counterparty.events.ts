@@ -1,5 +1,6 @@
-import eventValue from '../../../shared/values/events/event.vo';
-import { ICounterparty } from '../types/counterparty.types';
+import eventValue from '@shared/values/events/event.vo';
+
+import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
 
 export const ECounterpartyEvents = {
   Created: 'domain:counterparty:created',

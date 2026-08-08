@@ -1,8 +1,10 @@
-import { ILedgerAccountHistory } from '../../../../../../domain/ledger/types/ledger-account-audit.types';
-import { ILedgerAccount } from '../../../../../../domain/ledger/types/ledger.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import { EHistoryActorType } from '../../../../../../shared/values/history/types/history.types';
-import ledgerAccountHistoryMapper from '../ledger-account-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { ILedgerAccountHistory } from '@domain/ledger/types/ledger-account-audit.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+
+import ledgerAccountHistoryMapper from '@infra/persistence/repos/ledger/mappers/ledger-account-history.mapper';
 
 describe('ledgerAccountHistoryMapper', () => {
   it('maps a ledger account history record to the repository model', () => {

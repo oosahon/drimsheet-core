@@ -1,7 +1,7 @@
-import IAppContext from '../../context/contracts/app-context.contract';
-import ITokenService from '../contracts/token-service.contract';
-import IUserSessionRepo from '../contracts/user-session.repo.contract';
-import authError from '../errors/auth.error';
+import ITokenService from '@app/auth/contracts/token-service.contract';
+import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
+import authError from '@app/auth/errors/auth.error';
+import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
   reqContext: IAppContext;

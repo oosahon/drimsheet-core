@@ -1,13 +1,19 @@
 import { InferSelectModel } from 'drizzle-orm';
+
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   ICounterparty,
   UCounterpartyRole,
   UCounterpartyStatus,
   UCounterpartyType,
-} from '../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartiesInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
+} from '@domain/counterparty/types/counterparty.types';
+
+import { counterpartiesInCore } from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface ICounterpartyModel extends InferSelectModel<
   typeof counterpartiesInCore

@@ -1,7 +1,12 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IExchangeRate } from '../../../../../domain/money/types/exchange-rate.types';
-import { currencyExchangeRatesInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
+
+import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
+
+import { currencyExchangeRatesInCore } from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface IExchangeRateModel extends InferSelectModel<
   typeof currencyExchangeRatesInCore

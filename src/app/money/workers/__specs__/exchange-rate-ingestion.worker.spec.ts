@@ -1,7 +1,8 @@
-import mockLogger from '../../../../shared/contracts/__mocks__/logger.mock';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
-import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
-import makeExchangeRateIngestionWorker from '../exchange-rate-ingestion.worker';
+import mockLogger from '@shared/contracts/__mocks__/logger.mock';
+import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+
+import IExchangeRateIngestion from '@app/money/contracts/exchange-rate-ingestion.contract';
+import makeExchangeRateIngestionWorker from '@app/money/workers/exchange-rate-ingestion.worker';
 
 describe('makeExchangeRateIngestionWorker', () => {
   const payload: IExchangeRateIngestion['message']['payload'] = {

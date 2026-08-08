@@ -1,15 +1,18 @@
 import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
-import ILedgerAccountBalanceRepo from '../../../../domain/ledger/repos/ledger-account-balance.repo';
-import validateVersionInOptions from '../../../../shared/helpers/validate-version-in-repo';
-import repoError from '../../../../shared/values/errors/repo.error';
+
+import validateVersionInOptions from '@shared/helpers/validate-version-in-repo';
+import repoError from '@shared/values/errors/repo.error';
+
+import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
+
 import {
   currenciesInCore,
   ledgerAccountBalanceAdjustmentsInCore,
   ledgerAccountBalancesInCore,
-} from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
-import ledgerAccountBalanceMapper from './mappers/ledger-account-balance.mapper';
+} from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import ledgerAccountBalanceMapper from '@infra/persistence/repos/ledger/mappers/ledger-account-balance.mapper';
 
 const functionalCurrenciesInCore = alias(
   currenciesInCore,

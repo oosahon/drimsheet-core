@@ -1,16 +1,18 @@
-import stringUtils from '../../../../shared/utils/string';
+import stringUtils from '@shared/utils/string';
+
 import {
   SYSTEM_ACCOUNTING_STANDARDS,
   UAccountingStandardCode,
-} from '../../config/accounting-standards.config';
+} from '@domain/accounting/config/accounting-standards.config';
 import {
   SYSTEM_JURISDICTIONS,
   UJurisdictionCode,
-} from '../../config/jurisdictions.config';
-import accountingStandardError from '../../errors/accounting-standard.error';
-import accountingError from '../../errors/accounting.error';
-import jurisdictionError from '../../errors/jurisdiction.error';
-import { UAccountingEntityType } from '../../types/accounting-entity.types';
+} from '@domain/accounting/config/jurisdictions.config';
+import accountingStandardError from '@domain/accounting/errors/accounting-standard.error';
+import accountingError from '@domain/accounting/errors/accounting.error';
+import jurisdictionError from '@domain/accounting/errors/jurisdiction.error';
+import { UAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+
 import accountingEntityHelpers from './accounting-entity.entity.helpers';
 
 function isValidAccountingStandardCode(

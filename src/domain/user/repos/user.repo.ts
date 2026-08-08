@@ -1,9 +1,7 @@
-import {
-  IReadRepoOptions,
-  IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
-import { IUserHistory } from '../types/user-audit.types';
-import { IUser } from '../types/user.types';
+import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+
+import { IUserHistory } from '@domain/user/types/user-audit.types';
+import { IUser } from '@domain/user/types/user.types';
 
 interface IUserRepo {
   create(user: IUser, options: IWriteRepoOptions<IUserHistory>): Promise<void>;

@@ -1,16 +1,17 @@
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+
 import {
   IContractorHistory,
   ICounterpartyHistory,
   IEmployerHistory,
   IVendorHistory,
-} from '../../../domain/counterparty/types/counterparty-audit.types';
+} from '@domain/counterparty/types/counterparty-audit.types';
 import {
   IContractor,
   ICounterparty,
   IEmployer,
   IVendor,
-} from '../../../domain/counterparty/types/counterparty.types';
-import { IWriteRepoOptions } from '../../../shared/types/repo.types';
+} from '@domain/counterparty/types/counterparty.types';
 
 export default interface ICounterpartyPersistenceService {
   create(

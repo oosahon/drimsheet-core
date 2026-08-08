@@ -1,12 +1,16 @@
-import moneyValue from '../../../../domain/money/values/money.vo';
-import { TEntityId } from '../../../../shared/types/uuid';
-import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
-import { EExchangeRateType } from '../../../money/types/exchange-rate.types';
-import exchangeRateValue from '../../../money/values/exchange-rate.vo';
-import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
-import { EJournalLineAuditAction } from '../../types/journal-entry-audit.types';
-import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
-import journalLineEntity from '../journal-line.entity';
+import { TEntityId } from '@shared/types/uuid';
+
+import journalLineEntity from '@domain/journal-entry/entities/journal-line.entity';
+import { EJournalLineItemEvent } from '@domain/journal-entry/events/journal-line-item.events';
+import { EJournalLineAuditAction } from '@domain/journal-entry/types/journal-entry-audit.types';
+import {
+  EJournalSide,
+  UJournalSide,
+} from '@domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import moneyValue from '@domain/money/values/money.vo';
 
 type TMakePayload = Parameters<typeof journalLineEntity.make>[1];
 type TEntryPayload = Parameters<typeof journalLineEntity.make>[0];

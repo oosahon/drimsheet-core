@@ -1,7 +1,10 @@
 import { InferInsertModel } from 'drizzle-orm';
-import { UCounterpartyRole } from '../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyRolesInCore } from '../../../../config/drizzle/schema';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { UCounterpartyRole } from '@domain/counterparty/types/counterparty.types';
+
+import { counterpartyRolesInCore } from '@infra/config/drizzle/schema';
 
 export type ICounterpartyRoleRepoModel = InferInsertModel<
   typeof counterpartyRolesInCore

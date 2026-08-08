@@ -1,9 +1,13 @@
 import { Request } from 'express';
-import { mockAccountingEntityRepo } from '../../../../app/accounting/contracts/__mocks__/accounting.repos.mock';
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import appError from '../../../../shared/values/errors/app.error';
-import getAccountingEntityFromRequest from '../get-accounting-entity-from-request.helper';
+
+import { TEntityId } from '@shared/types/uuid';
+import appError from '@shared/values/errors/app.error';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+
+import { mockAccountingEntityRepo } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
+
+import getAccountingEntityFromRequest from '@interface/http/helpers/get-accounting-entity-from-request.helper';
 
 describe('getAccountingEntityFromRequest', () => {
   const mockRepo = mockAccountingEntityRepo;

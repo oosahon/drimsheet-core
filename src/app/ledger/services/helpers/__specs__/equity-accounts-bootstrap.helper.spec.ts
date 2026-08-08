@@ -1,26 +1,28 @@
-import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { EQUITY_LEDGER_CODES } from '../../../../../domain/ledger/config/equity-codes.config';
-import ledgerAccountEntity from '../../../../../domain/ledger/entities/ledger-account.entity';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { EQUITY_LEDGER_CODES } from '@domain/ledger/config/equity-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
   EEquityAccountBehavior,
   EEquitySubType,
   IEquityLedgerAccount,
   IOpeningBalanceEquityAccount,
   IRetainedEarningsAccount,
-} from '../../../../../domain/ledger/types/equity-account.types';
+} from '@domain/ledger/types/equity-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../../../domain/ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { mockEquityAccountService } from '../../../contracts/__mocks__/ledger.domain.services.mock';
-import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
-import makeEquityAccountsBootstrapHelper from '../equity-accounts-bootstrap.helper';
+} from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+
+import { mockEquityAccountService } from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import makeEquityAccountsBootstrapHelper from '@app/ledger/services/helpers/equity-accounts-bootstrap.helper';
 
 describe('equityAccountsBootstrapHelper', () => {
   const bootstrapEquityAccounts = makeEquityAccountsBootstrapHelper({

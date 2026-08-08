@@ -1,6 +1,10 @@
-import { IUserSession } from '../../../../../../app/auth/contracts/auth.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import userSessionMapper, { IUserSessionModel } from '../user-session.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUserSession } from '@app/auth/contracts/auth.types';
+
+import userSessionMapper, {
+  IUserSessionModel,
+} from '@infra/persistence/repos/auth/mappers/user-session.mapper';
 
 describe('User Session Mapper', () => {
   const createdAt = new Date('2026-05-01T00:00:00.000Z');

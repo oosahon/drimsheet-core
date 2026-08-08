@@ -1,8 +1,9 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import { EPeriodEvents } from '../../events/period.events';
-import { EPeriodActions } from '../../types/period-audit.types';
-import { EPeriodStatus } from '../../types/period.types';
-import fiscalYearEntity from '../fiscal-year.entity';
+import { TEntityId } from '@shared/types/uuid';
+
+import fiscalYearEntity from '@domain/accounting/entities/fiscal-year.entity';
+import { EPeriodEvents } from '@domain/accounting/events/period.events';
+import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
+import { EPeriodStatus } from '@domain/accounting/types/period.types';
 
 describe('fiscalYearEntity', () => {
   beforeEach(() => {

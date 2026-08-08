@@ -1,7 +1,7 @@
-import periodError from '../errors/period.error';
-import IAccountingPeriodRepo from '../repos/accounting-period.repo';
-import IAccountingPeriodService from '../types/accounting-period.service.types';
-import { EPeriodStatus } from '../types/period.types';
+import periodError from '@domain/accounting/errors/period.error';
+import IAccountingPeriodRepo from '@domain/accounting/repos/accounting-period.repo';
+import IAccountingPeriodService from '@domain/accounting/types/accounting-period.service.types';
+import { EPeriodStatus } from '@domain/accounting/types/period.types';
 
 interface IDependencies {
   accountingPeriodRepo: IAccountingPeriodRepo;

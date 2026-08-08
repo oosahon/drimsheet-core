@@ -1,4 +1,4 @@
-import { IRepoService } from '../repo.contract';
+import { IRepoService } from '@shared/contracts/repo.contract';
 
 const mockRepoService: jest.Mocked<IRepoService> = {
   runInTransaction: jest.fn(),

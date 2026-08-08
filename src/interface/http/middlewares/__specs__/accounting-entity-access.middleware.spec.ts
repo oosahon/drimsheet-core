@@ -1,4 +1,4 @@
-import makeAccountingEntityAccessMiddleware from '../accounting-entity-access.middleware';
+import makeAccountingEntityAccessMiddleware from '@interface/http/middlewares/accounting-entity-access.middleware';
 
 describe('makeAccountingEntityAccessMiddleware', () => {
   let mockAppContext: any;

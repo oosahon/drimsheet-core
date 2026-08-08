@@ -1,9 +1,11 @@
-import { IVendorHistory } from '../../../../../domain/counterparty/types/counterparty-audit.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyVendorHistoryInAudit } from '../../../../config/drizzle/schema';
-import getDbQuery from '../../../helpers/get-db-query';
-import vendorHistoryMapper from '../mappers/vendor-history.mapper';
-import vendorHistoryRepo from '../vendor-history.repo.impl';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IVendorHistory } from '@domain/counterparty/types/counterparty-audit.types';
+
+import { counterpartyVendorHistoryInAudit } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import vendorHistoryMapper from '@infra/persistence/repos/counterparty/mappers/vendor-history.mapper';
+import vendorHistoryRepo from '@infra/persistence/repos/counterparty/vendor-history.repo.impl';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/vendor-history.mapper');

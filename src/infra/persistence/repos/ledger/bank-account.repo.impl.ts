@@ -1,10 +1,13 @@
 import { and, eq } from 'drizzle-orm';
-import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
-import IBankAccountRepo from '../../../../domain/ledger/repos/bank-account.repo';
-import { IRepoOptions } from '../../../../shared/types/repo.types';
-import { bankDetailsInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
-import bankAccountMapper from './mappers/bank-account.mapper';
+
+import { IRepoOptions } from '@shared/types/repo.types';
+
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import IBankAccountRepo from '@domain/ledger/repos/bank-account.repo';
+
+import { bankDetailsInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import bankAccountMapper from '@infra/persistence/repos/ledger/mappers/bank-account.mapper';
 
 const bankAccountRepoImpl: IBankAccountRepo = {
   findOne: async (bankName, accountNumber, options) => {

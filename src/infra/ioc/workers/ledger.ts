@@ -1,6 +1,7 @@
-import makeLedgerAccountBalanceAdjustmentWorker from '../../../app/ledger/workers/ledger-account-balance-adjustment.worker';
-import observability from '../../observability';
-import { adjustLedgerAccountBalanceUseCase } from '../usecases/ledger';
+import makeLedgerAccountBalanceAdjustmentWorker from '@app/ledger/workers/ledger-account-balance-adjustment.worker';
+
+import { adjustLedgerAccountBalanceUseCase } from '@infra/ioc/usecases/ledger';
+import observability from '@infra/observability';
 
 export const ledgerAccountBalanceAdjustmentWorker =
   makeLedgerAccountBalanceAdjustmentWorker({

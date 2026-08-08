@@ -1,12 +1,14 @@
-import counterpartyError from '../../../../domain/counterparty/errors/counterparty.error';
-import makeCounterpartyService from '../../../../domain/counterparty/services/counterparty.service';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
+import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
 import {
   ECounterpartyType,
   ICounterparty,
-} from '../../../../domain/counterparty/types/counterparty.types';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { mockCounterpartyRepo } from '../../contracts/__mocks__/counterparty.repos.mock';
-import makeCounterpartyAppService from '../counterparty.service';
+} from '@domain/counterparty/types/counterparty.types';
+
+import { mockCounterpartyRepo } from '@app/counterparty/contracts/__mocks__/counterparty.repos.mock';
+import makeCounterpartyAppService from '@app/counterparty/services/counterparty.service';
 
 const domainService = makeCounterpartyService();
 

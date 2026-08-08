@@ -1,10 +1,11 @@
 import z from 'zod';
-import authError from '../../errors/auth.error';
+
+import authError from '@app/auth/errors/auth.error';
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   satisfiesPasswordComplexity,
-} from '../../policies/password.policy';
+} from '@app/auth/policies/password.policy';
 
 const invalidFirstNameError = new authError.InvalidFirstName().errorKey;
 const invalidLastNameError = new authError.InvalidLastName().errorKey;

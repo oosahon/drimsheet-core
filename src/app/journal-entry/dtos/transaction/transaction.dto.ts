@@ -1,8 +1,9 @@
 import {
   UJournalEntrySourceType,
   UJournalEntryStatus,
-} from '../../../../domain/journal-entry/types/journal-entry.types';
-import { IJournalLineReq } from '../journal-entry/journal-entry.dto';
+} from '@domain/journal-entry/types/journal-entry.types';
+
+import { IJournalLineReq } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 
 export interface IJournalEntryReq {
   sourceType: UJournalEntrySourceType;

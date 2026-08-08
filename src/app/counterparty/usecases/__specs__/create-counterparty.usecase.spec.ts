@@ -1,12 +1,13 @@
-import makeCounterpartyService from '../../../../domain/counterparty/services/counterparty.service';
-import IEventBus from '../../../../shared/contracts/event-bus.contract';
-import { TEntityId } from '../../../../shared/types/uuid';
-import IAppContext from '../../../context/contracts/app-context.contract';
-import mockCounterpartyPersistenceService from '../../contracts/__mocks__/persistence.service.mock';
-import { ICounterpartyCreateReq } from '../../dtos/counterparty/counterparty.dto';
-import makeCreateCounterpartyUsecase from '../create-counterparty.usecase';
+import IEventBus from '@shared/contracts/event-bus.contract';
+import { TEntityId } from '@shared/types/uuid';
 
-import { mockCounterpartyService } from '../../contracts/__mocks__/counterparty.domain.services.mock';
+import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import { mockCounterpartyService } from '@app/counterparty/contracts/__mocks__/counterparty.domain.services.mock';
+import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
+import { ICounterpartyCreateReq } from '@app/counterparty/dtos/counterparty/counterparty.dto';
+import makeCreateCounterpartyUsecase from '@app/counterparty/usecases/create-counterparty.usecase';
 
 const mockCounterpartyDomainServices = Object.freeze({
   counterparty: mockCounterpartyService,

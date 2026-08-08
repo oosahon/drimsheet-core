@@ -1,18 +1,20 @@
-import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/values/email.vo';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import appError from '../../../../shared/values/errors/app.error';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import { mockUserRepo } from '../../../user/contracts/__mocks__/user.repos.mock';
-import mockPasswordService from '../../contracts/__mocks__/password-service.mock';
-import mockUserAuthRepo from '../../contracts/__mocks__/user-auth.repo.mock';
-import IEmailVerificationService from '../../contracts/email-verification-service.contract';
-import { IUserSignupReq } from '../../dtos/auth/auth.dto';
-import makeSignupWithEmailUsecase from '../signup-with-email.usecase';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import appError from '@shared/values/errors/app.error';
+
+import { IUser } from '@domain/user/types/user.types';
+import emailValue from '@domain/user/values/email.vo';
+
+import mockPasswordService from '@app/auth/contracts/__mocks__/password-service.mock';
+import mockUserAuthRepo from '@app/auth/contracts/__mocks__/user-auth.repo.mock';
+import IEmailVerificationService from '@app/auth/contracts/email-verification-service.contract';
+import { IUserSignupReq } from '@app/auth/dtos/auth/auth.dto';
+import makeSignupWithEmailUsecase from '@app/auth/usecases/signup-with-email.usecase';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 const mockEmailVerificationService: jest.Mocked<IEmailVerificationService> = {
   send: jest.fn(),

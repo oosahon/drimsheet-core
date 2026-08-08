@@ -1,8 +1,9 @@
 import { Express } from 'express';
 import passport from 'passport';
 import request from 'supertest';
-import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
-import { createApplication } from '../../../src/infra/server';
+
+import * as authUseCase from '@infra/ioc/usecases/auth';
+import { createApplication } from '@infra/server';
 
 class CallbackGoogleStrategy extends passport.Strategy {
   name = 'google';

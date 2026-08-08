@@ -1,6 +1,6 @@
-import { SYSTEM_CURRENCIES } from '../../money/config/currencies.config';
-import { EAccountingEntityType } from '../types/accounting-entity.types';
-import { IJurisdiction } from '../types/jurisdiction.types';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import { IJurisdiction } from '@domain/accounting/types/jurisdiction.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
 const AD: IJurisdiction = {
   code: 'AD',

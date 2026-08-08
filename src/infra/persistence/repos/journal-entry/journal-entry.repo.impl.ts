@@ -1,10 +1,14 @@
 import { eq } from 'drizzle-orm';
-import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { journalEntriesInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
+
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+
+import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
+
+import { journalEntriesInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import journalEntryMapper from '@infra/persistence/repos/journal-entry/mappers/journal-entry.mapper';
+
 import journalEntryHistoryRepo from './journal-entry-history.repo.impl';
-import journalEntryMapper from './mappers/journal-entry.mapper';
 
 const journalEntryRepo: IJournalEntryRepo = {
   create: async (payload, options) => {

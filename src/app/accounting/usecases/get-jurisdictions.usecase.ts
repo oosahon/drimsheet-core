@@ -1,5 +1,6 @@
-import { SYSTEM_JURISDICTIONS } from '../../../domain/accounting/config/jurisdictions.config';
-import { IJurisdictionDto } from '../dtos/accounting/accounting.dto';
+import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
+
+import { IJurisdictionDto } from '@app/accounting/dtos/accounting/accounting.dto';
 
 export default function makeGetJurisdictionsUseCase() {
   return async (): Promise<IJurisdictionDto[]> => {

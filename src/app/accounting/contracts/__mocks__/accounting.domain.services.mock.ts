@@ -1,5 +1,5 @@
-import IAccountingEntityService from '../../../../domain/accounting/types/accounting-entity.service.types';
-import IAccountingPeriodService from '../../../../domain/accounting/types/accounting-period.service.types';
+import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
+import IAccountingPeriodService from '@domain/accounting/types/accounting-period.service.types';
 
 export const mockAccountingEntityService: jest.Mocked<IAccountingEntityService> =
   {

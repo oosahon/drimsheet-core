@@ -1,7 +1,7 @@
-import IFxCostBasisLotAcquisitionRepo from '../../../../domain/subledger/fx-cost-basis/repos/acquisition.repo';
-import IFxCostBasisLotDispositionAllocationRepo from '../../../../domain/subledger/fx-cost-basis/repos/disposition-allocation.repo';
-import IFxCostBasisLotDispositionRepo from '../../../../domain/subledger/fx-cost-basis/repos/disposition.repo';
-import IFxCostBasisLotRepo from '../../../../domain/subledger/fx-cost-basis/repos/lot.repo';
+import IFxCostBasisLotAcquisitionRepo from '@domain/subledger/fx-cost-basis/repos/acquisition.repo';
+import IFxCostBasisLotDispositionAllocationRepo from '@domain/subledger/fx-cost-basis/repos/disposition-allocation.repo';
+import IFxCostBasisLotDispositionRepo from '@domain/subledger/fx-cost-basis/repos/disposition.repo';
+import IFxCostBasisLotRepo from '@domain/subledger/fx-cost-basis/repos/lot.repo';
 
 export const mockFxCostBasisLotAcquisitionRepo: jest.Mocked<IFxCostBasisLotAcquisitionRepo> =
   {

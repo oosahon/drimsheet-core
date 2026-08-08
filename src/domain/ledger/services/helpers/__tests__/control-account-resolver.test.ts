@@ -1,14 +1,12 @@
-import {
-  ERepoLock,
-  IReadRepoOptions,
-} from '../../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { ASSET_LEDGER_CODES } from '../../../config/asset-codes.config';
-import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
-import { EAssetSubType } from '../../../types/asset-account.types';
-import { TCashLedgerCode } from '../../../types/ledger-code.types';
-import { ELedgerType, ILedgerAccount } from '../../../types/ledger.types';
-import controlAccountResolverHelper from '../control-account-resolver';
+import { ERepoLock, IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import controlAccountResolverHelper from '@domain/ledger/services/helpers/control-account-resolver';
+import { EAssetSubType } from '@domain/ledger/types/asset-account.types';
+import { TCashLedgerCode } from '@domain/ledger/types/ledger-code.types';
+import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   create: jest.fn(),

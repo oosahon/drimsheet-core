@@ -1,11 +1,13 @@
-import IExchangeRateRepo from '../../../../domain/money/repos/exchange-rate.repo';
-import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
-import appError from '../../../../shared/values/errors/app.error';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import { IExchangeRateQueryParam } from '../../dtos/exchange-rate/exchange-rate.dto';
-import makeGetExchangeRateUseCase from '../get-exchange-rates.usecase';
+import appError from '@shared/values/errors/app.error';
+
+import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { IExchangeRateQueryParam } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
+import makeGetExchangeRateUseCase from '@app/money/usecases/get-exchange-rates.usecase';
 
 const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
   create: jest.fn(),

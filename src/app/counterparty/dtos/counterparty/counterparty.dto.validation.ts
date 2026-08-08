@@ -1,10 +1,14 @@
 import { omit } from 'lodash';
 import z from 'zod';
-import counterpartyError from '../../../../domain/counterparty/errors/counterparty.error';
+
+import { paginationDtoValidation } from '@shared/values/pagination/dto/pagination.dto.validation';
+import paginationError from '@shared/values/pagination/pagination.error';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 import {
   ECounterpartySortBy,
   UCounterpartySortBy,
-} from '../../../../domain/counterparty/repos/counterparty.repo';
+} from '@domain/counterparty/repos/counterparty.repo';
 import {
   ECounterpartyRole,
   ECounterpartyStatus,
@@ -12,9 +16,7 @@ import {
   UCounterpartyRole,
   UCounterpartyStatus,
   UCounterpartyType,
-} from '../../../../domain/counterparty/types/counterparty.types';
-import { paginationDtoValidation } from '../../../../shared/values/pagination/dto/pagination.dto.validation';
-import paginationError from '../../../../shared/values/pagination/pagination.error';
+} from '@domain/counterparty/types/counterparty.types';
 
 const invalidNameKey = new counterpartyError.InvalidName().errorKey;
 const invalidTypeKey = new counterpartyError.InvalidType().errorKey;

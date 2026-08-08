@@ -1,12 +1,13 @@
-import userEntity from '../../../../domain/user/entities/user.entity';
+import userEntity from '@domain/user/entities/user.entity';
+
+import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
+import mockUserSessionRepo from '@app/auth/contracts/__mocks__/user-session.repo.mock';
+import authError from '@app/auth/errors/auth.error';
+import makeLogoutUseCase from '@app/auth/usecases/logout.usecase';
 import mockAppContext, {
   mockClientSession,
-} from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import mockAuthService from '../../contracts/__mocks__/token-service.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
-import authError from '../../errors/auth.error';
-import makeLogoutUseCase from '../logout.usecase';
+} from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
 
 describe('makeLogoutUseCase', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';

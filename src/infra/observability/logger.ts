@@ -1,7 +1,8 @@
 import * as winston from 'winston';
-import ILogger from '../../shared/contracts/logger.contract';
-import safeJSON from '../../shared/utils/safe-json';
-import { sanitizeData, SENSITIVE_KEYS } from '../../shared/utils/sanitizer';
+
+import ILogger from '@shared/contracts/logger.contract';
+import safeJSON from '@shared/utils/safe-json';
+import { sanitizeData, SENSITIVE_KEYS } from '@shared/utils/sanitizer';
 
 winston.addColors({
   error: 'red',

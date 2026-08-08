@@ -1,11 +1,11 @@
-import IContractorHistoryRepo from '../../../../domain/counterparty/repos/contractor-history.repo';
-import IContractorRepo from '../../../../domain/counterparty/repos/contractor.repo';
-import ICounterpartyHistoryRepo from '../../../../domain/counterparty/repos/counterparty-history.repo';
-import ICounterpartyRepo from '../../../../domain/counterparty/repos/counterparty.repo';
-import IEmployerHistoryRepo from '../../../../domain/counterparty/repos/employer-history.repo';
-import IEmployerRepo from '../../../../domain/counterparty/repos/employer.repo';
-import IVendorHistoryRepo from '../../../../domain/counterparty/repos/vendor-history.repo';
-import IVendorRepo from '../../../../domain/counterparty/repos/vendor.repo';
+import IContractorHistoryRepo from '@domain/counterparty/repos/contractor-history.repo';
+import IContractorRepo from '@domain/counterparty/repos/contractor.repo';
+import ICounterpartyHistoryRepo from '@domain/counterparty/repos/counterparty-history.repo';
+import ICounterpartyRepo from '@domain/counterparty/repos/counterparty.repo';
+import IEmployerHistoryRepo from '@domain/counterparty/repos/employer-history.repo';
+import IEmployerRepo from '@domain/counterparty/repos/employer.repo';
+import IVendorHistoryRepo from '@domain/counterparty/repos/vendor-history.repo';
+import IVendorRepo from '@domain/counterparty/repos/vendor.repo';
 
 export const mockContractorHistoryRepo: jest.Mocked<IContractorHistoryRepo> = {
   save: jest.fn(),

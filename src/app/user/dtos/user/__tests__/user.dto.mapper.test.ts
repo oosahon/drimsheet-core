@@ -1,6 +1,8 @@
-import { IUser } from '../../../../../domain/user/types/user.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import userMapper from '../user.dto.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUser } from '@domain/user/types/user.types';
+
+import userMapper from '@app/user/dtos/user/user.dto.mapper';
 
 describe('User DTO Mapper', () => {
   describe('toProfileDto', () => {

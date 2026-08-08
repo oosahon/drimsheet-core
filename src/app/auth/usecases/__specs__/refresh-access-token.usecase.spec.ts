@@ -1,17 +1,19 @@
-import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUser } from '@domain/user/types/user.types';
+
+import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
+import mockUserSessionRepo from '@app/auth/contracts/__mocks__/user-session.repo.mock';
+import authError from '@app/auth/errors/auth.error';
+import makeIssueUserSessionHelper from '@app/auth/usecases/helpers/issue-user-session.helper';
+import makeRefreshAccessTokenUseCase from '@app/auth/usecases/refresh-access-token.usecase';
 import mockAppContext, {
   mockClientSession,
-} from '../../../context/contracts/__mocks__/app-context.mock';
-import { mockUserRepo } from '../../../user/contracts/__mocks__/user.repos.mock';
-import mockAuthService from '../../contracts/__mocks__/token-service.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
-import authError from '../../errors/auth.error';
-import makeIssueUserSessionHelper from '../helpers/issue-user-session.helper';
-import makeRefreshAccessTokenUseCase from '../refresh-access-token.usecase';
+} from '@app/context/contracts/__mocks__/app-context.mock';
+import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 jest.mock('../helpers/issue-user-session.helper');
 

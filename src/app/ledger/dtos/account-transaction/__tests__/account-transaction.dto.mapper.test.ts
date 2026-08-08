@@ -1,8 +1,10 @@
-import { IAccountTransaction } from '../../../../../domain/journal-entry/types/account-transaction.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import accountTransactionMapper from '../account-transaction.dto.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IAccountTransaction } from '@domain/journal-entry/types/account-transaction.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
+
+import accountTransactionMapper from '@app/ledger/dtos/account-transaction/account-transaction.dto.mapper';
 
 describe('Account Transaction DTO Mapper', () => {
   describe('toDto', () => {

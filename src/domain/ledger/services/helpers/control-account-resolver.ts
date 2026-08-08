@@ -1,9 +1,10 @@
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import ledgerAccountError from '../../errors/ledger-account.error';
-import ILedgerAccountRepo from '../../repos/ledger-account.repo';
-import { EAssetSubType } from '../../types/asset-account.types';
-import { ELedgerType, ILedgerAccount } from '../../types/ledger.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import { EAssetSubType } from '@domain/ledger/types/asset-account.types';
+import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 interface IControlAccountScope<LedgerCode> {
   controlAccount: ILedgerAccount;

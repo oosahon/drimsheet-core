@@ -1,7 +1,9 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IUserHistory } from '../../../../../domain/user/types/user-audit.types';
-import { userProfileHistoryInAudit } from '../../../../config/drizzle/schema';
-import { toRepoDate } from '../../../helpers/date.mapper';
+
+import { IUserHistory } from '@domain/user/types/user-audit.types';
+
+import { userProfileHistoryInAudit } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
 
 export interface IUserProfileHistory extends InferSelectModel<
   typeof userProfileHistoryInAudit

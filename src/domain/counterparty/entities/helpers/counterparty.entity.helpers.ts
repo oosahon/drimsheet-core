@@ -1,7 +1,8 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import dateUtils from '../../../../shared/utils/date';
-import stringUtils from '../../../../shared/utils/string';
-import counterpartyError from '../../errors/counterparty.error';
+import { TEntityId } from '@shared/types/uuid';
+import dateUtils from '@shared/utils/date';
+import stringUtils from '@shared/utils/string';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 import {
   ECounterpartyRole,
   ECounterpartyStatus,
@@ -10,7 +11,7 @@ import {
   UCounterpartyRole,
   UCounterpartyStatus,
   UCounterpartyType,
-} from '../../types/counterparty.types';
+} from '@domain/counterparty/types/counterparty.types';
 
 function validateAccountingEntityId(accountingEntityId: TEntityId): void {
   stringUtils.validateUUID(

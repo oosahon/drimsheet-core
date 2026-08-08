@@ -1,12 +1,15 @@
 import { and, eq } from 'drizzle-orm';
-import IExchangeRateRepo from '../../../../domain/money/repos/exchange-rate.repo';
-import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import drizzleFilters from '../../../../shared/helpers/drizzle-filters';
-import paginationValue from '../../../../shared/values/pagination/pagination.vo';
-import { currencyExchangeRatesInCore } from '../../../config/drizzle/schema';
-import { toRepoDate } from '../../helpers/date.mapper';
-import getDbQuery from '../../helpers/get-db-query';
-import exchangeRateMapper from './mappers/exchange-rate.mapper';
+
+import drizzleFilters from '@shared/helpers/drizzle-filters';
+import paginationValue from '@shared/values/pagination/pagination.vo';
+
+import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+
+import { currencyExchangeRatesInCore } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import exchangeRateMapper from '@infra/persistence/repos/money/mappers/exchange-rate.mapper';
 
 const exchangeRateRepo: IExchangeRateRepo = {
   create: async (payload, options) => {

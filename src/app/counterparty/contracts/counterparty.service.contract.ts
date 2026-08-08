@@ -1,9 +1,10 @@
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   TAuditedCounterparty,
   UCounterpartyType,
-} from '../../../domain/counterparty/types/counterparty.types';
-import { IReadRepoOptions } from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
+} from '@domain/counterparty/types/counterparty.types';
 
 export interface ICounterpartyFindOrCreatePayload {
   id?: string;

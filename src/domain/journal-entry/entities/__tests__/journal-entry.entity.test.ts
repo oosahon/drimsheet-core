@@ -1,21 +1,25 @@
-import moneyValue from '../../../../domain/money/values/money.vo';
-import { TEntityId } from '../../../../shared/types/uuid';
-import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
-import journalEntryError from '../../errors/journal-entry.error';
-import { EJournalEntryEvent } from '../../events/journal-entry.events';
-import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
+import { TEntityId } from '@shared/types/uuid';
+
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import { EJournalEntryEvent } from '@domain/journal-entry/events/journal-entry.events';
+import { EJournalLineItemEvent } from '@domain/journal-entry/events/journal-line-item.events';
 import {
   EJournalEntryAuditAction,
   EJournalLineAuditAction,
-} from '../../types/journal-entry-audit.types';
+} from '@domain/journal-entry/types/journal-entry-audit.types';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
   UJournalEntrySourceType,
   UJournalEntryStatus,
-} from '../../types/journal-entry.types';
-import { EJournalSide, IJournalLine } from '../../types/journal-line.types';
-import journalEntryEntity from '../journal-entry.entity';
+} from '@domain/journal-entry/types/journal-entry.types';
+import {
+  EJournalSide,
+  IJournalLine,
+} from '@domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
 
 type TMakePayload = Parameters<typeof journalEntryEntity.make>[0];
 

@@ -1,4 +1,5 @@
-import reporter from '../../observability/reporter';
+import reporter from '@infra/observability/reporter';
+
 import makeLedgerAccountBalanceAdjustmentQueue from './ledger-account-balance.queue';
 import makeTransactionalEmailQueue from './transactional-email.queue';
 

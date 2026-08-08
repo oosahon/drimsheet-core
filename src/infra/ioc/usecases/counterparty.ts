@@ -1,15 +1,16 @@
-import makeCreateContractorUsecase from '../../../app/counterparty/usecases/create-contractor.usecase';
-import makeCreateCounterpartyUsecase from '../../../app/counterparty/usecases/create-counterparty.usecase';
-import makeCreateEmployerUsecase from '../../../app/counterparty/usecases/create-employer.usecase';
-import makeCreateVendorUsecase from '../../../app/counterparty/usecases/create-vendor.usecase';
-import makeGetCounterpartiesUsecase from '../../../app/counterparty/usecases/get-counterparties.usecase';
-import messaging from '../../messaging';
-import counterpartyRepos from '../../persistence/repos/counterparty';
-import appContext from '../../runtime/app-context';
+import makeCreateContractorUsecase from '@app/counterparty/usecases/create-contractor.usecase';
+import makeCreateCounterpartyUsecase from '@app/counterparty/usecases/create-counterparty.usecase';
+import makeCreateEmployerUsecase from '@app/counterparty/usecases/create-employer.usecase';
+import makeCreateVendorUsecase from '@app/counterparty/usecases/create-vendor.usecase';
+import makeGetCounterpartiesUsecase from '@app/counterparty/usecases/get-counterparties.usecase';
+
 import {
   counterpartyPersistenceService,
   counterpartyService,
-} from '../services/counterparty';
+} from '@infra/ioc/services/counterparty';
+import messaging from '@infra/messaging';
+import counterpartyRepos from '@infra/persistence/repos/counterparty';
+import appContext from '@infra/runtime/app-context';
 
 export const createCounterpartyUseCase = makeCreateCounterpartyUsecase({
   appContext,

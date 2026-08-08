@@ -1,6 +1,7 @@
-import mockHasher from '../../../../shared/contracts/__mocks__/hasher.mock';
-import authError from '../../errors/auth.error';
-import makePasswordService from '../password.service';
+import mockHasher from '@shared/contracts/__mocks__/hasher.mock';
+
+import authError from '@app/auth/errors/auth.error';
+import makePasswordService from '@app/auth/services/password.service';
 
 describe('makePasswordService', () => {
   let passwordService: ReturnType<typeof makePasswordService>;

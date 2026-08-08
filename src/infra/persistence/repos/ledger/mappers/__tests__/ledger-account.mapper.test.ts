@@ -1,8 +1,10 @@
-import { ILedgerAccount } from '../../../../../../domain/ledger/types/ledger.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+
 import ledgerAccountMapper, {
   ILedgerAccountModel,
-} from '../ledger-account.mapper';
+} from '@infra/persistence/repos/ledger/mappers/ledger-account.mapper';
 
 describe('Ledger Account Mapper', () => {
   const createdAt = new Date('2026-04-10T12:00:00Z');

@@ -1,12 +1,13 @@
-import mockCacheStorage from '../../../../shared/contracts/__mocks__/cache-storage.mock';
-import mockTokenCodec from '../../../../shared/contracts/__mocks__/token-codec.mock';
+import mockCacheStorage from '@shared/contracts/__mocks__/cache-storage.mock';
+import mockTokenCodec from '@shared/contracts/__mocks__/token-codec.mock';
 import {
   ITokenEncodingOptions,
   TTokenVerification,
-} from '../../../../shared/contracts/token-codec.contract';
-import { TEntityId } from '../../../../shared/types/uuid';
-import authError from '../../errors/auth.error';
-import makeTokenService from '../token.service';
+} from '@shared/contracts/token-codec.contract';
+import { TEntityId } from '@shared/types/uuid';
+
+import authError from '@app/auth/errors/auth.error';
+import makeTokenService from '@app/auth/services/token.service';
 
 interface IMockTokenPayload extends Record<string, unknown> {
   exp?: number;

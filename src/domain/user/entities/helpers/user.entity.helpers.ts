@@ -1,7 +1,8 @@
-import stringUtils from '../../../../shared/utils/string';
-import userError from '../../errors/user.error';
-import { IUser } from '../../types/user.types';
-import emailValue from '../../values/email.vo';
+import stringUtils from '@shared/utils/string';
+
+import userError from '@domain/user/errors/user.error';
+import { IUser } from '@domain/user/types/user.types';
+import emailValue from '@domain/user/values/email.vo';
 
 function validate(user: IUser) {
   if (user.deletedAt !== null) {

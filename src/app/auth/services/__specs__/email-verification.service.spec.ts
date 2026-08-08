@@ -1,13 +1,15 @@
-import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/values/email.vo';
-import mockCacheStorage from '../../../../shared/contracts/__mocks__/cache-storage.mock';
-import IVarsConfig from '../../../../shared/contracts/vars-config.contract';
-import { TEntityId } from '../../../../shared/types/uuid';
-import mockTransactionalEmailService from '../../../notification/contracts/__mocks__/transactional-email-service.mock';
-import mockTokenService from '../../contracts/__mocks__/token-service.mock';
+import mockCacheStorage from '@shared/contracts/__mocks__/cache-storage.mock';
+import IVarsConfig from '@shared/contracts/vars-config.contract';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUser } from '@domain/user/types/user.types';
+import emailValue from '@domain/user/values/email.vo';
+
+import mockTokenService from '@app/auth/contracts/__mocks__/token-service.mock';
 import makeEmailVerificationService, {
   EMAIL_VERIFICATION_COOL_DOWN_SECONDS,
-} from '../email-verification.service';
+} from '@app/auth/services/email-verification.service';
+import mockTransactionalEmailService from '@app/notification/contracts/__mocks__/transactional-email-service.mock';
 
 describe('makeEmailVerificationService', () => {
   const correlationId = 'test-corr-id';

@@ -1,11 +1,12 @@
 import {
   IPaginatedReadRepoOptions,
   IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { IPaginatedResponse } from '../../../shared/values/pagination/types/pagination.types';
-import { IJournalLineHistory } from '../types/journal-entry-audit.types';
-import { IJournalLine } from '../types/journal-line.types';
+} from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
+
+import { IJournalLineHistory } from '@domain/journal-entry/types/journal-entry-audit.types';
+import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
 
 export default interface IJournalLineRepo {
   create(

@@ -1,12 +1,16 @@
-import { SYSTEM_CURRENCIES } from '../../../../../../../domain/money/config/currencies.config';
-import { EExchangeRateType } from '../../../../../../../domain/money/types/exchange-rate.types';
-import moneyValue from '../../../../../../../domain/money/values/money.vo';
+import { TEntityId } from '@shared/types/uuid';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import moneyValue from '@domain/money/values/money.vo';
 import {
   EFxCostBasisLotStatus,
   IFxCostBasisLot,
-} from '../../../../../../../domain/subledger/fx-cost-basis/types/lot.types';
-import { TEntityId } from '../../../../../../../shared/types/uuid';
-import fxCostBasisLotMapper, { IFxCostBasisLotModel } from '../lot.mapper';
+} from '@domain/subledger/fx-cost-basis/types/lot.types';
+
+import fxCostBasisLotMapper, {
+  IFxCostBasisLotModel,
+} from '@infra/persistence/repos/subledger/mappers/fx-cost-basis/lot.mapper';
 
 describe('FX Cost-Basis Lot Mapper', () => {
   describe('toRepo', () => {

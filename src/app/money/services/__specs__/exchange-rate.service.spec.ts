@@ -1,8 +1,10 @@
-import IExchangeRateRepo from '../../../../domain/money/repos/exchange-rate.repo';
-import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import makeExchangeRateAppService from '../exchange-rate.service';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+
+import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+
+import makeExchangeRateAppService from '@app/money/services/exchange-rate.service';
 
 const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
   create: jest.fn(),

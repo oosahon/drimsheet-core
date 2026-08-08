@@ -1,21 +1,19 @@
-import makeAccountingEntityService from '../../../../domain/accounting/services/accounting-entity.service';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import makeAccountingEntityService from '@domain/accounting/services/accounting-entity.service';
 import {
   EAccountingEntityType,
   IAccountingEntity,
-} from '../../../../domain/accounting/types/accounting-entity.types';
-import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
-import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
-import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
-import { IUser } from '../../../../domain/user/types/user.types';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import mockAccountsBootstrapService from '../../../ledger/contracts/__mocks__/accounts-bootstrap.service.mock';
-import mockLedgerAccountPersistenceService from '../../../ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
-import { mockLedgerAccountRepo } from '../../../ledger/contracts/__mocks__/ledger.repos.mock';
-import { mockAccountingEntityService } from '../../contracts/__mocks__/accounting.domain.services.mock';
+} from '@domain/accounting/types/accounting-entity.types';
+import { EPeriodUnit } from '@domain/accounting/types/period.types';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import { EAppUsageModePreference } from '@domain/user/types/user-preferences.types';
+import { IUser } from '@domain/user/types/user.types';
+
+import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import {
   mockAccountingContextRepo,
   mockAccountingEntityRepo,
@@ -23,9 +21,13 @@ import {
   mockFiscalYearRepo,
   mockReportingContextRepo,
   mockReportingPeriodRepo,
-} from '../../contracts/__mocks__/accounting.repos.mock';
-import { IAccountingEntityCreationDto } from '../../dtos/accounting/accounting.dto';
-import createAccountingEntityUseCase from '../create-accounting-entity.usecase';
+} from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
+import { IAccountingEntityCreationDto } from '@app/accounting/dtos/accounting/accounting.dto';
+import createAccountingEntityUseCase from '@app/accounting/usecases/create-accounting-entity.usecase';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import mockAccountsBootstrapService from '@app/ledger/contracts/__mocks__/accounts-bootstrap.service.mock';
+import mockLedgerAccountPersistenceService from '@app/ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 
 const mockAccountingDomainServices = Object.freeze({
   accountingEntity: mockAccountingEntityService,

@@ -1,7 +1,9 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IVendorHistory } from '../../../../../domain/counterparty/types/counterparty-audit.types';
-import { counterpartyVendorHistoryInAudit } from '../../../../config/drizzle/schema';
-import { toRepoDate } from '../../../helpers/date.mapper';
+
+import { IVendorHistory } from '@domain/counterparty/types/counterparty-audit.types';
+
+import { counterpartyVendorHistoryInAudit } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
 
 export interface IVendorHistoryRepoModel extends InferSelectModel<
   typeof counterpartyVendorHistoryInAudit

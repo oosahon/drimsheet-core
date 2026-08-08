@@ -1,10 +1,11 @@
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import dateUtils from '../../../shared/utils/date';
-import stringUtils from '../../../shared/utils/string';
-import currencyEntity from '../entities/currency.entity';
-import currencyError from '../errors/currency.error';
-import { IExchangeRate } from '../types/exchange-rate.types';
-import helpers from './helpers/exchange-rate.helpers';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import dateUtils from '@shared/utils/date';
+import stringUtils from '@shared/utils/string';
+
+import currencyEntity from '@domain/money/entities/currency.entity';
+import currencyError from '@domain/money/errors/currency.error';
+import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
+import helpers from '@domain/money/values/helpers/exchange-rate.helpers';
 
 function make(payload: TCreationOmits<IExchangeRate, 'currencyPair'>) {
   helpers.validateType(payload.type);

@@ -1,13 +1,14 @@
-import dateUtils from '../../../shared/utils/date';
-import generateDiff from '../../../shared/utils/diff-generator';
-import stringUtils from '../../../shared/utils/string';
-import historyError from '../../../shared/values/history/history.error';
-import userError from '../errors/user.error';
+import dateUtils from '@shared/utils/date';
+import generateDiff from '@shared/utils/diff-generator';
+import stringUtils from '@shared/utils/string';
+import historyError from '@shared/values/history/history.error';
+
+import userError from '@domain/user/errors/user.error';
 import {
   EUserEntityActions,
   IMakeUserAuditPayload,
   IUserAudit,
-} from '../types/user-audit.types';
+} from '@domain/user/types/user-audit.types';
 
 function make(payload: IMakeUserAuditPayload) {
   stringUtils.validateUUID(payload.after.id, userError.InvalidId);

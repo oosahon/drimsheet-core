@@ -1,4 +1,4 @@
-import appError from '../app.error';
+import appError from '@shared/values/errors/app.error';
 
 describe('App Errors', () => {
   it('appError.BadRequest creates error with app_error_bad_request', () => {

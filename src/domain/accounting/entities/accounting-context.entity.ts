@@ -1,13 +1,14 @@
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import stringUtils from '../../../shared/utils/string';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import accountingError from '../errors/accounting.error';
-import accountingContextEvents from '../events/accounting-context.events';
-import { EAccountingContextActions } from '../types/accounting-context-audit.types';
-import { IAccountingContext } from '../types/context.types';
-import accountingContextAudit from '../values/accounting-context-audit.vo';
-import helpers from './helpers/accounting-context.entity.helpers';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import helpers from '@domain/accounting/entities/helpers/accounting-context.entity.helpers';
+import accountingError from '@domain/accounting/errors/accounting.error';
+import accountingContextEvents from '@domain/accounting/events/accounting-context.events';
+import { EAccountingContextActions } from '@domain/accounting/types/accounting-context-audit.types';
+import { IAccountingContext } from '@domain/accounting/types/context.types';
+import accountingContextAudit from '@domain/accounting/values/accounting-context-audit.vo';
 
 function make(
   payload: TCreationOmits<IAccountingContext, 'closedAt'>

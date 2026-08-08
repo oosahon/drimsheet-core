@@ -1,9 +1,11 @@
-import IContractorRepo from '../../../domain/counterparty/repos/contractor.repo';
-import ICounterpartyRepo from '../../../domain/counterparty/repos/counterparty.repo';
-import IEmployerRepo from '../../../domain/counterparty/repos/employer.repo';
-import IVendorRepo from '../../../domain/counterparty/repos/vendor.repo';
-import { IRepoService } from '../../../shared/contracts/repo.contract';
-import ICounterpartyPersistenceService from '../contracts/persistence.service.contract';
+import { IRepoService } from '@shared/contracts/repo.contract';
+
+import IContractorRepo from '@domain/counterparty/repos/contractor.repo';
+import ICounterpartyRepo from '@domain/counterparty/repos/counterparty.repo';
+import IEmployerRepo from '@domain/counterparty/repos/employer.repo';
+import IVendorRepo from '@domain/counterparty/repos/vendor.repo';
+
+import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
 
 interface IDependencies {
   counterpartyRepo: ICounterpartyRepo;

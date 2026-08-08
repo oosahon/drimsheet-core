@@ -1,6 +1,8 @@
-import counterpartyError from '../../../../../domain/counterparty/errors/counterparty.error';
-import addressError from '../../../../../shared/values/contact-details/address.error';
-import { employerCreateReqValidation } from '../employer.dto.validation';
+import addressError from '@shared/values/contact-details/address.error';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
+
+import { employerCreateReqValidation } from '@app/counterparty/dtos/employer/employer.dto.validation';
 
 const invalidNameKey = new counterpartyError.InvalidName().errorKey;
 const invalidCountryCodeKey = new addressError.InvalidCountryCode().errorKey;

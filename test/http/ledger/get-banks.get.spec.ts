@@ -1,13 +1,17 @@
 import { Express } from 'express';
 import request from 'supertest';
-import { IBankDirectoryDto } from '../../../src/app/ledger/dtos/bank-directory/bank-directory.dto';
-import { IUser } from '../../../src/domain/user/types/user.types';
-import { tokenService } from '../../../src/infra/ioc/services/auth';
-import * as ledgerUseCases from '../../../src/infra/ioc/usecases/ledger';
-import userRepos from '../../../src/infra/persistence/repos/user';
-import { createApplication } from '../../../src/infra/server';
-import { TEntityId } from '../../../src/shared/types/uuid';
-import appError from '../../../src/shared/values/errors/app.error';
+
+import { TEntityId } from '@shared/types/uuid';
+import appError from '@shared/values/errors/app.error';
+
+import { IUser } from '@domain/user/types/user.types';
+
+import { IBankDirectoryDto } from '@app/ledger/dtos/bank-directory/bank-directory.dto';
+
+import { tokenService } from '@infra/ioc/services/auth';
+import * as ledgerUseCases from '@infra/ioc/usecases/ledger';
+import userRepos from '@infra/persistence/repos/user';
+import { createApplication } from '@infra/server';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,

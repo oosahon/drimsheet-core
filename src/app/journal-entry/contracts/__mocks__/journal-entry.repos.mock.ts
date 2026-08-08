@@ -1,7 +1,7 @@
-import IJournalEntryHistoryRepo from '../../../../domain/journal-entry/repos/journal-entry-history.repo';
-import IJournalEntryRepo from '../../../../domain/journal-entry/repos/journal-entry.repo';
-import IJournalLineHistoryRepo from '../../../../domain/journal-entry/repos/journal-line-history.repo';
-import IJournalLineRepo from '../../../../domain/journal-entry/repos/journal-line.repo';
+import IJournalEntryHistoryRepo from '@domain/journal-entry/repos/journal-entry-history.repo';
+import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
+import IJournalLineHistoryRepo from '@domain/journal-entry/repos/journal-line-history.repo';
+import IJournalLineRepo from '@domain/journal-entry/repos/journal-line.repo';
 
 export const mockJournalEntryHistoryRepo: jest.Mocked<IJournalEntryHistoryRepo> =
   {

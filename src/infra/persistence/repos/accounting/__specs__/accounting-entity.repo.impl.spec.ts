@@ -1,12 +1,14 @@
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+
 import {
   IAccountingEntity,
   IAccountingEntityHistory,
-} from '../../../../../domain/accounting/types/accounting-entity.types';
-import { IWriteRepoOptions } from '../../../../../shared/types/repo.types';
-import getDbQuery from '../../../helpers/get-db-query';
-import accountingEntityHistoryRepo from '../accounting-entity-history.repo.impl';
-import accountingEntityRepo from '../accounting-entity.repo.impl';
-import accountingEntityMapper from '../mappers/accounting-entity.mapper';
+} from '@domain/accounting/types/accounting-entity.types';
+
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import accountingEntityHistoryRepo from '@infra/persistence/repos/accounting/accounting-entity-history.repo.impl';
+import accountingEntityRepo from '@infra/persistence/repos/accounting/accounting-entity.repo.impl';
+import accountingEntityMapper from '@infra/persistence/repos/accounting/mappers/accounting-entity.mapper';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/accounting-entity.mapper');

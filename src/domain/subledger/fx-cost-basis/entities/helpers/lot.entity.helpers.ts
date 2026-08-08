@@ -1,10 +1,10 @@
-import { IMoney } from '../../../../../domain/money/types/money.types';
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import fxCostBasisLotError from '../../errors/lot.error';
+import { IMoney } from '@domain/money/types/money.types';
+import moneyValue from '@domain/money/values/money.vo';
+import fxCostBasisLotError from '@domain/subledger/fx-cost-basis/errors/lot.error';
 import {
   EFxCostBasisLotStatus,
   UFxCostBasisLotStatus,
-} from '../../types/lot.types';
+} from '@domain/subledger/fx-cost-basis/types/lot.types';
 
 function isValidStatus(status: unknown): status is UFxCostBasisLotStatus {
   return Object.values(EFxCostBasisLotStatus).includes(

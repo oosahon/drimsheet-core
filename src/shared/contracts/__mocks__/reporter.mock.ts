@@ -1,4 +1,4 @@
-import type IReporter from '../reporter.contract';
+import type IReporter from '@shared/contracts/reporter.contract';
 
 const mockReporter: jest.Mocked<IReporter> = {
   report: jest.fn(),

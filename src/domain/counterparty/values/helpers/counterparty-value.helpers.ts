@@ -1,8 +1,9 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import stringUtils from '../../../../shared/utils/string';
-import addressValue from '../../../../shared/values/contact-details/address.vo';
-import { IAddress } from '../../../../shared/values/contact-details/types/address.types';
-import counterpartyError from '../../errors/counterparty.error';
+import { TEntityId } from '@shared/types/uuid';
+import stringUtils from '@shared/utils/string';
+import addressValue from '@shared/values/contact-details/address.vo';
+import { IAddress } from '@shared/values/contact-details/types/address.types';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 
 function validateCounterpartyId(counterpartyId: TEntityId): void {
   stringUtils.validateUUID(

@@ -1,11 +1,12 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import { EPeriodActions } from '../../types/period-audit.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import periodEntity from '@domain/accounting/entities/period.entity';
+import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
 import {
   EPeriodStatus,
   EPeriodUnit,
   UPeriodUnit,
-} from '../../types/period.types';
-import periodEntity from '../period.entity';
+} from '@domain/accounting/types/period.types';
 
 describe('periodEntity', () => {
   beforeEach(() => {

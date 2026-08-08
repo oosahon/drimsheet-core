@@ -2,16 +2,17 @@ import {
   IPaginatedReadRepoOptions,
   IReadRepoOptions,
   IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { IPaginatedResponse } from '../../../shared/values/pagination/types/pagination.types';
-import { ICounterpartyHistory } from '../types/counterparty-audit.types';
+} from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
+
+import { ICounterpartyHistory } from '@domain/counterparty/types/counterparty-audit.types';
 import {
   ICounterparty,
   UCounterpartyRole,
   UCounterpartyStatus,
   UCounterpartyType,
-} from '../types/counterparty.types';
+} from '@domain/counterparty/types/counterparty.types';
 
 export const ECounterpartySortBy = {
   Name: 'name',

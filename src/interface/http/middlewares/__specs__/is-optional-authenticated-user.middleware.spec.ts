@@ -1,5 +1,5 @@
-import httpHandlers from '../../handlers';
-import makeIsOptionalAuthenticatedUserMiddleware from '../is-optional-authenticated-user.middleware';
+import httpHandlers from '@interface/http/handlers';
+import makeIsOptionalAuthenticatedUserMiddleware from '@interface/http/middlewares/is-optional-authenticated-user.middleware';
 
 jest.mock('../../handlers', () => ({
   error: jest.fn(),

@@ -1,6 +1,7 @@
-import { IWriteRepoOptions } from '../../../shared/types/repo.types';
-import { IAccountingPeriodHistory } from '../types/period-audit.types';
-import { IAccountingPeriod } from '../types/period.types';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+
+import { IAccountingPeriodHistory } from '@domain/accounting/types/period-audit.types';
+import { IAccountingPeriod } from '@domain/accounting/types/period.types';
 
 export default interface IAccountingPeriodHistoryRepo {
   save(

@@ -1,10 +1,11 @@
-import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
-import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
-import { REVENUE_LEDGER_CODES } from '../../../config/revenue-codes.config';
-import ledgerAccountEntity from '../../../entities/ledger-account.entity';
-import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { REVENUE_LEDGER_CODES } from '@domain/ledger/config/revenue-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import makeEmploymentIncomeAccountService from '@domain/ledger/services/revenue-account/employment-income.service';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -12,12 +13,12 @@ import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../../types/ledger.types';
+} from '@domain/ledger/types/ledger.types';
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
-} from '../../../types/revenue-account.types';
-import makeEmploymentIncomeAccountService from '../employment-income.service';
+} from '@domain/ledger/types/revenue-account.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   create: jest.fn(),

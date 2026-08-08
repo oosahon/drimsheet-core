@@ -1,7 +1,8 @@
-import { IMoney } from '../../../../domain/money/types/money.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import { IEntityDelta } from '../../../../shared/values/history/types/history.types';
-import { IExchangeRate } from '../../../money/types/exchange-rate.types';
+import { TEntityId } from '@shared/types/uuid';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
+
+import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
+import { IMoney } from '@domain/money/types/money.types';
 
 export interface IFxCostBasisLotDisposition {
   id: TEntityId;

@@ -1,5 +1,5 @@
-import addressError from '../../address.error';
-import { addressDtoValidation } from '../address.dto.validation';
+import addressError from '@shared/values/contact-details/address.error';
+import { addressDtoValidation } from '@shared/values/contact-details/dto/address.dto.validation';
 
 const { InvalidLine1, InvalidCity, InvalidCountryCode } = addressError;
 

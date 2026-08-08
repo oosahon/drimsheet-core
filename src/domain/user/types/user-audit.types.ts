@@ -1,7 +1,8 @@
 import {
   IEntityDelta,
   IHistory,
-} from '../../../shared/values/history/types/history.types';
+} from '@shared/values/history/types/history.types';
+
 import { IUser } from './user.types';
 
 export const EUserEntityActions = {

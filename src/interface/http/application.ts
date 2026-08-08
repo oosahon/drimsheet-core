@@ -3,12 +3,16 @@ import cookieParser from 'cookie-parser';
 import express, { Router } from 'express';
 import helmet from 'helmet';
 import passport from 'passport';
+
+import cors from '@infra/server/cors';
+import rateLimiter from '@infra/server/rate-limiter';
+import swagger from '@infra/server/swagger';
+
+import makeSignupRateLimitMiddlewares from '@interface/http/middlewares/signup-rate-limit.middleware';
+
 import { RegisterRoutes } from '../../../generated/routes';
-import cors from '../../infra/server/cors';
-import rateLimiter from '../../infra/server/rate-limiter';
-import swagger from '../../infra/server/swagger';
 import middlewares from './middlewares';
-import makeSignupRateLimitMiddlewares from './middlewares/signup-rate-limit.middleware';
+
 interface IApplicationDependencies {
   bullMqDashboardRouter?: Router;
 }

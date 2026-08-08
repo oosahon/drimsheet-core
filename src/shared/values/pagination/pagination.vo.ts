@@ -1,12 +1,13 @@
-import numberUtils from '../../utils/number';
-import paginationError from './pagination.error';
+import numberUtils from '@shared/utils/number';
 import {
   EPaginationSortDirection,
   IPaginatedResponse,
   IPaginationParams,
   IPaginationResponseMeta,
   UPaginationSortDirection,
-} from './types/pagination.types';
+} from '@shared/values/pagination/types/pagination.types';
+
+import paginationError from './pagination.error';
 
 function getLimit(limit?: number): number {
   if (!limit) return 10;

@@ -1,9 +1,13 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import fxCostBasisLotAcquisitionEntity from '../entities/acquisition.entity';
-import fxCostBasisLotEntity from '../entities/lot.entity';
-import { IFxCostBasisLotAcquisition } from '../types/acquisition.types';
-import IFxCostBasisLotDomainService from '../types/lot.service.types';
-import { EFxCostBasisLotStatus, IFxCostBasisLot } from '../types/lot.types';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+
+import fxCostBasisLotAcquisitionEntity from '@domain/subledger/fx-cost-basis/entities/acquisition.entity';
+import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.entity';
+import { IFxCostBasisLotAcquisition } from '@domain/subledger/fx-cost-basis/types/acquisition.types';
+import IFxCostBasisLotDomainService from '@domain/subledger/fx-cost-basis/types/lot.service.types';
+import {
+  EFxCostBasisLotStatus,
+  IFxCostBasisLot,
+} from '@domain/subledger/fx-cost-basis/types/lot.types';
 
 export default function makeFxCostBasisLotService(): IFxCostBasisLotDomainService {
   return {

@@ -1,4 +1,4 @@
-import { ledgerAccountBalanceAdjustmentDtoSchema } from '../ledger-account-balance-adjustment.dto.validation';
+import { ledgerAccountBalanceAdjustmentDtoSchema } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto.validation';
 
 describe('Ledger Account Balance Adjustment DTO Validation', () => {
   it('should validate a correct balance adjustment DTO payload', () => {

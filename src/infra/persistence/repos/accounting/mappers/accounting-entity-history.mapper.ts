@@ -1,7 +1,9 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IAccountingEntityAuditHistory } from '../../../../../domain/accounting/types/accounting-entity-audit.types';
-import { accountingEntityHistoryInAudit } from '../../../../config/drizzle/schema';
-import { toRepoDate } from '../../../helpers/date.mapper';
+
+import { IAccountingEntityAuditHistory } from '@domain/accounting/types/accounting-entity-audit.types';
+
+import { accountingEntityHistoryInAudit } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
 
 export interface IAccountingEntityHistoryRepoModel extends InferSelectModel<
   typeof accountingEntityHistoryInAudit

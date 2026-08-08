@@ -1,14 +1,15 @@
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import stringUtils from '../../../shared/utils/string';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import currencyEntity from '../../money/entities/currency.entity';
-import accountingError from '../errors/accounting.error';
-import accountingEntityEvents from '../events/accounting-entity.events';
-import { EAccountingEntityActions } from '../types/accounting-entity-audit.types';
-import { IAccountingEntity } from '../types/accounting-entity.types';
-import accountingEntityAudit from '../values/accounting-entity-audit.vo';
-import helpers from './helpers/accounting-entity.entity.helpers';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import helpers from '@domain/accounting/entities/helpers/accounting-entity.entity.helpers';
+import accountingError from '@domain/accounting/errors/accounting.error';
+import accountingEntityEvents from '@domain/accounting/events/accounting-entity.events';
+import { EAccountingEntityActions } from '@domain/accounting/types/accounting-entity-audit.types';
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import accountingEntityAudit from '@domain/accounting/values/accounting-entity-audit.vo';
+import currencyEntity from '@domain/money/entities/currency.entity';
 
 function make(
   payload: TCreationOmits<IAccountingEntity>

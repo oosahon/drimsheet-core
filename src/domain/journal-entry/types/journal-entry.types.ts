@@ -1,5 +1,7 @@
-import { TEntityId } from '../../../shared/types/uuid';
-import { ICurrency } from '../../money/types/currency.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ICurrency } from '@domain/money/types/currency.types';
+
 import { IJournalLine, IJournalLineMakePayload } from './journal-line.types';
 
 export const EJournalEntrySourceType = {

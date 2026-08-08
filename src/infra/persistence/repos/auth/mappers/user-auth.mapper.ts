@@ -1,12 +1,14 @@
 import { InferSelectModel } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUserAuth, UAuthStrategy } from '@app/auth/contracts/auth.types';
+
+import { userAuthInCore } from '@infra/config/drizzle/schema';
 import {
-  IUserAuth,
-  UAuthStrategy,
-} from '../../../../../app/auth/contracts/auth.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { userAuthInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface IUserAuthModel extends InferSelectModel<
   typeof userAuthInCore

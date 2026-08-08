@@ -7,6 +7,7 @@ Review for bugs first.
 - Correctness regressions and missed edge cases.
 - Security issues and secret exposure.
 - Layer ownership and import boundaries.
+- Import-path compliance with [Import Paths](import-paths.md).
 - Repositories doing more than storage/retrieval.
 - Controllers, middlewares, or use cases making hidden business decisions.
 - Structural decisions without an explicit requirement or resolved plan

@@ -1,11 +1,15 @@
-import { IMoney } from '../../../../domain/money/types/money.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import stringUtils from '../../../../shared/utils/string';
-import { ICurrency } from '../../../money/types/currency.types';
-import { IExchangeRate } from '../../../money/types/exchange-rate.types';
-import exchangeRateValue from '../../../money/values/exchange-rate.vo';
-import journalLineError from '../../errors/journal-line.error';
-import { EJournalSide, UJournalSide } from '../../types/journal-line.types';
+import { TEntityId } from '@shared/types/uuid';
+import stringUtils from '@shared/utils/string';
+
+import journalLineError from '@domain/journal-entry/errors/journal-line.error';
+import {
+  EJournalSide,
+  UJournalSide,
+} from '@domain/journal-entry/types/journal-line.types';
+import { ICurrency } from '@domain/money/types/currency.types';
+import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
+import { IMoney } from '@domain/money/types/money.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
 function validateSide(side: UJournalSide) {
   if (!Object.values(EJournalSide).includes(side)) {

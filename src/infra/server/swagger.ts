@@ -1,7 +1,9 @@
 import { RequestHandler } from 'express';
 import swaggerUi from 'swagger-ui-express';
+
+import { APP_URL, NODE_ENV } from '@infra/config/vars.config';
+
 import swaggerDoc from '../../../generated/swagger.json';
-import { APP_URL, NODE_ENV } from '../config/vars.config';
 
 export default function swagger() {
   const isSupportedEnv = ['development', 'local'].includes(NODE_ENV);

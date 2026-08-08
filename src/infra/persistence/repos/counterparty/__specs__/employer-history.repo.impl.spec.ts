@@ -1,9 +1,11 @@
-import { IEmployerHistory } from '../../../../../domain/counterparty/types/counterparty-audit.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyEmployerHistoryInAudit } from '../../../../config/drizzle/schema';
-import getDbQuery from '../../../helpers/get-db-query';
-import employerHistoryRepo from '../employer-history.repo.impl';
-import employerHistoryMapper from '../mappers/employer-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IEmployerHistory } from '@domain/counterparty/types/counterparty-audit.types';
+
+import { counterpartyEmployerHistoryInAudit } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import employerHistoryRepo from '@infra/persistence/repos/counterparty/employer-history.repo.impl';
+import employerHistoryMapper from '@infra/persistence/repos/counterparty/mappers/employer-history.mapper';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/employer-history.mapper');

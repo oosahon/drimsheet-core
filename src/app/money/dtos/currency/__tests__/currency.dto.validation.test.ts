@@ -1,7 +1,7 @@
 import {
   currencyCodeValidation,
   currencyDtoValidation,
-} from '../currency.dto.validation';
+} from '@app/money/dtos/currency/currency.dto.validation';
 
 describe('Currency DTO Validation', () => {
   describe('currencyCodeValidation', () => {

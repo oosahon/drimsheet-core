@@ -1,5 +1,5 @@
-import paginationValue from '../pagination.vo';
-import { EPaginationSortDirection } from '../types/pagination.types';
+import paginationValue from '@shared/values/pagination/pagination.vo';
+import { EPaginationSortDirection } from '@shared/values/pagination/types/pagination.types';
 
 describe('paginationValue', () => {
   describe('getLimit', () => {

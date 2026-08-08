@@ -1,9 +1,10 @@
-import {
-  EAuthStrategy,
-  IUserAuth,
-} from '../../../../../../app/auth/contracts/auth.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import userAuthMapper, { IUserAuthModel } from '../user-auth.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { EAuthStrategy, IUserAuth } from '@app/auth/contracts/auth.types';
+
+import userAuthMapper, {
+  IUserAuthModel,
+} from '@infra/persistence/repos/auth/mappers/user-auth.mapper';
 
 describe('User Auth Mapper', () => {
   const createdAt = new Date('2026-05-01T00:00:00.000Z');

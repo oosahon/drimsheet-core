@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 
-import DomainError from '../../values/errors/domain.error';
-import dateUtils from '../date';
+import dateUtils from '@shared/utils/date';
+import DomainError from '@shared/values/errors/domain.error';
 
 class TestError extends DomainError<'test_error'> {
   constructor(cause?: any) {

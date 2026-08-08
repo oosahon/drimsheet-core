@@ -1,6 +1,7 @@
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IAddress } from '../../../../shared/values/contact-details/types/address.types';
-import vendorEntity from '../vendor.entity';
+import generateUUID from '@shared/utils/uuid-generator';
+import { IAddress } from '@shared/values/contact-details/types/address.types';
+
+import vendorEntity from '@domain/counterparty/entities/vendor.entity';
 
 describe('Vendor Entity', () => {
   const counterpartyId = generateUUID();

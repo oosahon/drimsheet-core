@@ -1,7 +1,9 @@
-import makeUserEmailVerifiedEventHandler from '../../../app/user/handlers/user-email-verified-event.handler';
-import { EUserEvents } from '../../../domain/user/events/user.events';
-import observability from '../../observability';
-import appContext from '../../runtime/app-context';
+import { EUserEvents } from '@domain/user/events/user.events';
+
+import makeUserEmailVerifiedEventHandler from '@app/user/handlers/user-email-verified-event.handler';
+
+import observability from '@infra/observability';
+import appContext from '@infra/runtime/app-context';
 
 export const userEmailVerifiedEventHandler = makeUserEmailVerifiedEventHandler({
   reporter: observability.reporter,

@@ -2,8 +2,8 @@ import {
   EAccountingEntityActions,
   IAccountingEntityAudit,
   IMakeAccountingEntityAuditPayload,
-} from '../types/accounting-entity-audit.types';
-import accountingAuditHelpers from './helpers/accounting-audit.vo.helpers';
+} from '@domain/accounting/types/accounting-entity-audit.types';
+import accountingAuditHelpers from '@domain/accounting/values/helpers/accounting-audit.vo.helpers';
 
 function make(
   payload: IMakeAccountingEntityAuditPayload

@@ -1,13 +1,17 @@
-import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import ledgerAccountEntity from '../../../../../domain/ledger/entities/ledger-account.entity';
-import { TRevenueLedgerCode } from '../../../../../domain/ledger/types/ledger-code.types';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import { TRevenueLedgerCode } from '@domain/ledger/types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../../../domain/ledger/types/ledger.types';
+} from '@domain/ledger/types/ledger.types';
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
@@ -20,11 +24,9 @@ import {
   IUnrealizedGainAccount,
   URevenueAccountBehavior,
   URevenueSubType,
-} from '../../../../../domain/ledger/types/revenue-account.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
-import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
+} from '@domain/ledger/types/revenue-account.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+
 import {
   mockEmploymentIncomeAccountService,
   mockGainOnAssetSaleAccountService,
@@ -32,9 +34,9 @@ import {
   mockGrantsAccountService,
   mockServicesAccountService,
   mockUnrealizedGainAccountService,
-} from '../../../contracts/__mocks__/ledger.domain.services.mock';
-import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
-import makeRevenueAccountsBootstrapHelper from '../revenue-accounts-bootstrap.helper';
+} from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import makeRevenueAccountsBootstrapHelper from '@app/ledger/services/helpers/revenue-accounts-bootstrap.helper';
 
 describe('revenueAccountsBootstrapHelper', () => {
   const services = {

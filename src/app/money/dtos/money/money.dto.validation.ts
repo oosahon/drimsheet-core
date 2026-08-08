@@ -1,7 +1,8 @@
 // TODO: use standard errors
 
 import z from 'zod';
-import { currencyCodeValidation } from '../../../money/dtos/currency/currency.dto.validation';
+
+import { currencyCodeValidation } from '@app/money/dtos/currency/currency.dto.validation';
 
 export const moneyDtoValidation = z.object({
   amount: z.number(),

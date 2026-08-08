@@ -11,7 +11,7 @@
  * If you need to add a new category or currency, carefully review
  * the migration guidelines first.
  */
-import { ICurrency } from '../types/currency.types';
+import { ICurrency } from '@domain/money/types/currency.types';
 
 const AED: ICurrency = {
   name: 'United Arab Emirates Dirham',

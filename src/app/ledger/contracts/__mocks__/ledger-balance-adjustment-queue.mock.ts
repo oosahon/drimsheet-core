@@ -1,4 +1,4 @@
-import ILedgerBalanceAdjustmentQueue from '../ledger-balance-adjustment-queue.contract';
+import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 
 const mockLedgerAccountBalanceAdjustmentQueue: jest.Mocked<ILedgerBalanceAdjustmentQueue> =
   {

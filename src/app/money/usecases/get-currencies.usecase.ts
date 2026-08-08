@@ -1,6 +1,7 @@
-import ICurrencyRepo from '../../../domain/money/repos/currency.repo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import { ICurrencyDto } from '../dtos/currency/currency.dto';
+import ICurrencyRepo from '@domain/money/repos/currency.repo';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import { ICurrencyDto } from '@app/money/dtos/currency/currency.dto';
 
 interface IDependencies {
   currencyRepo: ICurrencyRepo;

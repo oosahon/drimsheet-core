@@ -1,13 +1,11 @@
-import {
-  IReadRepoOptions,
-  IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { IAccountingEntityAuditHistory } from '../types/accounting-entity-audit.types';
+import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IAccountingEntityAuditHistory } from '@domain/accounting/types/accounting-entity-audit.types';
 import {
   IAccountingEntity,
   UAccountingEntityType,
-} from '../types/accounting-entity.types';
+} from '@domain/accounting/types/accounting-entity.types';
 
 export default interface IAccountingEntityRepo {
   create(

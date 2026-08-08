@@ -1,23 +1,25 @@
-import ledgerBalanceEffectRule from '../../../domain/accounting/rules/ledger-balance-effect.rule';
-import journalEntryError from '../../../domain/journal-entry/errors/journal-entry.error';
+import IReporter from '@shared/contracts/reporter.contract';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import ledgerBalanceEffectRule from '@domain/accounting/rules/ledger-balance-effect.rule';
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import {
   EJournalEntryStatus,
   IJournalEntry,
-} from '../../../domain/journal-entry/types/journal-entry.types';
-import { IJournalLine } from '../../../domain/journal-entry/types/journal-line.types';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import { EEquitySubType } from '../../../domain/ledger/types/equity-account.types';
-import { ELedgerAccountBalanceEffect } from '../../../domain/ledger/types/ledger-account-balance.types';
-import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
-import { IMoney } from '../../../domain/money/types/money.types';
-import moneyValue from '../../../domain/money/values/money.vo';
-import IReporter from '../../../shared/contracts/reporter.contract';
-import { IReadRepoOptions } from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import moneyMapper from '../../money/dtos/money/money.dto.mapper';
-import { ILedgerAccountBalancePropagationService } from '../contracts/ledger-account-balance-propagation.service.contract';
-import ILedgerBalanceAdjustmentQueue from '../contracts/ledger-balance-adjustment-queue.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
+} from '@domain/journal-entry/types/journal-entry.types';
+import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
+import { ELedgerAccountBalanceEffect } from '@domain/ledger/types/ledger-account-balance.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { IMoney } from '@domain/money/types/money.types';
+import moneyValue from '@domain/money/values/money.vo';
+
+import { ILedgerAccountBalancePropagationService } from '@app/ledger/contracts/ledger-account-balance-propagation.service.contract';
+import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
+import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
+import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
 
 function getAccountMap(
   journalEntry: IJournalEntry

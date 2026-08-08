@@ -1,5 +1,6 @@
 import z from 'zod';
-import addressError from '../address.error';
+
+import addressError from '@shared/values/contact-details/address.error';
 
 const { InvalidLine1, InvalidCity, InvalidCountryCode } = addressError;
 

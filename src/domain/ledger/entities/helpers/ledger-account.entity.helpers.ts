@@ -1,5 +1,6 @@
-import stringUtils from '../../../../shared/utils/string';
-import ledgerAccountError from '../../errors/ledger-account.error';
+import stringUtils from '@shared/utils/string';
+
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -11,7 +12,7 @@ import {
   ULedgerAccountStatus,
   ULedgerType,
   UNormalBalance,
-} from '../../types/ledger.types';
+} from '@domain/ledger/types/ledger.types';
 
 function getNormalBalance(type: ULedgerType): UNormalBalance {
   switch (type) {

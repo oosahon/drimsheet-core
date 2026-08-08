@@ -1,9 +1,13 @@
 import { Request } from 'express';
-import ITokenService from '../../../../app/auth/contracts/token-service.contract';
-import { mockUserRepo as mockUserRepoCentral } from '../../../../app/user/contracts/__mocks__/user.repos.mock';
-import { IUser } from '../../../../domain/user/types/user.types';
-import ILogger from '../../../../shared/contracts/logger.contract';
-import getAuthUserFromRequest from '../get-auth-user-from-request.helper';
+
+import ILogger from '@shared/contracts/logger.contract';
+
+import { IUser } from '@domain/user/types/user.types';
+
+import ITokenService from '@app/auth/contracts/token-service.contract';
+import { mockUserRepo as mockUserRepoCentral } from '@app/user/contracts/__mocks__/user.repos.mock';
+
+import getAuthUserFromRequest from '@interface/http/helpers/get-auth-user-from-request.helper';
 
 describe('getAuthUserFromRequest', () => {
   let mockReq: Partial<Request>;

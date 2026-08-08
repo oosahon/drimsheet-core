@@ -1,4 +1,4 @@
-import { ICacheStorage } from '../cache-storage.contract';
+import { ICacheStorage } from '@shared/contracts/cache-storage.contract';
 
 const mockCacheStorage: jest.Mocked<ICacheStorage> = {
   set: jest.fn(),

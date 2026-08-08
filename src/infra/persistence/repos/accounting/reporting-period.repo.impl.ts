@@ -1,8 +1,11 @@
-import IReportingPeriodRepo from '../../../../domain/accounting/repos/reporting-period.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { reportingPeriodsInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
-import reportingPeriodMapper from './mappers/reporting-period.mapper';
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+
+import IReportingPeriodRepo from '@domain/accounting/repos/reporting-period.repo';
+
+import { reportingPeriodsInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import reportingPeriodMapper from '@infra/persistence/repos/accounting/mappers/reporting-period.mapper';
+
 import reportingPeriodHistoryRepo from './reporting-period-history.repo.impl';
 
 const reportingPeriodRepoImpl: IReportingPeriodRepo = {

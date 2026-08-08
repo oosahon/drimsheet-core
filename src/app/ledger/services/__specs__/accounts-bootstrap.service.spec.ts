@@ -1,7 +1,9 @@
-import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+
 import {
   mockAssetAccountService,
   mockAssetDisposalLossAccountService,
@@ -23,15 +25,15 @@ import {
   mockTaxExpenseAccountService,
   mockUnrealizedGainAccountService,
   mockUnrealizedLossAccountService,
-} from '../../contracts/__mocks__/ledger.domain.services.mock';
-import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
-import IAccountsBootstrapService from '../../contracts/accounts-bootstrap.service.contract';
-import makeAccountsBootstrapService from '../accounts-bootstrap.service';
-import makeAssetAccountsBootstrapHelper from '../helpers/asset-accounts-bootstrap.helper';
-import makeEquityAccountsBootstrapHelper from '../helpers/equity-accounts-bootstrap.helper';
-import makeExpenseAccountsBootstrapHelper from '../helpers/expense-accounts-bootstrap.helper';
-import makeLiabilityAccountsBootstrapHelper from '../helpers/liability-accounts-bootstrap.helper';
-import makeRevenueAccountsBootstrapHelper from '../helpers/revenue-accounts-bootstrap.helper';
+} from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import IAccountsBootstrapService from '@app/ledger/contracts/accounts-bootstrap.service.contract';
+import makeAccountsBootstrapService from '@app/ledger/services/accounts-bootstrap.service';
+import makeAssetAccountsBootstrapHelper from '@app/ledger/services/helpers/asset-accounts-bootstrap.helper';
+import makeEquityAccountsBootstrapHelper from '@app/ledger/services/helpers/equity-accounts-bootstrap.helper';
+import makeExpenseAccountsBootstrapHelper from '@app/ledger/services/helpers/expense-accounts-bootstrap.helper';
+import makeLiabilityAccountsBootstrapHelper from '@app/ledger/services/helpers/liability-accounts-bootstrap.helper';
+import makeRevenueAccountsBootstrapHelper from '@app/ledger/services/helpers/revenue-accounts-bootstrap.helper';
 
 jest.mock('../helpers/asset-accounts-bootstrap.helper');
 jest.mock('../helpers/equity-accounts-bootstrap.helper');

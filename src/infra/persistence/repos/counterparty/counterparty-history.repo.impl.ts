@@ -1,7 +1,8 @@
-import ICounterpartyHistoryRepo from '../../../../domain/counterparty/repos/counterparty-history.repo';
-import { counterpartyHistoryInAudit } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
-import counterpartyHistoryMapper from './mappers/counterparty-history.mapper';
+import ICounterpartyHistoryRepo from '@domain/counterparty/repos/counterparty-history.repo';
+
+import { counterpartyHistoryInAudit } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import counterpartyHistoryMapper from '@infra/persistence/repos/counterparty/mappers/counterparty-history.mapper';
 
 const counterpartyHistoryRepo: ICounterpartyHistoryRepo = {
   save: async (counterparty, history, options) => {

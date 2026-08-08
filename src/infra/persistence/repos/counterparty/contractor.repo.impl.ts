@@ -1,9 +1,12 @@
-import IContractorRepo from '../../../../domain/counterparty/repos/contractor.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { counterpartyContractorsInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+
+import IContractorRepo from '@domain/counterparty/repos/contractor.repo';
+
+import { counterpartyContractorsInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import contractorMapper from '@infra/persistence/repos/counterparty/mappers/contractor.mapper';
+
 import contractorHistoryRepo from './contractor-history.repo.impl';
-import contractorMapper from './mappers/contractor.mapper';
 
 const contractorRepo: IContractorRepo = {
   create: async (payload, options) => {
