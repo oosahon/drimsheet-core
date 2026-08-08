@@ -73,7 +73,6 @@ describe('interestAccountService', () => {
     name: 'Interest (Default)',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
     controlAccountCode: EXPENSE_LEDGER_CODES.INTEREST.HEADER,
   };
@@ -180,7 +179,7 @@ describe('interestAccountService', () => {
         behavior: EExpenseAccountBehavior.Interest,
         isControlAccount: false,
         controlAccountId: controlAccount.id,
-        currency: SYSTEM_CURRENCIES.USD,
+        currency: null,
         meta: null,
         status: ELedgerAccountStatus.Active,
         contraAccountRule: EContraAccountRule.ContraNotPermitted,

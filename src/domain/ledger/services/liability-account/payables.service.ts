@@ -3,6 +3,7 @@ import { LIABILITY_LEDGER_CODES } from '../../config/liability-codes.config';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import ledgerAccountCurrencyInvarianceRule from '../../rules/currency-invariance.rule';
 import { TPayablesLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -92,7 +93,8 @@ function makeCreateStatutoryPayableSubAccount(
         controlAccount.subType === ELiabilitySubType.Payable &&
         controlAccount.isControlAccount &&
         (controlAccount.behavior === ELiabilityAccountBehavior.DefaultPayable ||
-          controlAccount.behavior === ELiabilityAccountBehavior.TaxPayable)
+          controlAccount.behavior === ELiabilityAccountBehavior.TaxPayable) &&
+        controlAccount.currency !== null
       );
     };
 
@@ -104,6 +106,11 @@ function makeCreateStatutoryPayableSubAccount(
         repoOptions,
         validator,
       });
+
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: payload.currency,
+    });
 
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,
@@ -170,6 +177,11 @@ function makeCreateTradePayableAccount(
         validator,
       });
 
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: null,
+    });
+
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
@@ -194,7 +206,7 @@ function makeCreateTradePayableAccount(
       behavior: ELiabilityAccountBehavior.TradePayable,
       isControlAccount: payload.isControlAccount,
       controlAccountId: controlAccount.id,
-      currency: payload.currency,
+      currency: null,
       status: ELedgerAccountStatus.Active,
       meta: payablesMetaValue.makeTradeMeta(payload.meta),
       contraAccountRule: EContraAccountRule.ContraPermitted,

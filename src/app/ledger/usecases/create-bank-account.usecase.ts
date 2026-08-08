@@ -1,7 +1,9 @@
 import IAccountingPeriodService from '../../../domain/accounting/types/accounting-period.service.types';
 import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
+import { ASSET_LEDGER_CODES } from '../../../domain/ledger/config/asset-codes.config';
 import ledgerAccountEntity from '../../../domain/ledger/entities/ledger-account.entity';
 import IBankAccountRepo from '../../../domain/ledger/repos/bank-account.repo';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import ICashAccountService from '../../../domain/ledger/types/cash-account.service.types';
 import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
 import bankDetailsValue from '../../../domain/ledger/values/bank-details.vo';
@@ -28,6 +30,7 @@ import { IBankAccountCreationReq } from '../dtos/asset-account/asset-account.dto
 import { bankAccountCreationReqValidation } from '../dtos/asset-account/asset-account.dto.validation';
 import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';
 import helpers from './helpers/create-bank-account.usecase.helpers';
+import getControlAccountHelper from './helpers/get-control-account.helper';
 import getFxAcquisitionDataHelper from './helpers/get-fx-acquisition-data.helper';
 import getOpeningBalanceExchangeRate from './helpers/get-opening-balance-exchange-rate.helper';
 import mapLedgerAccountToDto from './helpers/map-ledger-account-to-dto.helper';
@@ -39,6 +42,7 @@ interface IDependencies {
   accountingPeriodService: IAccountingPeriodService;
   cashAccountService: ICashAccountService;
   bankAccountRepo: IBankAccountRepo;
+  ledgerAccountRepo: ILedgerAccountRepo;
   journalEntryService: IJournalEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
@@ -82,13 +86,21 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
       accountNumber: payload.bankAccount.accountNumber,
     });
 
+    const controlAccount = await getControlAccountHelper<TCashLedgerCode>({
+      ledgerAccountRepo: deps.ledgerAccountRepo,
+      controlAccountId: payload.controlAccountId,
+      defaultControlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+      accountingEntityId: accountingEntity.id,
+      repoOptions: trace,
+    });
+
     const creationPayload = {
       name: payload.name,
       currency: currencyEntity.getByCode(payload.currencyCode),
       isControlAccount: false,
       userId: user.id,
       accountingEntity,
-      controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
+      controlAccountCode: controlAccount.code,
       bankDetails,
     };
 

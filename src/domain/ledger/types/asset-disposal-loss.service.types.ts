@@ -2,7 +2,6 @@ import { IRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
 import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
-import { ICurrency } from '../../money/types/currency.types';
 import { IAssetDisposalLossAccount } from './expense-account.types';
 import { TAssetDisposalLossLedgerCode } from './ledger-code.types';
 import { ILedgerAccount } from './ledger.types';
@@ -24,7 +23,6 @@ interface ISubAccountPayload {
   createdBy: TEntityId;
   accountingEntityId: TEntityId;
   // TODO: remove currency from expense
-  currency: ICurrency;
   isControlAccount: boolean;
   controlAccountCode: TAssetDisposalLossLedgerCode;
 }

@@ -73,7 +73,6 @@ describe('giftsAccountService', () => {
     name: 'Consulting Revenue',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
     controlAccountCode: REVENUE_LEDGER_CODES.GIFTS.HEADER,
   };
@@ -178,7 +177,7 @@ describe('giftsAccountService', () => {
       behavior: ERevenueAccountBehavior.Gifts,
       isControlAccount: false,
       controlAccountId: controlAccount.id,
-      currency: SYSTEM_CURRENCIES.USD,
+      currency: null,
       meta: null,
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,

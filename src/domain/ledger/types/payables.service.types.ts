@@ -18,7 +18,6 @@ interface ICreateHeaderPayload {
   name: string;
   createdBy: TEntityId;
   accountingEntity: IAccountingEntity;
-  currency: ICurrency;
 }
 
 type TReturnType = TAuditedEntity<
@@ -33,7 +32,7 @@ interface IStatutoryPayload {
   accountingEntity: IAccountingEntity;
   currency: ICurrency;
   isControlAccount: boolean;
-  controlAccountCode?: TPayablesLedgerCode;
+  controlAccountCode: TPayablesLedgerCode;
   meta: IStatutoryPayableAccountMeta;
 }
 
@@ -41,9 +40,8 @@ interface ITradePayload {
   name: string;
   createdBy: TEntityId;
   accountingEntity: IAccountingEntity;
-  currency: ICurrency;
   isControlAccount: boolean;
-  controlAccountCode?: TPayablesLedgerCode;
+  controlAccountCode: TPayablesLedgerCode;
   meta: ITradePayableAccountMeta;
 }
 

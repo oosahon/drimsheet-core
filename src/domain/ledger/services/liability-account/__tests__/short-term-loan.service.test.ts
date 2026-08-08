@@ -221,6 +221,76 @@ describe('shortTermLoanAccountService', () => {
       );
     });
 
+    it('creates a null-currency loan under a null-currency control account', async () => {
+      const controlAccount = makeControlAccount(
+        ELiabilityAccountBehavior.ShortTermLoan,
+        { currency: null }
+      );
+      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+      mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+
+      const [account] = await service.createSubAccount(
+        { ...shortTermLoanPayload, currency: null },
+        repoOptions
+      );
+
+      expect(account.currency).toBeNull();
+    });
+
+    it('rejects a fixed-currency loan under a null-currency control account', async () => {
+      const controlAccount = makeControlAccount(
+        ELiabilityAccountBehavior.ShortTermLoan,
+        {
+          controlAccountId: generateUUID(),
+          currency: null,
+        }
+      );
+      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+
+      await expect(
+        service.createSubAccount(shortTermLoanPayload, repoOptions)
+      ).rejects.toMatchObject({
+        errorKey:
+          'ledger_error_ledger_account_control_account_currency_mismatch',
+        cause: {
+          controlAccountId: controlAccount.id,
+          controlAccountCode: controlAccount.code,
+          controlAccountCurrencyCode: null,
+          subAccountCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+        },
+      });
+      expect(mockLedgerAccountRepo.findLatestBySubType).toHaveBeenCalledTimes(
+        1
+      );
+    });
+
+    it('rejects a different fixed currency under a nested control account', async () => {
+      const controlAccount = makeControlAccount(
+        ELiabilityAccountBehavior.ShortTermLoan,
+        { controlAccountId: generateUUID() }
+      );
+      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+
+      await expect(
+        service.createSubAccount(
+          { ...shortTermLoanPayload, currency: SYSTEM_CURRENCIES.EUR },
+          repoOptions
+        )
+      ).rejects.toMatchObject({
+        errorKey:
+          'ledger_error_ledger_account_control_account_currency_mismatch',
+        cause: {
+          controlAccountId: controlAccount.id,
+          controlAccountCode: controlAccount.code,
+          controlAccountCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+          subAccountCurrencyCode: SYSTEM_CURRENCIES.EUR.code,
+        },
+      });
+      expect(mockLedgerAccountRepo.findLatestBySubType).toHaveBeenCalledTimes(
+        1
+      );
+    });
+
     it('rejects a missing control account', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
@@ -328,6 +398,7 @@ describe('shortTermLoanAccountService', () => {
         label: 'behavior',
         overrides: { behavior: ELiabilityAccountBehavior.ShortTermLoan },
       },
+      { label: 'null currency', overrides: { currency: null } },
     ];
 
     it.each(invalidControlAccountCases)(

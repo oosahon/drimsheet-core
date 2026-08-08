@@ -55,7 +55,7 @@ interface ICreateSubAccountPayload {
   name: string;
   createdBy: TEntityId;
   accountingEntityId: TEntityId;
-  currency: ICurrency;
+  currency: ICurrency | null;
   isControlAccount: boolean;
   controlAccountCode: TShortTermDebtLedgerCode;
 }

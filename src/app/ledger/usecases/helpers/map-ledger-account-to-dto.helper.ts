@@ -13,11 +13,16 @@ export default function mapLedgerAccountToDto(
   const accountLine = journalEntry?.lines.find(
     (line) => line.accountId === account.id
   );
-  const balance =
-    accountLine?.amount ?? moneyValue.makeZeroAmount(account.currency);
+  const functionalCurrency = currencyEntity.getByCode(functionalCurrencyCode);
+  const accountCurrency = account.currency ?? functionalCurrency;
+  const balance = accountLine
+    ? account.currency === null
+      ? accountLine.functionalAmount
+      : accountLine.amount
+    : moneyValue.makeZeroAmount(accountCurrency);
   const functionalBalance =
     accountLine?.functionalAmount ??
-    moneyValue.makeZeroAmount(currencyEntity.getByCode(functionalCurrencyCode));
+    moneyValue.makeZeroAmount(functionalCurrency);
 
   return ledgerAccountMapper.toDto(account, balance, functionalBalance);
 }

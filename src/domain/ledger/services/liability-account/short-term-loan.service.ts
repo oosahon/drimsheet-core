@@ -3,6 +3,7 @@ import { LIABILITY_LEDGER_CODES } from '../../config/liability-codes.config';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import ledgerAccountCurrencyInvarianceRule from '../../rules/currency-invariance.rule';
 import { TShortTermDebtLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -105,6 +106,11 @@ function makeCreateSubAccount(
         validator,
       });
 
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: payload.currency,
+    });
+
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
@@ -150,7 +156,8 @@ function makeCreateCreditCardSubAccount(
         controlAccount.isControlAccount &&
         (controlAccount.behavior ===
           ELiabilityAccountBehavior.DefaultShortTermDebt ||
-          controlAccount.behavior === ELiabilityAccountBehavior.CreditCard)
+          controlAccount.behavior === ELiabilityAccountBehavior.CreditCard) &&
+        controlAccount.currency !== null
       );
     };
 
@@ -162,6 +169,11 @@ function makeCreateCreditCardSubAccount(
         repoOptions,
         validator,
       });
+
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: payload.currency,
+    });
 
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,

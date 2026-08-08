@@ -9,6 +9,11 @@ Review for bugs first.
 - Layer ownership and import boundaries.
 - Repositories doing more than storage/retrieval.
 - Controllers, middlewares, or use cases making hidden business decisions.
+- Structural decisions without an explicit requirement or resolved plan
+  decision, durable rule, concrete precedent, or explicitly approved deviation.
+- Undisclosed plan drift and material plan deviations that lack approval. Allow
+  disclosed non-material corrections that preserve the approved outcome and
+  scope.
 - `any`, unsafe casts, dead code, magic strings, and duplicated logic.
 - Missing or weak tests for changed behavior.
 

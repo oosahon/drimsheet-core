@@ -3,6 +3,7 @@ import { EXPENSE_LEDGER_CODES } from '../../config/expense-codes.config';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import ledgerAccountCurrencyInvarianceRule from '../../rules/currency-invariance.rule';
 import {
   EExpenseAccountBehavior,
   EExpenseSubType,
@@ -80,6 +81,12 @@ function makeCreateSubAccount(
         repoOptions,
         validator,
       });
+
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: null,
+    });
+
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
@@ -100,7 +107,7 @@ function makeCreateSubAccount(
       behavior: EExpenseAccountBehavior.RentAndUtilities,
       isControlAccount: payload.isControlAccount,
       controlAccountId: controlAccount.id,
-      currency: payload.currency,
+      currency: null,
       meta: null,
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,

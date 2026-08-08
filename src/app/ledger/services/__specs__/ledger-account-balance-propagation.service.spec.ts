@@ -7,7 +7,15 @@ import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import makeEquityAccountService from '../../../../domain/ledger/services/equity-account/equity-account.service';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
+import {
+  ELedgerType,
+  ENormalBalance,
+  ILedgerAccount,
+} from '../../../../domain/ledger/types/ledger.types';
+import {
+  ERevenueAccountBehavior,
+  ERevenueSubType,
+} from '../../../../domain/ledger/types/revenue-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
@@ -72,6 +80,7 @@ describe('ledgerAccountBalancePropagationService', () => {
         currency: SYSTEM_CURRENCIES.NGN,
         isControlAccount: false,
         userId: user.id,
+        controlAccountCode: controlAccount.code,
       },
       mockOptions
     );
@@ -341,6 +350,100 @@ describe('ledgerAccountBalancePropagationService', () => {
           accountingEntityId: journalEntry.accountingEntityId,
           journalEntryId: journalEntry.id,
         }
+      );
+    });
+
+    it('uses functional amounts for mixed source currencies on a null-currency account', async () => {
+      const { accountingEntity, equityAccount, postingAccount, user } =
+        await makeFixture();
+      const nullCurrencyAccount: ILedgerAccount = {
+        ...equityAccount,
+        type: ELedgerType.Revenue,
+        normalBalance: ENormalBalance.Credit,
+        subType: ERevenueSubType.Services,
+        behavior: ERevenueAccountBehavior.Services,
+        currency: null,
+      };
+      const usdRate = exchangeRateValue.make({
+        baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+        targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+        rate: 2,
+        type: EExchangeRateType.Official,
+        asOf: new Date('2026-06-14T10:30:00.000Z'),
+        source: 'CBN',
+      });
+      const eurRate = exchangeRateValue.make({
+        baseCurrencyCode: SYSTEM_CURRENCIES.EUR.code,
+        targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+        rate: 4,
+        type: EExchangeRateType.Official,
+        asOf: new Date('2026-06-14T10:30:00.000Z'),
+        source: 'CBN',
+      });
+      const [journalEntry] = journalEntryEntity.make({
+        accountingEntityId: accountingEntity.id,
+        sourceType: EJournalEntrySourceType.Adjustment,
+        effectiveDate: timestamp,
+        postedAt: timestamp,
+        memo: 'Mixed-currency null account',
+        createdBy: user.id,
+        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        lines: [
+          {
+            accountId: nullCurrencyAccount.id,
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+            amount: moneyValue.make(50000n, SYSTEM_CURRENCIES.USD, true),
+            exchangeRate: usdRate,
+            sequenceOrder: 1,
+            side: EJournalSide.Credit,
+            description: 'USD revenue',
+          },
+          {
+            accountId: nullCurrencyAccount.id,
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+            amount: moneyValue.make(25000n, SYSTEM_CURRENCIES.EUR, true),
+            exchangeRate: eurRate,
+            sequenceOrder: 2,
+            side: EJournalSide.Credit,
+            description: 'EUR revenue',
+          },
+          {
+            accountId: postingAccount.id,
+            functionalCurrency: SYSTEM_CURRENCIES.NGN,
+            amount: moneyValue.make(200000n, SYSTEM_CURRENCIES.NGN, true),
+            exchangeRate: null,
+            sequenceOrder: 3,
+            side: EJournalSide.Debit,
+            description: 'Functional offset',
+          },
+        ],
+      });
+      mockLedgerAccountRepo.findById.mockImplementation(async (accountId) => {
+        if (accountId === nullCurrencyAccount.id) return nullCurrencyAccount;
+        if (accountId === postingAccount.id) return postingAccount;
+        return null;
+      });
+
+      await service.propagate(journalEntry, mockOptions);
+
+      expect(mockReporter.report).not.toHaveBeenCalled();
+      expect(
+        mockLedgerAccountBalanceAdjustmentQueue.add
+      ).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({
+          ledgerAccountId: nullCurrencyAccount.id,
+          balanceDelta: {
+            amount: 200000,
+            currencyCode: SYSTEM_CURRENCIES.NGN.code,
+            isMinorUnit: true,
+          },
+          functionalBalanceDelta: {
+            amount: 200000,
+            currencyCode: SYSTEM_CURRENCIES.NGN.code,
+            isMinorUnit: true,
+          },
+        })
       );
     });
 

@@ -48,6 +48,8 @@ describe('receivablesAccountService', () => {
     subType: EAssetSubType.Receivables,
     behavior: EAssetAccountBehavior.DefaultReceivables,
     isControlAccount: true,
+    controlAccountId: null,
+    currency: SYSTEM_CURRENCIES.USD,
   } as ILedgerAccount;
 
   beforeEach(() => {
@@ -142,6 +144,7 @@ describe('receivablesAccountService', () => {
       materializedPath: '102000.102005',
       behavior: EAssetAccountBehavior.TradeReceivable,
       controlAccountId: receivablesHeader.id,
+      currency: SYSTEM_CURRENCIES.USD,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
     });
@@ -173,6 +176,7 @@ describe('receivablesAccountService', () => {
       materializedPath: `${ASSET_LEDGER_CODES.RECEIVABLES.HEADER}.${ASSET_LEDGER_CODES.RECEIVABLES.TRADE}`,
       behavior: EAssetAccountBehavior.StatutoryReceivable,
       controlAccountId: receivablesHeader.id,
+      currency: SYSTEM_CURRENCIES.USD,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
     });

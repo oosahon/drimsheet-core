@@ -28,7 +28,9 @@ Read this before changing the repository.
   of use cases; workflow transactions remain application orchestration.
 - Use domain entities/values/services or app policies for decisions.
 - Keep rules concise. Link to existing rules instead of duplicating them.
-- Do not invent architecture when local rules or patterns already exist.
+- Do not invent architecture when local rules or patterns already exist. Before
+  introducing a pattern without precedent, follow
+  `.agents/rules/precedent-and-deviation.md`.
 - Treat saved plans as implementation artifacts, not architectural authority.
   Revalidate them against durable rules and current code before editing.
 

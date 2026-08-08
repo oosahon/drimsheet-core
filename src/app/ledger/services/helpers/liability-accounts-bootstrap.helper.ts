@@ -170,7 +170,6 @@ export default function makeLiabilityAccountsBootstrapHelper(
           name: 'Payables',
           createdBy,
           accountingEntity,
-          currency: functionalCurrency,
         },
         repoOptions
       );
@@ -189,7 +188,6 @@ export default function makeLiabilityAccountsBootstrapHelper(
             name: 'Trade Payables',
             createdBy,
             accountingEntity,
-            currency: functionalCurrency,
             isControlAccount: true,
             controlAccountCode: existingPayablesHeader.code,
             meta: null as unknown as ITradePayableAccountMeta,

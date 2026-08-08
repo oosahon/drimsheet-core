@@ -587,7 +587,7 @@
           "isControlAccount": {
             "type": "boolean"
           },
-          "controlAccountCode": {
+          "controlAccountId": {
             "type": "string"
           },
           "openingBalance": {
@@ -1504,7 +1504,7 @@
           "currencyCode": {
             "type": "string"
           },
-          "controlAccountCode": {
+          "controlAccountId": {
             "type": "string"
           },
           "bankAccount": {

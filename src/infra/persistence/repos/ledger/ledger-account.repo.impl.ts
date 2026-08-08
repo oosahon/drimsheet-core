@@ -57,7 +57,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
         currency: getTableColumns(currenciesInCore),
       })
       .from(ledgerAccountsInCore)
-      .innerJoin(
+      .leftJoin(
         currenciesInCore,
         eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
       )
@@ -78,7 +78,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
         currency: getTableColumns(currenciesInCore),
       })
       .from(ledgerAccountsInCore)
-      .innerJoin(
+      .leftJoin(
         currenciesInCore,
         eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
       )
@@ -96,7 +96,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
         currency: getTableColumns(currenciesInCore),
       })
       .from(ledgerAccountsInCore)
-      .innerJoin(
+      .leftJoin(
         currenciesInCore,
         eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
       )
@@ -121,7 +121,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
         currency: getTableColumns(currenciesInCore),
       })
       .from(ledgerAccountsInCore)
-      .innerJoin(
+      .leftJoin(
         currenciesInCore,
         eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
       )
@@ -145,7 +145,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
         currency: getTableColumns(currenciesInCore),
       })
       .from(ledgerAccountsInCore)
-      .innerJoin(
+      .leftJoin(
         currenciesInCore,
         eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
       )
@@ -256,7 +256,7 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
         currency: getTableColumns(currenciesInCore),
       })
       .from(ledgerAccountsInCore)
-      .innerJoin(
+      .leftJoin(
         currenciesInCore,
         eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
       );

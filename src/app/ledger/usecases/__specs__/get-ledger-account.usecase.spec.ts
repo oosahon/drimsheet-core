@@ -135,6 +135,22 @@ describe('getLedgerAccountUseCase', () => {
     expect(result).toEqual(expectedDto);
   });
 
+  it('uses functional currency for both missing balances of a null-currency account', async () => {
+    const nullCurrencyAccount: ILedgerAccount = {
+      ...accountWithId,
+      currency: null,
+    };
+    mockLedgerAccountRepo.findById.mockResolvedValue(nullCurrencyAccount);
+    mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValue(null);
+
+    const result = await useCase(mockAccountId);
+
+    expect(result.balance.currencyCode).toBe(SYSTEM_CURRENCIES.USD.code);
+    expect(result.functionalBalance.currencyCode).toBe(
+      SYSTEM_CURRENCIES.USD.code
+    );
+  });
+
   it('returns dto with account and balances if balance exists', async () => {
     mockLedgerAccountRepo.findById.mockResolvedValue(accountWithId);
 

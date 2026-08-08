@@ -63,6 +63,8 @@ const EErrorKeys = {
   ControlAccountNotFound:
     'ledger_error_asset_account_control_account_not_found',
   InvalidControlAccount: 'ledger_error_asset_account_invalid_control_account',
+  ControlAccountCurrencyMismatch:
+    'ledger_error_ledger_account_control_account_currency_mismatch',
   OpeningBalanceCurrencyMismatch:
     'ledger_error_asset_account_opening_balance_currency_mismatch',
   DuplicateBankAccount: 'ledger_error_asset_account_duplicate_bank_account',

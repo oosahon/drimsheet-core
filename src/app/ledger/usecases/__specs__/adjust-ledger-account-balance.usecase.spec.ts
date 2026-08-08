@@ -230,6 +230,54 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     );
   });
 
+  it('uses the functional delta for both balances of a null-currency account and queues its parent', async () => {
+    const useCase = getUseCase();
+    const nullCurrencyAccount = {
+      ...mockAssetAccountWithControl,
+      currency: null,
+    };
+    const nullCurrencyBalance = ledgerAccountBalanceEntity.make({
+      ledgerAccountId: nullCurrencyAccount.id,
+      accountingEntityId: mockAccountingEntity.id,
+      accountMaterializedPath: nullCurrencyAccount.materializedPath,
+      currencyCode: SYSTEM_CURRENCIES.NGN.code,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    });
+    const payload: ILedgerAccountBalanceAdjustmentDto = {
+      ...validPayload,
+      ledgerAccountId: nullCurrencyAccount.id,
+      balanceDelta: { amount: 500, currencyCode: 'USD', isMinorUnit: true },
+      functionalBalanceDelta: {
+        amount: 750000,
+        currencyCode: 'NGN',
+        isMinorUnit: true,
+      },
+    };
+    mockLedgerAccountRepo.findById.mockResolvedValue(nullCurrencyAccount);
+    mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValue(
+      nullCurrencyBalance
+    );
+
+    await useCase(payload);
+
+    expect(mockLedgerAccountBalanceRepo.adjustBalance).toHaveBeenCalledWith(
+      expect.objectContaining({
+        adjustment: expect.objectContaining({
+          amount: { amount: 750000n, currency: SYSTEM_CURRENCIES.NGN },
+          functionalAmount: {
+            amount: 750000n,
+            currency: SYSTEM_CURRENCIES.NGN,
+          },
+        }),
+      }),
+      { correlationId, expectedVersion: nullCurrencyBalance.version }
+    );
+    expect(mockQueue.add).toHaveBeenCalledWith({
+      ...payload,
+      ledgerAccountId: nullCurrencyAccount.controlAccountId,
+    });
+  });
+
   it('should throw AppError if account is not found', async () => {
     const useCase = getUseCase();
 

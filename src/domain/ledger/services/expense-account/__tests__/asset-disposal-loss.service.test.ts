@@ -73,7 +73,6 @@ describe('assetDisposalLossAccountService', () => {
     name: 'Loss on Vehicle Disposal',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
     controlAccountCode: EXPENSE_LEDGER_CODES.ASSET_DISPOSAL_LOSS.HEADER,
   };
@@ -183,7 +182,7 @@ describe('assetDisposalLossAccountService', () => {
         behavior: EExpenseAccountBehavior.AssetDisposalLoss,
         isControlAccount: false,
         controlAccountId: controlAccount.id,
-        currency: SYSTEM_CURRENCIES.USD,
+        currency: null,
         meta: null,
         status: ELedgerAccountStatus.Active,
         contraAccountRule: EContraAccountRule.ContraNotPermitted,

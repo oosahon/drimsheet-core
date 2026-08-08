@@ -73,7 +73,6 @@ describe('employmentIncomeAccountService', () => {
     name: 'Consulting Revenue',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
     controlAccountCode: REVENUE_LEDGER_CODES.EMPLOYMENT_INCOME.HEADER,
   };
@@ -178,7 +177,7 @@ describe('employmentIncomeAccountService', () => {
       behavior: ERevenueAccountBehavior.EmploymentIncome,
       isControlAccount: false,
       controlAccountId: controlAccount.id,
-      currency: SYSTEM_CURRENCIES.USD,
+      currency: null,
       meta: null,
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,

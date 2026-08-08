@@ -73,7 +73,6 @@ describe('financeCostAccountService', () => {
     name: 'Finance Cost (Default)',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
     controlAccountCode: EXPENSE_LEDGER_CODES.FINANCE_COST.HEADER,
   };
@@ -183,7 +182,7 @@ describe('financeCostAccountService', () => {
         behavior: EExpenseAccountBehavior.FinanceCost,
         isControlAccount: false,
         controlAccountId: controlAccount.id,
-        currency: SYSTEM_CURRENCIES.USD,
+        currency: null,
         meta: null,
         status: ELedgerAccountStatus.Active,
         contraAccountRule: EContraAccountRule.ContraNotPermitted,

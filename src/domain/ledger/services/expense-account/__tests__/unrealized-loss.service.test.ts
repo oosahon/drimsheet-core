@@ -73,7 +73,6 @@ describe('unrealizedLossAccountService', () => {
     name: 'Unrealized Loss (Default)',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
     controlAccountCode: EXPENSE_LEDGER_CODES.UNREALIZED_LOSS.HEADER,
   };
@@ -183,7 +182,7 @@ describe('unrealizedLossAccountService', () => {
         behavior: EExpenseAccountBehavior.UnrealizedLoss,
         isControlAccount: false,
         controlAccountId: controlAccount.id,
-        currency: SYSTEM_CURRENCIES.USD,
+        currency: null,
         meta: null,
         status: ELedgerAccountStatus.Active,
         contraAccountRule: EContraAccountRule.ContraNotPermitted,

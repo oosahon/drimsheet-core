@@ -92,7 +92,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       currency_code: {
         type: 'varchar(3)',
         references: currenciesTable,
-        notNull: true,
+        notNull: false,
         onDelete: 'RESTRICT',
       },
       status: {

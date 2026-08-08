@@ -55,7 +55,9 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
      *  - only header accounts can control sub accounts of different currencies
      *  - header accounts are always in the functional currency.
      */
-    const isSameCurrency = balanceDelta.currency.code === account.currency.code;
+    const isSameCurrency =
+      account.currency !== null &&
+      balanceDelta.currency.code === account.currency.code;
 
     const adjustPayload = {
       ledgerAccountId: account.id,

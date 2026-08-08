@@ -28,7 +28,9 @@ function make<T extends ILedgerAccount>(
     );
   }
 
-  currencyEntity.validateCode(payload.currency.code);
+  if (payload.currency) {
+    currencyEntity.validateCode(payload.currency.code);
+  }
   helpers.validateStatus(payload.status);
 
   helpers.validateContraRule(payload.contraAccountRule);

@@ -88,6 +88,13 @@ describe('Ledger Account Mapper', () => {
       const mapped = ledgerAccountMapper.toRepo(domainWithDate);
       expect(mapped.openingBalanceDate).toBe('2026-01-01');
     });
+
+    it('maps a null-currency account to a null currency code', () => {
+      expect(
+        ledgerAccountMapper.toRepo({ ...domainLedgerAccount, currency: null })
+          .currencyCode
+      ).toBeNull();
+    });
   });
 
   describe('toDomain', () => {
@@ -109,6 +116,16 @@ describe('Ledger Account Mapper', () => {
       };
       const domain = ledgerAccountMapper.toDomain(payload);
       expect(domain.openingBalanceDate).toEqual(new Date('2026-01-01'));
+    });
+
+    it('maps an absent currency relation to a null domain currency', () => {
+      const payload: Parameters<typeof ledgerAccountMapper.toDomain>[0] = {
+        ...repoModel,
+        currencyCode: null,
+        currency: null,
+      };
+
+      expect(ledgerAccountMapper.toDomain(payload).currency).toBeNull();
     });
   });
 });

@@ -11,6 +11,7 @@ describe('Asset Account DTO Validation', () => {
         name: 'Petty Cash USD',
         currencyCode: 'USD',
         isControlAccount: false,
+        controlAccountId: '123e4567-e89b-12d3-a456-426614174003',
         openingBalance: {
           amount: {
             amount: 5000,
@@ -86,6 +87,23 @@ describe('Asset Account DTO Validation', () => {
       const result = pettyCashCreationReqValidation.safeParse(payload);
       expect(result.success).toBe(false);
     });
+
+    it('should reject an invalid optional control account ID', () => {
+      const result = pettyCashCreationReqValidation.safeParse({
+        name: 'Petty Cash USD',
+        currencyCode: 'USD',
+        isControlAccount: false,
+        controlAccountId: 'not-a-uuid',
+        openingBalance: null,
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe(
+          'ledger_error_ledger_account_invalid_control_account_id'
+        );
+      }
+    });
   });
 
   describe('bankDetailsCreationReqValidation', () => {
@@ -123,6 +141,29 @@ describe('Asset Account DTO Validation', () => {
     it('should validate a valid bank account creation payload', () => {
       const result = bankAccountCreationReqValidation.safeParse(validPayload);
       expect(result.success).toBe(true);
+    });
+
+    it('should validate a valid optional control account ID', () => {
+      const result = bankAccountCreationReqValidation.safeParse({
+        ...validPayload,
+        controlAccountId: '123e4567-e89b-12d3-a456-426614174003',
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject an invalid optional control account ID', () => {
+      const result = bankAccountCreationReqValidation.safeParse({
+        ...validPayload,
+        controlAccountId: 'not-a-uuid',
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe(
+          'ledger_error_ledger_account_invalid_control_account_id'
+        );
+      }
     });
 
     it('should reject strict unknown fields at root level', () => {

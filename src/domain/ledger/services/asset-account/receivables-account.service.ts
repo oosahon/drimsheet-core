@@ -3,6 +3,7 @@ import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import ledgerAccountCurrencyInvarianceRule from '../../rules/currency-invariance.rule';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -104,6 +105,11 @@ function makeCreateStatutoryReceivableSubAccount(
         validator,
       });
 
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: payload.currency,
+    });
+
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
@@ -166,6 +172,11 @@ function makeCreateTradeReceivableSubAccount(
         repoOptions,
         validator,
       });
+
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: payload.currency,
+    });
 
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,

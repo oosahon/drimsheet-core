@@ -2,6 +2,7 @@ import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
+import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
 import { ICurrency } from '../../../../money/types/currency.types';
 import { ASSET_LEDGER_CODES } from '../../../config/asset-codes.config';
 import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
@@ -43,6 +44,50 @@ describe('cashAccountService', () => {
     jest.useRealTimers();
   });
 
+  it('creates the cash header in functional currency', async () => {
+    const ownerId = generateUUID();
+    const accountingEntity = {
+      id: generateUUID(),
+      ownerId,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    } as IAccountingEntity;
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+
+    const [account] = await service.createHeader(
+      { name: 'Cash', userId: ownerId, accountingEntity },
+      mockOptions
+    );
+
+    expect(account.currency).toBe(SYSTEM_CURRENCIES.NGN);
+  });
+
+  it('rejects a duplicate cash header', async () => {
+    const ownerId = generateUUID();
+    const accountingEntity = {
+      id: generateUUID(),
+      ownerId,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    } as IAccountingEntity;
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+
+    const [existingHeader] = await service.createHeader(
+      { name: 'Cash', userId: ownerId, accountingEntity },
+      mockOptions
+    );
+
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(existingHeader);
+
+    await expect(
+      service.createHeader(
+        { name: 'Cash', userId: ownerId, accountingEntity },
+        mockOptions
+      )
+    ).rejects.toMatchObject({
+      errorKey: 'ledger_error_header_account_already_exists',
+      cause: { existingHeader },
+    });
+  });
+
   describe('createPettyCashSubAccount', () => {
     const ownerId = generateUUID();
     const entityId = generateUUID();
@@ -69,6 +114,8 @@ describe('cashAccountService', () => {
       subType: EAssetSubType.CashAndCashEquivalent,
       behavior: EAssetAccountBehavior.DefaultCash,
       isControlAccount: true,
+      controlAccountId: null,
+      currency: SYSTEM_CURRENCIES.EUR,
     } as ILedgerAccount;
 
     const mockLatestAccount = {
@@ -84,10 +131,11 @@ describe('cashAccountService', () => {
       isControlAccount: false,
       userId: ownerId,
       accountingEntity: validAccountingEntity,
+      controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
     };
 
     describe('when valid payload is provided', () => {
-      it('should create a petty cash account successfully without an explicit control account code', async () => {
+      it('permits a foreign-currency petty cash account under a header control account', async () => {
         mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
           mockControlAccount
         );
@@ -103,6 +151,7 @@ describe('cashAccountService', () => {
         expect(account.name).toBe('Main Petty Cash');
         expect(account.accountingEntityId).toBe(entityId);
         expect(account.controlAccountId).toBe(controlAccountId);
+        expect(account.currency).toEqual(validCurrency);
         expect(account.code).toBe('100002');
         expect(account.materializedPath).toBe(
           `${mockControlAccount.materializedPath}.100002`
@@ -121,13 +170,8 @@ describe('cashAccountService', () => {
         );
         mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
 
-        const payloadWithExplicitControlCode = {
-          ...validPayload,
-          controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
-        };
-
         const [account, events] = await service.createPettyCashSubAccount(
-          payloadWithExplicitControlCode,
+          validPayload,
           mockOptions
         );
 
@@ -267,6 +311,8 @@ describe('cashAccountService', () => {
       subType: EAssetSubType.CashAndCashEquivalent,
       behavior: EAssetAccountBehavior.DefaultCash,
       isControlAccount: true,
+      controlAccountId: null,
+      currency: SYSTEM_CURRENCIES.EUR,
     } as ILedgerAccount;
 
     const validBankValue = {
@@ -282,25 +328,31 @@ describe('cashAccountService', () => {
       isControlAccount: false,
       userId: ownerId,
       accountingEntity: validAccountingEntity,
+      controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       bankDetails: validBankValue,
     };
 
-    it('creates a bank account successfully', async () => {
-      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
-        mockControlAccount
-      );
-      mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    it.each([EAssetAccountBehavior.DefaultCash, EAssetAccountBehavior.Bank])(
+      'creates a bank account under a %s control account',
+      async (controlAccountBehavior) => {
+        mockLedgerAccountRepo.findByCode.mockResolvedValueOnce({
+          ...mockControlAccount,
+          behavior: controlAccountBehavior,
+        });
+        mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
 
-      const [account, events] = await service.createBankSubAccount(
-        validBankPayload,
-        mockOptions
-      );
+        const [account, events] = await service.createBankSubAccount(
+          validBankPayload,
+          mockOptions
+        );
 
-      expect(account.name).toBe('Chase Operating Account');
-      expect(account.behavior).toBe('bank');
-      expect(account.meta).toEqual(validBankValue);
-      expect(account.code).toBe('100001');
-      expect(events.length).toBeGreaterThan(0);
-    });
+        expect(account.name).toBe('Chase Operating Account');
+        expect(account.behavior).toBe('bank');
+        expect(account.currency).toEqual(validCurrency);
+        expect(account.meta).toEqual(validBankValue);
+        expect(account.code).toBe('100001');
+        expect(events.length).toBeGreaterThan(0);
+      }
+    );
   });
 });

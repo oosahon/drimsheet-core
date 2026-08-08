@@ -79,7 +79,7 @@ export interface ILedgerAccount {
   isControlAccount: boolean;
   controlAccountId: TEntityId | null;
   name: string;
-  currency: ICurrency;
+  currency: ICurrency | null;
   status: ULedgerAccountStatus;
   contraAccountRule: UContraAccountRule;
   adjunctAccountRule: UAdjunctAccountRule;

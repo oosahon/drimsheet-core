@@ -138,7 +138,6 @@ describe('journalEntryService', () => {
         {
           name: 'Service Revenue',
           accountingEntityId: accountingEntity.id,
-          currency: SYSTEM_CURRENCIES.NGN,
           isControlAccount: false,
           controlAccountCode: servicesHeader.code,
           createdBy: user.id,

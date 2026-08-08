@@ -18,7 +18,6 @@ import {
 } from '../../../../domain/ledger/types/revenue-account.types';
 import { IServicesAccountService } from '../../../../domain/ledger/types/services.service.types';
 import { IUnrealizedGainAccountService } from '../../../../domain/ledger/types/unrealized-gain.service.types';
-import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
   IEvent,
@@ -64,13 +63,9 @@ export default function makeRevenueAccountsBootstrapHelper(
     headers,
   }: IRevenuePostingAccountsBootstrapInput) => {
     const { ownerId: createdBy, id: accountingEntityId } = accountingEntity;
-    const currency = currencyEntity.getByCode(
-      accountingEntity.functionalCurrencyCode
-    );
     const basePayload = {
       createdBy,
       accountingEntityId,
-      currency,
       isControlAccount: false,
     };
 

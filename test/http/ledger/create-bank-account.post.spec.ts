@@ -47,6 +47,7 @@ const ENDPOINT = '/api/v1/accounts/asset/bank';
 const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
 const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+const controlAccountId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
 
 const validPayload: IBankAccountCreationReq = {
   name: 'Operating Bank Account',
@@ -76,7 +77,7 @@ const createdAccount: ILedgerAccountDto = {
   subType: 'cash_and_cash_equivalent',
   behavior: 'bank',
   isControlAccount: false,
-  controlAccountId: '123e4567-e89b-12d3-a456-426614174004' as TEntityId,
+  controlAccountId,
   name: validPayload.name,
   status: 'active',
   contraAccountRule: 'contra_permitted',
@@ -141,6 +142,15 @@ describe('POST /accounts/asset/bank', () => {
         updatedAt: createdAccount.updatedAt.toISOString(),
       });
       expect(mockCreateBankAccount).toHaveBeenCalledWith(validPayload);
+    });
+
+    it('forwards an optional control account ID', async () => {
+      const payload = { ...validPayload, controlAccountId };
+
+      const response = await makeRequest(payload);
+
+      expect(response.status).toBe(201);
+      expect(mockCreateBankAccount).toHaveBeenCalledWith(payload);
     });
   });
 

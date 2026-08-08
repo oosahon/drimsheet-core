@@ -245,7 +245,6 @@ describe('liabilityAccountsBootstrapHelper', () => {
         name: 'Payables',
         createdBy: accountingEntity.ownerId,
         accountingEntity,
-        currency: SYSTEM_CURRENCIES.USD,
       },
       repoOptions
     );
@@ -258,6 +257,9 @@ describe('liabilityAccountsBootstrapHelper', () => {
       }),
       repoOptions
     );
+    expect(
+      mockPayablesAccountService.createTradePayableSubAccount.mock.calls[0][0]
+    ).not.toHaveProperty('currency');
     expect(
       mockPayablesAccountService.createStatutoryPayableSubAccount
     ).toHaveBeenCalledTimes(2);

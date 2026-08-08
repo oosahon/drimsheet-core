@@ -45,7 +45,7 @@ describe('controlAccountResolverHelper', () => {
     validator.mockReturnValue(true);
   });
 
-  it('resolves the default control account and uses the latest account code', async () => {
+  it('resolves the supplied control account and uses the latest account code', async () => {
     const latestAccount = {
       id: '123e4567-e89b-12d3-a456-426614174003' as TEntityId,
       code: '100002',
@@ -59,7 +59,7 @@ describe('controlAccountResolverHelper', () => {
     const result = await controlAccountResolverHelper<TCashLedgerCode>({
       ledgerAccountRepo: mockLedgerAccountRepo,
       accountingEntityId,
-      controlAccountCode: undefined,
+      controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       repoOptions,
       validator,
     });
@@ -117,21 +117,21 @@ describe('controlAccountResolverHelper', () => {
   });
 
   it('throws when the control account cannot be found', async () => {
+    const requestedControlAccountCode = '100010' as TCashLedgerCode;
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
     await expect(
       controlAccountResolverHelper<TCashLedgerCode>({
         ledgerAccountRepo: mockLedgerAccountRepo,
         accountingEntityId,
-        controlAccountCode: undefined,
+        controlAccountCode: requestedControlAccountCode,
         repoOptions,
         validator,
       })
     ).rejects.toMatchObject({
       errorKey: 'ledger_error_asset_account_control_account_not_found',
       cause: {
-        controlAccountLedgerCode:
-          ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+        controlAccountLedgerCode: requestedControlAccountCode,
       },
     });
     expect(validator).not.toHaveBeenCalled();
@@ -139,6 +139,7 @@ describe('controlAccountResolverHelper', () => {
   });
 
   it('throws with control account context when the validator rejects the account', async () => {
+    const requestedControlAccountCode = '100010' as TCashLedgerCode;
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
     validator.mockReturnValueOnce(false);
 
@@ -146,7 +147,7 @@ describe('controlAccountResolverHelper', () => {
       controlAccountResolverHelper<TCashLedgerCode>({
         ledgerAccountRepo: mockLedgerAccountRepo,
         accountingEntityId,
-        controlAccountCode: undefined,
+        controlAccountCode: requestedControlAccountCode,
         repoOptions,
         validator,
       })
@@ -154,8 +155,7 @@ describe('controlAccountResolverHelper', () => {
       errorKey: 'ledger_error_asset_account_invalid_control_account',
       cause: {
         controlAccountId,
-        controlAccountLedgerCode:
-          ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+        controlAccountLedgerCode: requestedControlAccountCode,
         type: controlAccount.type,
         subType: controlAccount.subType,
         isControlAccount: controlAccount.isControlAccount,

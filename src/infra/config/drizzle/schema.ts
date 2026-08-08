@@ -896,7 +896,7 @@ export const ledgerAccountsInCore = core.table(
     isControlAccount: boolean('is_control_account').default(false).notNull(),
     controlAccountId: uuid('control_account_id'),
     name: varchar({ length: 100 }).notNull(),
-    currencyCode: varchar('currency_code', { length: 3 }).notNull(),
+    currencyCode: varchar('currency_code', { length: 3 }),
     status: ledgerAccountStatusInCore().notNull(),
     contraAccountRule: contraAccountRuleInCore('contra_account_rule').notNull(),
     adjunctAccountRule: adjunctAccountRuleInCore(

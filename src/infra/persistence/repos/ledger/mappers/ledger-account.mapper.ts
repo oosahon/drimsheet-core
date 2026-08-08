@@ -31,7 +31,7 @@ const ledgerAccountMapper = {
       isControlAccount: account.isControlAccount,
       controlAccountId: account.controlAccountId,
       name: account.name,
-      currencyCode: account.currency.code,
+      currencyCode: account.currency?.code ?? null,
       status: account.status,
       contraAccountRule: account.contraAccountRule,
       adjunctAccountRule: account.adjunctAccountRule,
@@ -45,7 +45,7 @@ const ledgerAccountMapper = {
   },
 
   toDomain(
-    res: ILedgerAccountModel & { currency: ICurrencyModel }
+    res: ILedgerAccountModel & { currency: ICurrencyModel | null }
   ): ILedgerAccount {
     const { currency, ...model } = res;
 
@@ -62,7 +62,7 @@ const ledgerAccountMapper = {
       isControlAccount: model.isControlAccount,
       controlAccountId: model.controlAccountId as TEntityId,
       name: model.name,
-      currency: currencyMapper.toDomain(currency),
+      currency: currency ? currencyMapper.toDomain(currency) : null,
       status: model.status,
       contraAccountRule: model.contraAccountRule,
       adjunctAccountRule: model.adjunctAccountRule,

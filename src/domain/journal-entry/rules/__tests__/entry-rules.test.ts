@@ -75,7 +75,6 @@ describe('journal entry rules', () => {
         name: 'Accounts Payable',
         createdBy,
         accountingEntity,
-        currency,
       },
       repoOptions
     );
