@@ -13,28 +13,36 @@ import {
   TUnrealizedGainLedgerCode,
 } from '../types/ledger-code.types';
 
-const SERVICES: Record<string, TServicesLedgerCode> = {
+type Keys = 'HEADER' | 'PREFIX';
+
+const SERVICES: Record<Keys, TServicesLedgerCode> = {
   HEADER: '401000',
+  PREFIX: '401',
 } as const;
 
-const EMPLOYMENT_INCOME: Record<string, TEmploymentIncomeLedgerCode> = {
+const EMPLOYMENT_INCOME: Record<Keys, TEmploymentIncomeLedgerCode> = {
   HEADER: '403000',
+  PREFIX: '403',
 } as const;
 
-const GAIN_ON_ASSET_SALE: Record<string, TGainOnAssetSaleLedgerCode> = {
+const GAIN_ON_ASSET_SALE: Record<Keys, TGainOnAssetSaleLedgerCode> = {
   HEADER: '405000',
+  PREFIX: '405',
 } as const;
 
-const UNREALIZED_GAINS: Record<string, TUnrealizedGainLedgerCode> = {
+const UNREALIZED_GAINS: Record<Keys, TUnrealizedGainLedgerCode> = {
   HEADER: '406000',
+  PREFIX: '406',
 } as const;
 
-const GRANTS: Record<string, TGrantsLedgerCode> = {
+const GRANTS: Record<Keys, TGrantsLedgerCode> = {
   HEADER: '407000',
+  PREFIX: '407',
 } as const;
 
-const GIFTS: Record<string, TGiftsLedgerCode> = {
+const GIFTS: Record<Keys, TGiftsLedgerCode> = {
   HEADER: '408000',
+  PREFIX: '408',
 } as const;
 
 export const REVENUE_LEDGER_CODES = {

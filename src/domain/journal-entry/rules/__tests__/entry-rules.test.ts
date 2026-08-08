@@ -1,11 +1,11 @@
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
-import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
 import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
 import makeReceivablesAccountService from '../../../ledger/services/asset-account/receivables-account.service';
 import makeEquityAccountService from '../../../ledger/services/equity-account/equity-account.service';
 import makePayablesAccountService from '../../../ledger/services/liability-account/payables.service';
+import makeServicesAccountService from '../../../ledger/services/revenue-account/services.service';
 import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import journalEntryRuleValidator from '../entry-rule.validator';
@@ -41,11 +41,15 @@ describe('journal entry rules', () => {
     ledgerAccountRepo,
   });
   const equityAccountService = makeEquityAccountService({ ledgerAccountRepo });
+  const servicesAccountService = makeServicesAccountService({
+    ledgerAccountRepo,
+  });
   const repoOptions = { correlationId: 'test-correlation-id' };
   let cashAccount: ILedgerAccount;
   let receivableAccount: ILedgerAccount;
   let liabilityAccount: ILedgerAccount;
   let openingBalanceEquityAccount: ILedgerAccount;
+  let revenueAccount: ILedgerAccount;
 
   beforeAll(async () => {
     [cashAccount] = await cashAccountService.createHeader(
@@ -85,13 +89,16 @@ describe('journal entry rules', () => {
         },
         repoOptions
       );
-  });
 
-  const [revenueAccount] = servicesAccountEntity.makeHeader({
-    name: 'Service Revenue',
-    accountingEntityId,
-    currency,
-    createdBy,
+    ledgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+    [revenueAccount] = await servicesAccountService.createHeader(
+      {
+        name: 'Service Revenue',
+        accountingEntity,
+        createdBy,
+      },
+      repoOptions
+    );
   });
 
   describe('openingBalanceEntryRule', () => {

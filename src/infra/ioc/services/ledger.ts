@@ -14,6 +14,12 @@ import makeTaxExpenseAccountService from '../../../domain/ledger/services/expens
 import makeUnrealizedLossAccountService from '../../../domain/ledger/services/expense-account/unrealized-loss.service';
 import makePayablesAccountService from '../../../domain/ledger/services/liability-account/payables.service';
 import makeShortTermLoanService from '../../../domain/ledger/services/liability-account/short-term-loan.service';
+import makeEmploymentIncomeAccountService from '../../../domain/ledger/services/revenue-account/employment-income.service';
+import makeGainOnAssetSaleAccountService from '../../../domain/ledger/services/revenue-account/gain-on-sale.service';
+import makeGiftsAccountService from '../../../domain/ledger/services/revenue-account/gifts.service';
+import makeGrantsAccountService from '../../../domain/ledger/services/revenue-account/grants.service';
+import makeServicesAccountService from '../../../domain/ledger/services/revenue-account/services.service';
+import makeUnrealizedGainAccountService from '../../../domain/ledger/services/revenue-account/unrealized-gain.service';
 import makeSuspenseAccountService from '../../../domain/ledger/services/suspense-account/suspense-account.service';
 import messaging from '../../messaging';
 import observability from '../../observability';
@@ -41,6 +47,31 @@ export const shortTermLoanAccountService = makeShortTermLoanService({
 });
 
 export const equityAccountService = makeEquityAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const servicesAccountService = makeServicesAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const employmentIncomeAccountService =
+  makeEmploymentIncomeAccountService({
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+  });
+
+export const gainOnAssetSaleAccountService = makeGainOnAssetSaleAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const unrealizedGainAccountService = makeUnrealizedGainAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const grantsAccountService = makeGrantsAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const giftsAccountService = makeGiftsAccountService({
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
 });
 
@@ -92,6 +123,12 @@ export const accountsBootstrapService = makeAccountsBootstrapService({
   payablesAccountService,
   shortTermLoanAccountService,
   equityAccountService,
+  servicesAccountService,
+  employmentIncomeAccountService,
+  gainOnAssetSaleAccountService,
+  unrealizedGainAccountService,
+  grantsAccountService,
+  giftsAccountService,
   directCostsAccountService,
   rentAndUtilitiesAccountService,
   bankChargeAccountService,

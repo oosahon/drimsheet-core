@@ -14,9 +14,9 @@ import ledgerAccountBalanceEntity from '../../../ledger/entities/ledger-account-
 import ledgerAccountEntity from '../../../ledger/entities/ledger-account.entity';
 import ILedgerAccountBalanceRepo from '../../../ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
-import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
 import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
 import makeEquityAccountService from '../../../ledger/services/equity-account/equity-account.service';
+import makeServicesAccountService from '../../../ledger/services/revenue-account/services.service';
 import { EEquitySubType } from '../../../ledger/types/equity-account.types';
 import { ELedgerType } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
@@ -94,6 +94,9 @@ describe('journalEntryService', () => {
   const equityAccountService = makeEquityAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
+  const servicesAccountService = makeServicesAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   async function makeReceiptFixture(postedAt: Date | null = null) {
     const [user] = userEntity.make({
@@ -119,18 +122,30 @@ describe('journalEntryService', () => {
       name: 'Tax Authority',
       type: ECounterpartyType.Organization,
     });
-    const [sourceAccountWithoutOpeningDate] = servicesAccountEntity.make(
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+    const [servicesHeader] = await servicesAccountService.createHeader(
       {
-        name: 'Service Revenue',
-        accountingEntityId: accountingEntity.id,
-        currency: SYSTEM_CURRENCIES.NGN,
-        isControlAccount: false,
-        controlAccountId: null,
-        meta: null,
+        name: 'Services',
         createdBy: user.id,
+        accountingEntity,
       },
-      null
+      repoOptions
     );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(servicesHeader);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    const [sourceAccountWithoutOpeningDate] =
+      await servicesAccountService.createSubAccount(
+        {
+          name: 'Service Revenue',
+          accountingEntityId: accountingEntity.id,
+          currency: SYSTEM_CURRENCIES.NGN,
+          isControlAccount: false,
+          controlAccountCode: servicesHeader.code,
+          createdBy: user.id,
+        },
+        repoOptions
+      );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
     const [cashHeader] = await cashAccountService.createHeader(
       {
         name: 'Cash and Cash Equivalents',

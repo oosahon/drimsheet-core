@@ -3,16 +3,22 @@ import { IAssetDisposalLossAccountService } from '../../../domain/ledger/types/a
 import { IBankChargeAccountService } from '../../../domain/ledger/types/bank-charge.service.types';
 import ICashAccountService from '../../../domain/ledger/types/cash-account.service.types';
 import { IDirectCostsAccountService } from '../../../domain/ledger/types/direct-costs.service.types';
+import { IEmploymentIncomeAccountService } from '../../../domain/ledger/types/employment-income.service.types';
 import { IEquityAccountService } from '../../../domain/ledger/types/equity-account.service.types';
 import { IFinanceCostAccountService } from '../../../domain/ledger/types/finance-cost.service.types';
+import { IGainOnAssetSaleAccountService } from '../../../domain/ledger/types/gain-on-sale.service.types';
+import { IGiftsAccountService } from '../../../domain/ledger/types/gifts.service.types';
+import { IGrantsAccountService } from '../../../domain/ledger/types/grants.service.types';
 import { IInterestAccountService } from '../../../domain/ledger/types/interest.service.types';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import { IPayablesAccountService } from '../../../domain/ledger/types/payables.service.types';
 import { IReceivablesAccountService } from '../../../domain/ledger/types/receivables-account.service.types';
 import { IRentAndUtilitiesAccountService } from '../../../domain/ledger/types/rent-and-utilities.service.types';
+import { IServicesAccountService } from '../../../domain/ledger/types/services.service.types';
 import { IShortTermLoanAccountService } from '../../../domain/ledger/types/short-term-loan.service.types';
 import { ISuspenseAccountService } from '../../../domain/ledger/types/suspense-account.service.types';
 import { ITaxExpenseAccountService } from '../../../domain/ledger/types/tax-expense.service.types';
+import { IUnrealizedGainAccountService } from '../../../domain/ledger/types/unrealized-gain.service.types';
 import { IUnrealizedLossAccountService } from '../../../domain/ledger/types/unrealized-loss.service.types';
 import IAccountsBootstrapService from '../contracts/accounts-bootstrap.service.contract';
 import ledgerAppError from '../errors/ledger.error';
@@ -30,6 +36,12 @@ interface IDependencies {
   payablesAccountService: IPayablesAccountService;
   shortTermLoanAccountService: IShortTermLoanAccountService;
   equityAccountService: IEquityAccountService;
+  servicesAccountService: IServicesAccountService;
+  employmentIncomeAccountService: IEmploymentIncomeAccountService;
+  gainOnAssetSaleAccountService: IGainOnAssetSaleAccountService;
+  unrealizedGainAccountService: IUnrealizedGainAccountService;
+  grantsAccountService: IGrantsAccountService;
+  giftsAccountService: IGiftsAccountService;
   directCostsAccountService: IDirectCostsAccountService;
   rentAndUtilitiesAccountService: IRentAndUtilitiesAccountService;
   bankChargeAccountService: IBankChargeAccountService;
@@ -64,9 +76,15 @@ export default function makeAccountsBootstrapService(
     ...ledgerAccountDependencies,
     equityAccountService: deps.equityAccountService,
   });
-  const bootstrapRevenueAccounts = makeRevenueAccountsBootstrapHelper(
-    ledgerAccountDependencies
-  );
+  const bootstrapRevenueAccounts = makeRevenueAccountsBootstrapHelper({
+    ...ledgerAccountDependencies,
+    servicesAccountService: deps.servicesAccountService,
+    employmentIncomeAccountService: deps.employmentIncomeAccountService,
+    gainOnAssetSaleAccountService: deps.gainOnAssetSaleAccountService,
+    unrealizedGainAccountService: deps.unrealizedGainAccountService,
+    grantsAccountService: deps.grantsAccountService,
+    giftsAccountService: deps.giftsAccountService,
+  });
   const bootstrapExpenseAccounts = makeExpenseAccountsBootstrapHelper({
     ...ledgerAccountDependencies,
     directCostsAccountService: deps.directCostsAccountService,

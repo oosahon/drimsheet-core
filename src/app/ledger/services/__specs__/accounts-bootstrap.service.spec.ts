@@ -7,15 +7,21 @@ import {
   mockAssetDisposalLossAccountService,
   mockBankChargeAccountService,
   mockDirectCostsAccountService,
+  mockEmploymentIncomeAccountService,
   mockEquityAccountService,
   mockFinanceCostAccountService,
+  mockGainOnAssetSaleAccountService,
+  mockGiftsAccountService,
+  mockGrantsAccountService,
   mockInterestAccountService,
   mockPayablesAccountService,
   mockReceivablesAccountService,
   mockRentAndUtilitiesAccountService,
+  mockServicesAccountService,
   mockShortTermLoanAccountService,
   mockSuspenseAccountService,
   mockTaxExpenseAccountService,
+  mockUnrealizedGainAccountService,
   mockUnrealizedLossAccountService,
 } from '../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
@@ -145,6 +151,12 @@ describe('accountsBootstrapService', () => {
       payablesAccountService: mockPayablesAccountService,
       shortTermLoanAccountService: mockShortTermLoanAccountService,
       equityAccountService: mockEquityAccountService,
+      servicesAccountService: mockServicesAccountService,
+      employmentIncomeAccountService: mockEmploymentIncomeAccountService,
+      gainOnAssetSaleAccountService: mockGainOnAssetSaleAccountService,
+      unrealizedGainAccountService: mockUnrealizedGainAccountService,
+      grantsAccountService: mockGrantsAccountService,
+      giftsAccountService: mockGiftsAccountService,
       directCostsAccountService: mockDirectCostsAccountService,
       rentAndUtilitiesAccountService: mockRentAndUtilitiesAccountService,
       bankChargeAccountService: mockBankChargeAccountService,
@@ -177,6 +189,12 @@ describe('accountsBootstrapService', () => {
     });
     expect(mockMakeRevenueAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
+      servicesAccountService: mockServicesAccountService,
+      employmentIncomeAccountService: mockEmploymentIncomeAccountService,
+      gainOnAssetSaleAccountService: mockGainOnAssetSaleAccountService,
+      unrealizedGainAccountService: mockUnrealizedGainAccountService,
+      grantsAccountService: mockGrantsAccountService,
+      giftsAccountService: mockGiftsAccountService,
     });
     expect(mockMakeExpenseAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,

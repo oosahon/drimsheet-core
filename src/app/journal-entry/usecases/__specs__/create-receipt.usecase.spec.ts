@@ -5,9 +5,10 @@ import { ECounterpartyType } from '../../../../domain/counterparty/types/counter
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import servicesAccountEntity from '../../../../domain/ledger/revenue-account/entities/services.entity';
 import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
+import makeServicesAccountService from '../../../../domain/ledger/services/revenue-account/services.service';
 import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
+import { IServicesAccount } from '../../../../domain/ledger/types/revenue-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
@@ -53,22 +54,13 @@ describe('makeCreateReceiptUsecase', () => {
     jurisdictionCode: 'NG',
   });
 
-  const [sourceAccount] = servicesAccountEntity.make(
-    {
-      name: 'Services Revenue',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      isControlAccount: false,
-      controlAccountId: null,
-      meta: null,
-      createdBy: user.id,
-    },
-    null
-  );
-
   const cashAccountService = makeCashAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
+  const servicesAccountService = makeServicesAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
+  let sourceAccount: IServicesAccount;
   let destinationAccount: ICashAndCashEquivalentAccount;
 
   const counterpartyService = makeCounterpartyService();
@@ -100,6 +92,29 @@ describe('makeCreateReceiptUsecase', () => {
   let journalEntryAudit: TJournalEntryResult[2];
 
   beforeAll(async () => {
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+    const [servicesHeader] = await servicesAccountService.createHeader(
+      {
+        name: 'Services',
+        accountingEntity,
+        createdBy: user.id,
+      },
+      { correlationId }
+    );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(servicesHeader);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    [sourceAccount] = await servicesAccountService.createSubAccount(
+      {
+        name: 'Services Revenue',
+        accountingEntityId: accountingEntity.id,
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        controlAccountCode: servicesHeader.code,
+        createdBy: user.id,
+      },
+      { correlationId }
+    );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
     [destinationAccount] = await cashAccountService.createHeader(
       {
         name: 'Cash',
