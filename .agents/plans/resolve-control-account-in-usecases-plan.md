@@ -221,3 +221,22 @@ changed.
 - Focused tests, test-inclusive TypeScript compilation, lint, build, formatting,
   and generated-artifact diff checks pass.
 - Unrelated staged files and behavior remain unchanged.
+
+## Implementation Status
+
+| Slice                           | Owner and outcome                                                                                                      | Basis and precedent                                                                                                                                               | Files and tests                                                               | Status                                                                                     |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Public request contract         | Application DTOs expose optional `controlAccountId` and validate supplied values as UUIDs.                             | Goal and DTO rule; `openingBalanceCreationReqValidation` in `src/app/journal-entry/dtos/opening-balance/opening-balance.dto.validation.ts`.                       | Asset-account DTO/schema and DTO validation tests.                            | Completed; focused DTO suite passed                                                        |
+| Parent resolution and wiring    | Bank and petty-cash use cases resolve the selected/default parent; IoC injects the existing repository.                | Goal, use-case and IoC rules; `makeCreateReceiptUsecase` in `src/app/journal-entry/usecases/create-receipt.usecase.ts`; existing Ledger IoC repository injection. | Both creation use cases/specs and `src/infra/ioc/usecases/ledger.ts`.         | Completed; focused use-case suites passed                                                  |
+| HTTP and generated contracts    | HTTP tests prove omission/forwarding and generated models expose only the optional ID.                                 | Goal, HTTP testing rule, and existing TSOA generation workflow.                                                                                                   | Both HTTP specs, `generated/routes.ts`, and `generated/swagger.json`.         | Completed; focused HTTP suites passed and generated models inspected                       |
+| Verification and reconciliation | Focused and broad checks pass; final diff matches scope and preserves baseline changes.                                | Plan verification and plan-implementation workflow.                                                                                                               | Focused Jest, test TypeScript, lint, build, format/diff inspection.           | Completed; 8 suites/70 tests, test TypeScript, lint, build, format, and diff checks passed |
+| Shared control-account lookup   | A generic application helper resolves an explicit or default control account and preserves existing failure semantics. | Explicit user-approved deviation; shared behavior in both Cash creation workflows.                                                                                | `get-control-account.helper.ts`, its spec, and both creation use cases/specs. | Completed; 3 suites/25 tests, test TypeScript, lint, and build passed                      |
+
+## Approved Deviations
+
+- On 2026-08-08, the user approved extracting the duplicated control-account
+  lookup branches into a generic application helper. This supersedes the plan's
+  earlier instruction to keep the branch inline. The Cash domain service
+  remains the owner of parent-role validation and the authoritative locked
+  re-read. The helper accepts one named input object, as required by the user's
+  readability follow-up.

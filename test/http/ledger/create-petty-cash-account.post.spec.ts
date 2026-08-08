@@ -44,13 +44,13 @@ const ENDPOINT = '/api/v1/ledger/asset/petty-cash';
 const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
 const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+const controlAccountId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
 const openingBalanceDate = new Date('2026-03-14T00:00:00.000Z');
 
 const validPayload: IPettyCashAccountCreationReq = {
   name: 'Office Petty Cash',
   currencyCode: 'NGN',
   isControlAccount: false,
-  controlAccountCode: '100000',
   openingBalance: {
     amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
     exchangeRate: null,
@@ -74,7 +74,7 @@ const createdAccount: ILedgerAccountDto = {
   subType: 'cash_and_cash_equivalent',
   behavior: 'petty_cash',
   isControlAccount: false,
-  controlAccountId: '123e4567-e89b-12d3-a456-426614174004' as TEntityId,
+  controlAccountId,
   name: validPayload.name,
   status: 'active',
   contraAccountRule: 'contra_permitted',
@@ -142,6 +142,21 @@ describe('POST /ledger/asset/petty-cash', () => {
         },
       });
     });
+
+    it('forwards an optional control account ID', async () => {
+      const payload = { ...validPayload, controlAccountId };
+
+      const response = await makeRequest(payload);
+
+      expect(response.status).toBe(201);
+      expect(mockCreatePettyCashAccount).toHaveBeenCalledWith({
+        ...payload,
+        openingBalance: {
+          ...payload.openingBalance,
+          date: openingBalanceDate,
+        },
+      });
+    });
   });
 
   describe('400 Response', () => {
@@ -188,16 +203,6 @@ describe('POST /ledger/asset/petty-cash', () => {
   });
 
   describe('422 Response', () => {
-    it('rejects a missing control account code before orchestration', async () => {
-      const { controlAccountCode: _controlAccountCode, ...invalidPayload } =
-        validPayload;
-      const response = await makeRequest(invalidPayload);
-
-      expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
-      expect(mockCreatePettyCashAccount).not.toHaveBeenCalled();
-    });
-
     it('rejects an invalid request before orchestration', async () => {
       const { currencyCode: _currencyCode, ...invalidPayload } = validPayload;
       const response = await makeRequest(invalidPayload);

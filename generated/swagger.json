@@ -587,7 +587,7 @@
           "isControlAccount": {
             "type": "boolean"
           },
-          "controlAccountCode": {
+          "controlAccountId": {
             "type": "string"
           },
           "openingBalance": {
@@ -603,7 +603,6 @@
           "name",
           "currencyCode",
           "isControlAccount",
-          "controlAccountCode",
           "openingBalance"
         ],
         "type": "object",
@@ -1505,7 +1504,7 @@
           "currencyCode": {
             "type": "string"
           },
-          "controlAccountCode": {
+          "controlAccountId": {
             "type": "string"
           },
           "bankAccount": {
@@ -1520,13 +1519,7 @@
             "nullable": true
           }
         },
-        "required": [
-          "name",
-          "currencyCode",
-          "controlAccountCode",
-          "bankAccount",
-          "openingBalance"
-        ],
+        "required": ["name", "currencyCode", "bankAccount", "openingBalance"],
         "type": "object",
         "additionalProperties": false
       },

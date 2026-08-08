@@ -47,11 +47,11 @@ const ENDPOINT = '/api/v1/accounts/asset/bank';
 const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
 const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+const controlAccountId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
 
 const validPayload: IBankAccountCreationReq = {
   name: 'Operating Bank Account',
   currencyCode: 'NGN',
-  controlAccountCode: '100000',
   bankAccount: {
     bankName: 'First Bank of Nigeria',
     accountName: 'Company Operating Account',
@@ -77,7 +77,7 @@ const createdAccount: ILedgerAccountDto = {
   subType: 'cash_and_cash_equivalent',
   behavior: 'bank',
   isControlAccount: false,
-  controlAccountId: '123e4567-e89b-12d3-a456-426614174004' as TEntityId,
+  controlAccountId,
   name: validPayload.name,
   status: 'active',
   contraAccountRule: 'contra_permitted',
@@ -143,6 +143,15 @@ describe('POST /accounts/asset/bank', () => {
       });
       expect(mockCreateBankAccount).toHaveBeenCalledWith(validPayload);
     });
+
+    it('forwards an optional control account ID', async () => {
+      const payload = { ...validPayload, controlAccountId };
+
+      const response = await makeRequest(payload);
+
+      expect(response.status).toBe(201);
+      expect(mockCreateBankAccount).toHaveBeenCalledWith(payload);
+    });
   });
 
   describe('400 Response', () => {
@@ -205,16 +214,6 @@ describe('POST /accounts/asset/bank', () => {
   });
 
   describe('422 Response', () => {
-    it('rejects a missing control account code before orchestration', async () => {
-      const { controlAccountCode: _controlAccountCode, ...invalidPayload } =
-        validPayload;
-      const response = await makeRequest(invalidPayload);
-
-      expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
-      expect(mockCreateBankAccount).not.toHaveBeenCalled();
-    });
-
     it('rejects invalid payload with extra fields', async () => {
       const invalidPayload = {
         ...validPayload,

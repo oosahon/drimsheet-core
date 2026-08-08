@@ -533,7 +533,7 @@ const models: TsoaRoute.Models = {
       name: { dataType: 'string', required: true },
       currencyCode: { dataType: 'string', required: true },
       isControlAccount: { dataType: 'boolean', required: true },
-      controlAccountCode: { dataType: 'string', required: true },
+      controlAccountId: { dataType: 'string' },
       openingBalance: {
         dataType: 'union',
         subSchemas: [
@@ -1182,7 +1182,7 @@ const models: TsoaRoute.Models = {
     properties: {
       name: { dataType: 'string', required: true },
       currencyCode: { dataType: 'string', required: true },
-      controlAccountCode: { dataType: 'string', required: true },
+      controlAccountId: { dataType: 'string' },
       bankAccount: { ref: 'IBankDetailsCreationReq', required: true },
       openingBalance: {
         dataType: 'union',

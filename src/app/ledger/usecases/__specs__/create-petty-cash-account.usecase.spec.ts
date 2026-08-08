@@ -4,6 +4,7 @@ import journalEntryEntity from '../../../../domain/journal-entry/entities/journa
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
 import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
+import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
 import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { IUser } from '../../../../domain/user/types/user.types';
@@ -27,6 +28,7 @@ import mockLedgerAccountPersistenceService from '../../contracts/__mocks__/ledge
 import { mockAssetAccountService } from '../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import { IPettyCashAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
+import ledgerAppError from '../../errors/ledger.error';
 import makeCreatePettyCashAccountUseCase from '../create-petty-cash-account.usecase';
 
 describe('createPettyCashSubAccountUseCase', () => {
@@ -58,7 +60,6 @@ describe('createPettyCashSubAccountUseCase', () => {
       date: new Date('2026-03-14T00:00:00.000Z'),
     },
     isControlAccount: false,
-    controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
   };
   const validOpeningBalance = validPayload.openingBalance!;
 
@@ -170,6 +171,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       appContext: mockAppContext,
       eventBus: mockEventBus,
       cashAccountService: mockAssetAccountService,
+      ledgerAccountRepo: mockLedgerAccountRepo,
       accountingPeriodService: mockAccountingPeriodService,
       journalEntryService: mockJournalEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
@@ -217,9 +219,14 @@ describe('createPettyCashSubAccountUseCase', () => {
         isControlAccount: false,
         userId: mockUser.id,
         accountingEntity: mockAccountingEntity,
-        controlAccountCode: validPayload.controlAccountCode,
+        controlAccountCode: mockControlAccount.code,
       }),
       { correlationId, lock: 'update' }
+    );
+    expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
+      ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+      mockAccountingEntity.id,
+      { correlationId }
     );
 
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalled();
@@ -240,6 +247,67 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockLedgerAccountBalancePropagationService.propagate
     ).toHaveBeenCalledWith(mockOpeningBalanceJournalEntry, { correlationId });
     expect(mockEventBus.publish).toHaveBeenCalled();
+  });
+
+  it('resolves a supplied control account ID and forwards its code', async () => {
+    const selectedControlAccount = {
+      ...mockControlAccount,
+      code: '100500',
+    };
+    mockLedgerAccountRepo.findById.mockResolvedValueOnce(
+      selectedControlAccount
+    );
+
+    await getUseCase()({
+      ...validPayload,
+      controlAccountId: selectedControlAccount.id,
+    });
+
+    expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
+      selectedControlAccount.id,
+      mockAccountingEntity.id,
+      { correlationId }
+    );
+    expect(mockLedgerAccountRepo.findByCode).not.toHaveBeenCalled();
+    expect(
+      mockAssetAccountService.createPettyCashSubAccount
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        controlAccountCode: selectedControlAccount.code,
+      }),
+      { correlationId, lock: 'update' }
+    );
+  });
+
+  it('rejects a missing supplied control account before creation', async () => {
+    const missingControlAccountId =
+      '123e4567-e89b-12d3-a456-426614174009' as TEntityId;
+    mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
+
+    await expect(
+      getUseCase()({
+        ...validPayload,
+        controlAccountId: missingControlAccountId,
+      })
+    ).rejects.toBeInstanceOf(ledgerAppError.AccountNotFound);
+
+    expect(
+      mockAssetAccountService.createPettyCashSubAccount
+    ).not.toHaveBeenCalled();
+    expect(mockLedgerAccountPersistenceService.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects a missing default control account before creation', async () => {
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+
+    await expect(getUseCase()(validPayload)).rejects.toBeInstanceOf(
+      ledgerAccountError.ControlAccountNotFound
+    );
+
+    expect(
+      mockAssetAccountService.createPettyCashSubAccount
+    ).not.toHaveBeenCalled();
+    expect(mockLedgerAccountPersistenceService.create).not.toHaveBeenCalled();
   });
 
   it('should successfully create a petty cash sub-account without opening balance', async () => {

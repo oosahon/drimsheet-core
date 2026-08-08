@@ -1,6 +1,8 @@
 import IAccountingPeriodService from '../../../domain/accounting/types/accounting-period.service.types';
 import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
+import { ASSET_LEDGER_CODES } from '../../../domain/ledger/config/asset-codes.config';
 import ledgerAccountEntity from '../../../domain/ledger/entities/ledger-account.entity';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import ICashAccountService from '../../../domain/ledger/types/cash-account.service.types';
 import { TCashLedgerCode } from '../../../domain/ledger/types/ledger-code.types';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
@@ -26,6 +28,7 @@ import { IPettyCashAccountCreationReq } from '../dtos/asset-account/asset-accoun
 import { pettyCashCreationReqValidation } from '../dtos/asset-account/asset-account.dto.validation';
 import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';
 import helpers from './helpers/create-petty-cash-account.usecase.helpers';
+import getControlAccountHelper from './helpers/get-control-account.helper';
 import getFxAcquisitionDataHelper from './helpers/get-fx-acquisition-data.helper';
 import getOpeningBalanceExchangeRate from './helpers/get-opening-balance-exchange-rate.helper';
 import mapLedgerAccountToDto from './helpers/map-ledger-account-to-dto.helper';
@@ -36,6 +39,7 @@ interface IDependencies {
   eventBus: IEventBus;
   accountingPeriodService: IAccountingPeriodService;
   cashAccountService: ICashAccountService;
+  ledgerAccountRepo: ILedgerAccountRepo;
   journalEntryService: IJournalEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   balancePropagationService: ILedgerAccountBalancePropagationService;
@@ -70,6 +74,14 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       trace
     );
 
+    const controlAccount = await getControlAccountHelper<TCashLedgerCode>({
+      ledgerAccountRepo: deps.ledgerAccountRepo,
+      controlAccountId: payload.controlAccountId,
+      defaultControlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
+      accountingEntityId: accountingEntity.id,
+      repoOptions: trace,
+    });
+
     const auditedAccount =
       await deps.cashAccountService.createPettyCashSubAccount(
         {
@@ -78,7 +90,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
           isControlAccount: payload.isControlAccount,
           userId: user.id,
           accountingEntity,
-          controlAccountCode: payload.controlAccountCode as TCashLedgerCode,
+          controlAccountCode: controlAccount.code,
         },
         { ...trace, lock: ERepoLock.Update }
       );
