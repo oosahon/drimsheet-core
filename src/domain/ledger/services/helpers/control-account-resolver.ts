@@ -48,8 +48,6 @@ export default async function controlAccountResolverHelper<LedgerCode>(
     });
   }
 
-  // TODO: prevent currency triangulation
-
   const latest = await payload.ledgerAccountRepo.findLatestBySubType(
     payload.accountingEntityId,
     ELedgerType.Asset,
