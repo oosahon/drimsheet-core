@@ -61,6 +61,33 @@ describe('cashAccountService', () => {
     expect(account.currency).toBe(SYSTEM_CURRENCIES.NGN);
   });
 
+  it('rejects a duplicate cash header', async () => {
+    const ownerId = generateUUID();
+    const accountingEntity = {
+      id: generateUUID(),
+      ownerId,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    } as IAccountingEntity;
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+
+    const [existingHeader] = await service.createHeader(
+      { name: 'Cash', userId: ownerId, accountingEntity },
+      mockOptions
+    );
+
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(existingHeader);
+
+    await expect(
+      service.createHeader(
+        { name: 'Cash', userId: ownerId, accountingEntity },
+        mockOptions
+      )
+    ).rejects.toMatchObject({
+      errorKey: 'ledger_error_header_account_already_exists',
+      cause: { existingHeader },
+    });
+  });
+
   describe('createPettyCashSubAccount', () => {
     const ownerId = generateUUID();
     const entityId = generateUUID();
@@ -301,23 +328,27 @@ describe('cashAccountService', () => {
       bankDetails: validBankValue,
     };
 
-    it('creates a bank account successfully', async () => {
-      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
-        mockControlAccount
-      );
-      mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    it.each([EAssetAccountBehavior.DefaultCash, EAssetAccountBehavior.Bank])(
+      'creates a bank account under a %s control account',
+      async (controlAccountBehavior) => {
+        mockLedgerAccountRepo.findByCode.mockResolvedValueOnce({
+          ...mockControlAccount,
+          behavior: controlAccountBehavior,
+        });
+        mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
 
-      const [account, events] = await service.createBankSubAccount(
-        validBankPayload,
-        mockOptions
-      );
+        const [account, events] = await service.createBankSubAccount(
+          validBankPayload,
+          mockOptions
+        );
 
-      expect(account.name).toBe('Chase Operating Account');
-      expect(account.behavior).toBe('bank');
-      expect(account.currency).toEqual(validCurrency);
-      expect(account.meta).toEqual(validBankValue);
-      expect(account.code).toBe('100001');
-      expect(events.length).toBeGreaterThan(0);
-    });
+        expect(account.name).toBe('Chase Operating Account');
+        expect(account.behavior).toBe('bank');
+        expect(account.currency).toEqual(validCurrency);
+        expect(account.meta).toEqual(validBankValue);
+        expect(account.code).toBe('100001');
+        expect(events.length).toBeGreaterThan(0);
+      }
+    );
   });
 });
