@@ -5,11 +5,18 @@ import generateUUID from '../../../../shared/utils/uuid-generator';
 import {
   mockAssetAccountService,
   mockAssetDisposalLossAccountService,
+  mockBankChargeAccountService,
+  mockDirectCostsAccountService,
   mockEquityAccountService,
+  mockFinanceCostAccountService,
+  mockInterestAccountService,
   mockPayablesAccountService,
   mockReceivablesAccountService,
+  mockRentAndUtilitiesAccountService,
   mockShortTermLoanAccountService,
   mockSuspenseAccountService,
+  mockTaxExpenseAccountService,
+  mockUnrealizedLossAccountService,
 } from '../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
 import IAccountsBootstrapService from '../../contracts/accounts-bootstrap.service.contract';
@@ -138,6 +145,13 @@ describe('accountsBootstrapService', () => {
       payablesAccountService: mockPayablesAccountService,
       shortTermLoanAccountService: mockShortTermLoanAccountService,
       equityAccountService: mockEquityAccountService,
+      directCostsAccountService: mockDirectCostsAccountService,
+      rentAndUtilitiesAccountService: mockRentAndUtilitiesAccountService,
+      bankChargeAccountService: mockBankChargeAccountService,
+      financeCostAccountService: mockFinanceCostAccountService,
+      interestAccountService: mockInterestAccountService,
+      taxExpenseAccountService: mockTaxExpenseAccountService,
+      unrealizedLossAccountService: mockUnrealizedLossAccountService,
       assetDisposalLossAccountService: mockAssetDisposalLossAccountService,
     });
   });
@@ -166,6 +180,13 @@ describe('accountsBootstrapService', () => {
     });
     expect(mockMakeExpenseAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
+      directCostsAccountService: mockDirectCostsAccountService,
+      rentAndUtilitiesAccountService: mockRentAndUtilitiesAccountService,
+      bankChargeAccountService: mockBankChargeAccountService,
+      financeCostAccountService: mockFinanceCostAccountService,
+      interestAccountService: mockInterestAccountService,
+      taxExpenseAccountService: mockTaxExpenseAccountService,
+      unrealizedLossAccountService: mockUnrealizedLossAccountService,
       assetDisposalLossAccountService: mockAssetDisposalLossAccountService,
     });
     expect(mockBootstrapAssetAccounts).toHaveBeenCalledWith({

@@ -5,6 +5,13 @@ import makeCashAccountService from '../../../domain/ledger/services/asset-accoun
 import makeReceivablesAccountService from '../../../domain/ledger/services/asset-account/receivables-account.service';
 import makeEquityAccountService from '../../../domain/ledger/services/equity-account/equity-account.service';
 import makeAssetDisposalService from '../../../domain/ledger/services/expense-account/asset-disposal-loss.service';
+import makeBankChargeAccountService from '../../../domain/ledger/services/expense-account/bank-charge.service';
+import makeDirectCostsAccountService from '../../../domain/ledger/services/expense-account/direct-costs.service';
+import makeFinanceCostAccountService from '../../../domain/ledger/services/expense-account/finance-cost.service';
+import makeInterestAccountService from '../../../domain/ledger/services/expense-account/interest.service';
+import makeRentAndUtilitiesAccountService from '../../../domain/ledger/services/expense-account/rent-and-utilities.service';
+import makeTaxExpenseAccountService from '../../../domain/ledger/services/expense-account/tax-expense.service';
+import makeUnrealizedLossAccountService from '../../../domain/ledger/services/expense-account/unrealized-loss.service';
 import makePayablesAccountService from '../../../domain/ledger/services/liability-account/payables.service';
 import makeShortTermLoanService from '../../../domain/ledger/services/liability-account/short-term-loan.service';
 import makeSuspenseAccountService from '../../../domain/ledger/services/suspense-account/suspense-account.service';
@@ -41,6 +48,35 @@ export const assetDisposalLossAccountService = makeAssetDisposalService({
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
 });
 
+export const bankChargeAccountService = makeBankChargeAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const directCostsAccountService = makeDirectCostsAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const financeCostAccountService = makeFinanceCostAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const interestAccountService = makeInterestAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const rentAndUtilitiesAccountService =
+  makeRentAndUtilitiesAccountService({
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+  });
+
+export const taxExpenseAccountService = makeTaxExpenseAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
+export const unrealizedLossAccountService = makeUnrealizedLossAccountService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
 export const ledgerAccountPersistenceService =
   makeLedgerAccountPersistenceService({
     ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
@@ -56,6 +92,13 @@ export const accountsBootstrapService = makeAccountsBootstrapService({
   payablesAccountService,
   shortTermLoanAccountService,
   equityAccountService,
+  directCostsAccountService,
+  rentAndUtilitiesAccountService,
+  bankChargeAccountService,
+  financeCostAccountService,
+  interestAccountService,
+  taxExpenseAccountService,
+  unrealizedLossAccountService,
   assetDisposalLossAccountService,
 });
 

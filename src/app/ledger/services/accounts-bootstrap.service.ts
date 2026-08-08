@@ -1,12 +1,19 @@
 import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import { IAssetDisposalLossAccountService } from '../../../domain/ledger/types/asset-disposal-loss.service.types';
+import { IBankChargeAccountService } from '../../../domain/ledger/types/bank-charge.service.types';
 import ICashAccountService from '../../../domain/ledger/types/cash-account.service.types';
+import { IDirectCostsAccountService } from '../../../domain/ledger/types/direct-costs.service.types';
 import { IEquityAccountService } from '../../../domain/ledger/types/equity-account.service.types';
+import { IFinanceCostAccountService } from '../../../domain/ledger/types/finance-cost.service.types';
+import { IInterestAccountService } from '../../../domain/ledger/types/interest.service.types';
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import { IPayablesAccountService } from '../../../domain/ledger/types/payables.service.types';
 import { IReceivablesAccountService } from '../../../domain/ledger/types/receivables-account.service.types';
+import { IRentAndUtilitiesAccountService } from '../../../domain/ledger/types/rent-and-utilities.service.types';
 import { IShortTermLoanAccountService } from '../../../domain/ledger/types/short-term-loan.service.types';
 import { ISuspenseAccountService } from '../../../domain/ledger/types/suspense-account.service.types';
+import { ITaxExpenseAccountService } from '../../../domain/ledger/types/tax-expense.service.types';
+import { IUnrealizedLossAccountService } from '../../../domain/ledger/types/unrealized-loss.service.types';
 import IAccountsBootstrapService from '../contracts/accounts-bootstrap.service.contract';
 import ledgerAppError from '../errors/ledger.error';
 import makeAssetAccountsBootstrapHelper from './helpers/asset-accounts-bootstrap.helper';
@@ -23,6 +30,13 @@ interface IDependencies {
   payablesAccountService: IPayablesAccountService;
   shortTermLoanAccountService: IShortTermLoanAccountService;
   equityAccountService: IEquityAccountService;
+  directCostsAccountService: IDirectCostsAccountService;
+  rentAndUtilitiesAccountService: IRentAndUtilitiesAccountService;
+  bankChargeAccountService: IBankChargeAccountService;
+  financeCostAccountService: IFinanceCostAccountService;
+  interestAccountService: IInterestAccountService;
+  taxExpenseAccountService: ITaxExpenseAccountService;
+  unrealizedLossAccountService: IUnrealizedLossAccountService;
   assetDisposalLossAccountService: IAssetDisposalLossAccountService;
 }
 
@@ -55,6 +69,13 @@ export default function makeAccountsBootstrapService(
   );
   const bootstrapExpenseAccounts = makeExpenseAccountsBootstrapHelper({
     ...ledgerAccountDependencies,
+    directCostsAccountService: deps.directCostsAccountService,
+    rentAndUtilitiesAccountService: deps.rentAndUtilitiesAccountService,
+    bankChargeAccountService: deps.bankChargeAccountService,
+    financeCostAccountService: deps.financeCostAccountService,
+    interestAccountService: deps.interestAccountService,
+    taxExpenseAccountService: deps.taxExpenseAccountService,
+    unrealizedLossAccountService: deps.unrealizedLossAccountService,
     assetDisposalLossAccountService: deps.assetDisposalLossAccountService,
   });
 
