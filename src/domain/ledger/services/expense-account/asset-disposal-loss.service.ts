@@ -3,6 +3,7 @@ import { EXPENSE_LEDGER_CODES } from '../../config/expense-codes.config';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import ledgerAccountCurrencyInvarianceRule from '../../rules/currency-invariance.rule';
 import { IAssetDisposalLossAccountService } from '../../types/asset-disposal-loss.service.types';
 import {
   EExpenseAccountBehavior,
@@ -102,6 +103,11 @@ function makeCreateSubAccount(
         repoOptions,
         validator,
       });
+
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: null,
+    });
 
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,

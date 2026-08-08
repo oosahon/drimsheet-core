@@ -48,6 +48,8 @@ describe('receivablesAccountService', () => {
     subType: EAssetSubType.Receivables,
     behavior: EAssetAccountBehavior.DefaultReceivables,
     isControlAccount: true,
+    controlAccountId: null,
+    currency: SYSTEM_CURRENCIES.USD,
   } as ILedgerAccount;
 
   beforeEach(() => {

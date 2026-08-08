@@ -238,18 +238,57 @@ describe('shortTermLoanAccountService', () => {
     });
 
     it('rejects a fixed-currency loan under a null-currency control account', async () => {
-      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
-        makeControlAccount(ELiabilityAccountBehavior.ShortTermLoan, {
+      const controlAccount = makeControlAccount(
+        ELiabilityAccountBehavior.ShortTermLoan,
+        {
+          controlAccountId: generateUUID(),
           currency: null,
-        })
+        }
       );
+      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
 
       await expect(
         service.createSubAccount(shortTermLoanPayload, repoOptions)
       ).rejects.toMatchObject({
-        errorKey: 'ledger_error_asset_account_invalid_control_account',
+        errorKey:
+          'ledger_error_ledger_account_control_account_currency_mismatch',
+        cause: {
+          controlAccountId: controlAccount.id,
+          controlAccountCode: controlAccount.code,
+          controlAccountCurrencyCode: null,
+          subAccountCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+        },
       });
-      expect(mockLedgerAccountRepo.findLatestBySubType).not.toHaveBeenCalled();
+      expect(mockLedgerAccountRepo.findLatestBySubType).toHaveBeenCalledTimes(
+        1
+      );
+    });
+
+    it('rejects a different fixed currency under a nested control account', async () => {
+      const controlAccount = makeControlAccount(
+        ELiabilityAccountBehavior.ShortTermLoan,
+        { controlAccountId: generateUUID() }
+      );
+      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+
+      await expect(
+        service.createSubAccount(
+          { ...shortTermLoanPayload, currency: SYSTEM_CURRENCIES.EUR },
+          repoOptions
+        )
+      ).rejects.toMatchObject({
+        errorKey:
+          'ledger_error_ledger_account_control_account_currency_mismatch',
+        cause: {
+          controlAccountId: controlAccount.id,
+          controlAccountCode: controlAccount.code,
+          controlAccountCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+          subAccountCurrencyCode: SYSTEM_CURRENCIES.EUR.code,
+        },
+      });
+      expect(mockLedgerAccountRepo.findLatestBySubType).toHaveBeenCalledTimes(
+        1
+      );
     });
 
     it('rejects a missing control account', async () => {

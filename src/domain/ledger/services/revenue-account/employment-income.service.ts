@@ -3,6 +3,7 @@ import { REVENUE_LEDGER_CODES } from '../../config/revenue-codes.config';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import ledgerAccountCurrencyInvarianceRule from '../../rules/currency-invariance.rule';
 import { IEmploymentIncomeAccountService } from '../../types/employment-income.service.types';
 import { TEmploymentIncomeLedgerCode } from '../../types/ledger-code.types';
 import {
@@ -86,6 +87,11 @@ function makeCreateSubAccount(
         repoOptions,
         validator,
       });
+
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: null,
+    });
 
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,

@@ -3,6 +3,7 @@ import { LIABILITY_LEDGER_CODES } from '../../config/liability-codes.config';
 import ledgerAccountEntity from '../../entities/ledger-account.entity';
 import ledgerAccountError from '../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import ledgerAccountCurrencyInvarianceRule from '../../rules/currency-invariance.rule';
 import { TPayablesLedgerCode } from '../../types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -106,6 +107,11 @@ function makeCreateStatutoryPayableSubAccount(
         validator,
       });
 
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: payload.currency,
+    });
+
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
@@ -170,6 +176,11 @@ function makeCreateTradePayableAccount(
         repoOptions,
         validator,
       });
+
+    ledgerAccountCurrencyInvarianceRule.validate({
+      controlAccount,
+      subAccountCurrency: null,
+    });
 
     const code = ledgerAccountEntity.getSubLedgerCode(
       LEDGER_CODE.PREFIX,

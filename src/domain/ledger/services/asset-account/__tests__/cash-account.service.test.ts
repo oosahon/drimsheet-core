@@ -114,6 +114,8 @@ describe('cashAccountService', () => {
       subType: EAssetSubType.CashAndCashEquivalent,
       behavior: EAssetAccountBehavior.DefaultCash,
       isControlAccount: true,
+      controlAccountId: null,
+      currency: SYSTEM_CURRENCIES.EUR,
     } as ILedgerAccount;
 
     const mockLatestAccount = {
@@ -133,7 +135,7 @@ describe('cashAccountService', () => {
     };
 
     describe('when valid payload is provided', () => {
-      it('should create a petty cash account successfully with a supplied control account code', async () => {
+      it('permits a foreign-currency petty cash account under a header control account', async () => {
         mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
           mockControlAccount
         );
@@ -309,6 +311,8 @@ describe('cashAccountService', () => {
       subType: EAssetSubType.CashAndCashEquivalent,
       behavior: EAssetAccountBehavior.DefaultCash,
       isControlAccount: true,
+      controlAccountId: null,
+      currency: SYSTEM_CURRENCIES.EUR,
     } as ILedgerAccount;
 
     const validBankValue = {
