@@ -1,7 +1,7 @@
 import { IReadRepoOptions } from '../../../shared/types/repo.types';
 import { TEntityId } from '../../../shared/types/uuid';
 import { ICounterparty } from '../../counterparty/types/counterparty.types';
-import { ILedgerAccount } from '../../ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../ledger/types/ledger.types';
 import { IExchangeRate } from '../../money/types/exchange-rate.types';
 import { IMoney } from '../../money/types/money.types';
 import { TAuditedJournalEntry } from './journal-entry-audit.types';

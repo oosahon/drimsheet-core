@@ -1,7 +1,8 @@
+import { mockLedgerAccountRepo } from '../../../../../../app/ledger/contracts/__mocks__/ledger.repos.mock';
 import accountingEntityEntity from '../../../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../../../domain/accounting/types/accounting-entity.types';
-import ledgerAccountBalanceEntity from '../../../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
-import cashAndEquivalentAccountEntity from '../../../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import ledgerAccountBalanceEntity from '../../../../../../domain/ledger/entities/ledger-account-balance.entity';
+import makeCashAccountService from '../../../../../../domain/ledger/services/asset-account/cash-account.service';
 import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../../../domain/money/values/money.vo';
 import userEntity from '../../../../../../domain/user/entities/user.entity';
@@ -13,6 +14,9 @@ import ledgerAccountBalanceMapper, {
 } from '../ledger-account-balance.mapper';
 
 describe('Ledger Account Balance Mapper', () => {
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-05-01T00:00:00.000Z'));
@@ -22,7 +26,7 @@ describe('Ledger Account Balance Mapper', () => {
     jest.useRealTimers();
   });
 
-  const makeBalanceAndAdjustment = () => {
+  const makeBalanceAndAdjustment = async () => {
     const [user] = userEntity.make({
       email: 'owner@example.com',
       emailVerified: true,
@@ -36,12 +40,14 @@ describe('Ledger Account Balance Mapper', () => {
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
       jurisdictionCode: 'NG',
     });
-    const [account] = cashAndEquivalentAccountEntity.makeHeader({
-      name: 'Cash',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      createdBy: user.id,
-    });
+    const [account] = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
     const balance = ledgerAccountBalanceEntity.make({
       ledgerAccountId: account.id,
       accountingEntityId: accountingEntity.id,
@@ -61,8 +67,8 @@ describe('Ledger Account Balance Mapper', () => {
   };
 
   describe('balance mapping', () => {
-    it('maps a balance to a repo model and back', () => {
-      const { newBalance } = makeBalanceAndAdjustment();
+    it('maps a balance to a repo model and back', async () => {
+      const { newBalance } = await makeBalanceAndAdjustment();
 
       const repoModel = ledgerAccountBalanceMapper.toRepo(newBalance);
 
@@ -83,8 +89,8 @@ describe('Ledger Account Balance Mapper', () => {
       );
     });
 
-    it('maps a balance repo select with currency relations to domain', () => {
-      const { newBalance } = makeBalanceAndAdjustment();
+    it('maps a balance repo select with currency relations to domain', async () => {
+      const { newBalance } = await makeBalanceAndAdjustment();
       const repoModel = ledgerAccountBalanceMapper.toRepo(newBalance);
       const selectModel: Parameters<
         typeof ledgerAccountBalanceMapper.toDomain
@@ -117,8 +123,8 @@ describe('Ledger Account Balance Mapper', () => {
   });
 
   describe('adjustment mapping', () => {
-    it('maps an adjustment to a repo model and back', () => {
-      const { adjustment } = makeBalanceAndAdjustment();
+    it('maps an adjustment to a repo model and back', async () => {
+      const { adjustment } = await makeBalanceAndAdjustment();
 
       const repoModel = ledgerAccountBalanceMapper.toRepoAdjustment(adjustment);
 
@@ -139,8 +145,8 @@ describe('Ledger Account Balance Mapper', () => {
       );
     });
 
-    it('maps an adjustment to a DTO', () => {
-      const { adjustment } = makeBalanceAndAdjustment();
+    it('maps an adjustment to a DTO', async () => {
+      const { adjustment } = await makeBalanceAndAdjustment();
 
       expect(ledgerAccountBalanceMapper.toAdjustmentDto(adjustment)).toEqual({
         id: adjustment.id,
@@ -164,8 +170,8 @@ describe('Ledger Account Balance Mapper', () => {
   });
 
   describe('new balance and adjustment mapping', () => {
-    it('maps the aggregate repo shape and back', () => {
-      const payload = makeBalanceAndAdjustment();
+    it('maps the aggregate repo shape and back', async () => {
+      const payload = await makeBalanceAndAdjustment();
       const repoModel: INewLedgerAccountBalanceAndAdjustmentModel = {
         newBalance: ledgerAccountBalanceMapper.toRepo(
           payload.newBalance

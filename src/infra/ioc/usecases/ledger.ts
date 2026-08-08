@@ -19,7 +19,7 @@ import {
   journalEntryService,
 } from '../services/journal-entry';
 import {
-  assetAccountService,
+  cashAccountService,
   ledgerAccountBalancePropagationService,
   ledgerAccountPersistenceService,
 } from '../services/ledger';
@@ -58,7 +58,7 @@ export const getAccountTransactionsUseCase = makeGetAccountTransactionsUseCase({
 export const createPettyCashAccountUseCase = makeCreatePettyCashAccountUseCase({
   appContext: appContext,
   eventBus: messaging.eventBus,
-  assetAccountService,
+  cashAccountService,
   accountingPeriodService,
   journalEntryService,
   journalEntryPersistenceService,
@@ -73,7 +73,7 @@ export const createPettyCashAccountUseCase = makeCreatePettyCashAccountUseCase({
 export const createBankAccountUseCase = makeCreateBankAccountUseCase({
   appContext: appContext,
   eventBus: messaging.eventBus,
-  assetAccountService,
+  cashAccountService,
   accountingPeriodService,
   bankAccountRepo: ledgerRepos.bankAccount,
   journalEntryService,

@@ -1,24 +1,23 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { LIABILITY_LEDGER_CODES } from '../../../../domain/ledger/liability-account/config/liability-codes.config';
-import payableAccountEntity from '../../../../domain/ledger/liability-account/entities/payables.entity';
-import shortTermLoanAccountEntity from '../../../../domain/ledger/liability-account/entities/short-term-loan.entity';
-import liabilitySuspenseAccountEntity from '../../../../domain/ledger/liability-account/entities/suspense-account.entity';
+import { LIABILITY_LEDGER_CODES } from '../../../../domain/ledger/config/liability-codes.config';
+import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+import { TLiabilityLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
+import {
+  ELedgerType,
+  ILedgerAccount,
+} from '../../../../domain/ledger/types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
   ILiabilityLedgerAccount,
   IPayableAccount,
   IStatutoryPayableAccount,
-} from '../../../../domain/ledger/liability-account/types/liability-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
-import {
-  TLiabilityLedgerCode,
-  TPayablesLedgerCode,
-} from '../../../../domain/ledger/shared/types/ledger-code.types';
-import {
-  ELedgerType,
-  ILedgerAccount,
-} from '../../../../domain/ledger/shared/types/ledger.types';
+  IStatutoryPayableAccountMeta,
+  ITradePayableAccountMeta,
+} from '../../../../domain/ledger/types/liability-account.types';
+import { IPayablesAccountService } from '../../../../domain/ledger/types/payables.service.types';
+import { IShortTermLoanAccountService } from '../../../../domain/ledger/types/short-term-loan.service.types';
+import { ISuspenseAccountService } from '../../../../domain/ledger/types/suspense-account.service.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
@@ -29,6 +28,9 @@ import { IEntityDelta } from '../../../../shared/values/history/types/history.ty
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
+  suspenseAccountService: ISuspenseAccountService;
+  payablesAccountService: IPayablesAccountService;
+  shortTermLoanAccountService: IShortTermLoanAccountService;
 }
 
 interface ILiabilityAccountsBootstrapInput {
@@ -73,14 +75,14 @@ export default function makeLiabilityAccountsBootstrapHelper(
     );
 
     if (!existingSuspense.length) {
-      const account = liabilitySuspenseAccountEntity.make(
+      const account = await deps.suspenseAccountService.createLiabilitySuspense(
         {
           accountingEntityId,
           currency: functionalCurrency,
           name: 'Liability Suspense Account',
           createdBy: ownerId,
         },
-        null
+        repoOptions
       );
       liabilityAccounts.push(account);
     }
@@ -93,23 +95,19 @@ export default function makeLiabilityAccountsBootstrapHelper(
       )) as IStatutoryPayableAccount[];
 
     if (existingStatutoryPayables.length === 1) {
-      const account = payableAccountEntity.makeStatutoryPayableAccount(
-        {
-          name: 'Statutory Payables (Default)',
-          createdBy: ownerId,
-          accountingEntityId,
-          currency: functionalCurrency,
-          isControlAccount: false,
-          controlAccountId: headers.statutoryPayablesHeader.id,
-          meta: null,
-        },
-        {
-          precedingCode: headers.statutoryPayablesHeader
-            .code as TPayablesLedgerCode,
-          parentMaterializedPath: headers.statutoryPayablesHeader
-            .materializedPath as TPayablesLedgerCode,
-        }
-      );
+      const account =
+        await deps.payablesAccountService.createStatutoryPayableSubAccount(
+          {
+            name: 'Statutory Payables (Default)',
+            createdBy: ownerId,
+            accountingEntity,
+            currency: functionalCurrency,
+            isControlAccount: false,
+            controlAccountCode: headers.statutoryPayablesHeader.code,
+            meta: null as unknown as IStatutoryPayableAccountMeta,
+          },
+          repoOptions
+        );
       liabilityAccounts.push(account);
     }
 
@@ -150,12 +148,15 @@ export default function makeLiabilityAccountsBootstrapHelper(
     );
 
     if (!existingShortTermDebtHeader) {
-      const shortTermDebt = shortTermLoanAccountEntity.makeHeader({
-        name: 'Short Term Debt',
-        createdBy,
-        accountingEntityId,
-        currency: functionalCurrency,
-      });
+      const shortTermDebt = await deps.shortTermLoanAccountService.createHeader(
+        {
+          name: 'Short Term Debt',
+          userId: createdBy,
+          accountingEntity,
+          createdBy,
+        },
+        repoOptions
+      );
       allAccounts.push(shortTermDebt);
     }
 
@@ -164,12 +165,15 @@ export default function makeLiabilityAccountsBootstrapHelper(
       await getExistingAccount<IPayableAccount>(payablesHeaderCode);
 
     if (!existingPayablesHeader) {
-      const payables = payableAccountEntity.makeHeader({
-        name: 'Payables',
-        createdBy,
-        accountingEntityId,
-        currency: functionalCurrency,
-      });
+      const payables = await deps.payablesAccountService.createHeader(
+        {
+          name: 'Payables',
+          createdBy,
+          accountingEntity,
+          currency: functionalCurrency,
+        },
+        repoOptions
+      );
       existingPayablesHeader = payables[0];
       allAccounts.push(payables);
     }
@@ -179,22 +183,19 @@ export default function makeLiabilityAccountsBootstrapHelper(
       await getExistingAccount<IPayableAccount>(tradePayablesCode);
 
     if (!existingTradePayables) {
-      const tradePayables = payableAccountEntity.makeTradePayableAccount(
-        {
-          name: 'Trade Payables',
-          createdBy,
-          accountingEntityId,
-          currency: functionalCurrency,
-          isControlAccount: true,
-          controlAccountId: existingPayablesHeader.id,
-          meta: null,
-        },
-        {
-          precedingCode: existingPayablesHeader.code as TPayablesLedgerCode,
-          parentMaterializedPath:
-            existingPayablesHeader.materializedPath as TPayablesLedgerCode,
-        }
-      );
+      const tradePayables =
+        await deps.payablesAccountService.createTradePayableSubAccount(
+          {
+            name: 'Trade Payables',
+            createdBy,
+            accountingEntity,
+            currency: functionalCurrency,
+            isControlAccount: true,
+            controlAccountCode: existingPayablesHeader.code,
+            meta: null as unknown as ITradePayableAccountMeta,
+          },
+          repoOptions
+        );
       existingTradePayables = tradePayables[0];
       allAccounts.push(tradePayables);
     }
@@ -208,21 +209,17 @@ export default function makeLiabilityAccountsBootstrapHelper(
 
     if (!existingStatutoryPayables) {
       const statutoryPayables =
-        payableAccountEntity.makeStatutoryPayableAccount(
+        await deps.payablesAccountService.createStatutoryPayableSubAccount(
           {
             name: 'Statutory Payables',
             createdBy,
-            accountingEntityId,
+            accountingEntity,
             currency: functionalCurrency,
             isControlAccount: true,
-            controlAccountId: existingPayablesHeader.id,
-            meta: null,
+            controlAccountCode: existingPayablesHeader.code,
+            meta: null as unknown as IStatutoryPayableAccountMeta,
           },
-          {
-            precedingCode: existingTradePayables.code as TPayablesLedgerCode,
-            parentMaterializedPath:
-              existingPayablesHeader.materializedPath as TPayablesLedgerCode,
-          }
+          repoOptions
         );
       statutoryPayablesHeader =
         statutoryPayables[0] as IStatutoryPayableAccount;

@@ -1,22 +1,22 @@
 import { omit } from 'lodash';
 import z from 'zod';
-import ledgerAccountError from '../../../../domain/ledger/shared/errors/ledger-account.error';
+import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
 import {
   ELedgerAccountSortBy,
   ULedgerAccountSortBy,
-} from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+} from '../../../../domain/ledger/repos/ledger-account.repo';
 import {
   ELedgerAccountBehavior,
   ULedgerAccountBehavior,
-} from '../../../../domain/ledger/shared/types/account-behaviors.tyypes';
+} from '../../../../domain/ledger/types/account-behaviors.tyypes';
 import {
   ELedgerAccountSubType,
   ULedgerAccountSubType,
-} from '../../../../domain/ledger/shared/types/ledger-aggregate.types';
+} from '../../../../domain/ledger/types/ledger-aggregate.types';
 import {
   ELedgerType,
   ULedgerType,
-} from '../../../../domain/ledger/shared/types/ledger.types';
+} from '../../../../domain/ledger/types/ledger.types';
 import appError from '../../../../shared/values/errors/app.error';
 import { paginationDtoValidation } from '../../../../shared/values/pagination/dto/pagination.dto.validation';
 

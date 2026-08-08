@@ -1,5 +1,5 @@
 import { IJournalEntry } from '../../../../domain/journal-entry/types/journal-entry.types';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import { ILedgerAccountDto } from '../../dtos/ledger-account/ledger-account.dto';

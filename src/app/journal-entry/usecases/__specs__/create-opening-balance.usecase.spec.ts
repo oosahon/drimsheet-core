@@ -3,9 +3,10 @@ import { EAccountingEntityType } from '../../../../domain/accounting/types/accou
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { EAssetAccountBehavior } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
+import makeEquityAccountService from '../../../../domain/ledger/services/equity-account/equity-account.service';
+import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
+import { IOpeningBalanceEquityAccount } from '../../../../domain/ledger/types/equity-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import { IUser } from '../../../../domain/user/types/user.types';
@@ -46,29 +47,47 @@ describe('createOpeningBalanceUseCase', () => {
     jurisdictionCode: 'NG',
   });
 
-  const [mockAssetAccount] = cashAndEquivalentAccountEntity.make(
-    {
-      name: 'Cash',
-      accountingEntityId: mockAccountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      isControlAccount: false,
-      controlAccountId: '123e4567-e89b-12d3-a456-426614174003' as TEntityId,
-      behavior: EAssetAccountBehavior.DefaultCash,
-      meta: null,
-      createdBy: mockUser.id,
-    },
-    { precedingCode: '100000', parentMaterializedPath: '100000' }
-  );
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
+  const equityAccountService = makeEquityAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
+  let mockAssetAccount: ICashAndCashEquivalentAccount;
+  let mockEquityAccount: IOpeningBalanceEquityAccount;
 
-  const [mockEquityAccount] = openingBalanceEquityLedgerEntity.make(
-    {
-      name: 'Opening Balance Equity',
-      accountingEntityId: mockAccountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      createdBy: mockUser.id,
-    },
-    { precedingCode: '399000', parentMaterializedPath: '399000' }
-  );
+  beforeAll(async () => {
+    const [controlAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Cash Equivalents',
+        accountingEntity: mockAccountingEntity,
+        userId: mockUser.id,
+      },
+      { correlationId }
+    );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    [mockAssetAccount] = await cashAccountService.createPettyCashSubAccount(
+      {
+        name: 'Cash',
+        currency: SYSTEM_CURRENCIES.NGN,
+        isControlAccount: false,
+        controlAccountCode: controlAccount.code,
+        accountingEntity: mockAccountingEntity,
+        userId: mockUser.id,
+      },
+      { correlationId }
+    );
+    [mockEquityAccount] =
+      await equityAccountService.createOpeningBalanceAccount(
+        {
+          name: 'Opening Balance Equity',
+          accountingEntity: mockAccountingEntity,
+          createdBy: mockUser.id,
+        },
+        { correlationId }
+      );
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();

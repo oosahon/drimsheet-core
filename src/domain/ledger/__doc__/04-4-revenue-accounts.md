@@ -60,7 +60,7 @@ The following table shows the behaviors of different revenue account classes:
 - **Main reporting hierarchy**: Operating Revenues / Sales
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../revenue/types/revenue-account.types.ts).\
+> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../types/revenue-account.types.ts).\
 > Not in scope for individual MVP (individuals don't sell goods).
 
 #### Behaviors
@@ -96,7 +96,7 @@ The `Services` entity ([`02-services.entity.ts`](../revenue/entities/services.en
 - **Main reporting hierarchy**: Operating Revenues / Subscriptions
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../revenue/types/revenue-account.types.ts).\
+> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../types/revenue-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -134,7 +134,7 @@ The `EmploymentIncome` entity ([`04-employment-income.entity.ts`](../revenue/ent
 - **Main reporting hierarchy**: Non-Operating Revenues / Interest Income
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../revenue/types/revenue-account.types.ts).\
+> Entity implementation pending. Types defined in [`revenue-account.types.ts`](../types/revenue-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors

@@ -4,8 +4,7 @@ import {
   IAccountingEntity,
 } from '../../../../domain/accounting/types/accounting-entity.types';
 import { EPeriodUnit } from '../../../../domain/accounting/types/period.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { EAppUsageModePreference } from '../../../../domain/user/types/user-preferences.types';
 import { IUser } from '../../../../domain/user/types/user.types';
 import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
@@ -15,6 +14,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import mockAccountsBootstrapService from '../../../ledger/contracts/__mocks__/accounts-bootstrap.service.mock';
 import mockLedgerAccountPersistenceService from '../../../ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
+import { mockLedgerAccountRepo } from '../../../ledger/contracts/__mocks__/ledger.repos.mock';
 import { mockAccountingEntityService } from '../../contracts/__mocks__/accounting.domain.services.mock';
 import {
   mockAccountingContextRepo,
@@ -62,16 +62,15 @@ describe('createAccountingEntityUseCase', () => {
     reportingPeriod: validPayload.reportingPeriod,
   });
   const accountingEntity = accounting.accountingEntity[0];
-  const [mockAccount, , mockAudit] = cashAndEquivalentAccountEntity.makeHeader({
-    name: 'Cash',
-    accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
-    createdBy: userId,
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
   });
-  const ledger = {
-    entries: [{ account: mockAccount, audit: mockAudit }],
-    events: [],
-  };
+  let mockAccount: Awaited<
+    ReturnType<typeof cashAccountService.createHeader>
+  >[0];
+  let ledger: Awaited<
+    ReturnType<typeof mockAccountsBootstrapService.bootstrap>
+  >;
   const getUseCase = () =>
     createAccountingEntityUseCase({
       appContext: mockAppContext,
@@ -88,8 +87,22 @@ describe('createAccountingEntityUseCase', () => {
       eventBus: mockEventBus,
     });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.clearAllMocks();
+    const auditedAccount = await cashAccountService.createHeader(
+      {
+        name: 'Cash',
+        accountingEntity,
+        userId,
+      },
+      { correlationId }
+    );
+    [mockAccount] = auditedAccount;
+    const mockAudit = auditedAccount[2];
+    ledger = {
+      entries: [{ account: mockAccount, audit: mockAudit }],
+      events: [],
+    };
     mockRepoService.runInTransaction
       .mockReset()
       .mockImplementation(async (transactionFn) =>

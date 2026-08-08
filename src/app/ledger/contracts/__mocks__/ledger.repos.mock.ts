@@ -1,7 +1,7 @@
-import ILedgerAccountBalanceRepo from '../../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
-import IBankAccountRepo from '../../../../domain/ledger/asset-account/repos/bank-account.repo';
-import ILedgerAccountHistoryRepo from '../../../../domain/ledger/shared/repos/ledger-account-history.repo';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+import IBankAccountRepo from '../../../../domain/ledger/repos/bank-account.repo';
+import ILedgerAccountBalanceRepo from '../../../../domain/ledger/repos/ledger-account-balance.repo';
+import ILedgerAccountHistoryRepo from '../../../../domain/ledger/repos/ledger-account-history.repo';
+import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 
 export const mockLedgerAccountBalanceRepo: jest.Mocked<ILedgerAccountBalanceRepo> =
   {

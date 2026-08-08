@@ -1,8 +1,8 @@
-import { EAssetSubType } from '../../../../../domain/ledger/asset-account/types/asset-account.types';
+import { EAssetSubType } from '../../../../../domain/ledger/types/asset-account.types';
 import {
   ELedgerType,
   ILedgerAccount,
-} from '../../../../../domain/ledger/shared/types/ledger.types';
+} from '../../../../../domain/ledger/types/ledger.types';
 import { ERepoLock } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import getDbQuery from '../../../helpers/get-db-query';

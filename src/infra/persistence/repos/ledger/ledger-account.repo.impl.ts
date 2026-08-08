@@ -10,7 +10,7 @@ import {
 } from 'drizzle-orm';
 import ILedgerAccountRepo, {
   ELedgerAccountSortBy,
-} from '../../../../domain/ledger/shared/repos/ledger-account.repo';
+} from '../../../../domain/ledger/repos/ledger-account.repo';
 import drizzleFilters from '../../../../shared/helpers/drizzle-filters';
 import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
 import paginationValue from '../../../../shared/values/pagination/pagination.vo';

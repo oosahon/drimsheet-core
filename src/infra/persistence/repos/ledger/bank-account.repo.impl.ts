@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
-import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
-import IBankAccountRepo from '../../../../domain/ledger/asset-account/repos/bank-account.repo';
+import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
+import IBankAccountRepo from '../../../../domain/ledger/repos/bank-account.repo';
 import { IRepoOptions } from '../../../../shared/types/repo.types';
 import { bankDetailsInCore } from '../../../config/drizzle/schema';
 import getDbQuery from '../../helpers/get-db-query';
@@ -51,7 +51,7 @@ const bankAccountRepoImpl: IBankAccountRepo = {
         'code' in err &&
         (err as { code: string }).code === '23505'
       ) {
-        throw new assetAccountError.DuplicateBankAccount({
+        throw new ledgerAccountError.DuplicateBankAccount({
           bankName: bankValue.bankName,
           accountNumber: bankValue.accountNumber,
         });

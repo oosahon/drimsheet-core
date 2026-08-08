@@ -1,6 +1,6 @@
-import assetAccountError from '../../../../../domain/ledger/asset-account/errors/asset-account.error';
-import { IBankDetails } from '../../../../../domain/ledger/asset-account/types/asset-account.types';
-import bankDetailsValue from '../../../../../domain/ledger/asset-account/values/bank-details.vo';
+import ledgerAccountError from '../../../../../domain/ledger/errors/ledger-account.error';
+import { IBankDetails } from '../../../../../domain/ledger/types/asset-account.types';
+import bankDetailsValue from '../../../../../domain/ledger/values/bank-details.vo';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import bankAccountRepoImpl from '../bank-account.repo.impl';
 
@@ -121,7 +121,7 @@ describe('bankAccountRepoImpl', () => {
           bankDetails,
           { correlationId: 'test-id' }
         )
-      ).rejects.toBeInstanceOf(assetAccountError.DuplicateBankAccount);
+      ).rejects.toBeInstanceOf(ledgerAccountError.DuplicateBankAccount);
     });
   });
 });

@@ -1,12 +1,13 @@
+import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import periodError from '../../../../domain/accounting/errors/period.error';
+import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import assetAccountError from '../../../../domain/ledger/asset-account/errors/asset-account.error';
-import { IBankDetails } from '../../../../domain/ledger/asset-account/types/asset-account.types';
-import bankDetailsValue from '../../../../domain/ledger/asset-account/values/bank-details.vo';
-import { TCashLedgerCode } from '../../../../domain/ledger/shared/types/ledger-code.types';
+import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
+import { IBankDetails } from '../../../../domain/ledger/types/asset-account.types';
+import bankDetailsValue from '../../../../domain/ledger/values/bank-details.vo';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import IEventBus from '../../../../shared/contracts/event-bus.contract';
@@ -21,26 +22,33 @@ import { mockFxCostBasisLotDomainService } from '../../../subledger/contracts/__
 import mockFxLotCostBasisService from '../../../subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockLedgerAccountBalancePropagationService from '../../contracts/__mocks__/ledger-account-balance-propagation.service.mock';
 import { mockAssetAccountService } from '../../contracts/__mocks__/ledger.domain.services.mock';
-import { mockBankAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
+import {
+  mockBankAccountRepo,
+  mockLedgerAccountRepo,
+} from '../../contracts/__mocks__/ledger.repos.mock';
 import ILedgerAccountPersistenceService from '../../contracts/ledger-account-persistence.service.contract';
 import { IBankAccountCreationReq } from '../../dtos/asset-account/asset-account.dto';
 import makeCreateBankAccountUseCase from '../create-bank-account.usecase';
 
 describe('makeCreateBankAccountUseCase', () => {
   const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
-  const accountingEntityId =
-    '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
-  const controlAccountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+  const [accountingEntity] = accountingEntityEntity.make({
+    name: 'Test Accounting Entity',
+    ownerId: userId,
+    type: EAccountingEntityType.PrivateCompany,
+    functionalCurrencyCode: 'NGN',
+    jurisdictionCode: 'NG',
+  });
+  const accountingEntityId = accountingEntity.id;
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   const mockAppContext: jest.Mocked<IAppContext> = {
     get: jest.fn().mockReturnValue({
       correlationId: 'test-correlation-id',
       user: { id: userId },
-      accountingEntity: {
-        id: accountingEntityId,
-        jurisdictionCode: 'NG',
-        functionalCurrencyCode: 'NGN',
-      },
+      accountingEntity,
     }),
   } as unknown as jest.Mocked<IAppContext>;
 
@@ -75,62 +83,84 @@ describe('makeCreateBankAccountUseCase', () => {
     openingBalance: null,
   };
 
-  const [mockAccount, mockEvents, mockAudit] =
-    cashAndEquivalentAccountEntity.makeBankAccount(
-      {
-        name: validReq.name,
-        currency: currencyEntity.getByCode('NGN'),
-        isControlAccount: false,
-        createdBy: userId,
-        controlAccountId,
-        accountingEntityId,
-        meta: bankDetails,
-      },
-      {
-        precedingCode: '100000' as TCashLedgerCode,
-        parentMaterializedPath: '100000' as TCashLedgerCode,
-      }
-    );
+  type TCashAccountResult = Awaited<
+    ReturnType<typeof cashAccountService.createBankSubAccount>
+  >;
+  let mockAccount: TCashAccountResult[0];
+  let mockEvents: TCashAccountResult[1];
+  let mockAudit: TCashAccountResult[2];
+  let controlAccountId: TEntityId;
 
-  const [
-    mockOpeningBalanceJournalEntry,
-    mockOpeningBalanceEvents,
-    mockOpeningBalanceAudit,
-  ] = journalEntryEntity.make({
-    accountingEntityId,
-    sourceType: EJournalEntrySourceType.OpeningBalance,
-    effectiveDate: new Date('2026-03-01T00:00:00.000Z'),
-    postedAt: new Date('2026-03-01T00:00:00.000Z'),
-    memo: 'Opening balance',
-    createdBy: userId,
-    functionalCurrency: SYSTEM_CURRENCIES.NGN,
-    lines: [
+  type TJournalEntryResult = ReturnType<typeof journalEntryEntity.make>;
+  let mockOpeningBalanceJournalEntry: TJournalEntryResult[0];
+  let mockOpeningBalanceEvents: TJournalEntryResult[1];
+  let mockOpeningBalanceAudit: TJournalEntryResult[2];
+
+  beforeAll(async () => {
+    const [controlAccount] = await cashAccountService.createHeader(
       {
-        accountId: mockAccount.id,
-        sequenceOrder: 1,
-        amount: { amount: 10000n, currency: SYSTEM_CURRENCIES.NGN },
-        exchangeRate: null,
-        side: EJournalSide.Debit,
-        description: 'Opening balance',
-        functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        name: 'Cash and Cash Equivalents',
+        accountingEntity,
+        userId,
       },
-      {
-        accountId: controlAccountId,
-        sequenceOrder: 2,
-        amount: { amount: 10000n, currency: SYSTEM_CURRENCIES.NGN },
-        exchangeRate: null,
-        side: EJournalSide.Credit,
-        description: 'Opening balance',
-        functionalCurrency: SYSTEM_CURRENCIES.NGN,
-      },
-    ],
+      { correlationId: 'test-correlation-id' }
+    );
+    controlAccountId = controlAccount.id;
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    [mockAccount, mockEvents, mockAudit] =
+      await cashAccountService.createBankSubAccount(
+        {
+          name: validReq.name,
+          currency: currencyEntity.getByCode('NGN'),
+          isControlAccount: false,
+          userId,
+          controlAccountCode: controlAccount.code,
+          accountingEntity,
+          bankDetails,
+        },
+        { correlationId: 'test-correlation-id' }
+      );
+    [
+      mockOpeningBalanceJournalEntry,
+      mockOpeningBalanceEvents,
+      mockOpeningBalanceAudit,
+    ] = journalEntryEntity.make({
+      accountingEntityId,
+      sourceType: EJournalEntrySourceType.OpeningBalance,
+      effectiveDate: new Date('2026-03-01T00:00:00.000Z'),
+      postedAt: new Date('2026-03-01T00:00:00.000Z'),
+      memo: 'Opening balance',
+      createdBy: userId,
+      functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      lines: [
+        {
+          accountId: mockAccount.id,
+          sequenceOrder: 1,
+          amount: { amount: 10000n, currency: SYSTEM_CURRENCIES.NGN },
+          exchangeRate: null,
+          side: EJournalSide.Debit,
+          description: 'Opening balance',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+        {
+          accountId: controlAccountId,
+          sequenceOrder: 2,
+          amount: { amount: 10000n, currency: SYSTEM_CURRENCIES.NGN },
+          exchangeRate: null,
+          side: EJournalSide.Credit,
+          description: 'Opening balance',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+      ],
+    });
   });
 
   const deps = {
     appContext: mockAppContext,
     eventBus: mockEventBus,
     accountingPeriodService: mockAccountingPeriodService,
-    assetAccountService: mockAssetAccountService,
+    cashAccountService: mockAssetAccountService,
     bankAccountRepo: mockBankAccountRepo,
     journalEntryService: mockJournalEntryService,
     journalEntryPersistenceService: mockJournalEntryPersistenceService,
@@ -145,7 +175,7 @@ describe('makeCreateBankAccountUseCase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockBankAccountRepo.findOne.mockResolvedValue(null);
-    mockAssetAccountService.makeBankSubAccount.mockResolvedValue([
+    mockAssetAccountService.createBankSubAccount.mockResolvedValue([
       mockAccount,
       [],
       mockAudit as any,
@@ -231,28 +261,35 @@ describe('makeCreateBankAccountUseCase', () => {
       },
     };
 
-    const [foreignMockAccount] = cashAndEquivalentAccountEntity.makeBankAccount(
+    const [controlAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Cash Equivalents',
+        accountingEntity,
+        userId,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    const [foreignMockAccount] = await cashAccountService.createBankSubAccount(
       {
         name: foreignReq.name,
         currency: currencyEntity.getByCode('USD'),
         isControlAccount: false,
-        createdBy: userId,
-        controlAccountId,
-        accountingEntityId,
-        meta: bankDetailsValue.make({
+        userId,
+        controlAccountCode: controlAccount.code,
+        accountingEntity,
+        bankDetails: bankDetailsValue.make({
           countryCode: 'NG',
           bankName: foreignReq.bankAccount.bankName,
           accountName: foreignReq.bankAccount.accountName,
           accountNumber: foreignReq.bankAccount.accountNumber,
         }),
       },
-      {
-        precedingCode: '100000' as TCashLedgerCode,
-        parentMaterializedPath: '100000' as TCashLedgerCode,
-      }
+      { correlationId: 'test-correlation-id' }
     );
 
-    mockAssetAccountService.makeBankSubAccount.mockResolvedValueOnce([
+    mockAssetAccountService.createBankSubAccount.mockResolvedValueOnce([
       foreignMockAccount,
       [],
       mockAudit as any,
@@ -348,7 +385,7 @@ describe('makeCreateBankAccountUseCase', () => {
 
     const useCase = makeCreateBankAccountUseCase(deps);
     await expect(useCase(validReq)).rejects.toBeInstanceOf(
-      assetAccountError.DuplicateBankAccount
+      ledgerAccountError.DuplicateBankAccount
     );
   });
 

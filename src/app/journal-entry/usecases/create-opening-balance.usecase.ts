@@ -1,6 +1,6 @@
 import { IJournalEntryService } from '../../../domain/journal-entry/types/journal-entry.service.types';
-import ledgerAccountEntity from '../../../domain/ledger/shared/entities/ledger-account.entity';
-import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import ledgerAccountEntity from '../../../domain/ledger/entities/ledger-account.entity';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {

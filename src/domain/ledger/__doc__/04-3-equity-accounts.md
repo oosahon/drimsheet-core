@@ -20,15 +20,12 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group          | Code Block | Entity File                                                                                  | Status         |
-| ---------------------- | ---------- | -------------------------------------------------------------------------------------------- | -------------- |
-| Capital                | `300xxx`   | —                                                                                            | 🔲 Types only  |
-| Retained Earnings      | `301xxx`   | [`01-retained-earning.entity.ts`](../equity/entities/retained-earning.entity.ts)             | ✅ Implemented |
-| Reserves               | `302xxx`   | —                                                                                            | 🔲 Types only  |
-| Opening Balance Equity | `399xxx`   | [`99-opening-balance-equity.entity.ts`](../equity/entities/opening-balance-equity.entity.ts) | ✅ Implemented |
-
-> [!NOTE]
-> Entity files are named by their COA prefix (e.g. `01-` = `301xxx`, `99-` = `399xxx`) to make it explicit which accounts have been implemented and which are pending.
+| Account Group          | Code Block | Implementation File                                                                 | Status         |
+| ---------------------- | ---------- | ----------------------------------------------------------------------------------- | -------------- |
+| Capital                | `300xxx`   | —                                                                                   | 🔲 Types only  |
+| Retained Earnings      | `301xxx`   | [`equity-account.service.ts`](../services/equity-account/equity-account.service.ts) | ✅ Implemented |
+| Reserves               | `302xxx`   | —                                                                                   | 🔲 Types only  |
+| Opening Balance Equity | `399xxx`   | [`equity-account.service.ts`](../services/equity-account/equity-account.service.ts) | ✅ Implemented |
 
 The following table shows the behaviors of different equity account classes
 
@@ -39,7 +36,7 @@ The following table shows the behaviors of different equity account classes
 - **Main reporting hierarchy**: Equity / Capital
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`equity-account.types.ts`](../equity/types/equity-account.types.ts).\
+> Entity implementation pending. Types defined in [`equity-account.types.ts`](../types/equity-account.types.ts).\
 > Capital is **not relevant** for individual accounting entities — there is no concept of owner's equity in personal finance. The type exists for sole trader/company use.
 
 #### Behaviors
@@ -60,9 +57,9 @@ The following table shows the behaviors of different equity account classes
 | ----------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Retained Earnings | /                   | <ul><li>Automatically updated during period-end closing procedures</li><li>Direct manual journal entries are generally restricted (except for prior period adjustments)</li><li>Contra and Adjunct accounts prohibited</li></ul> |
 
-#### Entity Details
+#### Service Details
 
-The `RetainedEarnings` entity ([`01-retained-earning.entity.ts`](../equity/entities/retained-earning.entity.ts)) creates accounts with:
+The equity account service ([`equity-account.service.ts`](../services/equity-account/equity-account.service.ts)) exposes `createRetainedEarningsAccount()`, which creates accounts with:
 
 - Fixed `behavior: 'retained_earnings'` / `subType: 'retained_earnings'`
 - `isControlAccount: false` / `controlAccountId: null`
@@ -76,7 +73,7 @@ The `RetainedEarnings` entity ([`01-retained-earning.entity.ts`](../equity/entit
 - **Main reporting hierarchy**: Equity / Reserves
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`equity-account.types.ts`](../equity/types/equity-account.types.ts) with behavior: `RevaluationReserve`.\
+> Entity implementation pending. Types defined in [`equity-account.types.ts`](../types/equity-account.types.ts) with behavior: `RevaluationReserve`.\
 > Reserves are **not** bootstrapped for individuals. The type exists for power users or on-demand creation when an individual revalues PPE or long-term investments.
 
 #### Behaviors
@@ -97,9 +94,9 @@ The `RetainedEarnings` entity ([`01-retained-earning.entity.ts`](../equity/entit
 | --------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | \*        | (TBD)               | <ul><li>Requires manual journal entry balancing during trial balance import</li><li>Adjunct accounts prohibited</li><li>Contra accounts prohibited</li><li>Must be reconciled and cleared to a zero balance out to Retained Earnings or Capital after bootstrap</li></ul> |
 
-#### Entity Details
+#### Service Details
 
-The `OpeningBalanceEquity` entity ([`99-opening-balance-equity.entity.ts`](../equity/entities/opening-balance-equity.entity.ts)) creates accounts with:
+The equity account service exposes `createOpeningBalanceAccount()`, which creates accounts with:
 
 - Fixed `behavior: 'opening_balance_equity'` / `subType: 'opening_balance'`
 - `isControlAccount: false` / `controlAccountId: null`

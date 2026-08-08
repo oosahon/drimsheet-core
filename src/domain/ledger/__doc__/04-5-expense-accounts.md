@@ -103,7 +103,7 @@ OPEX are the day-to-day costs incurred to maintain business operations, distinct
 - **Main reporting hierarchy**: Operating Expenses / Payroll & Personnel
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../expense/types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -139,7 +139,7 @@ The `RentAndUtilities` entity ([`02-rent-and-utilities.entity.ts`](../expense/en
 - **Main reporting hierarchy**: Operating Expenses / Admin & General
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../expense/types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -155,7 +155,7 @@ The `RentAndUtilities` entity ([`02-rent-and-utilities.entity.ts`](../expense/en
 - **Main reporting hierarchy**: Operating Expenses / Marketing & Selling
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../expense/types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -171,7 +171,7 @@ The `RentAndUtilities` entity ([`02-rent-and-utilities.entity.ts`](../expense/en
 - **Main reporting hierarchy**: Operating Expenses / Research & Development
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../expense/types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -187,7 +187,7 @@ The `RentAndUtilities` entity ([`02-rent-and-utilities.entity.ts`](../expense/en
 - **Main reporting hierarchy**: Operating Expenses / Depreciation & Amortization
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../expense/types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -333,7 +333,7 @@ The `AssetDisposalLoss` entity ([`12-asset-disposal-loss.entity.ts`](../expense/
 - **Main reporting hierarchy**: Losses & Adjustments / Impairment Losses
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../expense/types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors
@@ -349,7 +349,7 @@ The `AssetDisposalLoss` entity ([`12-asset-disposal-loss.entity.ts`](../expense/
 - **Main reporting hierarchy**: Losses & Adjustments / Other Losses
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`expense-account.types.ts`](../expense/types/expense-account.types.ts).\
+> Entity implementation pending. Types defined in [`expense-account.types.ts`](../types/expense-account.types.ts).\
 > Not in scope for individual MVP.
 
 #### Behaviors

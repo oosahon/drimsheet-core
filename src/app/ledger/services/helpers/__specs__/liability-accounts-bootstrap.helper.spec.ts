@@ -1,17 +1,38 @@
 import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { LIABILITY_LEDGER_CODES } from '../../../../../domain/ledger/liability-account/config/liability-codes.config';
+import { LIABILITY_LEDGER_CODES } from '../../../../../domain/ledger/config/liability-codes.config';
+import ledgerAccountEntity from '../../../../../domain/ledger/entities/ledger-account.entity';
 import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerAccountStatus,
+  ELedgerType,
+} from '../../../../../domain/ledger/types/ledger.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
   ILiabilityLedgerAccount,
+  ILiabilitySuspenseAccount,
+  IPayableAccount,
+  IShortTermDebtAccount,
   IStatutoryPayableAccount,
-} from '../../../../../domain/ledger/liability-account/types/liability-account.types';
+} from '../../../../../domain/ledger/types/liability-account.types';
+import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
 import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
+import {
+  mockPayablesAccountService,
+  mockShortTermLoanAccountService,
+  mockSuspenseAccountService,
+} from '../../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
 import makeLiabilityAccountsBootstrapHelper from '../liability-accounts-bootstrap.helper';
 
 describe('liabilityAccountsBootstrapHelper', () => {
   const bootstrapLiabilityAccounts = makeLiabilityAccountsBootstrapHelper({
     ledgerAccountRepo: mockLedgerAccountRepo,
+    suspenseAccountService: mockSuspenseAccountService,
+    payablesAccountService: mockPayablesAccountService,
+    shortTermLoanAccountService: mockShortTermLoanAccountService,
   });
   const repoOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
@@ -21,11 +42,133 @@ describe('liabilityAccountsBootstrapHelper', () => {
     ownerId: generateUUID(),
     functionalCurrencyCode: 'USD',
   } as IAccountingEntity;
+  const liabilitySuspense = ledgerAccountEntity.make<ILiabilitySuspenseAccount>(
+    {
+      name: 'Liability Suspense Account',
+      code: LIABILITY_LEDGER_CODES.SUSPENSE_ACCOUNTS.INITIAL,
+      materializedPath: LIABILITY_LEDGER_CODES.SUSPENSE_ACCOUNTS.INITIAL,
+      accountingEntityId: accountingEntity.id,
+      normalBalance: ledgerAccountEntity.getNormalBalance(
+        ELedgerType.Liability
+      ),
+      type: ELedgerType.Liability,
+      subType: ELiabilitySubType.Suspense,
+      behavior: ELiabilityAccountBehavior.Default,
+      isControlAccount: false,
+      controlAccountId: null,
+      currency: SYSTEM_CURRENCIES.USD,
+      meta: null,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy: accountingEntity.ownerId,
+    }
+  );
+  const makePayableAccount = (
+    name: string,
+    code: IPayableAccount['code'],
+    materializedPath: string,
+    behavior: IPayableAccount['behavior'],
+    isControlAccount: boolean,
+    controlAccountId: IPayableAccount['controlAccountId']
+  ) =>
+    ledgerAccountEntity.make<IPayableAccount>({
+      name,
+      code,
+      materializedPath,
+      accountingEntityId: accountingEntity.id,
+      normalBalance: ledgerAccountEntity.getNormalBalance(
+        ELedgerType.Liability
+      ),
+      type: ELedgerType.Liability,
+      subType: ELiabilitySubType.Payable,
+      behavior,
+      isControlAccount,
+      controlAccountId,
+      currency: SYSTEM_CURRENCIES.USD,
+      meta: null,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule:
+        behavior === ELiabilityAccountBehavior.TaxPayable
+          ? EContraAccountRule.ContraNotPermitted
+          : EContraAccountRule.ContraPermitted,
+      adjunctAccountRule:
+        behavior === ELiabilityAccountBehavior.TaxPayable
+          ? EAdjunctAccountRule.AdjunctNotPermitted
+          : EAdjunctAccountRule.AdjunctPermitted,
+      createdBy: accountingEntity.ownerId,
+    });
+  const payablesHeader = makePayableAccount(
+    'Payables',
+    LIABILITY_LEDGER_CODES.PAYABLES.HEADER,
+    LIABILITY_LEDGER_CODES.PAYABLES.HEADER,
+    ELiabilityAccountBehavior.DefaultPayable,
+    true,
+    null
+  );
+  const tradePayables = makePayableAccount(
+    'Trade Payables',
+    LIABILITY_LEDGER_CODES.PAYABLES.TRADE,
+    `${LIABILITY_LEDGER_CODES.PAYABLES.HEADER}.${LIABILITY_LEDGER_CODES.PAYABLES.TRADE}`,
+    ELiabilityAccountBehavior.TradePayable,
+    true,
+    payablesHeader[0].id
+  );
+  const statutoryPayables = makePayableAccount(
+    'Statutory Payables',
+    LIABILITY_LEDGER_CODES.PAYABLES.STATUTORY,
+    `${LIABILITY_LEDGER_CODES.PAYABLES.HEADER}.${LIABILITY_LEDGER_CODES.PAYABLES.STATUTORY}`,
+    ELiabilityAccountBehavior.TaxPayable,
+    true,
+    payablesHeader[0].id
+  );
+  const defaultStatutoryPayables = makePayableAccount(
+    'Statutory Payables (Default)',
+    '201003',
+    `${LIABILITY_LEDGER_CODES.PAYABLES.HEADER}.${LIABILITY_LEDGER_CODES.PAYABLES.STATUTORY}.201003`,
+    ELiabilityAccountBehavior.TaxPayable,
+    false,
+    statutoryPayables[0].id
+  );
+  const shortTermDebtHeader = ledgerAccountEntity.make<IShortTermDebtAccount>({
+    name: 'Short Term Debt',
+    code: LIABILITY_LEDGER_CODES.SHORT_TERM_DEBT.HEADER,
+    materializedPath: LIABILITY_LEDGER_CODES.SHORT_TERM_DEBT.HEADER,
+    accountingEntityId: accountingEntity.id,
+    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),
+    type: ELedgerType.Liability,
+    subType: ELiabilitySubType.ShortTermDebt,
+    behavior: ELiabilityAccountBehavior.ShortTermLoan,
+    isControlAccount: true,
+    controlAccountId: null,
+    currency: SYSTEM_CURRENCIES.USD,
+    meta: null,
+    status: ELedgerAccountStatus.Active,
+    contraAccountRule: EContraAccountRule.ContraPermitted,
+    adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+    createdBy: accountingEntity.ownerId,
+  });
 
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-03-15T00:00:00.000Z'));
     jest.clearAllMocks();
+    mockSuspenseAccountService.createLiabilitySuspense.mockResolvedValue(
+      liabilitySuspense
+    );
+    mockShortTermLoanAccountService.createHeader.mockResolvedValue(
+      shortTermDebtHeader
+    );
+    mockPayablesAccountService.createHeader.mockResolvedValue(payablesHeader);
+    mockPayablesAccountService.createTradePayableSubAccount.mockResolvedValue(
+      tradePayables
+    );
+    mockPayablesAccountService.createStatutoryPayableSubAccount.mockImplementation(
+      async ({ name }) =>
+        name === 'Statutory Payables (Default)'
+          ? defaultStatutoryPayables
+          : statutoryPayables
+    );
   });
 
   afterEach(() => {
@@ -49,6 +192,15 @@ describe('liabilityAccountsBootstrapHelper', () => {
     expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
       LIABILITY_LEDGER_CODES.SHORT_TERM_DEBT.HEADER,
       accountingEntity.id,
+      repoOptions
+    );
+    expect(mockShortTermLoanAccountService.createHeader).toHaveBeenCalledWith(
+      {
+        name: 'Short Term Debt',
+        userId: accountingEntity.ownerId,
+        accountingEntity,
+        createdBy: accountingEntity.ownerId,
+      },
       repoOptions
     );
   });
@@ -77,6 +229,38 @@ describe('liabilityAccountsBootstrapHelper', () => {
     expect(
       accounts.some(({ name }) => name === 'Statutory Payables (Default)')
     ).toBe(true);
+    expect(
+      mockSuspenseAccountService.createLiabilitySuspense
+    ).toHaveBeenCalledWith(
+      {
+        accountingEntityId: accountingEntity.id,
+        currency: SYSTEM_CURRENCIES.USD,
+        name: 'Liability Suspense Account',
+        createdBy: accountingEntity.ownerId,
+      },
+      repoOptions
+    );
+    expect(mockPayablesAccountService.createHeader).toHaveBeenCalledWith(
+      {
+        name: 'Payables',
+        createdBy: accountingEntity.ownerId,
+        accountingEntity,
+        currency: SYSTEM_CURRENCIES.USD,
+      },
+      repoOptions
+    );
+    expect(
+      mockPayablesAccountService.createTradePayableSubAccount
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Trade Payables',
+        controlAccountCode: payablesHeader[0].code,
+      }),
+      repoOptions
+    );
+    expect(
+      mockPayablesAccountService.createStatutoryPayableSubAccount
+    ).toHaveBeenCalledTimes(2);
   });
 
   it('skips headers that already exist', async () => {
@@ -96,6 +280,7 @@ describe('liabilityAccountsBootstrapHelper', () => {
     expect(accounts).toHaveLength(0);
     expect(events).toHaveLength(0);
     expect(audits).toHaveLength(0);
+    expect(mockShortTermLoanAccountService.createHeader).not.toHaveBeenCalled();
   });
 
   it('creates only a missing statutory default posting account', async () => {

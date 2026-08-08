@@ -1,6 +1,6 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import ledgerAccountBalanceEntity from '../../../../domain/ledger/account-balance/entities/ledger-account-balance.entity';
-import ledgerAccountEntity from '../../../../domain/ledger/shared/entities/ledger-account.entity';
+import ledgerAccountBalanceEntity from '../../../../domain/ledger/entities/ledger-account-balance.entity';
+import ledgerAccountEntity from '../../../../domain/ledger/entities/ledger-account.entity';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -8,7 +8,7 @@ import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../../../domain/ledger/shared/types/ledger.types';
+} from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import { IUser } from '../../../../domain/user/types/user.types';

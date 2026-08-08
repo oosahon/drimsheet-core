@@ -16,26 +16,26 @@ The following ledger accounts are in scope for the individual MVP. Accounts are 
 
 ### Assets
 
-| Account                        | Code Block | Entity File                         | Status         |
-| ------------------------------ | ---------- | ----------------------------------- | -------------- |
-| Cash and Cash Equivalents      | `100xxx`   | `00-cash-and-equivalents.entity.ts` | ✅ Implemented |
-| Receivables (Tax Credits)      | `102xxx`   | `02-receivables.entity.ts`          | ✅ Implemented |
-| Suspense (Bank Reconciliation) | `199xxx`   | `99-suspense-account.entity.ts`     | ✅ Implemented |
+| Account                        | Code Block | Implementation File              | Status         |
+| ------------------------------ | ---------- | -------------------------------- | -------------- |
+| Cash and Cash Equivalents      | `100xxx`   | `cash-account.service.ts`        | ✅ Implemented |
+| Receivables (Tax Credits)      | `102xxx`   | `receivables-account.service.ts` | ✅ Implemented |
+| Suspense (Bank Reconciliation) | `199xxx`   | `suspense-account.service.ts`    | ✅ Implemented |
 
 ### Liabilities
 
-| Account                        | Code Block | Entity File                     | Status         |
-| ------------------------------ | ---------- | ------------------------------- | -------------- |
-| Short Term Loan (Overdraft)    | `200xxx`   | `00-short-term-loan.entity.ts`  | ✅ Implemented |
-| Payables (Tax Obligations)     | `201xxx`   | `03-payables.entity.ts`         | ✅ Implemented |
-| Suspense (Bank Reconciliation) | `299xxx`   | `99-suspense-account.entity.ts` | ✅ Implemented |
+| Account                        | Code Block | Implementation File           | Status         |
+| ------------------------------ | ---------- | ----------------------------- | -------------- |
+| Short Term Loan (Overdraft)    | `200xxx`   | `short-term-loan.service.ts`  | ✅ Implemented |
+| Payables (Tax Obligations)     | `201xxx`   | `payables.service.ts`         | ✅ Implemented |
+| Suspense (Bank Reconciliation) | `299xxx`   | `suspense-account.service.ts` | ✅ Implemented |
 
 ### Equity
 
-| Account                | Code Block | Entity File                           | Status         |
-| ---------------------- | ---------- | ------------------------------------- | -------------- |
-| Retained Earnings      | `301xxx`   | `01-retained-earning.entity.ts`       | ✅ Implemented |
-| Opening Balance Equity | `399xxx`   | `99-opening-balance-equity.entity.ts` | ✅ Implemented |
+| Account                | Code Block | Implementation File         | Status         |
+| ---------------------- | ---------- | --------------------------- | -------------- |
+| Retained Earnings      | `301xxx`   | `equity-account.service.ts` | ✅ Implemented |
+| Opening Balance Equity | `399xxx`   | `equity-account.service.ts` | ✅ Implemented |
 
 > [!NOTE]
 > Capital (`300xxx`) is **not** bootstrapped for individuals — there is no concept of owner's equity in personal finance. The type definition exists for sole trader/company use.

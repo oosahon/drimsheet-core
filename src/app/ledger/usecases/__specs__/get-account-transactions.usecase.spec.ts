@@ -9,9 +9,9 @@ import {
   IJournalEntry,
 } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
+import { ELedgerAccountBalanceEffect } from '../../../../domain/ledger/types/ledger-account-balance.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
@@ -42,6 +42,9 @@ describe('getAccountTransactionsUseCase', () => {
   let accountingEntity: IAccountingEntity;
   let ledgerAccount: ILedgerAccount;
   let journalEntry: IJournalEntry;
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   const getUseCase = () =>
     makeGetAccountTransactionsUseCase({
@@ -50,7 +53,7 @@ describe('getAccountTransactionsUseCase', () => {
       accountTransactionQueryRepo: mockAccountTransactionQueryRepo,
     });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-05-01T00:00:00.000Z'));
     jest.clearAllMocks();
@@ -69,12 +72,14 @@ describe('getAccountTransactionsUseCase', () => {
       jurisdictionCode: 'NG',
     });
 
-    [ledgerAccount] = cashAndEquivalentAccountEntity.makeHeader({
-      name: 'Main Cash',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      createdBy: user.id,
-    });
+    [ledgerAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Main Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId }
+    );
 
     const amount = moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true);
     [journalEntry] = journalEntryEntity.make({

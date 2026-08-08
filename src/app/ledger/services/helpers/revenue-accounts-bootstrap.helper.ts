@@ -1,11 +1,12 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { REVENUE_LEDGER_CODES } from '../../../../domain/ledger/revenue-account/config/revenue-codes.config';
-import employmentIncomeAccountEntity from '../../../../domain/ledger/revenue-account/entities/employment-income.entity';
-import gainOnAssetSaleAccountEntity from '../../../../domain/ledger/revenue-account/entities/gain-on-sale.entity';
-import giftsAccountEntity from '../../../../domain/ledger/revenue-account/entities/gifts.entity';
-import grantsAccountEntity from '../../../../domain/ledger/revenue-account/entities/grants.entity';
-import servicesAccountEntity from '../../../../domain/ledger/revenue-account/entities/services.entity';
-import unrealizedGainAccountEntity from '../../../../domain/ledger/revenue-account/entities/unrealized-gain.entity';
+import { REVENUE_LEDGER_CODES } from '../../../../domain/ledger/config/revenue-codes.config';
+import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+import { IEmploymentIncomeAccountService } from '../../../../domain/ledger/types/employment-income.service.types';
+import { IGainOnAssetSaleAccountService } from '../../../../domain/ledger/types/gain-on-sale.service.types';
+import { IGiftsAccountService } from '../../../../domain/ledger/types/gifts.service.types';
+import { IGrantsAccountService } from '../../../../domain/ledger/types/grants.service.types';
+import { TRevenueLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import {
   IEmploymentIncomeAccount,
   IGainOnAssetSaleAccount,
@@ -14,18 +15,9 @@ import {
   IRevenueLedgerAccount,
   IServicesAccount,
   IUnrealizedGainAccount,
-} from '../../../../domain/ledger/revenue-account/types/revenue-account.types';
-import ILedgerAccountRepo from '../../../../domain/ledger/shared/repos/ledger-account.repo';
-import {
-  TEmploymentIncomeLedgerCode,
-  TGainOnAssetSaleLedgerCode,
-  TGiftsLedgerCode,
-  TGrantsLedgerCode,
-  TRevenueLedgerCode,
-  TServicesLedgerCode,
-  TUnrealizedGainLedgerCode,
-} from '../../../../domain/ledger/shared/types/ledger-code.types';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+} from '../../../../domain/ledger/types/revenue-account.types';
+import { IServicesAccountService } from '../../../../domain/ledger/types/services.service.types';
+import { IUnrealizedGainAccountService } from '../../../../domain/ledger/types/unrealized-gain.service.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
@@ -36,6 +28,12 @@ import { IEntityDelta } from '../../../../shared/values/history/types/history.ty
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
+  servicesAccountService: IServicesAccountService;
+  employmentIncomeAccountService: IEmploymentIncomeAccountService;
+  gainOnAssetSaleAccountService: IGainOnAssetSaleAccountService;
+  unrealizedGainAccountService: IUnrealizedGainAccountService;
+  grantsAccountService: IGrantsAccountService;
+  giftsAccountService: IGiftsAccountService;
 }
 
 interface IRevenueAccountsBootstrapInput {
@@ -46,6 +44,7 @@ interface IRevenueAccountsBootstrapInput {
 
 interface IRevenuePostingAccountsBootstrapInput {
   accountingEntity: IAccountingEntity;
+  repoOptions: IReadRepoOptions;
   headers: {
     servicesHeader: IServicesAccount;
     employmentIncomeHeader: IEmploymentIncomeAccount;
@@ -59,136 +58,82 @@ interface IRevenuePostingAccountsBootstrapInput {
 export default function makeRevenueAccountsBootstrapHelper(
   deps: IDependencies
 ) {
-  const bootstrapPostingAccounts = ({
+  const bootstrapPostingAccounts = async ({
     accountingEntity,
+    repoOptions,
     headers,
   }: IRevenuePostingAccountsBootstrapInput) => {
-    const {
-      ownerId,
-      id: accountingEntityId,
-      functionalCurrencyCode,
-    } = accountingEntity;
+    const { ownerId: createdBy, id: accountingEntityId } = accountingEntity;
+    const currency = currencyEntity.getByCode(
+      accountingEntity.functionalCurrencyCode
+    );
+    const basePayload = {
+      createdBy,
+      accountingEntityId,
+      currency,
+      isControlAccount: false,
+    };
 
-    const functionalCurrency = currencyEntity.getByCode(functionalCurrencyCode);
-
-    const revenueAccounts: TAuditedEntity<
-      IRevenueLedgerAccount,
-      IRevenueLedgerAccount,
-      ILedgerAccount
-    >[] = [];
-
-    const servicesAccount = servicesAccountEntity.make(
+    const servicesAccount = await deps.servicesAccountService.createSubAccount(
       {
+        ...basePayload,
         name: 'Services (Default)',
-        createdBy: ownerId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: false,
-        controlAccountId: headers.servicesHeader.id,
-        meta: null,
+        controlAccountCode: headers.servicesHeader.code,
       },
-      {
-        precedingCode: headers.servicesHeader.code as TServicesLedgerCode,
-        parentMaterializedPath: headers.servicesHeader
-          .materializedPath as TServicesLedgerCode,
-      }
+      repoOptions
     );
-    revenueAccounts.push(servicesAccount);
-
-    const employmentIncomeAccount = employmentIncomeAccountEntity.make(
+    const employmentIncomeAccount =
+      await deps.employmentIncomeAccountService.createSubAccount(
+        {
+          ...basePayload,
+          name: 'Employment Income (Default)',
+          controlAccountCode: headers.employmentIncomeHeader.code,
+        },
+        repoOptions
+      );
+    const gainOnAssetSaleAccount =
+      await deps.gainOnAssetSaleAccountService.createSubAccount(
+        {
+          ...basePayload,
+          name: 'Gain on Sale of Assets (Default)',
+          controlAccountCode: headers.gainOnAssetSaleHeader.code,
+        },
+        repoOptions
+      );
+    const unrealizedGainAccount =
+      await deps.unrealizedGainAccountService.createSubAccount(
+        {
+          ...basePayload,
+          name: 'Unrealized Gains (Default)',
+          controlAccountCode: headers.unrealizedGainHeader.code,
+        },
+        repoOptions
+      );
+    const grantsAccount = await deps.grantsAccountService.createSubAccount(
       {
-        name: 'Employment Income (Default)',
-        createdBy: ownerId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: false,
-        controlAccountId: headers.employmentIncomeHeader.id,
-        meta: null,
-      },
-      {
-        precedingCode: headers.employmentIncomeHeader
-          .code as TEmploymentIncomeLedgerCode,
-        parentMaterializedPath: headers.employmentIncomeHeader
-          .materializedPath as TEmploymentIncomeLedgerCode,
-      }
-    );
-    revenueAccounts.push(employmentIncomeAccount);
-
-    const gainOnAssetSaleAccount = gainOnAssetSaleAccountEntity.make(
-      {
-        name: 'Gain on Sale of Assets (Default)',
-        createdBy: ownerId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: false,
-        controlAccountId: headers.gainOnAssetSaleHeader.id,
-        meta: null,
-      },
-      {
-        precedingCode: headers.gainOnAssetSaleHeader
-          .code as TGainOnAssetSaleLedgerCode,
-        parentMaterializedPath: headers.gainOnAssetSaleHeader
-          .materializedPath as TGainOnAssetSaleLedgerCode,
-      }
-    );
-    revenueAccounts.push(gainOnAssetSaleAccount);
-
-    const unrealizedGainsAccount = unrealizedGainAccountEntity.make(
-      {
-        name: 'Unrealized Gains (Default)',
-        createdBy: ownerId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: false,
-        controlAccountId: headers.unrealizedGainHeader.id,
-        meta: null,
-      },
-      {
-        precedingCode: headers.unrealizedGainHeader
-          .code as TUnrealizedGainLedgerCode,
-        parentMaterializedPath: headers.unrealizedGainHeader
-          .materializedPath as TUnrealizedGainLedgerCode,
-      }
-    );
-    revenueAccounts.push(unrealizedGainsAccount);
-
-    const grantsAccount = grantsAccountEntity.make(
-      {
+        ...basePayload,
         name: 'Grants (Default)',
-        createdBy: ownerId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: false,
-        controlAccountId: headers.grantsHeader.id,
-        meta: null,
+        controlAccountCode: headers.grantsHeader.code,
       },
-      {
-        precedingCode: headers.grantsHeader.code as TGrantsLedgerCode,
-        parentMaterializedPath: headers.grantsHeader
-          .materializedPath as TGrantsLedgerCode,
-      }
+      repoOptions
     );
-    revenueAccounts.push(grantsAccount);
-
-    const giftsAccount = giftsAccountEntity.make(
+    const giftsAccount = await deps.giftsAccountService.createSubAccount(
       {
+        ...basePayload,
         name: 'Gifts (Default)',
-        createdBy: ownerId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: false,
-        controlAccountId: headers.giftsHeader.id,
-        meta: null,
+        controlAccountCode: headers.giftsHeader.code,
       },
-      {
-        precedingCode: headers.giftsHeader.code as TGiftsLedgerCode,
-        parentMaterializedPath: headers.giftsHeader
-          .materializedPath as TGiftsLedgerCode,
-      }
+      repoOptions
     );
-    revenueAccounts.push(giftsAccount);
 
-    return revenueAccounts;
+    return [
+      servicesAccount,
+      employmentIncomeAccount,
+      gainOnAssetSaleAccount,
+      unrealizedGainAccount,
+      grantsAccount,
+      giftsAccount,
+    ];
   };
 
   return async ({
@@ -197,138 +142,107 @@ export default function makeRevenueAccountsBootstrapHelper(
     shouldBootstrapPostingAccounts,
   }: IRevenueAccountsBootstrapInput) => {
     const accountingEntityId = accountingEntity.id;
-    const functionalCurrency = currencyEntity.getByCode(
-      accountingEntity.functionalCurrencyCode
-    );
     const createdBy = accountingEntity.ownerId;
-
     const getExistingAccount = async <T extends IRevenueLedgerAccount>(
       code: TRevenueLedgerCode
-    ) => {
-      return (await deps.ledgerAccountRepo.findByCode(
+    ) =>
+      (await deps.ledgerAccountRepo.findByCode(
         code,
         accountingEntityId,
         repoOptions
       )) as T | null;
-    };
-
     const allAccounts: TAuditedEntity<
       IRevenueLedgerAccount,
       IRevenueLedgerAccount,
       ILedgerAccount
     >[] = [];
+    const headerPayload = { createdBy, accountingEntity };
 
-    const basePayload = {
-      createdBy,
-      accountingEntityId,
-      currency: functionalCurrency,
-    };
-
-    const servicesCode = REVENUE_LEDGER_CODES.SERVICES.HEADER;
-    const existingServices = await getExistingAccount(servicesCode);
-
-    let servicesHeader: IServicesAccount;
-
-    if (!existingServices) {
-      const servicesAccount = servicesAccountEntity.makeHeader({
-        ...basePayload,
-        name: 'Services',
-      });
-      servicesHeader = servicesAccount[0] as IServicesAccount;
-      allAccounts.push(servicesAccount);
-    } else {
-      servicesHeader = existingServices as IServicesAccount;
+    const existingServices = await getExistingAccount<IServicesAccount>(
+      REVENUE_LEDGER_CODES.SERVICES.HEADER
+    );
+    let servicesHeader = existingServices;
+    if (!servicesHeader) {
+      const account = await deps.servicesAccountService.createHeader(
+        { ...headerPayload, name: 'Services' },
+        repoOptions
+      );
+      servicesHeader = account[0];
+      allAccounts.push(account);
     }
 
-    const employmentIncomeCode = REVENUE_LEDGER_CODES.EMPLOYMENT_INCOME.HEADER;
     const existingEmploymentIncome =
-      await getExistingAccount(employmentIncomeCode);
-
-    let employmentIncomeHeader: IEmploymentIncomeAccount;
-
-    if (!existingEmploymentIncome) {
-      const employmentIncomeAccount = employmentIncomeAccountEntity.makeHeader({
-        ...basePayload,
-        name: 'Employment Income',
-      });
-      employmentIncomeHeader =
-        employmentIncomeAccount[0] as IEmploymentIncomeAccount;
-      allAccounts.push(employmentIncomeAccount);
-    } else {
-      employmentIncomeHeader =
-        existingEmploymentIncome as IEmploymentIncomeAccount;
+      await getExistingAccount<IEmploymentIncomeAccount>(
+        REVENUE_LEDGER_CODES.EMPLOYMENT_INCOME.HEADER
+      );
+    let employmentIncomeHeader = existingEmploymentIncome;
+    if (!employmentIncomeHeader) {
+      const account = await deps.employmentIncomeAccountService.createHeader(
+        { ...headerPayload, name: 'Employment Income' },
+        repoOptions
+      );
+      employmentIncomeHeader = account[0];
+      allAccounts.push(account);
     }
 
-    const gainOnAssetSaleCode = REVENUE_LEDGER_CODES.GAIN_ON_ASSET_SALE.HEADER;
     const existingGainOnAssetSale =
-      await getExistingAccount(gainOnAssetSaleCode);
-
-    let gainOnAssetSaleHeader: IGainOnAssetSaleAccount;
-
-    if (!existingGainOnAssetSale) {
-      const gainOnAssetSaleAccount = gainOnAssetSaleAccountEntity.makeHeader({
-        ...basePayload,
-        name: 'Gain on Sale of Assets',
-      });
-      gainOnAssetSaleHeader =
-        gainOnAssetSaleAccount[0] as IGainOnAssetSaleAccount;
-      allAccounts.push(gainOnAssetSaleAccount);
-    } else {
-      gainOnAssetSaleHeader =
-        existingGainOnAssetSale as IGainOnAssetSaleAccount;
+      await getExistingAccount<IGainOnAssetSaleAccount>(
+        REVENUE_LEDGER_CODES.GAIN_ON_ASSET_SALE.HEADER
+      );
+    let gainOnAssetSaleHeader = existingGainOnAssetSale;
+    if (!gainOnAssetSaleHeader) {
+      const account = await deps.gainOnAssetSaleAccountService.createHeader(
+        { ...headerPayload, name: 'Gain on Sale of Assets' },
+        repoOptions
+      );
+      gainOnAssetSaleHeader = account[0];
+      allAccounts.push(account);
     }
 
-    const unrealizedGainCode = REVENUE_LEDGER_CODES.UNREALIZED_GAINS.HEADER;
-    const existingUnrealizedGain = await getExistingAccount(unrealizedGainCode);
-
-    let unrealizedGainHeader: IUnrealizedGainAccount;
-
-    if (!existingUnrealizedGain) {
-      const unrealizedGainAccount = unrealizedGainAccountEntity.makeHeader({
-        ...basePayload,
-        name: 'Unrealized Gain',
-      });
-      unrealizedGainHeader = unrealizedGainAccount[0] as IUnrealizedGainAccount;
-      allAccounts.push(unrealizedGainAccount);
-    } else {
-      unrealizedGainHeader = existingUnrealizedGain as IUnrealizedGainAccount;
+    const existingUnrealizedGain =
+      await getExistingAccount<IUnrealizedGainAccount>(
+        REVENUE_LEDGER_CODES.UNREALIZED_GAINS.HEADER
+      );
+    let unrealizedGainHeader = existingUnrealizedGain;
+    if (!unrealizedGainHeader) {
+      const account = await deps.unrealizedGainAccountService.createHeader(
+        { ...headerPayload, name: 'Unrealized Gain' },
+        repoOptions
+      );
+      unrealizedGainHeader = account[0];
+      allAccounts.push(account);
     }
 
-    const grantsCode = REVENUE_LEDGER_CODES.GRANTS.HEADER;
-    const existingGrants = await getExistingAccount(grantsCode);
-
-    let grantsHeader: IGrantsAccount;
-
-    if (!existingGrants) {
-      const grantsAccount = grantsAccountEntity.makeHeader({
-        ...basePayload,
-        name: 'Grants',
-      });
-      grantsHeader = grantsAccount[0] as IGrantsAccount;
-      allAccounts.push(grantsAccount);
-    } else {
-      grantsHeader = existingGrants as IGrantsAccount;
+    const existingGrants = await getExistingAccount<IGrantsAccount>(
+      REVENUE_LEDGER_CODES.GRANTS.HEADER
+    );
+    let grantsHeader = existingGrants;
+    if (!grantsHeader) {
+      const account = await deps.grantsAccountService.createHeader(
+        { ...headerPayload, name: 'Grants' },
+        repoOptions
+      );
+      grantsHeader = account[0];
+      allAccounts.push(account);
     }
 
-    const giftsCode = REVENUE_LEDGER_CODES.GIFTS.HEADER;
-    const existingGifts = await getExistingAccount(giftsCode);
-
-    let giftsHeader: IGiftsAccount;
-
-    if (!existingGifts) {
-      const giftsAccount = giftsAccountEntity.makeHeader({
-        ...basePayload,
-        name: 'Gifts',
-      });
-      giftsHeader = giftsAccount[0] as IGiftsAccount;
-      allAccounts.push(giftsAccount);
-    } else {
-      giftsHeader = existingGifts as IGiftsAccount;
+    const existingGifts = await getExistingAccount<IGiftsAccount>(
+      REVENUE_LEDGER_CODES.GIFTS.HEADER
+    );
+    let giftsHeader = existingGifts;
+    if (!giftsHeader) {
+      const account = await deps.giftsAccountService.createHeader(
+        { ...headerPayload, name: 'Gifts' },
+        repoOptions
+      );
+      giftsHeader = account[0];
+      allAccounts.push(account);
     }
 
     if (shouldBootstrapPostingAccounts) {
-      const postingAccounts = bootstrapPostingAccounts({
+      const postingAccounts = await bootstrapPostingAccounts({
         accountingEntity,
+        repoOptions,
         headers: {
           servicesHeader,
           employmentIncomeHeader,
@@ -344,13 +258,11 @@ export default function makeRevenueAccountsBootstrapHelper(
     const accounts: IRevenueLedgerAccount[] = [];
     const events: IEvent<IRevenueLedgerAccount>[] = [];
     const audits: IEntityDelta<ILedgerAccount>[] = [];
-
     for (const [account, accountEvents, audit] of allAccounts) {
       accounts.push(account);
       events.push(...accountEvents);
       audits.push(audit);
     }
-
     return { accounts, events, audits };
   };
 }

@@ -1,3 +1,4 @@
+import { mockLedgerAccountRepo } from '../../../../../../app/ledger/contracts/__mocks__/ledger.repos.mock';
 import accountingEntityEntity from '../../../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../../../domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '../../../../../../domain/journal-entry/entities/journal-entry.entity';
@@ -6,7 +7,7 @@ import {
   EJournalEntryStatus,
 } from '../../../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../../../domain/journal-entry/types/journal-line.types';
-import cashAndEquivalentAccountEntity from '../../../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
+import makeCashAccountService from '../../../../../../domain/ledger/services/asset-account/cash-account.service';
 import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../../../domain/money/values/money.vo';
 import userEntity from '../../../../../../domain/user/entities/user.entity';
@@ -16,6 +17,9 @@ import journalEntryMapper, {
 import journalLineMapper from '../journal-line.mapper';
 
 describe('Journal Entry Mapper', () => {
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   beforeEach(() => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2026-05-01T00:00:00.000Z'));
@@ -25,7 +29,7 @@ describe('Journal Entry Mapper', () => {
     jest.useRealTimers();
   });
 
-  const makeEntry = () => {
+  const makeEntry = async () => {
     const [user] = userEntity.make({
       email: 'owner@example.com',
       emailVerified: true,
@@ -39,18 +43,22 @@ describe('Journal Entry Mapper', () => {
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
       jurisdictionCode: 'NG',
     });
-    const [debitAccount] = cashAndEquivalentAccountEntity.makeHeader({
-      name: 'Debit Cash',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      createdBy: user.id,
-    });
-    const [creditAccount] = cashAndEquivalentAccountEntity.makeHeader({
-      name: 'Credit Cash',
-      accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      createdBy: user.id,
-    });
+    const [debitAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Debit Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
+    const [creditAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Credit Cash',
+        accountingEntity,
+        userId: user.id,
+      },
+      { correlationId: 'test-correlation-id' }
+    );
 
     const amount = moneyValue.make(100_00, SYSTEM_CURRENCIES.NGN, true);
 
@@ -86,8 +94,8 @@ describe('Journal Entry Mapper', () => {
   };
 
   describe('toRepo', () => {
-    it('maps a journal entry to a repo model', () => {
-      const entry = makeEntry();
+    it('maps a journal entry to a repo model', async () => {
+      const entry = await makeEntry();
 
       expect(journalEntryMapper.toRepo(entry)).toEqual({
         id: entry.id,
@@ -106,9 +114,9 @@ describe('Journal Entry Mapper', () => {
       });
     });
 
-    it('maps nullable dates to repo null', () => {
+    it('maps nullable dates to repo null', async () => {
       const entry = {
-        ...makeEntry(),
+        ...(await makeEntry()),
         postedAt: null,
         voidedAt: null,
       };
@@ -119,9 +127,9 @@ describe('Journal Entry Mapper', () => {
       });
     });
 
-    it('maps voidedAt to repo date string if present', () => {
+    it('maps voidedAt to repo date string if present', async () => {
       const entry = {
-        ...makeEntry(),
+        ...(await makeEntry()),
         voidedAt: new Date('2026-05-01T02:00:00.000Z'),
       };
 
@@ -132,8 +140,8 @@ describe('Journal Entry Mapper', () => {
   });
 
   describe('toDomain', () => {
-    it('maps a journal entry select model to domain', () => {
-      const entry = makeEntry();
+    it('maps a journal entry select model to domain', async () => {
+      const entry = await makeEntry();
       const model: IJournalEntrySelectModel = {
         ...journalEntryMapper.toRepo(entry),
         postedAt: entry.postedAt?.toISOString() ?? null,
@@ -144,8 +152,8 @@ describe('Journal Entry Mapper', () => {
       expect(journalEntryMapper.toDomain(model)).toEqual(entry);
     });
 
-    it('maps nullable repo fields to domain null', () => {
-      const entry = makeEntry();
+    it('maps nullable repo fields to domain null', async () => {
+      const entry = await makeEntry();
       const model: IJournalEntrySelectModel = {
         ...journalEntryMapper.toRepo(entry),
         postedAt: null,
@@ -159,9 +167,9 @@ describe('Journal Entry Mapper', () => {
       });
     });
 
-    it('maps truthy repo voidedAt to domain Date if present', () => {
+    it('maps truthy repo voidedAt to domain Date if present', async () => {
       const entry = {
-        ...makeEntry(),
+        ...(await makeEntry()),
         voidedAt: new Date('2026-05-01T02:00:00.000Z'),
       };
       const model: IJournalEntrySelectModel = {
@@ -176,8 +184,8 @@ describe('Journal Entry Mapper', () => {
   });
 
   describe('toDto', () => {
-    it('maps a journal entry to a DTO', () => {
-      const entry = makeEntry();
+    it('maps a journal entry to a DTO', async () => {
+      const entry = await makeEntry();
 
       expect(journalEntryMapper.toDto(entry)).toMatchObject({
         id: entry.id,

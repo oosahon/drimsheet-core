@@ -1,12 +1,11 @@
 import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import { ILedgerAccountBalance } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
-import cashAndEquivalentAccountEntity from '../../../../domain/ledger/asset-account/entities/cash-and-equivalents.entity';
-import { IBankAccount } from '../../../../domain/ledger/asset-account/types/asset-account.types';
+import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
+import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
+import { ILedgerAccountBalance } from '../../../../domain/ledger/types/ledger-account-balance.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '../../../context/contracts/app-context.contract';
@@ -40,63 +39,66 @@ describe('makeGetLedgerAccountsUsecase', () => {
 
   const correlationId = 'test-corr-id';
 
-  const [ledgerAccount] = cashAndEquivalentAccountEntity.makeBankAccount(
-    {
-      name: 'Operations Bank Account',
-      accountingEntityId: accountingEntity.id,
-      isControlAccount: false,
-      controlAccountId: generateUUID(),
-      currency: usdCurrency,
-      createdBy: generateUUID(),
-      meta: {
-        countryCode: 'US',
-        bankName: 'Test Bank',
-        accountNumber: '1234567890',
-        accountName: 'Main Account',
+  const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
+  let ledgerAccount: ICashAndCashEquivalentAccount;
+  let controlAccount: ICashAndCashEquivalentAccount;
+  let mockBalance: ILedgerAccountBalance;
+  let mockBalance2: ILedgerAccountBalance;
+
+  beforeAll(async () => {
+    const userId = generateUUID();
+    const [cashHeader] = await cashAccountService.createHeader(
+      {
+        name: 'Cash and Cash Equivalents',
+        accountingEntity,
+        userId,
       },
-    } as unknown as TCreationOmits<IBankAccount>,
-    null
-  );
-
-  const [controlAccount] = cashAndEquivalentAccountEntity.makeBankAccount(
-    {
-      name: 'Operations Control Account',
-      accountingEntityId: accountingEntity.id,
-      isControlAccount: true,
-      controlAccountId: null,
-      currency: eurCurrency,
-      createdBy: generateUUID(),
-      meta: {
-        countryCode: 'US',
-        bankName: 'Test Bank',
-        accountNumber: '1234567891',
-        accountName: 'Control Account',
+      { correlationId }
+    );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(cashHeader);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    [ledgerAccount] = await cashAccountService.createBankSubAccount(
+      {
+        name: 'Operations Bank Account',
+        isControlAccount: false,
+        controlAccountCode: cashHeader.code,
+        currency: usdCurrency,
+        userId,
+        accountingEntity,
+        bankDetails: {
+          countryCode: 'US',
+          bankName: 'Test Bank',
+          accountNumber: '1234567890',
+          accountName: 'Main Account',
+        },
       },
-    } as unknown as TCreationOmits<IBankAccount>,
-    null
-  );
+      { correlationId }
+    );
+    controlAccount = cashHeader;
+    mockBalance = {
+      ledgerAccountId: ledgerAccount.id,
+      accountingEntityId: accountingEntity.id,
+      accountMaterializedPath: ledgerAccount.materializedPath,
+      amount: moneyValue.make(100, usdCurrency, false),
+      functionalAmount: moneyValue.make(100, usdCurrency, false),
+      version: 1,
+      createdAt: mockDate,
+      updatedAt: mockDate,
+    };
 
-  const mockBalance: ILedgerAccountBalance = {
-    ledgerAccountId: ledgerAccount.id,
-    accountingEntityId: accountingEntity.id,
-    accountMaterializedPath: ledgerAccount.materializedPath,
-    amount: moneyValue.make(100, usdCurrency, false),
-    functionalAmount: moneyValue.make(100, usdCurrency, false),
-    version: 1,
-    createdAt: mockDate,
-    updatedAt: mockDate,
-  };
-
-  const mockBalance2: ILedgerAccountBalance = {
-    ledgerAccountId: controlAccount.id,
-    accountingEntityId: accountingEntity.id,
-    accountMaterializedPath: controlAccount.materializedPath,
-    amount: moneyValue.make(200, eurCurrency, false),
-    functionalAmount: moneyValue.make(250, usdCurrency, false),
-    version: 1,
-    createdAt: mockDate,
-    updatedAt: mockDate,
-  };
+    mockBalance2 = {
+      ledgerAccountId: controlAccount.id,
+      accountingEntityId: accountingEntity.id,
+      accountMaterializedPath: controlAccount.materializedPath,
+      amount: moneyValue.make(200, eurCurrency, false),
+      functionalAmount: moneyValue.make(250, usdCurrency, false),
+      version: 1,
+      createdAt: mockDate,
+      updatedAt: mockDate,
+    };
+  });
 
   const validQuery: IGetLedgerAccountsQuery = {
     page: 1,

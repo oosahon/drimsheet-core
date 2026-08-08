@@ -1,5 +1,5 @@
 import { IJournalEntry } from '../../../../domain/journal-entry/types/journal-entry.types';
-import { ILedgerAccount } from '../../../../domain/ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { IExchangeRate } from '../../../../domain/money/types/exchange-rate.types';
 import IFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/types/lot.service.types';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';

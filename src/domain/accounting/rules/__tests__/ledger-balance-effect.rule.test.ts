@@ -2,13 +2,13 @@ import {
   EJournalSide,
   UJournalSide,
 } from '../../../journal-entry/types/journal-line.types';
-import { ELedgerAccountBalanceEffect } from '../../../ledger/account-balance/types/ledger-account-balance.types';
+import { ELedgerAccountBalanceEffect } from '../../../ledger/types/ledger-account-balance.types';
 import {
   ELedgerType,
   ENormalBalance,
   ULedgerType,
   UNormalBalance,
-} from '../../../ledger/shared/types/ledger.types';
+} from '../../../ledger/types/ledger.types';
 import ledgerBalanceEffectRule from '../ledger-balance-effect.rule';
 
 describe('ledgerBalanceEffectRule', () => {

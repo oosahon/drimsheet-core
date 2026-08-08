@@ -32,19 +32,16 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group     | Code Block | Entity File                                                                         | Status         |
-| ----------------- | ---------- | ----------------------------------------------------------------------------------- | -------------- |
-| Short Term Debts  | `200xxx`   | [`00-short-term-loan.entity.ts`](../liability/entities/short-term-loan.entity.ts)   | ✅ Implemented |
-| Payables          | `201xxx`   | [`03-payables.entity.ts`](../liability/entities/payables.entity.ts)                 | ✅ Implemented |
-| Accrued Expenses  | `202xxx`   | —                                                                                   | 🔲 Types only  |
-| Deferred Revenues | `203xxx`   | —                                                                                   | 🔲 Types only  |
-| Long Term Loans   | `204xxx`   | —                                                                                   | 🔲 Types only  |
-| Lease Liabilities | `205xxx`   | —                                                                                   | 🔲 Types only  |
-| Provisions        | `206xxx`   | —                                                                                   | 🔲 Types only  |
-| Suspense          | `299xxx`   | [`99-suspense-account.entity.ts`](../liability/entities/suspense-account.entity.ts) | ✅ Implemented |
-
-> [!NOTE]
-> Entity files are named by their COA prefix (e.g. `00-` = `200xxx`, `03-` = `201xxx`) to make it explicit which accounts have been implemented and which are pending.
+| Account Group     | Code Block | Implementation File                                                                      | Status         |
+| ----------------- | ---------- | ---------------------------------------------------------------------------------------- | -------------- |
+| Short Term Debts  | `200xxx`   | [`short-term-loan.service.ts`](../services/liability-account/short-term-loan.service.ts) | ✅ Implemented |
+| Payables          | `201xxx`   | [`payables.service.ts`](../services/liability-account/payables.service.ts)               | ✅ Implemented |
+| Accrued Expenses  | `202xxx`   | —                                                                                        | 🔲 Types only  |
+| Deferred Revenues | `203xxx`   | —                                                                                        | 🔲 Types only  |
+| Long Term Loans   | `204xxx`   | —                                                                                        | 🔲 Types only  |
+| Lease Liabilities | `205xxx`   | —                                                                                        | 🔲 Types only  |
+| Provisions        | `206xxx`   | —                                                                                        | 🔲 Types only  |
+| Suspense          | `299xxx`   | [`suspense-account.service.ts`](../services/suspense-account.service.ts)                 | ✅ Implemented |
 
 The following table shows the behaviors of different liability account classes
 
@@ -73,14 +70,13 @@ _Figure: View the mermaid sourcecode here: _[_2-coa-liabilities.mermaid_](./asse
 | Overdrafts       | /                   | <ul><li>Automatically created if a linked bank account goes negative</li><li>Requires deposit transaction for settlement</li></ul>                                                                                        |
 | Short Term Loans | /                   | <ul><li>Requires funding transaction for creation</li><li>Requires repayment transaction for settlement</li><li>Supports automated interest accrual</li></ul>                                                             |
 
-#### Entity Details
+#### Service Details
 
-The `ShortTermLoan` entity ([`00-short-term-loan.entity.ts`](../liability/entities/short-term-loan.entity.ts)) exposes:
+The short-term-loan account service ([`short-term-loan.service.ts`](../services/liability-account/short-term-loan.service.ts)) exposes:
 
-- `make()` — base factory accepting a `behavior` parameter
-- `makeCreditCardAccount()` — validates `ICreditCardAccountMeta` (cardIssuer, lastFourDigits)
-- `makeOverdraftAccount()` — validates `IOverdraftAccountMeta` (linkedBankAccountId)
-- `makeShortTermLoanAccount()` — validates `IShortTermLoanAccountMeta` (lenderName, maturityDate)
+- `createHeader()` — enforces header uniqueness and creates the `200000` control account
+- `createSubAccount()` — validates the selected control account and creates a short-term-loan account
+- `createCreditCardSubAccount()` — validates the selected control account and `ICreditCardAccountMeta` (`cardIssuer`, `lastFourDigits`)
 
 All short-term debt sub-types have `contraAccountRule: 'contra_permitted'` and `adjunctAccountRule: 'adjunct_permitted'`.
 
@@ -97,13 +93,13 @@ All short-term debt sub-types have `contraAccountRule: 'contra_permitted'` and `
 | Trade Payables     | /                   | <ul><li>Requires invoice or credit note transaction for creation</li><li>Requires payment or debit note transaction for settlement</li><li>Supports automated aging</li><li>Supports contra accounts (for early payment discounts)</li><li>Supports adjunct accounts (for interest on overdue accounts)</li></ul> |
 | Statutory Payables | /                   | <ul><li>Requires tax computation or manual entry for creation</li><li>Requires statutory payment transaction for settlement</li><li>Does not support contra accounts</li><li>Does not support adjunct accounts</li></ul>                                                                                          |
 
-#### Entity Details
+#### Service Details
 
-The `Payables` entity ([`03-payables.entity.ts`](../liability/entities/payables.entity.ts)) exposes:
+The payables account service ([`payables.service.ts`](../services/liability-account/payables.service.ts)) exposes:
 
-- `make()` — base factory accepting `behavior`, `contraAccountRule`, and `adjunctAccountRule` parameters
-- `makeStatutoryPayableAccount()` — validates `IStatutoryPayableAccountMeta` (taxAuthority, taxType); forces `ContraNotPermitted` and `AdjunctNotPermitted`
-- `makeTradePayableAccount()` — validates `ITradePayableAccountMeta` (counterpartyId, invoiceId); permits contra and adjunct
+- `createHeader()` — creates the `201000` payables control account
+- `createStatutoryPayableSubAccount()` — validates `IStatutoryPayableAccountMeta` (taxAuthority, taxType); forces `ContraNotPermitted` and `AdjunctNotPermitted`
+- `createTradePayableSubAccount()` — validates `ITradePayableAccountMeta` (counterpartyId, invoiceId); permits contra and adjunct
 
 > [!NOTE]
 > The ledger accepts any generic string for `taxType` in `IStatutoryPayableAccountMeta`. Specific tax policies and validation (e.g., Nigerian Tax Act types) are handled by the Accounting domain.
@@ -133,7 +129,7 @@ The `Payables` entity ([`03-payables.entity.ts`](../liability/entities/payables.
 - **Main reporting hierarchy**: Non-Current Liabilities / Long Term Loans
 
 > [!NOTE]
-> Entity implementation pending. Types defined in [`liability-account.types.ts`](../liability/types/liability-account.types.ts) with behaviors: `Mortgage`, `OtherLongTermLoan`.
+> Entity implementation pending. Types defined in [`liability-account.types.ts`](../types/liability-account.types.ts) with behaviors: `Mortgage`, `OtherLongTermLoan`.
 
 #### Behaviors
 
@@ -155,9 +151,9 @@ The `Payables` entity ([`03-payables.entity.ts`](../liability/entities/payables.
 - **Ledger codes**: 299xxx
 - **Description**: See [Suspense Accounts](./04-9-suspense-accounts.md) for more information.
 
-#### Entity Details
+#### Service Details
 
-The `LiabilitySuspense` entity ([`99-suspense-account.entity.ts`](../liability/entities/suspense-account.entity.ts)) creates accounts with:
+The suspense account service ([`suspense-account.service.ts`](../services/suspense-account.service.ts)) exposes `createLiabilitySuspense` and creates accounts with:
 
 - `subType: 'suspense'` / `behavior: 'default'`
 - `isControlAccount: false` / `controlAccountId: null`

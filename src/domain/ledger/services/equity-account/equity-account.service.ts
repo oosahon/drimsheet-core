@@ -1,0 +1,118 @@
+import currencyEntity from '../../../money/entities/currency.entity';
+import { EQUITY_LEDGER_CODES } from '../../config/equity-codes.config';
+import ledgerAccountEntity from '../../entities/ledger-account.entity';
+import ledgerAccountError from '../../errors/ledger-account.error';
+import ILedgerAccountRepo from '../../repos/ledger-account.repo';
+import { IEquityAccountService } from '../../types/equity-account.service.types';
+import {
+  EEquityAccountBehavior,
+  EEquitySubType,
+} from '../../types/equity-account.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerAccountStatus,
+  ELedgerType,
+} from '../../types/ledger.types';
+
+interface IDependencies {
+  ledgerAccountRepo: ILedgerAccountRepo;
+}
+
+/**
+ *
+ * Creates a new opening balance equity account
+ *
+ * @returns Audited IOpeningBalanceEquityAccount
+ *
+ */
+function makeCreateOpeningBalanceAccount(
+  deps: IDependencies
+): IEquityAccountService['createOpeningBalanceAccount'] {
+  return async (payload, repoOptions) => {
+    const existing = await deps.ledgerAccountRepo.findByCode(
+      EQUITY_LEDGER_CODES.OPENING_BALANCE_EQUITY,
+      payload.accountingEntity.id,
+      repoOptions
+    );
+
+    if (existing) {
+      throw new ledgerAccountError.OpeningBalanceAccountAlreadyExists({
+        existing,
+      });
+    }
+
+    const currency = currencyEntity.getByCode(
+      payload.accountingEntity.functionalCurrencyCode
+    );
+
+    return ledgerAccountEntity.make({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntity.id,
+      code: EQUITY_LEDGER_CODES.OPENING_BALANCE_EQUITY,
+      materializedPath: EQUITY_LEDGER_CODES.OPENING_BALANCE_EQUITY,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Equity),
+      type: ELedgerType.Equity,
+      subType: EEquitySubType.OpeningBalance,
+      behavior: EEquityAccountBehavior.OpeningBalanceEquity,
+      isControlAccount: false,
+      controlAccountId: null,
+      currency,
+      meta: null,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy: payload.createdBy,
+    });
+  };
+}
+
+function makeCreateRetainedEarningsAccount(
+  deps: IDependencies
+): IEquityAccountService['createRetainedEarningsAccount'] {
+  return async (payload, repoOptions) => {
+    const existing = await deps.ledgerAccountRepo.findByCode(
+      EQUITY_LEDGER_CODES.RETAINED_EARNINGS,
+      payload.accountingEntity.id,
+      repoOptions
+    );
+
+    if (existing) {
+      throw new ledgerAccountError.RetainedEarningsAccountAlreadyExists({
+        existing,
+      });
+    }
+
+    const currency = currencyEntity.getByCode(
+      payload.accountingEntity.functionalCurrencyCode
+    );
+
+    return ledgerAccountEntity.make({
+      name: payload.name,
+      accountingEntityId: payload.accountingEntity.id,
+      code: EQUITY_LEDGER_CODES.RETAINED_EARNINGS,
+      materializedPath: EQUITY_LEDGER_CODES.OPENING_BALANCE_EQUITY,
+      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Equity),
+      type: ELedgerType.Equity,
+      subType: EEquitySubType.RetainedEarnings,
+      behavior: EEquityAccountBehavior.RetainedEarnings,
+      isControlAccount: false,
+      controlAccountId: null,
+      currency,
+      meta: null,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraNotPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctNotPermitted,
+      createdBy: payload.createdBy,
+    });
+  };
+}
+
+export default function makeEquityAccountService(deps: IDependencies) {
+  const service: IEquityAccountService = {
+    createOpeningBalanceAccount: makeCreateOpeningBalanceAccount(deps),
+    createRetainedEarningsAccount: makeCreateRetainedEarningsAccount(deps),
+  };
+
+  return Object.freeze(service);
+}

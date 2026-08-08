@@ -69,9 +69,9 @@ Each ledger account type follows a consistent factory pattern:
 Entity files are named by their COA prefix to make it explicit which accounts have been implemented and which are still pending:
 
 ```
-01-asset-account/
-├── 00-cash-and-equivalents.entity.ts   ← 100xxx ✅
-├── 02-receivables.entity.ts            ← 102xxx ✅
-└── 99-suspense-account.entity.ts       ← 199xxx ✅
+services/
+├── cash-account.service.ts             ← 100xxx ✅
+├── receivables-account.service.ts      ← 102xxx ✅
+└── suspense-account.service.ts         ← 199xxx / 299xxx ✅
                                            101xxx (Short Term Investments) — not yet implemented
 ```

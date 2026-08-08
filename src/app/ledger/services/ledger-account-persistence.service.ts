@@ -1,6 +1,6 @@
-import ILedgerAccountBalanceRepo from '../../../domain/ledger/account-balance/repos/ledger-account-balance.repo';
-import { ledgerAccountBalanceEntity } from '../../../domain/ledger/shared/entities';
-import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import { ledgerAccountBalanceEntity } from '../../../domain/ledger/entities';
+import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import currencyEntity from '../../../domain/money/entities/currency.entity';
 import {
   IRepoService,

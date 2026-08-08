@@ -1,4 +1,4 @@
-import { ULedgerAccountBalanceEffect } from '../../../../domain/ledger/account-balance/types/ledger-account-balance.types';
+import { ULedgerAccountBalanceEffect } from '../../../../domain/ledger/types/ledger-account-balance.types';
 import {
   IJournalHeaderDto,
   IJournalLineDto,

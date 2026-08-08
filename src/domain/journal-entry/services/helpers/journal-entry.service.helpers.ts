@@ -1,5 +1,5 @@
 import dateUtils from '../../../../shared/utils/date';
-import { ILedgerAccount } from '../../../ledger/shared/types/ledger.types';
+import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import journalEntryError from '../../errors/journal-entry.error';
 import journalEntryRuleValidator from '../../rules/entry-rule.validator';
 import receiptEntryRule from '../../rules/receipt-entry.rule';

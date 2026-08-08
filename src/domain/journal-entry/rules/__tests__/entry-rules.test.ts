@@ -1,9 +1,12 @@
 import generateUUID from '../../../../shared/utils/uuid-generator';
-import cashAndEquivalentAccountEntity from '../../../ledger/asset-account/entities/cash-and-equivalents.entity';
-import receivablesAccountEntity from '../../../ledger/asset-account/entities/receivables.entity';
-import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
-import payableAccountEntity from '../../../ledger/liability-account/entities/payables.entity';
-import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
+import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
+import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
+import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
+import makeReceivablesAccountService from '../../../ledger/services/asset-account/receivables-account.service';
+import makeEquityAccountService from '../../../ledger/services/equity-account/equity-account.service';
+import makePayablesAccountService from '../../../ledger/services/liability-account/payables.service';
+import makeServicesAccountService from '../../../ledger/services/revenue-account/services.service';
+import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
 import journalEntryRuleValidator from '../entry-rule.validator';
 import openingBalanceEntryRule from '../opening-balance-entry.rule';
@@ -14,54 +17,88 @@ describe('journal entry rules', () => {
   const createdBy = generateUUID();
   const currency = SYSTEM_CURRENCIES.NGN;
 
-  const [cashAccount] = cashAndEquivalentAccountEntity.make(
-    {
-      name: 'Cash on Hand',
-      accountingEntityId,
-      currency,
-      isControlAccount: false,
-      controlAccountId: null,
-      behavior: cashAndEquivalentAccountEntity.makeHeader({
-        name: 'Cash Header',
-        accountingEntityId,
-        currency,
+  const accountingEntity = {
+    id: accountingEntityId,
+    ownerId: createdBy,
+    functionalCurrencyCode: currency.code,
+  } as IAccountingEntity;
+  const ledgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
+    create: jest.fn(),
+    update: jest.fn(),
+    findById: jest.fn(),
+    findAllByIds: jest.fn(),
+    findByCode: jest.fn(),
+    findBySubType: jest.fn(),
+    findByBehavior: jest.fn(),
+    findLatestBySubType: jest.fn(),
+    findAll: jest.fn(),
+  };
+  const cashAccountService = makeCashAccountService({ ledgerAccountRepo });
+  const receivablesAccountService = makeReceivablesAccountService({
+    ledgerAccountRepo,
+  });
+  const payablesAccountService = makePayablesAccountService({
+    ledgerAccountRepo,
+  });
+  const equityAccountService = makeEquityAccountService({ ledgerAccountRepo });
+  const servicesAccountService = makeServicesAccountService({
+    ledgerAccountRepo,
+  });
+  const repoOptions = { correlationId: 'test-correlation-id' };
+  let cashAccount: ILedgerAccount;
+  let receivableAccount: ILedgerAccount;
+  let liabilityAccount: ILedgerAccount;
+  let openingBalanceEquityAccount: ILedgerAccount;
+  let revenueAccount: ILedgerAccount;
+
+  beforeAll(async () => {
+    [cashAccount] = await cashAccountService.createHeader(
+      {
+        name: 'Cash on Hand',
+        userId: createdBy,
+        accountingEntity,
+      },
+      repoOptions
+    );
+
+    [receivableAccount] = await receivablesAccountService.createHeader(
+      {
+        name: 'Receivables',
+        userId: createdBy,
+        accountingEntity,
+      },
+      repoOptions
+    );
+
+    [liabilityAccount] = await payablesAccountService.createHeader(
+      {
+        name: 'Accounts Payable',
         createdBy,
-      })[0].behavior,
-      meta: null,
-      createdBy,
-    },
-    null
-  );
+        accountingEntity,
+        currency,
+      },
+      repoOptions
+    );
 
-  const [receivableAccount] = receivablesAccountEntity.makeHeader({
-    name: 'Receivables',
-    accountingEntityId,
-    currency,
-    createdBy,
-  });
+    [openingBalanceEquityAccount] =
+      await equityAccountService.createOpeningBalanceAccount(
+        {
+          name: 'Opening Balance Equity',
+          createdBy,
+          accountingEntity,
+        },
+        repoOptions
+      );
 
-  const [openingBalanceEquityAccount] = openingBalanceEquityLedgerEntity.make(
-    {
-      name: 'Opening Balance Equity',
-      accountingEntityId,
-      currency,
-      createdBy,
-    },
-    null
-  );
-
-  const [revenueAccount] = servicesAccountEntity.makeHeader({
-    name: 'Service Revenue',
-    accountingEntityId,
-    currency,
-    createdBy,
-  });
-
-  const [liabilityAccount] = payableAccountEntity.makeHeader({
-    name: 'Accounts Payable',
-    accountingEntityId,
-    currency,
-    createdBy,
+    ledgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+    [revenueAccount] = await servicesAccountService.createHeader(
+      {
+        name: 'Service Revenue',
+        accountingEntity,
+        createdBy,
+      },
+      repoOptions
+    );
   });
 
   describe('openingBalanceEntryRule', () => {

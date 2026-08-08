@@ -5,7 +5,6 @@ import appError from '../../../shared/values/errors/app.error';
 type TErrorKeyPrefix = `app_error_ledger_${string}`;
 
 const EErrorKeys = {
-  InvalidValue: 'app_error_ledger_invalid_value',
   AccountNotFound: 'app_error_ledger_account_not_found',
   BalanceNotFound: 'app_error_ledger_balance_not_found',
   InvalidSubtype: 'app_error_ledger_invalid_sub_type',

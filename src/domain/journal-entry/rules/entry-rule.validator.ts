@@ -1,6 +1,6 @@
-import { ULedgerAccountBehavior } from '../../ledger/shared/types/account-behaviors.tyypes';
-import { ULedgerAccountSubType } from '../../ledger/shared/types/ledger-aggregate.types';
-import { ILedgerAccount } from '../../ledger/shared/types/ledger.types';
+import { ULedgerAccountBehavior } from '../../ledger/types/account-behaviors.tyypes';
+import { ULedgerAccountSubType } from '../../ledger/types/ledger-aggregate.types';
+import { ILedgerAccount } from '../../ledger/types/ledger.types';
 import { IJournalEntryRulePermits } from '../types/entry.rules.types';
 
 export default function journalEntryRuleValidator(

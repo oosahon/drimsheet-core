@@ -4,7 +4,7 @@ import {
   ICreateReceiptEntryPayload,
   IJournalEntryService,
 } from '../../../domain/journal-entry/types/journal-entry.service.types';
-import ILedgerAccountRepo from '../../../domain/ledger/shared/repos/ledger-account.repo';
+import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
 import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
 import IEventBus from '../../../shared/contracts/event-bus.contract';
 import {
