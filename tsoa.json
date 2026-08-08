@@ -1,5 +1,14 @@
 {
   "entryFile": "src/infra/runtime/_bootstrap/index.ts",
+  "compilerOptions": {
+    "paths": {
+      "@domain/*": ["./src/domain/*"],
+      "@app/*": ["./src/app/*"],
+      "@infra/*": ["./src/infra/*"],
+      "@interface/*": ["./src/interface/*"],
+      "@shared/*": ["./src/shared/*"]
+    }
+  },
   "noImplicitAdditionalProperties": "throw-on-extras",
   "controllerPathGlobs": ["src/**/*.controller.ts"],
   "spec": {
