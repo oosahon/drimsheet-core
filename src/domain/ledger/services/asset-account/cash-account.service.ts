@@ -89,7 +89,9 @@ function makeCreatePettyCashSubAccount(
       return (
         controlAccount.type === ELedgerType.Asset &&
         controlAccount.subType === EAssetSubType.CashAndCashEquivalent &&
-        controlAccount.isControlAccount
+        controlAccount.isControlAccount &&
+        (controlAccount.behavior === EAssetAccountBehavior.PettyCash ||
+          controlAccount.behavior === EAssetAccountBehavior.DefaultCash)
       );
     };
 

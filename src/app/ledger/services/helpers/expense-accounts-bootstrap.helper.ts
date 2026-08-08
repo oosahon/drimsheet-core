@@ -1,6 +1,5 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import { EXPENSE_LEDGER_CODES } from '../../../../domain/ledger/config/expense-codes.config';
-import assetDisposalLossAccountEntity from '../../../../domain/ledger/expense-account/entities/asset-disposal-loss.entity';
 import bankChargeAccountEntity from '../../../../domain/ledger/expense-account/entities/bank-charge.entity';
 import directCostsAccountEntity from '../../../../domain/ledger/expense-account/entities/direct-costs.entity';
 import financeCostAccountEntity from '../../../../domain/ledger/expense-account/entities/finance-cost.entity';
@@ -9,6 +8,7 @@ import rentAndUtilitiesAccountEntity from '../../../../domain/ledger/expense-acc
 import taxExpenseAccountEntity from '../../../../domain/ledger/expense-account/entities/tax-expense.entity';
 import unrealizedLossAccountEntity from '../../../../domain/ledger/expense-account/entities/unrealized-loss.entity';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+import { IAssetDisposalLossAccountService } from '../../../../domain/ledger/types/asset-disposal-loss.service.types';
 import {
   EExpenseAccountBehavior,
   IAssetDisposalLossAccount,
@@ -22,7 +22,6 @@ import {
   IUnrealizedLossAccount,
 } from '../../../../domain/ledger/types/expense-account.types';
 import {
-  TAssetDisposalLossLedgerCode,
   TBankChargeLedgerCode,
   TDirectCostsLedgerCode,
   TExpenseLedgerCode,
@@ -43,6 +42,7 @@ import { IEntityDelta } from '../../../../shared/values/history/types/history.ty
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
+  assetDisposalLossAccountService: IAssetDisposalLossAccountService;
 }
 
 interface IExpenseAccountsBootstrapInput {
@@ -53,6 +53,7 @@ interface IExpenseAccountsBootstrapInput {
 
 interface IExpensePostingAccountsBootstrapInput {
   accountingEntity: IAccountingEntity;
+  repoOptions: IReadRepoOptions;
   headers: {
     directCostsHeader: IDirectCostsAccount;
     rentAndUtilitiesHeader: IRentUtilitiesAccount;
@@ -68,8 +69,9 @@ interface IExpensePostingAccountsBootstrapInput {
 export default function makeExpenseAccountsBootstrapHelper(
   deps: IDependencies
 ) {
-  const bootstrapPostingAccounts = ({
+  const bootstrapPostingAccounts = async ({
     accountingEntity,
+    repoOptions,
     headers,
   }: IExpensePostingAccountsBootstrapInput) => {
     const {
@@ -215,23 +217,18 @@ export default function makeExpenseAccountsBootstrapHelper(
     );
     expenseAccounts.push(unrealizedLossAccount);
 
-    const assetDisposalAccount = assetDisposalLossAccountEntity.make(
-      {
-        name: 'Asset Disposal Loss (Default)',
-        createdBy: ownerId,
-        accountingEntityId,
-        currency: functionalCurrency,
-        isControlAccount: false,
-        controlAccountId: headers.assetDisposalLossHeader.id,
-        meta: null,
-      },
-      {
-        precedingCode: headers.assetDisposalLossHeader
-          .code as TAssetDisposalLossLedgerCode,
-        parentMaterializedPath: headers.assetDisposalLossHeader
-          .materializedPath as TAssetDisposalLossLedgerCode,
-      }
-    );
+    const assetDisposalAccount =
+      await deps.assetDisposalLossAccountService.createSubAccount(
+        {
+          name: 'Asset Disposal Loss (Default)',
+          createdBy: ownerId,
+          accountingEntityId,
+          currency: functionalCurrency,
+          isControlAccount: false,
+          controlAccountCode: headers.assetDisposalLossHeader.code,
+        },
+        repoOptions
+      );
     expenseAccounts.push(assetDisposalAccount);
 
     return expenseAccounts;
@@ -396,10 +393,14 @@ export default function makeExpenseAccountsBootstrapHelper(
 
     if (!existingAssetDisposalLoss) {
       const assetDisposalLossAccount =
-        assetDisposalLossAccountEntity.makeHeader({
-          ...basePayload,
-          name: 'Asset Disposal Loss',
-        });
+        await deps.assetDisposalLossAccountService.createHeader(
+          {
+            name: 'Asset Disposal Loss',
+            createdBy,
+            accountingEntity,
+          },
+          repoOptions
+        );
       assetDisposalLossHeader =
         assetDisposalLossAccount[0] as IAssetDisposalLossAccount;
       allAccounts.push(assetDisposalLossAccount);
@@ -409,8 +410,9 @@ export default function makeExpenseAccountsBootstrapHelper(
     }
 
     if (shouldBootstrapPostingAccounts) {
-      const postingAccounts = bootstrapPostingAccounts({
+      const postingAccounts = await bootstrapPostingAccounts({
         accountingEntity,
+        repoOptions,
         headers: {
           directCostsHeader,
           rentAndUtilitiesHeader,

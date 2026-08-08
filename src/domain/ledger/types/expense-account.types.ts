@@ -82,6 +82,7 @@ export const EExpenseAccountBehavior = {
   ...EOpexBehavior,
   ...ENonOperatingExpenseBehavior,
   ...ELossBehavior,
+  Default: 'default',
 } as const;
 
 export type UExpenseAccountBehavior =
