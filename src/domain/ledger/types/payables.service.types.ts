@@ -32,7 +32,7 @@ interface IStatutoryPayload {
   accountingEntity: IAccountingEntity;
   currency: ICurrency;
   isControlAccount: boolean;
-  controlAccountCode?: TPayablesLedgerCode;
+  controlAccountCode: TPayablesLedgerCode;
   meta: IStatutoryPayableAccountMeta;
 }
 
@@ -41,7 +41,7 @@ interface ITradePayload {
   createdBy: TEntityId;
   accountingEntity: IAccountingEntity;
   isControlAccount: boolean;
-  controlAccountCode?: TPayablesLedgerCode;
+  controlAccountCode: TPayablesLedgerCode;
   meta: ITradePayableAccountMeta;
 }
 

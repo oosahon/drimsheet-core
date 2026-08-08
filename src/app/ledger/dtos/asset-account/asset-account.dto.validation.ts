@@ -11,7 +11,9 @@ export const pettyCashCreationReqValidation = z
       .max(100, new ledgerAccountError.InvalidName().errorKey),
     currencyCode: currencyCodeValidation,
     isControlAccount: z.boolean(),
-    controlAccountCode: z.string().optional(),
+    controlAccountCode: z
+      .string()
+      .length(6, new ledgerAccountError.InvalidCode().errorKey),
 
     openingBalance: openingBalanceDtoValidation.nullable(),
   })
@@ -54,8 +56,7 @@ export const bankAccountCreationReqValidation = z
     currencyCode: currencyCodeValidation,
     controlAccountCode: z
       .string()
-      .length(6, new ledgerAccountError.InvalidCode().errorKey)
-      .optional(),
+      .length(6, new ledgerAccountError.InvalidCode().errorKey),
     bankAccount: bankDetailsCreationReqValidation,
     openingBalance: openingBalanceDtoValidation.nullable(),
   })

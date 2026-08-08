@@ -4,7 +4,7 @@ export interface IPettyCashAccountCreationReq {
   name: string;
   currencyCode: string;
   isControlAccount: boolean;
-  controlAccountCode?: string;
+  controlAccountCode: string;
   openingBalance: IOpeningBalanceDto | null;
 }
 
@@ -17,7 +17,7 @@ export interface IBankDetailsCreationReq {
 export interface IBankAccountCreationReq {
   name: string;
   currencyCode: string;
-  controlAccountCode?: string;
+  controlAccountCode: string;
   bankAccount: IBankDetailsCreationReq;
   openingBalance: IOpeningBalanceDto | null;
 }

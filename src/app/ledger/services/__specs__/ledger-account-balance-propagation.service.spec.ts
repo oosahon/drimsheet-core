@@ -80,6 +80,7 @@ describe('ledgerAccountBalancePropagationService', () => {
         currency: SYSTEM_CURRENCIES.NGN,
         isControlAccount: false,
         userId: user.id,
+        controlAccountCode: controlAccount.code,
       },
       mockOptions
     );

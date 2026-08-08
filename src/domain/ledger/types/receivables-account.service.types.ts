@@ -25,7 +25,7 @@ interface ICreateReceivableSubAccountPayload {
   accountingEntity: IAccountingEntity;
   currency: ICurrency;
   isControlAccount: boolean;
-  controlAccountCode?: TReceivablesLedgerCode;
+  controlAccountCode: TReceivablesLedgerCode;
   controlAccount?: ILedgerAccount;
   precedingCode?: TReceivablesLedgerCode;
 }

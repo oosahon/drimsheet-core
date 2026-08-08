@@ -51,6 +51,7 @@ const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
 const validPayload: IBankAccountCreationReq = {
   name: 'Operating Bank Account',
   currencyCode: 'NGN',
+  controlAccountCode: '100000',
   bankAccount: {
     bankName: 'First Bank of Nigeria',
     accountName: 'Company Operating Account',
@@ -204,6 +205,16 @@ describe('POST /accounts/asset/bank', () => {
   });
 
   describe('422 Response', () => {
+    it('rejects a missing control account code before orchestration', async () => {
+      const { controlAccountCode: _controlAccountCode, ...invalidPayload } =
+        validPayload;
+      const response = await makeRequest(invalidPayload);
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(mockCreateBankAccount).not.toHaveBeenCalled();
+    });
+
     it('rejects invalid payload with extra fields', async () => {
       const invalidPayload = {
         ...validPayload,

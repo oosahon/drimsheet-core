@@ -11,6 +11,7 @@ describe('Asset Account DTO Validation', () => {
         name: 'Petty Cash USD',
         currencyCode: 'USD',
         isControlAccount: false,
+        controlAccountCode: '100000',
         openingBalance: {
           amount: {
             amount: 5000,
@@ -31,6 +32,7 @@ describe('Asset Account DTO Validation', () => {
         name: 'Petty Cash GBP',
         currencyCode: 'GBP',
         isControlAccount: false,
+        controlAccountCode: '100000',
         openingBalance: null,
       };
 
@@ -43,6 +45,7 @@ describe('Asset Account DTO Validation', () => {
         name: 'Petty Cash USD',
         currencyCode: 'USD',
         isControlAccount: false,
+        controlAccountCode: '100000',
         openingBalance: {
           amount: {
             amount: 5000,
@@ -68,6 +71,7 @@ describe('Asset Account DTO Validation', () => {
         name: '',
         currencyCode: 'USD',
         isControlAccount: false,
+        controlAccountCode: '100000',
         openingBalance: null,
       };
 
@@ -80,10 +84,22 @@ describe('Asset Account DTO Validation', () => {
         name: 'a'.repeat(101),
         currencyCode: 'USD',
         isControlAccount: false,
+        controlAccountCode: '100000',
         openingBalance: null,
       };
 
       const result = pettyCashCreationReqValidation.safeParse(payload);
+      expect(result.success).toBe(false);
+    });
+
+    it('should fail validation if controlAccountCode is omitted', () => {
+      const result = pettyCashCreationReqValidation.safeParse({
+        name: 'Petty Cash USD',
+        currencyCode: 'USD',
+        isControlAccount: false,
+        openingBalance: null,
+      });
+
       expect(result.success).toBe(false);
     });
   });
@@ -112,6 +128,7 @@ describe('Asset Account DTO Validation', () => {
     const validPayload = {
       name: 'Operations Bank Account',
       currencyCode: 'NGN',
+      controlAccountCode: '100000',
       bankAccount: {
         bankName: 'First Bank of Nigeria',
         accountName: 'Company Operating Account',
@@ -123,6 +140,14 @@ describe('Asset Account DTO Validation', () => {
     it('should validate a valid bank account creation payload', () => {
       const result = bankAccountCreationReqValidation.safeParse(validPayload);
       expect(result.success).toBe(true);
+    });
+
+    it('should fail validation if controlAccountCode is omitted', () => {
+      const { controlAccountCode: _controlAccountCode, ...invalidPayload } =
+        validPayload;
+
+      const result = bankAccountCreationReqValidation.safeParse(invalidPayload);
+      expect(result.success).toBe(false);
     });
 
     it('should reject strict unknown fields at root level', () => {

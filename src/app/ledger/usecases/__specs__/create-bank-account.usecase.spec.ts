@@ -4,6 +4,7 @@ import { EAccountingEntityType } from '../../../../domain/accounting/types/accou
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
+import { ASSET_LEDGER_CODES } from '../../../../domain/ledger/config/asset-codes.config';
 import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
 import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { IBankDetails } from '../../../../domain/ledger/types/asset-account.types';
@@ -75,6 +76,7 @@ describe('makeCreateBankAccountUseCase', () => {
   const validReq: IBankAccountCreationReq = {
     name: 'Operating Bank Account',
     currencyCode: 'NGN',
+    controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
     bankAccount: {
       bankName: 'First Bank of Nigeria',
       accountName: 'Company Operating Account',
@@ -201,6 +203,12 @@ describe('makeCreateBankAccountUseCase', () => {
       bankDetails.accountNumber,
       expect.anything()
     );
+    expect(mockAssetAccountService.createBankSubAccount).toHaveBeenCalledWith(
+      expect.objectContaining({
+        controlAccountCode: validReq.controlAccountCode,
+      }),
+      expect.anything()
+    );
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalled();
     expect(mockBankAccountRepo.create).toHaveBeenCalledWith(
       mockAccount.id,
@@ -242,6 +250,7 @@ describe('makeCreateBankAccountUseCase', () => {
     const foreignReq: IBankAccountCreationReq = {
       name: 'USD Bank Account',
       currencyCode: 'USD',
+      controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       bankAccount: {
         bankName: 'Bank of America',
         accountName: 'US Operating Account',

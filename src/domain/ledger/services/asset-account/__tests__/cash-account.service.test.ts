@@ -102,10 +102,11 @@ describe('cashAccountService', () => {
       isControlAccount: false,
       userId: ownerId,
       accountingEntity: validAccountingEntity,
+      controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
     };
 
     describe('when valid payload is provided', () => {
-      it('should create a petty cash account successfully without an explicit control account code', async () => {
+      it('should create a petty cash account successfully with a supplied control account code', async () => {
         mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
           mockControlAccount
         );
@@ -140,13 +141,8 @@ describe('cashAccountService', () => {
         );
         mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
 
-        const payloadWithExplicitControlCode = {
-          ...validPayload,
-          controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
-        };
-
         const [account, events] = await service.createPettyCashSubAccount(
-          payloadWithExplicitControlCode,
+          validPayload,
           mockOptions
         );
 
@@ -301,6 +297,7 @@ describe('cashAccountService', () => {
       isControlAccount: false,
       userId: ownerId,
       accountingEntity: validAccountingEntity,
+      controlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       bankDetails: validBankValue,
     };
 

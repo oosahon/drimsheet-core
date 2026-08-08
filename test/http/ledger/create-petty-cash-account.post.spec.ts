@@ -188,6 +188,16 @@ describe('POST /ledger/asset/petty-cash', () => {
   });
 
   describe('422 Response', () => {
+    it('rejects a missing control account code before orchestration', async () => {
+      const { controlAccountCode: _controlAccountCode, ...invalidPayload } =
+        validPayload;
+      const response = await makeRequest(invalidPayload);
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(mockCreatePettyCashAccount).not.toHaveBeenCalled();
+    });
+
     it('rejects an invalid request before orchestration', async () => {
       const { currencyCode: _currencyCode, ...invalidPayload } = validPayload;
       const response = await makeRequest(invalidPayload);

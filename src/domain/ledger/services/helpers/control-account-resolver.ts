@@ -1,6 +1,5 @@
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../shared/types/uuid';
-import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
 import ledgerAccountError from '../../errors/ledger-account.error';
 import ILedgerAccountRepo from '../../repos/ledger-account.repo';
 import { EAssetSubType } from '../../types/asset-account.types';
@@ -17,7 +16,7 @@ interface IControlAccountScope<LedgerCode> {
 interface IPayload<LedgerCode> {
   ledgerAccountRepo: ILedgerAccountRepo;
   accountingEntityId: TEntityId;
-  controlAccountCode: LedgerCode | undefined;
+  controlAccountCode: LedgerCode;
   repoOptions: IReadRepoOptions;
   validator(controlAccount: ILedgerAccount): boolean;
 }
@@ -25,9 +24,7 @@ interface IPayload<LedgerCode> {
 export default async function controlAccountResolverHelper<LedgerCode>(
   payload: IPayload<LedgerCode>
 ) {
-  const controlAccountLedgerCode =
-    payload.controlAccountCode ??
-    ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER;
+  const controlAccountLedgerCode = payload.controlAccountCode;
 
   const controlAccount = await payload.ledgerAccountRepo.findByCode(
     controlAccountLedgerCode as string,

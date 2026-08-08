@@ -22,7 +22,7 @@ interface IMakePettyCashPayload {
   isControlAccount: boolean;
   userId: TEntityId;
   accountingEntity: IAccountingEntity;
-  controlAccountCode?: TCashLedgerCode;
+  controlAccountCode: TCashLedgerCode;
 }
 
 interface IMakeBankPayload {
@@ -31,7 +31,7 @@ interface IMakeBankPayload {
   isControlAccount: boolean;
   userId: TEntityId;
   accountingEntity: IAccountingEntity;
-  controlAccountCode?: TCashLedgerCode;
+  controlAccountCode: TCashLedgerCode;
   bankDetails: IBankDetails;
 }
 
