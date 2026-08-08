@@ -1,11 +1,13 @@
 import { InferSelectModel } from 'drizzle-orm';
+
 import {
   SYSTEM_CURRENCIES,
   UCurrencyCode,
-} from '../../../../../domain/money/config/currencies.config';
-import currencyEntity from '../../../../../domain/money/entities/currency.entity';
-import { ICurrency } from '../../../../../domain/money/types/currency.types';
-import { currenciesInCore } from '../../../../config/drizzle/schema';
+} from '@domain/money/config/currencies.config';
+import currencyEntity from '@domain/money/entities/currency.entity';
+import { ICurrency } from '@domain/money/types/currency.types';
+
+import { currenciesInCore } from '@infra/config/drizzle/schema';
 
 export interface ICurrencyModel extends InferSelectModel<
   typeof currenciesInCore

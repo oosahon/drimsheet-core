@@ -1,16 +1,18 @@
-import ICounterpartyService from '../../../domain/counterparty/types/counterparty.service.types';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/values/events/event.vo';
-import historyValue from '../../../shared/values/history/history.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import ICounterpartyPersistenceService from '../contracts/persistence.service.contract';
+import IEventBus from '@shared/contracts/event-bus.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import eventValue from '@shared/values/events/event.vo';
+import historyValue from '@shared/values/history/history.vo';
+
+import ICounterpartyService from '@domain/counterparty/types/counterparty.service.types';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
 import {
   ICounterpartyCreateReq,
   ICounterpartyDto,
-} from '../dtos/counterparty/counterparty.dto';
-import counterpartyDtoMapper from '../dtos/counterparty/counterparty.dto.mapper';
-import { counterpartyCreateReqValidation } from '../dtos/counterparty/counterparty.dto.validation';
+} from '@app/counterparty/dtos/counterparty/counterparty.dto';
+import counterpartyDtoMapper from '@app/counterparty/dtos/counterparty/counterparty.dto.mapper';
+import { counterpartyCreateReqValidation } from '@app/counterparty/dtos/counterparty/counterparty.dto.validation';
 
 interface IDependencies {
   appContext: IAppContext;

@@ -1,22 +1,23 @@
-import moneyValue from '../../../domain/money/values/money.vo';
-import dateUtils from '../../../shared/utils/date';
-import numberUtils from '../../../shared/utils/number';
-import stringUtils from '../../../shared/utils/string';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import { IEvent } from '../../../shared/values/events/types/event.types';
-import journalLineError from '../errors/journal-line.error';
-import journalLineEvents from '../events/journal-line-item.events';
+import dateUtils from '@shared/utils/date';
+import numberUtils from '@shared/utils/number';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
+import { IEvent } from '@shared/values/events/types/event.types';
+
+import helpers from '@domain/journal-entry/entities/helpers/journal-line.helpers';
+import journalLineError from '@domain/journal-entry/errors/journal-line.error';
+import journalLineEvents from '@domain/journal-entry/events/journal-line-item.events';
 import {
   EJournalLineAuditAction,
   IJournalLineAudit,
-} from '../types/journal-entry-audit.types';
-import { IJournalEntry } from '../types/journal-entry.types';
+} from '@domain/journal-entry/types/journal-entry-audit.types';
+import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
 import {
   IJournalLine,
   IJournalLineMakePayload,
-} from '../types/journal-line.types';
-import journalLineAudit from '../values/journal-line-audit.vo';
-import helpers from './helpers/journal-line.helpers';
+} from '@domain/journal-entry/types/journal-line.types';
+import journalLineAudit from '@domain/journal-entry/values/journal-line-audit.vo';
+import moneyValue from '@domain/money/values/money.vo';
 
 function make(
   entryPayload: Pick<IJournalEntry, 'id' | 'memo' | 'createdAt'>,

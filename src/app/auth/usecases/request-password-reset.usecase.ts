@@ -1,14 +1,16 @@
-import userEvents from '../../../domain/user/events/user.events';
-import IUserRepo from '../../../domain/user/repos/user.repo';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
-import IVarsConfig from '../../../shared/contracts/vars-config.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/values/events/event.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import ITransactionalEmailService from '../../notification/contracts/transactional-email-service.contract';
-import ITokenService from '../contracts/token-service.contract';
-import IUserAuthRepo from '../contracts/user-auth.repo.contract';
-import { requestPasswordResetReqValidation } from '../dtos/auth/auth.dto.validation';
+import IEventBus from '@shared/contracts/event-bus.contract';
+import IVarsConfig from '@shared/contracts/vars-config.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import eventValue from '@shared/values/events/event.vo';
+
+import userEvents from '@domain/user/events/user.events';
+import IUserRepo from '@domain/user/repos/user.repo';
+
+import ITokenService from '@app/auth/contracts/token-service.contract';
+import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
+import { requestPasswordResetReqValidation } from '@app/auth/dtos/auth/auth.dto.validation';
+import IAppContext from '@app/context/contracts/app-context.contract';
+import ITransactionalEmailService from '@app/notification/contracts/transactional-email-service.contract';
 
 interface IDependencies {
   appContext: IAppContext;

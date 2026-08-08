@@ -1,4 +1,4 @@
-import { sanitizeData, sanitizeUrl } from '../sanitizer';
+import { sanitizeData, sanitizeUrl } from '@shared/utils/sanitizer';
 
 describe('sanitizer', () => {
   describe('sanitizeUrl', () => {

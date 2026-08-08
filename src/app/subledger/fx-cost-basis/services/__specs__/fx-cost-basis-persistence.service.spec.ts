@@ -1,18 +1,20 @@
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import { EExchangeRateType } from '../../../../../domain/money/types/exchange-rate.types';
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import fxCostBasisLotAcquisitionEntity from '../../../../../domain/subledger/fx-cost-basis/entities/acquisition.entity';
-import fxCostBasisLotEntity from '../../../../../domain/subledger/fx-cost-basis/entities/lot.entity';
-import IFxCostBasisLotAcquisitionRepo from '../../../../../domain/subledger/fx-cost-basis/repos/acquisition.repo';
-import IFxCostBasisLotRepo from '../../../../../domain/subledger/fx-cost-basis/repos/lot.repo';
-import { EFxCostBasisLotStatus } from '../../../../../domain/subledger/fx-cost-basis/types/lot.types';
-import mockRepoService from '../../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import historyValue from '../../../../../shared/values/history/history.vo';
-import { EHistoryActorType } from '../../../../../shared/values/history/types/history.types';
-import makeFxLotCostBasisPersistenceService from '../fx-cost-basis-persistence.service';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+import historyValue from '@shared/values/history/history.vo';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import moneyValue from '@domain/money/values/money.vo';
+import fxCostBasisLotAcquisitionEntity from '@domain/subledger/fx-cost-basis/entities/acquisition.entity';
+import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.entity';
+import IFxCostBasisLotAcquisitionRepo from '@domain/subledger/fx-cost-basis/repos/acquisition.repo';
+import IFxCostBasisLotRepo from '@domain/subledger/fx-cost-basis/repos/lot.repo';
+import { EFxCostBasisLotStatus } from '@domain/subledger/fx-cost-basis/types/lot.types';
+
+import makeFxLotCostBasisPersistenceService from '@app/subledger/fx-cost-basis/services/fx-cost-basis-persistence.service';
 
 const mockFxCostBasisLotAcquisitionRepo: jest.Mocked<IFxCostBasisLotAcquisitionRepo> =
   {

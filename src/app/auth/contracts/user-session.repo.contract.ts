@@ -1,7 +1,5 @@
-import {
-  IReadRepoOptions,
-  IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
+import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+
 import { IUserSession } from './auth.types';
 
 export default interface IUserSessionRepo {

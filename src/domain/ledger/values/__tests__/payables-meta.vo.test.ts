@@ -1,6 +1,7 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import payablesMetaValue from '../payables-meta.vo.';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import payablesMetaValue from '@domain/ledger/values/payables-meta.vo.';
 
 describe('payablesMetaValue', () => {
   it('returns null statutory metadata unchanged', () => {

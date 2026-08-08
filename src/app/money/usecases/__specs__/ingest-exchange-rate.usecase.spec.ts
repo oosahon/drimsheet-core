@@ -1,15 +1,17 @@
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import currencyError from '../../../../domain/money/errors/currency.error';
-import exchangeRateError from '../../../../domain/money/errors/exchange-rate.error';
-import IExchangeRateRepo from '../../../../domain/money/repos/exchange-rate.repo';
-import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import mockLogger from '../../../../shared/contracts/__mocks__/logger.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../shared/types/repo.types';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import IExchangeRateIngestion from '../../contracts/exchange-rate-ingestion.contract';
-import makeIngestExchangeRateUseCase from '../ingest-exchange-rate.usecase';
+import mockLogger from '@shared/contracts/__mocks__/logger.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import currencyError from '@domain/money/errors/currency.error';
+import exchangeRateError from '@domain/money/errors/exchange-rate.error';
+import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import IExchangeRateIngestion from '@app/money/contracts/exchange-rate-ingestion.contract';
+import makeIngestExchangeRateUseCase from '@app/money/usecases/ingest-exchange-rate.usecase';
 
 const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
   create: jest.fn(),

@@ -1,5 +1,5 @@
-import { TEntityId } from '../../../shared/types/uuid';
-import { IEntityDelta } from '../../../shared/values/history/types/history.types';
+import { TEntityId } from '@shared/types/uuid';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
 
 export const EExchangeRateIssue = {
   MissingInSystem: 'missing_in_system',

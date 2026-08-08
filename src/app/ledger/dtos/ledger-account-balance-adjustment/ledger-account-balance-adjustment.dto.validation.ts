@@ -1,5 +1,6 @@
 import z from 'zod';
-import { moneyDtoValidation } from '../../../money/dtos/money/money.dto.validation';
+
+import { moneyDtoValidation } from '@app/money/dtos/money/money.dto.validation';
 
 export const ledgerAccountBalanceAdjustmentDtoSchema = z.object({
   journalEntry: z.object({

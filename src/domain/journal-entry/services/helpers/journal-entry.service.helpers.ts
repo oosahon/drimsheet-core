@@ -1,10 +1,11 @@
-import dateUtils from '../../../../shared/utils/date';
-import { ILedgerAccount } from '../../../ledger/types/ledger.types';
-import journalEntryError from '../../errors/journal-entry.error';
-import journalEntryRuleValidator from '../../rules/entry-rule.validator';
-import receiptEntryRule from '../../rules/receipt-entry.rule';
-import { IJournalEntryRule } from '../../types/entry.rules.types';
-import { ICreateReceiptEntryPayload } from '../../types/journal-entry.service.types';
+import dateUtils from '@shared/utils/date';
+
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
+import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
+import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
+import { ICreateReceiptEntryPayload } from '@domain/journal-entry/types/journal-entry.service.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 function validateAccountsAgainstRule(
   sourceAccount: ILedgerAccount,

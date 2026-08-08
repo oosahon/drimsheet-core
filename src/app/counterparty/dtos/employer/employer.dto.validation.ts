@@ -1,11 +1,14 @@
 import z from 'zod';
-import counterpartyError from '../../../../domain/counterparty/errors/counterparty.error';
-import { addressDtoValidation } from '../../../../shared/values/contact-details/dto/address.dto.validation';
+
+import { addressDtoValidation } from '@shared/values/contact-details/dto/address.dto.validation';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
+
 import {
   counterpartyNameValidation,
   counterpartyStatusValidation,
   counterpartyTypeValidation,
-} from '../counterparty/counterparty.dto.validation';
+} from '@app/counterparty/dtos/counterparty/counterparty.dto.validation';
 
 const invalidNameKey = new counterpartyError.InvalidName().errorKey;
 

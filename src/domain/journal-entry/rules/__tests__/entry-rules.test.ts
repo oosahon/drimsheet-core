@@ -1,16 +1,17 @@
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
-import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
-import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
-import makeReceivablesAccountService from '../../../ledger/services/asset-account/receivables-account.service';
-import makeEquityAccountService from '../../../ledger/services/equity-account/equity-account.service';
-import makePayablesAccountService from '../../../ledger/services/liability-account/payables.service';
-import makeServicesAccountService from '../../../ledger/services/revenue-account/services.service';
-import { ILedgerAccount } from '../../../ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
-import journalEntryRuleValidator from '../entry-rule.validator';
-import openingBalanceEntryRule from '../opening-balance-entry.rule';
-import receiptEntryRule from '../receipt-entry.rule';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
+import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
+import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import makeReceivablesAccountService from '@domain/ledger/services/asset-account/receivables-account.service';
+import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
+import makePayablesAccountService from '@domain/ledger/services/liability-account/payables.service';
+import makeServicesAccountService from '@domain/ledger/services/revenue-account/services.service';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
 describe('journal entry rules', () => {
   const accountingEntityId = generateUUID();

@@ -1,9 +1,13 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { UJurisdictionCode } from '../../../../../domain/accounting/config/jurisdictions.config';
-import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { UCurrencyCode } from '../../../../../domain/money/config/currencies.config';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { accountingEntitiesInCore } from '../../../../config/drizzle/schema';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { UJurisdictionCode } from '@domain/accounting/config/jurisdictions.config';
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { UCurrencyCode } from '@domain/money/config/currencies.config';
+
+import { accountingEntitiesInCore } from '@infra/config/drizzle/schema';
+
 export type IAccountingEntityRes = IAccountingEntity;
 
 export interface IAccountingEntityModel extends InferSelectModel<

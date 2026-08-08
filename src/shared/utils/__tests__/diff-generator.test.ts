@@ -1,4 +1,4 @@
-import generateDiff from '../diff-generator';
+import generateDiff from '@shared/utils/diff-generator';
 
 describe('generateDiff', () => {
   it('should return full snapshots if identical', () => {

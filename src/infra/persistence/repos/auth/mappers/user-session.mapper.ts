@@ -1,8 +1,14 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IUserSession } from '../../../../../app/auth/contracts/auth.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { userSessionsInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUserSession } from '@app/auth/contracts/auth.types';
+
+import { userSessionsInCore } from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface IUserSessionModel extends InferSelectModel<
   typeof userSessionsInCore

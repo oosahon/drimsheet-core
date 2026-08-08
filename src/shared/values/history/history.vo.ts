@@ -1,14 +1,15 @@
-import { TEntityId } from '../../types/uuid';
-import dateUtils from '../../utils/date';
-import safeJSON from '../../utils/safe-json';
-import stringUtils from '../../utils/string';
-import historyError from './history.error';
+import { TEntityId } from '@shared/types/uuid';
+import dateUtils from '@shared/utils/date';
+import safeJSON from '@shared/utils/safe-json';
+import stringUtils from '@shared/utils/string';
 import {
   EHistoryActorType,
   IEntityDelta,
   IHistory,
   IHistoryActor,
-} from './types/history.types';
+} from '@shared/values/history/types/history.types';
+
+import historyError from './history.error';
 
 function validateActor(actor: IHistoryActor) {
   const isValidActorType = Object.values(EHistoryActorType).includes(

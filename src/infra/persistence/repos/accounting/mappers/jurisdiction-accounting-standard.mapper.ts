@@ -1,7 +1,9 @@
 import { InferInsertModel } from 'drizzle-orm';
-import { UAccountingEntityType } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { IJurisdictionAccountingStandard } from '../../../../../domain/accounting/types/jurisdiction.types';
-import { jurisdictionAccountingStandardsInCore } from '../../../../config/drizzle/schema';
+
+import { UAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import { IJurisdictionAccountingStandard } from '@domain/accounting/types/jurisdiction.types';
+
+import { jurisdictionAccountingStandardsInCore } from '@infra/config/drizzle/schema';
 
 export type IJurisdictionAccountingStandardModel = InferInsertModel<
   typeof jurisdictionAccountingStandardsInCore

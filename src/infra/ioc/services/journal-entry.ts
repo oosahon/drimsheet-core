@@ -1,7 +1,10 @@
-import makeJournalEntryPersistenceService from '../../../app/journal-entry/services/journal-entry-persistence.service';
-import makeJournalEntryService from '../../../domain/journal-entry/services/journal-entry.service';
-import journalEntryRepos from '../../persistence/repos/journal-entry';
-import ledgerRepos from '../../persistence/repos/ledger';
+import makeJournalEntryService from '@domain/journal-entry/services/journal-entry.service';
+
+import makeJournalEntryPersistenceService from '@app/journal-entry/services/journal-entry-persistence.service';
+
+import journalEntryRepos from '@infra/persistence/repos/journal-entry';
+import ledgerRepos from '@infra/persistence/repos/ledger';
+
 import { accountingPeriodService } from './accounting';
 import { repoService } from './repo';
 

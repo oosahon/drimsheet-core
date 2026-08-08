@@ -1,4 +1,4 @@
-import safeJSON from '../safe-json';
+import safeJSON from '@shared/utils/safe-json';
 
 describe('safeJSON', () => {
   describe('stringify', () => {

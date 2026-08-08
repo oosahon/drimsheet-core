@@ -1,9 +1,11 @@
 import z from 'zod';
-import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
+
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+
 import {
   journalEntryStatusValidation,
   journalLineReqValidation,
-} from '../journal-entry/journal-entry.dto.validation';
+} from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.validation';
 
 export const transactionJournalEntryReqValidation = z.object({
   sourceLine: journalLineReqValidation,

@@ -1,10 +1,12 @@
-import { ICounterparty } from '../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import { mockCounterpartyRepo } from '../../contracts/__mocks__/counterparty.repos.mock';
-import { IGetCounterpartiesQuery } from '../../dtos/counterparty/counterparty.dto';
-import makeGetCounterpartiesUsecase from '../get-counterparties.usecase';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
+
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockCounterpartyRepo } from '@app/counterparty/contracts/__mocks__/counterparty.repos.mock';
+import { IGetCounterpartiesQuery } from '@app/counterparty/dtos/counterparty/counterparty.dto';
+import makeGetCounterpartiesUsecase from '@app/counterparty/usecases/get-counterparties.usecase';
 
 describe('makeGetCounterpartiesUsecase', () => {
   const getUseCase = () =>

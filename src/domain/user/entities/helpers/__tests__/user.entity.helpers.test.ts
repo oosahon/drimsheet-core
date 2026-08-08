@@ -1,7 +1,8 @@
-import { TEntityId } from '../../../../../shared/types/uuid';
-import userError from '../../../errors/user.error';
-import { IUser } from '../../../types/user.types';
-import userEntityHelpers from '../user.entity.helpers';
+import { TEntityId } from '@shared/types/uuid';
+
+import userEntityHelpers from '@domain/user/entities/helpers/user.entity.helpers';
+import userError from '@domain/user/errors/user.error';
+import { IUser } from '@domain/user/types/user.types';
 
 describe('userEntityHelpers', () => {
   describe('validate', () => {

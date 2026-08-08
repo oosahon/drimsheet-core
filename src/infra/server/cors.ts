@@ -1,6 +1,8 @@
 import corsMiddleware, { CorsOptions } from 'cors';
-import appError from '../../shared/values/errors/app.error';
-import { CORS_WHITELIST } from '../config/cors.config';
+
+import appError from '@shared/values/errors/app.error';
+
+import { CORS_WHITELIST } from '@infra/config/cors.config';
 
 export default function cors() {
   const options: CorsOptions = {

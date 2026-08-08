@@ -1,5 +1,5 @@
-import ITransactionalEmailQueue from '../../contracts/transactional-email-queue.contract';
-import makeTransactionalEmailService from '../transaction-email.service';
+import ITransactionalEmailQueue from '@app/notification/contracts/transactional-email-queue.contract';
+import makeTransactionalEmailService from '@app/notification/services/transaction-email.service';
 
 describe('transactionEmailService', () => {
   let mockQueue: jest.Mocked<ITransactionalEmailQueue>;

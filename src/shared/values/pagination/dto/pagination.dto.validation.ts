@@ -1,9 +1,10 @@
 import z from 'zod';
-import paginationError from '../pagination.error';
+
+import paginationError from '@shared/values/pagination/pagination.error';
 import {
   EPaginationSortDirection,
   UPaginationSortDirection,
-} from '../types/pagination.types';
+} from '@shared/values/pagination/types/pagination.types';
 
 const {
   InvalidSortDirection,

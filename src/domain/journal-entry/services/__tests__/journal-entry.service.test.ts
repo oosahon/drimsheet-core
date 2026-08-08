@@ -1,44 +1,45 @@
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import accountingEntityEntity from '../../../accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../accounting/types/accounting-entity.types';
-import IAccountingPeriodService from '../../../accounting/types/accounting-period.service.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import IAccountingPeriodService from '@domain/accounting/types/accounting-period.service.types';
 import {
   EPeriodStatus,
   EPeriodUnit,
   IAccountingPeriod,
-} from '../../../accounting/types/period.types';
-import counterpartyEntity from '../../../counterparty/entities/counterparty.entity';
-import { ECounterpartyType } from '../../../counterparty/types/counterparty.types';
-import ledgerAccountBalanceEntity from '../../../ledger/entities/ledger-account-balance.entity';
-import ledgerAccountEntity from '../../../ledger/entities/ledger-account.entity';
-import ILedgerAccountBalanceRepo from '../../../ledger/repos/ledger-account-balance.repo';
-import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
-import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
-import makeEquityAccountService from '../../../ledger/services/equity-account/equity-account.service';
-import makeServicesAccountService from '../../../ledger/services/revenue-account/services.service';
-import { EEquitySubType } from '../../../ledger/types/equity-account.types';
-import { ELedgerType } from '../../../ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
-import { EExchangeRateType } from '../../../money/types/exchange-rate.types';
-import exchangeRateValue from '../../../money/values/exchange-rate.vo';
-import moneyValue from '../../../money/values/money.vo';
-import userEntity from '../../../user/entities/user.entity';
-import journalEntryError from '../../errors/journal-entry.error';
-import journalLineError from '../../errors/journal-line.error';
-import { EJournalEntryEvent } from '../../events/journal-entry.events';
-import { EJournalLineItemEvent } from '../../events/journal-line-item.events';
+} from '@domain/accounting/types/period.types';
+import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
+import { ECounterpartyType } from '@domain/counterparty/types/counterparty.types';
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import journalLineError from '@domain/journal-entry/errors/journal-line.error';
+import { EJournalEntryEvent } from '@domain/journal-entry/events/journal-entry.events';
+import { EJournalLineItemEvent } from '@domain/journal-entry/events/journal-line-item.events';
+import makeJournalEntryService from '@domain/journal-entry/services/journal-entry.service';
 import {
   EJournalEntryAuditAction,
   EJournalLineAuditAction,
-} from '../../types/journal-entry-audit.types';
-import { ICreateReceiptEntryPayload } from '../../types/journal-entry.service.types';
+} from '@domain/journal-entry/types/journal-entry-audit.types';
+import { ICreateReceiptEntryPayload } from '@domain/journal-entry/types/journal-entry.service.types';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
-} from '../../types/journal-entry.types';
-import { EJournalSide } from '../../types/journal-line.types';
-import makeJournalEntryService from '../journal-entry.service';
+} from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
+import makeServicesAccountService from '@domain/ledger/services/revenue-account/services.service';
+import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
+import { ELedgerType } from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import moneyValue from '@domain/money/values/money.vo';
+import userEntity from '@domain/user/entities/user.entity';
 
 const mockAccountingPeriodService: jest.Mocked<IAccountingPeriodService> = {
   validatePostingPeriod: jest.fn(),

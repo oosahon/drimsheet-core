@@ -1,20 +1,22 @@
-import { mockLedgerAccountRepo } from '../../../../../../app/ledger/contracts/__mocks__/ledger.repos.mock';
-import accountingEntityEntity from '../../../../../../domain/accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../../../domain/accounting/types/accounting-entity.types';
-import journalEntryEntity from '../../../../../../domain/journal-entry/entities/journal-entry.entity';
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
-} from '../../../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../../../domain/journal-entry/types/journal-line.types';
-import makeCashAccountService from '../../../../../../domain/ledger/services/asset-account/cash-account.service';
-import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../../domain/money/values/money.vo';
-import userEntity from '../../../../../../domain/user/entities/user.entity';
+} from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
+import userEntity from '@domain/user/entities/user.entity';
+
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+
 import journalEntryMapper, {
   IJournalEntrySelectModel,
-} from '../journal-entry.mapper';
-import journalLineMapper from '../journal-line.mapper';
+} from '@infra/persistence/repos/journal-entry/mappers/journal-entry.mapper';
+import journalLineMapper from '@infra/persistence/repos/journal-entry/mappers/journal-line.mapper';
 
 describe('Journal Entry Mapper', () => {
   const cashAccountService = makeCashAccountService({

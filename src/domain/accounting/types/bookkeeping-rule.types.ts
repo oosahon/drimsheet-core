@@ -1,5 +1,5 @@
-import { UJournalSide } from '../../journal-entry/types/journal-line.types';
-import { ILedgerAccount } from '../../ledger/types/ledger.types';
+import { UJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 export interface IPermittedAccounts {
   sources: { behaviors: string[]; subtypes: string[] };

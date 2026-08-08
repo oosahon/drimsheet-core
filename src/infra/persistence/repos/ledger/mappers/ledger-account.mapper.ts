@@ -1,16 +1,19 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { ILedgerAccount } from '../../../../../domain/ledger/types/ledger.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { ledgerAccountsInCore } from '../../../../config/drizzle/schema';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+
+import { ledgerAccountsInCore } from '@infra/config/drizzle/schema';
 import {
   fromCommonRepoDates,
   fromRepoDate,
   toCommonRepoDates,
   toRepoDateOnly,
-} from '../../../helpers/date.mapper';
+} from '@infra/persistence/helpers/date.mapper';
 import currencyMapper, {
   ICurrencyModel,
-} from '../../money/mappers/currency.mapper';
+} from '@infra/persistence/repos/money/mappers/currency.mapper';
 
 export interface ILedgerAccountModel extends InferSelectModel<
   typeof ledgerAccountsInCore

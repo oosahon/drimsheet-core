@@ -1,6 +1,8 @@
-import { IJournalEntry } from '../../../../domain/journal-entry/types/journal-entry.types';
-import { IJournalLine } from '../../../../domain/journal-entry/types/journal-line.types';
-import moneyMapper from '../../../money/dtos/money/money.dto.mapper';
+import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
+import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
+
+import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
+
 import { IJournalEntryDto, IJournalLineDto } from './journal-entry.dto';
 
 const journalEntryDtoMapper = {

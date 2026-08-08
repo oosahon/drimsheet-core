@@ -1,8 +1,10 @@
 import { eq } from 'drizzle-orm';
-import IUserPreferencesRepo from '../../../../domain/user/repos/user-preferences.repo';
-import { userPreferencesInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
-import userPreferencesMapper from './mappers/user-preferences.mapper';
+
+import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
+
+import { userPreferencesInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import userPreferencesMapper from '@infra/persistence/repos/user/mappers/user-preferences.mapper';
 
 const userPreferencesRepo: IUserPreferencesRepo = {
   async findById(id, options) {

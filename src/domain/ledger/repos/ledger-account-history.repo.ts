@@ -1,5 +1,6 @@
-import { IWriteRepoOptions } from '../../../shared/types/repo.types';
-import { ILedgerAccountHistory } from '../types/ledger-account-audit.types';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+
+import { ILedgerAccountHistory } from '@domain/ledger/types/ledger-account-audit.types';
 
 export default interface ILedgerAccountHistoryRepo {
   save(

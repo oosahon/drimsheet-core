@@ -1,5 +1,6 @@
-import IReporter from '../../../shared/contracts/reporter.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
+import IReporter from '@shared/contracts/reporter.contract';
+
+import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 
 interface IDependencies {
   reporter: IReporter;

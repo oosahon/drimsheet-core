@@ -1,6 +1,5 @@
-import DomainError from '../../values/errors/domain.error';
-
-import numberUtils from '../number';
+import numberUtils from '@shared/utils/number';
+import DomainError from '@shared/values/errors/domain.error';
 
 class TestError extends DomainError<'test_error'> {
   constructor(cause?: any) {

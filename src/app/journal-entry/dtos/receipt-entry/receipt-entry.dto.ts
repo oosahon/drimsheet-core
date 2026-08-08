@@ -1,7 +1,7 @@
 import {
   IJournalCounterpartyReq,
   IJournalLineReq,
-} from '../journal-entry/journal-entry.dto';
+} from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 
 interface IReceiptEntryLineReq extends IJournalLineReq {
   counterparty: IJournalCounterpartyReq;

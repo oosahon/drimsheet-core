@@ -1,21 +1,23 @@
-import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
-import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
-import { ILedgerAccountBalance } from '../../../../domain/ledger/types/ledger-account-balance.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import currencyEntity from '../../../../domain/money/entities/currency.entity';
-import moneyValue from '../../../../domain/money/values/money.vo';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
+import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import { ICashAndCashEquivalentAccount } from '@domain/ledger/types/asset-account.types';
+import { ILedgerAccountBalance } from '@domain/ledger/types/ledger-account-balance.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import currencyEntity from '@domain/money/entities/currency.entity';
+import moneyValue from '@domain/money/values/money.vo';
+
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import {
   mockLedgerAccountBalanceRepo,
   mockLedgerAccountRepo,
-} from '../../contracts/__mocks__/ledger.repos.mock';
-import { IGetLedgerAccountsQuery } from '../../dtos/ledger-account/ledger-account.dto';
-import makeGetLedgerAccountsUsecase from '../get-ledger-accounts.usecase';
+} from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import { IGetLedgerAccountsQuery } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
+import makeGetLedgerAccountsUsecase from '@app/ledger/usecases/get-ledger-accounts.usecase';
 
 describe('makeGetLedgerAccountsUsecase', () => {
   const getUseCase = () =>

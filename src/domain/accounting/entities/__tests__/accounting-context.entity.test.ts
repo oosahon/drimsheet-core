@@ -1,11 +1,12 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import { EAccountingContextEvents } from '../../events/accounting-context.events';
-import { EAccountingContextActions } from '../../types/accounting-context-audit.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import accountingContextEntity from '@domain/accounting/entities/accounting-context.entity';
+import { EAccountingContextEvents } from '@domain/accounting/events/accounting-context.events';
+import { EAccountingContextActions } from '@domain/accounting/types/accounting-context-audit.types';
 import {
   EAccountingEntityType,
   UAccountingEntityType,
-} from '../../types/accounting-entity.types';
-import accountingContextEntity from '../accounting-context.entity';
+} from '@domain/accounting/types/accounting-entity.types';
 
 describe('accountingContextEntity', () => {
   beforeAll(() => {

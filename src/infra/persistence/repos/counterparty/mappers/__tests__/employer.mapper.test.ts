@@ -1,6 +1,10 @@
-import { IEmployer } from '../../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import employerMapper, { IEmployerModel } from '../employer.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IEmployer } from '@domain/counterparty/types/counterparty.types';
+
+import employerMapper, {
+  IEmployerModel,
+} from '@infra/persistence/repos/counterparty/mappers/employer.mapper';
 
 describe('employerMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');

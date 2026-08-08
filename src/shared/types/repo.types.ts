@@ -1,4 +1,5 @@
-import { IPaginationParams } from '../values/pagination/types/pagination.types';
+import { IPaginationParams } from '@shared/values/pagination/types/pagination.types';
+
 import { ICorrelationId } from './correlation-id.types';
 
 export interface ITransactionContext {

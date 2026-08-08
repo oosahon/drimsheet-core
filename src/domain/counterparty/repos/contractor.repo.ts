@@ -1,6 +1,7 @@
-import { IWriteRepoOptions } from '../../../shared/types/repo.types';
-import { IContractorHistory } from '../types/counterparty-audit.types';
-import { IContractor } from '../types/counterparty.types';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+
+import { IContractorHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { IContractor } from '@domain/counterparty/types/counterparty.types';
 
 export default interface IContractorRepo {
   create(

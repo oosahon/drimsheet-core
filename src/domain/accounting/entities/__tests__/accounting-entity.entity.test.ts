@@ -1,13 +1,14 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { EAccountingEntityEvents } from '../../events/accounting-entity.events';
-import { EAccountingEntityActions } from '../../types/accounting-entity-audit.types';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityEvents } from '@domain/accounting/events/accounting-entity.events';
+import { EAccountingEntityActions } from '@domain/accounting/types/accounting-entity-audit.types';
 import {
   EAccountingEntityHistoryAction,
   EAccountingEntityType,
   IAccountingEntity,
-} from '../../types/accounting-entity.types';
-import accountingEntityEntity from '../accounting-entity.entity';
+} from '@domain/accounting/types/accounting-entity.types';
 
 describe('accountingEntityEntity', () => {
   const MOCK_DATE = new Date('2026-04-01T00:00:00.000Z');

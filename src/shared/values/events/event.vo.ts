@@ -1,6 +1,10 @@
-import stringUtils from '../../utils/string';
+import stringUtils from '@shared/utils/string';
+import {
+  IEvent,
+  IEventEnrichmentPayload,
+} from '@shared/values/events/types/event.types';
+
 import eventError from './event.error';
-import { IEvent, IEventEnrichmentPayload } from './types/event.types';
 
 /**
  * Enriches an event with correlation and idempotency keys.

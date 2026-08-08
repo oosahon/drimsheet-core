@@ -1,7 +1,9 @@
-import { ICounterpartyHistory } from '../../../../../../domain/counterparty/types/counterparty-audit.types';
-import { ICounterparty } from '../../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import counterpartyHistoryMapper from '../counterparty-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ICounterpartyHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
+
+import counterpartyHistoryMapper from '@infra/persistence/repos/counterparty/mappers/counterparty-history.mapper';
 
 describe('counterpartyHistoryMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');

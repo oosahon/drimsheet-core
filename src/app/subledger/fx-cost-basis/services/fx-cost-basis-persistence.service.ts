@@ -1,12 +1,14 @@
-import moneyValue from '../../../../domain/money/values/money.vo';
-import IFxCostBasisLotAcquisitionRepo from '../../../../domain/subledger/fx-cost-basis/repos/acquisition.repo';
-import IFxCostBasisLotRepo from '../../../../domain/subledger/fx-cost-basis/repos/lot.repo';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../../shared/contracts/repo.contract';
-import IFxCostBasisPersistenceService from '../contracts/fx-cost-basis-persistence.service.contract';
-import fxCostBasisAppError from '../errors/fx-cost-basis.error';
+} from '@shared/contracts/repo.contract';
+
+import moneyValue from '@domain/money/values/money.vo';
+import IFxCostBasisLotAcquisitionRepo from '@domain/subledger/fx-cost-basis/repos/acquisition.repo';
+import IFxCostBasisLotRepo from '@domain/subledger/fx-cost-basis/repos/lot.repo';
+
+import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
+import fxCostBasisAppError from '@app/subledger/fx-cost-basis/errors/fx-cost-basis.error';
 
 interface IDependencies {
   lotRepo: IFxCostBasisLotRepo;

@@ -1,18 +1,19 @@
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import {
   EExchangeRateType,
   IExchangeRate,
-} from '../../../../money/types/exchange-rate.types';
-import FxCostBasisLotAcquisitionError from '../../errors/acquisition.error';
-import { EFxCostBasisLotAcquisitionEvent } from '../../events/acquisition.events';
+} from '@domain/money/types/exchange-rate.types';
+import moneyValue from '@domain/money/values/money.vo';
+import fxCostBasisLotAcquisitionEntity from '@domain/subledger/fx-cost-basis/entities/acquisition.entity';
+import FxCostBasisLotAcquisitionError from '@domain/subledger/fx-cost-basis/errors/acquisition.error';
+import { EFxCostBasisLotAcquisitionEvent } from '@domain/subledger/fx-cost-basis/events/acquisition.events';
 import {
   EFxCostBasisLotAcquisitionAuditAction,
   IFxCostBasisLotAcquisition,
-} from '../../types/acquisition.types';
-import fxCostBasisLotAcquisitionEntity from '../acquisition.entity';
+} from '@domain/subledger/fx-cost-basis/types/acquisition.types';
 
 describe('fxCostBasisLotAcquisitionEntity', () => {
   const MOCK_DATE = new Date('2026-04-01T00:00:00.000Z');

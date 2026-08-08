@@ -1,6 +1,7 @@
 import { asc, desc } from 'drizzle-orm';
-import { EPaginationSortDirection } from '../../values/pagination/types/pagination.types';
-import drizzleFilters from '../drizzle-filters';
+
+import drizzleFilters from '@shared/helpers/drizzle-filters';
+import { EPaginationSortDirection } from '@shared/values/pagination/types/pagination.types';
 
 describe('drizzleFilters', () => {
   describe('getSortDirection', () => {

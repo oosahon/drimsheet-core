@@ -1,24 +1,24 @@
-import currencyEntity from '../../../money/entities/currency.entity';
-import { ASSET_LEDGER_CODES } from '../../config/asset-codes.config';
-import ledgerAccountEntity from '../../entities/ledger-account.entity';
-import ledgerAccountError from '../../errors/ledger-account.error';
-import ILedgerAccountRepo from '../../repos/ledger-account.repo';
-import ledgerAccountCurrencyInvarianceRule from '../../rules/currency-invariance.rule';
+import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import ledgerAccountCurrencyInvarianceRule from '@domain/ledger/rules/currency-invariance.rule';
+import controlAccountResolverHelper from '@domain/ledger/services/helpers/control-account-resolver';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../types/asset-account.types';
-import ICashAccountService from '../../types/cash-account.service.types';
-import { TCashLedgerCode } from '../../types/ledger-code.types';
+} from '@domain/ledger/types/asset-account.types';
+import ICashAccountService from '@domain/ledger/types/cash-account.service.types';
+import { TCashLedgerCode } from '@domain/ledger/types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ILedgerAccount,
-} from '../../types/ledger.types';
-import bankDetailsValue from '../../values/bank-details.vo';
-import controlAccountResolverHelper from '../helpers/control-account-resolver';
+} from '@domain/ledger/types/ledger.types';
+import bankDetailsValue from '@domain/ledger/values/bank-details.vo';
+import currencyEntity from '@domain/money/entities/currency.entity';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

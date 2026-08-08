@@ -1,8 +1,8 @@
 import {
   EExchangeRateType,
   UExchangeRateType,
-} from '../../types/exchange-rate.types';
-import exchangeRateValue from '../exchange-rate.vo';
+} from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
 describe('ExchangeRate Value Object', () => {
   beforeEach(() => {

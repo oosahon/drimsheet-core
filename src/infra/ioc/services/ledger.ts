@@ -1,29 +1,32 @@
-import makeAccountsBootstrapService from '../../../app/ledger/services/accounts-bootstrap.service';
-import makeLedgerAccountBalancePropagationService from '../../../app/ledger/services/ledger-account-balance-propagation.service';
-import makeLedgerAccountPersistenceService from '../../../app/ledger/services/ledger-account-persistence.service';
-import makeCashAccountService from '../../../domain/ledger/services/asset-account/cash-account.service';
-import makeReceivablesAccountService from '../../../domain/ledger/services/asset-account/receivables-account.service';
-import makeEquityAccountService from '../../../domain/ledger/services/equity-account/equity-account.service';
-import makeAssetDisposalService from '../../../domain/ledger/services/expense-account/asset-disposal-loss.service';
-import makeBankChargeAccountService from '../../../domain/ledger/services/expense-account/bank-charge.service';
-import makeDirectCostsAccountService from '../../../domain/ledger/services/expense-account/direct-costs.service';
-import makeFinanceCostAccountService from '../../../domain/ledger/services/expense-account/finance-cost.service';
-import makeInterestAccountService from '../../../domain/ledger/services/expense-account/interest.service';
-import makeRentAndUtilitiesAccountService from '../../../domain/ledger/services/expense-account/rent-and-utilities.service';
-import makeTaxExpenseAccountService from '../../../domain/ledger/services/expense-account/tax-expense.service';
-import makeUnrealizedLossAccountService from '../../../domain/ledger/services/expense-account/unrealized-loss.service';
-import makePayablesAccountService from '../../../domain/ledger/services/liability-account/payables.service';
-import makeShortTermLoanService from '../../../domain/ledger/services/liability-account/short-term-loan.service';
-import makeEmploymentIncomeAccountService from '../../../domain/ledger/services/revenue-account/employment-income.service';
-import makeGainOnAssetSaleAccountService from '../../../domain/ledger/services/revenue-account/gain-on-sale.service';
-import makeGiftsAccountService from '../../../domain/ledger/services/revenue-account/gifts.service';
-import makeGrantsAccountService from '../../../domain/ledger/services/revenue-account/grants.service';
-import makeServicesAccountService from '../../../domain/ledger/services/revenue-account/services.service';
-import makeUnrealizedGainAccountService from '../../../domain/ledger/services/revenue-account/unrealized-gain.service';
-import makeSuspenseAccountService from '../../../domain/ledger/services/suspense-account/suspense-account.service';
-import messaging from '../../messaging';
-import observability from '../../observability';
-import ledgerRepos from '../../persistence/repos/ledger';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import makeReceivablesAccountService from '@domain/ledger/services/asset-account/receivables-account.service';
+import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
+import makeAssetDisposalService from '@domain/ledger/services/expense-account/asset-disposal-loss.service';
+import makeBankChargeAccountService from '@domain/ledger/services/expense-account/bank-charge.service';
+import makeDirectCostsAccountService from '@domain/ledger/services/expense-account/direct-costs.service';
+import makeFinanceCostAccountService from '@domain/ledger/services/expense-account/finance-cost.service';
+import makeInterestAccountService from '@domain/ledger/services/expense-account/interest.service';
+import makeRentAndUtilitiesAccountService from '@domain/ledger/services/expense-account/rent-and-utilities.service';
+import makeTaxExpenseAccountService from '@domain/ledger/services/expense-account/tax-expense.service';
+import makeUnrealizedLossAccountService from '@domain/ledger/services/expense-account/unrealized-loss.service';
+import makePayablesAccountService from '@domain/ledger/services/liability-account/payables.service';
+import makeShortTermLoanService from '@domain/ledger/services/liability-account/short-term-loan.service';
+import makeEmploymentIncomeAccountService from '@domain/ledger/services/revenue-account/employment-income.service';
+import makeGainOnAssetSaleAccountService from '@domain/ledger/services/revenue-account/gain-on-sale.service';
+import makeGiftsAccountService from '@domain/ledger/services/revenue-account/gifts.service';
+import makeGrantsAccountService from '@domain/ledger/services/revenue-account/grants.service';
+import makeServicesAccountService from '@domain/ledger/services/revenue-account/services.service';
+import makeUnrealizedGainAccountService from '@domain/ledger/services/revenue-account/unrealized-gain.service';
+import makeSuspenseAccountService from '@domain/ledger/services/suspense-account/suspense-account.service';
+
+import makeAccountsBootstrapService from '@app/ledger/services/accounts-bootstrap.service';
+import makeLedgerAccountBalancePropagationService from '@app/ledger/services/ledger-account-balance-propagation.service';
+import makeLedgerAccountPersistenceService from '@app/ledger/services/ledger-account-persistence.service';
+
+import messaging from '@infra/messaging';
+import observability from '@infra/observability';
+import ledgerRepos from '@infra/persistence/repos/ledger';
+
 import { repoService } from './repo';
 
 export const cashAccountService = makeCashAccountService({

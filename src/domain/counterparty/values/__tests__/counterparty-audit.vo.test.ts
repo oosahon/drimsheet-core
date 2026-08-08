@@ -1,17 +1,18 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import historyError from '../../../../shared/values/history/history.error';
-import counterpartyError from '../../errors/counterparty.error';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+import historyError from '@shared/values/history/history.error';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 import {
   ECounterpartyEntityActions,
   IMakeCounterpartyAuditPayload,
-} from '../../types/counterparty-audit.types';
+} from '@domain/counterparty/types/counterparty-audit.types';
 import {
   ECounterpartyStatus,
   ECounterpartyType,
   ICounterparty,
-} from '../../types/counterparty.types';
-import counterpartyAuditValue from '../counterparty-audit.vo';
+} from '@domain/counterparty/types/counterparty.types';
+import counterpartyAuditValue from '@domain/counterparty/values/counterparty-audit.vo';
 
 describe('counterpartyAuditValue', () => {
   const counterpartyId = generateUUID();

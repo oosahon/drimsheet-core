@@ -2,7 +2,7 @@ import {
   currencyPairValidation,
   exchangeRateDtoValidation,
   exchangeRateQueryParamValidation,
-} from '../exchange-rate.dto.validation';
+} from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
 
 describe('Exchange Rate DTO Validation', () => {
   describe('currencyPairValidation', () => {

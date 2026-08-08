@@ -1,9 +1,13 @@
-import getEntitiesAndEvents from '../../../../shared/helpers/get-entities-and-events';
-import { TEntityId } from '../../../../shared/types/uuid';
-import { IFiscalYear } from '../../types/fiscal-year.types';
-import { EPeriodActions } from '../../types/period-audit.types';
-import { EPeriodStatus, EPeriodUnit } from '../../types/period.types';
-import accountingPeriodEntity from '../accounting-period.entity';
+import getEntitiesAndEvents from '@shared/helpers/get-entities-and-events';
+import { TEntityId } from '@shared/types/uuid';
+
+import accountingPeriodEntity from '@domain/accounting/entities/accounting-period.entity';
+import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
+import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
+import {
+  EPeriodStatus,
+  EPeriodUnit,
+} from '@domain/accounting/types/period.types';
 
 describe('accountingPeriodEntity', () => {
   beforeEach(() => {

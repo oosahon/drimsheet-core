@@ -1,6 +1,8 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import fxCostBasisLotAcquisitionEntity from '../entities/acquisition.entity';
-import fxCostBasisLotEntity from '../entities/lot.entity';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+
+import fxCostBasisLotAcquisitionEntity from '@domain/subledger/fx-cost-basis/entities/acquisition.entity';
+import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.entity';
+
 import { IFxCostBasisLotAcquisition } from './acquisition.types';
 
 export default interface IFxCostBasisLotDomainService {

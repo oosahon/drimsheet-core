@@ -1,10 +1,8 @@
 import { ValidateError } from 'tsoa';
-import {
-  IApiValidationError,
-  IParsedError,
-} from '../../../shared/types/error.types';
-import appError from '../../../shared/values/errors/app.error';
-import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
+
+import { IApiValidationError, IParsedError } from '@shared/types/error.types';
+import appError from '@shared/values/errors/app.error';
+import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 
 function parseTsoaValidationError(error: ValidateError) {
   return Object.entries(error.fields).map(([key, value]) => ({

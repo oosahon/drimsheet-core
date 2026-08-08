@@ -1,7 +1,9 @@
-import { IFiscalYear } from '../../../../../../domain/accounting/types/fiscal-year.types';
-import { EPeriodStatus } from '../../../../../../domain/accounting/types/period.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import fiscalYearMapper from '../fiscal-year.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
+import { EPeriodStatus } from '@domain/accounting/types/period.types';
+
+import fiscalYearMapper from '@infra/persistence/repos/accounting/mappers/fiscal-year.mapper';
 
 describe('fiscalYearMapper', () => {
   it('should map IFiscalYear to IFiscalYearRepoModel', () => {

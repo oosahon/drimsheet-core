@@ -1,12 +1,15 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
-import { IAccountingPeriod } from '../../../../../domain/accounting/types/period.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { accountingPeriodsInCore } from '../../../../config/drizzle/schema';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { IAccountingPeriod } from '@domain/accounting/types/period.types';
+
+import { accountingPeriodsInCore } from '@infra/config/drizzle/schema';
 import {
   fromRepoDate,
   toRepoDate,
   toRepoDateOnly,
-} from '../../../helpers/date.mapper';
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface IAccountingPeriodRepoModel extends InferInsertModel<
   typeof accountingPeriodsInCore

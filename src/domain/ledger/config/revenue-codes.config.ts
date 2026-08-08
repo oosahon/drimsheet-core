@@ -11,7 +11,7 @@ import {
   TGrantsLedgerCode,
   TServicesLedgerCode,
   TUnrealizedGainLedgerCode,
-} from '../types/ledger-code.types';
+} from '@domain/ledger/types/ledger-code.types';
 
 type Keys = 'HEADER' | 'PREFIX';
 

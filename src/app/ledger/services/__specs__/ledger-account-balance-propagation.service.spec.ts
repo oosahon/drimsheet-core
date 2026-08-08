@@ -1,31 +1,33 @@
-import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/jurisdictions.config';
-import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
-import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
-import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
-import makeEquityAccountService from '../../../../domain/ledger/services/equity-account/equity-account.service';
+import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+
+import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
 import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../../../domain/ledger/types/ledger.types';
+} from '@domain/ledger/types/ledger.types';
 import {
   ERevenueAccountBehavior,
   ERevenueSubType,
-} from '../../../../domain/ledger/types/revenue-account.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../domain/money/values/exchange-rate.vo';
-import moneyValue from '../../../../domain/money/values/money.vo';
-import userEntity from '../../../../domain/user/entities/user.entity';
-import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import mockLedgerAccountBalanceAdjustmentQueue from '../../contracts/__mocks__/ledger-balance-adjustment-queue.mock';
-import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
-import makeLedgerAccountBalancePropagationService from '../ledger-account-balance-propagation.service';
+} from '@domain/ledger/types/revenue-account.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import moneyValue from '@domain/money/values/money.vo';
+import userEntity from '@domain/user/entities/user.entity';
+
+import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import makeLedgerAccountBalancePropagationService from '@app/ledger/services/ledger-account-balance-propagation.service';
 
 describe('ledgerAccountBalancePropagationService', () => {
   const service = makeLedgerAccountBalancePropagationService({

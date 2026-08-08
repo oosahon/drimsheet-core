@@ -1,7 +1,8 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import { EReportingContextEvents } from '../../events/reporting-context.events';
-import { EReportingContextActions } from '../../types/reporting-context-audit.types';
-import reportingContextEntity from '../reporting-context.entity';
+import { TEntityId } from '@shared/types/uuid';
+
+import reportingContextEntity from '@domain/accounting/entities/reporting-context.entity';
+import { EReportingContextEvents } from '@domain/accounting/events/reporting-context.events';
+import { EReportingContextActions } from '@domain/accounting/types/reporting-context-audit.types';
 
 describe('reportingContextEntity', () => {
   beforeAll(() => {

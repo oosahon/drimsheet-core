@@ -1,19 +1,23 @@
 import { and, eq, ilike, inArray, sql } from 'drizzle-orm';
+
+import drizzleFilters from '@shared/helpers/drizzle-filters';
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+import paginationValue from '@shared/values/pagination/pagination.vo';
+
 import ICounterpartyRepo, {
   ECounterpartySortBy,
-} from '../../../../domain/counterparty/repos/counterparty.repo';
-import { UCounterpartyRole } from '../../../../domain/counterparty/types/counterparty.types';
-import drizzleFilters from '../../../../shared/helpers/drizzle-filters';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import paginationValue from '../../../../shared/values/pagination/pagination.vo';
+} from '@domain/counterparty/repos/counterparty.repo';
+import { UCounterpartyRole } from '@domain/counterparty/types/counterparty.types';
+
 import {
   counterpartiesInCore,
   counterpartyRolesInCore,
-} from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
+} from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import counterpartyRoleMapper from '@infra/persistence/repos/counterparty/mappers/counterparty-role.mapper';
+import counterpartyMapper from '@infra/persistence/repos/counterparty/mappers/counterparty.mapper';
+
 import counterpartyHistoryRepo from './counterparty-history.repo.impl';
-import counterpartyRoleMapper from './mappers/counterparty-role.mapper';
-import counterpartyMapper from './mappers/counterparty.mapper';
 
 const counterpartyRepo: ICounterpartyRepo = {
   create: async (payload, options) => {

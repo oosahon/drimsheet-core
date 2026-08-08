@@ -1,4 +1,4 @@
-import currencyEntity from '../currency.entity';
+import currencyEntity from '@domain/money/entities/currency.entity';
 
 describe('Currency Domain Entity', () => {
   describe('isValidCode', () => {

@@ -1,14 +1,16 @@
-import { IUser } from '../../../../domain/user/types/user.types';
-import emailValue from '../../../../domain/user/values/email.vo';
-import mockLogger from '../../../../shared/contracts/__mocks__/logger.mock';
-import { TEntityId } from '../../../../shared/types/uuid';
-import appError from '../../../../shared/values/errors/app.error';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import { mockUserRepo } from '../../../user/contracts/__mocks__/user.repos.mock';
-import IEmailVerificationService from '../../contracts/email-verification-service.contract';
-import authError from '../../errors/auth.error';
-import makeSendEmailVerificationEmailUseCase from '../send-email-verification-email.usecase';
+import mockLogger from '@shared/contracts/__mocks__/logger.mock';
+import { TEntityId } from '@shared/types/uuid';
+import appError from '@shared/values/errors/app.error';
+
+import { IUser } from '@domain/user/types/user.types';
+import emailValue from '@domain/user/values/email.vo';
+
+import IEmailVerificationService from '@app/auth/contracts/email-verification-service.contract';
+import authError from '@app/auth/errors/auth.error';
+import makeSendEmailVerificationEmailUseCase from '@app/auth/usecases/send-email-verification-email.usecase';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeSendEmailVerificationEmailUseCase', () => {
   const correlationId = 'test-corr-id';

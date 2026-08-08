@@ -1,15 +1,19 @@
-import { Express } from 'express';
 import { Server } from 'node:http';
+
+import { Express } from 'express';
 import request from 'supertest';
-import { IResetPasswordReq } from '../../../src/app/auth/dtos/auth/auth.dto';
-import authError from '../../../src/app/auth/errors/auth.error';
+
+import appError from '@shared/values/errors/app.error';
+
+import { IResetPasswordReq } from '@app/auth/dtos/auth/auth.dto';
+import authError from '@app/auth/errors/auth.error';
+
 import {
   makeIpRateLimitKey,
   rateLimiter,
-} from '../../../src/infra/config/rate-limiter.config';
-import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
-import { createApplication } from '../../../src/infra/server';
-import appError from '../../../src/shared/values/errors/app.error';
+} from '@infra/config/rate-limiter.config';
+import * as authUseCase from '@infra/ioc/usecases/auth';
+import { createApplication } from '@infra/server';
 
 const ENDPOINT = '/api/v1/auth/reset-password';
 let payloadSequence = 0;

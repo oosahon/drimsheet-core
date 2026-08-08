@@ -1,4 +1,4 @@
-import serializeBigIntInObj from '../serialize-bigint-in-object';
+import serializeBigIntInObj from '@shared/utils/serialize-bigint-in-object';
 
 describe('serializeBigIntInObj', () => {
   it('serializes bigint values in nested objects', () => {

@@ -1,11 +1,13 @@
-import journalEntryEntity from '../../../../../../domain/journal-entry/entities/journal-entry.entity';
-import { EJournalEntrySourceType } from '../../../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../../../domain/journal-entry/types/journal-line.types';
-import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import historyValue from '../../../../../../shared/values/history/history.vo';
-import journalEntryHistoryMapper from '../journal-entry-history.mapper';
-import journalLineHistoryMapper from '../journal-line-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+import historyValue from '@shared/values/history/history.vo';
+
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+
+import journalEntryHistoryMapper from '@infra/persistence/repos/journal-entry/mappers/journal-entry-history.mapper';
+import journalLineHistoryMapper from '@infra/persistence/repos/journal-entry/mappers/journal-line-history.mapper';
 
 describe('journal history mappers', () => {
   const actorId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;

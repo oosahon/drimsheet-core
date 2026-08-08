@@ -1,5 +1,8 @@
-import { SYSTEM_CURRENCIES, UCurrencyCode } from '../config/currencies.config';
-import currencyError from '../errors/currency.error';
+import {
+  SYSTEM_CURRENCIES,
+  UCurrencyCode,
+} from '@domain/money/config/currencies.config';
+import currencyError from '@domain/money/errors/currency.error';
 
 function isValidCurrencyCode(code: string): boolean {
   return code in SYSTEM_CURRENCIES;

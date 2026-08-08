@@ -1,7 +1,8 @@
 import { v7 as uuid } from 'uuid';
 import { z } from 'zod';
-import { TErrorConstructor } from '../types/error.types';
-import { TEntityId } from '../types/uuid';
+
+import { TErrorConstructor } from '@shared/types/error.types';
+import { TEntityId } from '@shared/types/uuid';
 
 interface IValidationOptions {
   min: number;

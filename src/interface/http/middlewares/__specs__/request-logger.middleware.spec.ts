@@ -1,8 +1,11 @@
 import { performance } from 'perf_hooks';
-import IAppContext from '../../../../app/context/contracts/app-context.contract';
-import ILogger from '../../../../shared/contracts/logger.contract';
-import IReporter from '../../../../shared/contracts/reporter.contract';
-import makeRequestLoggerMiddleware from '../request-logger.middleware';
+
+import ILogger from '@shared/contracts/logger.contract';
+import IReporter from '@shared/contracts/reporter.contract';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+
+import makeRequestLoggerMiddleware from '@interface/http/middlewares/request-logger.middleware';
 
 describe('makeRequestLoggerMiddleware', () => {
   let mockLogger: jest.Mocked<ILogger>;

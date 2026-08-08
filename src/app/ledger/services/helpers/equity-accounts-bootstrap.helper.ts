@@ -1,16 +1,17 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { EQUITY_LEDGER_CODES } from '../../../../domain/ledger/config/equity-codes.config';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
-import { IEquityAccountService } from '../../../../domain/ledger/types/equity-account.service.types';
-import { IEquityLedgerAccount } from '../../../../domain/ledger/types/equity-account.types';
-import { TEquityLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
 import {
   IEvent,
   TAuditedEntity,
-} from '../../../../shared/values/events/types/event.types';
-import { IEntityDelta } from '../../../../shared/values/history/types/history.types';
+} from '@shared/values/events/types/event.types';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { EQUITY_LEDGER_CODES } from '@domain/ledger/config/equity-codes.config';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import { IEquityAccountService } from '@domain/ledger/types/equity-account.service.types';
+import { IEquityLedgerAccount } from '@domain/ledger/types/equity-account.types';
+import { TEquityLedgerCode } from '@domain/ledger/types/ledger-code.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

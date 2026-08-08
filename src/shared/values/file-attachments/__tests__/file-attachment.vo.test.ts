@@ -1,5 +1,5 @@
-import fileAttachmentError from '../file-attachment.error';
-import fileAttachment from '../file-attachment.vo';
+import fileAttachmentError from '@shared/values/file-attachments/file-attachment.error';
+import fileAttachment from '@shared/values/file-attachments/file-attachment.vo';
 
 describe('FileAttachment Value Object', () => {
   const validPayload = {

@@ -1,5 +1,5 @@
-import { postgres } from '../../../config/postgres.config';
-import getDbQuery from '../get-db-query';
+import { postgres } from '@infra/config/postgres.config';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
 
 describe('getDbQuery', () => {
   it('should return options.tx if provided', () => {

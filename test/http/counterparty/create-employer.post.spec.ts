@@ -1,16 +1,20 @@
 import { Express } from 'express';
 import request from 'supertest';
-import { ICounterpartyDto } from '../../../src/app/counterparty/dtos/counterparty/counterparty.dto';
-import { IEmployerCreateReq } from '../../../src/app/counterparty/dtos/employer/employer.dto';
-import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
-import { IUser } from '../../../src/domain/user/types/user.types';
-import { tokenService } from '../../../src/infra/ioc/services/auth';
-import * as counterpartyUseCases from '../../../src/infra/ioc/usecases/counterparty';
-import accountingRepos from '../../../src/infra/persistence/repos/accounting';
-import userRepos from '../../../src/infra/persistence/repos/user';
-import { createApplication } from '../../../src/infra/server';
-import { TEntityId } from '../../../src/shared/types/uuid';
-import appError from '../../../src/shared/values/errors/app.error';
+
+import { TEntityId } from '@shared/types/uuid';
+import appError from '@shared/values/errors/app.error';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { IUser } from '@domain/user/types/user.types';
+
+import { ICounterpartyDto } from '@app/counterparty/dtos/counterparty/counterparty.dto';
+import { IEmployerCreateReq } from '@app/counterparty/dtos/employer/employer.dto';
+
+import { tokenService } from '@infra/ioc/services/auth';
+import * as counterpartyUseCases from '@infra/ioc/usecases/counterparty';
+import accountingRepos from '@infra/persistence/repos/accounting';
+import userRepos from '@infra/persistence/repos/user';
+import { createApplication } from '@infra/server';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,

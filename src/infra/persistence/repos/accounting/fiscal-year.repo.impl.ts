@@ -1,9 +1,12 @@
-import IFiscalYearRepo from '../../../../domain/accounting/repos/fiscal-year.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { fiscalYearsInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+
+import IFiscalYearRepo from '@domain/accounting/repos/fiscal-year.repo';
+
+import { fiscalYearsInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import fiscalYearMapper from '@infra/persistence/repos/accounting/mappers/fiscal-year.mapper';
+
 import fiscalYearHistoryRepo from './fiscal-year-history.repo.impl';
-import fiscalYearMapper from './mappers/fiscal-year.mapper';
 
 const fiscalYearRepoImpl: IFiscalYearRepo = {
   create: async (payload, options) => {

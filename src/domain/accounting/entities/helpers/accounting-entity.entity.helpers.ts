@@ -1,14 +1,14 @@
 import {
   SYSTEM_JURISDICTIONS,
   UJurisdictionCode,
-} from '../../config/jurisdictions.config';
-import accountingEntityError from '../../errors/accounting-entity.error';
+} from '@domain/accounting/config/jurisdictions.config';
+import accountingEntityError from '@domain/accounting/errors/accounting-entity.error';
 import {
   EAccountingEntityHistoryAction,
   EAccountingEntityType,
   UAccountingEntityHistoryAction,
   UAccountingEntityType,
-} from '../../types/accounting-entity.types';
+} from '@domain/accounting/types/accounting-entity.types';
 
 function isValidType(type: UAccountingEntityType) {
   return Object.values(EAccountingEntityType).includes(type);

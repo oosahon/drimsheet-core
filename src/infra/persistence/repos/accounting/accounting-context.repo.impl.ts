@@ -1,9 +1,12 @@
-import IAccountingContextRepo from '../../../../domain/accounting/repos/accounting-context.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { accountingContextsInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+
+import IAccountingContextRepo from '@domain/accounting/repos/accounting-context.repo';
+
+import { accountingContextsInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import accountingContextMapper from '@infra/persistence/repos/accounting/mappers/accounting-context.mapper';
+
 import accountingContextHistoryRepo from './accounting-context-history.repo.impl';
-import accountingContextMapper from './mappers/accounting-context.mapper';
 
 const accountingContextRepoImpl: IAccountingContextRepo = {
   create: async (payload, options) => {

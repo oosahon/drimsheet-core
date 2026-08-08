@@ -1,11 +1,13 @@
-import counterpartyError from '../../../../../domain/counterparty/errors/counterparty.error';
-import paginationError from '../../../../../shared/values/pagination/pagination.error';
+import paginationError from '@shared/values/pagination/pagination.error';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
+
 import {
   counterpartyCreateReqValidation,
   counterpartyStatusValidation,
   counterpartyTypeValidation,
   getCounterpartiesQueryValidationSchema,
-} from '../counterparty.dto.validation';
+} from '@app/counterparty/dtos/counterparty/counterparty.dto.validation';
 
 const invalidNameKey = new counterpartyError.InvalidName().errorKey;
 const invalidTypeKey = new counterpartyError.InvalidType().errorKey;

@@ -1,6 +1,10 @@
-import eventValue from '../../../shared/values/events/event.vo';
-import { IFiscalYear } from '../types/fiscal-year.types';
-import { IAccountingPeriod, IReportingPeriod } from '../types/period.types';
+import eventValue from '@shared/values/events/event.vo';
+
+import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
+import {
+  IAccountingPeriod,
+  IReportingPeriod,
+} from '@domain/accounting/types/period.types';
 
 export const EPeriodEvents = {
   FiscalYearCreated: 'domain:accounting:period:fiscal-year:created',

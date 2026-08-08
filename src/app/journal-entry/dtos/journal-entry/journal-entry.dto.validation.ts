@@ -1,19 +1,21 @@
 import z from 'zod';
-import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
-import journalLineError from '../../../../domain/journal-entry/errors/journal-line.error';
+
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import journalLineError from '@domain/journal-entry/errors/journal-line.error';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
   UJournalEntrySourceType,
   UJournalEntryStatus,
-} from '../../../../domain/journal-entry/types/journal-entry.types';
+} from '@domain/journal-entry/types/journal-entry.types';
 import {
   EJournalSide,
   UJournalSide,
-} from '../../../../domain/journal-entry/types/journal-line.types';
-import { counterpartyNameValidation } from '../../../counterparty/dtos/counterparty/counterparty.dto.validation';
-import { exchangeRateDtoValidation } from '../../../money/dtos/exchange-rate/exchange-rate.dto.validation';
-import { moneyDtoValidation } from '../../../money/dtos/money/money.dto.validation';
+} from '@domain/journal-entry/types/journal-line.types';
+
+import { counterpartyNameValidation } from '@app/counterparty/dtos/counterparty/counterparty.dto.validation';
+import { exchangeRateDtoValidation } from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
+import { moneyDtoValidation } from '@app/money/dtos/money/money.dto.validation';
 
 const accountIdError = new journalLineError.InvalidAccountId().errorKey;
 const counterpartyIdError = new journalLineError.InvalidCounterpartyId()

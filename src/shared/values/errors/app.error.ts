@@ -1,4 +1,5 @@
-import { IApiValidationError, TErrorCause } from '../../types/error.types';
+import { IApiValidationError, TErrorCause } from '@shared/types/error.types';
+
 import DomainError from './domain.error';
 
 type TErrorKeyPrefix = `app_error_${string}`;

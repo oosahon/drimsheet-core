@@ -1,6 +1,7 @@
-import { TEntityId } from '../../../shared/types/uuid';
-import { UCurrencyCode } from '../../money/config/currencies.config';
-import { UAccountingStandardCode } from '../config/accounting-standards.config';
+import { TEntityId } from '@shared/types/uuid';
+
+import { UAccountingStandardCode } from '@domain/accounting/config/accounting-standards.config';
+import { UCurrencyCode } from '@domain/money/config/currencies.config';
 
 export interface IAccountingContext {
   id: TEntityId;

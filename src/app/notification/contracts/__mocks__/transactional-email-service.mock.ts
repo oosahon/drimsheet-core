@@ -1,4 +1,4 @@
-import ITransactionalEmailService from '../transactional-email-service.contract';
+import ITransactionalEmailService from '@app/notification/contracts/transactional-email-service.contract';
 
 const mockTransactionalEmailService: jest.Mocked<ITransactionalEmailService> = {
   sendEmailVerification: jest.fn(),

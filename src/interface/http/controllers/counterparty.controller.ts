@@ -11,22 +11,26 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IContractorCreateReq } from '../../../app/counterparty/dtos/contractor/contractor.dto';
+
+import { IHttpErrorDto } from '@shared/values/errors/error.dto';
+
+import { IContractorCreateReq } from '@app/counterparty/dtos/contractor/contractor.dto';
 import {
   ICounterpartyCreateReq,
   IGetCounterpartiesQuery,
-} from '../../../app/counterparty/dtos/counterparty/counterparty.dto';
-import { IEmployerCreateReq } from '../../../app/counterparty/dtos/employer/employer.dto';
-import { IVendorCreateReq } from '../../../app/counterparty/dtos/vendor/vendor.dto';
+} from '@app/counterparty/dtos/counterparty/counterparty.dto';
+import { IEmployerCreateReq } from '@app/counterparty/dtos/employer/employer.dto';
+import { IVendorCreateReq } from '@app/counterparty/dtos/vendor/vendor.dto';
+
 import {
   createContractorUseCase,
   createCounterpartyUseCase,
   createEmployerUseCase,
   createVendorUseCase,
   getCounterpartiesUseCase,
-} from '../../../infra/ioc/usecases/counterparty';
-import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
-import middlewares from '../middlewares';
+} from '@infra/ioc/usecases/counterparty';
+
+import middlewares from '@interface/http/middlewares';
 
 @Route('counterparties')
 @Tags('Counterparty')

@@ -1,9 +1,10 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import historyError from '../../../../shared/values/history/history.error';
-import userEntity from '../../entities/user.entity';
-import userError from '../../errors/user.error';
-import { EUserEntityActions } from '../../types/user-audit.types';
-import userAudit from '../user-audit.vo';
+import { TEntityId } from '@shared/types/uuid';
+import historyError from '@shared/values/history/history.error';
+
+import userEntity from '@domain/user/entities/user.entity';
+import userError from '@domain/user/errors/user.error';
+import { EUserEntityActions } from '@domain/user/types/user-audit.types';
+import userAudit from '@domain/user/values/user-audit.vo';
 
 describe('userAudit', () => {
   describe('make', () => {

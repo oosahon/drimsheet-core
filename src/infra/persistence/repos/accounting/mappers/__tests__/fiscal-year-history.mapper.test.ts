@@ -1,9 +1,11 @@
-import { IFiscalYear } from '../../../../../../domain/accounting/types/fiscal-year.types';
-import { IFiscalYearHistory } from '../../../../../../domain/accounting/types/period-audit.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import { EHistoryActorType } from '../../../../../../shared/values/history/types/history.types';
-import { toRepoDate } from '../../../../helpers/date.mapper';
-import fiscalYearHistoryMapper from '../fiscal-year-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
+import { IFiscalYearHistory } from '@domain/accounting/types/period-audit.types';
+
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
+import fiscalYearHistoryMapper from '@infra/persistence/repos/accounting/mappers/fiscal-year-history.mapper';
 
 describe('fiscalYearHistoryMapper', () => {
   it('maps fiscal year history to the repository model', () => {

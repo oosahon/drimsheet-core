@@ -1,6 +1,7 @@
-import { ICacheStorage } from '../../../shared/contracts/cache-storage.contract';
-import safeJSON from '../../../shared/utils/safe-json';
-import { getRedis } from '../../config/redis.config';
+import { ICacheStorage } from '@shared/contracts/cache-storage.contract';
+import safeJSON from '@shared/utils/safe-json';
+
+import { getRedis } from '@infra/config/redis.config';
 
 const cacheStorage: ICacheStorage = {
   set: async (key, value, ttl) => {

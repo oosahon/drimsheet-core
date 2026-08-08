@@ -1,6 +1,7 @@
-import { IWriteRepoOptions } from '../../../shared/types/repo.types';
-import { IAccountingContextHistory } from '../types/accounting-context-audit.types';
-import { IAccountingContext } from '../types/context.types';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+
+import { IAccountingContextHistory } from '@domain/accounting/types/accounting-context-audit.types';
+import { IAccountingContext } from '@domain/accounting/types/context.types';
 
 export default interface IAccountingContextHistoryRepo {
   save(

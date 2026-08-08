@@ -1,7 +1,7 @@
 import {
   paginationDtoValidation,
   paginationSortDirectionValidationSchema,
-} from '../pagination.dto.validation';
+} from '@shared/values/pagination/dto/pagination.dto.validation';
 
 describe('Pagination DTO Validation', () => {
   describe('paginationSortDirectionValidationSchema', () => {

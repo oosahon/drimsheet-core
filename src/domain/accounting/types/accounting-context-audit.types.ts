@@ -1,7 +1,8 @@
 import {
   IEntityDelta,
   IHistory,
-} from '../../../shared/values/history/types/history.types';
+} from '@shared/values/history/types/history.types';
+
 import { IAccountingContext } from './context.types';
 
 export const EAccountingContextActions = {

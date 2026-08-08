@@ -9,11 +9,15 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IBankAccountCreationReq } from '../../../app/ledger/dtos/asset-account/asset-account.dto';
-import { ILedgerAccountDto } from '../../../app/ledger/dtos/ledger-account/ledger-account.dto';
-import { createBankAccountUseCase } from '../../../infra/ioc/usecases/ledger';
-import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
-import middlewares from '../middlewares';
+
+import { IHttpErrorDto } from '@shared/values/errors/error.dto';
+
+import { IBankAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
+import { ILedgerAccountDto } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
+
+import { createBankAccountUseCase } from '@infra/ioc/usecases/ledger';
+
+import middlewares from '@interface/http/middlewares';
 
 @Route('accounts')
 @Tags('Accounts')

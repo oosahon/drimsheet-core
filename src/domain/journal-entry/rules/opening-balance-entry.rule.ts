@@ -1,7 +1,7 @@
-import { ELedgerAccountBehavior } from '../../ledger/types/account-behaviors.tyypes';
-import { ELedgerAccountSubType } from '../../ledger/types/ledger-aggregate.types';
-import { ELedgerType } from '../../ledger/types/ledger.types';
-import { IJournalEntryRule } from '../types/entry.rules.types';
+import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
+import { ELedgerAccountBehavior } from '@domain/ledger/types/account-behaviors.tyypes';
+import { ELedgerAccountSubType } from '@domain/ledger/types/ledger-aggregate.types';
+import { ELedgerType } from '@domain/ledger/types/ledger.types';
 
 const openingBalanceEntryRule: IJournalEntryRule = {
   source: {

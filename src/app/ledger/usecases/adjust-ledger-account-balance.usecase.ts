@@ -1,12 +1,14 @@
-import ledgerAccountBalanceEntity from '../../../domain/ledger/entities/ledger-account-balance.entity';
-import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import moneyMapper from '../../money/dtos/money/money.dto.mapper';
-import ILedgerBalanceAdjustmentQueue from '../contracts/ledger-balance-adjustment-queue.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
-import { ledgerAccountBalanceAdjustmentDtoSchema } from '../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto.validation';
-import ledgerAppError from '../errors/ledger.error';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+
+import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
+import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+
+import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
+import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
+import { ledgerAccountBalanceAdjustmentDtoSchema } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto.validation';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
+import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

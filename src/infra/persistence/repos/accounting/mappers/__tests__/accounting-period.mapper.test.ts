@@ -1,10 +1,12 @@
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   EPeriodStatus,
   EPeriodUnit,
   IAccountingPeriod,
-} from '../../../../../../domain/accounting/types/period.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import accountingPeriodMapper from '../accounting-period.mapper';
+} from '@domain/accounting/types/period.types';
+
+import accountingPeriodMapper from '@infra/persistence/repos/accounting/mappers/accounting-period.mapper';
 
 describe('accountingPeriodMapper', () => {
   it('maps an accounting period to the repository model', () => {

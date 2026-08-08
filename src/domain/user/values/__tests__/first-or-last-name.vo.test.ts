@@ -1,4 +1,4 @@
-import firstOrLastName from '../first-or-last-name.vo';
+import firstOrLastName from '@domain/user/values/first-or-last-name.vo';
 
 describe('FirstOrLastName Value Object', () => {
   describe('Valid names', () => {

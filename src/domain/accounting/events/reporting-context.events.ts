@@ -1,5 +1,6 @@
-import eventValue from '../../../shared/values/events/event.vo';
-import { IReportingContext } from '../types/context.types';
+import eventValue from '@shared/values/events/event.vo';
+
+import { IReportingContext } from '@domain/accounting/types/context.types';
 
 export const EReportingContextEvents = {
   Created: 'domain:accounting:reporting-context:created',

@@ -1,13 +1,14 @@
-import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
-import { ASSET_LEDGER_CODES } from '../../../config/asset-codes.config';
-import { LIABILITY_LEDGER_CODES } from '../../../config/liability-codes.config';
-import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import { LIABILITY_LEDGER_CODES } from '@domain/ledger/config/liability-codes.config';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import makeSuspenseAccountService from '@domain/ledger/services/suspense-account/suspense-account.service';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../../types/asset-account.types';
+} from '@domain/ledger/types/asset-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -15,12 +16,12 @@ import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../../types/ledger.types';
+} from '@domain/ledger/types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
-} from '../../../types/liability-account.types';
-import makeSuspenseAccountService from '../suspense-account.service';
+} from '@domain/ledger/types/liability-account.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
 const ledgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   create: jest.fn(),

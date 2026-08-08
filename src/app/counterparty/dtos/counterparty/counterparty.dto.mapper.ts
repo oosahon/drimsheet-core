@@ -1,4 +1,5 @@
-import { ICounterparty } from '../../../../domain/counterparty/types/counterparty.types';
+import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
+
 import { ICounterpartyDto } from './counterparty.dto';
 
 const counterpartyDtoMapper = {

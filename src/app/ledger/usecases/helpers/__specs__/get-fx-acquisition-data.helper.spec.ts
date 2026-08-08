@@ -1,22 +1,24 @@
-import journalEntryEntity from '../../../../../domain/journal-entry/entities/journal-entry.entity';
-import { EJournalEntrySourceType } from '../../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../../domain/journal-entry/types/journal-line.types';
-import ledgerAccountEntity from '../../../../../domain/ledger/entities/ledger-account.entity';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
-} from '../../../../../domain/ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import { EExchangeRateType } from '../../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../../domain/money/values/exchange-rate.vo';
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import mockExchangeRateService from '../../../../money/contracts/__mocks__/exchange-rate.service.mock';
-import { mockFxCostBasisLotDomainService } from '../../../../subledger/contracts/__mocks__/subledger.domain.services.mock';
-import getFxAcquisitionDataHelper from '../get-fx-acquisition-data.helper';
+} from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import moneyValue from '@domain/money/values/money.vo';
+
+import getFxAcquisitionDataHelper from '@app/ledger/usecases/helpers/get-fx-acquisition-data.helper';
+import mockExchangeRateService from '@app/money/contracts/__mocks__/exchange-rate.service.mock';
+import { mockFxCostBasisLotDomainService } from '@app/subledger/contracts/__mocks__/subledger.domain.services.mock';
 
 describe('getFxAcquisitionDataHelper', () => {
   beforeEach(() => {

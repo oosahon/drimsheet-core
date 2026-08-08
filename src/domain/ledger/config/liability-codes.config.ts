@@ -8,7 +8,7 @@ import {
   TLiabilitySuspenseLedgerCode,
   TPayablesLedgerCode,
   TShortTermDebtLedgerCode,
-} from '../types/ledger-code.types';
+} from '@domain/ledger/types/ledger-code.types';
 
 type TShortTermKeys = 'PREFIX' | 'HEADER';
 const SHORT_TERM_DEBT: Record<TShortTermKeys, TShortTermDebtLedgerCode> = {

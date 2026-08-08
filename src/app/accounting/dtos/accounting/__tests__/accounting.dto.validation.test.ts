@@ -1,6 +1,7 @@
-import { EAccountingEntityType } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { EPeriodUnit } from '../../../../../domain/accounting/types/period.types';
-import { EAppUsageModePreference } from '../../../../../domain/user/types/user-preferences.types';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import { EPeriodUnit } from '@domain/accounting/types/period.types';
+import { EAppUsageModePreference } from '@domain/user/types/user-preferences.types';
+
 import {
   accountingEntityOnboardingDtoSchema,
   accountingEntityTypeValidation,
@@ -11,7 +12,7 @@ import {
   periodDayValidation,
   periodMonthValidation,
   periodUnitValidation,
-} from '../accounting.dto.validation';
+} from '@app/accounting/dtos/accounting/accounting.dto.validation';
 
 describe('Accounting DTO Validation', () => {
   describe('jurisdictionCodeValidation', () => {

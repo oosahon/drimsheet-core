@@ -1,8 +1,10 @@
-import { UAccountingStandardCode } from '../../../../../../domain/accounting/config/accounting-standards.config';
-import { IReportingContext } from '../../../../../../domain/accounting/types/context.types';
-import { UCurrencyCode } from '../../../../../../domain/money/config/currencies.config';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import reportingContextMapper from '../reporting-context.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { UAccountingStandardCode } from '@domain/accounting/config/accounting-standards.config';
+import { IReportingContext } from '@domain/accounting/types/context.types';
+import { UCurrencyCode } from '@domain/money/config/currencies.config';
+
+import reportingContextMapper from '@infra/persistence/repos/accounting/mappers/reporting-context.mapper';
 
 describe('reportingContextMapper', () => {
   it('should map IReportingContext to IReportingContextRepoModel', () => {

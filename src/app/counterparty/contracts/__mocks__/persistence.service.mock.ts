@@ -1,4 +1,4 @@
-import ICounterpartyPersistenceService from '../persistence.service.contract';
+import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
 
 const mockCounterpartyPersistenceService: jest.Mocked<ICounterpartyPersistenceService> =
   {

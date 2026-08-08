@@ -1,6 +1,7 @@
-import { IWriteRepoOptions } from '../../../shared/types/repo.types';
-import { IJournalEntryHistory } from '../types/journal-entry-audit.types';
-import { IJournalHeader } from '../types/journal-entry.types';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+
+import { IJournalEntryHistory } from '@domain/journal-entry/types/journal-entry-audit.types';
+import { IJournalHeader } from '@domain/journal-entry/types/journal-entry.types';
 
 export default interface IJournalEntryHistoryRepo {
   create(

@@ -1,4 +1,4 @@
-import email from '../email.vo';
+import email from '@domain/user/values/email.vo';
 
 describe('Email Value Object', () => {
   describe('isValid', () => {

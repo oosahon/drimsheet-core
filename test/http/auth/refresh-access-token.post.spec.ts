@@ -1,10 +1,13 @@
-import { Express } from 'express';
 import { Server } from 'node:http';
+
+import { Express } from 'express';
 import request from 'supertest';
-import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
-import appContext from '../../../src/infra/runtime/app-context';
-import { createApplication } from '../../../src/infra/server';
-import appError from '../../../src/shared/values/errors/app.error';
+
+import appError from '@shared/values/errors/app.error';
+
+import * as authUseCase from '@infra/ioc/usecases/auth';
+import appContext from '@infra/runtime/app-context';
+import { createApplication } from '@infra/server';
 
 describe('POST /api/v1/auth/refresh-access-token', () => {
   let app: Express;

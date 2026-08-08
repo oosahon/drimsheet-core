@@ -1,5 +1,5 @@
-import ledgerAccountError from '../../errors/ledger-account.error';
-import creditCardMetaValue from '../credit-card-meta.vo';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import creditCardMetaValue from '@domain/ledger/values/credit-card-meta.vo';
 
 describe('creditCardMetaValue', () => {
   const validPayload = {

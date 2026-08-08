@@ -1,13 +1,14 @@
-import dateUtils from '../../../shared/utils/date';
-import generateDiff from '../../../shared/utils/diff-generator';
-import stringUtils from '../../../shared/utils/string';
-import historyError from '../../../shared/values/history/history.error';
-import counterpartyError from '../errors/counterparty.error';
+import dateUtils from '@shared/utils/date';
+import generateDiff from '@shared/utils/diff-generator';
+import stringUtils from '@shared/utils/string';
+import historyError from '@shared/values/history/history.error';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 import {
   EContractorHistoryAction,
   IContractorAudit,
   IMakeContractorAuditPayload,
-} from '../types/counterparty-audit.types';
+} from '@domain/counterparty/types/counterparty-audit.types';
 
 function make(
   payload: IMakeContractorAuditPayload

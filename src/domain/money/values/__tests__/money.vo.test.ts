@@ -1,7 +1,7 @@
-import { SYSTEM_CURRENCIES } from '../../config/currencies.config';
-import moneyError from '../../errors/money.error';
-import { IMoney } from '../../types/money.types';
-import money from '../money.vo';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyError from '@domain/money/errors/money.error';
+import { IMoney } from '@domain/money/types/money.types';
+import money from '@domain/money/values/money.vo';
 
 describe('Money Value Object', () => {
   const NGN = SYSTEM_CURRENCIES.NGN;

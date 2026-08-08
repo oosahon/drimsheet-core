@@ -1,4 +1,4 @@
-import IUserAuthRepo from '../user-auth.repo.contract';
+import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
 
 const mockUserAuthRepo: jest.Mocked<IUserAuthRepo> = {
   create: jest.fn(),

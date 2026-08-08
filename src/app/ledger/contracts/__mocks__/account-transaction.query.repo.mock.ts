@@ -1,4 +1,4 @@
-import IAccountTransactionQueryRepo from '../account-transaction.query.repo.contract';
+import IAccountTransactionQueryRepo from '@app/ledger/contracts/account-transaction.query.repo.contract';
 
 const mockAccountTransactionQueryRepo: jest.Mocked<IAccountTransactionQueryRepo> =
   {

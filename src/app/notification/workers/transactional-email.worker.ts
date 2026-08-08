@@ -1,8 +1,9 @@
-import IReporter from '../../../shared/contracts/reporter.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import ITransactionalEmailAgent from '../contracts/transactional-email-agent.contract';
-import { ITransactionalEmailDto } from '../dtos/transactional-email/transactional-email.dto';
-import { transactionalEmailDtoSchema } from '../dtos/transactional-email/transactional-email.dto.validation';
+import IReporter from '@shared/contracts/reporter.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+
+import ITransactionalEmailAgent from '@app/notification/contracts/transactional-email-agent.contract';
+import { ITransactionalEmailDto } from '@app/notification/dtos/transactional-email/transactional-email.dto';
+import { transactionalEmailDtoSchema } from '@app/notification/dtos/transactional-email/transactional-email.dto.validation';
 
 interface IDependencies {
   mailer: ITransactionalEmailAgent;

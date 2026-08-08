@@ -1,12 +1,13 @@
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import contractorEvents from '../events/contractor.events';
-import { EContractorHistoryAction } from '../types/counterparty-audit.types';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import contractorEvents from '@domain/counterparty/events/contractor.events';
+import { EContractorHistoryAction } from '@domain/counterparty/types/counterparty-audit.types';
 import {
   IContractor,
   IMakeContractorPayload,
-} from '../types/counterparty.types';
-import contractorAuditValue from '../values/contractor-audit.vo';
-import helpers from '../values/helpers/counterparty-value.helpers';
+} from '@domain/counterparty/types/counterparty.types';
+import contractorAuditValue from '@domain/counterparty/values/contractor-audit.vo';
+import helpers from '@domain/counterparty/values/helpers/counterparty-value.helpers';
 
 function make(
   payload: IMakeContractorPayload

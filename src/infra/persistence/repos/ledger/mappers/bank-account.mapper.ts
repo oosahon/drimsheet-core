@@ -1,8 +1,11 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IBankDetails } from '../../../../../domain/ledger/types/asset-account.types';
-import bankDetailsValue from '../../../../../domain/ledger/values/bank-details.vo';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { bankDetailsInCore } from '../../../../config/drizzle/schema';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { IBankDetails } from '@domain/ledger/types/asset-account.types';
+import bankDetailsValue from '@domain/ledger/values/bank-details.vo';
+
+import { bankDetailsInCore } from '@infra/config/drizzle/schema';
 
 export interface IBankAccountModel extends InferSelectModel<
   typeof bankDetailsInCore

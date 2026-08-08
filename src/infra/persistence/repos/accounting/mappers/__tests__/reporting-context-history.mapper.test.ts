@@ -1,9 +1,11 @@
-import { IReportingContext } from '../../../../../../domain/accounting/types/context.types';
-import { IReportingContextHistory } from '../../../../../../domain/accounting/types/reporting-context-audit.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import { EHistoryActorType } from '../../../../../../shared/values/history/types/history.types';
-import { toRepoDate } from '../../../../helpers/date.mapper';
-import reportingContextHistoryMapper from '../reporting-context-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { IReportingContext } from '@domain/accounting/types/context.types';
+import { IReportingContextHistory } from '@domain/accounting/types/reporting-context-audit.types';
+
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
+import reportingContextHistoryMapper from '@infra/persistence/repos/accounting/mappers/reporting-context-history.mapper';
 
 describe('reportingContextHistoryMapper', () => {
   it('maps reporting context history to the repository model', () => {

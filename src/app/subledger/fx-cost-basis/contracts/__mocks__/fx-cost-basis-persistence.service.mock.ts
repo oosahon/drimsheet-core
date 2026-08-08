@@ -1,4 +1,4 @@
-import IFxCostBasisPersistenceService from '../fx-cost-basis-persistence.service.contract';
+import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
 
 const persistence: jest.Mocked<IFxCostBasisPersistenceService> = {
   persistAcquisition: jest.fn(),

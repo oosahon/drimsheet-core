@@ -1,7 +1,9 @@
-import { SYSTEM_CURRENCIES } from '../../../domain/money/config/currencies.config';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import observability from '../../observability';
-import currencyRepos from '../../persistence/repos/money';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+
+import observability from '@infra/observability';
+import currencyRepos from '@infra/persistence/repos/money';
 
 export default async function bootstrapCurrencies() {
   const correlationId = `bootstrap-currencies-${generateUUID()}`;

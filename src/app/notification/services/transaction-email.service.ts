@@ -1,7 +1,7 @@
-import ITransactionalEmailQueue from '../contracts/transactional-email-queue.contract';
-import ITransactionalEmailService from '../contracts/transactional-email-service.contract';
-import emailVerificationEmail from '../templates/email-verification-email';
-import passwordResetRequestEmail from '../templates/password-reset-request-email';
+import ITransactionalEmailQueue from '@app/notification/contracts/transactional-email-queue.contract';
+import ITransactionalEmailService from '@app/notification/contracts/transactional-email-service.contract';
+import emailVerificationEmail from '@app/notification/templates/email-verification-email';
+import passwordResetRequestEmail from '@app/notification/templates/password-reset-request-email';
 
 interface IDependencies {
   transactionalEmailQueue: ITransactionalEmailQueue;

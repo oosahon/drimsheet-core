@@ -1,11 +1,11 @@
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
-import { ICurrency } from '../../../money/types/currency.types';
-import ledgerAccountEntity from '../../entities/ledger-account.entity';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ledgerAccountCurrencyInvarianceRule from '@domain/ledger/rules/currency-invariance.rule';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../types/asset-account.types';
+} from '@domain/ledger/types/asset-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -13,8 +13,9 @@ import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../types/ledger.types';
-import ledgerAccountCurrencyInvarianceRule from '../currency-invariance.rule';
+} from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { ICurrency } from '@domain/money/types/currency.types';
 
 describe('ledgerAccountCurrencyInvarianceRule', () => {
   const makeControlAccount = (

@@ -1,9 +1,16 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import { EXPENSE_LEDGER_CODES } from '../../../../domain/ledger/config/expense-codes.config';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
-import { IAssetDisposalLossAccountService } from '../../../../domain/ledger/types/asset-disposal-loss.service.types';
-import { IBankChargeAccountService } from '../../../../domain/ledger/types/bank-charge.service.types';
-import { IDirectCostsAccountService } from '../../../../domain/ledger/types/direct-costs.service.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import {
+  IEvent,
+  TAuditedEntity,
+} from '@shared/values/events/types/event.types';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { EXPENSE_LEDGER_CODES } from '@domain/ledger/config/expense-codes.config';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import { IAssetDisposalLossAccountService } from '@domain/ledger/types/asset-disposal-loss.service.types';
+import { IBankChargeAccountService } from '@domain/ledger/types/bank-charge.service.types';
+import { IDirectCostsAccountService } from '@domain/ledger/types/direct-costs.service.types';
 import {
   EExpenseAccountBehavior,
   IAssetDisposalLossAccount,
@@ -15,20 +22,14 @@ import {
   IInterestAccount,
   IRentUtilitiesAccount,
   IUnrealizedLossAccount,
-} from '../../../../domain/ledger/types/expense-account.types';
-import { IFinanceCostAccountService } from '../../../../domain/ledger/types/finance-cost.service.types';
-import { IInterestAccountService } from '../../../../domain/ledger/types/interest.service.types';
-import { TExpenseLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import { IRentAndUtilitiesAccountService } from '../../../../domain/ledger/types/rent-and-utilities.service.types';
-import { ITaxExpenseAccountService } from '../../../../domain/ledger/types/tax-expense.service.types';
-import { IUnrealizedLossAccountService } from '../../../../domain/ledger/types/unrealized-loss.service.types';
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import {
-  IEvent,
-  TAuditedEntity,
-} from '../../../../shared/values/events/types/event.types';
-import { IEntityDelta } from '../../../../shared/values/history/types/history.types';
+} from '@domain/ledger/types/expense-account.types';
+import { IFinanceCostAccountService } from '@domain/ledger/types/finance-cost.service.types';
+import { IInterestAccountService } from '@domain/ledger/types/interest.service.types';
+import { TExpenseLedgerCode } from '@domain/ledger/types/ledger-code.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { IRentAndUtilitiesAccountService } from '@domain/ledger/types/rent-and-utilities.service.types';
+import { ITaxExpenseAccountService } from '@domain/ledger/types/tax-expense.service.types';
+import { IUnrealizedLossAccountService } from '@domain/ledger/types/unrealized-loss.service.types';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

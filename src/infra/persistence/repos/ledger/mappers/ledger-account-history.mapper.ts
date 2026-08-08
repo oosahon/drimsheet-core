@@ -1,7 +1,9 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { ILedgerAccountHistory } from '../../../../../domain/ledger/types/ledger-account-audit.types';
-import { ledgerAccountHistoryInAudit } from '../../../../config/drizzle/schema';
-import { toRepoDate } from '../../../helpers/date.mapper';
+
+import { ILedgerAccountHistory } from '@domain/ledger/types/ledger-account-audit.types';
+
+import { ledgerAccountHistoryInAudit } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
 
 export interface ILedgerAccountHistoryModel extends InferSelectModel<
   typeof ledgerAccountHistoryInAudit

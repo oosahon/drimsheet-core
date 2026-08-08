@@ -1,8 +1,9 @@
 import { Express } from 'express';
 import request from 'supertest';
-import * as authUseCase from '../../../src/infra/ioc/usecases/auth';
-import appContext from '../../../src/infra/runtime/app-context';
-import { createApplication } from '../../../src/infra/server';
+
+import * as authUseCase from '@infra/ioc/usecases/auth';
+import appContext from '@infra/runtime/app-context';
+import { createApplication } from '@infra/server';
 
 describe('POST /api/v1/auth/logout', () => {
   let app: Express;

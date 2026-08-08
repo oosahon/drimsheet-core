@@ -1,9 +1,11 @@
-import { IReadRepoOptions } from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { ICounterparty } from '../../counterparty/types/counterparty.types';
-import { ILedgerAccount } from '../../ledger/types/ledger.types';
-import { IExchangeRate } from '../../money/types/exchange-rate.types';
-import { IMoney } from '../../money/types/money.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
+import { IMoney } from '@domain/money/types/money.types';
+
 import { TAuditedJournalEntry } from './journal-entry-audit.types';
 import { IJournalLineMeta } from './journal-line.types';
 

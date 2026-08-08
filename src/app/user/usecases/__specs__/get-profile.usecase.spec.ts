@@ -1,9 +1,11 @@
-import { IUser } from '../../../../domain/user/types/user.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import userMapper from '../../dtos/user/user.dto.mapper';
-import makeGetAuthUserProfileUseCase from '../get-profile.usecase';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUser } from '@domain/user/types/user.types';
+
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import userMapper from '@app/user/dtos/user/user.dto.mapper';
+import makeGetAuthUserProfileUseCase from '@app/user/usecases/get-profile.usecase';
 
 jest.mock('../../dtos/user/user.dto.mapper', () => ({
   toProfileDto: jest.fn(),

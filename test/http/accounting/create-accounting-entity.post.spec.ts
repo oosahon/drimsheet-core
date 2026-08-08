@@ -1,17 +1,21 @@
 import { Express } from 'express';
 import request from 'supertest';
-import { IAccountingEntityCreationDto } from '../../../src/app/accounting/dtos/accounting/accounting.dto';
-import authError from '../../../src/app/auth/errors/auth.error';
-import periodError from '../../../src/domain/accounting/errors/period.error';
-import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
-import { IUser } from '../../../src/domain/user/types/user.types';
-import { tokenService } from '../../../src/infra/ioc/services/auth';
-import * as accountingUsecases from '../../../src/infra/ioc/usecases/accounting';
-import accountingRepos from '../../../src/infra/persistence/repos/accounting';
-import userRepos from '../../../src/infra/persistence/repos/user';
-import { createApplication } from '../../../src/infra/server';
-import { TEntityId } from '../../../src/shared/types/uuid';
-import appError from '../../../src/shared/values/errors/app.error';
+
+import { TEntityId } from '@shared/types/uuid';
+import appError from '@shared/values/errors/app.error';
+
+import periodError from '@domain/accounting/errors/period.error';
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { IUser } from '@domain/user/types/user.types';
+
+import { IAccountingEntityCreationDto } from '@app/accounting/dtos/accounting/accounting.dto';
+import authError from '@app/auth/errors/auth.error';
+
+import { tokenService } from '@infra/ioc/services/auth';
+import * as accountingUsecases from '@infra/ioc/usecases/accounting';
+import accountingRepos from '@infra/persistence/repos/accounting';
+import userRepos from '@infra/persistence/repos/user';
+import { createApplication } from '@infra/server';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,

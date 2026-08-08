@@ -1,4 +1,4 @@
-import { ITransactionContext } from '../types/repo.types';
+import { ITransactionContext } from '@shared/types/repo.types';
 
 export type TRepoTransactionFn<T = void> = (
   tx: ITransactionContext

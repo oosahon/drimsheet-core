@@ -1,9 +1,11 @@
-import { ICounterpartyHistory } from '../../../../../domain/counterparty/types/counterparty-audit.types';
-import { ICounterparty } from '../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import getDbQuery from '../../../helpers/get-db-query';
-import counterpartyHistoryRepo from '../counterparty-history.repo.impl';
-import counterpartyHistoryMapper from '../mappers/counterparty-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ICounterpartyHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
+
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import counterpartyHistoryRepo from '@infra/persistence/repos/counterparty/counterparty-history.repo.impl';
+import counterpartyHistoryMapper from '@infra/persistence/repos/counterparty/mappers/counterparty-history.mapper';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/counterparty-history.mapper');

@@ -1,21 +1,23 @@
-import userEntity from '../../../domain/user/entities/user.entity';
-import IUserRepo from '../../../domain/user/repos/user.repo';
-import emailValue from '../../../domain/user/values/email.vo';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
+import IEventBus from '@shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/values/events/event.vo';
-import historyValue from '../../../shared/values/history/history.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import { EAuthStrategy } from '../contracts/auth.types';
-import IEmailVerificationService from '../contracts/email-verification-service.contract';
-import IPasswordService from '../contracts/password-service.contract';
-import IUserAuthRepo from '../contracts/user-auth.repo.contract';
-import { IUserSignupReq } from '../dtos/auth/auth.dto';
-import { userSignupReqValidation } from '../dtos/auth/auth.dto.validation';
+} from '@shared/contracts/repo.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import eventValue from '@shared/values/events/event.vo';
+import historyValue from '@shared/values/history/history.vo';
+
+import userEntity from '@domain/user/entities/user.entity';
+import IUserRepo from '@domain/user/repos/user.repo';
+import emailValue from '@domain/user/values/email.vo';
+
+import { EAuthStrategy } from '@app/auth/contracts/auth.types';
+import IEmailVerificationService from '@app/auth/contracts/email-verification-service.contract';
+import IPasswordService from '@app/auth/contracts/password-service.contract';
+import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
+import { IUserSignupReq } from '@app/auth/dtos/auth/auth.dto';
+import { userSignupReqValidation } from '@app/auth/dtos/auth/auth.dto.validation';
+import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
   appContext: IAppContext;

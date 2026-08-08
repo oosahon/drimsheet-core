@@ -1,9 +1,13 @@
 import { and, eq, isNull } from 'drizzle-orm';
-import IUserRepo from '../../../../domain/user/repos/user.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { usersInCore as users } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
-import userMapper from './mappers/user.mapper';
+
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+
+import IUserRepo from '@domain/user/repos/user.repo';
+
+import { usersInCore as users } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import userMapper from '@infra/persistence/repos/user/mappers/user.mapper';
+
 import userHistoryRepo from './user-history.repo.impl';
 
 const userRepo: IUserRepo = {

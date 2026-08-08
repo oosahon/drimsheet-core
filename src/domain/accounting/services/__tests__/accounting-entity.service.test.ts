@@ -1,12 +1,13 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import { SYSTEM_JURISDICTIONS } from '../../config/jurisdictions.config';
-import periodError from '../../errors/period.error';
+import { TEntityId } from '@shared/types/uuid';
+
+import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
+import periodError from '@domain/accounting/errors/period.error';
+import makeAccountingEntityService from '@domain/accounting/services/accounting-entity.service';
 import {
   EAccountingEntityType,
   IAccountingEntity,
-} from '../../types/accounting-entity.types';
-import { EPeriodUnit } from '../../types/period.types';
-import makeAccountingEntityService from '../accounting-entity.service';
+} from '@domain/accounting/types/accounting-entity.types';
+import { EPeriodUnit } from '@domain/accounting/types/period.types';
 
 describe('accountingEntityService', () => {
   const service = makeAccountingEntityService();

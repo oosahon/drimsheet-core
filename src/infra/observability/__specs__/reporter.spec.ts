@@ -1,6 +1,7 @@
 import Sentry from '@sentry/node';
-import logger from '../logger';
-import reporter from '../reporter';
+
+import logger from '@infra/observability/logger';
+import reporter from '@infra/observability/reporter';
 
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),

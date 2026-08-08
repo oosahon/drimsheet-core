@@ -1,19 +1,20 @@
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import ledgerAccountEntity from '../../../../ledger/entities/ledger-account.entity';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import accountingError from '@domain/accounting/errors/accounting.error';
+import transferTransactionRule from '@domain/accounting/rules/bookkeeping/transfer-transaction.rule';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
-} from '../../../../ledger/types/asset-account.types';
+} from '@domain/ledger/types/asset-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ILedgerAccount,
-} from '../../../../ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
-import accountingError from '../../../errors/accounting.error';
-import transferTransactionRule from '../transfer-transaction.rule';
+} from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
 function createMockAccount(overrides: Partial<ILedgerAccount>): ILedgerAccount {
   const type = overrides.type ?? ELedgerType.Asset;

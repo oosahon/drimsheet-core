@@ -1,5 +1,6 @@
-import { IJournalEntry } from '../../../domain/journal-entry/types/journal-entry.types';
-import { IReadRepoOptions } from '../../../shared/types/repo.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+
+import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
 
 export interface ILedgerAccountBalancePropagationService {
   /**

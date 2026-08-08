@@ -1,5 +1,5 @@
-import { IExchangeRateDto } from '../../../money/dtos/exchange-rate/exchange-rate.dto';
-import { IMoneyDto } from '../../../money/dtos/money/money.dto';
+import { IExchangeRateDto } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
+import { IMoneyDto } from '@app/money/dtos/money/money.dto';
 
 export interface IOpeningBalanceDto {
   amount: IMoneyDto;

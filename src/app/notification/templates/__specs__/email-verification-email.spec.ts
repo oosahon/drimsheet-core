@@ -1,4 +1,4 @@
-import emailVerificationEmailTemplate from '../email-verification-email';
+import emailVerificationEmailTemplate from '@app/notification/templates/email-verification-email';
 
 describe('emailVerificationEmailTemplate', () => {
   it('interpolates parameters correctly into the HTML template', () => {

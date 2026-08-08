@@ -1,5 +1,6 @@
-import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/jurisdictions.config';
-import makeGetJurisdictionsUseCase from '../get-jurisdictions.usecase';
+import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
+
+import makeGetJurisdictionsUseCase from '@app/accounting/usecases/get-jurisdictions.usecase';
 
 describe('getJurisdictionsUseCase', () => {
   let getJurisdictionsUseCase: ReturnType<typeof makeGetJurisdictionsUseCase>;

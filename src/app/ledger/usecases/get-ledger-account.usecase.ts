@@ -1,16 +1,18 @@
-import ledgerAccountError from '../../../domain/ledger/errors/ledger-account.error';
-import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import currencyEntity from '../../../domain/money/entities/currency.entity';
-import moneyValue from '../../../domain/money/values/money.vo';
-import IReporter from '../../../shared/contracts/reporter.contract';
-import { TEntityId } from '../../../shared/types/uuid';
-import stringUtils from '../../../shared/utils/string';
-import appError from '../../../shared/values/errors/app.error';
-import IAppContext from '../../context/contracts/app-context.contract';
-import { ILedgerAccountDto } from '../dtos/ledger-account/ledger-account.dto';
-import ledgerAccountMapper from '../dtos/ledger-account/ledger-account.dto.mapper';
-import ledgerAppError from '../errors/ledger.error';
+import IReporter from '@shared/contracts/reporter.contract';
+import { TEntityId } from '@shared/types/uuid';
+import stringUtils from '@shared/utils/string';
+import appError from '@shared/values/errors/app.error';
+
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import currencyEntity from '@domain/money/entities/currency.entity';
+import moneyValue from '@domain/money/values/money.vo';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import { ILedgerAccountDto } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
+import ledgerAccountMapper from '@app/ledger/dtos/ledger-account/ledger-account.dto.mapper';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
 
 interface IDependencies {
   appContext: IAppContext;

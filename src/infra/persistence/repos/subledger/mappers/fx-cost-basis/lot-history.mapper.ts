@@ -1,8 +1,11 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IFxCostBasisLotHistory } from '../../../../../../domain/subledger/fx-cost-basis/types/lot.types';
-import repoError from '../../../../../../shared/values/errors/repo.error';
-import { subledgerFxCostBasisLotHistoryInAudit } from '../../../../../config/drizzle/schema';
-import { toRepoDate } from '../../../../helpers/date.mapper';
+
+import repoError from '@shared/values/errors/repo.error';
+
+import { IFxCostBasisLotHistory } from '@domain/subledger/fx-cost-basis/types/lot.types';
+
+import { subledgerFxCostBasisLotHistoryInAudit } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
 
 export interface IFxCostBasisLotHistoryModel extends InferSelectModel<
   typeof subledgerFxCostBasisLotHistoryInAudit

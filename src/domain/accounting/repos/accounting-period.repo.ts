@@ -1,10 +1,8 @@
-import {
-  IReadRepoOptions,
-  IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { IAccountingPeriodHistory } from '../types/period-audit.types';
-import { IAccountingPeriod } from '../types/period.types';
+import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IAccountingPeriodHistory } from '@domain/accounting/types/period-audit.types';
+import { IAccountingPeriod } from '@domain/accounting/types/period.types';
 
 export default interface IAccountingPeriodRepo {
   findByDate(

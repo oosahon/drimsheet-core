@@ -1,11 +1,15 @@
 import { and, eq, gte, lte } from 'drizzle-orm';
-import IAccountingPeriodRepo from '../../../../domain/accounting/repos/accounting-period.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { accountingPeriodsInCore } from '../../../config/drizzle/schema';
-import { toRepoDateOnly } from '../../helpers/date.mapper';
-import getDbQuery from '../../helpers/get-db-query';
+
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+
+import IAccountingPeriodRepo from '@domain/accounting/repos/accounting-period.repo';
+
+import { accountingPeriodsInCore } from '@infra/config/drizzle/schema';
+import { toRepoDateOnly } from '@infra/persistence/helpers/date.mapper';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import accountingPeriodMapper from '@infra/persistence/repos/accounting/mappers/accounting-period.mapper';
+
 import accountingPeriodHistoryRepo from './accounting-period-history.repo.impl';
-import accountingPeriodMapper from './mappers/accounting-period.mapper';
 
 const accountingPeriodRepoImpl: IAccountingPeriodRepo = {
   findByDate: async (accountingEntityId, date, options) => {

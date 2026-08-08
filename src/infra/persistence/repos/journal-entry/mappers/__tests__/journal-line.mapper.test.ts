@@ -1,13 +1,17 @@
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   EJournalSide,
   IJournalLine,
-} from '../../../../../../domain/journal-entry/types/journal-line.types';
-import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
-import { EExchangeRateType } from '../../../../../../domain/money/types/exchange-rate.types';
-import moneyValue from '../../../../../../domain/money/values/money.vo';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import { IExchangeRateModel } from '../../../money/mappers/exchange-rate.mapper';
-import journalLineMapper, { IJournalLineModel } from '../journal-line.mapper';
+} from '@domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import moneyValue from '@domain/money/values/money.vo';
+
+import journalLineMapper, {
+  IJournalLineModel,
+} from '@infra/persistence/repos/journal-entry/mappers/journal-line.mapper';
+import { IExchangeRateModel } from '@infra/persistence/repos/money/mappers/exchange-rate.mapper';
 
 describe('Journal Line Mapper', () => {
   const createdAt = new Date('2026-05-01T00:00:00.000Z');

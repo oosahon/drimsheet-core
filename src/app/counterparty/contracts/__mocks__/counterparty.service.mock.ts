@@ -1,4 +1,4 @@
-import ICounterpartyAppService from '../counterparty.service.contract';
+import ICounterpartyAppService from '@app/counterparty/contracts/counterparty.service.contract';
 
 const mockCounterpartyAppService: jest.Mocked<ICounterpartyAppService> = {
   findOrCreate: jest.fn(),

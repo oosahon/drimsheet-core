@@ -1,8 +1,10 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IAccountingPeriodHistory } from '../../../../../domain/accounting/types/period-audit.types';
-import { IAccountingPeriod } from '../../../../../domain/accounting/types/period.types';
-import { accountingPeriodHistoryInAudit } from '../../../../config/drizzle/schema';
-import { toRepoDate } from '../../../helpers/date.mapper';
+
+import { IAccountingPeriodHistory } from '@domain/accounting/types/period-audit.types';
+import { IAccountingPeriod } from '@domain/accounting/types/period.types';
+
+import { accountingPeriodHistoryInAudit } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
 
 export interface IAccountingPeriodHistoryRepoModel extends InferSelectModel<
   typeof accountingPeriodHistoryInAudit

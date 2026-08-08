@@ -1,14 +1,15 @@
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
-} from '../../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../../domain/journal-entry/types/journal-line.types';
+} from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+
 import {
   journalEntrySideValidation,
   journalEntrySourceTypeValidation,
   journalEntryStatusValidation,
   journalLineReqValidation,
-} from '../journal-entry.dto.validation';
+} from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.validation';
 
 describe('Journal Entry DTO Validation', () => {
   describe('journalEntrySourceTypeValidation', () => {

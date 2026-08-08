@@ -1,4 +1,4 @@
-import { IAccountingStandard } from '../types/accounting-standards.types';
+import { IAccountingStandard } from '@domain/accounting/types/accounting-standards.types';
 
 const AASB: IAccountingStandard = {
   code: 'AASB',

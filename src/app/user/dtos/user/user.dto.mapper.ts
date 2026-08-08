@@ -1,4 +1,5 @@
-import { IUser } from '../../../../domain/user/types/user.types';
+import { IUser } from '@domain/user/types/user.types';
+
 import { IUserProfileDto } from './user.dto';
 
 const userMapper = {

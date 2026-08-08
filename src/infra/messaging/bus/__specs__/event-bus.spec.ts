@@ -1,6 +1,7 @@
-import eventValue from '../../../../shared/values/events/event.vo';
-import reporter from '../../../observability/reporter';
-import eventBus from '../event-bus';
+import eventValue from '@shared/values/events/event.vo';
+
+import eventBus from '@infra/messaging/bus/event-bus';
+import reporter from '@infra/observability/reporter';
 
 jest.mock('../../../observability/reporter', () => ({
   __esModule: true,

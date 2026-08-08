@@ -1,6 +1,9 @@
-import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { ASSET_LEDGER_CODES } from '../../../../../domain/ledger/config/asset-codes.config';
-import ledgerAccountEntity from '../../../../../domain/ledger/entities/ledger-account.entity';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -9,23 +12,22 @@ import {
   ICashAndCashEquivalentAccount,
   IReceivablesAccount,
   IStatutoryReceivableAccount,
-} from '../../../../../domain/ledger/types/asset-account.types';
+} from '@domain/ledger/types/asset-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
-} from '../../../../../domain/ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
+} from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+
 import {
   mockAssetAccountService,
   mockReceivablesAccountService,
   mockSuspenseAccountService,
-} from '../../../contracts/__mocks__/ledger.domain.services.mock';
-import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
-import makeAssetAccountsBootstrapHelper from '../asset-accounts-bootstrap.helper';
+} from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import makeAssetAccountsBootstrapHelper from '@app/ledger/services/helpers/asset-accounts-bootstrap.helper';
 
 describe('assetAccountsBootstrapHelper', () => {
   const bootstrapAssetAccounts = makeAssetAccountsBootstrapHelper({

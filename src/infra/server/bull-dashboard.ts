@@ -1,8 +1,9 @@
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { getLedgerAccountBalanceAdjustmentQueue } from '../messaging/queues/ledger-account-balance.queue';
-import { getTransactionalEmailQueue } from '../messaging/queues/transactional-email.queue';
+
+import { getLedgerAccountBalanceAdjustmentQueue } from '@infra/messaging/queues/ledger-account-balance.queue';
+import { getTransactionalEmailQueue } from '@infra/messaging/queues/transactional-email.queue';
 
 export default function createBullMqServerAdapter(): ExpressAdapter {
   const bullMqServerAdapter = new ExpressAdapter();

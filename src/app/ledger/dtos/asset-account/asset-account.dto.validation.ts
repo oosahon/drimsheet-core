@@ -1,7 +1,9 @@
 import z from 'zod';
-import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
-import { openingBalanceDtoValidation } from '../../../journal-entry/dtos/opening-balance/opening-balance.dto.validation';
-import { currencyCodeValidation } from '../../../money/dtos/currency/currency.dto.validation';
+
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+
+import { openingBalanceDtoValidation } from '@app/journal-entry/dtos/opening-balance/opening-balance.dto.validation';
+import { currencyCodeValidation } from '@app/money/dtos/currency/currency.dto.validation';
 
 export const pettyCashCreationReqValidation = z
   .object({

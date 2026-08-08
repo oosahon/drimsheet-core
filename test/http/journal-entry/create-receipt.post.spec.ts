@@ -1,17 +1,21 @@
 import { Express } from 'express';
 import request from 'supertest';
-import authError from '../../../src/app/auth/errors/auth.error';
-import { IJournalEntryDto } from '../../../src/app/journal-entry/dtos/journal-entry/journal-entry.dto';
-import { IReceiptEntryReq } from '../../../src/app/journal-entry/dtos/receipt-entry/receipt-entry.dto';
-import { IAccountingEntity } from '../../../src/domain/accounting/types/accounting-entity.types';
-import { IUser } from '../../../src/domain/user/types/user.types';
-import { tokenService } from '../../../src/infra/ioc/services/auth';
-import { createReceiptUseCase } from '../../../src/infra/ioc/usecases/journal-entry';
-import accountingRepos from '../../../src/infra/persistence/repos/accounting';
-import userRepos from '../../../src/infra/persistence/repos/user';
-import { createApplication } from '../../../src/infra/server';
-import { TEntityId } from '../../../src/shared/types/uuid';
-import appError from '../../../src/shared/values/errors/app.error';
+
+import { TEntityId } from '@shared/types/uuid';
+import appError from '@shared/values/errors/app.error';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { IUser } from '@domain/user/types/user.types';
+
+import authError from '@app/auth/errors/auth.error';
+import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
+import { IReceiptEntryReq } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto';
+
+import { tokenService } from '@infra/ioc/services/auth';
+import { createReceiptUseCase } from '@infra/ioc/usecases/journal-entry';
+import accountingRepos from '@infra/persistence/repos/accounting';
+import userRepos from '@infra/persistence/repos/user';
+import { createApplication } from '@infra/server';
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,

@@ -1,5 +1,7 @@
-import { IAccountTransaction } from '../../../../domain/journal-entry/types/account-transaction.types';
-import moneyMapper from '../../../money/dtos/money/money.dto.mapper';
+import { IAccountTransaction } from '@domain/journal-entry/types/account-transaction.types';
+
+import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
+
 import { IAccountTransactionDto } from './account-transaction.dto';
 
 const accountTransactionMapper = {

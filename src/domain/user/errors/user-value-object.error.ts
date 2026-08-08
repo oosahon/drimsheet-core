@@ -1,5 +1,6 @@
-import { TErrorCause } from '../../../shared/types/error.types';
-import errorUtils from '../../../shared/utils/error';
+import { TErrorCause } from '@shared/types/error.types';
+import errorUtils from '@shared/utils/error';
+
 import userError from './user.error';
 
 type TErrorKeyPrefix = `user_error_user_value_object_${string}`;

@@ -1,12 +1,13 @@
-import { UCounterpartyType } from '../../../../domain/counterparty/types/counterparty.types';
+import { UCounterpartyType } from '@domain/counterparty/types/counterparty.types';
 import {
   UJournalEntrySourceType,
   UJournalEntryStatus,
-} from '../../../../domain/journal-entry/types/journal-entry.types';
-import { UJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import { IExchangeRate } from '../../../../domain/money/types/exchange-rate.types';
-import { IExchangeRateDto } from '../../../money/dtos/exchange-rate/exchange-rate.dto';
-import { IMoneyDto } from '../../../money/dtos/money/money.dto';
+} from '@domain/journal-entry/types/journal-entry.types';
+import { UJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
+
+import { IExchangeRateDto } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
+import { IMoneyDto } from '@app/money/dtos/money/money.dto';
 
 export interface IJournalLineReq {
   accountId: string;

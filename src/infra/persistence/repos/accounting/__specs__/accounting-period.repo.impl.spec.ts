@@ -1,12 +1,11 @@
-import { IAccountingPeriod } from '../../../../../domain/accounting/types/period.types';
-import {
-  ERepoLock,
-  ITransactionContext,
-} from '../../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import getDbQuery from '../../../helpers/get-db-query';
-import accountingPeriodRepo from '../accounting-period.repo.impl';
-import accountingPeriodMapper from '../mappers/accounting-period.mapper';
+import { ERepoLock, ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IAccountingPeriod } from '@domain/accounting/types/period.types';
+
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import accountingPeriodRepo from '@infra/persistence/repos/accounting/accounting-period.repo.impl';
+import accountingPeriodMapper from '@infra/persistence/repos/accounting/mappers/accounting-period.mapper';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/accounting-period.mapper');

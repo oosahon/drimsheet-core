@@ -1,18 +1,18 @@
-import IAccountingContextHistoryRepo from '../../../../domain/accounting/repos/accounting-context-history.repo';
-import IAccountingContextRepo from '../../../../domain/accounting/repos/accounting-context.repo';
-import IAccountingEntityHistoryRepo from '../../../../domain/accounting/repos/accounting-entity-history.repo';
-import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
-import IAccountingPeriodHistoryRepo from '../../../../domain/accounting/repos/accounting-period-history.repo';
-import IAccountingPeriodRepo from '../../../../domain/accounting/repos/accounting-period.repo';
-import { IAccountingStandardRepo } from '../../../../domain/accounting/repos/accounting-standards.repo';
-import IFiscalYearHistoryRepo from '../../../../domain/accounting/repos/fiscal-year-history.repo';
-import IFiscalYearRepo from '../../../../domain/accounting/repos/fiscal-year.repo';
-import IJurisdictionAccountingStandardRepo from '../../../../domain/accounting/repos/jurisdiction-accounting-standard.repo';
-import IJurisdictionRepo from '../../../../domain/accounting/repos/jurisdiction.repo';
-import IReportingContextHistoryRepo from '../../../../domain/accounting/repos/reporting-context-history.repo';
-import IReportingContextRepo from '../../../../domain/accounting/repos/reporting-context.repo';
-import IReportingPeriodHistoryRepo from '../../../../domain/accounting/repos/reporting-period-history.repo';
-import IReportingPeriodRepo from '../../../../domain/accounting/repos/reporting-period.repo';
+import IAccountingContextHistoryRepo from '@domain/accounting/repos/accounting-context-history.repo';
+import IAccountingContextRepo from '@domain/accounting/repos/accounting-context.repo';
+import IAccountingEntityHistoryRepo from '@domain/accounting/repos/accounting-entity-history.repo';
+import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
+import IAccountingPeriodHistoryRepo from '@domain/accounting/repos/accounting-period-history.repo';
+import IAccountingPeriodRepo from '@domain/accounting/repos/accounting-period.repo';
+import { IAccountingStandardRepo } from '@domain/accounting/repos/accounting-standards.repo';
+import IFiscalYearHistoryRepo from '@domain/accounting/repos/fiscal-year-history.repo';
+import IFiscalYearRepo from '@domain/accounting/repos/fiscal-year.repo';
+import IJurisdictionAccountingStandardRepo from '@domain/accounting/repos/jurisdiction-accounting-standard.repo';
+import IJurisdictionRepo from '@domain/accounting/repos/jurisdiction.repo';
+import IReportingContextHistoryRepo from '@domain/accounting/repos/reporting-context-history.repo';
+import IReportingContextRepo from '@domain/accounting/repos/reporting-context.repo';
+import IReportingPeriodHistoryRepo from '@domain/accounting/repos/reporting-period-history.repo';
+import IReportingPeriodRepo from '@domain/accounting/repos/reporting-period.repo';
 
 export const mockAccountingContextHistoryRepo: jest.Mocked<IAccountingContextHistoryRepo> =
   {

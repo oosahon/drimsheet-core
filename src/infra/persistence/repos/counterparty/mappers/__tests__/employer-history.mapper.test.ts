@@ -1,7 +1,9 @@
-import { IEmployerHistory } from '../../../../../../domain/counterparty/types/counterparty-audit.types';
-import { IEmployer } from '../../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import employerHistoryMapper from '../employer-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IEmployerHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { IEmployer } from '@domain/counterparty/types/counterparty.types';
+
+import employerHistoryMapper from '@infra/persistence/repos/counterparty/mappers/employer-history.mapper';
 
 describe('employerHistoryMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');

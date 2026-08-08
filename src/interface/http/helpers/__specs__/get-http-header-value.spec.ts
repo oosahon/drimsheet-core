@@ -1,8 +1,9 @@
 import { Request } from 'express';
+
 import getHttpHeaderValue, {
   getCorrelationId,
   getIdempotencyKey,
-} from '../get-http-header-value';
+} from '@interface/http/helpers/get-http-header-value';
 
 describe('get-http-header-value', () => {
   describe('getHttpHeaderValue', () => {

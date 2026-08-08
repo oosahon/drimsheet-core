@@ -1,9 +1,13 @@
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import employerEvents from '../events/employer.events';
-import { EEmployerHistoryAction } from '../types/counterparty-audit.types';
-import { IEmployer, IMakeEmployerPayload } from '../types/counterparty.types';
-import employerAuditValue from '../values/employer-audit.vo';
-import helpers from '../values/helpers/counterparty-value.helpers';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import employerEvents from '@domain/counterparty/events/employer.events';
+import { EEmployerHistoryAction } from '@domain/counterparty/types/counterparty-audit.types';
+import {
+  IEmployer,
+  IMakeEmployerPayload,
+} from '@domain/counterparty/types/counterparty.types';
+import employerAuditValue from '@domain/counterparty/values/employer-audit.vo';
+import helpers from '@domain/counterparty/values/helpers/counterparty-value.helpers';
 
 function make(
   payload: IMakeEmployerPayload

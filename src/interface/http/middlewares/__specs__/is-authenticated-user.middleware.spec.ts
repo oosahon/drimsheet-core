@@ -1,6 +1,7 @@
-import appError from '../../../../shared/values/errors/app.error';
-import httpHandlers from '../../handlers';
-import makeIsAuthenticatedUserMiddleware from '../is-authenticated-user.middleware';
+import appError from '@shared/values/errors/app.error';
+
+import httpHandlers from '@interface/http/handlers';
+import makeIsAuthenticatedUserMiddleware from '@interface/http/middlewares/is-authenticated-user.middleware';
 
 jest.mock('../../handlers', () => ({
   error: jest.fn(),

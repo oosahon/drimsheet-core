@@ -1,7 +1,9 @@
-import { IRepoOptions } from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import { IAccountingEntity } from '../../accounting/types/accounting-entity.types';
+import { IRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+
 import { IFinanceCostAccount } from './expense-account.types';
 import { TFinanceCostLedgerCode } from './ledger-code.types';
 import { ILedgerAccount } from './ledger.types';

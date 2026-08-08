@@ -1,15 +1,17 @@
-import { IAccountTransaction } from '../../../../../../domain/journal-entry/types/account-transaction.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IAccountTransaction } from '@domain/journal-entry/types/account-transaction.types';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
-} from '../../../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../../../domain/journal-entry/types/journal-line.types';
-import { SYSTEM_CURRENCIES } from '../../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../../domain/money/values/money.vo';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import { IJournalEntryModel } from '../../../journal-entry/mappers/journal-entry.mapper';
-import { IJournalLineModel } from '../../../journal-entry/mappers/journal-line.mapper';
-import accountTransactionMapper from '../account-transaction.mapper';
+} from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
+
+import { IJournalEntryModel } from '@infra/persistence/repos/journal-entry/mappers/journal-entry.mapper';
+import { IJournalLineModel } from '@infra/persistence/repos/journal-entry/mappers/journal-line.mapper';
+import accountTransactionMapper from '@infra/persistence/repos/ledger/mappers/account-transaction.mapper';
 
 describe('Account Transaction Mapper', () => {
   const id = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;

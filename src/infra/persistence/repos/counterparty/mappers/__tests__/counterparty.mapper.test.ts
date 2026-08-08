@@ -1,19 +1,21 @@
-import { ICounterpartyHistory } from '../../../../../../domain/counterparty/types/counterparty-audit.types';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ICounterpartyHistory } from '@domain/counterparty/types/counterparty-audit.types';
 import {
   ICounterparty,
   UCounterpartyRole,
-} from '../../../../../../domain/counterparty/types/counterparty.types';
-import { IWriteRepoOptions } from '../../../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
+} from '@domain/counterparty/types/counterparty.types';
+
 import {
   counterpartiesInCore,
   counterpartyRolesInCore,
-} from '../../../../../config/drizzle/schema';
-import getDbQuery from '../../../../helpers/get-db-query';
-import counterpartyHistoryRepo from '../../counterparty-history.repo.impl';
-import counterpartyRepo from '../../counterparty.repo.impl';
-import counterpartyRoleMapper from '../counterparty-role.mapper';
-import counterpartyMapper from '../counterparty.mapper';
+} from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import counterpartyHistoryRepo from '@infra/persistence/repos/counterparty/counterparty-history.repo.impl';
+import counterpartyRepo from '@infra/persistence/repos/counterparty/counterparty.repo.impl';
+import counterpartyRoleMapper from '@infra/persistence/repos/counterparty/mappers/counterparty-role.mapper';
+import counterpartyMapper from '@infra/persistence/repos/counterparty/mappers/counterparty.mapper';
 
 jest.mock('../../../../helpers/get-db-query');
 jest.mock('../counterparty.mapper');

@@ -1,15 +1,16 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import historyError from '../../../../shared/values/history/history.error';
-import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
-import accountingEntityEntity from '../../entities/accounting-entity.entity';
-import accountingError from '../../errors/accounting.error';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+import historyError from '@shared/values/history/history.error';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import accountingError from '@domain/accounting/errors/accounting.error';
 import {
   EAccountingEntityActions,
   UAccountingEntityActions,
-} from '../../types/accounting-entity-audit.types';
-import { EAccountingEntityType } from '../../types/accounting-entity.types';
-import accountingEntityAudit from '../accounting-entity-audit.vo';
+} from '@domain/accounting/types/accounting-entity-audit.types';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import accountingEntityAudit from '@domain/accounting/values/accounting-entity-audit.vo';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
 describe('accountingEntityAudit', () => {
   const makeAccountingEntity = () =>

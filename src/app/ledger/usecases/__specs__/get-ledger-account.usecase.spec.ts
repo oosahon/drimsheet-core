@@ -1,6 +1,9 @@
-import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
-import ledgerAccountBalanceEntity from '../../../../domain/ledger/entities/ledger-account-balance.entity';
-import ledgerAccountEntity from '../../../../domain/ledger/entities/ledger-account.entity';
+import { MockReporter } from '@shared/contracts/__mocks__/reporter.mock';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -8,19 +11,18 @@ import {
   ELedgerType,
   ENormalBalance,
   ILedgerAccount,
-} from '../../../../domain/ledger/types/ledger.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../domain/money/values/money.vo';
-import { IUser } from '../../../../domain/user/types/user.types';
-import { MockReporter } from '../../../../shared/contracts/__mocks__/reporter.mock';
-import { TEntityId } from '../../../../shared/types/uuid';
-import mockAppContext from '../../../context/contracts/__mocks__/app-context.mock';
+} from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
+import { IUser } from '@domain/user/types/user.types';
+
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import {
   mockLedgerAccountBalanceRepo,
   mockLedgerAccountRepo,
-} from '../../contracts/__mocks__/ledger.repos.mock';
-import ledgerAccountMapper from '../../dtos/ledger-account/ledger-account.dto.mapper';
-import makeGetLedgerAccountUseCase from '../get-ledger-account.usecase';
+} from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import ledgerAccountMapper from '@app/ledger/dtos/ledger-account/ledger-account.dto.mapper';
+import makeGetLedgerAccountUseCase from '@app/ledger/usecases/get-ledger-account.usecase';
 
 describe('getLedgerAccountUseCase', () => {
   const mockUserId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;

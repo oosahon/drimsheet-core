@@ -1,8 +1,6 @@
-import {
-  IReadRepoOptions,
-  IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
-import { ICurrency } from '../types/currency.types';
+import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+
+import { ICurrency } from '@domain/money/types/currency.types';
 
 interface ICurrencyRepo {
   create(currency: ICurrency, option: IWriteRepoOptions): Promise<void>;

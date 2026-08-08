@@ -1,6 +1,7 @@
-import makeExchangeRateIngestionWorker from '../../../app/money/workers/exchange-rate-ingestion.worker';
-import observability from '../../observability';
-import { ingestExchangeRateUseCase } from '../usecases/money';
+import makeExchangeRateIngestionWorker from '@app/money/workers/exchange-rate-ingestion.worker';
+
+import { ingestExchangeRateUseCase } from '@infra/ioc/usecases/money';
+import observability from '@infra/observability';
 
 export const exchangeRateIngestionWorker = makeExchangeRateIngestionWorker({
   reporter: observability.reporter,

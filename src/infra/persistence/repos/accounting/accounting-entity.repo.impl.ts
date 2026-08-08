@@ -1,10 +1,14 @@
 import { and, eq } from 'drizzle-orm';
-import IAccountingEntityRepo from '../../../../domain/accounting/repos/accounting-entity.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { accountingEntitiesInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
+
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+
+import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
+
+import { accountingEntitiesInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import accountingEntityMapper from '@infra/persistence/repos/accounting/mappers/accounting-entity.mapper';
+
 import accountingEntityHistoryRepo from './accounting-entity-history.repo.impl';
-import accountingEntityMapper from './mappers/accounting-entity.mapper';
 
 const accountingEntityRepo: IAccountingEntityRepo = {
   create: async (domain, options) => {

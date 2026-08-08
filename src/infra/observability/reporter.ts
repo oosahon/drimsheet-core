@@ -1,10 +1,13 @@
 import Sentry from '@sentry/node';
-import IReporter from '../../shared/contracts/reporter.contract';
-import errorUtils from '../../shared/utils/error';
-import safeJSON from '../../shared/utils/safe-json';
-import { sanitizeData } from '../../shared/utils/sanitizer';
-import { NODE_ENV } from '../config/vars.config';
-import appContext from '../runtime/app-context';
+
+import IReporter from '@shared/contracts/reporter.contract';
+import errorUtils from '@shared/utils/error';
+import safeJSON from '@shared/utils/safe-json';
+import { sanitizeData } from '@shared/utils/sanitizer';
+
+import { NODE_ENV } from '@infra/config/vars.config';
+import appContext from '@infra/runtime/app-context';
+
 import logger from './logger';
 
 // TODO: add tests for observability

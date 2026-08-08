@@ -1,4 +1,4 @@
-import passwordResetRequestEmailTemplate from '../password-reset-request-email';
+import passwordResetRequestEmailTemplate from '@app/notification/templates/password-reset-request-email';
 
 describe('passwordResetRequestEmailTemplate', () => {
   it('interpolates parameters correctly into the HTML template', () => {

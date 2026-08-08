@@ -1,18 +1,19 @@
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import {
   EExchangeRateType,
   IExchangeRate,
-} from '../../../../money/types/exchange-rate.types';
-import fxCostBasisLotDispositionError from '../../errors/disposition.error';
-import { EFxCostBasisLotDispositionEvent } from '../../events/disposition.events';
+} from '@domain/money/types/exchange-rate.types';
+import moneyValue from '@domain/money/values/money.vo';
+import fxCostBasisLotDispositionEntity from '@domain/subledger/fx-cost-basis/entities/disposition.entity';
+import fxCostBasisLotDispositionError from '@domain/subledger/fx-cost-basis/errors/disposition.error';
+import { EFxCostBasisLotDispositionEvent } from '@domain/subledger/fx-cost-basis/events/disposition.events';
 import {
   EFxCostBasisLotDispositionAuditAction,
   IFxCostBasisLotDisposition,
-} from '../../types/disposition.types';
-import fxCostBasisLotDispositionEntity from '../disposition.entity';
+} from '@domain/subledger/fx-cost-basis/types/disposition.types';
 
 describe('fxCostBasisLotDispositionEntity', () => {
   const MOCK_DATE = new Date('2026-04-01T00:00:00.000Z');

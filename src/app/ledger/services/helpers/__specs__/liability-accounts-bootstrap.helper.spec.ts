@@ -1,12 +1,15 @@
-import { IAccountingEntity } from '../../../../../domain/accounting/types/accounting-entity.types';
-import { LIABILITY_LEDGER_CODES } from '../../../../../domain/ledger/config/liability-codes.config';
-import ledgerAccountEntity from '../../../../../domain/ledger/entities/ledger-account.entity';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { LIABILITY_LEDGER_CODES } from '@domain/ledger/config/liability-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
-} from '../../../../../domain/ledger/types/ledger.types';
+} from '@domain/ledger/types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
@@ -15,17 +18,16 @@ import {
   IPayableAccount,
   IShortTermDebtAccount,
   IStatutoryPayableAccount,
-} from '../../../../../domain/ledger/types/liability-account.types';
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
+} from '@domain/ledger/types/liability-account.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+
 import {
   mockPayablesAccountService,
   mockShortTermLoanAccountService,
   mockSuspenseAccountService,
-} from '../../../contracts/__mocks__/ledger.domain.services.mock';
-import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
-import makeLiabilityAccountsBootstrapHelper from '../liability-accounts-bootstrap.helper';
+} from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import makeLiabilityAccountsBootstrapHelper from '@app/ledger/services/helpers/liability-accounts-bootstrap.helper';
 
 describe('liabilityAccountsBootstrapHelper', () => {
   const bootstrapLiabilityAccounts = makeLiabilityAccountsBootstrapHelper({

@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import passport from 'passport';
+
 import {
   makeCompleteLoginWithGoogleMiddleware,
   makeInitiateLoginWithGoogleMiddleware,
-} from '../google-oauth.middleware';
+} from '@interface/http/middlewares/google-oauth.middleware';
 
 describe('Google OAuth middleware', () => {
   const originalNodeEnv = process.env.NODE_ENV;

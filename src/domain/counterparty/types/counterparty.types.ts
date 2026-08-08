@@ -1,6 +1,6 @@
-import { TEntityId } from '../../../shared/types/uuid';
-import { IAddress } from '../../../shared/values/contact-details/types/address.types';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
+import { TEntityId } from '@shared/types/uuid';
+import { IAddress } from '@shared/values/contact-details/types/address.types';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 export const ECounterpartyStatus = {
   Active: 'active',

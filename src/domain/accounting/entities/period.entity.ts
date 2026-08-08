@@ -1,15 +1,16 @@
-import dateUtils from '../../../shared/utils/date';
-import numberUtils from '../../../shared/utils/number';
-import stringUtils from '../../../shared/utils/string';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import accountingError from '../errors/accounting.error';
-import periodError from '../errors/period.error';
-import periodEvents from '../events/period.events';
-import { EPeriodActions } from '../types/period-audit.types';
-import { IReportingPeriod } from '../types/period.types';
-import reportingPeriodAudit from '../values/reporting-period-audit.vo';
-import helpers from './helpers/period.helpers';
+import dateUtils from '@shared/utils/date';
+import numberUtils from '@shared/utils/number';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import helpers from '@domain/accounting/entities/helpers/period.helpers';
+import accountingError from '@domain/accounting/errors/accounting.error';
+import periodError from '@domain/accounting/errors/period.error';
+import periodEvents from '@domain/accounting/events/period.events';
+import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
+import { IReportingPeriod } from '@domain/accounting/types/period.types';
+import reportingPeriodAudit from '@domain/accounting/values/reporting-period-audit.vo';
 
 function makeReportingPeriod(
   payload: Pick<

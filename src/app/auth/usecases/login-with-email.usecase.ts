@@ -1,20 +1,22 @@
-import userEvents from '../../../domain/user/events/user.events';
-import IUserRepo from '../../../domain/user/repos/user.repo';
-import emailValue from '../../../domain/user/values/email.vo';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
-import { IRepoService } from '../../../shared/contracts/repo.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/values/events/event.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import { EAuthStrategy } from '../contracts/auth.types';
-import IPasswordService from '../contracts/password-service.contract';
-import ITokenService from '../contracts/token-service.contract';
-import IUserAuthRepo from '../contracts/user-auth.repo.contract';
-import IUserSessionRepo from '../contracts/user-session.repo.contract';
-import { IAccessToken, IEmailLoginReq } from '../dtos/auth/auth.dto';
-import { emailLoginReqValidation } from '../dtos/auth/auth.dto.validation';
-import authError from '../errors/auth.error';
-import makeIssueUserSessionHelper from './helpers/issue-user-session.helper';
+import IEventBus from '@shared/contracts/event-bus.contract';
+import { IRepoService } from '@shared/contracts/repo.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import eventValue from '@shared/values/events/event.vo';
+
+import userEvents from '@domain/user/events/user.events';
+import IUserRepo from '@domain/user/repos/user.repo';
+import emailValue from '@domain/user/values/email.vo';
+
+import { EAuthStrategy } from '@app/auth/contracts/auth.types';
+import IPasswordService from '@app/auth/contracts/password-service.contract';
+import ITokenService from '@app/auth/contracts/token-service.contract';
+import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
+import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
+import { IAccessToken, IEmailLoginReq } from '@app/auth/dtos/auth/auth.dto';
+import { emailLoginReqValidation } from '@app/auth/dtos/auth/auth.dto.validation';
+import authError from '@app/auth/errors/auth.error';
+import makeIssueUserSessionHelper from '@app/auth/usecases/helpers/issue-user-session.helper';
+import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
   reqContext: IAppContext;

@@ -1,9 +1,11 @@
-import { IContractorHistory } from '../../../../../domain/counterparty/types/counterparty-audit.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyContractorHistoryInAudit } from '../../../../config/drizzle/schema';
-import getDbQuery from '../../../helpers/get-db-query';
-import contractorHistoryRepo from '../contractor-history.repo.impl';
-import contractorHistoryMapper from '../mappers/contractor-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IContractorHistory } from '@domain/counterparty/types/counterparty-audit.types';
+
+import { counterpartyContractorHistoryInAudit } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import contractorHistoryRepo from '@infra/persistence/repos/counterparty/contractor-history.repo.impl';
+import contractorHistoryMapper from '@infra/persistence/repos/counterparty/mappers/contractor-history.mapper';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/contractor-history.mapper');

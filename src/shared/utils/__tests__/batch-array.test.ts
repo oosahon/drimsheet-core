@@ -1,4 +1,4 @@
-import batchArray from '../batch-array';
+import batchArray from '@shared/utils/batch-array';
 
 describe('batchArray', () => {
   it('splits an array into batches of the requested size', () => {

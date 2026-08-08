@@ -1,11 +1,15 @@
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   ECounterpartyRole,
   ECounterpartyStatus,
   ECounterpartyType,
   ICounterparty,
-} from '../../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import counterpartyMapper, { ICounterpartyModel } from '../counterparty.mapper';
+} from '@domain/counterparty/types/counterparty.types';
+
+import counterpartyMapper, {
+  ICounterpartyModel,
+} from '@infra/persistence/repos/counterparty/mappers/counterparty.mapper';
 
 describe('counterpartyMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');

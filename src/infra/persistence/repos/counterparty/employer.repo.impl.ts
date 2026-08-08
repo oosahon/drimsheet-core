@@ -1,9 +1,12 @@
-import IEmployerRepo from '../../../../domain/counterparty/repos/employer.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { counterpartyEmployersInCore } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+
+import IEmployerRepo from '@domain/counterparty/repos/employer.repo';
+
+import { counterpartyEmployersInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import employerMapper from '@infra/persistence/repos/counterparty/mappers/employer.mapper';
+
 import employerHistoryRepo from './employer-history.repo.impl';
-import employerMapper from './mappers/employer.mapper';
 
 const employerRepo: IEmployerRepo = {
   create: async (payload, options) => {

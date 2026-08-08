@@ -9,13 +9,17 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
+
+import { IHttpErrorDto } from '@shared/values/errors/error.dto';
+
 import {
   IBankDirectoryDto,
   IGetBanksQuery,
-} from '../../../app/ledger/dtos/bank-directory/bank-directory.dto';
-import { getBanksUseCase } from '../../../infra/ioc/usecases/ledger';
-import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
-import middlewares from '../middlewares';
+} from '@app/ledger/dtos/bank-directory/bank-directory.dto';
+
+import { getBanksUseCase } from '@infra/ioc/usecases/ledger';
+
+import middlewares from '@interface/http/middlewares';
 
 @Route('banks')
 @Tags('Bank')

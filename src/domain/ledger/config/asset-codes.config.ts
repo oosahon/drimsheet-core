@@ -8,7 +8,7 @@ import {
   TAssetSuspenseLedgerCode,
   TCashLedgerCode,
   TReceivablesLedgerCode,
-} from '../types/ledger-code.types';
+} from '@domain/ledger/types/ledger-code.types';
 
 type TCashKeys = 'PREFIX' | 'HEADER';
 

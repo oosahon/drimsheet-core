@@ -1,17 +1,19 @@
-import userEntity from '../../../../domain/user/entities/user.entity';
-import mockEventBus from '../../../../shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '../../../../shared/types/repo.types';
-import appError from '../../../../shared/values/errors/app.error';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+import appError from '@shared/values/errors/app.error';
+
+import userEntity from '@domain/user/entities/user.entity';
+
+import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
+import mockUserSessionRepo from '@app/auth/contracts/__mocks__/user-session.repo.mock';
+import authError from '@app/auth/errors/auth.error';
+import makeVerifyEmailAddressUseCase from '@app/auth/usecases/verify-email.usecase';
 import mockAppContext, {
   mockClientSession,
-} from '../../../context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '../../../context/contracts/app-context.contract';
-import { mockUserRepo } from '../../../user/contracts/__mocks__/user.repos.mock';
-import mockAuthService from '../../contracts/__mocks__/token-service.mock';
-import mockUserSessionRepo from '../../contracts/__mocks__/user-session.repo.mock';
-import authError from '../../errors/auth.error';
-import makeVerifyEmailAddressUseCase from '../verify-email.usecase';
+} from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeVerifyEmailAddressUseCase', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';

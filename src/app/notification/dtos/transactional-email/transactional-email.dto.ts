@@ -1,4 +1,4 @@
-import { ICorrelationId } from '../../../../shared/types/correlation-id.types';
+import { ICorrelationId } from '@shared/types/correlation-id.types';
 
 export interface ITransactionalEmailDto extends ICorrelationId {
   emails: string[];

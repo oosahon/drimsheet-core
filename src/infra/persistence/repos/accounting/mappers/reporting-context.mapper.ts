@@ -1,7 +1,9 @@
 import { InferInsertModel } from 'drizzle-orm';
-import { IReportingContext } from '../../../../../domain/accounting/types/context.types';
-import { reportingContextsInCore } from '../../../../config/drizzle/schema';
-import { toRepoDate } from '../../../helpers/date.mapper';
+
+import { IReportingContext } from '@domain/accounting/types/context.types';
+
+import { reportingContextsInCore } from '@infra/config/drizzle/schema';
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
 
 export interface IReportingContextRepoModel extends InferInsertModel<
   typeof reportingContextsInCore

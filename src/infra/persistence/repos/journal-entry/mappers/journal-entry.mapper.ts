@@ -1,12 +1,20 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IJournalEntryDto } from '../../../../../app/journal-entry/dtos/journal-entry/journal-entry.dto';
+
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   IJournalEntry,
   IJournalHeader,
-} from '../../../../../domain/journal-entry/types/journal-entry.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { journalEntriesInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
+} from '@domain/journal-entry/types/journal-entry.types';
+
+import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
+
+import { journalEntriesInCore } from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
+
 import journalLineMapper, { IJournalLineModel } from './journal-line.mapper';
 
 export interface IJournalEntryModel extends InferSelectModel<

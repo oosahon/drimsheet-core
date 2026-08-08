@@ -2,16 +2,17 @@ import {
   IPaginatedReadRepoOptions,
   IReadRepoOptions,
   IWriteRepoOptions,
-} from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { IPaginatedResponse } from '../../../shared/values/pagination/types/pagination.types';
-import { UAssetSubType } from '../types/asset-account.types';
-import { UEquitySubType } from '../types/equity-account.types';
-import { UExpenseSubType } from '../types/expense-account.types';
-import { ILedgerAccountHistory } from '../types/ledger-account-audit.types';
-import { ILedgerAccount, ULedgerType } from '../types/ledger.types';
-import { ULiabilitySubType } from '../types/liability-account.types';
-import { URevenueSubType } from '../types/revenue-account.types';
+} from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
+
+import { UAssetSubType } from '@domain/ledger/types/asset-account.types';
+import { UEquitySubType } from '@domain/ledger/types/equity-account.types';
+import { UExpenseSubType } from '@domain/ledger/types/expense-account.types';
+import { ILedgerAccountHistory } from '@domain/ledger/types/ledger-account-audit.types';
+import { ILedgerAccount, ULedgerType } from '@domain/ledger/types/ledger.types';
+import { ULiabilitySubType } from '@domain/ledger/types/liability-account.types';
+import { URevenueSubType } from '@domain/ledger/types/revenue-account.types';
 
 export const ELedgerAccountSortBy = {
   AccountName: 'accountName',

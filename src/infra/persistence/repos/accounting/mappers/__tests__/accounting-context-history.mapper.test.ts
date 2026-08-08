@@ -1,8 +1,10 @@
-import { IAccountingContextHistory } from '../../../../../../domain/accounting/types/accounting-context-audit.types';
-import { IAccountingContext } from '../../../../../../domain/accounting/types/context.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import { EHistoryActorType } from '../../../../../../shared/values/history/types/history.types';
-import accountingContextHistoryMapper from '../accounting-context-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { IAccountingContextHistory } from '@domain/accounting/types/accounting-context-audit.types';
+import { IAccountingContext } from '@domain/accounting/types/context.types';
+
+import accountingContextHistoryMapper from '@infra/persistence/repos/accounting/mappers/accounting-context-history.mapper';
 
 describe('accountingContextHistoryMapper', () => {
   it('maps accounting context history to the repository model', () => {

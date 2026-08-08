@@ -1,16 +1,17 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import dateUtils from '../../../../shared/utils/date';
-import stringUtils from '../../../../shared/utils/string';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { TAuditedEntity } from '../../../../shared/values/events/types/event.types';
-import exchangeRateValue from '../../../money/values/exchange-rate.vo';
-import FxCostBasisLotAcquisitionError from '../errors/acquisition.error';
-import FxCostBasisLotAcquisitionEvents from '../events/acquisition.events';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import dateUtils from '@shared/utils/date';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import helpers from '@domain/subledger/fx-cost-basis/entities/helpers/acquisition.entity.helpers';
+import FxCostBasisLotAcquisitionError from '@domain/subledger/fx-cost-basis/errors/acquisition.error';
+import FxCostBasisLotAcquisitionEvents from '@domain/subledger/fx-cost-basis/events/acquisition.events';
 import {
   EFxCostBasisLotAcquisitionAuditAction,
   IFxCostBasisLotAcquisition,
-} from '../types/acquisition.types';
-import helpers from './helpers/acquisition.entity.helpers';
+} from '@domain/subledger/fx-cost-basis/types/acquisition.types';
 
 function make(
   payload: TCreationOmits<IFxCostBasisLotAcquisition>

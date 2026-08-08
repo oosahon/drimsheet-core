@@ -1,7 +1,8 @@
-import { TCreationOmits } from '../../../../shared/types/creation-omits.types';
-import { EUserEntityActions } from '../../types/user-audit.types';
-import { IUser } from '../../types/user.types';
-import userEntity from '../user.entity';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+
+import userEntity from '@domain/user/entities/user.entity';
+import { EUserEntityActions } from '@domain/user/types/user-audit.types';
+import { IUser } from '@domain/user/types/user.types';
 
 describe('User Entity', () => {
   beforeEach(() => {

@@ -1,5 +1,7 @@
 import axios from 'axios';
-import { ITransactionalEmailDto } from '../../app/notification/dtos/transactional-email/transactional-email.dto';
+
+import { ITransactionalEmailDto } from '@app/notification/dtos/transactional-email/transactional-email.dto';
+
 import {
   ZEPTO_TOKEN_NOREPLY,
   ZEPTO_TOKEN_NOTIFICATIONS,

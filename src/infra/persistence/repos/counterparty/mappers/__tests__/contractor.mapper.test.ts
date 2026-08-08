@@ -1,6 +1,10 @@
-import { IContractor } from '../../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import contractorMapper, { IContractorModel } from '../contractor.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IContractor } from '@domain/counterparty/types/counterparty.types';
+
+import contractorMapper, {
+  IContractorModel,
+} from '@infra/persistence/repos/counterparty/mappers/contractor.mapper';
 
 describe('contractorMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');

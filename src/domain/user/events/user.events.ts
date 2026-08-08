@@ -1,6 +1,7 @@
-import eventValue from '../../../shared/values/events/event.vo';
-import { IUserPreferences } from '../types/user-preferences.types';
-import { IUser } from '../types/user.types';
+import eventValue from '@shared/values/events/event.vo';
+
+import { IUserPreferences } from '@domain/user/types/user-preferences.types';
+import { IUser } from '@domain/user/types/user.types';
 
 export const EUserEvents = {
   Created: 'domain:user:created',

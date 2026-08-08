@@ -8,12 +8,15 @@ import {
   SuccessResponse,
   Tags,
 } from 'tsoa';
-import { IExchangeRateQueryParam } from '../../../app/money/dtos/exchange-rate/exchange-rate.dto';
+
+import { IExchangeRateQueryParam } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
+
 import {
   getAllCurrenciesUseCase,
   getExchangeRateUseCase,
-} from '../../../infra/ioc/usecases/money';
-import middlewares from '../middlewares';
+} from '@infra/ioc/usecases/money';
+
+import middlewares from '@interface/http/middlewares';
 
 @Route('currencies')
 @Tags('Currency')

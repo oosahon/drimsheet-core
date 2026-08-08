@@ -1,4 +1,4 @@
-import IExchangeRateRepo from '../../../../domain/money/repos/exchange-rate.repo';
+import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
 
 export const mockExchangeRateRepo: jest.Mocked<IExchangeRateRepo> = {
   create: jest.fn(),

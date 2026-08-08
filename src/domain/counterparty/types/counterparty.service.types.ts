@@ -1,5 +1,6 @@
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
 import {
   IContractor,
   ICounterparty,

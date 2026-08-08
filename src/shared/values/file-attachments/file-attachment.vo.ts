@@ -1,6 +1,7 @@
-import stringUtils from '../../utils/string';
+import stringUtils from '@shared/utils/string';
+import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
+
 import fileAttachmentError from './file-attachment.error';
-import { IFileAttachment } from './types/file-attachment.types';
 
 /**
  * Validates a URL string.

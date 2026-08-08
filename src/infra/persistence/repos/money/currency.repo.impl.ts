@@ -1,8 +1,10 @@
 import { eq } from 'drizzle-orm';
-import ICurrencyRepo from '../../../../domain/money/repos/currency.repo';
-import { currenciesInCore as currencies } from '../../../config/drizzle/schema';
-import getDbQuery from '../../helpers/get-db-query';
-import currencyMapper from './mappers/currency.mapper';
+
+import ICurrencyRepo from '@domain/money/repos/currency.repo';
+
+import { currenciesInCore as currencies } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import currencyMapper from '@infra/persistence/repos/money/mappers/currency.mapper';
 
 const currencyRepo: ICurrencyRepo = {
   create: async (payload, options) => {

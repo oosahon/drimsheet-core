@@ -1,9 +1,13 @@
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import vendorEvents from '../events/vendor.events';
-import { EVendorHistoryAction } from '../types/counterparty-audit.types';
-import { IMakeVendorPayload, IVendor } from '../types/counterparty.types';
-import helpers from '../values/helpers/counterparty-value.helpers';
-import vendorAuditValue from '../values/vendor-audit.vo';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import vendorEvents from '@domain/counterparty/events/vendor.events';
+import { EVendorHistoryAction } from '@domain/counterparty/types/counterparty-audit.types';
+import {
+  IMakeVendorPayload,
+  IVendor,
+} from '@domain/counterparty/types/counterparty.types';
+import helpers from '@domain/counterparty/values/helpers/counterparty-value.helpers';
+import vendorAuditValue from '@domain/counterparty/values/vendor-audit.vo';
 
 function make(
   payload: IMakeVendorPayload

@@ -1,17 +1,21 @@
-import { IMoney } from '../../../../domain/money/types/money.types';
-import moneyValue from '../../../../domain/money/values/money.vo';
-import { TEntityId } from '../../../../shared/types/uuid';
-import dateUtils from '../../../../shared/utils/date';
-import serializeBigIntInObj from '../../../../shared/utils/serialize-bigint-in-object';
-import stringUtils from '../../../../shared/utils/string';
-import journalEntryError from '../../errors/journal-entry.error';
+import { TEntityId } from '@shared/types/uuid';
+import dateUtils from '@shared/utils/date';
+import serializeBigIntInObj from '@shared/utils/serialize-bigint-in-object';
+import stringUtils from '@shared/utils/string';
+
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
   UJournalEntrySourceType,
   UJournalEntryStatus,
-} from '../../types/journal-entry.types';
-import { EJournalSide, IJournalLine } from '../../types/journal-line.types';
+} from '@domain/journal-entry/types/journal-entry.types';
+import {
+  EJournalSide,
+  IJournalLine,
+} from '@domain/journal-entry/types/journal-line.types';
+import { IMoney } from '@domain/money/types/money.types';
+import moneyValue from '@domain/money/values/money.vo';
 
 function validateStatus(status: UJournalEntryStatus) {
   if (!Object.values(EJournalEntryStatus).includes(status)) {

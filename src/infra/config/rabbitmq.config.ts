@@ -1,5 +1,7 @@
 import amqplib, { Channel, RecoveringChannelModel } from 'amqplib';
-import IReporter from '../../shared/contracts/reporter.contract';
+
+import IReporter from '@shared/contracts/reporter.contract';
+
 import { RABBITMQ_URL } from './vars.config';
 
 let connection: RecoveringChannelModel | null = null;

@@ -1,4 +1,4 @@
-import { TEntityId } from '../../../../shared/types/uuid';
+import { TEntityId } from '@shared/types/uuid';
 
 export interface IUserProfileDto {
   id: TEntityId;

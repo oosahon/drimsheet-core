@@ -1,4 +1,4 @@
-import currencyMapper from '../currency.dto.mapper';
+import currencyMapper from '@app/money/dtos/currency/currency.dto.mapper';
 
 describe('Currency DTO Mapper', () => {
   describe('fromInterface', () => {

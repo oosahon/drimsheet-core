@@ -1,5 +1,5 @@
-import ledgerAppError from '../../../errors/ledger.error';
-import validateOpeningBalanceExchangeRate from '../validate-opening-balance-exchange-rate.helper';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
+import validateOpeningBalanceExchangeRate from '@app/ledger/usecases/helpers/validate-opening-balance-exchange-rate.helper';
 
 describe('validateOpeningBalanceExchangeRate', () => {
   it('does not throw when currency matches functional currency', () => {

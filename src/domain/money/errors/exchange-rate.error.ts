@@ -1,5 +1,6 @@
-import { TErrorCause } from '../../../shared/types/error.types';
-import errorUtils from '../../../shared/utils/error';
+import { TErrorCause } from '@shared/types/error.types';
+import errorUtils from '@shared/utils/error';
+
 import currencyError from './currency.error';
 
 type TErrorKeyPrefix = `currency_error_exchange_rate_${string}`;

@@ -1,8 +1,14 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IContractor } from '../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyContractorsInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import { IContractor } from '@domain/counterparty/types/counterparty.types';
+
+import { counterpartyContractorsInCore } from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
 
 export interface IContractorModel extends InferSelectModel<
   typeof counterpartyContractorsInCore

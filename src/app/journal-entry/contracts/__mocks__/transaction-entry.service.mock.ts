@@ -1,4 +1,4 @@
-import ITransactionEntryService from '../transaction-entry.service.contract';
+import ITransactionEntryService from '@app/journal-entry/contracts/transaction-entry.service.contract';
 
 const mockTransactionEntryService: jest.Mocked<ITransactionEntryService> = {
   create: jest.fn(),

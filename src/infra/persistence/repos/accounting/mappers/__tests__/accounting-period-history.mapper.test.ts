@@ -1,9 +1,11 @@
-import { IAccountingPeriodHistory } from '../../../../../../domain/accounting/types/period-audit.types';
-import { IAccountingPeriod } from '../../../../../../domain/accounting/types/period.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import { EHistoryActorType } from '../../../../../../shared/values/history/types/history.types';
-import { toRepoDate } from '../../../../helpers/date.mapper';
-import accountingPeriodHistoryMapper from '../accounting-period-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { IAccountingPeriodHistory } from '@domain/accounting/types/period-audit.types';
+import { IAccountingPeriod } from '@domain/accounting/types/period.types';
+
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
+import accountingPeriodHistoryMapper from '@infra/persistence/repos/accounting/mappers/accounting-period-history.mapper';
 
 describe('accountingPeriodHistoryMapper', () => {
   it('maps accounting period history to the repository model', () => {

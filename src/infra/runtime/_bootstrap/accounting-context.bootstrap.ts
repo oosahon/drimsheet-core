@@ -1,9 +1,10 @@
-import { SYSTEM_ACCOUNTING_STANDARDS } from '../../../domain/accounting/config/accounting-standards.config';
-import { SYSTEM_JURISDICTIONS } from '../../../domain/accounting/config/jurisdictions.config';
-import { IJurisdictionAccountingStandard } from '../../../domain/accounting/types/jurisdiction.types';
-import { repoService } from '../../ioc/services/repo';
-import observability from '../../observability';
-import accountingRepos from '../../persistence/repos/accounting';
+import { SYSTEM_ACCOUNTING_STANDARDS } from '@domain/accounting/config/accounting-standards.config';
+import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
+import { IJurisdictionAccountingStandard } from '@domain/accounting/types/jurisdiction.types';
+
+import { repoService } from '@infra/ioc/services/repo';
+import observability from '@infra/observability';
+import accountingRepos from '@infra/persistence/repos/accounting';
 
 export async function bootstrapAccountingContext() {
   const accountingStandards = Object.values(SYSTEM_ACCOUNTING_STANDARDS);

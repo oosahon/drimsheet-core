@@ -1,4 +1,4 @@
-import IAppContext from '../app-context.contract';
+import IAppContext from '@app/context/contracts/app-context.contract';
 
 export const mockClientSession = {
   setRefreshToken: jest.fn(),

@@ -1,14 +1,15 @@
-import appError from '../../../shared/values/errors/app.error';
-import reporter from '../../observability/reporter';
+import appError from '@shared/values/errors/app.error';
+
 import {
   AUTH_RATE_LIMITER_MESSAGE,
-  RATE_LIMITER_MESSAGE,
   configureRateLimiter,
   makeAccountRateLimitKey,
   makeHashedRateLimitKey,
   makeIpRateLimitKey,
+  RATE_LIMITER_MESSAGE,
   rateLimiter,
-} from '../rate-limiter.config';
+} from '@infra/config/rate-limiter.config';
+import reporter from '@infra/observability/reporter';
 
 jest.mock('../../observability/reporter', () => ({
   __esModule: true,

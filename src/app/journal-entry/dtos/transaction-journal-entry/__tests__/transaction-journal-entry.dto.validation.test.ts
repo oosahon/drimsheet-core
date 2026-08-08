@@ -1,5 +1,6 @@
-import { EJournalEntryStatus } from '../../../../../domain/journal-entry/types/journal-entry.types';
-import { transactionJournalEntryReqValidation } from '../transaction-journal-entry.dto.validation';
+import { EJournalEntryStatus } from '@domain/journal-entry/types/journal-entry.types';
+
+import { transactionJournalEntryReqValidation } from '@app/journal-entry/dtos/transaction-journal-entry/transaction-journal-entry.dto.validation';
 
 describe('Transaction Journal Entry DTO Validation', () => {
   it('should validate a correct transaction journal entry request payload', () => {

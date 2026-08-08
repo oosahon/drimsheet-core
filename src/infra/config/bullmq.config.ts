@@ -1,6 +1,9 @@
 import { Worker } from 'bullmq';
-import { ICorrelationId } from '../../shared/types/correlation-id.types';
-import reporter from '../observability/reporter';
+
+import { ICorrelationId } from '@shared/types/correlation-id.types';
+
+import reporter from '@infra/observability/reporter';
+
 import { getQueueConnection } from './redis.config';
 
 export function registerBullMQWorker<T extends ICorrelationId>(

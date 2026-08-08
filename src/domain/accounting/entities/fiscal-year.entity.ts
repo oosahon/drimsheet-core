@@ -1,13 +1,14 @@
-import stringUtils from '../../../shared/utils/string';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import accountingError from '../errors/accounting.error';
-import periodEvents from '../events/period.events';
-import { IFiscalYear } from '../types/fiscal-year.types';
-import { EPeriodActions } from '../types/period-audit.types';
-import { EPeriodUnit } from '../types/period.types';
-import fiscalYearAudit from '../values/fiscal-year-audit.vo';
-import fiscalYearHelpers from './helpers/fiscal-year.helpers';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import fiscalYearHelpers from '@domain/accounting/entities/helpers/fiscal-year.helpers';
+import accountingError from '@domain/accounting/errors/accounting.error';
+import periodEvents from '@domain/accounting/events/period.events';
+import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
+import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
+import { EPeriodUnit } from '@domain/accounting/types/period.types';
+import fiscalYearAudit from '@domain/accounting/values/fiscal-year-audit.vo';
 
 interface IMakePayload extends Pick<
   IFiscalYear,

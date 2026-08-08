@@ -1,12 +1,14 @@
-import { IEmployerHistory } from '../../../../../domain/counterparty/types/counterparty-audit.types';
-import { IEmployer } from '../../../../../domain/counterparty/types/counterparty.types';
-import { IWriteRepoOptions } from '../../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyEmployersInCore } from '../../../../config/drizzle/schema';
-import getDbQuery from '../../../helpers/get-db-query';
-import employerHistoryRepo from '../employer-history.repo.impl';
-import employerRepo from '../employer.repo.impl';
-import employerMapper from '../mappers/employer.mapper';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IEmployerHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { IEmployer } from '@domain/counterparty/types/counterparty.types';
+
+import { counterpartyEmployersInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import employerHistoryRepo from '@infra/persistence/repos/counterparty/employer-history.repo.impl';
+import employerRepo from '@infra/persistence/repos/counterparty/employer.repo.impl';
+import employerMapper from '@infra/persistence/repos/counterparty/mappers/employer.mapper';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/employer.mapper');

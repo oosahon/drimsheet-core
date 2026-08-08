@@ -1,9 +1,11 @@
-import IVendorRepo from '../../../../domain/counterparty/repos/vendor.repo';
-import passOnRepoTransaction from '../../../../shared/helpers/passon-repo-transaction';
-import { counterpartyVendorsInCore } from '../../../config/drizzle/schema';
+import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
 
-import getDbQuery from '../../helpers/get-db-query';
-import vendorMapper from './mappers/vendor.mapper';
+import IVendorRepo from '@domain/counterparty/repos/vendor.repo';
+
+import { counterpartyVendorsInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import vendorMapper from '@infra/persistence/repos/counterparty/mappers/vendor.mapper';
+
 import vendorHistoryRepo from './vendor-history.repo.impl';
 
 const vendorRepo: IVendorRepo = {

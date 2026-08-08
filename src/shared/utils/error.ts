@@ -2,8 +2,8 @@ import {
   IApiValidationError,
   IParsedError,
   TErrorCause,
-} from '../types/error.types';
-import DomainError from '../values/errors/domain.error';
+} from '@shared/types/error.types';
+import DomainError from '@shared/values/errors/domain.error';
 
 function parseError(err: unknown): IParsedError {
   const error = err as InstanceType<typeof DomainError> & {

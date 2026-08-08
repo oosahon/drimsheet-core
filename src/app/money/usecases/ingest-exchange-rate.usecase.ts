@@ -1,16 +1,18 @@
-import exchangeRateError from '../../../domain/money/errors/exchange-rate.error';
-import IExchangeRateRepo from '../../../domain/money/repos/exchange-rate.repo';
-import { UExchangeRateType } from '../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../domain/money/values/exchange-rate.vo';
-import ILogger from '../../../shared/contracts/logger.contract';
+import ILogger from '@shared/contracts/logger.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
-import batchArray from '../../../shared/utils/batch-array';
-import dateUtils from '../../../shared/utils/date';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import IExchangeRateIngestion from '../contracts/exchange-rate-ingestion.contract';
+} from '@shared/contracts/repo.contract';
+import batchArray from '@shared/utils/batch-array';
+import dateUtils from '@shared/utils/date';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import exchangeRateError from '@domain/money/errors/exchange-rate.error';
+import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
+import { UExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+
+import IExchangeRateIngestion from '@app/money/contracts/exchange-rate-ingestion.contract';
 
 interface IDependencies {
   exchangeRateRepo: IExchangeRateRepo;

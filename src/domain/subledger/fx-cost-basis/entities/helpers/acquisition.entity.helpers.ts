@@ -1,8 +1,8 @@
-import { IMoney } from '../../../../../domain/money/types/money.types';
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import { IExchangeRate } from '../../../../money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../money/values/exchange-rate.vo';
-import fxCostBasisLotAcquisitionError from '../../errors/acquisition.error';
+import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
+import { IMoney } from '@domain/money/types/money.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import moneyValue from '@domain/money/values/money.vo';
+import fxCostBasisLotAcquisitionError from '@domain/subledger/fx-cost-basis/errors/acquisition.error';
 
 function isValidMoney(value: unknown): value is IMoney {
   try {

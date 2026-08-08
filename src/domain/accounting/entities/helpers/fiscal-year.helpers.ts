@@ -1,8 +1,10 @@
-import dateUtils from '../../../../shared/utils/date';
-import stringUtils from '../../../../shared/utils/string';
-import accountingError from '../../errors/accounting.error';
-import periodError from '../../errors/period.error';
-import { IFiscalYear } from '../../types/fiscal-year.types';
+import dateUtils from '@shared/utils/date';
+import stringUtils from '@shared/utils/string';
+
+import accountingError from '@domain/accounting/errors/accounting.error';
+import periodError from '@domain/accounting/errors/period.error';
+import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
+
 import periodHelpers from './period.helpers';
 
 function validateStartAndEndDate(

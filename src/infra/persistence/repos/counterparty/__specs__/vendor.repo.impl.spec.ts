@@ -1,12 +1,14 @@
-import { IVendorHistory } from '../../../../../domain/counterparty/types/counterparty-audit.types';
-import { IVendor } from '../../../../../domain/counterparty/types/counterparty.types';
-import { IWriteRepoOptions } from '../../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { counterpartyVendorsInCore } from '../../../../config/drizzle/schema';
-import getDbQuery from '../../../helpers/get-db-query';
-import vendorMapper from '../mappers/vendor.mapper';
-import vendorHistoryRepo from '../vendor-history.repo.impl';
-import vendorRepo from '../vendor.repo.impl';
+import { IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IVendorHistory } from '@domain/counterparty/types/counterparty-audit.types';
+import { IVendor } from '@domain/counterparty/types/counterparty.types';
+
+import { counterpartyVendorsInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import vendorMapper from '@infra/persistence/repos/counterparty/mappers/vendor.mapper';
+import vendorHistoryRepo from '@infra/persistence/repos/counterparty/vendor-history.repo.impl';
+import vendorRepo from '@infra/persistence/repos/counterparty/vendor.repo.impl';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/vendor.mapper');

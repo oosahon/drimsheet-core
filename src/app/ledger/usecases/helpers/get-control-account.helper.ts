@@ -1,9 +1,11 @@
-import ledgerAccountError from '../../../../domain/ledger/errors/ledger-account.error';
-import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import ledgerAppError from '../../errors/ledger.error';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+
+import ledgerAppError from '@app/ledger/errors/ledger.error';
 
 interface IPayload<TLedgerCodeType extends string> {
   ledgerAccountRepo: ILedgerAccountRepo;

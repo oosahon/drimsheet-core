@@ -1,9 +1,15 @@
 import { InferSelectModel } from 'drizzle-orm';
-import userPreferencesEntity from '../../../../../domain/user/entities/user-preferences.entity';
-import { IUserPreferences } from '../../../../../domain/user/types/user-preferences.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { userPreferencesInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
+
+import { TEntityId } from '@shared/types/uuid';
+
+import userPreferencesEntity from '@domain/user/entities/user-preferences.entity';
+import { IUserPreferences } from '@domain/user/types/user-preferences.types';
+
+import { userPreferencesInCore } from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
 
 interface IUserPreferencesModel extends InferSelectModel<
   typeof userPreferencesInCore

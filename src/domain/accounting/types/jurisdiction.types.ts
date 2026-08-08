@@ -1,5 +1,6 @@
-import { ICurrency } from '../../money/types/currency.types';
-import { UAccountingStandardCode } from '../config/accounting-standards.config';
+import { UAccountingStandardCode } from '@domain/accounting/config/accounting-standards.config';
+import { ICurrency } from '@domain/money/types/currency.types';
+
 import { UAccountingEntityType } from './accounting-entity.types';
 
 export interface IJurisdiction {

@@ -1,30 +1,29 @@
-import { SYSTEM_JURISDICTIONS } from '../../../../domain/accounting/config/jurisdictions.config';
-import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { IRepoOptions, ITransactionContext } from '@shared/types/repo.types';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import {
   IJournalEntryHistory,
   IJournalLineHistory,
-} from '../../../../domain/journal-entry/types/journal-entry-audit.types';
-import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
-import makeEquityAccountService from '../../../../domain/ledger/services/equity-account/equity-account.service';
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../domain/money/values/money.vo';
-import userEntity from '../../../../domain/user/entities/user.entity';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import {
-  IRepoOptions,
-  ITransactionContext,
-} from '../../../../shared/types/repo.types';
-import { EHistoryActorType } from '../../../../shared/values/history/types/history.types';
-import { mockLedgerAccountRepo } from '../../../ledger/contracts/__mocks__/ledger.repos.mock';
+} from '@domain/journal-entry/types/journal-entry-audit.types';
+import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
+import userEntity from '@domain/user/entities/user.entity';
+
 import {
   mockJournalEntryRepo,
   mockJournalLineRepo,
-} from '../../contracts/__mocks__/journal-entry.repos.mock';
-import makeJournalEntryPersistenceService from '../journal-entry-persistence.service';
+} from '@app/journal-entry/contracts/__mocks__/journal-entry.repos.mock';
+import makeJournalEntryPersistenceService from '@app/journal-entry/services/journal-entry-persistence.service';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 
 describe('journalEntryPersistenceService', () => {
   const service = makeJournalEntryPersistenceService({

@@ -1,5 +1,6 @@
-import eventValue from '../../../shared/values/events/event.vo';
-import { ILedgerAccount } from '../types/ledger.types';
+import eventValue from '@shared/values/events/event.vo';
+
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 export const ELedgerAccountEvent = {
   Created: 'domain:ledger:account:created',

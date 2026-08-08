@@ -1,8 +1,9 @@
-import { TEntityId } from '../../../../../shared/types/uuid';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { IAddress } from '../../../../../shared/values/contact-details/types/address.types';
-import counterpartyError from '../../../errors/counterparty.error';
-import counterpartyValueHelpers from '../counterparty-value.helpers';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+import { IAddress } from '@shared/values/contact-details/types/address.types';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
+import counterpartyValueHelpers from '@domain/counterparty/values/helpers/counterparty-value.helpers';
 
 describe('counterpartyValueHelpers', () => {
   const validCounterpartyId = generateUUID();

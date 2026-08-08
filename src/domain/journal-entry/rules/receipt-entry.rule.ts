@@ -1,6 +1,6 @@
-import { EAssetSubType } from '../../ledger/types/asset-account.types';
-import { ELedgerType } from '../../ledger/types/ledger.types';
-import { IJournalEntryRule } from '../types/entry.rules.types';
+import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
+import { EAssetSubType } from '@domain/ledger/types/asset-account.types';
+import { ELedgerType } from '@domain/ledger/types/ledger.types';
 
 const receiptEntryRule: IJournalEntryRule = {
   source: {

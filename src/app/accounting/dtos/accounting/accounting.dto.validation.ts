@@ -1,25 +1,27 @@
 import z from 'zod';
+
 import {
   SYSTEM_ACCOUNTING_STANDARDS,
   UAccountingStandardCode,
-} from '../../../../domain/accounting/config/accounting-standards.config';
+} from '@domain/accounting/config/accounting-standards.config';
 import {
   SYSTEM_JURISDICTIONS,
   UJurisdictionCode,
-} from '../../../../domain/accounting/config/jurisdictions.config';
-import { MAX_GENERATED_PERIODS } from '../../../../domain/accounting/config/period-limits.config';
-import accountingError from '../../../../domain/accounting/errors/accounting.error';
-import periodError from '../../../../domain/accounting/errors/period.error';
+} from '@domain/accounting/config/jurisdictions.config';
+import { MAX_GENERATED_PERIODS } from '@domain/accounting/config/period-limits.config';
+import accountingError from '@domain/accounting/errors/accounting.error';
+import periodError from '@domain/accounting/errors/period.error';
 import {
   EAccountingEntityType,
   UAccountingEntityType,
-} from '../../../../domain/accounting/types/accounting-entity.types';
+} from '@domain/accounting/types/accounting-entity.types';
 import {
   EPeriodUnit,
   UPeriodUnit,
-} from '../../../../domain/accounting/types/period.types';
-import { currencyCodeValidation } from '../../../money/dtos/currency/currency.dto.validation';
-import { userAppUsageModePreferenceValidation } from '../../../user/dtos/user/user.dto.validation';
+} from '@domain/accounting/types/period.types';
+
+import { currencyCodeValidation } from '@app/money/dtos/currency/currency.dto.validation';
+import { userAppUsageModePreferenceValidation } from '@app/user/dtos/user/user.dto.validation';
 
 /**
  * Jurisdiction code validation schema

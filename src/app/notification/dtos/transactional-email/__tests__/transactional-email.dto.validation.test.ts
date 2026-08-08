@@ -1,4 +1,4 @@
-import { transactionalEmailDtoSchema } from '../transactional-email.dto.validation';
+import { transactionalEmailDtoSchema } from '@app/notification/dtos/transactional-email/transactional-email.dto.validation';
 
 describe('Transactional Email DTO Validation', () => {
   it('should validate a correct transactional email DTO payload', () => {

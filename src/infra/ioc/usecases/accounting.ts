@@ -1,16 +1,17 @@
-import makeCreateAccountingEntityUseCase from '../../../app/accounting/usecases/create-accounting-entity.usecase';
-import makeGetCurrentAccountingEntityUseCase from '../../../app/accounting/usecases/get-active-accounting-entity.usecase';
-import makeGetJurisdictionsUseCase from '../../../app/accounting/usecases/get-jurisdictions.usecase';
-import makeGetUserAccountingEntitiesUseCase from '../../../app/accounting/usecases/get-user-accounting-entities.usecase';
-import messaging from '../../messaging';
-import accountingRepos from '../../persistence/repos/accounting';
-import appContext from '../../runtime/app-context';
-import { accountingEntityService } from '../services/accounting';
+import makeCreateAccountingEntityUseCase from '@app/accounting/usecases/create-accounting-entity.usecase';
+import makeGetCurrentAccountingEntityUseCase from '@app/accounting/usecases/get-active-accounting-entity.usecase';
+import makeGetJurisdictionsUseCase from '@app/accounting/usecases/get-jurisdictions.usecase';
+import makeGetUserAccountingEntitiesUseCase from '@app/accounting/usecases/get-user-accounting-entities.usecase';
+
+import { accountingEntityService } from '@infra/ioc/services/accounting';
 import {
   accountsBootstrapService,
   ledgerAccountPersistenceService,
-} from '../services/ledger';
-import { repoService } from '../services/repo';
+} from '@infra/ioc/services/ledger';
+import { repoService } from '@infra/ioc/services/repo';
+import messaging from '@infra/messaging';
+import accountingRepos from '@infra/persistence/repos/accounting';
+import appContext from '@infra/runtime/app-context';
 
 export const createAccountingEntityUseCase = makeCreateAccountingEntityUseCase({
   appContext,

@@ -5,9 +5,10 @@ import {
   TokenExpiredError,
   verify,
 } from 'jsonwebtoken';
+
 import ITokenCodec, {
   ITokenEncodingOptions,
-} from '../../shared/contracts/token-codec.contract';
+} from '@shared/contracts/token-codec.contract';
 
 interface IDependencies {
   secret: string;

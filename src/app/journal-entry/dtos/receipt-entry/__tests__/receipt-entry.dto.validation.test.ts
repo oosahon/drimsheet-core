@@ -1,4 +1,4 @@
-import { receiptEntryReqValidation } from '../receipt-entry.dto.validation';
+import { receiptEntryReqValidation } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto.validation';
 
 describe('Receipt Entry DTO Validation', () => {
   it('should validate a correct receipt entry request payload', () => {

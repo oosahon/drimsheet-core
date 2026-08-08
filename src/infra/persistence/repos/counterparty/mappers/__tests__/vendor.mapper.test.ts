@@ -1,6 +1,10 @@
-import { IVendor } from '../../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import vendorMapper, { IVendorModel } from '../vendor.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IVendor } from '@domain/counterparty/types/counterparty.types';
+
+import vendorMapper, {
+  IVendorModel,
+} from '@infra/persistence/repos/counterparty/mappers/vendor.mapper';
 
 describe('vendorMapper', () => {
   const now = new Date('2026-08-01T00:00:00.000Z');

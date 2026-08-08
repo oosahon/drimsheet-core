@@ -1,5 +1,6 @@
 import { ErrorRequestHandler } from 'express';
-import httpHandlers from '../handlers';
+
+import httpHandlers from '@interface/http/handlers';
 
 const makeErrorHandlerMiddleware = (): ErrorRequestHandler => {
   return (error, _req, res, _next) => {

@@ -1,10 +1,10 @@
-import { IMoney } from '../../../money/types/money.types';
-import moneyValue from '../../../money/values/money.vo';
-import ledgerAccountBalanceError from '../../errors/ledger-account-balance.error';
+import ledgerAccountBalanceError from '@domain/ledger/errors/ledger-account-balance.error';
 import {
   ELedgerAccountBalanceEffect,
   ULedgerAccountBalanceEffect,
-} from '../../types/ledger-account-balance.types';
+} from '@domain/ledger/types/ledger-account-balance.types';
+import { IMoney } from '@domain/money/types/money.types';
+import moneyValue from '@domain/money/values/money.vo';
 
 function validateEffectType(effect: ULedgerAccountBalanceEffect) {
   if (!Object.values(ELedgerAccountBalanceEffect).includes(effect)) {

@@ -1,10 +1,11 @@
 import { RequestHandler } from 'express';
+
 import {
   AUTH_RATE_LIMITER_MESSAGE,
   configureRateLimiter,
   makeAccountRateLimitKey,
-} from '../../../infra/config/rate-limiter.config';
-import { JWT_SECRET_KEY } from '../../../infra/config/vars.config';
+} from '@infra/config/rate-limiter.config';
+import { JWT_SECRET_KEY } from '@infra/config/vars.config';
 
 export default function makeSignupRateLimitMiddlewares(): [
   RequestHandler,

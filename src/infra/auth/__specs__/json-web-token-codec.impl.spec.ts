@@ -1,5 +1,6 @@
 import { decode, sign } from 'jsonwebtoken';
-import makeJsonWebTokenCodec from '../json-web-token-codec.impl';
+
+import makeJsonWebTokenCodec from '@infra/auth/json-web-token-codec.impl';
 
 describe('makeJsonWebTokenCodec', () => {
   const secret = 'test-secret';

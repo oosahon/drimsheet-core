@@ -1,6 +1,7 @@
-import { EAccountingEntityType } from '../../../../../../domain/accounting/types/accounting-entity.types';
-import { IJurisdictionAccountingStandard } from '../../../../../../domain/accounting/types/jurisdiction.types';
-import jurisdictionAccountingStandardMapper from '../jurisdiction-accounting-standard.mapper';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import { IJurisdictionAccountingStandard } from '@domain/accounting/types/jurisdiction.types';
+
+import jurisdictionAccountingStandardMapper from '@infra/persistence/repos/accounting/mappers/jurisdiction-accounting-standard.mapper';
 
 describe('Jurisdiction Accounting Standard Mapper', () => {
   describe('toRepo', () => {

@@ -1,4 +1,4 @@
-import { moneyDtoValidation } from '../money.dto.validation';
+import { moneyDtoValidation } from '@app/money/dtos/money/money.dto.validation';
 
 describe('Money DTO Validation', () => {
   it('should validate a correct money DTO payload', () => {

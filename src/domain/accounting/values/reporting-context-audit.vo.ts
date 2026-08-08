@@ -2,8 +2,8 @@ import {
   EReportingContextActions,
   IMakeReportingContextAuditPayload,
   IReportingContextAudit,
-} from '../types/reporting-context-audit.types';
-import accountingAuditHelpers from './helpers/accounting-audit.vo.helpers';
+} from '@domain/accounting/types/reporting-context-audit.types';
+import accountingAuditHelpers from '@domain/accounting/values/helpers/accounting-audit.vo.helpers';
 
 function make(
   payload: IMakeReportingContextAuditPayload

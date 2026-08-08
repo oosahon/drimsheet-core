@@ -1,5 +1,6 @@
-import { TErrorCause } from '../../../shared/types/error.types';
-import errorUtils from '../../../shared/utils/error';
+import { TErrorCause } from '@shared/types/error.types';
+import errorUtils from '@shared/utils/error';
+
 import accountingError from './accounting.error';
 
 type TErrorKeyPrefix = `accounting_error_accounting_entity_${string}`;

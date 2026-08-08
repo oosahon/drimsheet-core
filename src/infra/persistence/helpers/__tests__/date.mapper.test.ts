@@ -4,7 +4,7 @@ import {
   toCommonRepoDates,
   toRepoDate,
   toRepoDateOnly,
-} from '../date.mapper';
+} from '@infra/persistence/helpers/date.mapper';
 
 describe('Date Mappers', () => {
   describe('toRepoDate', () => {

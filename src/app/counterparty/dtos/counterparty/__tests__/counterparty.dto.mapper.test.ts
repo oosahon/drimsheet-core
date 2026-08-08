@@ -1,6 +1,8 @@
-import { ICounterparty } from '../../../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import counterpartyDtoMapper from '../counterparty.dto.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
+
+import counterpartyDtoMapper from '@app/counterparty/dtos/counterparty/counterparty.dto.mapper';
 
 describe('Counterparty DTO Mapper', () => {
   describe('toDto', () => {

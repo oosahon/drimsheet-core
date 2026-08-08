@@ -1,4 +1,4 @@
-import { ILedgerAccountBalancePropagationService } from '../ledger-account-balance-propagation.service.contract';
+import { ILedgerAccountBalancePropagationService } from '@app/ledger/contracts/ledger-account-balance-propagation.service.contract';
 
 const mockLedgerAccountBalancePropagationService: jest.Mocked<ILedgerAccountBalancePropagationService> =
   {

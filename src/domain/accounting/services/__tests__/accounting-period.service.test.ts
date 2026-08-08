@@ -1,9 +1,13 @@
-import { ERepoLock } from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import periodError from '../../errors/period.error';
-import IAccountingPeriodRepo from '../../repos/accounting-period.repo';
-import { EPeriodStatus, IAccountingPeriod } from '../../types/period.types';
-import makeAccountingPeriodService from '../accounting-period.service';
+import { ERepoLock } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
+import periodError from '@domain/accounting/errors/period.error';
+import IAccountingPeriodRepo from '@domain/accounting/repos/accounting-period.repo';
+import makeAccountingPeriodService from '@domain/accounting/services/accounting-period.service';
+import {
+  EPeriodStatus,
+  IAccountingPeriod,
+} from '@domain/accounting/types/period.types';
 
 const mockAccountingPeriodRepo: jest.Mocked<IAccountingPeriodRepo> = {
   findByDate: jest.fn(),

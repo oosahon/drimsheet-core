@@ -1,12 +1,14 @@
-import { ledgerAccountBalanceEntity } from '../../../domain/ledger/entities';
-import ILedgerAccountBalanceRepo from '../../../domain/ledger/repos/ledger-account-balance.repo';
-import ILedgerAccountRepo from '../../../domain/ledger/repos/ledger-account.repo';
-import currencyEntity from '../../../domain/money/entities/currency.entity';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
-import ILedgerAccountPersistenceService from '../contracts/ledger-account-persistence.service.contract';
+} from '@shared/contracts/repo.contract';
+
+import { ledgerAccountBalanceEntity } from '@domain/ledger/entities';
+import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import currencyEntity from '@domain/money/entities/currency.entity';
+
+import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
 
 interface IDependencies {
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;

@@ -1,13 +1,15 @@
-import { SYSTEM_CURRENCIES } from '../../../../../../../domain/money/config/currencies.config';
-import { EExchangeRateType } from '../../../../../../../domain/money/types/exchange-rate.types';
-import exchangeRateValue from '../../../../../../../domain/money/values/exchange-rate.vo';
-import moneyValue from '../../../../../../../domain/money/values/money.vo';
-import { IFxCostBasisLotAcquisition } from '../../../../../../../domain/subledger/fx-cost-basis/types/acquisition.types';
-import { TEntityId } from '../../../../../../../shared/types/uuid';
-import exchangeRateMapper from '../../../../money/mappers/exchange-rate.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
+import moneyValue from '@domain/money/values/money.vo';
+import { IFxCostBasisLotAcquisition } from '@domain/subledger/fx-cost-basis/types/acquisition.types';
+
+import exchangeRateMapper from '@infra/persistence/repos/money/mappers/exchange-rate.mapper';
 import fxCostBasisLotAcquisitionMapper, {
   IFxCostBasisLotAcquisitionModel,
-} from '../acquisition.mapper';
+} from '@infra/persistence/repos/subledger/mappers/fx-cost-basis/acquisition.mapper';
 
 describe('FX Cost-Basis Lot Acquisition Mapper', () => {
   beforeEach(() => {

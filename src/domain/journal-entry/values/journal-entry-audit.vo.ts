@@ -1,8 +1,9 @@
-import generateDiff from '../../../shared/utils/diff-generator';
+import generateDiff from '@shared/utils/diff-generator';
+
 import {
   IJournalEntryAudit,
   IMakeJournalEntryAuditPayload,
-} from '../types/journal-entry-audit.types';
+} from '@domain/journal-entry/types/journal-entry-audit.types';
 
 function make(payload: IMakeJournalEntryAuditPayload): IJournalEntryAudit {
   const { before, after } = generateDiff(payload.after, payload.before);

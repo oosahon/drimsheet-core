@@ -1,10 +1,12 @@
-import IJournalEntryRepo from '../../../domain/journal-entry/repos/journal-entry.repo';
-import IJournalLineRepo from '../../../domain/journal-entry/repos/journal-line.repo';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
-import IJournalEntryPersistenceService from '../contracts/journal-entry-persistence.service.contract';
+} from '@shared/contracts/repo.contract';
+
+import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
+import IJournalLineRepo from '@domain/journal-entry/repos/journal-line.repo';
+
+import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
 
 interface IDependencies {
   repoService: IRepoService;

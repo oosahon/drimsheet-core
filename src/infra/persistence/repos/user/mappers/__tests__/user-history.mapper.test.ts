@@ -1,8 +1,10 @@
-import { IUserHistory } from '../../../../../../domain/user/types/user-audit.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import { EHistoryActorType } from '../../../../../../shared/values/history/types/history.types';
-import { toRepoDate } from '../../../../helpers/date.mapper';
-import userHistoryMapper from '../user-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { IUserHistory } from '@domain/user/types/user-audit.types';
+
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
+import userHistoryMapper from '@infra/persistence/repos/user/mappers/user-history.mapper';
 
 describe('userHistoryMapper', () => {
   it('maps user history to the repository model', () => {

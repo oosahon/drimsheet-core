@@ -1,9 +1,11 @@
-import { IJournalEntry } from '../../../../domain/journal-entry/types/journal-entry.types';
-import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import { IExchangeRate } from '../../../../domain/money/types/exchange-rate.types';
-import IFxCostBasisLotDomainService from '../../../../domain/subledger/fx-cost-basis/types/lot.service.types';
-import { IReadRepoOptions } from '../../../../shared/types/repo.types';
-import IExchangeRateAppService from '../../../money/contracts/exchange-rate.service.contract';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+
+import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
+import IFxCostBasisLotDomainService from '@domain/subledger/fx-cost-basis/types/lot.service.types';
+
+import IExchangeRateAppService from '@app/money/contracts/exchange-rate.service.contract';
 
 interface IDependencies {
   fxCostBasisService: IFxCostBasisLotDomainService;

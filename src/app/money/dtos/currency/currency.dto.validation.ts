@@ -1,5 +1,6 @@
 import z from 'zod';
-import currencyError from '../../../../domain/money/errors/currency.error';
+
+import currencyError from '@domain/money/errors/currency.error';
 
 export const currencyCodeValidation = z
   .string()

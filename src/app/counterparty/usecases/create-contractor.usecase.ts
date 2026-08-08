@@ -1,16 +1,18 @@
-import ICounterpartyService from '../../../domain/counterparty/types/counterparty.service.types';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import addressValue from '../../../shared/values/contact-details/address.vo';
-import eventValue from '../../../shared/values/events/event.vo';
-import { IEvent } from '../../../shared/values/events/types/event.types';
-import historyValue from '../../../shared/values/history/history.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import ICounterpartyPersistenceService from '../contracts/persistence.service.contract';
-import { IContractorCreateReq } from '../dtos/contractor/contractor.dto';
-import { contractorCreateReqValidation } from '../dtos/contractor/contractor.dto.validation';
-import { ICounterpartyDto } from '../dtos/counterparty/counterparty.dto';
-import counterpartyDtoMapper from '../dtos/counterparty/counterparty.dto.mapper';
+import IEventBus from '@shared/contracts/event-bus.contract';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import addressValue from '@shared/values/contact-details/address.vo';
+import eventValue from '@shared/values/events/event.vo';
+import { IEvent } from '@shared/values/events/types/event.types';
+import historyValue from '@shared/values/history/history.vo';
+
+import ICounterpartyService from '@domain/counterparty/types/counterparty.service.types';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
+import { IContractorCreateReq } from '@app/counterparty/dtos/contractor/contractor.dto';
+import { contractorCreateReqValidation } from '@app/counterparty/dtos/contractor/contractor.dto.validation';
+import { ICounterpartyDto } from '@app/counterparty/dtos/counterparty/counterparty.dto';
+import counterpartyDtoMapper from '@app/counterparty/dtos/counterparty/counterparty.dto.mapper';
 
 interface IDependencies {
   appContext: IAppContext;

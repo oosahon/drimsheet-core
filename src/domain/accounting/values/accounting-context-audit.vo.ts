@@ -1,13 +1,14 @@
-import dateUtils from '../../../shared/utils/date';
-import generateDiff from '../../../shared/utils/diff-generator';
-import stringUtils from '../../../shared/utils/string';
-import historyError from '../../../shared/values/history/history.error';
-import accountingError from '../errors/accounting.error';
+import dateUtils from '@shared/utils/date';
+import generateDiff from '@shared/utils/diff-generator';
+import stringUtils from '@shared/utils/string';
+import historyError from '@shared/values/history/history.error';
+
+import accountingError from '@domain/accounting/errors/accounting.error';
 import {
   EAccountingContextActions,
   IAccountingContextAudit,
   IMakeAccountingContextAuditPayload,
-} from '../types/accounting-context-audit.types';
+} from '@domain/accounting/types/accounting-context-audit.types';
 
 function make(payload: IMakeAccountingContextAuditPayload) {
   stringUtils.validateUUID(payload.after.id, accountingError.InvalidId);

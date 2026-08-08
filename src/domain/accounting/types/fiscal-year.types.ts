@@ -1,4 +1,5 @@
-import { TEntityId } from '../../../shared/types/uuid';
+import { TEntityId } from '@shared/types/uuid';
+
 import { UPeriodStatus } from './period.types';
 
 export interface IFiscalYear {

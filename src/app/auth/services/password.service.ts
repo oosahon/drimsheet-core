@@ -1,11 +1,12 @@
-import IHasher from '../../../shared/contracts/hasher.contract';
-import IPasswordService from '../contracts/password-service.contract';
-import authError from '../errors/auth.error';
+import IHasher from '@shared/contracts/hasher.contract';
+
+import IPasswordService from '@app/auth/contracts/password-service.contract';
+import authError from '@app/auth/errors/auth.error';
 import {
   PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   satisfiesPasswordComplexity,
-} from '../policies/password.policy';
+} from '@app/auth/policies/password.policy';
 
 interface IDependencies {
   hasher: IHasher;

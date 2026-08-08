@@ -1,16 +1,17 @@
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import { TCreationOmits } from '../../../../../shared/types/creation-omits.types';
-import generateUUID from '../../../../../shared/utils/uuid-generator';
-import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import {
   EExchangeRateType,
   IExchangeRate,
-} from '../../../../money/types/exchange-rate.types';
-import fxCostBasisLotAcquisitionError from '../../errors/acquisition.error';
-import fxCostBasisLotError from '../../errors/lot.error';
-import { IFxCostBasisLotAcquisition } from '../../types/acquisition.types';
-import { EFxCostBasisLotStatus } from '../../types/lot.types';
-import makeFxCostBasisLotService from '../lot.service';
+} from '@domain/money/types/exchange-rate.types';
+import moneyValue from '@domain/money/values/money.vo';
+import fxCostBasisLotAcquisitionError from '@domain/subledger/fx-cost-basis/errors/acquisition.error';
+import fxCostBasisLotError from '@domain/subledger/fx-cost-basis/errors/lot.error';
+import makeFxCostBasisLotService from '@domain/subledger/fx-cost-basis/services/lot.service';
+import { IFxCostBasisLotAcquisition } from '@domain/subledger/fx-cost-basis/types/acquisition.types';
+import { EFxCostBasisLotStatus } from '@domain/subledger/fx-cost-basis/types/lot.types';
 
 describe('makeFxCostBasisLotService', () => {
   const service = makeFxCostBasisLotService();

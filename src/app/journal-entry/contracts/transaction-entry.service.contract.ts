@@ -1,7 +1,8 @@
-import { TAuditedJournalEntry } from '../../../domain/journal-entry/types/journal-entry-audit.types';
-import { IJournalEntryMakePayload } from '../../../domain/journal-entry/types/journal-entry.types';
-import { IJournalLineInput } from '../../../domain/journal-entry/types/journal-line.types';
-import { IReadRepoOptions } from '../../../shared/types/repo.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+
+import { TAuditedJournalEntry } from '@domain/journal-entry/types/journal-entry-audit.types';
+import { IJournalEntryMakePayload } from '@domain/journal-entry/types/journal-entry.types';
+import { IJournalLineInput } from '@domain/journal-entry/types/journal-line.types';
 
 export default interface ITransactionEntryService {
   create(

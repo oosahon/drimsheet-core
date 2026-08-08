@@ -1,16 +1,23 @@
 import { InferSelectModel } from 'drizzle-orm';
-import { IJournalLineDto } from '../../../../../app/journal-entry/dtos/journal-entry/journal-entry.dto';
+
+import { TEntityId } from '@shared/types/uuid';
+
 import {
   IJournalLine,
   IJournalLineMeta,
-} from '../../../../../domain/journal-entry/types/journal-line.types';
-import { TEntityId } from '../../../../../shared/types/uuid';
-import { journalLinesInCore } from '../../../../config/drizzle/schema';
-import { fromRepoDate, toRepoDate } from '../../../helpers/date.mapper';
-import moneyMapper from '../../../helpers/money.mapper';
+} from '@domain/journal-entry/types/journal-line.types';
+
+import { IJournalLineDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
+
+import { journalLinesInCore } from '@infra/config/drizzle/schema';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
+import moneyMapper from '@infra/persistence/helpers/money.mapper';
 import exchangeRateMapper, {
   IExchangeRateModel,
-} from '../../money/mappers/exchange-rate.mapper';
+} from '@infra/persistence/repos/money/mappers/exchange-rate.mapper';
 
 export interface IJournalLineModel extends InferSelectModel<
   typeof journalLinesInCore

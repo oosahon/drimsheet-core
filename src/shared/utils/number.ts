@@ -1,5 +1,5 @@
-import { TErrorConstructor } from '../types/error.types';
-import { IFactor } from '../types/number.types';
+import { TErrorConstructor } from '@shared/types/error.types';
+import { IFactor } from '@shared/types/number.types';
 
 function toBigInt<T extends Error>(
   value: string | number | bigint,

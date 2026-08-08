@@ -1,5 +1,6 @@
-import { IReadRepoOptions } from '../../../shared/types/repo.types';
-import { TEntityId } from '../../../shared/types/uuid';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+
 import { IAccountingPeriod } from './period.types';
 
 export default interface IAccountingPeriodService {

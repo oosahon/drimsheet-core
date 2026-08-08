@@ -1,4 +1,4 @@
-import { UCurrencyCode } from '../config/currencies.config';
+import { UCurrencyCode } from '@domain/money/config/currencies.config';
 
 export interface ICurrency {
   code: UCurrencyCode;

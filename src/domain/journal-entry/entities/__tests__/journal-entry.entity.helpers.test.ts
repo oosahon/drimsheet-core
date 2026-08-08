@@ -1,19 +1,20 @@
-import { TEntityId } from '../../../../shared/types/uuid';
-import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
-import moneyValue from '../../../money/values/money.vo';
-import journalEntryError from '../../errors/journal-entry.error';
+import { TEntityId } from '@shared/types/uuid';
+
+import helpers from '@domain/journal-entry/entities/helpers/journal-entry.entity.helpers';
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
   UJournalEntrySourceType,
   UJournalEntryStatus,
-} from '../../types/journal-entry.types';
+} from '@domain/journal-entry/types/journal-entry.types';
 import {
   EJournalSide,
   IJournalLine,
   UJournalSide,
-} from '../../types/journal-line.types';
-import helpers from '../helpers/journal-entry.entity.helpers';
+} from '@domain/journal-entry/types/journal-line.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
 
 describe('journalEntryEntityHelpers', () => {
   describe('validateStatus', () => {

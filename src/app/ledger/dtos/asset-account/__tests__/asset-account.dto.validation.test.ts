@@ -2,7 +2,7 @@ import {
   bankAccountCreationReqValidation,
   bankDetailsCreationReqValidation,
   pettyCashCreationReqValidation,
-} from '../asset-account.dto.validation';
+} from '@app/ledger/dtos/asset-account/asset-account.dto.validation';
 
 describe('Asset Account DTO Validation', () => {
   describe('pettyCashCreationReqValidation', () => {

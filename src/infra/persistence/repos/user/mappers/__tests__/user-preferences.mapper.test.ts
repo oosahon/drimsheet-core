@@ -1,6 +1,8 @@
-import { IUserPreferences } from '../../../../../../domain/user/types/user-preferences.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import userPreferencesMapper from '../user-preferences.mapper';
+import { TEntityId } from '@shared/types/uuid';
+
+import { IUserPreferences } from '@domain/user/types/user-preferences.types';
+
+import userPreferencesMapper from '@infra/persistence/repos/user/mappers/user-preferences.mapper';
 
 describe('User Preferences Mapper', () => {
   const createdAt = new Date('2026-04-10T12:00:00Z');

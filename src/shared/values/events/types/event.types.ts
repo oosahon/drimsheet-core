@@ -1,4 +1,4 @@
-import { IEntityDelta } from '../../history/types/history.types';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
 
 export interface IEvent<T> extends IEventEnrichmentPayload {
   type: string;

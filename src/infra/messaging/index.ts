@@ -1,4 +1,5 @@
-import eventBus from './bus/event-bus';
+import eventBus from '@infra/messaging/bus/event-bus';
+
 import queues from './queues';
 
 const messaging = {

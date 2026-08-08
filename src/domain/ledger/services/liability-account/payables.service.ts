@@ -1,24 +1,24 @@
-import currencyEntity from '../../../money/entities/currency.entity';
-import { LIABILITY_LEDGER_CODES } from '../../config/liability-codes.config';
-import ledgerAccountEntity from '../../entities/ledger-account.entity';
-import ledgerAccountError from '../../errors/ledger-account.error';
-import ILedgerAccountRepo from '../../repos/ledger-account.repo';
-import ledgerAccountCurrencyInvarianceRule from '../../rules/currency-invariance.rule';
-import { TPayablesLedgerCode } from '../../types/ledger-code.types';
+import { LIABILITY_LEDGER_CODES } from '@domain/ledger/config/liability-codes.config';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import ledgerAccountCurrencyInvarianceRule from '@domain/ledger/rules/currency-invariance.rule';
+import controlAccountResolverHelper from '@domain/ledger/services/helpers/control-account-resolver';
+import { TPayablesLedgerCode } from '@domain/ledger/types/ledger-code.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
   ILedgerAccount,
-} from '../../types/ledger.types';
+} from '@domain/ledger/types/ledger.types';
 import {
   ELiabilityAccountBehavior,
   ELiabilitySubType,
-} from '../../types/liability-account.types';
-import { IPayablesAccountService } from '../../types/payables.service.types';
-import payablesMetaValue from '../../values/payables-meta.vo.';
-import controlAccountResolverHelper from '../helpers/control-account-resolver';
+} from '@domain/ledger/types/liability-account.types';
+import { IPayablesAccountService } from '@domain/ledger/types/payables.service.types';
+import payablesMetaValue from '@domain/ledger/values/payables-meta.vo.';
+import currencyEntity from '@domain/money/entities/currency.entity';
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;

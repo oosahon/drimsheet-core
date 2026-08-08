@@ -1,8 +1,10 @@
-import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
-import moneyValue from '../../../../../domain/money/values/money.vo';
-import appError from '../../../../../shared/values/errors/app.error';
-import { IMoneyDto } from '../money.dto';
-import moneyMapper from '../money.dto.mapper';
+import appError from '@shared/values/errors/app.error';
+
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
+
+import { IMoneyDto } from '@app/money/dtos/money/money.dto';
+import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
 
 describe('Money DTO Mapper', () => {
   describe('toDto', () => {

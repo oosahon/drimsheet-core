@@ -1,23 +1,25 @@
-import userEvents from '../../../domain/user/events/user.events';
-import IUserRepo from '../../../domain/user/repos/user.repo';
-import IEventBus from '../../../shared/contracts/event-bus.contract';
+import IEventBus from '@shared/contracts/event-bus.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
-} from '../../../shared/contracts/repo.contract';
-import IReporter from '../../../shared/contracts/reporter.contract';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import zodValidationRunner from '../../../shared/utils/zod-validation-runner';
-import eventValue from '../../../shared/values/events/event.vo';
-import IAppContext from '../../context/contracts/app-context.contract';
-import { EAuthStrategy } from '../contracts/auth.types';
-import IPasswordService from '../contracts/password-service.contract';
-import ITokenService from '../contracts/token-service.contract';
-import IUserAuthRepo from '../contracts/user-auth.repo.contract';
-import IUserSessionRepo from '../contracts/user-session.repo.contract';
-import { IAccessToken, IResetPasswordReq } from '../dtos/auth/auth.dto';
-import { resetPasswordReqValidation } from '../dtos/auth/auth.dto.validation';
-import authError from '../errors/auth.error';
+} from '@shared/contracts/repo.contract';
+import IReporter from '@shared/contracts/reporter.contract';
+import generateUUID from '@shared/utils/uuid-generator';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import eventValue from '@shared/values/events/event.vo';
+
+import userEvents from '@domain/user/events/user.events';
+import IUserRepo from '@domain/user/repos/user.repo';
+
+import { EAuthStrategy } from '@app/auth/contracts/auth.types';
+import IPasswordService from '@app/auth/contracts/password-service.contract';
+import ITokenService from '@app/auth/contracts/token-service.contract';
+import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
+import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
+import { IAccessToken, IResetPasswordReq } from '@app/auth/dtos/auth/auth.dto';
+import { resetPasswordReqValidation } from '@app/auth/dtos/auth/auth.dto.validation';
+import authError from '@app/auth/errors/auth.error';
+import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
   appContext: IAppContext;

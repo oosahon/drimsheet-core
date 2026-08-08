@@ -1,10 +1,15 @@
+import { createHmac } from 'node:crypto';
+
 import { Request, Response } from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
-import { createHmac } from 'node:crypto';
-import authError from '../../app/auth/errors/auth.error';
-import emailValue from '../../domain/user/values/email.vo';
-import appError from '../../shared/values/errors/app.error';
-import reporter from '../observability/reporter';
+
+import appError from '@shared/values/errors/app.error';
+
+import emailValue from '@domain/user/values/email.vo';
+
+import authError from '@app/auth/errors/auth.error';
+
+import reporter from '@infra/observability/reporter';
 
 /**
  * 700 requests per 15 minutes

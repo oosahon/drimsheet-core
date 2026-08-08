@@ -1,15 +1,16 @@
-import { TCreationOmits } from '../../../shared/types/creation-omits.types';
-import dateUtils from '../../../shared/utils/date';
-import stringUtils from '../../../shared/utils/string';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import { TAuditedEntity } from '../../../shared/values/events/types/event.types';
-import currencyEntity from '../../money/entities/currency.entity';
-import ledgerAccountError from '../errors/ledger-account.error';
-import ledgerAccountEvents from '../events/ledger-account.events';
-import { ELedgerAccountAuditAction } from '../types/ledger-account-audit.types';
-import { ILedgerAccount } from '../types/ledger.types';
-import ledgerAccountAudit from '../values/ledger-account-audit.vo';
-import helpers from './helpers/ledger-account.entity.helpers';
+import { TCreationOmits } from '@shared/types/creation-omits.types';
+import dateUtils from '@shared/utils/date';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
+import { TAuditedEntity } from '@shared/values/events/types/event.types';
+
+import helpers from '@domain/ledger/entities/helpers/ledger-account.entity.helpers';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
+import ledgerAccountEvents from '@domain/ledger/events/ledger-account.events';
+import { ELedgerAccountAuditAction } from '@domain/ledger/types/ledger-account-audit.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import ledgerAccountAudit from '@domain/ledger/values/ledger-account-audit.vo';
+import currencyEntity from '@domain/money/entities/currency.entity';
 
 function make<T extends ILedgerAccount>(
   payload: TCreationOmits<T, 'openingBalanceDate'>

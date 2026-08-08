@@ -1,6 +1,8 @@
-import { Request } from 'express';
 import { IncomingHttpHeaders } from 'http';
-import generateUUID from '../../../shared/utils/uuid-generator';
+
+import { Request } from 'express';
+
+import generateUUID from '@shared/utils/uuid-generator';
 
 export default function getHttpHeaderValue(
   headerName: string,

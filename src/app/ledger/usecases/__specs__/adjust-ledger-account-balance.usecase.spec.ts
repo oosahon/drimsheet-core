@@ -1,19 +1,21 @@
-import accountingEntityEntity from '../../../../domain/accounting/entities/accounting-entity.entity';
-import { EAccountingEntityType } from '../../../../domain/accounting/types/accounting-entity.types';
-import ledgerAccountBalanceEntity from '../../../../domain/ledger/entities/ledger-account-balance.entity';
-import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
-import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
-import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
-import { IUser } from '../../../../domain/user/types/user.types';
-import { TEntityId } from '../../../../shared/types/uuid';
+import { TEntityId } from '@shared/types/uuid';
+
+import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
+import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
+import { ICashAndCashEquivalentAccount } from '@domain/ledger/types/asset-account.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { IUser } from '@domain/user/types/user.types';
+
 import {
   mockLedgerAccountBalanceRepo,
   mockLedgerAccountRepo,
-} from '../../contracts/__mocks__/ledger.repos.mock';
-import ILedgerBalanceAdjustmentQueue from '../../contracts/ledger-balance-adjustment-queue.contract';
-import { ILedgerAccountBalanceAdjustmentDto } from '../../dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
-import ledgerAppError from '../../errors/ledger.error';
-import makeAdjustLedgerAccountBalanceUseCase from '../adjust-ledger-account-balance.usecase';
+} from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
+import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
+import ledgerAppError from '@app/ledger/errors/ledger.error';
+import makeAdjustLedgerAccountBalanceUseCase from '@app/ledger/usecases/adjust-ledger-account-balance.usecase';
 
 describe('makeAdjustLedgerAccountBalanceUseCase', () => {
   const correlationId = 'test-corr-id';

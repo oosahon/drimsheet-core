@@ -1,35 +1,37 @@
-import contractorEntity from '../../../../domain/counterparty/entities/contractor.entity';
-import counterpartyEntity from '../../../../domain/counterparty/entities/counterparty.entity';
-import employerEntity from '../../../../domain/counterparty/entities/employer.entity';
-import vendorEntity from '../../../../domain/counterparty/entities/vendor.entity';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import {
+  ITransactionContext,
+  IWriteRepoOptions,
+} from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import contractorEntity from '@domain/counterparty/entities/contractor.entity';
+import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
+import employerEntity from '@domain/counterparty/entities/employer.entity';
+import vendorEntity from '@domain/counterparty/entities/vendor.entity';
 import {
   IContractorHistory,
   ICounterpartyHistory,
   IEmployerHistory,
   IVendorHistory,
-} from '../../../../domain/counterparty/types/counterparty-audit.types';
+} from '@domain/counterparty/types/counterparty-audit.types';
 import {
   ECounterpartyType,
   IContractor,
   ICounterparty,
   IEmployer,
   IVendor,
-} from '../../../../domain/counterparty/types/counterparty.types';
-import mockRepoService from '../../../../shared/contracts/__mocks__/repo.mock';
-import {
-  ITransactionContext,
-  IWriteRepoOptions,
-} from '../../../../shared/types/repo.types';
-import { TEntityId } from '../../../../shared/types/uuid';
-import generateUUID from '../../../../shared/utils/uuid-generator';
-import { EHistoryActorType } from '../../../../shared/values/history/types/history.types';
+} from '@domain/counterparty/types/counterparty.types';
+
 import {
   mockContractorRepo,
   mockCounterpartyRepo,
   mockEmployerRepo,
   mockVendorRepo,
-} from '../../contracts/__mocks__/counterparty.repos.mock';
-import makeCounterpartyPersistenceService from '../persistence.service';
+} from '@app/counterparty/contracts/__mocks__/counterparty.repos.mock';
+import makeCounterpartyPersistenceService from '@app/counterparty/services/persistence.service';
 
 describe('counterpartyPersistenceService', () => {
   const service = makeCounterpartyPersistenceService({

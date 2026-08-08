@@ -1,8 +1,10 @@
 import z from 'zod';
-import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
-import journalLineError from '../../../../domain/journal-entry/errors/journal-line.error';
-import { counterpartyNameValidation } from '../../../counterparty/dtos/counterparty/counterparty.dto.validation';
-import { journalLineReqValidation } from '../journal-entry/journal-entry.dto.validation';
+
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import journalLineError from '@domain/journal-entry/errors/journal-line.error';
+
+import { counterpartyNameValidation } from '@app/counterparty/dtos/counterparty/counterparty.dto.validation';
+import { journalLineReqValidation } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.validation';
 
 export const receiptEntryLineReqValidation = journalLineReqValidation.extend({
   counterparty: z.object({

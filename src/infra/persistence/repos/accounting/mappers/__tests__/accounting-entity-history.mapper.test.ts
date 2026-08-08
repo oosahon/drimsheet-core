@@ -1,8 +1,10 @@
-import { IAccountingEntityAuditHistory } from '../../../../../../domain/accounting/types/accounting-entity-audit.types';
-import { TEntityId } from '../../../../../../shared/types/uuid';
-import { EHistoryActorType } from '../../../../../../shared/values/history/types/history.types';
-import { toRepoDate } from '../../../../helpers/date.mapper';
-import accountingEntityHistoryMapper from '../accounting-entity-history.mapper';
+import { TEntityId } from '@shared/types/uuid';
+import { EHistoryActorType } from '@shared/values/history/types/history.types';
+
+import { IAccountingEntityAuditHistory } from '@domain/accounting/types/accounting-entity-audit.types';
+
+import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
+import accountingEntityHistoryMapper from '@infra/persistence/repos/accounting/mappers/accounting-entity-history.mapper';
 
 describe('accountingEntityHistoryMapper', () => {
   it('maps accounting entity history to the repository model', () => {

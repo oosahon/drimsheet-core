@@ -1,22 +1,24 @@
-import dateUtils from '../../../shared/utils/date';
-import stringUtils from '../../../shared/utils/string';
-import generateUUID from '../../../shared/utils/uuid-generator';
-import journalEntryError from '../errors/journal-entry.error';
-import journalEntryEvents from '../events/journal-entry.events';
+import dateUtils from '@shared/utils/date';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import helpers from '@domain/journal-entry/entities/helpers/journal-entry.entity.helpers';
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import journalEntryEvents from '@domain/journal-entry/events/journal-entry.events';
 import {
   EJournalEntryAuditAction,
   TAuditedJournalEntry,
   TAuditedJournalEntryTransition,
-} from '../types/journal-entry-audit.types';
+} from '@domain/journal-entry/types/journal-entry-audit.types';
 import {
   EJournalEntryStatus,
   IJournalEntry,
   IJournalEntryMakePayload,
   IJournalHeader,
   IVoidJournalEntryPayload,
-} from '../types/journal-entry.types';
-import journalEntryAudit from '../values/journal-entry-audit.vo';
-import helpers from './helpers/journal-entry.entity.helpers';
+} from '@domain/journal-entry/types/journal-entry.types';
+import journalEntryAudit from '@domain/journal-entry/values/journal-entry-audit.vo';
+
 import journalLineEntity from './journal-line.entity';
 
 function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {

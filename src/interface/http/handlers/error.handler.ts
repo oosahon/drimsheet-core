@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import { ValidateError } from 'tsoa';
-import ILogger from '../../../shared/contracts/logger.contract';
-import IReporter from '../../../shared/contracts/reporter.contract';
-import errorUtils from '../../../shared/utils/error';
-import appError from '../../../shared/values/errors/app.error';
-import { IHttpErrorDto } from '../../../shared/values/errors/error.dto';
-import httpErrorParser from '../helpers/http-error-parser';
+
+import ILogger from '@shared/contracts/logger.contract';
+import IReporter from '@shared/contracts/reporter.contract';
+import errorUtils from '@shared/utils/error';
+import appError from '@shared/values/errors/app.error';
+import { IHttpErrorDto } from '@shared/values/errors/error.dto';
+
+import httpErrorParser from '@interface/http/helpers/http-error-parser';
 
 const errorKeyToStatusCode: Record<string, number> = {
   app_error_invalid_value: 400,

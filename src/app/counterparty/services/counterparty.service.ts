@@ -1,16 +1,18 @@
-import counterpartyError from '../../../domain/counterparty/errors/counterparty.error';
-import ICounterpartyRepo from '../../../domain/counterparty/repos/counterparty.repo';
-import ICounterpartyService from '../../../domain/counterparty/types/counterparty.service.types';
+import { TEntityId } from '@shared/types/uuid';
+import { IEntityDelta } from '@shared/values/history/types/history.types';
+
+import counterpartyError from '@domain/counterparty/errors/counterparty.error';
+import ICounterpartyRepo from '@domain/counterparty/repos/counterparty.repo';
+import ICounterpartyService from '@domain/counterparty/types/counterparty.service.types';
 import {
   ECounterpartyType,
   ICounterparty,
-} from '../../../domain/counterparty/types/counterparty.types';
-import { TEntityId } from '../../../shared/types/uuid';
-import { IEntityDelta } from '../../../shared/values/history/types/history.types';
+} from '@domain/counterparty/types/counterparty.types';
+
 import ICounterpartyAppService, {
   ICounterpartyFindOrCreatePayload,
   ICounterpartyFindOrCreateRes,
-} from '../contracts/counterparty.service.contract';
+} from '@app/counterparty/contracts/counterparty.service.contract';
 
 interface IDependencies {
   counterpartyRepo: ICounterpartyRepo;

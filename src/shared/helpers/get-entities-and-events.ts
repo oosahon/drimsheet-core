@@ -2,7 +2,7 @@ import {
   IEvent,
   TAuditedEntity,
   TEntityWithEvents,
-} from '../values/events/types/event.types';
+} from '@shared/values/events/types/event.types';
 
 export default function getEntitiesAndEvents<T, E, S extends object = object>(
   data: (TEntityWithEvents<T, E> | TAuditedEntity<T, E, S>)[]
