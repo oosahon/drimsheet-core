@@ -91,7 +91,9 @@ describe('ledgerAccountPersistenceService', () => {
           accountingEntityId: account.accountingEntityId,
           accountMaterializedPath: account.materializedPath,
           amount: expect.objectContaining({
-            currency: expect.objectContaining({ code: account.currency.code }),
+            currency: expect.objectContaining({
+              code: SYSTEM_CURRENCIES.NGN.code,
+            }),
           }),
           functionalAmount: expect.objectContaining({
             currency: expect.objectContaining({
@@ -103,6 +105,31 @@ describe('ledgerAccountPersistenceService', () => {
           ...repoOptions,
           tx: 'mock-tx',
         }
+      );
+    });
+
+    it('creates a null-currency account balance in functional currency', async () => {
+      const nullCurrencyAccount: ILedgerAccount = {
+        ...account,
+        currency: null,
+      };
+
+      await service.create(
+        nullCurrencyAccount,
+        SYSTEM_CURRENCIES.NGN.code,
+        repoOptions
+      );
+
+      expect(mockLedgerAccountBalanceRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          amount: expect.objectContaining({
+            currency: SYSTEM_CURRENCIES.NGN,
+          }),
+          functionalAmount: expect.objectContaining({
+            currency: SYSTEM_CURRENCIES.NGN,
+          }),
+        }),
+        expect.objectContaining({ tx: 'mock-tx' })
       );
     });
   });

@@ -28,7 +28,7 @@ function makeCreate(
       ledgerAccountId: account.id,
       accountingEntityId: account.accountingEntityId,
       accountMaterializedPath: account.materializedPath,
-      currencyCode: account.currency.code,
+      currencyCode: (account.currency ?? functionalCurrency).code,
       functionalCurrencyCode: functionalCurrency.code,
     });
 

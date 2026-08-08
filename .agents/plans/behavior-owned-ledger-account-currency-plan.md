@@ -349,6 +349,37 @@ type.
   mapper, persistence-service, and typed mock fixtures affected by the contract
   changes.
 
+## Implementation Status
+
+| Step | Owner and outcome                                                                      | Basis and precedent                                                                                                                                                              | Intended files and tests                                                  | Status                                                          |
+| ---- | -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| 1    | Domain: allow nullable ledger-account denomination while validating present currencies | Nullable generated column in `src/infra/config/drizzle/schema.ts`; existing `ledgerAccountEntity.make` event/audit flow in `src/domain/ledger/entities/ledger-account.entity.ts` | Shared ledger type/entity, entity tests, and nullable generic consumers   | Completed; focused domain tests pass                            |
+| 2    | Domain services: enforce behavior-owned Revenue, Expense, and Liability currency rules | Functional-currency derivation in existing header services and behavior-local validators in `src/domain/ledger/services/**`                                                      | Existing service contracts, implementations, tests, and bootstrap callers | Completed; 17 domain suites and bootstrap specs pass            |
+| 3    | Infrastructure: persist and retrieve accounts without a denomination                   | Existing explicit persistence mapper and ledger repository query methods in `src/infra/persistence/repos/ledger`                                                                 | Ledger account mapper/repository and their tests                          | Completed; mapper and all read-query paths covered              |
+| 4    | Application: measure null-currency account balances in functional currency             | Existing persistence, propagation, adjustment, and read-fallback owners under `src/app/ledger`                                                                                   | Existing services/use cases/helpers and focused tests                     | Completed; null and fixed application paths pass                |
+| 5    | Cross-cutting callers: adopt narrowed service contracts without changing public DTOs   | Existing typed domain-service contracts/mocks and bootstrap helpers                                                                                                              | Affected fixtures, bootstrap specs, build, lint, and full suite           | Completed; build, lint, focused tests, and all 2,027 tests pass |
+
+Baseline: clean working tree and clean index before implementation. No planned
+deviation; excluded migration, generated Drizzle, IoC, and DTO-shape files will
+remain untouched.
+
+Verification results:
+
+- Focused domain currency suites: 17 suites, 219 tests passed.
+- Persistence mapper/repository suites: 2 suites, 15 tests passed.
+- Application balance, adjustment, read, and mapping suites: passed.
+- Asset, Equity, Suspense, and bootstrap regression suites: passed.
+- `npm run lint`: passed.
+- `npm run build`: passed; generated API artifacts were restored because the
+  public DTO shape is intentionally unchanged and generated files are outside
+  this plan.
+- `npm test -- --runInBand`: 282 suites, 2,027 tests passed.
+- `npm run test:names`: reports the untouched pre-existing
+  `src/infra/persistence/helpers/__tests__/get-db-query.test.ts` naming
+  mismatch; no plan-owned test has a naming mismatch.
+
+Implemented without deviation.
+
 ## Verification
 
 ```bash

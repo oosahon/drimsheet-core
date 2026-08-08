@@ -48,6 +48,7 @@ function validateLines(journalLines: IJournalLine[], account: ILedgerAccount) {
       prototype.functionalAmount.currency.code;
 
     const isSameCurrencyAsAccount =
+      account.currency === null ||
       line.amount.currency.code === account.currency.code;
 
     return isSameAccount && isSameFunctionalCurrency && isSameCurrencyAsAccount;
@@ -101,22 +102,25 @@ async function propagateBalanceAdjustments(
 
       validateLines(journalLines, account);
 
-      let balanceDelta: IMoney = moneyValue.makeZeroAmount(account.currency);
-      let functionalBalanceDelta: IMoney = moneyValue.makeZeroAmount(
-        journalLines[0].functionalAmount.currency
-      );
+      const functionalCurrency = journalLines[0].functionalAmount.currency;
+      const balanceCurrency = account.currency ?? functionalCurrency;
+      let balanceDelta: IMoney = moneyValue.makeZeroAmount(balanceCurrency);
+      let functionalBalanceDelta: IMoney =
+        moneyValue.makeZeroAmount(functionalCurrency);
 
       for (const line of journalLines) {
         const effect = ledgerBalanceEffectRule(account, line.side);
+        const accountAmount =
+          account.currency === null ? line.functionalAmount : line.amount;
 
         if (effect === ELedgerAccountBalanceEffect.Increase) {
-          balanceDelta = moneyValue.add(balanceDelta, line.amount);
+          balanceDelta = moneyValue.add(balanceDelta, accountAmount);
           functionalBalanceDelta = moneyValue.add(
             functionalBalanceDelta,
             line.functionalAmount
           );
         } else {
-          balanceDelta = moneyValue.subtract(balanceDelta, line.amount);
+          balanceDelta = moneyValue.subtract(balanceDelta, accountAmount);
           functionalBalanceDelta = moneyValue.subtract(
             functionalBalanceDelta,
             line.functionalAmount

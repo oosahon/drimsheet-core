@@ -3,6 +3,7 @@ import { EAccountingEntityType } from '../../../../domain/accounting/types/accou
 import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
 import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
 import { ILedgerAccountBalance } from '../../../../domain/ledger/types/ledger-account-balance.types';
+import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import mockReporter from '../../../../shared/contracts/__mocks__/reporter.mock';
@@ -152,6 +153,25 @@ describe('makeGetLedgerAccountsUsecase', () => {
     expect(result.data).toHaveLength(1);
     expect(result.data[0].balance.amount).toBe(0);
     expect(result.data[0].functionalBalance.amount).toBe(0);
+  });
+
+  it('uses functional currency for both missing balances of a null-currency account', async () => {
+    const nullCurrencyAccount: ILedgerAccount = {
+      ...ledgerAccount,
+      currency: null,
+    };
+    mockLedgerAccountRepo.findAll.mockResolvedValue({
+      data: [nullCurrencyAccount],
+      meta: { page: 1, limit: 10, total: 1, totalPages: 1 },
+    });
+    mockLedgerAccountBalanceRepo.findAllByAccountIds.mockResolvedValue([]);
+
+    const result = await getUseCase()(validQuery);
+
+    expect(result.data[0].balance.currencyCode).toBe(usdCurrency.code);
+    expect(result.data[0].functionalBalance.currencyCode).toBe(
+      usdCurrency.code
+    );
   });
 
   it('returns data mapped with actual balance when balance is found', async () => {

@@ -92,7 +92,8 @@ function makeCreateStatutoryPayableSubAccount(
         controlAccount.subType === ELiabilitySubType.Payable &&
         controlAccount.isControlAccount &&
         (controlAccount.behavior === ELiabilityAccountBehavior.DefaultPayable ||
-          controlAccount.behavior === ELiabilityAccountBehavior.TaxPayable)
+          controlAccount.behavior === ELiabilityAccountBehavior.TaxPayable) &&
+        controlAccount.currency !== null
       );
     };
 
@@ -194,7 +195,7 @@ function makeCreateTradePayableAccount(
       behavior: ELiabilityAccountBehavior.TradePayable,
       isControlAccount: payload.isControlAccount,
       controlAccountId: controlAccount.id,
-      currency: payload.currency,
+      currency: null,
       status: ELedgerAccountStatus.Active,
       meta: payablesMetaValue.makeTradeMeta(payload.meta),
       contraAccountRule: EContraAccountRule.ContraPermitted,

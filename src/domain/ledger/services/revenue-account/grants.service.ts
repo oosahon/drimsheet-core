@@ -109,7 +109,7 @@ function makeCreateSubAccount(
       behavior: ERevenueAccountBehavior.Grants,
       isControlAccount: payload.isControlAccount,
       controlAccountId: controlAccount.id,
-      currency: payload.currency,
+      currency: null,
       meta: null,
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,

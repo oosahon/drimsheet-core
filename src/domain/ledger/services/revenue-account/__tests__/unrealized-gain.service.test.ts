@@ -73,7 +73,6 @@ describe('unrealizedGainAccountService', () => {
     name: 'Consulting Revenue',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
     controlAccountCode: REVENUE_LEDGER_CODES.UNREALIZED_GAINS.HEADER,
   };
@@ -178,7 +177,7 @@ describe('unrealizedGainAccountService', () => {
       behavior: ERevenueAccountBehavior.UnrealizedGains,
       isControlAccount: false,
       controlAccountId: controlAccount.id,
-      currency: SYSTEM_CURRENCIES.USD,
+      currency: null,
       meta: null,
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,

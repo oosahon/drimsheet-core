@@ -73,7 +73,6 @@ describe('bankChargeAccountService', () => {
     name: 'Bank Charge (Default)',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
     controlAccountCode: EXPENSE_LEDGER_CODES.BANK_CHARGE.HEADER,
   };
@@ -183,7 +182,7 @@ describe('bankChargeAccountService', () => {
         behavior: EExpenseAccountBehavior.BankCharge,
         isControlAccount: false,
         controlAccountId: controlAccount.id,
-        currency: SYSTEM_CURRENCIES.USD,
+        currency: null,
         meta: null,
         status: ELedgerAccountStatus.Active,
         contraAccountRule: EContraAccountRule.ContraNotPermitted,

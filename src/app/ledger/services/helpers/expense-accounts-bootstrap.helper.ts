@@ -23,7 +23,6 @@ import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { IRentAndUtilitiesAccountService } from '../../../../domain/ledger/types/rent-and-utilities.service.types';
 import { ITaxExpenseAccountService } from '../../../../domain/ledger/types/tax-expense.service.types';
 import { IUnrealizedLossAccountService } from '../../../../domain/ledger/types/unrealized-loss.service.types';
-import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
   IEvent,
@@ -73,13 +72,9 @@ export default function makeExpenseAccountsBootstrapHelper(
     headers,
   }: IExpensePostingAccountsBootstrapInput) => {
     const { ownerId: createdBy, id: accountingEntityId } = accountingEntity;
-    const currency = currencyEntity.getByCode(
-      accountingEntity.functionalCurrencyCode
-    );
     const basePayload = {
       createdBy,
       accountingEntityId,
-      currency,
       isControlAccount: false,
     };
 

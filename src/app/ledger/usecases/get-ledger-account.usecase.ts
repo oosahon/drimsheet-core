@@ -53,10 +53,14 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
     if (!balance) {
       deps.reporter.report(new ledgerAppError.BalanceNotFound({ accountId }));
 
-      const zeroBalance = moneyValue.makeZeroAmount(account.currency);
-      const zeroFunctionalBalance = moneyValue.makeZeroAmount(
-        currencyEntity.getByCode(accountingEntity.functionalCurrencyCode)
+      const functionalCurrency = currencyEntity.getByCode(
+        accountingEntity.functionalCurrencyCode
       );
+      const zeroBalance = moneyValue.makeZeroAmount(
+        account.currency ?? functionalCurrency
+      );
+      const zeroFunctionalBalance =
+        moneyValue.makeZeroAmount(functionalCurrency);
 
       return ledgerAccountMapper.toDto(
         account,

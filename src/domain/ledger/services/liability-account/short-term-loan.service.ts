@@ -92,7 +92,9 @@ function makeCreateSubAccount(
         controlAccount.isControlAccount &&
         (controlAccount.behavior ===
           ELiabilityAccountBehavior.DefaultShortTermDebt ||
-          controlAccount.behavior === ELiabilityAccountBehavior.ShortTermLoan)
+          controlAccount.behavior ===
+            ELiabilityAccountBehavior.ShortTermLoan) &&
+        (controlAccount.currency !== null || payload.currency === null)
       );
     };
 
@@ -150,7 +152,8 @@ function makeCreateCreditCardSubAccount(
         controlAccount.isControlAccount &&
         (controlAccount.behavior ===
           ELiabilityAccountBehavior.DefaultShortTermDebt ||
-          controlAccount.behavior === ELiabilityAccountBehavior.CreditCard)
+          controlAccount.behavior === ELiabilityAccountBehavior.CreditCard) &&
+        controlAccount.currency !== null
       );
     };
 

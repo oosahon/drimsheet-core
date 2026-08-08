@@ -2,6 +2,7 @@ import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import { TEntityId } from '../../../../../shared/types/uuid';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../../accounting/types/accounting-entity.types';
+import { SYSTEM_CURRENCIES } from '../../../../money/config/currencies.config';
 import { ICurrency } from '../../../../money/types/currency.types';
 import { ASSET_LEDGER_CODES } from '../../../config/asset-codes.config';
 import ILedgerAccountRepo from '../../../repos/ledger-account.repo';
@@ -41,6 +42,23 @@ describe('cashAccountService', () => {
 
   afterEach(() => {
     jest.useRealTimers();
+  });
+
+  it('creates the cash header in functional currency', async () => {
+    const ownerId = generateUUID();
+    const accountingEntity = {
+      id: generateUUID(),
+      ownerId,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    } as IAccountingEntity;
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+
+    const [account] = await service.createHeader(
+      { name: 'Cash', userId: ownerId, accountingEntity },
+      mockOptions
+    );
+
+    expect(account.currency).toBe(SYSTEM_CURRENCIES.NGN);
   });
 
   describe('createPettyCashSubAccount', () => {
@@ -103,6 +121,7 @@ describe('cashAccountService', () => {
         expect(account.name).toBe('Main Petty Cash');
         expect(account.accountingEntityId).toBe(entityId);
         expect(account.controlAccountId).toBe(controlAccountId);
+        expect(account.currency).toEqual(validCurrency);
         expect(account.code).toBe('100002');
         expect(account.materializedPath).toBe(
           `${mockControlAccount.materializedPath}.100002`
@@ -298,6 +317,7 @@ describe('cashAccountService', () => {
 
       expect(account.name).toBe('Chase Operating Account');
       expect(account.behavior).toBe('bank');
+      expect(account.currency).toEqual(validCurrency);
       expect(account.meta).toEqual(validBankValue);
       expect(account.code).toBe('100001');
       expect(events.length).toBeGreaterThan(0);

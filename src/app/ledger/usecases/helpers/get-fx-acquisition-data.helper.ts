@@ -33,7 +33,9 @@ export default async function getFxAcquisitionDataHelper(
   } = payload;
 
   const shouldNotCreate =
-    !exchangeRate || account.currency.code === functionalCurrencyCode;
+    !exchangeRate ||
+    account.currency === null ||
+    account.currency.code === functionalCurrencyCode;
 
   if (shouldNotCreate) {
     return null;

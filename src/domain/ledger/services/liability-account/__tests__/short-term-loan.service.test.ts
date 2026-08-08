@@ -221,6 +221,37 @@ describe('shortTermLoanAccountService', () => {
       );
     });
 
+    it('creates a null-currency loan under a null-currency control account', async () => {
+      const controlAccount = makeControlAccount(
+        ELiabilityAccountBehavior.ShortTermLoan,
+        { currency: null }
+      );
+      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+      mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+
+      const [account] = await service.createSubAccount(
+        { ...shortTermLoanPayload, currency: null },
+        repoOptions
+      );
+
+      expect(account.currency).toBeNull();
+    });
+
+    it('rejects a fixed-currency loan under a null-currency control account', async () => {
+      mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
+        makeControlAccount(ELiabilityAccountBehavior.ShortTermLoan, {
+          currency: null,
+        })
+      );
+
+      await expect(
+        service.createSubAccount(shortTermLoanPayload, repoOptions)
+      ).rejects.toMatchObject({
+        errorKey: 'ledger_error_asset_account_invalid_control_account',
+      });
+      expect(mockLedgerAccountRepo.findLatestBySubType).not.toHaveBeenCalled();
+    });
+
     it('rejects a missing control account', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
@@ -328,6 +359,7 @@ describe('shortTermLoanAccountService', () => {
         label: 'behavior',
         overrides: { behavior: ELiabilityAccountBehavior.ShortTermLoan },
       },
+      { label: 'null currency', overrides: { currency: null } },
     ];
 
     it.each(invalidControlAccountCases)(

@@ -73,7 +73,6 @@ describe('servicesAccountService', () => {
     name: 'Consulting Revenue',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     isControlAccount: false,
     controlAccountCode: REVENUE_LEDGER_CODES.SERVICES.HEADER,
   };
@@ -178,7 +177,7 @@ describe('servicesAccountService', () => {
       behavior: ERevenueAccountBehavior.Services,
       isControlAccount: false,
       controlAccountId: controlAccount.id,
-      currency: SYSTEM_CURRENCIES.USD,
+      currency: null,
       meta: null,
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraNotPermitted,
@@ -204,6 +203,30 @@ describe('servicesAccountService', () => {
     expect(account.materializedPath).toBe(
       `${controlAccount.materializedPath}.401001`
     );
+  });
+
+  it('creates a null-currency descendant under a null-currency control account', async () => {
+    const controlAccount = makeControlAccount(
+      ERevenueAccountBehavior.Services,
+      {
+        code: '401001',
+        materializedPath: `${REVENUE_LEDGER_CODES.SERVICES.HEADER}.401001`,
+        currency: null,
+      }
+    );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+
+    const [account] = await service.createSubAccount(
+      {
+        ...subAccountPayload,
+        controlAccountCode: '401001',
+      },
+      repoOptions
+    );
+
+    expect(account.controlAccountId).toBe(controlAccount.id);
+    expect(account.currency).toBeNull();
   });
 
   it('rejects a missing control account', async () => {

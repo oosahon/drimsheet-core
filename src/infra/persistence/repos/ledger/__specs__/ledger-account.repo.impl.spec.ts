@@ -39,8 +39,8 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
     const account = { id: 'account-domain' } as ILedgerAccount;
     const awaitable = makeAwaitable([row]);
     const where = jest.fn().mockReturnValue(awaitable.query);
-    const innerJoin = jest.fn().mockReturnValue({ where });
-    const from = jest.fn().mockReturnValue({ innerJoin });
+    const leftJoin = jest.fn().mockReturnValue({ where });
+    const from = jest.fn().mockReturnValue({ leftJoin });
     const select = jest.fn().mockReturnValue({ from });
     (getDbQuery as jest.Mock).mockReturnValue({ select });
     (ledgerAccountMapper.toDomain as jest.Mock).mockReturnValue(account);
@@ -51,6 +51,8 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
         lock: lockMode,
       })
     ).resolves.toBe(account);
+
+    expect(leftJoin).toHaveBeenCalled();
 
     if (lockMode) {
       expect(awaitable.lock).toHaveBeenCalledWith(lockMode);
@@ -94,4 +96,83 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
       }
     }
   );
+
+  it.each([
+    [
+      'findById',
+      () =>
+        ledgerAccountRepo.findById(
+          'account-id' as TEntityId,
+          accountingEntityId,
+          {
+            correlationId: 'correlation-id',
+          }
+        ),
+    ],
+    [
+      'findAllByIds',
+      () =>
+        ledgerAccountRepo.findAllByIds(['account-id' as TEntityId], {
+          correlationId: 'correlation-id',
+        }),
+    ],
+    [
+      'findBySubType',
+      () =>
+        ledgerAccountRepo.findBySubType(
+          accountingEntityId,
+          ELedgerType.Asset,
+          EAssetSubType.CashAndCashEquivalent,
+          { correlationId: 'correlation-id' }
+        ),
+    ],
+    [
+      'findByBehavior',
+      () =>
+        ledgerAccountRepo.findByBehavior(accountingEntityId, 'POSTING', {
+          correlationId: 'correlation-id',
+        }),
+    ],
+  ])('%s retains a row without a currency relation', async (_name, read) => {
+    const row = { id: 'account-row', currency: null };
+    const account = { id: 'account-domain', currency: null } as ILedgerAccount;
+    const where = jest.fn().mockResolvedValue([row]);
+    const leftJoin = jest.fn().mockReturnValue({ where });
+    const from = jest.fn().mockReturnValue({ leftJoin });
+    const select = jest.fn().mockReturnValue({ from });
+    (getDbQuery as jest.Mock).mockReturnValue({ select });
+    (ledgerAccountMapper.toDomain as jest.Mock).mockReturnValue(account);
+
+    const result = await read();
+
+    expect(leftJoin).toHaveBeenCalled();
+    expect(ledgerAccountMapper.toDomain).toHaveBeenCalledWith(row, 0, [row]);
+    expect(result).toEqual(_name === 'findById' ? account : [account]);
+  });
+
+  it('findAll retains a paginated row without a currency relation', async () => {
+    const row = { id: 'account-row', currency: null };
+    const account = { id: 'account-domain', currency: null } as ILedgerAccount;
+    const countWhere = jest.fn().mockResolvedValue([{ count: 1 }]);
+    const countFrom = jest.fn().mockReturnValue({ where: countWhere });
+    const offset = jest.fn().mockResolvedValue([row]);
+    const limit = jest.fn().mockReturnValue({ offset });
+    const orderBy = jest.fn().mockReturnValue({ limit });
+    const dataWhere = jest.fn().mockReturnValue({ orderBy });
+    const leftJoin = jest.fn().mockReturnValue({ where: dataWhere });
+    const dataFrom = jest.fn().mockReturnValue({ leftJoin });
+    const select = jest
+      .fn()
+      .mockReturnValueOnce({ from: countFrom })
+      .mockReturnValueOnce({ from: dataFrom });
+    (getDbQuery as jest.Mock).mockReturnValue({ select });
+    (ledgerAccountMapper.toDomain as jest.Mock).mockReturnValue(account);
+
+    const result = await ledgerAccountRepo.findAll(accountingEntityId, {
+      correlationId: 'correlation-id',
+    });
+
+    expect(leftJoin).toHaveBeenCalled();
+    expect(result.data).toEqual([account]);
+  });
 });

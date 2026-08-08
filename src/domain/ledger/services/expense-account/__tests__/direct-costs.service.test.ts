@@ -73,7 +73,6 @@ describe('directCostsAccountService', () => {
     name: 'Direct Costs (Default)',
     createdBy,
     accountingEntityId: accountingEntity.id,
-    currency: SYSTEM_CURRENCIES.USD,
     behavior: EExpenseAccountBehavior.DefaultDirectCost,
     isControlAccount: false,
     controlAccountCode: EXPENSE_LEDGER_CODES.DIRECT_COSTS.HEADER,
@@ -186,7 +185,7 @@ describe('directCostsAccountService', () => {
         behavior: EExpenseAccountBehavior.DefaultDirectCost,
         isControlAccount: false,
         controlAccountId: controlAccount.id,
-        currency: SYSTEM_CURRENCIES.USD,
+        currency: null,
         meta: null,
         status: ELedgerAccountStatus.Active,
         contraAccountRule: EContraAccountRule.ContraNotPermitted,
@@ -286,6 +285,7 @@ describe('directCostsAccountService', () => {
 
       expect(header.behavior).toBe(behavior);
       expect(subAccount.behavior).toBe(behavior);
+      expect(subAccount.currency).toBeNull();
     }
   );
 });

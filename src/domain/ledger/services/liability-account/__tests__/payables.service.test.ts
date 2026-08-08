@@ -44,7 +44,8 @@ describe('payablesAccountService', () => {
     correlationId: 'test-correlation-id',
   };
   const makeControlAccount = (
-    behavior: IPayableAccount['behavior'] = ELiabilityAccountBehavior.DefaultPayable
+    behavior: IPayableAccount['behavior'] = ELiabilityAccountBehavior.DefaultPayable,
+    overrides: Partial<Pick<ILedgerAccount, 'currency'>> = {}
   ) =>
     ledgerAccountEntity.make<IPayableAccount>({
       name: 'Payables',
@@ -63,6 +64,7 @@ describe('payablesAccountService', () => {
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
       createdBy,
+      ...overrides,
     })[0];
 
   beforeEach(() => {
@@ -83,7 +85,6 @@ describe('payablesAccountService', () => {
         name: 'Payables',
         createdBy,
         accountingEntity,
-        currency: SYSTEM_CURRENCIES.NGN,
       },
       repoOptions
     );
@@ -126,7 +127,6 @@ describe('payablesAccountService', () => {
           name: 'Payables',
           createdBy,
           accountingEntity,
-          currency: SYSTEM_CURRENCIES.USD,
         },
         repoOptions
       )
@@ -166,6 +166,7 @@ describe('payablesAccountService', () => {
       behavior: ELiabilityAccountBehavior.TaxPayable,
       isControlAccount: false,
       controlAccountId: controlAccount.id,
+      currency: SYSTEM_CURRENCIES.USD,
       meta: {
         taxAuthority: 'Federal Inland Revenue Service',
         taxType: 'personal_income_tax',
@@ -194,7 +195,6 @@ describe('payablesAccountService', () => {
         name: 'Supplier Invoice',
         createdBy,
         accountingEntity,
-        currency: SYSTEM_CURRENCIES.USD,
         isControlAccount: false,
         controlAccountCode: controlAccount.code,
         meta: { counterpartyId, invoiceId },
@@ -207,6 +207,7 @@ describe('payablesAccountService', () => {
       materializedPath: `${LIABILITY_LEDGER_CODES.PAYABLES.HEADER}.201100`,
       behavior: ELiabilityAccountBehavior.TradePayable,
       controlAccountId: controlAccount.id,
+      currency: null,
       meta: { counterpartyId, invoiceId },
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
@@ -223,7 +224,6 @@ describe('payablesAccountService', () => {
           name: 'Supplier Invoice',
           createdBy,
           accountingEntity,
-          currency: SYSTEM_CURRENCIES.USD,
           isControlAccount: false,
           controlAccountCode: LIABILITY_LEDGER_CODES.PAYABLES.HEADER,
           meta: { counterpartyId: generateUUID(), invoiceId: generateUUID() },
@@ -235,11 +235,36 @@ describe('payablesAccountService', () => {
     });
   });
 
+  it('creates a null-currency trade payable under a null-currency trade control', async () => {
+    const controlAccount = makeControlAccount(
+      ELiabilityAccountBehavior.TradePayable,
+      { currency: null }
+    );
+    ledgerAccountRepo.findByCode.mockResolvedValueOnce(controlAccount);
+    ledgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+
+    const [account] = await service.createTradePayableSubAccount(
+      {
+        name: 'Nested Trade Payable',
+        createdBy,
+        accountingEntity,
+        isControlAccount: false,
+        controlAccountCode: controlAccount.code,
+        meta: { counterpartyId: generateUUID(), invoiceId: generateUUID() },
+      },
+      repoOptions
+    );
+
+    expect(account.controlAccountId).toBe(controlAccount.id);
+    expect(account.currency).toBeNull();
+  });
+
   it.each([
     { type: ELedgerType.Asset },
     { subType: ELiabilitySubType.Suspense },
     { isControlAccount: false },
     { behavior: ELiabilityAccountBehavior.TradePayable },
+    { currency: null },
   ])('rejects an invalid statutory control account: %o', async (change) => {
     ledgerAccountRepo.findByCode.mockResolvedValueOnce({
       ...makeControlAccount(),
@@ -281,7 +306,6 @@ describe('payablesAccountService', () => {
           name: 'Supplier Invoice',
           createdBy,
           accountingEntity,
-          currency: SYSTEM_CURRENCIES.USD,
           isControlAccount: false,
           controlAccountCode: LIABILITY_LEDGER_CODES.PAYABLES.HEADER,
           meta: { counterpartyId: generateUUID(), invoiceId: generateUUID() },

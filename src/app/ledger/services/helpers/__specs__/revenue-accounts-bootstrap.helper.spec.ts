@@ -327,7 +327,6 @@ describe('revenueAccountsBootstrapHelper', () => {
     const basePayload = {
       createdBy: accountingEntity.ownerId,
       accountingEntityId: accountingEntity.id,
-      currency: SYSTEM_CURRENCIES.USD,
       isControlAccount: false,
     };
     expect(mockServicesAccountService.createSubAccount).toHaveBeenCalledWith(

@@ -296,6 +296,17 @@ describe('Ledger Account Shared Entity', () => {
       expect(Object.isFrozen(audit)).toBe(true);
     });
 
+    it('preserves a null currency in the account, event, and audit', () => {
+      const [account, events, audit] = ledgerAccountEntity.make({
+        ...validPayload,
+        currency: null,
+      });
+
+      expect(account.currency).toBeNull();
+      expect(events[0].data.currency).toBeNull();
+      expect(audit.diff.after.currency).toBeNull();
+    });
+
     it('should successfully create a ledger account with a control account ID', () => {
       const payloadWithControl = {
         ...validPayload,
@@ -346,7 +357,7 @@ describe('Ledger Account Shared Entity', () => {
       expect(() => ledgerAccountEntity.make(invalidPayload)).toThrow();
     });
 
-    it('should pass if currency validation fails', () => {
+    it('should throw if currency validation fails', () => {
       const invalidPayload = {
         ...validPayload,
         currency: { ...validCurrency, code: 'INVALID' },
