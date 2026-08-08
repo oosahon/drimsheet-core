@@ -6,6 +6,7 @@ import {
   mockAssetAccountService,
   mockPayablesAccountService,
   mockReceivablesAccountService,
+  mockShortTermLoanAccountService,
   mockSuspenseAccountService,
 } from '../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../contracts/__mocks__/ledger.repos.mock';
@@ -133,6 +134,7 @@ describe('accountsBootstrapService', () => {
       receivablesAccountService: mockReceivablesAccountService,
       suspenseAccountService: mockSuspenseAccountService,
       payablesAccountService: mockPayablesAccountService,
+      shortTermLoanAccountService: mockShortTermLoanAccountService,
     });
   });
 
@@ -145,11 +147,13 @@ describe('accountsBootstrapService', () => {
       receivablesAccountService: mockReceivablesAccountService,
       suspenseAccountService: mockSuspenseAccountService,
       payablesAccountService: mockPayablesAccountService,
+      shortTermLoanAccountService: mockShortTermLoanAccountService,
     });
     expect(mockMakeLiabilityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
       suspenseAccountService: mockSuspenseAccountService,
       payablesAccountService: mockPayablesAccountService,
+      shortTermLoanAccountService: mockShortTermLoanAccountService,
     });
     expect(mockMakeEquityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,

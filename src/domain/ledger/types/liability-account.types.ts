@@ -127,14 +127,9 @@ export interface IOverdraftAccount extends IShortTermDebtAccount {
   meta: IOverdraftAccountMeta;
 }
 
-export interface IShortTermLoanAccountMeta {
-  lenderName: string;
-  maturityDate: Date | null;
-}
-
 export interface IShortTermLoanAccount extends IShortTermDebtAccount {
   behavior: typeof EShortTermDebtBehavior.ShortTermLoan;
-  meta: IShortTermLoanAccountMeta;
+  meta: null;
 }
 
 /**

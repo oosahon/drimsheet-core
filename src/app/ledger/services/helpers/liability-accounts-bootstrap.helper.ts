@@ -1,6 +1,5 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import { LIABILITY_LEDGER_CODES } from '../../../../domain/ledger/config/liability-codes.config';
-import shortTermLoanAccountEntity from '../../../../domain/ledger/liability-account/entities/short-term-loan.entity';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
 import { TLiabilityLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import {
@@ -17,6 +16,7 @@ import {
   ITradePayableAccountMeta,
 } from '../../../../domain/ledger/types/liability-account.types';
 import { IPayablesAccountService } from '../../../../domain/ledger/types/payables.service.types';
+import { IShortTermLoanAccountService } from '../../../../domain/ledger/types/short-term-loan.service.types';
 import { ISuspenseAccountService } from '../../../../domain/ledger/types/suspense-account.service.types';
 import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
@@ -30,6 +30,7 @@ interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
   suspenseAccountService: ISuspenseAccountService;
   payablesAccountService: IPayablesAccountService;
+  shortTermLoanAccountService: IShortTermLoanAccountService;
 }
 
 interface ILiabilityAccountsBootstrapInput {
@@ -147,12 +148,15 @@ export default function makeLiabilityAccountsBootstrapHelper(
     );
 
     if (!existingShortTermDebtHeader) {
-      const shortTermDebt = shortTermLoanAccountEntity.makeHeader({
-        name: 'Short Term Debt',
-        createdBy,
-        accountingEntityId,
-        currency: functionalCurrency,
-      });
+      const shortTermDebt = await deps.shortTermLoanAccountService.createHeader(
+        {
+          name: 'Short Term Debt',
+          userId: createdBy,
+          accountingEntity,
+          createdBy,
+        },
+        repoOptions
+      );
       allAccounts.push(shortTermDebt);
     }
 

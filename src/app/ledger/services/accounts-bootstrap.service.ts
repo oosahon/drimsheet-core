@@ -3,6 +3,7 @@ import ICashAccountService from '../../../domain/ledger/types/cash-account.servi
 import { ILedgerAccount } from '../../../domain/ledger/types/ledger.types';
 import { IPayablesAccountService } from '../../../domain/ledger/types/payables.service.types';
 import { IReceivablesAccountService } from '../../../domain/ledger/types/receivables-account.service.types';
+import { IShortTermLoanAccountService } from '../../../domain/ledger/types/short-term-loan.service.types';
 import { ISuspenseAccountService } from '../../../domain/ledger/types/suspense-account.service.types';
 import IAccountsBootstrapService from '../contracts/accounts-bootstrap.service.contract';
 import ledgerAppError from '../errors/ledger.error';
@@ -18,6 +19,7 @@ interface IDependencies {
   receivablesAccountService: IReceivablesAccountService;
   suspenseAccountService: ISuspenseAccountService;
   payablesAccountService: IPayablesAccountService;
+  shortTermLoanAccountService: IShortTermLoanAccountService;
 }
 
 type TBootstrap = IAccountsBootstrapService['bootstrap'];
@@ -33,6 +35,7 @@ export default function makeAccountsBootstrapService(
     ...ledgerAccountDependencies,
     suspenseAccountService: deps.suspenseAccountService,
     payablesAccountService: deps.payablesAccountService,
+    shortTermLoanAccountService: deps.shortTermLoanAccountService,
   });
   const bootstrapEquityAccounts = makeEquityAccountsBootstrapHelper(
     ledgerAccountDependencies

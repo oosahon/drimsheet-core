@@ -13,6 +13,7 @@ import {
   ILiabilityLedgerAccount,
   ILiabilitySuspenseAccount,
   IPayableAccount,
+  IShortTermDebtAccount,
   IStatutoryPayableAccount,
 } from '../../../../../domain/ledger/types/liability-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../../domain/money/config/currencies.config';
@@ -20,6 +21,7 @@ import { IReadRepoOptions } from '../../../../../shared/types/repo.types';
 import generateUUID from '../../../../../shared/utils/uuid-generator';
 import {
   mockPayablesAccountService,
+  mockShortTermLoanAccountService,
   mockSuspenseAccountService,
 } from '../../../contracts/__mocks__/ledger.domain.services.mock';
 import { mockLedgerAccountRepo } from '../../../contracts/__mocks__/ledger.repos.mock';
@@ -30,6 +32,7 @@ describe('liabilityAccountsBootstrapHelper', () => {
     ledgerAccountRepo: mockLedgerAccountRepo,
     suspenseAccountService: mockSuspenseAccountService,
     payablesAccountService: mockPayablesAccountService,
+    shortTermLoanAccountService: mockShortTermLoanAccountService,
   });
   const repoOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
@@ -127,6 +130,24 @@ describe('liabilityAccountsBootstrapHelper', () => {
     false,
     statutoryPayables[0].id
   );
+  const shortTermDebtHeader = ledgerAccountEntity.make<IShortTermDebtAccount>({
+    name: 'Short Term Debt',
+    code: LIABILITY_LEDGER_CODES.SHORT_TERM_DEBT.HEADER,
+    materializedPath: LIABILITY_LEDGER_CODES.SHORT_TERM_DEBT.HEADER,
+    accountingEntityId: accountingEntity.id,
+    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Liability),
+    type: ELedgerType.Liability,
+    subType: ELiabilitySubType.ShortTermDebt,
+    behavior: ELiabilityAccountBehavior.ShortTermLoan,
+    isControlAccount: true,
+    controlAccountId: null,
+    currency: SYSTEM_CURRENCIES.USD,
+    meta: null,
+    status: ELedgerAccountStatus.Active,
+    contraAccountRule: EContraAccountRule.ContraPermitted,
+    adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+    createdBy: accountingEntity.ownerId,
+  });
 
   beforeEach(() => {
     jest.useFakeTimers();
@@ -134,6 +155,9 @@ describe('liabilityAccountsBootstrapHelper', () => {
     jest.clearAllMocks();
     mockSuspenseAccountService.createLiabilitySuspense.mockResolvedValue(
       liabilitySuspense
+    );
+    mockShortTermLoanAccountService.createHeader.mockResolvedValue(
+      shortTermDebtHeader
     );
     mockPayablesAccountService.createHeader.mockResolvedValue(payablesHeader);
     mockPayablesAccountService.createTradePayableSubAccount.mockResolvedValue(
@@ -168,6 +192,15 @@ describe('liabilityAccountsBootstrapHelper', () => {
     expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
       LIABILITY_LEDGER_CODES.SHORT_TERM_DEBT.HEADER,
       accountingEntity.id,
+      repoOptions
+    );
+    expect(mockShortTermLoanAccountService.createHeader).toHaveBeenCalledWith(
+      {
+        name: 'Short Term Debt',
+        userId: accountingEntity.ownerId,
+        accountingEntity,
+        createdBy: accountingEntity.ownerId,
+      },
       repoOptions
     );
   });
@@ -247,6 +280,7 @@ describe('liabilityAccountsBootstrapHelper', () => {
     expect(accounts).toHaveLength(0);
     expect(events).toHaveLength(0);
     expect(audits).toHaveLength(0);
+    expect(mockShortTermLoanAccountService.createHeader).not.toHaveBeenCalled();
   });
 
   it('creates only a missing statutory default posting account', async () => {

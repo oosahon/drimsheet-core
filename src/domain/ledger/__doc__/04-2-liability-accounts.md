@@ -32,19 +32,16 @@ To ensure our system is extensible, we have not baked functionalities into ledge
 
 ### Implementation Status
 
-| Account Group     | Code Block | Entity File                                                                       | Status         |
-| ----------------- | ---------- | --------------------------------------------------------------------------------- | -------------- |
-| Short Term Debts  | `200xxx`   | [`00-short-term-loan.entity.ts`](../liability/entities/short-term-loan.entity.ts) | ✅ Implemented |
-| Payables          | `201xxx`   | [`payables.service.ts`](../services/liability-account/payables.service.ts)        | ✅ Implemented |
-| Accrued Expenses  | `202xxx`   | —                                                                                 | 🔲 Types only  |
-| Deferred Revenues | `203xxx`   | —                                                                                 | 🔲 Types only  |
-| Long Term Loans   | `204xxx`   | —                                                                                 | 🔲 Types only  |
-| Lease Liabilities | `205xxx`   | —                                                                                 | 🔲 Types only  |
-| Provisions        | `206xxx`   | —                                                                                 | 🔲 Types only  |
-| Suspense          | `299xxx`   | [`suspense-account.service.ts`](../services/suspense-account.service.ts)          | ✅ Implemented |
-
-> [!NOTE]
-> Entity files are named by their COA prefix (e.g. `00-` = `200xxx`, `03-` = `201xxx`) to make it explicit which accounts have been implemented and which are pending.
+| Account Group     | Code Block | Implementation File                                                                      | Status         |
+| ----------------- | ---------- | ---------------------------------------------------------------------------------------- | -------------- |
+| Short Term Debts  | `200xxx`   | [`short-term-loan.service.ts`](../services/liability-account/short-term-loan.service.ts) | ✅ Implemented |
+| Payables          | `201xxx`   | [`payables.service.ts`](../services/liability-account/payables.service.ts)               | ✅ Implemented |
+| Accrued Expenses  | `202xxx`   | —                                                                                        | 🔲 Types only  |
+| Deferred Revenues | `203xxx`   | —                                                                                        | 🔲 Types only  |
+| Long Term Loans   | `204xxx`   | —                                                                                        | 🔲 Types only  |
+| Lease Liabilities | `205xxx`   | —                                                                                        | 🔲 Types only  |
+| Provisions        | `206xxx`   | —                                                                                        | 🔲 Types only  |
+| Suspense          | `299xxx`   | [`suspense-account.service.ts`](../services/suspense-account.service.ts)                 | ✅ Implemented |
 
 The following table shows the behaviors of different liability account classes
 
@@ -73,14 +70,13 @@ _Figure: View the mermaid sourcecode here: _[_2-coa-liabilities.mermaid_](./asse
 | Overdrafts       | /                   | <ul><li>Automatically created if a linked bank account goes negative</li><li>Requires deposit transaction for settlement</li></ul>                                                                                        |
 | Short Term Loans | /                   | <ul><li>Requires funding transaction for creation</li><li>Requires repayment transaction for settlement</li><li>Supports automated interest accrual</li></ul>                                                             |
 
-#### Entity Details
+#### Service Details
 
-The `ShortTermLoan` entity ([`00-short-term-loan.entity.ts`](../liability/entities/short-term-loan.entity.ts)) exposes:
+The short-term-loan account service ([`short-term-loan.service.ts`](../services/liability-account/short-term-loan.service.ts)) exposes:
 
-- `make()` — base factory accepting a `behavior` parameter
-- `makeCreditCardAccount()` — validates `ICreditCardAccountMeta` (cardIssuer, lastFourDigits)
-- `makeOverdraftAccount()` — validates `IOverdraftAccountMeta` (linkedBankAccountId)
-- `makeShortTermLoanAccount()` — validates `IShortTermLoanAccountMeta` (lenderName, maturityDate)
+- `createHeader()` — enforces header uniqueness and creates the `200000` control account
+- `createSubAccount()` — validates the selected control account and creates a short-term-loan account
+- `createCreditCardSubAccount()` — validates the selected control account and `ICreditCardAccountMeta` (`cardIssuer`, `lastFourDigits`)
 
 All short-term debt sub-types have `contraAccountRule: 'contra_permitted'` and `adjunctAccountRule: 'adjunct_permitted'`.
 

@@ -24,11 +24,11 @@ The following ledger accounts are in scope for the individual MVP. Accounts are 
 
 ### Liabilities
 
-| Account                        | Code Block | Implementation File            | Status         |
-| ------------------------------ | ---------- | ------------------------------ | -------------- |
-| Short Term Loan (Overdraft)    | `200xxx`   | `00-short-term-loan.entity.ts` | ✅ Implemented |
-| Payables (Tax Obligations)     | `201xxx`   | `payables.service.ts`          | ✅ Implemented |
-| Suspense (Bank Reconciliation) | `299xxx`   | `suspense-account.service.ts`  | ✅ Implemented |
+| Account                        | Code Block | Implementation File           | Status         |
+| ------------------------------ | ---------- | ----------------------------- | -------------- |
+| Short Term Loan (Overdraft)    | `200xxx`   | `short-term-loan.service.ts`  | ✅ Implemented |
+| Payables (Tax Obligations)     | `201xxx`   | `payables.service.ts`         | ✅ Implemented |
+| Suspense (Bank Reconciliation) | `299xxx`   | `suspense-account.service.ts` | ✅ Implemented |
 
 ### Equity
 

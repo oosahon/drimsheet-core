@@ -4,6 +4,7 @@ import makeLedgerAccountPersistenceService from '../../../app/ledger/services/le
 import makeCashAccountService from '../../../domain/ledger/services/asset-account/cash-account.service';
 import makeReceivablesAccountService from '../../../domain/ledger/services/asset-account/receivables-account.service';
 import makePayablesAccountService from '../../../domain/ledger/services/liability-account/payables.service';
+import makeShortTermLoanService from '../../../domain/ledger/services/liability-account/short-term-loan.service';
 import makeSuspenseAccountService from '../../../domain/ledger/services/suspense-account/suspense-account.service';
 import messaging from '../../messaging';
 import observability from '../../observability';
@@ -26,6 +27,10 @@ export const payablesAccountService = makePayablesAccountService({
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
 });
 
+export const shortTermLoanAccountService = makeShortTermLoanService({
+  ledgerAccountRepo: ledgerRepos.ledgerAccount,
+});
+
 export const ledgerAccountPersistenceService =
   makeLedgerAccountPersistenceService({
     ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
@@ -39,6 +44,7 @@ export const accountsBootstrapService = makeAccountsBootstrapService({
   receivablesAccountService,
   suspenseAccountService,
   payablesAccountService,
+  shortTermLoanAccountService,
 });
 
 export const ledgerAccountBalancePropagationService =
