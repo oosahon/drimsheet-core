@@ -193,6 +193,8 @@
   "ledger_error_asset_account_duplicate_bank_account",
   "ledger_error_asset_account_invalid_control_account",
   "ledger_error_asset_account_opening_balance_currency_mismatch",
+  "ledger_error_asset_opening_balance_account_already_exists",
+  "ledger_error_asset_retained_earnings_account_already_exists",
   "ledger_error_header_account_already_exists",
   "ledger_error_invalid_action",
   "ledger_error_invalid_date",

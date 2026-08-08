@@ -1,10 +1,10 @@
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import { IAccountingEntity } from '../../../accounting/types/accounting-entity.types';
-import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
 import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
 import makeReceivablesAccountService from '../../../ledger/services/asset-account/receivables-account.service';
+import makeEquityAccountService from '../../../ledger/services/equity-account/equity-account.service';
 import makePayablesAccountService from '../../../ledger/services/liability-account/payables.service';
 import { ILedgerAccount } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
@@ -40,10 +40,12 @@ describe('journal entry rules', () => {
   const payablesAccountService = makePayablesAccountService({
     ledgerAccountRepo,
   });
+  const equityAccountService = makeEquityAccountService({ ledgerAccountRepo });
   const repoOptions = { correlationId: 'test-correlation-id' };
   let cashAccount: ILedgerAccount;
   let receivableAccount: ILedgerAccount;
   let liabilityAccount: ILedgerAccount;
+  let openingBalanceEquityAccount: ILedgerAccount;
 
   beforeAll(async () => {
     [cashAccount] = await cashAccountService.createHeader(
@@ -73,17 +75,17 @@ describe('journal entry rules', () => {
       },
       repoOptions
     );
-  });
 
-  const [openingBalanceEquityAccount] = openingBalanceEquityLedgerEntity.make(
-    {
-      name: 'Opening Balance Equity',
-      accountingEntityId,
-      currency,
-      createdBy,
-    },
-    null
-  );
+    [openingBalanceEquityAccount] =
+      await equityAccountService.createOpeningBalanceAccount(
+        {
+          name: 'Opening Balance Equity',
+          createdBy,
+          accountingEntity,
+        },
+        repoOptions
+      );
+  });
 
   const [revenueAccount] = servicesAccountEntity.makeHeader({
     name: 'Service Revenue',

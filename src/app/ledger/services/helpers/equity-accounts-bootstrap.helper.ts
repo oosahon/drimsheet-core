@@ -1,12 +1,10 @@
 import { IAccountingEntity } from '../../../../domain/accounting/types/accounting-entity.types';
 import { EQUITY_LEDGER_CODES } from '../../../../domain/ledger/config/equity-codes.config';
-import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
-import retainedEarningAccountEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
 import ILedgerAccountRepo from '../../../../domain/ledger/repos/ledger-account.repo';
+import { IEquityAccountService } from '../../../../domain/ledger/types/equity-account.service.types';
 import { IEquityLedgerAccount } from '../../../../domain/ledger/types/equity-account.types';
 import { TEquityLedgerCode } from '../../../../domain/ledger/types/ledger-code.types';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
-import currencyEntity from '../../../../domain/money/entities/currency.entity';
 import { IReadRepoOptions } from '../../../../shared/types/repo.types';
 import {
   IEvent,
@@ -16,6 +14,7 @@ import { IEntityDelta } from '../../../../shared/values/history/types/history.ty
 
 interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
+  equityAccountService: IEquityAccountService;
 }
 
 interface IEquityAccountsBootstrapInput {
@@ -29,9 +28,6 @@ export default function makeEquityAccountsBootstrapHelper(deps: IDependencies) {
     repoOptions,
   }: IEquityAccountsBootstrapInput) => {
     const accountingEntityId = accountingEntity.id;
-    const functionalCurrency = currencyEntity.getByCode(
-      accountingEntity.functionalCurrencyCode
-    );
     const createdBy = accountingEntity.ownerId;
 
     const getExistingAccount = async <T extends IEquityLedgerAccount>(
@@ -50,39 +46,38 @@ export default function makeEquityAccountsBootstrapHelper(deps: IDependencies) {
       ILedgerAccount
     >[] = [];
 
-    const retainedEarningsCode = EQUITY_LEDGER_CODES.RETAINED_EARNINGS.HEADER;
+    const retainedEarningsCode = EQUITY_LEDGER_CODES.RETAINED_EARNINGS;
     const existingRetainedEarnings =
       await getExistingAccount(retainedEarningsCode);
 
     if (!existingRetainedEarnings) {
-      const retainedEarningsAccount = retainedEarningAccountEntity.make(
-        {
-          name: 'Retained Earnings',
-          createdBy,
-          accountingEntityId,
-          currency: functionalCurrency,
-        },
-        null
-      );
+      const retainedEarningsAccount =
+        await deps.equityAccountService.createRetainedEarningsAccount(
+          {
+            name: 'Retained Earnings',
+            createdBy,
+            accountingEntity,
+          },
+          repoOptions
+        );
       allAccounts.push(retainedEarningsAccount);
     }
 
-    const openingBalanceEquityCode =
-      EQUITY_LEDGER_CODES.OPENING_BALANCE_EQUITY.HEADER;
+    const openingBalanceEquityCode = EQUITY_LEDGER_CODES.OPENING_BALANCE_EQUITY;
     const existingOpeningBalanceEquity = await getExistingAccount(
       openingBalanceEquityCode
     );
 
     if (!existingOpeningBalanceEquity) {
-      const openingBalanceEquityAccount = openingBalanceEquityLedgerEntity.make(
-        {
-          name: 'Opening Balance Equity',
-          createdBy,
-          accountingEntityId,
-          currency: functionalCurrency,
-        },
-        null
-      );
+      const openingBalanceEquityAccount =
+        await deps.equityAccountService.createOpeningBalanceAccount(
+          {
+            name: 'Opening Balance Equity',
+            createdBy,
+            accountingEntity,
+          },
+          repoOptions
+        );
       allAccounts.push(openingBalanceEquityAccount);
     }
 

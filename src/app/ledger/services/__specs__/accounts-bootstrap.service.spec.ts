@@ -4,6 +4,7 @@ import { TEntityId } from '../../../../shared/types/uuid';
 import generateUUID from '../../../../shared/utils/uuid-generator';
 import {
   mockAssetAccountService,
+  mockEquityAccountService,
   mockPayablesAccountService,
   mockReceivablesAccountService,
   mockShortTermLoanAccountService,
@@ -135,6 +136,7 @@ describe('accountsBootstrapService', () => {
       suspenseAccountService: mockSuspenseAccountService,
       payablesAccountService: mockPayablesAccountService,
       shortTermLoanAccountService: mockShortTermLoanAccountService,
+      equityAccountService: mockEquityAccountService,
     });
   });
 
@@ -148,6 +150,7 @@ describe('accountsBootstrapService', () => {
       suspenseAccountService: mockSuspenseAccountService,
       payablesAccountService: mockPayablesAccountService,
       shortTermLoanAccountService: mockShortTermLoanAccountService,
+      equityAccountService: mockEquityAccountService,
     });
     expect(mockMakeLiabilityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
@@ -157,6 +160,7 @@ describe('accountsBootstrapService', () => {
     });
     expect(mockMakeEquityAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,
+      equityAccountService: mockEquityAccountService,
     });
     expect(mockMakeRevenueAccountsBootstrapHelper).toHaveBeenCalledWith({
       ledgerAccountRepo: mockLedgerAccountRepo,

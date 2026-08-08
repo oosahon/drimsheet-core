@@ -66,6 +66,10 @@ const EErrorKeys = {
   OpeningBalanceCurrencyMismatch:
     'ledger_error_asset_account_opening_balance_currency_mismatch',
   DuplicateBankAccount: 'ledger_error_asset_account_duplicate_bank_account',
+  OpeningBalanceAccountAlreadyExists:
+    'ledger_error_asset_opening_balance_account_already_exists',
+  RetainedEarningsAccountAlreadyExists:
+    'ledger_error_asset_retained_earnings_account_already_exists',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type ULedgerAccountError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

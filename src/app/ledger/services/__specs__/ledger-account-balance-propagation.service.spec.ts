@@ -5,8 +5,8 @@ import journalEntryEntity from '../../../../domain/journal-entry/entities/journa
 import journalEntryError from '../../../../domain/journal-entry/errors/journal-entry.error';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import retainedEarningsEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/retained-earning.entity';
 import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
+import makeEquityAccountService from '../../../../domain/ledger/services/equity-account/equity-account.service';
 import { ILedgerAccount } from '../../../../domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
@@ -26,6 +26,9 @@ describe('ledgerAccountBalancePropagationService', () => {
     reporter: mockReporter,
   });
   const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
+  const equityAccountService = makeEquityAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
 
@@ -73,15 +76,15 @@ describe('ledgerAccountBalancePropagationService', () => {
       mockOptions
     );
 
-    const [equityAccount] = retainedEarningsEquityLedgerEntity.make(
-      {
-        name: 'Retained Earnings',
-        accountingEntityId: accountingEntity.id,
-        currency: SYSTEM_CURRENCIES.NGN,
-        createdBy: user.id,
-      },
-      null
-    );
+    const [equityAccount] =
+      await equityAccountService.createRetainedEarningsAccount(
+        {
+          name: 'Retained Earnings',
+          createdBy: user.id,
+          accountingEntity,
+        },
+        mockOptions
+      );
 
     return {
       accountingEntity,

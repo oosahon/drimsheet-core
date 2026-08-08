@@ -1,4 +1,5 @@
 import ICashAccountService from '../../../../domain/ledger/types/cash-account.service.types';
+import { IEquityAccountService } from '../../../../domain/ledger/types/equity-account.service.types';
 import { IPayablesAccountService } from '../../../../domain/ledger/types/payables.service.types';
 import { IReceivablesAccountService } from '../../../../domain/ledger/types/receivables-account.service.types';
 import { IShortTermLoanAccountService } from '../../../../domain/ledger/types/short-term-loan.service.types';
@@ -36,3 +37,8 @@ export const mockShortTermLoanAccountService: jest.Mocked<IShortTermLoanAccountS
     createSubAccount: jest.fn(),
     createCreditCardSubAccount: jest.fn(),
   };
+
+export const mockEquityAccountService: jest.Mocked<IEquityAccountService> = {
+  createOpeningBalanceAccount: jest.fn(),
+  createRetainedEarningsAccount: jest.fn(),
+};

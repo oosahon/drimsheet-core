@@ -8,8 +8,8 @@ import {
 } from '../../../../domain/journal-entry/types/journal-entry-audit.types';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
+import makeEquityAccountService from '../../../../domain/ledger/services/equity-account/equity-account.service';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import moneyValue from '../../../../domain/money/values/money.vo';
 import userEntity from '../../../../domain/user/entities/user.entity';
@@ -33,6 +33,9 @@ describe('journalEntryPersistenceService', () => {
     journalLineRepo: mockJournalLineRepo,
   });
   const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
+  const equityAccountService = makeEquityAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
 
@@ -82,15 +85,15 @@ describe('journalEntryPersistenceService', () => {
       mockOptions
     );
 
-    const [equityAccount] = openingBalanceEquityLedgerEntity.make(
-      {
-        name: 'Opening Balance Equity',
-        accountingEntityId: accountingEntity.id,
-        currency: SYSTEM_CURRENCIES.NGN,
-        createdBy: user.id,
-      },
-      null
-    );
+    const [equityAccount] =
+      await equityAccountService.createOpeningBalanceAccount(
+        {
+          name: 'Opening Balance Equity',
+          createdBy: user.id,
+          accountingEntity,
+        },
+        mockOptions
+      );
 
     const amount = moneyValue.make(100000n, SYSTEM_CURRENCIES.NGN, true);
     const [journalEntry, , audit] = journalEntryEntity.make({

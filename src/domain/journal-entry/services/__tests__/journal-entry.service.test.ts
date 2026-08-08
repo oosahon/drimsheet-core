@@ -12,11 +12,11 @@ import counterpartyEntity from '../../../counterparty/entities/counterparty.enti
 import { ECounterpartyType } from '../../../counterparty/types/counterparty.types';
 import ledgerAccountBalanceEntity from '../../../ledger/entities/ledger-account-balance.entity';
 import ledgerAccountEntity from '../../../ledger/entities/ledger-account.entity';
-import openingBalanceEquityLedgerEntity from '../../../ledger/equity-account/entities/opening-balance-equity.entity';
 import ILedgerAccountBalanceRepo from '../../../ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '../../../ledger/repos/ledger-account.repo';
 import servicesAccountEntity from '../../../ledger/revenue-account/entities/services.entity';
 import makeCashAccountService from '../../../ledger/services/asset-account/cash-account.service';
+import makeEquityAccountService from '../../../ledger/services/equity-account/equity-account.service';
 import { EEquitySubType } from '../../../ledger/types/equity-account.types';
 import { ELedgerType } from '../../../ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '../../../money/config/currencies.config';
@@ -89,6 +89,9 @@ describe('journalEntryService', () => {
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
   const cashAccountService = makeCashAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
+  const equityAccountService = makeEquityAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
 
@@ -470,15 +473,15 @@ describe('journalEntryService', () => {
           },
           repoOptions
         );
-      const [equityAccount] = openingBalanceEquityLedgerEntity.make(
-        {
-          name: 'Opening Balance Equity',
-          accountingEntityId: accountingEntity.id,
-          currency: SYSTEM_CURRENCIES.NGN,
-          createdBy: user.id,
-        },
-        null
-      );
+      const [equityAccount] =
+        await equityAccountService.createOpeningBalanceAccount(
+          {
+            name: 'Opening Balance Equity',
+            createdBy: user.id,
+            accountingEntity,
+          },
+          repoOptions
+        );
 
       return {
         accountingEntity,

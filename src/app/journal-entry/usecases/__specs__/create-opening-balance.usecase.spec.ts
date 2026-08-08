@@ -3,9 +3,10 @@ import { EAccountingEntityType } from '../../../../domain/accounting/types/accou
 import journalEntryEntity from '../../../../domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '../../../../domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '../../../../domain/journal-entry/types/journal-line.types';
-import openingBalanceEquityLedgerEntity from '../../../../domain/ledger/equity-account/entities/opening-balance-equity.entity';
 import makeCashAccountService from '../../../../domain/ledger/services/asset-account/cash-account.service';
+import makeEquityAccountService from '../../../../domain/ledger/services/equity-account/equity-account.service';
 import { ICashAndCashEquivalentAccount } from '../../../../domain/ledger/types/asset-account.types';
+import { IOpeningBalanceEquityAccount } from '../../../../domain/ledger/types/equity-account.types';
 import { SYSTEM_CURRENCIES } from '../../../../domain/money/config/currencies.config';
 import { EExchangeRateType } from '../../../../domain/money/types/exchange-rate.types';
 import { IUser } from '../../../../domain/user/types/user.types';
@@ -49,17 +50,11 @@ describe('createOpeningBalanceUseCase', () => {
   const cashAccountService = makeCashAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
+  const equityAccountService = makeEquityAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
   let mockAssetAccount: ICashAndCashEquivalentAccount;
-
-  const [mockEquityAccount] = openingBalanceEquityLedgerEntity.make(
-    {
-      name: 'Opening Balance Equity',
-      accountingEntityId: mockAccountingEntity.id,
-      currency: SYSTEM_CURRENCIES.NGN,
-      createdBy: mockUser.id,
-    },
-    { precedingCode: '399000', parentMaterializedPath: '399000' }
-  );
+  let mockEquityAccount: IOpeningBalanceEquityAccount;
 
   beforeAll(async () => {
     const [controlAccount] = await cashAccountService.createHeader(
@@ -83,6 +78,15 @@ describe('createOpeningBalanceUseCase', () => {
       },
       { correlationId }
     );
+    [mockEquityAccount] =
+      await equityAccountService.createOpeningBalanceAccount(
+        {
+          name: 'Opening Balance Equity',
+          accountingEntity: mockAccountingEntity,
+          createdBy: mockUser.id,
+        },
+        { correlationId }
+      );
   });
 
   beforeEach(() => {

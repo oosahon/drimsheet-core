@@ -32,10 +32,10 @@ The following ledger accounts are in scope for the individual MVP. Accounts are 
 
 ### Equity
 
-| Account                | Code Block | Entity File                           | Status         |
-| ---------------------- | ---------- | ------------------------------------- | -------------- |
-| Retained Earnings      | `301xxx`   | `01-retained-earning.entity.ts`       | ✅ Implemented |
-| Opening Balance Equity | `399xxx`   | `99-opening-balance-equity.entity.ts` | ✅ Implemented |
+| Account                | Code Block | Implementation File         | Status         |
+| ---------------------- | ---------- | --------------------------- | -------------- |
+| Retained Earnings      | `301xxx`   | `equity-account.service.ts` | ✅ Implemented |
+| Opening Balance Equity | `399xxx`   | `equity-account.service.ts` | ✅ Implemented |
 
 > [!NOTE]
 > Capital (`300xxx`) is **not** bootstrapped for individuals — there is no concept of owner's equity in personal finance. The type definition exists for sole trader/company use.
