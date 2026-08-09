@@ -104,7 +104,7 @@ describe('shortTermLoanAccountService', () => {
   });
 
   describe('createHeader', () => {
-    it('creates a frozen short-term-loan header when one does not exist', async () => {
+    it('creates a frozen short-term-debt header when one does not exist', async () => {
       mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
 
       const [account, events, audit] = await service.createHeader(
@@ -130,7 +130,7 @@ describe('shortTermLoanAccountService', () => {
         normalBalance: ENormalBalance.Credit,
         type: ELedgerType.Liability,
         subType: ELiabilitySubType.ShortTermDebt,
-        behavior: ELiabilityAccountBehavior.ShortTermLoan,
+        behavior: ELiabilityAccountBehavior.DefaultShortTermDebt,
         isControlAccount: true,
         controlAccountId: null,
         currency: SYSTEM_CURRENCIES.USD,

@@ -154,7 +154,7 @@ describe('equityAccountService', () => {
     expect(account).toMatchObject({
       name: 'Retained Earnings',
       code: EQUITY_LEDGER_CODES.RETAINED_EARNINGS,
-      materializedPath: EQUITY_LEDGER_CODES.OPENING_BALANCE_EQUITY,
+      materializedPath: EQUITY_LEDGER_CODES.RETAINED_EARNINGS,
       accountingEntityId: accountingEntity.id,
       normalBalance: ENormalBalance.Credit,
       type: ELedgerType.Equity,

@@ -3,8 +3,7 @@ import { TEntityId } from '@shared/types/uuid';
 
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
-import { EAssetSubType } from '@domain/ledger/types/asset-account.types';
-import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 interface IControlAccountScope<LedgerCode> {
   controlAccount: ILedgerAccount;
@@ -51,8 +50,8 @@ export default async function controlAccountResolverHelper<LedgerCode>(
 
   const latest = await payload.ledgerAccountRepo.findLatestBySubType(
     payload.accountingEntityId,
-    ELedgerType.Asset,
-    EAssetSubType.CashAndCashEquivalent,
+    controlAccount.type,
+    controlAccount.subType,
     payload.repoOptions
   );
 

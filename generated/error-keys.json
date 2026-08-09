@@ -41,7 +41,6 @@
   "app_error_ledger_account_not_found",
   "app_error_ledger_balance_not_found",
   "app_error_ledger_exchange_rate_required",
-  "app_error_ledger_inconsistent_bootstrap",
   "app_error_ledger_invalid_sub_type",
   "app_error_payment_required",
   "app_error_resource_not_found",

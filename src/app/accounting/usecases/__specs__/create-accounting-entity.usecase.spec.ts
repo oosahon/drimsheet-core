@@ -25,9 +25,11 @@ import {
 import { IAccountingEntityCreationDto } from '@app/accounting/dtos/accounting/accounting.dto';
 import createAccountingEntityUseCase from '@app/accounting/usecases/create-accounting-entity.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
-import mockAccountsBootstrapService from '@app/ledger/contracts/__mocks__/accounts-bootstrap.service.mock';
+import mockHeaderAccountsBootstrapService from '@app/ledger/contracts/__mocks__/header-accounts-bootstrap.service.mock';
 import mockLedgerAccountPersistenceService from '@app/ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import mockPostingAccountBootstrapService from '@app/ledger/contracts/__mocks__/posting-account-bootstrap.service.mock';
+import mockSuspenseAccountBootstrapService from '@app/ledger/contracts/__mocks__/suspense-account-bootstrap.service.mock';
 
 const mockAccountingDomainServices = Object.freeze({
   accountingEntity: mockAccountingEntityService,
@@ -71,7 +73,7 @@ describe('createAccountingEntityUseCase', () => {
     ReturnType<typeof cashAccountService.createHeader>
   >[0];
   let ledger: Awaited<
-    ReturnType<typeof mockAccountsBootstrapService.bootstrap>
+    ReturnType<typeof mockHeaderAccountsBootstrapService.bootstrap>
   >;
   const getUseCase = () =>
     createAccountingEntityUseCase({
@@ -85,7 +87,9 @@ describe('createAccountingEntityUseCase', () => {
       reportingContextRepo: mockReportingContextRepo,
       ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
       accountingEntityService: mockAccountingDomainServices.accountingEntity,
-      accountsBootstrapService: mockAccountsBootstrapService,
+      headerAccountsBootstrapService: mockHeaderAccountsBootstrapService,
+      postingAccountBootstrapService: mockPostingAccountBootstrapService,
+      suspenseAccountBootstrapService: mockSuspenseAccountBootstrapService,
       eventBus: mockEventBus,
     });
 
@@ -118,7 +122,9 @@ describe('createAccountingEntityUseCase', () => {
     mockAccountingDomainServices.accountingEntity.create.mockReturnValue(
       accounting
     );
-    mockAccountsBootstrapService.bootstrap.mockResolvedValue(ledger);
+    mockHeaderAccountsBootstrapService.bootstrap.mockResolvedValue(ledger);
+    mockPostingAccountBootstrapService.bootstrap.mockResolvedValue(ledger);
+    mockSuspenseAccountBootstrapService.bootstrap.mockResolvedValue(ledger);
     mockEventBus.publish.mockResolvedValue();
   });
 
@@ -158,10 +164,17 @@ describe('createAccountingEntityUseCase', () => {
     expect(
       mockAccountingDomainServices.accountingEntity.create
     ).toHaveBeenCalled();
-    expect(mockAccountsBootstrapService.bootstrap).toHaveBeenCalledWith(
+    expect(mockHeaderAccountsBootstrapService.bootstrap).toHaveBeenCalledWith(
       accountingEntity,
-      { correlationId },
-      true
+      { correlationId, tx: 'mock-tx' }
+    );
+    expect(mockPostingAccountBootstrapService.bootstrap).toHaveBeenCalledWith(
+      accountingEntity,
+      { correlationId, tx: 'mock-tx', lock: 'update' }
+    );
+    expect(mockSuspenseAccountBootstrapService.bootstrap).toHaveBeenCalledWith(
+      accountingEntity,
+      { correlationId, tx: 'mock-tx', lock: 'update' }
     );
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
@@ -178,7 +191,41 @@ describe('createAccountingEntityUseCase', () => {
         history: [expect.any(Object)],
       })
     );
+    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledTimes(2);
+    expect(
+      mockLedgerAccountPersistenceService.create.mock.calls.every(
+        ([, , options]) => options.history.length === 1
+      )
+    ).toBe(true);
     expect(mockAppContext.set).toHaveBeenCalledWith({ accountingEntity });
+  });
+
+  it('persists foundational accounts before posting and completes posting before suspense', async () => {
+    await getUseCase()(validPayload);
+
+    const headerPersistenceOrder =
+      mockLedgerAccountPersistenceService.create.mock.invocationCallOrder[0];
+    const postingOrder =
+      mockPostingAccountBootstrapService.bootstrap.mock.invocationCallOrder[0];
+    const suspenseOrder =
+      mockSuspenseAccountBootstrapService.bootstrap.mock.invocationCallOrder[0];
+
+    expect(headerPersistenceOrder).toBeLessThan(postingOrder);
+    expect(postingOrder).toBeLessThan(suspenseOrder);
+  });
+
+  it('persists foundational accounts but skips posting and suspense defaults for power users', async () => {
+    await getUseCase()({
+      ...validPayload,
+      appUsageMode: EAppUsageModePreference.PowerUser,
+    });
+
+    expect(mockHeaderAccountsBootstrapService.bootstrap).toHaveBeenCalled();
+    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledTimes(1);
+    expect(mockPostingAccountBootstrapService.bootstrap).not.toHaveBeenCalled();
+    expect(
+      mockSuspenseAccountBootstrapService.bootstrap
+    ).not.toHaveBeenCalled();
   });
 
   it('does not update context or publish when persistence fails', async () => {
@@ -192,6 +239,66 @@ describe('createAccountingEntityUseCase', () => {
     expect(mockAppContext.set).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
+
+  it('does not update context or publish when ledger persistence fails', async () => {
+    mockLedgerAccountPersistenceService.create.mockRejectedValueOnce(
+      new Error('ledger persistence failed')
+    );
+
+    await expect(getUseCase()(validPayload)).rejects.toThrow(
+      'ledger persistence failed'
+    );
+    expect(mockAppContext.set).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('aggregates ledger events from all three bootstrap capabilities', async () => {
+    const makeLedgerEvent = (type: string) => ({
+      type,
+      data: mockAccount,
+      occurredAt: new Date('2026-01-01T00:00:00.000Z'),
+      enrichedAt: null,
+    });
+    mockHeaderAccountsBootstrapService.bootstrap.mockResolvedValueOnce({
+      ...ledger,
+      events: [makeLedgerEvent('header-created')],
+    });
+    mockPostingAccountBootstrapService.bootstrap.mockResolvedValue({
+      ...ledger,
+      events: [makeLedgerEvent('posting-created')],
+    });
+    mockSuspenseAccountBootstrapService.bootstrap.mockResolvedValueOnce({
+      ...ledger,
+      events: [makeLedgerEvent('suspense-created')],
+    });
+
+    await getUseCase()(validPayload);
+
+    expect(mockEventBus.publish).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ type: 'header-created', correlationId }),
+        expect.objectContaining({ type: 'posting-created', correlationId }),
+        expect.objectContaining({ type: 'suspense-created', correlationId }),
+      ])
+    );
+  });
+
+  it.each([
+    ['header', mockHeaderAccountsBootstrapService.bootstrap],
+    ['posting', mockPostingAccountBootstrapService.bootstrap],
+    ['suspense', mockSuspenseAccountBootstrapService.bootstrap],
+  ])(
+    'does not update context or publish when %s bootstrap fails',
+    async (_name, bootstrapMock) => {
+      bootstrapMock.mockRejectedValueOnce(new Error('bootstrap failed'));
+
+      await expect(getUseCase()(validPayload)).rejects.toThrow(
+        'bootstrap failed'
+      );
+      expect(mockAppContext.set).not.toHaveBeenCalled();
+      expect(mockEventBus.publish).not.toHaveBeenCalled();
+    }
+  );
 
   it('awaits publication after the transaction and context update', async () => {
     let resolvePublication: (() => void) | undefined;

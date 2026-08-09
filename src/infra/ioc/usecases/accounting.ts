@@ -5,8 +5,10 @@ import makeGetUserAccountingEntitiesUseCase from '@app/accounting/usecases/get-u
 
 import { accountingEntityService } from '@infra/ioc/services/accounting';
 import {
-  accountsBootstrapService,
+  headerAccountsBootstrapService,
   ledgerAccountPersistenceService,
+  postingAccountBootstrapService,
+  suspenseAccountBootstrapService,
 } from '@infra/ioc/services/ledger';
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
@@ -24,7 +26,9 @@ export const createAccountingEntityUseCase = makeCreateAccountingEntityUseCase({
   repoService,
   ledgerAccountPersistenceService,
   accountingEntityService,
-  accountsBootstrapService,
+  headerAccountsBootstrapService,
+  postingAccountBootstrapService,
+  suspenseAccountBootstrapService,
   eventBus: messaging.eventBus,
 });
 
