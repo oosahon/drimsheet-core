@@ -1,0 +1,94 @@
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import paginationValue from '@shared/values/pagination/pagination.vo';
+import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
+
+import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
+import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
+import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
+import {
+  EJournalEntrySourceType,
+  UJournalEntrySourceType,
+} from '@domain/journal-entry/types/journal-entry.types';
+import ILedgerAccountRepo, {
+  IFindAllLedgerAccountsOptions,
+} from '@domain/ledger/repos/ledger-account.repo';
+import currencyEntity from '@domain/money/entities/currency.entity';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import ILedgerAccountBalanceEnrichmentService from '@app/ledger/contracts/ledger-account-balance-enrichment.service.contract';
+import { ILedgerAccountDto } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
+import { IGetPermittedPostingAccountsQuery } from '@app/ledger/dtos/permitted-posting-account/permitted-posting-account.dto';
+import { getPermittedPostingAccountsQueryValidationSchema } from '@app/ledger/dtos/permitted-posting-account/permitted-posting-account.dto.validation';
+
+interface IDependencies {
+  appContext: IAppContext;
+  ledgerAccountRepo: ILedgerAccountRepo;
+  balanceEnrichmentService: ILedgerAccountBalanceEnrichmentService;
+}
+
+const journalEntryRules: Partial<
+  Record<UJournalEntrySourceType, IJournalEntryRule>
+> = {
+  [EJournalEntrySourceType.OpeningBalance]: openingBalanceEntryRule,
+  [EJournalEntrySourceType.Receipt]: receiptEntryRule,
+};
+
+function getPermittedValues<T>(restriction: Set<T> | '*') {
+  return restriction === '*' ? undefined : Array.from(restriction);
+}
+
+export default function makeGetPermittedPostingAccountsUsecase(
+  deps: IDependencies
+) {
+  return async (
+    query: IGetPermittedPostingAccountsQuery
+  ): Promise<IPaginatedResponse<ILedgerAccountDto>> => {
+    zodValidationRunner(
+      getPermittedPostingAccountsQueryValidationSchema,
+      query
+    );
+    const { correlationId, accountingEntity } = deps.appContext.get();
+
+    const offset = paginationValue.pageToOffset(query.page, query.limit);
+    const rule = journalEntryRules[query.sourceType];
+
+    if (!rule) {
+      return paginationValue.getPaginatedResponse([], 0, {
+        limit: query.limit,
+        offset,
+      });
+    }
+
+    const permits = rule[query.side];
+    const currencyCodes = query.currencyCode
+      ? [currencyEntity.getByCode(query.currencyCode).code, null]
+      : undefined;
+    const trace = { correlationId };
+    const accountRepoOptions: IFindAllLedgerAccountsOptions = {
+      types: getPermittedValues(permits.permittedTypes),
+      subTypes: getPermittedValues(permits.permittedSubTypes),
+      behaviors: getPermittedValues(permits.permittedBehaviors),
+      currencyCodes,
+      isControlAccount: false,
+      limit: query.limit,
+      offset,
+      ...trace,
+    };
+
+    const ledgerAccountsResponse = await deps.ledgerAccountRepo.findAll(
+      accountingEntity.id,
+      accountRepoOptions
+    );
+
+    const data = await deps.balanceEnrichmentService.enrich(
+      ledgerAccountsResponse.data,
+      accountingEntity,
+      trace
+    );
+
+    return {
+      data,
+      meta: ledgerAccountsResponse.meta,
+    };
+  };
+}

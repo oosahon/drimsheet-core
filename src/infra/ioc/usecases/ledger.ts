@@ -5,6 +5,7 @@ import makeGetAccountTransactionsUseCase from '@app/ledger/usecases/get-account-
 import makeGetBanksUseCase from '@app/ledger/usecases/get-banks.usecase';
 import makeGetLedgerAccountUseCase from '@app/ledger/usecases/get-ledger-account.usecase';
 import makeGetLedgerAccountsUsecase from '@app/ledger/usecases/get-ledger-accounts.usecase';
+import makeGetPermittedPostingAccountsUsecase from '@app/ledger/usecases/get-permitted-posting-accounts.usecase';
 
 import { accountingPeriodService } from '@infra/ioc/services/accounting';
 import {
@@ -17,13 +18,13 @@ import {
 } from '@infra/ioc/services/journal-entry';
 import {
   cashAccountService,
+  ledgerAccountBalanceEnrichmentService,
   ledgerAccountBalancePropagationService,
   ledgerAccountPersistenceService,
 } from '@infra/ioc/services/ledger';
 import { exchangeRateService } from '@infra/ioc/services/money';
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
-import observability from '@infra/observability';
 import ledgerRepos from '@infra/persistence/repos/ledger';
 import appContext from '@infra/runtime/app-context';
 
@@ -31,16 +32,21 @@ export const getBanksUseCase = makeGetBanksUseCase();
 
 export const getLedgerAccountsUseCase = makeGetLedgerAccountsUsecase({
   appContext: appContext,
-  reporter: observability.reporter,
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+  balanceEnrichmentService: ledgerAccountBalanceEnrichmentService,
 });
+
+export const getPermittedPostingAccountsUseCase =
+  makeGetPermittedPostingAccountsUsecase({
+    appContext,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    balanceEnrichmentService: ledgerAccountBalanceEnrichmentService,
+  });
 
 export const getLedgerAccountUseCase = makeGetLedgerAccountUseCase({
   appContext: appContext,
   ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  reporter: observability.reporter,
-  ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+  balanceEnrichmentService: ledgerAccountBalanceEnrichmentService,
 });
 
 export const adjustLedgerAccountBalanceUseCase =

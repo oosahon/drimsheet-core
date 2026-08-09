@@ -5,6 +5,7 @@ import {
   getTableColumns,
   ilike,
   inArray,
+  isNull,
   or,
   sql,
 } from 'drizzle-orm';
@@ -203,12 +204,50 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
       conditions.push(eq(ledgerAccountsInCore.type, options.type));
     }
 
+    if (options.types && options.types.length > 0) {
+      conditions.push(inArray(ledgerAccountsInCore.type, options.types));
+    }
+
     if (options.subType) {
       conditions.push(eq(ledgerAccountsInCore.subType, options.subType));
     }
+
+    if (options.subTypes && options.subTypes.length > 0) {
+      conditions.push(inArray(ledgerAccountsInCore.subType, options.subTypes));
+    }
+
     if (options.behavior) {
       conditions.push(eq(ledgerAccountsInCore.behavior, options.behavior));
     }
+
+    if (options.behaviors && options.behaviors.length > 0) {
+      conditions.push(
+        inArray(ledgerAccountsInCore.behavior, options.behaviors)
+      );
+    }
+
+    if (options.currencyCodes && options.currencyCodes.length > 0) {
+      const fixedCurrencyCodes = options.currencyCodes.filter(
+        (currencyCode) => currencyCode !== null
+      );
+      const includesNullCurrency = options.currencyCodes.includes(null);
+
+      if (fixedCurrencyCodes.length > 0 && includesNullCurrency) {
+        conditions.push(
+          or(
+            inArray(ledgerAccountsInCore.currencyCode, fixedCurrencyCodes),
+            isNull(ledgerAccountsInCore.currencyCode)
+          )!
+        );
+      } else if (fixedCurrencyCodes.length > 0) {
+        conditions.push(
+          inArray(ledgerAccountsInCore.currencyCode, fixedCurrencyCodes)
+        );
+      } else if (includesNullCurrency) {
+        conditions.push(isNull(ledgerAccountsInCore.currencyCode));
+      }
+    }
+
     if (options.isControlAccount !== undefined) {
       conditions.push(
         eq(ledgerAccountsInCore.isControlAccount, options.isControlAccount)

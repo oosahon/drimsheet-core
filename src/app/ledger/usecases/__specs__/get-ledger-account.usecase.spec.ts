@@ -1,8 +1,6 @@
-import { MockReporter } from '@shared/contracts/__mocks__/reporter.mock';
 import { TEntityId } from '@shared/types/uuid';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
-import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
   EAdjunctAccountRule,
@@ -13,15 +11,12 @@ import {
   ILedgerAccount,
 } from '@domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
-import moneyValue from '@domain/money/values/money.vo';
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
-import {
-  mockLedgerAccountBalanceRepo,
-  mockLedgerAccountRepo,
-} from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
-import ledgerAccountMapper from '@app/ledger/dtos/ledger-account/ledger-account.dto.mapper';
+import mockLedgerAccountBalanceEnrichmentService from '@app/ledger/contracts/__mocks__/ledger-account-balance-enrichment.service.mock';
+import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import { ILedgerAccountDto } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
 import makeGetLedgerAccountUseCase from '@app/ledger/usecases/get-ledger-account.usecase';
 
 describe('getLedgerAccountUseCase', () => {
@@ -34,8 +29,7 @@ describe('getLedgerAccountUseCase', () => {
   const useCase = makeGetLedgerAccountUseCase({
     appContext: mockAppContext,
     ledgerAccountRepo: mockLedgerAccountRepo,
-    reporter: MockReporter,
-    ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
+    balanceEnrichmentService: mockLedgerAccountBalanceEnrichmentService,
   });
 
   const mockUser = { id: mockUserId } as unknown as IUser;
@@ -66,6 +60,19 @@ describe('getLedgerAccountUseCase', () => {
   const [mockLedgerAccount] =
     ledgerAccountEntity.make<ILedgerAccount>(validAccountData);
   const accountWithId = { ...mockLedgerAccount, id: mockAccountId };
+  const enrichedDto = {
+    id: mockAccountId,
+    balance: {
+      amount: 10000,
+      currencyCode: SYSTEM_CURRENCIES.EUR.code,
+      isMinorUnit: true,
+    },
+    functionalBalance: {
+      amount: 12000,
+      currencyCode: SYSTEM_CURRENCIES.USD.code,
+      isMinorUnit: true,
+    },
+  } as ILedgerAccountDto;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -81,12 +88,21 @@ describe('getLedgerAccountUseCase', () => {
         clearRefreshToken: jest.fn(),
       },
     } as unknown as ReturnType<typeof mockAppContext.get>);
+    mockLedgerAccountBalanceEnrichmentService.enrich.mockResolvedValue([
+      enrichedDto,
+    ]);
   });
 
   it('throws ledger_error_invalid_id if accountId is not a valid UUID', async () => {
     await expect(useCase('invalid-id' as TEntityId)).rejects.toThrow(
       'ledger_error_invalid_id'
     );
+
+    expect(mockAppContext.get).not.toHaveBeenCalled();
+    expect(mockLedgerAccountRepo.findById).not.toHaveBeenCalled();
+    expect(
+      mockLedgerAccountBalanceEnrichmentService.enrich
+    ).not.toHaveBeenCalled();
   });
 
   it('throws app_error_ledger_account_not_found if account is not found', async () => {
@@ -100,6 +116,9 @@ describe('getLedgerAccountUseCase', () => {
       mockAccountingEntityId,
       { correlationId }
     );
+    expect(
+      mockLedgerAccountBalanceEnrichmentService.enrich
+    ).not.toHaveBeenCalled();
   });
 
   it('throws app_error_forbidden if the user does not own the account', async () => {
@@ -109,71 +128,27 @@ describe('getLedgerAccountUseCase', () => {
     });
 
     await expect(useCase(mockAccountId)).rejects.toThrow('app_error_forbidden');
+    expect(
+      mockLedgerAccountBalanceEnrichmentService.enrich
+    ).not.toHaveBeenCalled();
   });
 
-  it('reports missing balance and returns dto with zero balances if no balance exists', async () => {
+  it('enriches the authorized account after selection and returns the service dto', async () => {
     mockLedgerAccountRepo.findById.mockResolvedValue(accountWithId);
-    mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValue(null);
 
     const result = await useCase(mockAccountId);
 
-    expect(mockLedgerAccountBalanceRepo.findByAccountId).toHaveBeenCalledWith(
-      mockAccountId,
-      mockAccountingEntityId,
-      { correlationId }
-    );
-    expect(MockReporter.report).toHaveBeenCalled();
-
-    const zeroBalance = moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.EUR);
-    const zeroFunctionalBalance = moneyValue.makeZeroAmount(
-      SYSTEM_CURRENCIES.USD
-    );
-    const expectedDto = ledgerAccountMapper.toDto(
-      accountWithId,
-      zeroBalance,
-      zeroFunctionalBalance
-    );
-
-    expect(result).toEqual(expectedDto);
-  });
-
-  it('uses functional currency for both missing balances of a null-currency account', async () => {
-    const nullCurrencyAccount: ILedgerAccount = {
-      ...accountWithId,
-      currency: null,
-    };
-    mockLedgerAccountRepo.findById.mockResolvedValue(nullCurrencyAccount);
-    mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValue(null);
-
-    const result = await useCase(mockAccountId);
-
-    expect(result.balance.currencyCode).toBe(SYSTEM_CURRENCIES.USD.code);
-    expect(result.functionalBalance.currencyCode).toBe(
-      SYSTEM_CURRENCIES.USD.code
-    );
-  });
-
-  it('returns dto with account and balances if balance exists', async () => {
-    mockLedgerAccountRepo.findById.mockResolvedValue(accountWithId);
-
-    const mockBalance = ledgerAccountBalanceEntity.make({
-      ledgerAccountId: mockAccountId,
-      accountingEntityId: mockAccountingEntityId,
-      accountMaterializedPath: '100000',
-      currencyCode: SYSTEM_CURRENCIES.EUR.code,
-      functionalCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+    expect(
+      mockLedgerAccountBalanceEnrichmentService.enrich
+    ).toHaveBeenCalledWith([accountWithId], mockAccountingEntity, {
+      correlationId,
     });
-
-    mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValue(mockBalance);
-
-    const result = await useCase(mockAccountId);
-
-    const expectedDto = ledgerAccountMapper.toDto(
-      accountWithId,
-      mockBalance.amount,
-      mockBalance.functionalAmount
+    expect(
+      mockLedgerAccountRepo.findById.mock.invocationCallOrder[0]
+    ).toBeLessThan(
+      mockLedgerAccountBalanceEnrichmentService.enrich.mock
+        .invocationCallOrder[0]
     );
-
-    expect(result).toEqual(expectedDto);
+    expect(result).toBe(enrichedDto);
   });
 });
