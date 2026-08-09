@@ -1,15 +1,31 @@
+import { eq, inArray, isNull, or } from 'drizzle-orm';
+
 import { ERepoLock } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
+import { ELedgerAccountBehavior } from '@domain/ledger/types/account-behaviors.tyypes';
 import { EAssetSubType } from '@domain/ledger/types/asset-account.types';
 import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
+import { ledgerAccountsInCore } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';
 import ledgerAccountRepo from '@infra/persistence/repos/ledger/ledger-account.repo.impl';
 import ledgerAccountMapper from '@infra/persistence/repos/ledger/mappers/ledger-account.mapper';
 
 jest.mock('../../../helpers/get-db-query');
 jest.mock('../mappers/ledger-account.mapper');
+jest.mock('drizzle-orm', () => {
+  const drizzle =
+    jest.requireActual<typeof import('drizzle-orm')>('drizzle-orm');
+
+  return {
+    ...drizzle,
+    eq: jest.fn(drizzle.eq),
+    inArray: jest.fn(drizzle.inArray),
+    isNull: jest.fn(drizzle.isNull),
+    or: jest.fn(drizzle.or),
+  };
+});
 
 describe('ledgerAccountRepoImpl allocation reads', () => {
   const accountingEntityId =
@@ -28,6 +44,24 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
       },
       lock,
     };
+  }
+
+  function mockFindAllQuery(count: number, rows: unknown[] = []) {
+    const countWhere = jest.fn().mockResolvedValue([{ count }]);
+    const countFrom = jest.fn().mockReturnValue({ where: countWhere });
+    const offset = jest.fn().mockResolvedValue(rows);
+    const limit = jest.fn().mockReturnValue({ offset });
+    const orderBy = jest.fn().mockReturnValue({ limit });
+    const dataWhere = jest.fn().mockReturnValue({ orderBy });
+    const leftJoin = jest.fn().mockReturnValue({ where: dataWhere });
+    const dataFrom = jest.fn().mockReturnValue({ leftJoin });
+    const select = jest
+      .fn()
+      .mockReturnValueOnce({ from: countFrom })
+      .mockReturnValueOnce({ from: dataFrom });
+    (getDbQuery as jest.Mock).mockReturnValue({ select });
+
+    return { countWhere, dataWhere, limit, offset, select };
   }
 
   it.each([
@@ -173,5 +207,99 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
 
     expect(leftJoin).toHaveBeenCalled();
     expect(result.data).toEqual([account]);
+  });
+
+  it('findAll applies plural posting restrictions and fixed-or-null currency before count and pagination', async () => {
+    const row = { id: 'account-row', currency: null };
+    const account = { id: 'account-domain', currency: null } as ILedgerAccount;
+    const query = mockFindAllQuery(25, [row]);
+    (ledgerAccountMapper.toDomain as jest.Mock).mockReturnValue(account);
+
+    const result = await ledgerAccountRepo.findAll(accountingEntityId, {
+      correlationId: 'correlation-id',
+      types: [ELedgerType.Revenue, ELedgerType.Liability],
+      subTypes: [EAssetSubType.CashAndCashEquivalent],
+      behaviors: [ELedgerAccountBehavior.Bank],
+      currencyCodes: ['USD', null],
+      isControlAccount: false,
+      limit: 10,
+      offset: 10,
+    });
+
+    expect(inArray).toHaveBeenCalledWith(ledgerAccountsInCore.type, [
+      ELedgerType.Revenue,
+      ELedgerType.Liability,
+    ]);
+    expect(inArray).toHaveBeenCalledWith(ledgerAccountsInCore.subType, [
+      EAssetSubType.CashAndCashEquivalent,
+    ]);
+    expect(inArray).toHaveBeenCalledWith(ledgerAccountsInCore.behavior, [
+      ELedgerAccountBehavior.Bank,
+    ]);
+    expect(inArray).toHaveBeenCalledWith(ledgerAccountsInCore.currencyCode, [
+      'USD',
+    ]);
+    expect(isNull).toHaveBeenCalledWith(ledgerAccountsInCore.currencyCode);
+    expect(or).toHaveBeenCalledWith(expect.anything(), expect.anything());
+    expect(eq).toHaveBeenCalledWith(
+      ledgerAccountsInCore.isControlAccount,
+      false
+    );
+    expect(query.countWhere).toHaveBeenCalledWith(expect.anything());
+    expect(query.dataWhere).toHaveBeenCalledWith(
+      query.countWhere.mock.calls[0][0]
+    );
+    expect(query.limit).toHaveBeenCalledWith(10);
+    expect(query.offset).toHaveBeenCalledWith(10);
+    expect(result).toEqual({
+      data: [account],
+      meta: { page: 2, limit: 10, total: 25, totalPages: 3 },
+    });
+  });
+
+  it('findAll preserves unfiltered reads and skips the data query when no rows match', async () => {
+    const query = mockFindAllQuery(0);
+
+    const result = await ledgerAccountRepo.findAll(accountingEntityId, {
+      correlationId: 'correlation-id',
+      types: [],
+      subTypes: [],
+      behaviors: [],
+      currencyCodes: [],
+    });
+
+    expect(inArray).not.toHaveBeenCalled();
+    expect(isNull).not.toHaveBeenCalled();
+    expect(query.select).toHaveBeenCalledTimes(1);
+    expect(result).toEqual({
+      data: [],
+      meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
+    });
+  });
+
+  it('findAll supports a fixed-currency-only filter', async () => {
+    mockFindAllQuery(0);
+
+    await ledgerAccountRepo.findAll(accountingEntityId, {
+      correlationId: 'correlation-id',
+      currencyCodes: ['USD'],
+    });
+
+    expect(inArray).toHaveBeenCalledWith(ledgerAccountsInCore.currencyCode, [
+      'USD',
+    ]);
+    expect(isNull).not.toHaveBeenCalled();
+  });
+
+  it('findAll supports a null-currency-only filter', async () => {
+    mockFindAllQuery(0);
+
+    await ledgerAccountRepo.findAll(accountingEntityId, {
+      correlationId: 'correlation-id',
+      currencyCodes: [null],
+    });
+
+    expect(inArray).not.toHaveBeenCalled();
+    expect(isNull).toHaveBeenCalledWith(ledgerAccountsInCore.currencyCode);
   });
 });

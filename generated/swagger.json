@@ -516,6 +516,48 @@
         "type": "object",
         "additionalProperties": false
       },
+      "UJournalEntrySourceType": {
+        "type": "string",
+        "enum": [
+          "system",
+          "expense",
+          "opening_balance",
+          "sale",
+          "purchase",
+          "credit_note",
+          "debit_note",
+          "transfer",
+          "payment",
+          "receipt",
+          "adjustment"
+        ]
+      },
+      "IGetPermittedPostingAccountsQuery": {
+        "properties": {
+          "sourceType": {
+            "$ref": "#/components/schemas/UJournalEntrySourceType"
+          },
+          "side": {
+            "type": "string",
+            "enum": ["source", "destination"],
+            "nullable": false
+          },
+          "currencyCode": {
+            "type": "string"
+          },
+          "page": {
+            "type": "number",
+            "format": "double"
+          },
+          "limit": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["sourceType", "side"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "UExchangeRateType": {
         "type": "string",
         "enum": ["official", "negotiated", "market"]
@@ -611,22 +653,6 @@
       "ULedgerAccountBalanceEffect": {
         "type": "string",
         "enum": ["increase", "decrease", "noop"]
-      },
-      "UJournalEntrySourceType": {
-        "type": "string",
-        "enum": [
-          "system",
-          "expense",
-          "opening_balance",
-          "sale",
-          "purchase",
-          "credit_note",
-          "debit_note",
-          "transfer",
-          "payment",
-          "receipt",
-          "adjustment"
-        ]
       },
       "UJournalEntryStatus": {
         "type": "string",
@@ -2108,6 +2134,101 @@
             "required": false,
             "schema": {
               "$ref": "#/components/schemas/ULedgerAccountSortBy"
+            }
+          }
+        ]
+      }
+    },
+    "/ledger/posting-accounts": {
+      "get": {
+        "operationId": "getPermittedPostingAccounts",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPaginatedResponse_ILedgerAccountDto_"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get paginated posting accounts permitted by a journal-entry rule",
+        "tags": ["Ledger"],
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "sourceType",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/UJournalEntrySourceType"
+            }
+          },
+          {
+            "in": "query",
+            "name": "side",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["source", "destination"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "currencyCode",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
             }
           }
         ]

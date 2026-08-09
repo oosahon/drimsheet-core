@@ -6,10 +6,12 @@ import {
 import { TEntityId } from '@shared/types/uuid';
 import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
 
+import { ULedgerAccountBehavior } from '@domain/ledger/types/account-behaviors.tyypes';
 import { UAssetSubType } from '@domain/ledger/types/asset-account.types';
 import { UEquitySubType } from '@domain/ledger/types/equity-account.types';
 import { UExpenseSubType } from '@domain/ledger/types/expense-account.types';
 import { ILedgerAccountHistory } from '@domain/ledger/types/ledger-account-audit.types';
+import { ULedgerAccountSubType } from '@domain/ledger/types/ledger-aggregate.types';
 import { ILedgerAccount, ULedgerType } from '@domain/ledger/types/ledger.types';
 import { ULiabilitySubType } from '@domain/ledger/types/liability-account.types';
 import { URevenueSubType } from '@domain/ledger/types/revenue-account.types';
@@ -29,13 +31,17 @@ export interface IFindAllLedgerAccountsOptions extends Omit<
 > {
   ids?: TEntityId[];
   type?: ULedgerType;
+  types?: ULedgerType[];
   subType?:
     | UAssetSubType
     | ULiabilitySubType
     | UEquitySubType
     | URevenueSubType
     | UExpenseSubType;
+  subTypes?: ULedgerAccountSubType[];
   behavior?: string;
+  behaviors?: ULedgerAccountBehavior[];
+  currencyCodes?: Array<string | null>;
   isControlAccount?: boolean;
   orderBy?: ULedgerAccountSortBy;
 }

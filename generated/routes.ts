@@ -485,6 +485,43 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UJournalEntrySourceType: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['system'] },
+        { dataType: 'enum', enums: ['expense'] },
+        { dataType: 'enum', enums: ['opening_balance'] },
+        { dataType: 'enum', enums: ['sale'] },
+        { dataType: 'enum', enums: ['purchase'] },
+        { dataType: 'enum', enums: ['credit_note'] },
+        { dataType: 'enum', enums: ['debit_note'] },
+        { dataType: 'enum', enums: ['transfer'] },
+        { dataType: 'enum', enums: ['payment'] },
+        { dataType: 'enum', enums: ['receipt'] },
+        { dataType: 'enum', enums: ['adjustment'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IGetPermittedPostingAccountsQuery: {
+    dataType: 'refObject',
+    properties: {
+      sourceType: { ref: 'UJournalEntrySourceType', required: true },
+      side: {
+        dataType: 'enum',
+        enums: ['source', 'destination'],
+        required: true,
+      },
+      currencyCode: { dataType: 'string' },
+      page: { dataType: 'double' },
+      limit: { dataType: 'double' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   UExchangeRateType: {
     dataType: 'refAlias',
     type: {
@@ -555,27 +592,6 @@ const models: TsoaRoute.Models = {
         { dataType: 'enum', enums: ['increase'] },
         { dataType: 'enum', enums: ['decrease'] },
         { dataType: 'enum', enums: ['noop'] },
-      ],
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  UJournalEntrySourceType: {
-    dataType: 'refAlias',
-    type: {
-      dataType: 'union',
-      subSchemas: [
-        { dataType: 'enum', enums: ['system'] },
-        { dataType: 'enum', enums: ['expense'] },
-        { dataType: 'enum', enums: ['opening_balance'] },
-        { dataType: 'enum', enums: ['sale'] },
-        { dataType: 'enum', enums: ['purchase'] },
-        { dataType: 'enum', enums: ['credit_note'] },
-        { dataType: 'enum', enums: ['debit_note'] },
-        { dataType: 'enum', enums: ['transfer'] },
-        { dataType: 'enum', enums: ['payment'] },
-        { dataType: 'enum', enums: ['receipt'] },
-        { dataType: 'enum', enums: ['adjustment'] },
       ],
       validators: {},
     },
@@ -1643,6 +1659,55 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'getLedgerAccounts',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsLedgerController_getPermittedPostingAccounts: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    query: {
+      in: 'queries',
+      name: 'query',
+      required: true,
+      ref: 'IGetPermittedPostingAccountsQuery',
+    },
+  };
+  app.get(
+    '/api/v1/ledger/posting-accounts',
+    ...fetchMiddlewares<RequestHandler>(LedgerController),
+    ...fetchMiddlewares<RequestHandler>(
+      LedgerController.prototype.getPermittedPostingAccounts
+    ),
+
+    async function LedgerController_getPermittedPostingAccounts(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsLedgerController_getPermittedPostingAccounts,
+          request,
+          response,
+        });
+
+        const controller = new LedgerController();
+
+        await templateService.apiHandler({
+          methodName: 'getPermittedPostingAccounts',
           controller,
           response,
           next,

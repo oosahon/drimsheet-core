@@ -16,18 +16,21 @@ import {
 import { TEntityId } from '@shared/types/uuid';
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
+import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
 
 import { IPettyCashAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
 import {
   IGetLedgerAccountsQuery,
   ILedgerAccountDto,
 } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
+import { IGetPermittedPostingAccountsQuery } from '@app/ledger/dtos/permitted-posting-account/permitted-posting-account.dto';
 
 import {
   createPettyCashAccountUseCase,
   getAccountTransactionsUseCase,
   getLedgerAccountsUseCase,
   getLedgerAccountUseCase,
+  getPermittedPostingAccountsUseCase,
 } from '@infra/ioc/usecases/ledger';
 
 import middlewares from '@interface/http/middlewares';
@@ -46,6 +49,25 @@ export class LedgerController extends Controller {
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getLedgerAccounts(@Queries() query: IGetLedgerAccountsQuery) {
     return await getLedgerAccountsUseCase(query);
+  }
+
+  /**
+   * Get paginated posting accounts permitted by a journal-entry rule
+   */
+  @Get('/posting-accounts')
+  @OperationId('getPermittedPostingAccounts')
+  @SuccessResponse('200')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('422')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.accountingEntityAccess
+  )
+  public async getPermittedPostingAccounts(
+    @Queries() query: IGetPermittedPostingAccountsQuery
+  ) {
+    return await getPermittedPostingAccountsUseCase(query);
   }
 
   /**
