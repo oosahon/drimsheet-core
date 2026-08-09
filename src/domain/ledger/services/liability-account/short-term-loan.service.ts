@@ -63,7 +63,7 @@ function makeCreateHeader(
       ),
       type: ELedgerType.Liability,
       subType: ELiabilitySubType.ShortTermDebt,
-      behavior: ELiabilityAccountBehavior.ShortTermLoan,
+      behavior: ELiabilityAccountBehavior.DefaultShortTermDebt,
       isControlAccount: true,
       controlAccountId: null,
       currency,

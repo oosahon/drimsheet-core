@@ -2,11 +2,16 @@ import { ERepoLock, IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
 import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import { LIABILITY_LEDGER_CODES } from '@domain/ledger/config/liability-codes.config';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import controlAccountResolverHelper from '@domain/ledger/services/helpers/control-account-resolver';
 import { EAssetSubType } from '@domain/ledger/types/asset-account.types';
-import { TCashLedgerCode } from '@domain/ledger/types/ledger-code.types';
+import {
+  TCashLedgerCode,
+  TPayablesLedgerCode,
+} from '@domain/ledger/types/ledger-code.types';
 import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { ELiabilitySubType } from '@domain/ledger/types/liability-account.types';
 
 const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   create: jest.fn(),
@@ -112,6 +117,35 @@ describe('controlAccountResolverHelper', () => {
       precedingCode: explicitControlAccountCode,
       parentMaterializedPath: explicitControlAccountCode,
     });
+  });
+
+  it('scopes the latest allocation read to a non-cash control account family', async () => {
+    const payableControlAccount = {
+      ...controlAccount,
+      code: LIABILITY_LEDGER_CODES.PAYABLES.HEADER,
+      materializedPath: LIABILITY_LEDGER_CODES.PAYABLES.HEADER,
+      type: ELedgerType.Liability,
+      subType: ELiabilitySubType.Payable,
+    } as ILedgerAccount;
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(
+      payableControlAccount
+    );
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+
+    await controlAccountResolverHelper<TPayablesLedgerCode>({
+      ledgerAccountRepo: mockLedgerAccountRepo,
+      accountingEntityId,
+      controlAccountCode: LIABILITY_LEDGER_CODES.PAYABLES.HEADER,
+      repoOptions,
+      validator,
+    });
+
+    expect(mockLedgerAccountRepo.findLatestBySubType).toHaveBeenCalledWith(
+      accountingEntityId,
+      ELedgerType.Liability,
+      ELiabilitySubType.Payable,
+      repoOptions
+    );
   });
 
   it('throws when the control account cannot be found', async () => {

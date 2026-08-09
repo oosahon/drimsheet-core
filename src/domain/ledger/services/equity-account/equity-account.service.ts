@@ -91,7 +91,7 @@ function makeCreateRetainedEarningsAccount(
       name: payload.name,
       accountingEntityId: payload.accountingEntity.id,
       code: EQUITY_LEDGER_CODES.RETAINED_EARNINGS,
-      materializedPath: EQUITY_LEDGER_CODES.OPENING_BALANCE_EQUITY,
+      materializedPath: EQUITY_LEDGER_CODES.RETAINED_EARNINGS,
       normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Equity),
       type: ELedgerType.Equity,
       subType: EEquitySubType.RetainedEarnings,

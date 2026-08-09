@@ -3,9 +3,11 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
+import { ERepoLock, IRepoOptions } from '@shared/types/repo.types';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import appError from '@shared/values/errors/app.error';
 import eventValue from '@shared/values/events/event.vo';
+import { IEvent } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
 
 import IAccountingContextRepo from '@domain/accounting/repos/accounting-context.repo';
@@ -21,8 +23,11 @@ import { EAppUsageModePreference } from '@domain/user/types/user-preferences.typ
 import { IAccountingEntityCreationDto } from '@app/accounting/dtos/accounting/accounting.dto';
 import { accountingEntityOnboardingDtoSchema } from '@app/accounting/dtos/accounting/accounting.dto.validation';
 import IAppContext from '@app/context/contracts/app-context.contract';
-import IAccountsBootstrapService from '@app/ledger/contracts/accounts-bootstrap.service.contract';
+import IHeaderAccountsBootstrapService from '@app/ledger/contracts/header-accounts-bootstrap.service.contract';
+import { ILedgerAccountBootstrapEntry } from '@app/ledger/contracts/ledger-account-bootstrap.types';
 import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
+import IPostingAccountBootstrapService from '@app/ledger/contracts/posting-account-bootstrap.service.contract';
+import ISuspenseAccountBootstrapService from '@app/ledger/contracts/suspense-account-bootstrap.service.contract';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -35,7 +40,9 @@ interface IDependencies {
   repoService: IRepoService;
   ledgerAccountPersistenceService: ILedgerAccountPersistenceService;
   accountingEntityService: IAccountingEntityService;
-  accountsBootstrapService: IAccountsBootstrapService;
+  headerAccountsBootstrapService: IHeaderAccountsBootstrapService;
+  postingAccountBootstrapService: IPostingAccountBootstrapService;
+  suspenseAccountBootstrapService: ISuspenseAccountBootstrapService;
   eventBus: IEventBus;
 }
 
@@ -91,13 +98,6 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       ],
     } = accountingResponse;
 
-    const { entries: ledgerAccountData, events: ledgerAccountEvents } =
-      await deps.accountsBootstrapService.bootstrap(
-        accountingEntity,
-        trace,
-        payload.appUsageMode === EAppUsageModePreference.NonPowerUser
-      );
-
     const accountingPeriods = accountingPeriodData.map(([entity]) => entity);
     const reportingPeriods = reportingPeriodData.map(([entity]) => entity);
 
@@ -135,14 +135,22 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       correlationId
     );
 
-    const ledgerAccountsWithHistory = ledgerAccountData.map(
-      ({ account, audit }) => ({
-        account,
-        history: historyValue.make(audit, actor, correlationId),
-      })
-    );
+    const persistLedgerAccounts = async (
+      entries: ILedgerAccountBootstrapEntry[],
+      repoOptions: IRepoOptions
+    ) => {
+      for (const { account, audit } of entries) {
+        const history = historyValue.make(audit, actor, correlationId);
 
-    const transactionFn: TRepoTransactionFn = async (tx) => {
+        await deps.ledgerAccountPersistenceService.create(
+          account,
+          accountingEntity.functionalCurrencyCode,
+          { ...repoOptions, history: [history] }
+        );
+      }
+    };
+
+    const transactionFn: TRepoTransactionFn<IEvent<unknown>[]> = async (tx) => {
       const repoOptions = { correlationId, tx };
 
       await deps.accountingEntityRepo.create(accountingEntity, {
@@ -175,16 +183,50 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         history: reportingContextHistory,
       });
 
-      for (const { account, history } of ledgerAccountsWithHistory) {
-        await deps.ledgerAccountPersistenceService.create(
-          account,
-          accountingEntity.functionalCurrencyCode,
-          { ...repoOptions, history: [history] }
+      const headerBootstrap =
+        await deps.headerAccountsBootstrapService.bootstrap(
+          accountingEntity,
+          repoOptions
         );
+
+      await persistLedgerAccounts(headerBootstrap.entries, repoOptions);
+
+      const ledgerAccountEvents: IEvent<unknown>[] = [
+        ...headerBootstrap.events,
+      ];
+
+      if (payload.appUsageMode === EAppUsageModePreference.NonPowerUser) {
+        const allocationRepoOptions = {
+          ...repoOptions,
+          lock: ERepoLock.Update,
+        };
+
+        const postingBootstrap =
+          await deps.postingAccountBootstrapService.bootstrap(
+            accountingEntity,
+            allocationRepoOptions
+          );
+
+        ledgerAccountEvents.push(...postingBootstrap.events);
+
+        const suspenseBootstrap =
+          await deps.suspenseAccountBootstrapService.bootstrap(
+            accountingEntity,
+            allocationRepoOptions
+          );
+
+        await persistLedgerAccounts(
+          suspenseBootstrap.entries,
+          allocationRepoOptions
+        );
+        ledgerAccountEvents.push(...suspenseBootstrap.events);
       }
+
+      return ledgerAccountEvents;
     };
 
-    await deps.repoService.runInTransaction(transactionFn);
+    const ledgerAccountEvents =
+      await deps.repoService.runInTransaction(transactionFn);
 
     deps.appContext.set({ accountingEntity });
 
@@ -195,7 +237,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       ([, periodEvents]) => periodEvents
     );
 
-    const events = [
+    const events: IEvent<unknown>[] = [
       ...accountingEntityEvents,
       ...fiscalYearEvents,
       ...accountingPeriodEvents,
