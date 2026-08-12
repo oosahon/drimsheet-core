@@ -8,6 +8,9 @@ export default interface IVarsConfig {
   GOOGLE_AUTH_CLIENT_ID: string;
   GOOGLE_AUTH_SECRET: string;
   GOOGLE_AUTH_CALLBACK_URL: string;
+
+  LAUNCHDARKLY_SDK_KEY: string;
+
   JWT_SECRET_KEY: string;
 
   NODE_ENV: 'test' | 'development' | 'production';
