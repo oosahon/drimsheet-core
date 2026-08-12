@@ -7,10 +7,8 @@ import appError from '@shared/values/errors/app.error';
 
 import { IRequestPasswordResetReq } from '@app/auth/dtos/auth/auth.dto';
 
-import {
-  makeIpRateLimitKey,
-  rateLimiter,
-} from '@infra/config/rate-limiter.config';
+import { makeIpRateLimitKey } from '@infra/config/rate-limiter.config';
+import middlewares from '@infra/ioc/middlewares/http';
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import { createApplication } from '@infra/server';
 
@@ -28,7 +26,7 @@ describe('POST /auth/get-password-reset-link', () => {
     getPasswordResetLinkSpy = jest
       .spyOn(authUseCase, 'getPasswordResetLinkUseCase')
       .mockResolvedValue(undefined);
-    await rateLimiter.getPasswordResetLinkByIp.resetKey(
+    await middlewares.authRateLimiters.getPasswordResetLinkByIp.resetKey(
       makeIpRateLimitKey('::ffff:127.0.0.1')
     );
     app = createApplication();

@@ -3,10 +3,8 @@ import { Server } from 'node:http';
 import { Express } from 'express';
 import request from 'supertest';
 
-import {
-  makeHashedRateLimitKey,
-  rateLimiter,
-} from '@infra/config/rate-limiter.config';
+import { makeHashedRateLimitKey } from '@infra/config/rate-limiter.config';
+import middlewares from '@infra/ioc/middlewares/http';
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import { createApplication } from '@infra/server';
 
@@ -23,7 +21,7 @@ describe('POST /auth/signup/complete', () => {
   beforeEach(async () => {
     tokenSequence += 1;
     rateLimitToken = `rate-limit-token-attempt-${tokenSequence}`;
-    await rateLimiter.verifyEmail.resetKey(
+    await middlewares.authRateLimiters.verifyEmail.resetKey(
       makeHashedRateLimitKey(
         'verify-email',
         rateLimitToken,

@@ -2,7 +2,7 @@ import amqplib, { Channel, RecoveringChannelModel } from 'amqplib';
 
 import IReporter from '@shared/contracts/reporter.contract';
 
-import { RABBITMQ_URL } from './vars.config';
+import vars from './vars.config';
 
 let connection: RecoveringChannelModel | null = null;
 
@@ -21,7 +21,7 @@ export async function connectRabbitMQ(
 ): Promise<RecoveringChannelModel> {
   if (connection) return connection;
 
-  connection = await amqplib.connect(RABBITMQ_URL, { recovery: true });
+  connection = await amqplib.connect(vars.RABBITMQ_URL, { recovery: true });
 
   connection.on('disconnect', (err) => {
     reporter.report(err, { context: 'RabbitMQ disconnected' });

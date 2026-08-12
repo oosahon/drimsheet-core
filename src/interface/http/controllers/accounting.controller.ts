@@ -20,14 +20,13 @@ import {
   IJurisdictionDto,
 } from '@app/accounting/dtos/accounting/accounting.dto';
 
+import middlewares from '@infra/ioc/middlewares/http';
 import {
   createAccountingEntityUseCase,
   getActiveAccountingEntityUseCase,
   getJurisdictionsUseCase,
   getUserAccountingEntitiesUseCase,
 } from '@infra/ioc/usecases/accounting';
-
-import middlewares from '@interface/http/middlewares';
 
 @Route('accounting')
 @Tags('Accounting')

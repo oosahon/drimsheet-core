@@ -10,7 +10,7 @@ import makeSendEmailVerificationEmailUseCase from '@app/auth/usecases/send-email
 import makeSignupWithEmailUsecase from '@app/auth/usecases/signup-with-email.usecase';
 import makeVerifyEmailAddressUseCase from '@app/auth/usecases/verify-email.usecase';
 
-import * as varsConfig from '@infra/config/vars.config';
+import vars from '@infra/config/vars.config';
 import { passwordService, tokenService } from '@infra/ioc/services/auth';
 import { transactionalEmailService } from '@infra/ioc/services/notification';
 import { repoService } from '@infra/ioc/services/repo';
@@ -24,7 +24,7 @@ const emailVerificationService = makeEmailVerificationService({
   cacheStorage,
   tokenService,
   transactionalEmailService,
-  varsConfig,
+  varsConfig: vars,
 });
 
 export const sendEmailVerificationEmailUseCase =
@@ -72,7 +72,7 @@ export const getPasswordResetLinkUseCase = makeRequestPasswordResetUseCase({
   transactionEmailService: transactionalEmailService,
   eventBus: messaging.eventBus,
   userAuthRepo: userRepos.userAuth,
-  varsConfig: varsConfig,
+  varsConfig: vars,
 });
 
 export const resetPasswordUseCase = makeResetPasswordUseCase({
@@ -93,7 +93,7 @@ export const oAuthUseCase = makeOauthUsecase({
   eventBus: messaging.eventBus,
   userSessionRepo: userRepos.userSession,
   repoService,
-  webAppUrl: varsConfig.WEB_APP_URL,
+  webAppUrl: vars.WEB_APP_URL,
 });
 
 export const loginWithGoogleUseCase = makeLoginWithGoogleUseCase(

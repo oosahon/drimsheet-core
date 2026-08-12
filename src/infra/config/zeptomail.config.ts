@@ -2,11 +2,7 @@ import axios from 'axios';
 
 import { ITransactionalEmailDto } from '@app/notification/dtos/transactional-email/transactional-email.dto';
 
-import {
-  ZEPTO_TOKEN_NOREPLY,
-  ZEPTO_TOKEN_NOTIFICATIONS,
-  ZEPTO_TOKEN_OSAHON,
-} from './vars.config';
+import vars from './vars.config';
 
 interface IEmailSender {
   email: string;
@@ -54,19 +50,19 @@ function createSender(sender: IEmailSender) {
 const notifications = createSender({
   email: 'notifications@purpleledger.app',
   name: 'Team PurpleLedger',
-  agent: ZEPTO_TOKEN_NOTIFICATIONS,
+  agent: vars.ZEPTO_TOKEN_NOTIFICATIONS,
 });
 
 const osahon = createSender({
   email: 'osahon@purpleledger.app',
   name: 'Osahon from PurpleLedger',
-  agent: ZEPTO_TOKEN_OSAHON,
+  agent: vars.ZEPTO_TOKEN_OSAHON,
 });
 
 const noReply = createSender({
   email: 'noreply@purpleledger.app',
   name: 'Team PurpleLedger',
-  agent: ZEPTO_TOKEN_NOREPLY,
+  agent: vars.ZEPTO_TOKEN_NOREPLY,
 });
 
 const mailer = {

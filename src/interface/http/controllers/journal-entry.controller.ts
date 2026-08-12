@@ -14,9 +14,8 @@ import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 
 import { IReceiptEntryReq } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto';
 
+import middlewares from '@infra/ioc/middlewares/http';
 import { createReceiptUseCase } from '@infra/ioc/usecases/journal-entry';
-
-import middlewares from '@interface/http/middlewares';
 
 @Route('journal-entries')
 @Tags('Journal Entry')

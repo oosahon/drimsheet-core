@@ -21,7 +21,7 @@ import {
   IVerifyEmailReq,
 } from '@app/auth/dtos/auth/auth.dto';
 
-import { rateLimiter } from '@infra/config/rate-limiter.config';
+import middlewares from '@infra/ioc/middlewares/http';
 import {
   getPasswordResetLinkUseCase,
   loginWithEmailUseCase,
@@ -31,8 +31,6 @@ import {
   signupWithEmailUseCase,
   verifyEmailUseCase,
 } from '@infra/ioc/usecases/auth';
-
-import middlewares from '@interface/http/middlewares';
 
 @Route('auth')
 @Tags('Auth')
@@ -61,7 +59,7 @@ export class AuthController extends Controller {
   @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('429')
-  @Middlewares(rateLimiter.verifyEmail)
+  @Middlewares(middlewares.authRateLimiters.verifyEmail)
   public async verifyEmail(@Body() payload: IVerifyEmailReq) {
     this.setHeader('Cache-Control', 'no-store');
     return await verifyEmailUseCase(payload.token);
@@ -77,7 +75,7 @@ export class AuthController extends Controller {
   @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('429')
-  @Middlewares(rateLimiter.loginWithEmail)
+  @Middlewares(middlewares.authRateLimiters.loginWithEmail)
   public async loginWithEmail(@Body() body: IEmailLoginReq) {
     this.setHeader('Cache-Control', 'no-store');
     return await loginWithEmailUseCase(body);
@@ -90,8 +88,8 @@ export class AuthController extends Controller {
   @Post('/get-password-reset-link')
   @OperationId('getPasswordResetLink')
   @Middlewares(
-    rateLimiter.getPasswordResetLink,
-    rateLimiter.getPasswordResetLinkByIp
+    middlewares.authRateLimiters.getPasswordResetLink,
+    middlewares.authRateLimiters.getPasswordResetLinkByIp
   )
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
@@ -114,7 +112,10 @@ export class AuthController extends Controller {
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('429')
   @Response<IHttpErrorDto>('500')
-  @Middlewares(rateLimiter.resetPassword, rateLimiter.resetPasswordByIp)
+  @Middlewares(
+    middlewares.authRateLimiters.resetPassword,
+    middlewares.authRateLimiters.resetPasswordByIp
+  )
   public async resetPassword(@Body() payload: IResetPasswordReq) {
     this.setHeader('Cache-Control', 'no-store');
     return await resetPasswordUseCase(payload);
@@ -156,7 +157,7 @@ export class AuthController extends Controller {
   @Response<IHttpErrorDto>('401')
   @Response<IHttpErrorDto>('429')
   @Response<IHttpErrorDto>('500')
-  @Middlewares(rateLimiter.refreshAccessToken)
+  @Middlewares(middlewares.authRateLimiters.refreshAccessToken)
   public async refreshAccessToken() {
     this.setHeader('Cache-Control', 'no-store');
     return await refreshAccessTokenUseCase();
