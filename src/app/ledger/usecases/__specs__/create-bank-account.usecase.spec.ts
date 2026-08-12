@@ -217,7 +217,7 @@ describe('makeCreateBankAccountUseCase', () => {
       expect.objectContaining({
         controlAccountCode: mockControlAccount.code,
       }),
-      expect.anything()
+      { correlationId: 'test-correlation-id' }
     );
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalled();
     expect(mockBankAccountRepo.create).toHaveBeenCalledWith(
@@ -254,7 +254,7 @@ describe('makeCreateBankAccountUseCase', () => {
       expect.objectContaining({
         controlAccountCode: selectedControlAccount.code,
       }),
-      expect.anything()
+      { correlationId: 'test-correlation-id' }
     );
   });
 

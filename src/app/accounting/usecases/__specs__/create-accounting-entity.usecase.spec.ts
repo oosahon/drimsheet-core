@@ -170,11 +170,11 @@ describe('createAccountingEntityUseCase', () => {
     );
     expect(mockPostingAccountBootstrapService.bootstrap).toHaveBeenCalledWith(
       accountingEntity,
-      { correlationId, tx: 'mock-tx', lock: 'update' }
+      { correlationId, tx: 'mock-tx' }
     );
     expect(mockSuspenseAccountBootstrapService.bootstrap).toHaveBeenCalledWith(
       accountingEntity,
-      { correlationId, tx: 'mock-tx', lock: 'update' }
+      { correlationId, tx: 'mock-tx' }
     );
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
