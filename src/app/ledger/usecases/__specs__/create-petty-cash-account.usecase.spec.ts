@@ -223,7 +223,7 @@ describe('createPettyCashSubAccountUseCase', () => {
         accountingEntity: mockAccountingEntity,
         controlAccountCode: mockControlAccount.code,
       }),
-      { correlationId, lock: 'update' }
+      { correlationId }
     );
     expect(mockLedgerAccountRepo.findByCode).toHaveBeenCalledWith(
       ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
@@ -277,7 +277,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       expect.objectContaining({
         controlAccountCode: selectedControlAccount.code,
       }),
-      { correlationId, lock: 'update' }
+      { correlationId }
     );
   });
 

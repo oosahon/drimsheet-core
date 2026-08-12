@@ -3,7 +3,6 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
-import { ERepoLock } from '@shared/types/repo.types';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
 import { IEvent } from '@shared/values/events/types/event.types';
@@ -108,7 +107,7 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
 
     const auditedAccount = await deps.cashAccountService.createBankSubAccount(
       creationPayload,
-      { ...trace, lock: ERepoLock.Update }
+      trace
     );
 
     if (!payload.openingBalance) {

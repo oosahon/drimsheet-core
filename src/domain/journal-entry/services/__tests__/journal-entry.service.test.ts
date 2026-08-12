@@ -412,6 +412,28 @@ describe('journalEntryService', () => {
     expect(entry.effectiveDate).toBe(payload.header.effectiveDate);
   });
 
+  it('allows an entry when account opening balance dates are not set', async () => {
+    const { payload } = await makeReceiptFixture();
+    payload.sourceLine = {
+      ...payload.sourceLine,
+      account: {
+        ...payload.sourceLine.account,
+        openingBalanceDate: null,
+      },
+    };
+    payload.destinationLines[0] = {
+      ...payload.destinationLines[0],
+      account: {
+        ...payload.destinationLines[0].account,
+        openingBalanceDate: null,
+      },
+    };
+
+    const [entry] = await service.createReceipt(payload, repoOptions);
+
+    expect(entry.effectiveDate).toBe(payload.header.effectiveDate);
+  });
+
   it('rejects an entry before the account opening balance date', async () => {
     const { payload } = await makeReceiptFixture();
     const openingBalanceDate = new Date('2026-08-04T09:00:00.000Z');

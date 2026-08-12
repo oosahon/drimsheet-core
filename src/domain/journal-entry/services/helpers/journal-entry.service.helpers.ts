@@ -65,7 +65,7 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
   // Assert that effective date is not before any account's opening date
   const erringEffectiveDates = allAccounts.filter(
     (acc) =>
-      acc.openingBalanceDate === null ||
+      acc.openingBalanceDate !== null &&
       dateUtils.isLessThan(header.effectiveDate, acc.openingBalanceDate)
   );
 

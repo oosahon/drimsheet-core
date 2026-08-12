@@ -196,15 +196,10 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       ];
 
       if (payload.appUsageMode === EAppUsageModePreference.NonPowerUser) {
-        const allocationRepoOptions = {
-          ...repoOptions,
-          lock: ERepoLock.Update,
-        };
-
         const postingBootstrap =
           await deps.postingAccountBootstrapService.bootstrap(
             accountingEntity,
-            allocationRepoOptions
+            repoOptions
           );
 
         ledgerAccountEvents.push(...postingBootstrap.events);
@@ -212,13 +207,10 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         const suspenseBootstrap =
           await deps.suspenseAccountBootstrapService.bootstrap(
             accountingEntity,
-            allocationRepoOptions
+            repoOptions
           );
 
-        await persistLedgerAccounts(
-          suspenseBootstrap.entries,
-          allocationRepoOptions
-        );
+        await persistLedgerAccounts(suspenseBootstrap.entries, repoOptions);
         ledgerAccountEvents.push(...suspenseBootstrap.events);
       }
 
