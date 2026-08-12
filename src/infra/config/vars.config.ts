@@ -15,6 +15,8 @@ const {
   GOOGLE_AUTH_SECRET = '',
   GOOGLE_AUTH_CALLBACK_URL = '',
 
+  LAUNCHDARKLY_SDK_KEY = '',
+
   JWT_SECRET_KEY = '',
 
   NODE_ENV = 'development',
@@ -39,6 +41,7 @@ const vars: IVarsConfig = Object.freeze({
   GOOGLE_AUTH_CLIENT_ID,
   GOOGLE_AUTH_SECRET,
   GOOGLE_AUTH_CALLBACK_URL,
+  LAUNCHDARKLY_SDK_KEY,
   JWT_SECRET_KEY,
   NODE_ENV: NODE_ENV as IVarsConfig['NODE_ENV'],
   PORT: +PORT,
