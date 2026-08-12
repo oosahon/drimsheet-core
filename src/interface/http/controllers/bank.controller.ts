@@ -17,9 +17,8 @@ import {
   IGetBanksQuery,
 } from '@app/ledger/dtos/bank-directory/bank-directory.dto';
 
+import middlewares from '@infra/ioc/middlewares/http';
 import { getBanksUseCase } from '@infra/ioc/usecases/ledger';
-
-import middlewares from '@interface/http/middlewares';
 
 @Route('banks')
 @Tags('Bank')

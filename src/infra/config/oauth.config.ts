@@ -7,11 +7,7 @@ import {
 
 import { loginWithGoogleUseCase } from '@infra/ioc/usecases/auth';
 
-import {
-  GOOGLE_AUTH_CALLBACK_URL,
-  GOOGLE_AUTH_CLIENT_ID,
-  GOOGLE_AUTH_SECRET,
-} from './vars.config';
+import vars from './vars.config';
 
 export function mapGoogleProfile(profile: Profile) {
   const primaryEmail = profile.emails?.[0];
@@ -26,16 +22,16 @@ export function mapGoogleProfile(profile: Profile) {
 }
 
 export default function setupOAuth() {
-  if (!GOOGLE_AUTH_CLIENT_ID || !GOOGLE_AUTH_SECRET) {
+  if (!vars.GOOGLE_AUTH_CLIENT_ID || !vars.GOOGLE_AUTH_SECRET) {
     return;
   }
 
   passport.use(
     new GoogleStrategy(
       {
-        clientID: GOOGLE_AUTH_CLIENT_ID,
-        clientSecret: GOOGLE_AUTH_SECRET,
-        callbackURL: GOOGLE_AUTH_CALLBACK_URL,
+        clientID: vars.GOOGLE_AUTH_CLIENT_ID,
+        clientSecret: vars.GOOGLE_AUTH_SECRET,
+        callbackURL: vars.GOOGLE_AUTH_CALLBACK_URL,
       },
       async (
         accessToken: string,

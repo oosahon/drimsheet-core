@@ -4,14 +4,11 @@ import express, { Router } from 'express';
 import helmet from 'helmet';
 import passport from 'passport';
 
+import httpMiddlewares from '@infra/ioc/middlewares/http';
 import cors from '@infra/server/cors';
-import rateLimiter from '@infra/server/rate-limiter';
 import swagger from '@infra/server/swagger';
 
-import makeSignupRateLimitMiddlewares from '@interface/http/middlewares/signup-rate-limit.middleware';
-
 import { RegisterRoutes } from '../../../generated/routes';
-import middlewares from './middlewares';
 
 interface IApplicationDependencies {
   bullMqDashboardRouter?: Router;
@@ -29,10 +26,10 @@ export default function createApplication(
 
   app.use(cors());
 
-  app.use(rateLimiter());
+  app.use(httpMiddlewares.globalRateLimiter);
   app.use(
     '/api/v1/auth/signup-with-email',
-    ...makeSignupRateLimitMiddlewares()
+    ...httpMiddlewares.signupRateLimiters
   );
 
   app.use(express.static('public'));
@@ -46,15 +43,15 @@ export default function createApplication(
   app.use(cookieParser());
   app.use(passport.initialize());
 
-  app.use(middlewares.appContext);
+  app.use(httpMiddlewares.appContext);
 
-  app.use(middlewares.requestLogger);
+  app.use(httpMiddlewares.requestLogger);
 
   RegisterRoutes(app);
 
   app.use(...swagger());
 
-  app.use(middlewares.errorHandler);
+  app.use(httpMiddlewares.errorHandler);
 
   return app;
 }

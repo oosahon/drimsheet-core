@@ -11,8 +11,8 @@ import authError from '@app/auth/errors/auth.error';
 import {
   makeAccountRateLimitKey,
   makeIpRateLimitKey,
-  rateLimiter,
 } from '@infra/config/rate-limiter.config';
+import middlewares from '@infra/ioc/middlewares/http';
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import { createApplication } from '@infra/server';
 
@@ -44,11 +44,11 @@ describe('POST /auth/login-with-email', () => {
     const secret = process.env.JWT_SECRET_KEY || 'secret';
     await Promise.all([
       ...rateLimitEmails.map((email) =>
-        rateLimiter.loginWithEmail.resetKey(
+        middlewares.authRateLimiters.loginWithEmail.resetKey(
           makeAccountRateLimitKey('login-with-email', email, secret)!
         )
       ),
-      rateLimiter.loginWithEmail.resetKey(
+      middlewares.authRateLimiters.loginWithEmail.resetKey(
         makeIpRateLimitKey('::ffff:127.0.0.1')
       ),
     ]);

@@ -5,6 +5,8 @@ import request from 'supertest';
 
 import { IUserSignupReq } from '@app/auth/dtos/auth/auth.dto';
 
+import { makeIpRateLimitKey } from '@infra/config/rate-limiter.config';
+import middlewares from '@infra/ioc/middlewares/http';
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import { createApplication } from '@infra/server';
 
@@ -25,7 +27,14 @@ describe('POST /auth/signup-with-email', () => {
   >;
   let server: Server;
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    const ipRateLimitKey = makeIpRateLimitKey('::ffff:127.0.0.1');
+    await Promise.all(
+      middlewares.signupRateLimiters.map((limiter) =>
+        limiter.resetKey(ipRateLimitKey)
+      )
+    );
+
     signupWithEmailSpy = jest
       .spyOn(authUseCase, 'signupWithEmailUseCase')
       .mockResolvedValue(undefined);

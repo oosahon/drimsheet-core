@@ -1,9 +1,10 @@
-import tsEslint from '@typescript-eslint/eslint-plugin';
-import tsParser from '@typescript-eslint/parser';
-import boundaries from 'eslint-plugin-boundaries';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import tsEslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import boundaries from 'eslint-plugin-boundaries';
 
 const repositoryRoot = path.dirname(fileURLToPath(import.meta.url));
 const typescriptResolver = createRequire(import.meta.url).resolve(
@@ -97,6 +98,7 @@ export default [
   {
     files: ['src/**/*.ts'],
     ignores: [
+      'src/infra/ioc/middlewares/http.ts',
       'src/infra/server/index.ts',
       'src/infra/runtime/_bootstrap/**/*.ts',
     ],

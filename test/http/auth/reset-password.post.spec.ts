@@ -8,10 +8,8 @@ import appError from '@shared/values/errors/app.error';
 import { IResetPasswordReq } from '@app/auth/dtos/auth/auth.dto';
 import authError from '@app/auth/errors/auth.error';
 
-import {
-  makeIpRateLimitKey,
-  rateLimiter,
-} from '@infra/config/rate-limiter.config';
+import { makeIpRateLimitKey } from '@infra/config/rate-limiter.config';
+import middlewares from '@infra/ioc/middlewares/http';
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import { createApplication } from '@infra/server';
 
@@ -34,7 +32,7 @@ describe('POST /auth/reset-password', () => {
       password: 'AnalyticalEngine1!',
       confirmPassword: 'AnalyticalEngine1!',
     };
-    await rateLimiter.resetPasswordByIp.resetKey(
+    await middlewares.authRateLimiters.resetPasswordByIp.resetKey(
       makeIpRateLimitKey('::ffff:127.0.0.1')
     );
     resetPasswordSpy = jest

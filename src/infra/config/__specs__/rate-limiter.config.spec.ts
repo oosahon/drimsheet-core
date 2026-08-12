@@ -1,22 +1,18 @@
+import { Request, Response } from 'express';
+
+import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import IVarsConfig from '@shared/contracts/vars-config.contract';
 import appError from '@shared/values/errors/app.error';
 
 import {
   AUTH_RATE_LIMITER_MESSAGE,
   configureRateLimiter,
   makeAccountRateLimitKey,
+  makeAuthRateLimiters,
   makeHashedRateLimitKey,
   makeIpRateLimitKey,
   RATE_LIMITER_MESSAGE,
-  rateLimiter,
 } from '@infra/config/rate-limiter.config';
-import reporter from '@infra/observability/reporter';
-
-jest.mock('../../observability/reporter', () => ({
-  __esModule: true,
-  default: {
-    reportAbuse: jest.fn(),
-  },
-}));
 
 describe('rate limiter messages', () => {
   it('uses an auth error key for auth rate limits', () => {
@@ -143,19 +139,13 @@ describe('makeHashedRateLimitKey', () => {
 });
 
 describe('rateLimiter middleware instances', () => {
-  const originalEnv = process.env.JWT_SECRET_KEY;
+  const varsConfig = {
+    JWT_SECRET_KEY: 'test-rate-limit-secret',
+  } as IVarsConfig;
+  const rateLimiter = makeAuthRateLimiters(varsConfig, mockReporter);
 
   beforeEach(() => {
-    delete process.env.JWT_SECRET_KEY;
     jest.clearAllMocks();
-  });
-
-  afterAll(() => {
-    if (originalEnv !== undefined) {
-      process.env.JWT_SECRET_KEY = originalEnv;
-    } else {
-      delete process.env.JWT_SECRET_KEY;
-    }
   });
 
   it('handles loginWithEmail with valid email and fallback', async () => {
@@ -164,8 +154,8 @@ describe('rateLimiter middleware instances', () => {
       body: { email: 'user@example.com' },
       ip: '192.0.2.1',
       headers: {},
-    } as any;
-    const res = { setHeader: jest.fn() } as any;
+    } as unknown as Request;
+    const res = { setHeader: jest.fn() } as unknown as Response;
 
     await rateLimiter.loginWithEmail(reqWithEmail, res, next);
     expect(next).toHaveBeenCalled();
@@ -244,14 +234,44 @@ describe('rateLimiter middleware instances', () => {
     await rateLimiter.refreshAccessToken(reqWithoutCookie, res, next);
     expect(next).toHaveBeenCalledTimes(2);
   });
+
+  it('uses the legacy fallback secret when JWT_SECRET_KEY is empty', async () => {
+    const limiter = makeAuthRateLimiters(
+      { ...varsConfig, JWT_SECRET_KEY: '' },
+      mockReporter
+    ).loginWithEmail;
+    const email = 'fallback-secret@example.com';
+    const req = {
+      body: { email },
+      ip: '192.0.2.8',
+      headers: {},
+    } as unknown as Request;
+    const res = { setHeader: jest.fn() } as unknown as Response;
+
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      await limiter(req, res, jest.fn());
+    }
+
+    await limiter.resetKey(
+      makeAccountRateLimitKey('login-with-email', email, 'secret')!
+    );
+
+    const next = jest.fn();
+    await limiter(req, res, next);
+
+    expect(next).toHaveBeenCalledWith();
+  });
 });
 
 describe('configureRateLimiter', () => {
   it('uses default IP keyGenerator when no custom keyGenerator is provided', async () => {
-    const limiter = configureRateLimiter({
-      windowMs: 60000,
-      max: 5,
-    });
+    const limiter = configureRateLimiter(
+      {
+        windowMs: 60000,
+        max: 5,
+      },
+      mockReporter
+    );
     const next = jest.fn();
     const req = { ip: '192.0.2.10', headers: {} } as any;
     const res = { setHeader: jest.fn() } as any;
@@ -261,10 +281,13 @@ describe('configureRateLimiter', () => {
   });
 
   it('reports abuse on the first request exceeding the rate limit and passes TooManyRequests to next()', async () => {
-    const limiter = configureRateLimiter({
-      windowMs: 60000,
-      max: 1,
-    });
+    const limiter = configureRateLimiter(
+      {
+        windowMs: 60000,
+        max: 1,
+      },
+      mockReporter
+    );
 
     const createReq = () =>
       ({
@@ -284,7 +307,7 @@ describe('configureRateLimiter', () => {
     // Second request (hits = 2, max = 1, used === limit + 1) -> reports abuse & calls next(appError.TooManyRequests)
     const next2 = jest.fn();
     await limiter(createReq(), res, next2);
-    expect(reporter.reportAbuse).toHaveBeenCalledWith(
+    expect(mockReporter.reportAbuse).toHaveBeenCalledWith(
       'Too many requests to API',
       {
         method: 'POST',
@@ -299,7 +322,7 @@ describe('configureRateLimiter', () => {
     jest.clearAllMocks();
     const next3 = jest.fn();
     await limiter(createReq(), res, next3);
-    expect(reporter.reportAbuse).not.toHaveBeenCalled();
+    expect(mockReporter.reportAbuse).not.toHaveBeenCalled();
     expect(next3).toHaveBeenCalledWith(expect.any(appError.TooManyRequests));
   });
 });

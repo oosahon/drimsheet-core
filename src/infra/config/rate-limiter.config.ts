@@ -3,13 +3,13 @@ import { createHmac } from 'node:crypto';
 import { Request, Response } from 'express';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
+import IReporter from '@shared/contracts/reporter.contract';
+import IVarsConfig from '@shared/contracts/vars-config.contract';
 import appError from '@shared/values/errors/app.error';
 
 import emailValue from '@domain/user/values/email.vo';
 
 import authError from '@app/auth/errors/auth.error';
-
-import reporter from '@infra/observability/reporter';
 
 /**
  * 700 requests per 15 minutes
@@ -91,85 +91,99 @@ export function makeHashedRateLimitKey(
   }
 }
 
-const rateLimiter = {
-  loginWithEmail: configureRateLimiter({
-    windowMs: 1000 * 60,
-    max: 5,
-    message: AUTH_RATE_LIMITER_MESSAGE,
-    keyGenerator: (req) =>
-      makeAccountRateLimitKey(
-        'login-with-email',
-        req.body?.email,
-        process.env.JWT_SECRET_KEY || 'secret'
-      ),
-  }),
+export function makeAuthRateLimiters(
+  varsConfig: IVarsConfig,
+  reporter: IReporter
+) {
+  const secret = varsConfig.JWT_SECRET_KEY || 'secret';
 
-  verifyEmail: configureRateLimiter({
-    windowMs: 1000 * 60 * 15,
-    max: 5,
-    message: AUTH_RATE_LIMITER_MESSAGE,
-    keyGenerator: (req) =>
-      makeHashedRateLimitKey(
-        'verify-email',
-        req.body?.token,
-        process.env.JWT_SECRET_KEY || 'secret'
-      ),
-  }),
+  return {
+    loginWithEmail: configureRateLimiter(
+      {
+        windowMs: 1000 * 60,
+        max: 5,
+        message: AUTH_RATE_LIMITER_MESSAGE,
+        keyGenerator: (req) =>
+          makeAccountRateLimitKey('login-with-email', req.body?.email, secret),
+      },
+      reporter
+    ),
 
-  getPasswordResetLink: configureRateLimiter({
-    windowMs: 1000 * 60 * 5,
-    max: 5,
-    message: AUTH_RATE_LIMITER_MESSAGE,
-    keyGenerator: (req) =>
-      makeAccountRateLimitKey(
-        'get-password-reset-link',
-        req.body?.email,
-        process.env.JWT_SECRET_KEY || 'secret'
-      ),
-  }),
+    verifyEmail: configureRateLimiter(
+      {
+        windowMs: 1000 * 60 * 15,
+        max: 5,
+        message: AUTH_RATE_LIMITER_MESSAGE,
+        keyGenerator: (req) =>
+          makeHashedRateLimitKey('verify-email', req.body?.token, secret),
+      },
+      reporter
+    ),
 
-  getPasswordResetLinkByIp: configureRateLimiter({
-    windowMs: 1000 * 60 * 5,
-    max: 20,
-    message: AUTH_RATE_LIMITER_MESSAGE,
-    keyGenerator: (req) => makeIpRateLimitKey(req.ip),
-  }),
+    getPasswordResetLink: configureRateLimiter(
+      {
+        windowMs: 1000 * 60 * 5,
+        max: 5,
+        message: AUTH_RATE_LIMITER_MESSAGE,
+        keyGenerator: (req) =>
+          makeAccountRateLimitKey(
+            'get-password-reset-link',
+            req.body?.email,
+            secret
+          ),
+      },
+      reporter
+    ),
 
-  resetPassword: configureRateLimiter({
-    windowMs: 1000 * 60 * 15,
-    max: 5,
-    message: AUTH_RATE_LIMITER_MESSAGE,
-    keyGenerator: (req) =>
-      makeHashedRateLimitKey(
-        'reset-password',
-        req.body?.token,
-        process.env.JWT_SECRET_KEY || 'secret'
-      ),
-  }),
+    getPasswordResetLinkByIp: configureRateLimiter(
+      {
+        windowMs: 1000 * 60 * 5,
+        max: 20,
+        message: AUTH_RATE_LIMITER_MESSAGE,
+        keyGenerator: (req) => makeIpRateLimitKey(req.ip),
+      },
+      reporter
+    ),
 
-  resetPasswordByIp: configureRateLimiter({
-    windowMs: 1000 * 60 * 15,
-    max: 20,
-    message: AUTH_RATE_LIMITER_MESSAGE,
-    keyGenerator: (req) => makeIpRateLimitKey(req.ip),
-  }),
+    resetPassword: configureRateLimiter(
+      {
+        windowMs: 1000 * 60 * 15,
+        max: 5,
+        message: AUTH_RATE_LIMITER_MESSAGE,
+        keyGenerator: (req) =>
+          makeHashedRateLimitKey('reset-password', req.body?.token, secret),
+      },
+      reporter
+    ),
 
-  refreshAccessToken: configureRateLimiter({
-    windowMs: 1000 * 60,
-    max: 10,
-    message: AUTH_RATE_LIMITER_MESSAGE,
-    keyGenerator: (req) =>
-      makeHashedRateLimitKey(
-        'refresh-access-token',
-        req.cookies?.refresh_token,
-        process.env.JWT_SECRET_KEY || 'secret'
-      ),
-  }),
-};
+    resetPasswordByIp: configureRateLimiter(
+      {
+        windowMs: 1000 * 60 * 15,
+        max: 20,
+        message: AUTH_RATE_LIMITER_MESSAGE,
+        keyGenerator: (req) => makeIpRateLimitKey(req.ip),
+      },
+      reporter
+    ),
 
-export { rateLimiter };
+    refreshAccessToken: configureRateLimiter(
+      {
+        windowMs: 1000 * 60,
+        max: 10,
+        message: AUTH_RATE_LIMITER_MESSAGE,
+        keyGenerator: (req) =>
+          makeHashedRateLimitKey(
+            'refresh-access-token',
+            req.cookies?.refresh_token,
+            secret
+          ),
+      },
+      reporter
+    ),
+  };
+}
 
-export function configureRateLimiter(config: IConfig) {
+export function configureRateLimiter(config: IConfig, reporter: IReporter) {
   return rateLimit({
     windowMs: config.windowMs,
     max: config.max,

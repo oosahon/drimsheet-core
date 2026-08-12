@@ -1,5 +1,5 @@
 import setupOAuth from '@infra/config/oauth.config';
-import { PORT } from '@infra/config/vars.config';
+import vars from '@infra/config/vars.config';
 import logger from '@infra/observability/logger';
 import setupObservability from '@infra/observability/setup';
 
@@ -18,9 +18,9 @@ function setupServer(bootstrap?: () => Promise<void>) {
     bullMqDashboardRouter: bullMqServerAdapter.getRouter(),
   });
 
-  app.listen(PORT, async () => {
+  app.listen(vars.PORT, async () => {
     await bootstrap?.();
-    logger.info(`Server listening on port ${PORT}`);
+    logger.info(`Server listening on port ${vars.PORT}`);
   });
 }
 

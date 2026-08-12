@@ -25,6 +25,7 @@ import {
 } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
 import { IGetPermittedPostingAccountsQuery } from '@app/ledger/dtos/permitted-posting-account/permitted-posting-account.dto';
 
+import middlewares from '@infra/ioc/middlewares/http';
 import {
   createPettyCashAccountUseCase,
   getAccountTransactionsUseCase,
@@ -32,8 +33,6 @@ import {
   getLedgerAccountUseCase,
   getPermittedPostingAccountsUseCase,
 } from '@infra/ioc/usecases/ledger';
-
-import middlewares from '@interface/http/middlewares';
 
 @Route('ledger')
 @Tags('Ledger')

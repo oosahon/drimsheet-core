@@ -5,7 +5,7 @@ import errorUtils from '@shared/utils/error';
 import safeJSON from '@shared/utils/safe-json';
 import { sanitizeData } from '@shared/utils/sanitizer';
 
-import { NODE_ENV } from '@infra/config/vars.config';
+import vars from '@infra/config/vars.config';
 import appContext from '@infra/runtime/app-context';
 
 import logger from './logger';
@@ -37,7 +37,7 @@ const reporter: IReporter = {
 
       logger.error(loggerError);
 
-      if (NODE_ENV === 'local') {
+      if (vars.APP_ENV === 'local') {
         logger.error(sanitizedError, { context: sanitizedContext });
       }
 
@@ -46,7 +46,7 @@ const reporter: IReporter = {
         extra: { ...parsedError, correlationId },
       });
     } catch (err) {
-      if (NODE_ENV === 'local') {
+      if (vars.APP_ENV === 'local') {
         logger.error(err, { context: sanitizeData(context) });
       }
       logger.error(safeJSON.stringify(errorUtils.parseError(err)));
@@ -70,14 +70,14 @@ const reporter: IReporter = {
 
       logger.warn(loggerError);
 
-      if (NODE_ENV === 'local') return;
+      if (vars.APP_ENV === 'local') return;
 
       Sentry.captureMessage(sanitizedMessage, {
         level: 'warning',
         extra: { ...sanitizedMeta, correlationId },
       });
     } catch (err) {
-      if (NODE_ENV === 'local') {
+      if (vars.APP_ENV === 'local') {
         logger.error(err);
       }
       logger.error(safeJSON.stringify(errorUtils.parseError(err)));

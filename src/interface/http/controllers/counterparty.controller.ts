@@ -22,6 +22,7 @@ import {
 import { IEmployerCreateReq } from '@app/counterparty/dtos/employer/employer.dto';
 import { IVendorCreateReq } from '@app/counterparty/dtos/vendor/vendor.dto';
 
+import middlewares from '@infra/ioc/middlewares/http';
 import {
   createContractorUseCase,
   createCounterpartyUseCase,
@@ -29,8 +30,6 @@ import {
   createVendorUseCase,
   getCounterpartiesUseCase,
 } from '@infra/ioc/usecases/counterparty';
-
-import middlewares from '@interface/http/middlewares';
 
 @Route('counterparties')
 @Tags('Counterparty')

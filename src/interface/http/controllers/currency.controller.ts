@@ -11,12 +11,11 @@ import {
 
 import { IExchangeRateQueryParam } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 
+import middlewares from '@infra/ioc/middlewares/http';
 import {
   getAllCurrenciesUseCase,
   getExchangeRateUseCase,
 } from '@infra/ioc/usecases/money';
-
-import middlewares from '@interface/http/middlewares';
 
 @Route('currencies')
 @Tags('Currency')

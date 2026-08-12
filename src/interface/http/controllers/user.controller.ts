@@ -12,12 +12,11 @@ import {
 
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 
+import middlewares from '@infra/ioc/middlewares/http';
 import {
   getAuthUserProfileUseCase,
   getUserPreferencesUseCase,
 } from '@infra/ioc/usecases/user';
-
-import middlewares from '@interface/http/middlewares';
 
 @Route('users')
 @Tags('User')
