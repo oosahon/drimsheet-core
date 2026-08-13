@@ -46,6 +46,8 @@ export const getUserAccountingEntitiesUseCase =
 export const getActiveAccountingEntityUseCase =
   makeGetCurrentAccountingEntityUseCase({
     appContext,
+    accountingEntityRepo: accountingRepos.accountingEntity,
+    userPreferencesRepo: userRepos.userPreferences,
   });
 
 export const switchAccountingEntityUseCase = makeSwitchAccountingEntityUsecase({

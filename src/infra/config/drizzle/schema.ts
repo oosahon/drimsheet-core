@@ -439,7 +439,7 @@ export const userPreferencesInCore = core.table(
       columns: [table.lastActiveAccountingEntityId],
       foreignColumns: [accountingEntitiesInCore.id],
       name: 'user_preferences_last_active_accounting_entity_id_fkey',
-    }).onDelete('cascade'),
+    }).onDelete('set null'),
   ]
 );
 
