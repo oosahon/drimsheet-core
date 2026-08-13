@@ -3,7 +3,9 @@ import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
+import accountingEntityError from '@domain/accounting/errors/accounting-entity.error';
 import makeAccountingEntityService from '@domain/accounting/services/accounting-entity.service';
+import { IAccountingEntityCreationResult } from '@domain/accounting/types/accounting-entity.service.types';
 import {
   EAccountingEntityType,
   IAccountingEntity,
@@ -53,19 +55,8 @@ describe('createAccountingEntityUseCase', () => {
     accountingPeriod: { unit: EPeriodUnit.Month, count: 1 },
     reportingPeriod: { unit: EPeriodUnit.Quarter, count: 1 },
   };
-  const accounting = makeAccountingEntityService().create({
-    name: validPayload.name,
-    type: validPayload.entityType,
-    ownerId: userId,
-    functionalCurrencyCode: validPayload.functionalCurrencyCode,
-    reportingCurrencyCode: validPayload.reportingCurrencyCode,
-    jurisdictionCode: validPayload.jurisdictionCode,
-    accountingStandardCode: validPayload.accountingStandardCode,
-    fiscalYear: validPayload.fiscalYear,
-    accountingPeriod: validPayload.accountingPeriod,
-    reportingPeriod: validPayload.reportingPeriod,
-  });
-  const accountingEntity = accounting.accountingEntity[0];
+  let accounting: IAccountingEntityCreationResult;
+  let accountingEntity: IAccountingEntity;
   const cashAccountService = makeCashAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
@@ -94,6 +85,26 @@ describe('createAccountingEntityUseCase', () => {
     });
 
   beforeEach(async () => {
+    mockAccountingEntityRepo.findByUserId.mockResolvedValue([]);
+    accounting = await makeAccountingEntityService({
+      accountingEntityRepo: mockAccountingEntityRepo,
+    }).create(
+      {
+        name: validPayload.name,
+        type: validPayload.entityType,
+        ownerId: userId,
+        functionalCurrencyCode: validPayload.functionalCurrencyCode,
+        reportingCurrencyCode: validPayload.reportingCurrencyCode,
+        jurisdictionCode: validPayload.jurisdictionCode,
+        accountingStandardCode: validPayload.accountingStandardCode,
+        fiscalYear: validPayload.fiscalYear,
+        accountingPeriod: validPayload.accountingPeriod,
+        reportingPeriod: validPayload.reportingPeriod,
+      },
+      { correlationId }
+    );
+    accountingEntity = accounting.accountingEntity[0];
+
     jest.clearAllMocks();
     const auditedAccount = await cashAccountService.createHeader(
       {
@@ -118,8 +129,7 @@ describe('createAccountingEntityUseCase', () => {
       correlationId,
       user: { id: userId } as IUser,
     } as ReturnType<typeof mockAppContext.get>);
-    mockAccountingEntityRepo.findByUserId.mockResolvedValue([]);
-    mockAccountingDomainServices.accountingEntity.create.mockReturnValue(
+    mockAccountingDomainServices.accountingEntity.create.mockResolvedValue(
       accounting
     );
     mockHeaderAccountsBootstrapService.bootstrap.mockResolvedValue(ledger);
@@ -142,20 +152,22 @@ describe('createAccountingEntityUseCase', () => {
         entityType: EAccountingEntityType.PrivateCompany,
       })
     ).rejects.toThrow('app_error_bad_request');
-    expect(mockAccountingEntityRepo.findByUserId).not.toHaveBeenCalled();
-  });
-
-  it('rejects an existing accounting entity', async () => {
-    mockAccountingEntityRepo.findByUserId.mockResolvedValue([
-      accountingEntity,
-    ] as IAccountingEntity[]);
-
-    await expect(getUseCase()(validPayload)).rejects.toThrow(
-      'app_error_conflict'
-    );
     expect(
       mockAccountingDomainServices.accountingEntity.create
     ).not.toHaveBeenCalled();
+  });
+
+  it('propagates the existing individual accounting entity error', async () => {
+    mockAccountingDomainServices.accountingEntity.create.mockRejectedValueOnce(
+      new accountingEntityError.OnlyOneIndividualAccountingEntityAllowed({
+        ownerId: userId,
+      })
+    );
+
+    await expect(getUseCase()(validPayload)).rejects.toThrow(
+      'accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed'
+    );
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
   });
 
   it('orchestrates creation, bootstrap, and transactional persistence', async () => {
@@ -163,7 +175,9 @@ describe('createAccountingEntityUseCase', () => {
 
     expect(
       mockAccountingDomainServices.accountingEntity.create
-    ).toHaveBeenCalled();
+    ).toHaveBeenCalledWith(expect.objectContaining({ ownerId: userId }), {
+      correlationId,
+    });
     expect(mockHeaderAccountsBootstrapService.bootstrap).toHaveBeenCalledWith(
       accountingEntity,
       { correlationId, tx: 'mock-tx' }

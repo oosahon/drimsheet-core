@@ -2,6 +2,7 @@
   "accounting_error_accounting_entity_invalid_history_action",
   "accounting_error_accounting_entity_invalid_jurisdiction_code",
   "accounting_error_accounting_entity_invalid_type",
+  "accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed",
   "accounting_error_accounting_entity_unauthorized",
   "accounting_error_invalid_accounting_entity_type",
   "accounting_error_invalid_accounting_standard_code",

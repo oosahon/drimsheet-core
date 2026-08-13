@@ -15,9 +15,9 @@ const {
   GOOGLE_AUTH_SECRET = '',
   GOOGLE_AUTH_CALLBACK_URL = '',
 
-  LAUNCHDARKLY_SDK_KEY = '',
-
   JWT_SECRET_KEY = '',
+
+  LAUNCHDARKLY_SDK_KEY = '',
 
   NODE_ENV = 'development',
 

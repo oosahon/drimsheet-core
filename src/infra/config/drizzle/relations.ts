@@ -48,20 +48,17 @@ import {
   usersInCore,
 } from './schema';
 
-export const userSessionsInCoreRelations = relations(
-  userSessionsInCore,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [userSessionsInCore.userId],
-      references: [usersInCore.id],
-    }),
-  })
-);
+export const userAuthInCoreRelations = relations(userAuthInCore, ({ one }) => ({
+  usersInCore: one(usersInCore, {
+    fields: [userAuthInCore.userId],
+    references: [usersInCore.id],
+  }),
+}));
 
 export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
+  userAuthInCores: many(userAuthInCore),
   userSessionsInCores: many(userSessionsInCore),
   userPreferencesInCores: many(userPreferencesInCore),
-  userAuthInCores: many(userAuthInCore),
   userProfileHistoryInAudits: many(userProfileHistoryInAudit),
   accountingEntitiesInCores: many(accountingEntitiesInCore),
   accountingEntityHistoryInAudits: many(accountingEntityHistoryInAudit),
@@ -92,6 +89,16 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   ),
 }));
 
+export const userSessionsInCoreRelations = relations(
+  userSessionsInCore,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [userSessionsInCore.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
 export const userPreferencesInCoreRelations = relations(
   userPreferencesInCore,
   ({ one }) => ({
@@ -101,13 +108,6 @@ export const userPreferencesInCoreRelations = relations(
     }),
   })
 );
-
-export const userAuthInCoreRelations = relations(userAuthInCore, ({ one }) => ({
-  usersInCore: one(usersInCore, {
-    fields: [userAuthInCore.userId],
-    references: [usersInCore.id],
-  }),
-}));
 
 export const userProfileHistoryInAuditRelations = relations(
   userProfileHistoryInAudit,
@@ -270,16 +270,6 @@ export const accountingEntitiesInCoreRelations = relations(
   })
 );
 
-export const accountingEntityHistoryInAuditRelations = relations(
-  accountingEntityHistoryInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [accountingEntityHistoryInAudit.userId],
-      references: [usersInCore.id],
-    }),
-  })
-);
-
 export const fiscalYearsInCoreRelations = relations(
   fiscalYearsInCore,
   ({ one, many }) => ({
@@ -290,6 +280,16 @@ export const fiscalYearsInCoreRelations = relations(
     accountingPeriodsInCores: many(accountingPeriodsInCore),
     accountingContextsInCores: many(accountingContextsInCore),
     reportingPeriodsInCores: many(reportingPeriodsInCore),
+  })
+);
+
+export const accountingEntityHistoryInAuditRelations = relations(
+  accountingEntityHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [accountingEntityHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
   })
 );
 
@@ -542,22 +542,22 @@ export const counterpartyVendorsInCoreRelations = relations(
   })
 );
 
-export const counterpartyVendorHistoryInAuditRelations = relations(
-  counterpartyVendorHistoryInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [counterpartyVendorHistoryInAudit.userId],
-      references: [usersInCore.id],
-    }),
-  })
-);
-
 export const counterpartyEmployersInCoreRelations = relations(
   counterpartyEmployersInCore,
   ({ one }) => ({
     counterpartiesInCore: one(counterpartiesInCore, {
       fields: [counterpartyEmployersInCore.counterpartyId],
       references: [counterpartiesInCore.id],
+    }),
+  })
+);
+
+export const counterpartyVendorHistoryInAuditRelations = relations(
+  counterpartyVendorHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [counterpartyVendorHistoryInAudit.userId],
+      references: [usersInCore.id],
     }),
   })
 );

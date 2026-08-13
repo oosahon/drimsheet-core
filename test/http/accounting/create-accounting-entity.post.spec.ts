@@ -2,8 +2,8 @@ import { Express } from 'express';
 import request from 'supertest';
 
 import { TEntityId } from '@shared/types/uuid';
-import appError from '@shared/values/errors/app.error';
 
+import accountingEntityError from '@domain/accounting/errors/accounting-entity.error';
 import periodError from '@domain/accounting/errors/period.error';
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import { IUser } from '@domain/user/types/user.types';
@@ -118,6 +118,29 @@ describe('POST /accounting/accounting-entity', () => {
         ...validPayload,
       });
     });
+
+    it('creates a sole trader accounting entity', async () => {
+      const soleTraderPayload: IAccountingEntityCreationDto = {
+        ...validPayload,
+        entityType: 'sole_trader',
+      };
+      const soleTraderEntity: IAccountingEntity = {
+        ...createdEntity,
+        type: 'sole_trader',
+      };
+      mockCreateAccountingEntity.mockResolvedValue(soleTraderEntity);
+
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(soleTraderPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body).toMatchObject({ type: 'sole_trader' });
+      expect(mockCreateAccountingEntity).toHaveBeenCalledWith(
+        soleTraderPayload
+      );
+    });
   });
 
   describe('400 Response', () => {
@@ -159,6 +182,27 @@ describe('POST /accounting/accounting-entity', () => {
         },
       });
       expect(mockCreateAccountingEntity).toHaveBeenCalledWith(overLimitPayload);
+    });
+
+    it('maps an existing individual accounting entity violation', async () => {
+      mockCreateAccountingEntity.mockRejectedValue(
+        new accountingEntityError.OnlyOneIndividualAccountingEntityAllowed({
+          ownerId: userId,
+        })
+      );
+
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(validPayload);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        name: 'AccountingEntityError',
+        errorKey:
+          'accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed',
+        cause: { ownerId: userId },
+      });
     });
   });
 
@@ -229,23 +273,6 @@ describe('POST /accounting/accounting-entity', () => {
         errorKey: 'app_error_forbidden',
       });
       expect(mockCreateAccountingEntity).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('409 Response', () => {
-    it('maps accounting entity conflicts', async () => {
-      mockCreateAccountingEntity.mockRejectedValue(new appError.Conflict());
-
-      const response = await request(app)
-        .post(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token')
-        .send(validPayload);
-
-      expect(response.status).toBe(409);
-      expect(response.body).toEqual({
-        name: 'Conflict',
-        errorKey: 'app_error_conflict',
-      });
     });
   });
 

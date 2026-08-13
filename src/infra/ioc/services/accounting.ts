@@ -3,7 +3,9 @@ import makeAccountingPeriodService from '@domain/accounting/services/accounting-
 
 import accountingRepos from '@infra/persistence/repos/accounting';
 
-export const accountingEntityService = makeAccountingEntityService();
+export const accountingEntityService = makeAccountingEntityService({
+  accountingEntityRepo: accountingRepos.accountingEntity,
+});
 
 export const accountingPeriodService = makeAccountingPeriodService({
   accountingPeriodRepo: accountingRepos.accountingPeriod,

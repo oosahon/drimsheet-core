@@ -1,7 +1,10 @@
+import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
 import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
+import accountingEntityError from '@domain/accounting/errors/accounting-entity.error';
 import periodError from '@domain/accounting/errors/period.error';
+import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
 import makeAccountingEntityService from '@domain/accounting/services/accounting-entity.service';
 import {
   EAccountingEntityType,
@@ -10,7 +13,19 @@ import {
 import { EPeriodUnit } from '@domain/accounting/types/period.types';
 
 describe('accountingEntityService', () => {
-  const service = makeAccountingEntityService();
+  const repoOptions: IReadRepoOptions = { correlationId: 'correlation-id' };
+  const accountingEntityRepo: jest.Mocked<IAccountingEntityRepo> = {
+    create: jest.fn(),
+    findById: jest.fn(),
+    findByIdAndUserId: jest.fn(),
+    findByUserId: jest.fn(),
+  };
+  const service = makeAccountingEntityService({ accountingEntityRepo });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    accountingEntityRepo.findByUserId.mockResolvedValue([]);
+  });
 
   describe('create', () => {
     const input = {
@@ -29,8 +44,8 @@ describe('accountingEntityService', () => {
       reportingPeriod: { unit: EPeriodUnit.Quarter, count: 1 },
     };
 
-    it('creates the complete accounting entity graph', () => {
-      const result = service.create(input);
+    it('creates the complete accounting entity graph', async () => {
+      const result = await service.create(input, repoOptions);
 
       expect(result.accountingEntity[0]).toMatchObject({
         ownerId: input.ownerId,
@@ -50,14 +65,17 @@ describe('accountingEntityService', () => {
       expect(Object.isFrozen(result)).toBe(true);
     });
 
-    it('falls back to the first period when current date is outside the fiscal year', () => {
-      const result = service.create({
-        ...input,
-        fiscalYear: {
-          startDate: new Date('2030-01-01T00:00:00.000Z'),
-          endDate: new Date('2030-12-31T23:59:59.999Z'),
+    it('falls back to the first period when current date is outside the fiscal year', async () => {
+      const result = await service.create(
+        {
+          ...input,
+          fiscalYear: {
+            startDate: new Date('2030-01-01T00:00:00.000Z'),
+            endDate: new Date('2030-12-31T23:59:59.999Z'),
+          },
         },
-      });
+        repoOptions
+      );
 
       expect(result.accountingContext[0].currentAccountingPeriodId).toBe(
         result.accountingPeriods[0][0].id
@@ -67,30 +85,51 @@ describe('accountingEntityService', () => {
       );
     });
 
-    it('accepts the exact jurisdiction fiscal limit', () => {
-      expect(() =>
-        service.create({
-          ...input,
-          fiscalYear: {
-            ...input.fiscalYear,
-            endDate: new Date('2027-07-01T00:00:00.000Z'),
+    it('accepts the exact jurisdiction fiscal limit', async () => {
+      await expect(
+        service.create(
+          {
+            ...input,
+            fiscalYear: {
+              ...input.fiscalYear,
+              endDate: new Date('2027-07-01T00:00:00.000Z'),
+            },
           },
-        })
-      ).not.toThrow();
+          repoOptions
+        )
+      ).resolves.toBeDefined();
     });
 
-    it('rejects a fiscal year beyond the jurisdiction limit', () => {
+    it('rejects an existing individual accounting entity', async () => {
+      accountingEntityRepo.findByUserId.mockResolvedValue([
+        {} as IAccountingEntity,
+      ]);
+
+      await expect(service.create(input, repoOptions)).rejects.toThrow(
+        accountingEntityError.OnlyOneIndividualAccountingEntityAllowed
+      );
+      expect(accountingEntityRepo.findByUserId).toHaveBeenCalledWith(
+        input.ownerId,
+        repoOptions,
+        EAccountingEntityType.Individual
+      );
+    });
+
+    it('rejects a fiscal year beyond the jurisdiction limit', async () => {
       const endDate = new Date('2027-07-01T00:00:00.001Z');
 
-      expect(() =>
-        service.create({
-          ...input,
-          fiscalYear: {
-            ...input.fiscalYear,
-            endDate,
+      await expect(
+        service.create(
+          {
+            ...input,
+            fiscalYear: {
+              ...input.fiscalYear,
+              endDate,
+            },
           },
-        })
-      ).toThrow(
+          repoOptions
+        )
+      ).rejects.toThrow(
         new periodError.FiscalYearExceedsJurisdictionLimit({
           jurisdictionCode: 'US',
           maxFiscalMonths: 18,
@@ -103,13 +142,13 @@ describe('accountingEntityService', () => {
 
     it.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])(
       'rejects invalid jurisdiction fiscal policy %s',
-      (maxFiscalMonths) => {
+      async (maxFiscalMonths) => {
         const jurisdiction = SYSTEM_JURISDICTIONS.US;
         const configuredLimit = jurisdiction.maxFiscalMonths;
         jurisdiction.maxFiscalMonths = maxFiscalMonths;
 
         try {
-          expect(() => service.create(input)).toThrow(
+          await expect(service.create(input, repoOptions)).rejects.toThrow(
             'accounting_error_period_invalid_date_range'
           );
         } finally {
