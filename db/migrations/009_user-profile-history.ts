@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { historyActorType } from '../config/history';
 import { userProfileHistoryTable, usersTable } from '../config/users';
 import toSchemaString from '../utils/to-schema-string';

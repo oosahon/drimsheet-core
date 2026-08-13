@@ -56,6 +56,8 @@ describe('GET /users/preferences', () => {
 
   const mockPreferences: IUserPreferences = {
     id: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+    lastActiveAccountingEntityId:
+      '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     appPreferences: {
       theme: 'dark',
       appUsageMode: 'power_user',
@@ -82,6 +84,8 @@ describe('GET /users/preferences', () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
         id: mockPreferences.id,
+        lastActiveAccountingEntityId:
+          mockPreferences.lastActiveAccountingEntityId,
         appPreferences: mockPreferences.appPreferences,
         createdAt: mockPreferences.createdAt.toISOString(),
         updatedAt: mockPreferences.updatedAt.toISOString(),

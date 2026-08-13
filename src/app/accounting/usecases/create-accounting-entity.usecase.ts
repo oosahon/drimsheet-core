@@ -16,6 +16,7 @@ import IFiscalYearRepo from '@domain/accounting/repos/fiscal-year.repo';
 import IReportingContextRepo from '@domain/accounting/repos/reporting-context.repo';
 import IReportingPeriodRepo from '@domain/accounting/repos/reporting-period.repo';
 import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
+import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
 import { EAppUsageModePreference } from '@domain/user/types/user-preferences.types';
 
 import { IAccountingEntityCreationDto } from '@app/accounting/dtos/accounting/accounting.dto';
@@ -30,6 +31,7 @@ import ISuspenseAccountBootstrapService from '@app/ledger/contracts/suspense-acc
 interface IDependencies {
   appContext: IAppContext;
   accountingEntityRepo: IAccountingEntityRepo;
+  userPreferencesRepo: IUserPreferencesRepo;
   fiscalYearRepo: IFiscalYearRepo;
   accountingPeriodRepo: IAccountingPeriodRepo;
   accountingContextRepo: IAccountingContextRepo;
@@ -147,6 +149,12 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         ...repoOptions,
         history: accountingEntityHistory,
       });
+
+      await deps.userPreferencesRepo.update(
+        user.id,
+        { lastActiveAccountingEntityId: accountingEntity.id },
+        repoOptions
+      );
 
       await deps.fiscalYearRepo.create(fiscalYear, {
         ...repoOptions,

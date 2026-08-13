@@ -32,6 +32,7 @@ import mockLedgerAccountPersistenceService from '@app/ledger/contracts/__mocks__
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 import mockPostingAccountBootstrapService from '@app/ledger/contracts/__mocks__/posting-account-bootstrap.service.mock';
 import mockSuspenseAccountBootstrapService from '@app/ledger/contracts/__mocks__/suspense-account-bootstrap.service.mock';
+import { mockUserPreferencesRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 const mockAccountingDomainServices = Object.freeze({
   accountingEntity: mockAccountingEntityService,
@@ -71,6 +72,7 @@ describe('createAccountingEntityUseCase', () => {
       appContext: mockAppContext,
       repoService: mockRepoService,
       accountingEntityRepo: mockAccountingEntityRepo,
+      userPreferencesRepo: mockUserPreferencesRepo,
       fiscalYearRepo: mockFiscalYearRepo,
       accountingPeriodRepo: mockAccountingPeriodRepo,
       accountingContextRepo: mockAccountingContextRepo,
@@ -132,6 +134,7 @@ describe('createAccountingEntityUseCase', () => {
     mockAccountingDomainServices.accountingEntity.create.mockResolvedValue(
       accounting
     );
+    mockUserPreferencesRepo.update.mockResolvedValue();
     mockHeaderAccountsBootstrapService.bootstrap.mockResolvedValue(ledger);
     mockPostingAccountBootstrapService.bootstrap.mockResolvedValue(ledger);
     mockSuspenseAccountBootstrapService.bootstrap.mockResolvedValue(ledger);
@@ -231,6 +234,14 @@ describe('createAccountingEntityUseCase', () => {
     );
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
+    expect(mockUserPreferencesRepo.update).toHaveBeenCalledWith(
+      userId,
+      { lastActiveAccountingEntityId: accountingEntity.id },
+      {
+        correlationId,
+        tx: 'mock-tx',
+      }
+    );
     expect(mockFiscalYearRepo.create).toHaveBeenCalled();
     expect(mockAccountingPeriodRepo.create).toHaveBeenCalled();
     expect(mockAccountingContextRepo.create).toHaveBeenCalled();
@@ -251,6 +262,13 @@ describe('createAccountingEntityUseCase', () => {
       )
     ).toBe(true);
     expect(mockAppContext.set).toHaveBeenCalledWith({ accountingEntity });
+
+    expect(
+      mockAccountingEntityRepo.create.mock.invocationCallOrder[0]
+    ).toBeLessThan(mockUserPreferencesRepo.update.mock.invocationCallOrder[0]);
+    expect(
+      mockUserPreferencesRepo.update.mock.invocationCallOrder[0]
+    ).toBeLessThan(mockFiscalYearRepo.create.mock.invocationCallOrder[0]);
   });
 
   it('persists foundational accounts before posting and completes posting before suspense', async () => {
@@ -300,6 +318,18 @@ describe('createAccountingEntityUseCase', () => {
 
     await expect(getUseCase()(validPayload)).rejects.toThrow(
       'ledger persistence failed'
+    );
+    expect(mockAppContext.set).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('does not update context or publish when preference persistence fails', async () => {
+    mockUserPreferencesRepo.update.mockRejectedValueOnce(
+      new Error('preference persistence failed')
+    );
+
+    await expect(getUseCase()(validPayload)).rejects.toThrow(
+      'preference persistence failed'
     );
     expect(mockAppContext.set).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();

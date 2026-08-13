@@ -4,6 +4,7 @@ import { EAppUsageModePreference } from '@domain/user/types/user-preferences.typ
 
 import {
   accountingEntityOnboardingDtoSchema,
+  accountingEntitySwitchReqSchema,
   accountingEntityTypeValidation,
   accountingStandardCodeValidation,
   fiscalYearCreationDtoSchema,
@@ -239,6 +240,32 @@ describe('Accounting DTO Validation', () => {
       expect(
         accountingEntityOnboardingDtoSchema.safeParse(payload).success
       ).toBe(false);
+    });
+  });
+
+  describe('accountingEntitySwitchReqSchema', () => {
+    it('should validate an accounting entity switch request', () => {
+      expect(
+        accountingEntitySwitchReqSchema.safeParse({
+          accountingEntityId: '123e4567-e89b-12d3-a456-426614174000',
+        }).success
+      ).toBe(true);
+    });
+
+    it.each([
+      ['a malformed ID', { accountingEntityId: 'not-a-uuid' }],
+      ['a missing ID', {}],
+      [
+        'a caller-supplied user ID',
+        {
+          accountingEntityId: '123e4567-e89b-12d3-a456-426614174000',
+          userId: '123e4567-e89b-12d3-a456-426614174001',
+        },
+      ],
+    ])('should reject %s', (_label, payload) => {
+      expect(accountingEntitySwitchReqSchema.safeParse(payload).success).toBe(
+        false
+      );
     });
   });
 });

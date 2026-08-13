@@ -2,6 +2,7 @@ import makeCreateAccountingEntityUseCase from '@app/accounting/usecases/create-a
 import makeGetCurrentAccountingEntityUseCase from '@app/accounting/usecases/get-active-accounting-entity.usecase';
 import makeGetJurisdictionsUseCase from '@app/accounting/usecases/get-jurisdictions.usecase';
 import makeGetUserAccountingEntitiesUseCase from '@app/accounting/usecases/get-user-accounting-entities.usecase';
+import makeSwitchAccountingEntityUsecase from '@app/accounting/usecases/switch-accounting-entity.usecase';
 
 import { accountingEntityService } from '@infra/ioc/services/accounting';
 import {
@@ -13,11 +14,13 @@ import {
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
 import accountingRepos from '@infra/persistence/repos/accounting';
+import userRepos from '@infra/persistence/repos/user';
 import appContext from '@infra/runtime/app-context';
 
 export const createAccountingEntityUseCase = makeCreateAccountingEntityUseCase({
   appContext,
   accountingEntityRepo: accountingRepos.accountingEntity,
+  userPreferencesRepo: userRepos.userPreferences,
   fiscalYearRepo: accountingRepos.fiscalYear,
   accountingPeriodRepo: accountingRepos.accountingPeriod,
   accountingContextRepo: accountingRepos.accountingContext,
@@ -43,4 +46,12 @@ export const getUserAccountingEntitiesUseCase =
 export const getActiveAccountingEntityUseCase =
   makeGetCurrentAccountingEntityUseCase({
     appContext,
+    accountingEntityRepo: accountingRepos.accountingEntity,
+    userPreferencesRepo: userRepos.userPreferences,
   });
+
+export const switchAccountingEntityUseCase = makeSwitchAccountingEntityUsecase({
+  appContext,
+  accountingEntityRepo: accountingRepos.accountingEntity,
+  userPreferencesRepo: userRepos.userPreferences,
+});

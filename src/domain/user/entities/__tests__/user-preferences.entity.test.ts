@@ -1,9 +1,15 @@
 import { TCreationOmits } from '@shared/types/creation-omits.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import userPreferencesEntity from '@domain/user/entities/user-preferences.entity';
 import userEvents from '@domain/user/events/user.events';
 import { IUserPreferences } from '@domain/user/types/user-preferences.types';
+
+type TUserPreferencesCreationPayload = TCreationOmits<
+  IUserPreferences,
+  'lastActiveAccountingEntityId'
+>;
 
 describe('User Preferences Entity', () => {
   beforeEach(() => {
@@ -19,13 +25,14 @@ describe('User Preferences Entity', () => {
   describe('make', () => {
     it('should create a valid user preferences entity with light theme successfully', () => {
       const validUserId = generateUUID();
-      const payload: TCreationOmits<IUserPreferences> = {
+      const payload: TUserPreferencesCreationPayload = {
         appPreferences: { theme: 'light', appUsageMode: 'power_user' },
       };
 
       const [result, events] = userPreferencesEntity.make(validUserId, payload);
 
       expect(result.id).toBe(validUserId);
+      expect(result.lastActiveAccountingEntityId).toBeNull();
       expect(result.appPreferences.theme).toBe('light');
       expect(result.appPreferences.appUsageMode).toBe('power_user');
       expect(result.createdAt).toEqual(new Date('2026-03-13T00:00:00.000Z'));
@@ -39,7 +46,7 @@ describe('User Preferences Entity', () => {
 
     it('should create a valid user preferences entity with dark theme successfully', () => {
       const validUserId = generateUUID();
-      const payload: TCreationOmits<IUserPreferences> = {
+      const payload: TUserPreferencesCreationPayload = {
         appPreferences: { theme: 'dark', appUsageMode: 'non_power_user' },
       };
 
@@ -53,7 +60,7 @@ describe('User Preferences Entity', () => {
 
     it('should create a valid user preferences entity with system theme successfully', () => {
       const validUserId = generateUUID();
-      const payload: TCreationOmits<IUserPreferences> = {
+      const payload: TUserPreferencesCreationPayload = {
         appPreferences: { theme: 'system', appUsageMode: 'power_user' },
       };
 
@@ -66,7 +73,7 @@ describe('User Preferences Entity', () => {
 
     it('should throw an error for invalid theme preference', () => {
       const validUserId = generateUUID();
-      const payload: TCreationOmits<IUserPreferences> = {
+      const payload: TUserPreferencesCreationPayload = {
         appPreferences: {
           theme: 'invalid-theme' as 'light',
           appUsageMode: 'power_user',
@@ -78,7 +85,7 @@ describe('User Preferences Entity', () => {
 
     it('should throw an error for invalid usage mode preference', () => {
       const validUserId = generateUUID();
-      const payload: TCreationOmits<IUserPreferences> = {
+      const payload: TUserPreferencesCreationPayload = {
         appPreferences: {
           theme: 'light',
           appUsageMode: 'invalid-mode' as 'power_user',
@@ -89,7 +96,7 @@ describe('User Preferences Entity', () => {
     });
 
     it('should throw an error for invalid userId format', () => {
-      const payload: TCreationOmits<IUserPreferences> = {
+      const payload: TUserPreferencesCreationPayload = {
         appPreferences: { theme: 'light', appUsageMode: 'power_user' },
       };
 
@@ -100,7 +107,7 @@ describe('User Preferences Entity', () => {
 
     it('should create user preferences entity successfully when appPreferences is undefined', () => {
       const validUserId = generateUUID();
-      const payload = {} as unknown as TCreationOmits<IUserPreferences>;
+      const payload = {} as unknown as TUserPreferencesCreationPayload;
 
       const [result] = userPreferencesEntity.make(validUserId, payload);
 
@@ -113,7 +120,7 @@ describe('User Preferences Entity', () => {
       const validUserId = generateUUID();
       const payload = {
         appPreferences: null as any,
-      } as unknown as TCreationOmits<IUserPreferences>;
+      } as unknown as TUserPreferencesCreationPayload;
 
       const [result] = userPreferencesEntity.make(validUserId, payload);
 
@@ -126,14 +133,19 @@ describe('User Preferences Entity', () => {
   describe('update', () => {
     it('should update user preferences theme successfully', () => {
       const validUserId = generateUUID();
-      const initialPayload: TCreationOmits<IUserPreferences> = {
+      const initialPayload: TUserPreferencesCreationPayload = {
         appPreferences: { theme: 'light', appUsageMode: 'power_user' },
       };
 
-      const [initialEntity] = userPreferencesEntity.make(
+      const [createdEntity] = userPreferencesEntity.make(
         validUserId,
         initialPayload
       );
+      const lastActiveAccountingEntityId = generateUUID();
+      const initialEntity = userPreferencesEntity.rehydrate({
+        ...createdEntity,
+        lastActiveAccountingEntityId,
+      });
 
       // Move time forward slightly to test updatedAt
       jest.setSystemTime(new Date('2026-03-14T00:00:00.000Z'));
@@ -148,6 +160,9 @@ describe('User Preferences Entity', () => {
       );
 
       expect(updatedEntity.id).toBe(initialEntity.id);
+      expect(updatedEntity.lastActiveAccountingEntityId).toBe(
+        lastActiveAccountingEntityId
+      );
       expect(updatedEntity.appPreferences.theme).toBe('dark');
       expect(updatedEntity.appPreferences.appUsageMode).toBe('non_power_user');
       expect(updatedEntity.createdAt).toEqual(initialEntity.createdAt);
@@ -163,7 +178,7 @@ describe('User Preferences Entity', () => {
 
     it('should retain existing preferences if payload does not contain appPreferences', () => {
       const validUserId = generateUUID();
-      const initialPayload: TCreationOmits<IUserPreferences> = {
+      const initialPayload: TUserPreferencesCreationPayload = {
         appPreferences: { theme: 'system', appUsageMode: 'power_user' },
       };
 
@@ -195,7 +210,7 @@ describe('User Preferences Entity', () => {
 
     it('should throw an error for invalid theme preference when updating', () => {
       const validUserId = generateUUID();
-      const initialPayload: TCreationOmits<IUserPreferences> = {
+      const initialPayload: TUserPreferencesCreationPayload = {
         appPreferences: { theme: 'light', appUsageMode: 'power_user' },
       };
 
@@ -218,7 +233,7 @@ describe('User Preferences Entity', () => {
 
     it('should throw an error for invalid usage mode preference when updating', () => {
       const validUserId = generateUUID();
-      const initialPayload: TCreationOmits<IUserPreferences> = {
+      const initialPayload: TUserPreferencesCreationPayload = {
         appPreferences: { theme: 'light', appUsageMode: 'power_user' },
       };
 
@@ -243,8 +258,10 @@ describe('User Preferences Entity', () => {
   describe('rehydrate', () => {
     it('should rehydrate user preferences successfully', () => {
       const validUserId = generateUUID();
+      const lastActiveAccountingEntityId = generateUUID();
       const payload: IUserPreferences = {
         id: validUserId,
+        lastActiveAccountingEntityId,
         appPreferences: { theme: 'light', appUsageMode: 'power_user' },
         createdAt: new Date('2026-03-13T00:00:00.000Z'),
         updatedAt: new Date('2026-03-13T00:00:00.000Z'),
@@ -253,6 +270,9 @@ describe('User Preferences Entity', () => {
       const result = userPreferencesEntity.rehydrate(payload);
 
       expect(result.id).toBe(validUserId);
+      expect(result.lastActiveAccountingEntityId).toBe(
+        lastActiveAccountingEntityId
+      );
       expect(result.appPreferences.theme).toBe('light');
       expect(result.appPreferences.appUsageMode).toBe('power_user');
       expect(result.createdAt).toEqual(payload.createdAt);
@@ -264,6 +284,19 @@ describe('User Preferences Entity', () => {
     it('should throw an error for invalid userId format during rehydration', () => {
       const payload: IUserPreferences = {
         id: 'invalid-id' as any,
+        lastActiveAccountingEntityId: null,
+        appPreferences: { theme: 'light', appUsageMode: 'power_user' },
+        createdAt: new Date('2026-03-13T00:00:00.000Z'),
+        updatedAt: new Date('2026-03-13T00:00:00.000Z'),
+      };
+
+      expect(() => userPreferencesEntity.rehydrate(payload)).toThrow();
+    });
+
+    it('should throw an error for an invalid last active accounting entity ID', () => {
+      const payload: IUserPreferences = {
+        id: generateUUID(),
+        lastActiveAccountingEntityId: 'invalid-id' as TEntityId,
         appPreferences: { theme: 'light', appUsageMode: 'power_user' },
         createdAt: new Date('2026-03-13T00:00:00.000Z'),
         updatedAt: new Date('2026-03-13T00:00:00.000Z'),

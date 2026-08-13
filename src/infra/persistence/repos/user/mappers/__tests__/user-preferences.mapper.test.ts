@@ -7,9 +7,12 @@ import userPreferencesMapper from '@infra/persistence/repos/user/mappers/user-pr
 describe('User Preferences Mapper', () => {
   const createdAt = new Date('2026-04-10T12:00:00Z');
   const updatedAt = new Date('2026-04-10T12:30:00Z');
+  const lastActiveAccountingEntityId =
+    '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 
   const domainPreferences: IUserPreferences = {
     id: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+    lastActiveAccountingEntityId,
     appPreferences: {
       theme: 'dark',
     },
@@ -19,6 +22,7 @@ describe('User Preferences Mapper', () => {
 
   const repoModel: Parameters<typeof userPreferencesMapper.toDomain>[0] = {
     id: '123e4567-e89b-12d3-a456-426614174000',
+    lastActiveAccountingEntityId,
     appPreferences: {
       theme: 'dark',
     },
@@ -32,6 +36,18 @@ describe('User Preferences Mapper', () => {
         repoModel
       );
     });
+
+    it('should map a null last active accounting entity ID', () => {
+      expect(
+        userPreferencesMapper.toRepo({
+          ...domainPreferences,
+          lastActiveAccountingEntityId: null,
+        })
+      ).toEqual({
+        ...repoModel,
+        lastActiveAccountingEntityId: null,
+      });
+    });
   });
 
   describe('toDomain', () => {
@@ -39,6 +55,18 @@ describe('User Preferences Mapper', () => {
       expect(userPreferencesMapper.toDomain(repoModel)).toEqual(
         domainPreferences
       );
+    });
+
+    it('should map a null last active accounting entity ID', () => {
+      expect(
+        userPreferencesMapper.toDomain({
+          ...repoModel,
+          lastActiveAccountingEntityId: null,
+        })
+      ).toEqual({
+        ...domainPreferences,
+        lastActiveAccountingEntityId: null,
+      });
     });
 
     it('should throw UserPreferencesError for invalid theme', () => {
