@@ -145,16 +145,55 @@ describe('createAccountingEntityUseCase', () => {
     expect(mockAppContext.get).not.toHaveBeenCalled();
   });
 
-  it('rejects unsupported entity types before duplicate detection', async () => {
-    await expect(
-      getUseCase()({
-        ...validPayload,
-        entityType: EAccountingEntityType.PrivateCompany,
-      })
-    ).rejects.toThrow('app_error_bad_request');
+  it('creates a private company through the existing workflow', async () => {
+    const privateCompanyPayload = {
+      ...validPayload,
+      entityType: EAccountingEntityType.PrivateCompany,
+    };
+    const privateCompanyAccounting = await makeAccountingEntityService({
+      accountingEntityRepo: mockAccountingEntityRepo,
+    }).create(
+      {
+        name: privateCompanyPayload.name,
+        type: privateCompanyPayload.entityType,
+        ownerId: userId,
+        functionalCurrencyCode: privateCompanyPayload.functionalCurrencyCode,
+        reportingCurrencyCode: privateCompanyPayload.reportingCurrencyCode,
+        jurisdictionCode: privateCompanyPayload.jurisdictionCode,
+        accountingStandardCode: privateCompanyPayload.accountingStandardCode,
+        fiscalYear: privateCompanyPayload.fiscalYear,
+        accountingPeriod: privateCompanyPayload.accountingPeriod,
+        reportingPeriod: privateCompanyPayload.reportingPeriod,
+      },
+      { correlationId }
+    );
+    const privateCompanyEntity = privateCompanyAccounting.accountingEntity[0];
+
+    mockAccountingDomainServices.accountingEntity.create.mockResolvedValueOnce(
+      privateCompanyAccounting
+    );
+
+    await expect(getUseCase()(privateCompanyPayload)).resolves.toBe(
+      privateCompanyEntity
+    );
+
     expect(
       mockAccountingDomainServices.accountingEntity.create
-    ).not.toHaveBeenCalled();
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: EAccountingEntityType.PrivateCompany,
+        ownerId: userId,
+      }),
+      { correlationId }
+    );
+    expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
+    expect(mockHeaderAccountsBootstrapService.bootstrap).toHaveBeenCalledWith(
+      privateCompanyEntity,
+      { correlationId, tx: 'mock-tx' }
+    );
+    expect(mockAppContext.set).toHaveBeenCalledWith({
+      accountingEntity: privateCompanyEntity,
+    });
   });
 
   it('propagates the existing individual accounting entity error', async () => {

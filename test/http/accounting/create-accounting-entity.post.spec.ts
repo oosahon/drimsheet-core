@@ -141,6 +141,29 @@ describe('POST /accounting/accounting-entity', () => {
         soleTraderPayload
       );
     });
+
+    it('creates a private company accounting entity', async () => {
+      const privateCompanyPayload: IAccountingEntityCreationDto = {
+        ...validPayload,
+        entityType: 'private_company',
+      };
+      const privateCompanyEntity: IAccountingEntity = {
+        ...createdEntity,
+        type: 'private_company',
+      };
+      mockCreateAccountingEntity.mockResolvedValue(privateCompanyEntity);
+
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(privateCompanyPayload);
+
+      expect(response.status).toBe(201);
+      expect(response.body).toMatchObject({ type: 'private_company' });
+      expect(mockCreateAccountingEntity).toHaveBeenCalledWith(
+        privateCompanyPayload
+      );
+    });
   });
 
   describe('400 Response', () => {

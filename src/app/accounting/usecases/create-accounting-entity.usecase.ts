@@ -5,7 +5,6 @@ import {
 } from '@shared/contracts/repo.contract';
 import { IRepoOptions } from '@shared/types/repo.types';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
-import appError from '@shared/values/errors/app.error';
 import eventValue from '@shared/values/events/event.vo';
 import { IEvent } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
@@ -17,7 +16,6 @@ import IFiscalYearRepo from '@domain/accounting/repos/fiscal-year.repo';
 import IReportingContextRepo from '@domain/accounting/repos/reporting-context.repo';
 import IReportingPeriodRepo from '@domain/accounting/repos/reporting-period.repo';
 import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
-import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
 import { EAppUsageModePreference } from '@domain/user/types/user-preferences.types';
 
 import { IAccountingEntityCreationDto } from '@app/accounting/dtos/accounting/accounting.dto';
@@ -49,10 +47,6 @@ interface IDependencies {
 export default function createAccountingEntityUseCase(deps: IDependencies) {
   return async (payload: IAccountingEntityCreationDto) => {
     zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
-
-    if (payload.entityType === EAccountingEntityType.PrivateCompany) {
-      throw new appError.BadRequest();
-    }
 
     const { user, correlationId } = deps.appContext.get();
     const trace = { correlationId };
