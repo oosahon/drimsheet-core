@@ -1488,6 +1488,14 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IAccountingEntitySwitchReq: {
+    dataType: 'refObject',
+    properties: {
+      accountingEntityId: { dataType: 'string', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IAccountingStandardDto: {
     dataType: 'refObject',
     properties: {
@@ -2779,6 +2787,55 @@ export function RegisterRoutes(app: Router) {
           next,
           validatedArgs,
           successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsAccountingController_switchAccountingEntity: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'IAccountingEntitySwitchReq',
+    },
+  };
+  app.post(
+    '/api/v1/accounting/accounting-entity/switch',
+    ...fetchMiddlewares<RequestHandler>(AccountingController),
+    ...fetchMiddlewares<RequestHandler>(
+      AccountingController.prototype.switchAccountingEntity
+    ),
+
+    async function AccountingController_switchAccountingEntity(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsAccountingController_switchAccountingEntity,
+          request,
+          response,
+        });
+
+        const controller = new AccountingController();
+
+        await templateService.apiHandler({
+          methodName: 'switchAccountingEntity',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
         });
       } catch (err) {
         return next(err);

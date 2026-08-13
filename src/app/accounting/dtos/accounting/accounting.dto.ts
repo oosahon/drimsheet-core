@@ -42,6 +42,10 @@ export interface IAccountingEntityCreationDto {
   appUsageMode: UAppUsageModePreference;
 }
 
+export interface IAccountingEntitySwitchReq {
+  accountingEntityId: string;
+}
+
 export interface IAccountingStandardDto {
   [EAccountingEntityType.Individual]: string[];
   [EAccountingEntityType.SoleTrader]: string[];

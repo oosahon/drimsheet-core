@@ -7,6 +7,7 @@ This section outlines the foundational rules, patterns, and design decisions app
 PurpleLedger natively supports multiple distinct contexts: Individuals, Sole Traders, and Organizations (Section 2.4).
 
 - **Mechanism**: Every request to the core API establishes operational context early in the request lifecycle. Authenticated user context is derived from the request session, while accounting-entity context is loaded from the `x-accounting-entity-id` request header when present. This context is injected into application use cases and repository calls, ensuring database queries, ledger operations, and reporting computations are isolated to the currently active accounting entity.
+- **Selection lifecycle**: An authenticated client can call `POST /api/v1/accounting/accounting-entity/switch` with an owned accounting entity ID to validate and establish that entity in the current request context. The endpoint returns the canonical accounting entity so the client can update its application state. App context is request-scoped, so the client must continue to send the selected ID through `x-accounting-entity-id` on subsequent requests.
 
 ## 8.2 Immutability & Auditability
 

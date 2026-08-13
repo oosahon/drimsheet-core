@@ -2,6 +2,7 @@ import makeCreateAccountingEntityUseCase from '@app/accounting/usecases/create-a
 import makeGetCurrentAccountingEntityUseCase from '@app/accounting/usecases/get-active-accounting-entity.usecase';
 import makeGetJurisdictionsUseCase from '@app/accounting/usecases/get-jurisdictions.usecase';
 import makeGetUserAccountingEntitiesUseCase from '@app/accounting/usecases/get-user-accounting-entities.usecase';
+import makeSwitchAccountingEntityUsecase from '@app/accounting/usecases/switch-accounting-entity.usecase';
 
 import { accountingEntityService } from '@infra/ioc/services/accounting';
 import {
@@ -44,3 +45,8 @@ export const getActiveAccountingEntityUseCase =
   makeGetCurrentAccountingEntityUseCase({
     appContext,
   });
+
+export const switchAccountingEntityUseCase = makeSwitchAccountingEntityUsecase({
+  appContext,
+  accountingEntityRepo: accountingRepos.accountingEntity,
+});

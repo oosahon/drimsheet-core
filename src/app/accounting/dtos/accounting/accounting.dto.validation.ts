@@ -92,6 +92,13 @@ export const periodCreationDtoSchema = z.object({
   unit: periodUnitValidation,
   count: z.number().int().positive().max(MAX_GENERATED_PERIODS),
 });
+
+export const accountingEntitySwitchReqSchema = z
+  .object({
+    accountingEntityId: z.uuid(new accountingError.InvalidId().errorKey),
+  })
+  .strict();
+
 export const accountingEntityOnboardingDtoSchema = z.object({
   name: z.string(),
   entityType: accountingEntityTypeValidation,
