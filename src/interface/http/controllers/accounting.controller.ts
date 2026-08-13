@@ -17,7 +17,6 @@ import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.ty
 
 import {
   IAccountingEntityCreationDto,
-  IAccountingEntitySwitchReq,
   IJurisdictionDto,
 } from '@app/accounting/dtos/accounting/accounting.dto';
 
@@ -27,7 +26,6 @@ import {
   getActiveAccountingEntityUseCase,
   getJurisdictionsUseCase,
   getUserAccountingEntitiesUseCase,
-  switchAccountingEntityUseCase,
 } from '@infra/ioc/usecases/accounting';
 
 @Route('accounting')
@@ -48,23 +46,6 @@ export class AccountingController extends Controller {
     @Body() body: IAccountingEntityCreationDto
   ) {
     return await createAccountingEntityUseCase(body);
-  }
-
-  /**
-   * Switch the current accounting entity
-   */
-  @Post('/accounting-entity/switch')
-  @OperationId('switchAccountingEntity')
-  @SuccessResponse('200')
-  @Response<IHttpErrorDto>('401')
-  @Response<IHttpErrorDto>('404')
-  @Response<IHttpErrorDto>('422')
-  @Response<IHttpErrorDto>('500')
-  @Middlewares(middlewares.isAuthenticatedUser)
-  public async switchAccountingEntity(
-    @Body() body: IAccountingEntitySwitchReq
-  ): Promise<IAccountingEntity> {
-    return await switchAccountingEntityUseCase(body);
   }
 
   /**
@@ -103,7 +84,7 @@ export class AccountingController extends Controller {
   @Response<IHttpErrorDto>('404')
   @Response<IHttpErrorDto>('500')
   @Middlewares(middlewares.isAuthenticatedUser)
-  public async getActiveAccountingEntity() {
+  public async getActiveAccountingEntity(): Promise<IAccountingEntity> {
     return await getActiveAccountingEntityUseCase();
   }
 }

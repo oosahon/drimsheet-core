@@ -44,11 +44,6 @@ jest.mock('../../../src/infra/persistence/repos/user', () => ({
   __esModule: true,
   default: {
     user: { findById: jest.fn() },
-    userPreferences: {
-      findById: jest
-        .fn()
-        .mockResolvedValue({ lastActiveAccountingEntityId: null }),
-    },
   },
 }));
 

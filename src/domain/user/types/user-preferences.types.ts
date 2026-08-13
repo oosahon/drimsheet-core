@@ -24,7 +24,6 @@ export interface IUserAppPreferences {
 export interface IUserPreferences {
   id: TEntityId;
   appPreferences: IUserAppPreferences;
-  lastActiveAccountingEntityId: TEntityId | null;
   createdAt: Date;
   updatedAt: Date;
 }

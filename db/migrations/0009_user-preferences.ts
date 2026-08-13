@@ -1,0 +1,34 @@
+import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+import { userPreferencesTable, usersTable } from '../config/users';
+
+export const shorthands: ColumnDefinitions | undefined = undefined;
+
+export async function up(pgm: MigrationBuilder): Promise<void> {
+  pgm.createTable(userPreferencesTable, {
+    id: {
+      type: 'uuid',
+      primaryKey: true,
+      references: usersTable,
+      onDelete: 'CASCADE',
+    },
+
+    app_preferences: {
+      type: 'jsonb',
+    },
+
+    created_at: {
+      type: 'timestamptz',
+      default: pgm.func('now()'),
+      notNull: true,
+    },
+
+    updated_at: {
+      type: 'timestamptz',
+      notNull: true,
+    },
+  });
+}
+
+export async function down(pgm: MigrationBuilder): Promise<void> {
+  pgm.dropTable(userPreferencesTable);
+}

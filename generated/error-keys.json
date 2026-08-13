@@ -48,7 +48,6 @@
   "app_error_too_many_requests",
   "app_error_unauthorized",
   "app_error_unprocessable",
-  "app_error_user_preferences_inconsistent_internal_server_error",
   "auth_error_email_required",
   "auth_error_expired_token",
   "auth_error_inconsistent_user_auth_internal_server_error",

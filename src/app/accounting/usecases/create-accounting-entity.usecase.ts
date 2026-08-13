@@ -26,7 +26,6 @@ import { ILedgerAccountBootstrapEntry } from '@app/ledger/contracts/ledger-accou
 import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
 import IPostingAccountBootstrapService from '@app/ledger/contracts/posting-account-bootstrap.service.contract';
 import ISuspenseAccountBootstrapService from '@app/ledger/contracts/suspense-account-bootstrap.service.contract';
-import IUserPreferencesAppService from '@app/user/contracts/user-preferences-app.service.contract';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -39,7 +38,6 @@ interface IDependencies {
   repoService: IRepoService;
   ledgerAccountPersistenceService: ILedgerAccountPersistenceService;
   accountingEntityService: IAccountingEntityService;
-  userPreferencesAppService: IUserPreferencesAppService;
   headerAccountsBootstrapService: IHeaderAccountsBootstrapService;
   postingAccountBootstrapService: IPostingAccountBootstrapService;
   suspenseAccountBootstrapService: ISuspenseAccountBootstrapService;
@@ -150,13 +148,6 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         history: accountingEntityHistory,
       });
 
-      const preferenceUpdate =
-        await deps.userPreferencesAppService.setActiveAccountingEntity(
-          user.id,
-          accountingEntity.id,
-          repoOptions
-        );
-
       await deps.fiscalYearRepo.create(fiscalYear, {
         ...repoOptions,
         history: fiscalYearHistory,
@@ -213,10 +204,10 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         ledgerAccountEvents.push(...suspenseBootstrap.events);
       }
 
-      return [...ledgerAccountEvents, ...preferenceUpdate.events];
+      return ledgerAccountEvents;
     };
 
-    const transactionEvents =
+    const ledgerAccountEvents =
       await deps.repoService.runInTransaction(transactionFn);
 
     deps.appContext.set({ accountingEntity });
@@ -235,7 +226,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       ...accountingContextEvents,
       ...reportingPeriodEvents,
       ...reportingContextEvents,
-      ...transactionEvents,
+      ...ledgerAccountEvents,
     ];
 
     const enrichedEvents = eventValue.enrichAll(events, trace);

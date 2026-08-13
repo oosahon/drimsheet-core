@@ -45,11 +45,6 @@ jest.mock('../../../src/infra/persistence/repos/user', () => ({
     user: {
       findById: jest.fn(),
     },
-    userPreferences: {
-      findById: jest
-        .fn()
-        .mockResolvedValue({ lastActiveAccountingEntityId: null }),
-    },
   },
 }));
 
@@ -89,7 +84,6 @@ describe('POST /accounting/accounting-entity', () => {
   let app: Express;
   const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
-  const mockFindPreferences = userRepos.userPreferences.findById as jest.Mock;
   const mockFindAccountingEntity = accountingRepos.accountingEntity
     .findByIdAndUserId as jest.Mock;
   const mockCreateAccountingEntity =
@@ -99,9 +93,6 @@ describe('POST /accounting/accounting-entity', () => {
     jest.clearAllMocks();
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue({ id: userId } as IUser);
-    mockFindPreferences
-      .mockReset()
-      .mockResolvedValue({ lastActiveAccountingEntityId: null });
     mockFindAccountingEntity.mockResolvedValue(null);
     mockCreateAccountingEntity.mockResolvedValue(createdEntity);
     app = createApplication();
@@ -353,23 +344,6 @@ describe('POST /accounting/accounting-entity', () => {
   });
 
   describe('500 Response', () => {
-    it('returns a consistency error when user preferences are missing', async () => {
-      mockFindPreferences.mockResolvedValue(null);
-
-      const response = await request(app)
-        .post(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token')
-        .send(validPayload);
-
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({
-        name: 'UserPreferencesAppError',
-        errorKey:
-          'app_error_user_preferences_inconsistent_internal_server_error',
-      });
-      expect(mockCreateAccountingEntity).not.toHaveBeenCalled();
-    });
-
     it('sanitizes unexpected creation failures', async () => {
       mockCreateAccountingEntity.mockRejectedValue(
         new Error('database credentials leaked')

@@ -13,8 +13,6 @@ describe('User Preferences Mapper', () => {
     appPreferences: {
       theme: 'dark',
     },
-    lastActiveAccountingEntityId:
-      '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     createdAt,
     updatedAt,
   };
@@ -24,7 +22,6 @@ describe('User Preferences Mapper', () => {
     appPreferences: {
       theme: 'dark',
     },
-    lastActiveAccountingEntityId: '123e4567-e89b-12d3-a456-426614174001',
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
   };
@@ -35,15 +32,6 @@ describe('User Preferences Mapper', () => {
         repoModel
       );
     });
-
-    it('should map a null accounting entity selection', () => {
-      expect(
-        userPreferencesMapper.toRepo({
-          ...domainPreferences,
-          lastActiveAccountingEntityId: null,
-        }).lastActiveAccountingEntityId
-      ).toBeNull();
-    });
   });
 
   describe('toDomain', () => {
@@ -51,24 +39,6 @@ describe('User Preferences Mapper', () => {
       expect(userPreferencesMapper.toDomain(repoModel)).toEqual(
         domainPreferences
       );
-    });
-
-    it('should map a null accounting entity selection to the domain', () => {
-      expect(
-        userPreferencesMapper.toDomain({
-          ...repoModel,
-          lastActiveAccountingEntityId: null,
-        }).lastActiveAccountingEntityId
-      ).toBeNull();
-    });
-
-    it('should reject an invalid accounting entity selection', () => {
-      expect(() =>
-        userPreferencesMapper.toDomain({
-          ...repoModel,
-          lastActiveAccountingEntityId: 'invalid-id',
-        })
-      ).toThrow();
     });
 
     it('should throw UserPreferencesError for invalid theme', () => {

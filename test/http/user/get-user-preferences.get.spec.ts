@@ -60,7 +60,6 @@ describe('GET /users/preferences', () => {
       theme: 'dark',
       appUsageMode: 'power_user',
     },
-    lastActiveAccountingEntityId: null,
     createdAt: new Date('2026-03-13T00:00:00.000Z'),
     updatedAt: new Date('2026-03-13T00:00:00.000Z'),
   };
@@ -84,8 +83,6 @@ describe('GET /users/preferences', () => {
       expect(response.body).toEqual({
         id: mockPreferences.id,
         appPreferences: mockPreferences.appPreferences,
-        lastActiveAccountingEntityId:
-          mockPreferences.lastActiveAccountingEntityId,
         createdAt: mockPreferences.createdAt.toISOString(),
         updatedAt: mockPreferences.updatedAt.toISOString(),
       });
@@ -171,8 +168,8 @@ describe('GET /users/preferences', () => {
     });
   });
 
-  describe('500 Response', () => {
-    it('returns a consistency error if the guaranteed preferences row is missing', async () => {
+  describe('404 Response', () => {
+    it('returns resource not found error if preferences row does not exist', async () => {
       mockGetAuthUser.mockResolvedValue({ id: mockUser.id });
       mockFindUser.mockResolvedValue(mockUser);
       mockFindPreferences.mockResolvedValue(null);
@@ -181,14 +178,15 @@ describe('GET /users/preferences', () => {
         .get(ENDPOINT)
         .set('Authorization', 'Bearer token');
 
-      expect(response.status).toBe(500);
+      expect(response.status).toBe(404);
       expect(response.body).toEqual({
-        name: 'UserPreferencesAppError',
-        errorKey:
-          'app_error_user_preferences_inconsistent_internal_server_error',
+        name: 'ResourceNotFound',
+        errorKey: 'app_error_resource_not_found',
       });
     });
+  });
 
+  describe('500 Response', () => {
     it('sanitizes internal errors and returns InternalServerError', async () => {
       mockGetAuthUser.mockResolvedValue({ id: mockUser.id });
       mockFindUser.mockResolvedValue(mockUser);

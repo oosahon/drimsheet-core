@@ -37,14 +37,7 @@ jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
 
 jest.mock('../../../src/infra/persistence/repos/user', () => ({
   __esModule: true,
-  default: {
-    user: { findById: jest.fn() },
-    userPreferences: {
-      findById: jest
-        .fn()
-        .mockResolvedValue({ lastActiveAccountingEntityId: null }),
-    },
-  },
+  default: { user: { findById: jest.fn() } },
 }));
 
 const ENDPOINT = '/api/v1/accounting/accounting-entity';
@@ -64,7 +57,6 @@ describe('GET /accounting/accounting-entity', () => {
   let app: Express;
   const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
-  const mockFindPreferences = userRepos.userPreferences.findById as jest.Mock;
   const mockFindEntity = accountingRepos.accountingEntity
     .findByIdAndUserId as jest.Mock;
   const mockGetActiveEntity =
@@ -74,9 +66,6 @@ describe('GET /accounting/accounting-entity', () => {
     jest.clearAllMocks();
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue({ id: userId } as IUser);
-    mockFindPreferences
-      .mockReset()
-      .mockResolvedValue({ lastActiveAccountingEntityId: null });
     mockFindEntity.mockResolvedValue(entity);
     mockGetActiveEntity.mockResolvedValue(entity);
     app = createApplication();
@@ -97,29 +86,6 @@ describe('GET /accounting/accounting-entity', () => {
         createdAt: entity.createdAt.toISOString(),
         updatedAt: entity.updatedAt.toISOString(),
       });
-      expect(mockFindEntity).toHaveBeenCalledWith(
-        entity.id,
-        userId,
-        expect.any(Object)
-      );
-      expect(mockGetActiveEntity).toHaveBeenCalledWith();
-      expect(mockFindPreferences).not.toHaveBeenCalled();
-    });
-
-    it('restores the persisted entity when the header is absent', async () => {
-      mockFindPreferences.mockResolvedValue({
-        lastActiveAccountingEntityId: entity.id,
-      });
-
-      const response = await request(app)
-        .get(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token');
-
-      expect(response.status).toBe(200);
-      expect(mockFindPreferences).toHaveBeenCalledWith(
-        userId,
-        expect.any(Object)
-      );
       expect(mockFindEntity).toHaveBeenCalledWith(
         entity.id,
         userId,
@@ -191,22 +157,6 @@ describe('GET /accounting/accounting-entity', () => {
   });
 
   describe('500 Response', () => {
-    it('returns the sanitized consistency error for missing preferences', async () => {
-      mockFindPreferences.mockResolvedValue(null);
-
-      const response = await request(app)
-        .get(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token');
-
-      expect(response.status).toBe(500);
-      expect(response.body).toEqual({
-        name: 'UserPreferencesAppError',
-        errorKey:
-          'app_error_user_preferences_inconsistent_internal_server_error',
-      });
-      expect(mockGetActiveEntity).not.toHaveBeenCalled();
-    });
-
     it('sanitizes unexpected failures', async () => {
       mockGetActiveEntity.mockRejectedValue(new Error('database credentials'));
 
