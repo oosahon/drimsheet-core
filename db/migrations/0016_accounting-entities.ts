@@ -1,4 +1,5 @@
 import { MigrationBuilder } from 'node-pg-migrate';
+
 import { jurisdictionsTable } from '../config/accounting';
 import {
   accountingEntitiesTable,

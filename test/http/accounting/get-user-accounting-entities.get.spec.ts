@@ -36,7 +36,14 @@ jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
 
 jest.mock('../../../src/infra/persistence/repos/user', () => ({
   __esModule: true,
-  default: { user: { findById: jest.fn() } },
+  default: {
+    user: { findById: jest.fn() },
+    userPreferences: {
+      findById: jest
+        .fn()
+        .mockResolvedValue({ lastActiveAccountingEntityId: null }),
+    },
+  },
 }));
 
 const ENDPOINT = '/api/v1/accounting/accounting-entities';

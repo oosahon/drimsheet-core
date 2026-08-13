@@ -29,6 +29,7 @@ describe('makeGetUserPreferencesUseCase', () => {
       appPreferences: {
         theme: 'dark',
       },
+      lastActiveAccountingEntityId: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as IUserPreferences;

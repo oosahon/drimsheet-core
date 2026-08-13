@@ -109,6 +109,11 @@ const models: TsoaRoute.Models = {
     properties: {
       id: { ref: 'TEntityId', required: true },
       appPreferences: { ref: 'IUserAppPreferences', required: true },
+      lastActiveAccountingEntityId: {
+        dataType: 'union',
+        subSchemas: [{ ref: 'TEntityId' }, { dataType: 'enum', enums: [null] }],
+        required: true,
+      },
       createdAt: { dataType: 'datetime', required: true },
       updatedAt: { dataType: 'datetime', required: true },
     },

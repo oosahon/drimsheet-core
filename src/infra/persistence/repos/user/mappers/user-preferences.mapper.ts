@@ -20,6 +20,7 @@ const userPreferencesMapper = {
     return {
       id: payload.id,
       appPreferences: payload.appPreferences,
+      lastActiveAccountingEntityId: payload.lastActiveAccountingEntityId,
       createdAt: toRepoDate(payload.createdAt),
       updatedAt: toRepoDate(payload.updatedAt),
     };
@@ -30,6 +31,8 @@ const userPreferencesMapper = {
       id: payload.id as TEntityId,
       appPreferences:
         payload.appPreferences as IUserPreferences['appPreferences'],
+      lastActiveAccountingEntityId:
+        payload.lastActiveAccountingEntityId as TEntityId | null,
       createdAt: fromRepoDate(payload.createdAt),
       updatedAt: fromRepoDate(payload.updatedAt),
     });

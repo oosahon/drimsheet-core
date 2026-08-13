@@ -39,6 +39,16 @@ function makeAppPreferences(appPreferences?: IUserAppPreferences | null) {
   });
 }
 
+function makeLastActiveAccountingEntityId(
+  accountingEntityId: TEntityId | null
+) {
+  if (accountingEntityId !== null) {
+    stringUtils.validateUUID(accountingEntityId, userError.InvalidValue);
+  }
+
+  return accountingEntityId;
+}
+
 function make(
   userId: TEntityId,
   payload: TCreationOmits<IUserPreferences>
@@ -50,6 +60,9 @@ function make(
   const entity: IUserPreferences = Object.freeze({
     id: userId,
     appPreferences: makeAppPreferences(payload.appPreferences),
+    lastActiveAccountingEntityId: makeLastActiveAccountingEntityId(
+      payload.lastActiveAccountingEntityId
+    ),
     createdAt: timestamp,
     updatedAt: timestamp,
   });
@@ -65,6 +78,12 @@ function update(entity: IUserPreferences, payload: Partial<IUserPreferences>) {
     appPreferences: payload.appPreferences
       ? makeAppPreferences(payload.appPreferences)
       : entity.appPreferences,
+    lastActiveAccountingEntityId:
+      payload.lastActiveAccountingEntityId === undefined
+        ? entity.lastActiveAccountingEntityId
+        : makeLastActiveAccountingEntityId(
+            payload.lastActiveAccountingEntityId
+          ),
     updatedAt: new Date(),
   });
 
@@ -78,6 +97,9 @@ function rehydrate(payload: IUserPreferences): IUserPreferences {
   return Object.freeze({
     id: payload.id,
     appPreferences: makeAppPreferences(payload.appPreferences),
+    lastActiveAccountingEntityId: makeLastActiveAccountingEntityId(
+      payload.lastActiveAccountingEntityId
+    ),
     createdAt: payload.createdAt,
     updatedAt: payload.updatedAt,
   });

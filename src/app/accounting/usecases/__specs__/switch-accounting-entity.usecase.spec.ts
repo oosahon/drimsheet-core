@@ -1,13 +1,16 @@
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
+import { IEvent } from '@shared/values/events/types/event.types';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import { IUserPreferences } from '@domain/user/types/user-preferences.types';
 import { IUser } from '@domain/user/types/user.types';
 
-import { mockAccountingEntityRepo } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
 import accountingAppError from '@app/accounting/errors/accounting.error';
 import makeSwitchAccountingEntityUsecase from '@app/accounting/usecases/switch-accounting-entity.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import mockUserPreferencesAppService from '@app/user/contracts/__mocks__/user-preferences-app.service.mock';
 
 describe('switchAccountingEntityUsecase', () => {
   const correlationId = 'test-correlation-id';
@@ -27,11 +30,24 @@ describe('switchAccountingEntityUsecase', () => {
     id: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
     name: 'Target Entity',
   };
+  const selectionEvent: IEvent<IUserPreferences> = {
+    type: 'domain:user:preferences-updated',
+    data: {
+      id: userId,
+      appPreferences: {},
+      lastActiveAccountingEntityId: targetAccountingEntity.id,
+      createdAt: new Date('2026-08-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-08-02T00:00:00.000Z'),
+    },
+    occurredAt: new Date('2026-08-02T00:00:00.000Z'),
+    enrichedAt: null,
+  };
 
   const getUsecase = () =>
     makeSwitchAccountingEntityUsecase({
       appContext: mockAppContext,
-      accountingEntityRepo: mockAccountingEntityRepo,
+      userPreferencesAppService: mockUserPreferencesAppService,
+      eventBus: mockEventBus,
     });
 
   beforeEach(() => {
@@ -43,9 +59,13 @@ describe('switchAccountingEntityUsecase', () => {
       correlationId,
     } as ReturnType<typeof mockAppContext.get>);
     mockAppContext.set.mockReset();
-    mockAccountingEntityRepo.findByIdAndUserId
+    mockUserPreferencesAppService.setActiveAccountingEntity
       .mockReset()
-      .mockResolvedValue(targetAccountingEntity);
+      .mockResolvedValue({
+        accountingEntity: targetAccountingEntity,
+        events: [selectionEvent],
+      });
+    mockEventBus.publish.mockReset().mockResolvedValue();
   });
 
   it('switches the request context to an owned accounting entity', async () => {
@@ -54,14 +74,24 @@ describe('switchAccountingEntityUsecase', () => {
     });
 
     expect(result).toBe(targetAccountingEntity);
-    expect(mockAccountingEntityRepo.findByIdAndUserId).toHaveBeenCalledWith(
-      targetAccountingEntity.id,
-      userId,
-      { correlationId }
-    );
+    expect(
+      mockUserPreferencesAppService.setActiveAccountingEntity
+    ).toHaveBeenCalledWith(userId, targetAccountingEntity.id, {
+      correlationId,
+    });
     expect(mockAppContext.set).toHaveBeenCalledWith({
       accountingEntity: targetAccountingEntity,
     });
+    expect(mockEventBus.publish).toHaveBeenCalledWith([
+      expect.objectContaining({
+        type: selectionEvent.type,
+        correlationId,
+        data: selectionEvent.data,
+      }),
+    ]);
+    expect(mockAppContext.set.mock.invocationCallOrder[0]).toBeLessThan(
+      mockEventBus.publish.mock.invocationCallOrder[0]
+    );
   });
 
   it('resolves and sets an entity that is already current', async () => {
@@ -76,7 +106,9 @@ describe('switchAccountingEntityUsecase', () => {
     });
 
     expect(result).toBe(targetAccountingEntity);
-    expect(mockAccountingEntityRepo.findByIdAndUserId).toHaveBeenCalledTimes(1);
+    expect(
+      mockUserPreferencesAppService.setActiveAccountingEntity
+    ).toHaveBeenCalledTimes(1);
     expect(mockAppContext.set).toHaveBeenCalledWith({
       accountingEntity: targetAccountingEntity,
     });
@@ -88,22 +120,42 @@ describe('switchAccountingEntityUsecase', () => {
     ).rejects.toThrow(appError.UnprocessableEntity);
 
     expect(mockAppContext.get).not.toHaveBeenCalled();
-    expect(mockAccountingEntityRepo.findByIdAndUserId).not.toHaveBeenCalled();
+    expect(
+      mockUserPreferencesAppService.setActiveAccountingEntity
+    ).not.toHaveBeenCalled();
     expect(mockAppContext.set).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('does not disclose an unknown or inaccessible accounting entity', async () => {
-    mockAccountingEntityRepo.findByIdAndUserId.mockResolvedValue(null);
+    mockUserPreferencesAppService.setActiveAccountingEntity.mockRejectedValue(
+      new accountingAppError.ActiveEntityNotFound()
+    );
 
     await expect(
       getUsecase()({ accountingEntityId: targetAccountingEntity.id })
     ).rejects.toThrow(accountingAppError.ActiveEntityNotFound);
 
-    expect(mockAccountingEntityRepo.findByIdAndUserId).toHaveBeenCalledWith(
-      targetAccountingEntity.id,
-      userId,
-      { correlationId }
-    );
+    expect(
+      mockUserPreferencesAppService.setActiveAccountingEntity
+    ).toHaveBeenCalledWith(userId, targetAccountingEntity.id, {
+      correlationId,
+    });
     expect(mockAppContext.set).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('leaves context unchanged when preference persistence fails', async () => {
+    const persistenceFailure = new Error('preference persistence failed');
+    mockUserPreferencesAppService.setActiveAccountingEntity.mockRejectedValue(
+      persistenceFailure
+    );
+
+    await expect(
+      getUsecase()({ accountingEntityId: targetAccountingEntity.id })
+    ).rejects.toBe(persistenceFailure);
+
+    expect(mockAppContext.set).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 });

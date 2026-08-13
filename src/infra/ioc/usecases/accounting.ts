@@ -12,6 +12,7 @@ import {
   suspenseAccountBootstrapService,
 } from '@infra/ioc/services/ledger';
 import { repoService } from '@infra/ioc/services/repo';
+import { userPreferencesAppService } from '@infra/ioc/services/user';
 import messaging from '@infra/messaging';
 import accountingRepos from '@infra/persistence/repos/accounting';
 import appContext from '@infra/runtime/app-context';
@@ -27,6 +28,7 @@ export const createAccountingEntityUseCase = makeCreateAccountingEntityUseCase({
   repoService,
   ledgerAccountPersistenceService,
   accountingEntityService,
+  userPreferencesAppService,
   headerAccountsBootstrapService,
   postingAccountBootstrapService,
   suspenseAccountBootstrapService,
@@ -48,5 +50,6 @@ export const getActiveAccountingEntityUseCase =
 
 export const switchAccountingEntityUseCase = makeSwitchAccountingEntityUsecase({
   appContext,
-  accountingEntityRepo: accountingRepos.accountingEntity,
+  userPreferencesAppService,
+  eventBus: messaging.eventBus,
 });

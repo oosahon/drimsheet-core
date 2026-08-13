@@ -103,7 +103,7 @@ export class AccountingController extends Controller {
   @Response<IHttpErrorDto>('404')
   @Response<IHttpErrorDto>('500')
   @Middlewares(middlewares.isAuthenticatedUser)
-  public async getActiveAccountingEntity(): Promise<IAccountingEntity> {
+  public async getActiveAccountingEntity() {
     return await getActiveAccountingEntityUseCase();
   }
 }

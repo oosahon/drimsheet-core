@@ -38,7 +38,14 @@ jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
 
 jest.mock('../../../src/infra/persistence/repos/user', () => ({
   __esModule: true,
-  default: { user: { findById: jest.fn() } },
+  default: {
+    user: { findById: jest.fn() },
+    userPreferences: {
+      findById: jest
+        .fn()
+        .mockResolvedValue({ lastActiveAccountingEntityId: null }),
+    },
+  },
 }));
 
 const ENDPOINT = '/api/v1/accounting/accounting-entity/switch';
@@ -58,6 +65,7 @@ describe('POST /accounting/accounting-entity/switch', () => {
   let app: Express;
   const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
+  const mockFindPreferences = userRepos.userPreferences.findById as jest.Mock;
   const mockSwitchAccountingEntity =
     accountingUsecases.switchAccountingEntityUseCase as jest.Mock;
 
@@ -65,6 +73,9 @@ describe('POST /accounting/accounting-entity/switch', () => {
     jest.clearAllMocks();
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue({ id: userId } as IUser);
+    mockFindPreferences
+      .mockReset()
+      .mockResolvedValue({ lastActiveAccountingEntityId: null });
     mockSwitchAccountingEntity.mockResolvedValue(entity);
     app = createApplication();
   });
@@ -207,6 +218,23 @@ describe('POST /accounting/accounting-entity/switch', () => {
   });
 
   describe('500 Response', () => {
+    it('returns a consistency error when user preferences are missing', async () => {
+      mockFindPreferences.mockResolvedValue(null);
+
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send({ accountingEntityId: entity.id });
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'UserPreferencesAppError',
+        errorKey:
+          'app_error_user_preferences_inconsistent_internal_server_error',
+      });
+      expect(mockSwitchAccountingEntity).not.toHaveBeenCalled();
+    });
+
     it('sanitizes unexpected switch failures', async () => {
       mockSwitchAccountingEntity.mockRejectedValue(
         new Error('database credentials')
