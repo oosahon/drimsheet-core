@@ -26,6 +26,7 @@ jest.mock('../../../src/infra/ioc/usecases/accounting', () => ({
   getJurisdictionsUseCase: jest.fn(),
   getUserAccountingEntitiesUseCase: jest.fn(),
   getActiveAccountingEntityUseCase: jest.fn(),
+  switchAccountingEntityUseCase: jest.fn(),
 }));
 
 jest.mock('../../../src/infra/persistence/repos/accounting', () => ({
@@ -47,7 +48,7 @@ jest.mock('../../../src/infra/persistence/repos/user', () => ({
   },
 }));
 
-const ENDPOINT = '/api/v1/accounting/accounting-entity';
+const ENDPOINT = '/api/v1/accounting/accounting-entity/switch';
 const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
 const entity: IAccountingEntity = {
   id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
@@ -60,15 +61,13 @@ const entity: IAccountingEntity = {
   updatedAt: new Date('2026-07-26T10:00:00.000Z'),
 };
 
-describe('GET /accounting/accounting-entity', () => {
+describe('POST /accounting/accounting-entity/switch', () => {
   let app: Express;
   const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
   const mockFindPreferences = userRepos.userPreferences.findById as jest.Mock;
-  const mockFindEntity = accountingRepos.accountingEntity
-    .findByIdAndUserId as jest.Mock;
-  const mockGetActiveEntity =
-    accountingUsecases.getActiveAccountingEntityUseCase as jest.Mock;
+  const mockSwitchAccountingEntity =
+    accountingUsecases.switchAccountingEntityUseCase as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -77,17 +76,16 @@ describe('GET /accounting/accounting-entity', () => {
     mockFindPreferences
       .mockReset()
       .mockResolvedValue({ lastActiveAccountingEntityId: null });
-    mockFindEntity.mockResolvedValue(entity);
-    mockGetActiveEntity.mockResolvedValue(entity);
+    mockSwitchAccountingEntity.mockResolvedValue(entity);
     app = createApplication();
   });
 
   describe('200 Response', () => {
-    it('returns the selected owned entity contract with security headers', async () => {
+    it('returns the selected accounting entity contract', async () => {
       const response = await request(app)
-        .get(ENDPOINT)
+        .post(ENDPOINT)
         .set('Authorization', 'Bearer valid-token')
-        .set('x-accounting-entity-id', entity.id);
+        .send({ accountingEntityId: entity.id });
 
       expect(response.status).toBe(200);
       expect(response.type).toBe('application/json');
@@ -97,106 +95,136 @@ describe('GET /accounting/accounting-entity', () => {
         createdAt: entity.createdAt.toISOString(),
         updatedAt: entity.updatedAt.toISOString(),
       });
-      expect(mockFindEntity).toHaveBeenCalledWith(
-        entity.id,
-        userId,
-        expect.any(Object)
-      );
-      expect(mockGetActiveEntity).toHaveBeenCalledWith();
-      expect(mockFindPreferences).not.toHaveBeenCalled();
+      expect(mockSwitchAccountingEntity).toHaveBeenCalledWith({
+        accountingEntityId: entity.id,
+      });
     });
 
-    it('restores the persisted entity when the header is absent', async () => {
-      mockFindPreferences.mockResolvedValue({
-        lastActiveAccountingEntityId: entity.id,
+    it('uses the request body target when a prior context header is present', async () => {
+      const priorEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
+      const mockFindEntity = accountingRepos.accountingEntity
+        .findByIdAndUserId as jest.Mock;
+      mockFindEntity.mockResolvedValue({
+        ...entity,
+        id: priorEntityId,
       });
 
       const response = await request(app)
-        .get(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token');
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .set('x-accounting-entity-id', priorEntityId)
+        .send({ accountingEntityId: entity.id });
 
       expect(response.status).toBe(200);
-      expect(mockFindPreferences).toHaveBeenCalledWith(
-        userId,
-        expect.any(Object)
-      );
       expect(mockFindEntity).toHaveBeenCalledWith(
-        entity.id,
+        priorEntityId,
         userId,
         expect.any(Object)
       );
-      expect(mockGetActiveEntity).toHaveBeenCalledWith();
-    });
-  });
-
-  describe('400 Response', () => {
-    it('rejects a malformed entity ID before orchestration', async () => {
-      const response = await request(app)
-        .get(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token')
-        .set('x-accounting-entity-id', 'not-a-uuid');
-
-      expect(response.status).toBe(400);
-      expect(mockGetActiveEntity).not.toHaveBeenCalled();
+      expect(mockSwitchAccountingEntity).toHaveBeenCalledWith({
+        accountingEntityId: entity.id,
+      });
     });
   });
 
   describe('401 Response', () => {
-    it('rejects missing authorization', async () => {
-      const response = await request(app)
-        .get(ENDPOINT)
-        .set('x-accounting-entity-id', entity.id);
+    it.each([
+      ['missing authorization', undefined],
+      ['wrong authorization scheme', 'Basic token'],
+      ['authorization with extra segments', 'Bearer token extra'],
+    ])('rejects %s', async (_label, authorization) => {
+      const requestBuilder = request(app)
+        .post(ENDPOINT)
+        .send({ accountingEntityId: entity.id });
+      if (authorization) requestBuilder.set('Authorization', authorization);
+
+      const response = await requestBuilder;
 
       expect(response.status).toBe(401);
-      expect(mockGetActiveEntity).not.toHaveBeenCalled();
+      expect(mockSwitchAccountingEntity).not.toHaveBeenCalled();
     });
 
     it('rejects an expired token', async () => {
       mockGetAuthUser.mockRejectedValue(new authError.ExpiredToken());
 
       const response = await request(app)
-        .get(ENDPOINT)
+        .post(ENDPOINT)
         .set('Authorization', 'Bearer expired-token')
-        .set('x-accounting-entity-id', entity.id);
+        .send({ accountingEntityId: entity.id });
 
       expect(response.status).toBe(401);
-      expect(mockGetActiveEntity).not.toHaveBeenCalled();
+      expect(mockSwitchAccountingEntity).not.toHaveBeenCalled();
+    });
+
+    it('rejects a nonexistent user', async () => {
+      mockFindUser.mockResolvedValue(null);
+
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send({ accountingEntityId: entity.id });
+
+      expect(response.status).toBe(401);
+      expect(mockSwitchAccountingEntity).not.toHaveBeenCalled();
     });
   });
 
   describe('404 Response', () => {
+    it.each(['unknown', 'inaccessible'])(
+      'does not disclose an %s accounting entity',
+      async () => {
+        mockSwitchAccountingEntity.mockRejectedValue(
+          new accountingAppError.ActiveEntityNotFound()
+        );
+
+        const response = await request(app)
+          .post(ENDPOINT)
+          .set('Authorization', 'Bearer valid-token')
+          .send({ accountingEntityId: entity.id });
+
+        expect(response.status).toBe(404);
+        expect(response.body).toEqual({
+          name: 'AccountingAppError',
+          errorKey: 'app_error_accounting_active_entity_not_found',
+        });
+        expect(JSON.stringify(response.body)).not.toContain(entity.name);
+      }
+    );
+  });
+
+  describe('422 Response', () => {
     it.each([
-      ['missing ID', undefined],
-      ['unknown ID', entity.id],
-      ['inaccessible ID', entity.id],
-    ])('does not disclose entity existence for %s', async (_label, id) => {
-      mockFindEntity.mockResolvedValue(null);
-      mockGetActiveEntity.mockRejectedValue(
-        new accountingAppError.ActiveEntityNotFound()
-      );
-      const requestBuilder = request(app)
-        .get(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token');
-      if (id) requestBuilder.set('x-accounting-entity-id', id);
+      ['a missing accounting entity ID', {}],
+      [
+        'a caller-supplied user ID',
+        {
+          accountingEntityId: entity.id,
+          userId: '123e4567-e89b-12d3-a456-426614174999',
+        },
+      ],
+    ])('rejects %s before orchestration', async (_label, payload) => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(payload);
 
-      const response = await requestBuilder;
-
-      expect(response.status).toBe(404);
-      expect(response.body).toEqual({
-        name: 'AccountingAppError',
-        errorKey: 'app_error_accounting_active_entity_not_found',
+      expect(response.status).toBe(422);
+      expect(response.body).toMatchObject({
+        name: 'UnprocessableEntity',
+        errorKey: 'app_error_unprocessable',
       });
-      expect(JSON.stringify(response.body)).not.toContain(entity.name);
+      expect(mockSwitchAccountingEntity).not.toHaveBeenCalled();
     });
   });
 
   describe('500 Response', () => {
-    it('returns the sanitized consistency error for missing preferences', async () => {
+    it('returns a consistency error when user preferences are missing', async () => {
       mockFindPreferences.mockResolvedValue(null);
 
       const response = await request(app)
-        .get(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token');
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send({ accountingEntityId: entity.id });
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
@@ -204,16 +232,18 @@ describe('GET /accounting/accounting-entity', () => {
         errorKey:
           'app_error_user_preferences_inconsistent_internal_server_error',
       });
-      expect(mockGetActiveEntity).not.toHaveBeenCalled();
+      expect(mockSwitchAccountingEntity).not.toHaveBeenCalled();
     });
 
-    it('sanitizes unexpected failures', async () => {
-      mockGetActiveEntity.mockRejectedValue(new Error('database credentials'));
+    it('sanitizes unexpected switch failures', async () => {
+      mockSwitchAccountingEntity.mockRejectedValue(
+        new Error('database credentials')
+      );
 
       const response = await request(app)
-        .get(ENDPOINT)
+        .post(ENDPOINT)
         .set('Authorization', 'Bearer valid-token')
-        .set('x-accounting-entity-id', entity.id);
+        .send({ accountingEntityId: entity.id });
 
       expect(response.status).toBe(500);
       expect(response.body).toEqual({

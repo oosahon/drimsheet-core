@@ -63,6 +63,14 @@
           "appPreferences": {
             "$ref": "#/components/schemas/IUserAppPreferences"
           },
+          "lastActiveAccountingEntityId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TEntityId"
+              }
+            ],
+            "nullable": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -72,7 +80,13 @@
             "format": "date-time"
           }
         },
-        "required": ["id", "appPreferences", "createdAt", "updatedAt"],
+        "required": [
+          "id",
+          "appPreferences",
+          "lastActiveAccountingEntityId",
+          "createdAt",
+          "updatedAt"
+        ],
         "type": "object",
         "additionalProperties": false
       },
@@ -1855,6 +1869,16 @@
           "reportingPeriod",
           "appUsageMode"
         ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IAccountingEntitySwitchReq": {
+        "properties": {
+          "accountingEntityId": {
+            "type": "string"
+          }
+        },
+        "required": ["accountingEntityId"],
         "type": "object",
         "additionalProperties": false
       },
@@ -3815,6 +3839,77 @@
         "tags": ["Accounting"],
         "security": [],
         "parameters": []
+      }
+    },
+    "/accounting/accounting-entity/switch": {
+      "post": {
+        "operationId": "switchAccountingEntity",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IAccountingEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Switch the current accounting entity",
+        "tags": ["Accounting"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IAccountingEntitySwitchReq"
+              }
+            }
+          }
+        }
       }
     },
     "/accounting/jurisdictions": {

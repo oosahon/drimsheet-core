@@ -7,6 +7,7 @@ import appError from '@shared/values/errors/app.error';
 import DomainError from '@shared/values/errors/domain.error';
 
 import accountingAppError from '@app/accounting/errors/accounting.error';
+import userPreferencesAppError from '@app/user/errors/user-preferences.error';
 
 import makeHttpErrorHandler from '@interface/http/handlers/error.handler';
 
@@ -166,6 +167,28 @@ describe('makeHttpErrorHandler', () => {
       errorKey: 'app_error_accounting_active_entity_not_found',
       cause: undefined,
     });
+  });
+
+  it('maps inconsistent user preferences to a sanitized 500 response', () => {
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'test',
+    });
+
+    handler(
+      mockReq as unknown as Request,
+      mockRes as Response,
+      new userPreferencesAppError.Inconsistent()
+    );
+
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'UserPreferencesAppError',
+      errorKey: 'app_error_user_preferences_inconsistent_internal_server_error',
+      cause: undefined,
+    });
+    expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
   it('should handle AppError without logging outside local', () => {

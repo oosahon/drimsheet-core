@@ -7,7 +7,9 @@ import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
 import historyValue from '@shared/values/history/history.vo';
 
+import userPreferencesEntity from '@domain/user/entities/user-preferences.entity';
 import userEntity from '@domain/user/entities/user.entity';
+import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
 import IUserRepo from '@domain/user/repos/user.repo';
 import emailValue from '@domain/user/values/email.vo';
 
@@ -22,6 +24,7 @@ import IAppContext from '@app/context/contracts/app-context.contract';
 interface IDependencies {
   appContext: IAppContext;
   userRepo: IUserRepo;
+  userPreferencesRepo: IUserPreferencesRepo;
   passwordService: IPasswordService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
@@ -55,6 +58,13 @@ export default function makeSignupWithEmailUsecase(deps: IDependencies) {
       email,
       emailVerified: false,
     });
+    const [userPreferences, preferenceEvents] = userPreferencesEntity.make(
+      user.id,
+      {
+        appPreferences: {},
+        lastActiveAccountingEntityId: null,
+      }
+    );
 
     const history = historyValue.make(
       userAudit,
@@ -77,12 +87,18 @@ export default function makeSignupWithEmailUsecase(deps: IDependencies) {
         },
         { correlationId, tx }
       );
+
+      await deps.userPreferencesRepo.create(userPreferences, {
+        correlationId,
+        tx,
+      });
     };
 
     await deps.repoService.runInTransaction(repoTransaction);
 
-    const enrichedUserEvents = userEvents.map((e) =>
-      eventValue.enrich(e, { correlationId, idempotencyKey })
+    const enrichedUserEvents = eventValue.enrichAll<unknown>(
+      [...userEvents, ...preferenceEvents],
+      { correlationId, idempotencyKey }
     );
 
     await deps.eventBus.publish(enrichedUserEvents);

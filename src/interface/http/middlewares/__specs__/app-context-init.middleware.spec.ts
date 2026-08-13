@@ -6,18 +6,18 @@ import IVarsConfig from '@shared/contracts/vars-config.contract';
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import { IUser } from '@domain/user/types/user.types';
 
-import { mockAccountingEntityRepo as mockAccountingEntityRepoCentral } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
 import ITokenService, {
   IAuthTokenPayload,
 } from '@app/auth/contracts/token-service.contract';
 import IAppContext from '@app/context/contracts/app-context.contract';
+import mockUserPreferencesAppService from '@app/user/contracts/__mocks__/user-preferences-app.service.mock';
 import { mockUserRepo as mockUserRepoCentral } from '@app/user/contracts/__mocks__/user.repos.mock';
+import userPreferencesAppError from '@app/user/errors/user-preferences.error';
 
 import makeAppContextInitMiddleware from '@interface/http/middlewares/app-context-init.middleware';
 
 describe('makeAppContextInitMiddleware', () => {
   let mockAppContext: jest.Mocked<IAppContext>;
-  const mockAccountingEntityRepo = mockAccountingEntityRepoCentral;
   let mockAuthService: jest.Mocked<ITokenService>;
   const mockUserRepo = mockUserRepoCentral;
   let mockLogger: jest.Mocked<ILogger>;
@@ -33,7 +33,9 @@ describe('makeAppContextInitMiddleware', () => {
       get: jest.fn(),
     } as unknown as jest.Mocked<IAppContext>;
 
-    mockAccountingEntityRepo.findByIdAndUserId.mockReset();
+    mockUserPreferencesAppService.getActiveAccountingEntity
+      .mockReset()
+      .mockResolvedValue(null);
 
     mockAuthService = {
       getAuthUser: jest.fn(),
@@ -69,7 +71,7 @@ describe('makeAppContextInitMiddleware', () => {
   it('should initialize request context with empty user and entity when no headers are provided', async () => {
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
-      mockAccountingEntityRepo,
+      mockUserPreferencesAppService,
       mockAuthService,
       mockUserRepo,
       mockLogger,
@@ -83,6 +85,9 @@ describe('makeAppContextInitMiddleware', () => {
     expect(initArgs.user).toEqual({});
     expect(initArgs.accountingEntity).toEqual({});
     expect(initArgs.correlationId).toBeDefined();
+    expect(
+      mockUserPreferencesAppService.getActiveAccountingEntity
+    ).not.toHaveBeenCalled();
     expect(mockNext).toHaveBeenCalled();
   });
 
@@ -98,7 +103,7 @@ describe('makeAppContextInitMiddleware', () => {
 
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
-      mockAccountingEntityRepo,
+      mockUserPreferencesAppService,
       mockAuthService,
       mockUserRepo,
       mockLogger,
@@ -113,6 +118,11 @@ describe('makeAppContextInitMiddleware', () => {
       email: 'test@example.com',
     });
     expect(initArgs.accountingEntity).toEqual({});
+    expect(
+      mockUserPreferencesAppService.getActiveAccountingEntity
+    ).toHaveBeenCalledWith('user-id-123', undefined, {
+      correlationId: expect.any(String),
+    });
     expect(mockNext).toHaveBeenCalled();
   });
 
@@ -127,14 +137,14 @@ describe('makeAppContextInitMiddleware', () => {
     } as IAuthTokenPayload);
     mockUserRepo.findById.mockResolvedValue({ id: 'user-id-123' } as IUser);
 
-    mockAccountingEntityRepo.findByIdAndUserId.mockResolvedValue({
+    mockUserPreferencesAppService.getActiveAccountingEntity.mockResolvedValue({
       id: validUUID,
       ownerId: 'user-id-123', // Matches user id
     } as IAccountingEntity);
 
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
-      mockAccountingEntityRepo,
+      mockUserPreferencesAppService,
       mockAuthService,
       mockUserRepo,
       mockLogger,
@@ -146,7 +156,101 @@ describe('makeAppContextInitMiddleware', () => {
     const initArgs = mockAppContext.init.mock.calls[0][0];
     expect(initArgs.user.id).toBe('user-id-123');
     expect(initArgs.accountingEntity.id).toBe(validUUID);
+    expect(
+      mockUserPreferencesAppService.getActiveAccountingEntity
+    ).toHaveBeenCalledWith('user-id-123', validUUID, {
+      correlationId: expect.any(String),
+    });
     expect(mockNext).toHaveBeenCalled();
+  });
+
+  it('restores a durable accounting entity when the header is absent', async () => {
+    const persistedEntity = {
+      id: '123e4567-e89b-12d3-a456-426614174000',
+      ownerId: 'user-id-123',
+    } as IAccountingEntity;
+    mockReq.headers = { authorization: 'Bearer valid_token' };
+    mockAuthService.getAuthUser.mockResolvedValue({
+      id: 'user-id-123',
+    } as IAuthTokenPayload);
+    mockUserRepo.findById.mockResolvedValue({ id: 'user-id-123' } as IUser);
+    mockUserPreferencesAppService.getActiveAccountingEntity.mockResolvedValue(
+      persistedEntity
+    );
+
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
+      mockUserPreferencesAppService,
+      mockAuthService,
+      mockUserRepo,
+      mockLogger,
+      mockVarsConfig as IVarsConfig
+    );
+
+    await middleware(mockReq as Request, mockRes as Response, mockNext);
+
+    expect(mockAppContext.init.mock.calls[0][0].accountingEntity).toBe(
+      persistedEntity
+    );
+    expect(
+      mockUserPreferencesAppService.getActiveAccountingEntity
+    ).toHaveBeenCalledWith('user-id-123', undefined, {
+      correlationId: expect.any(String),
+    });
+  });
+
+  it('rejects a malformed accounting entity header for an authenticated user', async () => {
+    mockReq.headers = {
+      authorization: 'Bearer valid_token',
+      'x-accounting-entity-id': 'invalid-uuid',
+    };
+    mockAuthService.getAuthUser.mockResolvedValue({
+      id: 'user-id-123',
+    } as IAuthTokenPayload);
+    mockUserRepo.findById.mockResolvedValue({ id: 'user-id-123' } as IUser);
+
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
+      mockUserPreferencesAppService,
+      mockAuthService,
+      mockUserRepo,
+      mockLogger,
+      mockVarsConfig as IVarsConfig
+    );
+
+    await expect(
+      middleware(mockReq as Request, mockRes as Response, mockNext)
+    ).rejects.toThrow('app_error_bad_request');
+
+    expect(
+      mockUserPreferencesAppService.getActiveAccountingEntity
+    ).not.toHaveBeenCalled();
+    expect(mockAppContext.init).not.toHaveBeenCalled();
+  });
+
+  it('propagates a missing-preferences consistency failure', async () => {
+    mockReq.headers = { authorization: 'Bearer valid_token' };
+    mockAuthService.getAuthUser.mockResolvedValue({
+      id: 'user-id-123',
+    } as IAuthTokenPayload);
+    mockUserRepo.findById.mockResolvedValue({ id: 'user-id-123' } as IUser);
+    mockUserPreferencesAppService.getActiveAccountingEntity.mockRejectedValue(
+      new userPreferencesAppError.Inconsistent()
+    );
+
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
+      mockUserPreferencesAppService,
+      mockAuthService,
+      mockUserRepo,
+      mockLogger,
+      mockVarsConfig as IVarsConfig
+    );
+
+    await expect(
+      middleware(mockReq as Request, mockRes as Response, mockNext)
+    ).rejects.toThrow(userPreferencesAppError.Inconsistent);
+    expect(mockAppContext.init).not.toHaveBeenCalled();
   });
 
   it('should implement client session methods correctly with undefined domain on localhost', async () => {
@@ -154,7 +258,7 @@ describe('makeAppContextInitMiddleware', () => {
 
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
-      mockAccountingEntityRepo,
+      mockUserPreferencesAppService,
       mockAuthService,
       mockUserRepo,
       mockLogger,
@@ -204,7 +308,7 @@ describe('makeAppContextInitMiddleware', () => {
 
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
-      mockAccountingEntityRepo,
+      mockUserPreferencesAppService,
       mockAuthService,
       mockUserRepo,
       mockLogger,
