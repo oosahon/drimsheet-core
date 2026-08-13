@@ -14,11 +14,13 @@ import {
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
 import accountingRepos from '@infra/persistence/repos/accounting';
+import userRepos from '@infra/persistence/repos/user';
 import appContext from '@infra/runtime/app-context';
 
 export const createAccountingEntityUseCase = makeCreateAccountingEntityUseCase({
   appContext,
   accountingEntityRepo: accountingRepos.accountingEntity,
+  userPreferencesRepo: userRepos.userPreferences,
   fiscalYearRepo: accountingRepos.fiscalYear,
   accountingPeriodRepo: accountingRepos.accountingPeriod,
   accountingContextRepo: accountingRepos.accountingContext,
@@ -49,4 +51,5 @@ export const getActiveAccountingEntityUseCase =
 export const switchAccountingEntityUseCase = makeSwitchAccountingEntityUsecase({
   appContext,
   accountingEntityRepo: accountingRepos.accountingEntity,
+  userPreferencesRepo: userRepos.userPreferences,
 });

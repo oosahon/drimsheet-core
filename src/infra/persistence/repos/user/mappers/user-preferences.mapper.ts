@@ -19,6 +19,7 @@ const userPreferencesMapper = {
   toRepo(payload: IUserPreferences): IUserPreferencesModel {
     return {
       id: payload.id,
+      lastActiveAccountingEntityId: payload.lastActiveAccountingEntityId,
       appPreferences: payload.appPreferences,
       createdAt: toRepoDate(payload.createdAt),
       updatedAt: toRepoDate(payload.updatedAt),
@@ -28,6 +29,8 @@ const userPreferencesMapper = {
   toDomain(payload: IUserPreferencesModel): IUserPreferences {
     return userPreferencesEntity.rehydrate({
       id: payload.id as TEntityId,
+      lastActiveAccountingEntityId:
+        payload.lastActiveAccountingEntityId as TEntityId | null,
       appPreferences:
         payload.appPreferences as IUserPreferences['appPreferences'],
       createdAt: fromRepoDate(payload.createdAt),

@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { accountingStandardsTable } from '../config/accounting';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;

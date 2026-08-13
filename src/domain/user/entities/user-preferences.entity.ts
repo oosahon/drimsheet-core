@@ -1,3 +1,5 @@
+// TODO: move app preferences to application layer https://drimsheet-app.atlassian.net/browse/ENG-49
+
 import { TCreationOmits } from '@shared/types/creation-omits.types';
 import { TEntityId } from '@shared/types/uuid';
 import stringUtils from '@shared/utils/string';
@@ -41,7 +43,7 @@ function makeAppPreferences(appPreferences?: IUserAppPreferences | null) {
 
 function make(
   userId: TEntityId,
-  payload: TCreationOmits<IUserPreferences>
+  payload: TCreationOmits<IUserPreferences, 'lastActiveAccountingEntityId'>
 ): TEntityWithEvents<IUserPreferences, IUserPreferences> {
   stringUtils.validateUUID(userId, userError.InvalidValue);
 
@@ -49,6 +51,7 @@ function make(
 
   const entity: IUserPreferences = Object.freeze({
     id: userId,
+    lastActiveAccountingEntityId: null,
     appPreferences: makeAppPreferences(payload.appPreferences),
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -61,6 +64,7 @@ function make(
 function update(entity: IUserPreferences, payload: Partial<IUserPreferences>) {
   const updatedEntity: IUserPreferences = Object.freeze({
     id: entity.id,
+    lastActiveAccountingEntityId: entity.lastActiveAccountingEntityId,
     createdAt: entity.createdAt,
     appPreferences: payload.appPreferences
       ? makeAppPreferences(payload.appPreferences)
@@ -75,8 +79,16 @@ function update(entity: IUserPreferences, payload: Partial<IUserPreferences>) {
 function rehydrate(payload: IUserPreferences): IUserPreferences {
   stringUtils.validateUUID(payload.id, userError.InvalidValue);
 
+  if (payload.lastActiveAccountingEntityId !== null) {
+    stringUtils.validateUUID(
+      payload.lastActiveAccountingEntityId,
+      userError.InvalidValue
+    );
+  }
+
   return Object.freeze({
     id: payload.id,
+    lastActiveAccountingEntityId: payload.lastActiveAccountingEntityId,
     appPreferences: makeAppPreferences(payload.appPreferences),
     createdAt: payload.createdAt,
     updatedAt: payload.updatedAt,

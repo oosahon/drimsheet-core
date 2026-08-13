@@ -23,6 +23,7 @@ export interface IUserAppPreferences {
 
 export interface IUserPreferences {
   id: TEntityId;
+  lastActiveAccountingEntityId: TEntityId | null;
   appPreferences: IUserAppPreferences;
   createdAt: Date;
   updatedAt: Date;

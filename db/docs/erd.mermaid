@@ -1,69 +1,128 @@
 erDiagram
 
 audit_accounting_context_history {
-    uuid id PK
+    bigint id PK
     uuid accounting_context_id
     uuid accounting_entity_id
     uuid user_id FK
     audit_history_actor_type actor_type
     varchar_50_ action
     jsonb diff
-    text note
     varchar_255_ correlation_id
     timestamptz occurred_at
     timestamptz recorded_at
 }
 
 audit_accounting_entity_history {
-    uuid id PK
+    bigint id PK
     uuid accounting_entity_id
     uuid user_id FK
     audit_history_actor_type actor_type
     varchar_50_ action
     jsonb diff
-    text note
     varchar_255_ correlation_id
     timestamptz occurred_at
     timestamptz recorded_at
 }
 
 audit_accounting_period_history {
-    uuid id PK
+    bigint id PK
     uuid accounting_period_id
     uuid accounting_entity_id
     uuid user_id FK
     audit_history_actor_type actor_type
     varchar_50_ action
     jsonb diff
-    text note
+    varchar_255_ correlation_id
+    timestamptz occurred_at
+    timestamptz recorded_at
+}
+
+audit_counterparty_contractor_history {
+    bigint id PK
+    uuid counterparty_id
+    uuid user_id FK
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
+    varchar_255_ correlation_id
+    timestamptz occurred_at
+    timestamptz recorded_at
+}
+
+audit_counterparty_employer_history {
+    bigint id PK
+    uuid counterparty_id
+    uuid user_id FK
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
+    varchar_255_ correlation_id
+    timestamptz occurred_at
+    timestamptz recorded_at
+}
+
+audit_counterparty_history {
+    bigint id PK
+    uuid counterparty_id
+    uuid accounting_entity_id
+    uuid user_id FK
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
+    varchar_255_ correlation_id
+    timestamptz occurred_at
+    timestamptz recorded_at
+}
+
+audit_counterparty_vendor_history {
+    bigint id PK
+    uuid counterparty_id
+    uuid user_id FK
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
     varchar_255_ correlation_id
     timestamptz occurred_at
     timestamptz recorded_at
 }
 
 audit_fiscal_year_history {
-    uuid id PK
+    bigint id PK
     uuid fiscal_year_id
     uuid accounting_entity_id
     uuid user_id FK
     audit_history_actor_type actor_type
     varchar_50_ action
     jsonb diff
-    text note
     varchar_255_ correlation_id
     timestamptz occurred_at
     timestamptz recorded_at
 }
 
 audit_journal_entry_history {
-    uuid id PK
+    bigint id PK
     uuid journal_entry_id
     uuid accounting_entity_id
     uuid user_id FK
     audit_history_actor_type actor_type
     varchar_50_ action
     jsonb diff
-    text note
+    varchar_255_ correlation_id
+    integer entity_version
+    timestamptz occurred_at
+    timestamptz recorded_at
+}
+
+audit_journal_line_history {
+    bigint id PK
+    uuid journal_line_id
+    uuid journal_entry_id
+    uuid accounting_entity_id
+    uuid user_id FK
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
     varchar_255_ correlation_id
     integer entity_version
     timestamptz occurred_at
@@ -71,36 +130,78 @@ audit_journal_entry_history {
 }
 
 audit_ledger_account_history {
-    uuid id PK
+    bigint id PK
     uuid ledger_account_id
     uuid accounting_entity_id
     uuid user_id FK
     audit_history_actor_type actor_type
     varchar_50_ action
     jsonb diff
-    text note
     varchar_255_ correlation_id
     timestamptz occurred_at
     timestamptz recorded_at
 }
 
-audit_user_activities {
-    uuid id PK
+audit_reporting_context_history {
+    bigint id PK
+    uuid reporting_context_id
+    uuid accounting_entity_id
     uuid user_id FK
-    varchar_150_ event_key
-    varchar_100_ description
-    jsonb meta
-    timestamptz created_at
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
+    varchar_255_ correlation_id
+    timestamptz occurred_at
+    timestamptz recorded_at
+}
+
+audit_reporting_period_history {
+    bigint id PK
+    uuid reporting_period_id
+    uuid accounting_entity_id
+    uuid user_id FK
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
+    varchar_255_ correlation_id
+    timestamptz occurred_at
+    timestamptz recorded_at
+}
+
+audit_subledger_fx_cost_basis_lot_acquisition_history {
+    bigint id PK
+    uuid acquisition_id
+    uuid lot_id
+    uuid accounting_entity_id
+    uuid user_id FK
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
+    varchar_255_ correlation_id
+    timestamptz occurred_at
+    timestamptz recorded_at
+}
+
+audit_subledger_fx_cost_basis_lot_history {
+    bigint id PK
+    uuid lot_id
+    uuid accounting_entity_id
+    uuid user_id FK
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
+    varchar_255_ correlation_id
+    timestamptz occurred_at
+    timestamptz recorded_at
 }
 
 audit_user_profile_history {
-    uuid id PK
+    bigint id PK
     uuid user_profile_id
     uuid user_id FK
     audit_history_actor_type actor_type
     varchar_50_ action
     jsonb diff
-    text note
     varchar_255_ correlation_id
     timestamptz occurred_at
     timestamptz recorded_at
@@ -154,11 +255,65 @@ core_accounting_standards {
     timestamptz deleted_at
 }
 
-core_counterparties {
-    uuid id PK
-    varchar_100_ name
+core_bank_details {
+    varchar_100_ bank_name PK
+    varchar_34_ account_number PK
+    varchar_100_ account_name
+    varchar_2_ country_code
+    uuid accounting_entity_id FK
+    uuid ledger_account_id FK
     timestamptz created_at
     timestamptz updated_at
+}
+
+core_counterparties {
+    uuid id PK
+    uuid accounting_entity_id FK
+    varchar_255_ name
+    core_counter_party_status status
+    core_counter_party_type type
+    timestamptz created_at
+    timestamptz updated_at
+}
+
+core_counterparty_contractors {
+    uuid counterparty_id PK,FK
+    varchar_255_ address_line_1
+    varchar_255_ address_line_2
+    varchar_100_ address_city
+    varchar_100_ address_region
+    varchar_20_ address_postal_code
+    varchar_2_ address_country_code
+    timestamptz created_at
+}
+
+core_counterparty_employers {
+    uuid counterparty_id PK,FK
+    varchar_255_ display_name
+    varchar_255_ address_line_1
+    varchar_255_ address_line_2
+    varchar_100_ address_city
+    varchar_100_ address_region
+    varchar_20_ address_postal_code
+    varchar_2_ address_country_code
+    timestamptz created_at
+}
+
+core_counterparty_roles {
+    uuid counterparty_id PK,FK
+    core_counter_party_role role PK
+    timestamptz created_at
+}
+
+core_counterparty_vendors {
+    uuid counterparty_id PK,FK
+    varchar_255_ address_line_1
+    varchar_255_ address_line_2
+    varchar_100_ address_city
+    varchar_100_ address_region
+    varchar_20_ address_postal_code
+    varchar_2_ address_country_code
+    timestamptz created_at
 }
 
 core_currencies {
@@ -200,7 +355,6 @@ core_journal_entries {
     uuid id PK
     uuid accounting_entity_id FK
     core_journal_entry_source_type source_type
-    uuid counterparty_id FK
     varchar_100_ memo
     core_journal_entry_status status
     date effective_date
@@ -225,6 +379,7 @@ core_journal_lines {
     uuid id PK
     uuid entry_id FK
     uuid account_id FK
+    uuid counterparty_id FK
     integer sequence_order
     bigint amount
     varchar_3_ currency_code FK
@@ -298,6 +453,7 @@ core_ledger_accounts {
     core_ledger_account_status status
     core_contra_account_rule contra_account_rule
     core_adjunct_account_rule adjunct_account_rule
+    date opening_balance_date
     jsonb meta
     uuid created_by FK
     timestamptz created_at
@@ -331,6 +487,38 @@ core_reporting_periods {
     timestamptz updated_at
 }
 
+core_subledger_fx_cost_basis_lot_acquisitions {
+    uuid id PK
+    uuid ledger_account_id FK
+    uuid accounting_entity_id FK
+    uuid lot_id FK
+    uuid journal_entry_id FK
+    bigint quantity_amount
+    varchar_3_ quantity_currency FK
+    bigint cost_basis_amount
+    varchar_3_ cost_basis_currency FK
+    jsonb acquisition_rate
+    date acquisition_date
+    jsonb official_rate
+    timestamptz created_at
+}
+
+core_subledger_fx_cost_basis_lots {
+    uuid id PK
+    uuid ledger_account_id FK
+    uuid accounting_entity_id FK
+    core_subledger_fx_cost_basis_lot_status status
+    bigint original_quantity_amount
+    varchar_3_ original_quantity_currency FK
+    bigint cost_basis_amount
+    varchar_3_ cost_basis_currency FK
+    bigint remaining_cost_basis_amount
+    numeric acquisition_rate
+    integer version
+    timestamptz created_at
+    timestamptz updated_at
+}
+
 core_user_auth {
     uuid user_id PK,FK
     varchar_200_ password
@@ -343,6 +531,7 @@ core_user_auth {
 core_user_preferences {
     uuid id PK,FK
     jsonb app_preferences
+    uuid last_active_accounting_entity_id FK
     timestamptz created_at
     timestamptz updated_at
 }
@@ -369,10 +558,18 @@ core_users {
 core_users ||--o{ audit_accounting_context_history : "accounting_context_history_user_id_fkey"
 core_users ||--o{ audit_accounting_entity_history : "accounting_entity_history_user_id_fkey"
 core_users ||--o{ audit_accounting_period_history : "accounting_period_history_user_id_fkey"
+core_users ||--o{ audit_counterparty_contractor_history : "counterparty_contractor_history_user_id_fkey"
+core_users ||--o{ audit_counterparty_employer_history : "counterparty_employer_history_user_id_fkey"
+core_users ||--o{ audit_counterparty_history : "counterparty_history_user_id_fkey"
+core_users ||--o{ audit_counterparty_vendor_history : "counterparty_vendor_history_user_id_fkey"
 core_users ||--o{ audit_fiscal_year_history : "fiscal_year_history_user_id_fkey"
 core_users ||--o{ audit_journal_entry_history : "journal_entry_history_user_id_fkey"
+core_users ||--o{ audit_journal_line_history : "journal_line_history_user_id_fkey"
 core_users ||--o{ audit_ledger_account_history : "ledger_account_history_user_id_fkey"
-core_users ||--o{ audit_user_activities : "user_activities_user_id_fkey"
+core_users ||--o{ audit_reporting_context_history : "reporting_context_history_user_id_fkey"
+core_users ||--o{ audit_reporting_period_history : "reporting_period_history_user_id_fkey"
+core_users ||--o{ audit_subledger_fx_cost_basis_lot_acquisition_history : "subledger_fx_cost_basis_lot_acquisition_history_user_id_fkey"
+core_users ||--o{ audit_subledger_fx_cost_basis_lot_history : "subledger_fx_cost_basis_lot_history_user_id_fkey"
 core_users ||--o{ audit_user_profile_history : "user_profile_history_user_id_fkey"
 core_accounting_entities ||--o{ core_accounting_contexts : "accounting_contexts_accounting_entity_id_fkey"
 core_accounting_standards ||--o{ core_accounting_contexts : "accounting_contexts_accounting_standard_code_fkey"
@@ -383,15 +580,22 @@ core_jurisdictions ||--o{ core_accounting_entities : "accounting_entities_jurisd
 core_users ||--o{ core_accounting_entities : "accounting_entities_owner_id_fkey"
 core_accounting_entities ||--o{ core_accounting_periods : "accounting_periods_accounting_entity_id_fkey"
 core_fiscal_years ||--o{ core_accounting_periods : "accounting_periods_fiscal_year_id_fkey"
+core_accounting_entities ||--o{ core_bank_details : "bank_details_accounting_entity_id_fkey"
+core_ledger_accounts ||--o{ core_bank_details : "bank_details_ledger_account_id_fkey"
+core_accounting_entities ||--o{ core_counterparties : "counterparties_accounting_entity_id_fkey"
+core_counterparties ||--o{ core_counterparty_contractors : "counterparty_contractors_counterparty_id_fkey"
+core_counterparties ||--o{ core_counterparty_employers : "counterparty_employers_counterparty_id_fkey"
+core_counterparties ||--o{ core_counterparty_roles : "counterparty_roles_counterparty_id_fkey"
+core_counterparties ||--o{ core_counterparty_vendors : "counterparty_vendors_counterparty_id_fkey"
 core_currencies ||--o{ core_currency_exchange_rates : "currency_exchange_rates_base_currency_code_fkey"
 core_currencies ||--o{ core_currency_exchange_rates : "currency_exchange_rates_target_currency_code_fkey"
 core_accounting_entities ||--o{ core_fiscal_years : "fiscal_years_accounting_entity_id_fkey"
 core_accounting_entities ||--o{ core_journal_entries : "journal_entries_accounting_entity_id_fkey"
-core_counterparties ||--o{ core_journal_entries : "journal_entries_counterparty_id_fkey"
 core_users ||--o{ core_journal_entries : "journal_entries_created_by_fkey"
 core_journal_entries ||--o{ core_journal_entries : "journal_entries_voiding_entry_id_fkey"
 core_journal_entries ||--o{ core_journal_entry_attachments : "journal_entry_attachments_journal_entry_id_fkey"
 core_ledger_accounts ||--o{ core_journal_lines : "journal_lines_account_id_fkey"
+core_counterparties ||--o{ core_journal_lines : "journal_lines_counterparty_id_fkey"
 core_currencies ||--o{ core_journal_lines : "journal_lines_currency_code_fkey"
 core_journal_entries ||--o{ core_journal_lines : "journal_lines_entry_id_fkey"
 core_currencies ||--o{ core_journal_lines : "journal_lines_functional_currency_code_fkey"
@@ -418,6 +622,17 @@ core_reporting_periods ||--o{ core_reporting_contexts : "reporting_contexts_curr
 core_currencies ||--o{ core_reporting_contexts : "reporting_contexts_reporting_currency_code_fkey"
 core_accounting_entities ||--o{ core_reporting_periods : "reporting_periods_accounting_entity_id_fkey"
 core_fiscal_years ||--o{ core_reporting_periods : "reporting_periods_fiscal_year_id_fkey"
+core_accounting_entities ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "subledger_fx_cost_basis_lot_acquisiti_accounting_entity_id_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "subledger_fx_cost_basis_lot_acquisitio_cost_basis_currency_fkey"
+core_journal_entries ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "subledger_fx_cost_basis_lot_acquisitions_journal_entry_id_fkey"
+core_ledger_accounts ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "subledger_fx_cost_basis_lot_acquisitions_ledger_account_id_fkey"
+core_subledger_fx_cost_basis_lots ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "subledger_fx_cost_basis_lot_acquisitions_lot_id_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "subledger_fx_cost_basis_lot_acquisitions_quantity_currency_fkey"
+core_accounting_entities ||--o{ core_subledger_fx_cost_basis_lots : "subledger_fx_cost_basis_lots_accounting_entity_id_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lots : "subledger_fx_cost_basis_lots_cost_basis_currency_fkey"
+core_ledger_accounts ||--o{ core_subledger_fx_cost_basis_lots : "subledger_fx_cost_basis_lots_ledger_account_id_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lots : "subledger_fx_cost_basis_lots_original_quantity_currency_fkey"
 core_users ||--o{ core_user_auth : "user_auth_user_id_fkey"
 core_users ||--o{ core_user_preferences : "user_preferences_id_fkey"
+core_accounting_entities ||--o{ core_user_preferences : "user_preferences_last_active_accounting_entity_id_fkey"
 core_users ||--o{ core_user_sessions : "user_sessions_user_id_fkey"

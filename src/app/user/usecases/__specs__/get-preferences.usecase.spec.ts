@@ -26,6 +26,7 @@ describe('makeGetUserPreferencesUseCase', () => {
 
     const mockPreferences = {
       id: 'prefs-id' as TEntityId,
+      lastActiveAccountingEntityId: null,
       appPreferences: {
         theme: 'dark',
       },
