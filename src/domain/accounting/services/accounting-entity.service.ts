@@ -1,5 +1,3 @@
-import dateUtils from '@shared/utils/date';
-
 import accountingContextEntity from '@domain/accounting/entities/accounting-context.entity';
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
 import accountingPeriodEntity from '@domain/accounting/entities/accounting-period.entity';
@@ -8,45 +6,30 @@ import periodEntity from '@domain/accounting/entities/period.entity';
 import reportingContextEntity from '@domain/accounting/entities/reporting-context.entity';
 import reportingPeriodEntity from '@domain/accounting/entities/reporting-period.entity';
 import errors from '@domain/accounting/errors/accounting-entity.error';
-import periodError from '@domain/accounting/errors/period.error';
+import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
+import helpers from '@domain/accounting/services/helpers/accounting-entity.service.helpers';
 import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
-import { IJurisdiction } from '@domain/accounting/types/jurisdiction.types';
 import { EPeriodStatus } from '@domain/accounting/types/period.types';
 import currencyEntity from '@domain/money/entities/currency.entity';
+
+interface IDependencies {
+  accountingEntityRepo: IAccountingEntityRepo;
+}
 
 type TCreate = IAccountingEntityService['create'];
 type TGrantUserAccess = IAccountingEntityService['grantUserAccess'];
 type TValidateAccess = IAccountingEntityService['validateAccess'];
 
-function validateFiscalYearLimit(
-  jurisdiction: IJurisdiction,
-  startDate: Date,
-  endDate: Date
-) {
-  const { maxFiscalMonths } = jurisdiction;
+export default function makeAccountingEntityService(
+  deps: IDependencies
+): IAccountingEntityService {
+  const create: TCreate = async (input, repoOptions) => {
+    await helpers.validateExistingIndividualEntity(
+      deps.accountingEntityRepo,
+      input,
+      repoOptions
+    );
 
-  if (!Number.isInteger(maxFiscalMonths) || maxFiscalMonths <= 0) {
-    throw new periodError.InvalidDateRange({
-      jurisdictionCode: jurisdiction.code,
-      maxFiscalMonths,
-    });
-  }
-
-  const maximumEndDate = dateUtils.addMonthsToDate(startDate, maxFiscalMonths);
-
-  if (endDate > maximumEndDate) {
-    throw new periodError.FiscalYearExceedsJurisdictionLimit({
-      jurisdictionCode: jurisdiction.code,
-      maxFiscalMonths,
-      startDate,
-      endDate,
-      maximumEndDate,
-    });
-  }
-}
-
-export default function makeAccountingEntityService(): IAccountingEntityService {
-  const create: TCreate = (input) => {
     const jurisdiction = accountingContextEntity.getJurisdiction(
       input.jurisdictionCode
     );
@@ -58,7 +41,8 @@ export default function makeAccountingEntityService(): IAccountingEntityService 
     );
 
     fiscalYearEntity.validateStartAndEndDate(input.fiscalYear);
-    validateFiscalYearLimit(
+
+    helpers.validateFiscalYearLimit(
       jurisdiction,
       input.fiscalYear.startDate,
       input.fiscalYear.endDate

@@ -127,11 +127,50 @@ export const subledgerFxCostBasisLotStatusInCore = core.enum(
   ['open', 'closed']
 );
 
-export const pgmigrations = pgTable('pgmigrations', {
-  id: serial().primaryKey().notNull(),
-  name: varchar({ length: 255 }).notNull(),
-  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
-});
+export const usersInCore = core.table(
+  'users',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    firstName: varchar('first_name', { length: 100 }).notNull(),
+    lastName: varchar('last_name', { length: 100 }).notNull(),
+    email: varchar({ length: 200 }).notNull(),
+    emailVerified: boolean('email_verified').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
+  },
+  (table) => [unique('users_email_key').on(table.email)]
+);
+
+export const userAuthInCore = core.table(
+  'user_auth',
+  {
+    userId: uuid('user_id').primaryKey().notNull(),
+    password: varchar({ length: 200 }),
+    failedLoginAttempts: integer('failed_login_attempts').default(0),
+    strategies: varchar({ length: 50 }).array().notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'user_auth_user_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
 
 export const userSessionsInCore = core.table(
   'user_sessions',
@@ -183,51 +222,6 @@ export const userPreferencesInCore = core.table(
       columns: [table.id],
       foreignColumns: [usersInCore.id],
       name: 'user_preferences_id_fkey',
-    }).onDelete('cascade'),
-  ]
-);
-
-export const usersInCore = core.table(
-  'users',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .primaryKey()
-      .notNull(),
-    firstName: varchar('first_name', { length: 100 }).notNull(),
-    lastName: varchar('last_name', { length: 100 }).notNull(),
-    email: varchar({ length: 200 }).notNull(),
-    emailVerified: boolean('email_verified').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true, mode: 'string' }),
-  },
-  (table) => [unique('users_email_key').on(table.email)]
-);
-
-export const userAuthInCore = core.table(
-  'user_auth',
-  {
-    userId: uuid('user_id').primaryKey().notNull(),
-    password: varchar({ length: 200 }),
-    failedLoginAttempts: integer('failed_login_attempts').default(0),
-    strategies: varchar({ length: 50 }).array().notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'user_auth_user_id_fkey',
     }).onDelete('cascade'),
   ]
 );
@@ -402,6 +396,34 @@ export const accountingEntitiesInCore = core.table(
   ]
 );
 
+export const fiscalYearsInCore = core.table(
+  'fiscal_years',
+  {
+    id: uuid()
+      .default(sql`uuid_generate_v4()`)
+      .primaryKey()
+      .notNull(),
+    name: varchar({ length: 150 }).notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    unit: fiscalYearPeriodUnitInCore().notNull(),
+    count: smallint().notNull(),
+    startDate: date('start_date').notNull(),
+    endDate: date('end_date').notNull(),
+    status: periodStatusInCore().notNull(),
+    closedAt: timestamp('closed_at', { withTimezone: true, mode: 'string' }),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'fiscal_years_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
 export const accountingEntityHistoryInAudit = audit.table(
   'accounting_entity_history',
   {
@@ -440,34 +462,6 @@ export const accountingEntityHistoryInAudit = audit.table(
       'accounting_entity_history_diff_check',
       sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
-  ]
-);
-
-export const fiscalYearsInCore = core.table(
-  'fiscal_years',
-  {
-    id: uuid()
-      .default(sql`uuid_generate_v4()`)
-      .primaryKey()
-      .notNull(),
-    name: varchar({ length: 150 }).notNull(),
-    accountingEntityId: uuid('accounting_entity_id').notNull(),
-    unit: fiscalYearPeriodUnitInCore().notNull(),
-    count: smallint().notNull(),
-    startDate: date('start_date').notNull(),
-    endDate: date('end_date').notNull(),
-    status: periodStatusInCore().notNull(),
-    closedAt: timestamp('closed_at', { withTimezone: true, mode: 'string' }),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.accountingEntityId],
-      foreignColumns: [accountingEntitiesInCore.id],
-      name: 'fiscal_years_accounting_entity_id_fkey',
-    }).onDelete('cascade'),
   ]
 );
 
@@ -831,6 +825,12 @@ export const reportingContextsInCore = core.table(
   ]
 );
 
+export const pgmigrations = pgTable('pgmigrations', {
+  id: serial().primaryKey().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
+});
+
 export const reportingContextHistoryInAudit = audit.table(
   'reporting_context_history',
   {
@@ -1149,6 +1149,32 @@ export const counterpartyVendorsInCore = core.table(
   ]
 );
 
+export const counterpartyEmployersInCore = core.table(
+  'counterparty_employers',
+  {
+    counterpartyId: uuid('counterparty_id').primaryKey().notNull(),
+    displayName: varchar('display_name', { length: 255 }),
+    addressLine1: varchar('address_line_1', { length: 255 }).notNull(),
+    addressLine2: varchar('address_line_2', { length: 255 }),
+    addressCity: varchar('address_city', { length: 100 }).notNull(),
+    addressRegion: varchar('address_region', { length: 100 }),
+    addressPostalCode: varchar('address_postal_code', { length: 20 }),
+    addressCountryCode: varchar('address_country_code', {
+      length: 2,
+    }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.counterpartyId],
+      foreignColumns: [counterpartiesInCore.id],
+      name: 'counterparty_employers_counterparty_id_fkey',
+    }).onDelete('cascade'),
+  ]
+);
+
 export const counterpartyVendorHistoryInAudit = audit.table(
   'counterparty_vendor_history',
   {
@@ -1187,32 +1213,6 @@ export const counterpartyVendorHistoryInAudit = audit.table(
       'counterparty_vendor_history_diff_check',
       sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
-  ]
-);
-
-export const counterpartyEmployersInCore = core.table(
-  'counterparty_employers',
-  {
-    counterpartyId: uuid('counterparty_id').primaryKey().notNull(),
-    displayName: varchar('display_name', { length: 255 }),
-    addressLine1: varchar('address_line_1', { length: 255 }).notNull(),
-    addressLine2: varchar('address_line_2', { length: 255 }),
-    addressCity: varchar('address_city', { length: 100 }).notNull(),
-    addressRegion: varchar('address_region', { length: 100 }),
-    addressPostalCode: varchar('address_postal_code', { length: 20 }),
-    addressCountryCode: varchar('address_country_code', {
-      length: 2,
-    }).notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.counterpartyId],
-      foreignColumns: [counterpartiesInCore.id],
-      name: 'counterparty_employers_counterparty_id_fkey',
-    }).onDelete('cascade'),
   ]
 );
 

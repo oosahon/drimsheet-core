@@ -1,4 +1,7 @@
 {
+  "editor.codeActionsOnSave": {
+    "source.removeUnusedImports": "explicit"
+  },
   "cSpell.words": [
     "AASB",
     "Akuntansi",

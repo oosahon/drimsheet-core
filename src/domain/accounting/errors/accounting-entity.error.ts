@@ -12,6 +12,8 @@ const EErrorKeys = {
     'accounting_error_accounting_entity_invalid_jurisdiction_code',
   InvalidHistoryAction:
     'accounting_error_accounting_entity_invalid_history_action',
+  OnlyOneIndividualAccountingEntityAllowed:
+    'accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed',
 } as const satisfies Record<string, TErrorKeyPrefix>;
 
 type UAccountingEntityError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

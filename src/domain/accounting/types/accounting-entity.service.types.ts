@@ -1,3 +1,4 @@
+import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
@@ -61,8 +62,9 @@ export interface IAccountingEntityCreationResult {
 
 export default interface IAccountingEntityService {
   create(
-    input: IAccountingEntityCreationInput
-  ): IAccountingEntityCreationResult;
+    input: IAccountingEntityCreationInput,
+    repoOptions: IReadRepoOptions
+  ): Promise<IAccountingEntityCreationResult>;
 
   grantUserAccess(
     accountingEntity: IAccountingEntity,

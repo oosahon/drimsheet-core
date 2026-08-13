@@ -3,7 +3,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
-import { ERepoLock, IRepoOptions } from '@shared/types/repo.types';
+import { IRepoOptions } from '@shared/types/repo.types';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import appError from '@shared/values/errors/app.error';
 import eventValue from '@shared/values/events/event.vo';
@@ -50,32 +50,28 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
   return async (payload: IAccountingEntityCreationDto) => {
     zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
-    if (payload.entityType !== EAccountingEntityType.Individual) {
+    if (payload.entityType === EAccountingEntityType.PrivateCompany) {
       throw new appError.BadRequest();
     }
 
     const { user, correlationId } = deps.appContext.get();
     const trace = { correlationId };
-    const existing = await deps.accountingEntityRepo.findByUserId(
-      user.id,
-      trace,
-      payload.entityType
+
+    const accountingResponse = await deps.accountingEntityService.create(
+      {
+        name: payload.name,
+        type: payload.entityType,
+        ownerId: user.id,
+        functionalCurrencyCode: payload.functionalCurrencyCode,
+        reportingCurrencyCode: payload.reportingCurrencyCode,
+        jurisdictionCode: payload.jurisdictionCode,
+        accountingStandardCode: payload.accountingStandardCode,
+        fiscalYear: payload.fiscalYear,
+        accountingPeriod: payload.accountingPeriod,
+        reportingPeriod: payload.reportingPeriod,
+      },
+      trace
     );
-
-    if (existing.length > 0) throw new appError.Conflict();
-
-    const accountingResponse = deps.accountingEntityService.create({
-      name: payload.name,
-      type: payload.entityType,
-      ownerId: user.id,
-      functionalCurrencyCode: payload.functionalCurrencyCode,
-      reportingCurrencyCode: payload.reportingCurrencyCode,
-      jurisdictionCode: payload.jurisdictionCode,
-      accountingStandardCode: payload.accountingStandardCode,
-      fiscalYear: payload.fiscalYear,
-      accountingPeriod: payload.accountingPeriod,
-      reportingPeriod: payload.reportingPeriod,
-    });
 
     const {
       accountingEntity: [
