@@ -1,28 +1,26 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
-
-import { accountingEntitiesTable } from '../config/accounting-entity';
-import { userPreferencesTable, usersTable } from '../config/users';
+import { jurisdictionsTable } from '../config/accounting';
+import { currenciesTable } from '../config/currencies';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
-  pgm.createTable(userPreferencesTable, {
-    id: {
-      type: 'uuid',
+  pgm.createTable(jurisdictionsTable, {
+    code: {
+      type: 'varchar(2)',
       primaryKey: true,
-      references: usersTable,
-      onDelete: 'CASCADE',
     },
 
-    app_preferences: {
-      type: 'jsonb',
+    name: {
+      type: 'varchar(70)',
+      notNull: true,
     },
 
-    last_active_accounting_entity_id: {
-      type: 'uuid',
-      notNull: false,
-      references: accountingEntitiesTable,
-      onDelete: 'SET NULL',
+    currency_code: {
+      type: 'varchar(3)',
+      notNull: true,
+      references: currenciesTable,
+      onDelete: 'RESTRICT',
     },
 
     created_at: {
@@ -33,11 +31,16 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
 
     updated_at: {
       type: 'timestamptz',
+      default: pgm.func('now()'),
       notNull: true,
+    },
+
+    deleted_at: {
+      type: 'timestamptz',
     },
   });
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {
-  pgm.dropTable(userPreferencesTable);
+  pgm.dropTable(jurisdictionsTable);
 }

@@ -1,5 +1,4 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
-
 import {
   accountingStandardsTable,
   jurisdictionAccountingStandardsTable,

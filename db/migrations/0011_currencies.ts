@@ -1,5 +1,4 @@
 import { MigrationBuilder } from 'node-pg-migrate';
-
 import { currenciesTable } from '../config/currencies';
 
 export async function up(pgm: MigrationBuilder): Promise<void> {

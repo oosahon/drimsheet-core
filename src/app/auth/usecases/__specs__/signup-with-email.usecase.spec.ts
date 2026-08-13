@@ -14,10 +14,7 @@ import { IUserSignupReq } from '@app/auth/dtos/auth/auth.dto';
 import makeSignupWithEmailUsecase from '@app/auth/usecases/signup-with-email.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
-import {
-  mockUserPreferencesRepo,
-  mockUserRepo,
-} from '@app/user/contracts/__mocks__/user.repos.mock';
+import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 const mockEmailVerificationService: jest.Mocked<IEmailVerificationService> = {
   send: jest.fn(),
@@ -27,7 +24,6 @@ describe('makeSignupWithEmailUsecase', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockUserRepo.create.mockReset().mockResolvedValue(undefined);
-    mockUserPreferencesRepo.create.mockReset().mockResolvedValue(undefined);
     mockUserAuthRepo.create.mockReset().mockResolvedValue(undefined);
     mockEventBus.publish.mockReset().mockResolvedValue(undefined);
     mockEmailVerificationService.send.mockReset().mockResolvedValue(true);
@@ -47,7 +43,6 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      userPreferencesRepo: mockUserPreferencesRepo,
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -88,7 +83,6 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      userPreferencesRepo: mockUserPreferencesRepo,
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -149,26 +143,10 @@ describe('makeSignupWithEmailUsecase', () => {
     if (!Array.isArray(published)) {
       throw new Error('Expected an event array');
     }
-    expect(published).toHaveLength(2);
+    expect(published).toHaveLength(1);
     expect(published[0].correlationId).toBe(correlationId);
     expect(published[0].idempotencyKey).toBe(idempotencyKey);
     expect(published[0].data).toBe(savedUser);
-    expect(published[1]).toEqual(
-      expect.objectContaining({
-        type: 'domain:user:preferences-updated',
-        correlationId,
-        idempotencyKey,
-        data: expect.objectContaining({
-          id: savedUser.id,
-          appPreferences: {},
-          lastActiveAccountingEntityId: null,
-        }),
-      })
-    );
-    expect(mockUserPreferencesRepo.create).toHaveBeenCalledWith(
-      published[1].data,
-      { correlationId, tx: 'mock-tx' }
-    );
   });
 
   it('should wait for event publication to complete', async () => {
@@ -189,7 +167,6 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      userPreferencesRepo: mockUserPreferencesRepo,
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -228,7 +205,6 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      userPreferencesRepo: mockUserPreferencesRepo,
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -246,7 +222,6 @@ describe('makeSignupWithEmailUsecase', () => {
     ).rejects.toThrow('user create failed');
 
     expect(mockUserAuthRepo.create).not.toHaveBeenCalled();
-    expect(mockUserPreferencesRepo.create).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
@@ -264,7 +239,6 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      userPreferencesRepo: mockUserPreferencesRepo,
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -282,43 +256,7 @@ describe('makeSignupWithEmailUsecase', () => {
     ).rejects.toThrow('user auth create failed');
 
     expect(mockUserRepo.create).toHaveBeenCalledTimes(1);
-    expect(mockUserPreferencesRepo.create).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
-  });
-
-  it('should not publish when preference creation fails', async () => {
-    mockAppContext.get.mockReturnValue({
-      correlationId: '854e4567-e89b-42d3-a456-426614174001',
-      idempotencyKey: 'test-idemp-key',
-    } as IAppContextData);
-    mockUserPreferencesRepo.create.mockRejectedValue(
-      new Error('preference create failed')
-    );
-
-    const usecase = makeSignupWithEmailUsecase({
-      appContext: mockAppContext,
-      userRepo: mockUserRepo,
-      userPreferencesRepo: mockUserPreferencesRepo,
-      passwordService: mockPasswordService,
-      eventBus: mockEventBus,
-      userAuthRepo: mockUserAuthRepo,
-      repoService: mockRepoService,
-      emailVerificationService: mockEmailVerificationService,
-    });
-
-    await expect(
-      usecase({
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'johndoe@example.com',
-        password: 'SecurePassword123!',
-      })
-    ).rejects.toThrow('preference create failed');
-
-    expect(mockUserRepo.create).toHaveBeenCalledTimes(1);
-    expect(mockUserAuthRepo.create).toHaveBeenCalledTimes(1);
-    expect(mockEventBus.publish).not.toHaveBeenCalled();
-    expect(mockEmailVerificationService.send).not.toHaveBeenCalled();
   });
 
   it('should return the generic response and request verification if user already exists', async () => {
@@ -349,7 +287,6 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      userPreferencesRepo: mockUserPreferencesRepo,
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -367,7 +304,6 @@ describe('makeSignupWithEmailUsecase', () => {
     expect(mockPasswordService.hash).toHaveBeenCalledWith(payload.password);
     expect(mockUserRepo.create).not.toHaveBeenCalled();
     expect(mockUserAuthRepo.create).not.toHaveBeenCalled();
-    expect(mockUserPreferencesRepo.create).not.toHaveBeenCalled();
   });
 
   it('propagates persistence failures', async () => {
@@ -381,7 +317,6 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      userPreferencesRepo: mockUserPreferencesRepo,
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
@@ -413,7 +348,6 @@ describe('makeSignupWithEmailUsecase', () => {
     const usecase = makeSignupWithEmailUsecase({
       appContext: mockAppContext,
       userRepo: mockUserRepo,
-      userPreferencesRepo: mockUserPreferencesRepo,
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,

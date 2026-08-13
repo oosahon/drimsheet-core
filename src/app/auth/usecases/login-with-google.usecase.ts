@@ -8,9 +8,7 @@ import appError from '@shared/values/errors/app.error';
 import eventValue from '@shared/values/events/event.vo';
 import historyValue from '@shared/values/history/history.vo';
 
-import userPreferencesEntity from '@domain/user/entities/user-preferences.entity';
 import userEntity from '@domain/user/entities/user.entity';
-import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
 import IUserRepo from '@domain/user/repos/user.repo';
 import emailValue from '@domain/user/values/email.vo';
 
@@ -28,7 +26,6 @@ export default function makeLoginWithGoogleUseCase(
   appContext: IAppContext,
   userRepo: IUserRepo,
   userAuthRepo: IUserAuthRepo,
-  userPreferencesRepo: IUserPreferencesRepo,
   repoService: IRepoService
 ) {
   return async (profile: IOAuthProfile, done: TOAuthDoneCallback) => {
@@ -79,13 +76,6 @@ export default function makeLoginWithGoogleUseCase(
         email,
         emailVerified: true,
       });
-      const [userPreferences, preferenceEvents] = userPreferencesEntity.make(
-        user.id,
-        {
-          appPreferences: {},
-          lastActiveAccountingEntityId: null,
-        }
-      );
 
       const history = historyValue.make(
         userAuditDelta,
@@ -108,18 +98,12 @@ export default function makeLoginWithGoogleUseCase(
           },
           { correlationId, tx }
         );
-
-        await userPreferencesRepo.create(userPreferences, {
-          correlationId,
-          tx,
-        });
       };
 
       await repoService.runInTransaction(repoTransaction);
 
-      const enrichedUserEvents = eventValue.enrichAll<unknown>(
-        [...userEvents, ...preferenceEvents],
-        { correlationId, idempotencyKey }
+      const enrichedUserEvents = userEvents.map((e) =>
+        eventValue.enrich(e, { correlationId, idempotencyKey })
       );
 
       await eventBus.publish(enrichedUserEvents);

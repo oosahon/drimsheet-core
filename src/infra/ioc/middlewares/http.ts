@@ -2,9 +2,9 @@ import { makeAuthRateLimiters } from '@infra/config/rate-limiter.config';
 import vars from '@infra/config/vars.config';
 import { accountingEntityService } from '@infra/ioc/services/accounting';
 import { tokenService } from '@infra/ioc/services/auth';
-import { userPreferencesAppService } from '@infra/ioc/services/user';
 import { oAuthUseCase } from '@infra/ioc/usecases/auth';
 import observability from '@infra/observability';
+import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import appContext from '@infra/runtime/app-context';
 import makeGlobalRateLimiter from '@infra/server/rate-limiter';
@@ -44,7 +44,7 @@ const httpMiddlewares = {
 
   appContext: makeAppContextInitMiddleware(
     appContext,
-    userPreferencesAppService,
+    accountingRepos.accountingEntity,
     tokenService,
     userRepos.user,
     observability.logger,

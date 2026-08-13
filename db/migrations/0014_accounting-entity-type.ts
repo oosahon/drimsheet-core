@@ -1,5 +1,4 @@
 import { MigrationBuilder } from 'node-pg-migrate';
-
 import { accountingEntityType } from '../config/accounting-entity';
 
 export const up = (pgm: MigrationBuilder) => {

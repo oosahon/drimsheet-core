@@ -32,7 +32,6 @@ import mockLedgerAccountPersistenceService from '@app/ledger/contracts/__mocks__
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 import mockPostingAccountBootstrapService from '@app/ledger/contracts/__mocks__/posting-account-bootstrap.service.mock';
 import mockSuspenseAccountBootstrapService from '@app/ledger/contracts/__mocks__/suspense-account-bootstrap.service.mock';
-import mockUserPreferencesAppService from '@app/user/contracts/__mocks__/user-preferences-app.service.mock';
 
 const mockAccountingDomainServices = Object.freeze({
   accountingEntity: mockAccountingEntityService,
@@ -79,7 +78,6 @@ describe('createAccountingEntityUseCase', () => {
       reportingContextRepo: mockReportingContextRepo,
       ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
       accountingEntityService: mockAccountingDomainServices.accountingEntity,
-      userPreferencesAppService: mockUserPreferencesAppService,
       headerAccountsBootstrapService: mockHeaderAccountsBootstrapService,
       postingAccountBootstrapService: mockPostingAccountBootstrapService,
       suspenseAccountBootstrapService: mockSuspenseAccountBootstrapService,
@@ -134,9 +132,6 @@ describe('createAccountingEntityUseCase', () => {
     mockAccountingDomainServices.accountingEntity.create.mockResolvedValue(
       accounting
     );
-    mockUserPreferencesAppService.setActiveAccountingEntity
-      .mockReset()
-      .mockResolvedValue({ accountingEntity, events: [] });
     mockHeaderAccountsBootstrapService.bootstrap.mockResolvedValue(ledger);
     mockPostingAccountBootstrapService.bootstrap.mockResolvedValue(ledger);
     mockSuspenseAccountBootstrapService.bootstrap.mockResolvedValue(ledger);
@@ -236,18 +231,6 @@ describe('createAccountingEntityUseCase', () => {
     );
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
-    expect(
-      mockUserPreferencesAppService.setActiveAccountingEntity
-    ).toHaveBeenCalledWith(userId, accountingEntity.id, {
-      correlationId,
-      tx: 'mock-tx',
-    });
-    expect(
-      mockAccountingEntityRepo.create.mock.invocationCallOrder[0]
-    ).toBeLessThan(
-      mockUserPreferencesAppService.setActiveAccountingEntity.mock
-        .invocationCallOrder[0]
-    );
     expect(mockFiscalYearRepo.create).toHaveBeenCalled();
     expect(mockAccountingPeriodRepo.create).toHaveBeenCalled();
     expect(mockAccountingContextRepo.create).toHaveBeenCalled();
@@ -320,53 +303,6 @@ describe('createAccountingEntityUseCase', () => {
     );
     expect(mockAppContext.set).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
-  });
-
-  it('does not update context or publish when durable selection fails', async () => {
-    mockUserPreferencesAppService.setActiveAccountingEntity.mockRejectedValueOnce(
-      new Error('selection persistence failed')
-    );
-
-    await expect(getUseCase()(validPayload)).rejects.toThrow(
-      'selection persistence failed'
-    );
-    expect(mockAppContext.set).not.toHaveBeenCalled();
-    expect(mockEventBus.publish).not.toHaveBeenCalled();
-  });
-
-  it('publishes the preference event returned by durable selection', async () => {
-    const preferences = {
-      id: userId,
-      appPreferences: {},
-      lastActiveAccountingEntityId: accountingEntity.id,
-      createdAt: new Date('2026-08-01T00:00:00.000Z'),
-      updatedAt: new Date('2026-08-01T00:00:00.000Z'),
-    };
-    mockUserPreferencesAppService.setActiveAccountingEntity.mockResolvedValueOnce(
-      {
-        accountingEntity,
-        events: [
-          {
-            type: 'domain:user:preferences-updated',
-            data: preferences,
-            occurredAt: new Date('2026-08-01T00:00:00.000Z'),
-            enrichedAt: null,
-          },
-        ],
-      }
-    );
-
-    await getUseCase()(validPayload);
-
-    expect(mockEventBus.publish).toHaveBeenCalledWith(
-      expect.arrayContaining([
-        expect.objectContaining({
-          type: 'domain:user:preferences-updated',
-          correlationId,
-          data: preferences,
-        }),
-      ])
-    );
   });
 
   it('aggregates ledger events from all three bootstrap capabilities', async () => {

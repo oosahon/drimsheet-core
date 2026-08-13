@@ -11,10 +11,7 @@ import { IOAuthProfile } from '@app/auth/dtos/auth/auth.dto';
 import makeLoginWithGoogleUseCase from '@app/auth/usecases/login-with-google.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
-import {
-  mockUserPreferencesRepo,
-  mockUserRepo,
-} from '@app/user/contracts/__mocks__/user.repos.mock';
+import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeLoginWithGoogleUseCase', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';
@@ -27,8 +24,6 @@ describe('makeLoginWithGoogleUseCase', () => {
       .mockImplementation(async (transactionFn) =>
         transactionFn('mock-tx' as unknown as ITransactionContext)
       );
-    mockUserPreferencesRepo.create.mockReset().mockResolvedValue();
-    mockEventBus.publish.mockReset().mockResolvedValue();
     mockAppContext.get.mockReturnValue({
       correlationId,
       idempotencyKey,
@@ -64,7 +59,6 @@ describe('makeLoginWithGoogleUseCase', () => {
       mockAppContext,
       mockUserRepo,
       mockUserAuthRepo,
-      mockUserPreferencesRepo,
       mockRepoService
     );
 
@@ -121,7 +115,6 @@ describe('makeLoginWithGoogleUseCase', () => {
 
     expect(doneCallback).toHaveBeenCalledWith(null, mockUser);
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
-    expect(mockUserPreferencesRepo.create).not.toHaveBeenCalled();
   });
 
   it('should simply return existing user if Google strategy is already present', async () => {
@@ -139,7 +132,6 @@ describe('makeLoginWithGoogleUseCase', () => {
     await useCase(validProfile, doneCallback);
 
     expect(mockUserAuthRepo.update).not.toHaveBeenCalled();
-    expect(mockUserPreferencesRepo.create).not.toHaveBeenCalled();
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(doneCallback).toHaveBeenCalledWith(null, mockUser);
   });
@@ -218,32 +210,7 @@ describe('makeLoginWithGoogleUseCase', () => {
       expect.objectContaining({ correlationId, tx: 'mock-tx' })
     );
 
-    expect(mockUserPreferencesRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: expect.any(String),
-        appPreferences: {},
-        lastActiveAccountingEntityId: null,
-      }),
-      expect.objectContaining({ correlationId, tx: 'mock-tx' })
-    );
-
     expect(mockEventBus.publish).toHaveBeenCalled();
-    const [publishedEvents] = mockEventBus.publish.mock.calls[0];
-    expect(publishedEvents).toEqual([
-      expect.objectContaining({
-        type: 'domain:user:created',
-        correlationId,
-        idempotencyKey,
-      }),
-      expect.objectContaining({
-        type: 'domain:user:preferences-updated',
-        correlationId,
-        idempotencyKey,
-        data: expect.objectContaining({
-          lastActiveAccountingEntityId: null,
-        }),
-      }),
-    ]);
 
     expect(doneCallback).toHaveBeenCalledWith(
       null,
@@ -263,18 +230,6 @@ describe('makeLoginWithGoogleUseCase', () => {
 
     expect(doneCallback).toHaveBeenCalledWith(publicationError, false);
     expect(doneCallback).not.toHaveBeenCalledWith(null, expect.anything());
-  });
-
-  it('should fail the callback when preference creation rejects', async () => {
-    const persistenceError = new Error('Preference creation failed');
-    mockUserRepo.findByEmail.mockResolvedValue(null);
-    mockUserPreferencesRepo.create.mockRejectedValue(persistenceError);
-    const doneCallback = jest.fn();
-
-    await getUseCase()(validProfile, doneCallback);
-
-    expect(doneCallback).toHaveBeenCalledWith(persistenceError, false);
-    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('should catch and return systematic errors gracefully to done callback', async () => {

@@ -38,7 +38,6 @@ export const sendEmailVerificationEmailUseCase =
 export const signupWithEmailUseCase = makeSignupWithEmailUsecase({
   appContext: appContext,
   userRepo: userRepos.user,
-  userPreferencesRepo: userRepos.userPreferences,
   passwordService,
   eventBus: messaging.eventBus,
   userAuthRepo: userRepos.userAuth,
@@ -102,7 +101,6 @@ export const loginWithGoogleUseCase = makeLoginWithGoogleUseCase(
   appContext,
   userRepos.user,
   userRepos.userAuth,
-  userRepos.userPreferences,
   repoService
 );
 

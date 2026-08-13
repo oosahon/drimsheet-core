@@ -3,15 +3,15 @@ import { RequestHandler, Response } from 'express';
 import ILogger from '@shared/contracts/logger.contract';
 import IVarsConfig from '@shared/contracts/vars-config.contract';
 
+import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import IUserRepo from '@domain/user/repos/user.repo';
 import { IUser } from '@domain/user/types/user.types';
 
 import ITokenService from '@app/auth/contracts/token-service.contract';
 import IAppContext from '@app/context/contracts/app-context.contract';
-import IUserPreferencesAppService from '@app/user/contracts/user-preferences-app.service.contract';
 
-import getAccountingEntityIdFromRequest from '@interface/http/helpers/get-accounting-entity-id-from-request.helper';
+import getAccountingEntityFromRequest from '@interface/http/helpers/get-accounting-entity-from-request.helper';
 import getAuthUserFromRequest from '@interface/http/helpers/get-auth-user-from-request.helper';
 import {
   getCorrelationId,
@@ -48,7 +48,7 @@ function handleClearRefreshToken(res: Response, varsConfig: IVarsConfig) {
  */
 export default function makeAppContextInitMiddleware(
   appContext: IAppContext,
-  userPreferencesAppService: IUserPreferencesAppService,
+  accountingEntityRepo: IAccountingEntityRepo,
   tokenService: ITokenService,
   userRepo: IUserRepo,
   logger: ILogger,
@@ -65,18 +65,11 @@ export default function makeAppContextInitMiddleware(
       userRepo
     );
 
-    let accountingEntity: IAccountingEntity | null = null;
-
-    if (user) {
-      const explicitAccountingEntityId = getAccountingEntityIdFromRequest(req);
-
-      accountingEntity =
-        await userPreferencesAppService.getActiveAccountingEntity(
-          user.id,
-          explicitAccountingEntityId,
-          { correlationId }
-        );
-    }
+    const accountingEntity = await getAccountingEntityFromRequest(
+      req,
+      accountingEntityRepo,
+      user?.id
+    );
 
     appContext.init(
       {
