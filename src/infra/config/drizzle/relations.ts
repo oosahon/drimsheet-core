@@ -75,8 +75,8 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   counterpartyContractorHistoryInAudits: many(
     counterpartyContractorHistoryInAudit
   ),
-  journalEntriesInCores: many(journalEntriesInCore),
   journalEntryHistoryInAudits: many(journalEntryHistoryInAudit),
+  journalEntriesInCores: many(journalEntriesInCore),
   journalLineHistoryInAudits: many(journalLineHistoryInAudit),
   ledgerAccountBalanceAdjustmentsInCores: many(
     ledgerAccountBalanceAdjustmentsInCore
@@ -532,6 +532,16 @@ export const counterpartyHistoryInAuditRelations = relations(
   })
 );
 
+export const counterpartyVendorHistoryInAuditRelations = relations(
+  counterpartyVendorHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [counterpartyVendorHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
 export const counterpartyVendorsInCoreRelations = relations(
   counterpartyVendorsInCore,
   ({ one }) => ({
@@ -548,16 +558,6 @@ export const counterpartyEmployersInCoreRelations = relations(
     counterpartiesInCore: one(counterpartiesInCore, {
       fields: [counterpartyEmployersInCore.counterpartyId],
       references: [counterpartiesInCore.id],
-    }),
-  })
-);
-
-export const counterpartyVendorHistoryInAuditRelations = relations(
-  counterpartyVendorHistoryInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [counterpartyVendorHistoryInAudit.userId],
-      references: [usersInCore.id],
     }),
   })
 );
@@ -592,6 +592,16 @@ export const counterpartyContractorHistoryInAuditRelations = relations(
   })
 );
 
+export const journalEntryHistoryInAuditRelations = relations(
+  journalEntryHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [journalEntryHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
 export const journalEntriesInCoreRelations = relations(
   journalEntriesInCore,
   ({ one, many }) => ({
@@ -621,16 +631,6 @@ export const journalEntriesInCoreRelations = relations(
     subledgerFxCostBasisLotAcquisitionsInCores: many(
       subledgerFxCostBasisLotAcquisitionsInCore
     ),
-  })
-);
-
-export const journalEntryHistoryInAuditRelations = relations(
-  journalEntryHistoryInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [journalEntryHistoryInAudit.userId],
-      references: [usersInCore.id],
-    }),
   })
 );
 

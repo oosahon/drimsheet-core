@@ -973,9 +973,9 @@ export const ledgerAccountHistoryInAudit = audit.table(
     ),
     index('ledger_account_history_timeline_idx').using(
       'btree',
-      table.ledgerAccountId.asc().nullsLast().op('int8_ops'),
-      table.occurredAt.desc().nullsFirst().op('uuid_ops'),
-      table.id.desc().nullsFirst().op('int8_ops')
+      table.ledgerAccountId.asc().nullsLast().op('uuid_ops'),
+      table.occurredAt.desc().nullsFirst().op('int8_ops'),
+      table.id.desc().nullsFirst().op('uuid_ops')
     ),
     foreignKey({
       columns: [table.userId],
@@ -1126,6 +1126,47 @@ export const counterpartyHistoryInAudit = audit.table(
   ]
 );
 
+export const counterpartyVendorHistoryInAudit = audit.table(
+  'counterparty_vendor_history',
+  {
+    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
+    counterpartyId: uuid('counterparty_id').notNull(),
+    userId: uuid('user_id'),
+    actorType: historyActorTypeInAudit('actor_type').notNull(),
+    action: varchar({ length: 50 }).notNull(),
+    diff: jsonb().notNull(),
+    correlationId: varchar('correlation_id', { length: 255 }),
+    occurredAt: timestamp('occurred_at', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
+    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('counterparty_vendor_history_timeline_idx').using(
+      'btree',
+      table.counterpartyId.asc().nullsLast().op('timestamptz_ops'),
+      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
+      table.id.desc().nullsFirst().op('int8_ops')
+    ),
+    foreignKey({
+      columns: [table.userId],
+      foreignColumns: [usersInCore.id],
+      name: 'counterparty_vendor_history_user_id_fkey',
+    }).onDelete('set null'),
+    check(
+      'counterparty_vendor_history_actor_check',
+      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
+    ),
+    check(
+      'counterparty_vendor_history_diff_check',
+      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
+    ),
+  ]
+);
+
 export const counterpartyVendorsInCore = core.table(
   'counterparty_vendors',
   {
@@ -1172,47 +1213,6 @@ export const counterpartyEmployersInCore = core.table(
       foreignColumns: [counterpartiesInCore.id],
       name: 'counterparty_employers_counterparty_id_fkey',
     }).onDelete('cascade'),
-  ]
-);
-
-export const counterpartyVendorHistoryInAudit = audit.table(
-  'counterparty_vendor_history',
-  {
-    id: bigserial({ mode: 'bigint' }).primaryKey().notNull(),
-    counterpartyId: uuid('counterparty_id').notNull(),
-    userId: uuid('user_id'),
-    actorType: historyActorTypeInAudit('actor_type').notNull(),
-    action: varchar({ length: 50 }).notNull(),
-    diff: jsonb().notNull(),
-    correlationId: varchar('correlation_id', { length: 255 }),
-    occurredAt: timestamp('occurred_at', {
-      withTimezone: true,
-      mode: 'string',
-    }).notNull(),
-    recordedAt: timestamp('recorded_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    index('counterparty_vendor_history_timeline_idx').using(
-      'btree',
-      table.counterpartyId.asc().nullsLast().op('timestamptz_ops'),
-      table.occurredAt.desc().nullsFirst().op('timestamptz_ops'),
-      table.id.desc().nullsFirst().op('int8_ops')
-    ),
-    foreignKey({
-      columns: [table.userId],
-      foreignColumns: [usersInCore.id],
-      name: 'counterparty_vendor_history_user_id_fkey',
-    }).onDelete('set null'),
-    check(
-      'counterparty_vendor_history_actor_check',
-      sql`((actor_type = 'user'::audit.history_actor_type) AND (user_id IS NOT NULL)) OR ((actor_type = ANY (ARRAY['system'::audit.history_actor_type, 'migration'::audit.history_actor_type])) AND (user_id IS NULL))`
-    ),
-    check(
-      'counterparty_vendor_history_diff_check',
-      sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
-    ),
   ]
 );
 
@@ -1323,46 +1323,6 @@ export const counterpartyContractorHistoryInAudit = audit.table(
   ]
 );
 
-export const journalEntriesInCore = core.table(
-  'journal_entries',
-  {
-    id: uuid().primaryKey().notNull(),
-    accountingEntityId: uuid('accounting_entity_id').notNull(),
-    sourceType: journalEntrySourceTypeInCore('source_type').notNull(),
-    memo: varchar({ length: 100 }),
-    status: journalEntryStatusInCore().notNull(),
-    effectiveDate: date('effective_date').notNull(),
-    postedAt: timestamp('posted_at', { withTimezone: true, mode: 'string' }),
-    voidedAt: timestamp('voided_at', { withTimezone: true, mode: 'string' }),
-    voidingEntryId: uuid('voiding_entry_id'),
-    version: integer().default(1).notNull(),
-    createdBy: uuid('created_by').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
-      .defaultNow()
-      .notNull(),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.accountingEntityId],
-      foreignColumns: [accountingEntitiesInCore.id],
-      name: 'journal_entries_accounting_entity_id_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.createdBy],
-      foreignColumns: [usersInCore.id],
-      name: 'journal_entries_created_by_fkey',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [table.voidingEntryId],
-      foreignColumns: [table.id],
-      name: 'journal_entries_voiding_entry_id_fkey',
-    }),
-  ]
-);
-
 export const journalEntryHistoryInAudit = audit.table(
   'journal_entry_history',
   {
@@ -1409,6 +1369,46 @@ export const journalEntryHistoryInAudit = audit.table(
       'journal_entry_history_diff_check',
       sql`(jsonb_typeof(diff) = 'object'::text) AND (diff ? 'before'::text) AND (diff ? 'after'::text) AND (((diff -> 'before'::text) <> 'null'::jsonb) OR ((diff -> 'after'::text) <> 'null'::jsonb))`
     ),
+  ]
+);
+
+export const journalEntriesInCore = core.table(
+  'journal_entries',
+  {
+    id: uuid().primaryKey().notNull(),
+    accountingEntityId: uuid('accounting_entity_id').notNull(),
+    sourceType: journalEntrySourceTypeInCore('source_type').notNull(),
+    memo: varchar({ length: 100 }),
+    status: journalEntryStatusInCore().notNull(),
+    effectiveDate: date('effective_date').notNull(),
+    postedAt: timestamp('posted_at', { withTimezone: true, mode: 'string' }),
+    voidedAt: timestamp('voided_at', { withTimezone: true, mode: 'string' }),
+    voidingEntryId: uuid('voiding_entry_id'),
+    version: integer().default(1).notNull(),
+    createdBy: uuid('created_by').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'string' })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    foreignKey({
+      columns: [table.accountingEntityId],
+      foreignColumns: [accountingEntitiesInCore.id],
+      name: 'journal_entries_accounting_entity_id_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.createdBy],
+      foreignColumns: [usersInCore.id],
+      name: 'journal_entries_created_by_fkey',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [table.voidingEntryId],
+      foreignColumns: [table.id],
+      name: 'journal_entries_voiding_entry_id_fkey',
+    }),
   ]
 );
 

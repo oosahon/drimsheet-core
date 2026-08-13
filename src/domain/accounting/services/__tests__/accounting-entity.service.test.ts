@@ -65,6 +65,34 @@ describe('accountingEntityService', () => {
       expect(Object.isFrozen(result)).toBe(true);
     });
 
+    it('creates a complete private-company graph with the sole-trader standard', async () => {
+      const result = await service.create(
+        {
+          ...input,
+          type: EAccountingEntityType.PrivateCompany,
+        },
+        repoOptions
+      );
+
+      expect(result.accountingEntity[0]).toMatchObject({
+        type: EAccountingEntityType.PrivateCompany,
+        ownerId: input.ownerId,
+        jurisdictionCode: input.jurisdictionCode,
+      });
+      expect(result.fiscalYear[0].accountingEntityId).toBe(
+        result.accountingEntity[0].id
+      );
+      expect(result.accountingPeriods.length).toBeGreaterThan(0);
+      expect(result.reportingPeriods.length).toBeGreaterThan(0);
+      expect(result.accountingContext[0].fiscalYearId).toBe(
+        result.fiscalYear[0].id
+      );
+      expect(result.reportingContext[0].accountingContextId).toBe(
+        result.accountingContext[0].id
+      );
+      expect(accountingEntityRepo.findByUserId).not.toHaveBeenCalled();
+    });
+
     it('falls back to the first period when current date is outside the fiscal year', async () => {
       const result = await service.create(
         {
