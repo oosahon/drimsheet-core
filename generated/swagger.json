@@ -60,6 +60,14 @@
           "id": {
             "$ref": "#/components/schemas/TEntityId"
           },
+          "lastActiveAccountingEntityId": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TEntityId"
+              }
+            ],
+            "nullable": true
+          },
           "appPreferences": {
             "$ref": "#/components/schemas/IUserAppPreferences"
           },
@@ -72,7 +80,13 @@
             "format": "date-time"
           }
         },
-        "required": ["id", "appPreferences", "createdAt", "updatedAt"],
+        "required": [
+          "id",
+          "lastActiveAccountingEntityId",
+          "appPreferences",
+          "createdAt",
+          "updatedAt"
+        ],
         "type": "object",
         "additionalProperties": false
       },

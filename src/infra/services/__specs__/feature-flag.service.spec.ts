@@ -3,7 +3,7 @@ import generateUUID from '@shared/utils/uuid-generator';
 import launchDarklyClient from '@infra/config/launchdarkly.config';
 import featureFlagService from '@infra/services/feature-flag.service';
 
-jest.mock('@infra/config/launchdarkly.config', () => ({
+jest.mock('../../config/launchdarkly.config', () => ({
   __esModule: true,
   default: {
     boolVariation: jest.fn(),

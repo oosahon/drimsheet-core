@@ -10,3 +10,4 @@ scribbles
 .seed.env
 ticket-description.md
 .agents/plans/
+.tmp
