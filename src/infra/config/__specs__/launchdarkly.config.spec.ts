@@ -6,7 +6,7 @@ jest.mock('@launchdarkly/node-server-sdk', () => ({
   init: jest.fn(() => 'launchdarkly-client'),
 }));
 
-jest.mock('@infra/config/vars.config', () => ({
+jest.mock('../vars.config', () => ({
   __esModule: true,
   default: { LAUNCHDARKLY_SDK_KEY: 'test-sdk-key' },
 }));

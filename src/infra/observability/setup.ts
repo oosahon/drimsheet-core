@@ -6,6 +6,6 @@ export default function setupObservability(): void {
   Sentry.init({
     dsn: vars.SENTRY_DSN,
     sendDefaultPii: true,
-    environment: vars.NODE_ENV,
+    environment: vars.APP_ENV,
   });
 }

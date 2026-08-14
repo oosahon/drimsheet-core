@@ -2,7 +2,7 @@ import launchDarklyClient from '@infra/config/launchdarkly.config';
 import reporter from '@infra/observability/reporter';
 import featureFlagLifeCycle from '@infra/runtime/feature-flag-lifecycle';
 
-jest.mock('@infra/config/launchdarkly.config', () => ({
+jest.mock('../../config/launchdarkly.config', () => ({
   __esModule: true,
   default: {
     waitForInitialization: jest.fn(),
@@ -11,7 +11,7 @@ jest.mock('@infra/config/launchdarkly.config', () => ({
   },
 }));
 
-jest.mock('@infra/observability/reporter', () => ({
+jest.mock('../../observability/reporter', () => ({
   __esModule: true,
   default: {
     report: jest.fn(),
