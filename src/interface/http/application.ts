@@ -27,10 +27,6 @@ export default function createApplication(
   app.use(cors());
 
   app.use(httpMiddlewares.globalRateLimiter);
-  app.use(
-    '/api/v1/auth/signup-with-email',
-    ...httpMiddlewares.signupRateLimiters
-  );
 
   app.use(express.static('public'));
 
