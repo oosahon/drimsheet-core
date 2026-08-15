@@ -24,6 +24,8 @@ type TReportContext = NonNullable<Parameters<typeof reporter.report>[2]>;
 type TAbuseContext = Parameters<typeof reporter.reportAbuse>[1];
 
 describe('reporter', () => {
+  const validCorrelationId = '0198ad49-0f4a-7709-a5bf-2f7cfbaea7c4';
+
   afterEach(() => {
     if (originalAppEnv === undefined) delete process.env.APP_ENV;
     else process.env.APP_ENV = originalAppEnv;
@@ -62,7 +64,7 @@ describe('reporter', () => {
     } as unknown as TReportContext;
 
     appContext.init(
-      { correlationId: 'report-correlation', idempotencyKey: '' },
+      { correlationId: validCorrelationId, idempotencyKey: '' },
       () =>
         reporter.report(
           'auth.password_reset.finalization_failed',
@@ -117,8 +119,27 @@ describe('reporter', () => {
       eventType: 'domain:test:event',
       eventTypes: ['domain:test:first', 'domain:test:second'],
       errorKey: 'auth_error_token_invalid_unauthorized',
-      correlationId: 'report-correlation',
+      correlationId: validCorrelationId,
     });
+  });
+
+  it('omits malformed contextual correlation IDs without failing reporting', () => {
+    jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+    const malformedCorrelationId = 'private.person@example.com';
+
+    expect(() =>
+      appContext.init(
+        { correlationId: malformedCorrelationId, idempotencyKey: '' },
+        () =>
+          reporter.report('queue.job.processing_failed', new Error('failed'))
+      )
+    ).not.toThrow();
+
+    const sentryContext = jest.mocked(Sentry.captureException).mock
+      .calls[0][1] as { extra?: Record<string, unknown> } | undefined;
+
+    expect(sentryContext?.extra).toEqual({});
+    expect(JSON.stringify(sentryContext)).not.toContain(malformedCorrelationId);
   });
 
   it('does not serialize a non-Error thrown value', () => {

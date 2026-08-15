@@ -1,6 +1,7 @@
 import { RequestHandler, Response } from 'express';
 
 import IVarsConfig from '@shared/contracts/vars-config.contract';
+import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
@@ -40,8 +41,15 @@ export default function makeAppContextInitMiddleware(
   varsConfig: IVarsConfig
 ): RequestHandler {
   return (req, res, next) => {
+    const suppliedCorrelationId = getHttpHeaderValue(
+      'x-correlation-id',
+      req.headers
+    );
     const correlationId =
-      getHttpHeaderValue('x-correlation-id', req.headers) || generateUUID();
+      typeof suppliedCorrelationId === 'string' &&
+      stringUtils.isUUID(suppliedCorrelationId)
+        ? suppliedCorrelationId
+        : generateUUID();
     const idempotencyKey = getHttpHeaderValue('x-idempotency-key', req.headers);
 
     res.setHeader('x-correlation-id', correlationId);

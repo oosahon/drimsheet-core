@@ -8,6 +8,8 @@ import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 
 import { makeLogger } from '@infra/observability/logger';
 
+const validCorrelationId = '0198ad49-0f4a-7709-a5bf-2f7cfbaea7c4';
+
 function makeOutputTransport(output: string[]) {
   const stream = new Writable({
     write(chunk, _encoding, callback) {
@@ -78,7 +80,7 @@ describe('logger', () => {
       transport: makeOutputTransport(output),
     });
     mockAppContext.get.mockReturnValue({
-      correlationId: 'active-correlation',
+      correlationId: validCorrelationId,
       idempotencyKey: '',
     });
 
@@ -101,12 +103,35 @@ describe('logger', () => {
         service: 'test-service',
         environment: 'test',
         version: '1.2.3',
-        correlationId: 'active-correlation',
+        correlationId: validCorrelationId,
       })
     );
     expect(parseRecord(output).timestamp).not.toBe('spoofed');
     expect(parseRecord(output).traceId).toBeUndefined();
     expect(parseRecord(output).spanId).toBeUndefined();
+  });
+
+  it('omits malformed contextual correlation IDs from JSON output', () => {
+    const output: string[] = [];
+    const logger = makeLogger({
+      appContext: mockAppContext,
+      appEnv: 'production',
+      service: 'test-service',
+      version: '1.2.3',
+      transport: makeOutputTransport(output),
+    });
+    mockAppContext.get.mockReturnValue({
+      correlationId: 'private.person@example.com',
+      idempotencyKey: '',
+    });
+
+    logger.info('http.request.completed', {
+      correlationId: 'spoofed-correlation',
+    });
+
+    expect(parseRecord(output).correlationId).toBeUndefined();
+    expect(output.join('')).not.toContain('private.person@example.com');
+    expect(output.join('')).not.toContain('spoofed-correlation');
   });
 
   it('normalizes errors and recursively redacts sensitive fields', () => {
@@ -192,7 +217,7 @@ describe('logger', () => {
       transport: makeOutputTransport(output),
     });
     mockAppContext.get.mockReturnValue({
-      correlationId: 'active-correlation',
+      correlationId: validCorrelationId,
       idempotencyKey: '',
     });
 
@@ -206,11 +231,33 @@ describe('logger', () => {
     expect(localOutput).toContain('runtime.server.started');
     expect(localOutput).toContain('Listening for requests');
     expect(localOutput).toContain('"port":3000');
-    expect(localOutput).toContain('"correlationId":"active-correlation"');
+    expect(localOutput).toContain(`"correlationId":"${validCorrelationId}"`);
     expect(localOutput).not.toContain('"service":');
     expect(localOutput).not.toContain('"environment":');
     expect(localOutput).not.toContain('"version":');
     expect(localOutput.trimStart()).not.toMatch(/^\{/);
+  });
+
+  it('omits malformed contextual correlation IDs from local output', () => {
+    const output: string[] = [];
+    const logger = makeLogger({
+      appContext: mockAppContext,
+      appEnv: 'local',
+      service: 'test-service',
+      version: '1.2.3',
+      transport: makeOutputTransport(output),
+    });
+    mockAppContext.get.mockReturnValue({
+      correlationId: 'Bearer secret_token_abc123',
+      idempotencyKey: '',
+    });
+
+    expect(() => logger.debug('runtime.server.started')).not.toThrow();
+
+    const localOutput = output.join('');
+
+    expect(localOutput).not.toContain('correlationId');
+    expect(localOutput).not.toContain('secret_token_abc123');
   });
 
   it('handles local records with omitted or malformed runtime fields', () => {

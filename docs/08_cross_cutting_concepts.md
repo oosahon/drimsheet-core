@@ -50,7 +50,7 @@ Autonomous logic via AI Agents is supported securely using the Model Context Pro
 PurpleLedger heavily relies on external services like Mono (bank feeds), Paystack (subscriptions), and FIRS Tax ProMax (tax remittals).
 
 - **Mechanism**:
-  - **Idempotency & Correlation**: Both incoming API requests and outgoing external mutations require unique idempotency keys to ensure network retries do not result in duplicate operations (e.g., duplicate payments, ledger entries, or tax filings). Additionally, correlation IDs are mandated across all requests to trace the complete lifecycle of an operation across distributed boundaries.
+  - **Idempotency & Correlation**: Both incoming API requests and outgoing external mutations require unique idempotency keys to ensure network retries do not result in duplicate operations (e.g., duplicate payments, ledger entries, or tax filings). Additionally, correlation IDs are mandated across all requests to trace the complete lifecycle of an operation across distributed boundaries. At HTTP ingress, a caller-supplied `x-correlation-id` is preserved unchanged only when it is a valid UUID. A missing or invalid value is replaced with one server-generated UUID without rejecting the request; that canonical value is stored in request context and echoed in the response header. The rejected value is not retained, logged, or reported.
   - **Resilience**: Asynchronous queues (e.g., BullMQ on Redis, RabbitMQ consumers) or dead-letter queues (DLQ) are utilized to handle transient failures, employing exponential backoff for retries to ensure eventual consistency globally.
 
 ## 8.8 Tax Policy Versioning
