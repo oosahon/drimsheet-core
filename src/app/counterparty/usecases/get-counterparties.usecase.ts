@@ -24,7 +24,9 @@ export default function makeGetCounterpartiesUsecase(deps: IDependencies) {
     query: IGetCounterpartiesQuery
   ): Promise<IPaginatedResponse<ICounterpartyDto>> => {
     zodValidationRunner(getCounterpartiesQueryValidationSchema, query);
-    const { correlationId, accountingEntity } = deps.appContext.get();
+    const { correlationId, accountingEntity } = deps.appContext.get([
+      'accountingEntity',
+    ]);
 
     const offset = paginationValue.pageToOffset(query.page, query.limit);
     const repoOptions: IFindAllOptions = {

@@ -1,5 +1,4 @@
 import mockLogger from '@shared/contracts/__mocks__/logger.mock';
-import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
 
 import IExchangeRateIngestion from '@app/money/contracts/exchange-rate-ingestion.contract';
 import makeExchangeRateIngestionWorker from '@app/money/workers/exchange-rate-ingestion.worker';
@@ -18,17 +17,15 @@ describe('makeExchangeRateIngestionWorker', () => {
   });
 
   it('logs successful ingestion only after processing completes', async () => {
-    const ingestExchangeRate = jest.fn().mockResolvedValue(undefined);
+    const usecase = jest.fn().mockResolvedValue(undefined);
     const worker = makeExchangeRateIngestionWorker({
-      reporter: mockReporter,
       logger: mockLogger,
-      ingestExchangeRate,
+      usecase,
     });
 
     await worker(payload);
 
-    expect(ingestExchangeRate).toHaveBeenCalledWith(payload);
-    expect(mockReporter.report).not.toHaveBeenCalled();
+    expect(usecase).toHaveBeenCalledWith(payload);
     expect(mockLogger.info).toHaveBeenNthCalledWith(
       1,
       'Initiating currency exchange rate ingestion'
@@ -39,21 +36,16 @@ describe('makeExchangeRateIngestionWorker', () => {
     );
   });
 
-  it('reports safe metadata and propagates processing failures', async () => {
+  it('propagates processing failures without logging success', async () => {
     const processingError = new Error('processing failed');
-    const ingestExchangeRate = jest.fn().mockRejectedValue(processingError);
+    const usecase = jest.fn().mockRejectedValue(processingError);
     const worker = makeExchangeRateIngestionWorker({
-      reporter: mockReporter,
       logger: mockLogger,
-      ingestExchangeRate,
+      usecase,
     });
 
     await expect(worker(payload)).rejects.toBe(processingError);
 
-    expect(mockReporter.report).toHaveBeenCalledWith(processingError, {
-      type: 'exchange-rate-ingestion',
-      correlationId: payload.correlation_id,
-    });
     expect(mockLogger.info).not.toHaveBeenCalledWith(
       'Currency exchange rate ingested successfully'
     );

@@ -26,7 +26,7 @@ export default function makeCreateEmployerUsecase(deps: IDependencies) {
     zodValidationRunner(employerCreateReqValidation, payload);
 
     const { correlationId, idempotencyKey, user, accountingEntity } =
-      deps.appContext.get();
+      deps.appContext.get(['user', 'accountingEntity']);
 
     const counterpartyPayload = {
       accountingEntityId: accountingEntity.id,

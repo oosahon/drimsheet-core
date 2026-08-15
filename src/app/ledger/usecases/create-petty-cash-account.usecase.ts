@@ -55,7 +55,10 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
   return async (
     payload: IPettyCashAccountCreationReq
   ): Promise<ILedgerAccountDto> => {
-    const { correlationId, user, accountingEntity } = deps.appContext.get();
+    const { correlationId, user, accountingEntity } = deps.appContext.get([
+      'user',
+      'accountingEntity',
+    ]);
     const actor = historyValue.getUserActor(user.id);
     const repoOptions = { correlationId };
 

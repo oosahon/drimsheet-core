@@ -30,7 +30,6 @@ const redactSensitiveDataFormat = winston.format((info) => {
 });
 
 const winstonLogger = winston.createLogger({
-  level: 'debug',
   format: winston.format.combine(
     winston.format.errors({ stack: true }),
     redactSensitiveDataFormat(),

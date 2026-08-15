@@ -36,7 +36,10 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
   return async (payload: IOpeningBalanceCreationReq) => {
     zodValidationRunner(openingBalanceCreationReqValidation, payload);
 
-    const { accountingEntity, correlationId, user } = deps.appContext.get();
+    const { accountingEntity, correlationId, user } = deps.appContext.get([
+      'user',
+      'accountingEntity',
+    ]);
     const repoOptions = { correlationId };
 
     const account = await deps.ledgerAccountRepo.findById(

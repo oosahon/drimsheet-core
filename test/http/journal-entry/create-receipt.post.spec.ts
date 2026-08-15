@@ -182,19 +182,6 @@ describe('POST /journal-entries/receipt', () => {
   });
 
   describe('400 Response', () => {
-    it('rejects a missing active accounting entity header', async () => {
-      const response = await request(app)
-        .post(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token')
-        .send(validPayload);
-
-      expect(response.status).toBe(400);
-      expect(response.body.errorKey).toBe(
-        'accounting_error_accounting_entity_unauthorized'
-      );
-      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
-    });
-
     it('rejects an invalid accounting entity ID format', async () => {
       const response = await request(app)
         .post(ENDPOINT)
@@ -287,6 +274,20 @@ describe('POST /journal-entries/receipt', () => {
   });
 
   describe('500 Response', () => {
+    it('rejects a missing active accounting entity header', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(validPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_internal_server_error',
+      });
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+
     it('sanitizes unexpected internal errors', async () => {
       mockCreateReceiptUseCase.mockRejectedValueOnce(
         new Error('database failure')

@@ -106,7 +106,9 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
           userId: existingUser.id,
         });
       }
-      deps.appContext.get().clientSession.setRefreshToken(refreshToken);
+      deps.appContext
+        .get(['clientSession'])
+        .clientSession.setRefreshToken(refreshToken);
 
       const event = userEvents.passwordReset(existingUser);
       await deps.eventBus.publish(

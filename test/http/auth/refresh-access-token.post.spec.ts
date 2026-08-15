@@ -36,7 +36,9 @@ describe('POST /api/v1/auth/refresh-access-token', () => {
   describe('200 Response', () => {
     it('returns only the access token and a secured replacement cookie', async () => {
       refreshSpy.mockImplementationOnce(async () => {
-        appContext.get().clientSession.setRefreshToken('rotated-refresh-token');
+        appContext
+          .get(['clientSession'])
+          .clientSession.setRefreshToken('rotated-refresh-token');
         return { accessToken: 'new-refreshed-access-token' };
       });
 
@@ -65,7 +67,7 @@ describe('POST /api/v1/auth/refresh-access-token', () => {
   describe('401 Response', () => {
     it('expires a rejected refresh cookie without echoing it', async () => {
       refreshSpy.mockImplementationOnce(async () => {
-        appContext.get().clientSession.clearRefreshToken();
+        appContext.get(['clientSession']).clientSession.clearRefreshToken();
         throw new appError.Unauthorized();
       });
 

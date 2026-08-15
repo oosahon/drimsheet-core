@@ -5,6 +5,7 @@ import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
 import appError from '@shared/values/errors/app.error';
 import DomainError from '@shared/values/errors/domain.error';
+import runtimeError from '@shared/values/errors/runtime.error';
 
 import accountingAppError from '@app/accounting/errors/accounting.error';
 
@@ -258,6 +259,29 @@ describe('makeHttpErrorHandler', () => {
       nodeEnv: 'local',
     });
     const error = new Error('Internal Server Error');
+
+    handler(mockReq as unknown as Request, mockRes as Response, error);
+
+    expect(mockReporter.report).toHaveBeenCalledWith(error);
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'InternalServerError',
+      errorKey: 'app_error_internal_server_error',
+      cause: undefined,
+    });
+  });
+
+  it('reports runtime context faults without exposing their key or cause', () => {
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'test',
+    });
+    const error = new runtimeError.ContextNotFound({
+      requiredKeys: ['user'],
+      missingKeys: ['user'],
+      correlationId: 'correlation-id',
+    });
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
 

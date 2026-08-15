@@ -28,7 +28,10 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
   ): Promise<IPaginatedResponse<IAccountTransactionRes>> => {
     zodValidationRunner(paginationDtoValidation, pagination);
 
-    const { user, correlationId, accountingEntity } = deps.appContext.get();
+    const { user, correlationId, accountingEntity } = deps.appContext.get([
+      'user',
+      'accountingEntity',
+    ]);
 
     const repoOptions = { correlationId };
 

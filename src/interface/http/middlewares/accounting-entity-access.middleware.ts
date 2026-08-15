@@ -9,7 +9,10 @@ export default function makeAccountingEntityAccessMiddleware(
   appContext: IAppContext
 ): RequestHandler {
   return async (req, res, next) => {
-    const { user, accountingEntity } = appContext.get();
+    const { user, accountingEntity } = appContext.get([
+      'user',
+      'accountingEntity',
+    ]);
 
     accountingEntityService.validateAccess(accountingEntity, user.id);
 

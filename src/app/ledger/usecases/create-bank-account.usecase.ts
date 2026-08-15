@@ -58,7 +58,10 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
   return async (
     payload: IBankAccountCreationReq
   ): Promise<ILedgerAccountDto> => {
-    const { correlationId, user, accountingEntity } = deps.appContext.get();
+    const { correlationId, user, accountingEntity } = deps.appContext.get([
+      'user',
+      'accountingEntity',
+    ]);
     const actor = historyValue.getUserActor(user.id);
     const repoOptions = { correlationId };
 

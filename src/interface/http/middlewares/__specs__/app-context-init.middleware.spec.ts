@@ -12,6 +12,16 @@ describe('makeAppContextInitMiddleware', () => {
   let mockNext: jest.MockedFunction<NextFunction>;
   let mockVarsConfig: IVarsConfig;
 
+  function getInitializedClientSession() {
+    const clientSession = mockAppContext.init.mock.calls[0][0].clientSession;
+
+    if (!clientSession) {
+      throw new Error('Expected initialized client session');
+    }
+
+    return clientSession;
+  }
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -51,12 +61,14 @@ describe('makeAppContextInitMiddleware', () => {
     );
     expect(mockAppContext.init).toHaveBeenCalledWith(
       expect.objectContaining({
-        user: {},
-        accountingEntity: {},
         correlationId: 'existing-correlation-id',
         idempotencyKey: 'existing-idempotency-key',
       }),
       mockNext
+    );
+    expect(mockAppContext.init.mock.calls[0][0]).not.toHaveProperty('user');
+    expect(mockAppContext.init.mock.calls[0][0]).not.toHaveProperty(
+      'accountingEntity'
     );
     expect(mockNext).toHaveBeenCalledTimes(1);
   });
@@ -89,7 +101,7 @@ describe('makeAppContextInitMiddleware', () => {
 
     middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const { clientSession } = mockAppContext.init.mock.calls[0][0];
+    const clientSession = getInitializedClientSession();
 
     clientSession.setRefreshToken('new-token');
     expect(mockRes.cookie).toHaveBeenCalledWith('refresh_token', 'new-token', {
@@ -121,7 +133,7 @@ describe('makeAppContextInitMiddleware', () => {
 
     middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const { clientSession } = mockAppContext.init.mock.calls[0][0];
+    const clientSession = getInitializedClientSession();
 
     expect(clientSession.getRefreshToken()).toBeNull();
   });
@@ -136,7 +148,7 @@ describe('makeAppContextInitMiddleware', () => {
 
     middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const { clientSession } = mockAppContext.init.mock.calls[0][0];
+    const clientSession = getInitializedClientSession();
 
     clientSession.setRefreshToken('new-token');
     expect(mockRes.cookie).toHaveBeenCalledWith(

@@ -6,10 +6,10 @@ export const mockClientSession = {
   clearRefreshToken: jest.fn(),
 };
 
-const mockAppContext: jest.Mocked<IAppContext> = {
+const mockAppContext = {
   init: jest.fn(),
   get: jest.fn(),
   set: jest.fn(),
-};
+} satisfies jest.Mocked<IAppContext>;
 
 export default mockAppContext;

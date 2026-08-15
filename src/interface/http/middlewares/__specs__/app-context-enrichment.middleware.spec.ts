@@ -30,6 +30,7 @@ describe('makeAppContextEnrichmentMiddleware', () => {
 
     mockAppContext.get.mockReturnValue({
       correlationId,
+      idempotencyKey: '',
     } as IAppContextData);
 
     mockReq = { headers: {} };
@@ -55,10 +56,7 @@ describe('makeAppContextEnrichmentMiddleware', () => {
     expect(mockTokenService.getAuthUser).not.toHaveBeenCalled();
     expect(mockUserRepo.findById).not.toHaveBeenCalled();
     expect(mockAccountingEntityRepo.findByIdAndUserId).not.toHaveBeenCalled();
-    expect(mockAppContext.set).toHaveBeenCalledWith({
-      user: {},
-      accountingEntity: {},
-    });
+    expect(mockAppContext.set).not.toHaveBeenCalled();
     expect(mockNext).toHaveBeenCalledTimes(1);
   });
 
@@ -77,7 +75,6 @@ describe('makeAppContextEnrichmentMiddleware', () => {
     });
     expect(mockAppContext.set).toHaveBeenCalledWith({
       user,
-      accountingEntity: {},
     });
     expect(mockNext).toHaveBeenCalledTimes(1);
   });

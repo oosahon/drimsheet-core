@@ -22,7 +22,9 @@ interface IDependencies {
 
 export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
   return async () => {
-    const { clientSession, correlationId } = deps.reqContext.get();
+    const { clientSession, correlationId } = deps.reqContext.get([
+      'clientSession',
+    ]);
 
     const refreshToken = clientSession.getRefreshToken();
 

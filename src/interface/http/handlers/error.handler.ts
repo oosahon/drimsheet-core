@@ -6,6 +6,7 @@ import IReporter from '@shared/contracts/reporter.contract';
 import errorUtils from '@shared/utils/error';
 import appError from '@shared/values/errors/app.error';
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
+import runtimeError from '@shared/values/errors/runtime.error';
 
 import httpErrorParser from '@interface/http/helpers/http-error-parser';
 
@@ -59,6 +60,15 @@ function makeHttpErrorHandler(deps: IDependencies) {
       return res
         .status(errorKeyToStatusCode[errRes.errorKey] as number)
         .json(httpErrorParser.toHttp(errRes, validationErrors));
+    }
+
+    if (error instanceof runtimeError.Base) {
+      deps.reporter.report(error);
+      const serverError = new appError.InternalServerError();
+
+      return res
+        .status(errorKeyToStatusCode[serverError.errorKey] as number)
+        .json(httpErrorParser.toHttp(serverError));
     }
 
     const parsedError = errorUtils.parseError(error);

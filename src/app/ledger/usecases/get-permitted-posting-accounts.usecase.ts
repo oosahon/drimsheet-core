@@ -47,7 +47,9 @@ export default function makeGetPermittedPostingAccountsUsecase(
       getPermittedPostingAccountsQueryValidationSchema,
       query
     );
-    const { correlationId, accountingEntity } = deps.appContext.get();
+    const { correlationId, accountingEntity } = deps.appContext.get([
+      'accountingEntity',
+    ]);
 
     const offset = paginationValue.pageToOffset(query.page, query.limit);
     const rule = journalEntryRules[query.sourceType];

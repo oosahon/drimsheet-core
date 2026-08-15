@@ -1,4 +1,3 @@
-import IReporter from '@shared/contracts/reporter.contract';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 
 import ITransactionalEmailAgent from '@app/notification/contracts/transactional-email-agent.contract';
@@ -7,21 +6,12 @@ import { transactionalEmailDtoSchema } from '@app/notification/dtos/transactiona
 
 interface IDependencies {
   mailer: ITransactionalEmailAgent;
-  reporter: IReporter;
 }
 
 export default function makeTransactionalEmailWorker(deps: IDependencies) {
   return async (payload: ITransactionalEmailDto) => {
     zodValidationRunner(transactionalEmailDtoSchema, payload);
 
-    try {
-      await deps.mailer.send(payload);
-    } catch (error) {
-      deps.reporter.report(error, {
-        type: 'transactional-email-delivery',
-        correlationId: payload.correlationId,
-      });
-      throw error;
-    }
+    await deps.mailer.send(payload);
   };
 }

@@ -24,7 +24,7 @@ describe('POST /api/v1/auth/logout', () => {
       ['no refresh cookie', undefined],
     ])('expires the cookie with no-store for %s', async (_, cookie) => {
       logoutSpy.mockImplementationOnce(async () => {
-        appContext.get().clientSession.clearRefreshToken();
+        appContext.get(['clientSession']).clientSession.clearRefreshToken();
       });
 
       const requestBuilder = request(app).post('/api/v1/auth/logout');

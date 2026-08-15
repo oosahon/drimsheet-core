@@ -20,7 +20,10 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
   return async (accountId: TEntityId): Promise<ILedgerAccountDto> => {
     stringUtils.validateUUID(accountId, ledgerAccountError.InvalidId);
 
-    const { correlationId, accountingEntity, user } = deps.appContext.get();
+    const { correlationId, accountingEntity, user } = deps.appContext.get([
+      'user',
+      'accountingEntity',
+    ]);
 
     const repoOptions = { correlationId };
 

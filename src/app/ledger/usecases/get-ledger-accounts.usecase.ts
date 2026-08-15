@@ -25,7 +25,9 @@ export default function makeGetLedgerAccountsUsecase(deps: IDependencies) {
     query: IGetLedgerAccountsQuery
   ): Promise<IPaginatedResponse<ILedgerAccountDto>> => {
     zodValidationRunner(getLedgerAccountQueryValidationSchema, query);
-    const { correlationId, accountingEntity } = deps.appContext.get();
+    const { correlationId, accountingEntity } = deps.appContext.get([
+      'accountingEntity',
+    ]);
 
     const repoOptions = { correlationId };
     const offset = paginationValue.pageToOffset(query.page, query.limit);

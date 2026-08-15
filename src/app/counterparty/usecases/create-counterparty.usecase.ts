@@ -26,7 +26,7 @@ export default function makeCreateCounterpartyUsecase(deps: IDependencies) {
     zodValidationRunner(counterpartyCreateReqValidation, payload);
 
     const { correlationId, idempotencyKey, user, accountingEntity } =
-      deps.appContext.get();
+      deps.appContext.get(['user', 'accountingEntity']);
 
     const [counterparty, events, audit] = deps.counterpartyService.create({
       accountingEntityId: accountingEntity.id,

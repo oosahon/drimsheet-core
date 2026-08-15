@@ -3,9 +3,6 @@ import { RequestHandler, Response } from 'express';
 import IVarsConfig from '@shared/contracts/vars-config.contract';
 import generateUUID from '@shared/utils/uuid-generator';
 
-import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
-import { IUser } from '@domain/user/types/user.types';
-
 import IAppContext from '@app/context/contracts/app-context.contract';
 
 import getHttpHeaderValue from '@interface/http/helpers/get-http-header-value';
@@ -51,8 +48,6 @@ export default function makeAppContextInitMiddleware(
 
     appContext.init(
       {
-        user: {} as IUser,
-        accountingEntity: {} as IAccountingEntity,
         correlationId,
         idempotencyKey: idempotencyKey || '',
         clientSession: {

@@ -50,7 +50,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
   return async (payload: IAccountingEntityCreationDto) => {
     zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
-    const { user, correlationId } = deps.appContext.get();
+    const { user, correlationId } = deps.appContext.get(['user']);
     const repoOptions = { correlationId };
 
     const accountingResponse = await deps.accountingEntityService.create(

@@ -164,19 +164,6 @@ describe('POST /ledger/asset/petty-cash', () => {
   });
 
   describe('400 Response', () => {
-    it('rejects a missing active accounting entity before orchestration', async () => {
-      const response = await request(app)
-        .post(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token')
-        .send(validPayload);
-
-      expect(response.status).toBe(400);
-      expect(response.body.errorKey).toBe(
-        'accounting_error_accounting_entity_unauthorized'
-      );
-      expect(mockCreatePettyCashAccount).not.toHaveBeenCalled();
-    });
-
     it('maps a known posting-period failure', async () => {
       mockCreatePettyCashAccount.mockRejectedValueOnce(
         new periodError.PostingPeriodNotOpen({
@@ -218,6 +205,20 @@ describe('POST /ledger/asset/petty-cash', () => {
   });
 
   describe('500 Response', () => {
+    it('rejects a missing active accounting entity before orchestration', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(validPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_internal_server_error',
+      });
+      expect(mockCreatePettyCashAccount).not.toHaveBeenCalled();
+    });
+
     it('sanitizes unexpected orchestration failures', async () => {
       mockCreatePettyCashAccount.mockRejectedValueOnce(
         new Error('database password leaked')

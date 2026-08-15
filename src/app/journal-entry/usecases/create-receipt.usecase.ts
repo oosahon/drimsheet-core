@@ -47,7 +47,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
     zodValidationRunner(receiptEntryReqValidation, payload);
 
     const { correlationId, accountingEntity, user, idempotencyKey } =
-      deps.appContext.get();
+      deps.appContext.get(['user', 'accountingEntity']);
 
     const repoOptions = { correlationId, idempotencyKey };
 

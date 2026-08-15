@@ -4,9 +4,7 @@ import ILogger from '@shared/contracts/logger.contract';
 import { IReadRepoOptions } from '@shared/types/repo.types';
 
 import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
-import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import IUserRepo from '@domain/user/repos/user.repo';
-import { IUser } from '@domain/user/types/user.types';
 
 import ITokenService from '@app/auth/contracts/token-service.contract';
 import IAppContext from '@app/context/contracts/app-context.contract';
@@ -40,10 +38,12 @@ export default function makeAppContextEnrichmentMiddleware(
       user?.id
     );
 
-    appContext.set({
-      user: user ?? ({} as IUser),
-      accountingEntity: accountingEntity ?? ({} as IAccountingEntity),
-    });
+    if (user || accountingEntity) {
+      appContext.set({
+        ...(user && { user }),
+        ...(accountingEntity && { accountingEntity }),
+      });
+    }
 
     next();
   };

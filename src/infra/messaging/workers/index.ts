@@ -1,3 +1,7 @@
+import { ICorrelationId } from '@shared/types/correlation-id.types';
+import generateUUID from '@shared/utils/uuid-generator';
+
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import { LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME } from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 import { TRANSACTIONAL_EMAIL_QUEUE_NAME } from '@app/notification/contracts/transactional-email-queue.contract';
@@ -6,16 +10,28 @@ import { ITransactionalEmailDto } from '@app/notification/dtos/transactional-ema
 import { registerBullMQWorker } from '@infra/config/bullmq.config';
 import { ledgerAccountBalanceAdjustmentWorker } from '@infra/ioc/workers/ledger';
 import { transactionalEmailWorker } from '@infra/ioc/workers/notification';
+import appContext from '@infra/runtime/app-context';
+
+function getInitialStore(payload: ICorrelationId): IAppContextData {
+  return {
+    correlationId: payload.correlationId || generateUUID(),
+    idempotencyKey: '',
+  };
+}
 
 function workerRegistration() {
   registerBullMQWorker<ITransactionalEmailDto>(
     TRANSACTIONAL_EMAIL_QUEUE_NAME,
-    transactionalEmailWorker
+    transactionalEmailWorker,
+    appContext,
+    getInitialStore
   );
 
   registerBullMQWorker<ILedgerAccountBalanceAdjustmentDto>(
     LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME,
-    ledgerAccountBalanceAdjustmentWorker
+    ledgerAccountBalanceAdjustmentWorker,
+    appContext,
+    getInitialStore
   );
 }
 
