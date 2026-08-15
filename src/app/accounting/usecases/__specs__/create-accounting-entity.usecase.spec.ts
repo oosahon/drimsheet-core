@@ -207,7 +207,7 @@ describe('createAccountingEntityUseCase', () => {
     );
 
     await expect(getUseCase()(validPayload)).rejects.toThrow(
-      'accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed'
+      'accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed_conflict'
     );
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
   });

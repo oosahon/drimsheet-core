@@ -48,7 +48,7 @@ describe('appContext', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(runtimeError.ContextNotFound);
         expect((error as Error).message).toBe(
-          'runtime_error_context_context_not_found'
+          'runtime_error_context_context_not_found_unexpected'
         );
         expect((error as InstanceType<typeof runtimeError.Base>).cause).toEqual(
           {

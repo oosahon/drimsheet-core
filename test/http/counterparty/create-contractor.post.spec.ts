@@ -135,7 +135,7 @@ describe('POST /counterparties/contractor', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(mockCreateContractor).not.toHaveBeenCalled();
     });
@@ -162,7 +162,7 @@ describe('POST /counterparties/contractor', () => {
       const response = await makeRequest(invalidPayload);
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(mockCreateContractor).not.toHaveBeenCalled();
     });
 
@@ -175,7 +175,7 @@ describe('POST /counterparties/contractor', () => {
       const response = await makeRequest();
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(response.body.validationErrors).toEqual(validationErrors);
     });
   });
@@ -189,7 +189,7 @@ describe('POST /counterparties/contractor', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
     });
   });

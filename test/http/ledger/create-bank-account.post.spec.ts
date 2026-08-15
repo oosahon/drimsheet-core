@@ -158,7 +158,7 @@ describe('POST /accounts/asset/bank', () => {
     });
   });
 
-  describe('400 Response', () => {
+  describe('409 Response', () => {
     it('maps a posting period failure', async () => {
       mockCreateBankAccount.mockRejectedValueOnce(
         new periodError.PostingPeriodNotOpen({
@@ -169,9 +169,25 @@ describe('POST /accounts/asset/bank', () => {
 
       const response = await makeRequest();
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(409);
       expect(response.body.errorKey).toBe(
-        'accounting_error_period_posting_period_not_open'
+        'accounting_error_period_posting_period_not_open_conflict'
+      );
+    });
+
+    it('maps a duplicate bank account conflict', async () => {
+      mockCreateBankAccount.mockRejectedValueOnce(
+        new ledgerAccountError.DuplicateBankAccount({
+          bankName: validPayload.bankAccount.bankName,
+          accountNumber: validPayload.bankAccount.accountNumber,
+        })
+      );
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(409);
+      expect(response.body.errorKey).toBe(
+        'ledger_error_asset_account_duplicate_bank_account_conflict'
       );
     });
   });
@@ -188,22 +204,6 @@ describe('POST /accounts/asset/bank', () => {
     });
   });
 
-  it('maps a duplicate bank account error to 400 bad request', async () => {
-    mockCreateBankAccount.mockRejectedValueOnce(
-      new ledgerAccountError.DuplicateBankAccount({
-        bankName: validPayload.bankAccount.bankName,
-        accountNumber: validPayload.bankAccount.accountNumber,
-      })
-    );
-
-    const response = await makeRequest();
-
-    expect(response.status).toBe(400);
-    expect(response.body.errorKey).toBe(
-      'ledger_error_asset_account_duplicate_bank_account'
-    );
-  });
-
   describe('422 Response', () => {
     it('rejects invalid payload with extra fields', async () => {
       const invalidPayload = {
@@ -213,7 +213,7 @@ describe('POST /accounts/asset/bank', () => {
       const response = await makeRequest(invalidPayload);
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(mockCreateBankAccount).not.toHaveBeenCalled();
     });
   });
@@ -228,7 +228,7 @@ describe('POST /accounts/asset/bank', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(mockCreateBankAccount).not.toHaveBeenCalled();
     });
@@ -243,7 +243,7 @@ describe('POST /accounts/asset/bank', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
     });
   });

@@ -59,7 +59,7 @@ describe('Asset Account DTO Validation', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toBe(
-          'ledger_error_asset_account_opening_balance_currency_mismatch'
+          'ledger_error_asset_account_opening_balance_currency_mismatch_invalid'
         );
       }
     });
@@ -100,7 +100,7 @@ describe('Asset Account DTO Validation', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toBe(
-          'ledger_error_ledger_account_invalid_control_account_id'
+          'ledger_error_ledger_account_control_account_id_invalid'
         );
       }
     });
@@ -161,7 +161,7 @@ describe('Asset Account DTO Validation', () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toBe(
-          'ledger_error_ledger_account_invalid_control_account_id'
+          'ledger_error_ledger_account_control_account_id_invalid'
         );
       }
     });

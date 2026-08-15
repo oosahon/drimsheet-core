@@ -426,11 +426,11 @@ describe('createPettyCashSubAccountUseCase', () => {
     } as unknown as IAppContextData);
 
     mockAssetAccountService.createPettyCashSubAccount.mockRejectedValue(
-      new appError.Base('app_error_access_denied')
+      new appError.Base('app_error_access_denied_forbidden')
     );
 
     await expect(useCase(validPayload)).rejects.toThrow(
-      'app_error_access_denied'
+      'app_error_access_denied_forbidden'
     );
   });
 

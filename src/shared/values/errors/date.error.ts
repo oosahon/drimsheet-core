@@ -1,14 +1,12 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import DomainError from './domain.error';
 
-type TErrorPrefix = `date_error_${string}`;
-
 const EErrorKeys = {
-  InvalidDate: 'date_error_invalid_date',
-  InvalidDates: 'date_error_invalid_dates',
-} as const satisfies Record<string, TErrorPrefix>;
+  InvalidDate: 'date_error_date_invalid',
+  InvalidDates: 'date_error_dates_invalid',
+} as const satisfies TErrorKeys<'date_error'>;
 
 type UDateError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

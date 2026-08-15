@@ -161,7 +161,8 @@ describe('controlAccountResolverHelper', () => {
         validator,
       })
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_account_control_account_not_found',
+      errorKey:
+        'ledger_error_asset_account_control_account_not_found_unexpected',
       cause: {
         controlAccountLedgerCode: requestedControlAccountCode,
       },
@@ -184,7 +185,7 @@ describe('controlAccountResolverHelper', () => {
         validator,
       })
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_account_invalid_control_account',
+      errorKey: 'ledger_error_asset_account_control_account_invalid',
       cause: {
         controlAccountId,
         controlAccountLedgerCode: requestedControlAccountCode,

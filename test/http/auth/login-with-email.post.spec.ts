@@ -97,7 +97,7 @@ describe('POST /auth/login-with-email', () => {
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
         name: 'AuthError',
-        errorKey: 'auth_error_invalid_credentials',
+        errorKey: 'auth_error_credentials_invalid_unauthorized',
       });
       expect(JSON.stringify(response.body)).not.toContain(
         validPayload.password
@@ -124,7 +124,7 @@ describe('POST /auth/login-with-email', () => {
     it('returns a sanitized app-layer validation error', async () => {
       loginWithEmailSpy.mockRejectedValueOnce(
         new appError.UnprocessableEntity([
-          { field: 'email', message: 'auth_error_invalid_email' },
+          { field: 'email', message: 'auth_error_email_invalid' },
         ])
       );
 
@@ -221,7 +221,7 @@ describe('POST /auth/login-with-email', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain(
         validPayload.password

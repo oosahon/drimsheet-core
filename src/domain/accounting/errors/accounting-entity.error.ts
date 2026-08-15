@@ -1,20 +1,18 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import accountingError from './accounting.error';
 
-type TErrorKeyPrefix = `accounting_error_accounting_entity_${string}`;
-
 const EErrorKeys = {
-  Unauthorized: 'accounting_error_accounting_entity_unauthorized',
-  InvalidType: 'accounting_error_accounting_entity_invalid_type',
+  Unauthorized: 'accounting_error_accounting_entity_access_forbidden',
+  InvalidType: 'accounting_error_accounting_entity_type_invalid',
   InvalidJurisdictionCode:
-    'accounting_error_accounting_entity_invalid_jurisdiction_code',
+    'accounting_error_accounting_entity_jurisdiction_code_invalid',
   InvalidHistoryAction:
-    'accounting_error_accounting_entity_invalid_history_action',
+    'accounting_error_accounting_entity_history_action_invalid',
   OnlyOneIndividualAccountingEntityAllowed:
-    'accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+    'accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed_conflict',
+} as const satisfies TErrorKeys<'accounting_error_accounting_entity'>;
 
 type UAccountingEntityError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

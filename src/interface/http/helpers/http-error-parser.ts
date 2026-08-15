@@ -1,6 +1,10 @@
 import { ValidateError } from 'tsoa';
 
-import { IApiValidationError, IParsedError } from '@shared/types/error.types';
+import {
+  IApiValidationError,
+  IParsedError,
+  TErrorKey,
+} from '@shared/types/error.types';
 import appError from '@shared/values/errors/app.error';
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 
@@ -17,16 +21,19 @@ function toHttp(
 ): IHttpErrorDto {
   return {
     name: error.name,
-    errorKey: error.errorKey as string, // Cast to string since UAppError might not perfectly match HTTP expected keys without cast depending on types, or just let it map. Actually IParsedError handles it.
+    errorKey: error.errorKey,
     cause: error.cause,
     validationErrors,
   };
 }
 
-function fromParsedError(error: IParsedError): IHttpErrorDto {
+function fromParsedError(
+  error: IParsedError,
+  recognizedErrorKey: TErrorKey
+): IHttpErrorDto {
   return {
     name: error.name,
-    errorKey: error.errorKey,
+    errorKey: recognizedErrorKey,
     cause: error.cause,
     validationErrors: error.validationErrors,
   };

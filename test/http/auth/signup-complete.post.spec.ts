@@ -69,7 +69,7 @@ describe('POST /auth/signup/complete', () => {
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
         name: 'AuthError',
-        errorKey: 'auth_error_invalid_token',
+        errorKey: 'auth_error_token_invalid_unauthorized',
       });
       expect(JSON.stringify(response.body)).not.toContain(
         'expired.or.invalid.token'
@@ -84,7 +84,7 @@ describe('POST /auth/signup/complete', () => {
       expect(response.status).toBe(422);
       expect(response.body).toEqual({
         name: 'UnprocessableEntity',
-        errorKey: 'app_error_unprocessable',
+        errorKey: 'app_error_validation_error',
         validationErrors: [
           {
             field: 'payload.token',
@@ -143,7 +143,7 @@ describe('POST /auth/signup/complete', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain('secret-value-123');
     });

@@ -93,9 +93,9 @@ describe('getLedgerAccountUseCase', () => {
     ]);
   });
 
-  it('throws ledger_error_invalid_id if accountId is not a valid UUID', async () => {
+  it('throws ledger_error_id_invalid if accountId is not a valid UUID', async () => {
     await expect(useCase('invalid-id' as TEntityId)).rejects.toThrow(
-      'ledger_error_invalid_id'
+      'ledger_error_id_invalid'
     );
 
     expect(mockAppContext.get).not.toHaveBeenCalled();

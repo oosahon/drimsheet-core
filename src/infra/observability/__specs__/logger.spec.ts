@@ -120,7 +120,7 @@ describe('logger', () => {
     const error = Object.assign(
       new Error('Failed authentication with token: secret_abc123'),
       {
-        errorKey: 'auth_error_invalid_token',
+        errorKey: 'auth_error_token_invalid_unauthorized',
         cause: { userId: 'private-user-id' },
         amount: 100,
       }
@@ -146,9 +146,9 @@ describe('logger', () => {
       name: 'Error',
       message: expect.any(String),
       stack: expect.any(String),
-      errorKey: 'auth_error_invalid_token',
+      errorKey: 'auth_error_token_invalid_unauthorized',
     });
-    expect(record.errorKey).toBe('auth_error_invalid_token');
+    expect(record.errorKey).toBe('auth_error_token_invalid_unauthorized');
     expect(nested.password).toBe('[REDACTED]');
     expect(nested.url).toBe('[REDACTED]');
   });

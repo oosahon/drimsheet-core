@@ -1,21 +1,26 @@
-import { IApiValidationError, TErrorCause } from '@shared/types/error.types';
+import {
+  IApiValidationError,
+  TErrorCause,
+  TErrorKey,
+  TErrorKeys,
+} from '@shared/types/error.types';
 
 import DomainError from './domain.error';
 
-type TErrorKeyPrefix = `app_error_${string}`;
+type TErrorKeyPrefix = TErrorKey<'app_error'>;
 
 const EErrorKeys = {
-  InvalidValue: 'app_error_invalid_value',
-  BadRequest: 'app_error_bad_request',
+  InvalidValue: 'app_error_value_invalid',
+  BadRequest: 'app_error_request_invalid',
   Unauthorized: 'app_error_unauthorized',
   PaymentRequired: 'app_error_payment_required',
   Forbidden: 'app_error_forbidden',
   ResourceNotFound: 'app_error_resource_not_found',
   Conflict: 'app_error_conflict',
-  UnprocessableEntity: 'app_error_unprocessable',
+  UnprocessableEntity: 'app_error_validation_error',
   TooManyRequests: 'app_error_too_many_requests',
-  InternalServerError: 'app_error_internal_server_error',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InternalServerError: 'app_error_unexpected',
+} as const satisfies TErrorKeys<'app_error'>;
 
 type UAppError = (typeof EErrorKeys)[keyof typeof EErrorKeys] | TErrorKeyPrefix;
 

@@ -10,7 +10,7 @@ describe('telemetry error preparation', () => {
         'Invalid email private.person@example.com and credential private-refresh-token'
       ),
       {
-        errorKey: 'auth_error_invalid_token',
+        errorKey: 'auth_error_token_invalid_unauthorized',
         cause: { userId: 'private-user-id' },
         amount: 100,
       }
@@ -23,7 +23,7 @@ describe('telemetry error preparation', () => {
       name: 'TypeError',
       message: 'Invalid email [REDACTED] and credential [REDACTED]',
       stack: expect.any(String),
-      errorKey: 'auth_error_invalid_token',
+      errorKey: 'auth_error_token_invalid_unauthorized',
     });
     expect(normalized.stack).not.toContain('private.person@example.com');
     expect(normalized.stack).not.toContain('private-refresh-token');
@@ -32,7 +32,10 @@ describe('telemetry error preparation', () => {
     expect(sentryError.name).toBe('TypeError');
     expect(sentryError.message).toBe(normalized.message);
     expect(sentryError.stack).toBe(normalized.stack);
-    expect(sentryError).toHaveProperty('errorKey', 'auth_error_invalid_token');
+    expect(sentryError).toHaveProperty(
+      'errorKey',
+      'auth_error_token_invalid_unauthorized'
+    );
     expect(sentryError).not.toHaveProperty('cause');
   });
 

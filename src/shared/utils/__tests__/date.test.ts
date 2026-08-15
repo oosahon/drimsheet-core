@@ -3,9 +3,9 @@ import dayjs from 'dayjs';
 import dateUtils from '@shared/utils/date';
 import DomainError from '@shared/values/errors/domain.error';
 
-class TestError extends DomainError<'test_error'> {
+class TestError extends DomainError<'test_error_invalid'> {
   constructor(cause?: any) {
-    super('test_error', cause);
+    super('test_error_invalid', cause);
   }
 }
 
@@ -282,26 +282,26 @@ describe('dateUtils', () => {
 
       expect(() =>
         dateUtils.getDaysDistance({ start: invalidDate, end: validDate })
-      ).toThrow('date_error_invalid_dates');
+      ).toThrow('date_error_dates_invalid');
       expect(() =>
         dateUtils.getDaysDistance({ start: validDate, end: invalidDate })
-      ).toThrow('date_error_invalid_dates');
+      ).toThrow('date_error_dates_invalid');
 
       expect(() =>
         dateUtils.getWeekDistance({ start: invalidDate, end: validDate })
-      ).toThrow('date_error_invalid_dates');
+      ).toThrow('date_error_dates_invalid');
 
       expect(() =>
         dateUtils.getMonthDistance({ start: invalidDate, end: validDate })
-      ).toThrow('date_error_invalid_dates');
+      ).toThrow('date_error_dates_invalid');
 
       expect(() =>
         dateUtils.getQuarterDistance({ start: invalidDate, end: validDate })
-      ).toThrow('date_error_invalid_dates');
+      ).toThrow('date_error_dates_invalid');
 
       expect(() =>
         dateUtils.getYearDistance({ start: invalidDate, end: validDate })
-      ).toThrow('date_error_invalid_dates');
+      ).toThrow('date_error_dates_invalid');
     });
   });
 
@@ -337,19 +337,19 @@ describe('dateUtils', () => {
       const invalidDate = 'invalid-date' as any;
 
       expect(() => dateUtils.addDaysToDate(invalidDate, 1)).toThrow(
-        'date_error_invalid_date'
+        'date_error_date_invalid'
       );
       expect(() => dateUtils.addWeeksToDate(invalidDate, 1)).toThrow(
-        'date_error_invalid_date'
+        'date_error_date_invalid'
       );
       expect(() => dateUtils.addMonthsToDate(invalidDate, 1)).toThrow(
-        'date_error_invalid_date'
+        'date_error_date_invalid'
       );
       expect(() => dateUtils.addQuartersToDate(invalidDate, 1)).toThrow(
-        'date_error_invalid_date'
+        'date_error_date_invalid'
       );
       expect(() => dateUtils.addYearsToDate(invalidDate, 1)).toThrow(
-        'date_error_invalid_date'
+        'date_error_date_invalid'
       );
     });
   });

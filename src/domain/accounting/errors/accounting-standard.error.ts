@@ -1,13 +1,11 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import accountingError from './accounting.error';
 
-type TErrorKeyPrefix = `accounting_error_standard_${string}`;
-
 const EErrorKeys = {
   Invalid: 'accounting_error_standard_invalid',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+} as const satisfies TErrorKeys<'accounting_error_standard'>;
 
 type UAccountingStandardError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

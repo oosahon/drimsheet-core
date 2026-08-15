@@ -194,7 +194,7 @@ describe('GET /ledger/posting-accounts', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(mockGetPermittedPostingAccounts).not.toHaveBeenCalled();
     });

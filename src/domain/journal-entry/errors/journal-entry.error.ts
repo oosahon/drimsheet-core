@@ -1,8 +1,8 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKey, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorPrefix = `journal_entry_error_${string}`;
+type TErrorPrefix = TErrorKey<'journal_entry_error'>;
 
 class JournalEntryError<K extends TErrorPrefix> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
@@ -13,47 +13,53 @@ class JournalEntryError<K extends TErrorPrefix> extends DomainError<K> {
 
 const EErrorKeys = {
   // TODO: remove the use of redundant "InvalidValue"
-  InvalidValue: 'journal_entry_error_invalid_value',
-  InvalidAccountingEntity: 'journal_entry_error_invalid_accounting_entity',
-  InvalidStatus: 'journal_entry_error_invalid_status',
-  InvalidStatusTransition: 'journal_entry_error_invalid_status_transition',
-  InvalidLineItems: 'journal_entry_error_invalid_line_items',
-  InvalidJournalLineItem: 'journal_entry_error_invalid_journal_line_item',
-  UnbalancedJournalEntry: 'journal_entry_error_unbalanced_journal_entry',
-  DuplicateSequenceOrders: 'journal_entry_error_duplicate_sequence_orders',
-  InvalidSourceType: 'journal_entry_error_invalid_source_type',
-  CounterpartyIdNotAllowed: 'journal_entry_error_counterparty_id_not_allowed',
-  InvalidPostingDate: 'journal_entry_error_invalid_posting_date',
-  InvalidEffectiveDate: 'journal_entry_error_invalid_effective_date',
-  InvalidOpeningBalanceDate: 'journal_entry_error_invalid_opening_balance_date',
-  InvalidVoidedAt: 'journal_entry_error_invalid_voided_at',
-  InvalidCounterpartyId: 'journal_entry_error_invalid_counterparty_id',
-  InvalidMemo: 'journal_entry_error_invalid_memo',
+  InvalidValue: 'journal_entry_error_value_invalid',
+  InvalidAccountingEntity: 'journal_entry_error_accounting_entity_invalid',
+  InvalidStatus: 'journal_entry_error_status_invalid',
+  InvalidStatusTransition: 'journal_entry_error_status_transition_invalid',
+  InvalidLineItems: 'journal_entry_error_line_items_invalid',
+  InvalidJournalLineItem: 'journal_entry_error_journal_line_item_invalid',
+  UnbalancedJournalEntry:
+    'journal_entry_error_unbalanced_journal_entry_invalid',
+  DuplicateSequenceOrders:
+    'journal_entry_error_duplicate_sequence_orders_invalid',
+  InvalidSourceType: 'journal_entry_error_source_type_invalid',
+  CounterpartyIdNotAllowed:
+    'journal_entry_error_counterparty_id_not_allowed_invalid',
+  InvalidPostingDate: 'journal_entry_error_posting_date_invalid',
+  InvalidEffectiveDate: 'journal_entry_error_effective_date_invalid',
+  InvalidOpeningBalanceDate: 'journal_entry_error_opening_balance_date_invalid',
+  InvalidVoidedAt: 'journal_entry_error_voided_at_invalid',
+  InvalidCounterpartyId: 'journal_entry_error_counterparty_id_invalid',
+  InvalidMemo: 'journal_entry_error_memo_invalid',
   ControlAccountOpeningBalanceNotAllowed:
-    'journal_entry_error_control_account_opening_balance_not_allowed',
-  ControlAccountNotAllowed: 'journal_entry_error_control_account_not_allowed',
-  ExistingOpeningBalance: 'journal_entry_error_existing_opening_balance',
+    'journal_entry_error_control_account_opening_balance_not_allowed_invalid',
+  ControlAccountNotAllowed:
+    'journal_entry_error_control_account_not_allowed_invalid',
+  ExistingOpeningBalance:
+    'journal_entry_error_existing_opening_balance_conflict',
   UnConfiguredOpeningBalanceAccount:
-    'journal_entry_error_unconfigured_opening_balance_account',
+    'journal_entry_error_unconfigured_opening_balance_account_unexpected',
   AccountNotFound: 'journal_entry_error_account_not_found',
-  EmptyJournalLines: 'journal_entry_error_empty_journal_lines',
-  MismatchedJournalLines: 'journal_entry_error_mismatched_journal_lines',
+  EmptyJournalLines: 'journal_entry_error_empty_journal_lines_invalid',
+  MismatchedJournalLines:
+    'journal_entry_error_mismatched_journal_lines_invalid',
   ControlAccountTransactionNotAllowed:
-    'journal_entry_error_control_account_transaction_not_allowed',
+    'journal_entry_error_control_account_transaction_not_allowed_invalid',
   TransferNotPermittedOnAccount:
-    'journal_entry_error_transfer_not_permitted_on_account',
-  UnsupportedSourceType: 'journal_entry_error_unsupported_source_type',
-  InvalidJournalEntry: 'journal_entry_error_invalid_journal_entry',
+    'journal_entry_error_transfer_not_permitted_on_account_invalid',
+  UnsupportedSourceType: 'journal_entry_error_unsupported_source_type_invalid',
+  InvalidJournalEntry: 'journal_entry_error_journal_entry_invalid',
   EntryPredatesAccountOpeningBalance:
-    'journal_entry_error_entry_predates_account_opening_balance',
+    'journal_entry_error_entry_predates_account_opening_balance_invalid',
   DuplicateAccountsNotPermitted:
-    'journal_entry_error_entry_duplicate_accounts_not_permitted',
-  InvalidSourceAccount: 'journal_entry_error_entry_invalid_source_account',
+    'journal_entry_error_entry_duplicate_accounts_not_permitted_invalid',
+  InvalidSourceAccount: 'journal_entry_error_entry_source_account_invalid',
   InvalidDestinationAccount:
-    'journal_entry_error_entry_invalid_destination_account',
+    'journal_entry_error_entry_destination_account_invalid',
   EffectiveDateIsBeforeOpeningDate:
-    'journal_entry_error_entry_cannot_record_entry_before_account_opening_date',
-} as const satisfies Record<string, TErrorPrefix>;
+    'journal_entry_error_entry_cannot_record_entry_before_account_opening_date_invalid',
+} as const satisfies TErrorKeys<'journal_entry_error'>;
 
 const journalEntryError = Object.freeze({
   Base: JournalEntryError,

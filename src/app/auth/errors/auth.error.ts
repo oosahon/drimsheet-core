@@ -1,28 +1,25 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorKeyPrefix = `auth_error_${string}`;
-
 const EErrorKeys = {
-  InvalidValue: 'auth_error_invalid_value',
-  ExpiredToken: 'auth_error_expired_token',
-  InvalidToken: 'auth_error_invalid_token',
-  MalformedToken: 'auth_error_malformed_token',
-  MissingToken: 'auth_error_missing_token',
-  InvalidCredentials: 'auth_error_invalid_credentials',
-  EmailRequired: 'auth_error_email_required',
+  InvalidValue: 'auth_error_value_invalid',
+  ExpiredToken: 'auth_error_token_expired_unauthorized',
+  InvalidToken: 'auth_error_token_invalid_unauthorized',
+  MalformedToken: 'auth_error_token_malformed_unauthorized',
+  MissingToken: 'auth_error_token_missing_unauthorized',
+  InvalidCredentials: 'auth_error_credentials_invalid_unauthorized',
+  EmailRequired: 'auth_error_email_required_invalid',
   UserNotFound: 'auth_error_user_not_found',
-  InvalidFirstName: 'auth_error_invalid_first_name',
-  InvalidLastName: 'auth_error_invalid_last_name',
-  InvalidEmail: 'auth_error_invalid_email',
-  InvalidPassword: 'auth_error_invalid_password',
-  InvalidConfirmPassword: 'auth_error_invalid_confirm_password',
-  PasswordsDoNotMatch: 'auth_error_passwords_do_not_match',
+  InvalidFirstName: 'auth_error_first_name_invalid',
+  InvalidLastName: 'auth_error_last_name_invalid',
+  InvalidEmail: 'auth_error_email_invalid',
+  InvalidPassword: 'auth_error_password_invalid',
+  InvalidConfirmPassword: 'auth_error_confirm_password_invalid',
+  PasswordsDoNotMatch: 'auth_error_passwords_do_not_match_invalid',
   TooManyRequests: 'auth_error_too_many_requests',
-  InconsistentUserAuth:
-    'auth_error_inconsistent_user_auth_internal_server_error',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InconsistentUserAuth: 'auth_error_inconsistent_user_auth_unexpected',
+} as const satisfies TErrorKeys<'auth_error'>;
 
 type UErrorKeys = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

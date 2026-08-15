@@ -3,36 +3,27 @@ import { ValidateError } from 'tsoa';
 
 import ILogger from '@shared/contracts/logger.contract';
 import IReporter from '@shared/contracts/reporter.contract';
-import { IParsedError } from '@shared/types/error.types';
+import {
+  EErrorKeyStatusSuffix,
+  UErrorKeyStatusSuffix,
+} from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import appError from '@shared/values/errors/app.error';
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
-import runtimeError from '@shared/values/errors/runtime.error';
 
 import httpErrorParser from '@interface/http/helpers/http-error-parser';
 
-const errorKeyToStatusCode: Record<string, number> = {
-  app_error_invalid_value: 400,
-  app_error_bad_request: 400,
-  app_error_unauthorized: 401,
-  app_error_payment_required: 402,
-  app_error_forbidden: 403,
-  app_error_resource_not_found: 404,
-  app_error_accounting_active_entity_not_found: 404,
-  app_error_conflict: 409,
-  app_error_unprocessable: 422,
-  app_error_too_many_requests: 429,
-  app_error_internal_server_error: 500,
-};
-
-function getStatusCodeFromError(error: IParsedError): number {
-  if (error.errorKey?.endsWith('_internal_server_error')) return 500;
-  if (error.name === 'AuthError') return 401;
-  if (error.errorKey && errorKeyToStatusCode[error.errorKey]) {
-    return errorKeyToStatusCode[error.errorKey];
-  }
-  return 400; // default for domain errors and others
-}
+const errorKeyStatusCode = {
+  [EErrorKeyStatusSuffix.Invalid]: 400,
+  [EErrorKeyStatusSuffix.Unauthorized]: 401,
+  [EErrorKeyStatusSuffix.PaymentRequired]: 402,
+  [EErrorKeyStatusSuffix.Forbidden]: 403,
+  [EErrorKeyStatusSuffix.NotFound]: 404,
+  [EErrorKeyStatusSuffix.Conflict]: 409,
+  [EErrorKeyStatusSuffix.ValidationError]: 422,
+  [EErrorKeyStatusSuffix.TooManyRequests]: 429,
+  [EErrorKeyStatusSuffix.Unexpected]: 500,
+} satisfies Record<UErrorKeyStatusSuffix, number>;
 
 interface IDependencies {
   reporter: IReporter;
@@ -65,40 +56,27 @@ function makeHttpErrorHandler(deps: IDependencies) {
       const errRes = new appError.UnprocessableEntity(validationErrors);
 
       return res
-        .status(errorKeyToStatusCode[errRes.errorKey] as number)
+        .status(errorKeyStatusCode[EErrorKeyStatusSuffix.ValidationError])
         .json(httpErrorParser.toHttp(errRes, validationErrors));
     }
 
-    if (error instanceof runtimeError.Base) {
-      deps.reporter.report('http.request.failed', error);
-      const serverError = new appError.InternalServerError();
-
-      return res
-        .status(errorKeyToStatusCode[serverError.errorKey] as number)
-        .json(httpErrorParser.toHttp(serverError));
-    }
-
     const parsedError = errorUtils.parseError(error);
+    const statusSuffix = parsedError.errorKeyStatusSuffix;
 
-    const isUnknownError =
-      parsedError.name === 'UnknownError' || parsedError.name === 'Error';
-
-    if (isUnknownError) {
+    if (
+      !parsedError.errorKey ||
+      !statusSuffix ||
+      statusSuffix === EErrorKeyStatusSuffix.Unexpected
+    ) {
       deps.reporter.report('http.request.failed', error);
       const serverError = new appError.InternalServerError();
+
       return res
-        .status(errorKeyToStatusCode[serverError.errorKey] as number)
+        .status(errorKeyStatusCode[EErrorKeyStatusSuffix.Unexpected])
         .json(httpErrorParser.toHttp(serverError));
     }
 
-    const statusCode = getStatusCodeFromError(parsedError);
-
-    if (statusCode === 500) {
-      deps.reporter.report('http.request.failed', error);
-      const serverError = new appError.InternalServerError();
-
-      return res.status(statusCode).json(httpErrorParser.toHttp(serverError));
-    }
+    const statusCode = errorKeyStatusCode[statusSuffix];
 
     if (deps.nodeEnv === 'local') {
       deps.logger.error('http.request.rejected', {
@@ -109,7 +87,7 @@ function makeHttpErrorHandler(deps: IDependencies) {
 
     return res
       .status(statusCode)
-      .json(httpErrorParser.fromParsedError(parsedError));
+      .json(httpErrorParser.fromParsedError(parsedError, parsedError.errorKey));
   };
 }
 

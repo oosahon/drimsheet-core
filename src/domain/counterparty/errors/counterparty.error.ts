@@ -1,23 +1,23 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKey, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorPrefix = `counterparty_error_${string}`;
+type TErrorPrefix = TErrorKey<'counterparty_error'>;
 
 const EErrorKeys = {
-  InvalidAccountingEntityId: 'counterparty_error_invalid_accounting_entity_id',
-  InvalidCounterpartyId: 'counterparty_error_invalid_counterparty_id',
-  InvalidName: 'counterparty_error_invalid_name',
-  InvalidType: 'counterparty_error_invalid_type',
-  InvalidStatus: 'counterparty_error_invalid_status',
-  InvalidRole: 'counterparty_error_invalid_role',
-  InvalidDate: 'counterparty_error_invalid_date',
-  InvalidAddress: 'counterparty_error_invalid_address',
-  RoleAlreadyAssigned: 'counterparty_error_role_already_assigned',
-  InvalidCounterpartyPayload: 'counterparty_error_invalid_counterparty_payload',
-  InvalidCounterpartyEntity: 'counterparty_error_invalid_counterparty_entity',
-  InvalidCounterpartyAction: 'counterparty_error_invalid_counterparty_action',
-} as const satisfies Record<string, TErrorPrefix>;
+  InvalidAccountingEntityId: 'counterparty_error_accounting_entity_id_invalid',
+  InvalidCounterpartyId: 'counterparty_error_counterparty_id_invalid',
+  InvalidName: 'counterparty_error_name_invalid',
+  InvalidType: 'counterparty_error_type_invalid',
+  InvalidStatus: 'counterparty_error_status_invalid',
+  InvalidRole: 'counterparty_error_role_invalid',
+  InvalidDate: 'counterparty_error_date_invalid',
+  InvalidAddress: 'counterparty_error_address_invalid',
+  RoleAlreadyAssigned: 'counterparty_error_role_already_assigned_conflict',
+  InvalidCounterpartyPayload: 'counterparty_error_counterparty_payload_invalid',
+  InvalidCounterpartyEntity: 'counterparty_error_counterparty_entity_invalid',
+  InvalidCounterpartyAction: 'counterparty_error_counterparty_action_invalid',
+} as const satisfies TErrorKeys<'counterparty_error'>;
 
 type UCounterpartyError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

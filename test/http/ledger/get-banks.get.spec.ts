@@ -114,7 +114,7 @@ describe('GET /banks', () => {
         new appError.UnprocessableEntity([
           {
             field: 'countryCode',
-            message: 'accounting_error_invalid_jurisdiction_code',
+            message: 'accounting_error_jurisdiction_code_invalid',
           },
         ])
       );
@@ -126,7 +126,7 @@ describe('GET /banks', () => {
       expect(response.status).toBe(422);
       expect(response.body).toMatchObject({
         name: 'UnprocessableEntity',
-        errorKey: 'app_error_unprocessable',
+        errorKey: 'app_error_validation_error',
       });
       expect(mockGetBanks).toHaveBeenCalledWith({ countryCode: 'XX' });
     });

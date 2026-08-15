@@ -177,7 +177,7 @@ describe('accountingEntityService', () => {
 
         try {
           await expect(service.create(input, repoOptions)).rejects.toThrow(
-            'accounting_error_period_invalid_date_range'
+            'accounting_error_period_date_range_invalid'
           );
         } finally {
           jurisdiction.maxFiscalMonths = configuredLimit;

@@ -1,31 +1,30 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import journalEntryError from './journal-entry.error';
 
-type TErrorKeyPrefix = `journal_entry_error_journal_line_${string}`;
-
 const EErrorKeys = {
-  InvalidSide: 'journal_entry_error_journal_line_invalid_side',
+  InvalidSide: 'journal_entry_error_journal_line_side_invalid',
   UnsupportedExchangeRate:
-    'journal_entry_error_journal_line_unsupported_exchange_rate',
-  MissingExchangeRate: 'journal_entry_error_journal_line_missing_exchange_rate',
+    'journal_entry_error_journal_line_unsupported_exchange_rate_invalid',
+  MissingExchangeRate:
+    'journal_entry_error_journal_line_missing_exchange_rate_invalid',
   MismatchedExchangeRateBase:
-    'journal_entry_error_journal_line_mismatched_exchange_rate_base',
+    'journal_entry_error_journal_line_mismatched_exchange_rate_base_invalid',
   MismatchedExchangeRateTarget:
-    'journal_entry_error_journal_line_mismatched_exchange_rate_target',
+    'journal_entry_error_journal_line_mismatched_exchange_rate_target_invalid',
   InvalidHeaderyEntryId:
-    'journal_entry_error_journal_line_invalid_header_entry_id',
-  InvalidAccountId: 'journal_entry_error_journal_line_invalid_account_id',
+    'journal_entry_error_journal_line_header_entry_id_invalid',
+  InvalidAccountId: 'journal_entry_error_journal_line_account_id_invalid',
   InvalidCounterpartyId:
-    'journal_entry_error_journal_line_invalid_counterparty_id',
+    'journal_entry_error_journal_line_counterparty_id_invalid',
   InvalidSequenceOrder:
-    'journal_entry_error_journal_line_invalid_sequence_order',
-  InvalidCreatedAt: 'journal_entry_error_journal_line_invalid_created_at',
-  InvalidExchangeRate: 'journal_entry_error_journal_line_invalid_exchange_rate',
-  InvalidDescription: 'journal_entry_error_journal_line_invalid_description',
-  MissingHistory: 'journal_entry_error_journal_line_missing_history',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+    'journal_entry_error_journal_line_sequence_order_invalid',
+  InvalidCreatedAt: 'journal_entry_error_journal_line_created_at_invalid',
+  InvalidExchangeRate: 'journal_entry_error_journal_line_exchange_rate_invalid',
+  InvalidDescription: 'journal_entry_error_journal_line_description_invalid',
+  MissingHistory: 'journal_entry_error_journal_line_missing_history_unexpected',
+} as const satisfies TErrorKeys<'journal_entry_error_journal_line'>;
 
 type UJournalLineError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

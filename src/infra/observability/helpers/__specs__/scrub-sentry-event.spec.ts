@@ -140,7 +140,7 @@ describe('scrubSentryEvent', () => {
         used: 6,
         limit: 5,
         correlationId: 'correlation-id',
-        errorKey: 'auth_error_invalid_token',
+        errorKey: 'auth_error_token_invalid_unauthorized',
         _raw: { email: 'private@example.com' },
         cause: { userId: 'private-user-id' },
         payload: { amount: 100 },
@@ -257,7 +257,7 @@ describe('scrubSentryEvent', () => {
       used: 6,
       limit: 5,
       correlationId: 'correlation-id',
-      errorKey: 'auth_error_invalid_token',
+      errorKey: 'auth_error_token_invalid_unauthorized',
     });
     expect(JSON.stringify(scrubbed)).not.toContain(
       'private.person@example.com'

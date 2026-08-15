@@ -194,7 +194,7 @@ describe('sanitizer', () => {
     it('preserves bounded operational facts and contextual correlation', () => {
       const input = {
         event: 'queue.job.processing_failed',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
         queue: 'transactional-email-queue',
         transport: 'bullmq',
         attempt: 2,

@@ -95,7 +95,7 @@ describe('POST /auth/reset-password', () => {
     it('sanitizes application password validation failures', async () => {
       resetPasswordSpy.mockRejectedValueOnce(
         new appError.UnprocessableEntity([
-          { field: 'password', message: 'auth_error_invalid_password' },
+          { field: 'password', message: 'auth_error_password_invalid' },
         ])
       );
 
@@ -155,7 +155,7 @@ describe('POST /auth/reset-password', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       const body = JSON.stringify(response.body);
       expect(body).not.toContain(validPayload.token);

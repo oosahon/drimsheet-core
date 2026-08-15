@@ -14,19 +14,19 @@ describe('payablesMetaValue', () => {
         taxAuthority: 'A',
         taxType: 'VAT',
       })
-    ).toThrow('ledger_error_ledger_account_invalid_tax_authority');
+    ).toThrow('ledger_error_ledger_account_tax_authority_invalid');
     expect(() =>
       payablesMetaValue.makeStatutoryMeta({
         taxAuthority: 'A'.repeat(101),
         taxType: 'VAT',
       })
-    ).toThrow('ledger_error_ledger_account_invalid_tax_authority');
+    ).toThrow('ledger_error_ledger_account_tax_authority_invalid');
     expect(() =>
       payablesMetaValue.makeStatutoryMeta({
         taxAuthority: 'FIRS',
         taxType: 'A',
       })
-    ).toThrow('ledger_error_ledger_account_invalid_tax_type');
+    ).toThrow('ledger_error_ledger_account_tax_type_invalid');
   });
 
   it('returns null trade metadata unchanged', () => {
@@ -39,13 +39,13 @@ describe('payablesMetaValue', () => {
         counterpartyId: 'invalid' as TEntityId,
         invoiceId: generateUUID(),
       })
-    ).toThrow('ledger_error_ledger_account_invalid_counterparty_id');
+    ).toThrow('ledger_error_ledger_account_counterparty_id_invalid');
     expect(() =>
       payablesMetaValue.makeTradeMeta({
         counterpartyId: generateUUID(),
         invoiceId: 'invalid' as TEntityId,
       })
-    ).toThrow('ledger_error_ledger_account_invalid_invoice_id');
+    ).toThrow('ledger_error_ledger_account_invoice_id_invalid');
   });
 
   it('returns immutable valid metadata', () => {

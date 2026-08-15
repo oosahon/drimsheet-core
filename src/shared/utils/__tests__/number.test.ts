@@ -1,9 +1,9 @@
 import numberUtils from '@shared/utils/number';
 import DomainError from '@shared/values/errors/domain.error';
 
-class TestError extends DomainError<'test_error'> {
+class TestError extends DomainError<'test_error_invalid'> {
   constructor(cause?: any) {
-    super('test_error', cause);
+    super('test_error_invalid', cause);
   }
 }
 

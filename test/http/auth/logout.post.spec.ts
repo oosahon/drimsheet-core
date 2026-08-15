@@ -63,7 +63,7 @@ describe('POST /api/v1/auth/logout', () => {
       expect(response.headers['set-cookie']).toBeUndefined();
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain(
         'private-refresh-token'

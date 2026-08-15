@@ -1,19 +1,18 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import currencyError from './currency.error';
 
-type TErrorKeyPrefix = `currency_error_exchange_rate_${string}`;
-
 const EErrorKeys = {
-  InvalidType: 'currency_error_exchange_rate_invalid_type',
-  InvalidPair: 'currency_error_exchange_rate_invalid_pair',
+  InvalidType: 'currency_error_exchange_rate_type_invalid',
+  InvalidPair: 'currency_error_exchange_rate_pair_invalid',
   NotFound: 'currency_error_exchange_rate_not_found',
-  UpdateNotPermitted: 'currency_error_exchange_rate_update_not_permitted',
-  InvalidDate: 'currency_error_exchange_rate_invalid_date',
-  InvalidRate: 'currency_error_exchange_rate_invalid_rate',
-  InvalidSource: 'currency_error_exchange_rate_invalid_source',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  UpdateNotPermitted:
+    'currency_error_exchange_rate_update_not_permitted_conflict',
+  InvalidDate: 'currency_error_exchange_rate_date_invalid',
+  InvalidRate: 'currency_error_exchange_rate_rate_invalid',
+  InvalidSource: 'currency_error_exchange_rate_source_invalid',
+} as const satisfies TErrorKeys<'currency_error_exchange_rate'>;
 
 type UExchangeRateError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

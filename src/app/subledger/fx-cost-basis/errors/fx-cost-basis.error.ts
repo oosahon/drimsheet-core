@@ -1,16 +1,16 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import appError from '@shared/values/errors/app.error';
 
-type TErrorKeyPrefix = `app_error_fx_cost_basis_${string}`;
-
 const EErrorKeys = {
-  NotSupported: 'app_error_fx_cost_basis_not_supported',
-  UnsupportedAccount: 'app_error_fx_cost_basis_unsupported_account',
-  MissingAcquisitionRate: 'app_error_fx_cost_basis_missing_acquisition_rate',
-  UnsupportedEntry: 'app_error_fx_cost_basis_unsupported_entry',
-  MalformedAcquisition: 'app_error_fx_cost_basis_malformed_acquisition',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  NotSupported: 'app_error_fx_cost_basis_not_supported_invalid',
+  UnsupportedAccount: 'app_error_fx_cost_basis_unsupported_account_invalid',
+  MissingAcquisitionRate:
+    'app_error_fx_cost_basis_missing_acquisition_rate_invalid',
+  UnsupportedEntry: 'app_error_fx_cost_basis_unsupported_entry_invalid',
+  MalformedAcquisition:
+    'app_error_fx_cost_basis_malformed_acquisition_unexpected',
+} as const satisfies TErrorKeys<'app_error_fx_cost_basis'>;
 
 type ULedgerError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

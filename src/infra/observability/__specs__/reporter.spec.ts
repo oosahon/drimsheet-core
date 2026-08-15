@@ -41,7 +41,7 @@ describe('reporter', () => {
         'Failed for private.person@example.com with token: secret_abc123'
       ),
       {
-        errorKey: 'auth_error_invalid_token',
+        errorKey: 'auth_error_token_invalid_unauthorized',
         cause: { userId: 'private-user-id' },
         validationErrors: [{ field: 'email' }],
       }
@@ -100,7 +100,10 @@ describe('reporter', () => {
       'private.person@example.com'
     );
     expect((sentryError as Error).message).not.toContain('secret_abc123');
-    expect(sentryError).toHaveProperty('errorKey', 'auth_error_invalid_token');
+    expect(sentryError).toHaveProperty(
+      'errorKey',
+      'auth_error_token_invalid_unauthorized'
+    );
     expect(sentryError).not.toHaveProperty('cause');
     expect(sentryError).not.toHaveProperty('validationErrors');
     expect(sentryContext?.extra).toEqual({
@@ -113,7 +116,7 @@ describe('reporter', () => {
       subscriber: 'rabbitmq',
       eventType: 'domain:test:event',
       eventTypes: ['domain:test:first', 'domain:test:second'],
-      errorKey: 'auth_error_invalid_token',
+      errorKey: 'auth_error_token_invalid_unauthorized',
       correlationId: 'report-correlation',
     });
   });
