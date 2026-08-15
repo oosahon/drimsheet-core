@@ -74,3 +74,34 @@ production.server.v0_1_0
 auth.user_42.login
 request completed
 ```
+
+## Metrics
+
+Metrics are durable operational query contracts distinct from logs. Semantic
+metrics facades own stable names, instrument kinds, units, transformations, and
+attribute allowlists; callers provide bounded facts and must not construct
+metric names or arbitrary attributes.
+
+- Use lowercase dot-separated names that describe the measured operation or
+  state. A rename or meaning change requires an operational query migration.
+- Use explicit OpenTelemetry units. Export durations in seconds (`s`), even
+  when an existing application observation is supplied in milliseconds.
+- Use controlled queue names, normalized route templates, status classes,
+  controlled transports and outcomes, and bounded attempt values only.
+- Never attach correlation IDs, user IDs, accounting-entity IDs, journal or
+  ledger account IDs, job IDs, email addresses, raw URLs, query strings, error
+  messages, financial amounts, or other private or unbounded values.
+- Cap instrument cardinality in the metrics SDK in addition to enforcing
+  semantic attribute allowlists.
+- Metric recording is best-effort and non-throwing. Exporter, recorder, or
+  shutdown failures must not alter application results, transactions, HTTP
+  responses, queue retries, or acknowledgements.
+- Provider-native inventory remains owned by its provider. Do not duplicate
+  queue state as application gauges or count overlapping provider and
+  application lifecycle series.
+- Metrics are approximate operational signals. They do not replace domain
+  events, reconciliation, persistence, audit history, or the authoritative
+  accounting record.
+
+The initial application catalogue and provider-native ownership are recorded in
+[ADR 0014](../../docs/adrs/0014-first-class-observability-metrics.md).

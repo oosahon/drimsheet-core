@@ -1,19 +1,4 @@
-export type TLogOutcome =
-  | 'success'
-  | 'failure'
-  | 'rejected'
-  | 'skipped'
-  | 'cancelled'
-  | 'unknown';
-
-export interface ILogFields {
-  message?: string;
-  outcome?: TLogOutcome;
-  durationMs?: number;
-  error?: unknown;
-  errorKey?: string;
-  [key: string]: unknown;
-}
+import { ILogFields } from '@shared/types/observability.types';
 
 export default interface ILogger {
   info(event: string, fields?: ILogFields): void;

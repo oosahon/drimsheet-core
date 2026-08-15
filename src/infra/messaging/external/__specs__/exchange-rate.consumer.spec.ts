@@ -1,3 +1,4 @@
+import mockQueueMetrics from '@shared/contracts/__mocks__/queue-metrics.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
 import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
@@ -41,7 +42,11 @@ describe('registerExchangeRateConsumer', () => {
   });
 
   it('registers the exchange-rate consumer with the app context', async () => {
-    await registerExchangeRateConsumer(mockReporter, mockAppContext);
+    await registerExchangeRateConsumer(
+      mockReporter,
+      mockAppContext,
+      mockQueueMetrics
+    );
 
     expect(connectRabbitMQ).toHaveBeenCalledWith(mockReporter);
     expect(registerRabbitMQConsumer).toHaveBeenCalledWith(
@@ -52,12 +57,17 @@ describe('registerExchangeRateConsumer', () => {
         routingKey: 'exchange-rate.ingested',
       }),
       mockReporter,
-      mockAppContext
+      mockAppContext,
+      mockQueueMetrics
     );
   });
 
   it('maps the external correlation and existing idempotency default', async () => {
-    await registerExchangeRateConsumer(mockReporter, mockAppContext);
+    await registerExchangeRateConsumer(
+      mockReporter,
+      mockAppContext,
+      mockQueueMetrics
+    );
     const config = jest.mocked(registerRabbitMQConsumer).mock.calls[0][1];
 
     const initialStore = config.getInitialStore(payload);
@@ -69,7 +79,11 @@ describe('registerExchangeRateConsumer', () => {
   });
 
   it('generates a correlation when an unvalidated payload omits it', async () => {
-    await registerExchangeRateConsumer(mockReporter, mockAppContext);
+    await registerExchangeRateConsumer(
+      mockReporter,
+      mockAppContext,
+      mockQueueMetrics
+    );
     const config = jest.mocked(registerRabbitMQConsumer).mock.calls[0][1];
 
     const initialStore = config.getInitialStore({

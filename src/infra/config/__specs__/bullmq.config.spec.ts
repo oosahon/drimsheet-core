@@ -1,5 +1,8 @@
+import { performance } from 'node:perf_hooks';
+
 import { Job, Processor, Worker } from 'bullmq';
 
+import mockQueueMetrics from '@shared/contracts/__mocks__/queue-metrics.mock';
 import { ICorrelationId } from '@shared/types/correlation-id.types';
 
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
@@ -40,9 +43,19 @@ describe('registerBullMQWorker', () => {
     return processor as Processor<ICorrelationId, void, string>;
   }
 
-  function makeJob(correlationId: string) {
+  function makeJob(
+    correlationId: string,
+    timing: {
+      timestamp?: number;
+      processedOn?: number;
+      attemptsMade?: number;
+    } = {}
+  ) {
     return {
       data: { correlationId },
+      timestamp: timing.timestamp ?? 1_000,
+      processedOn: timing.processedOn ?? 1_500,
+      attemptsMade: timing.attemptsMade ?? 1,
     } as Job<ICorrelationId>;
   }
 
@@ -50,12 +63,26 @@ describe('registerBullMQWorker', () => {
     jest.clearAllMocks();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('runs processing inside the payload context', async () => {
+    jest
+      .spyOn(performance, 'now')
+      .mockReturnValueOnce(10)
+      .mockReturnValueOnce(35);
     const processor = jest.fn(async () => {
       expect(appContext.get().correlationId).toBe('job-correlation');
     });
 
-    registerBullMQWorker('test-queue', processor, appContext, getInitialStore);
+    registerBullMQWorker(
+      'test-queue',
+      processor,
+      appContext,
+      getInitialStore,
+      mockQueueMetrics
+    );
 
     await getRegisteredProcessor()(makeJob('job-correlation'));
 
@@ -63,16 +90,34 @@ describe('registerBullMQWorker', () => {
       correlationId: 'job-correlation',
     });
     expect(reporter.report).not.toHaveBeenCalled();
+    expect(mockQueueMetrics.recordProcessingCompleted).toHaveBeenCalledWith({
+      queueName: 'test-queue',
+      transport: 'bullmq',
+      attempt: 2,
+      waitingDurationMs: 500,
+      durationMs: 25,
+    });
+    expect(mockQueueMetrics.recordProcessingFailed).not.toHaveBeenCalled();
   });
 
   it('reports and rethrows processing failures inside the payload context', async () => {
+    jest
+      .spyOn(performance, 'now')
+      .mockReturnValueOnce(20)
+      .mockReturnValueOnce(50);
     const processingError = new Error('processing failed');
     const processor = jest.fn().mockRejectedValue(processingError);
     jest.mocked(reporter.report).mockImplementation(() => {
       expect(appContext.get().correlationId).toBe('failed-job-correlation');
     });
 
-    registerBullMQWorker('test-queue', processor, appContext, getInitialStore);
+    registerBullMQWorker(
+      'test-queue',
+      processor,
+      appContext,
+      getInitialStore,
+      mockQueueMetrics
+    );
 
     const job = makeJob('failed-job-correlation');
     await expect(getRegisteredProcessor()(job)).rejects.toBe(processingError);
@@ -82,6 +127,14 @@ describe('registerBullMQWorker', () => {
       processingError,
       { job }
     );
+    expect(mockQueueMetrics.recordProcessingFailed).toHaveBeenCalledWith({
+      queueName: 'test-queue',
+      transport: 'bullmq',
+      attempt: 2,
+      waitingDurationMs: 500,
+      durationMs: 30,
+    });
+    expect(mockQueueMetrics.recordProcessingCompleted).not.toHaveBeenCalled();
   });
 
   it('isolates concurrent job contexts', async () => {
@@ -102,7 +155,13 @@ describe('registerBullMQWorker', () => {
       observations.push(appContext.get().correlationId);
     });
 
-    registerBullMQWorker('test-queue', processor, appContext, getInitialStore);
+    registerBullMQWorker(
+      'test-queue',
+      processor,
+      appContext,
+      getInitialStore,
+      mockQueueMetrics
+    );
     const registeredProcessor = getRegisteredProcessor();
 
     await Promise.all([

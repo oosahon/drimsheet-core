@@ -1,5 +1,6 @@
 import { ConsumeMessage, RecoveringChannelModel } from 'amqplib';
 
+import mockQueueMetrics from '@shared/contracts/__mocks__/queue-metrics.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
 
 import {
@@ -79,7 +80,8 @@ describe('registerRabbitMQConsumer', () => {
       connection,
       makeConfig(processor),
       mockReporter,
-      appContext
+      appContext,
+      mockQueueMetrics
     );
 
     const message = makeMessage({ correlationId: 'message-correlation' });
@@ -91,6 +93,12 @@ describe('registerRabbitMQConsumer', () => {
     expect(channel.ack).toHaveBeenCalledWith(message);
     expect(channel.nack).not.toHaveBeenCalled();
     expect(mockReporter.report).not.toHaveBeenCalled();
+    expect(mockQueueMetrics.recordProcessingCompleted).toHaveBeenCalledWith({
+      queueName: 'test-queue',
+      transport: 'rabbitmq',
+      durationMs: expect.any(Number),
+    });
+    expect(mockQueueMetrics.recordProcessingFailed).not.toHaveBeenCalled();
   });
 
   it('reports and negatively acknowledges failures inside the message context', async () => {
@@ -107,7 +115,8 @@ describe('registerRabbitMQConsumer', () => {
       connection,
       makeConfig(processor),
       mockReporter,
-      appContext
+      appContext,
+      mockQueueMetrics
     );
 
     const message = makeMessage({
@@ -125,6 +134,12 @@ describe('registerRabbitMQConsumer', () => {
     );
     expect(channel.ack).not.toHaveBeenCalled();
     expect(channel.nack).toHaveBeenCalledWith(message, false, false);
+    expect(mockQueueMetrics.recordProcessingFailed).toHaveBeenCalledWith({
+      queueName: 'test-queue',
+      transport: 'rabbitmq',
+      durationMs: expect.any(Number),
+    });
+    expect(mockQueueMetrics.recordProcessingCompleted).not.toHaveBeenCalled();
   });
 
   it('keeps parsing failures on the uncorrelated transport path', async () => {
@@ -134,7 +149,8 @@ describe('registerRabbitMQConsumer', () => {
       connection,
       makeConfig(processor),
       mockReporter,
-      appContext
+      appContext,
+      mockQueueMetrics
     );
 
     const message = {
@@ -152,6 +168,11 @@ describe('registerRabbitMQConsumer', () => {
       }
     );
     expect(channel.nack).toHaveBeenCalledWith(message, false, false);
+    expect(mockQueueMetrics.recordProcessingFailed).toHaveBeenCalledWith({
+      queueName: 'test-queue',
+      transport: 'rabbitmq',
+      durationMs: expect.any(Number),
+    });
   });
 
   it('ignores consumer cancellation notifications', async () => {
@@ -161,7 +182,8 @@ describe('registerRabbitMQConsumer', () => {
       connection,
       makeConfig(processor),
       mockReporter,
-      appContext
+      appContext,
+      mockQueueMetrics
     );
 
     await getRegisteredConsumer()(null);
@@ -169,5 +191,7 @@ describe('registerRabbitMQConsumer', () => {
     expect(processor).not.toHaveBeenCalled();
     expect(channel.ack).not.toHaveBeenCalled();
     expect(channel.nack).not.toHaveBeenCalled();
+    expect(mockQueueMetrics.recordProcessingCompleted).not.toHaveBeenCalled();
+    expect(mockQueueMetrics.recordProcessingFailed).not.toHaveBeenCalled();
   });
 });

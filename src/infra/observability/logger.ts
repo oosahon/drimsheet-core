@@ -1,7 +1,12 @@
 import * as winston from 'winston';
 
-import ILogger, { ILogFields } from '@shared/contracts/logger.contract';
+import ILogger from '@shared/contracts/logger.contract';
 import IVarsConfig from '@shared/contracts/vars-config.contract';
+import {
+  ELogLevel,
+  ILogFields,
+  ULogLevel,
+} from '@shared/types/observability.types';
 import safeJSON from '@shared/utils/safe-json';
 import { sanitizeData } from '@shared/utils/sanitizer';
 
@@ -12,7 +17,6 @@ import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-i
 
 import packageJson from '../../../package.json';
 
-type TLogLevel = 'info' | 'warn' | 'error' | 'debug';
 type TCorrelationContext = Pick<IAppContext, 'get'>;
 
 interface ILoggerOptions {
@@ -129,7 +133,7 @@ export function makeLogger(options: ILoggerOptions = {}): ILogger {
     transports: [options.transport ?? new winston.transports.Console()],
   });
 
-  const log = (level: TLogLevel, event: string, fields?: ILogFields) => {
+  const log = (level: ULogLevel, event: string, fields?: ILogFields) => {
     const correlationId = safeGetCorrelationId(options.appContext);
     const preparedFields = prepareFields(fields);
 
@@ -147,10 +151,10 @@ export function makeLogger(options: ILoggerOptions = {}): ILogger {
   };
 
   const logger: ILogger = {
-    info: (event, fields) => log('info', event, fields),
-    warn: (event, fields) => log('warn', event, fields),
-    error: (event, fields) => log('error', event, fields),
-    debug: (event, fields) => log('debug', event, fields),
+    info: (event, fields) => log(ELogLevel.Info, event, fields),
+    warn: (event, fields) => log(ELogLevel.Warn, event, fields),
+    error: (event, fields) => log(ELogLevel.Error, event, fields),
+    debug: (event, fields) => log(ELogLevel.Debug, event, fields),
   };
 
   return logger;

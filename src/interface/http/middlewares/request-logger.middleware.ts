@@ -2,7 +2,9 @@ import { performance } from 'node:perf_hooks';
 
 import { Request, RequestHandler } from 'express';
 
-import ILogger, { TLogOutcome } from '@shared/contracts/logger.contract';
+import IHttpMetrics from '@shared/contracts/http-metrics.contract';
+import ILogger from '@shared/contracts/logger.contract';
+import { ELogOutcome } from '@shared/types/observability.types';
 
 function getHttpRoute(req: Request): string {
   const routePath = req.route?.path;
@@ -12,10 +14,10 @@ function getHttpRoute(req: Request): string {
   return `${req.baseUrl || ''}${routePath}` || '/';
 }
 
-function getOutcome(statusCode: number): TLogOutcome {
-  if (statusCode >= 500) return 'failure';
-  if (statusCode >= 400) return 'rejected';
-  return 'success';
+function getOutcome(statusCode: number) {
+  if (statusCode >= 500) return ELogOutcome.Failure;
+  if (statusCode >= 400) return ELogOutcome.Rejected;
+  return ELogOutcome.Success;
 }
 
 function getResponseSizeBytes(contentLength: unknown): number {
@@ -24,7 +26,8 @@ function getResponseSizeBytes(contentLength: unknown): number {
 }
 
 export default function makeRequestLoggerMiddleware(
-  logger: ILogger
+  logger: ILogger,
+  httpMetrics: IHttpMetrics
 ): RequestHandler {
   const slowRequestThresholdMs =
     Number(process.env.SLOW_REQUEST_THRESHOLD_MS) || 1000;
@@ -63,6 +66,14 @@ export default function makeRequestLoggerMiddleware(
           outcome: responseFields.outcome,
         });
       }
+
+      httpMetrics.recordRequestCompleted({
+        method: req.method,
+        route: httpRoute,
+        statusCode: res.statusCode,
+        outcome: responseFields.outcome,
+        durationMs,
+      });
     };
 
     res.on('finish', handleFinish);

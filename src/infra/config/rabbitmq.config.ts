@@ -1,5 +1,10 @@
+import { performance } from 'node:perf_hooks';
+
 import amqplib, { Channel, RecoveringChannelModel } from 'amqplib';
 
+import IQueueMetrics, {
+  EQueueTransport,
+} from '@shared/contracts/queue-metrics.contract';
 import IReporter from '@shared/contracts/reporter.contract';
 
 import IAppContext, {
@@ -39,7 +44,8 @@ export async function registerRabbitMQConsumer<T>(
   connection: RecoveringChannelModel,
   config: IRabbitMQConsumerConfig<T>,
   reporter: IReporter,
-  appContext: IAppContext
+  appContext: IAppContext,
+  queueMetrics: IQueueMetrics
 ): Promise<Channel> {
   const channel = await connection.createChannel();
 
@@ -56,16 +62,30 @@ export async function registerRabbitMQConsumer<T>(
 
   await channel.consume(config.queue, async (msg) => {
     if (!msg) return;
+    const processingStartedAt = performance.now();
+
+    const getProcessingMetricInput = () => ({
+      queueName: config.queue,
+      transport: EQueueTransport.RabbitMQ,
+      durationMs: performance.now() - processingStartedAt,
+    });
 
     try {
       const payload = JSON.parse(msg.content.toString()) as T;
       const initialStore = config.getInitialStore(payload);
 
       await appContext.init(initialStore, async () => {
+        let processorCompleted = false;
+
         try {
           await config.processor(payload);
+          processorCompleted = true;
+          queueMetrics.recordProcessingCompleted(getProcessingMetricInput());
           channel.ack(msg);
         } catch (error) {
+          if (!processorCompleted) {
+            queueMetrics.recordProcessingFailed(getProcessingMetricInput());
+          }
           reporter.report('queue.message.processing_failed', error, {
             context: 'Failed to process RabbitMQ message',
             queue: config.queue,
@@ -74,6 +94,7 @@ export async function registerRabbitMQConsumer<T>(
         }
       });
     } catch (error) {
+      queueMetrics.recordProcessingFailed(getProcessingMetricInput());
       reporter.report('queue.message.processing_failed', error, {
         context: 'Failed to process RabbitMQ message',
         queue: config.queue,

@@ -1,5 +1,8 @@
 import { Queue } from 'bullmq';
 
+import IQueueMetrics, {
+  EQueueTransport,
+} from '@shared/contracts/queue-metrics.contract';
 import IReporter from '@shared/contracts/reporter.contract';
 
 import ILedgerBalanceAdjustmentQueue, {
@@ -43,7 +46,8 @@ function getConfig(payload: ILedgerAccountBalanceAdjustmentDto) {
 }
 
 export default function makeLedgerAccountBalanceAdjustmentQueue(
-  reporter: IReporter
+  reporter: IReporter,
+  queueMetrics: IQueueMetrics
 ): ILedgerBalanceAdjustmentQueue {
   return {
     async add(payload) {
@@ -53,7 +57,15 @@ export default function makeLedgerAccountBalanceAdjustmentQueue(
           payload,
           getConfig(payload)
         );
+        queueMetrics.recordEnqueueSucceeded({
+          queueName: LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME,
+          transport: EQueueTransport.BullMQ,
+        });
       } catch (error) {
+        queueMetrics.recordEnqueueFailed({
+          queueName: LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME,
+          transport: EQueueTransport.BullMQ,
+        });
         // NB: we are intentionally not rethrowing this error because
         // failure to add to balance adjustment to queue should not cause the
         // journal entry to fail. The source of truth is still the journal entry, this can

@@ -4,7 +4,11 @@ import appContext from '@infra/runtime/app-context';
 
 export default async function registerRabbitMQConsumers() {
   const consumers = [
-    registerExchangeRateConsumer(observability.reporter, appContext),
+    registerExchangeRateConsumer(
+      observability.reporter,
+      appContext,
+      observability.queueMetrics
+    ),
   ];
 
   await Promise.all(consumers).catch((error) =>

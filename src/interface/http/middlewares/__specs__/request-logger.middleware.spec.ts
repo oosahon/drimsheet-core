@@ -2,6 +2,7 @@ import { performance } from 'node:perf_hooks';
 
 import { Request, Response } from 'express';
 
+import mockHttpMetrics from '@shared/contracts/__mocks__/http-metrics.mock';
 import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 
 import makeRequestLoggerMiddleware from '@interface/http/middlewares/request-logger.middleware';
@@ -56,7 +57,7 @@ describe('makeRequestLoggerMiddleware', () => {
       .spyOn(performance, 'now')
       .mockReturnValueOnce(100)
       .mockReturnValueOnce(142);
-    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const middleware = makeRequestLoggerMiddleware(mockLogger, mockHttpMetrics);
     const request = makeRequest({
       method: 'GET',
       originalUrl: '/api/v1/users/123?token=secret123',
@@ -82,6 +83,14 @@ describe('makeRequestLoggerMiddleware', () => {
       expect.anything(),
       expect.objectContaining({ httpRoute: expect.stringContaining('?') })
     );
+    expect(mockHttpMetrics.recordRequestCompleted).toHaveBeenCalledTimes(1);
+    expect(mockHttpMetrics.recordRequestCompleted).toHaveBeenCalledWith({
+      method: 'GET',
+      route: '/api/v1/users/:userId',
+      statusCode: 200,
+      outcome: 'success',
+      durationMs: 42,
+    });
   });
 
   it('warns for rejected unmatched requests', () => {
@@ -89,7 +98,7 @@ describe('makeRequestLoggerMiddleware', () => {
       .spyOn(performance, 'now')
       .mockReturnValueOnce(100)
       .mockReturnValueOnce(120);
-    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const middleware = makeRequestLoggerMiddleware(mockLogger, mockHttpMetrics);
     const request = makeRequest({
       method: 'POST',
       originalUrl: '/api/v1/unknown?state=secret',
@@ -107,6 +116,14 @@ describe('makeRequestLoggerMiddleware', () => {
       responseSizeBytes: 0,
       outcome: 'rejected',
     });
+    expect(mockHttpMetrics.recordRequestCompleted).toHaveBeenCalledTimes(1);
+    expect(mockHttpMetrics.recordRequestCompleted).toHaveBeenCalledWith({
+      method: 'POST',
+      route: 'unmatched',
+      statusCode: 404,
+      outcome: 'rejected',
+      durationMs: 20,
+    });
   });
 
   it('normalizes an empty root route and invalid content length', () => {
@@ -114,7 +131,7 @@ describe('makeRequestLoggerMiddleware', () => {
       .spyOn(performance, 'now')
       .mockReturnValueOnce(100)
       .mockReturnValueOnce(110);
-    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const middleware = makeRequestLoggerMiddleware(mockLogger, mockHttpMetrics);
     const request = makeRequest({
       method: 'HEAD',
       originalUrl: '/',
@@ -133,6 +150,7 @@ describe('makeRequestLoggerMiddleware', () => {
       responseSizeBytes: 0,
       outcome: 'success',
     });
+    expect(mockHttpMetrics.recordRequestCompleted).toHaveBeenCalledTimes(1);
   });
 
   it('logs failed requests at error level', () => {
@@ -140,7 +158,7 @@ describe('makeRequestLoggerMiddleware', () => {
       .spyOn(performance, 'now')
       .mockReturnValueOnce(100)
       .mockReturnValueOnce(125);
-    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const middleware = makeRequestLoggerMiddleware(mockLogger, mockHttpMetrics);
     const request = makeRequest({
       method: 'DELETE',
       originalUrl: '/api/v1/users/123',
@@ -160,6 +178,14 @@ describe('makeRequestLoggerMiddleware', () => {
       responseSizeBytes: 200,
       outcome: 'failure',
     });
+    expect(mockHttpMetrics.recordRequestCompleted).toHaveBeenCalledTimes(1);
+    expect(mockHttpMetrics.recordRequestCompleted).toHaveBeenCalledWith({
+      method: 'DELETE',
+      route: '/api/v1/users/:userId',
+      statusCode: 500,
+      outcome: 'failure',
+      durationMs: 25,
+    });
   });
 
   it('emits a separate warning for slow successful requests', () => {
@@ -167,7 +193,7 @@ describe('makeRequestLoggerMiddleware', () => {
       .spyOn(performance, 'now')
       .mockReturnValueOnce(1000)
       .mockReturnValueOnce(2500);
-    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const middleware = makeRequestLoggerMiddleware(mockLogger, mockHttpMetrics);
     const request = makeRequest({
       method: 'GET',
       originalUrl: '/api/v1/reports?token=secret',
@@ -193,5 +219,13 @@ describe('makeRequestLoggerMiddleware', () => {
         outcome: 'success',
       }
     );
+    expect(mockHttpMetrics.recordRequestCompleted).toHaveBeenCalledTimes(1);
+    expect(mockHttpMetrics.recordRequestCompleted).toHaveBeenCalledWith({
+      method: 'GET',
+      route: '/api/v1/reports',
+      statusCode: 200,
+      outcome: 'success',
+      durationMs: 1500,
+    });
   });
 });

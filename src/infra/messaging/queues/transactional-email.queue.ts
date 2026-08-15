@@ -1,5 +1,8 @@
 import { Queue } from 'bullmq';
 
+import IQueueMetrics, {
+  EQueueTransport,
+} from '@shared/contracts/queue-metrics.contract';
 import IReporter from '@shared/contracts/reporter.contract';
 
 import ITransactionalEmailQueue, {
@@ -38,7 +41,8 @@ function getConfig(payload: ITransactionalEmailDto) {
 }
 
 export default function makeTransactionalEmailQueue(
-  reporter: IReporter
+  reporter: IReporter,
+  queueMetrics: IQueueMetrics
 ): ITransactionalEmailQueue {
   return {
     async add(payload) {
@@ -48,7 +52,15 @@ export default function makeTransactionalEmailQueue(
           payload,
           getConfig(payload)
         );
+        queueMetrics.recordEnqueueSucceeded({
+          queueName: TRANSACTIONAL_EMAIL_QUEUE_NAME,
+          transport: EQueueTransport.BullMQ,
+        });
       } catch (error) {
+        queueMetrics.recordEnqueueFailed({
+          queueName: TRANSACTIONAL_EMAIL_QUEUE_NAME,
+          transport: EQueueTransport.BullMQ,
+        });
         reporter.report('queue.job.enqueue_failed', error, {
           type: TRANSACTIONAL_EMAIL_QUEUE_NAME,
           correlationId: payload.correlationId,

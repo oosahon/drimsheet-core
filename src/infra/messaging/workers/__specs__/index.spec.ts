@@ -41,14 +41,16 @@ describe('workerRegistration', () => {
       TRANSACTIONAL_EMAIL_QUEUE_NAME,
       transactionalEmailWorker,
       expect.any(Object),
-      expect.any(Function)
+      expect.any(Function),
+      expect.any(Object)
     );
     expect(registerBullMQWorker).toHaveBeenNthCalledWith(
       2,
       LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME,
       ledgerAccountBalanceAdjustmentWorker,
       expect.any(Object),
-      expect.any(Function)
+      expect.any(Function),
+      expect.any(Object)
     );
   });
 

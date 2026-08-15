@@ -2,7 +2,7 @@ import { Writable } from 'node:stream';
 
 import * as winston from 'winston';
 
-import { ILogFields } from '@shared/contracts/logger.contract';
+import { ILogFields } from '@shared/types/observability.types';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 

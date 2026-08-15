@@ -1,3 +1,4 @@
+import IQueueMetrics from '@shared/contracts/queue-metrics.contract';
 import IReporter from '@shared/contracts/reporter.contract';
 import generateUUID from '@shared/utils/uuid-generator';
 
@@ -13,7 +14,8 @@ import { exchangeRateIngestionWorker } from '@infra/ioc/workers/money';
 
 export default async function registerExchangeRateConsumer(
   reporter: IReporter,
-  appContext: IAppContext
+  appContext: IAppContext,
+  queueMetrics: IQueueMetrics
 ) {
   const connection = await connectRabbitMQ(reporter);
 
@@ -34,5 +36,11 @@ export default async function registerExchangeRateConsumer(
     }),
   };
 
-  await registerRabbitMQConsumer(connection, config, reporter, appContext);
+  await registerRabbitMQConsumer(
+    connection,
+    config,
+    reporter,
+    appContext,
+    queueMetrics
+  );
 }

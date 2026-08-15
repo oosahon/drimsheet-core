@@ -10,6 +10,7 @@ import { ITransactionalEmailDto } from '@app/notification/dtos/transactional-ema
 import { registerBullMQWorker } from '@infra/config/bullmq.config';
 import { ledgerAccountBalanceAdjustmentWorker } from '@infra/ioc/workers/ledger';
 import { transactionalEmailWorker } from '@infra/ioc/workers/notification';
+import observability from '@infra/observability';
 import appContext from '@infra/runtime/app-context';
 
 function getInitialStore(payload: ICorrelationId): IAppContextData {
@@ -24,14 +25,16 @@ function workerRegistration() {
     TRANSACTIONAL_EMAIL_QUEUE_NAME,
     transactionalEmailWorker,
     appContext,
-    getInitialStore
+    getInitialStore,
+    observability.queueMetrics
   );
 
   registerBullMQWorker<ILedgerAccountBalanceAdjustmentDto>(
     LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME,
     ledgerAccountBalanceAdjustmentWorker,
     appContext,
-    getInitialStore
+    getInitialStore,
+    observability.queueMetrics
   );
 }
 

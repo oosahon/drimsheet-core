@@ -65,4 +65,43 @@ To ensure only clean data enters the system and anomalous states are captured:
 
 - **Data Validation (Zod)**: Zod is enforced at the system boundary (API endpoints and MCP tool inputs) to guarantee malformed or malicious payloads are rejected before they touch business logic.
 - **Standardized Error Handling**: Errors are wrapped in a standard domain format so that clients cleanly differentiate between user errors (e.g., "Insufficient Balance") and system errors.
-- **Observability (Sentry, Winston)**: Every non-local log line is one structured JSON record containing a stable operational event, runtime service/environment/version metadata, and request or worker correlation when context is active. Local development keeps readable colorized output. Fields are recursively sanitized, and request logs use normalized route templates rather than raw URLs or query strings. These records are logs, not metrics; event naming, controlled outcomes, privacy, and cardinality follow [the canonical observability rule](../.agents/rules/observability.md).
+- **Observability logs (Sentry, Winston)**: Every non-local log line is one structured JSON record containing a stable operational event, runtime service/environment/version metadata, and request or worker correlation when context is active. Local development keeps readable colorized output. Fields are recursively sanitized, and request logs use normalized route templates rather than raw URLs or query strings. These records are logs, not metrics; event naming, controlled outcomes, privacy, and cardinality follow [the canonical observability rule](../.agents/rules/observability.md).
+- **Observability metrics (OpenTelemetry, Grafana Alloy, Grafana Cloud)**: Application instances export best-effort metrics periodically over OTLP/HTTP to Grafana Alloy on the private Coolify network. Export is disabled by default and application code contains no Grafana Cloud credentials. `IObservabilityMetrics` provides the tool-agnostic recorder, while `IHttpMetrics` and `IQueueMetrics` own the semantic catalogue, seconds conversion, and bounded attribute policy. Recording and bounded shutdown-flush failures never change HTTP, transaction, queue retry, or acknowledgement behavior.
+
+The initial application-owned metrics are:
+
+| Metric                                | Instrument | Unit          | Allowed attributes                               |
+| ------------------------------------- | ---------- | ------------- | ------------------------------------------------ |
+| `http.server.requests`                | Counter    | `{request}`   | method, normalized route, status class, outcome  |
+| `http.server.request.duration`        | Histogram  | `s`           | method, normalized route, status class, outcome  |
+| `messaging.client.enqueue.operations` | Counter    | `{operation}` | controlled queue, transport, outcome             |
+| `messaging.process.operations`        | Counter    | `{operation}` | controlled queue, transport, outcome, attempt    |
+| `messaging.process.duration`          | Histogram  | `s`           | controlled queue, transport, outcome             |
+| `messaging.process.wait.duration`     | Histogram  | `s`           | controlled queue and transport, when trustworthy |
+
+Histograms prefer base-2 exponential aggregation. If the production
+Alloy/Grafana Cloud smoke test does not preserve it, the compatibility
+boundaries in `src/infra/observability/metric-catalogue.ts` become the explicit
+fallback. Baseline distributions must be collected for two to four weeks
+before final latency SLOs are proposed.
+
+Application metrics configuration is intentionally provider-neutral:
+
+| Environment variable          | Default | Purpose                                                   |
+| ----------------------------- | ------- | --------------------------------------------------------- |
+| `METRICS_ENABLED`             | `false` | Enables application OTLP/HTTP export explicitly.          |
+| `METRICS_OTLP_HTTP_ENDPOINT`  | empty   | Internal Alloy URL ending in `/v1/metrics`.               |
+| `METRICS_EXPORT_INTERVAL_MS`  | `60000` | Periodic export interval.                                 |
+| `METRICS_SHUTDOWN_TIMEOUT_MS` | `5000`  | Bound for exporter shutdown and the export timeout.       |
+| `BULLMQ_METRICS_PORT`         | `0`     | Separate internal scrape listener; `0` keeps it disabled. |
+
+Queue inventory remains provider-owned. Alloy scrapes one logical internal
+BullMQ listener per environment, keeps `bullmq_job_count`, and drops the
+overlapping `bullmq_job_completed_total` and `bullmq_job_failed_total` series.
+Every Coolify-hosted RabbitMQ node enables `rabbitmq_prometheus`, and Alloy
+scrapes each node on private port `15692` for ready, unacknowledged, consumer,
+connection, publish, and delivery measurements. Neither the BullMQ listener nor
+RabbitMQ metrics ports belong in the public Coolify proxy. Oldest-job age and
+journal-to-ledger consistency remain deferred; lifecycle metrics are
+operational proxies, not accounting truth. See
+[ADR 0014](adrs/0014-first-class-observability-metrics.md).

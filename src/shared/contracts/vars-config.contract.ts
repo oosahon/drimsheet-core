@@ -16,6 +16,13 @@ export default interface IVarsConfig {
 
   NODE_ENV: 'test' | 'development' | 'production';
 
+  METRICS_ENABLED: string;
+  METRICS_EXPORT_INTERVAL_MS?: string;
+  METRICS_OTLP_HTTP_ENDPOINT: string;
+  METRICS_SHUTDOWN_TIMEOUT_MS?: string;
+
+  BULLMQ_METRICS_PORT: string;
+
   PORT: number;
 
   POSTGRES_URL: string;
