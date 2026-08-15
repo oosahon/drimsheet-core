@@ -42,6 +42,7 @@ function makeEnrich(
       }
 
       deps.reporter.report(
+        'ledger.balance_enrichment.failed',
         new ledgerAppError.BalanceNotFound({ accountId: account.id })
       );
 

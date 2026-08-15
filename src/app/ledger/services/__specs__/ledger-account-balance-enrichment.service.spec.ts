@@ -209,6 +209,7 @@ describe('ledgerAccountBalanceEnrichmentService', () => {
     expect(mockReporter.report).toHaveBeenCalledTimes(2);
     expect(mockReporter.report).toHaveBeenNthCalledWith(
       1,
+      'ledger.balance_enrichment.failed',
       expect.objectContaining({
         errorKey: 'app_error_ledger_balance_not_found',
         cause: { accountId: secondAccount.id },
@@ -216,6 +217,7 @@ describe('ledgerAccountBalanceEnrichmentService', () => {
     );
     expect(mockReporter.report).toHaveBeenNthCalledWith(
       2,
+      'ledger.balance_enrichment.failed',
       expect.objectContaining({
         errorKey: 'app_error_ledger_balance_not_found',
         cause: { accountId: currencyNeutralAccount.id },

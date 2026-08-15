@@ -25,9 +25,11 @@ export default function makeIngestExchangeRateUseCase(deps: IDependencies) {
     const { correlation_id } = payload;
 
     if (!correlation_id) {
-      deps.logger.warn(
-        'Exchange rate ingestion message was sent without a correlation_id'
-      );
+      deps.logger.warn('exchange_rate.ingestion.correlation_id_missing', {
+        message:
+          'Exchange rate ingestion message did not contain a correlation ID',
+        outcome: 'unknown',
+      });
     }
     const correlationId = correlation_id || generateUUID();
 

@@ -149,7 +149,7 @@ async function propagateBalanceAdjustments(
       )
     );
   } catch (error) {
-    deps.reporter.report(error, {
+    deps.reporter.report('ledger.balance_propagation.failed', error, {
       correlationId: repoOptions.correlationId,
       accountingEntityId: journalEntry.accountingEntityId,
       journalEntryId: journalEntry.id,

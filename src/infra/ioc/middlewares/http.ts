@@ -60,11 +60,7 @@ const httpMiddlewares = {
     accountingEntityService
   ),
 
-  requestLogger: makeRequestLoggerMiddleware(
-    observability.logger,
-    observability.reporter,
-    appContext
-  ),
+  requestLogger: makeRequestLoggerMiddleware(observability.logger),
 
   accountingEntityAccess: makeAccountingEntityAccessMiddleware(
     accountingEntityService,

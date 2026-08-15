@@ -2,73 +2,56 @@ import Sentry from '@sentry/node';
 
 import IReporter from '@shared/contracts/reporter.contract';
 import errorUtils from '@shared/utils/error';
-import safeJSON from '@shared/utils/safe-json';
 import { sanitizeData } from '@shared/utils/sanitizer';
 
 import vars from '@infra/config/vars.config';
-import appContext from '@infra/runtime/app-context';
+import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-id';
 
 import logger from './logger';
 
-// TODO: add tests for observability
-
-const getCorrelationId = () => {
-  try {
-    return appContext.get().correlationId;
-  } catch {
-    return undefined;
-  }
-};
-
 const reporter: IReporter = {
-  report(error, context) {
+  report(event, error, context) {
     try {
-      const correlationId = getCorrelationId();
+      const correlationId = safeGetCorrelationId();
       const sanitizedError = sanitizeData(error);
       const sanitizedContext =
         (sanitizeData(context) as Record<string, unknown>) || {};
       const parsedError = errorUtils.parseError(sanitizedError);
 
-      const loggerError = safeJSON.stringify({
-        ...parsedError,
+      logger.error(event, {
         ...sanitizedContext,
-        correlationId,
+        error: sanitizedError,
+        errorKey: parsedError.errorKey,
       });
-
-      logger.error(loggerError);
-
-      if (vars.APP_ENV === 'local') {
-        logger.error(sanitizedError, { context: sanitizedContext });
-      }
 
       Sentry.captureException(sanitizedError, {
-        ...sanitizedContext,
-        extra: { ...parsedError, correlationId },
+        extra: {
+          ...sanitizedContext,
+          ...parsedError,
+          correlationId,
+        },
       });
-    } catch (err) {
-      if (vars.APP_ENV === 'local') {
-        logger.error(err, { context: sanitizeData(context) });
-      }
-      logger.error(safeJSON.stringify(errorUtils.parseError(err)));
+    } catch (reportingError) {
+      logger.error('observability.error.reporting_failed', {
+        error: reportingError,
+        sourceEvent: event,
+        context: sanitizeData(context),
+      });
     }
   },
 
   reportAbuse(message, meta) {
     try {
-      const correlationId = getCorrelationId();
+      const correlationId = safeGetCorrelationId();
       const sanitizedMessage =
         (sanitizeData(message) as string) || String(message);
       const sanitizedMeta =
         (sanitizeData(meta) as Record<string, unknown>) || {};
 
-      const loggerError = safeJSON.stringify({
-        level: 'warning',
-        message: sanitizedMessage,
+      logger.warn('security.abuse.detected', {
         ...sanitizedMeta,
-        correlationId,
+        message: sanitizedMessage,
       });
-
-      logger.warn(loggerError);
 
       if (vars.APP_ENV === 'local') return;
 
@@ -76,11 +59,12 @@ const reporter: IReporter = {
         level: 'warning',
         extra: { ...sanitizedMeta, correlationId },
       });
-    } catch (err) {
-      if (vars.APP_ENV === 'local') {
-        logger.error(err);
-      }
-      logger.error(safeJSON.stringify(errorUtils.parseError(err)));
+    } catch (reportingError) {
+      logger.error('observability.error.reporting_failed', {
+        error: reportingError,
+        sourceEvent: 'security.abuse.detected',
+        context: sanitizeData(meta),
+      });
     }
   },
 };

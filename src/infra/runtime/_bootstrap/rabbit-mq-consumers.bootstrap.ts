@@ -7,5 +7,9 @@ export default async function registerRabbitMQConsumers() {
     registerExchangeRateConsumer(observability.reporter, appContext),
   ];
 
-  await Promise.all(consumers).catch(observability.reporter.report);
+  await Promise.all(consumers).catch((error) =>
+    observability.reporter.report('event.subscription.failed', error, {
+      subscriber: 'rabbitmq',
+    })
+  );
 }

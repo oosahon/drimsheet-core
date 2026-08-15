@@ -29,7 +29,7 @@ export async function connectRabbitMQ(
   connection = await amqplib.connect(vars.RABBITMQ_URL, { recovery: true });
 
   connection.on('disconnect', (err) => {
-    reporter.report(err, { context: 'RabbitMQ disconnected' });
+    reporter.report('integration.rabbitmq.disconnected', err);
   });
 
   return connection;
@@ -66,7 +66,7 @@ export async function registerRabbitMQConsumer<T>(
           await config.processor(payload);
           channel.ack(msg);
         } catch (error) {
-          reporter.report(error, {
+          reporter.report('queue.message.processing_failed', error, {
             context: 'Failed to process RabbitMQ message',
             queue: config.queue,
           });
@@ -74,7 +74,7 @@ export async function registerRabbitMQConsumer<T>(
         }
       });
     } catch (error) {
-      reporter.report(error, {
+      reporter.report('queue.message.processing_failed', error, {
         context: 'Failed to process RabbitMQ message',
         queue: config.queue,
       });

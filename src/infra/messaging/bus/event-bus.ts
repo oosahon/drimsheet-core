@@ -15,6 +15,7 @@ const validateEventType = (eventType: string) => {
 };
 
 const eventBus: IEventBus = {
+  // TODO: check if publishing really needs async
   publish: async (event) => {
     const eventTypes = (Array.isArray(event) ? event : [event]).map(
       ({ type }) => type
@@ -30,7 +31,7 @@ const eventBus: IEventBus = {
       }
       // TODO add redis pub/sub
     } catch (error) {
-      reporter.report(error, { eventTypes });
+      reporter.report('event.publication.failed', error, { eventTypes });
     }
   },
 
@@ -41,7 +42,7 @@ const eventBus: IEventBus = {
       return () => emitter.off(eventType, handler);
       // TODO add redis pub/sub
     } catch (error) {
-      reporter.report(error);
+      reporter.report('event.subscription.failed', error, { eventType });
       return () => undefined;
     }
   },

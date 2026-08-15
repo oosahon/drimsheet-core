@@ -1,6 +1,7 @@
 export default interface IVarsConfig {
   APP_URL: string;
   APP_ENV: 'test' | 'local' | 'development' | 'staging' | 'production';
+  APP_VERSION: string;
   WEB_APP_URL: string;
   WEBSITE_URL: string;
   TAX_CALCULATOR_URL: string;

@@ -53,7 +53,12 @@ function makeHttpErrorHandler(deps: IDependencies) {
       });
 
     if (error instanceof ValidateError) {
-      if (deps.nodeEnv === 'local') deps.logger.error(error);
+      if (deps.nodeEnv === 'local') {
+        deps.logger.error('http.request.validation_failed', {
+          error,
+          outcome: 'rejected',
+        });
+      }
       const validationErrors = httpErrorParser.parseTsoaValidationError(error);
       const errRes = new appError.UnprocessableEntity(validationErrors);
 
@@ -63,7 +68,7 @@ function makeHttpErrorHandler(deps: IDependencies) {
     }
 
     if (error instanceof runtimeError.Base) {
-      deps.reporter.report(error);
+      deps.reporter.report('http.request.failed', error);
       const serverError = new appError.InternalServerError();
 
       return res
@@ -77,14 +82,19 @@ function makeHttpErrorHandler(deps: IDependencies) {
       parsedError.name === 'UnknownError' || parsedError.name === 'Error';
 
     if (isUnknownError) {
-      deps.reporter.report(error);
+      deps.reporter.report('http.request.failed', error);
       const serverError = new appError.InternalServerError();
       return res
         .status(errorKeyToStatusCode[serverError.errorKey] as number)
         .json(httpErrorParser.toHttp(serverError));
     }
 
-    if (deps.nodeEnv === 'local') deps.logger.error(error);
+    if (deps.nodeEnv === 'local') {
+      deps.logger.error('http.request.rejected', {
+        error,
+        outcome: 'rejected',
+      });
+    }
 
     const statusCode = getStatusCodeFromError(parsedError);
 

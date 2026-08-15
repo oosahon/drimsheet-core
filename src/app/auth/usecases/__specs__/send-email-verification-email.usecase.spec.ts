@@ -70,8 +70,13 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     await makeUseCase()(user.email);
 
     expect(mockLogger.info).toHaveBeenCalledWith(
-      'Skipping sending email verification email as user email is already verified',
-      { userId: user.id, email: user.email }
+      'auth.email_verification.skipped',
+      {
+        message:
+          'Skipping email verification because the user is already verified',
+        outcome: 'skipped',
+        userId: user.id,
+      }
     );
     expect(emailVerificationService.send).not.toHaveBeenCalled();
   });

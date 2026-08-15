@@ -1,60 +1,67 @@
 import { performance } from 'node:perf_hooks';
 
-import { RequestHandler } from 'express';
+import { Request, RequestHandler } from 'express';
 
-import ILogger from '@shared/contracts/logger.contract';
-import IReporter from '@shared/contracts/reporter.contract';
+import ILogger, { TLogOutcome } from '@shared/contracts/logger.contract';
 
-import IAppContext from '@app/context/contracts/app-context.contract';
+function getHttpRoute(req: Request): string {
+  const routePath = req.route?.path;
+
+  if (typeof routePath !== 'string') return 'unmatched';
+
+  return `${req.baseUrl || ''}${routePath}` || '/';
+}
+
+function getOutcome(statusCode: number): TLogOutcome {
+  if (statusCode >= 500) return 'failure';
+  if (statusCode >= 400) return 'rejected';
+  return 'success';
+}
+
+function getResponseSizeBytes(contentLength: unknown): number {
+  const responseSizeBytes = Number.parseInt(String(contentLength ?? '0'), 10);
+  return Number.isFinite(responseSizeBytes) ? responseSizeBytes : 0;
+}
 
 export default function makeRequestLoggerMiddleware(
-  logger: ILogger,
-  reporter: IReporter,
-  appContext: IAppContext
+  logger: ILogger
 ): RequestHandler {
-  const SLOW_REQUEST_THRESHOLD =
+  const slowRequestThresholdMs =
     Number(process.env.SLOW_REQUEST_THRESHOLD_MS) || 1000;
 
   return (req, res, next) => {
     const start = performance.now();
 
-    const { correlationId } = appContext.get();
-
     const handleFinish = () => {
-      const duration = Math.round(performance.now() - start);
-      const url = req.originalUrl;
-
-      const responseLog = {
-        method: req.method,
-        url,
+      const durationMs = Math.round(performance.now() - start);
+      const httpRoute = getHttpRoute(req);
+      const responseFields = {
+        httpMethod: req.method,
+        httpRoute,
         statusCode: res.statusCode,
-        duration: `${duration}ms`,
-        responseSize: parseInt(
-          (res.getHeader('content-length') as string) || '0',
-          10
+        durationMs,
+        responseSizeBytes: getResponseSizeBytes(
+          res.getHeader('content-length')
         ),
-        correlationId,
-        ip: req.ip || req.headers['x-forwarded-for'],
-        userAgent: req.headers['user-agent'],
+        outcome: getOutcome(res.statusCode),
       };
 
-      const isClientError = res.statusCode >= 400 && res.statusCode < 500;
-      const isServerError = res.statusCode >= 500;
-      const isSlowRequest = duration > SLOW_REQUEST_THRESHOLD;
-
-      if (isSlowRequest) {
-        reporter.report(new Error(`[SLOW]: ${req.method} ${url}`), responseLog);
+      if (res.statusCode >= 500) {
+        logger.error('http.request.completed', responseFields);
+      } else if (res.statusCode >= 400) {
+        logger.warn('http.request.completed', responseFields);
+      } else {
+        logger.info('http.request.completed', responseFields);
       }
 
-      const resTitle = `[${res.statusCode}] ${req.method} ${url}`;
-
-      if (isServerError) {
-        // error is already being reported in src/interface/http/handlers/error.handler.ts
-        logger.error(resTitle, responseLog);
-      } else if (isClientError || isSlowRequest) {
-        logger.warn(resTitle, responseLog);
-      } else {
-        logger.info(resTitle, responseLog);
+      if (durationMs > slowRequestThresholdMs) {
+        logger.warn('http.request.threshold_exceeded', {
+          httpMethod: req.method,
+          httpRoute,
+          durationMs,
+          thresholdMs: slowRequestThresholdMs,
+          outcome: responseFields.outcome,
+        });
       }
     };
 

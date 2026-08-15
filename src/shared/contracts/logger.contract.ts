@@ -1,9 +1,23 @@
+export type TLogOutcome =
+  | 'success'
+  | 'failure'
+  | 'rejected'
+  | 'skipped'
+  | 'cancelled'
+  | 'unknown';
+
+export interface ILogFields {
+  message?: string;
+  outcome?: TLogOutcome;
+  durationMs?: number;
+  error?: unknown;
+  errorKey?: string;
+  [key: string]: unknown;
+}
+
 export default interface ILogger {
-  info(message: string, meta?: Record<string, unknown>): void;
-  warn(message: string, meta?: Record<string, unknown>): void;
-  error(
-    message: string | Error | unknown,
-    meta?: Record<string, unknown> | Error | unknown
-  ): void;
-  debug(message: string, meta?: Record<string, unknown>): void;
+  info(event: string, fields?: ILogFields): void;
+  warn(event: string, fields?: ILogFields): void;
+  error(event: string, fields?: ILogFields): void;
+  debug(event: string, fields?: ILogFields): void;
 }

@@ -104,7 +104,10 @@ describe('makeHttpErrorHandler', () => {
         { field: 'age', message: 'Must be a number' },
       ],
     });
-    expect(mockLogger.error).toHaveBeenCalledWith(error);
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'http.request.validation_failed',
+      { error, outcome: 'rejected' }
+    );
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
@@ -144,7 +147,10 @@ describe('makeHttpErrorHandler', () => {
       errorKey: 'app_error_bad_request',
       cause: undefined,
     });
-    expect(mockLogger.error).toHaveBeenCalledWith(error);
+    expect(mockLogger.error).toHaveBeenCalledWith('http.request.rejected', {
+      error,
+      outcome: 'rejected',
+    });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
@@ -262,7 +268,10 @@ describe('makeHttpErrorHandler', () => {
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
 
-    expect(mockReporter.report).toHaveBeenCalledWith(error);
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'http.request.failed',
+      error
+    );
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'InternalServerError',
@@ -285,7 +294,10 @@ describe('makeHttpErrorHandler', () => {
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
 
-    expect(mockReporter.report).toHaveBeenCalledWith(error);
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'http.request.failed',
+      error
+    );
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'InternalServerError',

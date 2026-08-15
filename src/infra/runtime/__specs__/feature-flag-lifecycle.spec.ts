@@ -75,9 +75,11 @@ describe('featureFlagLifeCycle', () => {
     client.waitForInitialization.mockRejectedValue(error);
 
     await expect(featureFlagLifeCycle.initialize()).resolves.toBeUndefined();
-    expect(mockReporter.report).toHaveBeenCalledWith(error, {
-      source: 'feature-flag-initialization',
-    });
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'integration.feature_flag.initialization_failed',
+      error,
+      { source: 'feature-flag-initialization' }
+    );
   });
 
   it('registers SIGINT and SIGTERM shutdown handling', () => {
@@ -111,11 +113,15 @@ describe('featureFlagLifeCycle', () => {
     featureFlagLifeCycle.registerShutdown();
 
     await expect(getHandler('SIGTERM')()).rejects.toThrow('process-exit:143');
-    expect(mockReporter.report).toHaveBeenCalledWith(error, {
-      operation: 'flush',
-      signal: 'SIGTERM',
-      source: 'feature-flag-shutdown',
-    });
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'integration.feature_flag.flush_failed',
+      error,
+      {
+        operation: 'flush',
+        signal: 'SIGTERM',
+        source: 'feature-flag-shutdown',
+      }
+    );
     expect(client.close).toHaveBeenCalledTimes(1);
     expect(process.exit).toHaveBeenCalledWith(143);
   });
@@ -128,11 +134,15 @@ describe('featureFlagLifeCycle', () => {
     featureFlagLifeCycle.registerShutdown();
 
     await expect(getHandler('SIGINT')()).rejects.toThrow('process-exit:130');
-    expect(mockReporter.report).toHaveBeenCalledWith(error, {
-      operation: 'close',
-      signal: 'SIGINT',
-      source: 'feature-flag-shutdown',
-    });
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'integration.feature_flag.close_failed',
+      error,
+      {
+        operation: 'close',
+        signal: 'SIGINT',
+        source: 'feature-flag-shutdown',
+      }
+    );
     expect(process.exit).toHaveBeenCalledWith(130);
   });
 

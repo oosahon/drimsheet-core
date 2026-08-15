@@ -77,7 +77,11 @@ describe('registerBullMQWorker', () => {
     const job = makeJob('failed-job-correlation');
     await expect(getRegisteredProcessor()(job)).rejects.toBe(processingError);
 
-    expect(reporter.report).toHaveBeenCalledWith(processingError, { job });
+    expect(reporter.report).toHaveBeenCalledWith(
+      'queue.job.processing_failed',
+      processingError,
+      { job }
+    );
   });
 
   it('isolates concurrent job contexts', async () => {

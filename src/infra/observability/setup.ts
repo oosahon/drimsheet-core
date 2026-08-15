@@ -7,5 +7,6 @@ export default function setupObservability(): void {
     dsn: vars.SENTRY_DSN,
     sendDefaultPii: true,
     environment: vars.APP_ENV,
+    release: vars.APP_VERSION,
   });
 }

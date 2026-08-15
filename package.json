@@ -1,6 +1,6 @@
 {
-  "name": "purple-ledger-core",
-  "version": "1.0.0",
+  "name": "drimsheet-core",
+  "version": "0.1.0-alpha.1",
   "main": "index.js",
   "directories": {
     "test": "tests"
@@ -20,7 +20,7 @@
     "build": "tsoa spec-and-routes && tsc && tsc-alias -p tsconfig.json && node scripts/check-built-import-aliases.mjs",
     "build:routes": "tsoa spec-and-routes ",
     "drizzle:pull": "drizzle-kit pull",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org purpleledger --project node-express ./dist && sentry-cli sourcemaps upload --org purpleledger --project node-express ./dist",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org drimsheet --project node-express ./dist && sentry-cli sourcemaps upload --org drimsheet --project drimsheet-core ./dist",
     "prepare": "husky",
     "email:build": "node scripts/mjml-to-html.js",
     "adr:add": "tsx scripts/add-adr.ts",
@@ -41,9 +41,9 @@
   "keywords": [],
   "author": "Osahon Oboite",
   "license": "AGPL-3.0-or-later",
-  "description": "This repo contains the server-side source code for Purple Ledger's bookkeeping and tax app.",
+  "description": "This repo contains the server-side source code for Drimsheet's bookkeeping and tax app.",
   "bin": {
-    "purple-ledger-be": "scripts/api-gen.js"
+    "drimsheet-core": "scripts/api-gen.js"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.4",

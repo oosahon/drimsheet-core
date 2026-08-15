@@ -7,9 +7,9 @@ import currencyRepos from '@infra/persistence/repos/money';
 
 export default async function bootstrapCurrencies() {
   const correlationId = `bootstrap-currencies-${generateUUID()}`;
-  observability.logger.info(
-    `Bootstrapping currencies with correlation id ${correlationId}`
-  );
+  observability.logger.info('runtime.currency_bootstrap.started', {
+    bootstrapCorrelationId: correlationId,
+  });
 
   for (const currency of Object.values(SYSTEM_CURRENCIES)) {
     await currencyRepos.currency.create(currency, {
@@ -17,5 +17,8 @@ export default async function bootstrapCurrencies() {
     });
   }
 
-  observability.logger.info('Currencies bootstrapped successfully');
+  observability.logger.info('runtime.currency_bootstrap.completed', {
+    bootstrapCorrelationId: correlationId,
+    outcome: 'success',
+  });
 }

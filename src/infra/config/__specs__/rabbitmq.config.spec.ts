@@ -115,10 +115,14 @@ describe('registerRabbitMQConsumer', () => {
     });
     await getRegisteredConsumer()(message);
 
-    expect(mockReporter.report).toHaveBeenCalledWith(processingError, {
-      context: 'Failed to process RabbitMQ message',
-      queue: 'test-queue',
-    });
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'queue.message.processing_failed',
+      processingError,
+      {
+        context: 'Failed to process RabbitMQ message',
+        queue: 'test-queue',
+      }
+    );
     expect(channel.ack).not.toHaveBeenCalled();
     expect(channel.nack).toHaveBeenCalledWith(message, false, false);
   });
@@ -139,10 +143,14 @@ describe('registerRabbitMQConsumer', () => {
     await getRegisteredConsumer()(message);
 
     expect(processor).not.toHaveBeenCalled();
-    expect(mockReporter.report).toHaveBeenCalledWith(expect.any(SyntaxError), {
-      context: 'Failed to process RabbitMQ message',
-      queue: 'test-queue',
-    });
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'queue.message.processing_failed',
+      expect.any(SyntaxError),
+      {
+        context: 'Failed to process RabbitMQ message',
+        queue: 'test-queue',
+      }
+    );
     expect(channel.nack).toHaveBeenCalledWith(message, false, false);
   });
 

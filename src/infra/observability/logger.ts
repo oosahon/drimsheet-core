@@ -1,8 +1,49 @@
 import * as winston from 'winston';
 
-import ILogger from '@shared/contracts/logger.contract';
+import ILogger, { ILogFields } from '@shared/contracts/logger.contract';
+import IVarsConfig from '@shared/contracts/vars-config.contract';
 import safeJSON from '@shared/utils/safe-json';
-import { sanitizeData, SENSITIVE_KEYS } from '@shared/utils/sanitizer';
+import { sanitizeData } from '@shared/utils/sanitizer';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+
+import vars from '@infra/config/vars.config';
+import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-id';
+
+import packageJson from '../../../package.json';
+
+type TLogLevel = 'info' | 'warn' | 'error' | 'debug';
+type TCorrelationContext = Pick<IAppContext, 'get'>;
+
+interface ILoggerOptions {
+  appContext?: TCorrelationContext;
+  appEnv?: IVarsConfig['APP_ENV'];
+  service?: string;
+  transport?: winston.transport;
+  version?: string;
+}
+
+const LOGGER_OWNED_FIELDS = new Set([
+  'timestamp',
+  'level',
+  'event',
+  'service',
+  'environment',
+  'version',
+  'correlationId',
+  'traceId',
+  'spanId',
+]);
+
+const LOCAL_PREFIX_FIELDS = new Set([
+  'timestamp',
+  'level',
+  'event',
+  'message',
+  'service',
+  'environment',
+  'version',
+]);
 
 winston.addColors({
   error: 'red',
@@ -11,76 +52,108 @@ winston.addColors({
   debug: 'grey',
 });
 
-const redactSensitiveDataFormat = winston.format((info) => {
-  if (typeof info.message === 'string') {
-    info.message = sanitizeData(info.message) as string;
-  }
-
-  for (const [key, value] of Object.entries(info)) {
-    if (key === 'level' || key === 'message' || key === 'timestamp') {
-      continue;
-    }
-    if (SENSITIVE_KEYS.has(key.toLowerCase())) {
-      (info as Record<string, unknown>)[key] = '[REDACTED]';
-    } else {
-      (info as Record<string, unknown>)[key] = sanitizeData(value);
-    }
-  }
+const omitEmptyMessageFormat = winston.format((info) => {
+  if (info.message === '') delete info.message;
   return info;
 });
 
-const winstonLogger = winston.createLogger({
-  format: winston.format.combine(
-    winston.format.errors({ stack: true }),
-    redactSensitiveDataFormat(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(
-        redactSensitiveDataFormat(),
-        winston.format.colorize({ all: true }),
-        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        winston.format.printf(
-          ({ level, message, timestamp, stack, ...meta }) => {
-            const metaStr = Object.keys(meta).length
-              ? safeJSON.stringify(meta)
-              : '';
-            return `${timestamp} [${level}]: ${stack || message} ${metaStr}`;
-          }
-        )
-      ),
-    }),
-  ],
-});
+const localFormat = winston.format.combine(
+  winston.format.colorize({ level: true }),
+  winston.format.printf((fields) => {
+    const humanMessage = fields.message ? `: ${String(fields.message)}` : '';
+    const staticContext = `${fields.service} ${fields.environment}@${fields.version}`;
+    const metadataFields = Object.fromEntries(
+      Object.entries(fields).filter(
+        ([field]) => !LOCAL_PREFIX_FIELDS.has(field)
+      )
+    );
+    const metadata = Object.keys(metadataFields).length
+      ? ` ${safeJSON.stringify(metadataFields)}`
+      : '';
 
-const logger: ILogger = {
-  info: (message, meta) => winstonLogger.info(message, meta),
-  warn: (message, meta) => winstonLogger.warn(message, meta),
-  error: (message, meta) => {
-    const sanitizedMsg = sanitizeData(message);
-    const sanitizedMeta = sanitizeData(meta);
+    return `${fields.timestamp} [${fields.level}] ${fields.event}${humanMessage} (${staticContext})${metadata}`;
+  })
+);
 
-    if (sanitizedMsg instanceof Error) {
-      winstonLogger.error(sanitizedMsg.message, {
-        stack: sanitizedMsg.stack,
-        ...(typeof sanitizedMeta === 'object' && sanitizedMeta !== null
-          ? (sanitizedMeta as Record<string, unknown>)
-          : {}),
-      });
-    } else if (sanitizedMeta instanceof Error) {
-      winstonLogger.error(String(sanitizedMsg), {
-        stack: sanitizedMeta.stack,
-        message: sanitizedMeta.message,
-      });
-    } else {
-      winstonLogger.error(
-        String(sanitizedMsg),
-        sanitizedMeta as Record<string, unknown>
-      );
+const jsonFormat = winston.format.combine(
+  omitEmptyMessageFormat(),
+  winston.format.json()
+);
+
+function normalizeError(error: unknown): unknown {
+  const sanitizedError = sanitizeData(error);
+
+  if (!(sanitizedError instanceof Error)) return sanitizedError;
+
+  return Object.getOwnPropertyNames(sanitizedError).reduce<
+    Record<string, unknown>
+  >((normalizedError, key) => {
+    normalizedError[key] = (
+      sanitizedError as unknown as Record<string, unknown>
+    )[key];
+    return normalizedError;
+  }, {});
+}
+
+function prepareFields(fields: ILogFields = {}): ILogFields {
+  const sanitizedFields = (sanitizeData(fields) as ILogFields) || {};
+  const error = fields?.error;
+
+  LOGGER_OWNED_FIELDS.forEach((field) => delete sanitizedFields[field]);
+
+  if (error !== undefined) {
+    sanitizedFields.error = normalizeError(error);
+
+    if (
+      sanitizedFields.error &&
+      typeof sanitizedFields.error === 'object' &&
+      'errorKey' in sanitizedFields.error
+    ) {
+      sanitizedFields.errorKey = (
+        sanitizedFields.error as Record<string, unknown>
+      ).errorKey as string;
     }
-  },
-  debug: (message, meta) => winstonLogger.debug(message, meta),
-};
+  }
 
-export default logger;
+  return sanitizedFields;
+}
+
+export function makeLogger(options: ILoggerOptions = {}): ILogger {
+  const appEnv = options.appEnv ?? vars.APP_ENV;
+  const service = options.service ?? packageJson.name;
+  const version = options.version ?? vars.APP_VERSION;
+
+  const winstonLogger = winston.createLogger({
+    level: 'debug',
+    format: appEnv === 'local' ? localFormat : jsonFormat,
+    transports: [options.transport ?? new winston.transports.Console()],
+  });
+
+  const log = (level: TLogLevel, event: string, fields?: ILogFields) => {
+    const correlationId = safeGetCorrelationId(options.appContext);
+    const preparedFields = prepareFields(fields);
+
+    winstonLogger.log({
+      ...preparedFields,
+      timestamp: new Date().toISOString(),
+      level,
+      event: sanitizeData(event) as string,
+      service,
+      environment: appEnv,
+      version,
+      ...(correlationId ? { correlationId } : {}),
+      message: preparedFields.message ?? '',
+    });
+  };
+
+  const logger: ILogger = {
+    info: (event, fields) => log('info', event, fields),
+    warn: (event, fields) => log('warn', event, fields),
+    error: (event, fields) => log('error', event, fields),
+    debug: (event, fields) => log('debug', event, fields),
+  };
+
+  return logger;
+}
+
+export default makeLogger();

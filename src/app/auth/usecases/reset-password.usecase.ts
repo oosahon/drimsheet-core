@@ -101,7 +101,7 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
       try {
         await deps.tokenService.finalizePasswordResetToken(tokenPayload);
       } catch (error) {
-        deps.reporter.report(error, {
+        deps.reporter.report('auth.password_reset.finalization_failed', error, {
           operation: 'finalize-password-reset-token',
           userId: existingUser.id,
         });
@@ -120,10 +120,14 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
         try {
           await deps.tokenService.releasePasswordResetTokenClaim(tokenPayload);
         } catch (cleanupError) {
-          deps.reporter.report(cleanupError, {
-            operation: 'release-password-reset-token-claim',
-            userId: tokenPayload.id,
-          });
+          deps.reporter.report(
+            'auth.password_reset.claim_release_failed',
+            cleanupError,
+            {
+              operation: 'release-password-reset-token-claim',
+              userId: tokenPayload.id,
+            }
+          );
         }
       }
       throw error;

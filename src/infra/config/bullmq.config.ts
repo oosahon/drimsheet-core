@@ -25,7 +25,7 @@ export function registerBullMQWorker<T extends ICorrelationId>(
         try {
           await processor(job.data);
         } catch (error) {
-          reporter.report(error, { job });
+          reporter.report('queue.job.processing_failed', error, { job });
           throw error;
         }
       });

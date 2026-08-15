@@ -43,5 +43,7 @@ export async function bootstrapAccountingContext() {
       repoOptions
     );
   });
-  observability.logger.info('Accounting context bootstrapped successfully');
+  observability.logger.info('runtime.accounting_context_bootstrap.completed', {
+    outcome: 'success',
+  });
 }

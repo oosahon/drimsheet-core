@@ -2,6 +2,8 @@ import { config } from 'dotenv';
 
 import IVarsConfig from '@shared/contracts/vars-config.contract';
 
+import packageJson from '../../../package.json';
+
 config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 
 const {
@@ -35,6 +37,7 @@ const {
 const vars: IVarsConfig = Object.freeze({
   APP_URL,
   APP_ENV: APP_ENV as IVarsConfig['APP_ENV'],
+  APP_VERSION: packageJson.version,
   WEB_APP_URL,
   WEBSITE_URL,
   TAX_CALCULATOR_URL,

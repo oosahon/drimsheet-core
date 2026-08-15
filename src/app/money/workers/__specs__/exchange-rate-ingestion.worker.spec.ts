@@ -28,11 +28,12 @@ describe('makeExchangeRateIngestionWorker', () => {
     expect(usecase).toHaveBeenCalledWith(payload);
     expect(mockLogger.info).toHaveBeenNthCalledWith(
       1,
-      'Initiating currency exchange rate ingestion'
+      'exchange_rate.ingestion.started'
     );
     expect(mockLogger.info).toHaveBeenNthCalledWith(
       2,
-      'Currency exchange rate ingested successfully'
+      'exchange_rate.ingestion.completed',
+      { outcome: 'success' }
     );
   });
 
@@ -47,7 +48,8 @@ describe('makeExchangeRateIngestionWorker', () => {
     await expect(worker(payload)).rejects.toBe(processingError);
 
     expect(mockLogger.info).not.toHaveBeenCalledWith(
-      'Currency exchange rate ingested successfully'
+      'exchange_rate.ingestion.completed',
+      expect.anything()
     );
   });
 });

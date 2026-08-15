@@ -1,207 +1,197 @@
-import { performance } from 'perf_hooks';
+import { performance } from 'node:perf_hooks';
 
-import ILogger from '@shared/contracts/logger.contract';
-import IReporter from '@shared/contracts/reporter.contract';
+import { Request, Response } from 'express';
 
-import IAppContext from '@app/context/contracts/app-context.contract';
+import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 
 import makeRequestLoggerMiddleware from '@interface/http/middlewares/request-logger.middleware';
 
+interface IRequestOptions {
+  method: string;
+  originalUrl: string;
+  baseUrl?: string;
+  routePath?: string;
+}
+
+function makeRequest(options: IRequestOptions): Request {
+  return {
+    method: options.method,
+    originalUrl: options.originalUrl,
+    baseUrl: options.baseUrl ?? '',
+    route:
+      options.routePath !== undefined ? { path: options.routePath } : undefined,
+  } as unknown as Request;
+}
+
+function makeResponse(
+  statusCode: number,
+  contentLength?: string
+): {
+  response: Response;
+  finish: () => void;
+} {
+  let finish: () => void = () => undefined;
+  const response = {
+    statusCode,
+    getHeader: jest.fn().mockReturnValue(contentLength),
+    on: jest.fn((event: string, callback: () => void) => {
+      if (event === 'finish') finish = callback;
+    }),
+  } as unknown as Response;
+
+  return { response, finish: () => finish() };
+}
+
 describe('makeRequestLoggerMiddleware', () => {
-  let mockLogger: jest.Mocked<ILogger>;
-  let mockReporter: jest.Mocked<IReporter>;
-  let mockAppContext: jest.Mocked<IAppContext>;
-
   beforeEach(() => {
-    mockLogger = {
-      info: jest.fn(),
-      warn: jest.fn(),
-      error: jest.fn(),
-      debug: jest.fn(),
-    };
-    mockReporter = {
-      report: jest.fn(),
-      reportAbuse: jest.fn(),
-    };
-    mockAppContext = {
-      get: jest.fn().mockReturnValue({ correlationId: 'test-corr-id' }),
-      init: jest.fn(),
-      set: jest.fn(),
-    };
-  });
-
-  it('logs requests via logger.info when request finishes successfully', () => {
-    const middleware = makeRequestLoggerMiddleware(
-      mockLogger,
-      mockReporter,
-      mockAppContext
-    );
-
-    const finishCallbacks: Array<() => void> = [];
-    const req = {
-      method: 'GET',
-      originalUrl: '/api/v1/users?token=secret123',
-      ip: '127.0.0.1',
-      headers: { 'user-agent': 'test-agent' },
-    } as any;
-    const res = {
-      statusCode: 200,
-      getHeader: jest.fn().mockReturnValue('100'),
-      on: jest.fn((event, cb) => {
-        if (event === 'finish') finishCallbacks.push(cb);
-      }),
-    } as any;
-    const next = jest.fn();
-
-    middleware(req, res, next);
-    expect(next).toHaveBeenCalled();
-
-    finishCallbacks.forEach((cb) => cb());
-
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      '[200] GET /api/v1/users?token=secret123',
-      expect.objectContaining({
-        method: 'GET',
-        url: '/api/v1/users?token=secret123',
-        statusCode: 200,
-        correlationId: 'test-corr-id',
-      })
-    );
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('logs warnings via logger.warn when client error occurs (statusCode 400)', () => {
-    const middleware = makeRequestLoggerMiddleware(
-      mockLogger,
-      mockReporter,
-      mockAppContext
-    );
-
-    const finishCallbacks: Array<() => void> = [];
-    const req = {
-      method: 'POST',
-      originalUrl: '/api/v1/users',
-      headers: {
-        'user-agent': 'test-agent',
-        'x-forwarded-for': '203.0.113.195',
-      },
-    } as any;
-    const res = {
-      statusCode: 400,
-      getHeader: jest.fn().mockReturnValue(undefined),
-      on: jest.fn((event, cb) => {
-        if (event === 'finish') finishCallbacks.push(cb);
-      }),
-    } as any;
+  it('logs successful requests with a stable route and numeric fields', () => {
+    jest
+      .spyOn(performance, 'now')
+      .mockReturnValueOnce(100)
+      .mockReturnValueOnce(142);
+    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const request = makeRequest({
+      method: 'GET',
+      originalUrl: '/api/v1/users/123?token=secret123',
+      baseUrl: '/api/v1/users',
+      routePath: '/:userId',
+    });
+    const { response, finish } = makeResponse(200, '128');
     const next = jest.fn();
 
-    middleware(req, res, next);
+    middleware(request, response, next);
+    finish();
+
     expect(next).toHaveBeenCalled();
-
-    finishCallbacks.forEach((cb) => cb());
-
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      '[400] POST /api/v1/users',
-      expect.objectContaining({
-        method: 'POST',
-        url: '/api/v1/users',
-        statusCode: 400,
-        ip: '203.0.113.195',
-        responseSize: 0,
-      })
+    expect(mockLogger.info).toHaveBeenCalledWith('http.request.completed', {
+      httpMethod: 'GET',
+      httpRoute: '/api/v1/users/:userId',
+      statusCode: 200,
+      durationMs: 42,
+      responseSizeBytes: 128,
+      outcome: 'success',
+    });
+    expect(mockLogger.info).not.toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ httpRoute: expect.stringContaining('?') })
     );
   });
 
-  it('logs errors via logger.error when server error occurs (statusCode 500)', () => {
-    const middleware = makeRequestLoggerMiddleware(
-      mockLogger,
-      mockReporter,
-      mockAppContext
-    );
+  it('warns for rejected unmatched requests', () => {
+    jest
+      .spyOn(performance, 'now')
+      .mockReturnValueOnce(100)
+      .mockReturnValueOnce(120);
+    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const request = makeRequest({
+      method: 'POST',
+      originalUrl: '/api/v1/unknown?state=secret',
+    });
+    const { response, finish } = makeResponse(404);
 
-    const finishCallbacks: Array<() => void> = [];
-    const req = {
+    middleware(request, response, jest.fn());
+    finish();
+
+    expect(mockLogger.warn).toHaveBeenCalledWith('http.request.completed', {
+      httpMethod: 'POST',
+      httpRoute: 'unmatched',
+      statusCode: 404,
+      durationMs: 20,
+      responseSizeBytes: 0,
+      outcome: 'rejected',
+    });
+  });
+
+  it('normalizes an empty root route and invalid content length', () => {
+    jest
+      .spyOn(performance, 'now')
+      .mockReturnValueOnce(100)
+      .mockReturnValueOnce(110);
+    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const request = makeRequest({
+      method: 'HEAD',
+      originalUrl: '/',
+      routePath: '',
+    });
+    const { response, finish } = makeResponse(204, 'invalid');
+
+    middleware(request, response, jest.fn());
+    finish();
+
+    expect(mockLogger.info).toHaveBeenCalledWith('http.request.completed', {
+      httpMethod: 'HEAD',
+      httpRoute: '/',
+      statusCode: 204,
+      durationMs: 10,
+      responseSizeBytes: 0,
+      outcome: 'success',
+    });
+  });
+
+  it('logs failed requests at error level', () => {
+    jest
+      .spyOn(performance, 'now')
+      .mockReturnValueOnce(100)
+      .mockReturnValueOnce(125);
+    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const request = makeRequest({
       method: 'DELETE',
       originalUrl: '/api/v1/users/123',
-      ip: '127.0.0.1',
-      headers: { 'user-agent': 'test-agent' },
-    } as any;
-    const res = {
+      baseUrl: '/api/v1/users',
+      routePath: '/:userId',
+    });
+    const { response, finish } = makeResponse(500, '200');
+
+    middleware(request, response, jest.fn());
+    finish();
+
+    expect(mockLogger.error).toHaveBeenCalledWith('http.request.completed', {
+      httpMethod: 'DELETE',
+      httpRoute: '/api/v1/users/:userId',
       statusCode: 500,
-      getHeader: jest.fn().mockReturnValue('200'),
-      on: jest.fn((event, cb) => {
-        if (event === 'finish') finishCallbacks.push(cb);
-      }),
-    } as any;
-    const next = jest.fn();
-
-    middleware(req, res, next);
-    expect(next).toHaveBeenCalled();
-
-    finishCallbacks.forEach((cb) => cb());
-
-    expect(mockLogger.error).toHaveBeenCalledWith(
-      '[500] DELETE /api/v1/users/123',
-      expect.objectContaining({
-        method: 'DELETE',
-        url: '/api/v1/users/123',
-        statusCode: 500,
-        responseSize: 200,
-      })
-    );
+      durationMs: 25,
+      responseSizeBytes: 200,
+      outcome: 'failure',
+    });
   });
 
-  it('reports slow requests via reporter and logs warnings', () => {
-    const middleware = makeRequestLoggerMiddleware(
-      mockLogger,
-      mockReporter,
-      mockAppContext
-    );
-
-    const finishCallbacks: Array<() => void> = [];
-    const req = {
+  it('emits a separate warning for slow successful requests', () => {
+    jest
+      .spyOn(performance, 'now')
+      .mockReturnValueOnce(1000)
+      .mockReturnValueOnce(2500);
+    const middleware = makeRequestLoggerMiddleware(mockLogger);
+    const request = makeRequest({
       method: 'GET',
-      originalUrl: '/api/v1/heavy-query',
-      ip: '127.0.0.1',
-      headers: { 'user-agent': 'test-agent' },
-    } as any;
-    const res = {
-      statusCode: 200,
-      getHeader: jest.fn().mockReturnValue('150'),
-      on: jest.fn((event, cb) => {
-        if (event === 'finish') finishCallbacks.push(cb);
-      }),
-    } as any;
-    const next = jest.fn();
+      originalUrl: '/api/v1/reports?token=secret',
+      baseUrl: '/api/v1',
+      routePath: '/reports',
+    });
+    const { response, finish } = makeResponse(200, '150');
 
-    const nowSpy = jest.spyOn(performance, 'now');
-    nowSpy.mockReturnValueOnce(1000).mockReturnValueOnce(2500);
+    middleware(request, response, jest.fn());
+    finish();
 
-    middleware(req, res, next);
-    expect(next).toHaveBeenCalled();
-
-    finishCallbacks.forEach((cb) => cb());
-
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      '[200] GET /api/v1/heavy-query',
-      expect.objectContaining({
-        method: 'GET',
-        url: '/api/v1/heavy-query',
-        statusCode: 200,
-        duration: '1500ms',
-      })
+    expect(mockLogger.info).toHaveBeenCalledWith(
+      'http.request.completed',
+      expect.objectContaining({ durationMs: 1500, outcome: 'success' })
     );
-
-    expect(mockReporter.report).toHaveBeenCalledWith(
-      expect.any(Error),
-      expect.objectContaining({
-        method: 'GET',
-        url: '/api/v1/heavy-query',
-        duration: '1500ms',
-      })
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      'http.request.threshold_exceeded',
+      {
+        httpMethod: 'GET',
+        httpRoute: '/api/v1/reports',
+        durationMs: 1500,
+        thresholdMs: 1000,
+        outcome: 'success',
+      }
     );
   });
 });

@@ -20,7 +20,10 @@ function setupServer(bootstrap?: () => Promise<void>) {
 
   app.listen(vars.PORT, async () => {
     await bootstrap?.();
-    logger.info(`Server listening on port ${vars.PORT}`);
+    logger.info('runtime.server.started', {
+      port: vars.PORT,
+      outcome: 'success',
+    });
   });
 }
 

@@ -13,6 +13,8 @@ Read this before changing the repository.
    `.agents/rules/readability.md` for implementation changes.
 7. Follow `.agents/rules/ioc.md` when changing dependency wiring.
 8. Follow `.agents/rules/testing/general.md` when adding or renaming tests.
+9. Follow `.agents/rules/observability.md` when creating or changing logger or
+   reporter events.
 
 ## Planning
 

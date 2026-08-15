@@ -49,7 +49,7 @@ export default function makeTransactionalEmailQueue(
           getConfig(payload)
         );
       } catch (error) {
-        reporter.report(error, {
+        reporter.report('queue.job.enqueue_failed', error, {
           type: TRANSACTIONAL_EMAIL_QUEUE_NAME,
           correlationId: payload.correlationId,
         });

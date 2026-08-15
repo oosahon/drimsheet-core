@@ -58,7 +58,7 @@ export default function makeLedgerAccountBalanceAdjustmentQueue(
         // failure to add to balance adjustment to queue should not cause the
         // journal entry to fail. The source of truth is still the journal entry, this can
         // always be eventually consistent.
-        reporter.report(error, { job: payload });
+        reporter.report('queue.job.enqueue_failed', error, { job: payload });
       }
     },
   };

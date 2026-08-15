@@ -277,10 +277,14 @@ describe('makeResetPasswordUseCase', () => {
     await expect(getUseCase()(getValidPayload())).resolves.toEqual({
       accessToken: 'access-token',
     });
-    expect(mockReporter.report).toHaveBeenCalledWith(failure, {
-      operation: 'finalize-password-reset-token',
-      userId: mockUser.id,
-    });
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'auth.password_reset.finalization_failed',
+      failure,
+      {
+        operation: 'finalize-password-reset-token',
+        userId: mockUser.id,
+      }
+    );
     expect(
       mockAuthService.releasePasswordResetTokenClaim
     ).not.toHaveBeenCalled();
@@ -309,10 +313,14 @@ describe('makeResetPasswordUseCase', () => {
 
     await expect(getUseCase()(getValidPayload())).rejects.toThrow(dbError);
 
-    expect(mockReporter.report).toHaveBeenCalledWith(cleanupError, {
-      operation: 'release-password-reset-token-claim',
-      userId: mockUser.id,
-    });
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'auth.password_reset.claim_release_failed',
+      cleanupError,
+      {
+        operation: 'release-password-reset-token-claim',
+        userId: mockUser.id,
+      }
+    );
   });
 
   it('does not release claim if error is thrown after commit', async () => {

@@ -11,10 +11,12 @@ interface IDependencies {
 
 export default function makeExchangeRateIngestionWorker(deps: IDependencies) {
   return async (payload: IExchangeRateIngestion['message']['payload']) => {
-    deps.logger.info('Initiating currency exchange rate ingestion');
+    deps.logger.info('exchange_rate.ingestion.started');
 
     await deps.usecase(payload);
 
-    deps.logger.info('Currency exchange rate ingested successfully');
+    deps.logger.info('exchange_rate.ingestion.completed', {
+      outcome: 'success',
+    });
   };
 }

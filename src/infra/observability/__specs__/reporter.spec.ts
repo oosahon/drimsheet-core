@@ -2,35 +2,40 @@ import Sentry from '@sentry/node';
 
 import logger from '@infra/observability/logger';
 import reporter from '@infra/observability/reporter';
+import appContext from '@infra/runtime/app-context';
+
+const originalAppEnv = process.env.APP_ENV;
 
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
   captureMessage: jest.fn(),
 }));
 
+jest.mock('@infra/config/vars.config', () => ({
+  __esModule: true,
+  default: {
+    get APP_ENV() {
+      return process.env.APP_ENV || 'test';
+    },
+  },
+}));
+
 describe('reporter', () => {
   afterEach(() => {
+    if (originalAppEnv === undefined) delete process.env.APP_ENV;
+    else process.env.APP_ENV = originalAppEnv;
+
+    jest.restoreAllMocks();
     jest.clearAllMocks();
   });
 
-  it('safely reports errors and context with sensitive data redacted', () => {
+  it('preserves the source event and safely reports error context', () => {
     const loggerErrorSpy = jest
       .spyOn(logger, 'error')
-      .mockImplementation(() => {});
-
-    class CustomDomainError extends Error {
-      constructor(
-        public readonly code: string,
-        message: string
-      ) {
-        super(message);
-        this.name = 'CustomDomainError';
-      }
-    }
-
-    const err = new CustomDomainError(
-      'INVALID_TOKEN',
-      'Failed authentication with token: secret_abc123'
+      .mockImplementation(() => undefined);
+    const error = Object.assign(
+      new Error('Failed authentication with token: secret_abc123'),
+      { errorKey: 'auth_error_invalid_token' }
     );
     const context = {
       password: 'super-secret-pass',
@@ -38,43 +43,134 @@ describe('reporter', () => {
       url: '/api/v1/auth?access_token=token123',
     };
 
-    reporter.report(err, context);
+    appContext.init(
+      { correlationId: 'report-correlation', idempotencyKey: '' },
+      () =>
+        reporter.report(
+          'auth.password_reset.finalization_failed',
+          error,
+          context
+        )
+    );
 
-    expect(Sentry.captureException).toHaveBeenCalled();
-    const sentryErr = (Sentry.captureException as jest.Mock).mock.calls[0][0];
-    const sentryContext = (Sentry.captureException as jest.Mock).mock
-      .calls[0][1];
+    expect(loggerErrorSpy).toHaveBeenCalledWith(
+      'auth.password_reset.finalization_failed',
+      expect.objectContaining({
+        password: '[REDACTED]',
+        user: 'alice',
+        error: expect.any(Error),
+        errorKey: 'auth_error_invalid_token',
+      })
+    );
 
-    expect(sentryErr.message).toContain('token: [REDACTED]');
-    expect(sentryErr.message).not.toContain('secret_abc123');
+    const sentryError = jest.mocked(Sentry.captureException).mock.calls[0][0];
+    const sentryContext = jest.mocked(Sentry.captureException).mock
+      .calls[0][1] as { extra?: Record<string, unknown> } | undefined;
+    const extra = sentryContext?.extra as Record<string, unknown>;
 
-    expect(sentryContext.password).toBe('[REDACTED]');
-    expect(sentryContext.user).toBe('alice');
-    expect(sentryContext.url).toContain('access_token=%5BREDACTED%5D');
-    expect(sentryContext.url).not.toContain('token123');
-
-    expect(loggerErrorSpy).toHaveBeenCalled();
+    expect((sentryError as Error).message).toContain('token: [REDACTED]');
+    expect((sentryError as Error).message).not.toContain('secret_abc123');
+    expect(extra.password).toBe('[REDACTED]');
+    expect(extra.user).toBe('alice');
+    expect(extra.url).toContain('access_token=%5BREDACTED%5D');
+    expect(extra.url).not.toContain('token123');
+    expect(extra.correlationId).toBe('report-correlation');
   });
 
-  it('safely reports abuse messages and metadata', () => {
+  it('uses the canonical abuse event and sanitized metadata', () => {
     const loggerWarnSpy = jest
       .spyOn(logger, 'warn')
-      .mockImplementation(() => {});
+      .mockImplementation(() => undefined);
 
     reporter.reportAbuse('Too many attempts with password: my-secret-pass', {
       ip: '127.0.0.1',
       api_key: 'key-12345',
     });
 
-    expect(Sentry.captureMessage).toHaveBeenCalled();
-    const sentryMsg = (Sentry.captureMessage as jest.Mock).mock.calls[0][0];
-    const sentryMeta = (Sentry.captureMessage as jest.Mock).mock.calls[0][1];
+    expect(loggerWarnSpy).toHaveBeenCalledWith('security.abuse.detected', {
+      ip: '127.0.0.1',
+      api_key: '[REDACTED]',
+      message: 'Too many attempts with password: [REDACTED]',
+    });
 
-    expect(sentryMsg).toContain('password: [REDACTED]');
-    expect(sentryMsg).not.toContain('my-secret-pass');
-    expect(sentryMeta.extra.api_key).toBe('[REDACTED]');
-    expect(sentryMeta.extra.ip).toBe('127.0.0.1');
+    const sentryMessage = jest.mocked(Sentry.captureMessage).mock.calls[0][0];
+    const sentryContext = jest.mocked(Sentry.captureMessage).mock
+      .calls[0][1] as { extra?: Record<string, unknown> } | undefined;
+    const extra = sentryContext?.extra as Record<string, unknown>;
 
-    expect(loggerWarnSpy).toHaveBeenCalled();
+    expect(sentryMessage).not.toContain('my-secret-pass');
+    expect(extra.api_key).toBe('[REDACTED]');
+    expect(extra.ip).toBe('127.0.0.1');
+  });
+
+  it('handles an empty abuse message and missing runtime metadata', () => {
+    const loggerWarnSpy = jest
+      .spyOn(logger, 'warn')
+      .mockImplementation(() => undefined);
+
+    reporter.reportAbuse('', undefined as unknown as Record<string, unknown>);
+
+    expect(loggerWarnSpy).toHaveBeenCalledWith('security.abuse.detected', {
+      message: '',
+    });
+    expect(Sentry.captureMessage).toHaveBeenCalledWith('', {
+      level: 'warning',
+      extra: { correlationId: undefined },
+    });
+  });
+
+  it('does not send abuse reports externally in the local environment', () => {
+    const loggerWarnSpy = jest
+      .spyOn(logger, 'warn')
+      .mockImplementation(() => undefined);
+    process.env.APP_ENV = 'local';
+
+    reporter.reportAbuse('Request threshold exceeded', { ip: '127.0.0.1' });
+
+    expect(loggerWarnSpy).toHaveBeenCalledWith('security.abuse.detected', {
+      ip: '127.0.0.1',
+      message: 'Request threshold exceeded',
+    });
+    expect(Sentry.captureMessage).not.toHaveBeenCalled();
+  });
+
+  it('emits a non-recursive fallback event when external reporting fails', () => {
+    const loggerErrorSpy = jest
+      .spyOn(logger, 'error')
+      .mockImplementation(() => undefined);
+    jest.mocked(Sentry.captureException).mockImplementationOnce(() => {
+      throw new Error('Sentry unavailable');
+    });
+
+    reporter.report('queue.job.processing_failed', new Error('job failed'));
+
+    expect(loggerErrorSpy).toHaveBeenLastCalledWith(
+      'observability.error.reporting_failed',
+      expect.objectContaining({
+        error: expect.any(Error),
+        sourceEvent: 'queue.job.processing_failed',
+      })
+    );
+    expect(Sentry.captureException).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the same non-recursive fallback when abuse reporting fails', () => {
+    const loggerErrorSpy = jest
+      .spyOn(logger, 'error')
+      .mockImplementation(() => undefined);
+    jest.mocked(Sentry.captureMessage).mockImplementationOnce(() => {
+      throw new Error('Sentry unavailable');
+    });
+
+    reporter.reportAbuse('Request threshold exceeded', { ip: '127.0.0.1' });
+
+    expect(loggerErrorSpy).toHaveBeenLastCalledWith(
+      'observability.error.reporting_failed',
+      expect.objectContaining({
+        error: expect.any(Error),
+        sourceEvent: 'security.abuse.detected',
+      })
+    );
+    expect(Sentry.captureMessage).toHaveBeenCalledTimes(1);
   });
 });

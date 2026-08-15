@@ -138,10 +138,12 @@ describe('GET /accounting/accounting-entity', () => {
       expect(response.status).toBe(401);
       expect(response.headers['x-correlation-id']).toBe(correlationId);
       expect(warnSpy).toHaveBeenCalledWith(
-        `[401] GET ${ENDPOINT}`,
+        'http.request.completed',
         expect.objectContaining({
+          httpMethod: 'GET',
+          httpRoute: 'unmatched',
           statusCode: 401,
-          correlationId,
+          outcome: 'rejected',
         })
       );
       expect(mockGetActiveEntity).not.toHaveBeenCalled();
