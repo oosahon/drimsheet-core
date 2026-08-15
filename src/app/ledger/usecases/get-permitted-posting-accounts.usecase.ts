@@ -60,10 +60,13 @@ export default function makeGetPermittedPostingAccountsUsecase(
     }
 
     const permits = rule[query.side];
+
     const currencyCodes = query.currencyCode
       ? [currencyEntity.getByCode(query.currencyCode).code, null]
       : undefined;
-    const trace = { correlationId };
+
+    const repoOptions = { correlationId };
+
     const accountRepoOptions: IFindAllLedgerAccountsOptions = {
       types: getPermittedValues(permits.permittedTypes),
       subTypes: getPermittedValues(permits.permittedSubTypes),
@@ -72,7 +75,7 @@ export default function makeGetPermittedPostingAccountsUsecase(
       isControlAccount: false,
       limit: query.limit,
       offset,
-      ...trace,
+      ...repoOptions,
     };
 
     const ledgerAccountsResponse = await deps.ledgerAccountRepo.findAll(
@@ -83,7 +86,7 @@ export default function makeGetPermittedPostingAccountsUsecase(
     const data = await deps.balanceEnrichmentService.enrich(
       ledgerAccountsResponse.data,
       accountingEntity,
-      trace
+      repoOptions
     );
 
     return {

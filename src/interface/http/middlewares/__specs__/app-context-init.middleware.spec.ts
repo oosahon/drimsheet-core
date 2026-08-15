@@ -1,245 +1,154 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-import ILogger from '@shared/contracts/logger.contract';
 import IVarsConfig from '@shared/contracts/vars-config.contract';
 
-import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
-import { IUser } from '@domain/user/types/user.types';
-
-import { mockAccountingEntityRepo as mockAccountingEntityRepoCentral } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
-import ITokenService, {
-  IAuthTokenPayload,
-} from '@app/auth/contracts/token-service.contract';
-import IAppContext from '@app/context/contracts/app-context.contract';
-import { mockUserRepo as mockUserRepoCentral } from '@app/user/contracts/__mocks__/user.repos.mock';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 
 import makeAppContextInitMiddleware from '@interface/http/middlewares/app-context-init.middleware';
 
 describe('makeAppContextInitMiddleware', () => {
-  let mockAppContext: jest.Mocked<IAppContext>;
-  const mockAccountingEntityRepo = mockAccountingEntityRepoCentral;
-  let mockAuthService: jest.Mocked<ITokenService>;
-  const mockUserRepo = mockUserRepoCentral;
-  let mockLogger: jest.Mocked<ILogger>;
-  let mockVarsConfig: Partial<IVarsConfig>;
-
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
-  let mockNext: jest.Mock;
+  let mockNext: jest.MockedFunction<NextFunction>;
+  let mockVarsConfig: IVarsConfig;
 
   beforeEach(() => {
-    mockAppContext = {
-      init: jest.fn((ctx, next) => next()),
-      get: jest.fn(),
-    } as unknown as jest.Mocked<IAppContext>;
+    jest.clearAllMocks();
 
-    mockAccountingEntityRepo.findByIdAndUserId.mockReset();
-
-    mockAuthService = {
-      getAuthUser: jest.fn(),
-    } as unknown as jest.Mocked<ITokenService>;
-
-    mockUserRepo.findById.mockReset();
-
-    mockLogger = {
-      error: jest.fn(),
-      info: jest.fn(),
-    } as unknown as jest.Mocked<ILogger>;
-
-    mockVarsConfig = {
-      WEB_APP_URL: 'http://localhost:3000',
-      NODE_ENV: 'test',
-    };
+    mockAppContext.init.mockImplementation((_context, next) => next());
 
     mockReq = {
       headers: {},
       cookies: {},
     };
-
     mockRes = {
+      setHeader: jest.fn(),
       cookie: jest.fn(),
       clearCookie: jest.fn(),
     };
-
     mockNext = jest.fn();
-
-    jest.clearAllMocks();
+    mockVarsConfig = {
+      NODE_ENV: 'test',
+    } as IVarsConfig;
   });
 
-  it('should initialize request context with empty user and entity when no headers are provided', async () => {
-    const middleware = makeAppContextInitMiddleware(
-      mockAppContext,
-      mockAccountingEntityRepo,
-      mockAuthService,
-      mockUserRepo,
-      mockLogger,
-      mockVarsConfig as IVarsConfig
-    );
-
-    await middleware(mockReq as Request, mockRes as Response, mockNext);
-
-    expect(mockAppContext.init).toHaveBeenCalled();
-    const initArgs = mockAppContext.init.mock.calls[0][0];
-    expect(initArgs.user).toEqual({});
-    expect(initArgs.accountingEntity).toEqual({});
-    expect(initArgs.correlationId).toBeDefined();
-    expect(mockNext).toHaveBeenCalled();
-  });
-
-  it('should authenticate user when authorization header is valid', async () => {
-    mockReq.headers = { authorization: 'Bearer valid_token' };
-    mockAuthService.getAuthUser.mockResolvedValue({
-      id: 'user-id-123',
-    } as IAuthTokenPayload);
-    mockUserRepo.findById.mockResolvedValue({
-      id: 'user-id-123',
-      email: 'test@example.com',
-    } as IUser);
-
-    const middleware = makeAppContextInitMiddleware(
-      mockAppContext,
-      mockAccountingEntityRepo,
-      mockAuthService,
-      mockUserRepo,
-      mockLogger,
-      mockVarsConfig as IVarsConfig
-    );
-
-    await middleware(mockReq as Request, mockRes as Response, mockNext);
-
-    const initArgs = mockAppContext.init.mock.calls[0][0];
-    expect(initArgs.user).toEqual({
-      id: 'user-id-123',
-      email: 'test@example.com',
-    });
-    expect(initArgs.accountingEntity).toEqual({});
-    expect(mockNext).toHaveBeenCalled();
-  });
-
-  it('should fetch accounting entity and initialize context successfully', async () => {
-    const validUUID = '123e4567-e89b-12d3-a456-426614174000';
+  it('initializes context with the supplied correlation and idempotency headers', () => {
     mockReq.headers = {
-      authorization: 'Bearer valid_token',
-      'x-accounting-entity-id': validUUID,
+      'x-correlation-id': 'existing-correlation-id',
+      'x-idempotency-key': 'existing-idempotency-key',
     };
-    mockAuthService.getAuthUser.mockResolvedValue({
-      id: 'user-id-123',
-    } as IAuthTokenPayload);
-    mockUserRepo.findById.mockResolvedValue({ id: 'user-id-123' } as IUser);
-
-    mockAccountingEntityRepo.findByIdAndUserId.mockResolvedValue({
-      id: validUUID,
-      ownerId: 'user-id-123', // Matches user id
-    } as IAccountingEntity);
 
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
-      mockAccountingEntityRepo,
-      mockAuthService,
-      mockUserRepo,
-      mockLogger,
-      mockVarsConfig as IVarsConfig
+      mockVarsConfig
     );
 
-    await middleware(mockReq as Request, mockRes as Response, mockNext);
+    middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const initArgs = mockAppContext.init.mock.calls[0][0];
-    expect(initArgs.user.id).toBe('user-id-123');
-    expect(initArgs.accountingEntity.id).toBe(validUUID);
-    expect(mockNext).toHaveBeenCalled();
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      'x-correlation-id',
+      'existing-correlation-id'
+    );
+    expect(mockAppContext.init).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user: {},
+        accountingEntity: {},
+        correlationId: 'existing-correlation-id',
+        idempotencyKey: 'existing-idempotency-key',
+      }),
+      mockNext
+    );
+    expect(mockNext).toHaveBeenCalledTimes(1);
   });
 
-  it('should implement client session methods correctly with undefined domain on localhost', async () => {
-    mockVarsConfig.WEB_APP_URL = 'http://localhost:3000'; // local
+  it('generates one correlation value and returns it in the response', () => {
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
+      mockVarsConfig
+    );
+
+    middleware(mockReq as Request, mockRes as Response, mockNext);
+
+    const initialContext = mockAppContext.init.mock.calls[0][0];
+
+    expect(initialContext.correlationId).toEqual(expect.any(String));
+    expect(initialContext.idempotencyKey).toBe('');
+    expect(mockRes.setHeader).toHaveBeenCalledWith(
+      'x-correlation-id',
+      initialContext.correlationId
+    );
+  });
+
+  it('provides client session cookie operations', () => {
+    mockReq.cookies = { refresh_token: 'existing-token' };
 
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
-      mockAccountingEntityRepo,
-      mockAuthService,
-      mockUserRepo,
-      mockLogger,
-      mockVarsConfig as IVarsConfig
+      mockVarsConfig
     );
 
-    await middleware(mockReq as Request, mockRes as Response, mockNext);
+    middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const initArgs = mockAppContext.init.mock.calls[0][0];
-    const clientSession = initArgs.clientSession;
+    const { clientSession } = mockAppContext.init.mock.calls[0][0];
 
-    expect(clientSession).toBeDefined();
+    clientSession.setRefreshToken('new-token');
+    expect(mockRes.cookie).toHaveBeenCalledWith('refresh_token', 'new-token', {
+      httpOnly: true,
+      secure: false,
+      path: '/api/v1/auth',
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 15,
+    });
 
-    // Test setRefreshToken
-    clientSession.setRefreshToken('new_token');
-    expect(mockRes.cookie).toHaveBeenCalledWith(
-      'refresh_token',
-      'new_token',
-      expect.objectContaining({
-        httpOnly: true,
-        path: '/api/v1/auth',
-        sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24 * 15,
-      })
-    );
+    expect(clientSession.getRefreshToken()).toBe('existing-token');
 
-    // Test getRefreshToken
-    mockReq.cookies = { refresh_token: 'existing_token' };
-    const retrievedToken = clientSession.getRefreshToken();
-    expect(retrievedToken).toBe('existing_token');
-
-    // Test clearRefreshToken
     clientSession.clearRefreshToken();
-    expect(mockRes.clearCookie).toHaveBeenCalledWith(
-      'refresh_token',
-      expect.objectContaining({
-        httpOnly: true,
-        path: '/api/v1/auth',
-        sameSite: 'lax',
-      })
-    );
+    expect(mockRes.clearCookie).toHaveBeenCalledWith('refresh_token', {
+      httpOnly: true,
+      secure: false,
+      path: '/api/v1/auth',
+      sameSite: 'lax',
+    });
   });
 
-  it('should set cookie path and secure appropriately in production', async () => {
-    mockVarsConfig.WEB_APP_URL = 'https://production.purpleledger.app'; // production
+  it('returns null when cookies have not been parsed yet', () => {
+    mockReq.cookies = undefined;
+
+    const middleware = makeAppContextInitMiddleware(
+      mockAppContext,
+      mockVarsConfig
+    );
+
+    middleware(mockReq as Request, mockRes as Response, mockNext);
+
+    const { clientSession } = mockAppContext.init.mock.calls[0][0];
+
+    expect(clientSession.getRefreshToken()).toBeNull();
+  });
+
+  it('sets secure refresh cookies in production', () => {
     mockVarsConfig.NODE_ENV = 'production';
 
     const middleware = makeAppContextInitMiddleware(
       mockAppContext,
-      mockAccountingEntityRepo,
-      mockAuthService,
-      mockUserRepo,
-      mockLogger,
-      mockVarsConfig as IVarsConfig
+      mockVarsConfig
     );
 
-    await middleware(mockReq as Request, mockRes as Response, mockNext);
+    middleware(mockReq as Request, mockRes as Response, mockNext);
 
-    const initArgs = mockAppContext.init.mock.calls[0][0];
-    const clientSession = initArgs.clientSession;
+    const { clientSession } = mockAppContext.init.mock.calls[0][0];
 
-    // Test setRefreshToken
-    clientSession.setRefreshToken('new_token');
+    clientSession.setRefreshToken('new-token');
     expect(mockRes.cookie).toHaveBeenCalledWith(
       'refresh_token',
-      'new_token',
-      expect.objectContaining({
-        httpOnly: true,
-        secure: true,
-        path: '/api/v1/auth',
-        sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24 * 15,
-      })
+      'new-token',
+      expect.objectContaining({ secure: true })
     );
 
-    // Test clearRefreshToken
     clientSession.clearRefreshToken();
     expect(mockRes.clearCookie).toHaveBeenCalledWith(
       'refresh_token',
-      expect.objectContaining({
-        httpOnly: true,
-        secure: true,
-        path: '/api/v1/auth',
-        sameSite: 'lax',
-      })
+      expect.objectContaining({ secure: true })
     );
   });
 });

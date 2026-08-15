@@ -20,6 +20,9 @@ export default function createApplication(
   const app = express();
   app.set('trust proxy', false);
 
+  app.use(httpMiddlewares.appContextInit);
+  app.use(httpMiddlewares.requestLogger);
+
   app.use(helmet());
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
@@ -39,9 +42,7 @@ export default function createApplication(
   app.use(cookieParser());
   app.use(passport.initialize());
 
-  app.use(httpMiddlewares.appContext);
-
-  app.use(httpMiddlewares.requestLogger);
+  app.use(httpMiddlewares.appContextEnrichment);
 
   RegisterRoutes(app);
 

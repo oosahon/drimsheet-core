@@ -1,5 +1,6 @@
 import { Request } from 'express';
 
+import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 
@@ -10,85 +11,92 @@ import { mockAccountingEntityRepo } from '@app/accounting/contracts/__mocks__/ac
 import getAccountingEntityFromRequest from '@interface/http/helpers/get-accounting-entity-from-request.helper';
 
 describe('getAccountingEntityFromRequest', () => {
-  const mockRepo = mockAccountingEntityRepo;
+  const accountingEntityId =
+    '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
+  const userId = 'user-id' as TEntityId;
+  const repoOptions: IReadRepoOptions = {
+    correlationId: 'request-correlation-id',
+  };
+
   let mockReq: Partial<Request>;
-  const validUUID = '123e4567-e89b-12d3-a456-426614174000';
-  const validUserId = 'user-id-123' as TEntityId;
 
   beforeEach(() => {
-    mockRepo.findByIdAndUserId.mockReset();
-
-    mockReq = {
-      headers: {},
-    };
-
     jest.clearAllMocks();
+    mockReq = { headers: {} };
   });
 
-  it('should return null if userId is not provided', async () => {
-    const result = await getAccountingEntityFromRequest(
+  it('returns null if the user ID is not provided', async () => {
+    const accountingEntity = await getAccountingEntityFromRequest(
       mockReq as Request,
-      mockRepo
+      mockAccountingEntityRepo,
+      repoOptions
     );
-    expect(result).toBeNull();
+
+    expect(accountingEntity).toBeNull();
+    expect(mockAccountingEntityRepo.findByIdAndUserId).not.toHaveBeenCalled();
   });
 
-  it('should return null if x-accounting-entity-id header is missing', async () => {
-    const result = await getAccountingEntityFromRequest(
+  it('returns null if the accounting entity header is missing', async () => {
+    const accountingEntity = await getAccountingEntityFromRequest(
       mockReq as Request,
-      mockRepo,
-      validUserId
+      mockAccountingEntityRepo,
+      repoOptions,
+      userId
     );
-    expect(result).toBeNull();
+
+    expect(accountingEntity).toBeNull();
+    expect(mockAccountingEntityRepo.findByIdAndUserId).not.toHaveBeenCalled();
   });
 
-  it('should throw appError.BadRequest if x-accounting-entity-id is not a valid UUID', async () => {
+  it('rejects a malformed accounting entity ID', async () => {
     mockReq.headers = { 'x-accounting-entity-id': 'invalid-uuid' };
+
     await expect(
-      getAccountingEntityFromRequest(mockReq as Request, mockRepo, validUserId)
+      getAccountingEntityFromRequest(
+        mockReq as Request,
+        mockAccountingEntityRepo,
+        repoOptions,
+        userId
+      )
     ).rejects.toThrow(appError.BadRequest);
   });
 
-  it('should return null if accounting entity is not found by repo', async () => {
-    mockReq.headers = {
-      'x-accounting-entity-id': validUUID,
-      'x-correlation-id': 'correlation-123',
-    };
-    mockRepo.findByIdAndUserId.mockResolvedValue(null);
+  it('returns null if the accounting entity is not found', async () => {
+    mockReq.headers = { 'x-accounting-entity-id': accountingEntityId };
+    mockAccountingEntityRepo.findByIdAndUserId.mockResolvedValue(null);
 
-    const result = await getAccountingEntityFromRequest(
+    const accountingEntity = await getAccountingEntityFromRequest(
       mockReq as Request,
-      mockRepo,
-      validUserId
+      mockAccountingEntityRepo,
+      repoOptions,
+      userId
     );
 
-    expect(mockRepo.findByIdAndUserId).toHaveBeenCalledWith(
-      validUUID,
-      validUserId,
-      { correlationId: 'correlation-123' }
+    expect(mockAccountingEntityRepo.findByIdAndUserId).toHaveBeenCalledWith(
+      accountingEntityId,
+      userId,
+      repoOptions
     );
-    expect(result).toBeNull();
+    expect(accountingEntity).toBeNull();
   });
 
-  it('should return the accounting entity if found', async () => {
-    mockReq.headers = { 'x-accounting-entity-id': validUUID };
-    const mockEntity = {
-      id: validUUID,
-      name: 'Test Entity',
+  it('returns the accounting entity from the repository', async () => {
+    const expectedAccountingEntity = {
+      id: accountingEntityId,
+      ownerId: userId,
     } as IAccountingEntity;
-    mockRepo.findByIdAndUserId.mockResolvedValue(mockEntity);
+    mockReq.headers = { 'x-accounting-entity-id': accountingEntityId };
+    mockAccountingEntityRepo.findByIdAndUserId.mockResolvedValue(
+      expectedAccountingEntity
+    );
 
-    const result = await getAccountingEntityFromRequest(
+    const accountingEntity = await getAccountingEntityFromRequest(
       mockReq as Request,
-      mockRepo,
-      validUserId
+      mockAccountingEntityRepo,
+      repoOptions,
+      userId
     );
 
-    expect(mockRepo.findByIdAndUserId).toHaveBeenCalledWith(
-      validUUID,
-      validUserId,
-      expect.any(Object)
-    );
-    expect(result).toEqual(mockEntity);
+    expect(accountingEntity).toBe(expectedAccountingEntity);
   });
 });

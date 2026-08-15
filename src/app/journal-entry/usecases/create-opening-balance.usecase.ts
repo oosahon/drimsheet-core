@@ -37,12 +37,12 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
     zodValidationRunner(openingBalanceCreationReqValidation, payload);
 
     const { accountingEntity, correlationId, user } = deps.appContext.get();
-    const trace = { correlationId };
+    const repoOptions = { correlationId };
 
     const account = await deps.ledgerAccountRepo.findById(
       payload.accountId as TEntityId,
       accountingEntity.id,
-      trace
+      repoOptions
     );
 
     if (!account) throw new ledgerAppError.AccountNotFound();
@@ -63,7 +63,7 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
           exchangeRate,
           createdBy: account.createdBy,
         },
-        trace
+        repoOptions
       );
 
     const [updatedAccount, accountEvents, accountAudit] =
@@ -81,10 +81,10 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
     );
 
     const transactionFn: TRepoTransactionFn = async (tx) => {
-      const repoOptions = { ...trace, tx };
+      const writeRepoOptions = { ...repoOptions, tx };
 
       await deps.ledgerAccountRepo.update(updatedAccount, {
-        ...repoOptions,
+        ...writeRepoOptions,
         history: accountHistory,
       });
 
@@ -92,15 +92,15 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
         journalEntry,
         headerHistory,
         lineHistories,
-        repoOptions
+        writeRepoOptions
       );
     };
 
     await deps.repoService.runInTransaction(transactionFn);
 
-    await deps.balancePropagationService.propagate(journalEntry, trace);
+    await deps.balancePropagationService.propagate(journalEntry, repoOptions);
 
     const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];
-    deps.eventBus.publish(eventValue.enrichAll(allEvents, trace));
+    deps.eventBus.publish(eventValue.enrichAll(allEvents, repoOptions));
   };
 }

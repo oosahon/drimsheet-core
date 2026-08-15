@@ -57,7 +57,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
   ): Promise<ILedgerAccountDto> => {
     const { correlationId, user, accountingEntity } = deps.appContext.get();
     const actor = historyValue.getUserActor(user.id);
-    const trace = { correlationId };
+    const repoOptions = { correlationId };
 
     // Validate data
     zodValidationRunner(pettyCashCreationReqValidation, payload);
@@ -72,7 +72,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       deps,
       accountingEntity.id,
       payload.openingBalance,
-      trace
+      repoOptions
     );
 
     const controlAccount = await getControlAccountHelper<TCashLedgerCode>({
@@ -80,7 +80,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       controlAccountId: payload.controlAccountId,
       defaultControlAccountCode: ASSET_LEDGER_CODES.CASH_AND_EQUIVALENTS.HEADER,
       accountingEntityId: accountingEntity.id,
-      repoOptions: trace,
+      repoOptions,
     });
 
     const auditedAccount =
@@ -93,7 +93,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
           accountingEntity,
           controlAccountCode: controlAccount.code,
         },
-        trace
+        repoOptions
       );
 
     if (!payload.openingBalance) {
@@ -102,7 +102,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
         auditedAccount,
         accountingEntity,
         actor,
-        trace
+        repoOptions
       );
     }
 
@@ -119,7 +119,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
           exchangeRate,
           createdBy: user.id,
         },
-        trace
+        repoOptions
       );
 
     const [updatedAccount, updatedAccountEvents, updatedAccountAudit] =
@@ -133,7 +133,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       journalEntry,
       exchangeRate,
       functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-      repoOptions: trace,
+      repoOptions,
     };
 
     const fxLotData = await getFxAcquisitionDataHelper(
@@ -171,7 +171,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
 
     // Persist entities
     const dbTransactionFn: TRepoTransactionFn = async (tx) => {
-      const writeRepoOptions = { ...trace, tx };
+      const writeRepoOptions = { ...repoOptions, tx };
 
       await deps.ledgerAccountPersistenceService.create(
         updatedAccount,
@@ -200,7 +200,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
     await deps.repoService.runInTransaction(dbTransactionFn);
 
     // Propagate balance adjustment
-    await deps.balancePropagationService.propagate(journalEntry, trace);
+    await deps.balancePropagationService.propagate(journalEntry, repoOptions);
 
     // Assemble events
     const allEvents: IEvent<unknown>[] = [
@@ -211,7 +211,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       ...(fxLotData?.acquisition[1] ?? []),
     ];
 
-    await deps.eventBus.publish(eventValue.enrichAll(allEvents, trace));
+    await deps.eventBus.publish(eventValue.enrichAll(allEvents, repoOptions));
 
     return mapLedgerAccountToDto(
       updatedAccount,

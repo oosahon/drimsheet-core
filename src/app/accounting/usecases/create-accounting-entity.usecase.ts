@@ -51,7 +51,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
     zodValidationRunner(accountingEntityOnboardingDtoSchema, payload);
 
     const { user, correlationId } = deps.appContext.get();
-    const trace = { correlationId };
+    const repoOptions = { correlationId };
 
     const accountingResponse = await deps.accountingEntityService.create(
       {
@@ -66,7 +66,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         accountingPeriod: payload.accountingPeriod,
         reportingPeriod: payload.reportingPeriod,
       },
-      trace
+      repoOptions
     );
 
     const {
@@ -129,7 +129,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
 
     const persistLedgerAccounts = async (
       entries: ILedgerAccountBootstrapEntry[],
-      repoOptions: IRepoOptions
+      writeRepoOptions: IRepoOptions
     ) => {
       for (const { account, audit } of entries) {
         const history = historyValue.make(audit, actor, correlationId);
@@ -137,57 +137,57 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         await deps.ledgerAccountPersistenceService.create(
           account,
           accountingEntity.functionalCurrencyCode,
-          { ...repoOptions, history: [history] }
+          { ...writeRepoOptions, history: [history] }
         );
       }
     };
 
     const transactionFn: TRepoTransactionFn<IEvent<unknown>[]> = async (tx) => {
-      const repoOptions = { correlationId, tx };
+      const writeRepoOptions = { ...repoOptions, tx };
 
       await deps.accountingEntityRepo.create(accountingEntity, {
-        ...repoOptions,
+        ...writeRepoOptions,
         history: accountingEntityHistory,
       });
 
       await deps.userPreferencesRepo.update(
         user.id,
         { lastActiveAccountingEntityId: accountingEntity.id },
-        repoOptions
+        writeRepoOptions
       );
 
       await deps.fiscalYearRepo.create(fiscalYear, {
-        ...repoOptions,
+        ...writeRepoOptions,
         history: fiscalYearHistory,
       });
 
       await deps.accountingPeriodRepo.create(accountingPeriods, {
-        ...repoOptions,
+        ...writeRepoOptions,
         history: accountingPeriodHistories,
       });
 
       await deps.accountingContextRepo.create(accountingContext, {
-        ...repoOptions,
+        ...writeRepoOptions,
         history: accountingContextHistory,
       });
 
       await deps.reportingPeriodRepo.create(reportingPeriods, {
-        ...repoOptions,
+        ...writeRepoOptions,
         history: reportingPeriodHistories,
       });
 
       await deps.reportingContextRepo.create(reportingContext, {
-        ...repoOptions,
+        ...writeRepoOptions,
         history: reportingContextHistory,
       });
 
       const headerBootstrap =
         await deps.headerAccountsBootstrapService.bootstrap(
           accountingEntity,
-          repoOptions
+          writeRepoOptions
         );
 
-      await persistLedgerAccounts(headerBootstrap.entries, repoOptions);
+      await persistLedgerAccounts(headerBootstrap.entries, writeRepoOptions);
 
       const ledgerAccountEvents: IEvent<unknown>[] = [
         ...headerBootstrap.events,
@@ -197,7 +197,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         const postingBootstrap =
           await deps.postingAccountBootstrapService.bootstrap(
             accountingEntity,
-            repoOptions
+            writeRepoOptions
           );
 
         ledgerAccountEvents.push(...postingBootstrap.events);
@@ -205,10 +205,13 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         const suspenseBootstrap =
           await deps.suspenseAccountBootstrapService.bootstrap(
             accountingEntity,
-            repoOptions
+            writeRepoOptions
           );
 
-        await persistLedgerAccounts(suspenseBootstrap.entries, repoOptions);
+        await persistLedgerAccounts(
+          suspenseBootstrap.entries,
+          writeRepoOptions
+        );
         ledgerAccountEvents.push(...suspenseBootstrap.events);
       }
 
@@ -237,7 +240,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       ...ledgerAccountEvents,
     ];
 
-    const enrichedEvents = eventValue.enrichAll(events, trace);
+    const enrichedEvents = eventValue.enrichAll(events, repoOptions);
 
     await deps.eventBus.publish(enrichedEvents);
 

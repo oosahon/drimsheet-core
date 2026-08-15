@@ -11,6 +11,7 @@ import authError from '@app/auth/errors/auth.error';
 
 import { tokenService } from '@infra/ioc/services/auth';
 import * as accountingUsecases from '@infra/ioc/usecases/accounting';
+import observability from '@infra/observability';
 import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
@@ -71,6 +72,10 @@ describe('GET /accounting/accounting-entity', () => {
     app = createApplication();
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('200 Response', () => {
     it('returns the selected owned entity contract with security headers', async () => {
       const response = await request(app)
@@ -118,14 +123,27 @@ describe('GET /accounting/accounting-entity', () => {
     });
 
     it('rejects an expired token', async () => {
+      const correlationId = 'expired-token-correlation-id';
+      const warnSpy = jest
+        .spyOn(observability.logger, 'warn')
+        .mockImplementation(() => undefined);
       mockGetAuthUser.mockRejectedValue(new authError.ExpiredToken());
 
       const response = await request(app)
         .get(ENDPOINT)
         .set('Authorization', 'Bearer expired-token')
-        .set('x-accounting-entity-id', entity.id);
+        .set('x-accounting-entity-id', entity.id)
+        .set('x-correlation-id', correlationId);
 
       expect(response.status).toBe(401);
+      expect(response.headers['x-correlation-id']).toBe(correlationId);
+      expect(warnSpy).toHaveBeenCalledWith(
+        `[401] GET ${ENDPOINT}`,
+        expect.objectContaining({
+          statusCode: 401,
+          correlationId,
+        })
+      );
       expect(mockGetActiveEntity).not.toHaveBeenCalled();
     });
   });

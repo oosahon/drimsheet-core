@@ -44,6 +44,7 @@ describe('GET /accounting/jurisdictions', () => {
       expect(response.type).toBe('application/json');
       expect(response.headers['x-content-type-options']).toBe('nosniff');
       expect(response.headers['x-frame-options']).toBe('SAMEORIGIN');
+      expect(response.headers['x-correlation-id']).toEqual(expect.any(String));
       expect(response.body).toEqual(jurisdictions);
       expect(mockGetJurisdictions).toHaveBeenCalledTimes(1);
     });

@@ -22,12 +22,12 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
 
     const { correlationId, accountingEntity, user } = deps.appContext.get();
 
-    const trace = { correlationId };
+    const repoOptions = { correlationId };
 
     const account = await deps.ledgerAccountRepo.findById(
       accountId,
       accountingEntity.id,
-      trace
+      repoOptions
     );
 
     if (!account) {
@@ -44,7 +44,7 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
     const [dto] = await deps.balanceEnrichmentService.enrich(
       [account],
       accountingEntity,
-      trace
+      repoOptions
     );
 
     return dto;

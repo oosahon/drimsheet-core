@@ -27,12 +27,12 @@ export default function makeGetLedgerAccountsUsecase(deps: IDependencies) {
     zodValidationRunner(getLedgerAccountQueryValidationSchema, query);
     const { correlationId, accountingEntity } = deps.appContext.get();
 
-    const trace = { correlationId };
+    const repoOptions = { correlationId };
     const offset = paginationValue.pageToOffset(query.page, query.limit);
     const accountRepoOptions: IFindAllLedgerAccountsOptions = {
       ...query,
       offset,
-      ...trace,
+      ...repoOptions,
     };
 
     const ledgerAccountsRes = await deps.ledgerAccountRepo.findAll(
@@ -43,7 +43,7 @@ export default function makeGetLedgerAccountsUsecase(deps: IDependencies) {
     const data = await deps.balanceEnrichmentService.enrich(
       ledgerAccountsRes.data,
       accountingEntity,
-      trace
+      repoOptions
     );
 
     return {

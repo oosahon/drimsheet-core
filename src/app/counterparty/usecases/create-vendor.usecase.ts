@@ -65,9 +65,9 @@ export default function makeCreateVendorUsecase(deps: IDependencies) {
       }
     );
 
-    const trace = { correlationId, idempotencyKey };
+    const repoOptions = { correlationId, idempotencyKey };
     const events: IEvent<unknown>[] = [...counterpartyEvents, ...vendorEvents];
-    const enrichedEvents = eventValue.enrichAll(events, trace);
+    const enrichedEvents = eventValue.enrichAll(events, repoOptions);
     await deps.eventBus.publish(enrichedEvents);
 
     return counterpartyDtoMapper.toDto(counterparty);

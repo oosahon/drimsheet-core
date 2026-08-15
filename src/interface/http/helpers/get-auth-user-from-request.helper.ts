@@ -1,22 +1,24 @@
 import { Request } from 'express';
 
 import ILogger from '@shared/contracts/logger.contract';
+import { IReadRepoOptions } from '@shared/types/repo.types';
 
 import IUserRepo from '@domain/user/repos/user.repo';
 import { IUser } from '@domain/user/types/user.types';
 
 import ITokenService from '@app/auth/contracts/token-service.contract';
 
-import getHttpHeaderValue, { getCorrelationId } from './get-http-header-value';
+import getHttpHeaderValue from './get-http-header-value';
 
 export default async function getAuthUserFromRequest(
   req: Request,
   tokenService: ITokenService,
+  // TODO: remove logger
   logger: ILogger,
-  userRepo: IUserRepo
+  userRepo: IUserRepo,
+  repoOptions: IReadRepoOptions
 ): Promise<IUser | null> {
   const bearerToken = getHttpHeaderValue('authorization', req.headers);
-  const correlationId = getCorrelationId(req);
 
   if (!bearerToken) return null;
 
@@ -28,7 +30,7 @@ export default async function getAuthUserFromRequest(
 
   const authUser = await tokenService.getAuthUser(token);
 
-  const user = await userRepo.findById(authUser.id, { correlationId });
+  const user = await userRepo.findById(authUser.id, repoOptions);
 
   return user;
 }

@@ -49,7 +49,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
     const { correlationId, accountingEntity, user, idempotencyKey } =
       deps.appContext.get();
 
-    const trace = { correlationId, idempotencyKey };
+    const repoOptions = { correlationId, idempotencyKey };
 
     const headerPayload: ICreateReceiptEntryPayload['header'] = {
       accountingEntityId: accountingEntity.id,
@@ -63,7 +63,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
     const sourceAccount = await deps.ledgerAccountRepo.findById(
       payload.sourceLine.accountId as TEntityId,
       accountingEntity.id,
-      trace
+      repoOptions
     );
 
     if (!sourceAccount) {
@@ -81,7 +81,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       await deps.counterpartyAppService.findOrCreateMany(
         allCounterpartiesPayload,
         accountingEntity.id,
-        trace
+        repoOptions
       );
 
     const sourceExchangeRate = payload.sourceLine.exchangeRate
@@ -111,7 +111,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       const lineAccount = await deps.ledgerAccountRepo.findById(
         line.accountId as TEntityId,
         accountingEntity.id,
-        trace
+        repoOptions
       );
       if (!lineAccount) {
         throw new ledgerAppError.AccountNotFound({
@@ -147,7 +147,7 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
     };
 
     const [journalEntry, journalEntryEvents, journalEntryAudit] =
-      await deps.journalEntryService.createReceipt(receiptPayload, trace);
+      await deps.journalEntryService.createReceipt(receiptPayload, repoOptions);
 
     const userActor = historyValue.getUserActor(user.id);
 
@@ -193,14 +193,14 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
     };
 
     await deps.repoService.runInTransaction(dbTransactionFn);
-    await deps.balancePropagationService.propagate(journalEntry, trace);
+    await deps.balancePropagationService.propagate(journalEntry, repoOptions);
 
     const allEvents: IEvent<unknown>[] = [
       ...counterpartyEvents.flat(),
       ...journalEntryEvents,
     ];
 
-    await deps.eventBus.publish(eventValue.enrichAll(allEvents, trace));
+    await deps.eventBus.publish(eventValue.enrichAll(allEvents, repoOptions));
 
     return journalEntryDtoMapper.toDto(journalEntry);
   };

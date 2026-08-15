@@ -26,12 +26,11 @@ export default function makeGetCounterpartiesUsecase(deps: IDependencies) {
     zodValidationRunner(getCounterpartiesQueryValidationSchema, query);
     const { correlationId, accountingEntity } = deps.appContext.get();
 
-    const trace = { correlationId };
     const offset = paginationValue.pageToOffset(query.page, query.limit);
     const repoOptions: IFindAllOptions = {
       ...query,
       offset,
-      ...trace,
+      correlationId,
     };
 
     const repoRes = await deps.counterpartyRepo.findAll(

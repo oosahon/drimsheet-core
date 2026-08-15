@@ -54,6 +54,10 @@ export default function makeLedgerAccountBalanceAdjustmentQueue(
           getConfig(payload)
         );
       } catch (error) {
+        // NB: we are intentionally not rethrowing this error because
+        // failure to add to balance adjustment to queue should not cause the
+        // journal entry to fail. The source of truth is still the journal entry, this can
+        // always be eventually consistent.
         reporter.report(error, { job: payload });
       }
     },

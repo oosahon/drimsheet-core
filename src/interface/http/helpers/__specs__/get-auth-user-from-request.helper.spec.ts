@@ -1,140 +1,90 @@
 import { Request } from 'express';
 
-import ILogger from '@shared/contracts/logger.contract';
+import mockLogger from '@shared/contracts/__mocks__/logger.mock';
+import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import { IUser } from '@domain/user/types/user.types';
 
-import ITokenService from '@app/auth/contracts/token-service.contract';
-import { mockUserRepo as mockUserRepoCentral } from '@app/user/contracts/__mocks__/user.repos.mock';
+import mockTokenService from '@app/auth/contracts/__mocks__/token-service.mock';
+import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 import getAuthUserFromRequest from '@interface/http/helpers/get-auth-user-from-request.helper';
 
 describe('getAuthUserFromRequest', () => {
+  const userId = 'user-id' as TEntityId;
+  const repoOptions: IReadRepoOptions = {
+    correlationId: 'request-correlation-id',
+  };
+
   let mockReq: Partial<Request>;
-  let mockAuthService: jest.Mocked<ITokenService>;
-  let mockLogger: jest.Mocked<ILogger>;
-  const mockUserRepo = mockUserRepoCentral;
 
   beforeEach(() => {
-    mockReq = {
-      headers: {},
-    };
-
-    mockAuthService = {
-      getAuthUser: jest.fn(),
-    } as unknown as jest.Mocked<ITokenService>;
-
-    mockLogger = {
-      error: jest.fn(),
-    } as unknown as jest.Mocked<ILogger>;
-
-    mockUserRepo.findById.mockReset();
     jest.clearAllMocks();
+    mockReq = { headers: {} };
   });
 
-  it('should return null if authorization header is missing', async () => {
-    const result = await getAuthUserFromRequest(
+  function getUserFromRequest() {
+    return getAuthUserFromRequest(
       mockReq as Request,
-      mockAuthService,
+      mockTokenService,
       mockLogger,
-      mockUserRepo
+      mockUserRepo,
+      repoOptions
     );
-    expect(result).toBeNull();
+  }
+
+  it('returns null if the authorization header is missing', async () => {
+    await expect(getUserFromRequest()).resolves.toBeNull();
+    expect(mockTokenService.getAuthUser).not.toHaveBeenCalled();
   });
 
-  it('should return null if authorization header exists but token is missing', async () => {
-    mockReq.headers = { authorization: 'Bearer ' }; // Empty token after space
-    const result = await getAuthUserFromRequest(
-      mockReq as Request,
-      mockAuthService,
-      mockLogger,
-      mockUserRepo
-    );
-    expect(result).toBeNull();
+  it('returns null if the bearer token is missing', async () => {
+    mockReq.headers = { authorization: 'Bearer ' };
+
+    await expect(getUserFromRequest()).resolves.toBeNull();
+    expect(mockTokenService.getAuthUser).not.toHaveBeenCalled();
   });
 
-  it('should return null if authorization header has wrong scheme', async () => {
+  it('returns null for the wrong authorization scheme', async () => {
     mockReq.headers = { authorization: 'Basic valid-token' };
-    const result = await getAuthUserFromRequest(
-      mockReq as Request,
-      mockAuthService,
-      mockLogger,
-      mockUserRepo
-    );
-    expect(result).toBeNull();
-    expect(mockAuthService.getAuthUser).not.toHaveBeenCalled();
+
+    await expect(getUserFromRequest()).resolves.toBeNull();
+    expect(mockTokenService.getAuthUser).not.toHaveBeenCalled();
   });
 
-  it('should return null if authorization header has extra segments', async () => {
+  it('returns null if the authorization header has extra segments', async () => {
     mockReq.headers = { authorization: 'Bearer valid-token extra' };
-    const result = await getAuthUserFromRequest(
-      mockReq as Request,
-      mockAuthService,
-      mockLogger,
-      mockUserRepo
-    );
-    expect(result).toBeNull();
-    expect(mockAuthService.getAuthUser).not.toHaveBeenCalled();
+
+    await expect(getUserFromRequest()).resolves.toBeNull();
+    expect(mockTokenService.getAuthUser).not.toHaveBeenCalled();
   });
 
-  it('should handle malformed spacing and still succeed for valid scheme and token', async () => {
+  it('accepts additional spacing around a valid bearer token', async () => {
+    const user = { id: userId } as IUser;
     mockReq.headers = { authorization: '  Bearer   valid-token  ' };
-    const authPayload = { id: 'user-123', exp: 12345 };
-    const user = { id: 'user-123', email: 'test@example.com' } as IUser;
-
-    mockAuthService.getAuthUser.mockResolvedValue(authPayload as any);
+    mockTokenService.getAuthUser.mockResolvedValue({ id: userId });
     mockUserRepo.findById.mockResolvedValue(user);
 
-    const result = await getAuthUserFromRequest(
-      mockReq as Request,
-      mockAuthService,
-      mockLogger,
-      mockUserRepo
-    );
-    expect(mockAuthService.getAuthUser).toHaveBeenCalledWith('valid-token');
-    expect(result).toEqual(user);
+    await expect(getUserFromRequest()).resolves.toBe(user);
+    expect(mockTokenService.getAuthUser).toHaveBeenCalledWith('valid-token');
   });
 
-  it('should propagate error if decoding token fails', async () => {
-    mockReq.headers = {
-      authorization: 'Bearer invalid-token',
-      'x-correlation-id': 'corr-123',
-    };
-    const error = new Error('Token expired');
-    mockAuthService.getAuthUser.mockRejectedValue(error);
+  it('propagates token decoding errors', async () => {
+    const error = new Error('token expired');
+    mockReq.headers = { authorization: 'Bearer invalid-token' };
+    mockTokenService.getAuthUser.mockRejectedValue(error);
 
-    await expect(
-      getAuthUserFromRequest(
-        mockReq as Request,
-        mockAuthService,
-        mockLogger,
-        mockUserRepo
-      )
-    ).rejects.toThrow(error);
+    await expect(getUserFromRequest()).rejects.toThrow(error);
   });
 
-  it('should return user from repo if token decoding succeeds', async () => {
-    mockReq.headers = {
-      authorization: 'Bearer valid-token',
-      'x-correlation-id': 'corr-123',
-    };
-    const authPayload = { id: 'user-123', exp: 12345 };
-    const user = { id: 'user-123', email: 'test@example.com' } as IUser;
-
-    mockAuthService.getAuthUser.mockResolvedValue(authPayload as any);
+  it('forwards the supplied repo options when loading the user', async () => {
+    const user = { id: userId } as IUser;
+    mockReq.headers = { authorization: 'Bearer valid-token' };
+    mockTokenService.getAuthUser.mockResolvedValue({ id: userId });
     mockUserRepo.findById.mockResolvedValue(user);
 
-    const result = await getAuthUserFromRequest(
-      mockReq as Request,
-      mockAuthService,
-      mockLogger,
-      mockUserRepo
-    );
-
-    expect(mockAuthService.getAuthUser).toHaveBeenCalledWith('valid-token');
-    expect(mockUserRepo.findById).toHaveBeenCalledWith('user-123', {
-      correlationId: 'corr-123',
-    });
-    expect(result).toEqual(user);
+    await expect(getUserFromRequest()).resolves.toBe(user);
+    expect(mockUserRepo.findById).toHaveBeenCalledWith(userId, repoOptions);
   });
 });

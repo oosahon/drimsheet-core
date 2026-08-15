@@ -43,8 +43,8 @@ export default function makeCreateCounterpartyUsecase(deps: IDependencies) {
       history,
     });
 
-    const trace = { correlationId, idempotencyKey };
-    const enrichedEvents = eventValue.enrichAll(events, trace);
+    const repoOptions = { correlationId, idempotencyKey };
+    const enrichedEvents = eventValue.enrichAll(events, repoOptions);
     await deps.eventBus.publish(enrichedEvents);
 
     return counterpartyDtoMapper.toDto(counterparty);

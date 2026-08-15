@@ -70,12 +70,12 @@ export default function makeCreateEmployerUsecase(deps: IDependencies) {
       }
     );
 
-    const trace = { correlationId, idempotencyKey };
+    const repoOptions = { correlationId, idempotencyKey };
     const events: IEvent<unknown>[] = [
       ...counterpartyEvents,
       ...employerEvents,
     ];
-    const enrichedEvents = eventValue.enrichAll(events, trace);
+    const enrichedEvents = eventValue.enrichAll(events, repoOptions);
     await deps.eventBus.publish(enrichedEvents);
 
     return counterpartyDtoMapper.toDto(counterparty);
