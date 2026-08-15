@@ -128,8 +128,8 @@ describe('registerRabbitMQConsumer', () => {
       'queue.message.processing_failed',
       processingError,
       {
-        context: 'Failed to process RabbitMQ message',
         queue: 'test-queue',
+        transport: 'rabbitmq',
       }
     );
     expect(channel.ack).not.toHaveBeenCalled();
@@ -163,8 +163,8 @@ describe('registerRabbitMQConsumer', () => {
       'queue.message.processing_failed',
       expect.any(SyntaxError),
       {
-        context: 'Failed to process RabbitMQ message',
         queue: 'test-queue',
+        transport: 'rabbitmq',
       }
     );
     expect(channel.nack).toHaveBeenCalledWith(message, false, false);

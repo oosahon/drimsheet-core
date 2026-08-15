@@ -71,7 +71,10 @@ describe('makeLedgerAccountBalanceAdjustmentQueue', () => {
     expect(mockReporter.report).toHaveBeenCalledWith(
       'queue.job.enqueue_failed',
       failure,
-      { job: payload }
+      {
+        queue: 'ledger-account-balance-adjustment-queue',
+        transport: 'bullmq',
+      }
     );
     expect(mockQueueMetrics.recordEnqueueFailed).toHaveBeenCalledWith({
       queueName: 'ledger-account-balance-adjustment-queue',

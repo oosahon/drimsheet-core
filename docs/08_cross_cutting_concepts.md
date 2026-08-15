@@ -65,8 +65,23 @@ To ensure only clean data enters the system and anomalous states are captured:
 
 - **Data Validation (Zod)**: Zod is enforced at the system boundary (API endpoints and MCP tool inputs) to guarantee malformed or malicious payloads are rejected before they touch business logic.
 - **Standardized Error Handling**: Errors are wrapped in a standard domain format so that clients cleanly differentiate between user errors (e.g., "Insufficient Balance") and system errors.
-- **Observability logs (Sentry, Winston)**: Every non-local log line is one structured JSON record containing a stable operational event, runtime service/environment/version metadata, and request or worker correlation when context is active. Local development keeps readable colorized output. Fields are recursively sanitized, and request logs use normalized route templates rather than raw URLs or query strings. These records are logs, not metrics; event naming, controlled outcomes, privacy, and cardinality follow [the canonical observability rule](../.agents/rules/observability.md).
+- **Observability logs (Sentry, Winston)**: Every non-local log line is one structured JSON record containing a stable operational event, runtime service/environment/version metadata, and request or worker correlation when context is active. Local development keeps readable colorized output. Reporting callers supply only allowlisted operational facts; complete requests, jobs, payloads, user or product identifiers, email content, IP addresses, raw URLs, and financial values are prohibited. The logger and reporter serialize errors as sanitized name, message, stack, and `errorKey` only, without causes or arbitrary custom properties. Recursive sanitization remains a defense-in-depth boundary, and request logs use normalized route templates rather than raw URLs or query strings. These records are logs, not metrics; event naming, controlled outcomes, privacy, and cardinality follow [the canonical observability rule](../.agents/rules/observability.md).
+- **Sentry privacy boundary**: Sentry default PII collection is disabled. Every error or message event passes through an application `beforeSend` scrubber that removes user identity, request bodies, URLs, query strings, headers, cookies, environment request data, breadcrumb data, arbitrary extras, linked causes, and stack variables. It retains bounded reporter facts, canonical exception identity and stack, release/environment metadata, safe runtime context, trace identity, and contextual correlation. Sentry project-side data scrubbing must also remain enabled as an independent backstop; it does not permit application code to send sensitive data.
 - **Observability metrics (OpenTelemetry, Grafana Alloy, Grafana Cloud)**: Application instances export best-effort metrics periodically over OTLP/HTTP to Grafana Alloy on the private Coolify network. Export is disabled by default and application code contains no Grafana Cloud credentials. `IObservabilityMetrics` provides the tool-agnostic recorder, while `IHttpMetrics` and `IQueueMetrics` own the semantic catalogue, seconds conversion, and bounded attribute policy. Recording and bounded shutdown-flush failures never change HTTP, transaction, queue retry, or acknowledgement behavior.
+
+After an observability deployment, an operator must inspect raw Sentry event
+JSON and structured log records using synthetic canary values, never customer
+data. Exercise HTTP, queue, auth, ledger, and abuse failures and verify that:
+
+- canary email, identifier, amount, cookie, header, URL-query, job, and payload
+  values are absent;
+- event, `errorKey`, stack, queue/transport/attempt, rate-limit method/scope,
+  release/environment, and correlation remain queryable; and
+- Sentry project-side sensitive-field rules and retention settings match the
+  deployment policy.
+
+Historical event deletion or credential rotation is a separate operational
+action requiring explicit authorization.
 
 The initial application-owned metrics are:
 

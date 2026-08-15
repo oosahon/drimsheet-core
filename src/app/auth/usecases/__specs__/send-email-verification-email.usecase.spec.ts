@@ -75,7 +75,6 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
         message:
           'Skipping email verification because the user is already verified',
         outcome: 'skipped',
-        userId: user.id,
       }
     );
     expect(emailVerificationService.send).not.toHaveBeenCalled();

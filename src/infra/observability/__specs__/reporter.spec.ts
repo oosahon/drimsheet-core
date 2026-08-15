@@ -11,7 +11,7 @@ jest.mock('@sentry/node', () => ({
   captureMessage: jest.fn(),
 }));
 
-jest.mock('@infra/config/vars.config', () => ({
+jest.mock('../../config/vars.config', () => ({
   __esModule: true,
   default: {
     get APP_ENV() {
@@ -19,6 +19,9 @@ jest.mock('@infra/config/vars.config', () => ({
     },
   },
 }));
+
+type TReportContext = NonNullable<Parameters<typeof reporter.report>[2]>;
+type TAbuseContext = Parameters<typeof reporter.reportAbuse>[1];
 
 describe('reporter', () => {
   afterEach(() => {
@@ -29,19 +32,34 @@ describe('reporter', () => {
     jest.clearAllMocks();
   });
 
-  it('preserves the source event and safely reports error context', () => {
+  it('projects approved context and reports one canonical error', () => {
     const loggerErrorSpy = jest
       .spyOn(logger, 'error')
       .mockImplementation(() => undefined);
     const error = Object.assign(
-      new Error('Failed authentication with token: secret_abc123'),
-      { errorKey: 'auth_error_invalid_token' }
+      new Error(
+        'Failed for private.person@example.com with token: secret_abc123'
+      ),
+      {
+        errorKey: 'auth_error_invalid_token',
+        cause: { userId: 'private-user-id' },
+        validationErrors: [{ field: 'email' }],
+      }
     );
     const context = {
+      operation: 'finalize-password-reset-token',
+      queue: 'test-queue',
+      transport: 'bullmq',
+      attempt: 2,
+      source: 'worker',
+      signal: 'SIGTERM',
+      subscriber: 'rabbitmq',
+      eventType: 'domain:test:event',
+      eventTypes: ['domain:test:first', 'domain:test:second'],
       password: 'super-secret-pass',
-      user: 'alice',
-      url: '/api/v1/auth?access_token=token123',
-    };
+      userId: 'private-user-id',
+      payload: { amount: 100 },
+    } as unknown as TReportContext;
 
     appContext.init(
       { correlationId: 'report-correlation', idempotencyKey: '' },
@@ -53,69 +71,148 @@ describe('reporter', () => {
         )
     );
 
+    const loggerFields = loggerErrorSpy.mock.calls[0][1];
     expect(loggerErrorSpy).toHaveBeenCalledWith(
       'auth.password_reset.finalization_failed',
-      expect.objectContaining({
-        password: '[REDACTED]',
-        user: 'alice',
+      {
+        operation: 'finalize-password-reset-token',
+        queue: 'test-queue',
+        transport: 'bullmq',
+        attempt: 2,
+        source: 'worker',
+        signal: 'SIGTERM',
+        subscriber: 'rabbitmq',
+        eventType: 'domain:test:event',
+        eventTypes: ['domain:test:first', 'domain:test:second'],
         error: expect.any(Error),
-        errorKey: 'auth_error_invalid_token',
-      })
+      }
     );
+    expect(loggerFields).not.toHaveProperty('password');
+    expect(loggerFields).not.toHaveProperty('userId');
+    expect(loggerFields).not.toHaveProperty('payload');
 
     const sentryError = jest.mocked(Sentry.captureException).mock.calls[0][0];
     const sentryContext = jest.mocked(Sentry.captureException).mock
       .calls[0][1] as { extra?: Record<string, unknown> } | undefined;
-    const extra = sentryContext?.extra as Record<string, unknown>;
 
-    expect((sentryError as Error).message).toContain('token: [REDACTED]');
+    expect(sentryError).toEqual(expect.any(Error));
+    expect((sentryError as Error).message).not.toContain(
+      'private.person@example.com'
+    );
     expect((sentryError as Error).message).not.toContain('secret_abc123');
-    expect(extra.password).toBe('[REDACTED]');
-    expect(extra.user).toBe('alice');
-    expect(extra.url).toContain('access_token=%5BREDACTED%5D');
-    expect(extra.url).not.toContain('token123');
-    expect(extra.correlationId).toBe('report-correlation');
+    expect(sentryError).toHaveProperty('errorKey', 'auth_error_invalid_token');
+    expect(sentryError).not.toHaveProperty('cause');
+    expect(sentryError).not.toHaveProperty('validationErrors');
+    expect(sentryContext?.extra).toEqual({
+      operation: 'finalize-password-reset-token',
+      queue: 'test-queue',
+      transport: 'bullmq',
+      attempt: 2,
+      source: 'worker',
+      signal: 'SIGTERM',
+      subscriber: 'rabbitmq',
+      eventType: 'domain:test:event',
+      eventTypes: ['domain:test:first', 'domain:test:second'],
+      errorKey: 'auth_error_invalid_token',
+      correlationId: 'report-correlation',
+    });
   });
 
-  it('uses the canonical abuse event and sanitized metadata', () => {
+  it('does not serialize a non-Error thrown value', () => {
+    const loggerErrorSpy = jest
+      .spyOn(logger, 'error')
+      .mockImplementation(() => undefined);
+
+    reporter.report('queue.job.processing_failed', {
+      email: 'private@example.com',
+      amount: 100,
+    });
+
+    const sentryError = jest.mocked(Sentry.captureException).mock.calls[0][0];
+    expect(sentryError).toEqual(expect.any(Error));
+    expect((sentryError as Error).name).toBe('UnknownError');
+    expect((sentryError as Error).message).toBe(
+      'A non-Error value was thrown (type: object)'
+    );
+    expect(JSON.stringify(sentryError)).not.toContain('private@example.com');
+    expect(loggerErrorSpy).toHaveBeenCalledWith('queue.job.processing_failed', {
+      error: sentryError,
+    });
+  });
+
+  it('reports abuse with only bounded threshold facts', () => {
     const loggerWarnSpy = jest
       .spyOn(logger, 'warn')
       .mockImplementation(() => undefined);
+    const context = {
+      method: 'POST',
+      scope: 'login-with-email',
+      used: 6,
+      limit: 5,
+      ip: '192.0.2.1',
+      url: '/auth/login?email=private@example.com',
+      userAgent: 'PrivateAgent',
+    } as unknown as TAbuseContext;
 
-    reporter.reportAbuse('Too many attempts with password: my-secret-pass', {
-      ip: '127.0.0.1',
-      api_key: 'key-12345',
-    });
+    reporter.reportAbuse(
+      'Too many attempts for private.person@example.com',
+      context
+    );
 
     expect(loggerWarnSpy).toHaveBeenCalledWith('security.abuse.detected', {
-      ip: '127.0.0.1',
-      api_key: '[REDACTED]',
-      message: 'Too many attempts with password: [REDACTED]',
+      method: 'POST',
+      scope: 'login-with-email',
+      used: 6,
+      limit: 5,
+      message: 'Too many attempts for [REDACTED]',
     });
-
-    const sentryMessage = jest.mocked(Sentry.captureMessage).mock.calls[0][0];
-    const sentryContext = jest.mocked(Sentry.captureMessage).mock
-      .calls[0][1] as { extra?: Record<string, unknown> } | undefined;
-    const extra = sentryContext?.extra as Record<string, unknown>;
-
-    expect(sentryMessage).not.toContain('my-secret-pass');
-    expect(extra.api_key).toBe('[REDACTED]');
-    expect(extra.ip).toBe('127.0.0.1');
+    expect(Sentry.captureMessage).toHaveBeenCalledWith(
+      'Too many attempts for [REDACTED]',
+      {
+        level: 'warning',
+        extra: {
+          method: 'POST',
+          scope: 'login-with-email',
+          used: 6,
+          limit: 5,
+        },
+      }
+    );
   });
 
-  it('handles an empty abuse message and missing runtime metadata', () => {
+  it('handles empty messages and missing runtime context safely', () => {
     const loggerWarnSpy = jest
       .spyOn(logger, 'warn')
       .mockImplementation(() => undefined);
 
-    reporter.reportAbuse('', undefined as unknown as Record<string, unknown>);
+    reporter.reportAbuse('', undefined as unknown as TAbuseContext);
 
     expect(loggerWarnSpy).toHaveBeenCalledWith('security.abuse.detected', {
       message: '',
     });
     expect(Sentry.captureMessage).toHaveBeenCalledWith('', {
       level: 'warning',
-      extra: { correlationId: undefined },
+      extra: {},
+    });
+  });
+
+  it('drops malformed values from runtime-projected context', () => {
+    jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+    const context = {
+      operation: { payload: 'private' },
+      transport: 'kafka',
+      attempt: Number.POSITIVE_INFINITY,
+      eventTypes: ['domain:test:safe', 42],
+    } as unknown as TReportContext;
+
+    reporter.report(
+      'queue.job.processing_failed',
+      new Error('failed'),
+      context
+    );
+
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      extra: {},
     });
   });
 
@@ -124,53 +221,123 @@ describe('reporter', () => {
       .spyOn(logger, 'warn')
       .mockImplementation(() => undefined);
     process.env.APP_ENV = 'local';
+    const context: TAbuseContext = {
+      method: 'GET',
+      scope: 'global',
+      used: 701,
+      limit: 700,
+    };
 
-    reporter.reportAbuse('Request threshold exceeded', { ip: '127.0.0.1' });
+    reporter.reportAbuse('Request threshold exceeded', context);
 
     expect(loggerWarnSpy).toHaveBeenCalledWith('security.abuse.detected', {
-      ip: '127.0.0.1',
+      ...context,
       message: 'Request threshold exceeded',
     });
     expect(Sentry.captureMessage).not.toHaveBeenCalled();
   });
 
-  it('emits a non-recursive fallback event when external reporting fails', () => {
+  it('emits a bounded fallback event when external error reporting fails', () => {
     const loggerErrorSpy = jest
       .spyOn(logger, 'error')
       .mockImplementation(() => undefined);
     jest.mocked(Sentry.captureException).mockImplementationOnce(() => {
       throw new Error('Sentry unavailable');
     });
+    const context = {
+      queue: 'test-queue',
+      transport: 'rabbitmq',
+      payload: { email: 'private@example.com' },
+    } as unknown as TReportContext;
 
-    reporter.report('queue.job.processing_failed', new Error('job failed'));
+    reporter.report(
+      'queue.job.processing_failed',
+      new Error('job failed'),
+      context
+    );
 
     expect(loggerErrorSpy).toHaveBeenLastCalledWith(
       'observability.error.reporting_failed',
-      expect.objectContaining({
+      {
         error: expect.any(Error),
         sourceEvent: 'queue.job.processing_failed',
-      })
+        queue: 'test-queue',
+        transport: 'rabbitmq',
+      }
     );
     expect(Sentry.captureException).toHaveBeenCalledTimes(1);
   });
 
-  it('uses the same non-recursive fallback when abuse reporting fails', () => {
+  it('uses the same bounded fallback when abuse reporting fails', () => {
     const loggerErrorSpy = jest
       .spyOn(logger, 'error')
       .mockImplementation(() => undefined);
     jest.mocked(Sentry.captureMessage).mockImplementationOnce(() => {
       throw new Error('Sentry unavailable');
     });
+    const context: TAbuseContext = {
+      method: 'POST',
+      scope: 'reset-password',
+      used: 6,
+      limit: 5,
+    };
 
-    reporter.reportAbuse('Request threshold exceeded', { ip: '127.0.0.1' });
+    reporter.reportAbuse('Request threshold exceeded', context);
 
     expect(loggerErrorSpy).toHaveBeenLastCalledWith(
       'observability.error.reporting_failed',
-      expect.objectContaining({
+      {
         error: expect.any(Error),
         sourceEvent: 'security.abuse.detected',
-      })
+        ...context,
+      }
     );
     expect(Sentry.captureMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not throw when caller context cannot be inspected', () => {
+    jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+    const context = new Proxy(
+      {},
+      {
+        get() {
+          throw new Error('blocked context');
+        },
+      }
+    ) as TReportContext;
+
+    expect(() =>
+      reporter.report(
+        'queue.job.processing_failed',
+        new Error('failed'),
+        context
+      )
+    ).not.toThrow();
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      extra: {},
+    });
+  });
+
+  it('does not throw when abuse context cannot be inspected', () => {
+    jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const context = new Proxy(
+      {},
+      {
+        get() {
+          throw new Error('blocked context');
+        },
+      }
+    ) as TAbuseContext;
+
+    expect(() =>
+      reporter.reportAbuse('Request threshold exceeded', context)
+    ).not.toThrow();
+    expect(Sentry.captureMessage).toHaveBeenCalledWith(
+      'Request threshold exceeded',
+      {
+        level: 'warning',
+        extra: {},
+      }
+    );
   });
 });

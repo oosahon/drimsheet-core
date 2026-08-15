@@ -14,6 +14,7 @@ import IAppContext from '@app/context/contracts/app-context.contract';
 
 import vars from '@infra/config/vars.config';
 import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-id';
+import { normalizeTelemetryError } from '@infra/observability/helpers/telemetry-error';
 
 import packageJson from '../../../package.json';
 
@@ -84,38 +85,26 @@ const jsonFormat = winston.format.combine(
   winston.format.json()
 );
 
-function normalizeError(error: unknown): unknown {
-  const sanitizedError = sanitizeData(error);
-
-  if (!(sanitizedError instanceof Error)) return sanitizedError;
-
-  return Object.getOwnPropertyNames(sanitizedError).reduce<
-    Record<string, unknown>
-  >((normalizedError, key) => {
-    normalizedError[key] = (
-      sanitizedError as unknown as Record<string, unknown>
-    )[key];
-    return normalizedError;
-  }, {});
-}
-
 function prepareFields(fields: ILogFields = {}): ILogFields {
-  const sanitizedFields = (sanitizeData(fields) as ILogFields) || {};
+  const sanitizedInput = sanitizeData(fields);
+  const sanitizedFields =
+    sanitizedInput &&
+    typeof sanitizedInput === 'object' &&
+    !Array.isArray(sanitizedInput)
+      ? (sanitizedInput as ILogFields)
+      : {};
   const error = fields?.error;
 
   LOGGER_OWNED_FIELDS.forEach((field) => delete sanitizedFields[field]);
 
   if (error !== undefined) {
-    sanitizedFields.error = normalizeError(error);
+    const normalizedError = normalizeTelemetryError(error);
+    sanitizedFields.error = normalizedError;
 
-    if (
-      sanitizedFields.error &&
-      typeof sanitizedFields.error === 'object' &&
-      'errorKey' in sanitizedFields.error
-    ) {
-      sanitizedFields.errorKey = (
-        sanitizedFields.error as Record<string, unknown>
-      ).errorKey as string;
+    if (normalizedError.errorKey) {
+      sanitizedFields.errorKey = normalizedError.errorKey;
+    } else {
+      delete sanitizedFields.errorKey;
     }
   }
 

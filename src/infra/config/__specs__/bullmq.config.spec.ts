@@ -119,13 +119,18 @@ describe('registerBullMQWorker', () => {
       mockQueueMetrics
     );
 
-    const job = makeJob('failed-job-correlation');
-    await expect(getRegisteredProcessor()(job)).rejects.toBe(processingError);
+    await expect(
+      getRegisteredProcessor()(makeJob('failed-job-correlation'))
+    ).rejects.toBe(processingError);
 
     expect(reporter.report).toHaveBeenCalledWith(
       'queue.job.processing_failed',
       processingError,
-      { job }
+      {
+        queue: 'test-queue',
+        transport: 'bullmq',
+        attempt: 2,
+      }
     );
     expect(mockQueueMetrics.recordProcessingFailed).toHaveBeenCalledWith({
       queueName: 'test-queue',

@@ -103,7 +103,6 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
       } catch (error) {
         deps.reporter.report('auth.password_reset.finalization_failed', error, {
           operation: 'finalize-password-reset-token',
-          userId: existingUser.id,
         });
       }
       deps.appContext
@@ -125,7 +124,6 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
             cleanupError,
             {
               operation: 'release-password-reset-token-claim',
-              userId: tokenPayload.id,
             }
           );
         }

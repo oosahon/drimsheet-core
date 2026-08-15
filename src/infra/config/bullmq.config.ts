@@ -62,7 +62,11 @@ export function registerBullMQWorker<T extends ICorrelationId>(
             ...processingObservation,
             durationMs: performance.now() - processingStartedAt,
           });
-          reporter.report('queue.job.processing_failed', error, { job });
+          reporter.report('queue.job.processing_failed', error, {
+            queue: name,
+            transport: EQueueTransport.BullMQ,
+            attempt: job.attemptsMade + 1,
+          });
           throw error;
         }
       });

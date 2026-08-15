@@ -3,6 +3,7 @@ import { ValidateError } from 'tsoa';
 
 import ILogger from '@shared/contracts/logger.contract';
 import IReporter from '@shared/contracts/reporter.contract';
+import { IParsedError } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import appError from '@shared/values/errors/app.error';
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
@@ -24,7 +25,8 @@ const errorKeyToStatusCode: Record<string, number> = {
   app_error_internal_server_error: 500,
 };
 
-function getStatusCodeFromError(error: any): number {
+function getStatusCodeFromError(error: IParsedError): number {
+  if (error.errorKey?.endsWith('_internal_server_error')) return 500;
   if (error.name === 'AuthError') return 401;
   if (error.errorKey && errorKeyToStatusCode[error.errorKey]) {
     return errorKeyToStatusCode[error.errorKey];
@@ -89,14 +91,21 @@ function makeHttpErrorHandler(deps: IDependencies) {
         .json(httpErrorParser.toHttp(serverError));
     }
 
+    const statusCode = getStatusCodeFromError(parsedError);
+
+    if (statusCode === 500) {
+      deps.reporter.report('http.request.failed', error);
+      const serverError = new appError.InternalServerError();
+
+      return res.status(statusCode).json(httpErrorParser.toHttp(serverError));
+    }
+
     if (deps.nodeEnv === 'local') {
       deps.logger.error('http.request.rejected', {
         error,
         outcome: 'rejected',
       });
     }
-
-    const statusCode = getStatusCodeFromError(parsedError);
 
     return res
       .status(statusCode)

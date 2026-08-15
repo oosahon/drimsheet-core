@@ -119,7 +119,11 @@ describe('logger', () => {
     });
     const error = Object.assign(
       new Error('Failed authentication with token: secret_abc123'),
-      { errorKey: 'auth_error_invalid_token' }
+      {
+        errorKey: 'auth_error_invalid_token',
+        cause: { userId: 'private-user-id' },
+        amount: 100,
+      }
     );
 
     logger.error('observability.error.reported', {
@@ -138,13 +142,18 @@ describe('logger', () => {
     expect(normalizedError.message).toContain('token: [REDACTED]');
     expect(normalizedError.message).not.toContain('secret_abc123');
     expect(normalizedError.stack).toEqual(expect.any(String));
+    expect(normalizedError).toEqual({
+      name: 'Error',
+      message: expect.any(String),
+      stack: expect.any(String),
+      errorKey: 'auth_error_invalid_token',
+    });
     expect(record.errorKey).toBe('auth_error_invalid_token');
     expect(nested.password).toBe('[REDACTED]');
-    expect(nested.url).toContain('token=%5BREDACTED%5D');
-    expect(nested.url).not.toContain('secret123');
+    expect(nested.url).toBe('[REDACTED]');
   });
 
-  it('preserves messages and plain-object error details', () => {
+  it('preserves log messages without serializing plain-object errors', () => {
     const output: string[] = [];
     const logger = makeLogger({
       appEnv: 'production',
@@ -161,8 +170,14 @@ describe('logger', () => {
     expect(parseRecord(output)).toEqual(
       expect.objectContaining({
         message: 'Request processing failed',
-        error: { reason: 'upstream unavailable' },
+        error: {
+          name: 'UnknownError',
+          message: 'A non-Error value was thrown (type: object)',
+        },
       })
+    );
+    expect(JSON.stringify(parseRecord(output))).not.toContain(
+      'upstream unavailable'
     );
     expect(parseRecord(output).errorKey).toBeUndefined();
   });

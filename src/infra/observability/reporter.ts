@@ -1,55 +1,141 @@
 import Sentry from '@sentry/node';
 
 import IReporter from '@shared/contracts/reporter.contract';
-import errorUtils from '@shared/utils/error';
 import { sanitizeData } from '@shared/utils/sanitizer';
 
 import vars from '@infra/config/vars.config';
 import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-id';
+import { makeSentryError } from '@infra/observability/helpers/telemetry-error';
 
 import logger from './logger';
+
+type TReportContext = NonNullable<Parameters<IReporter['report']>[2]>;
+type TAbuseReportContext = Parameters<IReporter['reportAbuse']>[1];
+
+const REPORT_STRING_FIELDS = [
+  'operation',
+  'queue',
+  'source',
+  'signal',
+  'subscriber',
+  'eventType',
+] as const;
+
+function projectReportContext(
+  context: TReportContext | undefined
+): Record<string, unknown> {
+  try {
+    if (!context || typeof context !== 'object') return {};
+
+    const candidate = context as Record<string, unknown>;
+    const projected: Record<string, unknown> = {};
+
+    REPORT_STRING_FIELDS.forEach((field) => {
+      if (typeof candidate[field] === 'string') {
+        projected[field] = candidate[field];
+      }
+    });
+
+    if (
+      candidate.transport === 'bullmq' ||
+      candidate.transport === 'rabbitmq'
+    ) {
+      projected.transport = candidate.transport;
+    }
+
+    if (
+      typeof candidate.attempt === 'number' &&
+      Number.isFinite(candidate.attempt)
+    ) {
+      projected.attempt = candidate.attempt;
+    }
+
+    if (
+      Array.isArray(candidate.eventTypes) &&
+      candidate.eventTypes.every((eventType) => typeof eventType === 'string')
+    ) {
+      projected.eventTypes = candidate.eventTypes;
+    }
+
+    return (sanitizeData(projected) as Record<string, unknown>) || {};
+  } catch {
+    return {};
+  }
+}
+
+function projectAbuseContext(
+  context: TAbuseReportContext
+): Record<string, unknown> {
+  try {
+    if (!context || typeof context !== 'object') return {};
+
+    const candidate = context as unknown as Record<string, unknown>;
+    const projected: Record<string, unknown> = {};
+
+    if (typeof candidate.method === 'string')
+      projected.method = candidate.method;
+    if (typeof candidate.scope === 'string') projected.scope = candidate.scope;
+    if (typeof candidate.used === 'number' && Number.isFinite(candidate.used)) {
+      projected.used = candidate.used;
+    }
+    if (
+      typeof candidate.limit === 'number' &&
+      Number.isFinite(candidate.limit)
+    ) {
+      projected.limit = candidate.limit;
+    }
+
+    return (sanitizeData(projected) as Record<string, unknown>) || {};
+  } catch {
+    return {};
+  }
+}
 
 const reporter: IReporter = {
   report(event, error, context) {
     try {
       const correlationId = safeGetCorrelationId();
-      const sanitizedError = sanitizeData(error);
-      const sanitizedContext =
-        (sanitizeData(context) as Record<string, unknown>) || {};
-      const parsedError = errorUtils.parseError(sanitizedError);
+      const reportContext = projectReportContext(context);
+      const sentryError = makeSentryError(error);
 
       logger.error(event, {
-        ...sanitizedContext,
-        error: sanitizedError,
-        errorKey: parsedError.errorKey,
+        ...reportContext,
+        error: sentryError,
       });
 
-      Sentry.captureException(sanitizedError, {
+      Sentry.captureException(sentryError, {
         extra: {
-          ...sanitizedContext,
-          ...parsedError,
-          correlationId,
+          ...reportContext,
+          ...('errorKey' in sentryError
+            ? {
+                errorKey: (sentryError as Error & { errorKey: string })
+                  .errorKey,
+              }
+            : {}),
+          ...(correlationId ? { correlationId } : {}),
         },
       });
     } catch (reportingError) {
       logger.error('observability.error.reporting_failed', {
         error: reportingError,
         sourceEvent: event,
-        context: sanitizeData(context),
+        ...projectReportContext(context),
       });
     }
   },
 
-  reportAbuse(message, meta) {
+  reportAbuse(message, context) {
     try {
       const correlationId = safeGetCorrelationId();
+      const preparedMessage = sanitizeData(message);
       const sanitizedMessage =
-        (sanitizeData(message) as string) || String(message);
-      const sanitizedMeta =
-        (sanitizeData(meta) as Record<string, unknown>) || {};
+        typeof preparedMessage === 'string'
+          ? preparedMessage
+          : 'Abuse threshold exceeded';
+      const abuseContext = projectAbuseContext(context);
 
       logger.warn('security.abuse.detected', {
-        ...sanitizedMeta,
+        ...abuseContext,
         message: sanitizedMessage,
       });
 
@@ -57,13 +143,16 @@ const reporter: IReporter = {
 
       Sentry.captureMessage(sanitizedMessage, {
         level: 'warning',
-        extra: { ...sanitizedMeta, correlationId },
+        extra: {
+          ...abuseContext,
+          ...(correlationId ? { correlationId } : {}),
+        },
       });
     } catch (reportingError) {
       logger.error('observability.error.reporting_failed', {
         error: reportingError,
         sourceEvent: 'security.abuse.detected',
-        context: sanitizeData(meta),
+        ...projectAbuseContext(context),
       });
     }
   },

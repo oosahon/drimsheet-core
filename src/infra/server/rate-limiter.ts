@@ -9,6 +9,7 @@ import {
 export default function makeGlobalRateLimiter(reporter: IReporter) {
   return configureRateLimiter(
     {
+      scope: 'global',
       windowMs: RATE_LIMITER_WINDOW_MS,
       max: RATE_LIMITER_MAX,
     },

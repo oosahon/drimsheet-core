@@ -261,12 +261,89 @@ describe('rateLimiter middleware instances', () => {
 
     expect(next).toHaveBeenCalledWith();
   });
+
+  it.each([
+    {
+      limiter: 'loginWithEmail',
+      scope: 'login-with-email',
+      limit: 5,
+      request: { body: { email: 'private@example.com' }, ip: '192.0.2.31' },
+    },
+    {
+      limiter: 'verifyEmail',
+      scope: 'verify-email',
+      limit: 5,
+      request: { body: { token: 'private-token' }, ip: '192.0.2.32' },
+    },
+    {
+      limiter: 'getPasswordResetLink',
+      scope: 'get-password-reset-link',
+      limit: 5,
+      request: { body: { email: 'private@example.com' }, ip: '192.0.2.33' },
+    },
+    {
+      limiter: 'getPasswordResetLinkByIp',
+      scope: 'get-password-reset-link-ip',
+      limit: 20,
+      request: { body: { email: 'private@example.com' }, ip: '192.0.2.34' },
+    },
+    {
+      limiter: 'resetPassword',
+      scope: 'reset-password',
+      limit: 5,
+      request: { body: { token: 'private-token' }, ip: '192.0.2.35' },
+    },
+    {
+      limiter: 'resetPasswordByIp',
+      scope: 'reset-password-ip',
+      limit: 20,
+      request: { body: { token: 'private-token' }, ip: '192.0.2.36' },
+    },
+    {
+      limiter: 'refreshAccessToken',
+      scope: 'refresh-access-token',
+      limit: 10,
+      request: {
+        cookies: { refresh_token: 'private-refresh-token' },
+        ip: '192.0.2.37',
+      },
+    },
+  ] as const)(
+    'reports bounded $scope facts without request identity',
+    async ({ limiter, scope, limit, request }) => {
+      const authRateLimiters = makeAuthRateLimiters(varsConfig, mockReporter);
+      const rateLimitHandler = authRateLimiters[limiter];
+      const req = {
+        ...request,
+        method: 'POST',
+        originalUrl: '/private/path?email=private@example.com',
+        headers: { 'user-agent': 'PrivateAgent' },
+      } as unknown as Request;
+      const res = { setHeader: jest.fn() } as unknown as Response;
+
+      for (let attempt = 0; attempt <= limit; attempt += 1) {
+        await rateLimitHandler(req, res, jest.fn());
+      }
+
+      expect(mockReporter.reportAbuse).toHaveBeenCalledTimes(1);
+      expect(mockReporter.reportAbuse).toHaveBeenCalledWith(
+        'Too many requests to API',
+        {
+          method: 'POST',
+          scope,
+          used: limit + 1,
+          limit,
+        }
+      );
+    }
+  );
 });
 
 describe('configureRateLimiter', () => {
   it('uses default IP keyGenerator when no custom keyGenerator is provided', async () => {
     const limiter = configureRateLimiter(
       {
+        scope: 'global',
         windowMs: 60000,
         max: 5,
       },
@@ -283,6 +360,7 @@ describe('configureRateLimiter', () => {
   it('reports abuse on the first request exceeding the rate limit and passes TooManyRequests to next()', async () => {
     const limiter = configureRateLimiter(
       {
+        scope: 'global',
         windowMs: 60000,
         max: 1,
       },
@@ -311,9 +389,9 @@ describe('configureRateLimiter', () => {
       'Too many requests to API',
       {
         method: 'POST',
-        url: '/test-endpoint',
-        ip: '192.0.2.20',
-        userAgent: 'TestAgent',
+        scope: 'global',
+        used: 2,
+        limit: 1,
       }
     );
     expect(next2).toHaveBeenCalledWith(expect.any(appError.TooManyRequests));

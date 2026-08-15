@@ -62,8 +62,8 @@ export default function makeTransactionalEmailQueue(
           transport: EQueueTransport.BullMQ,
         });
         reporter.report('queue.job.enqueue_failed', error, {
-          type: TRANSACTIONAL_EMAIL_QUEUE_NAME,
-          correlationId: payload.correlationId,
+          queue: TRANSACTIONAL_EMAIL_QUEUE_NAME,
+          transport: EQueueTransport.BullMQ,
         });
         throw error;
       }

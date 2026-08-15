@@ -45,7 +45,6 @@ export default function makeSendEmailVerificationEmailUseCase(
         message:
           'Skipping email verification because the user is already verified',
         outcome: 'skipped',
-        userId: user.id,
       });
       return;
     }

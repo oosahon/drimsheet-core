@@ -319,12 +319,7 @@ describe('ledgerAccountBalancePropagationService', () => {
       ).not.toHaveBeenCalled();
       expect(mockReporter.report).toHaveBeenCalledWith(
         'ledger.balance_propagation.failed',
-        expect.any(journalEntryError.AccountNotFound),
-        {
-          correlationId: mockOptions.correlationId,
-          accountingEntityId: journalEntry.accountingEntityId,
-          journalEntryId: journalEntry.id,
-        }
+        expect.any(journalEntryError.AccountNotFound)
       );
     });
 
@@ -348,12 +343,7 @@ describe('ledgerAccountBalancePropagationService', () => {
       ).not.toHaveBeenCalled();
       expect(mockReporter.report).toHaveBeenCalledWith(
         'ledger.balance_propagation.failed',
-        expect.any(journalEntryError.MismatchedJournalLines),
-        {
-          correlationId: mockOptions.correlationId,
-          accountingEntityId: journalEntry.accountingEntityId,
-          journalEntryId: journalEntry.id,
-        }
+        expect.any(journalEntryError.MismatchedJournalLines)
       );
     });
 
@@ -470,12 +460,7 @@ describe('ledgerAccountBalancePropagationService', () => {
       ).resolves.toBeUndefined();
       expect(mockReporter.report).toHaveBeenCalledWith(
         'ledger.balance_propagation.failed',
-        failure,
-        {
-          correlationId: mockOptions.correlationId,
-          accountingEntityId: journalEntry.accountingEntityId,
-          journalEntryId: journalEntry.id,
-        }
+        failure
       );
     });
 

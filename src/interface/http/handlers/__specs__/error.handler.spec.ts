@@ -8,6 +8,7 @@ import DomainError from '@shared/values/errors/domain.error';
 import runtimeError from '@shared/values/errors/runtime.error';
 
 import accountingAppError from '@app/accounting/errors/accounting.error';
+import authError from '@app/auth/errors/auth.error';
 
 import makeHttpErrorHandler from '@interface/http/handlers/error.handler';
 
@@ -232,6 +233,31 @@ describe('makeHttpErrorHandler', () => {
       cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('reports and sanitizes auth errors marked as internal server errors', () => {
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
+    const error = new authError.InconsistentUserAuth({
+      userId: 'user-id',
+    });
+
+    handler(mockReq as unknown as Request, mockRes as Response, error);
+
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'http.request.failed',
+      error
+    );
+    expect(mockLogger.error).not.toHaveBeenCalled();
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'InternalServerError',
+      errorKey: 'app_error_internal_server_error',
+      cause: undefined,
+    });
   });
 
   it('should handle non-auth DomainError and return 400', () => {

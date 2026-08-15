@@ -52,8 +52,8 @@ describe('makeTransactionalEmailQueue', () => {
       'queue.job.enqueue_failed',
       failure,
       {
-        type: 'transactional-email-queue',
-        correlationId: payload.correlationId,
+        queue: 'transactional-email-queue',
+        transport: 'bullmq',
       }
     );
     expect(mockQueueMetrics.recordEnqueueFailed).toHaveBeenCalledWith({

@@ -282,7 +282,6 @@ describe('makeResetPasswordUseCase', () => {
       failure,
       {
         operation: 'finalize-password-reset-token',
-        userId: mockUser.id,
       }
     );
     expect(
@@ -318,7 +317,6 @@ describe('makeResetPasswordUseCase', () => {
       cleanupError,
       {
         operation: 'release-password-reset-token-claim',
-        userId: mockUser.id,
       }
     );
   });

@@ -87,8 +87,8 @@ export async function registerRabbitMQConsumer<T>(
             queueMetrics.recordProcessingFailed(getProcessingMetricInput());
           }
           reporter.report('queue.message.processing_failed', error, {
-            context: 'Failed to process RabbitMQ message',
             queue: config.queue,
+            transport: EQueueTransport.RabbitMQ,
           });
           channel.nack(msg, false, false);
         }
@@ -96,8 +96,8 @@ export async function registerRabbitMQConsumer<T>(
     } catch (error) {
       queueMetrics.recordProcessingFailed(getProcessingMetricInput());
       reporter.report('queue.message.processing_failed', error, {
-        context: 'Failed to process RabbitMQ message',
         queue: config.queue,
+        transport: EQueueTransport.RabbitMQ,
       });
       channel.nack(msg, false, false);
     }
