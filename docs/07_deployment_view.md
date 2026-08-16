@@ -1,8 +1,8 @@
 # 7. Deployment View
 
-The Deployment View describes exactly where and how the PurpleLedger Core software is deployed to run in the target environment. It explains the mapping from the codebase artifacts to the physical and virtual infrastructure nodes, as well as how configuration/secrets are injected into those nodes.
+The Deployment View describes exactly where and how the Drimsheet Core software is deployed to run in the target environment. It explains the mapping from the codebase artifacts to the physical and virtual infrastructure nodes, as well as how configuration/secrets are injected into those nodes.
 
-PurpleLedger embraces a modern PaaS-driven containerized approach that prioritizes fast deployment speeds, simplified configuration via Doppler, and isolated dependencies using Coolify on DigitalOcean.
+Drimsheet embraces a modern PaaS-driven containerized approach that prioritizes fast deployment speeds, simplified configuration via Doppler, and isolated dependencies using Coolify on DigitalOcean.
 
 ## 7.1 Infrastructure Architecture (Level 1)
 
@@ -23,15 +23,15 @@ _Figure 1: View the mermaid sourcecode here: [07.1-deployment-infrastructure.mer
 
 All internal systems run as Docker containers strictly managed and orchestrated by Coolify.
 
-| Container / Node      | Role / Technology    | Description                                                                                                                                                                      |
-| --------------------- | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Reverse Proxy**     | Traefik / Caddy      | Handled natively by Coolify. Acts as the entry point, resolving domains, terminating SSL certificates (via Let's Encrypt), and forwarding requests to the Node.js API container. |
-| **PurpleLedger Core** | Node.js Runtime      | The monolith serving our API, Application, and Domain rules (compiled to JavaScript). Multiple instances/replicas can be spun up by Coolify based on load.                       |
-| **PostgreSQL**        | Relational Database  | The primary transactional database where ledgers and journals are stored. Runs persistently on attached volumes ensuring ACID compliance.                                        |
-| **Redis**             | In-Memory Data Store | Acts as a fast response cache and the backbone for the background job processing (BullMQ / Bull Board).                                                                          |
-| **RabbitMQ**          | Message Broker       | Handles asynchronous event-driven message consumption for external workflows such as exchange rate ingestion, decoupling producers from consumers.                               |
-| **Grafana Alloy**     | Telemetry Collector  | Receives private OTLP application metrics, scrapes BullMQ/RabbitMQ inventory, collects Docker stdout logs, and owns Grafana Cloud egress credentials and retry policy.           |
-| **Qdrant**            | Vector Database      | Maintains semantic context and vector embeddings, particularly for enabling intelligent AI Agent integrations into the product.                                                  |
+| Container / Node   | Role / Technology    | Description                                                                                                                                                                      |
+| ------------------ | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Reverse Proxy**  | Traefik / Caddy      | Handled natively by Coolify. Acts as the entry point, resolving domains, terminating SSL certificates (via Let's Encrypt), and forwarding requests to the Node.js API container. |
+| **Drimsheet Core** | Node.js Runtime      | The monolith serving our API, Application, and Domain rules (compiled to JavaScript). Multiple instances/replicas can be spun up by Coolify based on load.                       |
+| **PostgreSQL**     | Relational Database  | The primary transactional database where ledgers and journals are stored. Runs persistently on attached volumes ensuring ACID compliance.                                        |
+| **Redis**          | In-Memory Data Store | Acts as a fast response cache and the backbone for the background job processing (BullMQ / Bull Board).                                                                          |
+| **RabbitMQ**       | Message Broker       | Handles asynchronous event-driven message consumption for external workflows such as exchange rate ingestion, decoupling producers from consumers.                               |
+| **Grafana Alloy**  | Telemetry Collector  | Receives private OTLP application metrics, scrapes BullMQ/RabbitMQ inventory, collects Docker stdout logs, and owns Grafana Cloud egress credentials and retry policy.           |
+| **Qdrant**         | Vector Database      | Maintains semantic context and vector embeddings, particularly for enabling intelligent AI Agent integrations into the product.                                                  |
 
 Coolify routes application traffic using `GET /health/ready`. The route stays
 unavailable until asynchronous startup completes and a bounded PostgreSQL
@@ -76,10 +76,10 @@ The system is deployed as a consolidated **monolithic runtime architecture**. Ev
 
 ## 7.3 Configuration and Secret Management
 
-PurpleLedger does not store raw `.env` files anywhere in version control or directly on servers. We utilize **Doppler** to distribute secrets dynamically, guaranteeing strong security and auditing of environment configurations across all environments ("development", "staging", "production").
+Drimsheet does not store raw `.env` files anywhere in version control or directly on servers. We utilize **Doppler** to distribute secrets dynamically, guaranteeing strong security and auditing of environment configurations across all environments ("development", "staging", "production").
 
 **The Configuration Lifecycle:**
 
 1.  **Storage (Doppler)**: API Keys, AWS keys, database passwords, and runtime flags are encrypted and updated purely on Doppler's platform.
-2.  **Injection (Coolify Pipeline)**: When Coolify initiates a deployment of the PurpleLedger Core, it utilizes the Doppler CLI (or Doppler Service Token) to securely pull and inject these keys into the Node.js Docker environment at startup.
+2.  **Injection (Coolify Pipeline)**: When Coolify initiates a deployment of the Drimsheet Core, it utilizes the Doppler CLI (or Doppler Service Token) to securely pull and inject these keys into the Node.js Docker environment at startup.
 3.  **Application Consumption (`vars.config.ts` & `IVarsConfig`)**: Within the codebase, configurations are not arbitrarily fetched. The file `src/infra/config/vars.config.ts` parses `process.env` and acts as the secure internal schema for the application. Application-layer code accesses these values through the `IVarsConfig` contract interface (`src/app/shared/contracts/vars-config.contract.ts`), ensuring that environment configuration does not leak into testable application logic.

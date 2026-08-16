@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Financial accounting systems require robust protections against concurrent modification to preserve data integrity. Because PurpleLedger's primary interaction model is a disconnected HTTP web interface (a stateless environment), traditional pessimistic database row locks (`SELECT ... FOR UPDATE`) cannot be utilized to protect user-driven interactions spanning minutes.
+Financial accounting systems require robust protections against concurrent modification to preserve data integrity. Because Drimsheet's primary interaction model is a disconnected HTTP web interface (a stateless environment), traditional pessimistic database row locks (`SELECT ... FOR UPDATE`) cannot be utilized to protect user-driven interactions spanning minutes.
 
 If we rely on standard "last-writer-wins" database operations without locks, we expose the system to the **Lost Update Problem**. For example, Accountant A and Accountant B both open a Category edit view simultaneously. Accountant B saves an update. Two minutes later, Accountant A saves their update using their stale browser state, silently overwriting Accountant B's intermediate work.
 

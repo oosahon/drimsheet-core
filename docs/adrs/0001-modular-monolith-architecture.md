@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-PurpleLedger natively supports highly separated domains: Accounting, Taxation, Users, and Currencies. Traditional scaling advice suggests separating strictly bounded contexts into microservices to allow independent scaling and deployment. However, microservices introduce massive complexities such as network latency, distributed transactions challenges, and difficult local development environments.
+Drimsheet natively supports highly separated domains: Accounting, Taxation, Users, and Currencies. Traditional scaling advice suggests separating strictly bounded contexts into microservices to allow independent scaling and deployment. However, microservices introduce massive complexities such as network latency, distributed transactions challenges, and difficult local development environments.
 
 ## Decision
 

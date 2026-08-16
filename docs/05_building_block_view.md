@@ -1,10 +1,10 @@
 # 5. Building Block View
 
-The building block view shows the static decomposition of the system into building blocks (modules, components, subsystems) as well as their dependencies. It explains the structure of the `PurpleLedger-core` application by zooming into its architectural layers and bounded contexts.
+The building block view shows the static decomposition of the system into building blocks (modules, components, subsystems) as well as their dependencies. It explains the structure of the `drimsheet-core` application by zooming into its architectural layers and bounded contexts.
 
 ## 5.1 Level 1 (Whitebox: Overall System)
 
-At the highest level, PurpleLedger Core strictly adheres to a Domain-Driven Design (DDD) and Clean Architecture pattern. The system is divided into functional layers where outer layers depend on inner layers, with the `Domain` layer at the absolute center, isolated from all external concerns.
+At the highest level, Drimsheet Core strictly adheres to a Domain-Driven Design (DDD) and Clean Architecture pattern. The system is divided into functional layers where outer layers depend on inner layers, with the `Domain` layer at the absolute center, isolated from all external concerns.
 
 ![Level 1: Overall System Layers](./assets/05.1-level-1-system.mermaid.png)
 

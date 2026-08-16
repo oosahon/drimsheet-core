@@ -2,11 +2,11 @@
 
 > [!WARNING]
 > This document is scoped to the following milestone:\
-> https://github.com/oosahon/PurpleLedger-core/milestone/1 (v0.1.0 — Individual MVP)
+> https://github.com/Drimsheet/drimsheet-core/milestone/1 (v0.1.0 — Individual MVP)
 
 ## Accounting Entities
 
-PurpleLedger supports three accounting entity types, defined in `accounting.types.ts`:
+Drimsheet supports three accounting entity types, defined in `accounting.types.ts`:
 
 | Type           | Status       |
 | -------------- | ------------ |
@@ -22,7 +22,7 @@ Each accounting entity is associated with:
 
 ## The "Reporting Headers" Architecture
 
-Because the General Ledger must remain pure and standard-agnostic, PurpleLedger uses a **Reporting Headers** approach to generate financial statements.
+Because the General Ledger must remain pure and standard-agnostic, Drimsheet uses a **Reporting Headers** approach to generate financial statements.
 
 1. **The Raw GL**: The chart of accounts (`LedgerAccount`) exists without any knowledge of reporting standards or accounting contexts.
 2. **Reporting Nodes/Headers**: The `Accounting` domain defines a hierarchical tree of `ReportingHeaders` for a specific `ReportingContext` (e.g., "IFRS 2026").
@@ -35,7 +35,7 @@ The most common architectural challenge with a single standard-agnostic GL is ha
 
 ### The Subledger Strategy
 
-To prevent dirtying the GL with context-specific journal entries, PurpleLedger pushes valuation complexity down into dedicated **Subledgers**:
+To prevent dirtying the GL with context-specific journal entries, Drimsheet pushes valuation complexity down into dedicated **Subledgers**:
 
 1. The GL simply receives "Cost of Goods Sold" and "Inventory" values based on the primary operational standard.
 2. The **Inventory Subledger** tracks the actual physical items and lots.

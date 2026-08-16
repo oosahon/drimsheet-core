@@ -29,7 +29,7 @@ export default async function registerExchangeRateConsumer(
     exchangeArguments: {
       'alternate-exchange': 'ingestion.exchange-rate.unroutable',
     },
-    queue: 'pl-core.exchange-rate.ingested',
+    queue: 'drimsheet-core.exchange-rate.ingested',
     routingKey: 'exchange-rate.ingested',
     processor: exchangeRateIngestionWorker,
     getInitialStore: (payload) => ({

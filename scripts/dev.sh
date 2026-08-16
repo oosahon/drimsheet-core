@@ -10,7 +10,7 @@ fi
 
 # Start dev services
 # NOTE: Infrastructure (Postgres, Redis, RabbitMQ) should be started
-# separately via purple-ledger-platforms: bash bin/start.sh
+# separately via drimsheet-platforms: bash bin/start.sh
 npx concurrently \
   "nodemon" \
   "nodemon -x 'tsoa spec-and-routes -c tsoa.json'"

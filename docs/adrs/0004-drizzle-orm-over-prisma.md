@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-PurpleLedger's PostgreSQL database must enforce ACID compliance, support robust jsonb data columns, and allow high-performance operations without obfuscating what the actual SQL query is doing. Heavy, highly-abstracted ORMs (like Prisma or TypeORM) often generate inefficient SQL layers internally, suffer from the "N+1" query problem silently, and lack fine-grained query adjustments.
+Drimsheet's PostgreSQL database must enforce ACID compliance, support robust jsonb data columns, and allow high-performance operations without obfuscating what the actual SQL query is doing. Heavy, highly-abstracted ORMs (like Prisma or TypeORM) often generate inefficient SQL layers internally, suffer from the "N+1" query problem silently, and lack fine-grained query adjustments.
 However, while choosing a lightweight ORM is beneficial for querying, database migration tools must rigorously support complex deployment lifecycles. This includes robust rollbacks (`down` migrations) and independent execution states, which simplistic ORM-bundled migration tools sometimes lack.
 
 ## Decision

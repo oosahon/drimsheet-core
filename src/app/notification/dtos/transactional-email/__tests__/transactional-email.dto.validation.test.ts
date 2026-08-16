@@ -5,7 +5,7 @@ describe('Transactional Email DTO Validation', () => {
     const payload = {
       correlationId: 'corr-123',
       emails: ['user1@example.com', 'user2@example.com'],
-      subject: 'Welcome to Purple Ledger',
+      subject: 'Welcome to Drimsheet',
       html: '<h1>Welcome!</h1>',
       templateId: 'welcome-template',
       data: {

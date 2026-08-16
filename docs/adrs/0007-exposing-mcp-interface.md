@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-One of the goals of PurpleLedger is to empower accounting support securely via Autonomous AI Agents. Exposing raw API endpoints directly to large language model wrappers is prone to hallucinated payloads and unsecured mutations, risking violations of our core ACIDS/Accounting constraints.
+One of the goals of Drimsheet is to empower accounting support securely via Autonomous AI Agents. Exposing raw API endpoints directly to large language model wrappers is prone to hallucinated payloads and unsecured mutations, risking violations of our core ACIDS/Accounting constraints.
 
 ## Decision
 
@@ -19,7 +19,7 @@ We natively expose core interfaces utilizing the **Model Context Protocol (MCP)*
 
 ### Positive
 
-- PurpleLedger becomes instantly interoperable with standard LLM tooling ecosystems out-of-the-box, serving high-value integrations safely.
+- Drimsheet becomes instantly interoperable with standard LLM tooling ecosystems out-of-the-box, serving high-value integrations safely.
 - Agents can natively read tax/audit status securely directly from the context source.
 
 ### Negative

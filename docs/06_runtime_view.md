@@ -1,6 +1,6 @@
 # 6. Runtime View
 
-The runtime view describes the concrete behavior and interactions of the system’s building blocks in the form of scenarios. It explains how the components detailed in the Building Block View interact at runtime to fulfill the most critical use cases of PurpleLedger Core.
+The runtime view describes the concrete behavior and interactions of the system’s building blocks in the form of scenarios. It explains how the components detailed in the Building Block View interact at runtime to fulfill the most critical use cases of Drimsheet Core.
 
 ## 6.1 Transfer Journal Entry Flow (End-to-End)
 

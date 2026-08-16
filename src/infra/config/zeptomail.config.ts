@@ -48,20 +48,20 @@ function createSender(sender: IEmailSender) {
 }
 
 const notifications = createSender({
-  email: 'notifications@purpleledger.app',
-  name: 'Team PurpleLedger',
+  email: 'notifications@drimsheet.com',
+  name: 'Team Drimsheet',
   agent: vars.ZEPTO_TOKEN_NOTIFICATIONS,
 });
 
 const osahon = createSender({
-  email: 'osahon@purpleledger.app',
-  name: 'Osahon from PurpleLedger',
+  email: 'osahon@drimsheet.com',
+  name: 'Osahon from Drimsheet',
   agent: vars.ZEPTO_TOKEN_OSAHON,
 });
 
 const noReply = createSender({
-  email: 'noreply@purpleledger.app',
-  name: 'Team PurpleLedger',
+  email: 'noreply@drimsheet.com',
+  name: 'Team Drimsheet',
   agent: vars.ZEPTO_TOKEN_NOREPLY,
 });
 

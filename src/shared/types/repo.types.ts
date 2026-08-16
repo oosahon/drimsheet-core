@@ -3,7 +3,7 @@ import { IPaginationParams } from '@shared/values/pagination/types/pagination.ty
 import { ICorrelationId } from './correlation-id.types';
 
 export interface ITransactionContext {
-  _brand?: 'PurpleLedgerTransactionContext';
+  _brand?: 'DrimsheetTransactionContext';
 }
 
 export interface IRepoOptions extends ICorrelationId {

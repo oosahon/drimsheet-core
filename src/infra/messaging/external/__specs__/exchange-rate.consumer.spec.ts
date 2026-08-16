@@ -30,7 +30,7 @@ describe('registerExchangeRateConsumer', () => {
     correlation_id: 'payload-correlation',
     event_type: 'exchange-rate.ingested.v1',
     occurred_at: '2026-08-15T00:00:00.000Z',
-    producer: 'pl-ingestion',
+    producer: 'drimsheet-ingestion',
     data: [],
   };
 
@@ -55,7 +55,7 @@ describe('registerExchangeRateConsumer', () => {
       connection,
       expect.objectContaining({
         exchange: 'ingestion.exchange-rate',
-        queue: 'pl-core.exchange-rate.ingested',
+        queue: 'drimsheet-core.exchange-rate.ingested',
         routingKey: 'exchange-rate.ingested',
       }),
       mockReporter,

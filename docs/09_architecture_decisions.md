@@ -10,7 +10,7 @@ Important, expensive, large scale or risky architecture decisions including rati
 > - **To Remove:** Run `npm run adr:remove <serial_number>` (e.g., `npm run adr:remove 0005`)
 > - **To Rename:** Run `npm run adr:rename <serial_number> "<New Title>"`
 
-The following architectural decision records (ADRs) capture the critical technical choices that shape the structural integrity, security, and scalability of PurpleLedger.
+The following architectural decision records (ADRs) capture the critical technical choices that shape the structural integrity, security, and scalability of Drimsheet.
 
 | ID                                                              | Title                                                    | Status   |
 | --------------------------------------------------------------- | -------------------------------------------------------- | -------- |

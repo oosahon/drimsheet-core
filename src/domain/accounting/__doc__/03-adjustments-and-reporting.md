@@ -2,11 +2,11 @@
 
 > [!WARNING]
 > This document is scoped to the following milestone:\
-> https://github.com/oosahon/PurpleLedger-core/milestone/1 (v0.1.0 — Individual MVP)
+> https://github.com/Drimsheet/drimsheet-core/milestone/1 (v0.1.0 — Individual MVP)
 
 ## Reporting Needs
 
-PurpleLedger will support the following reporting for all three accounting domains:
+Drimsheet will support the following reporting for all three accounting domains:
 
 #### Individuals
 

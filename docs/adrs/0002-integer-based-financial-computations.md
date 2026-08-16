@@ -6,11 +6,11 @@ Accepted
 
 ## Context
 
-PurpleLedger handles complex financial operations, double-entry bookkeeping, tax calculations, and multi-currency conversions. Floating-point numbers (`dec`/`float` in some languages/databases) are notoriously bad for financial applications due to rounding errors and precision loss (e.g., `0.1 + 0.2 = 0.30000000000000004`). In a strict accounting system, a margin of error of even a fraction of a cent can prevent a journal from balancing.
+Drimsheet handles complex financial operations, double-entry bookkeeping, tax calculations, and multi-currency conversions. Floating-point numbers (`dec`/`float` in some languages/databases) are notoriously bad for financial applications due to rounding errors and precision loss (e.g., `0.1 + 0.2 = 0.30000000000000004`). In a strict accounting system, a margin of error of even a fraction of a cent can prevent a journal from balancing.
 
 ## Decision
 
-All monetary values within the PurpleLedger core system, memory strings, and PostgreSQL persistence layers are processed and stored as **Integers representing the lowest denomination** of a currency (e.g., Kobo for NGN, Cents for USD).
+All monetary values within the Drimsheet Core system, memory strings, and PostgreSQL persistence layers are processed and stored as **Integers representing the lowest denomination** of a currency (e.g., Kobo for NGN, Cents for USD).
 
 ## Consequences
 

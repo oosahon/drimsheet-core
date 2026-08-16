@@ -69,7 +69,7 @@ describe('makeIngestExchangeRateUseCase', () => {
       correlation_id: correlationId,
       event_type: 'exchange-rate.ingested.v1',
       occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'pl-ingestion',
+      producer: 'drimsheet-ingestion',
       data: dataItems,
     };
 
@@ -102,7 +102,7 @@ describe('makeIngestExchangeRateUseCase', () => {
       correlation_id: correlationId,
       event_type: 'exchange-rate.ingested.v1',
       occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'pl-ingestion',
+      producer: 'drimsheet-ingestion',
       data: [],
     };
 
@@ -123,7 +123,7 @@ describe('makeIngestExchangeRateUseCase', () => {
       correlation_id: correlationId,
       event_type: 'exchange-rate.ingested.v1',
       occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'pl-ingestion',
+      producer: 'drimsheet-ingestion',
       data: [
         {
           base_currency_code: 'INVALID',
@@ -152,7 +152,7 @@ describe('makeIngestExchangeRateUseCase', () => {
       correlation_id: correlationId,
       event_type: 'exchange-rate.ingested.v1' as const,
       occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'pl-ingestion' as const,
+      producer: 'drimsheet-ingestion' as const,
       data: [
         {
           base_currency_code: SYSTEM_CURRENCIES.EUR.code,
@@ -181,7 +181,7 @@ describe('makeIngestExchangeRateUseCase', () => {
       correlation_id: correlationId,
       event_type: 'exchange-rate.ingested.v1',
       occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'pl-ingestion',
+      producer: 'drimsheet-ingestion',
       data: [
         {
           base_currency_code: SYSTEM_CURRENCIES.EUR.code,
@@ -210,7 +210,7 @@ describe('makeIngestExchangeRateUseCase', () => {
       correlation_id: correlationId,
       event_type: 'exchange-rate.ingested.v1',
       occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'pl-ingestion',
+      producer: 'drimsheet-ingestion',
       data: [
         {
           base_currency_code: SYSTEM_CURRENCIES.EUR.code,
@@ -237,7 +237,7 @@ describe('makeIngestExchangeRateUseCase', () => {
       correlation_id: correlationId,
       event_type: 'exchange-rate.ingested.v1',
       occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'pl-ingestion',
+      producer: 'drimsheet-ingestion',
       data: [
         {
           base_currency_code: SYSTEM_CURRENCIES.EUR.code,
@@ -267,7 +267,7 @@ describe('makeIngestExchangeRateUseCase', () => {
       correlation_id: correlationId,
       event_type: 'exchange-rate.ingested.v1',
       occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'pl-ingestion',
+      producer: 'drimsheet-ingestion',
       data: [
         {
           base_currency_code: SYSTEM_CURRENCIES.EUR.code,
@@ -299,7 +299,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     > = {
       event_type: 'exchange-rate.ingested.v1',
       occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'pl-ingestion',
+      producer: 'drimsheet-ingestion',
       data: [
         {
           base_currency_code: SYSTEM_CURRENCIES.EUR.code,
