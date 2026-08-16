@@ -8,7 +8,6 @@ import scrubSentryEvent from '@infra/observability/helpers/scrub-sentry-event';
 import scrubSentrySpan from '@infra/observability/helpers/scrub-sentry-span';
 import scrubSentryTransaction from '@infra/observability/helpers/scrub-sentry-transaction';
 import logger from '@infra/observability/logger';
-import observabilityLifecycle from '@infra/runtime/observability-lifecycle';
 
 export default function bootstrapObservability(): void {
   try {
@@ -33,6 +32,4 @@ export default function bootstrapObservability(): void {
       // Observability initialization must never prevent application startup.
     }
   }
-
-  observabilityLifecycle.registerShutdown();
 }

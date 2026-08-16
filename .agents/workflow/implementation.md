@@ -6,7 +6,8 @@ Use this for ordinary code changes.
 2. Inspect nearby entities, services, contracts, mocks, tests, repositories, and
    IoC before adding files or abstractions.
 3. Identify the requirement, durable rule, concrete local precedent, or approved
-   deviation supporting each structural decision. Follow
+   deviation supporting each structural decision and name its current production
+   consumer. Follow [Scope And Simplicity](../rules/scope-and-simplicity.md) and
    [Precedent And Deviation](../rules/precedent-and-deviation.md).
 4. Revalidate any saved plan against durable rules and the current repository.
    Plans do not override current rules or established local patterns.

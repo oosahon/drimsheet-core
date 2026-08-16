@@ -29,11 +29,13 @@ dedicated sections instead.
 
 ## Implementation Basis
 
-| Decision or structural change | Basis                                               | Evidence or rationale                                     |
-| ----------------------------- | --------------------------------------------------- | --------------------------------------------------------- |
-| `<decision>`                  | Requirement, rule, precedent, or approved deviation | Cite paths and symbols, or record the approved rationale. |
+| Decision or structural change | Basis                                               | Current requirement and production consumer | Evidence or rationale                                     |
+| ----------------------------- | --------------------------------------------------- | ------------------------------------------- | --------------------------------------------------------- |
+| `<decision>`                  | Requirement, rule, precedent, or approved deviation | Name both.                                  | Cite paths and symbols, or record the approved rationale. |
 
-Classify every structural decision. For a local precedent, cite the concrete
+Classify every structural decision and identify its present requirement and
+current production consumer. A possible future consumer is not sufficient; put
+future-only work under `Out of Scope`. For a local precedent, cite the concrete
 path and symbol that owns the same responsibility. If no suitable precedent
 exists, label the basis `Pending deviation`, record what was searched and why
 the closest candidates do not suffice, and resolve the decision before marking
@@ -54,7 +56,7 @@ cover a purely mechanical group of changes that follows the same precedent.
 
 ### Out of Scope
 
-- Identify adjacent work that this plan intentionally excludes.
+- Identify adjacent and future-only work that this plan intentionally excludes.
 
 Omit any scope subsection that does not add useful information.
 
@@ -73,6 +75,10 @@ rollouts.
 
 Add, rename, or remove subsections as needed. Do not manufacture multiple steps
 for work that has one coherent implementation.
+
+Do not place future-only ideas in the proposed approach. Record them under
+`Out of Scope` or as a follow-up decision until a current requirement and
+production consumer exist.
 
 Identify the owner of each invariant, side effect, and transaction. For every
 proposed service, state the named reusable capability it represents and cite

@@ -7,8 +7,9 @@ description: Use whenever the user asks for a plan, implementation plan, approac
 
 ## Required workflow
 
-1. Read [the implementation plan template](../../templates/implementation-plan.md)
-   and [Precedent And Deviation](../../rules/precedent-and-deviation.md).
+1. Read [the implementation plan template](../../templates/implementation-plan.md),
+   [Scope And Simplicity](../../rules/scope-and-simplicity.md), and
+   [Precedent And Deviation](../../rules/precedent-and-deviation.md).
 2. Inspect the repository enough to distinguish confirmed findings from
    assumptions and open decisions.
 3. Inspect existing services, contracts, repositories, and IoC before proposing

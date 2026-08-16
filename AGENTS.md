@@ -9,12 +9,13 @@ Read this before changing the repository.
 3. For code changes, follow `.agents/workflow/implementation.md`.
 4. Always follow `.agents/rules/folder-responsibility.md`.
 5. Always follow `.agents/rules/import-paths.md`.
-6. Follow `.agents/rules/service-ownership.md` and
+6. Always follow `.agents/rules/scope-and-simplicity.md`.
+7. Follow `.agents/rules/service-ownership.md` and
    `.agents/rules/readability.md` for implementation changes.
-7. Follow `.agents/rules/ioc.md` when changing dependency wiring.
-8. Follow `.agents/rules/testing/general.md` when adding or renaming tests.
-9. Follow `.agents/rules/observability.md` when creating or changing logger or
-   reporter events.
+8. Follow `.agents/rules/ioc.md` when changing dependency wiring.
+9. Follow `.agents/rules/testing/general.md` when adding or renaming tests.
+10. Follow `.agents/rules/observability.md` when creating or changing logger or
+    reporter events.
 
 ## Planning
 

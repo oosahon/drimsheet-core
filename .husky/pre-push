@@ -9,9 +9,6 @@ npm run lint || exit 1
 echo "🔄 Running tests..."
 npm test || exit 1
 
-echo "🔄 Running observability smoke tests..."
-npm run test:observability-smoke || exit 1
-
 echo "🔄 Running automated ADR Sync..."
 npm run adr:sync
 
