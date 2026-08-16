@@ -1,16 +1,15 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import DomainError from './domain.error';
 
-type TErrorKeyPrefix = `runtime_error_context_${string}`;
-
 const EErrorKeys = {
-  InvalidValue: 'runtime_error_context_invalid_value',
-  ContextNotFound: 'runtime_error_context_context_not_found',
-  CorrelationIdRequired: 'runtime_error_context_correlation_id_required',
-  StoreNotFound: 'runtime_error_context_store_not_found',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InvalidValue: 'runtime_error_context_invalid_value_unexpected',
+  ContextNotFound: 'runtime_error_context_context_not_found_unexpected',
+  CorrelationIdRequired:
+    'runtime_error_context_correlation_id_required_unexpected',
+  StoreNotFound: 'runtime_error_context_store_not_found_unexpected',
+} as const satisfies TErrorKeys<'runtime_error_context'>;
 
 type URuntimeError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

@@ -1,20 +1,18 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorKeyPrefix = `money_error_${string}`;
-
 const EErrorKeys = {
-  InvalidValue: 'money_error_invalid_value',
-  NonNormalizableAmount: 'money_error_non_normalizable_amount',
-  InvalidCurrencyCode: 'money_error_invalid_currency_code',
-  FractionalMinorUnit: 'money_error_fractional_minor_unit',
-  MissingArguments: 'money_error_missing_arguments',
-  CurrencyMismatch: 'money_error_currency_mismatch',
-  InvalidFactor: 'money_error_invalid_factor',
-  DivisionByZero: 'money_error_division_by_zero',
-  InvalidAmount: 'money_error_invalid_amount',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InvalidValue: 'money_error_value_invalid',
+  NonNormalizableAmount: 'money_error_non_normalizable_amount_invalid',
+  InvalidCurrencyCode: 'money_error_currency_code_invalid',
+  FractionalMinorUnit: 'money_error_fractional_minor_unit_invalid',
+  MissingArguments: 'money_error_missing_arguments_invalid',
+  CurrencyMismatch: 'money_error_currency_mismatch_invalid',
+  InvalidFactor: 'money_error_factor_invalid',
+  DivisionByZero: 'money_error_division_by_zero_invalid',
+  InvalidAmount: 'money_error_amount_invalid',
+} as const satisfies TErrorKeys<'money_error'>;
 
 type UMoneyError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

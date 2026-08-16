@@ -1,27 +1,25 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorKeyPrefix = `fx_cost_basis_lot_disposition_${string}`;
-
 const EErrorKeys = {
   InvalidLedgerAccountId:
-    'fx_cost_basis_lot_disposition_invalid_ledger_account_id',
+    'fx_cost_basis_lot_disposition_ledger_account_id_invalid',
   InvalidAccountingEntityId:
-    'fx_cost_basis_lot_disposition_invalid_accounting_entity_id',
+    'fx_cost_basis_lot_disposition_accounting_entity_id_invalid',
   InvalidJournalEntryId:
-    'fx_cost_basis_lot_disposition_invalid_journal_entry_id',
-  InvalidQuantity: 'fx_cost_basis_lot_disposition_invalid_quantity',
+    'fx_cost_basis_lot_disposition_journal_entry_id_invalid',
+  InvalidQuantity: 'fx_cost_basis_lot_disposition_quantity_invalid',
   InvalidCostBasisConsumed:
-    'fx_cost_basis_lot_disposition_invalid_cost_basis_consumed',
-  InvalidProceeds: 'fx_cost_basis_lot_disposition_invalid_proceeds',
+    'fx_cost_basis_lot_disposition_cost_basis_consumed_invalid',
+  InvalidProceeds: 'fx_cost_basis_lot_disposition_proceeds_invalid',
   InvalidRealizedGainLoss:
-    'fx_cost_basis_lot_disposition_invalid_realized_gain_loss',
+    'fx_cost_basis_lot_disposition_realized_gain_loss_invalid',
   InvalidDispositionDate:
-    'fx_cost_basis_lot_disposition_invalid_disposition_date',
+    'fx_cost_basis_lot_disposition_disposition_date_invalid',
   InvalidDispositionRate:
-    'fx_cost_basis_lot_disposition_invalid_disposition_rate',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+    'fx_cost_basis_lot_disposition_disposition_rate_invalid',
+} as const satisfies TErrorKeys<'fx_cost_basis_lot_disposition'>;
 
 type UFxCostBasisLotDispositionError =
   (typeof EErrorKeys)[keyof typeof EErrorKeys];

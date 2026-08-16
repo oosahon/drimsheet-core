@@ -25,72 +25,95 @@ import {
 import { exchangeRateService } from '@infra/ioc/services/money';
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
+import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
 import ledgerRepos from '@infra/persistence/repos/ledger';
 import appContext from '@infra/runtime/app-context';
 
-export const getBanksUseCase = makeGetBanksUseCase();
+export const getBanksUseCase = makeTracedUseCase(
+  'ledger.getBanksUseCase',
+  makeGetBanksUseCase()
+);
 
-export const getLedgerAccountsUseCase = makeGetLedgerAccountsUsecase({
-  appContext: appContext,
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  balanceEnrichmentService: ledgerAccountBalanceEnrichmentService,
-});
+export const getLedgerAccountsUseCase = makeTracedUseCase(
+  'ledger.getLedgerAccountsUseCase',
+  makeGetLedgerAccountsUsecase({
+    appContext: appContext,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    balanceEnrichmentService: ledgerAccountBalanceEnrichmentService,
+  })
+);
 
-export const getPermittedPostingAccountsUseCase =
+export const getPermittedPostingAccountsUseCase = makeTracedUseCase(
+  'ledger.getPermittedPostingAccountsUseCase',
   makeGetPermittedPostingAccountsUsecase({
     appContext,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     balanceEnrichmentService: ledgerAccountBalanceEnrichmentService,
-  });
+  })
+);
 
-export const getLedgerAccountUseCase = makeGetLedgerAccountUseCase({
-  appContext: appContext,
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  balanceEnrichmentService: ledgerAccountBalanceEnrichmentService,
-});
+export const getLedgerAccountUseCase = makeTracedUseCase(
+  'ledger.getLedgerAccountUseCase',
+  makeGetLedgerAccountUseCase({
+    appContext: appContext,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    balanceEnrichmentService: ledgerAccountBalanceEnrichmentService,
+  })
+);
 
-export const adjustLedgerAccountBalanceUseCase =
+export const adjustLedgerAccountBalanceUseCase = makeTracedUseCase(
+  'ledger.adjustLedgerAccountBalanceUseCase',
   makeAdjustLedgerAccountBalanceUseCase({
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
     ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
-  });
+  })
+);
 
-export const getAccountTransactionsUseCase = makeGetAccountTransactionsUseCase({
-  appContext: appContext,
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  accountTransactionQueryRepo: ledgerRepos.queries.accountTransaction,
-});
+export const getAccountTransactionsUseCase = makeTracedUseCase(
+  'ledger.getAccountTransactionsUseCase',
+  makeGetAccountTransactionsUseCase({
+    appContext: appContext,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    accountTransactionQueryRepo: ledgerRepos.queries.accountTransaction,
+  })
+);
 
-export const createPettyCashAccountUseCase = makeCreatePettyCashAccountUseCase({
-  appContext: appContext,
-  eventBus: messaging.eventBus,
-  cashAccountService,
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  accountingPeriodService,
-  journalEntryService,
-  journalEntryPersistenceService,
-  balancePropagationService: ledgerAccountBalancePropagationService,
-  repoService,
-  ledgerAccountPersistenceService,
-  fxCostBasisPersistenceService,
-  fxCostBasisService: fxCostBasisLotService,
-  exchangeRateService,
-});
+export const createPettyCashAccountUseCase = makeTracedUseCase(
+  'ledger.createPettyCashAccountUseCase',
+  makeCreatePettyCashAccountUseCase({
+    appContext: appContext,
+    eventBus: messaging.eventBus,
+    cashAccountService,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    accountingPeriodService,
+    journalEntryService,
+    journalEntryPersistenceService,
+    balancePropagationService: ledgerAccountBalancePropagationService,
+    repoService,
+    ledgerAccountPersistenceService,
+    fxCostBasisPersistenceService,
+    fxCostBasisService: fxCostBasisLotService,
+    exchangeRateService,
+  })
+);
 
-export const createBankAccountUseCase = makeCreateBankAccountUseCase({
-  appContext: appContext,
-  eventBus: messaging.eventBus,
-  cashAccountService,
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  accountingPeriodService,
-  bankAccountRepo: ledgerRepos.bankAccount,
-  journalEntryService,
-  journalEntryPersistenceService,
-  balancePropagationService: ledgerAccountBalancePropagationService,
-  repoService,
-  ledgerAccountPersistenceService,
-  fxCostBasisPersistenceService,
-  fxCostBasisService: fxCostBasisLotService,
-  exchangeRateService,
-});
+export const createBankAccountUseCase = makeTracedUseCase(
+  'ledger.createBankAccountUseCase',
+  makeCreateBankAccountUseCase({
+    appContext: appContext,
+    eventBus: messaging.eventBus,
+    cashAccountService,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    accountingPeriodService,
+    bankAccountRepo: ledgerRepos.bankAccount,
+    journalEntryService,
+    journalEntryPersistenceService,
+    balancePropagationService: ledgerAccountBalancePropagationService,
+    repoService,
+    ledgerAccountPersistenceService,
+    fxCostBasisPersistenceService,
+    fxCostBasisService: fxCostBasisLotService,
+    exchangeRateService,
+  })
+);

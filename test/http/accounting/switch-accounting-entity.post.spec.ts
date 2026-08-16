@@ -200,7 +200,7 @@ describe('POST /accounting/accounting-entity/switch', () => {
       expect(response.status).toBe(422);
       expect(response.body).toMatchObject({
         name: 'UnprocessableEntity',
-        errorKey: 'app_error_unprocessable',
+        errorKey: 'app_error_validation_error',
       });
       expect(mockSwitchAccountingEntity).not.toHaveBeenCalled();
     });
@@ -220,7 +220,7 @@ describe('POST /accounting/accounting-entity/switch', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain('credentials');
     });

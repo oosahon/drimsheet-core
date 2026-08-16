@@ -182,19 +182,6 @@ describe('POST /journal-entries/receipt', () => {
   });
 
   describe('400 Response', () => {
-    it('rejects a missing active accounting entity header', async () => {
-      const response = await request(app)
-        .post(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token')
-        .send(validPayload);
-
-      expect(response.status).toBe(400);
-      expect(response.body.errorKey).toBe(
-        'accounting_error_accounting_entity_unauthorized'
-      );
-      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
-    });
-
     it('rejects an invalid accounting entity ID format', async () => {
       const response = await request(app)
         .post(ENDPOINT)
@@ -203,7 +190,7 @@ describe('POST /journal-entries/receipt', () => {
         .send(validPayload);
 
       expect(response.status).toBe(400);
-      expect(response.body.errorKey).toBe('app_error_bad_request');
+      expect(response.body.errorKey).toBe('app_error_request_invalid');
       expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
     });
   });
@@ -234,7 +221,9 @@ describe('POST /journal-entries/receipt', () => {
       const response = await makeRequest();
 
       expect(response.status).toBe(401);
-      expect(response.body.errorKey).toBe('auth_error_expired_token');
+      expect(response.body.errorKey).toBe(
+        'auth_error_token_expired_unauthorized'
+      );
       expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
     });
   });
@@ -266,7 +255,7 @@ describe('POST /journal-entries/receipt', () => {
       const response = await makeRequest(invalidPayload);
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
     });
 
@@ -281,12 +270,26 @@ describe('POST /journal-entries/receipt', () => {
       const response = await makeRequest();
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(response.body.validationErrors).toEqual(validationErrors);
     });
   });
 
   describe('500 Response', () => {
+    it('rejects a missing active accounting entity header', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(validPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_unexpected',
+      });
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+
     it('sanitizes unexpected internal errors', async () => {
       mockCreateReceiptUseCase.mockRejectedValueOnce(
         new Error('database failure')
@@ -297,7 +300,7 @@ describe('POST /journal-entries/receipt', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
     });
   });

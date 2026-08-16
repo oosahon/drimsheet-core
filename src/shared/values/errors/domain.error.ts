@@ -1,6 +1,6 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKey } from '@shared/types/error.types';
 
-export default class DomainError<K extends string> extends Error {
+export default class DomainError<K extends TErrorKey> extends Error {
   errorKey: K;
   cause?: TErrorCause;
 

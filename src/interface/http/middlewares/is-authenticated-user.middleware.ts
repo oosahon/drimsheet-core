@@ -1,5 +1,4 @@
 import { RequestHandler } from 'express';
-import _ from 'lodash';
 
 import appError from '@shared/values/errors/app.error';
 
@@ -17,11 +16,11 @@ export default function makeIsAuthenticatedUserMiddleware(
     try {
       const { user, accountingEntity } = appContext.get();
 
-      if (_.isEmpty(user)) {
+      if (!user) {
         throw new appError.Unauthorized();
       }
 
-      if (!_.isEmpty(accountingEntity)) {
+      if (accountingEntity) {
         const canAccessEntity = accountingEntityService.grantUserAccess(
           accountingEntity,
           user.id

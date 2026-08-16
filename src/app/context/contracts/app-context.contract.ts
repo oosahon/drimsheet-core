@@ -11,13 +11,18 @@ export interface IClientSession {
 }
 
 export interface IAppContextData extends ICorrelationId, IIdempotencyKey {
-  user: IUser;
-  accountingEntity: IAccountingEntity;
-  clientSession: IClientSession;
+  user?: IUser;
+  accountingEntity?: IAccountingEntity;
+  clientSession?: IClientSession;
 }
 
+export type TAppContextWithRequiredKeys<K extends keyof IAppContextData> =
+  IAppContextData & Required<Pick<IAppContextData, K>>;
+
 export default interface IAppContext {
-  init: (store: IAppContextData, callback: () => void) => void;
-  get(): IAppContextData;
+  init<T>(store: IAppContextData, callback: () => T): T;
+  get<K extends keyof IAppContextData = never>(
+    requiredKeys?: readonly K[]
+  ): TAppContextWithRequiredKeys<K>;
   set: (store: Partial<IAppContextData>) => void;
 }

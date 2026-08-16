@@ -1,8 +1,8 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKey, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorPrefix = `currency_error_${string}`;
+type TErrorPrefix = TErrorKey<'currency_error'>;
 
 class CurrencyError<K extends TErrorPrefix> extends DomainError<K> {
   constructor(key: K, cause?: TErrorCause) {
@@ -12,9 +12,9 @@ class CurrencyError<K extends TErrorPrefix> extends DomainError<K> {
 }
 
 const EErrorKeys = {
-  InvalidValue: 'currency_error_invalid_value',
-  InvalidCode: 'currency_error_invalid_code',
-} as const satisfies Record<string, TErrorPrefix>;
+  InvalidValue: 'currency_error_value_invalid',
+  InvalidCode: 'currency_error_code_invalid',
+} as const satisfies TErrorKeys<'currency_error'>;
 
 const currencyError = Object.freeze({
   Base: CurrencyError,

@@ -15,6 +15,7 @@ export default function makeSignupRateLimitMiddlewares(
 ): [RateLimitRequestHandler, RateLimitRequestHandler] {
   const ipRateLimiter = configureRateLimiter(
     {
+      scope: 'signup-ip',
       windowMs: 1000 * 60,
       max: 20,
       message: AUTH_RATE_LIMITER_MESSAGE,
@@ -24,6 +25,7 @@ export default function makeSignupRateLimitMiddlewares(
 
   const accountRateLimiter = configureRateLimiter(
     {
+      scope: 'signup-account',
       windowMs: 1000 * 60,
       max: 5,
       message: AUTH_RATE_LIMITER_MESSAGE,

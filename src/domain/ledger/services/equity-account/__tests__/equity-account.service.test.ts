@@ -128,7 +128,8 @@ describe('equityAccountService', () => {
         repoOptions
       )
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_opening_balance_account_already_exists',
+      errorKey:
+        'ledger_error_asset_opening_balance_account_already_exists_conflict',
       cause: { existing },
     });
   });
@@ -205,7 +206,8 @@ describe('equityAccountService', () => {
         repoOptions
       )
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_retained_earnings_account_already_exists',
+      errorKey:
+        'ledger_error_asset_retained_earnings_account_already_exists_conflict',
       cause: { existing },
     });
   });

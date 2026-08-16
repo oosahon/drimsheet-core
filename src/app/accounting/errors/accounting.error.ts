@@ -1,12 +1,10 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import appError from '@shared/values/errors/app.error';
 
-type TErrorKeyPrefix = `app_error_accounting_${string}`;
-
 const EErrorKeys = {
   ActiveEntityNotFound: 'app_error_accounting_active_entity_not_found',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+} as const satisfies TErrorKeys<'app_error_accounting'>;
 
 type UAccountingError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

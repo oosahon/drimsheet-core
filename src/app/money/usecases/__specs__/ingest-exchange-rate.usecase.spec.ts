@@ -323,7 +323,12 @@ describe('makeIngestExchangeRateUseCase', () => {
     );
 
     expect(mockLogger.warn).toHaveBeenCalledWith(
-      'Exchange rate ingestion message was sent without a correlation_id'
+      'exchange_rate.ingestion.correlation_id_missing',
+      {
+        message:
+          'Exchange rate ingestion message did not contain a correlation ID',
+        outcome: 'unknown',
+      }
     );
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(exchangeRateRepoMock.create).toHaveBeenCalledTimes(1);

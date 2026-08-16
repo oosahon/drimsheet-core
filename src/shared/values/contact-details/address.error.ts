@@ -1,15 +1,15 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKey, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorKeyPrefix = `address_error_${string}`;
+type TErrorKeyPrefix = TErrorKey<'address_error'>;
 
 const EErrorKeys = {
-  InvalidLine1: 'address_error_invalid_line1',
-  InvalidCity: 'address_error_invalid_city',
-  InvalidCountryCode: 'address_error_invalid_country_code',
-  InvalidAddress: 'address_error_invalid_address',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InvalidLine1: 'address_error_line1_invalid',
+  InvalidCity: 'address_error_city_invalid',
+  InvalidCountryCode: 'address_error_country_code_invalid',
+  InvalidAddress: 'address_error_address_invalid',
+} as const satisfies TErrorKeys<'address_error'>;
 
 type UAddressError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

@@ -83,7 +83,7 @@ describe('POST /auth/signup-with-email', () => {
       expect(response.status).toBe(422);
       expect(response.body).toEqual({
         name: 'UnprocessableEntity',
-        errorKey: 'app_error_unprocessable',
+        errorKey: 'app_error_validation_error',
         validationErrors: [
           {
             field: 'body.password',
@@ -179,7 +179,7 @@ describe('POST /auth/signup-with-email', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain(
         validPayload.password

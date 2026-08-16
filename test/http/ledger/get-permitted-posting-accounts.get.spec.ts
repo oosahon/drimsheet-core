@@ -185,13 +185,17 @@ describe('GET /ledger/posting-accounts', () => {
     });
   });
 
-  describe('400 Response', () => {
+  describe('500 Response', () => {
     it('rejects a request without an active accounting entity', async () => {
       const response = await request(app)
         .get(`${ENDPOINT}?sourceType=receipt&side=source`)
         .set('Authorization', 'Bearer valid-token');
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_unexpected',
+      });
       expect(mockGetPermittedPostingAccounts).not.toHaveBeenCalled();
     });
   });

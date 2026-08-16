@@ -1,22 +1,20 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorKeyPrefix = `fx_cost_basis_lot_acquisition_${string}`;
-
 const EErrorKeys = {
   InvalidLedgerAccountId:
-    'fx_cost_basis_lot_acquisition_invalid_ledger_account_id',
+    'fx_cost_basis_lot_acquisition_ledger_account_id_invalid',
   InvalidAccountingEntityId:
-    'fx_cost_basis_lot_acquisition_invalid_accounting_entity_id',
-  InvalidLotId: 'fx_cost_basis_lot_acquisition_invalid_lot_id',
+    'fx_cost_basis_lot_acquisition_accounting_entity_id_invalid',
+  InvalidLotId: 'fx_cost_basis_lot_acquisition_lot_id_invalid',
   InvalidJournalEntryId:
-    'fx_cost_basis_lot_acquisition_invalid_journal_entry_id',
-  InvalidQuantity: 'fx_cost_basis_lot_acquisition_invalid_quantity',
-  InvalidCostBasis: 'fx_cost_basis_lot_acquisition_invalid_cost_basis',
+    'fx_cost_basis_lot_acquisition_journal_entry_id_invalid',
+  InvalidQuantity: 'fx_cost_basis_lot_acquisition_quantity_invalid',
+  InvalidCostBasis: 'fx_cost_basis_lot_acquisition_cost_basis_invalid',
   InvalidAcquisitionDate:
-    'fx_cost_basis_lot_acquisition_invalid_acquisition_date',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+    'fx_cost_basis_lot_acquisition_acquisition_date_invalid',
+} as const satisfies TErrorKeys<'fx_cost_basis_lot_acquisition'>;
 
 type UFxCostBasisLotAcquisitionError =
   (typeof EErrorKeys)[keyof typeof EErrorKeys];

@@ -1,78 +1,80 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorKeyPrefix = `ledger_error_${string}`;
-
 const EErrorKeys = {
-  InvalidId: 'ledger_error_invalid_id',
-  InvalidAction: 'ledger_error_invalid_action',
-  InvalidDate: 'ledger_error_invalid_date',
-  InvalidType: 'ledger_error_ledger_account_invalid_type',
-  InvalidNormalBalance: 'ledger_error_ledger_account_invalid_normal_balance',
-  InvalidCode: 'ledger_error_ledger_account_invalid_code',
-  InvalidName: 'ledger_error_ledger_account_invalid_name',
-  InvalidStatus: 'ledger_error_ledger_account_invalid_status',
-  InvalidContraRule: 'ledger_error_ledger_account_invalid_contra_rule',
-  InvalidAdjunctRule: 'ledger_error_ledger_account_invalid_adjunct_rule',
-  HeaderAccountAlreadyExists: 'ledger_error_header_account_already_exists',
-  InvalidSubType: 'ledger_error_ledger_account_invalid_sub_type',
-  InvalidBehavior: 'ledger_error_ledger_account_invalid_behavior',
+  InvalidId: 'ledger_error_id_invalid',
+  InvalidAction: 'ledger_error_action_invalid',
+  InvalidDate: 'ledger_error_date_invalid',
+  InvalidType: 'ledger_error_ledger_account_type_invalid',
+  InvalidNormalBalance: 'ledger_error_ledger_account_normal_balance_invalid',
+  InvalidCode: 'ledger_error_ledger_account_code_invalid',
+  InvalidName: 'ledger_error_ledger_account_name_invalid',
+  InvalidStatus: 'ledger_error_ledger_account_status_invalid',
+  InvalidContraRule: 'ledger_error_ledger_account_contra_rule_invalid',
+  InvalidAdjunctRule: 'ledger_error_ledger_account_adjunct_rule_invalid',
+  HeaderAccountAlreadyExists:
+    'ledger_error_header_account_already_exists_conflict',
+  InvalidSubType: 'ledger_error_ledger_account_sub_type_invalid',
+  InvalidBehavior: 'ledger_error_ledger_account_behavior_invalid',
   InvalidControlAccountStatus:
-    'ledger_error_ledger_account_invalid_control_account_status',
-  InvalidMeta: 'ledger_error_ledger_account_invalid_meta',
-  InvalidHeaderCode: 'ledger_error_ledger_account_invalid_header_code',
+    'ledger_error_ledger_account_control_account_status_invalid',
+  InvalidMeta: 'ledger_error_ledger_account_meta_invalid',
+  InvalidHeaderCode:
+    'ledger_error_ledger_account_invalid_header_code_unexpected',
   InvalidPredecessorCode:
-    'ledger_error_ledger_account_invalid_predecessor_code',
-  MaximumLimitReached: 'ledger_error_ledger_account_maximum_limit_reached',
+    'ledger_error_ledger_account_invalid_predecessor_code_unexpected',
+  MaximumLimitReached:
+    'ledger_error_ledger_account_maximum_limit_reached_conflict',
   InvalidMaterializedPath:
-    'ledger_error_ledger_account_invalid_materialized_path',
+    'ledger_error_ledger_account_invalid_materialized_path_unexpected',
   InvalidParentMaterializedPath:
-    'ledger_error_ledger_account_invalid_parent_materialized_path',
+    'ledger_error_ledger_account_invalid_parent_materialized_path_unexpected',
   InvalidOpeningBalanceDate:
-    'ledger_error_ledger_account_invalid_opening_balance_date',
+    'ledger_error_ledger_account_opening_balance_date_invalid',
   ForbiddenControlAccountOpeningBalanceDate:
-    'ledger_error_ledger_account_forbidden_control_account_opening_balance_date',
+    'ledger_error_ledger_account_forbidden_control_account_opening_balance_date_invalid',
   OpeningBalanceDateAlreadySet:
-    'ledger_error_ledger_account_opening_balance_date_already_set',
+    'ledger_error_ledger_account_opening_balance_date_already_set_conflict',
   InvalidAccountingEntityId:
-    'ledger_error_ledger_account_invalid_accounting_entity_id',
+    'ledger_error_ledger_account_accounting_entity_id_invalid',
   InvalidControlAccountId:
-    'ledger_error_ledger_account_invalid_control_account_id',
-  InvalidCreatorId: 'ledger_error_ledger_account_invalid_creator_id',
-  InvalidCountryCode: 'ledger_error_ledger_account_invalid_country_code',
-  InvalidBankName: 'ledger_error_ledger_account_invalid_bank_name',
+    'ledger_error_ledger_account_control_account_id_invalid',
+  InvalidCreatorId: 'ledger_error_ledger_account_creator_id_invalid',
+  InvalidCountryCode: 'ledger_error_ledger_account_country_code_invalid',
+  InvalidBankName: 'ledger_error_ledger_account_bank_name_invalid',
   InvalidBankAccountName:
-    'ledger_error_ledger_account_invalid_bank_account_name',
+    'ledger_error_ledger_account_bank_account_name_invalid',
   InvalidBankAccountNumber:
-    'ledger_error_ledger_account_invalid_bank_account_number',
-  InvalidSortCode: 'ledger_error_ledger_account_invalid_sort_code',
-  InvalidSwiftCode: 'ledger_error_ledger_account_invalid_swift_code',
-  InvalidIban: 'ledger_error_ledger_account_invalid_iban',
-  InvalidRoutingNumber: 'ledger_error_ledger_account_invalid_routing_number',
-  InvalidBranchCode: 'ledger_error_ledger_account_invalid_branch_code',
-  InvalidTaxAuthority: 'ledger_error_ledger_account_invalid_tax_authority',
-  InvalidTaxType: 'ledger_error_ledger_account_invalid_tax_type',
-  InvalidCounterpartyId: 'ledger_error_ledger_account_invalid_counterparty_id',
-  InvalidInvoiceId: 'ledger_error_ledger_account_invalid_invoice_id',
-  InvalidCardIssuer: 'ledger_error_ledger_account_invalid_card_issuer',
-  InvalidLastFourDigits: 'ledger_error_ledger_account_invalid_last_four_digits',
+    'ledger_error_ledger_account_bank_account_number_invalid',
+  InvalidSortCode: 'ledger_error_ledger_account_sort_code_invalid',
+  InvalidSwiftCode: 'ledger_error_ledger_account_swift_code_invalid',
+  InvalidIban: 'ledger_error_ledger_account_iban_invalid',
+  InvalidRoutingNumber: 'ledger_error_ledger_account_routing_number_invalid',
+  InvalidBranchCode: 'ledger_error_ledger_account_branch_code_invalid',
+  InvalidTaxAuthority: 'ledger_error_ledger_account_tax_authority_invalid',
+  InvalidTaxType: 'ledger_error_ledger_account_tax_type_invalid',
+  InvalidCounterpartyId: 'ledger_error_ledger_account_counterparty_id_invalid',
+  InvalidInvoiceId: 'ledger_error_ledger_account_invoice_id_invalid',
+  InvalidCardIssuer: 'ledger_error_ledger_account_card_issuer_invalid',
+  InvalidLastFourDigits: 'ledger_error_ledger_account_last_four_digits_invalid',
   InvalidLinkedBankAccountId:
-    'ledger_error_ledger_account_invalid_linked_bank_account_id',
-  InvalidLenderName: 'ledger_error_ledger_account_invalid_lender_name',
+    'ledger_error_ledger_account_linked_bank_account_id_invalid',
+  InvalidLenderName: 'ledger_error_ledger_account_lender_name_invalid',
   ControlAccountNotFound:
-    'ledger_error_asset_account_control_account_not_found',
-  InvalidControlAccount: 'ledger_error_asset_account_invalid_control_account',
+    'ledger_error_asset_account_control_account_not_found_unexpected',
+  InvalidControlAccount: 'ledger_error_asset_account_control_account_invalid',
   ControlAccountCurrencyMismatch:
-    'ledger_error_ledger_account_control_account_currency_mismatch',
+    'ledger_error_ledger_account_control_account_currency_mismatch_invalid',
   OpeningBalanceCurrencyMismatch:
-    'ledger_error_asset_account_opening_balance_currency_mismatch',
-  DuplicateBankAccount: 'ledger_error_asset_account_duplicate_bank_account',
+    'ledger_error_asset_account_opening_balance_currency_mismatch_invalid',
+  DuplicateBankAccount:
+    'ledger_error_asset_account_duplicate_bank_account_conflict',
   OpeningBalanceAccountAlreadyExists:
-    'ledger_error_asset_opening_balance_account_already_exists',
+    'ledger_error_asset_opening_balance_account_already_exists_conflict',
   RetainedEarningsAccountAlreadyExists:
-    'ledger_error_asset_retained_earnings_account_already_exists',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+    'ledger_error_asset_retained_earnings_account_already_exists_conflict',
+} as const satisfies TErrorKeys<'ledger_error'>;
 
 type ULedgerAccountError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

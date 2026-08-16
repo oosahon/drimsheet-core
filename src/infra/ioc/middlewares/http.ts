@@ -10,6 +10,7 @@ import appContext from '@infra/runtime/app-context';
 import makeGlobalRateLimiter from '@infra/server/rate-limiter';
 
 import makeAccountingEntityAccessMiddleware from '@interface/http/middlewares/accounting-entity-access.middleware';
+import makeAppContextEnrichmentMiddleware from '@interface/http/middlewares/app-context-enrichment.middleware';
 import makeAppContextInitMiddleware from '@interface/http/middlewares/app-context-init.middleware';
 import makeErrorHandlerMiddleware from '@interface/http/middlewares/error-handler.middleware';
 import {
@@ -42,13 +43,14 @@ const httpMiddlewares = {
     observability.reporter
   ),
 
-  appContext: makeAppContextInitMiddleware(
+  appContextInit: makeAppContextInitMiddleware(appContext, vars),
+
+  appContextEnrichment: makeAppContextEnrichmentMiddleware(
     appContext,
     accountingRepos.accountingEntity,
     tokenService,
     userRepos.user,
-    observability.logger,
-    vars
+    observability.logger
   ),
 
   errorHandler: makeErrorHandlerMiddleware(),
@@ -60,8 +62,7 @@ const httpMiddlewares = {
 
   requestLogger: makeRequestLoggerMiddleware(
     observability.logger,
-    observability.reporter,
-    appContext
+    observability.httpMetrics
   ),
 
   accountingEntityAccess: makeAccountingEntityAccessMiddleware(

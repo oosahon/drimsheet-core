@@ -157,7 +157,7 @@ describe('GET /users/profile', () => {
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
         name: 'AuthError',
-        errorKey: 'auth_error_expired_token',
+        errorKey: 'auth_error_token_expired_unauthorized',
       });
       expect(mockFindUser).not.toHaveBeenCalled();
     });
@@ -190,7 +190,7 @@ describe('GET /users/profile', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
     });
   });

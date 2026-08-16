@@ -64,7 +64,7 @@ describe('POST /auth/get-password-reset-link', () => {
       expect(response.status).toBe(422);
       expect(response.body).toEqual({
         name: 'UnprocessableEntity',
-        errorKey: 'app_error_unprocessable',
+        errorKey: 'app_error_validation_error',
         validationErrors: [
           {
             field: 'payload.email',
@@ -78,7 +78,7 @@ describe('POST /auth/get-password-reset-link', () => {
     it('sanitizes application validation failures', async () => {
       getPasswordResetLinkSpy.mockRejectedValueOnce(
         new appError.UnprocessableEntity([
-          { field: 'email', message: 'auth_error_invalid_email' },
+          { field: 'email', message: 'auth_error_email_invalid' },
         ])
       );
 
@@ -89,11 +89,11 @@ describe('POST /auth/get-password-reset-link', () => {
       expect(response.status).toBe(422);
       expect(response.body).toEqual({
         name: 'UnprocessableEntity',
-        errorKey: 'app_error_unprocessable',
+        errorKey: 'app_error_validation_error',
         validationErrors: [
           {
             field: 'email',
-            message: 'auth_error_invalid_email',
+            message: 'auth_error_email_invalid',
           },
         ],
       });
@@ -157,7 +157,7 @@ describe('POST /auth/get-password-reset-link', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain(
         'unexpected-error@example.com'

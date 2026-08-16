@@ -1,22 +1,20 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorKeyPrefix = `event_error_${string}`;
-
 const EErrorKeys = {
-  InvalidValue: 'event_error_invalid_value',
-  CorrelationIdOverwrite: 'event_error_correlation_id_overwrite',
-  IdempotencyKeyOverwrite: 'event_error_idempotency_key_overwrite',
-  InvalidCorrelationId: 'event_error_invalid_correlation_id',
-  InvalidIdempotencyKey: 'event_error_invalid_idempotency_key',
-  MissingEventType: 'event_error_missing_event_type',
-  MissingEventData: 'event_error_missing_event_data',
-  EventTypeMismatch: 'event_error_event_type_mismatch',
-  MissingKey: 'event_error_missing_key',
-  InvalidKey: 'event_error_invalid_key',
-  InvalidType: 'event_error_invalid_type',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InvalidValue: 'event_error_invalid_value_unexpected',
+  CorrelationIdOverwrite: 'event_error_correlation_id_overwrite_unexpected',
+  IdempotencyKeyOverwrite: 'event_error_idempotency_key_overwrite_unexpected',
+  InvalidCorrelationId: 'event_error_invalid_correlation_id_unexpected',
+  InvalidIdempotencyKey: 'event_error_invalid_idempotency_key_unexpected',
+  MissingEventType: 'event_error_missing_event_type_unexpected',
+  MissingEventData: 'event_error_missing_event_data_unexpected',
+  EventTypeMismatch: 'event_error_event_type_mismatch_unexpected',
+  MissingKey: 'event_error_missing_key_unexpected',
+  InvalidKey: 'event_error_invalid_key_unexpected',
+  InvalidType: 'event_error_invalid_type_unexpected',
+} as const satisfies TErrorKeys<'event_error'>;
 
 type UEventError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

@@ -22,6 +22,7 @@ export const AUTH_RATE_LIMITER_MESSAGE = new authError.TooManyRequests()
   .errorKey;
 
 interface IConfig {
+  scope: URateLimitScope;
   windowMs: number;
   max: number;
   message?: string;
@@ -38,7 +39,7 @@ interface IRateLimitRequest extends Request {
   };
 }
 
-export type RateLimitAction =
+type URateLimitAction =
   | 'signup-with-email'
   | 'login-with-email'
   | 'verify-email'
@@ -46,8 +47,20 @@ export type RateLimitAction =
   | 'reset-password'
   | 'refresh-access-token';
 
+type URateLimitScope =
+  | 'global'
+  | 'signup-ip'
+  | 'signup-account'
+  | 'login-with-email'
+  | 'verify-email'
+  | 'get-password-reset-link'
+  | 'get-password-reset-link-ip'
+  | 'reset-password'
+  | 'reset-password-ip'
+  | 'refresh-access-token';
+
 export function makeAccountRateLimitKey(
-  action: RateLimitAction,
+  action: URateLimitAction,
   input: unknown,
   secret: string
 ): string | undefined {
@@ -73,7 +86,7 @@ export function makeIpRateLimitKey(input: unknown): string {
 }
 
 export function makeHashedRateLimitKey(
-  action: RateLimitAction,
+  action: URateLimitAction,
   input: unknown,
   secret: string
 ): string | undefined {
@@ -100,6 +113,7 @@ export function makeAuthRateLimiters(
   return {
     loginWithEmail: configureRateLimiter(
       {
+        scope: 'login-with-email',
         windowMs: 1000 * 60,
         max: 5,
         message: AUTH_RATE_LIMITER_MESSAGE,
@@ -111,6 +125,7 @@ export function makeAuthRateLimiters(
 
     verifyEmail: configureRateLimiter(
       {
+        scope: 'verify-email',
         windowMs: 1000 * 60 * 15,
         max: 5,
         message: AUTH_RATE_LIMITER_MESSAGE,
@@ -122,6 +137,7 @@ export function makeAuthRateLimiters(
 
     getPasswordResetLink: configureRateLimiter(
       {
+        scope: 'get-password-reset-link',
         windowMs: 1000 * 60 * 5,
         max: 5,
         message: AUTH_RATE_LIMITER_MESSAGE,
@@ -137,6 +153,7 @@ export function makeAuthRateLimiters(
 
     getPasswordResetLinkByIp: configureRateLimiter(
       {
+        scope: 'get-password-reset-link-ip',
         windowMs: 1000 * 60 * 5,
         max: 20,
         message: AUTH_RATE_LIMITER_MESSAGE,
@@ -147,6 +164,7 @@ export function makeAuthRateLimiters(
 
     resetPassword: configureRateLimiter(
       {
+        scope: 'reset-password',
         windowMs: 1000 * 60 * 15,
         max: 5,
         message: AUTH_RATE_LIMITER_MESSAGE,
@@ -158,6 +176,7 @@ export function makeAuthRateLimiters(
 
     resetPasswordByIp: configureRateLimiter(
       {
+        scope: 'reset-password-ip',
         windowMs: 1000 * 60 * 15,
         max: 20,
         message: AUTH_RATE_LIMITER_MESSAGE,
@@ -168,6 +187,7 @@ export function makeAuthRateLimiters(
 
     refreshAccessToken: configureRateLimiter(
       {
+        scope: 'refresh-access-token',
         windowMs: 1000 * 60,
         max: 10,
         message: AUTH_RATE_LIMITER_MESSAGE,
@@ -209,9 +229,9 @@ export function configureRateLimiter(config: IConfig, reporter: IReporter) {
       if (rateLimitInfo.used === rateLimitInfo.limit + 1) {
         reporter.reportAbuse('Too many requests to API', {
           method: req.method,
-          url: req.originalUrl,
-          ip: req.ip,
-          userAgent: req.headers['user-agent'],
+          scope: config.scope,
+          used: rateLimitInfo.used,
+          limit: rateLimitInfo.limit,
         });
       }
 

@@ -318,12 +318,8 @@ describe('ledgerAccountBalancePropagationService', () => {
         mockLedgerAccountBalanceAdjustmentQueue.add
       ).not.toHaveBeenCalled();
       expect(mockReporter.report).toHaveBeenCalledWith(
-        expect.any(journalEntryError.AccountNotFound),
-        {
-          correlationId: mockOptions.correlationId,
-          accountingEntityId: journalEntry.accountingEntityId,
-          journalEntryId: journalEntry.id,
-        }
+        'ledger.balance_propagation.failed',
+        expect.any(journalEntryError.AccountNotFound)
       );
     });
 
@@ -346,12 +342,8 @@ describe('ledgerAccountBalancePropagationService', () => {
         mockLedgerAccountBalanceAdjustmentQueue.add
       ).not.toHaveBeenCalled();
       expect(mockReporter.report).toHaveBeenCalledWith(
-        expect.any(journalEntryError.MismatchedJournalLines),
-        {
-          correlationId: mockOptions.correlationId,
-          accountingEntityId: journalEntry.accountingEntityId,
-          journalEntryId: journalEntry.id,
-        }
+        'ledger.balance_propagation.failed',
+        expect.any(journalEntryError.MismatchedJournalLines)
       );
     });
 
@@ -466,11 +458,10 @@ describe('ledgerAccountBalancePropagationService', () => {
       await expect(
         service.propagate(journalEntry, mockOptions)
       ).resolves.toBeUndefined();
-      expect(mockReporter.report).toHaveBeenCalledWith(failure, {
-        correlationId: mockOptions.correlationId,
-        accountingEntityId: journalEntry.accountingEntityId,
-        journalEntryId: journalEntry.id,
-      });
+      expect(mockReporter.report).toHaveBeenCalledWith(
+        'ledger.balance_propagation.failed',
+        failure
+      );
     });
 
     it('should skip balance adjustment for OpeningBalance equity accounts', async () => {

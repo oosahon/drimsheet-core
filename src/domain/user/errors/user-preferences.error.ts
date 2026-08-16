@@ -1,14 +1,12 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import userError from './user.error';
 
-type TErrorKeyPrefix = `user_error_user_preferences_${string}`;
-
 const EErrorKeys = {
-  InvalidAppPreferences: 'user_error_user_preferences_invalid_app_preferences',
-  InvalidAppUsageMode: 'user_error_user_preferences_invalid_app_usage_mode',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InvalidAppPreferences: 'user_error_user_preferences_app_preferences_invalid',
+  InvalidAppUsageMode: 'user_error_user_preferences_app_usage_mode_invalid',
+} as const satisfies TErrorKeys<'user_error_user_preferences'>;
 
 type UUserPreferencesError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

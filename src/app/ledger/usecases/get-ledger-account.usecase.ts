@@ -20,14 +20,17 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
   return async (accountId: TEntityId): Promise<ILedgerAccountDto> => {
     stringUtils.validateUUID(accountId, ledgerAccountError.InvalidId);
 
-    const { correlationId, accountingEntity, user } = deps.appContext.get();
+    const { correlationId, accountingEntity, user } = deps.appContext.get([
+      'user',
+      'accountingEntity',
+    ]);
 
-    const trace = { correlationId };
+    const repoOptions = { correlationId };
 
     const account = await deps.ledgerAccountRepo.findById(
       accountId,
       accountingEntity.id,
-      trace
+      repoOptions
     );
 
     if (!account) {
@@ -44,7 +47,7 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
     const [dto] = await deps.balanceEnrichmentService.enrich(
       [account],
       accountingEntity,
-      trace
+      repoOptions
     );
 
     return dto;

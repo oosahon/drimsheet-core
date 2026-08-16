@@ -1,16 +1,16 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKey, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
-type TErrorKeyPrefix = `pagination_error_${string}`;
+type TErrorKeyPrefix = TErrorKey<'pagination_error'>;
 
 const EErrorKeys = {
-  InvalidOrderBy: 'pagination_error_invalid_sort_by',
-  InvalidSortDirection: 'pagination_error_invalid_sort_order',
-  InvalidLimit: 'pagination_error_invalid_limit',
-  InvalidOffset: 'pagination_error_invalid_offset',
-  InvalidSearch: 'pagination_error_invalid_search',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InvalidOrderBy: 'pagination_error_sort_by_invalid',
+  InvalidSortDirection: 'pagination_error_sort_order_invalid',
+  InvalidLimit: 'pagination_error_limit_invalid',
+  InvalidOffset: 'pagination_error_offset_invalid',
+  InvalidSearch: 'pagination_error_search_invalid',
+} as const satisfies TErrorKeys<'pagination_error'>;
 
 type UPaginationError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

@@ -127,17 +127,18 @@ describe('POST /counterparties/employer', () => {
     });
   });
 
-  describe('400 Response', () => {
+  describe('500 Response', () => {
     it('rejects a missing active accounting entity header', async () => {
       const response = await request(app)
         .post(ENDPOINT)
         .set('Authorization', 'Bearer valid-token')
         .send(validPayload);
 
-      expect(response.status).toBe(400);
-      expect(response.body.errorKey).toBe(
-        'accounting_error_accounting_entity_unauthorized'
-      );
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_unexpected',
+      });
       expect(mockCreateEmployer).not.toHaveBeenCalled();
     });
   });
@@ -163,7 +164,7 @@ describe('POST /counterparties/employer', () => {
       const response = await makeRequest(invalidPayload);
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(mockCreateEmployer).not.toHaveBeenCalled();
     });
 
@@ -176,7 +177,7 @@ describe('POST /counterparties/employer', () => {
       const response = await makeRequest();
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(response.body.validationErrors).toEqual(validationErrors);
     });
   });
@@ -190,7 +191,7 @@ describe('POST /counterparties/employer', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
     });
   });

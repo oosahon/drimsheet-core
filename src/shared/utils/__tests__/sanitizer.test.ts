@@ -27,15 +27,14 @@ describe('sanitizer', () => {
       expect(sanitizeUrl('token: abc')).toBe('token: [REDACTED]');
     });
 
-    it('handles URLSearchParams construction error gracefully', () => {
+    it('falls back to plain-text redaction if URL parsing fails', () => {
       const spy = jest
         .spyOn(global, 'URLSearchParams')
         .mockImplementationOnce(() => {
           throw new Error('Mock search params error');
         });
       const url = 'https://example.com/api?token=123';
-      // Should fall back to return the original match because of the error in URLSearchParams
-      expect(sanitizeUrl(url)).toBe(url);
+      expect(sanitizeUrl(url)).toBe('https://example.com/api?token=[REDACTED]');
       spy.mockRestore();
     });
   });
@@ -77,7 +76,7 @@ describe('sanitizer', () => {
 
       const sanitized = sanitizeData(input) as Record<string, unknown>;
 
-      expect(sanitized.username).toBe('john_doe');
+      expect(sanitized.username).toBe('[REDACTED]');
       expect(sanitized.password).toBe('[REDACTED]');
       expect(sanitized.token).toBe('[REDACTED]');
       expect(sanitized.authorization).toBe('[REDACTED]');
@@ -96,8 +95,7 @@ describe('sanitizer', () => {
       };
 
       const sanitized = sanitizeData(input) as Record<string, string>;
-      expect(sanitized.redirectUrl).toContain('access_token=%5BREDACTED%5D');
-      expect(sanitized.redirectUrl).toContain('scope=read');
+      expect(sanitized.redirectUrl).toBe('[REDACTED]');
     });
 
     it('handles arrays recursively', () => {
@@ -110,15 +108,15 @@ describe('sanitizer', () => {
       const sanitized = sanitizeData(input) as unknown[];
       expect(sanitized[0]).toEqual({ secret: '[REDACTED]' });
       expect(sanitized[1]).toEqual({ safe: 'data' });
-      expect(sanitized[2]).toContain('refresh_token=%5BREDACTED%5D');
+      expect(sanitized[2]).toBe('https://example.com?refresh_token=[REDACTED]');
     });
 
     it('safely handles circular object references', () => {
-      const input: Record<string, unknown> = { name: 'test' };
+      const input: Record<string, unknown> = { status: 'test' };
       input.self = input;
 
       const sanitized = sanitizeData(input) as Record<string, unknown>;
-      expect(sanitized.name).toBe('test');
+      expect(sanitized.status).toBe('test');
       expect(sanitized.self).toBe('[CIRCULAR]');
     });
 
@@ -140,6 +138,113 @@ describe('sanitizer', () => {
       const sanitized = sanitizeData(err) as Error;
       expect(sanitized.message).toContain('code=%5BREDACTED%5D');
       expect(sanitized.stack).toBeUndefined();
+    });
+
+    it('redacts email addresses in nested strings and Error fields', () => {
+      const input = {
+        message: 'Delivery failed for private.person@example.com',
+        nested: ['Contact finance-team@example.co.uk for help'],
+        error: new Error('Could not notify owner@example.com'),
+      };
+
+      const sanitized = sanitizeData(input) as {
+        message: string;
+        nested: string[];
+        error: Error;
+      };
+
+      expect(sanitized.message).toBe('Delivery failed for [REDACTED]');
+      expect(sanitized.nested).toEqual(['Contact [REDACTED] for help']);
+      expect(sanitized.error.message).toBe('Could not notify [REDACTED]');
+      expect(sanitized.error.stack).not.toContain('owner@example.com');
+    });
+
+    it('redacts prohibited personal, request, content, job, and financial fields', () => {
+      const input = {
+        id: 'product-id',
+        emailAddress: 'private@example.com',
+        backupRecipient: 'private@example.com',
+        recipients: ['private@example.com'],
+        userId: 'user-id',
+        accounting_entity_id: 'entity-id',
+        journalEntryId: 'journal-id',
+        ledgerAccountId: 'account-id',
+        jobId: 'job-id',
+        ip: '192.0.2.1',
+        userAgent: 'PrivateAgent',
+        originalUrl: '/users/private-id?view=full',
+        callbackUrl: '/oauth/callback?code=private',
+        headers: { authorization: 'Bearer private' },
+        cookies: { session: 'private' },
+        request: { body: 'private' },
+        subject: 'Private subject',
+        html: '<p>Private message</p>',
+        amount: 100,
+        runningBalance: 200,
+        functionalBalanceDelta: 50,
+        job: { data: 'private' },
+        payload: { value: 'private' },
+      };
+
+      const sanitized = sanitizeData(input) as Record<string, unknown>;
+
+      Object.keys(input).forEach((key) => {
+        expect(sanitized[key]).toBe('[REDACTED]');
+      });
+    });
+
+    it('preserves bounded operational facts and contextual correlation', () => {
+      const input = {
+        event: 'queue.job.processing_failed',
+        errorKey: 'app_error_unexpected',
+        queue: 'transactional-email-queue',
+        transport: 'bullmq',
+        attempt: 2,
+        method: 'POST',
+        scope: 'login-with-email',
+        signal: 'SIGTERM',
+        source: 'worker',
+        status: 'failed',
+        outcome: 'failure',
+        durationMs: 42,
+        count: 1,
+        currencyCode: 'USD',
+        service: 'drimsheet-core',
+        environment: 'test',
+        version: '1.2.3',
+        correlationId: 'correlation-id',
+        traceId: 'trace-id',
+        spanId: 'span-id',
+      };
+
+      expect(sanitizeData(input)).toEqual(input);
+    });
+
+    it('does not mutate the source value', () => {
+      const input = {
+        nested: {
+          email: 'private@example.com',
+          status: 'pending',
+        },
+      };
+
+      const sanitized = sanitizeData(input) as typeof input;
+
+      expect(sanitized).not.toBe(input);
+      expect(sanitized.nested).not.toBe(input.nested);
+      expect(input.nested.email).toBe('private@example.com');
+      expect(sanitized.nested.email).toBe('[REDACTED]');
+    });
+
+    it('returns a safe marker when an object cannot be inspected', () => {
+      const input = Object.defineProperty({}, 'blocked', {
+        enumerable: true,
+        get() {
+          throw new Error('private@example.com');
+        },
+      });
+
+      expect(sanitizeData(input)).toBe('[UNSERIALIZABLE]');
     });
   });
 });

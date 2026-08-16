@@ -1,6 +1,8 @@
 export default interface IVarsConfig {
   APP_URL: string;
   APP_ENV: 'test' | 'local' | 'development' | 'staging' | 'production';
+  APP_INSTANCE_ID: string;
+  APP_VERSION: string;
   WEB_APP_URL: string;
   WEBSITE_URL: string;
   TAX_CALCULATOR_URL: string;
@@ -15,6 +17,13 @@ export default interface IVarsConfig {
 
   NODE_ENV: 'test' | 'development' | 'production';
 
+  METRICS_ENABLED: string;
+  METRICS_EXPORT_INTERVAL_MS?: string;
+  METRICS_OTLP_HTTP_ENDPOINT: string;
+  METRICS_SHUTDOWN_TIMEOUT_MS?: string;
+
+  BULLMQ_METRICS_PORT: string;
+
   PORT: number;
 
   POSTGRES_URL: string;
@@ -23,6 +32,9 @@ export default interface IVarsConfig {
   RABBITMQ_URL: string;
 
   SENTRY_DSN: string;
+  SENTRY_FLUSH_TIMEOUT_MS?: string;
+  SENTRY_TRACE_PROPAGATION_TARGETS: string;
+  SENTRY_TRACES_SAMPLE_RATE: string;
 
   ZEPTO_TOKEN_OSAHON: string;
   ZEPTO_TOKEN_NOREPLY: string;

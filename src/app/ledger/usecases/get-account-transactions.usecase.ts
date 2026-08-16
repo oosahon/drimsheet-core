@@ -28,14 +28,17 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
   ): Promise<IPaginatedResponse<IAccountTransactionRes>> => {
     zodValidationRunner(paginationDtoValidation, pagination);
 
-    const { user, correlationId, accountingEntity } = deps.appContext.get();
+    const { user, correlationId, accountingEntity } = deps.appContext.get([
+      'user',
+      'accountingEntity',
+    ]);
 
-    const trace = { correlationId };
+    const repoOptions = { correlationId };
 
     const ledgerAccount = await deps.ledgerAccountRepo.findById(
       accountId,
       accountingEntity.id,
-      trace
+      repoOptions
     );
 
     if (!ledgerAccount) {
@@ -50,7 +53,7 @@ export default function makeGetAccountTransactionsUseCase(deps: IDependencies) {
 
     const transactions =
       await deps.accountTransactionQueryRepo.findAllByAccountId(accountId, {
-        ...trace,
+        ...repoOptions,
         ...paginationMapper.fromDto(pagination),
       });
 

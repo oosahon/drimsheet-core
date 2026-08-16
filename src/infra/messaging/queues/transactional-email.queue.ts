@@ -1,6 +1,11 @@
 import { Queue } from 'bullmq';
 
+import IQueueMetrics, {
+  EQueueTransport,
+} from '@shared/contracts/queue-metrics.contract';
 import IReporter from '@shared/contracts/reporter.contract';
+import ITracer from '@shared/contracts/tracer.contract';
+import { UTraceEnvelopePayload } from '@shared/types/observability.types';
 
 import ITransactionalEmailQueue, {
   TRANSACTIONAL_EMAIL_QUEUE_NAME,
@@ -8,10 +13,15 @@ import ITransactionalEmailQueue, {
 import { ITransactionalEmailDto } from '@app/notification/dtos/transactional-email/transactional-email.dto';
 
 import { getQueueConnection } from '@infra/config/redis.config';
+import { makeTraceEnvelope } from '@infra/messaging/trace-context';
 
-let transactionalEmailQueue: Queue<ITransactionalEmailDto> | undefined;
+let transactionalEmailQueue:
+  | Queue<UTraceEnvelopePayload<ITransactionalEmailDto>>
+  | undefined;
 
-export function getTransactionalEmailQueue(): Queue<ITransactionalEmailDto> {
+export function getTransactionalEmailQueue(): Queue<
+  UTraceEnvelopePayload<ITransactionalEmailDto>
+> {
   transactionalEmailQueue ??= new Queue(TRANSACTIONAL_EMAIL_QUEUE_NAME, {
     connection: getQueueConnection(),
     // @ts-expect-error: BullMQ types are not compatible with ioredis types
@@ -38,20 +48,30 @@ function getConfig(payload: ITransactionalEmailDto) {
 }
 
 export default function makeTransactionalEmailQueue(
-  reporter: IReporter
+  reporter: IReporter,
+  queueMetrics: IQueueMetrics,
+  tracer: ITracer
 ): ITransactionalEmailQueue {
   return {
     async add(payload) {
       try {
         await getTransactionalEmailQueue().add(
           TRANSACTIONAL_EMAIL_QUEUE_NAME,
-          payload,
+          makeTraceEnvelope(payload, tracer),
           getConfig(payload)
         );
+        queueMetrics.recordEnqueueSucceeded({
+          queueName: TRANSACTIONAL_EMAIL_QUEUE_NAME,
+          transport: EQueueTransport.BullMQ,
+        });
       } catch (error) {
-        reporter.report(error, {
-          type: TRANSACTIONAL_EMAIL_QUEUE_NAME,
-          correlationId: payload.correlationId,
+        queueMetrics.recordEnqueueFailed({
+          queueName: TRANSACTIONAL_EMAIL_QUEUE_NAME,
+          transport: EQueueTransport.BullMQ,
+        });
+        reporter.report('queue.job.enqueue_failed', error, {
+          queue: TRANSACTIONAL_EMAIL_QUEUE_NAME,
+          transport: EQueueTransport.BullMQ,
         });
         throw error;
       }

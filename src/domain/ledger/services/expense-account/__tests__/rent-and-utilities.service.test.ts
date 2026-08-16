@@ -143,7 +143,7 @@ describe('rentAndUtilitiesAccountService', () => {
         repoOptions
       )
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_header_account_already_exists',
+      errorKey: 'ledger_error_header_account_already_exists_conflict',
       cause: { existingHeader },
     });
   });
@@ -220,7 +220,8 @@ describe('rentAndUtilitiesAccountService', () => {
     await expect(
       service.createSubAccount(subAccountPayload, repoOptions)
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_account_control_account_not_found',
+      errorKey:
+        'ledger_error_asset_account_control_account_not_found_unexpected',
     });
     expect(mockLedgerAccountRepo.findLatestBySubType).not.toHaveBeenCalled();
   });
@@ -246,7 +247,7 @@ describe('rentAndUtilitiesAccountService', () => {
       await expect(
         service.createSubAccount(subAccountPayload, repoOptions)
       ).rejects.toMatchObject({
-        errorKey: 'ledger_error_asset_account_invalid_control_account',
+        errorKey: 'ledger_error_asset_account_control_account_invalid',
       });
       expect(mockLedgerAccountRepo.findLatestBySubType).not.toHaveBeenCalled();
     }

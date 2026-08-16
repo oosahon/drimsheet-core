@@ -26,7 +26,7 @@ export default function makeCreateCounterpartyUsecase(deps: IDependencies) {
     zodValidationRunner(counterpartyCreateReqValidation, payload);
 
     const { correlationId, idempotencyKey, user, accountingEntity } =
-      deps.appContext.get();
+      deps.appContext.get(['user', 'accountingEntity']);
 
     const [counterparty, events, audit] = deps.counterpartyService.create({
       accountingEntityId: accountingEntity.id,
@@ -43,8 +43,8 @@ export default function makeCreateCounterpartyUsecase(deps: IDependencies) {
       history,
     });
 
-    const trace = { correlationId, idempotencyKey };
-    const enrichedEvents = eventValue.enrichAll(events, trace);
+    const repoOptions = { correlationId, idempotencyKey };
+    const enrichedEvents = eventValue.enrichAll(events, repoOptions);
     await deps.eventBus.publish(enrichedEvents);
 
     return counterpartyDtoMapper.toDto(counterparty);

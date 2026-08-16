@@ -24,7 +24,7 @@ describe('POST /api/v1/auth/logout', () => {
       ['no refresh cookie', undefined],
     ])('expires the cookie with no-store for %s', async (_, cookie) => {
       logoutSpy.mockImplementationOnce(async () => {
-        appContext.get().clientSession.clearRefreshToken();
+        appContext.get(['clientSession']).clientSession.clearRefreshToken();
       });
 
       const requestBuilder = request(app).post('/api/v1/auth/logout');
@@ -63,7 +63,7 @@ describe('POST /api/v1/auth/logout', () => {
       expect(response.headers['set-cookie']).toBeUndefined();
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain(
         'private-refresh-token'

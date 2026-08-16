@@ -195,7 +195,7 @@ describe('POST /accounting/accounting-entity', () => {
       expect(response.body).toEqual({
         name: 'PeriodError',
         errorKey:
-          'accounting_error_period_fiscal_year_exceeds_jurisdiction_limit',
+          'accounting_error_period_fiscal_year_exceeds_jurisdiction_limit_invalid',
         cause: {
           jurisdictionCode: validPayload.jurisdictionCode,
           maxFiscalMonths: 18,
@@ -206,7 +206,9 @@ describe('POST /accounting/accounting-entity', () => {
       });
       expect(mockCreateAccountingEntity).toHaveBeenCalledWith(overLimitPayload);
     });
+  });
 
+  describe('409 Response', () => {
     it('maps an existing individual accounting entity violation', async () => {
       mockCreateAccountingEntity.mockRejectedValue(
         new accountingEntityError.OnlyOneIndividualAccountingEntityAllowed({
@@ -219,11 +221,11 @@ describe('POST /accounting/accounting-entity', () => {
         .set('Authorization', 'Bearer valid-token')
         .send(validPayload);
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(409);
       expect(response.body).toEqual({
         name: 'AccountingEntityError',
         errorKey:
-          'accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed',
+          'accounting_error_accounting_entity_only_one_individual_accounting_entity_allowed_conflict',
         cause: { ownerId: userId },
       });
     });
@@ -271,7 +273,7 @@ describe('POST /accounting/accounting-entity', () => {
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
         name: 'AuthError',
-        errorKey: 'auth_error_expired_token',
+        errorKey: 'auth_error_token_expired_unauthorized',
       });
       expect(mockCreateAccountingEntity).not.toHaveBeenCalled();
     });
@@ -337,7 +339,7 @@ describe('POST /accounting/accounting-entity', () => {
       expect(response.status).toBe(422);
       expect(response.body).toMatchObject({
         name: 'UnprocessableEntity',
-        errorKey: 'app_error_unprocessable',
+        errorKey: 'app_error_validation_error',
       });
       expect(mockCreateAccountingEntity).not.toHaveBeenCalled();
     });
@@ -357,7 +359,7 @@ describe('POST /accounting/accounting-entity', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain(
         'database credentials'

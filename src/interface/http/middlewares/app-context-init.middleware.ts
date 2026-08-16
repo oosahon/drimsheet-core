@@ -1,22 +1,12 @@
 import { RequestHandler, Response } from 'express';
 
-import ILogger from '@shared/contracts/logger.contract';
 import IVarsConfig from '@shared/contracts/vars-config.contract';
+import stringUtils from '@shared/utils/string';
+import generateUUID from '@shared/utils/uuid-generator';
 
-import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
-import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
-import IUserRepo from '@domain/user/repos/user.repo';
-import { IUser } from '@domain/user/types/user.types';
-
-import ITokenService from '@app/auth/contracts/token-service.contract';
 import IAppContext from '@app/context/contracts/app-context.contract';
 
-import getAccountingEntityFromRequest from '@interface/http/helpers/get-accounting-entity-from-request.helper';
-import getAuthUserFromRequest from '@interface/http/helpers/get-auth-user-from-request.helper';
-import {
-  getCorrelationId,
-  getIdempotencyKey,
-} from '@interface/http/helpers/get-http-header-value';
+import getHttpHeaderValue from '@interface/http/helpers/get-http-header-value';
 
 function handleSetRefreshToken(
   res: Response,
@@ -48,40 +38,31 @@ function handleClearRefreshToken(res: Response, varsConfig: IVarsConfig) {
  */
 export default function makeAppContextInitMiddleware(
   appContext: IAppContext,
-  accountingEntityRepo: IAccountingEntityRepo,
-  tokenService: ITokenService,
-  userRepo: IUserRepo,
-  logger: ILogger,
   varsConfig: IVarsConfig
 ): RequestHandler {
-  return async (req, res, next) => {
-    const correlationId = getCorrelationId(req);
-    const idempotencyKey = getIdempotencyKey(req);
-
-    const user = await getAuthUserFromRequest(
-      req,
-      tokenService,
-      logger,
-      userRepo
+  return (req, res, next) => {
+    const suppliedCorrelationId = getHttpHeaderValue(
+      'x-correlation-id',
+      req.headers
     );
+    const correlationId =
+      typeof suppliedCorrelationId === 'string' &&
+      stringUtils.isUUID(suppliedCorrelationId)
+        ? suppliedCorrelationId
+        : generateUUID();
+    const idempotencyKey = getHttpHeaderValue('x-idempotency-key', req.headers);
 
-    const accountingEntity = await getAccountingEntityFromRequest(
-      req,
-      accountingEntityRepo,
-      user?.id
-    );
+    res.setHeader('x-correlation-id', correlationId);
 
     appContext.init(
       {
-        user: user ?? ({} as IUser),
-        accountingEntity: accountingEntity ?? ({} as IAccountingEntity),
         correlationId,
         idempotencyKey: idempotencyKey || '',
         clientSession: {
           setRefreshToken: (token: string) =>
             handleSetRefreshToken(res, token, varsConfig),
           getRefreshToken: () => {
-            return req.cookies.refresh_token;
+            return req.cookies?.refresh_token ?? null;
           },
           clearRefreshToken: () => handleClearRefreshToken(res, varsConfig),
         },

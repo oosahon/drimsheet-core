@@ -167,7 +167,9 @@ describe('fxCostBasisPersistenceService', () => {
         acquisitionHistory,
         { correlationId }
       )
-    ).rejects.toThrow('app_error_fx_cost_basis_malformed_acquisition');
+    ).rejects.toThrow(
+      'app_error_fx_cost_basis_malformed_acquisition_unexpected'
+    );
   });
 
   it('should throw MalformedAcquisition if quantity differs between lot and acquisition', async () => {
@@ -213,6 +215,8 @@ describe('fxCostBasisPersistenceService', () => {
         acquisitionHistory,
         { correlationId }
       )
-    ).rejects.toThrow('app_error_fx_cost_basis_malformed_acquisition');
+    ).rejects.toThrow(
+      'app_error_fx_cost_basis_malformed_acquisition_unexpected'
+    );
   });
 });

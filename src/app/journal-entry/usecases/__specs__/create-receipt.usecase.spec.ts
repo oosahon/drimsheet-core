@@ -238,17 +238,17 @@ describe('makeCreateReceiptUsecase', () => {
     const result = await usecase(payload);
 
     expect(mockAppContext.get).toHaveBeenCalled();
-    const trace = { correlationId, idempotencyKey };
+    const repoOptions = { correlationId, idempotencyKey };
 
     expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
       sourceAccount.id,
       accountingEntity.id,
-      trace
+      repoOptions
     );
     expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
       destinationAccount.id,
       accountingEntity.id,
-      trace
+      repoOptions
     );
 
     expect(mockCounterpartyAppService.findOrCreateMany).toHaveBeenCalledWith(
@@ -257,7 +257,7 @@ describe('makeCreateReceiptUsecase', () => {
         payload.destinationLines[0].counterparty,
       ]),
       accountingEntity.id,
-      trace
+      repoOptions
     );
 
     expect(mockJournalEntryService.createReceipt).toHaveBeenCalledWith(
@@ -279,7 +279,7 @@ describe('makeCreateReceiptUsecase', () => {
           }),
         ]),
       }),
-      trace
+      repoOptions
     );
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
@@ -288,7 +288,7 @@ describe('makeCreateReceiptUsecase', () => {
 
     expect(
       mockLedgerAccountBalancePropagationService.propagate
-    ).toHaveBeenCalledWith(journalEntry, trace);
+    ).toHaveBeenCalledWith(journalEntry, repoOptions);
 
     const [publishedEvents] = mockEventBus.publish.mock.calls[0];
     expect(publishedEvents).toEqual([

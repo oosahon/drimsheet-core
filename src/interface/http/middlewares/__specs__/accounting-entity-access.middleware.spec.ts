@@ -37,6 +37,10 @@ describe('makeAccountingEntityAccessMiddleware', () => {
       { id: 'entity-id' },
       'user-id'
     );
+    expect(mockAppContext.get).toHaveBeenCalledWith([
+      'user',
+      'accountingEntity',
+    ]);
     expect(next).toHaveBeenCalledTimes(1);
   });
 

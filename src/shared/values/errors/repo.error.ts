@@ -1,15 +1,15 @@
-import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
+import { TErrorCause, TErrorKey, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import DomainError from './domain.error';
 
-type TErrorPrefix = `repo_error_${string}`;
+type TErrorPrefix = TErrorKey<'repo_error'>;
 
 const EErrorKeys = {
-  VersionNotFound: 'repo_error_version_not_found',
-  VersionRequired: 'repo_error_version_required',
-  MissingHistory: 'repo_error_missing_history',
-} as const satisfies TErrorKeys<TErrorPrefix>;
+  VersionNotFound: 'repo_error_version_conflict',
+  VersionRequired: 'repo_error_version_required_unexpected',
+  MissingHistory: 'repo_error_missing_history_unexpected',
+} as const satisfies TErrorKeys<'repo_error'>;
 
 class RepoError extends DomainError<TErrorPrefix> {
   constructor(key: TErrorPrefix, cause?: TErrorCause) {

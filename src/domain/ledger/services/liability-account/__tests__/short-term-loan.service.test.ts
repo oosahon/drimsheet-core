@@ -160,7 +160,7 @@ describe('shortTermLoanAccountService', () => {
           repoOptions
         )
       ).rejects.toMatchObject({
-        errorKey: 'ledger_error_header_account_already_exists',
+        errorKey: 'ledger_error_header_account_already_exists_conflict',
         cause: { existingHeader },
       });
     });
@@ -252,7 +252,7 @@ describe('shortTermLoanAccountService', () => {
         service.createSubAccount(shortTermLoanPayload, repoOptions)
       ).rejects.toMatchObject({
         errorKey:
-          'ledger_error_ledger_account_control_account_currency_mismatch',
+          'ledger_error_ledger_account_control_account_currency_mismatch_invalid',
         cause: {
           controlAccountId: controlAccount.id,
           controlAccountCode: controlAccount.code,
@@ -279,7 +279,7 @@ describe('shortTermLoanAccountService', () => {
         )
       ).rejects.toMatchObject({
         errorKey:
-          'ledger_error_ledger_account_control_account_currency_mismatch',
+          'ledger_error_ledger_account_control_account_currency_mismatch_invalid',
         cause: {
           controlAccountId: controlAccount.id,
           controlAccountCode: controlAccount.code,
@@ -298,7 +298,8 @@ describe('shortTermLoanAccountService', () => {
       await expect(
         service.createSubAccount(shortTermLoanPayload, repoOptions)
       ).rejects.toMatchObject({
-        errorKey: 'ledger_error_asset_account_control_account_not_found',
+        errorKey:
+          'ledger_error_asset_account_control_account_not_found_unexpected',
       });
     });
 
@@ -331,7 +332,7 @@ describe('shortTermLoanAccountService', () => {
         await expect(
           service.createSubAccount(shortTermLoanPayload, repoOptions)
         ).rejects.toMatchObject({
-          errorKey: 'ledger_error_asset_account_invalid_control_account',
+          errorKey: 'ledger_error_asset_account_control_account_invalid',
         });
         expect(
           mockLedgerAccountRepo.findLatestBySubType
@@ -381,7 +382,8 @@ describe('shortTermLoanAccountService', () => {
       await expect(
         service.createCreditCardSubAccount(creditCardPayload, repoOptions)
       ).rejects.toMatchObject({
-        errorKey: 'ledger_error_asset_account_control_account_not_found',
+        errorKey:
+          'ledger_error_asset_account_control_account_not_found_unexpected',
       });
     });
 
@@ -415,7 +417,7 @@ describe('shortTermLoanAccountService', () => {
         await expect(
           service.createCreditCardSubAccount(creditCardPayload, repoOptions)
         ).rejects.toMatchObject({
-          errorKey: 'ledger_error_asset_account_invalid_control_account',
+          errorKey: 'ledger_error_asset_account_control_account_invalid',
         });
         expect(
           mockLedgerAccountRepo.findLatestBySubType

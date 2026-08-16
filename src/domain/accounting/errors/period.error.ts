@@ -1,21 +1,21 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import accountingError from './accounting.error';
 
-type TErrorKeyPrefix = `accounting_error_period_${string}`;
-
 const EErrorKeys = {
-  InvalidUnit: 'accounting_error_period_invalid_unit',
-  InvalidStatus: 'accounting_error_period_invalid_status',
-  InvalidDateRange: 'accounting_error_period_invalid_date_range',
-  PastEndDate: 'accounting_error_period_past_end_date',
-  InvalidInterval: 'accounting_error_period_invalid_interval',
+  InvalidUnit: 'accounting_error_period_unit_invalid',
+  InvalidStatus: 'accounting_error_period_status_invalid',
+  InvalidDateRange: 'accounting_error_period_date_range_invalid',
+  PastEndDate: 'accounting_error_period_past_end_date_invalid',
+  InvalidInterval: 'accounting_error_period_interval_invalid',
   FiscalYearExceedsJurisdictionLimit:
-    'accounting_error_period_fiscal_year_exceeds_jurisdiction_limit',
-  PostingDateNotCovered: 'accounting_error_period_posting_date_not_covered',
-  PostingPeriodNotOpen: 'accounting_error_period_posting_period_not_open',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+    'accounting_error_period_fiscal_year_exceeds_jurisdiction_limit_invalid',
+  PostingDateNotCovered:
+    'accounting_error_period_posting_date_not_covered_invalid',
+  PostingPeriodNotOpen:
+    'accounting_error_period_posting_period_not_open_conflict',
+} as const satisfies TErrorKeys<'accounting_error_period'>;
 
 type UPeriodError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

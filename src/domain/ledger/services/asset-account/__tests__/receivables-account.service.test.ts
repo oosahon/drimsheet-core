@@ -113,7 +113,7 @@ describe('receivablesAccountService', () => {
         repoOptions
       )
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_header_account_already_exists',
+      errorKey: 'ledger_error_header_account_already_exists_conflict',
       cause: { existingHeader: receivablesHeader },
     });
   });
@@ -199,7 +199,8 @@ describe('receivablesAccountService', () => {
         repoOptions
       )
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_account_control_account_not_found',
+      errorKey:
+        'ledger_error_asset_account_control_account_not_found_unexpected',
     });
     expect(ledgerAccountRepo.findLatestBySubType).not.toHaveBeenCalled();
   });
@@ -230,7 +231,7 @@ describe('receivablesAccountService', () => {
           repoOptions
         )
       ).rejects.toMatchObject({
-        errorKey: 'ledger_error_asset_account_invalid_control_account',
+        errorKey: 'ledger_error_asset_account_control_account_invalid',
       });
       expect(ledgerAccountRepo.findLatestBySubType).not.toHaveBeenCalled();
     }
@@ -262,7 +263,7 @@ describe('receivablesAccountService', () => {
           repoOptions
         )
       ).rejects.toMatchObject({
-        errorKey: 'ledger_error_asset_account_invalid_control_account',
+        errorKey: 'ledger_error_asset_account_control_account_invalid',
       });
       expect(ledgerAccountRepo.findLatestBySubType).not.toHaveBeenCalled();
     }

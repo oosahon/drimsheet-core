@@ -1,16 +1,14 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import userError from './user.error';
 
-type TErrorKeyPrefix = `user_error_user_value_object_${string}`;
-
 const EErrorKeys = {
-  InvalidType: 'user_error_user_value_object_invalid_type',
-  InvalidFormat: 'user_error_user_value_object_invalid_format',
-  TooShort: 'user_error_user_value_object_too_short',
-  TooLong: 'user_error_user_value_object_too_long',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+  InvalidType: 'user_error_user_value_object_type_invalid',
+  InvalidFormat: 'user_error_user_value_object_format_invalid',
+  TooShort: 'user_error_user_value_object_too_short_invalid',
+  TooLong: 'user_error_user_value_object_too_long_invalid',
+} as const satisfies TErrorKeys<'user_error_user_value_object'>;
 
 type UUserValueObjectError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
 

@@ -12,7 +12,7 @@ interface IDeps {
 
 export default function makeGetCurrentAccountingEntityUseCase(deps: IDeps) {
   return async () => {
-    const { correlationId, user } = deps.appContext.get();
+    const { correlationId, user } = deps.appContext.get(['user']);
     const repoOptions = { correlationId };
 
     const preferences = await deps.userPreferencesRepo.findById(

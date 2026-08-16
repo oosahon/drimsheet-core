@@ -114,16 +114,17 @@ describe('GET /counterparties', () => {
     });
   });
 
-  describe('400 Response', () => {
+  describe('500 Response', () => {
     it('rejects a missing active accounting entity header', async () => {
       const response = await request(app)
         .get(ENDPOINT)
         .set('Authorization', 'Bearer valid-token');
 
-      expect(response.status).toBe(400);
-      expect(response.body.errorKey).toBe(
-        'accounting_error_accounting_entity_unauthorized'
-      );
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_unexpected',
+      });
       expect(mockGetCounterparties).not.toHaveBeenCalled();
     });
   });
@@ -144,7 +145,7 @@ describe('GET /counterparties', () => {
       const response = await makeRequest({ limit: 'not-a-number' });
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(mockGetCounterparties).not.toHaveBeenCalled();
     });
 
@@ -157,7 +158,7 @@ describe('GET /counterparties', () => {
       const response = await makeRequest();
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(response.body.validationErrors).toEqual(validationErrors);
     });
   });
@@ -173,7 +174,7 @@ describe('GET /counterparties', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
     });
   });

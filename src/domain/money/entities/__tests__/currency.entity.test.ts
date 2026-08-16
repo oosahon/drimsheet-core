@@ -70,7 +70,7 @@ describe('Currency Domain Entity', () => {
         fail('Should have thrown');
       } catch (e: any) {
         expect(e).toBeInstanceOf(Error);
-        expect(e.errorKey).toBe('currency_error_invalid_code');
+        expect(e.errorKey).toBe('currency_error_code_invalid');
         expect(e.cause).toEqual({ code: 'usd' });
       }
     });

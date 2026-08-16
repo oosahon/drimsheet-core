@@ -309,7 +309,8 @@ describe('postingAccountBootstrapService', () => {
     await expect(
       serviceWithoutHeader.bootstrap(accountingEntity, repoOptions)
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_account_control_account_not_found',
+      errorKey:
+        'ledger_error_asset_account_control_account_not_found_unexpected',
       cause: {
         controlAccountLedgerCode: ASSET_LEDGER_CODES.RECEIVABLES.HEADER,
       },

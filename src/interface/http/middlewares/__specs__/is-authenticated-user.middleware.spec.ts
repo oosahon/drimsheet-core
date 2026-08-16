@@ -35,13 +35,13 @@ describe('makeIsAuthenticatedUserMiddleware', () => {
   it('calls next() when user is logged in and no accounting entity is set', async () => {
     mockAppContext.get.mockReturnValue({
       user: { id: 'user-id' },
-      accountingEntity: {},
     });
 
     await middleware(req, res, next);
 
     expect(next).toHaveBeenCalledTimes(1);
     expect(httpHandlers.error).not.toHaveBeenCalled();
+    expect(mockAppContext.get).toHaveBeenCalledWith();
   });
 
   it('calls next() when user has access to the accounting entity', async () => {
@@ -62,10 +62,7 @@ describe('makeIsAuthenticatedUserMiddleware', () => {
   });
 
   it('handles Unauthorized error when user is not logged in', async () => {
-    mockAppContext.get.mockReturnValue({
-      user: {},
-      accountingEntity: {},
-    });
+    mockAppContext.get.mockReturnValue({});
 
     await middleware(req, res, next);
 

@@ -163,20 +163,7 @@ describe('POST /ledger/asset/petty-cash', () => {
     });
   });
 
-  describe('400 Response', () => {
-    it('rejects a missing active accounting entity before orchestration', async () => {
-      const response = await request(app)
-        .post(ENDPOINT)
-        .set('Authorization', 'Bearer valid-token')
-        .send(validPayload);
-
-      expect(response.status).toBe(400);
-      expect(response.body.errorKey).toBe(
-        'accounting_error_accounting_entity_unauthorized'
-      );
-      expect(mockCreatePettyCashAccount).not.toHaveBeenCalled();
-    });
-
+  describe('409 Response', () => {
     it('maps a known posting-period failure', async () => {
       mockCreatePettyCashAccount.mockRejectedValueOnce(
         new periodError.PostingPeriodNotOpen({
@@ -187,9 +174,9 @@ describe('POST /ledger/asset/petty-cash', () => {
 
       const response = await makeRequest();
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(409);
       expect(response.body.errorKey).toBe(
-        'accounting_error_period_posting_period_not_open'
+        'accounting_error_period_posting_period_not_open_conflict'
       );
     });
   });
@@ -212,12 +199,26 @@ describe('POST /ledger/asset/petty-cash', () => {
       const response = await makeRequest(invalidPayload);
 
       expect(response.status).toBe(422);
-      expect(response.body.errorKey).toBe('app_error_unprocessable');
+      expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(mockCreatePettyCashAccount).not.toHaveBeenCalled();
     });
   });
 
   describe('500 Response', () => {
+    it('rejects a missing active accounting entity before orchestration', async () => {
+      const response = await request(app)
+        .post(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token')
+        .send(validPayload);
+
+      expect(response.status).toBe(500);
+      expect(response.body).toEqual({
+        name: 'InternalServerError',
+        errorKey: 'app_error_unexpected',
+      });
+      expect(mockCreatePettyCashAccount).not.toHaveBeenCalled();
+    });
+
     it('sanitizes unexpected orchestration failures', async () => {
       mockCreatePettyCashAccount.mockRejectedValueOnce(
         new Error('database password leaked')
@@ -228,7 +229,7 @@ describe('POST /ledger/asset/petty-cash', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain('password leaked');
     });

@@ -26,7 +26,7 @@ export default function makeCreateContractorUsecase(deps: IDependencies) {
     zodValidationRunner(contractorCreateReqValidation, payload);
 
     const { correlationId, idempotencyKey, user, accountingEntity } =
-      deps.appContext.get();
+      deps.appContext.get(['user', 'accountingEntity']);
 
     const counterpartyPayload = {
       accountingEntityId: accountingEntity.id,
@@ -69,12 +69,12 @@ export default function makeCreateContractorUsecase(deps: IDependencies) {
       }
     );
 
-    const trace = { correlationId, idempotencyKey };
+    const repoOptions = { correlationId, idempotencyKey };
     const events: IEvent<unknown>[] = [
       ...counterpartyEvents,
       ...contractorEvents,
     ];
-    const enrichedEvents = eventValue.enrichAll(events, trace);
+    const enrichedEvents = eventValue.enrichAll(events, repoOptions);
     await deps.eventBus.publish(enrichedEvents);
 
     return counterpartyDtoMapper.toDto(counterparty);

@@ -140,7 +140,7 @@ describe('ledgerAccountCurrencyInvarianceRule', () => {
       ).toThrow(
         expect.objectContaining({
           errorKey:
-            'ledger_error_ledger_account_control_account_currency_mismatch',
+            'ledger_error_ledger_account_control_account_currency_mismatch_invalid',
           cause: {
             controlAccountId: controlAccount.id,
             controlAccountCode: controlAccount.code,
@@ -166,7 +166,7 @@ describe('ledgerAccountCurrencyInvarianceRule', () => {
     ).toThrow(
       expect.objectContaining({
         errorKey:
-          'ledger_error_ledger_account_control_account_currency_mismatch',
+          'ledger_error_ledger_account_control_account_currency_mismatch_invalid',
       })
     );
   });

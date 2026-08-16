@@ -88,7 +88,7 @@ describe('FX Cost-Basis Lot History Mapper', () => {
     } as unknown as IFxCostBasisLotHistory;
 
     expect(() => fxCostBasisLotHistoryMapper.toRepo(history)).toThrow(
-      'repo_error_missing_history'
+      'repo_error_missing_history_unexpected'
     );
   });
 });

@@ -132,7 +132,7 @@ describe('payablesAccountService', () => {
         repoOptions
       )
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_header_account_already_exists',
+      errorKey: 'ledger_error_header_account_already_exists_conflict',
       cause: { existingHeader },
     });
   });
@@ -232,7 +232,8 @@ describe('payablesAccountService', () => {
         repoOptions
       )
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_account_control_account_not_found',
+      errorKey:
+        'ledger_error_asset_account_control_account_not_found_unexpected',
     });
   });
 
@@ -286,7 +287,7 @@ describe('payablesAccountService', () => {
         repoOptions
       )
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_account_invalid_control_account',
+      errorKey: 'ledger_error_asset_account_control_account_invalid',
     });
   });
 
@@ -314,7 +315,7 @@ describe('payablesAccountService', () => {
         repoOptions
       )
     ).rejects.toMatchObject({
-      errorKey: 'ledger_error_asset_account_invalid_control_account',
+      errorKey: 'ledger_error_asset_account_control_account_invalid',
     });
   });
 

@@ -75,7 +75,7 @@ describe('makeLoginWithGoogleUseCase', () => {
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'app_error_bad_request',
+        message: 'app_error_request_invalid',
       }),
       false
     );
@@ -142,7 +142,7 @@ describe('makeLoginWithGoogleUseCase', () => {
     await getUseCase()({ ...validProfile, emailVerified: false }, doneCallback);
 
     expect(doneCallback).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'app_error_bad_request' }),
+      expect.objectContaining({ message: 'app_error_request_invalid' }),
       false
     );
     expect(mockUserRepo.findByEmail).not.toHaveBeenCalled();
@@ -154,7 +154,7 @@ describe('makeLoginWithGoogleUseCase', () => {
     await getUseCase()({ ...validProfile, providerSubject: '' }, doneCallback);
 
     expect(doneCallback).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'app_error_bad_request' }),
+      expect.objectContaining({ message: 'app_error_request_invalid' }),
       false
     );
     expect(mockUserRepo.findByEmail).not.toHaveBeenCalled();
@@ -170,7 +170,7 @@ describe('makeLoginWithGoogleUseCase', () => {
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'auth_error_inconsistent_user_auth_internal_server_error',
+        message: 'auth_error_inconsistent_user_auth_unexpected',
       }),
       false
     );
@@ -256,7 +256,7 @@ describe('makeLoginWithGoogleUseCase', () => {
 
     expect(doneCallback).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'app_error_internal_server_error',
+        message: 'app_error_unexpected',
       }),
       false
     );

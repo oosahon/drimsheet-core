@@ -11,7 +11,7 @@ export default function makeGetUserAccountingEntitiesUseCase(
   deps: IDependencies
 ) {
   return async () => {
-    const { user, correlationId } = deps.appContext.get();
+    const { user, correlationId } = deps.appContext.get(['user']);
 
     const accountingEntities = await deps.accountingEntityRepo.findByUserId(
       user.id,

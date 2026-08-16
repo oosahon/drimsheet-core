@@ -51,9 +51,11 @@ describe('eventBus', () => {
         eventValue.make({ type: eventType, data: { id: 'test' } })
       )
     ).resolves.toBeUndefined();
-    expect(reporter.report).toHaveBeenCalledWith(failure, {
-      eventTypes: [eventType],
-    });
+    expect(reporter.report).toHaveBeenCalledWith(
+      'event.publication.failed',
+      failure,
+      { eventTypes: [eventType] }
+    );
   });
 
   it('reports invalid published event types and resolves', async () => {
@@ -63,9 +65,11 @@ describe('eventBus', () => {
     });
 
     await expect(eventBus.publish(invalidEvent)).resolves.toBeUndefined();
-    expect(reporter.report).toHaveBeenCalledWith(expect.any(Error), {
-      eventTypes: [invalidEvent.type],
-    });
+    expect(reporter.report).toHaveBeenCalledWith(
+      'event.publication.failed',
+      expect.any(Error),
+      { eventTypes: [invalidEvent.type] }
+    );
   });
 
   it('reports invalid subscriptions and returns a safe unsubscribe', () => {
@@ -75,6 +79,11 @@ describe('eventBus', () => {
     );
 
     expect(reporter.report).toHaveBeenCalledTimes(1);
+    expect(reporter.report).toHaveBeenCalledWith(
+      'event.subscription.failed',
+      expect.any(Error),
+      { eventType: 'app:test:invalid-subscription' }
+    );
     expect(unsubscribe()).toBeUndefined();
   });
 

@@ -5,8 +5,10 @@ import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
 import appError from '@shared/values/errors/app.error';
 import DomainError from '@shared/values/errors/domain.error';
+import runtimeError from '@shared/values/errors/runtime.error';
 
 import accountingAppError from '@app/accounting/errors/accounting.error';
+import authError from '@app/auth/errors/auth.error';
 
 import makeHttpErrorHandler from '@interface/http/handlers/error.handler';
 
@@ -85,8 +87,7 @@ describe('makeHttpErrorHandler', () => {
     });
     const error = new ValidateError(
       {
-        email: { message: 'Invalid email' },
-        age: { message: 'Must be a number' },
+        email: { message: 'auth_error_email_invalid' },
       },
       'Validation failed'
     );
@@ -97,13 +98,15 @@ describe('makeHttpErrorHandler', () => {
     expect(mockJson).toHaveBeenCalledWith({
       name: 'UnprocessableEntity',
       cause: undefined,
-      errorKey: 'app_error_unprocessable',
+      errorKey: 'app_error_validation_error',
       validationErrors: [
-        { field: 'email', message: 'Invalid email' },
-        { field: 'age', message: 'Must be a number' },
+        { field: 'email', message: 'auth_error_email_invalid' },
       ],
     });
-    expect(mockLogger.error).toHaveBeenCalledWith(error);
+    expect(mockLogger.error).toHaveBeenCalledWith(
+      'http.request.validation_failed',
+      { error, outcome: 'rejected' }
+    );
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
@@ -140,10 +143,13 @@ describe('makeHttpErrorHandler', () => {
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'BadRequest',
-      errorKey: 'app_error_bad_request',
+      errorKey: 'app_error_request_invalid',
       cause: undefined,
     });
-    expect(mockLogger.error).toHaveBeenCalledWith(error);
+    expect(mockLogger.error).toHaveBeenCalledWith('http.request.rejected', {
+      error,
+      outcome: 'rejected',
+    });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
@@ -168,6 +174,47 @@ describe('makeHttpErrorHandler', () => {
     });
   });
 
+  it.each([
+    [
+      'unauthorized',
+      () => new appError.Unauthorized(),
+      401,
+      'app_error_unauthorized',
+    ],
+    [
+      'payment required',
+      () => new appError.PaymentRequired(),
+      402,
+      'app_error_payment_required',
+    ],
+    ['forbidden', () => new appError.Forbidden(), 403, 'app_error_forbidden'],
+    ['conflict', () => new appError.Conflict(), 409, 'app_error_conflict'],
+    [
+      'too many requests',
+      () => new appError.TooManyRequests(),
+      429,
+      'app_error_too_many_requests',
+    ],
+  ] as const)(
+    'maps the %s suffix without reporting it',
+    (_, makeError, status, key) => {
+      const handler = makeHttpErrorHandler({
+        reporter: mockReporter,
+        logger: mockLogger,
+        nodeEnv: 'test',
+      });
+      const error = makeError();
+
+      handler(mockReq as unknown as Request, mockRes as Response, error);
+
+      expect(mockStatus).toHaveBeenCalledWith(status);
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({ errorKey: key })
+      );
+      expect(mockReporter.report).not.toHaveBeenCalled();
+    }
+  );
+
   it('should handle AppError without logging outside local', () => {
     const handler = makeHttpErrorHandler({
       reporter: mockReporter,
@@ -189,28 +236,28 @@ describe('makeHttpErrorHandler', () => {
       logger: mockLogger,
       nodeEnv: 'local',
     });
-    const error = new appError.Base('app_error_domain_rule_violated');
+    const error = new appError.Base('app_error_domain_rule_invalid');
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
 
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'AppError',
-      errorKey: 'app_error_domain_rule_violated',
+      errorKey: 'app_error_domain_rule_invalid',
       cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
-  it('should handle auth DomainError and return 401', () => {
+  it('uses the suffix instead of an AuthError name', () => {
     const handler = makeHttpErrorHandler({
       reporter: mockReporter,
       logger: mockLogger,
       nodeEnv: 'local',
     });
-    class MockAuthError extends DomainError<'auth_error_test'> {
+    class MockAuthError extends DomainError<'auth_error_test_invalid'> {
       constructor() {
-        super('auth_error_test');
+        super('auth_error_test_invalid');
         this.name = 'AuthError';
       }
     }
@@ -218,24 +265,49 @@ describe('makeHttpErrorHandler', () => {
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
 
-    expect(mockStatus).toHaveBeenCalledWith(401);
+    expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'AuthError',
-      errorKey: 'auth_error_test',
+      errorKey: 'auth_error_test_invalid',
       cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
   });
 
-  it('should handle non-auth DomainError and return 400', () => {
+  it('reports and sanitizes auth errors marked as unexpected', () => {
     const handler = makeHttpErrorHandler({
       reporter: mockReporter,
       logger: mockLogger,
       nodeEnv: 'local',
     });
-    class MockDomainError extends DomainError<'app_error_other_test'> {
+    const error = new authError.InconsistentUserAuth({
+      userId: 'user-id',
+    });
+
+    handler(mockReq as unknown as Request, mockRes as Response, error);
+
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'http.request.failed',
+      error
+    );
+    expect(mockLogger.error).not.toHaveBeenCalled();
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'InternalServerError',
+      errorKey: 'app_error_unexpected',
+      cause: undefined,
+    });
+  });
+
+  it('maps a non-auth DomainError by its terminal suffix', () => {
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'local',
+    });
+    class MockDomainError extends DomainError<'app_error_other_test_invalid'> {
       constructor() {
-        super('app_error_other_test');
+        super('app_error_other_test_invalid');
       }
     }
     const error = new MockDomainError();
@@ -245,7 +317,7 @@ describe('makeHttpErrorHandler', () => {
     expect(mockStatus).toHaveBeenCalledWith(400);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'MockDomainError',
-      errorKey: 'app_error_other_test',
+      errorKey: 'app_error_other_test_invalid',
       cause: undefined,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
@@ -261,36 +333,113 @@ describe('makeHttpErrorHandler', () => {
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
 
-    expect(mockReporter.report).toHaveBeenCalledWith(error);
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'http.request.failed',
+      error
+    );
     expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
       name: 'InternalServerError',
-      errorKey: 'app_error_internal_server_error',
+      errorKey: 'app_error_unexpected',
       cause: undefined,
     });
   });
 
-  it('should handle domain error with no errorKey and fallback to Unknown error', () => {
+  it('reports runtime context faults without exposing their key or cause', () => {
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'test',
+    });
+    const error = new runtimeError.ContextNotFound({
+      requiredKeys: ['user'],
+      missingKeys: ['user'],
+      correlationId: 'correlation-id',
+    });
+
+    handler(mockReq as unknown as Request, mockRes as Response, error);
+
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'http.request.failed',
+      error
+    );
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'InternalServerError',
+      errorKey: 'app_error_unexpected',
+      cause: undefined,
+    });
+  });
+
+  it('reports and sanitizes an error with no errorKey', () => {
     const handler = makeHttpErrorHandler({
       reporter: mockReporter,
       logger: mockLogger,
       nodeEnv: 'local',
     });
-    class MockNoKeyError extends DomainError<''> {
-      constructor() {
-        super('');
-      }
-    }
+    class MockNoKeyError extends Error {}
     const error = new MockNoKeyError();
 
     handler(mockReq as unknown as Request, mockRes as Response, error);
 
-    expect(mockStatus).toHaveBeenCalledWith(400);
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'http.request.failed',
+      error
+    );
+    expect(mockStatus).toHaveBeenCalledWith(500);
     expect(mockJson).toHaveBeenCalledWith({
-      name: 'MockNoKeyError',
-      errorKey: '',
+      name: 'InternalServerError',
+      errorKey: 'app_error_unexpected',
       cause: undefined,
     });
-    expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('reports and sanitizes a custom-named third-party error', () => {
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'test',
+    });
+    const error = new Error('Dependency failure');
+    error.name = 'DependencyError';
+
+    handler(mockReq as unknown as Request, mockRes as Response, error);
+
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'http.request.failed',
+      error
+    );
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'InternalServerError',
+      errorKey: 'app_error_unexpected',
+      cause: undefined,
+    });
+  });
+
+  it('reports and sanitizes an error with a malformed key', () => {
+    const handler = makeHttpErrorHandler({
+      reporter: mockReporter,
+      logger: mockLogger,
+      nodeEnv: 'test',
+    });
+    const error = {
+      name: 'MalformedKeyError',
+      errorKey: 'vendor_error_dependency_failed',
+      cause: { secret: 'must not leak' },
+    };
+
+    handler(mockReq as unknown as Request, mockRes as Response, error);
+
+    expect(mockReporter.report).toHaveBeenCalledWith(
+      'http.request.failed',
+      error
+    );
+    expect(mockStatus).toHaveBeenCalledWith(500);
+    expect(mockJson).toHaveBeenCalledWith({
+      name: 'InternalServerError',
+      errorKey: 'app_error_unexpected',
+      cause: undefined,
+    });
   });
 });

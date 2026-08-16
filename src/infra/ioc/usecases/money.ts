@@ -4,21 +4,31 @@ import makeIngestExchangeRateUseCase from '@app/money/usecases/ingest-exchange-r
 
 import { repoService } from '@infra/ioc/services/repo';
 import observability from '@infra/observability';
+import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
 import currencyRepos from '@infra/persistence/repos/money';
 import appContext from '@infra/runtime/app-context';
 
-export const getAllCurrenciesUseCase = makeGetCurrenciesUseCase({
-  currencyRepo: currencyRepos.currency,
-  appContext,
-});
+export const getAllCurrenciesUseCase = makeTracedUseCase(
+  'money.getAllCurrenciesUseCase',
+  makeGetCurrenciesUseCase({
+    currencyRepo: currencyRepos.currency,
+    appContext,
+  })
+);
 
-export const ingestExchangeRateUseCase = makeIngestExchangeRateUseCase({
-  exchangeRateRepo: currencyRepos.exchangeRate,
-  repoService,
-  logger: observability.logger,
-});
+export const ingestExchangeRateUseCase = makeTracedUseCase(
+  'money.ingestExchangeRateUseCase',
+  makeIngestExchangeRateUseCase({
+    exchangeRateRepo: currencyRepos.exchangeRate,
+    repoService,
+    logger: observability.logger,
+  })
+);
 
-export const getExchangeRateUseCase = makeGetExchangeRateUseCase({
-  exchangeRateRepo: currencyRepos.exchangeRate,
-  appContext,
-});
+export const getExchangeRateUseCase = makeTracedUseCase(
+  'money.getExchangeRateUseCase',
+  makeGetExchangeRateUseCase({
+    exchangeRateRepo: currencyRepos.exchangeRate,
+    appContext,
+  })
+);

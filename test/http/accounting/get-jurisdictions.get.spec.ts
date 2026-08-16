@@ -44,6 +44,7 @@ describe('GET /accounting/jurisdictions', () => {
       expect(response.type).toBe('application/json');
       expect(response.headers['x-content-type-options']).toBe('nosniff');
       expect(response.headers['x-frame-options']).toBe('SAMEORIGIN');
+      expect(response.headers['x-correlation-id']).toEqual(expect.any(String));
       expect(response.body).toEqual(jurisdictions);
       expect(mockGetJurisdictions).toHaveBeenCalledTimes(1);
     });
@@ -60,7 +61,7 @@ describe('GET /accounting/jurisdictions', () => {
       expect(response.status).toBe(500);
       expect(response.body).toEqual({
         name: 'InternalServerError',
-        errorKey: 'app_error_internal_server_error',
+        errorKey: 'app_error_unexpected',
       });
       expect(JSON.stringify(response.body)).not.toContain('configuration');
     });

@@ -41,13 +41,11 @@ export default function makeSendEmailVerificationEmailUseCase(
     }
 
     if (user.emailVerified) {
-      deps.logger.info(
-        'Skipping sending email verification email as user email is already verified',
-        {
-          userId: user.id,
-          email: user.email,
-        }
-      );
+      deps.logger.info('auth.email_verification.skipped', {
+        message:
+          'Skipping email verification because the user is already verified',
+        outcome: 'skipped',
+      });
       return;
     }
 

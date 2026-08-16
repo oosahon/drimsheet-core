@@ -1,10 +1,35 @@
+import { performance } from 'node:perf_hooks';
+
 import amqplib, { Channel, RecoveringChannelModel } from 'amqplib';
 
+import IQueueMetrics, {
+  EQueueTransport,
+} from '@shared/contracts/queue-metrics.contract';
 import IReporter from '@shared/contracts/reporter.contract';
+import ITracer, { ITraceCarrier } from '@shared/contracts/tracer.contract';
+
+import IAppContext, {
+  IAppContextData,
+} from '@app/context/contracts/app-context.contract';
+
+import { traceQueueProcessing } from '@infra/messaging/trace-context';
 
 import vars from './vars.config';
 
 let connection: RecoveringChannelModel | null = null;
+
+function getTraceCarrier(msg: amqplib.ConsumeMessage): ITraceCarrier {
+  const headers = msg.properties?.headers;
+  if (!headers || typeof headers !== 'object') return {};
+
+  const sentryTrace = headers['sentry-trace'];
+  const baggage = headers.baggage;
+
+  return {
+    ...(typeof sentryTrace === 'string' ? { sentryTrace } : {}),
+    ...(typeof baggage === 'string' ? { baggage } : {}),
+  };
+}
 
 export interface IRabbitMQConsumerConfig<T> {
   exchange: string;
@@ -14,6 +39,7 @@ export interface IRabbitMQConsumerConfig<T> {
   routingKey: string;
   prefetch?: number;
   processor: (payload: T) => Promise<void>;
+  getInitialStore: (payload: T) => IAppContextData;
 }
 
 export async function connectRabbitMQ(
@@ -24,7 +50,7 @@ export async function connectRabbitMQ(
   connection = await amqplib.connect(vars.RABBITMQ_URL, { recovery: true });
 
   connection.on('disconnect', (err) => {
-    reporter.report(err, { context: 'RabbitMQ disconnected' });
+    reporter.report('integration.rabbitmq.disconnected', err);
   });
 
   return connection;
@@ -33,7 +59,10 @@ export async function connectRabbitMQ(
 export async function registerRabbitMQConsumer<T>(
   connection: RecoveringChannelModel,
   config: IRabbitMQConsumerConfig<T>,
-  reporter: IReporter
+  reporter: IReporter,
+  appContext: IAppContext,
+  queueMetrics: IQueueMetrics,
+  tracer: ITracer
 ): Promise<Channel> {
   const channel = await connection.createChannel();
 
@@ -50,18 +79,57 @@ export async function registerRabbitMQConsumer<T>(
 
   await channel.consume(config.queue, async (msg) => {
     if (!msg) return;
+    const trace = getTraceCarrier(msg);
 
-    try {
-      const payload = JSON.parse(msg.content.toString()) as T;
-      await config.processor(payload);
-      channel.ack(msg);
-    } catch (error) {
-      reporter.report(error, {
-        context: 'Failed to process RabbitMQ message',
-        queue: config.queue,
-      });
-      channel.nack(msg, false, false);
-    }
+    return traceQueueProcessing(
+      tracer,
+      config.queue,
+      EQueueTransport.RabbitMQ,
+      trace,
+      async () => {
+        const processingStartedAt = performance.now();
+
+        const getProcessingMetricInput = () => ({
+          queueName: config.queue,
+          transport: EQueueTransport.RabbitMQ,
+          durationMs: performance.now() - processingStartedAt,
+        });
+
+        try {
+          const payload = JSON.parse(msg.content.toString()) as T;
+          const initialStore = config.getInitialStore(payload);
+
+          await appContext.init(initialStore, async () => {
+            let processorCompleted = false;
+
+            try {
+              await config.processor(payload);
+              processorCompleted = true;
+              queueMetrics.recordProcessingCompleted(
+                getProcessingMetricInput()
+              );
+              channel.ack(msg);
+            } catch (error) {
+              if (!processorCompleted) {
+                queueMetrics.recordProcessingFailed(getProcessingMetricInput());
+              }
+              reporter.report('queue.message.processing_failed', error, {
+                queue: config.queue,
+                transport: EQueueTransport.RabbitMQ,
+              });
+              channel.nack(msg, false, false);
+            }
+          });
+        } catch (error) {
+          queueMetrics.recordProcessingFailed(getProcessingMetricInput());
+          reporter.report('queue.message.processing_failed', error, {
+            queue: config.queue,
+            transport: EQueueTransport.RabbitMQ,
+          });
+          channel.nack(msg, false, false);
+        }
+      }
+    );
   });
 
   return channel;

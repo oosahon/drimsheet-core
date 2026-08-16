@@ -1,5 +1,6 @@
 import launchDarklyClient from '@infra/config/launchdarkly.config';
 import reporter from '@infra/observability/reporter';
+import observabilityLifecycle from '@infra/runtime/observability-lifecycle';
 
 const INITIALIZATION_TIMEOUT_SECONDS = 5;
 
@@ -21,7 +22,7 @@ async function initialize() {
       timeout: INITIALIZATION_TIMEOUT_SECONDS,
     });
   } catch (error) {
-    reporter.report(error, {
+    reporter.report('integration.feature_flag.initialization_failed', error, {
       source: 'feature-flag-initialization',
     });
   }
@@ -31,7 +32,7 @@ async function shutdown(signal: TFeatureFlagShutdownSignal) {
   try {
     await launchDarklyClient.flush();
   } catch (error) {
-    reporter.report(error, {
+    reporter.report('integration.feature_flag.flush_failed', error, {
       operation: 'flush',
       signal,
       source: 'feature-flag-shutdown',
@@ -41,12 +42,14 @@ async function shutdown(signal: TFeatureFlagShutdownSignal) {
   try {
     launchDarklyClient.close();
   } catch (error) {
-    reporter.report(error, {
+    reporter.report('integration.feature_flag.close_failed', error, {
       operation: 'close',
       signal,
       source: 'feature-flag-shutdown',
     });
   }
+
+  await observabilityLifecycle.shutdown(signal);
 
   process.exit(SHUTDOWN_EXIT_CODES[signal]);
 }

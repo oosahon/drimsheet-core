@@ -1,15 +1,12 @@
-import { TErrorCause } from '@shared/types/error.types';
+import { TErrorCause, TErrorKeys } from '@shared/types/error.types';
 import errorUtils from '@shared/utils/error';
 
 import accountingError from './accounting.error';
 
-type TErrorKeyPrefix =
-  `accounting_error_ledger_account_balance_adjustment_${string}`;
-
 const EErrorKeys = {
   MixedAccountIds:
-    'accounting_error_ledger_account_balance_adjustment_mixed_account_ids',
-} as const satisfies Record<string, TErrorKeyPrefix>;
+    'accounting_error_ledger_account_balance_adjustment_mixed_account_ids_invalid',
+} as const satisfies TErrorKeys<'accounting_error_ledger_account_balance_adjustment'>;
 
 type ULedgerAccountBalanceAdjustmentError =
   (typeof EErrorKeys)[keyof typeof EErrorKeys];

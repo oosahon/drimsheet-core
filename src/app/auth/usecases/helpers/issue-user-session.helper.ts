@@ -39,7 +39,7 @@ export default async function makeIssueUserSessionHelper({
   beforeCreate,
   replaceExistingClientSession = true,
 }: IIssueUserSessionDeps): Promise<IAccessToken> {
-  const { correlationId, clientSession } = reqContext.get();
+  const { correlationId, clientSession } = reqContext.get(['clientSession']);
 
   const accessToken = await tokenService.generateAccessToken(user);
   const refreshToken = await tokenService.generateRefreshToken(user);

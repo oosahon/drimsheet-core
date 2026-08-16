@@ -9,6 +9,8 @@ DTOs define application input/output shapes.
 - Export TypeScript types and Zod schemas together.
 - Compose schemas directly. Avoid `extends`, `Pick`, `Omit`, and shape-mutating utility types.
 - Use domain/app error keys in validation messages.
+- Validation-message keys identify individual invalid fields. The interface
+  validation envelope owns the top-level `_validation_error` key and HTTP 422.
 - Provide `fromDto` / `toDto` helpers when conversion is needed.
 - Do not use `any`.
 

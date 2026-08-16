@@ -1,12 +1,12 @@
 import appError from '@shared/values/errors/app.error';
 
 describe('App Errors', () => {
-  it('appError.BadRequest creates error with app_error_bad_request', () => {
+  it('appError.BadRequest creates error with app_error_request_invalid', () => {
     const cause = { field: 'email' };
     const error = new appError.BadRequest(cause);
     expect(error).toBeInstanceOf(appError.BadRequest);
-    expect(error.errorKey).toBe('app_error_bad_request');
-    expect(error.message).toBe('app_error_bad_request');
+    expect(error.errorKey).toBe('app_error_request_invalid');
+    expect(error.message).toBe('app_error_request_invalid');
     expect(error.cause).toBe(cause);
   });
 
@@ -55,11 +55,11 @@ describe('App Errors', () => {
     expect(error.message).toBe('app_error_conflict');
   });
 
-  it('appError.InternalServerError creates error with app_error_internal_server_error', () => {
+  it('appError.InternalServerError creates error with app_error_unexpected', () => {
     const error = new appError.InternalServerError();
     expect(error).toBeInstanceOf(appError.InternalServerError);
-    expect(error.errorKey).toBe('app_error_internal_server_error');
-    expect(error.message).toBe('app_error_internal_server_error');
+    expect(error.errorKey).toBe('app_error_unexpected');
+    expect(error.message).toBe('app_error_unexpected');
   });
 
   it('appError.TooManyRequests creates error with app_error_too_many_requests', () => {
@@ -80,13 +80,15 @@ describe('App Errors', () => {
   });
 
   describe('appError.UnprocessableEntity', () => {
-    const validationErrors = [{ field: 'email', message: 'Invalid email' }];
+    const validationErrors = [
+      { field: 'email', message: 'auth_error_email_invalid' },
+    ];
 
     it('creates an appError.UnprocessableEntity with default message if none is provided', () => {
       const error = new appError.UnprocessableEntity(validationErrors);
       expect(error).toBeInstanceOf(appError.UnprocessableEntity);
-      expect(error.errorKey).toBe('app_error_unprocessable');
-      expect(error.message).toBe('app_error_unprocessable'); // Fallback check
+      expect(error.errorKey).toBe('app_error_validation_error');
+      expect(error.message).toBe('app_error_validation_error'); // Fallback check
       expect(error.validationErrors).toBe(validationErrors);
       expect(error.cause).toBeUndefined();
     });
@@ -94,8 +96,8 @@ describe('App Errors', () => {
     it('creates an appError.UnprocessableEntity with cause', () => {
       const cause = { original: 'Bad data' };
       const error = new appError.UnprocessableEntity(validationErrors, cause);
-      expect(error.errorKey).toBe('app_error_unprocessable');
-      expect(error.message).toBe('app_error_unprocessable');
+      expect(error.errorKey).toBe('app_error_validation_error');
+      expect(error.message).toBe('app_error_validation_error');
       expect(error.validationErrors).toBe(validationErrors);
       expect(error.cause).toBe(cause);
     });
