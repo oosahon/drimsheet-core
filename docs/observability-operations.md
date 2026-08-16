@@ -56,17 +56,19 @@ outages must not change readiness.
 
 ## Sentry release and source maps
 
-Build before upload and use a build-only `SENTRY_AUTH_TOKEN`:
+The build automatically injects and uploads source maps when `SENTRY_DSN` is
+configured. Use a build-only `SENTRY_AUTH_TOKEN`:
 
 ```bash
 npm run build
-npm run sentry:sourcemaps
 ```
 
-Do not expose the auth token to the running container. Upload source maps from
-the same build that is deployed. Verify that the Sentry runtime release equals
-the deployed `package.json` version and that a synthetic stack frame resolves
-to the TypeScript source.
+The build skips the upload when `SENTRY_DSN` is empty. When Sentry is
+configured, an injection or upload error fails the build. Do not expose the
+auth token to the running container. Upload source maps from the same build
+that is deployed. Verify that the Sentry runtime release equals the deployed
+`package.json` version and that a synthetic stack frame resolves to the
+TypeScript source.
 
 ## Deferred dashboards and alerts
 
