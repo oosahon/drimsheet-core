@@ -8,7 +8,6 @@
   "scripts": {
     "test": "jest",
     "test:names": "node scripts/check-test-file-names.mjs",
-    "test:observability-smoke": "node --test scripts/__tests__/observability-smoke-test.test.mjs",
     "test:ci": "bash scripts/test-ci.sh",
     "test:db:reset": "bash scripts/reset-test-db.sh",
     "start": "npm run db:migrate up && node ./dist/src/infra/runtime/_bootstrap/index.js",
@@ -34,8 +33,7 @@
     "db:docs": "node scripts/generate-db-docs.js",
     "db:migrate": "tsx ./node_modules/.bin/node-pg-migrate -j ts -m ./db/migrations -d POSTGRES_URL",
     "db:sync": "npm run db:migrate up && npm run drizzle:pull",
-    "db:reset": "npm run db:migrate down 1000 && npm run db:sync",
-    "smoke:observability:staging": "node scripts/observability-smoke-test.mjs"
+    "db:reset": "npm run db:migrate down 1000 && npm run db:sync"
   },
   "lint-staged": {
     "*.{ts,js,json,md}": "prettier --write"

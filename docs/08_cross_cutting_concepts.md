@@ -69,7 +69,7 @@ To ensure only clean data enters the system and anomalous states are captured:
 - **Sentry reporting and tracing privacy boundary**: Sentry initializes before the runtime dependency graph, with default PII collection disabled and environment-controlled trace sampling. Every error/message event, transaction, and child span passes through a strict application allowlist. Request bodies, URLs, query strings, headers, cookies, user identity, arbitrary span data, SQL values, financial data, and health-check transactions are removed. Sentry retains bounded reporter facts, normalized HTTP route identity, controlled use-case/queue operations, canonical exception identity and stack, release/environment metadata, safe runtime context, and trace identity. Sentry project-side data scrubbing must also remain enabled as an independent backstop; it does not permit application code to send sensitive data.
 - **Application and queue span boundaries**: The 35 entry points composed in `src/infra/ioc/usecases` run in stable `app.usecase` spans without adding Sentry dependencies to application or domain code. BullMQ producers place propagation data beside the DTO in an infrastructure-only versioned envelope; consumers accept both that envelope and legacy raw jobs. RabbitMQ consumers read only `sentry-trace` and `baggage` headers. Consumers create controlled `queue.process` roots when no valid parent exists. Tracing failures never change use-case returns, queue retries, RabbitMQ acknowledgements, or ledger propagation failure semantics.
 - **Observability metrics (OpenTelemetry, Grafana Alloy, Grafana Cloud)**: Application instances export best-effort metrics periodically over OTLP/HTTP to Grafana Alloy on the private Coolify network. Export is disabled by default and application code contains no Grafana Cloud credentials. `IObservabilityMetrics` provides the tool-agnostic recorder, while `IHttpMetrics` and `IQueueMetrics` own the semantic catalogue, seconds conversion, and bounded attribute policy. OTel resource identity supplies bounded service name, deployment release, environment, and container instance fields once per process. Recording and bounded shutdown-flush failures never change HTTP, transaction, queue retry, or acknowledgement behavior.
-- **Runtime health**: `/health/live` is dependency-free. `/health/ready` requires completed startup and a one-second PostgreSQL probe because PostgreSQL contains the authoritative journal. Optional projection, messaging, feature-flag, and telemetry dependencies are monitored and alerted but are deliberately non-gating.
+- **Runtime health**: `/health/live` is dependency-free. `/health/ready` requires completed startup and a one-second PostgreSQL probe because PostgreSQL contains the authoritative journal. Optional projection, messaging, feature-flag, and telemetry dependencies are monitored but are deliberately non-gating.
 
 After an observability deployment, an operator must inspect raw Sentry event
 JSON and structured log records using synthetic canary values, never customer
@@ -96,37 +96,38 @@ The initial application-owned metrics are:
 | `messaging.process.duration`          | Histogram  | `s`           | controlled queue, transport, outcome             |
 | `messaging.process.wait.duration`     | Histogram  | `s`           | controlled queue and transport, when trustworthy |
 
-Histograms prefer base-2 exponential aggregation. If the production
-Alloy/Grafana Cloud smoke test does not preserve it, the compatibility
+Histograms prefer base-2 exponential aggregation. If the deployed
+Alloy/Grafana Cloud pipeline does not preserve it, the compatibility
 boundaries in `src/infra/observability/metric-catalogue.ts` become the explicit
 fallback. Baseline distributions must be collected for two to four weeks
 before final latency SLOs are proposed.
 
 Application metrics configuration is intentionally provider-neutral:
 
-| Environment variable          | Default | Purpose                                                   |
-| ----------------------------- | ------- | --------------------------------------------------------- |
-| `METRICS_ENABLED`             | `false` | Enables application OTLP/HTTP export explicitly.          |
-| `METRICS_OTLP_HTTP_ENDPOINT`  | empty   | Internal Alloy URL ending in `/v1/metrics`.               |
-| `METRICS_EXPORT_INTERVAL_MS`  | `60000` | Periodic export interval.                                 |
-| `METRICS_SHUTDOWN_TIMEOUT_MS` | `5000`  | Bound for exporter shutdown and the export timeout.       |
-| `BULLMQ_METRICS_PORT`         | `0`     | Separate internal scrape listener; `0` keeps it disabled. |
+| Environment variable         | Default | Purpose                                                   |
+| ---------------------------- | ------- | --------------------------------------------------------- |
+| `METRICS_ENABLED`            | `false` | Enables application OTLP/HTTP export explicitly.          |
+| `METRICS_OTLP_HTTP_ENDPOINT` | empty   | Internal Alloy URL ending in `/v1/metrics`.               |
+| `BULLMQ_METRICS_PORT`        | `0`     | Separate internal scrape listener; `0` keeps it disabled. |
 
-Tracing and runtime instance configuration is also environment-controlled:
+Tracing sampling is also environment-controlled:
 
-| Environment variable               | Default           | Purpose                                                |
-| ---------------------------------- | ----------------- | ------------------------------------------------------ |
-| `APP_INSTANCE_ID`                  | Docker `HOSTNAME` | Bounded metrics resource instance identity.            |
-| `SENTRY_TRACES_SAMPLE_RATE`        | `0`               | Trace sample rate from `0` through `1`.                |
-| `SENTRY_TRACE_PROPAGATION_TARGETS` | empty             | Comma-separated first-party origins for outbound HTTP. |
-| `SENTRY_FLUSH_TIMEOUT_MS`          | `5000`            | Bounded Sentry shutdown flush, capped at 30 seconds.   |
+| Environment variable        | Default | Purpose                                 |
+| --------------------------- | ------- | --------------------------------------- |
+| `SENTRY_TRACES_SAMPLE_RATE` | `0`     | Trace sample rate from `0` through `1`. |
+
+Core exports metrics every 60 seconds and bounds metrics and Sentry shutdown
+at 5 seconds. Docker `HOSTNAME` supplies the bounded metrics instance identity.
+Sentry outbound HTTP trace propagation remains empty until Core has a
+first-party downstream service.
 
 `APP_VERSION` is always read from `package.json`; environment values cannot
 override it. The package version is shared by logs, metrics, and the Sentry
 runtime release.
 
 See [the observability operations runbook](observability-operations.md) for
-deployment values, smoke tests, dashboards, alerts, and privacy canaries.
+deployment values, manual verification, deferred operational work, and privacy
+canaries.
 
 Queue inventory remains provider-owned. Alloy scrapes one logical internal
 BullMQ listener per environment, keeps `bullmq_job_count`, and drops the

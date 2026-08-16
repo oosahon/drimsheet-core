@@ -14,6 +14,7 @@ description: Use when implementing code changes in this repository.
 - [Service Ownership](../../rules/service-ownership.md)
 - [Readability](../../rules/readability.md)
 - [Artifact Creation](../../rules/artifact-creation.md)
+- [Scope And Simplicity](../../rules/scope-and-simplicity.md)
 - [Precedent And Deviation](../../rules/precedent-and-deviation.md)
 
 Load [Use Cases](../../rules/usecase.md) for use-case changes and

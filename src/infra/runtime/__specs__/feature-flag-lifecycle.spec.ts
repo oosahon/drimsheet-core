@@ -124,6 +124,32 @@ describe('featureFlagLifeCycle', () => {
     expect(process.exit).toHaveBeenCalledWith(exitCode);
   });
 
+  it('waits for telemetry shutdown to complete before exiting', async () => {
+    let completeTelemetryShutdown!: () => void;
+    let markTelemetryShutdownStarted!: () => void;
+    const telemetryShutdownStarted = new Promise<void>((resolve) => {
+      markTelemetryShutdownStarted = resolve;
+    });
+    const telemetryShutdown = new Promise<void>((resolve) => {
+      completeTelemetryShutdown = resolve;
+    });
+    mockObservabilityLifecycle.shutdown.mockImplementationOnce(() => {
+      markTelemetryShutdownStarted();
+
+      return telemetryShutdown;
+    });
+    featureFlagLifeCycle.registerShutdown();
+
+    const shutdown = getHandler('SIGTERM')();
+    await telemetryShutdownStarted;
+
+    expect(process.exit).not.toHaveBeenCalled();
+
+    completeTelemetryShutdown();
+    await expect(shutdown).rejects.toThrow('process-exit:143');
+    expect(process.exit).toHaveBeenCalledWith(143);
+  });
+
   it('reports a flush failure before closing and exiting', async () => {
     const error = new Error('flush failed');
     client.flush.mockRejectedValue(error);

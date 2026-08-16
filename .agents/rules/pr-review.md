@@ -12,6 +12,9 @@ Review for bugs first.
 - Controllers, middlewares, or use cases making hidden business decisions.
 - Structural decisions without an explicit requirement or resolved plan
   decision, durable rule, concrete precedent, or explicitly approved deviation.
+- Speculative behaviors, configuration, abstractions, compatibility paths, or
+  hooks without a present consumer, as prohibited by
+  [Scope And Simplicity](scope-and-simplicity.md).
 - Undisclosed plan drift and material plan deviations that lack approval. Allow
   disclosed non-material corrections that preserve the approved outcome and
   scope.

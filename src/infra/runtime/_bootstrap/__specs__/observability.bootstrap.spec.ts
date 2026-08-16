@@ -7,7 +7,6 @@ import scrubSentrySpan from '@infra/observability/helpers/scrub-sentry-span';
 import scrubSentryTransaction from '@infra/observability/helpers/scrub-sentry-transaction';
 import logger from '@infra/observability/logger';
 import bootstrapObservability from '@infra/runtime/_bootstrap/observability.bootstrap';
-import observabilityLifecycle from '@infra/runtime/observability-lifecycle';
 
 jest.mock('@sentry/node', () => ({
   init: jest.fn(),
@@ -20,19 +19,12 @@ jest.mock('../../../observability/logger', () => ({
   },
 }));
 
-jest.mock('../../observability-lifecycle', () => ({
-  __esModule: true,
-  default: {
-    registerShutdown: jest.fn(),
-  },
-}));
-
 describe('bootstrapObservability', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('configures Sentry privacy, tracing, and lifecycle handling', () => {
+  it('configures Sentry privacy and tracing', () => {
     bootstrapObservability();
 
     expect(Sentry.init).toHaveBeenCalledWith({
@@ -46,10 +38,9 @@ describe('bootstrapObservability', () => {
       beforeSendSpan: scrubSentrySpan,
       beforeSendTransaction: scrubSentryTransaction,
     });
-    expect(observabilityLifecycle.registerShutdown).toHaveBeenCalledTimes(1);
   });
 
-  it('contains initialization failure and still registers shutdown', () => {
+  it('contains initialization failure', () => {
     const error = new Error('Sentry unavailable');
     jest.mocked(Sentry.init).mockImplementationOnce(() => {
       throw error;
@@ -60,7 +51,6 @@ describe('bootstrapObservability', () => {
       'observability.sentry.initialization_failed',
       { error, outcome: 'failure' }
     );
-    expect(observabilityLifecycle.registerShutdown).toHaveBeenCalledTimes(1);
   });
 
   it('contains fallback logger failure during initialization', () => {
@@ -72,6 +62,5 @@ describe('bootstrapObservability', () => {
     });
 
     expect(() => bootstrapObservability()).not.toThrow();
-    expect(observabilityLifecycle.registerShutdown).toHaveBeenCalledTimes(1);
   });
 });

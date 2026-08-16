@@ -1,6 +1,5 @@
 import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 
-type TShutdownSignal = 'SIGINT' | 'SIGTERM';
 type TObservabilityLifecycle =
   (typeof import('@infra/runtime/observability-lifecycle'))['default'];
 
@@ -44,38 +43,24 @@ async function loadObservabilityLifecycle(): Promise<TObservabilityLifecycle> {
 }
 
 describe('observability lifecycle', () => {
-  const handlers = new Map<TShutdownSignal, () => Promise<void>>();
-
   beforeEach(() => {
-    handlers.clear();
     jest.clearAllMocks();
     mockFlushSentry.mockResolvedValue(true);
     mockShutdownMetrics.mockResolvedValue(undefined);
-
-    jest.spyOn(process, 'once').mockImplementation((signal, listener) => {
-      if (signal === 'SIGINT' || signal === 'SIGTERM') {
-        handlers.set(signal, async () => {
-          await listener(signal);
-        });
-      }
-
-      return process;
-    });
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('registers both signals once and performs one bounded shutdown', async () => {
+  it('performs one bounded shutdown without owning process signals', async () => {
+    const processOnce = jest.spyOn(process, 'once');
     const lifecycle = await loadObservabilityLifecycle();
 
-    lifecycle.registerShutdown();
-    lifecycle.registerShutdown();
-    await handlers.get('SIGTERM')?.();
+    await lifecycle.shutdown('SIGTERM');
     await lifecycle.shutdown('SIGINT');
 
-    expect(process.once).toHaveBeenCalledTimes(2);
+    expect(processOnce).not.toHaveBeenCalled();
     expect(mockFlushSentry).toHaveBeenCalledTimes(1);
     expect(mockFlushSentry).toHaveBeenCalledWith(4_000);
     expect(mockShutdownMetrics).toHaveBeenCalledTimes(1);

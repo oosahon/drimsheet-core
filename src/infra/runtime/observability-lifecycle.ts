@@ -8,8 +8,6 @@ import logger from '@infra/observability/logger';
 
 type TShutdownSignal = 'SIGINT' | 'SIGTERM';
 
-const SHUTDOWN_SIGNALS: readonly TShutdownSignal[] = ['SIGINT', 'SIGTERM'];
-let shutdownRegistered = false;
 let shutdownPromise: Promise<void> | undefined;
 
 function warnSafely(event: string, fields: Record<string, unknown>) {
@@ -60,15 +58,6 @@ function shutdown(signal?: TShutdownSignal): Promise<void> {
   return shutdownPromise;
 }
 
-function registerShutdown() {
-  if (shutdownRegistered) return;
-  shutdownRegistered = true;
-
-  SHUTDOWN_SIGNALS.forEach((signal) => {
-    process.once(signal, async () => shutdown(signal));
-  });
-}
-
-const observabilityLifecycle = Object.freeze({ registerShutdown, shutdown });
+const observabilityLifecycle = Object.freeze({ shutdown });
 
 export default observabilityLifecycle;

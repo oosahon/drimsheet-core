@@ -10,7 +10,7 @@ repository on the same private Coolify network as Core, BullMQ, and RabbitMQ.
 
 The authoritative accounting rule is unchanged: a committed journal entry is
 the source of truth. Ledger-balance propagation is an asynchronous projection.
-Enqueue, worker, telemetry, or dashboard failures must alert operators but must
+Enqueue, worker, or telemetry failures require operator investigation but must
 never convert a successful journal commit into a failed request.
 
 ## Core runtime configuration
@@ -19,17 +19,11 @@ Store deployment values in Doppler/Coolify, not Git. Configure each environment
 independently:
 
 ```dotenv
-APP_INSTANCE_ID=<optional-stable-instance-identifier>
-
 SENTRY_DSN=<project-dsn>
 SENTRY_TRACES_SAMPLE_RATE=1
-SENTRY_TRACE_PROPAGATION_TARGETS=https://<first-party-api-origin>
-SENTRY_FLUSH_TIMEOUT_MS=5000
 
 METRICS_ENABLED=true
 METRICS_OTLP_HTTP_ENDPOINT=http://<alloy-private-host>:4318/v1/metrics
-METRICS_EXPORT_INTERVAL_MS=60000
-METRICS_SHUTDOWN_TIMEOUT_MS=5000
 BULLMQ_METRICS_PORT=9464
 ```
 
@@ -37,8 +31,10 @@ Use trace sampling `1` temporarily in development/staging validation. Start
 production with a cost-safe reviewed value, such as `0.10`, and adjust it from
 observed event volume. An empty DSN and a sample rate of `0` disable Sentry
 safely. `APP_VERSION` is always the version in `package.json` and must not be
-set in Doppler or Coolify. When `APP_INSTANCE_ID` is omitted, the Docker
-`HOSTNAME` is used.
+set in Doppler or Coolify. Docker `HOSTNAME` supplies the bounded service
+instance identity. Core exports metrics every 60 seconds and bounds metrics and
+Sentry shutdown at 5 seconds. Outbound Sentry HTTP trace propagation remains
+disabled until Core has a first-party downstream service.
 
 Keep Alloy OTLP port `4318`, the BullMQ scrape port, RabbitMQ `15692`, and the
 Alloy component UI private. Do not place Grafana Cloud credentials in Core.
@@ -72,104 +68,37 @@ the same build that is deployed. Verify that the Sentry runtime release equals
 the deployed `package.json` version and that a synthetic stack frame resolves
 to the TypeScript source.
 
-Configure Sentry alert ownership and notification routes for:
+## Deferred dashboards and alerts
 
-- new or regressed unexpected issues and startup failures;
-- `ledger.balance_propagation.failed`;
-- `queue.job.enqueue_failed`, final/repeated BullMQ processing failure, and
-  RabbitMQ processing failure;
-- integration failures; and
-- HTTP, `app.usecase`, and `queue.process` performance regressions after a real
-  baseline exists.
+Final dashboards, SLOs, alert rules, notification routes, and alert-delivery
+tests remain follow-up work until production measurements establish thresholds
+and an operational owner accepts them. Do not treat lifecycle telemetry as
+proof of journal-to-ledger consistency; exact consistency and lag require
+reconciliation-backed durable completion.
 
-## Grafana dashboards and alerts
+## Manual deployment checklist
 
-Maintain three dashboards per environment:
+Complete these checks in development and then staging with synthetic accounts
+and data:
 
-1. Core service: request rate, status-class outcomes, p50/p95/p99 latency,
-   instance CPU/memory/restarts, current release, and relevant structured logs.
-2. Queues and ledger projection: application enqueue/process outcomes and
-   duration, BullMQ waiting/active/delayed/failed inventory, RabbitMQ ready/
-   unacknowledged/consumer inventory, and projection failure logs.
-3. Telemetry pipeline: Alloy receiver/exporter health, scrape health,
-   remote-write retries/backlog, last log/metric timestamps, and ingestion cost.
+1. Confirm `/health/live` and `/health/ready` return `200` after startup.
+2. Exercise one current authenticated request successfully and one current
+   request that the application rejects. Confirm their structured logs arrive
+   with the expected normalized route, outcome, correlation ID, and release.
+3. Exercise an existing product flow that enqueues BullMQ work and a current
+   RabbitMQ exchange-rate flow. Confirm the producer and consumer spans are
+   linked in Sentry and queue acknowledgement/retry behavior is unchanged. Do
+   not add synthetic product endpoints solely for this checklist.
+4. Confirm the current application metric families arrive through Alloy and
+   that the BullMQ and RabbitMQ provider-owned inventory series are present.
+5. Confirm Sentry receives a sampled trace at the reviewed environment rate and
+   an unexpected synthetic error with source maps resolved to TypeScript.
 
-Create immediate alerts for:
-
-- no application metrics from a ready deployed service;
-- any balance-adjustment enqueue failure;
-- repeated or final-attempt balance-adjustment processing failure;
-- growing BullMQ waiting/failed backlog or a missing worker;
-- RabbitMQ consumer loss or sustained ready/unacknowledged growth;
-- Alloy receiver/exporter or remote-write failure;
-- restart loops or sustained readiness failure; and
-- sustained HTTP 5xx responses using a conservative absolute threshold.
-
-Do not label lifecycle signals as proof of journal-to-ledger consistency. Exact
-consistency and lag require reconciliation-backed durable completion.
-
-## Deployment smoke test
-
-The repeatable staging test is `npm run smoke:observability:staging`. Copy
-`scripts/observability-smoke.env.example` to an ignored environment file, fill
-it with staging/backend values, source it, and validate the setup before making
-requests:
-
-```bash
-set -a
-source .env.observability-smoke
-set +a
-npm run smoke:observability:staging -- --check-config
-npm run smoke:observability:staging
-```
-
-The file referenced by `OBS_SMOKE_QUEUE_PROBES_FILE` must remain uncommitted
-because it can contain staging authorization. Use synthetic accounts and data.
-Its schema is:
-
-```json
-{
-  "queueProbes": [
-    {
-      "name": "transactional-email",
-      "method": "POST",
-      "path": "/api/v1/<synthetic-trigger>",
-      "headers": { "authorization": "Bearer <staging-token>" },
-      "body": { "synthetic": true },
-      "expectedStatus": [200, 202],
-      "expectedQueues": ["transactional-email-queue"]
-    }
-  ]
-}
-```
-
-Add a probe for every queue path under test, including
-`ledger-account-balance-adjustment-queue`. The command supplies a distinct
-correlation ID to every request, locates its structured Loki log, extracts the
-Sentry trace ID, and requires the expected `queue.process` transaction and
-queue name in that same trace. It also requires:
-
-- live and ready health checks;
-- a successful and rejected exchange-rate request;
-- all six application metric families;
-- BullMQ and RabbitMQ inventory metrics; and
-- Grafana receiver-test acceptance followed by operator-confirmed delivery.
-
-Leave `OBS_SMOKE_ALERT_DELIVERY_CONFIRMED=false` for the first run. After the
-test notification arrives at the configured destination, set it to `true` and
-rerun to produce a passing JSON report. Store that output with the deployment
-evidence; secrets and response bodies are deliberately omitted.
-
-The automated command covers safe remote assertions. Complete these
-environment-level drills in development, then staging:
-
-1. Enqueue a legacy raw BullMQ job and confirm it still processes.
-2. Consume one RabbitMQ exchange-rate message with and without trace headers.
-   Confirm acknowledgement/nack behavior is unchanged.
-3. Restart Alloy and verify log positions resume without rereading unbounded
-   history and metrics recover without application intervention.
-4. Trigger each alert rule through a synthetic signal and record the contact point,
-   owner, severity, runbook link, and recovery condition.
+These checks require deployed Coolify, Alloy, Grafana Cloud, Sentry Cloud,
+BullMQ, and RabbitMQ infrastructure and credentials. They are not local or
+pre-push automation. Cross-cloud API automation, synthetic queue-trigger
+endpoints, dashboards, alerts, and alert-delivery tests may be designed after
+their supported APIs and operational owners exist.
 
 ## Privacy canary
 
