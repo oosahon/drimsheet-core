@@ -1,6 +1,7 @@
 import launchDarklyClient from '@infra/config/launchdarkly.config';
 import reporter from '@infra/observability/reporter';
 import featureFlagLifeCycle from '@infra/runtime/feature-flag-lifecycle';
+import observabilityLifecycle from '@infra/runtime/observability-lifecycle';
 
 jest.mock('../../config/launchdarkly.config', () => ({
   __esModule: true,
@@ -19,12 +20,20 @@ jest.mock('../../observability/reporter', () => ({
   },
 }));
 
+jest.mock('../observability-lifecycle', () => ({
+  __esModule: true,
+  default: {
+    shutdown: jest.fn(),
+  },
+}));
+
 type TShutdownSignal = 'SIGINT' | 'SIGTERM';
 
 describe('featureFlagLifeCycle', () => {
   const handlers = new Map<TShutdownSignal, () => Promise<void>>();
   const client = jest.mocked(launchDarklyClient);
   const mockReporter = jest.mocked(reporter);
+  const mockObservabilityLifecycle = jest.mocked(observabilityLifecycle);
 
   const getHandler = (signal: TShutdownSignal) => {
     const handler = handlers.get(signal);
@@ -43,6 +52,7 @@ describe('featureFlagLifeCycle', () => {
     client.waitForInitialization.mockResolvedValue(client);
     client.flush.mockResolvedValue(undefined);
     client.close.mockReturnValue(undefined);
+    mockObservabilityLifecycle.shutdown.mockResolvedValue(undefined);
 
     jest.spyOn(process, 'once').mockImplementation((signal, listener) => {
       if (signal === 'SIGINT' || signal === 'SIGTERM') {
@@ -104,6 +114,13 @@ describe('featureFlagLifeCycle', () => {
     expect(client.flush.mock.invocationCallOrder[0]).toBeLessThan(
       client.close.mock.invocationCallOrder[0]
     );
+    expect(mockObservabilityLifecycle.shutdown).toHaveBeenCalledWith(signal);
+    expect(client.close.mock.invocationCallOrder[0]).toBeLessThan(
+      mockObservabilityLifecycle.shutdown.mock.invocationCallOrder[0]
+    );
+    expect(
+      mockObservabilityLifecycle.shutdown.mock.invocationCallOrder[0]
+    ).toBeLessThan(jest.mocked(process.exit).mock.invocationCallOrder[0]);
     expect(process.exit).toHaveBeenCalledWith(exitCode);
   });
 
@@ -123,6 +140,7 @@ describe('featureFlagLifeCycle', () => {
       }
     );
     expect(client.close).toHaveBeenCalledTimes(1);
+    expect(mockObservabilityLifecycle.shutdown).toHaveBeenCalledWith('SIGTERM');
     expect(process.exit).toHaveBeenCalledWith(143);
   });
 
@@ -143,6 +161,7 @@ describe('featureFlagLifeCycle', () => {
         source: 'feature-flag-shutdown',
       }
     );
+    expect(mockObservabilityLifecycle.shutdown).toHaveBeenCalledWith('SIGINT');
     expect(process.exit).toHaveBeenCalledWith(130);
   });
 

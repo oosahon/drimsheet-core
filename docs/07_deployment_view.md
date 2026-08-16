@@ -30,7 +30,17 @@ All internal systems run as Docker containers strictly managed and orchestrated 
 | **PostgreSQL**        | Relational Database  | The primary transactional database where ledgers and journals are stored. Runs persistently on attached volumes ensuring ACID compliance.                                        |
 | **Redis**             | In-Memory Data Store | Acts as a fast response cache and the backbone for the background job processing (BullMQ / Bull Board).                                                                          |
 | **RabbitMQ**          | Message Broker       | Handles asynchronous event-driven message consumption for external workflows such as exchange rate ingestion, decoupling producers from consumers.                               |
+| **Grafana Alloy**     | Telemetry Collector  | Receives private OTLP application metrics, scrapes BullMQ/RabbitMQ inventory, collects Docker stdout logs, and owns Grafana Cloud egress credentials and retry policy.           |
 | **Qdrant**            | Vector Database      | Maintains semantic context and vector embeddings, particularly for enabling intelligent AI Agent integrations into the product.                                                  |
+
+Coolify routes application traffic using `GET /health/ready`. The route stays
+unavailable until asynchronous startup completes and a bounded PostgreSQL
+`SELECT 1` succeeds. `GET /health/live` checks only whether the Node process can
+serve HTTP. Redis, BullMQ, RabbitMQ, Grafana Alloy, Grafana Cloud, Sentry, and
+outbound integrations do not participate in readiness; their failures are
+operational alert conditions and must not prevent authoritative journal writes.
+Both routes return minimal, non-cacheable responses and run before product HTTP
+middleware.
 
 ### 7.1.3 External Cloud Services
 
@@ -38,6 +48,8 @@ The Node.js API container relies entirely on these third-party systems via HTTPS
 
 - **AWS S3**: Cloud blob storage used as an immutable vault for transaction attachments (e.g., PDFs, invoices).
 - **Sentry**: Observability platform catching exceptions, runtime crashes, and tracing request performance.
+- **Grafana Cloud**: Central destination for structured Loki logs and
+  Prometheus-compatible metrics exported through Grafana Alloy.
 - **Doppler**: Centralized configuration management (discussed comprehensively in Section 7.3).
 - **Core Systems**: FIRS Tax ProMax (taxation), Mono (open banking), Paystack (billing), and ZeptoMail (transactional email).
 - **Identity & Marketing**: Google Auth, Mailchimp, and MailerLite.
@@ -52,6 +64,12 @@ The system is deployed as a consolidated **monolithic runtime architecture**. Ev
 
 - TypeScript code (found in `src/*`) maps directly to a **single Node.js Docker Container image** artifact.
 - During a deployment, Coolify builds the Dockerfile, compiles the TypeScript, drops dev dependencies, and hot-swaps the container.
+- The runtime starts through the established
+  `src/infra/runtime/_bootstrap/index.ts` entry. That file initializes Sentry
+  before dynamically importing Express, PostgreSQL, Redis, BullMQ, RabbitMQ,
+  and the rest of the application graph, allowing Sentry to install automatic
+  instrumentation before those libraries load. Coolify admits the new container
+  only after `/health/ready` succeeds.
 - **Database Schema Mapping**: The Drizzle ORM schema represents the artifact for database structure. As a pre-start (or hook) step during deployment, Drizzle database migration scripts are applied to the PostgreSQL container to ensure code and table definitions remain deeply synchronized.
 
 ---

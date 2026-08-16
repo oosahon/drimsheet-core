@@ -1,5 +1,6 @@
 import mockQueueMetrics from '@shared/contracts/__mocks__/queue-metrics.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import mockTracer from '@shared/contracts/__mocks__/tracer.mock';
 import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
@@ -45,7 +46,8 @@ describe('registerExchangeRateConsumer', () => {
     await registerExchangeRateConsumer(
       mockReporter,
       mockAppContext,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
 
     expect(connectRabbitMQ).toHaveBeenCalledWith(mockReporter);
@@ -58,7 +60,8 @@ describe('registerExchangeRateConsumer', () => {
       }),
       mockReporter,
       mockAppContext,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
   });
 
@@ -66,7 +69,8 @@ describe('registerExchangeRateConsumer', () => {
     await registerExchangeRateConsumer(
       mockReporter,
       mockAppContext,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
     const config = jest.mocked(registerRabbitMQConsumer).mock.calls[0][1];
 
@@ -82,7 +86,8 @@ describe('registerExchangeRateConsumer', () => {
     await registerExchangeRateConsumer(
       mockReporter,
       mockAppContext,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
     const config = jest.mocked(registerRabbitMQConsumer).mock.calls[0][1];
 

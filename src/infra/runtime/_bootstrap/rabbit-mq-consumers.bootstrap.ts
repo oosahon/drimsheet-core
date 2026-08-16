@@ -7,7 +7,8 @@ export default async function registerRabbitMQConsumers() {
     registerExchangeRateConsumer(
       observability.reporter,
       appContext,
-      observability.queueMetrics
+      observability.queueMetrics,
+      observability.tracer
     ),
   ];
 

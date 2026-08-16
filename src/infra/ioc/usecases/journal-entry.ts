@@ -12,27 +12,34 @@ import {
 import { ledgerAccountBalancePropagationService } from '@infra/ioc/services/ledger';
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
+import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
 import ledgerRepos from '@infra/persistence/repos/ledger';
 import appContext from '@infra/runtime/app-context';
 
-export const createOpeningBalanceUseCase = makeCreateOpeningBalanceUseCase({
-  appContext: appContext,
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  eventBus: messaging.eventBus,
-  journalEntryService,
-  journalEntryPersistenceService,
-  balancePropagationService: ledgerAccountBalancePropagationService,
-  repoService: repoService,
-});
+export const createOpeningBalanceUseCase = makeTracedUseCase(
+  'journalEntry.createOpeningBalanceUseCase',
+  makeCreateOpeningBalanceUseCase({
+    appContext: appContext,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    eventBus: messaging.eventBus,
+    journalEntryService,
+    journalEntryPersistenceService,
+    balancePropagationService: ledgerAccountBalancePropagationService,
+    repoService: repoService,
+  })
+);
 
-export const createReceiptUseCase = makeCreateReceiptUsecase({
-  appContext,
-  counterpartyAppService,
-  journalEntryService,
-  ledgerAccountRepo: ledgerRepos.ledgerAccount,
-  counterpartyPersistenceService,
-  journalEntryPersistenceService,
-  repoService,
-  eventBus: messaging.eventBus,
-  balancePropagationService: ledgerAccountBalancePropagationService,
-});
+export const createReceiptUseCase = makeTracedUseCase(
+  'journalEntry.createReceiptUseCase',
+  makeCreateReceiptUsecase({
+    appContext,
+    counterpartyAppService,
+    journalEntryService,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    counterpartyPersistenceService,
+    journalEntryPersistenceService,
+    repoService,
+    eventBus: messaging.eventBus,
+    balancePropagationService: ledgerAccountBalancePropagationService,
+  })
+);

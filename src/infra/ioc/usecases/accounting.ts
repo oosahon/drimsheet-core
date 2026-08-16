@@ -13,45 +13,59 @@ import {
 } from '@infra/ioc/services/ledger';
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
+import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
 import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import appContext from '@infra/runtime/app-context';
 
-export const createAccountingEntityUseCase = makeCreateAccountingEntityUseCase({
-  appContext,
-  accountingEntityRepo: accountingRepos.accountingEntity,
-  userPreferencesRepo: userRepos.userPreferences,
-  fiscalYearRepo: accountingRepos.fiscalYear,
-  accountingPeriodRepo: accountingRepos.accountingPeriod,
-  accountingContextRepo: accountingRepos.accountingContext,
-  reportingPeriodRepo: accountingRepos.reportingPeriod,
-  reportingContextRepo: accountingRepos.reportingContext,
-  repoService,
-  ledgerAccountPersistenceService,
-  accountingEntityService,
-  headerAccountsBootstrapService,
-  postingAccountBootstrapService,
-  suspenseAccountBootstrapService,
-  eventBus: messaging.eventBus,
-});
+export const createAccountingEntityUseCase = makeTracedUseCase(
+  'accounting.createAccountingEntityUseCase',
+  makeCreateAccountingEntityUseCase({
+    appContext,
+    accountingEntityRepo: accountingRepos.accountingEntity,
+    userPreferencesRepo: userRepos.userPreferences,
+    fiscalYearRepo: accountingRepos.fiscalYear,
+    accountingPeriodRepo: accountingRepos.accountingPeriod,
+    accountingContextRepo: accountingRepos.accountingContext,
+    reportingPeriodRepo: accountingRepos.reportingPeriod,
+    reportingContextRepo: accountingRepos.reportingContext,
+    repoService,
+    ledgerAccountPersistenceService,
+    accountingEntityService,
+    headerAccountsBootstrapService,
+    postingAccountBootstrapService,
+    suspenseAccountBootstrapService,
+    eventBus: messaging.eventBus,
+  })
+);
 
-export const getJurisdictionsUseCase = makeGetJurisdictionsUseCase();
+export const getJurisdictionsUseCase = makeTracedUseCase(
+  'accounting.getJurisdictionsUseCase',
+  makeGetJurisdictionsUseCase()
+);
 
-export const getUserAccountingEntitiesUseCase =
+export const getUserAccountingEntitiesUseCase = makeTracedUseCase(
+  'accounting.getUserAccountingEntitiesUseCase',
   makeGetUserAccountingEntitiesUseCase({
     appContext,
     accountingEntityRepo: accountingRepos.accountingEntity,
-  });
+  })
+);
 
-export const getActiveAccountingEntityUseCase =
+export const getActiveAccountingEntityUseCase = makeTracedUseCase(
+  'accounting.getActiveAccountingEntityUseCase',
   makeGetCurrentAccountingEntityUseCase({
     appContext,
     accountingEntityRepo: accountingRepos.accountingEntity,
     userPreferencesRepo: userRepos.userPreferences,
-  });
+  })
+);
 
-export const switchAccountingEntityUseCase = makeSwitchAccountingEntityUsecase({
-  appContext,
-  accountingEntityRepo: accountingRepos.accountingEntity,
-  userPreferencesRepo: userRepos.userPreferences,
-});
+export const switchAccountingEntityUseCase = makeTracedUseCase(
+  'accounting.switchAccountingEntityUseCase',
+  makeSwitchAccountingEntityUsecase({
+    appContext,
+    accountingEntityRepo: accountingRepos.accountingEntity,
+    userPreferencesRepo: userRepos.userPreferences,
+  })
+);

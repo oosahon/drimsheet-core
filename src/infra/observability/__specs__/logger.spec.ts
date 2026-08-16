@@ -7,6 +7,14 @@ import { ILogFields } from '@shared/types/observability.types';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 
 import { makeLogger } from '@infra/observability/logger';
+import tracer from '@infra/observability/tracer';
+
+jest.mock('../tracer', () => ({
+  __esModule: true,
+  default: {
+    getActiveTrace: jest.fn(),
+  },
+}));
 
 const validCorrelationId = '0198ad49-0f4a-7709-a5bf-2f7cfbaea7c4';
 
@@ -28,6 +36,7 @@ function parseRecord(output: string[]): Record<string, unknown> {
 describe('logger', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.mocked(tracer.getActiveTrace).mockReturnValue(undefined);
   });
 
   it('emits one canonical JSON record with numeric fields outside local', () => {
@@ -109,6 +118,57 @@ describe('logger', () => {
     expect(parseRecord(output).timestamp).not.toBe('spoofed');
     expect(parseRecord(output).traceId).toBeUndefined();
     expect(parseRecord(output).spanId).toBeUndefined();
+  });
+
+  it('adds logger-owned active trace identity', () => {
+    const output: string[] = [];
+    const logger = makeLogger({
+      appEnv: 'production',
+      service: 'test-service',
+      version: '1.2.3',
+      transport: makeOutputTransport(output),
+    });
+    jest.mocked(tracer.getActiveTrace).mockReturnValue({
+      traceId: 'a'.repeat(32),
+      spanId: 'b'.repeat(16),
+    });
+
+    logger.info('journal_entry.created', {
+      traceId: 'c'.repeat(32),
+      spanId: 'd'.repeat(16),
+    });
+
+    expect(parseRecord(output)).toEqual(
+      expect.objectContaining({
+        traceId: 'a'.repeat(32),
+        spanId: 'b'.repeat(16),
+      })
+    );
+  });
+
+  it('omits malformed or unavailable trace identity safely', () => {
+    const output: string[] = [];
+    const logger = makeLogger({
+      appEnv: 'production',
+      service: 'test-service',
+      version: '1.2.3',
+      transport: makeOutputTransport(output),
+    });
+    jest
+      .mocked(tracer.getActiveTrace)
+      .mockReturnValueOnce({
+        traceId: 'private@example.com',
+        spanId: 'private-id',
+      })
+      .mockImplementationOnce(() => {
+        throw new Error('tracer unavailable');
+      });
+
+    expect(() => logger.info('first.event')).not.toThrow();
+    expect(() => logger.info('second.event')).not.toThrow();
+
+    expect(output.join('')).not.toContain('private@example.com');
+    expect(output.join('')).not.toContain('private-id');
   });
 
   it('omits malformed contextual correlation IDs from JSON output', () => {
@@ -271,10 +331,16 @@ describe('logger', () => {
 
     logger.debug('runtime.server.started');
     logger.debug('runtime.server.completed', null as unknown as ILogFields);
+    logger.debug('runtime.server.failed', {
+      message: { token: 'private-token' },
+    } as unknown as ILogFields);
 
     const localOutput = output.join('');
 
     expect(localOutput).toContain('runtime.server.started');
     expect(localOutput).toContain('runtime.server.completed');
+    expect(localOutput).toContain('runtime.server.failed');
+    expect(localOutput).not.toContain('[object Object]');
+    expect(localOutput).not.toContain('private-token');
   });
 });

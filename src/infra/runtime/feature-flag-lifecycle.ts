@@ -1,5 +1,6 @@
 import launchDarklyClient from '@infra/config/launchdarkly.config';
 import reporter from '@infra/observability/reporter';
+import observabilityLifecycle from '@infra/runtime/observability-lifecycle';
 
 const INITIALIZATION_TIMEOUT_SECONDS = 5;
 
@@ -47,6 +48,8 @@ async function shutdown(signal: TFeatureFlagShutdownSignal) {
       source: 'feature-flag-shutdown',
     });
   }
+
+  await observabilityLifecycle.shutdown(signal);
 
   process.exit(SHUTDOWN_EXIT_CODES[signal]);
 }

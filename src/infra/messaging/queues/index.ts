@@ -6,12 +6,14 @@ import makeTransactionalEmailQueue from './transactional-email.queue';
 const queues = Object.freeze({
   ledgerBalanceAdjustment: makeLedgerAccountBalanceAdjustmentQueue(
     observability.reporter,
-    observability.queueMetrics
+    observability.queueMetrics,
+    observability.tracer
   ),
 
   transactionalEmail: makeTransactionalEmailQueue(
     observability.reporter,
-    observability.queueMetrics
+    observability.queueMetrics,
+    observability.tracer
   ),
 });
 

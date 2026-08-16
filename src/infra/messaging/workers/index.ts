@@ -26,7 +26,8 @@ function workerRegistration() {
     transactionalEmailWorker,
     appContext,
     getInitialStore,
-    observability.queueMetrics
+    observability.queueMetrics,
+    observability.tracer
   );
 
   registerBullMQWorker<ILedgerAccountBalanceAdjustmentDto>(
@@ -34,7 +35,8 @@ function workerRegistration() {
     ledgerAccountBalanceAdjustmentWorker,
     appContext,
     getInitialStore,
-    observability.queueMetrics
+    observability.queueMetrics,
+    observability.tracer
   );
 }
 

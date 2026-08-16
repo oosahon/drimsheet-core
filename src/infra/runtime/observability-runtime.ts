@@ -1,4 +1,5 @@
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
+import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
   AggregationType,
   InstrumentType,
@@ -14,6 +15,7 @@ import {
   IObservabilityMetricsConfig,
 } from '@shared/types/observability.types';
 
+import vars from '@infra/config/vars.config';
 import {
   makeNoopObservabilityMetrics,
   makeOpenTelemetryMetrics,
@@ -23,12 +25,27 @@ import packageJson from '../../../package.json';
 
 interface IMetricsRuntime {
   metrics: IObservabilityMetrics;
-  registerShutdown(): void;
   shutdown(): Promise<void>;
 }
 
-const SHUTDOWN_SIGNALS = ['SIGINT', 'SIGTERM'] as const;
 const MAX_INSTRUMENT_CARDINALITY = 100;
+const SAFE_RESOURCE_VALUE_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9._-]{0,127}$/;
+
+function getSafeResourceValue(value: string, fallback: string): string {
+  return SAFE_RESOURCE_VALUE_PATTERN.test(value) ? value : fallback;
+}
+
+function getMetricsResourceAttributes() {
+  return Object.freeze({
+    'service.name': packageJson.name,
+    'service.version': packageJson.version,
+    'deployment.environment.name': vars.APP_ENV,
+    'service.instance.id': getSafeResourceValue(
+      vars.APP_INSTANCE_ID,
+      'unknown'
+    ),
+  });
+}
 
 function warnSafely(logger: ILogger, event: string, fields: ILogFields) {
   try {
@@ -41,7 +58,6 @@ function warnSafely(logger: ILogger, event: string, fields: ILogFields) {
 function makeDisabledRuntime(): IMetricsRuntime {
   return Object.freeze({
     metrics: makeNoopObservabilityMetrics(),
-    registerShutdown: () => undefined,
     shutdown: async () => undefined,
   });
 }
@@ -80,7 +96,10 @@ export default function makeMetricsRuntime(
         default: MAX_INSTRUMENT_CARDINALITY,
       },
     });
+    const resourceAttributes = getMetricsResourceAttributes();
+    const resource = resourceFromAttributes(resourceAttributes);
     const provider = new MeterProvider({
+      resource,
       readers: [reader],
       views: [
         {
@@ -92,9 +111,11 @@ export default function makeMetricsRuntime(
         },
       ],
     });
-    const meter = provider.getMeter(packageJson.name, packageJson.version);
+    const meter = provider.getMeter(
+      packageJson.name,
+      resourceAttributes['service.version']
+    );
     const metrics = makeOpenTelemetryMetrics(meter, logger);
-    let shutdownRegistered = false;
     let shutdownStarted = false;
 
     async function shutdown() {
@@ -113,16 +134,7 @@ export default function makeMetricsRuntime(
       }
     }
 
-    function registerShutdown() {
-      if (shutdownRegistered) return;
-      shutdownRegistered = true;
-
-      SHUTDOWN_SIGNALS.forEach((signal) => {
-        process.once(signal, async () => shutdown());
-      });
-    }
-
-    return Object.freeze({ metrics, registerShutdown, shutdown });
+    return Object.freeze({ metrics, shutdown });
   } catch (error) {
     warnSafely(logger, 'observability.metrics.initialization_failed', {
       outcome: ELogOutcome.Failure,

@@ -3,7 +3,9 @@ import { performance } from 'node:perf_hooks';
 import { Job, Processor, Worker } from 'bullmq';
 
 import mockQueueMetrics from '@shared/contracts/__mocks__/queue-metrics.mock';
+import mockTracer from '@shared/contracts/__mocks__/tracer.mock';
 import { ICorrelationId } from '@shared/types/correlation-id.types';
+import { UTraceEnvelopePayload } from '@shared/types/observability.types';
 
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
 
@@ -40,7 +42,11 @@ describe('registerBullMQWorker', () => {
       throw new Error('Expected a registered BullMQ processor');
     }
 
-    return processor as Processor<ICorrelationId, void, string>;
+    return processor as Processor<
+      UTraceEnvelopePayload<ICorrelationId>,
+      void,
+      string
+    >;
   }
 
   function makeJob(
@@ -49,10 +55,17 @@ describe('registerBullMQWorker', () => {
       timestamp?: number;
       processedOn?: number;
       attemptsMade?: number;
+      trace?: { sentryTrace: string };
     } = {}
   ) {
     return {
-      data: { correlationId },
+      data: timing.trace
+        ? {
+            __observabilityEnvelopeVersion: 1,
+            payload: { correlationId },
+            trace: timing.trace,
+          }
+        : { correlationId },
       timestamp: timing.timestamp ?? 1_000,
       processedOn: timing.processedOn ?? 1_500,
       attemptsMade: timing.attemptsMade ?? 1,
@@ -61,6 +74,15 @@ describe('registerBullMQWorker', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockTracer.continueTrace.mockImplementation((_carrier, operation) =>
+      operation()
+    );
+    mockTracer.startRootSpan.mockImplementation((_options, operation) =>
+      operation()
+    );
+    mockTracer.startSpan.mockImplementation((_options, operation) =>
+      operation()
+    );
   });
 
   afterEach(() => {
@@ -81,10 +103,14 @@ describe('registerBullMQWorker', () => {
       processor,
       appContext,
       getInitialStore,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
 
-    await getRegisteredProcessor()(makeJob('job-correlation'));
+    const sentryTrace = `${'a'.repeat(32)}-${'b'.repeat(16)}-1`;
+    await getRegisteredProcessor()(
+      makeJob('job-correlation', { trace: { sentryTrace } })
+    );
 
     expect(processor).toHaveBeenCalledWith({
       correlationId: 'job-correlation',
@@ -98,6 +124,17 @@ describe('registerBullMQWorker', () => {
       durationMs: 25,
     });
     expect(mockQueueMetrics.recordProcessingFailed).not.toHaveBeenCalled();
+    expect(mockTracer.continueTrace).toHaveBeenCalledWith(
+      { sentryTrace },
+      expect.any(Function)
+    );
+    expect(mockTracer.startSpan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'queue.test_queue',
+        operation: 'queue.process',
+      }),
+      expect.any(Function)
+    );
   });
 
   it('reports and rethrows processing failures inside the payload context', async () => {
@@ -116,7 +153,8 @@ describe('registerBullMQWorker', () => {
       processor,
       appContext,
       getInitialStore,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
 
     await expect(
@@ -140,6 +178,7 @@ describe('registerBullMQWorker', () => {
       durationMs: 30,
     });
     expect(mockQueueMetrics.recordProcessingCompleted).not.toHaveBeenCalled();
+    expect(mockTracer.startRootSpan).toHaveBeenCalledTimes(1);
   });
 
   it('isolates concurrent job contexts', async () => {
@@ -165,7 +204,8 @@ describe('registerBullMQWorker', () => {
       processor,
       appContext,
       getInitialStore,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
     const registeredProcessor = getRegisteredProcessor();
 

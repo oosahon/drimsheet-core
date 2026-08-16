@@ -2,6 +2,7 @@ import { ConsumeMessage, RecoveringChannelModel } from 'amqplib';
 
 import mockQueueMetrics from '@shared/contracts/__mocks__/queue-metrics.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import mockTracer from '@shared/contracts/__mocks__/tracer.mock';
 
 import {
   IRabbitMQConsumerConfig,
@@ -43,9 +44,13 @@ describe('registerRabbitMQConsumer', () => {
     };
   }
 
-  function makeMessage(payload: ITestPayload): ConsumeMessage {
+  function makeMessage(
+    payload: ITestPayload,
+    headers?: Record<string, unknown>
+  ): ConsumeMessage {
     return {
       content: Buffer.from(JSON.stringify(payload)),
+      properties: { headers },
     } as ConsumeMessage;
   }
 
@@ -66,6 +71,15 @@ describe('registerRabbitMQConsumer', () => {
     mockReporter.report.mockReset();
     channel.ack.mockReset();
     channel.nack.mockReset();
+    mockTracer.continueTrace.mockImplementation((_carrier, operation) =>
+      operation()
+    );
+    mockTracer.startRootSpan.mockImplementation((_options, operation) =>
+      operation()
+    );
+    mockTracer.startSpan.mockImplementation((_options, operation) =>
+      operation()
+    );
   });
 
   it('runs processing and acknowledgement inside the message context', async () => {
@@ -81,10 +95,17 @@ describe('registerRabbitMQConsumer', () => {
       makeConfig(processor),
       mockReporter,
       appContext,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
 
-    const message = makeMessage({ correlationId: 'message-correlation' });
+    const message = makeMessage(
+      { correlationId: 'message-correlation' },
+      {
+        'sentry-trace': 'incoming-trace',
+        baggage: 'incoming-baggage',
+      }
+    );
     await getRegisteredConsumer()(message);
 
     expect(processor).toHaveBeenCalledWith({
@@ -99,6 +120,13 @@ describe('registerRabbitMQConsumer', () => {
       durationMs: expect.any(Number),
     });
     expect(mockQueueMetrics.recordProcessingFailed).not.toHaveBeenCalled();
+    expect(mockTracer.continueTrace).toHaveBeenCalledWith(
+      {
+        sentryTrace: 'incoming-trace',
+        baggage: 'incoming-baggage',
+      },
+      expect.any(Function)
+    );
   });
 
   it('reports and negatively acknowledges failures inside the message context', async () => {
@@ -116,7 +144,8 @@ describe('registerRabbitMQConsumer', () => {
       makeConfig(processor),
       mockReporter,
       appContext,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
 
     const message = makeMessage({
@@ -140,6 +169,7 @@ describe('registerRabbitMQConsumer', () => {
       durationMs: expect.any(Number),
     });
     expect(mockQueueMetrics.recordProcessingCompleted).not.toHaveBeenCalled();
+    expect(mockTracer.startRootSpan).toHaveBeenCalledTimes(1);
   });
 
   it('keeps parsing failures on the uncorrelated transport path', async () => {
@@ -150,7 +180,8 @@ describe('registerRabbitMQConsumer', () => {
       makeConfig(processor),
       mockReporter,
       appContext,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
 
     const message = {
@@ -173,6 +204,7 @@ describe('registerRabbitMQConsumer', () => {
       transport: 'rabbitmq',
       durationMs: expect.any(Number),
     });
+    expect(mockTracer.startRootSpan).toHaveBeenCalledTimes(1);
   });
 
   it('ignores consumer cancellation notifications', async () => {
@@ -183,7 +215,8 @@ describe('registerRabbitMQConsumer', () => {
       makeConfig(processor),
       mockReporter,
       appContext,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
 
     await getRegisteredConsumer()(null);

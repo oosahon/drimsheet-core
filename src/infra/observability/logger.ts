@@ -15,6 +15,7 @@ import IAppContext from '@app/context/contracts/app-context.contract';
 import vars from '@infra/config/vars.config';
 import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-id';
 import { normalizeTelemetryError } from '@infra/observability/helpers/telemetry-error';
+import tracer from '@infra/observability/tracer';
 
 import packageJson from '../../../package.json';
 
@@ -50,6 +51,9 @@ const LOCAL_PREFIX_FIELDS = new Set([
   'version',
 ]);
 
+const TRACE_ID_PATTERN = /^[0-9a-f]{32}$/;
+const SPAN_ID_PATTERN = /^[0-9a-f]{16}$/;
+
 winston.addColors({
   error: 'red',
   warn: 'yellow',
@@ -65,7 +69,8 @@ const omitEmptyMessageFormat = winston.format((info) => {
 const localFormat = winston.format.combine(
   winston.format.colorize({ level: true }),
   winston.format.printf((fields) => {
-    const humanMessage = fields.message ? `: ${String(fields.message)}` : '';
+    const message = typeof fields.message === 'string' ? fields.message : '';
+    const humanMessage = message ? `: ${message}` : '';
     const staticContext = `${fields.service} ${fields.environment}@${fields.version}`;
     const metadataFields = Object.fromEntries(
       Object.entries(fields).filter(
@@ -97,6 +102,10 @@ function prepareFields(fields: ILogFields = {}): ILogFields {
 
   LOGGER_OWNED_FIELDS.forEach((field) => delete sanitizedFields[field]);
 
+  if (typeof sanitizedFields.message !== 'string') {
+    delete sanitizedFields.message;
+  }
+
   if (error !== undefined) {
     const normalizedError = normalizeTelemetryError(error);
     sanitizedFields.error = normalizedError;
@@ -109,6 +118,20 @@ function prepareFields(fields: ILogFields = {}): ILogFields {
   }
 
   return sanitizedFields;
+}
+
+function safeGetActiveTrace() {
+  try {
+    const activeTrace = tracer.getActiveTrace();
+
+    return activeTrace &&
+      TRACE_ID_PATTERN.test(activeTrace.traceId) &&
+      SPAN_ID_PATTERN.test(activeTrace.spanId)
+      ? activeTrace
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 export function makeLogger(options: ILoggerOptions = {}): ILogger {
@@ -124,6 +147,7 @@ export function makeLogger(options: ILoggerOptions = {}): ILogger {
 
   const log = (level: ULogLevel, event: string, fields?: ILogFields) => {
     const correlationId = safeGetCorrelationId(options.appContext);
+    const activeTrace = safeGetActiveTrace();
     const preparedFields = prepareFields(fields);
 
     winstonLogger.log({
@@ -135,6 +159,7 @@ export function makeLogger(options: ILoggerOptions = {}): ILogger {
       environment: appEnv,
       version,
       ...(correlationId ? { correlationId } : {}),
+      ...activeTrace,
       message: preparedFields.message ?? '',
     });
   };

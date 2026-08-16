@@ -42,6 +42,7 @@ describe('workerRegistration', () => {
       transactionalEmailWorker,
       expect.any(Object),
       expect.any(Function),
+      expect.any(Object),
       expect.any(Object)
     );
     expect(registerBullMQWorker).toHaveBeenNthCalledWith(
@@ -50,6 +51,7 @@ describe('workerRegistration', () => {
       ledgerAccountBalanceAdjustmentWorker,
       expect.any(Object),
       expect.any(Function),
+      expect.any(Object),
       expect.any(Object)
     );
   });

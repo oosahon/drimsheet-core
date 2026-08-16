@@ -4,6 +4,8 @@ import IQueueMetrics, {
   EQueueTransport,
 } from '@shared/contracts/queue-metrics.contract';
 import IReporter from '@shared/contracts/reporter.contract';
+import ITracer from '@shared/contracts/tracer.contract';
+import { UTraceEnvelopePayload } from '@shared/types/observability.types';
 
 import ILedgerBalanceAdjustmentQueue, {
   LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME,
@@ -11,12 +13,15 @@ import ILedgerBalanceAdjustmentQueue, {
 import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 
 import { getQueueConnection } from '@infra/config/redis.config';
+import { makeTraceEnvelope } from '@infra/messaging/trace-context';
 
 let ledgerAccountBalanceAdjustmentQueue:
-  | Queue<ILedgerAccountBalanceAdjustmentDto>
+  | Queue<UTraceEnvelopePayload<ILedgerAccountBalanceAdjustmentDto>>
   | undefined;
 
-export function getLedgerAccountBalanceAdjustmentQueue(): Queue<ILedgerAccountBalanceAdjustmentDto> {
+export function getLedgerAccountBalanceAdjustmentQueue(): Queue<
+  UTraceEnvelopePayload<ILedgerAccountBalanceAdjustmentDto>
+> {
   ledgerAccountBalanceAdjustmentQueue ??= new Queue(
     LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME,
     {
@@ -47,14 +52,15 @@ function getConfig(payload: ILedgerAccountBalanceAdjustmentDto) {
 
 export default function makeLedgerAccountBalanceAdjustmentQueue(
   reporter: IReporter,
-  queueMetrics: IQueueMetrics
+  queueMetrics: IQueueMetrics,
+  tracer: ITracer
 ): ILedgerBalanceAdjustmentQueue {
   return {
     async add(payload) {
       try {
         await getLedgerAccountBalanceAdjustmentQueue().add(
           LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME,
-          payload,
+          makeTraceEnvelope(payload, tracer),
           getConfig(payload)
         );
         queueMetrics.recordEnqueueSucceeded({

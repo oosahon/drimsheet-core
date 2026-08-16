@@ -1,4 +1,5 @@
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
+import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
   MeterProvider,
   PeriodicExportingMetricReader,
@@ -7,6 +8,7 @@ import {
 import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 import { IObservabilityMetricsConfig } from '@shared/types/observability.types';
 
+import runtimeVars from '@infra/config/vars.config';
 import makeMetricsRuntime from '@infra/runtime/observability-runtime';
 
 const mockMeter = {
@@ -16,9 +18,14 @@ const mockMeter = {
 };
 const mockProviderShutdown = jest.fn();
 const mockProviderGetMeter = jest.fn(() => mockMeter);
+const mockResource = { resource: 'test-resource' };
 
 jest.mock('@opentelemetry/exporter-metrics-otlp-http', () => ({
   OTLPMetricExporter: jest.fn(),
+}));
+
+jest.mock('@opentelemetry/resources', () => ({
+  resourceFromAttributes: jest.fn(() => mockResource),
 }));
 
 jest.mock('@opentelemetry/sdk-metrics', () => ({
@@ -29,6 +36,14 @@ jest.mock('@opentelemetry/sdk-metrics', () => ({
     shutdown: mockProviderShutdown,
   })),
   PeriodicExportingMetricReader: jest.fn(),
+}));
+
+jest.mock('../../config/vars.config', () => ({
+  __esModule: true,
+  default: {
+    APP_ENV: 'test',
+    APP_INSTANCE_ID: 'test-instance',
+  },
 }));
 
 function makeConfig(
@@ -48,6 +63,8 @@ describe('observability runtime', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockProviderShutdown.mockResolvedValue(undefined);
+    runtimeVars.APP_ENV = 'test';
+    runtimeVars.APP_INSTANCE_ID = 'test-instance';
   });
 
   afterEach(() => {
@@ -55,18 +72,15 @@ describe('observability runtime', () => {
   });
 
   it('stays inert when metrics are disabled', async () => {
-    const processOnce = jest.spyOn(process, 'once');
     const runtime = makeMetricsRuntime(
       makeConfig({ enabled: false }),
       mockLogger
     );
 
-    runtime.registerShutdown();
     await runtime.shutdown();
 
     expect(OTLPMetricExporter).not.toHaveBeenCalled();
     expect(MeterProvider).not.toHaveBeenCalled();
-    expect(processOnce).not.toHaveBeenCalled();
   });
 
   it('rejects enabled configuration without an internal endpoint safely', () => {
@@ -122,6 +136,7 @@ describe('observability runtime', () => {
       },
     });
     expect(MeterProvider).toHaveBeenCalledWith({
+      resource: mockResource,
       readers: [expect.any(Object)],
       views: [
         {
@@ -135,26 +150,35 @@ describe('observability runtime', () => {
       'drimsheet-core',
       expect.any(String)
     );
+    expect(resourceFromAttributes).toHaveBeenCalledWith({
+      'service.name': 'drimsheet-core',
+      'service.version': '0.1.0-alpha.1',
+      'deployment.environment.name': 'test',
+      'service.instance.id': 'test-instance',
+    });
     expect(Object.isFrozen(runtime)).toBe(true);
   });
 
-  it('registers shutdown once and flushes with the configured bound', async () => {
-    const handlers = new Map<string, () => Promise<void>>();
-    jest.spyOn(process, 'once').mockImplementation((signal, listener) => {
-      if (signal === 'SIGINT' || signal === 'SIGTERM') {
-        handlers.set(signal, async () => listener(signal));
-      }
+  it('replaces unsafe resource identity with bounded fallbacks', () => {
+    runtimeVars.APP_ENV = 'production';
+    runtimeVars.APP_INSTANCE_ID = 'private.person@example.com';
 
-      return process;
+    makeMetricsRuntime(makeConfig(), mockLogger);
+
+    expect(resourceFromAttributes).toHaveBeenCalledWith({
+      'service.name': 'drimsheet-core',
+      'service.version': '0.1.0-alpha.1',
+      'deployment.environment.name': 'production',
+      'service.instance.id': 'unknown',
     });
+  });
+
+  it('shuts down once with the configured bound', async () => {
     const runtime = makeMetricsRuntime(makeConfig(), mockLogger);
 
-    runtime.registerShutdown();
-    runtime.registerShutdown();
-    await handlers.get('SIGTERM')?.();
+    await runtime.shutdown();
     await runtime.shutdown();
 
-    expect(process.once).toHaveBeenCalledTimes(2);
     expect(mockProviderShutdown).toHaveBeenCalledTimes(1);
     expect(mockProviderShutdown).toHaveBeenCalledWith({
       timeoutMillis: 5_000,

@@ -1,5 +1,6 @@
 import mockQueueMetrics from '@shared/contracts/__mocks__/queue-metrics.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import mockTracer from '@shared/contracts/__mocks__/tracer.mock';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
@@ -40,13 +41,17 @@ describe('makeLedgerAccountBalanceAdjustmentQueue', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockQueueAdd.mockReset();
+    mockTracer.getPropagationCarrier.mockReturnValue({
+      sentryTrace: `${'a'.repeat(32)}-${'b'.repeat(16)}-1`,
+    });
   });
 
   it('records a successful enqueue after BullMQ accepts the job', async () => {
     mockQueueAdd.mockResolvedValue(undefined);
     const queue = makeLedgerAccountBalanceAdjustmentQueue(
       mockReporter,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
 
     await queue.add(payload);
@@ -56,6 +61,17 @@ describe('makeLedgerAccountBalanceAdjustmentQueue', () => {
       transport: 'bullmq',
     });
     expect(mockQueueMetrics.recordEnqueueFailed).not.toHaveBeenCalled();
+    expect(mockQueueAdd).toHaveBeenCalledWith(
+      'ledger-account-balance-adjustment-queue',
+      {
+        __observabilityEnvelopeVersion: 1,
+        payload,
+        trace: {
+          sentryTrace: `${'a'.repeat(32)}-${'b'.repeat(16)}-1`,
+        },
+      },
+      expect.objectContaining({ attempts: 3 })
+    );
   });
 
   it('reports an enqueue event and preserves best-effort failure semantics', async () => {
@@ -63,7 +79,8 @@ describe('makeLedgerAccountBalanceAdjustmentQueue', () => {
     mockQueueAdd.mockRejectedValue(failure);
     const queue = makeLedgerAccountBalanceAdjustmentQueue(
       mockReporter,
-      mockQueueMetrics
+      mockQueueMetrics,
+      mockTracer
     );
 
     await expect(queue.add(payload)).resolves.toBeUndefined();

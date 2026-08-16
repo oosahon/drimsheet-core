@@ -9,6 +9,7 @@ config({ path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env' });
 const {
   APP_URL = '',
   APP_ENV = process.env.NODE_ENV === 'test' ? 'test' : 'local',
+  APP_INSTANCE_ID = process.env.HOSTNAME ?? 'local',
   WEB_APP_URL = '',
   WEBSITE_URL = '',
   TAX_CALCULATOR_URL = '',
@@ -35,6 +36,9 @@ const {
   RABBITMQ_URL = '',
   REDIS_URL = '',
   SENTRY_DSN = '',
+  SENTRY_FLUSH_TIMEOUT_MS,
+  SENTRY_TRACE_PROPAGATION_TARGETS = '',
+  SENTRY_TRACES_SAMPLE_RATE = '0',
 
   ZEPTO_TOKEN_OSAHON = '',
   ZEPTO_TOKEN_NOREPLY = '',
@@ -44,6 +48,7 @@ const {
 const vars: IVarsConfig = Object.freeze({
   APP_URL,
   APP_ENV: APP_ENV as IVarsConfig['APP_ENV'],
+  APP_INSTANCE_ID,
   APP_VERSION: packageJson.version,
   WEB_APP_URL,
   WEBSITE_URL,
@@ -64,6 +69,9 @@ const vars: IVarsConfig = Object.freeze({
   RABBITMQ_URL,
   REDIS_URL,
   SENTRY_DSN,
+  SENTRY_FLUSH_TIMEOUT_MS,
+  SENTRY_TRACE_PROPAGATION_TARGETS,
+  SENTRY_TRACES_SAMPLE_RATE,
   ZEPTO_TOKEN_OSAHON,
   ZEPTO_TOKEN_NOREPLY,
   ZEPTO_TOKEN_NOTIFICATIONS,

@@ -12,6 +12,7 @@ import { RegisterRoutes } from '../../../generated/routes';
 
 interface IApplicationDependencies {
   bullMqDashboardRouter?: Router;
+  healthRouter?: Router;
 }
 
 export default function createApplication(
@@ -19,6 +20,10 @@ export default function createApplication(
 ) {
   const app = express();
   app.set('trust proxy', false);
+
+  if (dependencies.healthRouter) {
+    app.use(dependencies.healthRouter);
+  }
 
   app.use(httpMiddlewares.appContextInit);
   app.use(httpMiddlewares.requestLogger);

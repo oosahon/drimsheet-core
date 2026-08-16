@@ -1,5 +1,6 @@
 import mockQueueMetrics from '@shared/contracts/__mocks__/queue-metrics.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import mockTracer from '@shared/contracts/__mocks__/tracer.mock';
 
 import { ITransactionalEmailDto } from '@app/notification/dtos/transactional-email/transactional-email.dto';
 
@@ -26,11 +27,18 @@ describe('makeTransactionalEmailQueue', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockQueueAdd.mockReset();
+    mockTracer.getPropagationCarrier.mockReturnValue({
+      baggage: 'sentry-environment=test',
+    });
   });
 
   it('records a successful enqueue after BullMQ accepts the job', async () => {
     mockQueueAdd.mockResolvedValue(undefined);
-    const queue = makeTransactionalEmailQueue(mockReporter, mockQueueMetrics);
+    const queue = makeTransactionalEmailQueue(
+      mockReporter,
+      mockQueueMetrics,
+      mockTracer
+    );
 
     await queue.add(payload);
 
@@ -39,12 +47,25 @@ describe('makeTransactionalEmailQueue', () => {
       transport: 'bullmq',
     });
     expect(mockQueueMetrics.recordEnqueueFailed).not.toHaveBeenCalled();
+    expect(mockQueueAdd).toHaveBeenCalledWith(
+      'transactional-email-queue',
+      {
+        __observabilityEnvelopeVersion: 1,
+        payload,
+        trace: { baggage: 'sentry-environment=test' },
+      },
+      expect.objectContaining({ attempts: 3 })
+    );
   });
 
   it('reports an enqueue event and preserves rejection semantics', async () => {
     const failure = new Error('queue unavailable');
     mockQueueAdd.mockRejectedValue(failure);
-    const queue = makeTransactionalEmailQueue(mockReporter, mockQueueMetrics);
+    const queue = makeTransactionalEmailQueue(
+      mockReporter,
+      mockQueueMetrics,
+      mockTracer
+    );
 
     await expect(queue.add(payload)).rejects.toBe(failure);
 
