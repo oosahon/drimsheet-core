@@ -1,6 +1,6 @@
 # 4. Solution Strategy
 
-This section summarizes the fundamental decisions and strategies that shape the architecture of PurpleLedger Core, bridging our business goals and technical constraints.
+This section summarizes the fundamental decisions and strategies that shape the architecture of Drimsheet Core, bridging our business goals and technical constraints.
 
 ## 4.1 Technology Stack
 
@@ -18,7 +18,7 @@ The following technology choices form the foundation of the system, selected to 
 
 ## 4.2 Software Architecture
 
-The architecture of PurpleLedger Core is designed to separate business logic from technical implementation details.
+The architecture of Drimsheet Core is designed to separate business logic from technical implementation details.
 
 | Architecture / Pattern         | Strategy & Rationale                                                                                                                                                                                                                                                                                                    |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -2,7 +2,7 @@
 
 > [!WARNING]
 > This document is scoped to the following milestone:\
-> https://github.com/oosahon/PurpleLedger-core/milestone/1 (v0.1.0 — Individual MVP)
+> https://github.com/Drimsheet/drimsheet-core/milestone/1 (v0.1.0 — Individual MVP)
 
 For the MVP, we are only supporting the **individual** accounting entity, focused on managing **cash and cash equivalent assets**:
 

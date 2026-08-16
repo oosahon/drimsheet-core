@@ -12,7 +12,7 @@
 
 ## Overview
 
-In **PurpleLedger**, money is one of our most critical shared core concepts. Because financial rounding errors or precision drops can lead to critical bugs, we have strict rules for handling any monetary value. The shared value objects (`money.vo.ts` and `currency.vo.ts`) enforce immutability, type safety, and mathematically sound arithmetic across all domains.
+In **Drimsheet**, money is one of our most critical shared core concepts. Because financial rounding errors or precision drops can lead to critical bugs, we have strict rules for handling any monetary value. The shared value objects (`money.vo.ts` and `currency.vo.ts`) enforce immutability, type safety, and mathematically sound arithmetic across all domains.
 
 ## Working with Money
 
@@ -52,7 +52,7 @@ const totalAmount = itemMoney.amount + taxMoney.amount;
 
 ## Working with Currency
 
-All currency representations in PurpleLedger use standard ISO 4217 rules. The currency value object ensures that the application only ever operates using globally recognized fiat parameters.
+All currency representations in Drimsheet use standard ISO 4217 rules. The currency value object ensures that the application only ever operates using globally recognized fiat parameters.
 
 **Note**: Currencies can only be created within the system. We do not permit custom or user-defined currencies.
 

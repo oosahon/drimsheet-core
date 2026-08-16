@@ -134,8 +134,8 @@
         <mj-image
           align="center"
           height="auto"
-          src="https://purple-ledger-public.s3.us-east-1.amazonaws.com/transactional-email-header.png"
-          href="https://purpleledger.app"
+          src="https://drimsheet-public.s3.us-east-1.amazonaws.com/transactional-email-header.png"
+          href="https://drimsheet.com"
           width="40px"
           padding="0px 0px 0px 0px"
         ></mj-image>
@@ -160,7 +160,7 @@
           css-class="lc-text"
           line-height="22px"
           padding="0px 0px 0px 0px"
-          >Thanks for signing up for PurpleLedger! Please confirm your email
+          >Thanks for signing up for Drimsheet! Please confirm your email
           address to activate your account.
           <div><br /></div>
           <div>Click the link below to verify:</div>
@@ -199,7 +199,7 @@
         </mj-text>
         <mj-spacer height="40px"></mj-spacer>
         <mj-text align="left" padding="0px 0px 0px 0px">
-          <font color="#ffffff">💜<br />Team PurpleLedger</font>
+          <font color="#ffffff">💜<br />Team Drimsheet</font>
         </mj-text>
         <mj-spacer height="40px" padding="   "></mj-spacer>
         <mj-spacer height="20px"></mj-spacer>
@@ -208,7 +208,7 @@
           color="#fff"
           line-height="22px"
           padding="0px 0px 0px 0px"
-          >© PurpleLedger</mj-text
+          >© Drimsheet</mj-text
         >
       </mj-column>
     </mj-section>
@@ -230,10 +230,10 @@
         <mj-image
           align="center"
           height="auto"
-          src="https://purple-ledger-public.s3.us-east-1.amazonaws.com/x-light.png"
+          src="https://drimsheet-public.s3.us-east-1.amazonaws.com/x-light.png"
           width="20px"
           padding="0px 0px 0px 0px"
-          href="https://x.com/purple_ledger"
+          href="https://x.com/drimsheet"
         ></mj-image>
       </mj-column>
       <mj-column
@@ -245,10 +245,10 @@
         <mj-image
           align="center"
           height="auto"
-          src="https://purple-ledger-public.s3.us-east-1.amazonaws.com/instagram-light.png"
+          src="https://drimsheet-public.s3.us-east-1.amazonaws.com/instagram-light.png"
           width="20px"
           padding="0px 0px 0px 0px"
-          href="https://www.instagram.com/purple_ledger"
+          href="https://www.instagram.com/drimsheet"
           target="_blank"
         ></mj-image>
       </mj-column>
@@ -261,7 +261,7 @@
         <mj-image
           align="center"
           height="auto"
-          src="https://purple-ledger-public.s3.us-east-1.amazonaws.com/linkedin-light.png"
+          src="https://drimsheet-public.s3.us-east-1.amazonaws.com/linkedin-light.png"
           width="20px"
           padding="0px 0px 0px 0px"
           href="https://www.linkedin.com/company/110437717"

@@ -1,6 +1,6 @@
 # Architecture Documentation
 
-Welcome to the architectural documentation for **PurpleLedger-core**.
+Welcome to the architectural documentation for **Drimsheet Core**.
 
 ## Table of Contents
 

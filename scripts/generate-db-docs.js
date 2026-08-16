@@ -219,7 +219,7 @@ function groupSchema(schema) {
 
 function generateDbml(grouped) {
   const lines = [
-    'Project purple_ledger {',
+    'Project drimsheet {',
     "  database_type: 'PostgreSQL'",
     "  Note: 'Generated from the migrated PostgreSQL schema'",
     '}',

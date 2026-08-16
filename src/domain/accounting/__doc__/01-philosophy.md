@@ -2,7 +2,7 @@
 
 > [!WARNING]
 > This document is scoped to the following milestone:\
-> https://github.com/oosahon/PurpleLedger-core/milestone/1 (v0.1.0 — Individual MVP)
+> https://github.com/Drimsheet/drimsheet-core/milestone/1 (v0.1.0 — Individual MVP)
 
 ## Reporting-First Approach
 
@@ -10,7 +10,7 @@ Our philosophy is to follow a reporting-first approach to accounting. This means
 
 ## The Analogy: Bookkeeper vs. Accountant
 
-To understand the architecture of PurpleLedger, it helps to look at how real-world finance departments operate. The system is split into two distinct conceptual roles:
+To understand the architecture of Drimsheet, it helps to look at how real-world finance departments operate. The system is split into two distinct conceptual roles:
 
 ### 1. The Bookkeeper (Ledger Domain)
 

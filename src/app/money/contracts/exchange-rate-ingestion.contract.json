@@ -17,7 +17,7 @@
         "correlation_id": { "type": "string", "format": "uuid" },
         "event_type": { "const": "exchange-rate.ingested.v1" },
         "occurred_at": { "type": "string", "format": "date-time" },
-        "producer": { "const": "pl-ingestion" },
+        "producer": { "const": "drimsheet-ingestion" },
         "data": {
           "type": "array",
           "items": {

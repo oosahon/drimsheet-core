@@ -6,7 +6,7 @@ Accepted
 
 ## Context
 
-Purple Ledger already emits structured logs and error reports, but it has no
+Drimsheet already emits structured logs and error reports, but it has no
 first-class metrics contract, application-owned metric catalogue, exporter, or
 queue-inventory scrape boundary. HTTP completion data and queue lifecycle
 outcomes already have centralized technical owners, so metrics can be added at

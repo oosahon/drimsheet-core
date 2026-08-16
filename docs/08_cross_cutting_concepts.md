@@ -1,17 +1,17 @@
 # 8. Cross-Cutting Concepts
 
-This section outlines the foundational rules, patterns, and design decisions applied consistently across PurpleLedger Core to meet our security, reliability, and accounting constraints.
+This section outlines the foundational rules, patterns, and design decisions applied consistently across Drimsheet Core to meet our security, reliability, and accounting constraints.
 
 ## 8.1 Domain Object & Context Management (Multi-Tenancy)
 
-PurpleLedger natively supports multiple distinct contexts: Individuals, Sole Traders, and Organizations (Section 2.4).
+Drimsheet natively supports multiple distinct contexts: Individuals, Sole Traders, and Organizations (Section 2.4).
 
 - **Mechanism**: Every request to the core API establishes operational context early in the request lifecycle. Authenticated user context is derived from the access token, while accounting-entity context is resolved through the user-preferences application service. A valid owned `x-accounting-entity-id` is authoritative for that request. Without the header, the service restores the user's durable `user_preferences.last_active_accounting_entity_id` selection after checking ownership. An explicit unknown or inaccessible ID does not fall back to the stored preference. The resulting request-scoped context is injected into application use cases and repository calls, ensuring database queries, ledger operations, and reporting computations are isolated to the currently active accounting entity.
 - **Selection lifecycle**: Every newly created user receives a preferences row with no active entity. Creating an accounting entity atomically makes it the user's durable last-active selection. An authenticated client can later call `POST /api/v1/accounting/accounting-entity/switch` with an owned accounting entity ID to atomically update that selection; the endpoint returns the canonical entity and also updates the current request context after commit. Later authenticated requests and logins restore a valid stored selection when no explicit header is supplied. A null or stale stored selection yields no active entity, and request initialization never guesses from the user's entity list or repairs preferences as a read side effect. `appContext` itself remains request-scoped; durability comes from user preferences.
 
 ## 8.2 Immutability & Auditability
 
-To maintain strict adherence to accounting constraints (Section 2.2) and data integrity (Section 1.2), PurpleLedger enforces an append-only architecture for all financial records.
+To maintain strict adherence to accounting constraints (Section 2.2) and data integrity (Section 1.2), Drimsheet enforces an append-only architecture for all financial records.
 
 - **Mechanism**:
   - **No Deletion**: Records such as Journal Entries cannot be deleted or mutated via `DELETE` or `UPDATE` statements that alter business meaning.
@@ -20,7 +20,7 @@ To maintain strict adherence to accounting constraints (Section 2.2) and data in
 
 ## 8.3 Double-Entry Core Validation
 
-PurpleLedger is fundamentally built on double-entry accounting principles.
+Drimsheet is fundamentally built on double-entry accounting principles.
 
 - **Mechanism**: Every financial transaction must be perfectly balanced ($Credits = $Debits$). A centralized core validation service or interceptor inspects every proposed transaction before it reaches the database. If a transaction subledger and general ledger postings do not balance, the operation is structurally rejected, ensuring the database never enters an invalid financial state.
 
@@ -47,7 +47,7 @@ Autonomous logic via AI Agents is supported securely using the Model Context Pro
 
 ## 8.7 External Integration Resilience & Idempotency
 
-PurpleLedger heavily relies on external services like Mono (bank feeds), Paystack (subscriptions), and FIRS Tax ProMax (tax remittals).
+Drimsheet heavily relies on external services like Mono (bank feeds), Paystack (subscriptions), and FIRS Tax ProMax (tax remittals).
 
 - **Mechanism**:
   - **Idempotency & Correlation**: Both incoming API requests and outgoing external mutations require unique idempotency keys to ensure network retries do not result in duplicate operations (e.g., duplicate payments, ledger entries, or tax filings). Additionally, correlation IDs are mandated across all requests to trace the complete lifecycle of an operation across distributed boundaries. At HTTP ingress, a caller-supplied `x-correlation-id` is preserved unchanged only when it is a valid UUID. A missing or invalid value is replaced with one server-generated UUID without rejecting the request; that canonical value is stored in request context and echoed in the response header. The rejected value is not retained, logged, or reported.

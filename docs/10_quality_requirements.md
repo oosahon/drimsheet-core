@@ -1,10 +1,10 @@
 # 10. Quality Requirements
 
-This section defines the specific, measurable scenarios that prove PurpleLedger meets the quality goals outlined in Section 1.2 and the architectural constraints defined in Section 2.
+This section defines the specific, measurable scenarios that prove Drimsheet meets the quality goals outlined in Section 1.2 and the architectural constraints defined in Section 2.
 
 ## 10.1 Quality Tree
 
-The following quality tree breaks down the high-level quality goals into specific, measurable attributes for PurpleLedger.
+The following quality tree breaks down the high-level quality goals into specific, measurable attributes for Drimsheet.
 
 - **Data Integrity & Correctness**
   - **Immutability:** Financial records, especially journal entries, must be append-only.
@@ -23,7 +23,7 @@ The following quality tree breaks down the high-level quality goals into specifi
 
 ## 10.2 Quality Scenarios
 
-The following scenarios describe how the PurpleLedger system will react in specific situations to fulfill the quality goals defined above.
+The following scenarios describe how the Drimsheet system will react in specific situations to fulfill the quality goals defined above.
 
 ### Data Integrity & Correctness
 

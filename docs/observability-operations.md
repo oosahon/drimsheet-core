@@ -2,7 +2,7 @@
 
 ## Purpose and ownership
 
-Purple Ledger Core uses Grafana Cloud for structured logs and metrics, Sentry
+Drimsheet Core uses Grafana Cloud for structured logs and metrics, Sentry
 for traces and unexpected-error reporting, and Coolify for deployment health.
 Grafana Alloy is the only component that owns Grafana Cloud write credentials.
 It is deployed separately from the Git-backed `drimsheet-observability`

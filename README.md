@@ -1,16 +1,16 @@
 ![Coverage Badge](./badges/coverage.svg)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
-# PurpleLedger
+# Drimsheet
 
-PurpleLedger is an AI-powered, robust, auditable accounting software for companies, sole traders (business name owners), and individuals in Nigeria.\
+Drimsheet is an AI-powered, robust, auditable accounting software for companies, sole traders (business name owners), and individuals in Nigeria.\
 It's a software for accountants and non-accountants alike.
 
 Accounting-savvy users who want to be in control of everything can create journals, charts of accounts, etc.
 
-Users with no accounting background are not left out. They can also track their income, expenses and taxes. Under the hood, PurpleLedger will use accounting standards to set up their ledgers.\
+Users with no accounting background are not left out. They can also track their income, expenses and taxes. Under the hood, Drimsheet will use accounting standards to set up their ledgers.\
 \
-PurpleLedger was created with 💜 and distributed for free by [Osahon Oboite](https://osahon.dev)
+Drimsheet was created with 💜 and distributed for free by [Osahon Oboite](https://osahon.dev)
 
 ## Table of Contents
 
@@ -25,7 +25,7 @@ PurpleLedger was created with 💜 and distributed for free by [Osahon Oboite](h
 
 ## Introduction
 
-This repo contains the core accounting module of PurpleLedger. It encompasses the central double-entry accounting engine, the Nigeria Tax Act (NTA) computation and filing integrations (via FIRS Tax ProMax), open banking reconciliations (via Mono), and exposes its tools securely to autonomous AI agents via an integrated Model Context Protocol (MCP) server.
+This repo contains the core accounting module of Drimsheet. It encompasses the central double-entry accounting engine, the Nigeria Tax Act (NTA) computation and filing integrations (via FIRS Tax ProMax), open banking reconciliations (via Mono), and exposes its tools securely to autonomous AI agents via an integrated Model Context Protocol (MCP) server.
 
 ## Requirements
 
@@ -37,22 +37,22 @@ This repo contains the core accounting module of PurpleLedger. It encompasses th
 - AWS account for S3 storage
 - API credentials for 3rd party integrations (Paystack, Mono, ZeptoMail) managed securely via Doppler
 
-> **Note:** PostgreSQL, Redis, and RabbitMQ can be installed locally or run as Docker containers using the [purple-ledger-platforms](https://github.com/purple-ledger/purple-ledger-platforms) repo.
+> **Note:** PostgreSQL, Redis, and RabbitMQ can be installed locally or run as Docker containers using the [drimsheet-platforms](https://github.com/Drimsheet/drimsheet-platforms) repo.
 
 ## Installation
 
 1. Clone the repo
 2. Run `npm install`
-3. Copy the environment variables from Doppler (dev) and save them in a `.env` file in the root directory. [Env URL](https://dashboard.doppler.com/workplace/b0fb8d6179aa66108eac/projects/purple-ledger-be/configs/dev)
+3. Copy the environment variables from Doppler (dev) and save them in a `.env` file in the root directory. [Env URL](https://dashboard.doppler.com/workplace/b0fb8d6179aa66108eac/projects/drimsheet-core/configs/dev)
 
 ### Setting up platform services
 
 The app requires running PostgreSQL, Redis, and RabbitMQ instances. You have two options:
 
-**Option A — Use the [purple-ledger-platforms](https://github.com/purple-ledger/purple-ledger-platforms) repo (recommended)**
+**Option A — Use the [drimsheet-platforms](https://github.com/Drimsheet/drimsheet-platforms) repo (recommended)**
 
-1. Clone the [purple-ledger-platforms](https://github.com/purple-ledger/purple-ledger-platforms) repo
-2. Follow its [Quick Start](https://github.com/purple-ledger/purple-ledger-platforms#quick-start) instructions to spin up all services via Docker
+1. Clone the [drimsheet-platforms](https://github.com/Drimsheet/drimsheet-platforms) repo
+2. Follow its [Quick Start](https://github.com/Drimsheet/drimsheet-platforms#quick-start) instructions to spin up all services via Docker
 
 **Option B — Install locally**
 

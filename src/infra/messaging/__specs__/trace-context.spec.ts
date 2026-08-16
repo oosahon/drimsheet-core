@@ -105,7 +105,7 @@ describe('messaging trace context', () => {
     expect(
       traceQueueProcessing(
         mockTracer,
-        'pl-core.exchange-rate.ingested',
+        'drimsheet-core.exchange-rate.ingested',
         'rabbitmq',
         carrier,
         operation
@@ -117,10 +117,10 @@ describe('messaging trace context', () => {
     );
     expect(mockTracer.startSpan).toHaveBeenCalledWith(
       {
-        name: 'queue.pl_core_exchange_rate_ingested',
+        name: 'queue.drimsheet_core_exchange_rate_ingested',
         operation: 'queue.process',
         attributes: {
-          'messaging.destination.name': 'pl-core.exchange-rate.ingested',
+          'messaging.destination.name': 'drimsheet-core.exchange-rate.ingested',
           'messaging.operation.type': 'process',
           'messaging.system': 'rabbitmq',
         },

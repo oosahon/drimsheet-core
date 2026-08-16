@@ -2,9 +2,9 @@
 
 > [!WARNING]
 > This document is scoped to the following milestone:\
-> https://github.com/oosahon/PurpleLedger-core/milestone/1 (v0.1.0 — Individual MVP)
+> https://github.com/Drimsheet/drimsheet-core/milestone/1 (v0.1.0 — Individual MVP)
 
-The Accounting domain handles the complex, context-aware reporting layer of PurpleLedger. It is responsible for mapping raw, standard-agnostic Bookkeeping data into compliant Financial Statements based on specific regulatory standards (IFRS, GAAP, Tax Laws).
+The Accounting domain handles the complex, context-aware reporting layer of Drimsheet. It is responsible for mapping raw, standard-agnostic Bookkeeping data into compliant Financial Statements based on specific regulatory standards (IFRS, GAAP, Tax Laws).
 
 ## Documentation Index
 

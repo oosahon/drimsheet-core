@@ -5,9 +5,9 @@ config:
 flowchart TB
     ClientApp(["Client Applications (Web/Mobile UIs)"])
     AIAgents[/"🤖 AI Agents"\]
-    subgraph SystemEnvironment ["Purple Ledger Backend Environment"]
+    subgraph SystemEnvironment ["Drimsheet Backend Environment"]
         direction TB
-        PurpleLedgerApp["PurpleLedger Core API (Node & TypeScript)"]
+        DrimsheetApp["Drimsheet Core API (Node & TypeScript)"]
         subgraph DataLayer ["Persistence & Caching"]
             direction LR
             Postgres[(PostgreSQL)]
@@ -15,12 +15,12 @@ flowchart TB
             S3Bucket[(AWS S3)]
         end
         
-        PurpleLedgerApp -- "TCP/IP (SQL)" --> Postgres
-        PurpleLedgerApp -- "TCP/IP (Redis Protocol)" --> Redis
-        PurpleLedgerApp -- "HTTPS (AWS SDK)" --> S3Bucket
+        DrimsheetApp -- "TCP/IP (SQL)" --> Postgres
+        DrimsheetApp -- "TCP/IP (Redis Protocol)" --> Redis
+        DrimsheetApp -- "HTTPS (AWS SDK)" --> S3Bucket
     end
-    ClientApp -- "HTTPS (REST)" --> PurpleLedgerApp
-    AIAgents -- "HTTPS/Stdio (MCP)" --> PurpleLedgerApp
+    ClientApp -- "HTTPS (REST)" --> DrimsheetApp
+    AIAgents -- "HTTPS/Stdio (MCP)" --> DrimsheetApp
     subgraph ExternalServices ["External Cloud Services"]
         direction LR
         TaxProMax["FIRS Tax ProMax (Tax Portal API)"]
@@ -29,11 +29,11 @@ flowchart TB
         Paystack["Paystack API (Payment Gateway)"]
     end
     
-    PurpleLedgerApp -- "HTTPS (REST)" --> TaxProMax
-    PurpleLedgerApp -- "HTTPS (REST)" --> Mono
-    PurpleLedgerApp -- "HTTPS (SMTP/REST)" --> ZeptoMail
-    PurpleLedgerApp -- "HTTPS (REST)" --> Paystack
-    style PurpleLedgerApp fill:#333,stroke:#fff,color:#fff
+    DrimsheetApp -- "HTTPS (REST)" --> TaxProMax
+    DrimsheetApp -- "HTTPS (REST)" --> Mono
+    DrimsheetApp -- "HTTPS (SMTP/REST)" --> ZeptoMail
+    DrimsheetApp -- "HTTPS (REST)" --> Paystack
+    style DrimsheetApp fill:#333,stroke:#fff,color:#fff
     style ClientApp fill:#f4f4f4,stroke:#333
     style AIAgents fill:#009688,color:#fff,stroke:#333
     style Postgres fill:#336791,color:#fff,stroke:#fff

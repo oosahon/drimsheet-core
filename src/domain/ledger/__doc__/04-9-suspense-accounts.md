@@ -18,7 +18,7 @@ Suspense accounts are temporary balance sheet accounts that are used to hold jou
 > [!IMPORTANT]
 > By the end of the reporting period, all suspense accounts should be cleared to a zero balance.
 
-In PurpleLedger, we use one liability/asset suspense account per accounting entity, per operating currency. That is, if the accounting entity has multiple operating currencies, it will have multiple liability/asset suspense accounts.
+In Drimsheet, we use one liability/asset suspense account per accounting entity, per operating currency. That is, if the accounting entity has multiple operating currencies, it will have multiple liability/asset suspense accounts.
 
 ## Asset Suspense Accounts (199xxx)
 

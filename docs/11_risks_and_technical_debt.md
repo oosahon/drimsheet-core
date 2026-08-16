@@ -1,6 +1,6 @@
 # 11. Risks and Technical Debt
 
-This section systematically identifies, categorizes, and evaluates the known technical risks and accumulated technical debt within the PurpleLedger platform. By maintaining an explicit ledger of these systemic liabilities, we ensure that architectural trade-offs remain visible to stakeholders and can be actively managed, prioritized, and mitigated during future development cycles.
+This section systematically identifies, categorizes, and evaluates the known technical risks and accumulated technical debt within the Drimsheet platform. By maintaining an explicit ledger of these systemic liabilities, we ensure that architectural trade-offs remain visible to stakeholders and can be actively managed, prioritized, and mitigated during future development cycles.
 
 The identified risks are categorized into three primary domains: **Business Risks** (affecting compliance and core logic), **Technical Risks** (affecting operability, scale, and system resilience), and **Technical Debt** (suboptimal implementations impacting maintainability).
 

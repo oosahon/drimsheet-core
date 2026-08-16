@@ -1,4 +1,4 @@
-# Contributing to Purple Ledger
+# Contributing to Drimsheet
 
 This document provides guidelines for contributing to this project to ensure a smooth workflow and high-quality code.
 
@@ -154,7 +154,7 @@ Our project follows these guidelines for testing:
 
 ## Reporting Bugs
 
-If you find a bug, please create a ticket for it on our [GitHub Issues page](https://github.com/purple-ledger/drimsheet-core/issues).
+If you find a bug, please create a ticket for it on our [GitHub Issues page](https://github.com/Drimsheet/drimsheet-core/issues).
 Before opening a new issue, please search existing issues to see if it has already been reported.
 
 - **Requirement**: Every bug report must have a corresponding ticket.

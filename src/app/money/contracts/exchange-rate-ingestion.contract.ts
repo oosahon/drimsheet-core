@@ -10,7 +10,7 @@ export default interface IExchangeRateIngestion {
       correlation_id: string;
       event_type: 'exchange-rate.ingested.v1';
       occurred_at: string;
-      producer: 'pl-ingestion';
+      producer: 'drimsheet-ingestion';
       data: Array<{
         base_currency_code: string;
         target_currency_code: string;

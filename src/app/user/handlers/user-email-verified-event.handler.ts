@@ -16,7 +16,7 @@ function makeUserEmailVerifiedEventHandler(deps: IDependencies) {
   return async (event: IEvent<IUser>) => {
     eventValue.validateEventTypeMatch(event, EUserEvents.EmailVerified);
 
-    // TODO: send welcome email https://linear.app/purpleledger/issue/PUR-20/create-and-send-welcome-emails
+    // TODO: send welcome email https://linear.app/drimsheet/issue/PUR-20/create-and-send-welcome-emails
   };
 }
 

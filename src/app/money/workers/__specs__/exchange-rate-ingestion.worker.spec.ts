@@ -8,7 +8,7 @@ describe('makeExchangeRateIngestionWorker', () => {
     correlation_id: 'correlation-id',
     event_type: 'exchange-rate.ingested.v1',
     occurred_at: '2026-07-25T00:00:00.000Z',
-    producer: 'pl-ingestion',
+    producer: 'drimsheet-ingestion',
     data: [],
   };
 

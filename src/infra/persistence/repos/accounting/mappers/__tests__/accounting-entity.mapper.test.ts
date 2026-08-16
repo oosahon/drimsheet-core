@@ -13,7 +13,7 @@ describe('Accounting Entity Mapper', () => {
   const domainEntity: IAccountingEntity = {
     id: 'entity-1' as TEntityId,
     ownerId: 'user-1' as TEntityId,
-    name: 'Purple Ledger Corp',
+    name: 'Drimsheet Corp',
     type: 'private_company',
     functionalCurrencyCode: 'NGN',
     jurisdictionCode: 'NG',
@@ -24,7 +24,7 @@ describe('Accounting Entity Mapper', () => {
   const repoModel: IAccountingEntityModel = {
     id: 'entity-1',
     ownerId: 'user-1',
-    name: 'Purple Ledger Corp',
+    name: 'Drimsheet Corp',
     type: 'private_company',
     functionalCurrencyCode: 'NGN',
     jurisdictionCode: 'NG',
@@ -50,7 +50,7 @@ describe('Accounting Entity Mapper', () => {
 
       expect(interfaceEntity.id).toBe(domainEntity.id);
       expect(interfaceEntity.type).toBe('private_company');
-      expect(interfaceEntity.name).toBe('Purple Ledger Corp');
+      expect(interfaceEntity.name).toBe('Drimsheet Corp');
     });
   });
 });

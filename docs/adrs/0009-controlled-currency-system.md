@@ -6,11 +6,11 @@ Accepted
 
 ## Context
 
-PurpleLedger natively supports calculating a consolidated Networth for a user across all their accounting domains. To accurately aggregate financial values held in different currencies (e.g., Naira and USD) into a single baseline valuation, the system must rely on highly accurate, chronologically-aware exchange rates. If users are permitted to create arbitrary custom currencies (like niche cryptocurrencies or fictional tokens), the system cannot verify or maintain daily exchange rates, breaking the reliability of consolidated reporting.
+Drimsheet natively supports calculating a consolidated Networth for a user across all their accounting domains. To accurately aggregate financial values held in different currencies (e.g., Naira and USD) into a single baseline valuation, the system must rely on highly accurate, chronologically-aware exchange rates. If users are permitted to create arbitrary custom currencies (like niche cryptocurrencies or fictional tokens), the system cannot verify or maintain daily exchange rates, breaking the reliability of consolidated reporting.
 
 ## Decision
 
-The system completely restricts the creation of currencies by end-users. PurpleLedger ships with predefined, system-supported currencies internally monitored by a centralized exchange service.
+The system completely restricts the creation of currencies by end-users. Drimsheet ships with predefined, system-supported currencies internally monitored by a centralized exchange service.
 
 ## Consequences
 

@@ -2,7 +2,7 @@
 
 > [!WARNING]
 > This document is scoped to the following milestone:\
-> https://github.com/oosahon/PurpleLedger-core/milestone/1 (v0.1.0 — Individual MVP)
+> https://github.com/Drimsheet/drimsheet-core/milestone/1 (v0.1.0 — Individual MVP)
 
 ## Chart of Accounts Structure
 
@@ -18,7 +18,7 @@ Power users can set a display code for accounts, but the internal code will alwa
 
 ## Metadata-Driven Account Behavior
 
-Instead of hardcoding account behavior into the ledger codes (e.g. using a specific suffix digit for contra or adjunct accounts), PurpleLedger uses a **metadata-driven** architecture.
+Instead of hardcoding account behavior into the ledger codes (e.g. using a specific suffix digit for contra or adjunct accounts), Drimsheet uses a **metadata-driven** architecture.
 
 A ledger account's behavior and system constraints are defined by its properties in the database, as modeled in `ledger.types.ts`:
 
