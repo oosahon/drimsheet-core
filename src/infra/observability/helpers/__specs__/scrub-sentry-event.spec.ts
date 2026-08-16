@@ -106,7 +106,7 @@ describe('scrubSentryEvent', () => {
           tags: { userId: 'private-user-id' },
         },
         app: {
-          app_name: 'purple-ledger-core',
+          app_name: 'drimsheet-core',
           app_version: '1.2.3',
           app_start_time: '2026-08-15T00:00:00.000Z',
           build_type: 'release',
@@ -227,7 +227,7 @@ describe('scrubSentryEvent', () => {
         origin: 'auto.http',
       },
       app: {
-        app_name: 'purple-ledger-core',
+        app_name: 'drimsheet-core',
         app_version: '1.2.3',
         app_start_time: '2026-08-15T00:00:00.000Z',
         build_type: 'release',

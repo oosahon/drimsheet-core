@@ -110,6 +110,18 @@ describe('observability lifecycle', () => {
     );
   });
 
+  it('includes the shutdown signal when a Sentry flush rejects', async () => {
+    const error = new Error('flush unavailable');
+    mockFlushSentry.mockRejectedValue(error);
+    const lifecycle = await loadObservabilityLifecycle();
+
+    await expect(lifecycle.shutdown('SIGTERM')).resolves.toBeUndefined();
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      'observability.sentry.flush_failed',
+      { error, outcome: 'failure', signal: 'SIGTERM' }
+    );
+  });
+
   it('contains unexpected metrics shutdown failures', async () => {
     const error = new Error('metrics unavailable');
     mockShutdownMetrics.mockRejectedValue(error);
@@ -120,5 +132,23 @@ describe('observability lifecycle', () => {
       'observability.lifecycle.shutdown_failed',
       { error, outcome: 'failure', signal: 'SIGINT' }
     );
+  });
+
+  it('omits signal fields from unscoped shutdown failures', async () => {
+    const error = new Error('metrics unavailable');
+    mockFlushSentry.mockResolvedValue(false);
+    mockShutdownMetrics.mockRejectedValue(error);
+    const lifecycle = await loadObservabilityLifecycle();
+
+    await expect(lifecycle.shutdown()).resolves.toBeUndefined();
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      'observability.sentry.flush_failed',
+      { outcome: 'failure' }
+    );
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      'observability.lifecycle.shutdown_failed',
+      { error, outcome: 'failure' }
+    );
+    expect(mockLogger.warn).toHaveBeenCalledTimes(2);
   });
 });

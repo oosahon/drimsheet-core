@@ -110,25 +110,65 @@ consistency and lag require reconciliation-backed durable completion.
 
 ## Deployment smoke test
 
-In development, then staging:
+The repeatable staging test is `npm run smoke:observability:staging`. Copy
+`scripts/observability-smoke.env.example` to an ignored environment file, fill
+it with staging/backend values, source it, and validate the setup before making
+requests:
 
-1. Confirm `/health/live` returns `200` and `/health/ready` returns `200` only
-   after startup with PostgreSQL reachable.
-2. Exercise one successful and one failed HTTP request. In Sentry, confirm a
-   normalized HTTP transaction contains its named `app.usecase` and supported
-   database/HTTP children.
-3. Enqueue transactional email and ledger-balance jobs. Confirm new jobs carry
-   trace context, a legacy raw BullMQ job still processes, and each worker has a
-   `queue.process` transaction.
-4. Consume one RabbitMQ exchange-rate message with and without trace headers.
+```bash
+set -a
+source .env.observability-smoke
+set +a
+npm run smoke:observability:staging -- --check-config
+npm run smoke:observability:staging
+```
+
+The file referenced by `OBS_SMOKE_QUEUE_PROBES_FILE` must remain uncommitted
+because it can contain staging authorization. Use synthetic accounts and data.
+Its schema is:
+
+```json
+{
+  "queueProbes": [
+    {
+      "name": "transactional-email",
+      "method": "POST",
+      "path": "/api/v1/<synthetic-trigger>",
+      "headers": { "authorization": "Bearer <staging-token>" },
+      "body": { "synthetic": true },
+      "expectedStatus": [200, 202],
+      "expectedQueues": ["transactional-email-queue"]
+    }
+  ]
+}
+```
+
+Add a probe for every queue path under test, including
+`ledger-account-balance-adjustment-queue`. The command supplies a distinct
+correlation ID to every request, locates its structured Loki log, extracts the
+Sentry trace ID, and requires the expected `queue.process` transaction and
+queue name in that same trace. It also requires:
+
+- live and ready health checks;
+- a successful and rejected exchange-rate request;
+- all six application metric families;
+- BullMQ and RabbitMQ inventory metrics; and
+- Grafana receiver-test acceptance followed by operator-confirmed delivery.
+
+Leave `OBS_SMOKE_ALERT_DELIVERY_CONFIRMED=false` for the first run. After the
+test notification arrives at the configured destination, set it to `true` and
+rerun to produce a passing JSON report. Store that output with the deployment
+evidence; secrets and response bodies are deliberately omitted.
+
+The automated command covers safe remote assertions. Complete these
+environment-level drills in development, then staging:
+
+1. Enqueue a legacy raw BullMQ job and confirm it still processes.
+2. Consume one RabbitMQ exchange-rate message with and without trace headers.
    Confirm acknowledgement/nack behavior is unchanged.
-5. Wait at least one metrics export interval, then verify all six application
-   metric families plus BullMQ and RabbitMQ inventory in Grafana Cloud.
-6. Find the associated structured log records by environment, event,
-   correlation ID, and Sentry trace ID.
-7. Restart Alloy and verify log positions resume without rereading unbounded
+3. Restart Alloy and verify log positions resume without rereading unbounded
    history and metrics recover without application intervention.
-8. Trigger each alert through a synthetic signal and record the contact point,
+4. Trigger each alert rule through a synthetic signal and record the contact point,
    owner, severity, runbook link, and recovery condition.
 
 ## Privacy canary

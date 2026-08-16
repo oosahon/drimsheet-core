@@ -69,7 +69,7 @@ const omitEmptyMessageFormat = winston.format((info) => {
 const localFormat = winston.format.combine(
   winston.format.colorize({ level: true }),
   winston.format.printf((fields) => {
-    const message = typeof fields.message === 'string' ? fields.message : '';
+    const message = fields.message as string;
     const humanMessage = message ? `: ${message}` : '';
     const staticContext = `${fields.service} ${fields.environment}@${fields.version}`;
     const metadataFields = Object.fromEntries(

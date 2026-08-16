@@ -123,7 +123,7 @@ describe('GET /accounting/accounting-entity', () => {
     });
 
     it('rejects an expired token', async () => {
-      const correlationId = 'expired-token-correlation-id';
+      const correlationId = '0198ad49-0f4a-7709-a5bf-2f7cfbaea7c4';
       const warnSpy = jest
         .spyOn(observability.logger, 'warn')
         .mockImplementation(() => undefined);
