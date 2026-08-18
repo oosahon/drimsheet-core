@@ -3,6 +3,9 @@
 # Navigate to project root to run NPM securely
 cd "$(dirname "$0")/.." || exit
 
+echo "🔄 Building MJML templates..."
+npm run mjml:build || exit 1
+
 echo "🔄 Running linter..."
 npm run lint || exit 1
 

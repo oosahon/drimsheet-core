@@ -1,9 +1,16 @@
+import * as sanitizer from '@shared/utils/sanitizer';
+
 import {
   makeSentryError,
   normalizeTelemetryError,
+  sanitizeTelemetryErrorText,
 } from '@infra/observability/helpers/telemetry-error';
 
 describe('telemetry error preparation', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('keeps canonical sanitized Error fields and drops custom properties', () => {
     const error = Object.assign(
       new TypeError(
@@ -91,5 +98,13 @@ describe('telemetry error preparation', () => {
       message: 'Error',
       stack: expect.any(String),
     });
+  });
+
+  it('uses the caller fallback when string sanitization returns no string', () => {
+    jest.spyOn(sanitizer, 'sanitizeData').mockReturnValue(undefined);
+
+    expect(sanitizeTelemetryErrorText('private value', 'safe fallback')).toBe(
+      'safe fallback'
+    );
   });
 });

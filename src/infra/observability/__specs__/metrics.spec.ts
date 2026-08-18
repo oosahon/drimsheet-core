@@ -136,16 +136,17 @@ describe('observability metrics adapter', () => {
 
   it('provides a safe disabled adapter', () => {
     const metrics = makeNoopObservabilityMetrics();
+    const input = {
+      name: 'test.metric',
+      description: 'Test metric',
+      unit: '{operation}',
+      value: 1,
+      attributes: {},
+    };
 
-    expect(() =>
-      metrics.increment({
-        name: 'test.counter',
-        description: 'Test counter',
-        unit: '{operation}',
-        value: 1,
-        attributes: {},
-      })
-    ).not.toThrow();
+    expect(() => metrics.increment(input)).not.toThrow();
+    expect(() => metrics.observe(input)).not.toThrow();
+    expect(() => metrics.set(input)).not.toThrow();
     expect(Object.isFrozen(metrics)).toBe(true);
   });
 });
