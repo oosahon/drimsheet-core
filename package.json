@@ -22,7 +22,6 @@
     "drizzle:pull": "drizzle-kit pull",
     "sentry:sourcemaps": "node scripts/upload-sentry-sourcemaps.mjs",
     "prepare": "husky",
-    "email:build": "node scripts/mjml-to-html.js",
     "adr:add": "tsx scripts/add-adr.ts",
     "adr:remove": "tsx scripts/remove-adr.ts",
     "adr:rename": "tsx scripts/rename-adr.ts",

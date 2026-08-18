@@ -1,5 +1,7 @@
 import Sentry from '@sentry/node';
 
+import * as sanitizer from '@shared/utils/sanitizer';
+
 import logger from '@infra/observability/logger';
 import reporter from '@infra/observability/reporter';
 import appContext from '@infra/runtime/app-context';
@@ -238,6 +240,95 @@ describe('reporter', () => {
     expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
       extra: {},
     });
+  });
+
+  it('drops malformed values from runtime-projected abuse context', () => {
+    const loggerWarnSpy = jest
+      .spyOn(logger, 'warn')
+      .mockImplementation(() => undefined);
+    const context = {
+      method: 42,
+      scope: { name: 'login-with-email' },
+      used: Number.POSITIVE_INFINITY,
+      limit: Number.NaN,
+    } as unknown as TAbuseContext;
+
+    reporter.reportAbuse('Request threshold exceeded', context);
+
+    expect(loggerWarnSpy).toHaveBeenCalledWith('security.abuse.detected', {
+      message: 'Request threshold exceeded',
+    });
+    expect(Sentry.captureMessage).toHaveBeenCalledWith(
+      'Request threshold exceeded',
+      {
+        level: 'warning',
+        extra: {},
+      }
+    );
+  });
+
+  it('uses safe defaults when context sanitization produces no output', () => {
+    const sanitizeData = sanitizer.sanitizeData;
+    jest
+      .spyOn(sanitizer, 'sanitizeData')
+      .mockImplementation((value: unknown) =>
+        typeof value === 'object' && value !== null
+          ? undefined
+          : sanitizeData(value)
+      );
+    jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+    jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
+
+    reporter.report('queue.job.processing_failed', new Error('failed'), {
+      queue: 'test-queue',
+    });
+    reporter.reportAbuse('Request threshold exceeded', {
+      method: 'POST',
+      scope: 'reset-password',
+      used: 6,
+      limit: 5,
+    });
+
+    expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error), {
+      extra: {},
+    });
+    expect(Sentry.captureMessage).toHaveBeenCalledWith(
+      'Request threshold exceeded',
+      {
+        level: 'warning',
+        extra: {},
+      }
+    );
+  });
+
+  it('uses a fallback for non-string abuse messages and includes correlation', () => {
+    jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const context: TAbuseContext = {
+      method: 'POST',
+      scope: 'login-with-email',
+      used: 6,
+      limit: 5,
+    };
+
+    appContext.init(
+      { correlationId: validCorrelationId, idempotencyKey: '' },
+      () =>
+        reporter.reportAbuse(
+          { private: 'message' } as unknown as string,
+          context
+        )
+    );
+
+    expect(Sentry.captureMessage).toHaveBeenCalledWith(
+      'Abuse threshold exceeded',
+      {
+        level: 'warning',
+        extra: {
+          ...context,
+          correlationId: validCorrelationId,
+        },
+      }
+    );
   });
 
   it('does not send abuse reports externally in the local environment', () => {

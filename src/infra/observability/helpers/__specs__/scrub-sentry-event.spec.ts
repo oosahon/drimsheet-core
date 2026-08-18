@@ -1,8 +1,14 @@
 import { ErrorEvent } from '@sentry/node';
 
+import * as sanitizer from '@shared/utils/sanitizer';
+
 import scrubSentryEvent from '@infra/observability/helpers/scrub-sentry-event';
 
 describe('scrubSentryEvent', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   it('removes automatic PII and preserves bounded runtime diagnostics', () => {
     const event: ErrorEvent = {
       type: undefined,
@@ -356,5 +362,80 @@ describe('scrubSentryEvent', () => {
 
   it('handles an empty event deterministically', () => {
     expect(scrubSentryEvent({ type: undefined })).toEqual({ type: undefined });
+  });
+
+  it('drops malformed and empty optional diagnostic fields', () => {
+    const event = {
+      type: undefined,
+      sdk: {},
+      modules: {},
+      debug_meta: {
+        images: [{ type: 'sourcemap', debug_id: 'debug-id' }],
+      },
+      extra: {},
+      contexts: {
+        app: { app_name: {} },
+      },
+      exception: {
+        values: [
+          {
+            type: 42,
+            value: 42,
+            mechanism: {},
+            stacktrace: {
+              frames_omitted: [0, Number.POSITIVE_INFINITY],
+              frames: [
+                {
+                  lineno: Number.NaN,
+                  in_app: 'true',
+                },
+              ],
+            },
+          },
+        ],
+      },
+      breadcrumbs: [{}],
+    } as unknown as ErrorEvent;
+
+    expect(scrubSentryEvent(event)).toEqual({
+      type: undefined,
+      debug_meta: {
+        images: [{ type: 'sourcemap', debug_id: 'debug-id' }],
+      },
+      exception: {
+        values: [
+          {
+            type: 'UnknownError',
+            value: 'UnknownError',
+            mechanism: { type: 'generic' },
+            stacktrace: { frames: [{}] },
+          },
+        ],
+      },
+      breadcrumbs: [{}],
+    });
+  });
+
+  it('omits absent exception stacktrace and mechanism fields', () => {
+    const event = {
+      type: undefined,
+      exception: { values: [{}] },
+      contexts: {},
+    } as ErrorEvent;
+
+    expect(scrubSentryEvent(event)).toEqual({
+      type: undefined,
+      exception: {
+        values: [{ type: 'UnknownError', value: 'UnknownError' }],
+      },
+    });
+  });
+
+  it('omits strings when the shared sanitizer produces no string', () => {
+    jest.spyOn(sanitizer, 'sanitizeData').mockReturnValue(undefined);
+
+    expect(
+      scrubSentryEvent({ type: undefined, logger: 'private logger' })
+    ).toEqual({ type: undefined, logger: undefined });
   });
 });

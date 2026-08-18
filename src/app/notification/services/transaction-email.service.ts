@@ -1,10 +1,10 @@
 import ITransactionalEmailQueue from '@app/notification/contracts/transactional-email-queue.contract';
 import ITransactionalEmailService from '@app/notification/contracts/transactional-email-service.contract';
-import emailVerificationEmail from '@app/notification/templates/email-verification-email';
-import passwordResetRequestEmail from '@app/notification/templates/password-reset-request-email';
+import ITransactionalEmailTemplate from '@app/notification/contracts/transactional-email-template.contract';
 
 interface IDependencies {
   transactionalEmailQueue: ITransactionalEmailQueue;
+  transactionalEmailTemplate: ITransactionalEmailTemplate;
 }
 
 export default function makeTransactionalEmailService(
@@ -17,7 +17,7 @@ export default function makeTransactionalEmailService(
       await deps.transactionalEmailQueue.add({
         emails: [user.email],
         subject: 'Action Required: Verify Your Email Address',
-        html: emailVerificationEmail({
+        html: deps.transactionalEmailTemplate.emailVerification({
           firstName: user.firstName,
           verificationLink,
         }),
@@ -31,7 +31,7 @@ export default function makeTransactionalEmailService(
       await deps.transactionalEmailQueue.add({
         emails: [user.email],
         subject: 'Reset your password',
-        html: passwordResetRequestEmail({
+        html: deps.transactionalEmailTemplate.passwordResetRequest({
           subject: 'Password Reset Request',
           firstName: escapeHtml(user.firstName),
           passwordResetLink: resetLink,
