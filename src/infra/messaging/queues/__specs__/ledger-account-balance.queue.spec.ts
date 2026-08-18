@@ -19,23 +19,8 @@ jest.mock('../../../config/redis.config', () => ({
 
 describe('makeLedgerAccountBalanceAdjustmentQueue', () => {
   const payload: ILedgerAccountBalanceAdjustmentDto = {
-    correlationId: 'queue-correlation',
-    journalEntry: {
-      id: generateUUID(),
-      createdBy: generateUUID(),
-    },
-    accountingEntityId: generateUUID(),
-    balanceDelta: {
-      amount: 100,
-      currencyCode: 'USD',
-      isMinorUnit: true,
-    },
-    functionalBalanceDelta: {
-      amount: 100,
-      currencyCode: 'USD',
-      isMinorUnit: true,
-    },
-    ledgerAccountId: generateUUID(),
+    correlationId: generateUUID(),
+    journalEntryId: generateUUID(),
   };
 
   beforeEach(() => {
@@ -70,7 +55,11 @@ describe('makeLedgerAccountBalanceAdjustmentQueue', () => {
           sentryTrace: `${'a'.repeat(32)}-${'b'.repeat(16)}-1`,
         },
       },
-      expect.objectContaining({ attempts: 3 })
+      expect.objectContaining({
+        attempts: 3,
+        jobId: `ledger-account-balance-adjustment-queue_${payload.journalEntryId}`,
+        removeOnFail: true,
+      })
     );
   });
 

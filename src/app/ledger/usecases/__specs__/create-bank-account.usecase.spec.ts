@@ -6,7 +6,10 @@ import accountingEntityEntity from '@domain/accounting/entities/accounting-entit
 import periodError from '@domain/accounting/errors/period.error';
 import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
-import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '@domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
@@ -20,7 +23,7 @@ import { mockAccountingPeriodService } from '@app/accounting/contracts/__mocks__
 import IAppContext from '@app/context/contracts/app-context.contract';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
 import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
-import mockLedgerAccountBalancePropagationService from '@app/ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
+import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockAssetAccountService } from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
 import {
   mockBankAccountRepo,
@@ -31,6 +34,7 @@ import { IBankAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-ac
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import makeCreateBankAccountUseCase from '@app/ledger/usecases/create-bank-account.usecase';
 import mockExchangeRateService from '@app/money/contracts/__mocks__/exchange-rate.service.mock';
+import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
 import { mockFxCostBasisLotDomainService } from '@app/subledger/contracts/__mocks__/subledger.domain.services.mock';
 import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 
@@ -170,7 +174,8 @@ describe('makeCreateBankAccountUseCase', () => {
     ledgerAccountRepo: mockLedgerAccountRepo,
     journalEntryService: mockJournalEntryService,
     journalEntryPersistenceService: mockJournalEntryPersistenceService,
-    balancePropagationService: mockLedgerAccountBalancePropagationService,
+    outboxService: mockOutboxService,
+    ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
     repoService: mockRepoService,
     ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
     fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
@@ -226,6 +231,8 @@ describe('makeCreateBankAccountUseCase', () => {
       bankDetails,
       expect.anything()
     );
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
@@ -307,9 +314,49 @@ describe('makeCreateBankAccountUseCase', () => {
     expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalled();
     expect(mockBankAccountRepo.create).toHaveBeenCalled();
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).toHaveBeenCalledWith(
+      mockOpeningBalanceJournalEntry.id,
+      expect.objectContaining({
+        correlationId: 'test-correlation-id',
+        tx: expect.anything(),
+      })
+    );
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledWith({
+      journalEntryId: mockOpeningBalanceJournalEntry.id,
+      correlationId: 'test-correlation-id',
+    });
     expect(
-      mockLedgerAccountBalancePropagationService.propagate
-    ).toHaveBeenCalledWith(mockOpeningBalanceJournalEntry, expect.anything());
+      mockRepoService.runInTransaction.mock.invocationCallOrder[0]
+    ).toBeLessThan(
+      mockLedgerAccountBalanceAdjustmentQueue.add.mock.invocationCallOrder[0]
+    );
+    expect(mockEventBus.publish).toHaveBeenCalled();
+  });
+
+  it('persists a non-posted opening-balance journal without queueing balance work', async () => {
+    const reqWithOpeningBalance: IBankAccountCreationReq = {
+      ...validReq,
+      openingBalance: {
+        amount: { amount: 10000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        date: new Date('2026-03-01T00:00:00.000Z'),
+      },
+    };
+    mockJournalEntryService.createOpeningBalance.mockResolvedValueOnce([
+      {
+        ...mockOpeningBalanceJournalEntry,
+        status: EJournalEntryStatus.Draft,
+      },
+      mockOpeningBalanceEvents,
+      mockOpeningBalanceAudit,
+    ]);
+
+    const useCase = makeCreateBankAccountUseCase(deps);
+    await useCase(reqWithOpeningBalance);
+
+    expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
@@ -494,9 +541,8 @@ describe('makeCreateBankAccountUseCase', () => {
     const useCase = makeCreateBankAccountUseCase(deps);
     await expect(useCase(reqWithOpeningBalance)).rejects.toBe(failure);
 
-    expect(
-      mockLedgerAccountBalancePropagationService.propagate
-    ).not.toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 });

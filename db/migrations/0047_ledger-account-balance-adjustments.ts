@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { currenciesTable } from '../config/currencies';
 import { journalEntriesTable } from '../config/journal-entries';
 import {
@@ -81,6 +82,14 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       default: pgm.func('now()'),
     },
   });
+
+  pgm.addConstraint(
+    ledgerAccountBalanceAdjustmentsTable,
+    'ledger_account_balance_adjustments_account_entry_uk',
+    {
+      unique: ['ledger_account_id', 'journal_entry_id'],
+    }
+  );
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {

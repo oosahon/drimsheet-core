@@ -16,9 +16,17 @@ Inspect the owning layer, nearby contracts, tests, callers, and wiring before
 concluding that no suitable precedent exists. Match precedents by responsibility,
 ownership, and semantics rather than superficial file similarity.
 
+Before adding locks, claims, status lifecycles, recovery workers, or schedulers,
+inventory the guarantees already provided by entity versions, database
+constraints, transaction boundaries, and queue semantics. Do not strengthen
+consistency beyond the owning domain's stated requirement, especially for
+eventually consistent read or UI state.
+
 ## Assumptions And Decisions
 
 - Validate each material plan assumption before relying on it.
+- Use the owning domain's established vocabulary. A generic architecture term
+  is not a substitute for an existing domain term.
 - Treat choices affecting behavior, public or shared contracts, ownership,
   persistence, data compatibility, security, dependencies, transactions,
   failure semantics, or repository-wide conventions as material.

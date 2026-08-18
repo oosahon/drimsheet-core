@@ -11,6 +11,14 @@
   persistence operations when it improves scanning.
 - Follow the nearest established presentation pattern before introducing a new
   one.
+- Keep one-line transformations, comparators, and single-use wrappers at their
+  call site unless extraction establishes meaningful ownership or reuse.
+- Document non-trivial helpers with their purpose, output, and important failure
+  or consistency behavior.
+- Keep implementation-only types private. Export a type only when another
+  module intentionally depends on that contract.
+- In `for...of` loops, use a named loop variable and access its fields
+  explicitly instead of destructuring in the loop declaration.
 - Use `Pick`, `Omit`, or bespoke dependency interfaces only when they express an
   independently meaningful boundary, reusable contract, or enforced layer
   separation.

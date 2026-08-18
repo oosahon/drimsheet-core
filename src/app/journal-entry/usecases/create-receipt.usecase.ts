@@ -15,6 +15,7 @@ import {
   ICreateReceiptEntryPayload,
   IJournalEntryService,
 } from '@domain/journal-entry/types/journal-entry.service.types';
+import { EJournalEntryStatus } from '@domain/journal-entry/types/journal-entry.types';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
@@ -26,9 +27,10 @@ import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
 import { IReceiptEntryReq } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto';
 import { receiptEntryReqValidation } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto.validation';
-import { ILedgerAccountBalancePropagationService } from '@app/ledger/contracts/ledger-account-balance-propagation.service.contract';
+import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
+import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -39,7 +41,8 @@ interface IDependencies {
   journalEntryPersistenceService: IJournalEntryPersistenceService;
   repoService: IRepoService;
   eventBus: IEventBus;
-  balancePropagationService: ILedgerAccountBalancePropagationService;
+  outboxService: IOutboxService;
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
 }
 
 export default function makeCreateReceiptUsecase(deps: IDependencies) {
@@ -174,6 +177,9 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       counterpartyEvents.push(events);
     }
 
+    const shouldUpdateBalance =
+      journalEntry.status === EJournalEntryStatus.Posted;
+
     const dbTransactionFn: TRepoTransactionFn = async (tx) => {
       const writeOptions = { correlationId, tx };
 
@@ -190,10 +196,23 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
         journalLinesHistory,
         writeOptions
       );
+
+      if (shouldUpdateBalance) {
+        await deps.outboxService.createBalancePropagation(
+          journalEntry.id,
+          writeOptions
+        );
+      }
     };
 
     await deps.repoService.runInTransaction(dbTransactionFn);
-    await deps.balancePropagationService.propagate(journalEntry, repoOptions);
+
+    if (shouldUpdateBalance) {
+      await deps.ledgerBalanceAdjustmentQueue.add({
+        journalEntryId: journalEntry.id,
+        correlationId,
+      });
+    }
 
     const allEvents: IEvent<unknown>[] = [
       ...counterpartyEvents.flat(),

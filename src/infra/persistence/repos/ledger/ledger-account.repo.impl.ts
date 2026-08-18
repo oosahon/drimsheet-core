@@ -92,6 +92,33 @@ const ledgerAccountRepoImpl: ILedgerAccountRepo = {
     return result.map(ledgerAccountMapper.toDomain);
   },
 
+  findAllByMaterializedPath: async (
+    accountingEntityId,
+    materializedPaths,
+    options
+  ) => {
+    if (materializedPaths.length === 0) return [];
+
+    const result = await getDbQuery(options)
+      .select({
+        ...getTableColumns(ledgerAccountsInCore),
+        currency: getTableColumns(currenciesInCore),
+      })
+      .from(ledgerAccountsInCore)
+      .leftJoin(
+        currenciesInCore,
+        eq(ledgerAccountsInCore.currencyCode, currenciesInCore.code)
+      )
+      .where(
+        and(
+          eq(ledgerAccountsInCore.accountingEntityId, accountingEntityId),
+          inArray(ledgerAccountsInCore.materializedPath, materializedPaths)
+        )
+      );
+
+    return result.map(ledgerAccountMapper.toDomain);
+  },
+
   findByCode: async (code, accountingEntityId, options) => {
     const dbQuery = getDbQuery(options);
 

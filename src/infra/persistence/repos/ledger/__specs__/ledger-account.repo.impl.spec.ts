@@ -302,4 +302,43 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
     expect(inArray).not.toHaveBeenCalled();
     expect(isNull).toHaveBeenCalledWith(ledgerAccountsInCore.currencyCode);
   });
+
+  it('findAllByMaterializedPath returns exact paths within the accounting entity', async () => {
+    const materializedPaths = ['100000', '100000.100001'];
+    const row = { id: 'account-row', currency: null };
+    const account = { id: 'account-domain', currency: null } as ILedgerAccount;
+    const where = jest.fn().mockResolvedValue([row]);
+    const leftJoin = jest.fn().mockReturnValue({ where });
+    const from = jest.fn().mockReturnValue({ leftJoin });
+    const select = jest.fn().mockReturnValue({ from });
+    (getDbQuery as jest.Mock).mockReturnValue({ select });
+    (ledgerAccountMapper.toDomain as jest.Mock).mockReturnValue(account);
+
+    await expect(
+      ledgerAccountRepo.findAllByMaterializedPath(
+        accountingEntityId,
+        materializedPaths,
+        { correlationId: 'correlation-id' }
+      )
+    ).resolves.toEqual([account]);
+
+    expect(eq).toHaveBeenCalledWith(
+      ledgerAccountsInCore.accountingEntityId,
+      accountingEntityId
+    );
+    expect(inArray).toHaveBeenCalledWith(
+      ledgerAccountsInCore.materializedPath,
+      materializedPaths
+    );
+  });
+
+  it('findAllByMaterializedPath skips the query when no paths are requested', async () => {
+    await expect(
+      ledgerAccountRepo.findAllByMaterializedPath(accountingEntityId, [], {
+        correlationId: 'correlation-id',
+      })
+    ).resolves.toEqual([]);
+
+    expect(getDbQuery).not.toHaveBeenCalled();
+  });
 });

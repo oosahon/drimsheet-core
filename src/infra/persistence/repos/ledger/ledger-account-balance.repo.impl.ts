@@ -117,6 +117,8 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
   },
 
   async findAllByAccountIds(accountingEntityId, ledgerAccountIds, options) {
+    if (ledgerAccountIds.length === 0) return [];
+
     const result = await getDbQuery(options)
       .select({
         ...getTableColumns(ledgerAccountBalancesInCore),

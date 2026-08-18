@@ -181,6 +181,35 @@ describe('registerBullMQWorker', () => {
     expect(mockTracer.startRootSpan).toHaveBeenCalledTimes(1);
   });
 
+  it('records undefined waiting duration when job timestamps are invalid', async () => {
+    jest
+      .spyOn(performance, 'now')
+      .mockReturnValueOnce(10)
+      .mockReturnValueOnce(18);
+    const processor = jest.fn().mockResolvedValue(undefined);
+
+    registerBullMQWorker(
+      'test-queue',
+      processor,
+      appContext,
+      getInitialStore,
+      mockQueueMetrics,
+      mockTracer
+    );
+
+    await getRegisteredProcessor()(
+      makeJob('bad-timing-correlation', { timestamp: Number.NaN })
+    );
+
+    expect(mockQueueMetrics.recordProcessingCompleted).toHaveBeenCalledWith({
+      queueName: 'test-queue',
+      transport: 'bullmq',
+      attempt: 2,
+      waitingDurationMs: undefined,
+      durationMs: 8,
+    });
+  });
+
   it('isolates concurrent job contexts', async () => {
     let releaseFirst: (() => void) | undefined;
     const firstCanFinish = new Promise<void>((resolve) => {

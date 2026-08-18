@@ -4,6 +4,20 @@
 > This document is scoped to the following milestone:\
 > https://github.com/Drimsheet/drimsheet-core/milestone/1 (v0.1.0 — Individual MVP)
 
+## Journal Entries, Adjustments, and Propagation
+
+Journal entries are the authoritative accounting record. Ledger balances are
+eventually consistent values used primarily for reads and UI display.
+
+- An **adjustment** changes one ledger account's balance.
+- **Propagation** creates the corresponding adjustments for that account's
+  control-account ancestors.
+
+Use these terms in ledger code and documentation. Do not introduce another term
+for derived balances or for bubbling adjustments through the account hierarchy.
+An adjustment or propagation failure can leave displayed balances stale, but it
+does not change the authoritative journal entry.
+
 ## Chart of Accounts Structure
 
 Our Chart of Accounts follows a **6-digit** hierarchical coding structure: **A-BB-CCC**. Where:

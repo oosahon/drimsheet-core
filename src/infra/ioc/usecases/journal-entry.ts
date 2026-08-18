@@ -9,7 +9,7 @@ import {
   journalEntryPersistenceService,
   journalEntryService,
 } from '@infra/ioc/services/journal-entry';
-import { ledgerAccountBalancePropagationService } from '@infra/ioc/services/ledger';
+import outboxService from '@infra/ioc/services/outbox';
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
 import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
@@ -24,7 +24,8 @@ export const createOpeningBalanceUseCase = makeTracedUseCase(
     eventBus: messaging.eventBus,
     journalEntryService,
     journalEntryPersistenceService,
-    balancePropagationService: ledgerAccountBalancePropagationService,
+    outboxService,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
     repoService: repoService,
   })
 );
@@ -40,6 +41,7 @@ export const createReceiptUseCase = makeTracedUseCase(
     journalEntryPersistenceService,
     repoService,
     eventBus: messaging.eventBus,
-    balancePropagationService: ledgerAccountBalancePropagationService,
+    outboxService,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
   })
 );

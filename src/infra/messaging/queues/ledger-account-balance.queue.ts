@@ -39,9 +39,9 @@ export function getLedgerAccountBalanceAdjustmentQueue(): Queue<
 
 function getConfig(payload: ILedgerAccountBalanceAdjustmentDto) {
   return Object.freeze({
-    jobId: `${LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME}_${payload.ledgerAccountId}_${payload.correlationId}`,
+    jobId: `${LEDGER_BALANCE_ADJUSTMENT_QUEUE_NAME}_${payload.journalEntryId}`,
     removeOnComplete: true,
-    removeOnFail: false,
+    removeOnFail: true,
     attempts: 3,
     backoff: {
       type: 'exponential',

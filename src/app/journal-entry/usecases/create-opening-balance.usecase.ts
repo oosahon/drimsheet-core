@@ -10,6 +10,7 @@ import { IEvent } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
 
 import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
+import { EJournalEntryStatus } from '@domain/journal-entry/types/journal-entry.types';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
@@ -18,9 +19,10 @@ import IAppContext from '@app/context/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
 import { IOpeningBalanceCreationReq } from '@app/journal-entry/dtos/opening-balance/opening-balance.dto';
 import { openingBalanceCreationReqValidation } from '@app/journal-entry/dtos/opening-balance/opening-balance.dto.validation';
-import { ILedgerAccountBalancePropagationService } from '@app/ledger/contracts/ledger-account-balance-propagation.service.contract';
+import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
+import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -28,7 +30,8 @@ interface IDependencies {
   eventBus: IEventBus;
   journalEntryService: IJournalEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
-  balancePropagationService: ILedgerAccountBalancePropagationService;
+  outboxService: IOutboxService;
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
   repoService: IRepoService;
 }
 
@@ -83,6 +86,9 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
       historyValue.make(lineAudit, actor, correlationId)
     );
 
+    const shouldUpdateBalance =
+      journalEntry.status === EJournalEntryStatus.Posted;
+
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const writeRepoOptions = { ...repoOptions, tx };
 
@@ -97,11 +103,23 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
         lineHistories,
         writeRepoOptions
       );
+
+      if (shouldUpdateBalance) {
+        await deps.outboxService.createBalancePropagation(
+          journalEntry.id,
+          writeRepoOptions
+        );
+      }
     };
 
     await deps.repoService.runInTransaction(transactionFn);
 
-    await deps.balancePropagationService.propagate(journalEntry, repoOptions);
+    if (shouldUpdateBalance) {
+      await deps.ledgerBalanceAdjustmentQueue.add({
+        journalEntryId: journalEntry.id,
+        correlationId,
+      });
+    }
 
     const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];
     deps.eventBus.publish(eventValue.enrichAll(allEvents, repoOptions));

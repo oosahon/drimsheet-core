@@ -1,19 +1,30 @@
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '@shared/contracts/repo.contract';
+import IReporter from '@shared/contracts/reporter.contract';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 
-import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
+import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
 import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import ILedgerAccountBalanceAdjustmentService from '@domain/ledger/types/ledger-account-balance-adjustment.service.types';
 
-import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 import { ledgerAccountBalanceAdjustmentDtoSchema } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto.validation';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
-import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
+import helpers from '@app/ledger/usecases/helpers/adjust-ledger-account-balance.usecase.helpers';
+import IOutboxRepo from '@app/outbox/contracts/outbox.repo.contract';
+import { EOutboxType } from '@app/outbox/types/outbox.types';
 
 interface IDependencies {
+  repoService: IRepoService;
+  outboxRepo: IOutboxRepo;
+  journalEntryRepo: IJournalEntryRepo;
   ledgerAccountRepo: ILedgerAccountRepo;
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
-  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
+  ledgerAccountBalanceAdjustmentService: ILedgerAccountBalanceAdjustmentService;
+  reporter: IReporter;
 }
 
 export default function makeAdjustLedgerAccountBalanceUseCase(
@@ -22,70 +33,59 @@ export default function makeAdjustLedgerAccountBalanceUseCase(
   return async (payload: ILedgerAccountBalanceAdjustmentDto) => {
     zodValidationRunner(ledgerAccountBalanceAdjustmentDtoSchema, payload);
 
-    const { correlationId, journalEntry, ledgerAccountId, accountingEntityId } =
-      payload;
-
-    const balanceDelta = moneyMapper.fromDto(payload.balanceDelta);
-    const functionalBalanceDelta = moneyMapper.fromDto(
-      payload.functionalBalanceDelta
-    );
-
+    const { correlationId, journalEntryId } = payload;
     const repoOptions = { correlationId };
 
-    const account = await deps.ledgerAccountRepo.findById(
-      ledgerAccountId,
-      accountingEntityId,
+    const outbox = await deps.outboxRepo.findByIdAndType(
+      journalEntryId,
+      EOutboxType.BalancePropagation,
       repoOptions
     );
 
-    if (!account) {
-      throw new ledgerAppError.AccountNotFound();
+    if (!outbox) {
+      deps.reporter.report(
+        'ledger.balance_outbox.missing',
+        new ledgerAppError.BalancePropagationOutboxNotFound({
+          journalEntryId,
+        })
+      );
+
+      return;
     }
 
-    const existingBalance = await deps.ledgerAccountBalanceRepo.findByAccountId(
-      account.id,
-      account.accountingEntityId,
+    const balancePropagation = await helpers.prepareBalancePropagation(
+      deps,
+      journalEntryId,
       repoOptions
     );
 
-    if (!existingBalance) {
-      throw new ledgerAppError.BalanceNotFound();
-    }
+    const balances = await deps.ledgerAccountBalanceRepo.findAllByAccountIds(
+      balancePropagation.journalEntry.accountingEntityId,
+      balancePropagation.ledgerAccountIds,
+      repoOptions
+    );
 
-    /**
-     * The following assumptions are rightly taken into consideration:
-     *  - only header accounts can control sub accounts of different currencies
-     *  - header accounts are always in the functional currency.
-     */
-    const isSameCurrency =
-      account.currency !== null &&
-      balanceDelta.currency.code === account.currency.code;
+    const preparedAdjustments = helpers.prepareBalanceAdjustments(
+      balancePropagation,
+      balances
+    );
 
-    const adjustPayload = {
-      ledgerAccountId: account.id,
-      amount: isSameCurrency ? balanceDelta : functionalBalanceDelta,
-      functionalAmount: functionalBalanceDelta,
-      journalEntryId: journalEntry.id,
-      createdBy: journalEntry.createdBy,
+    const transactionFn: TRepoTransactionFn = async (tx) => {
+      const writeRepoOptions = { ...repoOptions, tx };
+
+      for (const preparedAdjustment of preparedAdjustments) {
+        await deps.ledgerAccountBalanceRepo.adjustBalance(
+          preparedAdjustment.balanceAdjustment,
+          {
+            ...writeRepoOptions,
+            expectedVersion: preparedAdjustment.expectedVersion,
+          }
+        );
+      }
+
+      await deps.outboxRepo.delete(journalEntryId, writeRepoOptions);
     };
 
-    const adjustment = ledgerAccountBalanceEntity.adjust(
-      existingBalance,
-      adjustPayload
-    );
-
-    await deps.ledgerAccountBalanceRepo.adjustBalance(adjustment, {
-      ...repoOptions,
-      expectedVersion: existingBalance.version,
-    });
-
-    if (account.controlAccountId) {
-      const propagateAdjustmentsPayload: ILedgerAccountBalanceAdjustmentDto = {
-        ...payload,
-        ledgerAccountId: account.controlAccountId,
-      };
-
-      await deps.ledgerBalanceAdjustmentQueue.add(propagateAdjustmentsPayload);
-    }
+    await deps.repoService.runInTransaction(transactionFn);
   };
 }

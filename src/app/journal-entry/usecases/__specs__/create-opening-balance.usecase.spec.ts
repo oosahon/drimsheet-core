@@ -6,7 +6,10 @@ import { TEntityId } from '@shared/types/uuid';
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
-import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '@domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
 import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
@@ -23,9 +26,10 @@ import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
 import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
 import makeCreateOpeningBalanceUseCase from '@app/journal-entry/usecases/create-opening-balance.usecase';
-import mockLedgerAccountBalancePropagationService from '@app/ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
+import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
+import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
 
 describe('createOpeningBalanceUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -98,9 +102,8 @@ describe('createOpeningBalanceUseCase', () => {
       .mockImplementation(async (transactionFn) =>
         transactionFn('mock-tx' as unknown as ITransactionContext)
       );
-    mockLedgerAccountBalancePropagationService.propagate
-      .mockReset()
-      .mockResolvedValue();
+    mockOutboxService.createBalancePropagation.mockReset().mockResolvedValue();
+    mockLedgerAccountBalanceAdjustmentQueue.add.mockReset().mockResolvedValue();
 
     mockAppContext.get.mockReturnValue({
       correlationId,
@@ -151,7 +154,8 @@ describe('createOpeningBalanceUseCase', () => {
       eventBus: mockEventBus,
       journalEntryService: mockJournalEntryService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
-      balancePropagationService: mockLedgerAccountBalancePropagationService,
+      outboxService: mockOutboxService,
+      ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
       repoService: mockRepoService,
     });
 
@@ -211,9 +215,21 @@ describe('createOpeningBalanceUseCase', () => {
       ]),
       expect.objectContaining({ correlationId })
     );
+    const persistedJournalEntry =
+      mockJournalEntryPersistenceService.create.mock.calls[0][0];
+    expect(mockOutboxService.createBalancePropagation).toHaveBeenCalledWith(
+      persistedJournalEntry.id,
+      expect.objectContaining({ correlationId, tx: expect.anything() })
+    );
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledWith({
+      journalEntryId: persistedJournalEntry.id,
+      correlationId,
+    });
     expect(
-      mockLedgerAccountBalancePropagationService.propagate
-    ).toHaveBeenCalledWith(expect.anything(), { correlationId });
+      mockRepoService.runInTransaction.mock.invocationCallOrder[0]
+    ).toBeLessThan(
+      mockLedgerAccountBalanceAdjustmentQueue.add.mock.invocationCallOrder[0]
+    );
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
@@ -250,6 +266,58 @@ describe('createOpeningBalanceUseCase', () => {
       expect.any(Array),
       expect.objectContaining({ correlationId })
     );
+  });
+
+  it('persists a non-posted opening-balance journal without queueing balance work', async () => {
+    const [journalEntry, journalEvents, audit] = journalEntryEntity.make({
+      accountingEntityId: mockAccountingEntity.id,
+      sourceType: EJournalEntrySourceType.OpeningBalance,
+      effectiveDate: new Date('2026-04-24T00:00:00.000Z'),
+      postedAt: null,
+      memo: 'Opening balance',
+      createdBy: mockUser.id,
+      functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      lines: [
+        {
+          accountId: mockAssetAccount.id,
+          sequenceOrder: 1,
+          amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+          exchangeRate: null,
+          side: EJournalSide.Debit,
+          description: 'Opening balance',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+        {
+          accountId: mockEquityAccount.id,
+          sequenceOrder: 2,
+          amount: { amount: 1000n, currency: SYSTEM_CURRENCIES.NGN },
+          exchangeRate: null,
+          side: EJournalSide.Credit,
+          description: 'Opening balance',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+      ],
+    });
+    mockJournalEntryService.createOpeningBalance.mockResolvedValueOnce([
+      {
+        ...journalEntry,
+        status: EJournalEntryStatus.Draft,
+      },
+      journalEvents,
+      audit,
+    ]);
+
+    await getUseCase()({
+      accountId: mockAssetAccount.id,
+      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      exchangeRate: null,
+      date: new Date('2026-04-24T00:00:00.000Z'),
+    });
+
+    expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).toHaveBeenCalled();
   });
 
   it('should not persist or publish events when opening balance entry creation fails', async () => {
