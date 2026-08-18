@@ -9,6 +9,9 @@ npm run mjml:build || exit 1
 echo "🔄 Syncing database artifacts..."
 npm run db:sync || exit 1
 
+echo "🔄 Formatting synced files..."
+npm run format:all || exit 1
+
 echo "🔄 Running linter..."
 npm run lint || exit 1
 
