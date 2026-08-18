@@ -38,6 +38,7 @@
   "app_error_fx_cost_basis_unsupported_entry_invalid",
   "app_error_ledger_account_not_found",
   "app_error_ledger_balance_not_found",
+  "app_error_ledger_balance_propagation_outbox_not_found",
   "app_error_ledger_exchange_rate_required_invalid",
   "app_error_ledger_sub_type_invalid",
   "app_error_payment_required",

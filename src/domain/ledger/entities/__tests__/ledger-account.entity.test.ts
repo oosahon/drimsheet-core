@@ -211,6 +211,31 @@ describe('Ledger Account Shared Entity', () => {
     });
   });
 
+  describe('getRequiredMaterializedPaths', () => {
+    it('returns every unique account and ancestor path', () => {
+      const [firstAccount] = ledgerAccountEntity.make({
+        ...validPayload,
+        materializedPath: '100000.100001.100002',
+      });
+      const [secondAccount] = ledgerAccountEntity.make({
+        ...validPayload,
+        materializedPath: '100000.100003',
+      });
+
+      expect(
+        ledgerAccountEntity.getRequiredMaterializedPaths([
+          firstAccount,
+          secondAccount,
+        ])
+      ).toEqual([
+        '100000',
+        '100000.100001',
+        '100000.100001.100002',
+        '100000.100003',
+      ]);
+    });
+  });
+
   describe('getNormalBalance', () => {
     it('returns Debit for Asset and Expense', () => {
       expect(ledgerAccountEntity.getNormalBalance(ELedgerType.Asset)).toBe(

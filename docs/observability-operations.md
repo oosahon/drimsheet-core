@@ -9,9 +9,10 @@ It is deployed separately from the Git-backed `drimsheet-observability`
 repository on the same private Coolify network as Core, BullMQ, and RabbitMQ.
 
 The authoritative accounting rule is unchanged: a committed journal entry is
-the source of truth. Ledger-balance propagation is an asynchronous projection.
-Enqueue, worker, or telemetry failures require operator investigation but must
-never convert a successful journal commit into a failed request.
+the source of truth. Ledger-balance adjustments and propagation run
+asynchronously. Enqueue, worker, or telemetry failures require operator
+investigation but must never convert a successful journal commit into a failed
+request.
 
 ## Core runtime configuration
 
@@ -105,7 +106,7 @@ their supported APIs and operational owners exist.
 ## Privacy canary
 
 Use synthetic values only. Exercise HTTP, auth, queue, integration, reporting,
-and ledger-projection failures with canary email, user/entity/job identifiers,
+and ledger-propagation failures with canary email, user/entity/job identifiers,
 tokens, cookies, request headers, URL queries, SQL values, payload fields, and
 financial amounts. Inspect raw Loki records and raw Sentry error/transaction
 JSON, not only rendered UI summaries.

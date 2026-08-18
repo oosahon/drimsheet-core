@@ -58,6 +58,7 @@ const mockLedgerAccountRepo: jest.Mocked<ILedgerAccountRepo> = {
   update: jest.fn(),
   findById: jest.fn(),
   findAllByIds: jest.fn(),
+  findAllByMaterializedPath: jest.fn(),
   findByCode: jest.fn(),
   findBySubType: jest.fn(),
   findByBehavior: jest.fn(),

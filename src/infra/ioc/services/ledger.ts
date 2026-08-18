@@ -9,6 +9,7 @@ import makeInterestAccountService from '@domain/ledger/services/expense-account/
 import makeRentAndUtilitiesAccountService from '@domain/ledger/services/expense-account/rent-and-utilities.service';
 import makeTaxExpenseAccountService from '@domain/ledger/services/expense-account/tax-expense.service';
 import makeUnrealizedLossAccountService from '@domain/ledger/services/expense-account/unrealized-loss.service';
+import ledgerAccountBalanceAdjustmentDomainService from '@domain/ledger/services/ledger-account-balance-adjustment.service';
 import makePayablesAccountService from '@domain/ledger/services/liability-account/payables.service';
 import makeShortTermLoanService from '@domain/ledger/services/liability-account/short-term-loan.service';
 import makeEmploymentIncomeAccountService from '@domain/ledger/services/revenue-account/employment-income.service';
@@ -21,12 +22,10 @@ import makeSuspenseAccountService from '@domain/ledger/services/suspense-account
 
 import makeHeaderAccountsBootstrapService from '@app/ledger/services/header-accounts-bootstrap.service';
 import makeLedgerAccountBalanceEnrichmentService from '@app/ledger/services/ledger-account-balance-enrichment.service';
-import makeLedgerAccountBalancePropagationService from '@app/ledger/services/ledger-account-balance-propagation.service';
 import makeLedgerAccountPersistenceService from '@app/ledger/services/ledger-account-persistence.service';
 import makePostingAccountBootstrapService from '@app/ledger/services/posting-account-bootstrap.service';
 import makeSuspenseAccountBootstrapService from '@app/ledger/services/suspense-account-bootstrap.service';
 
-import messaging from '@infra/messaging';
 import observability from '@infra/observability';
 import ledgerRepos from '@infra/persistence/repos/ledger';
 
@@ -168,12 +167,8 @@ export const postingAccountBootstrapService =
 export const suspenseAccountBootstrapService =
   makeSuspenseAccountBootstrapService({ suspenseAccountService });
 
-export const ledgerAccountBalancePropagationService =
-  makeLedgerAccountBalancePropagationService({
-    ledgerAccountRepo: ledgerRepos.ledgerAccount,
-    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
-    reporter: observability.reporter,
-  });
+export const ledgerAccountBalanceAdjustmentService =
+  ledgerAccountBalanceAdjustmentDomainService;
 
 export const ledgerAccountBalanceEnrichmentService =
   makeLedgerAccountBalanceEnrichmentService({

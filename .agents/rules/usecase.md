@@ -21,9 +21,13 @@
 
 ## Transactions
 
-- Keep transaction functions small and focused on persistence coordination:
-  transaction-dependent reads, writes, and the committed state returned to the
-  caller.
+- Keep transaction functions small and focused on atomic writes and the
+  committed state returned to the caller.
+- Perform preparation reads before the transaction with read repository options
+  by default. Do not pass write or transaction options to ordinary reads.
+- Keep a read inside the transaction only when a named invariant requires a
+  transaction-scoped snapshot, lock, or claim. Document that requirement in the
+  use case or its owning architecture decision.
 - Do not put request validation, event publication, post-commit side effects,
   unrelated external calls, or large domain/history assembly blocks inside the
   persistence function.

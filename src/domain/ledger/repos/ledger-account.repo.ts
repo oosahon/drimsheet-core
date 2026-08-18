@@ -68,6 +68,12 @@ export default interface ILedgerAccountRepo {
     options: IReadRepoOptions
   ): Promise<ILedgerAccount[]>;
 
+  findAllByMaterializedPath(
+    accountingEntityId: TEntityId,
+    materializedPaths: string[],
+    options: IReadRepoOptions
+  ): Promise<ILedgerAccount[]>;
+
   findByCode(
     code: string,
     accountingEntityId: TEntityId,

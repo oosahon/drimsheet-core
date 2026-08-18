@@ -17,6 +17,18 @@ that shape the proposed work.
 Keep this section concise. Link claims to concrete files, contracts, or observed
 behavior where useful.
 
+## Domain Language And Existing Guarantees
+
+- **Authoritative state:** Identify the source of truth and any derived, read, or
+  UI-oriented state.
+- **Domain terms:** Define the established terms this change must use; do not
+  introduce architectural synonyms.
+- **Existing guarantees:** Record relevant versions, constraints, transaction
+  boundaries, queue semantics, and consistency expectations before proposing
+  new coordination.
+
+Omit this section only when none of these concerns applies to the change.
+
 ## Confirmed Findings
 
 1. **<Priority, when relevant> — <Finding>.** Describe the evidence, impact,

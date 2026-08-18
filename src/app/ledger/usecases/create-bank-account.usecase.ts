@@ -10,6 +10,7 @@ import historyValue from '@shared/values/history/history.vo';
 
 import IAccountingPeriodService from '@domain/accounting/types/accounting-period.service.types';
 import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
+import { EJournalEntryStatus } from '@domain/journal-entry/types/journal-entry.types';
 import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import IBankAccountRepo from '@domain/ledger/repos/bank-account.repo';
@@ -22,8 +23,8 @@ import IFxCostBasisLotDomainService from '@domain/subledger/fx-cost-basis/types/
 
 import IAppContext from '@app/context/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
-import { ILedgerAccountBalancePropagationService } from '@app/ledger/contracts/ledger-account-balance-propagation.service.contract';
 import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
+import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 import { IBankAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
 import { bankAccountCreationReqValidation } from '@app/ledger/dtos/asset-account/asset-account.dto.validation';
 import { ILedgerAccountDto } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
@@ -35,6 +36,7 @@ import mapLedgerAccountToDto from '@app/ledger/usecases/helpers/map-ledger-accou
 import validateOpeningBalanceExchangeRate from '@app/ledger/usecases/helpers/validate-opening-balance-exchange-rate.helper';
 import IExchangeRateAppService from '@app/money/contracts/exchange-rate.service.contract';
 import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
+import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
 import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
 
 interface IDependencies {
@@ -46,7 +48,8 @@ interface IDependencies {
   ledgerAccountRepo: ILedgerAccountRepo;
   journalEntryService: IJournalEntryService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
-  balancePropagationService: ILedgerAccountBalancePropagationService;
+  outboxService: IOutboxService;
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
   repoService: IRepoService;
   ledgerAccountPersistenceService: ILedgerAccountPersistenceService;
   fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
@@ -143,6 +146,8 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
         },
         repoOptions
       );
+    const shouldUpdateBalance =
+      journalEntry.status === EJournalEntryStatus.Posted;
 
     const [updatedAccount, updatedAccountEvents, updatedAccountAudit] =
       ledgerAccountEntity.updateOpeningBalanceDate(
@@ -215,6 +220,13 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
         writeRepoOptions
       );
 
+      if (shouldUpdateBalance) {
+        await deps.outboxService.createBalancePropagation(
+          journalEntry.id,
+          writeRepoOptions
+        );
+      }
+
       if (fxLotData) {
         await deps.fxCostBasisPersistenceService.persistAcquisition(
           fxLotData.lot[0],
@@ -228,8 +240,12 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
 
     await deps.repoService.runInTransaction(dbTransactionFn);
 
-    // Propagate balance adjustment
-    await deps.balancePropagationService.propagate(journalEntry, repoOptions);
+    if (shouldUpdateBalance) {
+      await deps.ledgerBalanceAdjustmentQueue.add({
+        journalEntryId: journalEntry.id,
+        correlationId,
+      });
+    }
 
     // Assemble events
     const allEvents: IEvent<unknown>[] = [

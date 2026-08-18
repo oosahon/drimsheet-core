@@ -9,7 +9,10 @@ import { EAccountingEntityType } from '@domain/accounting/types/accounting-entit
 import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
 import { ECounterpartyType } from '@domain/counterparty/types/counterparty.types';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
-import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '@domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
 import makeServicesAccountService from '@domain/ledger/services/revenue-account/services.service';
@@ -29,9 +32,10 @@ import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__m
 import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
 import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
-import mockLedgerAccountBalancePropagationService from '@app/ledger/contracts/__mocks__/ledger-account-balance-propagation.service.mock';
+import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
+import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
 
 describe('makeCreateReceiptUsecase', () => {
   const correlationId = 'test-correlation-id';
@@ -191,7 +195,8 @@ describe('makeCreateReceiptUsecase', () => {
     mockRepoService.runInTransaction.mockImplementation(async (transactionFn) =>
       transactionFn('mock-tx' as unknown as ITransactionContext)
     );
-    mockLedgerAccountBalancePropagationService.propagate.mockResolvedValue();
+    mockOutboxService.createBalancePropagation.mockResolvedValue();
+    mockLedgerAccountBalanceAdjustmentQueue.add.mockResolvedValue();
     mockEventBus.publish.mockResolvedValue();
   });
 
@@ -205,7 +210,8 @@ describe('makeCreateReceiptUsecase', () => {
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       repoService: mockRepoService,
       eventBus: mockEventBus,
-      balancePropagationService: mockLedgerAccountBalancePropagationService,
+      outboxService: mockOutboxService,
+      ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
     });
 
   it('successfully orchestrates receipt creation, persists changes, propagates balances and returns DTO', async () => {
@@ -286,9 +292,19 @@ describe('makeCreateReceiptUsecase', () => {
     expect(mockCounterpartyPersistenceService.create).toHaveBeenCalled();
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
 
+    expect(mockOutboxService.createBalancePropagation).toHaveBeenCalledWith(
+      journalEntry.id,
+      expect.objectContaining({ correlationId, tx: expect.anything() })
+    );
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledWith({
+      journalEntryId: journalEntry.id,
+      correlationId,
+    });
     expect(
-      mockLedgerAccountBalancePropagationService.propagate
-    ).toHaveBeenCalledWith(journalEntry, repoOptions);
+      mockRepoService.runInTransaction.mock.invocationCallOrder[0]
+    ).toBeLessThan(
+      mockLedgerAccountBalanceAdjustmentQueue.add.mock.invocationCallOrder[0]
+    );
 
     const [publishedEvents] = mockEventBus.publish.mock.calls[0];
     expect(publishedEvents).toEqual([
@@ -386,9 +402,8 @@ describe('makeCreateReceiptUsecase', () => {
     expect(mockCounterpartyAppService.findOrCreateMany).not.toHaveBeenCalled();
     expect(mockJournalEntryService.createReceipt).not.toHaveBeenCalled();
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-    expect(
-      mockLedgerAccountBalancePropagationService.propagate
-    ).not.toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
@@ -431,9 +446,8 @@ describe('makeCreateReceiptUsecase', () => {
     expect(mockCounterpartyAppService.findOrCreateMany).toHaveBeenCalled();
     expect(mockJournalEntryService.createReceipt).not.toHaveBeenCalled();
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-    expect(
-      mockLedgerAccountBalancePropagationService.propagate
-    ).not.toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
@@ -473,9 +487,8 @@ describe('makeCreateReceiptUsecase', () => {
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
     expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
     expect(mockJournalEntryPersistenceService.create).not.toHaveBeenCalled();
-    expect(
-      mockLedgerAccountBalancePropagationService.propagate
-    ).not.toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
@@ -581,6 +594,47 @@ describe('makeCreateReceiptUsecase', () => {
       }),
       expect.any(Object)
     );
+  });
+
+  it('does not create outbox work or enqueue balance propagation for a draft receipt', async () => {
+    const draftJournalEntry = {
+      ...journalEntry,
+      status: EJournalEntryStatus.Draft,
+      postedAt: null,
+    };
+    mockJournalEntryService.createReceipt.mockResolvedValue([
+      draftJournalEntry,
+      journalEntryEvents,
+      journalEntryAudit,
+    ]);
+
+    await getUseCase()({
+      sourceLine: {
+        accountId: sourceAccount.id,
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Revenue',
+        sequenceOrder: 1,
+      },
+      destinationLines: [
+        {
+          accountId: destinationAccount.id,
+          counterparty: { name: 'Jane Doe' },
+          amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+          exchangeRate: null,
+          description: 'Cash',
+          sequenceOrder: 2,
+        },
+      ],
+      effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
+      postedAt: null,
+      memo: 'Draft receipt',
+    });
+
+    expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
   });
 
   it('rejects on validation failure and prevents side-effects', async () => {

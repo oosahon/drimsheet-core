@@ -7,6 +7,7 @@ import {
   ELedgerAccountStatus,
   ELedgerType,
   ENormalBalance,
+  ILedgerAccount,
   UAdjunctAccountRule,
   UContraAccountRule,
   ULedgerAccountStatus,
@@ -170,6 +171,19 @@ function getMaterializedPath<T extends string>(
   return `${parentMaterializedPath}.${code}` as T;
 }
 
+/** Returns each account path and all of its ancestor paths without duplicates. */
+function getRequiredMaterializedPaths(
+  accounts: Pick<ILedgerAccount, 'materializedPath'>[]
+) {
+  const accountPaths = accounts.flatMap((account) => {
+    const segments = account.materializedPath.split('.');
+
+    return segments.map((_, index) => segments.slice(0, index + 1).join('.'));
+  });
+
+  return [...new Set(accountPaths)];
+}
+
 const ledgerAccountEntityHelpers = Object.freeze({
   getNormalBalance,
   getContraBalance,
@@ -186,6 +200,7 @@ const ledgerAccountEntityHelpers = Object.freeze({
   getSubLedgerCode,
   validateMaterializedPath,
   getMaterializedPath,
+  getRequiredMaterializedPaths,
 });
 
 export default ledgerAccountEntityHelpers;

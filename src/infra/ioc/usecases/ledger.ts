@@ -18,15 +18,19 @@ import {
 } from '@infra/ioc/services/journal-entry';
 import {
   cashAccountService,
+  ledgerAccountBalanceAdjustmentService,
   ledgerAccountBalanceEnrichmentService,
-  ledgerAccountBalancePropagationService,
   ledgerAccountPersistenceService,
 } from '@infra/ioc/services/ledger';
 import { exchangeRateService } from '@infra/ioc/services/money';
+import outboxService from '@infra/ioc/services/outbox';
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
+import observability from '@infra/observability';
 import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
+import journalEntryRepos from '@infra/persistence/repos/journal-entry';
 import ledgerRepos from '@infra/persistence/repos/ledger';
+import outboxRepo from '@infra/persistence/repos/outbox';
 import appContext from '@infra/runtime/app-context';
 
 export const getBanksUseCase = makeTracedUseCase(
@@ -64,9 +68,13 @@ export const getLedgerAccountUseCase = makeTracedUseCase(
 export const adjustLedgerAccountBalanceUseCase = makeTracedUseCase(
   'ledger.adjustLedgerAccountBalanceUseCase',
   makeAdjustLedgerAccountBalanceUseCase({
+    repoService,
+    outboxRepo,
+    journalEntryRepo: journalEntryRepos.journalEntry,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
-    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+    ledgerAccountBalanceAdjustmentService,
+    reporter: observability.reporter,
   })
 );
 
@@ -89,7 +97,8 @@ export const createPettyCashAccountUseCase = makeTracedUseCase(
     accountingPeriodService,
     journalEntryService,
     journalEntryPersistenceService,
-    balancePropagationService: ledgerAccountBalancePropagationService,
+    outboxService,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
     repoService,
     ledgerAccountPersistenceService,
     fxCostBasisPersistenceService,
@@ -109,7 +118,8 @@ export const createBankAccountUseCase = makeTracedUseCase(
     bankAccountRepo: ledgerRepos.bankAccount,
     journalEntryService,
     journalEntryPersistenceService,
-    balancePropagationService: ledgerAccountBalancePropagationService,
+    outboxService,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
     repoService,
     ledgerAccountPersistenceService,
     fxCostBasisPersistenceService,

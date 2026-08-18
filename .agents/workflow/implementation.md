@@ -4,11 +4,14 @@ Use this for ordinary code changes.
 
 1. Read the relevant skill, rule, and workflow files completely.
 2. Inspect nearby entities, services, contracts, mocks, tests, repositories, and
-   IoC before adding files or abstractions.
+   IoC before adding files or abstractions. Read the owning domain documentation
+   and reuse its vocabulary.
 3. Identify the requirement, durable rule, concrete local precedent, or approved
    deviation supporting each structural decision and name its current production
-   consumer. Follow [Scope And Simplicity](../rules/scope-and-simplicity.md) and
-   [Precedent And Deviation](../rules/precedent-and-deviation.md).
+   consumer. Record the authoritative state, consistency expectation, and
+   existing concurrency or uniqueness guarantees before adding coordination.
+   Follow [Scope And Simplicity](../rules/scope-and-simplicity.md) and [Precedent
+   And Deviation](../rules/precedent-and-deviation.md).
 4. Revalidate any saved plan against durable rules and the current repository.
    Plans do not override current rules or established local patterns.
 5. Name the owner of every invariant, decision, side effect, transaction, and
@@ -19,7 +22,8 @@ Use this for ordinary code changes.
    - For reusable failure behavior, inspect every caller before assigning
      rejection, best-effort handling, or reporting ownership.
    - For transactions, review callback shape separately for responsibility
-     creep and name preparation versus persistence phases.
+     creep, separate preparation reads from atomic writes, and name preparation
+     versus persistence phases.
    - For owner APIs, reject expansions that only re-export another helper for
      call-site convenience.
 7. Justify each proposed service as a named capability. If it only shortens a

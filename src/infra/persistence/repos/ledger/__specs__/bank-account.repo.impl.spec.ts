@@ -73,6 +73,109 @@ describe('bankAccountRepoImpl', () => {
 
       expect(result).toBeNull();
     });
+
+    it('uses empty repo options when none are supplied', async () => {
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockResolvedValue([rawRow]),
+      };
+      mockGetDbQuery.mockReturnValue(mockQuery);
+
+      const result = await bankAccountRepoImpl.findOne(
+        bankDetails.bankName,
+        bankDetails.accountNumber
+      );
+
+      expect(mockGetDbQuery).toHaveBeenCalledWith({});
+      expect(result).toEqual(bankDetails);
+    });
+
+    it('applies a lock when requested', async () => {
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        for: jest.fn().mockResolvedValue([rawRow]),
+      };
+      mockGetDbQuery.mockReturnValue(mockQuery);
+
+      const result = await bankAccountRepoImpl.findOne(
+        bankDetails.bankName,
+        bankDetails.accountNumber,
+        { correlationId: 'test-id', lock: 'update' }
+      );
+
+      expect(mockQuery.for).toHaveBeenCalledWith('update');
+      expect(result).toEqual(bankDetails);
+    });
+  });
+
+  describe('findByLedgerAccountId', () => {
+    it('returns bank account value when row exists', async () => {
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockResolvedValue([rawRow]),
+      };
+      mockGetDbQuery.mockReturnValue(mockQuery);
+
+      const result = await bankAccountRepoImpl.findByLedgerAccountId(
+        ledgerAccountId,
+        { correlationId: 'test-id' }
+      );
+
+      expect(result).toEqual(bankDetails);
+    });
+
+    it('returns null when row does not exist', async () => {
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockResolvedValue([]),
+      };
+      mockGetDbQuery.mockReturnValue(mockQuery);
+
+      const result = await bankAccountRepoImpl.findByLedgerAccountId(
+        ledgerAccountId,
+        { correlationId: 'test-id' }
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it('uses empty repo options when none are supplied', async () => {
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockResolvedValue([rawRow]),
+      };
+      mockGetDbQuery.mockReturnValue(mockQuery);
+
+      const result =
+        await bankAccountRepoImpl.findByLedgerAccountId(ledgerAccountId);
+
+      expect(mockGetDbQuery).toHaveBeenCalledWith({});
+      expect(result).toEqual(bankDetails);
+    });
+
+    it('applies a lock when requested', async () => {
+      const mockQuery = {
+        select: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        for: jest.fn().mockResolvedValue([rawRow]),
+      };
+      mockGetDbQuery.mockReturnValue(mockQuery);
+
+      const result = await bankAccountRepoImpl.findByLedgerAccountId(
+        ledgerAccountId,
+        { correlationId: 'test-id', lock: 'update' }
+      );
+
+      expect(mockQuery.for).toHaveBeenCalledWith('update');
+      expect(result).toEqual(bankDetails);
+    });
   });
 
   describe('create', () => {
@@ -123,6 +226,29 @@ describe('bankAccountRepoImpl', () => {
           { correlationId: 'test-id' }
         )
       ).rejects.toBeInstanceOf(ledgerAccountError.DuplicateBankAccount);
+    });
+
+    it('rethrows non-duplicate insert errors', async () => {
+      const dbErr = Object.assign(new Error('database unavailable'), {
+        code: '08006',
+      });
+
+      const mockInsert = {
+        values: jest.fn().mockRejectedValue(dbErr),
+      };
+      const mockQuery = {
+        insert: jest.fn().mockReturnValue(mockInsert),
+      };
+      mockGetDbQuery.mockReturnValue(mockQuery);
+
+      await expect(
+        bankAccountRepoImpl.create(
+          ledgerAccountId,
+          accountingEntityId,
+          bankDetails,
+          { correlationId: 'test-id' }
+        )
+      ).rejects.toBe(dbErr);
     });
   });
 });
