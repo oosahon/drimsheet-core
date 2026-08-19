@@ -6,8 +6,12 @@ cd "$(dirname "$0")/.." || exit
 echo "🔄 Building MJML templates..."
 npm run mjml:build || exit 1
 
-echo "🔄 Syncing database artifacts..."
-npm run db:sync || exit 1
+if [ -n "$POSTGRES_URL" ] && [ -n "$APP_ENV" ]; then
+  echo "🔄 Syncing database artifacts..."
+  npm run db:sync || exit 1
+else
+  echo "⏭️ Skipping database artifact sync because POSTGRES_URL and APP_ENV are not both set."
+fi
 
 echo "🔄 Formatting synced files..."
 npm run format:all || exit 1
