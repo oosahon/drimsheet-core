@@ -6,7 +6,7 @@ import { TEntityId } from '@shared/types/uuid';
 import { IUser } from '@domain/user/types/user.types';
 
 import authError from '@app/auth/errors/auth.error';
-import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
+import { IUserPreferences } from '@app/user/types/user-preferences.types';
 
 import { tokenService } from '@infra/ioc/services/auth';
 import userRepos from '@infra/persistence/repos/user';
@@ -60,7 +60,7 @@ describe('GET /users/preferences', () => {
       '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     appPreferences: {
       theme: 'dark',
-      appUsageMode: 'power_user',
+      appUsageMode: 'non_power_user',
     },
     createdAt: new Date('2026-03-13T00:00:00.000Z'),
     updatedAt: new Date('2026-03-13T00:00:00.000Z'),

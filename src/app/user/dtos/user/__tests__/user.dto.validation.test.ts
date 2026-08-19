@@ -1,25 +1,68 @@
-import { EAppUsageModePreference } from '@app/user/contracts/user-preferences.types';
-import { userAppUsageModePreferenceValidation } from '@app/user/dtos/user/user.dto.validation';
+import {
+  userAppPreferencesValidation,
+  userAppThemePreferenceValidation,
+  userAppUsageModePreferenceValidation,
+  userPreferencesUpdateDtoSchema,
+} from '@app/user/dtos/user/user.dto.validation';
+import {
+  EAppThemePreference,
+  EAppUsageModePreference,
+} from '@app/user/types/user-preferences.types';
 
 describe('User DTO Validation', () => {
-  describe('userAppUsageModePreferenceValidation', () => {
-    it('should validate valid app usage mode preferences', () => {
-      expect(
-        userAppUsageModePreferenceValidation.safeParse(
-          EAppUsageModePreference.PowerUser
-        ).success
-      ).toBe(true);
-      expect(
-        userAppUsageModePreferenceValidation.safeParse(
-          EAppUsageModePreference.NonPowerUser
-        ).success
-      ).toBe(true);
-    });
+  it.each(Object.values(EAppThemePreference))(
+    'validates the %s app theme',
+    (theme) => {
+      expect(userAppThemePreferenceValidation.safeParse(theme).success).toBe(
+        true
+      );
+    }
+  );
 
-    it('should fail on invalid app usage mode preference', () => {
-      expect(
-        userAppUsageModePreferenceValidation.safeParse('invalid_mode').success
-      ).toBe(false);
-    });
+  it('rejects an unsupported app theme', () => {
+    expect(userAppThemePreferenceValidation.safeParse('sepia').success).toBe(
+      false
+    );
+  });
+
+  it('validates supported app usage modes', () => {
+    expect(
+      userAppUsageModePreferenceValidation.safeParse(
+        EAppUsageModePreference.NonPowerUser
+      ).success
+    ).toBe(true);
+    expect(
+      userAppUsageModePreferenceValidation.safeParse('power_user').success
+    ).toBe(true);
+  });
+
+  it.each([
+    { theme: EAppThemePreference.Dark },
+    { appUsageMode: EAppUsageModePreference.NonPowerUser },
+  ])('validates a non-empty preference update', (preferences) => {
+    expect(userPreferencesUpdateDtoSchema.safeParse(preferences).success).toBe(
+      true
+    );
+  });
+
+  it('validates complete app preferences for composition', () => {
+    expect(
+      userAppPreferencesValidation.safeParse({
+        theme: EAppThemePreference.System,
+        appUsageMode: EAppUsageModePreference.PowerUser,
+      }).success
+    ).toBe(true);
+  });
+
+  it.each([
+    {},
+    { theme: null },
+    { appUsageMode: null },
+    { unknown: true },
+    { theme: EAppThemePreference.Dark, unknown: true },
+  ])('rejects invalid preference updates', (preferences) => {
+    expect(userPreferencesUpdateDtoSchema.safeParse(preferences).success).toBe(
+      false
+    );
   });
 });

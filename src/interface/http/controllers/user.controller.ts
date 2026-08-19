@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Middlewares,
   OperationId,
+  Patch,
   Response,
   Route,
   Security,
@@ -12,10 +14,13 @@ import {
 
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 
+import { IUserPreferencesUpdateDto } from '@app/user/dtos/user/user.dto';
+
 import middlewares from '@infra/ioc/middlewares/http';
 import {
   getAuthUserProfileUseCase,
   getUserPreferencesUseCase,
+  updateUserPreferencesUseCase,
 } from '@infra/ioc/usecases/user';
 
 @Route('users')
@@ -33,6 +38,21 @@ export class UserController extends Controller {
   @Middlewares(middlewares.isAuthenticatedUser)
   public async getUserPreferences() {
     return getUserPreferencesUseCase();
+  }
+
+  /**
+   * Update user preferences
+   */
+  @Patch('/preferences')
+  @OperationId('updateUserPreferences')
+  @SuccessResponse('200')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('500')
+  @Security('bearerAuth')
+  @Middlewares(middlewares.isAuthenticatedUser)
+  public async updateUserPreferences(@Body() body: IUserPreferencesUpdateDto) {
+    return updateUserPreferencesUseCase(body);
   }
 
   /**

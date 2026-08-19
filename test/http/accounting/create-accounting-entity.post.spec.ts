@@ -66,7 +66,10 @@ const validPayload: IAccountingEntityCreationDto = {
   },
   accountingPeriod: { unit: 'month', count: 12 },
   reportingPeriod: { unit: 'quarter', count: 4 },
-  appUsageMode: 'non_power_user',
+  appPreferences: {
+    theme: 'system',
+    appUsageMode: 'non_power_user',
+  },
 };
 
 const createdEntity: IAccountingEntity = {
@@ -311,7 +314,19 @@ describe('POST /accounting/accounting-entity', () => {
       ],
       ['unsupported currency', { functionalCurrencyCode: 'ZZZ' }],
       ['unsupported reporting currency', { reportingCurrencyCode: 'ZZZ' }],
-      ['unsupported mode', { appUsageMode: 'expert' }],
+      [
+        'unsupported mode',
+        { appPreferences: { theme: 'system', appUsageMode: 'expert' } },
+      ],
+      [
+        'unsupported theme',
+        {
+          appPreferences: {
+            theme: 'sepia',
+            appUsageMode: 'non_power_user',
+          },
+        },
+      ],
       [
         'fractional period count',
         { accountingPeriod: { unit: 'month', count: 1.5 } },

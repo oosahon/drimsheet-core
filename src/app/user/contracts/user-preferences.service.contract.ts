@@ -1,18 +1,13 @@
-import { TCreationOmits } from '@shared/types/creation-omits.types';
 import { IWriteRepoOptions } from '@shared/types/repo.types';
-import { TEntityId } from '@shared/types/uuid';
 
-import { IUserPreferences } from './user-preferences.types';
+import {
+  IUserPreferences,
+  IUserPreferencesUpdate,
+} from '@app/user/types/user-preferences.types';
 
 export default interface IUserPreferencesService {
-  create(
-    payload: TCreationOmits<IUserPreferences>,
+  update(
+    payload: IUserPreferencesUpdate,
     options: IWriteRepoOptions
-  ): Promise<void>;
-
-  setLastActiveAccountingEntity(
-    userId: TEntityId,
-    accountingEntityId: TEntityId | null,
-    options: IWriteRepoOptions
-  ): Promise<void>;
+  ): Promise<IUserPreferences>;
 }

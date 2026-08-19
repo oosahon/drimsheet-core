@@ -1,13 +1,10 @@
 import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
-import {
-  IUserPreferences,
-  TUserPreferencesUpdate,
-} from './user-preferences.types';
+import { IUserPreferences } from '@app/user/types/user-preferences.types';
 
 export default interface IUserPreferencesRepo {
-  create(
+  update(
     preferences: IUserPreferences,
     options: IWriteRepoOptions
   ): Promise<void>;
@@ -16,9 +13,4 @@ export default interface IUserPreferencesRepo {
     userId: TEntityId,
     options: IReadRepoOptions
   ): Promise<IUserPreferences | null>;
-
-  update(
-    preferences: TUserPreferencesUpdate,
-    options: IWriteRepoOptions
-  ): Promise<void>;
 }

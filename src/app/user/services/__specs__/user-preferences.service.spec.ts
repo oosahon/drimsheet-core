@@ -1,82 +1,156 @@
 import { TEntityId } from '@shared/types/uuid';
 
 import { mockUserPreferencesRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
-import { EAppUsageModePreference } from '@app/user/contracts/user-preferences.types';
 import makeUserPreferencesService from '@app/user/services/user-preferences.service';
+import {
+  EAppThemePreference,
+  EAppUsageModePreference,
+  IUserPreferences,
+} from '@app/user/types/user-preferences.types';
 
 describe('makeUserPreferencesService', () => {
   const service = makeUserPreferencesService({
     userPreferencesRepo: mockUserPreferencesRepo,
   });
   const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
+  const accountingEntityId =
+    '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
   const options = { correlationId: 'test-correlation-id' };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date('2026-08-19T12:00:00.000Z'));
   });
 
   afterEach(() => {
     jest.useRealTimers();
   });
 
-  describe('create', () => {
-    it('builds and creates the user preferences record', async () => {
-      jest.useFakeTimers();
-      jest.setSystemTime(new Date('2026-08-19T12:00:00.000Z'));
-      const accountingEntityId =
-        '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
+  it('builds, persists, and returns initial preferences', async () => {
+    mockUserPreferencesRepo.findById.mockResolvedValue(null);
 
-      await service.create(
-        {
-          userId,
-          lastActiveAccountingEntityId: accountingEntityId,
-          appPreferences: {
-            appUsageMode: EAppUsageModePreference.NonPowerUser,
-          },
+    const result = await service.update(
+      {
+        userId,
+        lastActiveAccountingEntityId: accountingEntityId,
+        appPreferences: {
+          theme: EAppThemePreference.Dark,
+          appUsageMode: EAppUsageModePreference.NonPowerUser,
         },
-        options
-      );
+      },
+      options
+    );
 
-      expect(mockUserPreferencesRepo.create).toHaveBeenCalledWith(
-        {
-          userId,
-          lastActiveAccountingEntityId: accountingEntityId,
-          appPreferences: {
-            appUsageMode: EAppUsageModePreference.NonPowerUser,
-          },
-          createdAt: new Date('2026-08-19T12:00:00.000Z'),
-          updatedAt: new Date('2026-08-19T12:00:00.000Z'),
-        },
-        options
-      );
+    const expectedPreferences: IUserPreferences = {
+      userId,
+      lastActiveAccountingEntityId: accountingEntityId,
+      appPreferences: {
+        theme: EAppThemePreference.Dark,
+        appUsageMode: EAppUsageModePreference.NonPowerUser,
+      },
+      createdAt: new Date('2026-08-19T12:00:00.000Z'),
+      updatedAt: new Date('2026-08-19T12:00:00.000Z'),
+    };
+
+    expect(mockUserPreferencesRepo.findById).toHaveBeenCalledWith(
+      userId,
+      options
+    );
+    expect(mockUserPreferencesRepo.update).toHaveBeenCalledWith(
+      expectedPreferences,
+      options
+    );
+    expect(result).toEqual(expectedPreferences);
+  });
+
+  it('merges supplied app preferences and preserves existing state', async () => {
+    const existingPreferences: IUserPreferences = {
+      userId,
+      lastActiveAccountingEntityId: accountingEntityId,
+      appPreferences: {
+        theme: EAppThemePreference.Light,
+        appUsageMode: EAppUsageModePreference.NonPowerUser,
+      },
+      createdAt: new Date('2026-07-01T10:00:00.000Z'),
+      updatedAt: new Date('2026-07-02T10:00:00.000Z'),
+    };
+    mockUserPreferencesRepo.findById.mockResolvedValue(existingPreferences);
+
+    const result = await service.update(
+      { userId, appPreferences: { theme: EAppThemePreference.System } },
+      options
+    );
+
+    expect(result).toEqual({
+      ...existingPreferences,
+      appPreferences: {
+        theme: EAppThemePreference.System,
+        appUsageMode: EAppUsageModePreference.NonPowerUser,
+      },
+      updatedAt: new Date('2026-08-19T12:00:00.000Z'),
+    });
+    expect(mockUserPreferencesRepo.update).toHaveBeenCalledWith(
+      result,
+      options
+    );
+  });
+
+  it('preserves app preferences and clears the active entity', async () => {
+    mockUserPreferencesRepo.findById.mockResolvedValue({
+      userId,
+      lastActiveAccountingEntityId: accountingEntityId,
+      appPreferences: {
+        theme: EAppThemePreference.Dark,
+        appUsageMode: EAppUsageModePreference.NonPowerUser,
+      },
+      createdAt: new Date('2026-07-01T10:00:00.000Z'),
+      updatedAt: new Date('2026-07-02T10:00:00.000Z'),
+    });
+
+    const result = await service.update(
+      {
+        userId,
+        lastActiveAccountingEntityId: null,
+      },
+      options
+    );
+
+    expect(result.lastActiveAccountingEntityId).toBeNull();
+    expect(result.appPreferences).toEqual({
+      theme: EAppThemePreference.Dark,
+      appUsageMode: EAppUsageModePreference.NonPowerUser,
     });
   });
 
-  describe('setLastActiveAccountingEntity', () => {
-    it('builds and updates the user preferences record', async () => {
-      const accountingEntityId =
-        '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
+  it('propagates repository failures', async () => {
+    mockUserPreferencesRepo.findById.mockResolvedValue(null);
+    mockUserPreferencesRepo.update.mockRejectedValueOnce(
+      new Error('persistence failed')
+    );
 
-      await service.setLastActiveAccountingEntity(
-        userId,
-        accountingEntityId,
+    await expect(
+      service.update(
+        {
+          userId,
+          appPreferences: {
+            appUsageMode: EAppUsageModePreference.NonPowerUser,
+          },
+        },
         options
-      );
+      )
+    ).rejects.toThrow('persistence failed');
+  });
 
-      expect(mockUserPreferencesRepo.update).toHaveBeenCalledWith(
-        { userId, lastActiveAccountingEntityId: accountingEntityId },
+  it('rejects initial preferences without an app usage mode', async () => {
+    mockUserPreferencesRepo.findById.mockResolvedValue(null);
+
+    await expect(
+      service.update(
+        { userId, appPreferences: { theme: EAppThemePreference.Dark } },
         options
-      );
-    });
-
-    it('propagates repository failures', async () => {
-      mockUserPreferencesRepo.update.mockRejectedValueOnce(
-        new Error('persistence failed')
-      );
-
-      await expect(
-        service.setLastActiveAccountingEntity(userId, null, options)
-      ).rejects.toThrow('persistence failed');
-    });
+      )
+    ).rejects.toThrow('app_error_user_preferences_app_usage_mode_invalid');
+    expect(mockUserPreferencesRepo.update).not.toHaveBeenCalled();
   });
 });

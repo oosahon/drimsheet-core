@@ -48,9 +48,13 @@ describe('switchAccountingEntityUsecase', () => {
     mockAccountingEntityRepo.findByIdAndUserId
       .mockReset()
       .mockResolvedValue(targetAccountingEntity);
-    mockUserPreferencesService.setLastActiveAccountingEntity
-      .mockReset()
-      .mockResolvedValue();
+    mockUserPreferencesService.update.mockReset().mockResolvedValue({
+      userId,
+      lastActiveAccountingEntityId: targetAccountingEntity.id,
+      appPreferences: { appUsageMode: 'non_power_user' },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
   });
 
   it('switches the request context to an owned accounting entity', async () => {
@@ -64,17 +68,18 @@ describe('switchAccountingEntityUsecase', () => {
       userId,
       { correlationId }
     );
-    expect(
-      mockUserPreferencesService.setLastActiveAccountingEntity
-    ).toHaveBeenCalledWith(userId, targetAccountingEntity.id, {
-      correlationId,
-    });
+    expect(mockUserPreferencesService.update).toHaveBeenCalledWith(
+      {
+        userId,
+        lastActiveAccountingEntityId: targetAccountingEntity.id,
+      },
+      { correlationId }
+    );
     expect(mockAppContext.set).toHaveBeenCalledWith({
       accountingEntity: targetAccountingEntity,
     });
     expect(
-      mockUserPreferencesService.setLastActiveAccountingEntity.mock
-        .invocationCallOrder[0]
+      mockUserPreferencesService.update.mock.invocationCallOrder[0]
     ).toBeLessThan(mockAppContext.set.mock.invocationCallOrder[0]);
   });
 
@@ -103,9 +108,7 @@ describe('switchAccountingEntityUsecase', () => {
 
     expect(mockAppContext.get).not.toHaveBeenCalled();
     expect(mockAccountingEntityRepo.findByIdAndUserId).not.toHaveBeenCalled();
-    expect(
-      mockUserPreferencesService.setLastActiveAccountingEntity
-    ).not.toHaveBeenCalled();
+    expect(mockUserPreferencesService.update).not.toHaveBeenCalled();
     expect(mockAppContext.set).not.toHaveBeenCalled();
   });
 
@@ -121,14 +124,12 @@ describe('switchAccountingEntityUsecase', () => {
       userId,
       { correlationId }
     );
-    expect(
-      mockUserPreferencesService.setLastActiveAccountingEntity
-    ).not.toHaveBeenCalled();
+    expect(mockUserPreferencesService.update).not.toHaveBeenCalled();
     expect(mockAppContext.set).not.toHaveBeenCalled();
   });
 
   it('does not update context when preference persistence fails', async () => {
-    mockUserPreferencesService.setLastActiveAccountingEntity.mockRejectedValueOnce(
+    mockUserPreferencesService.update.mockRejectedValueOnce(
       new Error('preference persistence failed')
     );
 

@@ -4,6 +4,8 @@ import appError from '@shared/values/errors/app.error';
 
 const EErrorKeys = {
   InvalidAppUsageMode: 'app_error_user_preferences_app_usage_mode_invalid',
+  InvalidAppTheme: 'app_error_user_preferences_app_theme_invalid',
+  InvalidAppPreferences: 'app_error_user_preferences_app_preferences_invalid',
 } as const satisfies TErrorKeys<'app_error_user_preferences'>;
 
 type UUserPreferencesAppError = (typeof EErrorKeys)[keyof typeof EErrorKeys];
