@@ -2,7 +2,6 @@ import { TEntityId } from '@shared/types/uuid';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
-import { IUserPreferences } from '@domain/user/types/user-preferences.types';
 import { IUser } from '@domain/user/types/user.types';
 
 import { mockAccountingEntityRepo } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
@@ -10,6 +9,7 @@ import accountingAppError from '@app/accounting/errors/accounting.error';
 import makeGetCurrentAccountingEntityUseCase from '@app/accounting/usecases/get-active-accounting-entity.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { mockUserPreferencesRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
+import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
 
 describe('getActiveAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -23,7 +23,7 @@ describe('getActiveAccountingEntityUseCase', () => {
     jurisdictionCode: 'US',
   });
   const mockPreferences: IUserPreferences = {
-    id: mockUserId,
+    userId: mockUserId,
     lastActiveAccountingEntityId: mockAccountingEntity.id,
     appPreferences: {},
     createdAt: new Date('2026-08-13T00:00:00.000Z'),

@@ -1,15 +1,15 @@
 import z from 'zod';
 
-import userPreferencesError from '@domain/user/errors/user-preferences.error';
 import {
   EAppUsageModePreference,
   UAppUsageModePreference,
-} from '@domain/user/types/user-preferences.types';
+} from '@app/user/contracts/user-preferences.types';
+import userPreferencesAppError from '@app/user/errors/user-preferences.error';
 
 export const userAppUsageModePreferenceValidation = z.enum(
   Object.values(EAppUsageModePreference) as [
     UAppUsageModePreference,
     ...UAppUsageModePreference[],
   ],
-  new userPreferencesError.InvalidAppUsageMode().errorKey
+  new userPreferencesAppError.InvalidAppUsageMode().errorKey
 );

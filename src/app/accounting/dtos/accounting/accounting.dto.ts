@@ -6,7 +6,8 @@ import {
 } from '@domain/accounting/types/accounting-entity.types';
 import { UPeriodUnit } from '@domain/accounting/types/period.types';
 import { UCurrencyCode } from '@domain/money/config/currencies.config';
-import { UAppUsageModePreference } from '@domain/user/types/user-preferences.types';
+
+import { UAppUsageModePreference } from '@app/user/contracts/user-preferences.types';
 
 /**
  * Fiscal year creation DTO

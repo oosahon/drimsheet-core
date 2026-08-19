@@ -1,6 +1,5 @@
 import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
 import { EPeriodUnit } from '@domain/accounting/types/period.types';
-import { EAppUsageModePreference } from '@domain/user/types/user-preferences.types';
 
 import {
   accountingEntityOnboardingDtoSchema,
@@ -14,6 +13,7 @@ import {
   periodMonthValidation,
   periodUnitValidation,
 } from '@app/accounting/dtos/accounting/accounting.dto.validation';
+import { EAppUsageModePreference } from '@app/user/contracts/user-preferences.types';
 
 describe('Accounting DTO Validation', () => {
   describe('jurisdictionCodeValidation', () => {

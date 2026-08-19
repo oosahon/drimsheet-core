@@ -3,10 +3,10 @@ import request from 'supertest';
 
 import { TEntityId } from '@shared/types/uuid';
 
-import { IUserPreferences } from '@domain/user/types/user-preferences.types';
 import { IUser } from '@domain/user/types/user.types';
 
 import authError from '@app/auth/errors/auth.error';
+import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
 
 import { tokenService } from '@infra/ioc/services/auth';
 import userRepos from '@infra/persistence/repos/user';
@@ -55,7 +55,7 @@ describe('GET /users/preferences', () => {
   };
 
   const mockPreferences: IUserPreferences = {
-    id: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+    userId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
     lastActiveAccountingEntityId:
       '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
     appPreferences: {
@@ -83,7 +83,7 @@ describe('GET /users/preferences', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
-        id: mockPreferences.id,
+        userId: mockPreferences.userId,
         lastActiveAccountingEntityId:
           mockPreferences.lastActiveAccountingEntityId,
         appPreferences: mockPreferences.appPreferences,

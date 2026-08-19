@@ -1,6 +1,6 @@
 import { TEntityId } from '@shared/types/uuid';
 
-import { IUserPreferences } from '@domain/user/types/user-preferences.types';
+import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
 
 import userPreferencesMapper from '@infra/persistence/repos/user/mappers/user-preferences.mapper';
 
@@ -10,8 +10,8 @@ describe('User Preferences Mapper', () => {
   const lastActiveAccountingEntityId =
     '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 
-  const domainPreferences: IUserPreferences = {
-    id: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+  const preferences: IUserPreferences = {
+    userId: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
     lastActiveAccountingEntityId,
     appPreferences: {
       theme: 'dark',
@@ -30,69 +30,44 @@ describe('User Preferences Mapper', () => {
     updatedAt: updatedAt.toISOString(),
   };
 
-  describe('toRepo', () => {
-    it('should map domain preferences to a repo model', () => {
-      expect(userPreferencesMapper.toRepo(domainPreferences)).toEqual(
-        repoModel
-      );
-    });
-
-    it('should map a null last active accounting entity ID', () => {
-      expect(
-        userPreferencesMapper.toRepo({
-          ...domainPreferences,
-          lastActiveAccountingEntityId: null,
-        })
-      ).toEqual({
-        ...repoModel,
-        lastActiveAccountingEntityId: null,
-      });
+  it('maps application preferences to a repository model', () => {
+    expect(userPreferencesMapper.toRepo(preferences)).toEqual({
+      ...repoModel,
+      appPreferences: {
+        theme: 'dark',
+        appUsageMode: undefined,
+      },
     });
   });
 
-  describe('toDomain', () => {
-    it('should map a repo model to domain preferences', () => {
-      expect(userPreferencesMapper.toDomain(repoModel)).toEqual(
-        domainPreferences
-      );
-    });
+  it('maps a repository model to immutable application preferences', () => {
+    const result = userPreferencesMapper.toDomain(repoModel);
 
-    it('should map a null last active accounting entity ID', () => {
-      expect(
-        userPreferencesMapper.toDomain({
-          ...repoModel,
-          lastActiveAccountingEntityId: null,
-        })
-      ).toEqual({
-        ...domainPreferences,
+    expect(result).toEqual({
+      ...preferences,
+      appPreferences: {
+        theme: 'dark',
+        appUsageMode: undefined,
+      },
+    });
+    expect(Object.isFrozen(result)).toBe(true);
+    expect(Object.isFrozen(result.appPreferences)).toBe(true);
+  });
+
+  it('maps null stored preferences to an empty preference object', () => {
+    expect(
+      userPreferencesMapper.toDomain({
+        ...repoModel,
         lastActiveAccountingEntityId: null,
-      });
-    });
-
-    it('should throw UserPreferencesError for invalid theme', () => {
-      const invalidRepoModel = {
-        ...repoModel,
-        appPreferences: {
-          theme: 'invalid-theme',
-        },
-      };
-
-      expect(() =>
-        userPreferencesMapper.toDomain(invalidRepoModel as any)
-      ).toThrow();
-    });
-
-    it('should throw UserPreferencesError for invalid usage mode', () => {
-      const invalidRepoModel = {
-        ...repoModel,
-        appPreferences: {
-          appUsageMode: 'invalid-mode',
-        },
-      };
-
-      expect(() =>
-        userPreferencesMapper.toDomain(invalidRepoModel as any)
-      ).toThrow();
+        appPreferences: null,
+      })
+    ).toEqual({
+      ...preferences,
+      lastActiveAccountingEntityId: null,
+      appPreferences: {
+        theme: undefined,
+        appUsageMode: undefined,
+      },
     });
   });
 });

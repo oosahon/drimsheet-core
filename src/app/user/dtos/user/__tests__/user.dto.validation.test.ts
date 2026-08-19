@@ -1,5 +1,4 @@
-import { EAppUsageModePreference } from '@domain/user/types/user-preferences.types';
-
+import { EAppUsageModePreference } from '@app/user/contracts/user-preferences.types';
 import { userAppUsageModePreferenceValidation } from '@app/user/dtos/user/user.dto.validation';
 
 describe('User DTO Validation', () => {

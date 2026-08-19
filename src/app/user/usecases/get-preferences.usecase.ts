@@ -1,9 +1,8 @@
 import appError from '@shared/values/errors/app.error';
 
-import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
-import { IUserPreferences } from '@domain/user/types/user-preferences.types';
-
 import IAppContext from '@app/context/contracts/app-context.contract';
+import IUserPreferencesRepo from '@app/user/contracts/user-preferences.repo.contract';
+import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
 
 interface IDependencies {
   appContext: IAppContext;

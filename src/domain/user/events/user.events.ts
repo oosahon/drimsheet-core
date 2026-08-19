@@ -1,13 +1,11 @@
 import eventValue from '@shared/values/events/event.vo';
 
-import { IUserPreferences } from '@domain/user/types/user-preferences.types';
 import { IUser } from '@domain/user/types/user.types';
 
 export const EUserEvents = {
   Created: 'domain:user:created',
   Updated: 'domain:user:updated',
   EmailVerified: 'domain:user:email-verified',
-  PreferencesUpdated: 'domain:user:preferences-updated',
   LoggedIn: 'domain:user:logged-in',
   RequestedPasswordReset: 'domain:user:reset-password-requested',
   PasswordReset: 'domain:user:password-reset',
@@ -31,13 +29,6 @@ function makeEmailVerifiedEvent(user: IUser) {
   return eventValue.make<IUser>({
     type: EUserEvents.EmailVerified,
     data: user,
-  });
-}
-
-function makePreferencesUpdatedEvent(userPreferences: IUserPreferences) {
-  return eventValue.make<IUserPreferences>({
-    type: EUserEvents.PreferencesUpdated,
-    data: userPreferences,
   });
 }
 
@@ -66,7 +57,6 @@ const userEvents = Object.freeze({
   created: makeCreatedEvent,
   updated: makeUpdatedEvent,
   emailVerified: makeEmailVerifiedEvent,
-  preferencesUpdated: makePreferencesUpdatedEvent,
   loggedIn: makeLoggedInEvent,
   requestedPasswordReset: makeRequestedPasswordResetEvent,
   passwordReset: makePasswordResetEvent,

@@ -12,6 +12,7 @@ import {
   suspenseAccountBootstrapService,
 } from '@infra/ioc/services/ledger';
 import { repoService } from '@infra/ioc/services/repo';
+import { userPreferencesService } from '@infra/ioc/services/user';
 import messaging from '@infra/messaging';
 import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
 import accountingRepos from '@infra/persistence/repos/accounting';
@@ -23,7 +24,7 @@ export const createAccountingEntityUseCase = makeTracedUseCase(
   makeCreateAccountingEntityUseCase({
     appContext,
     accountingEntityRepo: accountingRepos.accountingEntity,
-    userPreferencesRepo: userRepos.userPreferences,
+    userPreferencesService,
     fiscalYearRepo: accountingRepos.fiscalYear,
     accountingPeriodRepo: accountingRepos.accountingPeriod,
     accountingContextRepo: accountingRepos.accountingContext,
@@ -66,6 +67,6 @@ export const switchAccountingEntityUseCase = makeTracedUseCase(
   makeSwitchAccountingEntityUsecase({
     appContext,
     accountingEntityRepo: accountingRepos.accountingEntity,
-    userPreferencesRepo: userRepos.userPreferences,
+    userPreferencesService,
   })
 );

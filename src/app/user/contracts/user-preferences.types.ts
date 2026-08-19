@@ -22,9 +22,14 @@ export interface IUserAppPreferences {
 }
 
 export interface IUserPreferences {
-  id: TEntityId;
+  userId: TEntityId;
   lastActiveAccountingEntityId: TEntityId | null;
   appPreferences: IUserAppPreferences;
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type TUserPreferencesUpdate = Pick<
+  IUserPreferences,
+  'userId' | 'lastActiveAccountingEntityId'
+>;

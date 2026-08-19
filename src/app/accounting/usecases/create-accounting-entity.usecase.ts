@@ -16,8 +16,6 @@ import IFiscalYearRepo from '@domain/accounting/repos/fiscal-year.repo';
 import IReportingContextRepo from '@domain/accounting/repos/reporting-context.repo';
 import IReportingPeriodRepo from '@domain/accounting/repos/reporting-period.repo';
 import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
-import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
-import { EAppUsageModePreference } from '@domain/user/types/user-preferences.types';
 
 import { IAccountingEntityCreationDto } from '@app/accounting/dtos/accounting/accounting.dto';
 import { accountingEntityOnboardingDtoSchema } from '@app/accounting/dtos/accounting/accounting.dto.validation';
@@ -27,11 +25,13 @@ import { ILedgerAccountBootstrapEntry } from '@app/ledger/contracts/ledger-accou
 import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
 import IPostingAccountBootstrapService from '@app/ledger/contracts/posting-account-bootstrap.service.contract';
 import ISuspenseAccountBootstrapService from '@app/ledger/contracts/suspense-account-bootstrap.service.contract';
+import IUserPreferencesService from '@app/user/contracts/user-preferences.service.contract';
+import { EAppUsageModePreference } from '@app/user/contracts/user-preferences.types';
 
 interface IDependencies {
   appContext: IAppContext;
   accountingEntityRepo: IAccountingEntityRepo;
-  userPreferencesRepo: IUserPreferencesRepo;
+  userPreferencesService: IUserPreferencesService;
   fiscalYearRepo: IFiscalYearRepo;
   accountingPeriodRepo: IAccountingPeriodRepo;
   accountingContextRepo: IAccountingContextRepo;
@@ -142,6 +142,15 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       }
     };
 
+    const userPreferencesPayload = {
+      userId: user.id,
+      lastActiveAccountingEntityId: accountingEntity.id,
+      appPreferences: {
+        // TODO: receive usage mode from dto when it becomes available
+        appUsageMode: EAppUsageModePreference.NonPowerUser,
+      },
+    };
+
     const transactionFn: TRepoTransactionFn<IEvent<unknown>[]> = async (tx) => {
       const writeRepoOptions = { ...repoOptions, tx };
 
@@ -150,9 +159,8 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         history: accountingEntityHistory,
       });
 
-      await deps.userPreferencesRepo.update(
-        user.id,
-        { lastActiveAccountingEntityId: accountingEntity.id },
+      await deps.userPreferencesService.create(
+        userPreferencesPayload,
         writeRepoOptions
       );
 

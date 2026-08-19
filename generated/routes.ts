@@ -107,7 +107,7 @@ const models: TsoaRoute.Models = {
   IUserPreferences: {
     dataType: 'refObject',
     properties: {
-      id: { ref: 'TEntityId', required: true },
+      userId: { ref: 'TEntityId', required: true },
       lastActiveAccountingEntityId: {
         dataType: 'union',
         subSchemas: [{ ref: 'TEntityId' }, { dataType: 'enum', enums: [null] }],
