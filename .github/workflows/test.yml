@@ -3,9 +3,11 @@ name: Test and Coverage
 on:
   push:
     branches:
+      - development
       - main
   pull_request:
     branches:
+      - development
       - main
 
 jobs:
@@ -40,7 +42,7 @@ jobs:
         run: npm test -- --coverage --coverageReporters="json-summary" --coverageReporters="text" --coverageReporters="lcov"
 
       - name: Generate Coverage Badge
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/development' && github.event_name == 'push'
         run: |
           mkdir -p badges
           COVERAGE=$(node -e "const summary = require('./coverage/coverage-summary.json'); console.log(summary.total.lines.pct);")
@@ -56,7 +58,7 @@ jobs:
           curl -s "https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}" > badges/coverage.svg
 
       - name: Commit and Push Coverage Badge
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.ref == 'refs/heads/development' && github.event_name == 'push'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"

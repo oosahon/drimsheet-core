@@ -60,6 +60,10 @@ The Node.js API container relies entirely on these third-party systems via HTTPS
 
 The system is deployed as a consolidated **monolithic runtime architecture**. Even though our Domain Layer (see _5. Building Block View_) cleanly separates contexts such as Accounting, Bookkeeping, Journal Entry, Ledger, Currency, Subledger, and User, these blocks are not distributed as separate microservices.
 
+The `main` branch owns prerelease deployments to staging. After the Core
+prerelease succeeds, the approved changes are promoted independently to the
+`release` branch, which owns production deployments.
+
 **Mapping software to infrastructure:**
 
 - TypeScript code (found in `src/*`) maps directly to a **single Node.js Docker Container image** artifact.
