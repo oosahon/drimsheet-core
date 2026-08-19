@@ -2,8 +2,10 @@ import { InferSelectModel } from 'drizzle-orm';
 
 import { TEntityId } from '@shared/types/uuid';
 
-import userPreferencesEntity from '@domain/user/entities/user-preferences.entity';
-import { IUserPreferences } from '@domain/user/types/user-preferences.types';
+import {
+  IUserAppPreferences,
+  IUserPreferences,
+} from '@app/user/contracts/user-preferences.types';
 
 import { userPreferencesInCore } from '@infra/config/drizzle/schema';
 import {
@@ -16,23 +18,33 @@ interface IUserPreferencesModel extends InferSelectModel<
 > {}
 
 const userPreferencesMapper = {
-  toRepo(payload: IUserPreferences): IUserPreferencesModel {
-    return {
-      id: payload.id,
-      lastActiveAccountingEntityId: payload.lastActiveAccountingEntityId,
-      appPreferences: payload.appPreferences,
-      createdAt: toRepoDate(payload.createdAt),
-      updatedAt: toRepoDate(payload.updatedAt),
-    };
+  toRepo(
+    preferences: IUserPreferences
+  ): typeof userPreferencesInCore.$inferInsert {
+    return Object.freeze({
+      id: preferences.userId,
+      lastActiveAccountingEntityId: preferences.lastActiveAccountingEntityId,
+      appPreferences: {
+        theme: preferences.appPreferences.theme,
+        appUsageMode: preferences.appPreferences.appUsageMode,
+      },
+      createdAt: toRepoDate(preferences.createdAt),
+      updatedAt: toRepoDate(preferences.updatedAt),
+    });
   },
 
   toDomain(payload: IUserPreferencesModel): IUserPreferences {
-    return userPreferencesEntity.rehydrate({
-      id: payload.id as TEntityId,
+    const appPreferences = (payload.appPreferences ??
+      {}) as IUserAppPreferences;
+
+    return Object.freeze({
+      userId: payload.id as TEntityId,
       lastActiveAccountingEntityId:
         payload.lastActiveAccountingEntityId as TEntityId | null,
-      appPreferences:
-        payload.appPreferences as IUserPreferences['appPreferences'],
+      appPreferences: Object.freeze({
+        theme: appPreferences.theme,
+        appUsageMode: appPreferences.appUsageMode,
+      }),
       createdAt: fromRepoDate(payload.createdAt),
       updatedAt: fromRepoDate(payload.updatedAt),
     });

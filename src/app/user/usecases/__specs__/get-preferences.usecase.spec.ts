@@ -1,11 +1,11 @@
 import { TEntityId } from '@shared/types/uuid';
 
-import { IUserPreferences } from '@domain/user/types/user-preferences.types';
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import { mockUserPreferencesRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
+import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
 import makeGetUserPreferencesUseCase from '@app/user/usecases/get-preferences.usecase';
 
 describe('makeGetUserPreferencesUseCase', () => {
@@ -25,7 +25,7 @@ describe('makeGetUserPreferencesUseCase', () => {
     } as IAppContextData);
 
     const mockPreferences = {
-      id: 'prefs-id' as TEntityId,
+      userId: 'prefs-id' as TEntityId,
       lastActiveAccountingEntityId: null,
       appPreferences: {
         theme: 'dark',

@@ -1,8 +1,8 @@
 import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
-import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
 
 import accountingAppError from '@app/accounting/errors/accounting.error';
 import IAppContext from '@app/context/contracts/app-context.contract';
+import IUserPreferencesRepo from '@app/user/contracts/user-preferences.repo.contract';
 
 interface IDeps {
   appContext: IAppContext;

@@ -1,12 +1,30 @@
 import { eq } from 'drizzle-orm';
 
-import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
+import IUserPreferencesRepo from '@app/user/contracts/user-preferences.repo.contract';
 
 import { userPreferencesInCore } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';
 import userPreferencesMapper from '@infra/persistence/repos/user/mappers/user-preferences.mapper';
 
 const userPreferencesRepo: IUserPreferencesRepo = {
+  async create(preferences, options) {
+    const query = getDbQuery(options);
+    const preferenceValues = userPreferencesMapper.toRepo(preferences);
+
+    await query
+      .insert(userPreferencesInCore)
+      .values(preferenceValues)
+      .onConflictDoUpdate({
+        target: userPreferencesInCore.id,
+        set: {
+          appPreferences: preferenceValues.appPreferences,
+          lastActiveAccountingEntityId:
+            preferenceValues.lastActiveAccountingEntityId,
+          updatedAt: preferenceValues.updatedAt,
+        },
+      });
+  },
+
   async findById(id, options) {
     const query = getDbQuery(options);
 
@@ -16,39 +34,22 @@ const userPreferencesRepo: IUserPreferencesRepo = {
       .where(eq(userPreferencesInCore.id, id))
       .limit(1);
 
-    return result ? userPreferencesMapper.toDomain(result) : null;
+    if (!result) return null;
+
+    return userPreferencesMapper.toDomain(result);
   },
 
-  async update(userId, payload, options) {
+  async update(preferences, options) {
     const query = getDbQuery(options);
     const updatedAt = new Date().toISOString();
-    const preferenceValues: typeof userPreferencesInCore.$inferInsert = {
-      id: userId,
-      updatedAt,
-    };
-    const preferenceUpdates: Partial<
-      typeof userPreferencesInCore.$inferInsert
-    > = { updatedAt };
-
-    if (payload.appPreferences !== undefined) {
-      preferenceValues.appPreferences = payload.appPreferences;
-      preferenceUpdates.appPreferences = payload.appPreferences;
-    }
-
-    if (payload.lastActiveAccountingEntityId !== undefined) {
-      preferenceValues.lastActiveAccountingEntityId =
-        payload.lastActiveAccountingEntityId;
-      preferenceUpdates.lastActiveAccountingEntityId =
-        payload.lastActiveAccountingEntityId;
-    }
 
     await query
-      .insert(userPreferencesInCore)
-      .values(preferenceValues)
-      .onConflictDoUpdate({
-        target: userPreferencesInCore.id,
-        set: preferenceUpdates,
-      });
+      .update(userPreferencesInCore)
+      .set({
+        lastActiveAccountingEntityId: preferences.lastActiveAccountingEntityId,
+        updatedAt,
+      })
+      .where(eq(userPreferencesInCore.id, preferences.userId));
   },
 };
 

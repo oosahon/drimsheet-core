@@ -57,7 +57,7 @@
       },
       "IUserPreferences": {
         "properties": {
-          "id": {
+          "userId": {
             "$ref": "#/components/schemas/TEntityId"
           },
           "lastActiveAccountingEntityId": {
@@ -81,7 +81,7 @@
           }
         },
         "required": [
-          "id",
+          "userId",
           "lastActiveAccountingEntityId",
           "appPreferences",
           "createdAt",

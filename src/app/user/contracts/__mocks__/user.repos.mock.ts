@@ -1,12 +1,14 @@
 import IUserHistoryRepo from '@domain/user/repos/user-history.repo';
-import IUserPreferencesRepo from '@domain/user/repos/user-preferences.repo';
 import IUserRepo from '@domain/user/repos/user.repo';
+
+import IUserPreferencesRepo from '@app/user/contracts/user-preferences.repo.contract';
 
 export const mockUserHistoryRepo: jest.Mocked<IUserHistoryRepo> = {
   save: jest.fn(),
 };
 
 export const mockUserPreferencesRepo: jest.Mocked<IUserPreferencesRepo> = {
+  create: jest.fn(),
   findById: jest.fn(),
   update: jest.fn(),
 };
