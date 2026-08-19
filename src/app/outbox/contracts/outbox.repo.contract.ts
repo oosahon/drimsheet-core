@@ -1,11 +1,10 @@
-import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
-import { TEntityId } from '@shared/types/uuid';
-
 import {
   ICreateOutbox,
   IOutbox,
   UOutboxType,
-} from '@app/outbox/types/outbox.types';
+} from '@shared/types/outbox.types';
+import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 export default interface IOutboxRepo {
   create(outbox: ICreateOutbox, options: IWriteRepoOptions): Promise<void>;

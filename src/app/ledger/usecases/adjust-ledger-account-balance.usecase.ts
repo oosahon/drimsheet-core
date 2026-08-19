@@ -3,6 +3,7 @@ import {
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
 import IReporter from '@shared/contracts/reporter.contract';
+import { EOutboxType } from '@shared/types/outbox.types';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
@@ -15,7 +16,6 @@ import { ledgerAccountBalanceAdjustmentDtoSchema } from '@app/ledger/dtos/ledger
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import helpers from '@app/ledger/usecases/helpers/adjust-ledger-account-balance.usecase.helpers';
 import IOutboxRepo from '@app/outbox/contracts/outbox.repo.contract';
-import { EOutboxType } from '@app/outbox/types/outbox.types';
 
 interface IDependencies {
   repoService: IRepoService;

@@ -1,6 +1,5 @@
+import { EOutboxType } from '@shared/types/outbox.types';
 import generateUUID from '@shared/utils/uuid-generator';
-
-import { EOutboxType } from '@app/outbox/types/outbox.types';
 
 import outboxMapper, {
   IOutboxRepoModel,

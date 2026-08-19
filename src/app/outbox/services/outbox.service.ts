@@ -1,6 +1,7 @@
+import { EOutboxType } from '@shared/types/outbox.types';
+
 import IOutboxRepo from '@app/outbox/contracts/outbox.repo.contract';
 import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
-import { EOutboxType } from '@app/outbox/types/outbox.types';
 
 interface IDependencies {
   outboxRepo: IOutboxRepo;

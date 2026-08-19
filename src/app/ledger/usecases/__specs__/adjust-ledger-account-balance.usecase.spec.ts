@@ -1,5 +1,6 @@
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
+import { EOutboxType, IOutbox } from '@shared/types/outbox.types';
 import { ITransactionContext } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
@@ -20,7 +21,6 @@ import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-acco
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import makeAdjustLedgerAccountBalanceUseCase from '@app/ledger/usecases/adjust-ledger-account-balance.usecase';
 import mockOutboxRepo from '@app/outbox/contracts/__mocks__/outbox.repo.mock';
-import { EOutboxType, IOutbox } from '@app/outbox/types/outbox.types';
 
 describe('makeAdjustLedgerAccountBalanceUseCase', () => {
   const correlationId = generateUUID();
