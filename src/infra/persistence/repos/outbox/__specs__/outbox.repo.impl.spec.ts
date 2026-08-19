@@ -1,7 +1,6 @@
+import { EOutboxType } from '@shared/types/outbox.types';
 import { ITransactionContext } from '@shared/types/repo.types';
 import generateUUID from '@shared/utils/uuid-generator';
-
-import { EOutboxType } from '@app/outbox/types/outbox.types';
 
 import { outboxInCore } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';

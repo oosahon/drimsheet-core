@@ -13,7 +13,7 @@ import {
   periodMonthValidation,
   periodUnitValidation,
 } from '@app/accounting/dtos/accounting/accounting.dto.validation';
-import { EAppUsageModePreference } from '@app/user/contracts/user-preferences.types';
+import { EAppUsageModePreference } from '@app/user/types/user-preferences.types';
 
 describe('Accounting DTO Validation', () => {
   describe('jurisdictionCodeValidation', () => {
@@ -225,11 +225,61 @@ describe('Accounting DTO Validation', () => {
           unit: EPeriodUnit.Month,
           count: 3,
         },
-        appUsageMode: EAppUsageModePreference.PowerUser,
+        appPreferences: {
+          theme: 'system',
+          appUsageMode: EAppUsageModePreference.NonPowerUser,
+        },
       };
       expect(
         accountingEntityOnboardingDtoSchema.safeParse(payload).success
       ).toBe(true);
+    });
+
+    it.each([
+      ['missing usage mode', { theme: 'dark' }],
+      ['unsupported theme', { theme: 'sepia', appUsageMode: 'non_power_user' }],
+      ['unknown preference', { appUsageMode: 'non_power_user', compact: true }],
+    ])('should reject %s', (_label, appPreferences) => {
+      const result = accountingEntityOnboardingDtoSchema.safeParse({
+        name: 'Test Company',
+        entityType: EAccountingEntityType.PrivateCompany,
+        jurisdictionCode: 'GB',
+        accountingStandardCode: 'UK_GAAP',
+        functionalCurrencyCode: 'GBP',
+        reportingCurrencyCode: 'GBP',
+        fiscalYear: {
+          startDate: new Date('2026-01-01'),
+          endDate: new Date('2026-12-31'),
+        },
+        accountingPeriod: { unit: EPeriodUnit.Month, count: 1 },
+        reportingPeriod: { unit: EPeriodUnit.Month, count: 3 },
+        appPreferences,
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should accept power-user app preferences', () => {
+      const result = accountingEntityOnboardingDtoSchema.safeParse({
+        name: 'Test Company',
+        entityType: EAccountingEntityType.PrivateCompany,
+        jurisdictionCode: 'GB',
+        accountingStandardCode: 'UK_GAAP',
+        functionalCurrencyCode: 'GBP',
+        reportingCurrencyCode: 'GBP',
+        fiscalYear: {
+          startDate: new Date('2026-01-01'),
+          endDate: new Date('2026-12-31'),
+        },
+        accountingPeriod: { unit: EPeriodUnit.Month, count: 1 },
+        reportingPeriod: { unit: EPeriodUnit.Month, count: 3 },
+        appPreferences: {
+          theme: 'dark',
+          appUsageMode: EAppUsageModePreference.PowerUser,
+        },
+      });
+
+      expect(result.success).toBe(true);
     });
 
     it('should fail if onboarding payload is invalid', () => {

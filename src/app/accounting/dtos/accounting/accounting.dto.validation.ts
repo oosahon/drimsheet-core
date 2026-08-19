@@ -21,7 +21,7 @@ import {
 } from '@domain/accounting/types/period.types';
 
 import { currencyCodeValidation } from '@app/money/dtos/currency/currency.dto.validation';
-import { userAppUsageModePreferenceValidation } from '@app/user/dtos/user/user.dto.validation';
+import { userAppPreferencesValidation } from '@app/user/dtos/user/user.dto.validation';
 
 /**
  * Jurisdiction code validation schema
@@ -109,5 +109,5 @@ export const accountingEntityOnboardingDtoSchema = z.object({
   fiscalYear: fiscalYearCreationDtoSchema,
   accountingPeriod: periodCreationDtoSchema,
   reportingPeriod: periodCreationDtoSchema,
-  appUsageMode: userAppUsageModePreferenceValidation,
+  appPreferences: userAppPreferencesValidation,
 });

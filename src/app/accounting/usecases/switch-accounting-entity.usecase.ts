@@ -31,11 +31,12 @@ export default function makeSwitchAccountingEntityUsecase(deps: IDependencies) {
       throw new accountingAppError.ActiveEntityNotFound();
     }
 
-    await deps.userPreferencesService.setLastActiveAccountingEntity(
-      user.id,
-      accountingEntity.id,
-      { correlationId }
-    );
+    const updatePayload = {
+      userId: user.id,
+      lastActiveAccountingEntityId: accountingEntity.id,
+    };
+
+    await deps.userPreferencesService.update(updatePayload, { correlationId });
 
     deps.appContext.set({ accountingEntity });
 

@@ -36,22 +36,13 @@
       "IUserAppPreferences": {
         "properties": {
           "theme": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UAppThemePreference"
-              }
-            ],
-            "nullable": true
+            "$ref": "#/components/schemas/UAppThemePreference"
           },
           "appUsageMode": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/UAppUsageModePreference"
-              }
-            ],
-            "nullable": true
+            "$ref": "#/components/schemas/UAppUsageModePreference"
           }
         },
+        "required": ["appUsageMode"],
         "type": "object",
         "additionalProperties": false
       },
@@ -131,6 +122,18 @@
           }
         },
         "required": ["name", "errorKey"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IUserPreferencesUpdateDto": {
+        "properties": {
+          "theme": {
+            "$ref": "#/components/schemas/UAppThemePreference"
+          },
+          "appUsageMode": {
+            "$ref": "#/components/schemas/UAppUsageModePreference"
+          }
+        },
         "type": "object",
         "additionalProperties": false
       },
@@ -1853,8 +1856,8 @@
           "reportingPeriod": {
             "$ref": "#/components/schemas/IPeriodCreationDto"
           },
-          "appUsageMode": {
-            "$ref": "#/components/schemas/UAppUsageModePreference"
+          "appPreferences": {
+            "$ref": "#/components/schemas/IUserAppPreferences"
           }
         },
         "required": [
@@ -1867,7 +1870,7 @@
           "fiscalYear",
           "accountingPeriod",
           "reportingPeriod",
-          "appUsageMode"
+          "appPreferences"
         ],
         "type": "object",
         "additionalProperties": false
@@ -2002,6 +2005,69 @@
           }
         ],
         "parameters": []
+      },
+      "patch": {
+        "operationId": "updateUserPreferences",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IUserPreferences"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Update user preferences",
+        "tags": ["User"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IUserPreferencesUpdateDto"
+              }
+            }
+          }
+        }
       }
     },
     "/users/profile": {

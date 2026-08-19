@@ -32,7 +32,7 @@ import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.re
 import mockPostingAccountBootstrapService from '@app/ledger/contracts/__mocks__/posting-account-bootstrap.service.mock';
 import mockSuspenseAccountBootstrapService from '@app/ledger/contracts/__mocks__/suspense-account-bootstrap.service.mock';
 import mockUserPreferencesService from '@app/user/contracts/__mocks__/user-preferences.service.mock';
-import { EAppUsageModePreference } from '@app/user/contracts/user-preferences.types';
+import { EAppUsageModePreference } from '@app/user/types/user-preferences.types';
 
 const mockAccountingDomainServices = Object.freeze({
   accountingEntity: mockAccountingEntityService,
@@ -48,7 +48,10 @@ describe('createAccountingEntityUseCase', () => {
     functionalCurrencyCode: 'USD',
     reportingCurrencyCode: 'USD',
     jurisdictionCode: 'US',
-    appUsageMode: EAppUsageModePreference.NonPowerUser,
+    appPreferences: {
+      theme: 'dark',
+      appUsageMode: EAppUsageModePreference.NonPowerUser,
+    },
     fiscalYear: {
       startDate: new Date('2026-01-01T00:00:00.000Z'),
       endDate: new Date('2026-12-31T23:59:59.999Z'),
@@ -134,7 +137,13 @@ describe('createAccountingEntityUseCase', () => {
     mockAccountingDomainServices.accountingEntity.create.mockResolvedValue(
       accounting
     );
-    mockUserPreferencesService.create.mockResolvedValue();
+    mockUserPreferencesService.update.mockResolvedValue({
+      userId,
+      lastActiveAccountingEntityId: accountingEntity.id,
+      appPreferences: validPayload.appPreferences,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
     mockHeaderAccountsBootstrapService.bootstrap.mockResolvedValue(ledger);
     mockPostingAccountBootstrapService.bootstrap.mockResolvedValue(ledger);
     mockSuspenseAccountBootstrapService.bootstrap.mockResolvedValue(ledger);
@@ -234,7 +243,7 @@ describe('createAccountingEntityUseCase', () => {
     );
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
     expect(mockAccountingEntityRepo.create).toHaveBeenCalled();
-    expect(mockUserPreferencesService.create).toHaveBeenCalledWith(
+    expect(mockUserPreferencesService.update).toHaveBeenCalledWith(
       {
         userId,
         lastActiveAccountingEntityId: accountingEntity.id,
@@ -268,10 +277,10 @@ describe('createAccountingEntityUseCase', () => {
     expect(
       mockAccountingEntityRepo.create.mock.invocationCallOrder[0]
     ).toBeLessThan(
-      mockUserPreferencesService.create.mock.invocationCallOrder[0]
+      mockUserPreferencesService.update.mock.invocationCallOrder[0]
     );
     expect(
-      mockUserPreferencesService.create.mock.invocationCallOrder[0]
+      mockUserPreferencesService.update.mock.invocationCallOrder[0]
     ).toBeLessThan(mockFiscalYearRepo.create.mock.invocationCallOrder[0]);
   });
 
@@ -289,18 +298,19 @@ describe('createAccountingEntityUseCase', () => {
     expect(postingOrder).toBeLessThan(suspenseOrder);
   });
 
-  it('persists foundational accounts but skips posting and suspense defaults for power users', async () => {
+  it('persists all current default accounts for power users', async () => {
     await getUseCase()({
       ...validPayload,
-      appUsageMode: EAppUsageModePreference.PowerUser,
+      appPreferences: {
+        ...validPayload.appPreferences,
+        appUsageMode: EAppUsageModePreference.PowerUser,
+      },
     });
 
     expect(mockHeaderAccountsBootstrapService.bootstrap).toHaveBeenCalled();
-    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledTimes(1);
-    expect(mockPostingAccountBootstrapService.bootstrap).not.toHaveBeenCalled();
-    expect(
-      mockSuspenseAccountBootstrapService.bootstrap
-    ).not.toHaveBeenCalled();
+    expect(mockPostingAccountBootstrapService.bootstrap).toHaveBeenCalled();
+    expect(mockSuspenseAccountBootstrapService.bootstrap).toHaveBeenCalled();
+    expect(mockLedgerAccountPersistenceService.create).toHaveBeenCalledTimes(2);
   });
 
   it('does not update context or publish when persistence fails', async () => {
@@ -328,7 +338,7 @@ describe('createAccountingEntityUseCase', () => {
   });
 
   it('does not update context or publish when preference persistence fails', async () => {
-    mockUserPreferencesService.create.mockRejectedValueOnce(
+    mockUserPreferencesService.update.mockRejectedValueOnce(
       new Error('preference persistence failed')
     );
 

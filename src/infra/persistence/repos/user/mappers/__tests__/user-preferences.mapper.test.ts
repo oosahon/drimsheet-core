@@ -1,6 +1,6 @@
 import { TEntityId } from '@shared/types/uuid';
 
-import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
+import { IUserPreferences } from '@app/user/types/user-preferences.types';
 
 import userPreferencesMapper from '@infra/persistence/repos/user/mappers/user-preferences.mapper';
 
@@ -15,6 +15,7 @@ describe('User Preferences Mapper', () => {
     lastActiveAccountingEntityId,
     appPreferences: {
       theme: 'dark',
+      appUsageMode: 'non_power_user',
     },
     createdAt,
     updatedAt,
@@ -25,6 +26,7 @@ describe('User Preferences Mapper', () => {
     lastActiveAccountingEntityId,
     appPreferences: {
       theme: 'dark',
+      appUsageMode: 'non_power_user',
     },
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
@@ -35,7 +37,7 @@ describe('User Preferences Mapper', () => {
       ...repoModel,
       appPreferences: {
         theme: 'dark',
-        appUsageMode: undefined,
+        appUsageMode: 'non_power_user',
       },
     });
   });
@@ -47,7 +49,7 @@ describe('User Preferences Mapper', () => {
       ...preferences,
       appPreferences: {
         theme: 'dark',
-        appUsageMode: undefined,
+        appUsageMode: 'non_power_user',
       },
     });
     expect(Object.isFrozen(result)).toBe(true);

@@ -9,7 +9,7 @@ import accountingAppError from '@app/accounting/errors/accounting.error';
 import makeGetCurrentAccountingEntityUseCase from '@app/accounting/usecases/get-active-accounting-entity.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { mockUserPreferencesRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
-import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
+import { IUserPreferences } from '@app/user/types/user-preferences.types';
 
 describe('getActiveAccountingEntityUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -25,7 +25,7 @@ describe('getActiveAccountingEntityUseCase', () => {
   const mockPreferences: IUserPreferences = {
     userId: mockUserId,
     lastActiveAccountingEntityId: mockAccountingEntity.id,
-    appPreferences: {},
+    appPreferences: { appUsageMode: 'non_power_user' },
     createdAt: new Date('2026-08-13T00:00:00.000Z'),
     updatedAt: new Date('2026-08-13T00:00:00.000Z'),
   };

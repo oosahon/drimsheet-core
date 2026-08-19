@@ -1,6 +1,6 @@
 import { TEntityId } from '@shared/types/uuid';
 
-import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
+import { IUserPreferences } from '@app/user/types/user-preferences.types';
 
 import { userPreferencesInCore } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';
@@ -17,19 +17,12 @@ describe('UserPreferencesRepoImpl', () => {
   const mockInsertQuery = {
     values: jest.fn(),
   };
-  const mockSetQuery = {
-    where: jest.fn(),
-  };
-  const mockUpdateQuery = {
-    set: jest.fn(),
-  };
   const mockQuery = {
     select: jest.fn(),
     from: jest.fn(),
     where: jest.fn(),
     limit: jest.fn(),
     insert: jest.fn(),
-    update: jest.fn(),
   };
   const mockGetDbQuery = jest.mocked(getDbQuery);
   const mockUserPreferencesMapper = jest.mocked(userPreferencesMapper);
@@ -42,8 +35,6 @@ describe('UserPreferencesRepoImpl', () => {
     mockQuery.where.mockReturnValue(mockQuery);
     mockQuery.insert.mockReturnValue(mockInsertQuery);
     mockInsertQuery.values.mockReturnValue(mockConflictQuery);
-    mockQuery.update.mockReturnValue(mockUpdateQuery);
-    mockUpdateQuery.set.mockReturnValue(mockSetQuery);
     mockGetDbQuery.mockReturnValue(
       mockQuery as unknown as ReturnType<typeof getDbQuery>
     );
@@ -59,14 +50,14 @@ describe('UserPreferencesRepoImpl', () => {
     const repoResult = {
       id: userId,
       lastActiveAccountingEntityId: null,
-      appPreferences: { theme: 'dark' },
+      appPreferences: { theme: 'dark', appUsageMode: 'non_power_user' },
       createdAt: '2026-03-13T00:00:00.000Z',
       updatedAt: '2026-03-13T00:00:00.000Z',
     };
     const preferences: IUserPreferences = {
       userId,
       lastActiveAccountingEntityId: null,
-      appPreferences: { theme: 'dark' },
+      appPreferences: { theme: 'dark', appUsageMode: 'non_power_user' },
       createdAt: new Date('2026-03-13T00:00:00.000Z'),
       updatedAt: new Date('2026-03-13T00:00:00.000Z'),
     };
@@ -85,7 +76,7 @@ describe('UserPreferencesRepoImpl', () => {
     expect(result).toEqual(preferences);
   });
 
-  it('creates preferences and updates them on conflict', async () => {
+  it('upserts complete preferences', async () => {
     const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
     const accountingEntityId =
       '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
@@ -106,7 +97,7 @@ describe('UserPreferencesRepoImpl', () => {
     };
     mockUserPreferencesMapper.toRepo.mockReturnValue(preferenceValues);
 
-    await userPreferencesRepo.create(preferences, options);
+    await userPreferencesRepo.update(preferences, options);
 
     expect(mockGetDbQuery).toHaveBeenCalledWith(options);
     expect(mockUserPreferencesMapper.toRepo).toHaveBeenCalledWith(preferences);
@@ -132,49 +123,5 @@ describe('UserPreferencesRepoImpl', () => {
 
     expect(result).toBeNull();
     expect(userPreferencesMapper.toDomain).not.toHaveBeenCalled();
-  });
-
-  it('updates user preferences', async () => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2026-08-13T12:00:00.000Z'));
-
-    const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
-    const accountingEntityId =
-      '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
-    const options = { correlationId: 'corr-id' };
-    const updatedAt = '2026-08-13T12:00:00.000Z';
-
-    await userPreferencesRepo.update(
-      { userId, lastActiveAccountingEntityId: accountingEntityId },
-      options
-    );
-
-    expect(mockGetDbQuery).toHaveBeenCalledWith(options);
-    expect(mockQuery.update).toHaveBeenCalledWith(userPreferencesInCore);
-    expect(mockUpdateQuery.set).toHaveBeenCalledWith({
-      lastActiveAccountingEntityId: accountingEntityId,
-      updatedAt,
-    });
-    expect(mockSetQuery.where).toHaveBeenCalled();
-  });
-
-  it('clears the last active accounting entity ID', async () => {
-    jest.useFakeTimers();
-    jest.setSystemTime(new Date('2026-08-13T12:00:00.000Z'));
-
-    const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
-    const options = { correlationId: 'corr-id' };
-    const updatedAt = '2026-08-13T12:00:00.000Z';
-
-    await userPreferencesRepo.update(
-      { userId, lastActiveAccountingEntityId: null },
-      options
-    );
-
-    expect(mockUpdateQuery.set).toHaveBeenCalledWith({
-      lastActiveAccountingEntityId: null,
-      updatedAt,
-    });
-    expect(mockSetQuery.where).toHaveBeenCalled();
   });
 });

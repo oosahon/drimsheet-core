@@ -26,7 +26,7 @@ import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-accou
 import IPostingAccountBootstrapService from '@app/ledger/contracts/posting-account-bootstrap.service.contract';
 import ISuspenseAccountBootstrapService from '@app/ledger/contracts/suspense-account-bootstrap.service.contract';
 import IUserPreferencesService from '@app/user/contracts/user-preferences.service.contract';
-import { EAppUsageModePreference } from '@app/user/contracts/user-preferences.types';
+import { EAppUsageModePreference } from '@app/user/types/user-preferences.types';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -159,7 +159,7 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         history: accountingEntityHistory,
       });
 
-      await deps.userPreferencesService.create(
+      await deps.userPreferencesService.update(
         userPreferencesPayload,
         writeRepoOptions
       );
@@ -201,27 +201,23 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         ...headerBootstrap.events,
       ];
 
-      if (payload.appUsageMode === EAppUsageModePreference.NonPowerUser) {
-        const postingBootstrap =
-          await deps.postingAccountBootstrapService.bootstrap(
-            accountingEntity,
-            writeRepoOptions
-          );
-
-        ledgerAccountEvents.push(...postingBootstrap.events);
-
-        const suspenseBootstrap =
-          await deps.suspenseAccountBootstrapService.bootstrap(
-            accountingEntity,
-            writeRepoOptions
-          );
-
-        await persistLedgerAccounts(
-          suspenseBootstrap.entries,
+      // TODO: only apply for non-power users when the feature is ready
+      const postingBootstrap =
+        await deps.postingAccountBootstrapService.bootstrap(
+          accountingEntity,
           writeRepoOptions
         );
-        ledgerAccountEvents.push(...suspenseBootstrap.events);
-      }
+
+      ledgerAccountEvents.push(...postingBootstrap.events);
+
+      const suspenseBootstrap =
+        await deps.suspenseAccountBootstrapService.bootstrap(
+          accountingEntity,
+          writeRepoOptions
+        );
+
+      await persistLedgerAccounts(suspenseBootstrap.entries, writeRepoOptions);
+      ledgerAccountEvents.push(...suspenseBootstrap.events);
 
       return ledgerAccountEvents;
     };

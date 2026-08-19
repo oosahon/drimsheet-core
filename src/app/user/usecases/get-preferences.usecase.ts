@@ -2,7 +2,7 @@ import appError from '@shared/values/errors/app.error';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
 import IUserPreferencesRepo from '@app/user/contracts/user-preferences.repo.contract';
-import { IUserPreferences } from '@app/user/contracts/user-preferences.types';
+import { IUserPreferences } from '@app/user/types/user-preferences.types';
 
 interface IDependencies {
   appContext: IAppContext;

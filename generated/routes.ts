@@ -86,20 +86,8 @@ const models: TsoaRoute.Models = {
   IUserAppPreferences: {
     dataType: 'refObject',
     properties: {
-      theme: {
-        dataType: 'union',
-        subSchemas: [
-          { ref: 'UAppThemePreference' },
-          { dataType: 'enum', enums: [null] },
-        ],
-      },
-      appUsageMode: {
-        dataType: 'union',
-        subSchemas: [
-          { ref: 'UAppUsageModePreference' },
-          { dataType: 'enum', enums: [null] },
-        ],
-      },
+      theme: { ref: 'UAppThemePreference' },
+      appUsageMode: { ref: 'UAppUsageModePreference', required: true },
     },
     additionalProperties: false,
   },
@@ -154,6 +142,15 @@ const models: TsoaRoute.Models = {
         array: { dataType: 'refObject', ref: 'IApiValidationError' },
       },
       cause: { ref: 'TErrorCause' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IUserPreferencesUpdateDto: {
+    dataType: 'refObject',
+    properties: {
+      theme: { ref: 'UAppThemePreference' },
+      appUsageMode: { ref: 'UAppUsageModePreference' },
     },
     additionalProperties: false,
   },
@@ -1488,7 +1485,7 @@ const models: TsoaRoute.Models = {
       fiscalYear: { ref: 'IFiscalYearCreationDto', required: true },
       accountingPeriod: { ref: 'IPeriodCreationDto', required: true },
       reportingPeriod: { ref: 'IPeriodCreationDto', required: true },
-      appUsageMode: { ref: 'UAppUsageModePreference', required: true },
+      appPreferences: { ref: 'IUserAppPreferences', required: true },
     },
     additionalProperties: false,
   },
@@ -1580,6 +1577,56 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'getUserPreferences',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsUserController_updateUserPreferences: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'IUserPreferencesUpdateDto',
+    },
+  };
+  app.patch(
+    '/api/v1/users/preferences',
+    authenticateMiddleware([{ bearerAuth: [] }]),
+    ...fetchMiddlewares<RequestHandler>(UserController),
+    ...fetchMiddlewares<RequestHandler>(
+      UserController.prototype.updateUserPreferences
+    ),
+
+    async function UserController_updateUserPreferences(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsUserController_updateUserPreferences,
+          request,
+          response,
+        });
+
+        const controller = new UserController();
+
+        await templateService.apiHandler({
+          methodName: 'updateUserPreferences',
           controller,
           response,
           next,

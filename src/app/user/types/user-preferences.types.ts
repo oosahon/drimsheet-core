@@ -17,8 +17,8 @@ export type UAppThemePreference =
   (typeof EAppThemePreference)[keyof typeof EAppThemePreference];
 
 export interface IUserAppPreferences {
-  theme?: UAppThemePreference | null;
-  appUsageMode?: UAppUsageModePreference | null;
+  theme?: UAppThemePreference;
+  appUsageMode: UAppUsageModePreference;
 }
 
 export interface IUserPreferences {
@@ -29,7 +29,11 @@ export interface IUserPreferences {
   updatedAt: Date;
 }
 
-export type TUserPreferencesUpdate = Pick<
-  IUserPreferences,
-  'userId' | 'lastActiveAccountingEntityId'
->;
+export interface IUserPreferencesUpdate {
+  userId: TEntityId;
+  appPreferences?: {
+    theme?: UAppThemePreference;
+    appUsageMode?: UAppUsageModePreference;
+  };
+  lastActiveAccountingEntityId?: TEntityId | null;
+}

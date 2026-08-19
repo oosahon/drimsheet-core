@@ -5,7 +5,7 @@ import { TEntityId } from '@shared/types/uuid';
 import {
   IUserAppPreferences,
   IUserPreferences,
-} from '@app/user/contracts/user-preferences.types';
+} from '@app/user/types/user-preferences.types';
 
 import { userPreferencesInCore } from '@infra/config/drizzle/schema';
 import {

@@ -1,12 +1,11 @@
 import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 
-import { TEntityId } from '@shared/types/uuid';
-
 import {
   ICreateOutbox,
   IOutbox,
   UOutboxType,
-} from '@app/outbox/types/outbox.types';
+} from '@shared/types/outbox.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import { outboxInCore } from '@infra/config/drizzle/schema';
 import { fromRepoDate } from '@infra/persistence/helpers/date.mapper';
