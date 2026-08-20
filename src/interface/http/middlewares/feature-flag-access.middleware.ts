@@ -17,8 +17,9 @@ export default function makeFeatureFlagAccessMiddleware(
   return {
     async canAccessAlpha1(req, res, next) {
       const { user } = deps.appContext.get(['user']);
+
       const canAccess = await deps.featureFlagService.canAccessAlpha1({
-        userId: user.id,
+        email: user.email,
       });
 
       if (!canAccess) {

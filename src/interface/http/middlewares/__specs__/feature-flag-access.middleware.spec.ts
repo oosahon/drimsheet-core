@@ -1,7 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { TEntityId } from '@shared/types/uuid';
-
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
@@ -12,8 +10,8 @@ import featureFlagError from '@app/context/errors/feature-flag.error';
 import makeFeatureFlagAccessMiddleware from '@interface/http/middlewares/feature-flag-access.middleware';
 
 describe('makeFeatureFlagAccessMiddleware', () => {
-  const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
-  const user = { id: userId } as IUser;
+  const email = 'user@example.com';
+  const user = { email } as IUser;
 
   let request: Partial<Request>;
   let response: Partial<Response>;
@@ -45,7 +43,7 @@ describe('makeFeatureFlagAccessMiddleware', () => {
 
     expect(mockAppContext.get).toHaveBeenCalledWith(['user']);
     expect(mockFeatureFlagService.canAccessAlpha1).toHaveBeenCalledWith({
-      userId,
+      email,
     });
     expect(next).toHaveBeenCalledTimes(1);
   });

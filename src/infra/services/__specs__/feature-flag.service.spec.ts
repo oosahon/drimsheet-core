@@ -1,5 +1,3 @@
-import generateUUID from '@shared/utils/uuid-generator';
-
 import launchDarklyClient from '@infra/config/launchdarkly.config';
 import featureFlagService from '@infra/services/feature-flag.service';
 
@@ -18,15 +16,22 @@ describe('featureFlagService', () => {
   });
 
   it('evaluates Alpha 1 access for the user', async () => {
-    const userId = generateUUID();
+    const email = 'user@example.com';
     client.boolVariation.mockResolvedValue(true);
 
-    await expect(featureFlagService.canAccessAlpha1({ userId })).resolves.toBe(
+    await expect(featureFlagService.canAccessAlpha1({ email })).resolves.toBe(
       true
     );
     expect(client.boolVariation).toHaveBeenCalledWith(
       'v_0_1_0_alpha_1',
-      { kind: 'user', key: userId },
+      {
+        kind: 'user',
+        key: email,
+        email,
+        _meta: {
+          privateAttributes: ['email'],
+        },
+      },
       false
     );
   });
@@ -35,7 +40,7 @@ describe('featureFlagService', () => {
     client.boolVariation.mockResolvedValue(false);
 
     await expect(
-      featureFlagService.canAccessAlpha1({ userId: generateUUID() })
+      featureFlagService.canAccessAlpha1({ email: 'user@example.com' })
     ).resolves.toBe(false);
   });
 });
