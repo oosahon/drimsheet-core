@@ -7,6 +7,7 @@ import appError from '@shared/values/errors/app.error';
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import { IUser } from '@domain/user/types/user.types';
 
+import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
 import { IContractorCreateReq } from '@app/counterparty/dtos/contractor/contractor.dto';
 import { ICounterpartyDto } from '@app/counterparty/dtos/counterparty/counterparty.dto';
 
@@ -15,6 +16,13 @@ import * as counterpartyUseCases from '@infra/ioc/usecases/counterparty';
 import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
+
+jest.mock('@infra/services/feature-flag.service', () => ({
+  __esModule: true,
+  default: jest.requireActual<
+    typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
+  >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
+}));
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
@@ -89,6 +97,7 @@ describe('POST /counterparties/contractor', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFeatureFlagService.canAccessAlpha1.mockResolvedValue(true);
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue({ id: userId } as IUser);
     mockFindAccountingEntity.mockResolvedValue(accountingEntity);
@@ -149,6 +158,21 @@ describe('POST /counterparties/contractor', () => {
         .send(validPayload);
 
       expect(response.status).toBe(401);
+      expect(mockCreateContractor).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('403 Response', () => {
+    it('rejects a user without Alpha 1 access', async () => {
+      mockFeatureFlagService.canAccessAlpha1.mockResolvedValueOnce(false);
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        name: 'FeatureFlagError',
+        errorKey: 'feature_flag_error_forbidden',
+      });
       expect(mockCreateContractor).not.toHaveBeenCalled();
     });
   });

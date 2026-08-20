@@ -42,11 +42,13 @@ export class CounterpartyController extends Controller {
   @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('409')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('500')
   @Middlewares(
     middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
     middlewares.accountingEntityAccess
   )
   public async createCounterparty(@Body() body: ICounterpartyCreateReq) {
@@ -61,11 +63,13 @@ export class CounterpartyController extends Controller {
   @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('409')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('500')
   @Middlewares(
     middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
     middlewares.accountingEntityAccess
   )
   public async createVendor(@Body() body: IVendorCreateReq) {
@@ -80,11 +84,13 @@ export class CounterpartyController extends Controller {
   @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('409')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('500')
   @Middlewares(
     middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
     middlewares.accountingEntityAccess
   )
   public async createContractor(@Body() body: IContractorCreateReq) {
@@ -99,11 +105,13 @@ export class CounterpartyController extends Controller {
   @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('409')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('500')
   @Middlewares(
     middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
     middlewares.accountingEntityAccess
   )
   public async createEmployer(@Body() body: IEmployerCreateReq) {
@@ -118,10 +126,12 @@ export class CounterpartyController extends Controller {
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('500')
   @Middlewares(
     middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
     middlewares.accountingEntityAccess
   )
   public async getCounterparties(@Queries() query: IGetCounterpartiesQuery) {

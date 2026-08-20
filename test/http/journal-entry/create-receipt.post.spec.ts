@@ -8,6 +8,7 @@ import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.ty
 import { IUser } from '@domain/user/types/user.types';
 
 import authError from '@app/auth/errors/auth.error';
+import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
 import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import { IReceiptEntryReq } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto';
 
@@ -16,6 +17,13 @@ import { createReceiptUseCase } from '@infra/ioc/usecases/journal-entry';
 import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
+
+jest.mock('@infra/services/feature-flag.service', () => ({
+  __esModule: true,
+  default: jest.requireActual<
+    typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
+  >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
+}));
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
@@ -142,6 +150,7 @@ describe('POST /journal-entries/receipt', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFeatureFlagService.canAccessAlpha1.mockResolvedValue(true);
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue({ id: userId } as IUser);
     mockFindAccountingEntity.mockResolvedValue(accountingEntity);
@@ -229,6 +238,19 @@ describe('POST /journal-entries/receipt', () => {
   });
 
   describe('403 Response', () => {
+    it('rejects a user without Alpha 1 access', async () => {
+      mockFeatureFlagService.canAccessAlpha1.mockResolvedValueOnce(false);
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        name: 'FeatureFlagError',
+        errorKey: 'feature_flag_error_forbidden',
+      });
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+
     it('rejects a caller-supplied foreign accounting entity context', async () => {
       mockFindAccountingEntity.mockResolvedValue({
         ...accountingEntity,

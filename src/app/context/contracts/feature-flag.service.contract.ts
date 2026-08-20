@@ -1,9 +1,7 @@
-import { TEntityId } from '@shared/types/uuid';
-
 export interface IFeatureFlagContext {
-  userId: TEntityId;
+  email: string;
 }
 
 export default interface IFeatureFlagService {
-  accessAlpha1(context: IFeatureFlagContext): Promise<boolean>;
+  canAccessAlpha1(context: IFeatureFlagContext): Promise<boolean>;
 }

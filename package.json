@@ -7,6 +7,7 @@
   },
   "scripts": {
     "test": "jest",
+    "test:http:coverage": "jest test/http --coverage --runInBand --collectCoverageFrom='src/interface/http/controllers/**/*.ts' --coverageThreshold='{\"src/interface/http/controllers/**/*.ts\":{\"branches\":100,\"functions\":100,\"lines\":100,\"statements\":100}}'",
     "test:names": "node scripts/check-test-file-names.mjs",
     "test:ci": "bash scripts/test-ci.sh",
     "test:db:reset": "bash scripts/reset-test-db.sh",

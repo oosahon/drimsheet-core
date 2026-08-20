@@ -1,28 +1,30 @@
-import { TEntityId } from '@shared/types/uuid';
-
 import IFeatureFlagService, {
   IFeatureFlagContext,
 } from '@app/context/contracts/feature-flag.service.contract';
 
 import launchDarklyClient from '@infra/config/launchdarkly.config';
 
-function buildUserKind(userId: TEntityId) {
+function buildUserKind(email: string) {
   return {
     kind: 'user',
-    key: userId,
+    key: email,
+    email,
+    _meta: {
+      privateAttributes: ['email'],
+    },
   };
 }
 
-async function accessAlpha1(context: IFeatureFlagContext) {
+async function canAccessAlpha1(context: IFeatureFlagContext) {
   return await launchDarklyClient.boolVariation(
     'v_0_1_0_alpha_1',
-    buildUserKind(context.userId),
+    buildUserKind(context.email),
     false
   );
 }
 
 const featureFlagService: IFeatureFlagService = Object.freeze({
-  accessAlpha1,
+  canAccessAlpha1,
 });
 
 export default featureFlagService;

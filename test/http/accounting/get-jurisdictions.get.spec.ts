@@ -3,8 +3,17 @@ import request from 'supertest';
 
 import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
 
+import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
+
 import * as accountingUsecases from '@infra/ioc/usecases/accounting';
 import { createApplication } from '@infra/server';
+
+jest.mock('@infra/services/feature-flag.service', () => ({
+  __esModule: true,
+  default: jest.requireActual<
+    typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
+  >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
+}));
 
 jest.mock('../../../src/infra/ioc/usecases/accounting', () => ({
   __esModule: true,
@@ -26,6 +35,10 @@ const jurisdictions = Object.values(SYSTEM_JURISDICTIONS).map(
 );
 
 describe('GET /accounting/jurisdictions', () => {
+  afterEach(() => {
+    expect(mockFeatureFlagService.canAccessAlpha1).not.toHaveBeenCalled();
+  });
+
   let app: Express;
   const mockGetJurisdictions =
     accountingUsecases.getJurisdictionsUseCase as jest.Mock;

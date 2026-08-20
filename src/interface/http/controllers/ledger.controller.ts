@@ -16,13 +16,9 @@ import {
 import { TEntityId } from '@shared/types/uuid';
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
-import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
 
 import { IPettyCashAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
-import {
-  IGetLedgerAccountsQuery,
-  ILedgerAccountDto,
-} from '@app/ledger/dtos/ledger-account/ledger-account.dto';
+import { IGetLedgerAccountsQuery } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
 import { IGetPermittedPostingAccountsQuery } from '@app/ledger/dtos/permitted-posting-account/permitted-posting-account.dto';
 
 import middlewares from '@infra/ioc/middlewares/http';
@@ -44,10 +40,14 @@ export class LedgerController extends Controller {
   @OperationId('getLedgerAccounts')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('422')
-  @Middlewares(middlewares.isAuthenticatedUser)
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1
+  )
   public async getLedgerAccounts(@Queries() query: IGetLedgerAccountsQuery) {
-    return await getLedgerAccountsUseCase(query);
+    return getLedgerAccountsUseCase(query);
   }
 
   /**
@@ -58,15 +58,17 @@ export class LedgerController extends Controller {
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('422')
   @Middlewares(
     middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
     middlewares.accountingEntityAccess
   )
   public async getPermittedPostingAccounts(
     @Queries() query: IGetPermittedPostingAccountsQuery
   ) {
-    return await getPermittedPostingAccountsUseCase(query);
+    return getPermittedPostingAccountsUseCase(query);
   }
 
   /**
@@ -78,16 +80,18 @@ export class LedgerController extends Controller {
   @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('500')
   @Middlewares(
     middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
     middlewares.accountingEntityAccess
   )
   public async createPettyCashAccount(
     @Body() body: IPettyCashAccountCreationReq
-  ): Promise<ILedgerAccountDto> {
-    return await createPettyCashAccountUseCase(body);
+  ) {
+    return createPettyCashAccountUseCase(body);
   }
 
   /**
@@ -99,9 +103,12 @@ export class LedgerController extends Controller {
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('404')
   @Response<IHttpErrorDto>('403')
-  @Middlewares(middlewares.isAuthenticatedUser)
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1
+  )
   public async getLedgerAccount(@Path() accountId: string) {
-    return await getLedgerAccountUseCase(accountId as TEntityId);
+    return getLedgerAccountUseCase(accountId as TEntityId);
   }
 
   /**
@@ -111,8 +118,10 @@ export class LedgerController extends Controller {
   @OperationId('listTransactions')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('403')
   @Middlewares(
     middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
     middlewares.accountingEntityAccess
   )
   public async listTransactions(

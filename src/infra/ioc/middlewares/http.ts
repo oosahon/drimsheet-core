@@ -8,11 +8,13 @@ import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import appContext from '@infra/runtime/app-context';
 import makeGlobalRateLimiter from '@infra/server/rate-limiter';
+import featureFlagService from '@infra/services/feature-flag.service';
 
 import makeAccountingEntityAccessMiddleware from '@interface/http/middlewares/accounting-entity-access.middleware';
 import makeAppContextEnrichmentMiddleware from '@interface/http/middlewares/app-context-enrichment.middleware';
 import makeAppContextInitMiddleware from '@interface/http/middlewares/app-context-init.middleware';
 import makeErrorHandlerMiddleware from '@interface/http/middlewares/error-handler.middleware';
+import makeFeatureFlagAccessMiddleware from '@interface/http/middlewares/feature-flag-access.middleware';
 import {
   makeCompleteLoginWithGoogleMiddleware,
   makeInitiateLoginWithGoogleMiddleware,
@@ -34,8 +36,8 @@ const httpMiddlewares = {
 
   initiateLoginWithGoogle: makeInitiateLoginWithGoogleMiddleware(),
 
-  completeLoginWithGoogle: makeCompleteLoginWithGoogleMiddleware((user) =>
-    oAuthUseCase.handleGoogleCallback(user)
+  completeLoginWithGoogle: makeCompleteLoginWithGoogleMiddleware(
+    oAuthUseCase.handleGoogleCallback
   ),
 
   isOptionalAuthenticatedUser: makeIsOptionalAuthenticatedUserMiddleware(
@@ -69,6 +71,11 @@ const httpMiddlewares = {
     accountingEntityService,
     appContext
   ),
+
+  featureFlagAccess: makeFeatureFlagAccessMiddleware({
+    featureFlagService: featureFlagService,
+    appContext,
+  }),
 };
 
 export default httpMiddlewares;

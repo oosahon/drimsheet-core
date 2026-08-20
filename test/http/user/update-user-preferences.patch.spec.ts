@@ -6,6 +6,7 @@ import { TEntityId } from '@shared/types/uuid';
 import { IUser } from '@domain/user/types/user.types';
 
 import authError from '@app/auth/errors/auth.error';
+import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
 import {
   EAppThemePreference,
   EAppUsageModePreference,
@@ -15,6 +16,13 @@ import {
 import { tokenService } from '@infra/ioc/services/auth';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
+
+jest.mock('@infra/services/feature-flag.service', () => ({
+  __esModule: true,
+  default: jest.requireActual<
+    typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
+  >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
+}));
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
@@ -36,6 +44,10 @@ const ENDPOINT = '/api/v1/users/preferences';
 const userId = '123e4567-e89b-12d3-a456-426614174000' as TEntityId;
 
 describe('PATCH /users/preferences', () => {
+  afterEach(() => {
+    expect(mockFeatureFlagService.canAccessAlpha1).not.toHaveBeenCalled();
+  });
+
   let app: Express;
   const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;

@@ -2,8 +2,32 @@ import { Express } from 'express';
 import passport from 'passport';
 import request from 'supertest';
 
+import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
+
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import { createApplication } from '@infra/server';
+
+jest.mock('@infra/services/feature-flag.service', () => ({
+  __esModule: true,
+  default: jest.requireActual<
+    typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
+  >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
+}));
+
+jest.mock('../../../src/infra/ioc/usecases/auth', () => {
+  const actual = jest.requireActual<typeof import('@infra/ioc/usecases/auth')>(
+    '@infra/ioc/usecases/auth'
+  );
+
+  return {
+    __esModule: true,
+    ...actual,
+    oAuthUseCase: {
+      ...actual.oAuthUseCase,
+      handleGoogleCallback: jest.fn(),
+    },
+  };
+});
 
 class CallbackGoogleStrategy extends passport.Strategy {
   name = 'google';
@@ -21,25 +45,25 @@ class CallbackGoogleStrategy extends passport.Strategy {
 }
 
 describe('GET /api/v1/auth/google/callback', () => {
+  afterEach(() => {
+    expect(mockFeatureFlagService.canAccessAlpha1).not.toHaveBeenCalled();
+  });
+
   let app: Express;
-  let handleGoogleCallbackSpy: jest.SpiedFunction<
-    typeof authUseCase.oAuthUseCase.handleGoogleCallback
-  >;
+  const mockHandleGoogleCallback = authUseCase.oAuthUseCase
+    .handleGoogleCallback as jest.Mock;
 
   beforeAll(() => {
     passport.use('google', new CallbackGoogleStrategy());
   });
 
   beforeEach(() => {
+    jest.clearAllMocks();
     CallbackGoogleStrategy.outcome = 'success';
-    handleGoogleCallbackSpy = jest
-      .spyOn(authUseCase.oAuthUseCase, 'handleGoogleCallback')
-      .mockResolvedValue('http://localhost:3000/auth/oauth-confirmation');
+    mockHandleGoogleCallback.mockResolvedValue(
+      'http://localhost:3000/auth/oauth-confirmation'
+    );
     app = createApplication();
-  });
-
-  afterEach(() => {
-    handleGoogleCallbackSpy.mockRestore();
   });
 
   afterAll(() => {
@@ -60,7 +84,7 @@ describe('GET /api/v1/auth/google/callback', () => {
       expect(response.status).toBe(401);
       expect(response.headers['cache-control']).toContain('no-store');
       expect(response.get('Set-Cookie')?.join(';')).toContain('oauth_state=;');
-      expect(handleGoogleCallbackSpy).not.toHaveBeenCalled();
+      expect(mockHandleGoogleCallback).not.toHaveBeenCalled();
     });
 
     it('reserves Unauthorized for a Passport no-user result', async () => {
@@ -70,7 +94,7 @@ describe('GET /api/v1/auth/google/callback', () => {
         .set('Cookie', ['oauth_state=matching']);
 
       expect(response.status).toBe(401);
-      expect(handleGoogleCallbackSpy).not.toHaveBeenCalled();
+      expect(mockHandleGoogleCallback).not.toHaveBeenCalled();
     });
   });
 
@@ -81,7 +105,7 @@ describe('GET /api/v1/auth/google/callback', () => {
         .set('Cookie', ['oauth_state=matching']);
 
       expect(response.status).toBe(302);
-      expect(handleGoogleCallbackSpy).toHaveBeenCalledWith(
+      expect(mockHandleGoogleCallback).toHaveBeenCalledWith(
         expect.objectContaining({ id: 'user-123' })
       );
       expect(response.headers.location).toBe(
@@ -107,11 +131,11 @@ describe('GET /api/v1/auth/google/callback', () => {
         'provider token exchange failed'
       );
       expect(response.headers['cache-control']).toContain('no-store');
-      expect(handleGoogleCallbackSpy).not.toHaveBeenCalled();
+      expect(mockHandleGoogleCallback).not.toHaveBeenCalled();
     });
 
     it('sanitizes callback use-case failures', async () => {
-      handleGoogleCallbackSpy.mockRejectedValue(new Error('database details'));
+      mockHandleGoogleCallback.mockRejectedValue(new Error('database details'));
       const response = await request(app)
         .get('/api/v1/auth/google/callback?state=matching')
         .set('Cookie', ['oauth_state=matching']);

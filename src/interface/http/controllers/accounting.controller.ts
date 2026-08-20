@@ -13,12 +13,9 @@ import {
 
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 
-import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
-
 import {
   IAccountingEntityCreationDto,
   IAccountingEntitySwitchReq,
-  IJurisdictionDto,
 } from '@app/accounting/dtos/accounting/accounting.dto';
 
 import middlewares from '@infra/ioc/middlewares/http';
@@ -41,9 +38,13 @@ export class AccountingController extends Controller {
   @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('409')
   @Response<IHttpErrorDto>('422')
-  @Middlewares(middlewares.isAuthenticatedUser)
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1
+  )
   public async createAccountingEntity(
     @Body() body: IAccountingEntityCreationDto
   ) {
@@ -57,13 +58,17 @@ export class AccountingController extends Controller {
   @OperationId('switchAccountingEntity')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('404')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('500')
-  @Middlewares(middlewares.isAuthenticatedUser)
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1
+  )
   public async switchAccountingEntity(
     @Body() body: IAccountingEntitySwitchReq
-  ): Promise<IAccountingEntity> {
+  ) {
     return await switchAccountingEntityUseCase(body);
   }
 
@@ -74,7 +79,7 @@ export class AccountingController extends Controller {
   @OperationId('getJurisdictions')
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('500')
-  public async getJurisdictions(): Promise<IJurisdictionDto[]> {
+  public async getJurisdictions() {
     return await getJurisdictionsUseCase();
   }
 
@@ -86,9 +91,13 @@ export class AccountingController extends Controller {
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('500')
-  @Middlewares(middlewares.isAuthenticatedUser)
-  public async getUserAccountingEntities(): Promise<IAccountingEntity[]> {
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1
+  )
+  public async getUserAccountingEntities() {
     return await getUserAccountingEntitiesUseCase();
   }
 
@@ -100,10 +109,14 @@ export class AccountingController extends Controller {
   @SuccessResponse('200')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('404')
   @Response<IHttpErrorDto>('500')
-  @Middlewares(middlewares.isAuthenticatedUser)
-  public async getActiveAccountingEntity(): Promise<IAccountingEntity> {
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1
+  )
+  public async getActiveAccountingEntity() {
     return await getActiveAccountingEntityUseCase();
   }
 }
