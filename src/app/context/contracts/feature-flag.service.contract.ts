@@ -5,5 +5,5 @@ export interface IFeatureFlagContext {
 }
 
 export default interface IFeatureFlagService {
-  accessAlpha1(context: IFeatureFlagContext): Promise<boolean>;
+  canAccessAlpha1(context: IFeatureFlagContext): Promise<boolean>;
 }

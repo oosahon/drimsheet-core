@@ -102,6 +102,7 @@
   "event_error_missing_event_data_unexpected",
   "event_error_missing_event_type_unexpected",
   "event_error_missing_key_unexpected",
+  "feature_flag_error_forbidden",
   "file_attachment_error_attachments_invalid",
   "file_attachment_error_name_invalid",
   "file_attachment_error_size_invalid",

@@ -4,11 +4,19 @@ import { Express } from 'express';
 import request from 'supertest';
 
 import { IUserSignupReq } from '@app/auth/dtos/auth/auth.dto';
+import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
 
 import { makeIpRateLimitKey } from '@infra/config/rate-limiter.config';
 import middlewares from '@infra/ioc/middlewares/http';
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import { createApplication } from '@infra/server';
+
+jest.mock('@infra/services/feature-flag.service', () => ({
+  __esModule: true,
+  default: jest.requireActual<
+    typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
+  >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
+}));
 
 const ENDPOINT = '/api/v1/auth/signup-with-email';
 
@@ -20,6 +28,10 @@ const validPayload: IUserSignupReq = {
 };
 
 describe('POST /auth/signup-with-email', () => {
+  afterEach(() => {
+    expect(mockFeatureFlagService.canAccessAlpha1).not.toHaveBeenCalled();
+  });
+
   let app: Express;
   let client: ReturnType<typeof request>;
   let signupWithEmailSpy: jest.SpiedFunction<

@@ -7,12 +7,20 @@ import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.ty
 import { IUser } from '@domain/user/types/user.types';
 
 import authError from '@app/auth/errors/auth.error';
+import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
 
 import { tokenService } from '@infra/ioc/services/auth';
 import * as accountingUsecases from '@infra/ioc/usecases/accounting';
 import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import { createApplication } from '@infra/server';
+
+jest.mock('@infra/services/feature-flag.service', () => ({
+  __esModule: true,
+  default: jest.requireActual<
+    typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
+  >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
+}));
 
 jest.mock('../../../src/infra/ioc/services/auth', () => ({
   __esModule: true,
@@ -63,6 +71,7 @@ describe('GET /accounting/accounting-entities', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFeatureFlagService.canAccessAlpha1.mockResolvedValue(true);
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue({ id: userId } as IUser);
     mockFindEntity.mockResolvedValue(null);
@@ -176,6 +185,23 @@ describe('GET /accounting/accounting-entities', () => {
         .set('Authorization', 'Bearer valid-token');
 
       expect(response.status).toBe(401);
+      expect(mockGetEntities).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('403 Response', () => {
+    it('rejects a user without Alpha 1 access', async () => {
+      mockFeatureFlagService.canAccessAlpha1.mockResolvedValueOnce(false);
+
+      const response = await request(app)
+        .get(ENDPOINT)
+        .set('Authorization', 'Bearer valid-token');
+
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        name: 'FeatureFlagError',
+        errorKey: 'feature_flag_error_forbidden',
+      });
       expect(mockGetEntities).not.toHaveBeenCalled();
     });
   });

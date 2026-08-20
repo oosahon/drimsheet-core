@@ -13,7 +13,7 @@ function buildUserKind(userId: TEntityId) {
   };
 }
 
-async function accessAlpha1(context: IFeatureFlagContext) {
+async function canAccessAlpha1(context: IFeatureFlagContext) {
   return await launchDarklyClient.boolVariation(
     'v_0_1_0_alpha_1',
     buildUserKind(context.userId),
@@ -22,7 +22,7 @@ async function accessAlpha1(context: IFeatureFlagContext) {
 }
 
 const featureFlagService: IFeatureFlagService = Object.freeze({
-  accessAlpha1,
+  canAccessAlpha1,
 });
 
 export default featureFlagService;

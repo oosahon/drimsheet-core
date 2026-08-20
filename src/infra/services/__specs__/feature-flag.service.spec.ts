@@ -21,7 +21,7 @@ describe('featureFlagService', () => {
     const userId = generateUUID();
     client.boolVariation.mockResolvedValue(true);
 
-    await expect(featureFlagService.accessAlpha1({ userId })).resolves.toBe(
+    await expect(featureFlagService.canAccessAlpha1({ userId })).resolves.toBe(
       true
     );
     expect(client.boolVariation).toHaveBeenCalledWith(
@@ -35,7 +35,7 @@ describe('featureFlagService', () => {
     client.boolVariation.mockResolvedValue(false);
 
     await expect(
-      featureFlagService.accessAlpha1({ userId: generateUUID() })
+      featureFlagService.canAccessAlpha1({ userId: generateUUID() })
     ).resolves.toBe(false);
   });
 });

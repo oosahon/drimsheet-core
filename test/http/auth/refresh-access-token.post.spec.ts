@@ -5,11 +5,24 @@ import request from 'supertest';
 
 import appError from '@shared/values/errors/app.error';
 
+import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
+
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import appContext from '@infra/runtime/app-context';
 import { createApplication } from '@infra/server';
 
+jest.mock('@infra/services/feature-flag.service', () => ({
+  __esModule: true,
+  default: jest.requireActual<
+    typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
+  >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
+}));
+
 describe('POST /api/v1/auth/refresh-access-token', () => {
+  afterEach(() => {
+    expect(mockFeatureFlagService.canAccessAlpha1).not.toHaveBeenCalled();
+  });
+
   let app: Express;
   let client: ReturnType<typeof request>;
   let refreshSpy: jest.SpiedFunction<

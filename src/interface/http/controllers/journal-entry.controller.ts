@@ -28,10 +28,12 @@ export class JournalEntryController extends Controller {
   @SuccessResponse('201')
   @Response<IHttpErrorDto>('400')
   @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
   @Response<IHttpErrorDto>('422')
   @Response<IHttpErrorDto>('500')
   @Middlewares(
     middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
     middlewares.accountingEntityAccess
   )
   public async createReceipt(@Body() body: IReceiptEntryReq) {

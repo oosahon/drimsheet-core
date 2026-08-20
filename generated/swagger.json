@@ -2129,6 +2129,16 @@
               }
             }
           },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "422": {
             "description": "",
             "content": {
@@ -2263,6 +2273,16 @@
               }
             }
           },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "422": {
             "description": "",
             "content": {
@@ -2349,6 +2369,16 @@
             }
           },
           "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
             "description": "",
             "content": {
               "application/json": {
@@ -2478,6 +2508,16 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
           }
         },
         "description": "List transactions for an account",
@@ -2562,6 +2602,16 @@
             }
           },
           "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
             "description": "",
             "content": {
               "application/json": {
@@ -2742,6 +2792,16 @@
               }
             }
           },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "409": {
             "description": "",
             "content": {
@@ -2812,6 +2872,16 @@
             }
           },
           "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
             "description": "",
             "content": {
               "application/json": {
@@ -2960,6 +3030,16 @@
               }
             }
           },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "409": {
             "description": "",
             "content": {
@@ -3041,6 +3121,16 @@
               }
             }
           },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "409": {
             "description": "",
             "content": {
@@ -3113,6 +3203,16 @@
             }
           },
           "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
             "description": "",
             "content": {
               "application/json": {
@@ -3730,6 +3830,16 @@
               }
             }
           },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "409": {
             "description": "",
             "content": {
@@ -3811,6 +3921,16 @@
               }
             }
           },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "409": {
             "description": "",
             "content": {
@@ -3880,6 +4000,16 @@
               }
             }
           },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
           "404": {
             "description": "",
             "content": {
@@ -3922,6 +4052,16 @@
             }
           },
           "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
             "description": "",
             "content": {
               "application/json": {
@@ -4040,6 +4180,16 @@
             }
           },
           "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
             "description": "",
             "content": {
               "application/json": {
