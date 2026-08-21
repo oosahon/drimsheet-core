@@ -40,7 +40,6 @@
   },
   "keywords": [],
   "author": "Osahon Oboite",
-  "license": "AGPL-3.0-or-later",
   "description": "This repo contains the server-side source code for Drimsheet's bookkeeping and tax app.",
   "bin": {
     "drimsheet-core": "scripts/api-gen.js"
