@@ -1954,9 +1954,6 @@
     "title": "drimsheet-core",
     "version": "0.1.0-alpha.1",
     "description": "This repo contains the server-side source code for Drimsheet's bookkeeping and tax app.",
-    "license": {
-      "name": "AGPL-3.0-or-later"
-    },
     "contact": {
       "name": "Osahon Oboite"
     }

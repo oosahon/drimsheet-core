@@ -38,8 +38,40 @@ jobs:
       - name: Create tmp directory for potential mock setups
         run: mkdir -p tmp
 
-      - name: Run Tests with Coverage
-        run: npm test -- --coverage --coverageReporters="json-summary" --coverageReporters="text" --coverageReporters="lcov"
+      - name: Run Domain and Shared Tests with Coverage
+        run: >-
+          npm test -- src/domain src/shared
+          --coverage
+          --coverageDirectory="coverage/domain-shared"
+          --coverageReporters="json"
+          --maxWorkers=2
+
+      - name: Run Application Tests with Coverage
+        run: >-
+          npm test -- src/app
+          --coverage
+          --coverageDirectory="coverage/app"
+          --coverageReporters="json"
+          --maxWorkers=2
+
+      - name: Run Infrastructure and Interface Tests with Coverage
+        run: >-
+          npm test -- src/infra src/interface
+          --coverage
+          --coverageDirectory="coverage/infra-interface"
+          --coverageReporters="json"
+          --maxWorkers=2
+
+      - name: Run HTTP Tests with Coverage
+        run: >-
+          npm test -- test/http
+          --coverage
+          --coverageDirectory="coverage/http"
+          --coverageReporters="json"
+          --maxWorkers=2
+
+      - name: Merge Coverage Reports
+        run: node scripts/merge-coverage.mjs
 
       - name: Generate Coverage Badge
         if: github.ref == 'refs/heads/development' && github.event_name == 'push'
