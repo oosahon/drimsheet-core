@@ -22,9 +22,8 @@ const ENVIRONMENT_VARIABLES = [
   'JWT_SECRET_KEY',
   'LAUNCHDARKLY_SDK_KEY',
   'NODE_ENV',
-  'METRICS_ENABLED',
-  'METRICS_OTLP_HTTP_ENDPOINT',
-  'BULLMQ_METRICS_PORT',
+  'BETTER_STACK_SOURCE_TOKEN',
+  'BETTER_STACK_INGESTING_HOST',
   'PORT',
   'POSTGRES_URL',
   'RABBITMQ_URL',
@@ -92,9 +91,8 @@ describe('vars config', () => {
       LAUNCHDARKLY_SDK_KEY: '',
       JWT_SECRET_KEY: '',
       NODE_ENV: 'development',
-      METRICS_ENABLED: 'false',
-      METRICS_OTLP_HTTP_ENDPOINT: '',
-      BULLMQ_METRICS_PORT: '0',
+      BETTER_STACK_SOURCE_TOKEN: '',
+      BETTER_STACK_INGESTING_HOST: '',
       PORT: 3000,
       POSTGRES_URL: '',
       RABBITMQ_URL: '',
@@ -132,9 +130,8 @@ describe('vars config', () => {
       JWT_SECRET_KEY: 'jwt-secret',
       LAUNCHDARKLY_SDK_KEY: 'launchdarkly-key',
       NODE_ENV: 'production',
-      METRICS_ENABLED: 'true',
-      METRICS_OTLP_HTTP_ENDPOINT: 'http://collector:4318/v1/metrics',
-      BULLMQ_METRICS_PORT: '9464',
+      BETTER_STACK_SOURCE_TOKEN: 'better-stack-token',
+      BETTER_STACK_INGESTING_HOST: 's123.eu-nbg-2.betterstackdata.com',
       PORT: '4000',
       POSTGRES_URL: 'postgres://database',
       RABBITMQ_URL: 'amqp://queue',
@@ -160,9 +157,8 @@ describe('vars config', () => {
       LAUNCHDARKLY_SDK_KEY: 'launchdarkly-key',
       JWT_SECRET_KEY: 'jwt-secret',
       NODE_ENV: 'production',
-      METRICS_ENABLED: 'true',
-      METRICS_OTLP_HTTP_ENDPOINT: 'http://collector:4318/v1/metrics',
-      BULLMQ_METRICS_PORT: '9464',
+      BETTER_STACK_SOURCE_TOKEN: 'better-stack-token',
+      BETTER_STACK_INGESTING_HOST: 's123.eu-nbg-2.betterstackdata.com',
       PORT: 4000,
       POSTGRES_URL: 'postgres://database',
       RABBITMQ_URL: 'amqp://queue',
@@ -175,5 +171,17 @@ describe('vars config', () => {
     });
     expect(vars.APP_VERSION).toBe(packageJson.version);
     expect(Object.isFrozen(vars)).toBe(true);
+  });
+
+  it('does not expose collector-era configuration aliases', () => {
+    const legacyVariableNames = [
+      `METRICS_${'ENABLED'}`,
+      `METRICS_OTLP_HTTP_${'ENDPOINT'}`,
+      `BULLMQ_METRICS_${'PORT'}`,
+    ];
+
+    expect(Object.keys(loadVars())).not.toEqual(
+      expect.arrayContaining(legacyVariableNames)
+    );
   });
 });

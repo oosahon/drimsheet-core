@@ -3,7 +3,7 @@ import Sentry from '@sentry/node';
 import { ELogOutcome } from '@shared/types/observability.types';
 
 import { TRACING_CONFIG } from '@infra/config/observability-tracing.config';
-import { metricsRuntime } from '@infra/observability';
+import { betterStackLogRuntime, metricsRuntime } from '@infra/observability';
 import logger from '@infra/observability/logger';
 
 type TShutdownSignal = 'SIGINT' | 'SIGTERM';
@@ -49,9 +49,22 @@ async function shutdownMetricsSafely(signal?: TShutdownSignal) {
   }
 }
 
+async function flushLogsSafely(signal?: TShutdownSignal) {
+  try {
+    await betterStackLogRuntime.shutdown();
+  } catch (error) {
+    warnSafely('observability.logs.shutdown_failed', {
+      outcome: ELogOutcome.Failure,
+      error,
+      ...(signal ? { signal } : {}),
+    });
+  }
+}
+
 function shutdown(signal?: TShutdownSignal): Promise<void> {
   shutdownPromise ??= Promise.all([
     flushSentrySafely(signal),
+    flushLogsSafely(signal),
     shutdownMetricsSafely(signal),
   ]).then(() => undefined);
 

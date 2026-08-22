@@ -1,13 +1,14 @@
-import { METRICS_CONFIG } from '@infra/config/observability-metrics.config';
+import { BETTER_STACK_CONFIG } from '@infra/config/better-stack.config';
 import makeMetricsRuntime from '@infra/runtime/observability-runtime';
 
 import makeHttpMetrics from './http-metrics';
-import logger from './logger';
+import logger, { betterStackLogRuntime } from './logger';
 import makeQueueMetrics from './queue-metrics';
 import reporter from './reporter';
 import tracer from './tracer';
 
-export const metricsRuntime = makeMetricsRuntime(METRICS_CONFIG, logger);
+export const metricsRuntime = makeMetricsRuntime(BETTER_STACK_CONFIG, logger);
+export { betterStackLogRuntime };
 const httpMetrics = makeHttpMetrics(metricsRuntime.metrics);
 const queueMetrics = makeQueueMetrics(metricsRuntime.metrics);
 

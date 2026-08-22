@@ -39,14 +39,6 @@ export interface ILogFields {
   [key: string]: unknown;
 }
 
-export interface IObservabilityMetricsConfig {
-  enabled: boolean;
-  exportIntervalMs: number;
-  otlpHttpEndpoint: string;
-  shutdownTimeoutMs: number;
-  bullMQMetricsPort: number;
-}
-
 export interface IObservabilityTracingConfig {
   flushTimeoutMs: number;
   tracePropagationTargets: readonly string[];

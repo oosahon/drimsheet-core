@@ -1,4 +1,5 @@
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
+import { CompressionAlgorithm } from '@opentelemetry/otlp-exporter-base';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
   MeterProvider,
@@ -6,8 +7,8 @@ import {
 } from '@opentelemetry/sdk-metrics';
 
 import mockLogger from '@shared/contracts/__mocks__/logger.mock';
-import { IObservabilityMetricsConfig } from '@shared/types/observability.types';
 
+import { IBetterStackConfig } from '@infra/config/better-stack.config';
 import runtimeVars from '@infra/config/vars.config';
 import makeMetricsRuntime from '@infra/runtime/observability-runtime';
 
@@ -29,8 +30,6 @@ jest.mock('@opentelemetry/resources', () => ({
 }));
 
 jest.mock('@opentelemetry/sdk-metrics', () => ({
-  AggregationType: { EXPONENTIAL_HISTOGRAM: 'exponential-histogram' },
-  InstrumentType: { HISTOGRAM: 'histogram' },
   MeterProvider: jest.fn(() => ({
     getMeter: mockProviderGetMeter,
     shutdown: mockProviderShutdown,
@@ -47,14 +46,15 @@ jest.mock('../../config/vars.config', () => ({
 }));
 
 function makeConfig(
-  overrides: Partial<IObservabilityMetricsConfig> = {}
-): IObservabilityMetricsConfig {
+  overrides: Partial<IBetterStackConfig> = {}
+): IBetterStackConfig {
   return {
     enabled: true,
     exportIntervalMs: 60_000,
-    otlpHttpEndpoint: 'http://grafana-alloy:4318/v1/metrics',
+    logEndpoint: 'https://s123.eu-nbg-2.betterstackdata.com',
+    metricsEndpoint: 'https://s123.eu-nbg-2.betterstackdata.com/v1/metrics',
     shutdownTimeoutMs: 5_000,
-    bullMQMetricsPort: 0,
+    sourceToken: 'source-token',
     ...overrides,
   };
 }
@@ -83,9 +83,9 @@ describe('observability runtime', () => {
     expect(MeterProvider).not.toHaveBeenCalled();
   });
 
-  it('rejects enabled configuration without an internal endpoint safely', () => {
+  it('rejects incomplete enabled configuration safely', () => {
     const runtime = makeMetricsRuntime(
-      makeConfig({ otlpHttpEndpoint: '' }),
+      makeConfig({ metricsEndpoint: '', sourceToken: '' }),
       mockLogger
     );
 
@@ -100,11 +100,29 @@ describe('observability runtime', () => {
     expect(mockLogger.warn).toHaveBeenCalledWith(
       'observability.metrics.configuration_invalid',
       {
-        field: 'METRICS_OTLP_HTTP_ENDPOINT',
+        fields: ['BETTER_STACK_INGESTING_HOST', 'BETTER_STACK_SOURCE_TOKEN'],
         outcome: 'failure',
       }
     );
     expect(OTLPMetricExporter).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    {
+      overrides: { metricsEndpoint: '' },
+      fields: ['BETTER_STACK_INGESTING_HOST'],
+    },
+    {
+      overrides: { sourceToken: '' },
+      fields: ['BETTER_STACK_SOURCE_TOKEN'],
+    },
+  ])('identifies each incomplete runtime field', ({ overrides, fields }) => {
+    makeMetricsRuntime(makeConfig(overrides), mockLogger);
+
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      'observability.metrics.configuration_invalid',
+      { fields, outcome: 'failure' }
+    );
   });
 
   it('contains fallback logger failures during metrics setup', () => {
@@ -113,16 +131,22 @@ describe('observability runtime', () => {
     });
 
     expect(() =>
-      makeMetricsRuntime(makeConfig({ otlpHttpEndpoint: '' }), mockLogger)
+      makeMetricsRuntime(
+        makeConfig({ metricsEndpoint: '', sourceToken: '' }),
+        mockLogger
+      )
     ).not.toThrow();
   });
 
-  it('configures OTLP/HTTP periodic export and exponential histograms', () => {
+  it('configures direct Better Stack OTLP/HTTP periodic export', () => {
     const runtime = makeMetricsRuntime(makeConfig(), mockLogger);
 
     expect(OTLPMetricExporter).toHaveBeenCalledWith({
-      url: 'http://grafana-alloy:4318/v1/metrics',
+      url: 'https://s123.eu-nbg-2.betterstackdata.com/v1/metrics',
+      headers: { Authorization: 'Bearer source-token' },
+      compression: CompressionAlgorithm.GZIP,
       concurrencyLimit: 1,
+      timeoutMillis: 5_000,
     });
     expect(PeriodicExportingMetricReader).toHaveBeenCalledWith({
       exporter: expect.any(Object),
@@ -138,13 +162,6 @@ describe('observability runtime', () => {
     expect(MeterProvider).toHaveBeenCalledWith({
       resource: mockResource,
       readers: [expect.any(Object)],
-      views: [
-        {
-          instrumentType: 'histogram',
-          aggregation: { type: 'exponential-histogram' },
-          aggregationCardinalityLimit: 100,
-        },
-      ],
     });
     expect(mockProviderGetMeter).toHaveBeenCalledWith(
       'drimsheet-core',

@@ -65,10 +65,10 @@ To ensure only clean data enters the system and anomalous states are captured:
 
 - **Data Validation (Zod)**: Zod is enforced at the system boundary (API endpoints and MCP tool inputs) to guarantee malformed or malicious payloads are rejected before they touch business logic.
 - **Standardized Error Handling**: Errors are wrapped in a standard domain format so that clients cleanly differentiate between user errors (e.g., "Insufficient Balance") and system errors.
-- **Observability logs (Grafana Cloud, Grafana Alloy, Winston)**: Every non-local log line is one structured JSON record containing a stable operational event, runtime service/environment/version metadata, request or worker correlation, and validated active Sentry `traceId`/`spanId` when a span exists. Grafana Alloy collects Docker stdout and sends it to Grafana Cloud Loki; application containers contain no Grafana credentials. Local development keeps readable colorized output. Reporting callers supply only allowlisted operational facts; complete requests, jobs, payloads, user or product identifiers, email content, IP addresses, raw URLs, and financial values are prohibited. The logger and reporter serialize errors as sanitized name, message, stack, and `errorKey` only, without causes or arbitrary custom properties. Recursive sanitization remains a defense-in-depth boundary, and request logs use normalized route templates rather than raw URLs or query strings. These records are logs, not metrics; event naming, controlled outcomes, privacy, and cardinality follow [the canonical observability rule](../.agents/rules/observability.md).
+- **Observability logs (Better Stack, Winston)**: Every non-local log line is one structured JSON record containing a stable operational event, runtime service/environment/version metadata, request or worker correlation, and validated active Sentry `traceId`/`spanId` when a span exists. Winston keeps console output and sends the same canonical record directly to Better Stack using one environment-specific OpenTelemetry source. Local development keeps readable colorized output and does not create a remote client. Reporting callers supply only allowlisted operational facts; complete requests, jobs, payloads, user or product identifiers, email content, IP addresses, raw URLs, and financial values are prohibited. The logger and reporter serialize errors as sanitized name, message, stack, and `errorKey` only, without causes or arbitrary custom properties. Recursive sanitization remains a defense-in-depth boundary, and request logs use normalized route templates rather than raw URLs or query strings. These records are logs, not metrics; event naming, controlled outcomes, privacy, and cardinality follow [the canonical observability rule](../.agents/rules/observability.md).
 - **Sentry reporting and tracing privacy boundary**: Sentry initializes before the runtime dependency graph, with default PII collection disabled and environment-controlled trace sampling. Every error/message event, transaction, and child span passes through a strict application allowlist. Request bodies, URLs, query strings, headers, cookies, user identity, arbitrary span data, SQL values, financial data, and health-check transactions are removed. Sentry retains bounded reporter facts, normalized HTTP route identity, controlled use-case/queue operations, canonical exception identity and stack, release/environment metadata, safe runtime context, and trace identity. Sentry project-side data scrubbing must also remain enabled as an independent backstop; it does not permit application code to send sensitive data.
 - **Application and queue span boundaries**: The 35 entry points composed in `src/infra/ioc/usecases` run in stable `app.usecase` spans without adding Sentry dependencies to application or domain code. BullMQ producers place propagation data beside the DTO in an infrastructure-only versioned envelope; consumers accept both that envelope and legacy raw jobs. RabbitMQ consumers read only `sentry-trace` and `baggage` headers. Consumers create controlled `queue.process` roots when no valid parent exists. Tracing failures never change use-case returns, queue retries, RabbitMQ acknowledgements, or ledger propagation failure semantics.
-- **Observability metrics (OpenTelemetry, Grafana Alloy, Grafana Cloud)**: Application instances export best-effort metrics periodically over OTLP/HTTP to Grafana Alloy on the private Coolify network. Export is disabled by default and application code contains no Grafana Cloud credentials. `IObservabilityMetrics` provides the tool-agnostic recorder, while `IHttpMetrics` and `IQueueMetrics` own the semantic catalogue, seconds conversion, and bounded attribute policy. OTel resource identity supplies bounded service name, deployment release, environment, and container instance fields once per process. Recording and bounded shutdown-flush failures never change HTTP, transaction, queue retry, or acknowledgement behavior.
+- **Observability metrics (OpenTelemetry, Better Stack)**: Application instances export best-effort metrics periodically over OTLP/HTTP directly to the same environment-specific Better Stack source used for logs. `IObservabilityMetrics` provides the tool-agnostic recorder, while `IHttpMetrics` and `IQueueMetrics` own the semantic catalogue, seconds conversion, and bounded attribute policy. OTel resource identity supplies bounded service name, deployment release, environment, and container instance fields once per process. Recording and bounded shutdown-flush failures never change HTTP, transaction, queue retry, or acknowledgement behavior.
 - **Runtime health**: `/health/live` is dependency-free. `/health/ready` requires completed startup and a one-second PostgreSQL probe because PostgreSQL contains the authoritative journal. Optional balance-propagation, messaging, feature-flag, and telemetry dependencies are monitored but are deliberately non-gating.
 
 After an observability deployment, an operator must inspect raw Sentry event
@@ -96,19 +96,20 @@ The initial application-owned metrics are:
 | `messaging.process.duration`          | Histogram  | `s`           | controlled queue, transport, outcome             |
 | `messaging.process.wait.duration`     | Histogram  | `s`           | controlled queue and transport, when trustworthy |
 
-Histograms prefer base-2 exponential aggregation. If the deployed
-Alloy/Grafana Cloud pipeline does not preserve it, the compatibility
-boundaries in `src/infra/observability/metric-catalogue.ts` become the explicit
-fallback. Baseline distributions must be collected for two to four weeks
-before final latency SLOs are proposed.
+Histograms use the OpenTelemetry SDK's standard aggregation. Baseline
+distributions must be collected for two to four weeks before final latency SLOs
+are proposed.
 
-Application metrics configuration is intentionally provider-neutral:
+Better Stack export uses one all-or-nothing source pair:
 
-| Environment variable         | Default | Purpose                                                   |
-| ---------------------------- | ------- | --------------------------------------------------------- |
-| `METRICS_ENABLED`            | `false` | Enables application OTLP/HTTP export explicitly.          |
-| `METRICS_OTLP_HTTP_ENDPOINT` | empty   | Internal Alloy URL ending in `/v1/metrics`.               |
-| `BULLMQ_METRICS_PORT`        | `0`     | Separate internal scrape listener; `0` keeps it disabled. |
+| Environment variable          | Default | Purpose                                              |
+| ----------------------------- | ------- | ---------------------------------------------------- |
+| `BETTER_STACK_SOURCE_TOKEN`   | empty   | Per-environment write-only source token.             |
+| `BETTER_STACK_INGESTING_HOST` | empty   | Exact regional ingestion host shown by Better Stack. |
+
+Both values must be present and valid to enable direct logs and metrics. A
+partial or invalid pair produces one sanitized console warning and disables
+both remote paths without affecting startup or readiness.
 
 Tracing sampling is also environment-controlled:
 
@@ -129,13 +130,10 @@ See [the observability operations runbook](observability-operations.md) for
 deployment values, manual verification, deferred operational work, and privacy
 canaries.
 
-Queue inventory remains provider-owned. Alloy scrapes one logical internal
-BullMQ listener per environment, keeps `bullmq_job_count`, and drops the
-overlapping `bullmq_job_completed_total` and `bullmq_job_failed_total` series.
-Every Coolify-hosted RabbitMQ node enables `rabbitmq_prometheus`, and Alloy
-scrapes each node on private port `15692` for ready, unacknowledged, consumer,
-connection, publish, and delivery measurements. Neither the BullMQ listener nor
-RabbitMQ metrics ports belong in the public Coolify proxy. Oldest-job age and
-journal-to-ledger consistency remain deferred; lifecycle metrics are
-operational proxies, not accounting truth. See
-[ADR 0014](adrs/0014-first-class-observability-metrics.md).
+Queue inventory remains provider-owned and is intentionally uncollected in the
+direct Better Stack MVP. Core exposes no BullMQ Prometheus listener and does not
+poll BullMQ or RabbitMQ to recreate inventory gauges. Operators can use Bull
+Board for direct BullMQ inspection; application enqueue and processing metrics
+remain available. Oldest-job age and journal-to-ledger consistency remain
+deferred; lifecycle metrics are operational proxies, not accounting truth. See
+[ADR 0016](adrs/0016-direct-better-stack-observability.md).

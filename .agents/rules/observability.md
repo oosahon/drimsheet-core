@@ -99,9 +99,14 @@ metric names or arbitrary attributes.
 - Provider-native inventory remains owned by its provider. Do not duplicate
   queue state as application gauges or count overlapping provider and
   application lifecycle series.
+- Provider-native BullMQ and RabbitMQ inventory is intentionally uncollected in
+  the direct Better Stack MVP. Do not recreate it in application code or add a
+  scrape listener without a new approved operational requirement.
 - Metrics are approximate operational signals. They do not replace domain
   events, reconciliation, persistence, audit history, or the authoritative
   accounting record.
 
-The initial application catalogue and provider-native ownership are recorded in
-[ADR 0014](../../docs/adrs/0014-first-class-observability-metrics.md).
+The application catalogue originated in
+[ADR 0014](../../docs/adrs/0014-first-class-observability-metrics.md); the active
+export topology and deliberate inventory omission are recorded in
+[ADR 0016](../../docs/adrs/0016-direct-better-stack-observability.md).

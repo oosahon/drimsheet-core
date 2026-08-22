@@ -39,6 +39,17 @@ describe('logger', () => {
     jest.mocked(tracer.getActiveTrace).mockReturnValue(undefined);
   });
 
+  it('uses process defaults when no logger options are supplied', () => {
+    const logger = makeLogger();
+
+    expect(logger).toEqual({
+      info: expect.any(Function),
+      warn: expect.any(Function),
+      error: expect.any(Function),
+      debug: expect.any(Function),
+    });
+  });
+
   it('emits one canonical JSON record with numeric fields outside local', () => {
     const output: string[] = [];
     const logger = makeLogger({
@@ -77,6 +88,32 @@ describe('logger', () => {
     expect(record.correlationId).toBeUndefined();
     expect(output).toHaveLength(1);
     expect(output[0]).not.toContain('\u001b[');
+  });
+
+  it('sends the same canonical record to the configured remote transport', () => {
+    const consoleOutput: string[] = [];
+    const remoteOutput: string[] = [];
+    const logger = makeLogger({
+      appEnv: 'production',
+      service: 'test-service',
+      version: '1.2.3',
+      transport: makeOutputTransport(consoleOutput),
+      remoteTransport: makeOutputTransport(remoteOutput),
+    });
+
+    logger.info('http.request.completed', {
+      durationMs: 42,
+      outcome: 'success',
+    });
+
+    expect(parseRecord(remoteOutput)).toEqual(parseRecord(consoleOutput));
+    expect(parseRecord(remoteOutput)).toEqual(
+      expect.objectContaining({
+        event: 'http.request.completed',
+        durationMs: 42,
+        outcome: 'success',
+      })
+    );
   });
 
   it('adds safe context and protects logger-owned fields', () => {

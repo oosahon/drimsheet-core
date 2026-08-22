@@ -1,20 +1,16 @@
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
+import { CompressionAlgorithm } from '@opentelemetry/otlp-exporter-base';
 import { resourceFromAttributes } from '@opentelemetry/resources';
 import {
-  AggregationType,
-  InstrumentType,
   MeterProvider,
   PeriodicExportingMetricReader,
 } from '@opentelemetry/sdk-metrics';
 
 import ILogger from '@shared/contracts/logger.contract';
 import IObservabilityMetrics from '@shared/contracts/observability-metrics.contract';
-import {
-  ELogOutcome,
-  ILogFields,
-  IObservabilityMetricsConfig,
-} from '@shared/types/observability.types';
+import { ELogOutcome, ILogFields } from '@shared/types/observability.types';
 
+import { IBetterStackConfig } from '@infra/config/better-stack.config';
 import vars from '@infra/config/vars.config';
 import {
   makeNoopObservabilityMetrics,
@@ -63,14 +59,17 @@ function makeDisabledRuntime(): IMetricsRuntime {
 }
 
 export default function makeMetricsRuntime(
-  config: IObservabilityMetricsConfig,
+  config: IBetterStackConfig,
   logger: ILogger
 ): IMetricsRuntime {
   if (!config.enabled) return makeDisabledRuntime();
 
-  if (!config.otlpHttpEndpoint) {
+  if (!config.metricsEndpoint || !config.sourceToken) {
     warnSafely(logger, 'observability.metrics.configuration_invalid', {
-      field: 'METRICS_OTLP_HTTP_ENDPOINT',
+      fields: [
+        ...(!config.metricsEndpoint ? ['BETTER_STACK_INGESTING_HOST'] : []),
+        ...(!config.sourceToken ? ['BETTER_STACK_SOURCE_TOKEN'] : []),
+      ],
       outcome: ELogOutcome.Failure,
     });
 
@@ -79,8 +78,13 @@ export default function makeMetricsRuntime(
 
   try {
     const exporter = new OTLPMetricExporter({
-      url: config.otlpHttpEndpoint,
+      url: config.metricsEndpoint,
+      headers: {
+        Authorization: `Bearer ${config.sourceToken}`,
+      },
+      compression: CompressionAlgorithm.GZIP,
       concurrencyLimit: 1,
+      timeoutMillis: config.shutdownTimeoutMs,
     });
     const reader = new PeriodicExportingMetricReader({
       exporter,
@@ -101,15 +105,6 @@ export default function makeMetricsRuntime(
     const provider = new MeterProvider({
       resource,
       readers: [reader],
-      views: [
-        {
-          instrumentType: InstrumentType.HISTOGRAM,
-          aggregation: {
-            type: AggregationType.EXPONENTIAL_HISTOGRAM,
-          },
-          aggregationCardinalityLimit: MAX_INSTRUMENT_CARDINALITY,
-        },
-      ],
     });
     const meter = provider.getMeter(
       packageJson.name,
