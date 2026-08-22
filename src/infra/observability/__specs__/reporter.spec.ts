@@ -16,6 +16,8 @@ jest.mock('@sentry/node', () => ({
 jest.mock('../../config/vars.config', () => ({
   __esModule: true,
   default: {
+    BETTER_STACK_SOURCE_TOKEN: '',
+    BETTER_STACK_INGESTING_HOST: '',
     get APP_ENV() {
       return process.env.APP_ENV || 'test';
     },

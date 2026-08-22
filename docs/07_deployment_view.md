@@ -30,13 +30,12 @@ All internal systems run as Docker containers strictly managed and orchestrated 
 | **PostgreSQL**     | Relational Database  | The primary transactional database where ledgers and journals are stored. Runs persistently on attached volumes ensuring ACID compliance.                                        |
 | **Redis**          | In-Memory Data Store | Acts as a fast response cache and the backbone for the background job processing (BullMQ / Bull Board).                                                                          |
 | **RabbitMQ**       | Message Broker       | Handles asynchronous event-driven message consumption for external workflows such as exchange rate ingestion, decoupling producers from consumers.                               |
-| **Grafana Alloy**  | Telemetry Collector  | Receives private OTLP application metrics, scrapes BullMQ/RabbitMQ inventory, collects Docker stdout logs, and owns Grafana Cloud egress credentials and retry policy.           |
 | **Qdrant**         | Vector Database      | Maintains semantic context and vector embeddings, particularly for enabling intelligent AI Agent integrations into the product.                                                  |
 
 Coolify routes application traffic using `GET /health/ready`. The route stays
 unavailable until asynchronous startup completes and a bounded PostgreSQL
 `SELECT 1` succeeds. `GET /health/live` checks only whether the Node process can
-serve HTTP. Redis, BullMQ, RabbitMQ, Grafana Alloy, Grafana Cloud, Sentry, and
+serve HTTP. Redis, BullMQ, RabbitMQ, Better Stack, Sentry, and
 outbound integrations do not participate in readiness; their failures are
 operational alert conditions and must not prevent authoritative journal writes.
 Both routes return minimal, non-cacheable responses and run before product HTTP
@@ -48,8 +47,9 @@ The Node.js API container relies entirely on these third-party systems via HTTPS
 
 - **AWS S3**: Cloud blob storage used as an immutable vault for transaction attachments (e.g., PDFs, invoices).
 - **Sentry**: Observability platform catching exceptions, runtime crashes, and tracing request performance.
-- **Grafana Cloud**: Central destination for structured Loki logs and
-  Prometheus-compatible metrics exported through Grafana Alloy.
+- **Better Stack**: Receives canonical structured Winston logs and
+  application-owned OpenTelemetry metrics directly from Core. It does not
+  receive Sentry traces/errors or provider-native BullMQ/RabbitMQ inventory.
 - **Doppler**: Centralized configuration management (discussed comprehensively in Section 7.3).
 - **Core Systems**: FIRS Tax ProMax (taxation), Mono (open banking), Paystack (billing), and ZeptoMail (transactional email).
 - **Identity & Marketing**: Google Auth, Mailchimp, and MailerLite.
@@ -86,4 +86,4 @@ Drimsheet does not store raw `.env` files anywhere in version control or directl
 
 1.  **Storage (Doppler)**: API Keys, AWS keys, database passwords, and runtime flags are encrypted and updated purely on Doppler's platform.
 2.  **Injection (Coolify Pipeline)**: When Coolify initiates a deployment of the Drimsheet Core, it utilizes the Doppler CLI (or Doppler Service Token) to securely pull and inject these keys into the Node.js Docker environment at startup.
-3.  **Application Consumption (`vars.config.ts` & `IVarsConfig`)**: Within the codebase, configurations are not arbitrarily fetched. The file `src/infra/config/vars.config.ts` parses `process.env` and acts as the secure internal schema for the application. Application-layer code accesses these values through the `IVarsConfig` contract interface (`src/app/shared/contracts/vars-config.contract.ts`), ensuring that environment configuration does not leak into testable application logic.
+3.  **Application Consumption (`vars.config.ts` & `IVarsConfig`)**: Within the codebase, configurations are not arbitrarily fetched. The file `src/infra/config/vars.config.ts` parses `process.env` and acts as the secure internal schema for the application. Application-layer code accesses these values through the `IVarsConfig` contract interface (`src/shared/contracts/vars-config.contract.ts`), ensuring that environment configuration does not leak into testable application logic.

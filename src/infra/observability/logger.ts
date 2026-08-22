@@ -12,10 +12,12 @@ import { sanitizeData } from '@shared/utils/sanitizer';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
 
+import { BETTER_STACK_CONFIG } from '@infra/config/better-stack.config';
 import vars from '@infra/config/vars.config';
 import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-id';
 import { normalizeTelemetryError } from '@infra/observability/helpers/telemetry-error';
 import tracer from '@infra/observability/tracer';
+import makeBetterStackLogRuntime from '@infra/runtime/better-stack-log-runtime';
 
 import packageJson from '../../../package.json';
 
@@ -25,6 +27,7 @@ interface ILoggerOptions {
   appContext?: TCorrelationContext;
   appEnv?: IVarsConfig['APP_ENV'];
   service?: string;
+  remoteTransport?: winston.transport;
   transport?: winston.transport;
   version?: string;
 }
@@ -139,10 +142,16 @@ export function makeLogger(options: ILoggerOptions = {}): ILogger {
   const service = options.service ?? packageJson.name;
   const version = options.version ?? vars.APP_VERSION;
 
+  const transports = [options.transport ?? new winston.transports.Console()];
+
+  if (appEnv !== 'local' && options.remoteTransport) {
+    transports.push(options.remoteTransport);
+  }
+
   const winstonLogger = winston.createLogger({
     level: 'debug',
     format: appEnv === 'local' ? localFormat : jsonFormat,
-    transports: [options.transport ?? new winston.transports.Console()],
+    transports,
   });
 
   const log = (level: ULogLevel, event: string, fields?: ILogFields) => {
@@ -174,4 +183,9 @@ export function makeLogger(options: ILoggerOptions = {}): ILogger {
   return logger;
 }
 
-export default makeLogger();
+export const betterStackLogRuntime =
+  makeBetterStackLogRuntime(BETTER_STACK_CONFIG);
+
+export default makeLogger({
+  remoteTransport: betterStackLogRuntime.transport,
+});

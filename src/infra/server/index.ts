@@ -1,7 +1,6 @@
 import { ELogOutcome } from '@shared/types/observability.types';
 
 import setupOAuth from '@infra/config/oauth.config';
-import { METRICS_CONFIG } from '@infra/config/observability-metrics.config';
 import vars from '@infra/config/vars.config';
 import logger from '@infra/observability/logger';
 import reporter from '@infra/observability/reporter';
@@ -9,7 +8,6 @@ import reporter from '@infra/observability/reporter';
 import createApplication from '@interface/http/application';
 
 import createBullMqServerAdapter from './bull-dashboard';
-import { startBullMQMetricsServer } from './bullmq-metrics';
 import { makeRuntimeHealth } from './health';
 
 export { default as createApplication } from '@interface/http/application';
@@ -19,7 +17,6 @@ function setupServer(bootstrap?: () => Promise<void>) {
 
   const bullMqServerAdapter = createBullMqServerAdapter();
   const runtimeHealth = makeRuntimeHealth();
-  startBullMQMetricsServer(METRICS_CONFIG.bullMQMetricsPort, logger);
   const app = createApplication({
     bullMqDashboardRouter: bullMqServerAdapter.getRouter(),
     healthRouter: runtimeHealth.router,

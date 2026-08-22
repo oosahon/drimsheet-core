@@ -1,9 +1,10 @@
 import setupOAuth from '@infra/config/oauth.config';
 import logger from '@infra/observability/logger';
 import reporter from '@infra/observability/reporter';
-import setupServer from '@infra/server';
+import setupServer, {
+  createApplication as exportedCreateApplication,
+} from '@infra/server';
 import createBullMqServerAdapter from '@infra/server/bull-dashboard';
-import { startBullMQMetricsServer } from '@infra/server/bullmq-metrics';
 import { makeRuntimeHealth } from '@infra/server/health';
 
 const mockListen = jest.fn();
@@ -15,10 +16,6 @@ const mockMarkStartupFailed = jest.fn();
 jest.mock('../../config/oauth.config', () => ({
   __esModule: true,
   default: jest.fn(),
-}));
-
-jest.mock('../../config/observability-metrics.config', () => ({
-  METRICS_CONFIG: { bullMQMetricsPort: 9_464 },
 }));
 
 jest.mock('../../config/vars.config', () => ({
@@ -46,10 +43,6 @@ jest.mock('../bull-dashboard', () => ({
   default: jest.fn(() => ({
     getRouter: jest.fn(() => mockDashboardRouter),
   })),
-}));
-
-jest.mock('../bullmq-metrics', () => ({
-  startBullMQMetricsServer: jest.fn(),
 }));
 
 jest.mock('../health', () => ({
@@ -81,9 +74,9 @@ describe('server setup', () => {
     setupServer(bootstrap);
 
     expect(setupOAuth).toHaveBeenCalledTimes(1);
+    expect(exportedCreateApplication).toBe(getMockCreateApplication());
     expect(createBullMqServerAdapter).toHaveBeenCalledTimes(1);
     expect(makeRuntimeHealth).toHaveBeenCalledTimes(1);
-    expect(startBullMQMetricsServer).toHaveBeenCalledWith(9_464, logger);
     expect(getMockCreateApplication()).toHaveBeenCalledWith({
       bullMqDashboardRouter: mockDashboardRouter,
       healthRouter: mockHealthRouter,

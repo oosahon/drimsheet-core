@@ -17,10 +17,8 @@ export default interface IVarsConfig {
 
   NODE_ENV: 'test' | 'development' | 'production';
 
-  METRICS_ENABLED: string;
-  METRICS_OTLP_HTTP_ENDPOINT: string;
-
-  BULLMQ_METRICS_PORT: string;
+  BETTER_STACK_SOURCE_TOKEN: string;
+  BETTER_STACK_INGESTING_HOST: string;
 
   PORT: number;
 
