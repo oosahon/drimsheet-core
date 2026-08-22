@@ -1,20 +1,17 @@
 name: Test and Coverage
 
 on:
-  push:
-    branches:
-      - development
-      - main
   pull_request:
     branches:
       - development
       - main
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout Code
@@ -74,7 +71,7 @@ jobs:
         run: node scripts/merge-coverage.mjs
 
       - name: Generate Coverage Badge
-        if: github.ref == 'refs/heads/development' && github.event_name == 'push'
+        if: github.base_ref == 'development'
         run: |
           mkdir -p badges
           COVERAGE=$(node -e "const summary = require('./coverage/coverage-summary.json'); console.log(summary.total.lines.pct);")
@@ -89,11 +86,10 @@ jobs:
 
           curl -s "https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}" > badges/coverage.svg
 
-      - name: Commit and Push Coverage Badge
-        if: github.ref == 'refs/heads/development' && github.event_name == 'push'
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add badges/coverage.svg
-          git commit -m "chore(coverage): update badge [skip ci]" || echo "No changes to commit"
-          git push
+      - name: Upload Coverage Badge
+        if: github.base_ref == 'development'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-badge
+          path: badges/coverage.svg
+          if-no-files-found: error

@@ -1,0 +1,76 @@
+name: Publish Coverage Badge
+
+on:
+  pull_request:
+    branches:
+      - development
+    types:
+      - closed
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: publish-coverage-badge
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Find Successful Test Run
+        id: test_run
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          RUN_DETAILS=$(gh api \
+            --method GET \
+            "repos/${GITHUB_REPOSITORY}/actions/workflows/test.yml/runs" \
+            -f event=pull_request \
+            -f head_sha="$HEAD_SHA" \
+            --jq '.workflow_runs[0] | select(. != null) | [.id, .conclusion] | @tsv')
+
+          if [ -z "$RUN_DETAILS" ]; then
+            echo "No test run found for $HEAD_SHA"
+            exit 1
+          fi
+
+          read -r RUN_ID CONCLUSION <<< "$RUN_DETAILS"
+
+          if [ "$CONCLUSION" != "success" ]; then
+            echo "Latest test run for $HEAD_SHA did not succeed"
+            exit 1
+          fi
+
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout Development
+        uses: actions/checkout@v4
+        with:
+          ref: development
+
+      - name: Download Coverage Badge
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-badge
+          path: badges
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.test_run.outputs.run_id }}
+
+      - name: Commit and Push Coverage Badge
+        run: |
+          if git diff --quiet -- badges/coverage.svg; then
+            echo "Coverage badge is already current"
+            exit 0
+          fi
+
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add badges/coverage.svg
+          git commit -m "chore(coverage): update badge [skip ci]"
+          git push origin HEAD:development
