@@ -1,9 +1,12 @@
 import { randomUUID } from 'node:crypto';
 
+import jsonWebToken, {
+  JsonWebTokenError,
+  NotBeforeError,
+  TokenExpiredError,
+} from 'jsonwebtoken';
+
 import { ICacheStorage } from '@shared/contracts/cache-storage.contract';
-import ITokenCodec, {
-  TTokenVerificationFailure,
-} from '@shared/contracts/token-codec.contract';
 
 import ITokenService, {
   IAuthTokenPayload,
@@ -12,46 +15,50 @@ import authError from '@app/auth/errors/auth.error';
 
 interface IDependencies {
   cacheStorage: ICacheStorage;
-  tokenCodec: ITokenCodec;
+  secret: string;
 }
 
 export default function makeTokenService(deps: IDependencies): ITokenService {
-  const handleTokenVerificationFailure = (
-    reason: TTokenVerificationFailure
-  ): never => {
-    if (reason === 'expired') {
-      throw new authError.ExpiredToken();
-    }
-    if (reason === 'not-active') {
-      throw new authError.InvalidToken();
-    }
-    if (reason === 'malformed') {
-      throw new authError.MalformedToken();
-    }
-    throw new authError.InvalidToken();
-  };
+  const encodeToken = (
+    payload: Record<string, unknown>,
+    expiresInSeconds: number,
+    tokenId?: string
+  ) =>
+    jsonWebToken.sign(payload, deps.secret, {
+      algorithm: 'HS256',
+      expiresIn: expiresInSeconds,
+      ...(tokenId ? { jwtid: tokenId } : {}),
+    });
 
   const verifyAuthToken = (token: string) => {
-    const verification = deps.tokenCodec.verify<
-      IAuthTokenPayload & { exp?: number; type: string }
-    >(token);
+    try {
+      return jsonWebToken.verify(token, deps.secret, {
+        algorithms: ['HS256'],
+      }) as IAuthTokenPayload & { exp?: number; type: string };
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new authError.ExpiredToken();
+      }
+      if (error instanceof NotBeforeError) {
+        throw new authError.InvalidToken();
+      }
+      if (error instanceof JsonWebTokenError) {
+        throw new authError.MalformedToken();
+      }
 
-    if (!verification.valid) {
-      return handleTokenVerificationFailure(verification.reason);
+      throw new authError.InvalidToken();
     }
-
-    return verification.payload;
   };
 
   const generateSignupToken: ITokenService['generateSignupToken'] = async ({
     id,
   }) => {
-    const token = deps.tokenCodec.encode(
+    const token = encodeToken(
       {
         id,
         type: 'signup',
       },
-      { expiresInSeconds: 60 * 60 * 24 }
+      60 * 60 * 24
     );
 
     await deps.cacheStorage.set(
@@ -114,13 +121,7 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
     id,
   }) => {
     const ttlSeconds = 60 * 15; // 15 minutes
-    const token = deps.tokenCodec.encode(
-      { id, type: 'access' },
-      {
-        expiresInSeconds: ttlSeconds,
-        tokenId: randomUUID(),
-      }
-    );
+    const token = encodeToken({ id, type: 'access' }, ttlSeconds, randomUUID());
 
     return token;
   };
@@ -129,15 +130,13 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
     id,
   }) => {
     const ttlSeconds = 60 * 60 * 24 * 15; // 15 days
-    const token = deps.tokenCodec.encode(
+    const token = encodeToken(
       {
         id,
         type: 'refresh',
       },
-      {
-        expiresInSeconds: ttlSeconds,
-        tokenId: randomUUID(),
-      }
+      ttlSeconds,
+      randomUUID()
     );
 
     return token;
@@ -156,12 +155,12 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
   const generatePasswordResetToken: ITokenService['generatePasswordResetToken'] =
     async ({ id }) => {
       const ttlSeconds = 2 * 60 * 60; // 2 hours
-      const token = deps.tokenCodec.encode(
+      const token = encodeToken(
         {
           id,
           type: 'reset',
         },
-        { expiresInSeconds: ttlSeconds }
+        ttlSeconds
       );
       await deps.cacheStorage.set(
         `app:auth:reset-token:${id}`,
