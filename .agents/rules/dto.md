@@ -5,13 +5,21 @@ DTOs define application input/output shapes.
 ## Rules
 
 - Place DTOs under `src/app/<domain>/dtos`.
-- Name files `<resource>.dto.ts`.
-- Export TypeScript types and Zod schemas together.
-- Compose schemas directly. Avoid `extends`, `Pick`, `Omit`, and shape-mutating utility types.
+- Keep each DTO concern in its own sibling file:
+  - `<resource>.dto.ts` owns TypeScript DTO types and interfaces.
+  - `<resource>.dto.validation.ts` owns Zod schemas and field validators.
+  - `<resource>.dto.mapper.ts` owns DTO mapping when conversion is needed.
+- Do not export validation schemas or mapping behavior from a `.dto.ts` file.
+- Name query validators after the application operation, using
+  `<operation><Resource>QueryValidationSchema` (for example,
+  `getCounterpartiesQueryValidationSchema`).
+- Compose validation schemas from existing validators without mutating shared
+  schema shapes.
 - Use domain/app error keys in validation messages.
 - Validation-message keys identify individual invalid fields. The interface
   validation envelope owns the top-level `_validation_error` key and HTTP 422.
-- Provide `fromDto` / `toDto` helpers when conversion is needed.
+- Provide `fromDto` / `toDto` helpers in the DTO mapper when conversion is
+  needed.
 - Do not use `any`.
 
 DTO validation is for transport shape and primitive constraints. Business validity belongs in domain/app logic.

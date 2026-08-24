@@ -59,7 +59,7 @@ describe('reporter', () => {
       attempt: 2,
       source: 'worker',
       signal: 'SIGTERM',
-      subscriber: 'rabbitmq',
+      subscriber: 'queue-worker',
       eventType: 'domain:test:event',
       eventTypes: ['domain:test:first', 'domain:test:second'],
       password: 'super-secret-pass',
@@ -87,7 +87,7 @@ describe('reporter', () => {
         attempt: 2,
         source: 'worker',
         signal: 'SIGTERM',
-        subscriber: 'rabbitmq',
+        subscriber: 'queue-worker',
         eventType: 'domain:test:event',
         eventTypes: ['domain:test:first', 'domain:test:second'],
         error: expect.any(Error),
@@ -119,7 +119,7 @@ describe('reporter', () => {
       attempt: 2,
       source: 'worker',
       signal: 'SIGTERM',
-      subscriber: 'rabbitmq',
+      subscriber: 'queue-worker',
       eventType: 'domain:test:event',
       eventTypes: ['domain:test:first', 'domain:test:second'],
       errorKey: 'auth_error_token_invalid_unauthorized',
@@ -363,7 +363,7 @@ describe('reporter', () => {
     });
     const context = {
       queue: 'test-queue',
-      transport: 'rabbitmq',
+      transport: 'bullmq',
       payload: { email: 'private@example.com' },
     } as unknown as TReportContext;
 
@@ -379,7 +379,7 @@ describe('reporter', () => {
         error: expect.any(Error),
         sourceEvent: 'queue.job.processing_failed',
         queue: 'test-queue',
-        transport: 'rabbitmq',
+        transport: 'bullmq',
       }
     );
     expect(Sentry.captureException).toHaveBeenCalledTimes(1);

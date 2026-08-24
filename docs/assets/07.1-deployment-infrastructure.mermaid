@@ -5,10 +5,10 @@ config:
 flowchart TB
  subgraph Col["Coolify PaaS (Platform as a Service)"]
         API("Drimsheet Core Container")
+        CbnCron("CBN Exchange Rate Cron")
         Proxy("Coolify Reverse Proxy")
         DB[("PostgreSQL Container")]
         Cache[("Redis Container")]
-        Rabbit[("RabbitMQ Container")]
         VectorDB[("Qdrant Container")]
   end
  subgraph DO["DigitalOcean Droplet (Infrastructure)"]
@@ -21,16 +21,19 @@ flowchart TB
         BetterStack["Better Stack Logs & Metrics"]
         Auth["Identity and Marketing Services"]
         CoreExt["FIRS, Mono, Paystack, ZeptoMail"]
+        CBN["Central Bank of Nigeria"]
   end
     Client(["Web & Mobile Clients"]) -- HTTPS --> Proxy
     Agent(["AI Agents"]) -- MCP or HTTPS --> Proxy
     Proxy -- Routes Traffic --> API
     API <-- TCP/IP SQL --> DB
     API <-- TCP Redis --> Cache
-    API <-- AMQP --> Rabbit
     API <-- HTTP --> VectorDB
+    CbnCron -- TCP/IP SQL --> DB
+    CbnCron -- HTTPS --> CBN
     Doppler -. Injects Configs .-> Col
     API -- HTTPS --> S3 & Sentry & BetterStack & Auth & CoreExt
+    CbnCron -- HTTPS --> Sentry & BetterStack
 
      Col:::Col_Style
     classDef DO_Style fill:#f9f9f9,stroke:#333,stroke-width:2px,color:#000

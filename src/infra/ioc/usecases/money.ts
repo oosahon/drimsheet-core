@@ -21,7 +21,6 @@ export const ingestExchangeRateUseCase = makeTracedUseCase(
   makeIngestExchangeRateUseCase({
     exchangeRateRepo: currencyRepos.exchangeRate,
     repoService,
-    logger: observability.logger,
   })
 );
 

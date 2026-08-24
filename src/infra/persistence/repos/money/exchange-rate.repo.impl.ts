@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 
 import drizzleFilters from '@shared/helpers/drizzle-filters';
 import paginationValue from '@shared/values/pagination/pagination.vo';
@@ -20,6 +20,22 @@ const exchangeRateRepo: IExchangeRateRepo = {
       .insert(currencyExchangeRatesInCore)
       .values(values.map(exchangeRateMapper.toRepo))
       .onConflictDoNothing();
+  },
+
+  async findLatest(currencyPairs, options) {
+    if (currencyPairs.length === 0) return [];
+
+    const dbQuery = getDbQuery(options);
+    const results = await dbQuery
+      .selectDistinctOn([currencyExchangeRatesInCore.currencyPair])
+      .from(currencyExchangeRatesInCore)
+      .where(inArray(currencyExchangeRatesInCore.currencyPair, currencyPairs))
+      .orderBy(
+        currencyExchangeRatesInCore.currencyPair,
+        desc(currencyExchangeRatesInCore.asOf)
+      );
+
+    return results.map(exchangeRateMapper.toDomain);
   },
 
   async find(query, options) {

@@ -15,8 +15,8 @@ describe('queue metrics', () => {
       transport: 'bullmq',
     });
     queueMetrics.recordEnqueueFailed({
-      queueName: 'exchange-rate',
-      transport: 'rabbitmq',
+      queueName: 'ledger-balance',
+      transport: 'bullmq',
     });
 
     expect(mockObservabilityMetrics.increment).toHaveBeenNthCalledWith(1, {
@@ -36,8 +36,8 @@ describe('queue metrics', () => {
       unit: '{operation}',
       value: 1,
       attributes: {
-        queue: 'exchange-rate',
-        transport: 'rabbitmq',
+        queue: 'ledger-balance',
+        transport: 'bullmq',
         outcome: 'failure',
       },
     });
@@ -94,16 +94,16 @@ describe('queue metrics', () => {
     const queueMetrics = makeQueueMetrics(mockObservabilityMetrics);
 
     queueMetrics.recordProcessingFailed({
-      queueName: 'exchange-rate',
-      transport: 'rabbitmq',
+      queueName: 'ledger-balance',
+      transport: 'bullmq',
       durationMs: 300,
     });
 
     expect(mockObservabilityMetrics.increment).toHaveBeenCalledWith(
       expect.objectContaining({
         attributes: {
-          queue: 'exchange-rate',
-          transport: 'rabbitmq',
+          queue: 'ledger-balance',
+          transport: 'bullmq',
           outcome: 'failure',
         },
       })

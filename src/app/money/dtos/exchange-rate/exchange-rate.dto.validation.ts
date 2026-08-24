@@ -8,7 +8,6 @@ import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 
 import { currencyCodeValidation } from '@app/money/dtos/currency/currency.dto.validation';
 
-// TODO: enforce custom error for dto validations
 export const currencyPairValidation = z
   .string()
   .regex(/^[A-Z]{3}\/[A-Z]{3}$/, new exchangeRateError.InvalidPair().errorKey);
@@ -27,7 +26,12 @@ export const exchangeRateDtoValidation = z.object({
     .max(100, new exchangeRateError.InvalidSource().errorKey),
 });
 
-export const exchangeRateQueryParamValidation = z.object({
+export const exchangeRateIngestionDtoValidation = z.object({
+  correlationId: z.uuid(),
+  exchangeRates: z.array(exchangeRateDtoValidation),
+});
+
+export const getExchangeRatesQueryValidationSchema = z.object({
   ...omit(paginationDtoValidation.shape, ['search', 'sortDirection']),
   currencyPair: currencyPairValidation,
   type: z.enum(EExchangeRateType).optional(),

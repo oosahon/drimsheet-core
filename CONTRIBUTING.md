@@ -78,7 +78,7 @@ src/
 │  ├─ config/           # Application and environment configuration, including secrets and runtime settings
 │  ├─ db/               # Database migrations (node-pg-migrate)
 │  ├─ integrations/     # Named external-platform adapters implementing or translating into system-owned boundaries
-│  ├─ messaging/        # Event bus, message queues (BullMQ), and external messaging adapters (RabbitMQ)
+│  ├─ messaging/        # Domain event bus and BullMQ queues/workers
 │  ├─ observability/    # Logging, metrics, monitoring, and tracing
 │  ├─ persistence/      # Data persistence mechanisms including DB (Drizzle), caching, and concrete repo implementations
 │  ├─ server/           # Express (or other HTTP) server setup and bootstrapping

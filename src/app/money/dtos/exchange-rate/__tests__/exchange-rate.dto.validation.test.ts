@@ -1,7 +1,8 @@
 import {
   currencyPairValidation,
   exchangeRateDtoValidation,
-  exchangeRateQueryParamValidation,
+  exchangeRateIngestionDtoValidation,
+  getExchangeRatesQueryValidationSchema,
 } from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
 
 describe('Exchange Rate DTO Validation', () => {
@@ -100,12 +101,40 @@ describe('Exchange Rate DTO Validation', () => {
     });
   });
 
-  describe('exchangeRateQueryParamValidation', () => {
+  describe('exchangeRateIngestionDtoValidation', () => {
+    it('should validate a Core-owned ingestion payload', () => {
+      const result = exchangeRateIngestionDtoValidation.safeParse({
+        correlationId: '019cde0f-5b78-775a-bf29-8f02a947760a',
+        exchangeRates: [
+          {
+            baseCurrencyCode: 'USD',
+            targetCurrencyCode: 'NGN',
+            rate: 1500.25,
+            type: 'official',
+            asOf: '2026-07-13',
+            source: 'CBN',
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject missing correlation IDs and malformed rates', () => {
+      const result = exchangeRateIngestionDtoValidation.safeParse({
+        exchangeRates: [{ rate: 0 }],
+      });
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('getExchangeRatesQueryValidationSchema', () => {
     it('should validate a correct query param payload with only currencyPair', () => {
       const payload = {
         currencyPair: 'USD/EUR',
       };
-      const result = exchangeRateQueryParamValidation.safeParse(payload);
+      const result = getExchangeRatesQueryValidationSchema.safeParse(payload);
       expect(result.success).toBe(true);
     });
 
@@ -118,7 +147,7 @@ describe('Exchange Rate DTO Validation', () => {
         page: 1,
         orderBy: 'asOf',
       };
-      const result = exchangeRateQueryParamValidation.safeParse(payload);
+      const result = getExchangeRatesQueryValidationSchema.safeParse(payload);
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.asOf).toBeInstanceOf(Date);
@@ -132,7 +161,7 @@ describe('Exchange Rate DTO Validation', () => {
       const payload = {
         type: 'market',
       };
-      const result = exchangeRateQueryParamValidation.safeParse(payload);
+      const result = getExchangeRatesQueryValidationSchema.safeParse(payload);
       expect(result.success).toBe(false);
     });
 
@@ -140,7 +169,7 @@ describe('Exchange Rate DTO Validation', () => {
       const payload = {
         currencyPair: 'INVALID',
       };
-      const result = exchangeRateQueryParamValidation.safeParse(payload);
+      const result = getExchangeRatesQueryValidationSchema.safeParse(payload);
       expect(result.success).toBe(false);
     });
 
@@ -149,7 +178,7 @@ describe('Exchange Rate DTO Validation', () => {
         currencyPair: 'USD/EUR',
         type: 'invalid-type',
       };
-      const result = exchangeRateQueryParamValidation.safeParse(payload);
+      const result = getExchangeRatesQueryValidationSchema.safeParse(payload);
       expect(result.success).toBe(false);
     });
 
@@ -158,7 +187,7 @@ describe('Exchange Rate DTO Validation', () => {
         currencyPair: 'USD/EUR',
         limit: 0,
       };
-      const result = exchangeRateQueryParamValidation.safeParse(payload);
+      const result = getExchangeRatesQueryValidationSchema.safeParse(payload);
       expect(result.success).toBe(false);
     });
 
@@ -167,7 +196,7 @@ describe('Exchange Rate DTO Validation', () => {
         currencyPair: 'USD/EUR',
         limit: 201,
       };
-      const result = exchangeRateQueryParamValidation.safeParse(payload);
+      const result = getExchangeRatesQueryValidationSchema.safeParse(payload);
       expect(result.success).toBe(false);
     });
 
@@ -176,7 +205,7 @@ describe('Exchange Rate DTO Validation', () => {
         currencyPair: 'USD/EUR',
         page: 0,
       };
-      const result = exchangeRateQueryParamValidation.safeParse(payload);
+      const result = getExchangeRatesQueryValidationSchema.safeParse(payload);
       expect(result.success).toBe(false);
     });
 
@@ -185,7 +214,7 @@ describe('Exchange Rate DTO Validation', () => {
         currencyPair: 'USD/EUR',
         asOf: 'invalid-date',
       };
-      const result = exchangeRateQueryParamValidation.safeParse(payload);
+      const result = getExchangeRatesQueryValidationSchema.safeParse(payload);
       expect(result.success).toBe(false);
     });
   });

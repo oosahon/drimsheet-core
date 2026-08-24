@@ -98,7 +98,7 @@ describe('scrubSentrySpan', () => {
           'http.request.method': 'PRIVATE private@example.com',
           'http.response.status_code': 999,
           'http.route': '/users/private-id?token=private',
-          'messaging.system': 'rabbitmq/private-user-id',
+          'messaging.system': 'private-system/private-user-id',
         },
       })
     );

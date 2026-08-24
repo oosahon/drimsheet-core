@@ -53,10 +53,7 @@ function projectReportContext(
       }
     });
 
-    if (
-      candidate.transport === 'bullmq' ||
-      candidate.transport === 'rabbitmq'
-    ) {
+    if (candidate.transport === 'bullmq') {
       projected.transport = candidate.transport;
     }
 

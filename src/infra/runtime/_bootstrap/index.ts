@@ -20,7 +20,6 @@ async function startApplication(): Promise<void> {
     { bootstrapAccountingContext },
     { default: eventsRegistry },
     { default: bootstrapFeatureFlags },
-    { default: registerRabbitMQConsumers },
     { default: bootstrapCurrencies },
   ] = await Promise.all([
     import('@infra/messaging/workers'),
@@ -28,7 +27,6 @@ async function startApplication(): Promise<void> {
     import('./accounting-context.bootstrap'),
     import('./events.bootstrap'),
     import('./feature-flag.bootstrap'),
-    import('./rabbit-mq-consumers.bootstrap'),
     import('./setup-currencies.bootstrap'),
   ]);
 
@@ -38,7 +36,6 @@ async function startApplication(): Promise<void> {
     await bootstrapAccountingContext();
     registerWorkers();
     eventsRegistry();
-    await registerRabbitMQConsumers();
   }
 
   setupServer(bootstrapDependencies);

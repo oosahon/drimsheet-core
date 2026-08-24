@@ -18,6 +18,7 @@ Drimsheet was created with 💜 and distributed for free by [Osahon Oboite](http
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Running the core app](#running-the-core-app)
+  - [Ingesting CBN exchange rates](#ingesting-cbn-exchange-rates)
   - [Testing](#testing)
   - [Linting and Formatting](#linting-and-formatting)
 - [Documentation](#documentation)
@@ -31,13 +32,12 @@ This repo contains the core accounting module of Drimsheet. It encompasses the c
 
 - [PostgreSQL](https://www.postgresql.org/) (>=16)
 - [Redis](https://redis.io/) (>=8)
-- [RabbitMQ](https://www.rabbitmq.com/) (>=3)
 - Node.js (>=20.18.1 as specified in `package.json`)
 - npm
 - AWS account for S3 storage
 - API credentials for 3rd party integrations (Paystack, Mono, ZeptoMail) managed securely via Doppler
 
-> **Note:** PostgreSQL, Redis, and RabbitMQ can be installed locally or run as Docker containers using the [drimsheet-platforms](https://github.com/Drimsheet/drimsheet-platforms) repo.
+> **Note:** PostgreSQL and Redis can be installed locally or run as Docker containers using the [drimsheet-platforms](https://github.com/Drimsheet/drimsheet-platforms) repo.
 
 ## Installation
 
@@ -47,7 +47,7 @@ This repo contains the core accounting module of Drimsheet. It encompasses the c
 
 ### Setting up platform services
 
-The app requires running PostgreSQL, Redis, and RabbitMQ instances. You have two options:
+The app requires running PostgreSQL and Redis instances. You have two options:
 
 **Option A — Use the [drimsheet-platforms](https://github.com/Drimsheet/drimsheet-platforms) repo (recommended)**
 
@@ -56,13 +56,35 @@ The app requires running PostgreSQL, Redis, and RabbitMQ instances. You have two
 
 **Option B — Install locally**
 
-Install and run PostgreSQL, Redis, and RabbitMQ on your machine and configure the connection details in your `.env` file.
+Install and run PostgreSQL and Redis on your machine and configure the connection details in your `.env` file.
 
 ### Running the core app
 
-- Ensure PostgreSQL, Redis, and RabbitMQ are running (see above)
+- Ensure PostgreSQL and Redis are running (see above)
 - Run `npm run dev`
 - The app should now be running on `http://localhost:${PORT}`
+
+### Ingesting CBN exchange rates
+
+After building the image and applying database migrations, run the standalone
+one-shot process with:
+
+```bash
+yarn ingest:exchange-rates
+```
+
+The process fetches official CBN `centralrate` observations and uses 2024-01-01
+as the initial boundary for each currency pair without stored history. On later
+runs, the latest committed observation date for each pair becomes that pair's
+inclusive cutoff. PostgreSQL exchange-rate observations are therefore the
+ingestion progress record; no separate last-run state is configured or
+maintained.
+
+Selected observations are written transactionally to PostgreSQL. The process
+retries bounded transient failures and exits non-zero after terminal failure.
+It does not start the API or workers. Coolify owns the production cron schedule
+and any platform-level rerun policy. The job requires `POSTGRES_URL` and may use
+the same optional Sentry and Better Stack configuration as the API.
 
 ### Testing
 
