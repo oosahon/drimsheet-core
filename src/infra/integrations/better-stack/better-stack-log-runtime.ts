@@ -2,7 +2,7 @@ import { Logtail } from '@logtail/node';
 import { LogtailTransport } from '@logtail/winston';
 import * as winston from 'winston';
 
-import { IBetterStackConfig } from '@infra/config/better-stack.config';
+import { IBetterStackConfig } from '@infra/integrations/better-stack/better-stack.config';
 
 interface IBetterStackLogRuntime {
   transport?: winston.transport;

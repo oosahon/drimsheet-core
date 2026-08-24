@@ -10,6 +10,19 @@ Use the folder that owns the behavior.
 - `src/infra`: concrete adapters, persistence, cache, queues, external clients, config, IoC, runtime, observability, and server bootstrap.
 - `src/shared`: pure framework-neutral helpers and base primitives. Imports only shared.
 
+## Infrastructure Integrations
+
+- `src/infra/integrations/<provider-or-capability>` owns concrete adapters for
+  named external platforms, including provider-specific clients, SDK setup,
+  authentication, schemas, mapping, and bounded provider lifecycle behavior.
+- System-facing contracts and DTOs remain owned by `src/app`, `src/domain`, or
+  `src/shared`. Integrations implement or translate into those owned boundaries.
+- Keep provider-neutral persistence, messaging, observability facades, process
+  lifecycle coordination, HTTP delivery, IoC, and business rules in their
+  established owning folders.
+- Import concrete integrations directly. Do not add a provider registry, base
+  adapter, or compatibility re-export without a current requirement.
+
 ## Rules
 
 - Domain must not know HTTP, Express, TSOA, Redis, Drizzle, env vars, cookies, queues, or logging.

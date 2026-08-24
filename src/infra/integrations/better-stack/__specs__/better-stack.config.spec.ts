@@ -1,10 +1,10 @@
 import IVarsConfig from '@shared/contracts/vars-config.contract';
 
+import vars from '@infra/config/vars.config';
 import {
   BETTER_STACK_CONFIG,
   makeBetterStackConfig,
-} from '@infra/config/better-stack.config';
-import vars from '@infra/config/vars.config';
+} from '@infra/integrations/better-stack/better-stack.config';
 
 function makeVarsConfig(overrides: Partial<IVarsConfig> = {}): IVarsConfig {
   return { ...vars, ...overrides };

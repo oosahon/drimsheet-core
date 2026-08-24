@@ -1,8 +1,9 @@
 import axios from 'axios';
 
+import ITransactionalEmailAgent from '@app/notification/contracts/transactional-email-agent.contract';
 import { ITransactionalEmailDto } from '@app/notification/dtos/transactional-email/transactional-email.dto';
 
-import vars from './vars.config';
+import vars from '@infra/config/vars.config';
 
 interface IEmailSender {
   email: string;
@@ -11,7 +12,7 @@ interface IEmailSender {
 }
 
 async function sendEmail(
-  payload: Omit<ITransactionalEmailDto, 'correlationId'>,
+  payload: ITransactionalEmailDto,
   sender: IEmailSender
 ) {
   await axios.post(
@@ -39,9 +40,9 @@ async function sendEmail(
   );
 }
 
-function createSender(sender: IEmailSender) {
+function createSender(sender: IEmailSender): ITransactionalEmailAgent {
   return {
-    async send(payload: Omit<ITransactionalEmailDto, 'correlationId'>) {
+    async send(payload: ITransactionalEmailDto) {
       await sendEmail(payload, sender);
     },
   };

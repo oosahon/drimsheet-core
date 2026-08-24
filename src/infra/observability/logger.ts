@@ -12,12 +12,12 @@ import { sanitizeData } from '@shared/utils/sanitizer';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
 
-import { BETTER_STACK_CONFIG } from '@infra/config/better-stack.config';
 import vars from '@infra/config/vars.config';
+import makeBetterStackLogRuntime from '@infra/integrations/better-stack/better-stack-log-runtime';
+import { BETTER_STACK_CONFIG } from '@infra/integrations/better-stack/better-stack.config';
 import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-id';
 import { normalizeTelemetryError } from '@infra/observability/helpers/telemetry-error';
 import tracer from '@infra/observability/tracer';
-import makeBetterStackLogRuntime from '@infra/runtime/better-stack-log-runtime';
 
 import packageJson from '../../../package.json';
 

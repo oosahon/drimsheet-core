@@ -1,4 +1,4 @@
-import makeMetricsRuntime from '@infra/runtime/observability-runtime';
+import makeMetricsRuntime from '@infra/integrations/better-stack/better-stack-metrics-runtime';
 
 const mockBetterStackConfig = { enabled: false };
 const mockBetterStackLogRuntime = { shutdown: jest.fn() };
@@ -12,14 +12,17 @@ const mockQueueMetrics = { recordEnqueue: jest.fn() };
 const mockReporter = { report: jest.fn() };
 const mockTracer = { startSpan: jest.fn() };
 
-jest.mock('../../config/better-stack.config', () => ({
+jest.mock('@infra/integrations/better-stack/better-stack.config', () => ({
   BETTER_STACK_CONFIG: mockBetterStackConfig,
 }));
 
-jest.mock('../../runtime/observability-runtime', () => ({
-  __esModule: true,
-  default: jest.fn(() => mockMetricsRuntime),
-}));
+jest.mock(
+  '@infra/integrations/better-stack/better-stack-metrics-runtime',
+  () => ({
+    __esModule: true,
+    default: jest.fn(() => mockMetricsRuntime),
+  })
+);
 
 jest.mock('../logger', () => ({
   __esModule: true,

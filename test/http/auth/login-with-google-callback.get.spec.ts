@@ -7,12 +7,15 @@ import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-fla
 import * as authUseCase from '@infra/ioc/usecases/auth';
 import { createApplication } from '@infra/server';
 
-jest.mock('@infra/services/feature-flag.service', () => ({
-  __esModule: true,
-  default: jest.requireActual<
-    typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
-  >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
-}));
+jest.mock(
+  '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service',
+  () => ({
+    __esModule: true,
+    default: jest.requireActual<
+      typeof import('@app/context/contracts/__mocks__/feature-flag.service.mock')
+    >('@app/context/contracts/__mocks__/feature-flag.service.mock').default,
+  })
+);
 
 jest.mock('../../../src/infra/ioc/usecases/auth', () => {
   const actual = jest.requireActual<typeof import('@infra/ioc/usecases/auth')>(

@@ -1,6 +1,6 @@
 import IVarsConfig from '@shared/contracts/vars-config.contract';
 
-import vars from './vars.config';
+import vars from '@infra/config/vars.config';
 
 export interface IBetterStackConfig {
   enabled: boolean;
