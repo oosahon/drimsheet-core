@@ -1,56 +1,74 @@
-import ILogger from '@shared/contracts/logger.contract';
 import {
   IRepoService,
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
 import batchArray from '@shared/utils/batch-array';
-import dateUtils from '@shared/utils/date';
-import generateUUID from '@shared/utils/uuid-generator';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
 
-import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
-import { UExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
-import IExchangeRateIngestion from '@app/money/contracts/exchange-rate-ingestion.contract';
+import { IExchangeRateIngestionDto } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
+import { exchangeRateIngestionDtoValidation } from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
 
 interface IDependencies {
   exchangeRateRepo: IExchangeRateRepo;
   repoService: IRepoService;
-  logger: ILogger;
 }
 
 export default function makeIngestExchangeRateUseCase(deps: IDependencies) {
-  return async (payload: IExchangeRateIngestion['message']['payload']) => {
-    const { correlation_id } = payload;
+  return async (payload: IExchangeRateIngestionDto) => {
+    zodValidationRunner(exchangeRateIngestionDtoValidation, payload);
 
-    if (!correlation_id) {
-      deps.logger.warn('exchange_rate.ingestion.correlation_id_missing', {
-        message:
-          'Exchange rate ingestion message did not contain a correlation ID',
-        outcome: 'unknown',
-      });
-    }
-    const correlationId = correlation_id || generateUUID();
-
-    const exchangeRates = payload.data.map((rate) =>
+    const exchangeRates = payload.exchangeRates.map((exchangeRate) =>
       exchangeRateValue.make({
-        baseCurrencyCode: rate.base_currency_code,
-        targetCurrencyCode: rate.target_currency_code,
-        rate: Number(rate.rate),
-        type: rate.rate_class as UExchangeRateType,
-        asOf: dateUtils.fromString(rate.as_of, exchangeRateError.InvalidDate),
-        source: rate.source,
+        baseCurrencyCode: exchangeRate.baseCurrencyCode,
+        targetCurrencyCode: exchangeRate.targetCurrencyCode,
+        rate: exchangeRate.rate,
+        type: exchangeRate.type,
+        asOf: exchangeRate.asOf,
+        source: exchangeRate.source,
       })
     );
 
+    if (exchangeRates.length === 0) {
+      return Object.freeze({ processedCount: 0 });
+    }
+
+    const currencyPairs = [
+      ...new Set(exchangeRates.map((v) => v.currencyPair)),
+    ];
+    const latestExchangeRateDates = await deps.exchangeRateRepo.findLatest(
+      currencyPairs,
+      {
+        correlationId: payload.correlationId,
+      }
+    );
+    const latestAsOfByCurrencyPair = new Map(
+      latestExchangeRateDates.map((v) => [v.currencyPair, v.asOf])
+    );
+    const selectedExchangeRates = exchangeRates.filter((v) => {
+      const latestAsOf = latestAsOfByCurrencyPair.get(v.currencyPair);
+
+      return !latestAsOf || v.asOf >= latestAsOf;
+    });
+
+    if (selectedExchangeRates.length === 0) {
+      return Object.freeze({ processedCount: 0 });
+    }
+
     const transactionFn: TRepoTransactionFn = async (tx) => {
-      const batches = batchArray(exchangeRates, 100);
+      const batches = batchArray(selectedExchangeRates, 100);
       for (const batch of batches) {
-        await deps.exchangeRateRepo.create(batch, { tx, correlationId });
+        await deps.exchangeRateRepo.create(batch, {
+          tx,
+          correlationId: payload.correlationId,
+        });
       }
     };
 
     await deps.repoService.runInTransaction(transactionFn);
+
+    return Object.freeze({ processedCount: selectedExchangeRates.length });
   };
 }

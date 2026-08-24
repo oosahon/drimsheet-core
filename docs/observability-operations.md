@@ -57,7 +57,7 @@ Configure the Core service health check as follows:
 
 `/health/live` proves only that Node can serve HTTP. `/health/ready` remains
 `503` until startup finishes and returns `503` during PostgreSQL loss. Redis,
-BullMQ, RabbitMQ, Better Stack, Sentry, LaunchDarkly, and external API outages
+BullMQ, Better Stack, Sentry, LaunchDarkly, and external API outages
 must not change readiness.
 
 ## Sentry release and source maps
@@ -77,15 +77,21 @@ and a synthetic stack frame resolves to TypeScript source.
 
 ## Provider-native inventory scope
 
-The direct MVP deliberately does not collect BullMQ queue-depth metrics or
-RabbitMQ broker/node inventory. Core exposes no BullMQ Prometheus listener and
-must not poll providers to recreate queue-state gauges. Application enqueue,
+The direct MVP deliberately does not collect BullMQ queue-depth metrics. Core
+exposes no BullMQ Prometheus listener and must not poll providers to recreate
+queue-state gauges. Application enqueue,
 processing count, duration, and trustworthy wait-duration metrics remain. Use
 Bull Board for direct BullMQ inspection.
 
-Disable RabbitMQ's `rabbitmq_prometheus` plugin and remove metrics-only
-port/network settings only after confirming no non-Alloy consumer uses them.
-Do not disturb the AMQP network path used by Core.
+## CBN exchange-rate cron
+
+Coolify runs `yarn ingest:exchange-rates` from the already-built Core image
+after migrations have been applied. Supply `POSTGRES_URL` and the same optional
+Sentry/Better Stack values used by Core. The process owns up to three bounded
+attempts for transient CBN/PostgreSQL faults, structured lifecycle events,
+resource cleanup, and its terminal exit status. Coolify owns the schedule and
+any platform-level rerun policy. Alert on non-zero exits and the
+`integration.cbn_exchange_rate.failed` event.
 
 ## Deployment and cutover checklist
 
@@ -111,7 +117,7 @@ data before changing production:
    missing and investigate before decommissioning.
 
 These are deployed checks requiring Better Stack, Coolify, Doppler, Sentry,
-BullMQ, and RabbitMQ credentials. They are not local or pre-push automation.
+and BullMQ credentials. They are not local or pre-push automation.
 
 ## Privacy canary
 

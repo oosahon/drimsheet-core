@@ -115,7 +115,10 @@ describe('tracer', () => {
 
     expect(
       tracer.startRootSpan(
-        { name: 'queue.ledger_balance', operation: 'queue.process' },
+        {
+          name: 'integration.cbn_exchange_rate',
+          operation: 'integration.run',
+        },
         operation
       )
     ).toBe('processed');

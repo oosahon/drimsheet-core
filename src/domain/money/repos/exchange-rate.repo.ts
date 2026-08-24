@@ -25,6 +25,11 @@ export default interface IExchangeRateRepo {
     option: IWriteRepoOptions
   ): Promise<void>;
 
+  findLatest(
+    currencyPairs: string[],
+    options: IReadRepoOptions
+  ): Promise<IExchangeRate[]>;
+
   find(query: IFindQuery, options: IFindRepoOptions): Promise<IExchangeRate[]>;
 
   findByPairAndDate(

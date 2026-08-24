@@ -28,7 +28,6 @@ const {
 
   PORT = 3000,
   POSTGRES_URL = '',
-  RABBITMQ_URL = '',
   REDIS_URL = '',
   SENTRY_DSN = '',
   SENTRY_TRACES_SAMPLE_RATE = '0',
@@ -60,7 +59,6 @@ const vars: IVarsConfig = Object.freeze({
   BETTER_STACK_INGESTING_HOST,
   PORT: +PORT,
   POSTGRES_URL,
-  RABBITMQ_URL,
   REDIS_URL,
   SENTRY_DSN,
   SENTRY_TRACES_SAMPLE_RATE,

@@ -1,343 +1,283 @@
-import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '@shared/types/repo.types';
 
-import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import currencyError from '@domain/money/errors/currency.error';
-import exchangeRateError from '@domain/money/errors/exchange-rate.error';
-import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
-import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import {
+  EExchangeRateType,
+  IExchangeRate,
+} from '@domain/money/types/exchange-rate.types';
 
-import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
-import { IAppContextData } from '@app/context/contracts/app-context.contract';
-import IExchangeRateIngestion from '@app/money/contracts/exchange-rate-ingestion.contract';
+import { mockExchangeRateRepo } from '@app/money/contracts/__mocks__/money.repos.mock';
+import {
+  IExchangeRateDto,
+  IExchangeRateIngestionDto,
+} from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 import makeIngestExchangeRateUseCase from '@app/money/usecases/ingest-exchange-rate.usecase';
 
-const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
-  create: jest.fn(),
-  find: jest.fn(),
-  findByPairAndDate: jest.fn(),
-};
-
-jest.mock('../../../../shared/utils/uuid-generator', () => ({
-  __esModule: true,
-  default: jest.fn().mockReturnValue('mocked-uuid'),
-}));
-
 describe('makeIngestExchangeRateUseCase', () => {
-  const correlationId = 'test-correlation-id';
+  const correlationId = '019cde0f-5b78-775a-bf29-8f02a947760a';
+
+  const makeExchangeRate = (
+    overrides: Partial<IExchangeRateDto> = {}
+  ): IExchangeRateDto => ({
+    baseCurrencyCode: 'USD',
+    targetCurrencyCode: 'NGN',
+    rate: 1500.25,
+    type: EExchangeRateType.Official,
+    asOf: new Date('2026-06-10T00:00:00.000Z'),
+    source: 'CBN',
+    ...overrides,
+  });
+
+  const makePayload = (
+    exchangeRates: IExchangeRateDto[]
+  ): IExchangeRateIngestionDto => ({ correlationId, exchangeRates });
+
+  const makeLatestExchangeRate = (
+    baseCurrencyCode: string,
+    asOf: Date
+  ): IExchangeRate => ({
+    currencyPair: `${baseCurrencyCode}/NGN`,
+    baseCurrencyCode,
+    targetCurrencyCode: 'NGN',
+    rate: 1500.25,
+    type: EExchangeRateType.Official,
+    asOf,
+    source: 'CBN',
+    createdAt: new Date('2026-06-11T00:00:00.000Z'),
+  });
+
+  const makeUseCase = () =>
+    makeIngestExchangeRateUseCase({
+      exchangeRateRepo: mockExchangeRateRepo,
+      repoService: mockRepoService,
+    });
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    mockRepoService.runInTransaction.mockImplementation(async (cb) => {
-      return await cb('mock-tx' as unknown as ITransactionContext);
-    });
-    exchangeRateRepoMock.create.mockReset();
-
     jest.useFakeTimers();
-    jest.setSystemTime(new Date('2026-06-10T12:53:59.000Z'));
-
-    mockAppContext.get.mockReturnValue({
-      correlationId,
-      idempotencyKey: 'test-idempotency-key',
-      user: null,
-      accountingEntityType: 'individual',
-      clientSession: {
-        setRefreshToken: jest.fn(),
-        getRefreshToken: jest.fn(),
-        clearRefreshToken: jest.fn(),
-      },
-    } as unknown as IAppContextData);
+    jest.setSystemTime(new Date('2026-06-11T12:00:00.000Z'));
+    mockExchangeRateRepo.create.mockResolvedValue(undefined);
+    mockExchangeRateRepo.findLatest.mockResolvedValue([]);
+    mockRepoService.runInTransaction.mockImplementation(async (callback) =>
+      callback('mock-tx' as unknown as ITransactionContext)
+    );
   });
 
   afterEach(() => {
     jest.useRealTimers();
   });
 
-  it('should batch exchange rates in chunks of 100 and save them', async () => {
-    const dataItems = Array.from({ length: 150 }, (_, i) => ({
-      base_currency_code: SYSTEM_CURRENCIES.EUR.code,
-      target_currency_code: SYSTEM_CURRENCIES.USD.code,
-      rate: (1.0 + i * 0.001).toFixed(4),
-      rate_class: EExchangeRateType.Official,
-      as_of: '2026-06-10T00:00:00.000Z',
-      source: 'ECB',
-    }));
+  it('filters before batching and persists selected rates in one transaction', async () => {
+    const exchangeRates = Array.from({ length: 151 }, (_, index) =>
+      makeExchangeRate({
+        asOf: new Date(
+          index === 0 ? '2026-06-09T00:00:00.000Z' : '2026-06-10T00:00:00.000Z'
+        ),
+        rate: 1500 + index,
+      })
+    );
+    mockExchangeRateRepo.findLatest.mockResolvedValue([
+      makeLatestExchangeRate('USD', new Date('2026-06-10T00:00:00.000Z')),
+    ]);
 
-    const payload: IExchangeRateIngestion['message']['payload'] = {
-      correlation_id: correlationId,
-      event_type: 'exchange-rate.ingested.v1',
-      occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'drimsheet-ingestion',
-      data: dataItems,
-    };
-
-    const usecase = makeIngestExchangeRateUseCase({
-      exchangeRateRepo: exchangeRateRepoMock,
-      repoService: mockRepoService,
-      logger: mockLogger,
+    await expect(makeUseCase()(makePayload(exchangeRates))).resolves.toEqual({
+      processedCount: 150,
     });
 
-    await usecase(payload);
-
+    expect(mockExchangeRateRepo.findLatest).toHaveBeenCalledWith(['USD/NGN'], {
+      correlationId,
+    });
     expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
-    expect(exchangeRateRepoMock.create).toHaveBeenCalledTimes(2);
-
-    // First call should have 100 items
-    expect(exchangeRateRepoMock.create.mock.calls[0][0].length).toBe(100);
-    // Second call should have 50 items
-    expect(exchangeRateRepoMock.create.mock.calls[1][0].length).toBe(50);
-
-    // Verify saving params
-    expect(exchangeRateRepoMock.create).toHaveBeenNthCalledWith(
+    expect(mockExchangeRateRepo.create).toHaveBeenCalledTimes(2);
+    expect(mockExchangeRateRepo.create.mock.calls[0][0]).toHaveLength(100);
+    expect(mockExchangeRateRepo.create.mock.calls[1][0]).toHaveLength(50);
+    expect(mockExchangeRateRepo.create).toHaveBeenNthCalledWith(
       1,
-      expect.any(Array),
+      expect.arrayContaining([
+        expect.objectContaining({
+          baseCurrencyCode: 'USD',
+          currencyPair: 'USD/NGN',
+          source: 'CBN',
+          targetCurrencyCode: 'NGN',
+          type: 'official',
+        }),
+      ]),
+      { correlationId, tx: 'mock-tx' }
+    );
+    expect(
+      mockExchangeRateRepo.create.mock.calls
+        .flatMap(([batch]) => batch)
+        .some(
+          (exchangeRate) =>
+            exchangeRate.asOf.getTime() ===
+            new Date('2026-06-09T00:00:00.000Z').getTime()
+        )
+    ).toBe(false);
+  });
+
+  it('returns a zero count without reading or opening a transaction for empty input', async () => {
+    await expect(makeUseCase()(makePayload([]))).resolves.toEqual({
+      processedCount: 0,
+    });
+
+    expect(mockExchangeRateRepo.findLatest).not.toHaveBeenCalled();
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(mockExchangeRateRepo.create).not.toHaveBeenCalled();
+  });
+
+  it('reads unique pair checkpoints once and retains all rates for an absent pair', async () => {
+    const exchangeRates = [
+      makeExchangeRate({ asOf: new Date('2026-06-09T00:00:00.000Z') }),
+      makeExchangeRate({ asOf: new Date('2026-06-10T00:00:00.000Z') }),
+      makeExchangeRate({
+        asOf: new Date('2024-01-01T00:00:00.000Z'),
+        baseCurrencyCode: 'EUR',
+      }),
+    ];
+    mockExchangeRateRepo.findLatest.mockResolvedValue([
+      makeLatestExchangeRate('USD', new Date('2026-06-10T00:00:00.000Z')),
+    ]);
+
+    await expect(makeUseCase()(makePayload(exchangeRates))).resolves.toEqual({
+      processedCount: 2,
+    });
+
+    expect(mockExchangeRateRepo.findLatest).toHaveBeenCalledTimes(1);
+    expect(mockExchangeRateRepo.findLatest).toHaveBeenCalledWith(
+      ['USD/NGN', 'EUR/NGN'],
+      { correlationId }
+    );
+    expect(mockExchangeRateRepo.create).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          asOf: new Date('2026-06-10T00:00:00.000Z'),
+          currencyPair: 'USD/NGN',
+        }),
+        expect.objectContaining({
+          asOf: new Date('2024-01-01T00:00:00.000Z'),
+          currencyPair: 'EUR/NGN',
+        }),
+      ]),
       { correlationId, tx: 'mock-tx' }
     );
   });
 
-  it('should handle empty exchange rate list', async () => {
-    const payload: IExchangeRateIngestion['message']['payload'] = {
-      correlation_id: correlationId,
-      event_type: 'exchange-rate.ingested.v1',
-      occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'drimsheet-ingestion',
-      data: [],
-    };
+  it('applies independent inclusive checkpoints to each currency pair', async () => {
+    const exchangeRates = [
+      makeExchangeRate({ asOf: new Date('2026-06-09T00:00:00.000Z') }),
+      makeExchangeRate({ asOf: new Date('2026-06-10T00:00:00.000Z') }),
+      makeExchangeRate({
+        asOf: new Date('2026-06-08T00:00:00.000Z'),
+        baseCurrencyCode: 'EUR',
+      }),
+      makeExchangeRate({
+        asOf: new Date('2026-06-09T00:00:00.000Z'),
+        baseCurrencyCode: 'EUR',
+      }),
+    ];
+    mockExchangeRateRepo.findLatest.mockResolvedValue([
+      makeLatestExchangeRate('USD', new Date('2026-06-10T00:00:00.000Z')),
+      makeLatestExchangeRate('EUR', new Date('2026-06-09T00:00:00.000Z')),
+    ]);
 
-    const usecase = makeIngestExchangeRateUseCase({
-      exchangeRateRepo: exchangeRateRepoMock,
-      repoService: mockRepoService,
-      logger: mockLogger,
+    await expect(makeUseCase()(makePayload(exchangeRates))).resolves.toEqual({
+      processedCount: 2,
     });
 
-    await usecase(payload);
-
-    expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
-    expect(exchangeRateRepoMock.create).not.toHaveBeenCalled();
+    const persistedRates = mockExchangeRateRepo.create.mock.calls.flatMap(
+      ([batch]) => batch
+    );
+    expect(persistedRates).toEqual([
+      expect.objectContaining({
+        asOf: new Date('2026-06-10T00:00:00.000Z'),
+        currencyPair: 'USD/NGN',
+      }),
+      expect.objectContaining({
+        asOf: new Date('2026-06-09T00:00:00.000Z'),
+        currencyPair: 'EUR/NGN',
+      }),
+    ]);
   });
 
-  it('should throw an error if currency code is invalid', async () => {
-    const payload: IExchangeRateIngestion['message']['payload'] = {
-      correlation_id: correlationId,
-      event_type: 'exchange-rate.ingested.v1',
-      occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'drimsheet-ingestion',
-      data: [
-        {
-          base_currency_code: 'INVALID',
-          target_currency_code: SYSTEM_CURRENCIES.USD.code,
-          rate: '1.0850',
-          rate_class: EExchangeRateType.Official,
-          as_of: '2026-06-10T00:00:00.000Z',
-          source: 'ECB',
-        },
-      ],
-    };
+  it('does not open a transaction when every rate predates its checkpoint', async () => {
+    mockExchangeRateRepo.findLatest.mockResolvedValue([
+      makeLatestExchangeRate('USD', new Date('2026-06-11T00:00:00.000Z')),
+    ]);
 
-    const usecase = makeIngestExchangeRateUseCase({
-      exchangeRateRepo: exchangeRateRepoMock,
-      repoService: mockRepoService,
-      logger: mockLogger,
-    });
+    await expect(
+      makeUseCase()(
+        makePayload([
+          makeExchangeRate({ asOf: new Date('2026-06-10T00:00:00.000Z') }),
+        ])
+      )
+    ).resolves.toEqual({ processedCount: 0 });
 
-    await expect(usecase(payload)).rejects.toThrow(currencyError.InvalidCode);
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(mockExchangeRateRepo.create).not.toHaveBeenCalled();
   });
 
-  it('should throw an error if rate class is invalid', async () => {
-    // We cast rate_class as UExchangeRateType to bypass typescript compilation checks
-    // and verify runtime handling of invalid type mapping.
-    const payload = {
-      correlation_id: correlationId,
-      event_type: 'exchange-rate.ingested.v1' as const,
-      occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'drimsheet-ingestion' as const,
-      data: [
-        {
-          base_currency_code: SYSTEM_CURRENCIES.EUR.code,
-          target_currency_code: SYSTEM_CURRENCIES.USD.code,
-          rate: '1.0850',
-          rate_class: 'invalid_rate_class' as unknown as 'official',
-          as_of: '2026-06-10T00:00:00.000Z',
-          source: 'ECB',
-        },
-      ],
-    };
+  it('rejects malformed DTO input before opening a transaction', async () => {
+    const payload = makePayload([makeExchangeRate({ rate: 0 })]);
 
-    const usecase = makeIngestExchangeRateUseCase({
-      exchangeRateRepo: exchangeRateRepoMock,
-      repoService: mockRepoService,
-      logger: mockLogger,
+    await expect(makeUseCase()(payload)).rejects.toMatchObject({
+      name: 'UnprocessableEntity',
     });
 
-    await expect(usecase(payload)).rejects.toThrow(
-      exchangeRateError.InvalidType
+    expect(mockExchangeRateRepo.findLatest).not.toHaveBeenCalled();
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+  });
+
+  it('propagates domain validation failures before opening a transaction', async () => {
+    const payload = makePayload([
+      makeExchangeRate({ asOf: new Date('2026-06-12T00:00:00.000Z') }),
+    ]);
+
+    await expect(makeUseCase()(payload)).rejects.toThrow(
+      currencyError.InvalidValue
+    );
+
+    expect(mockExchangeRateRepo.findLatest).not.toHaveBeenCalled();
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+  });
+
+  it('propagates checkpoint read failures before opening a transaction', async () => {
+    const repositoryError = new Error('Database read failed');
+    mockExchangeRateRepo.findLatest.mockRejectedValue(repositoryError);
+
+    await expect(makeUseCase()(makePayload([makeExchangeRate()]))).rejects.toBe(
+      repositoryError
+    );
+
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(mockExchangeRateRepo.create).not.toHaveBeenCalled();
+  });
+
+  it('propagates repository failures from the transaction', async () => {
+    const repositoryError = new Error('Database save failed');
+    mockExchangeRateRepo.create.mockRejectedValue(repositoryError);
+
+    await expect(makeUseCase()(makePayload([makeExchangeRate()]))).rejects.toBe(
+      repositoryError
     );
   });
 
-  it('should throw an error if date is invalid format', async () => {
-    const payload: IExchangeRateIngestion['message']['payload'] = {
-      correlation_id: correlationId,
-      event_type: 'exchange-rate.ingested.v1',
-      occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'drimsheet-ingestion',
-      data: [
-        {
-          base_currency_code: SYSTEM_CURRENCIES.EUR.code,
-          target_currency_code: SYSTEM_CURRENCIES.USD.code,
-          rate: '1.0850',
-          rate_class: EExchangeRateType.Official,
-          as_of: 'invalid-date',
-          source: 'ECB',
-        },
-      ],
-    };
-
-    const usecase = makeIngestExchangeRateUseCase({
-      exchangeRateRepo: exchangeRateRepoMock,
-      repoService: mockRepoService,
-      logger: mockLogger,
-    });
-
-    await expect(usecase(payload)).rejects.toThrow(
-      exchangeRateError.InvalidDate
-    );
-  });
-
-  it('should throw an error if date is in the future', async () => {
-    const payload: IExchangeRateIngestion['message']['payload'] = {
-      correlation_id: correlationId,
-      event_type: 'exchange-rate.ingested.v1',
-      occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'drimsheet-ingestion',
-      data: [
-        {
-          base_currency_code: SYSTEM_CURRENCIES.EUR.code,
-          target_currency_code: SYSTEM_CURRENCIES.USD.code,
-          rate: '1.0850',
-          rate_class: EExchangeRateType.Official,
-          as_of: '2026-06-11T00:00:00.000Z', // Future compared to fake system time of 2026-06-10
-          source: 'ECB',
-        },
-      ],
-    };
-
-    const usecase = makeIngestExchangeRateUseCase({
-      exchangeRateRepo: exchangeRateRepoMock,
-      repoService: mockRepoService,
-      logger: mockLogger,
-    });
-
-    await expect(usecase(payload)).rejects.toThrow(currencyError.InvalidValue);
-  });
-
-  it('should propagate errors from save', async () => {
-    const payload: IExchangeRateIngestion['message']['payload'] = {
-      correlation_id: correlationId,
-      event_type: 'exchange-rate.ingested.v1',
-      occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'drimsheet-ingestion',
-      data: [
-        {
-          base_currency_code: SYSTEM_CURRENCIES.EUR.code,
-          target_currency_code: SYSTEM_CURRENCIES.USD.code,
-          rate: '1.0850',
-          rate_class: EExchangeRateType.Official,
-          as_of: '2026-06-10T00:00:00.000Z',
-          source: 'ECB',
-        },
-      ],
-    };
-
-    const saveError = new Error('Database save failed');
-    exchangeRateRepoMock.create.mockRejectedValue(saveError);
-
-    const usecase = makeIngestExchangeRateUseCase({
-      exchangeRateRepo: exchangeRateRepoMock,
-      repoService: mockRepoService,
-      logger: mockLogger,
-    });
-
-    await expect(usecase(payload)).rejects.toThrow(saveError);
-  });
-
-  it('should propagate errors from runInTransaction', async () => {
-    const payload: IExchangeRateIngestion['message']['payload'] = {
-      correlation_id: correlationId,
-      event_type: 'exchange-rate.ingested.v1',
-      occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'drimsheet-ingestion',
-      data: [
-        {
-          base_currency_code: SYSTEM_CURRENCIES.EUR.code,
-          target_currency_code: SYSTEM_CURRENCIES.USD.code,
-          rate: '1.0850',
-          rate_class: EExchangeRateType.Official,
-          as_of: '2026-06-10T00:00:00.000Z',
-          source: 'ECB',
-        },
-      ],
-    };
-
-    const transactionError = new Error('Transaction block failed');
+  it('propagates transaction failures', async () => {
+    const transactionError = new Error('Transaction failed');
     mockRepoService.runInTransaction.mockRejectedValue(transactionError);
 
-    const usecase = makeIngestExchangeRateUseCase({
-      exchangeRateRepo: exchangeRateRepoMock,
-      repoService: mockRepoService,
-      logger: mockLogger,
-    });
-
-    await expect(usecase(payload)).rejects.toThrow(transactionError);
+    await expect(makeUseCase()(makePayload([makeExchangeRate()]))).rejects.toBe(
+      transactionError
+    );
   });
 
-  it('should generate a correlation_id and log a warning if correlation_id is not provided', async () => {
-    const payload: Omit<
-      IExchangeRateIngestion['message']['payload'],
-      'correlation_id'
-    > = {
-      event_type: 'exchange-rate.ingested.v1',
-      occurred_at: '2026-06-10T12:00:00.000Z',
-      producer: 'drimsheet-ingestion',
-      data: [
-        {
-          base_currency_code: SYSTEM_CURRENCIES.EUR.code,
-          target_currency_code: SYSTEM_CURRENCIES.USD.code,
-          rate: '1.0850',
-          rate_class: EExchangeRateType.Official,
-          as_of: '2026-06-10T00:00:00.000Z',
-          source: 'ECB',
-        },
-      ],
-    };
+  it('remains safe when repeated conflict writes are accepted as no-ops', async () => {
+    const useCase = makeUseCase();
+    const payload = makePayload([makeExchangeRate()]);
 
-    const usecase = makeIngestExchangeRateUseCase({
-      exchangeRateRepo: exchangeRateRepoMock,
-      repoService: mockRepoService,
-      logger: mockLogger,
-    });
+    await expect(useCase(payload)).resolves.toEqual({ processedCount: 1 });
+    await expect(useCase(payload)).resolves.toEqual({ processedCount: 1 });
 
-    await usecase(
-      payload as unknown as IExchangeRateIngestion['message']['payload']
-    );
-
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      'exchange_rate.ingestion.correlation_id_missing',
-      {
-        message:
-          'Exchange rate ingestion message did not contain a correlation ID',
-        outcome: 'unknown',
-      }
-    );
-    expect(mockRepoService.runInTransaction).toHaveBeenCalledTimes(1);
-    expect(exchangeRateRepoMock.create).toHaveBeenCalledTimes(1);
-    expect(exchangeRateRepoMock.create).toHaveBeenCalledWith(
-      expect.any(Array),
-      {
-        correlationId: 'mocked-uuid',
-        tx: 'mock-tx',
-      }
-    );
+    expect(mockExchangeRateRepo.create).toHaveBeenCalledTimes(2);
   });
 });

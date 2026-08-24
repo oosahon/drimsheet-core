@@ -6,15 +6,16 @@ This section summarizes the fundamental decisions and strategies that shape the 
 
 The following technology choices form the foundation of the system, selected to meet our strict accounting and operational constraints.
 
-| Technology            | Decision & Rationale                                                                                                                                                                                                             |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Backend Framework** | **Node.js & Express (TypeScript)&#xA0;**&#x50;rovides a highly asynchronous, type-safe environment suitable for rapid development and exposing robust REST/Model Context Protocol (MCP) interfaces.                              |
-| **API Documentation** | **tsoa:** Automatically generates OpenAPI specifications directly from TypeScript controllers and models, significantly reducing the overhead of manually writing and maintaining accurate API specs.                            |
-| **Database**          | **PostgreSQL:&#xA0;**&#x43;hosen specifically to fulfill the strict **ACID-compliance** constraint (Constraint 2.1) required for immutable, double-entry bookkeeping.                                                            |
-| **ORM**               | **Drizzle ORM:&#xA0;**&#x50;rovides type-safe SQL queries without the heavy abstraction overhead of traditional ORMs, ensuring predictable and performant database interactions.                                                 |
-| **Caching & Queues**  | **Redis & RabbitMQ: **Used for performance caching (Redis), background job processing via BullMQ (Redis), and asynchronous message consumption via RabbitMQ for external event-driven workflows (e.g., exchange rate ingestion). |
-| **Blob Storage**      | **AWS S3 (or compatible)**&#x45;nsures immutable persistence of transaction attachments, receipts, and generated tax reports.                                                                                                    |
-| **Email Delivery**    | **ZeptoMail:&#xA0;**&#x43;hosen because it provides the cheapest and fastest way to get started with reliable transactional email delivery (e.g., invoices, alerts).                                                             |
+| Technology            | Decision & Rationale                                                                                                                                                                                                              |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Backend Framework** | **Node.js & Express (TypeScript)&#xA0;**&#x50;rovides a highly asynchronous, type-safe environment suitable for rapid development and exposing robust REST/Model Context Protocol (MCP) interfaces.                               |
+| **API Documentation** | **tsoa:** Automatically generates OpenAPI specifications directly from TypeScript controllers and models, significantly reducing the overhead of manually writing and maintaining accurate API specs.                             |
+| **Database**          | **PostgreSQL:&#xA0;**&#x43;hosen specifically to fulfill the strict **ACID-compliance** constraint (Constraint 2.1) required for immutable, double-entry bookkeeping.                                                             |
+| **ORM**               | **Drizzle ORM:&#xA0;**&#x50;rovides type-safe SQL queries without the heavy abstraction overhead of traditional ORMs, ensuring predictable and performant database interactions.                                                  |
+| **Caching & Queues**  | **Redis & BullMQ:** Redis provides performance caching and the backing store for internal BullMQ background jobs.                                                                                                                 |
+| **Integrations**      | **Concrete provider adapters:** Named external-platform schemas, clients, and mappings live under `src/infra/integrations`; the CBN official exchange-rate adapter runs as a standalone Coolify cron process from the Core image. |
+| **Blob Storage**      | **AWS S3 (or compatible)**&#x45;nsures immutable persistence of transaction attachments, receipts, and generated tax reports.                                                                                                     |
+| **Email Delivery**    | **ZeptoMail:&#xA0;**&#x43;hosen because it provides the cheapest and fastest way to get started with reliable transactional email delivery (e.g., invoices, alerts).                                                              |
 
 ## 4.2 Software Architecture
 

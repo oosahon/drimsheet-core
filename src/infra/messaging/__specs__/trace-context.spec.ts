@@ -105,8 +105,8 @@ describe('messaging trace context', () => {
     expect(
       traceQueueProcessing(
         mockTracer,
-        'drimsheet-core.exchange-rate.ingested',
-        'rabbitmq',
+        'drimsheet-core.transactional-email',
+        'bullmq',
         carrier,
         operation
       )
@@ -117,12 +117,12 @@ describe('messaging trace context', () => {
     );
     expect(mockTracer.startSpan).toHaveBeenCalledWith(
       {
-        name: 'queue.drimsheet_core_exchange_rate_ingested',
+        name: 'queue.drimsheet_core_transactional_email',
         operation: 'queue.process',
         attributes: {
-          'messaging.destination.name': 'drimsheet-core.exchange-rate.ingested',
+          'messaging.destination.name': 'drimsheet-core.transactional-email',
           'messaging.operation.type': 'process',
-          'messaging.system': 'rabbitmq',
+          'messaging.system': 'bullmq',
         },
       },
       operation

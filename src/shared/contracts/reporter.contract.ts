@@ -1,7 +1,7 @@
 interface IReportContext {
   operation?: string;
   queue?: string;
-  transport?: 'bullmq' | 'rabbitmq';
+  transport?: 'bullmq';
   attempt?: number;
   source?: string;
   signal?: string;

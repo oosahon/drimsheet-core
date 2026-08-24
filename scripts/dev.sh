@@ -9,7 +9,7 @@ if [ -f .env ]; then
 fi
 
 # Start dev services
-# NOTE: Infrastructure (Postgres, Redis, RabbitMQ) should be started
+# NOTE: Infrastructure (Postgres and Redis) should be started
 # separately via drimsheet-platforms: bash bin/start.sh
 npx concurrently \
   "nodemon" \

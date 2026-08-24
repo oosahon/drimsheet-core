@@ -25,8 +25,6 @@ export default interface IVarsConfig {
   POSTGRES_URL: string;
   REDIS_URL: string;
 
-  RABBITMQ_URL: string;
-
   SENTRY_DSN: string;
   SENTRY_TRACES_SAMPLE_RATE: string;
 

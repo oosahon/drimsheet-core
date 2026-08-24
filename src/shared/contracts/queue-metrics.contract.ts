@@ -1,6 +1,5 @@
 export const EQueueTransport = {
   BullMQ: 'bullmq',
-  RabbitMQ: 'rabbitmq',
 } as const;
 
 export type UQueueTransport =

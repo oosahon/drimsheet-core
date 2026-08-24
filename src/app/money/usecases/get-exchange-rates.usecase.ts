@@ -4,7 +4,7 @@ import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
 import { IExchangeRateQueryParam } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
-import { exchangeRateQueryParamValidation } from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
+import { getExchangeRatesQueryValidationSchema } from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -13,7 +13,7 @@ interface IDependencies {
 
 export default function makeGetExchangeRateUseCase(deps: IDependencies) {
   return async (query: IExchangeRateQueryParam) => {
-    zodValidationRunner(exchangeRateQueryParamValidation, query);
+    zodValidationRunner(getExchangeRatesQueryValidationSchema, query);
 
     const { correlationId } = deps.appContext.get();
 

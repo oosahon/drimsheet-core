@@ -41,7 +41,7 @@ function findContractJsonFiles(dir: string, fileList: string[] = []): string[] {
   return fileList;
 }
 
-// Convert filename (e.g. exchange-rate-ingestion.contract.json) to interface name (e.g. IExchangeRateIngestion)
+// Convert filename (e.g. domain-event.contract.json) to interface name (e.g. IDomainEvent)
 function getInterfaceName(filename: string): string {
   const base = filename.replace(/\.contract\.json$/, '');
   const segments = base.split(/[.-]/);

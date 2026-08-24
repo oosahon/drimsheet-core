@@ -10,6 +10,7 @@ const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
   create: jest.fn(),
   find: jest.fn(),
   findByPairAndDate: jest.fn(),
+  findLatest: jest.fn(),
 };
 
 describe('ExchangeRateAppService', () => {
