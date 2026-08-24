@@ -1,6 +1,6 @@
 import type { NodeOptions } from '@sentry/node';
 
-import scrubSentrySpan from '@infra/observability/helpers/scrub-sentry-span';
+import scrubSentrySpan from './sentry-span-scrubber';
 
 type TSentryTransaction = Parameters<
   NonNullable<NodeOptions['beforeSendTransaction']>

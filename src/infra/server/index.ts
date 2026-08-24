@@ -2,8 +2,8 @@ import { ELogOutcome } from '@shared/types/observability.types';
 
 import vars from '@infra/config/vars.config';
 import setupOAuth from '@infra/integrations/oauth/google-oauth.strategy';
+import reporter from '@infra/integrations/sentry/sentry-reporter';
 import logger from '@infra/observability/logger';
-import reporter from '@infra/observability/reporter';
 
 import createApplication from '@interface/http/application';
 

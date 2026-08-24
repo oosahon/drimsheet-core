@@ -15,9 +15,9 @@ import IAppContext from '@app/context/contracts/app-context.contract';
 import vars from '@infra/config/vars.config';
 import makeBetterStackLogRuntime from '@infra/integrations/better-stack/better-stack-log-runtime';
 import { BETTER_STACK_CONFIG } from '@infra/integrations/better-stack/better-stack.config';
+import tracer from '@infra/integrations/sentry/sentry-tracer';
 import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-id';
 import { normalizeTelemetryError } from '@infra/observability/helpers/telemetry-error';
-import tracer from '@infra/observability/tracer';
 
 import packageJson from '../../../package.json';
 

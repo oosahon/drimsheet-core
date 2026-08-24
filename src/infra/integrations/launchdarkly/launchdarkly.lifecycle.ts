@@ -1,5 +1,5 @@
 import launchDarklyClient from '@infra/integrations/launchdarkly/launchdarkly.client';
-import reporter from '@infra/observability/reporter';
+import reporter from '@infra/integrations/sentry/sentry-reporter';
 
 const INITIALIZATION_TIMEOUT_SECONDS = 5;
 

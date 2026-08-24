@@ -1,6 +1,8 @@
 import type { NodeOptions } from '@sentry/node';
 
-import scrubSentryTransaction from '@infra/observability/helpers/scrub-sentry-transaction';
+import sentryScrubber from '@infra/integrations/sentry/sentry-scrubber';
+
+const scrubSentryTransaction = sentryScrubber.transaction;
 
 type TSentryTransaction = Parameters<
   NonNullable<NodeOptions['beforeSendTransaction']>

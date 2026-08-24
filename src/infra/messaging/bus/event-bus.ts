@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import IEventBus from '@shared/contracts/event-bus.contract';
 import eventError from '@shared/values/events/event.error';
 
-import reporter from '@infra/observability/reporter';
+import reporter from '@infra/integrations/sentry/sentry-reporter';
 
 const emitter = new EventEmitter();
 

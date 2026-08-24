@@ -1,6 +1,6 @@
 import { IObservabilityTracingConfig } from '@shared/types/observability.types';
 
-import vars from './vars.config';
+import vars from '@infra/config/vars.config';
 
 const FLUSH_TIMEOUT_MS = 5_000;
 const TRACE_PROPAGATION_TARGETS: readonly string[] = Object.freeze([]);
@@ -21,4 +21,4 @@ function makeObservabilityTracingConfig(): IObservabilityTracingConfig {
   });
 }
 
-export const TRACING_CONFIG = makeObservabilityTracingConfig();
+export const SENTRY_CONFIG = makeObservabilityTracingConfig();

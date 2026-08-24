@@ -2,9 +2,16 @@ import { ErrorEvent } from '@sentry/node';
 
 import * as sanitizer from '@shared/utils/sanitizer';
 
-import scrubSentryEvent from '@infra/observability/helpers/scrub-sentry-event';
+import sentryScrubber from '@infra/integrations/sentry/sentry-scrubber';
+
+const scrubSentryEvent = sentryScrubber.event;
 
 describe('scrubSentryEvent', () => {
+  it('belongs to the immutable Sentry scrubber capability', () => {
+    expect(Object.isFrozen(sentryScrubber)).toBe(true);
+    expect(sentryScrubber.event).toBe(scrubSentryEvent);
+  });
+
   afterEach(() => {
     jest.restoreAllMocks();
   });

@@ -1,6 +1,6 @@
 import setupOAuth from '@infra/integrations/oauth/google-oauth.strategy';
+import reporter from '@infra/integrations/sentry/sentry-reporter';
 import logger from '@infra/observability/logger';
-import reporter from '@infra/observability/reporter';
 import setupServer, {
   createApplication as exportedCreateApplication,
 } from '@infra/server';
@@ -28,7 +28,7 @@ jest.mock('../../observability/logger', () => ({
   default: { info: jest.fn() },
 }));
 
-jest.mock('../../observability/reporter', () => ({
+jest.mock('@infra/integrations/sentry/sentry-reporter', () => ({
   __esModule: true,
   default: { report: jest.fn() },
 }));

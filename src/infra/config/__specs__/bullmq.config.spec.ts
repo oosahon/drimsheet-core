@@ -10,7 +10,7 @@ import { UTraceEnvelopePayload } from '@shared/types/observability.types';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
 
 import { registerBullMQWorker } from '@infra/config/bullmq.config';
-import reporter from '@infra/observability/reporter';
+import reporter from '@infra/integrations/sentry/sentry-reporter';
 import appContext from '@infra/runtime/app-context';
 
 jest.mock('bullmq', () => ({
@@ -21,7 +21,7 @@ jest.mock('../redis.config', () => ({
   getQueueConnection: jest.fn(() => ({ host: 'mock-redis' })),
 }));
 
-jest.mock('../../observability/reporter', () => ({
+jest.mock('@infra/integrations/sentry/sentry-reporter', () => ({
   __esModule: true,
   default: {
     report: jest.fn(),
