@@ -1,7 +1,7 @@
-import tracer from '@infra/observability/tracer';
+import tracer from '@infra/integrations/sentry/sentry-tracer';
 import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
 
-jest.mock('../tracer', () => ({
+jest.mock('@infra/integrations/sentry/sentry-tracer', () => ({
   __esModule: true,
   default: {
     startSpan: jest.fn(),

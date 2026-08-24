@@ -5,9 +5,8 @@ import { sanitizeData } from '@shared/utils/sanitizer';
 
 import vars from '@infra/config/vars.config';
 import safeGetCorrelationId from '@infra/observability/helpers/get-correlation-id';
-import { makeSentryError } from '@infra/observability/helpers/telemetry-error';
-
-import logger from './logger';
+import { normalizeTelemetryError } from '@infra/observability/helpers/telemetry-error';
+import logger from '@infra/observability/logger';
 
 type TReportContext = NonNullable<Parameters<IReporter['report']>[2]>;
 type TAbuseReportContext = Parameters<IReporter['reportAbuse']>[1];
@@ -20,6 +19,24 @@ const REPORT_STRING_FIELDS = [
   'subscriber',
   'eventType',
 ] as const;
+
+function makeSentryError(error: unknown): Error {
+  const normalizedError = normalizeTelemetryError(error);
+  const sentryError = new Error(normalizedError.message);
+
+  sentryError.name = normalizedError.name;
+  if (normalizedError.stack) sentryError.stack = normalizedError.stack;
+
+  if (normalizedError.errorKey) {
+    Object.defineProperty(sentryError, 'errorKey', {
+      value: normalizedError.errorKey,
+      configurable: true,
+      enumerable: true,
+    });
+  }
+
+  return sentryError;
+}
 
 function projectReportContext(
   context: TReportContext | undefined

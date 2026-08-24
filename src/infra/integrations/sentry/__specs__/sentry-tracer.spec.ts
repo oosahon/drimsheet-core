@@ -1,6 +1,6 @@
 import Sentry from '@sentry/node';
 
-import tracer from '@infra/observability/tracer';
+import tracer from '@infra/integrations/sentry/sentry-tracer';
 
 jest.mock('@sentry/node', () => ({
   __esModule: true,

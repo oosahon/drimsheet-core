@@ -1,11 +1,11 @@
 import makeMetricsRuntime from '@infra/integrations/better-stack/better-stack-metrics-runtime';
 import { BETTER_STACK_CONFIG } from '@infra/integrations/better-stack/better-stack.config';
+import reporter from '@infra/integrations/sentry/sentry-reporter';
+import tracer from '@infra/integrations/sentry/sentry-tracer';
 
 import makeHttpMetrics from './http-metrics';
 import logger, { betterStackLogRuntime } from './logger';
 import makeQueueMetrics from './queue-metrics';
-import reporter from './reporter';
-import tracer from './tracer';
 
 export const metricsRuntime = makeMetricsRuntime(BETTER_STACK_CONFIG, logger);
 export { betterStackLogRuntime };

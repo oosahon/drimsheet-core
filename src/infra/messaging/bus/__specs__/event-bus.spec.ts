@@ -1,9 +1,9 @@
 import eventValue from '@shared/values/events/event.vo';
 
+import reporter from '@infra/integrations/sentry/sentry-reporter';
 import eventBus from '@infra/messaging/bus/event-bus';
-import reporter from '@infra/observability/reporter';
 
-jest.mock('../../../observability/reporter', () => ({
+jest.mock('@infra/integrations/sentry/sentry-reporter', () => ({
   __esModule: true,
   default: {
     report: jest.fn(),

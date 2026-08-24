@@ -1,7 +1,6 @@
 import * as sanitizer from '@shared/utils/sanitizer';
 
 import {
-  makeSentryError,
   normalizeTelemetryError,
   sanitizeTelemetryErrorText,
 } from '@infra/observability/helpers/telemetry-error';
@@ -24,8 +23,6 @@ describe('telemetry error preparation', () => {
     );
 
     const normalized = normalizeTelemetryError(error);
-    const sentryError = makeSentryError(error);
-
     expect(normalized).toEqual({
       name: 'TypeError',
       message: 'Invalid email [REDACTED] and credential [REDACTED]',
@@ -36,14 +33,6 @@ describe('telemetry error preparation', () => {
     expect(normalized.stack).not.toContain('private-refresh-token');
     expect(normalized).not.toHaveProperty('cause');
     expect(normalized).not.toHaveProperty('amount');
-    expect(sentryError.name).toBe('TypeError');
-    expect(sentryError.message).toBe(normalized.message);
-    expect(sentryError.stack).toBe(normalized.stack);
-    expect(sentryError).toHaveProperty(
-      'errorKey',
-      'auth_error_token_invalid_unauthorized'
-    );
-    expect(sentryError).not.toHaveProperty('cause');
   });
 
   it('handles an Error without a stack or error key', () => {
@@ -54,7 +43,6 @@ describe('telemetry error preparation', () => {
       name: 'Error',
       message: 'plain failure',
     });
-    expect(makeSentryError(error)).toEqual(expect.any(Error));
   });
 
   it.each([

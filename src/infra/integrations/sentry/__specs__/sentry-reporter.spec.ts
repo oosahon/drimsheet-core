@@ -2,8 +2,8 @@ import Sentry from '@sentry/node';
 
 import * as sanitizer from '@shared/utils/sanitizer';
 
+import reporter from '@infra/integrations/sentry/sentry-reporter';
 import logger from '@infra/observability/logger';
-import reporter from '@infra/observability/reporter';
 import appContext from '@infra/runtime/app-context';
 
 const originalAppEnv = process.env.APP_ENV;
@@ -13,7 +13,7 @@ jest.mock('@sentry/node', () => ({
   captureMessage: jest.fn(),
 }));
 
-jest.mock('../../config/vars.config', () => ({
+jest.mock('@infra/config/vars.config', () => ({
   __esModule: true,
   default: {
     BETTER_STACK_SOURCE_TOKEN: '',

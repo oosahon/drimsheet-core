@@ -1,4 +1,4 @@
-import tracer from '@infra/observability/tracer';
+import tracer from '@infra/integrations/sentry/sentry-tracer';
 
 export function makeTracedUseCase<TArguments extends unknown[], TResult>(
   spanName: string,

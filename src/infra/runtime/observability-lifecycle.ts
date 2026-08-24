@@ -1,8 +1,6 @@
-import Sentry from '@sentry/node';
-
 import { ELogOutcome } from '@shared/types/observability.types';
 
-import { TRACING_CONFIG } from '@infra/config/observability-tracing.config';
+import sentryLifecycle from '@infra/integrations/sentry/sentry.lifecycle';
 import { betterStackLogRuntime, metricsRuntime } from '@infra/observability';
 import logger from '@infra/observability/logger';
 
@@ -15,25 +13,6 @@ function warnSafely(event: string, fields: Record<string, unknown>) {
     logger.warn(event, fields);
   } catch {
     // Telemetry shutdown must never affect the process lifecycle.
-  }
-}
-
-async function flushSentrySafely(signal?: TShutdownSignal) {
-  try {
-    const flushed = await Sentry.flush(TRACING_CONFIG.flushTimeoutMs);
-
-    if (!flushed) {
-      warnSafely('observability.sentry.flush_failed', {
-        outcome: ELogOutcome.Failure,
-        ...(signal ? { signal } : {}),
-      });
-    }
-  } catch (error) {
-    warnSafely('observability.sentry.flush_failed', {
-      outcome: ELogOutcome.Failure,
-      error,
-      ...(signal ? { signal } : {}),
-    });
   }
 }
 
@@ -63,7 +42,7 @@ async function flushLogsSafely(signal?: TShutdownSignal) {
 
 function shutdown(signal?: TShutdownSignal): Promise<void> {
   shutdownPromise ??= Promise.all([
-    flushSentrySafely(signal),
+    sentryLifecycle.shutdown(signal),
     flushLogsSafely(signal),
     shutdownMetricsSafely(signal),
   ]).then(() => undefined);

@@ -3,17 +3,17 @@ import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 type TObservabilityLifecycle =
   (typeof import('@infra/runtime/observability-lifecycle'))['default'];
 
-const mockFlushSentry = jest.fn<Promise<boolean>, [number]>();
+const mockShutdownSentry = jest.fn<
+  Promise<void>,
+  [signal?: 'SIGINT' | 'SIGTERM']
+>();
 const mockShutdownLogs = jest.fn<Promise<void>, []>();
 const mockShutdownMetrics = jest.fn<Promise<void>, []>();
 
-jest.mock('@sentry/node', () => ({
-  flush: mockFlushSentry,
-}));
-
-jest.mock('../../config/observability-tracing.config', () => ({
-  TRACING_CONFIG: {
-    flushTimeoutMs: 4_000,
+jest.mock('@infra/integrations/sentry/sentry.lifecycle', () => ({
+  __esModule: true,
+  default: {
+    shutdown: mockShutdownSentry,
   },
 }));
 
@@ -49,7 +49,7 @@ async function loadObservabilityLifecycle(): Promise<TObservabilityLifecycle> {
 describe('observability lifecycle', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockFlushSentry.mockResolvedValue(true);
+    mockShutdownSentry.mockResolvedValue(undefined);
     mockShutdownLogs.mockResolvedValue(undefined);
     mockShutdownMetrics.mockResolvedValue(undefined);
   });
@@ -66,51 +66,12 @@ describe('observability lifecycle', () => {
     await lifecycle.shutdown('SIGINT');
 
     expect(processOnce).not.toHaveBeenCalled();
-    expect(mockFlushSentry).toHaveBeenCalledTimes(1);
-    expect(mockFlushSentry).toHaveBeenCalledWith(4_000);
+    expect(mockShutdownSentry).toHaveBeenCalledTimes(1);
+    expect(mockShutdownSentry).toHaveBeenCalledWith('SIGTERM');
     expect(mockShutdownLogs).toHaveBeenCalledTimes(1);
     expect(mockShutdownMetrics).toHaveBeenCalledTimes(1);
     expect(mockLogger.warn).not.toHaveBeenCalled();
     expect(Object.isFrozen(lifecycle)).toBe(true);
-  });
-
-  it('warns when Sentry cannot flush within the bound', async () => {
-    mockFlushSentry.mockResolvedValue(false);
-    const lifecycle = await loadObservabilityLifecycle();
-
-    await lifecycle.shutdown('SIGTERM');
-
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      'observability.sentry.flush_failed',
-      { outcome: 'failure', signal: 'SIGTERM' }
-    );
-  });
-
-  it('contains Sentry flush and logger failures', async () => {
-    const error = new Error('flush unavailable');
-    mockFlushSentry.mockRejectedValue(error);
-    mockLogger.warn.mockImplementationOnce(() => {
-      throw new Error('logger unavailable');
-    });
-    const lifecycle = await loadObservabilityLifecycle();
-
-    await expect(lifecycle.shutdown()).resolves.toBeUndefined();
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      'observability.sentry.flush_failed',
-      { error, outcome: 'failure' }
-    );
-  });
-
-  it('includes the shutdown signal when a Sentry flush rejects', async () => {
-    const error = new Error('flush unavailable');
-    mockFlushSentry.mockRejectedValue(error);
-    const lifecycle = await loadObservabilityLifecycle();
-
-    await expect(lifecycle.shutdown('SIGTERM')).resolves.toBeUndefined();
-    expect(mockLogger.warn).toHaveBeenCalledWith(
-      'observability.sentry.flush_failed',
-      { error, outcome: 'failure', signal: 'SIGTERM' }
-    );
   });
 
   it('contains unexpected metrics shutdown failures', async () => {
@@ -136,7 +97,7 @@ describe('observability lifecycle', () => {
       'observability.logs.shutdown_failed',
       { error, outcome: 'failure', signal: 'SIGTERM' }
     );
-    expect(mockFlushSentry).toHaveBeenCalledTimes(1);
+    expect(mockShutdownSentry).toHaveBeenCalledTimes(1);
     expect(mockShutdownMetrics).toHaveBeenCalledTimes(1);
   });
 
@@ -155,19 +116,14 @@ describe('observability lifecycle', () => {
 
   it('omits signal fields from unscoped shutdown failures', async () => {
     const error = new Error('metrics unavailable');
-    mockFlushSentry.mockResolvedValue(false);
     mockShutdownMetrics.mockRejectedValue(error);
     const lifecycle = await loadObservabilityLifecycle();
 
     await expect(lifecycle.shutdown()).resolves.toBeUndefined();
     expect(mockLogger.warn).toHaveBeenCalledWith(
-      'observability.sentry.flush_failed',
-      { outcome: 'failure' }
-    );
-    expect(mockLogger.warn).toHaveBeenCalledWith(
       'observability.lifecycle.shutdown_failed',
       { error, outcome: 'failure' }
     );
-    expect(mockLogger.warn).toHaveBeenCalledTimes(2);
+    expect(mockLogger.warn).toHaveBeenCalledTimes(1);
   });
 });

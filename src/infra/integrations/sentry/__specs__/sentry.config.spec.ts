@@ -7,12 +7,12 @@ const mockVarsConfig: TTracingVars = {
   SENTRY_TRACES_SAMPLE_RATE: '0',
 };
 
-jest.mock('../vars.config', () => ({
+jest.mock('@infra/config/vars.config', () => ({
   __esModule: true,
   default: mockVarsConfig,
 }));
 
-function loadTracingConfig(
+function loadSentryConfig(
   overrides: Partial<TTracingVars> = {}
 ): IObservabilityTracingConfig {
   Object.assign(mockVarsConfig, {
@@ -20,31 +20,31 @@ function loadTracingConfig(
     ...overrides,
   });
 
-  let tracingConfig!: IObservabilityTracingConfig;
+  let sentryConfig!: IObservabilityTracingConfig;
   jest.isolateModules(() => {
-    tracingConfig = jest.requireActual<
-      typeof import('@infra/config/observability-tracing.config')
-    >('../observability-tracing.config').TRACING_CONFIG;
+    sentryConfig = jest.requireActual<
+      typeof import('@infra/integrations/sentry/sentry.config')
+    >('@infra/integrations/sentry/sentry.config').SENTRY_CONFIG;
   });
 
-  return tracingConfig;
+  return sentryConfig;
 }
 
-describe('observability tracing config', () => {
+describe('Sentry config', () => {
   it('keeps tracing disabled and shutdown bounded by default', () => {
-    const tracingConfig = loadTracingConfig();
+    const sentryConfig = loadSentryConfig();
 
-    expect(tracingConfig).toEqual({
+    expect(sentryConfig).toEqual({
       flushTimeoutMs: 5_000,
       tracePropagationTargets: [],
       tracesSampleRate: 0,
     });
-    expect(Object.isFrozen(tracingConfig)).toBe(true);
-    expect(Object.isFrozen(tracingConfig.tracePropagationTargets)).toBe(true);
+    expect(Object.isFrozen(sentryConfig)).toBe(true);
+    expect(Object.isFrozen(sentryConfig.tracePropagationTargets)).toBe(true);
   });
 
   it('uses the configured sampling rate with fixed propagation and flush bounds', () => {
-    const config = loadTracingConfig({
+    const config = loadSentryConfig({
       SENTRY_TRACES_SAMPLE_RATE: '0.25',
     });
 
@@ -57,7 +57,7 @@ describe('observability tracing config', () => {
 
   it('disables tracing for an invalid sampling rate', () => {
     expect(
-      loadTracingConfig({
+      loadSentryConfig({
         SENTRY_TRACES_SAMPLE_RATE: '1.1',
       })
     ).toEqual({

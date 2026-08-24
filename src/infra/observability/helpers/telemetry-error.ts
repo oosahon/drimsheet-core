@@ -66,21 +66,3 @@ export function normalizeTelemetryError(error: unknown): ITelemetryError {
     };
   }
 }
-
-export function makeSentryError(error: unknown): Error {
-  const normalizedError = normalizeTelemetryError(error);
-  const sentryError = new Error(normalizedError.message);
-
-  sentryError.name = normalizedError.name;
-  if (normalizedError.stack) sentryError.stack = normalizedError.stack;
-
-  if (normalizedError.errorKey) {
-    Object.defineProperty(sentryError, 'errorKey', {
-      value: normalizedError.errorKey,
-      configurable: true,
-      enumerable: true,
-    });
-  }
-
-  return sentryError;
-}

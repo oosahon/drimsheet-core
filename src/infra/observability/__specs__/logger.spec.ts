@@ -6,10 +6,10 @@ import { ILogFields } from '@shared/types/observability.types';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 
+import tracer from '@infra/integrations/sentry/sentry-tracer';
 import { makeLogger } from '@infra/observability/logger';
-import tracer from '@infra/observability/tracer';
 
-jest.mock('../tracer', () => ({
+jest.mock('@infra/integrations/sentry/sentry-tracer', () => ({
   __esModule: true,
   default: {
     getActiveTrace: jest.fn(),

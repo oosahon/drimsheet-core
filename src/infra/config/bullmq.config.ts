@@ -13,11 +13,11 @@ import IAppContext, {
   IAppContextData,
 } from '@app/context/contracts/app-context.contract';
 
+import reporter from '@infra/integrations/sentry/sentry-reporter';
 import {
   traceQueueProcessing,
   unwrapTraceEnvelope,
 } from '@infra/messaging/trace-context';
-import reporter from '@infra/observability/reporter';
 
 import { getQueueConnection } from './redis.config';
 

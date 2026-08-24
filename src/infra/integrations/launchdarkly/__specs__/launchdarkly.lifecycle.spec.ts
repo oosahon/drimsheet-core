@@ -1,6 +1,6 @@
 import launchDarklyClient from '@infra/integrations/launchdarkly/launchdarkly.client';
 import launchDarklyLifecycle from '@infra/integrations/launchdarkly/launchdarkly.lifecycle';
-import reporter from '@infra/observability/reporter';
+import reporter from '@infra/integrations/sentry/sentry-reporter';
 
 jest.mock('@infra/integrations/launchdarkly/launchdarkly.client', () => ({
   __esModule: true,
@@ -11,7 +11,7 @@ jest.mock('@infra/integrations/launchdarkly/launchdarkly.client', () => ({
   },
 }));
 
-jest.mock('@infra/observability/reporter', () => ({
+jest.mock('@infra/integrations/sentry/sentry-reporter', () => ({
   __esModule: true,
   default: {
     report: jest.fn(),

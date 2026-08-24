@@ -1,6 +1,8 @@
 import type { NodeOptions } from '@sentry/node';
 
-import scrubSentrySpan from '@infra/observability/helpers/scrub-sentry-span';
+import sentryScrubber from '@infra/integrations/sentry/sentry-scrubber';
+
+const scrubSentrySpan = sentryScrubber.span;
 
 type TSentrySpan = Parameters<NonNullable<NodeOptions['beforeSendSpan']>>[0];
 

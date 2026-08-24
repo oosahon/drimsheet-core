@@ -24,6 +24,16 @@ jest.mock(
   })
 );
 
+jest.mock('@infra/integrations/sentry/sentry-reporter', () => ({
+  __esModule: true,
+  default: mockReporter,
+}));
+
+jest.mock('@infra/integrations/sentry/sentry-tracer', () => ({
+  __esModule: true,
+  default: mockTracer,
+}));
+
 jest.mock('../logger', () => ({
   __esModule: true,
   betterStackLogRuntime: mockBetterStackLogRuntime,
@@ -38,16 +48,6 @@ jest.mock('../http-metrics', () => ({
 jest.mock('../queue-metrics', () => ({
   __esModule: true,
   default: jest.fn(() => mockQueueMetrics),
-}));
-
-jest.mock('../reporter', () => ({
-  __esModule: true,
-  default: mockReporter,
-}));
-
-jest.mock('../tracer', () => ({
-  __esModule: true,
-  default: mockTracer,
 }));
 
 describe('observability composition', () => {
