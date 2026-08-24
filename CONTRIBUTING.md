@@ -75,13 +75,14 @@ src/
 │  └─ user/
 │
 ├─ infra/               # Technical layer: implementations of services, database, and infrastructure concerns
-│  ├─ config/           # Configuration files for app, environment variables, secrets, and third-party services
+│  ├─ config/           # Application and environment configuration, including secrets and runtime settings
 │  ├─ db/               # Database migrations (node-pg-migrate)
+│  ├─ integrations/     # Named external-platform adapters implementing or translating into system-owned boundaries
 │  ├─ messaging/        # Event bus, message queues (BullMQ), and external messaging adapters (RabbitMQ)
 │  ├─ observability/    # Logging, metrics, monitoring, and tracing
 │  ├─ persistence/      # Data persistence mechanisms including DB (Drizzle), caching, and concrete repo implementations
 │  ├─ server/           # Express (or other HTTP) server setup and bootstrapping
-│  ├─ services/         # External service clients (e.g., third-party API clients)
+│  ├─ services/         # Concrete infrastructure capabilities that are not named platform integrations
 │  └─ templates/        # Email templates (MJML source and compiled TypeScript)
 │
 ├─ interface/           # Application entry points and external interfaces

@@ -5,11 +5,12 @@ import {
   VerifyCallback,
 } from 'passport-google-oauth20';
 
+import { IOAuthProfile } from '@app/auth/dtos/auth/auth.dto';
+
+import vars from '@infra/config/vars.config';
 import { loginWithGoogleUseCase } from '@infra/ioc/usecases/auth';
 
-import vars from './vars.config';
-
-export function mapGoogleProfile(profile: Profile) {
+export function mapGoogleProfile(profile: Profile): IOAuthProfile {
   const primaryEmail = profile.emails?.[0];
 
   return {

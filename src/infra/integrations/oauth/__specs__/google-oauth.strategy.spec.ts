@@ -5,7 +5,9 @@ import {
   VerifyCallback,
 } from 'passport-google-oauth20';
 
-import setupOAuth, { mapGoogleProfile } from '@infra/config/oauth.config';
+import setupOAuth, {
+  mapGoogleProfile,
+} from '@infra/integrations/oauth/google-oauth.strategy';
 import { loginWithGoogleUseCase } from '@infra/ioc/usecases/auth';
 
 jest.mock('passport', () => ({
@@ -24,7 +26,7 @@ jest.mock('@infra/ioc/usecases/auth', () => ({
   loginWithGoogleUseCase: jest.fn(),
 }));
 
-jest.mock('../vars.config', () => ({
+jest.mock('@infra/config/vars.config', () => ({
   __esModule: true,
   default: {
     get GOOGLE_AUTH_CLIENT_ID() {

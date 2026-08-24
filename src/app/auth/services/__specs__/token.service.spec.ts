@@ -1,26 +1,29 @@
+import jsonWebToken from 'jsonwebtoken';
+
 import mockCacheStorage from '@shared/contracts/__mocks__/cache-storage.mock';
-import mockTokenCodec from '@shared/contracts/__mocks__/token-codec.mock';
-import {
-  ITokenEncodingOptions,
-  TTokenVerification,
-} from '@shared/contracts/token-codec.contract';
 import { TEntityId } from '@shared/types/uuid';
 
 import authError from '@app/auth/errors/auth.error';
 import makeTokenService from '@app/auth/services/token.service';
 
-interface IMockTokenPayload extends Record<string, unknown> {
+interface ITokenPayload extends Record<string, unknown> {
   exp?: number;
+  iat?: number;
   jti?: string;
 }
 
-const serializeMockToken = (payload: IMockTokenPayload) =>
-  Buffer.from(JSON.stringify(payload)).toString('base64url');
+const secret = 'test-secret';
 
-const deserializeMockToken = (token: string): IMockTokenPayload =>
-  JSON.parse(
-    Buffer.from(token, 'base64url').toString('utf8')
-  ) as IMockTokenPayload;
+const decodeToken = (token: string) =>
+  jsonWebToken.decode(token) as ITokenPayload;
+
+const expectTokenTtl = (token: string, ttlSeconds: number) => {
+  const payload = decodeToken(token);
+
+  expect(payload.iat).toEqual(expect.any(Number));
+  expect(payload.exp).toEqual(expect.any(Number));
+  expect((payload.exp as number) - (payload.iat as number)).toBe(ttlSeconds);
+};
 
 const configureCacheStorage = () => {
   const store = new Map<string, unknown>();
@@ -64,38 +67,16 @@ describe('makeTokenService', () => {
 
   beforeEach(() => {
     configureCacheStorage();
-    mockTokenCodec.encode
-      .mockReset()
-      .mockImplementation(
-        (payload: Record<string, unknown>, options: ITokenEncodingOptions) =>
-          serializeMockToken({
-            ...payload,
-            exp: Math.floor(Date.now() / 1000) + options.expiresInSeconds,
-            ...(options.tokenId ? { jti: options.tokenId } : {}),
-          })
-      );
-    mockTokenCodec.verify
-      .mockReset()
-      .mockImplementation(
-        <TPayload>(token: string): TTokenVerification<TPayload> => {
-          try {
-            const payload = deserializeMockToken(token);
-
-            if (payload.exp && payload.exp <= Math.floor(Date.now() / 1000)) {
-              return { reason: 'expired', valid: false };
-            }
-
-            return { payload: payload as TPayload, valid: true };
-          } catch {
-            return { reason: 'malformed', valid: false };
-          }
-        }
-      );
 
     tokenService = makeTokenService({
       cacheStorage: mockCacheStorage,
-      tokenCodec: mockTokenCodec,
+      secret,
     });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    jest.useRealTimers();
   });
 
   describe('generateSignupToken & verifySignupToken', () => {
@@ -106,8 +87,9 @@ describe('makeTokenService', () => {
       expect(mockCacheStorage.set).toHaveBeenCalledWith(
         `app:auth:signup-token:${userId}`,
         token,
-        expect.any(Number)
+        60 * 60 * 24
       );
+      expectTokenTtl(token, 60 * 60 * 24);
 
       const decoded = await tokenService.verifySignupToken(token);
       expect(decoded.id).toBe(userId);
@@ -197,8 +179,9 @@ describe('makeTokenService', () => {
       expect(mockCacheStorage.set).toHaveBeenCalledWith(
         `app:auth:reset-token:${userId}`,
         token,
-        expect.any(Number)
+        2 * 60 * 60
       );
+      expectTokenTtl(token, 2 * 60 * 60);
 
       const decoded = await tokenService.verifyPasswordResetToken(token);
       expect(decoded.id).toBe(userId);
@@ -279,9 +262,10 @@ describe('makeTokenService', () => {
     });
 
     it('claims a password reset token correctly when it does not contain an expiration claim', async () => {
-      const token = Buffer.from(
-        JSON.stringify({ id: userId, type: 'reset' })
-      ).toString('base64url');
+      const token = jsonWebToken.sign({ id: userId, type: 'reset' }, secret, {
+        algorithm: 'HS256',
+        noTimestamp: true,
+      });
       await mockCacheStorage.set(`app:auth:reset-token:${userId}`, token, 900);
 
       const claim = await tokenService.claimPasswordResetToken(token);
@@ -298,6 +282,11 @@ describe('makeTokenService', () => {
       const decoded = await tokenService.getAuthUser(token);
 
       expect(decoded.id).toBe(userId);
+      expect(jsonWebToken.decode(token, { complete: true })).toMatchObject({
+        header: { alg: 'HS256' },
+        payload: { id: userId, type: 'access' },
+      });
+      expectTokenTtl(token, 60 * 15);
     });
 
     it('issues unique access tokens for the same user in the same second', async () => {
@@ -307,25 +296,22 @@ describe('makeTokenService', () => {
       const second = await tokenService.generateAccessToken({ id: userId });
 
       expect(first).not.toBe(second);
-      expect(deserializeMockToken(first)).toMatchObject({
+      expect(decodeToken(first)).toMatchObject({
         id: userId,
         type: 'access',
       });
-      expect(deserializeMockToken(second)).toMatchObject({
+      expect(decodeToken(second)).toMatchObject({
         id: userId,
         type: 'access',
       });
-      expect(deserializeMockToken(first).jti).not.toBe(
-        deserializeMockToken(second).jti
-      );
-
-      jest.useRealTimers();
+      expect(decodeToken(first).jti).not.toBe(decodeToken(second).jti);
     });
 
     it('should throw ExpiredToken for expired access tokens', async () => {
-      const expiredToken = mockTokenCodec.encode(
+      const expiredToken = jsonWebToken.sign(
         { id: userId, type: 'access' },
-        { expiresInSeconds: -1 }
+        secret,
+        { algorithm: 'HS256', expiresIn: -1 }
       );
 
       await expect(tokenService.getAuthUser(expiredToken)).rejects.toThrow(
@@ -350,20 +336,22 @@ describe('makeTokenService', () => {
     });
 
     it('should throw InvalidToken for NotBeforeError', async () => {
-      mockTokenCodec.verify.mockImplementationOnce(() => ({
-        reason: 'not-active',
-        valid: false,
-      }));
-      await expect(tokenService.getAuthUser('some-token')).rejects.toThrow(
+      const notActiveToken = jsonWebToken.sign(
+        { id: userId, type: 'access' },
+        secret,
+        { algorithm: 'HS256', notBefore: '1 hour' }
+      );
+
+      await expect(tokenService.getAuthUser(notActiveToken)).rejects.toThrow(
         authError.InvalidToken
       );
     });
 
     it('should throw InvalidToken for unknown error during verification', async () => {
-      mockTokenCodec.verify.mockImplementationOnce(() => ({
-        reason: 'invalid',
-        valid: false,
-      }));
+      jest.spyOn(jsonWebToken, 'verify').mockImplementationOnce(() => {
+        throw new Error('unexpected verification failure');
+      });
+
       await expect(tokenService.getAuthUser('some-token')).rejects.toThrow(
         authError.InvalidToken
       );
@@ -378,6 +366,7 @@ describe('makeTokenService', () => {
       const decoded = await tokenService.verifyRefreshToken(token);
 
       expect(decoded.id).toBe(userId);
+      expectTokenTtl(token, 60 * 60 * 24 * 15);
     });
 
     it('issues unique refresh tokens for the same user in the same second', async () => {
@@ -387,19 +376,15 @@ describe('makeTokenService', () => {
       const second = await tokenService.generateRefreshToken({ id: userId });
 
       expect(first).not.toBe(second);
-      expect(deserializeMockToken(first)).toMatchObject({
+      expect(decodeToken(first)).toMatchObject({
         id: userId,
         type: 'refresh',
       });
-      expect(deserializeMockToken(second)).toMatchObject({
+      expect(decodeToken(second)).toMatchObject({
         id: userId,
         type: 'refresh',
       });
-      expect(deserializeMockToken(first).jti).not.toBe(
-        deserializeMockToken(second).jti
-      );
-
-      jest.useRealTimers();
+      expect(decodeToken(first).jti).not.toBe(decodeToken(second).jti);
     });
 
     it('should throw InvalidToken if token type is incorrect', async () => {

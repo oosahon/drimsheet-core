@@ -1,14 +1,14 @@
-import launchDarklyClient from '@infra/config/launchdarkly.config';
-import featureFlagService from '@infra/services/feature-flag.service';
+import featureFlagService from '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service';
+import launchDarklyClient from '@infra/integrations/launchdarkly/launchdarkly.client';
 
-jest.mock('../../config/launchdarkly.config', () => ({
+jest.mock('@infra/integrations/launchdarkly/launchdarkly.client', () => ({
   __esModule: true,
   default: {
     boolVariation: jest.fn(),
   },
 }));
 
-describe('featureFlagService', () => {
+describe('LaunchDarkly feature flag service', () => {
   const client = jest.mocked(launchDarklyClient);
 
   beforeEach(() => {

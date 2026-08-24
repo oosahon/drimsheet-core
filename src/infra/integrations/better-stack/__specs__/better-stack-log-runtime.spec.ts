@@ -1,8 +1,8 @@
 import { Logtail } from '@logtail/node';
 import { LogtailTransport } from '@logtail/winston';
 
-import { IBetterStackConfig } from '@infra/config/better-stack.config';
-import makeBetterStackLogRuntime from '@infra/runtime/better-stack-log-runtime';
+import makeBetterStackLogRuntime from '@infra/integrations/better-stack/better-stack-log-runtime';
+import { IBetterStackConfig } from '@infra/integrations/better-stack/better-stack.config';
 
 const mockFlush = jest.fn<Promise<void>, []>();
 const mockTransport = { name: 'better-stack-transport' };

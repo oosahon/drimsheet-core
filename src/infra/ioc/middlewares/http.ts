@@ -1,5 +1,6 @@
 import { makeAuthRateLimiters } from '@infra/config/rate-limiter.config';
 import vars from '@infra/config/vars.config';
+import featureFlagService from '@infra/integrations/launchdarkly/launchdarkly-feature-flag.service';
 import { accountingEntityService } from '@infra/ioc/services/accounting';
 import { tokenService } from '@infra/ioc/services/auth';
 import { oAuthUseCase } from '@infra/ioc/usecases/auth';
@@ -8,7 +9,6 @@ import accountingRepos from '@infra/persistence/repos/accounting';
 import userRepos from '@infra/persistence/repos/user';
 import appContext from '@infra/runtime/app-context';
 import makeGlobalRateLimiter from '@infra/server/rate-limiter';
-import featureFlagService from '@infra/services/feature-flag.service';
 
 import makeAccountingEntityAccessMiddleware from '@interface/http/middlewares/accounting-entity-access.middleware';
 import makeAppContextEnrichmentMiddleware from '@interface/http/middlewares/app-context-enrichment.middleware';

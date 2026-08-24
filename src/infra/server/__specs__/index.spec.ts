@@ -1,4 +1,4 @@
-import setupOAuth from '@infra/config/oauth.config';
+import setupOAuth from '@infra/integrations/oauth/google-oauth.strategy';
 import logger from '@infra/observability/logger';
 import reporter from '@infra/observability/reporter';
 import setupServer, {
@@ -13,7 +13,7 @@ const mockHealthRouter = { router: 'health' };
 const mockMarkStartupComplete = jest.fn();
 const mockMarkStartupFailed = jest.fn();
 
-jest.mock('../../config/oauth.config', () => ({
+jest.mock('@infra/integrations/oauth/google-oauth.strategy', () => ({
   __esModule: true,
   default: jest.fn(),
 }));

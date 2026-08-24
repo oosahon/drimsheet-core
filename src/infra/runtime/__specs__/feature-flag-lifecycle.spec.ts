@@ -1,26 +1,16 @@
-import launchDarklyClient from '@infra/config/launchdarkly.config';
-import reporter from '@infra/observability/reporter';
-import featureFlagLifeCycle from '@infra/runtime/feature-flag-lifecycle';
+import launchDarklyLifecycle from '@infra/integrations/launchdarkly/launchdarkly.lifecycle';
+import featureFlagLifecycle from '@infra/runtime/feature-flag-lifecycle';
 import observabilityLifecycle from '@infra/runtime/observability-lifecycle';
 
-jest.mock('../../config/launchdarkly.config', () => ({
+jest.mock('@infra/integrations/launchdarkly/launchdarkly.lifecycle', () => ({
   __esModule: true,
   default: {
-    waitForInitialization: jest.fn(),
-    flush: jest.fn(),
-    close: jest.fn(),
+    initialize: jest.fn(),
+    shutdown: jest.fn(),
   },
 }));
 
-jest.mock('../../observability/reporter', () => ({
-  __esModule: true,
-  default: {
-    report: jest.fn(),
-    reportAbuse: jest.fn(),
-  },
-}));
-
-jest.mock('../observability-lifecycle', () => ({
+jest.mock('@infra/runtime/observability-lifecycle', () => ({
   __esModule: true,
   default: {
     shutdown: jest.fn(),
@@ -29,10 +19,9 @@ jest.mock('../observability-lifecycle', () => ({
 
 type TShutdownSignal = 'SIGINT' | 'SIGTERM';
 
-describe('featureFlagLifeCycle', () => {
+describe('feature flag process lifecycle', () => {
   const handlers = new Map<TShutdownSignal, () => Promise<void>>();
-  const client = jest.mocked(launchDarklyClient);
-  const mockReporter = jest.mocked(reporter);
+  const mockLaunchDarklyLifecycle = jest.mocked(launchDarklyLifecycle);
   const mockObservabilityLifecycle = jest.mocked(observabilityLifecycle);
 
   const getHandler = (signal: TShutdownSignal) => {
@@ -48,10 +37,8 @@ describe('featureFlagLifeCycle', () => {
   beforeEach(() => {
     handlers.clear();
     jest.clearAllMocks();
-
-    client.waitForInitialization.mockResolvedValue(client);
-    client.flush.mockResolvedValue(undefined);
-    client.close.mockReturnValue(undefined);
+    mockLaunchDarklyLifecycle.initialize.mockResolvedValue(undefined);
+    mockLaunchDarklyLifecycle.shutdown.mockResolvedValue(undefined);
     mockObservabilityLifecycle.shutdown.mockResolvedValue(undefined);
 
     jest.spyOn(process, 'once').mockImplementation((signal, listener) => {
@@ -73,27 +60,14 @@ describe('featureFlagLifeCycle', () => {
     jest.restoreAllMocks();
   });
 
-  it('waits for bounded initialization', async () => {
-    await featureFlagLifeCycle.initialize();
+  it('delegates initialization to LaunchDarkly', async () => {
+    await featureFlagLifecycle.initialize();
 
-    expect(client.waitForInitialization).toHaveBeenCalledWith({ timeout: 5 });
-    expect(mockReporter.report).not.toHaveBeenCalled();
-  });
-
-  it('reports initialization failure and continues', async () => {
-    const error = new Error('initialization failed');
-    client.waitForInitialization.mockRejectedValue(error);
-
-    await expect(featureFlagLifeCycle.initialize()).resolves.toBeUndefined();
-    expect(mockReporter.report).toHaveBeenCalledWith(
-      'integration.feature_flag.initialization_failed',
-      error,
-      { source: 'feature-flag-initialization' }
-    );
+    expect(mockLaunchDarklyLifecycle.initialize).toHaveBeenCalledTimes(1);
   });
 
   it('registers SIGINT and SIGTERM shutdown handling', () => {
-    featureFlagLifeCycle.registerShutdown();
+    featureFlagLifecycle.registerShutdown();
 
     expect(process.once).toHaveBeenCalledTimes(2);
     expect(handlers.has('SIGINT')).toBe(true);
@@ -103,46 +77,47 @@ describe('featureFlagLifeCycle', () => {
   it.each([
     ['SIGINT', 130],
     ['SIGTERM', 143],
-  ] as const)('flushes, closes, and exits on %s', async (signal, exitCode) => {
-    featureFlagLifeCycle.registerShutdown();
+  ] as const)(
+    'shuts down integrations and observability before exiting on %s',
+    async (signal, exitCode) => {
+      featureFlagLifecycle.registerShutdown();
 
-    await expect(getHandler(signal)()).rejects.toThrow(
-      `process-exit:${exitCode}`
-    );
-    expect(client.flush).toHaveBeenCalledTimes(1);
-    expect(client.close).toHaveBeenCalledTimes(1);
-    expect(client.flush.mock.invocationCallOrder[0]).toBeLessThan(
-      client.close.mock.invocationCallOrder[0]
-    );
-    expect(mockObservabilityLifecycle.shutdown).toHaveBeenCalledWith(signal);
-    expect(client.close.mock.invocationCallOrder[0]).toBeLessThan(
-      mockObservabilityLifecycle.shutdown.mock.invocationCallOrder[0]
-    );
-    expect(
-      mockObservabilityLifecycle.shutdown.mock.invocationCallOrder[0]
-    ).toBeLessThan(jest.mocked(process.exit).mock.invocationCallOrder[0]);
-    expect(process.exit).toHaveBeenCalledWith(exitCode);
-  });
+      await expect(getHandler(signal)()).rejects.toThrow(
+        `process-exit:${exitCode}`
+      );
+      expect(mockLaunchDarklyLifecycle.shutdown).toHaveBeenCalledWith(signal);
+      expect(mockObservabilityLifecycle.shutdown).toHaveBeenCalledWith(signal);
+      expect(
+        mockLaunchDarklyLifecycle.shutdown.mock.invocationCallOrder[0]
+      ).toBeLessThan(
+        mockObservabilityLifecycle.shutdown.mock.invocationCallOrder[0]
+      );
+      expect(
+        mockObservabilityLifecycle.shutdown.mock.invocationCallOrder[0]
+      ).toBeLessThan(jest.mocked(process.exit).mock.invocationCallOrder[0]);
+      expect(process.exit).toHaveBeenCalledWith(exitCode);
+    }
+  );
 
-  it('waits for telemetry shutdown to complete before exiting', async () => {
+  it('waits for integration and telemetry shutdown before exiting', async () => {
+    let completeIntegrationShutdown!: () => void;
     let completeTelemetryShutdown!: () => void;
-    let markTelemetryShutdownStarted!: () => void;
-    const telemetryShutdownStarted = new Promise<void>((resolve) => {
-      markTelemetryShutdownStarted = resolve;
+    const integrationShutdown = new Promise<void>((resolve) => {
+      completeIntegrationShutdown = resolve;
     });
     const telemetryShutdown = new Promise<void>((resolve) => {
       completeTelemetryShutdown = resolve;
     });
-    mockObservabilityLifecycle.shutdown.mockImplementationOnce(() => {
-      markTelemetryShutdownStarted();
-
-      return telemetryShutdown;
-    });
-    featureFlagLifeCycle.registerShutdown();
+    mockLaunchDarklyLifecycle.shutdown.mockReturnValueOnce(integrationShutdown);
+    mockObservabilityLifecycle.shutdown.mockReturnValueOnce(telemetryShutdown);
+    featureFlagLifecycle.registerShutdown();
 
     const shutdown = getHandler('SIGTERM')();
-    await telemetryShutdownStarted;
 
+    expect(process.exit).not.toHaveBeenCalled();
+    completeIntegrationShutdown();
+    await Promise.resolve();
+    expect(mockObservabilityLifecycle.shutdown).toHaveBeenCalledWith('SIGTERM');
     expect(process.exit).not.toHaveBeenCalled();
 
     completeTelemetryShutdown();
@@ -150,48 +125,7 @@ describe('featureFlagLifeCycle', () => {
     expect(process.exit).toHaveBeenCalledWith(143);
   });
 
-  it('reports a flush failure before closing and exiting', async () => {
-    const error = new Error('flush failed');
-    client.flush.mockRejectedValue(error);
-    featureFlagLifeCycle.registerShutdown();
-
-    await expect(getHandler('SIGTERM')()).rejects.toThrow('process-exit:143');
-    expect(mockReporter.report).toHaveBeenCalledWith(
-      'integration.feature_flag.flush_failed',
-      error,
-      {
-        operation: 'flush',
-        signal: 'SIGTERM',
-        source: 'feature-flag-shutdown',
-      }
-    );
-    expect(client.close).toHaveBeenCalledTimes(1);
-    expect(mockObservabilityLifecycle.shutdown).toHaveBeenCalledWith('SIGTERM');
-    expect(process.exit).toHaveBeenCalledWith(143);
-  });
-
-  it('reports a close failure before exiting', async () => {
-    const error = new Error('close failed');
-    client.close.mockImplementation(() => {
-      throw error;
-    });
-    featureFlagLifeCycle.registerShutdown();
-
-    await expect(getHandler('SIGINT')()).rejects.toThrow('process-exit:130');
-    expect(mockReporter.report).toHaveBeenCalledWith(
-      'integration.feature_flag.close_failed',
-      error,
-      {
-        operation: 'close',
-        signal: 'SIGINT',
-        source: 'feature-flag-shutdown',
-      }
-    );
-    expect(mockObservabilityLifecycle.shutdown).toHaveBeenCalledWith('SIGINT');
-    expect(process.exit).toHaveBeenCalledWith(130);
-  });
-
   it('is immutable', () => {
-    expect(Object.isFrozen(featureFlagLifeCycle)).toBe(true);
+    expect(Object.isFrozen(featureFlagLifecycle)).toBe(true);
   });
 });

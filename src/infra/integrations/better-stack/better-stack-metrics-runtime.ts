@@ -10,14 +10,14 @@ import ILogger from '@shared/contracts/logger.contract';
 import IObservabilityMetrics from '@shared/contracts/observability-metrics.contract';
 import { ELogOutcome, ILogFields } from '@shared/types/observability.types';
 
-import { IBetterStackConfig } from '@infra/config/better-stack.config';
 import vars from '@infra/config/vars.config';
+import { IBetterStackConfig } from '@infra/integrations/better-stack/better-stack.config';
 import {
   makeNoopObservabilityMetrics,
   makeOpenTelemetryMetrics,
 } from '@infra/observability/metrics';
 
-import packageJson from '../../../package.json';
+import packageJson from '../../../../package.json';
 
 interface IMetricsRuntime {
   metrics: IObservabilityMetrics;

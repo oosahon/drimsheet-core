@@ -8,9 +8,9 @@ import {
 
 import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 
-import { IBetterStackConfig } from '@infra/config/better-stack.config';
 import runtimeVars from '@infra/config/vars.config';
-import makeMetricsRuntime from '@infra/runtime/observability-runtime';
+import makeMetricsRuntime from '@infra/integrations/better-stack/better-stack-metrics-runtime';
+import { IBetterStackConfig } from '@infra/integrations/better-stack/better-stack.config';
 
 const mockMeter = {
   createCounter: jest.fn(() => ({ add: jest.fn() })),
@@ -37,7 +37,7 @@ jest.mock('@opentelemetry/sdk-metrics', () => ({
   PeriodicExportingMetricReader: jest.fn(),
 }));
 
-jest.mock('../../config/vars.config', () => ({
+jest.mock('@infra/config/vars.config', () => ({
   __esModule: true,
   default: {
     APP_ENV: 'test',
@@ -59,7 +59,7 @@ function makeConfig(
   };
 }
 
-describe('observability runtime', () => {
+describe('Better Stack metrics runtime', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockProviderShutdown.mockResolvedValue(undefined);

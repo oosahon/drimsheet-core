@@ -2,7 +2,7 @@ import IFeatureFlagService, {
   IFeatureFlagContext,
 } from '@app/context/contracts/feature-flag.service.contract';
 
-import launchDarklyClient from '@infra/config/launchdarkly.config';
+import launchDarklyClient from '@infra/integrations/launchdarkly/launchdarkly.client';
 
 function buildUserKind(email: string) {
   return {

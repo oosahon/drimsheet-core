@@ -1,5 +1,5 @@
-import { BETTER_STACK_CONFIG } from '@infra/config/better-stack.config';
-import makeMetricsRuntime from '@infra/runtime/observability-runtime';
+import makeMetricsRuntime from '@infra/integrations/better-stack/better-stack-metrics-runtime';
+import { BETTER_STACK_CONFIG } from '@infra/integrations/better-stack/better-stack.config';
 
 import makeHttpMetrics from './http-metrics';
 import logger, { betterStackLogRuntime } from './logger';

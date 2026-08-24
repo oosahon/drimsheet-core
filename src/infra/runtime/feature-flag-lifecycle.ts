@@ -1,8 +1,5 @@
-import launchDarklyClient from '@infra/config/launchdarkly.config';
-import reporter from '@infra/observability/reporter';
+import launchDarklyLifecycle from '@infra/integrations/launchdarkly/launchdarkly.lifecycle';
 import observabilityLifecycle from '@infra/runtime/observability-lifecycle';
-
-const INITIALIZATION_TIMEOUT_SECONDS = 5;
 
 const SHUTDOWN_EXIT_CODES = Object.freeze({
   SIGINT: 130,
@@ -17,37 +14,11 @@ const SHUTDOWN_SIGNALS: readonly TFeatureFlagShutdownSignal[] = [
 ];
 
 async function initialize() {
-  try {
-    await launchDarklyClient.waitForInitialization({
-      timeout: INITIALIZATION_TIMEOUT_SECONDS,
-    });
-  } catch (error) {
-    reporter.report('integration.feature_flag.initialization_failed', error, {
-      source: 'feature-flag-initialization',
-    });
-  }
+  await launchDarklyLifecycle.initialize();
 }
 
 async function shutdown(signal: TFeatureFlagShutdownSignal) {
-  try {
-    await launchDarklyClient.flush();
-  } catch (error) {
-    reporter.report('integration.feature_flag.flush_failed', error, {
-      operation: 'flush',
-      signal,
-      source: 'feature-flag-shutdown',
-    });
-  }
-
-  try {
-    launchDarklyClient.close();
-  } catch (error) {
-    reporter.report('integration.feature_flag.close_failed', error, {
-      operation: 'close',
-      signal,
-      source: 'feature-flag-shutdown',
-    });
-  }
+  await launchDarklyLifecycle.shutdown(signal);
 
   await observabilityLifecycle.shutdown(signal);
 
