@@ -44,6 +44,8 @@ const EErrorKeys = {
   EmptyJournalLines: 'journal_entry_error_empty_journal_lines_invalid',
   MismatchedJournalLines:
     'journal_entry_error_mismatched_journal_lines_invalid',
+  JournalLineAccountCurrencyMismatch:
+    'journal_entry_error_journal_line_account_currency_mismatch_invalid',
   ControlAccountTransactionNotAllowed:
     'journal_entry_error_control_account_transaction_not_allowed_invalid',
   TransferNotPermittedOnAccount:
