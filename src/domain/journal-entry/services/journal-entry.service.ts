@@ -3,6 +3,7 @@ import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.ent
 import journalLineEntity from '@domain/journal-entry/entities/journal-line.entity';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
+import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
 import helpers from '@domain/journal-entry/services/helpers/journal-entry.service.helpers';
 import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
 import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
@@ -119,6 +120,15 @@ function makeCreateReceipt(
 ): IJournalEntryService['createReceipt'] {
   return async (payload, repoOptions) => {
     const { header, sourceLine, destinationLines } = payload;
+
+    const destinationLineAccounts = destinationLines.map((l) => l.account);
+
+    // validate receipt rule
+    helpers.validateAccountsAgainstRule(
+      sourceLine.account,
+      destinationLineAccounts,
+      receiptEntryRule
+    );
 
     await helpers.validateAccounts(payload);
 

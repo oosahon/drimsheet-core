@@ -2,7 +2,6 @@ import dateUtils from '@shared/utils/date';
 
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
-import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
 import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
 import { ICreateReceiptEntryPayload } from '@domain/journal-entry/types/journal-entry.service.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
@@ -38,12 +37,6 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
     .map((v) => v.account)
     .concat(sourceLine.account);
 
-  validateAccountsAgainstRule(
-    sourceLine.account,
-    destinationLines.map((line) => line.account),
-    receiptEntryRule
-  );
-
   // Assert that all accounts belong to the same accounting entity
   const wrongAccountingEntities = allAccounts.filter(
     (acc) => acc.accountingEntityId !== header.accountingEntityId
@@ -73,6 +66,33 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
     throw new journalEntryError.EffectiveDateIsBeforeOpeningDate({
       accounts: erringEffectiveDates.map((v) => v.id),
       effectiveDate: header.effectiveDate,
+    });
+  }
+
+  // Assert that line currencies match their fixed-currency accounts
+  const journalLines = [sourceLine, ...destinationLines];
+  const mismatchedJournalLines = [];
+
+  for (const journalLine of journalLines) {
+    const accountCurrencyCode = journalLine.account.currency?.code ?? null;
+    const amountCurrencyCode = journalLine.amount.currency.code;
+
+    const isValidCurrency =
+      accountCurrencyCode === null ||
+      accountCurrencyCode === amountCurrencyCode;
+
+    if (isValidCurrency) continue;
+
+    mismatchedJournalLines.push({
+      accountId: journalLine.account.id,
+      accountCurrencyCode,
+      amountCurrencyCode,
+    });
+  }
+
+  if (mismatchedJournalLines.length) {
+    throw new journalEntryError.JournalLineAccountCurrencyMismatch({
+      lines: mismatchedJournalLines,
     });
   }
 }

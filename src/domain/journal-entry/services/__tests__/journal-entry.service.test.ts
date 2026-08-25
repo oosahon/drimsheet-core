@@ -390,6 +390,21 @@ describe('journalEntryService', () => {
     );
   });
 
+  it('rejects a line whose amount currency does not match its fixed-currency account', async () => {
+    const { payload } = await makeReceiptFixture();
+    payload.destinationLines[0] = {
+      ...payload.destinationLines[0],
+      amount: moneyValue.make(10_000n, SYSTEM_CURRENCIES.USD, true),
+    };
+
+    await expect(service.createReceipt(payload, repoOptions)).rejects.toThrow(
+      journalEntryError.JournalLineAccountCurrencyMismatch
+    );
+    expect(
+      mockAccountingPeriodService.validatePostingPeriod
+    ).not.toHaveBeenCalled();
+  });
+
   it('allows an entry after the account opening balance date', async () => {
     const { payload } = await makeReceiptFixture();
     const openingBalanceDate = new Date('2026-08-01T10:00:00.000Z');

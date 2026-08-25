@@ -161,6 +161,7 @@
   "journal_entry_error_entry_source_account_invalid",
   "journal_entry_error_existing_opening_balance_conflict",
   "journal_entry_error_journal_entry_invalid",
+  "journal_entry_error_journal_line_account_currency_mismatch_invalid",
   "journal_entry_error_journal_line_account_id_invalid",
   "journal_entry_error_journal_line_counterparty_id_invalid",
   "journal_entry_error_journal_line_created_at_invalid",
