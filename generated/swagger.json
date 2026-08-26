@@ -1144,6 +1144,67 @@
         "type": "object",
         "additionalProperties": false
       },
+      "Readonly_Record_string.string__": {
+        "properties": {},
+        "additionalProperties": {
+          "type": "string"
+        },
+        "type": "object",
+        "description": "Make all properties in T readonly"
+      },
+      "IFileAttachment": {
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["url", "name", "type", "size"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IFileUploadDto": {
+        "properties": {
+          "uploadUrl": {
+            "type": "string"
+          },
+          "headers": {
+            "$ref": "#/components/schemas/Readonly_Record_string.string__"
+          },
+          "file": {
+            "$ref": "#/components/schemas/IFileAttachment"
+          }
+        },
+        "required": ["uploadUrl", "headers", "file"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IFileUploadReq": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["name", "type", "size"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "ICurrencyDto": {
         "properties": {
           "code": {
@@ -2649,6 +2710,77 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/IReceiptEntryReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/files/upload": {
+      "post": {
+        "operationId": "createFileUpload",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IFileUploadDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create a direct-to-Blackblaze file upload instruction",
+        "tags": ["File"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IFileUploadReq"
               }
             }
           }
