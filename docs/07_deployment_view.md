@@ -115,3 +115,9 @@ Configure the bucket CORS rule with each deployed Web origin explicitly. Allow
 `PUT` and the `Content-Type` request header returned by Core. Do not use `*` for
 production origins. The browser must send the upload request to `uploadUrl`
 with exactly the returned headers; Core continues to accept JSON only.
+
+Core generates every new B2 object key as `<user_id>/<file_id>`. The bucket is
+configured separately and is not part of the key. Original filenames are kept
+only as returned metadata and never appear in object keys. This user prefix
+provides the boundary for a future account-deletion purge; deletion itself is
+not part of the current upload flow.

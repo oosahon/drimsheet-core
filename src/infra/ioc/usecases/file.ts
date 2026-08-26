@@ -1,9 +1,10 @@
 import makeCreateFileUploadUsecase from '@app/file/usecases/create-file-upload.usecase';
 
-import blackblazeClient from '@infra/integrations/blackblaze/blackblaze-client';
+import { fileManagementService } from '@infra/ioc/services/file';
 import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
+import appContext from '@infra/runtime/app-context';
 
 export const createFileUploadUseCase = makeTracedUseCase(
   'file.createFileUploadUseCase',
-  makeCreateFileUploadUsecase({ blackblazeClient })
+  makeCreateFileUploadUsecase({ appContext, fileManagementService })
 );

@@ -7,7 +7,9 @@ const invalidTypeKey = new fileAttachmentError.InvalidType().errorKey;
 const invalidSizeKey = new fileAttachmentError.InvalidSize().errorKey;
 
 export const fileUploadReqValidation = z.object({
-  name: z.string(invalidNameKey).trim().min(1, invalidNameKey),
+  name: z
+    .string(invalidNameKey)
+    .refine((name) => name.trim().length > 0, invalidNameKey),
   type: z.string(invalidTypeKey).trim().min(1, invalidTypeKey),
   size: z.number(invalidSizeKey).positive(invalidSizeKey),
 });

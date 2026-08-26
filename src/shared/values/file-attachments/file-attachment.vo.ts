@@ -55,7 +55,7 @@ function make(payload: {
 
   return Object.freeze({
     url: payload.url,
-    name: payload.name.trim(),
+    name: payload.name,
     type: payload.type.trim(),
     size: payload.size,
   });

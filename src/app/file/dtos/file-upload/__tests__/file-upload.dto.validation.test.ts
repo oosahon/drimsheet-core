@@ -4,13 +4,16 @@ import { fileUploadReqValidation } from '@app/file/dtos/file-upload/file-upload.
 
 describe('fileUploadReqValidation', () => {
   it('accepts valid file metadata', () => {
-    expect(
-      fileUploadReqValidation.safeParse({
-        name: 'receipt.png',
-        type: 'image/png',
-        size: 1024,
-      }).success
-    ).toBe(true);
+    const result = fileUploadReqValidation.safeParse({
+      name: '  Réçeipt (FINAL).png  ',
+      type: 'image/png',
+      size: 1024,
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.name).toBe('  Réçeipt (FINAL).png  ');
+    }
   });
 
   it.each([

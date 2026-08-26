@@ -20,14 +20,14 @@ describe('FileAttachment Value Object', () => {
       expect(Object.isFrozen(result)).toBe(true);
     });
 
-    it('should trim name and type', () => {
+    it('should preserve the original name and trim the type', () => {
       const result = fileAttachment.make({
         ...validPayload,
-        name: '  receipt.pdf  ',
+        name: '  Réçeipt (FINAL).pdf  ',
         type: '  application/pdf  ',
       });
 
-      expect(result.name).toBe('receipt.pdf');
+      expect(result.name).toBe('  Réçeipt (FINAL).pdf  ');
       expect(result.type).toBe('application/pdf');
     });
 
