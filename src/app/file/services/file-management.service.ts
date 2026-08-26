@@ -1,12 +1,12 @@
 import generateUUID from '@shared/utils/uuid-generator';
 import fileAttachmentValue from '@shared/values/file-attachments/file-attachment.vo';
 
-import IBlackblazeClient from '@app/file/contracts/blackblaze-client.contract';
 import IFileManagementService from '@app/file/contracts/file-management.service.contract';
+import IFileStorageClient from '@app/file/contracts/file-storage-client.contract';
 import fileAppError from '@app/file/errors/file.error';
 
 interface IDependencies {
-  blackblazeClient: IBlackblazeClient;
+  blackblazeClient: IFileStorageClient;
 }
 
 export default function makeFileManagementService(

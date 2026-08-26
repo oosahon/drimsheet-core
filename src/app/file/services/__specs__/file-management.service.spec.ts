@@ -1,7 +1,7 @@
 import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
-import mockBlackblazeClient from '@app/file/contracts/__mocks__/blackblaze-client.mock';
+import mockFileStorageClient from '@app/file/contracts/__mocks__/file-storage-client.mock';
 import fileAppError from '@app/file/errors/file.error';
 import makeFileManagementService from '@app/file/services/file-management.service';
 
@@ -16,12 +16,12 @@ describe('FileManagementService', () => {
   const mockedGenerateUUID = jest.mocked(generateUUID);
 
   const getService = () =>
-    makeFileManagementService({ blackblazeClient: mockBlackblazeClient });
+    makeFileManagementService({ blackblazeClient: mockFileStorageClient });
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockedGenerateUUID.mockReturnValue(fileId);
-    mockBlackblazeClient.createUpload.mockResolvedValue({
+    mockFileStorageClient.createUpload.mockResolvedValue({
       uploadUrl: 'https://example.com/file?signature=secret',
       fileUrl: 'https://example.com/file',
       headers: Object.freeze({ 'Content-Type': 'image/png' }),
@@ -36,7 +36,7 @@ describe('FileManagementService', () => {
       size: 1024,
     });
 
-    expect(mockBlackblazeClient.createUpload).toHaveBeenCalledWith({
+    expect(mockFileStorageClient.createUpload).toHaveBeenCalledWith({
       key: `${userId}/${fileId}`,
       contentType: 'image/png',
     });
@@ -64,7 +64,7 @@ describe('FileManagementService', () => {
       size: 1024,
     });
 
-    expect(mockBlackblazeClient.createUpload).toHaveBeenCalledWith(
+    expect(mockFileStorageClient.createUpload).toHaveBeenCalledWith(
       expect.objectContaining({ key: `${anotherUserId}/${fileId}` })
     );
   });
@@ -84,18 +84,18 @@ describe('FileManagementService', () => {
     await getService().createUpload(payload);
     await getService().createUpload(payload);
 
-    expect(mockBlackblazeClient.createUpload).toHaveBeenNthCalledWith(1, {
+    expect(mockFileStorageClient.createUpload).toHaveBeenNthCalledWith(1, {
       key: `${userId}/${fileId}`,
       contentType: 'image/png',
     });
-    expect(mockBlackblazeClient.createUpload).toHaveBeenNthCalledWith(2, {
+    expect(mockFileStorageClient.createUpload).toHaveBeenNthCalledWith(2, {
       key: `${userId}/${anotherFileId}`,
       contentType: 'image/png',
     });
   });
 
   it('maps provider failures to the stable file upload error', async () => {
-    mockBlackblazeClient.createUpload.mockRejectedValue(
+    mockFileStorageClient.createUpload.mockRejectedValue(
       new Error('provider detail that must not escape')
     );
 
@@ -122,12 +122,12 @@ describe('FileManagementService', () => {
         size: 1024,
       })
     ).rejects.toThrow(fileAppError.UploadUnexpected);
-    expect(mockBlackblazeClient.createUpload).not.toHaveBeenCalled();
+    expect(mockFileStorageClient.createUpload).not.toHaveBeenCalled();
   });
 
   it('preserves a stable file upload error returned by the adapter', async () => {
     const error = new fileAppError.UploadUnexpected();
-    mockBlackblazeClient.createUpload.mockRejectedValue(error);
+    mockFileStorageClient.createUpload.mockRejectedValue(error);
 
     await expect(
       getService().createUpload({
@@ -140,7 +140,7 @@ describe('FileManagementService', () => {
   });
 
   it('maps invalid provider metadata to the stable upload error', async () => {
-    mockBlackblazeClient.createUpload.mockResolvedValue({
+    mockFileStorageClient.createUpload.mockResolvedValue({
       uploadUrl: 'https://example.com/file?signature=secret',
       fileUrl: 'not-a-url',
       headers: Object.freeze({ 'Content-Type': 'image/png' }),
