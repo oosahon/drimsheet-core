@@ -25,6 +25,8 @@ import { CounterpartyController } from './../src/interface/http/controllers/coun
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CurrencyController } from './../src/interface/http/controllers/currency.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { FileController } from './../src/interface/http/controllers/file.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { JournalEntryController } from './../src/interface/http/controllers/journal-entry.controller';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { LedgerController } from './../src/interface/http/controllers/ledger.controller';
@@ -923,6 +925,47 @@ const models: TsoaRoute.Models = {
         ],
         required: true,
       },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  'Readonly_Record_string.string__': {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'nestedObjectLiteral',
+      nestedProperties: {},
+      additionalProperties: { dataType: 'string' },
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IFileAttachment: {
+    dataType: 'refObject',
+    properties: {
+      url: { dataType: 'string', required: true },
+      name: { dataType: 'string', required: true },
+      type: { dataType: 'string', required: true },
+      size: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IFileUploadDto: {
+    dataType: 'refObject',
+    properties: {
+      uploadUrl: { dataType: 'string', required: true },
+      headers: { ref: 'Readonly_Record_string.string__', required: true },
+      file: { ref: 'IFileAttachment', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IFileUploadReq: {
+    dataType: 'refObject',
+    properties: {
+      name: { dataType: 'string', required: true },
+      type: { dataType: 'string', required: true },
+      size: { dataType: 'double', required: true },
     },
     additionalProperties: false,
   },
@@ -1970,6 +2013,50 @@ export function RegisterRoutes(app: Router) {
           next,
           validatedArgs,
           successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsFileController_createFileUpload: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: { in: 'body', name: 'body', required: true, ref: 'IFileUploadReq' },
+  };
+  app.post(
+    '/api/v1/files/upload',
+    ...fetchMiddlewares<RequestHandler>(FileController),
+    ...fetchMiddlewares<RequestHandler>(
+      FileController.prototype.createFileUpload
+    ),
+
+    async function FileController_createFileUpload(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsFileController_createFileUpload,
+          request,
+          response,
+        });
+
+        const controller = new FileController();
+
+        await templateService.apiHandler({
+          methodName: 'createFileUpload',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
         });
       } catch (err) {
         return next(err);

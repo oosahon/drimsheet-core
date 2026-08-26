@@ -34,7 +34,7 @@ This repo contains the core accounting module of Drimsheet. It encompasses the c
 - [Redis](https://redis.io/) (>=8)
 - Node.js (>=20.18.1 as specified in `package.json`)
 - npm
-- AWS account for S3 storage
+- Backblaze B2 bucket and bucket-scoped application credentials
 - API credentials for 3rd party integrations (Paystack, Mono, ZeptoMail) managed securely via Doppler
 
 > **Note:** PostgreSQL and Redis can be installed locally or run as Docker containers using the [drimsheet-platforms](https://github.com/Drimsheet/drimsheet-platforms) repo.

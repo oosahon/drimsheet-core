@@ -20,6 +20,12 @@ export default interface IVarsConfig {
   BETTER_STACK_SOURCE_TOKEN: string;
   BETTER_STACK_INGESTING_HOST: string;
 
+  B2_APP_KEY_ID: string;
+  B2_APP_KEY: string;
+  B2_BUCKET_NAME: string;
+  B2_S3_ENDPOINT: string;
+  B2_REGION: string;
+
   PORT: number;
 
   POSTGRES_URL: string;

@@ -45,7 +45,7 @@ middleware.
 
 The Node.js API container relies entirely on these third-party systems via HTTPS interactions to fulfill external domains:
 
-- **AWS S3**: Cloud blob storage used as an immutable vault for transaction attachments (e.g., PDFs, invoices).
+- **Backblaze B2**: S3-compatible object storage used for direct Web file uploads. Core issues short-lived upload grants but does not receive the file bytes.
 - **Sentry**: Observability platform catching exceptions, runtime crashes, and tracing request performance.
 - **Better Stack**: Receives canonical structured Winston logs and
   application-owned OpenTelemetry metrics directly from Core. It does not
@@ -91,6 +91,27 @@ Drimsheet does not store raw `.env` files anywhere in version control or directl
 
 **The Configuration Lifecycle:**
 
-1.  **Storage (Doppler)**: API Keys, AWS keys, database passwords, and runtime flags are encrypted and updated purely on Doppler's platform.
+1.  **Storage (Doppler)**: API keys, Backblaze application credentials, database passwords, and runtime flags are encrypted and updated purely on Doppler's platform.
 2.  **Injection (Coolify Pipeline)**: When Coolify initiates a deployment of the Drimsheet Core, it utilizes the Doppler CLI (or Doppler Service Token) to securely pull and inject these keys into the Node.js Docker environment at startup.
 3.  **Application Consumption (`vars.config.ts` & `IVarsConfig`)**: Within the codebase, configurations are not arbitrarily fetched. The file `src/infra/config/vars.config.ts` parses `process.env` and acts as the secure internal schema for the application. Application-layer code accesses these values through the `IVarsConfig` contract interface (`src/shared/contracts/vars-config.contract.ts`), ensuring that environment configuration does not leak into testable application logic.
+
+### 7.3.1 Backblaze B2 upload configuration
+
+Core requires these environment variables to issue direct upload instructions:
+
+| Variable         | Purpose                                                                |
+| ---------------- | ---------------------------------------------------------------------- |
+| `B2_APP_KEY_ID`  | ID of the bucket-scoped Backblaze application key.                     |
+| `B2_APP_KEY`     | Secret for the scoped application key.                                 |
+| `B2_BUCKET_NAME` | Destination bucket name.                                               |
+| `B2_S3_ENDPOINT` | Region endpoint, for example `https://s3.us-west-004.backblazeb2.com`. |
+| `B2_REGION`      | Matching B2 region, for example `us-west-004`.                         |
+
+The application key must be restricted to the configured bucket and only the
+file-write capabilities required for uploads. Store the key ID and secret in
+Doppler; they must never be exposed to Web.
+
+Configure the bucket CORS rule with each deployed Web origin explicitly. Allow
+`PUT` and the `Content-Type` request header returned by Core. Do not use `*` for
+production origins. The browser must send the upload request to `uploadUrl`
+with exactly the returned headers; Core continues to accept JSON only.
