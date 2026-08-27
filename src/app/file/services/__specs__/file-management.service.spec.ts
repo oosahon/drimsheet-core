@@ -47,22 +47,7 @@ describe('FileManagementService', () => {
     mockFileStorageClient.deleteFile.mockResolvedValue();
   });
 
-  it('pre-signs uploads in order with bound original-name metadata', async () => {
-    mockedGenerateUUID
-      .mockReturnValueOnce(reference)
-      .mockReturnValueOnce(secondReference);
-    mockFileStorageClient.preSignUpload
-      .mockResolvedValueOnce({
-        uploadUrl: 'https://example.com/file?signature=secret',
-        fileUrl: 'https://example.com/file',
-        headers: Object.freeze({ 'Content-Type': 'image/png' }),
-      })
-      .mockResolvedValueOnce({
-        uploadUrl: 'https://example.com/second?signature=secret',
-        fileUrl: 'https://example.com/second',
-        headers: Object.freeze({ 'Content-Type': 'application/pdf' }),
-      });
-
+  it('pre-signs an upload with bound original-name metadata', async () => {
     const result = await getService().preSignUploads({
       userId,
       files: [
@@ -70,12 +55,6 @@ describe('FileManagementService', () => {
           name: '  Réçeipt (FINAL).png  ',
           type: ' image/png ',
           size: 1024,
-          purpose,
-        },
-        {
-          name: 'second.pdf',
-          type: 'application/pdf',
-          size: 2048,
           purpose,
         },
       ],
@@ -90,13 +69,6 @@ describe('FileManagementService', () => {
         ),
       },
     });
-    expect(mockFileStorageClient.preSignUpload).toHaveBeenNthCalledWith(2, {
-      key: `${userId}/${purpose}/${secondReference}`,
-      contentType: 'application/pdf',
-      metadata: {
-        'original-name': Buffer.from('second.pdf').toString('base64url'),
-      },
-    });
     expect(result).toEqual([
       {
         uploadUrl: 'https://example.com/file?signature=secret',
@@ -107,17 +79,6 @@ describe('FileManagementService', () => {
           name: '  Réçeipt (FINAL).png  ',
           type: 'image/png',
           size: 1024,
-        },
-      },
-      {
-        uploadUrl: 'https://example.com/second?signature=secret',
-        reference: secondReference,
-        headers: { 'Content-Type': 'application/pdf' },
-        file: {
-          url: 'https://example.com/second',
-          name: 'second.pdf',
-          type: 'application/pdf',
-          size: 2048,
         },
       },
     ]);
@@ -134,20 +95,26 @@ describe('FileManagementService', () => {
       await expect(
         getService().preSignUploads({
           userId,
-          files: [
-            {
-              name: 'valid.png',
-              type: 'image/png',
-              size: 1024,
-              purpose,
-            },
-            { name: 'receipt.png', type, size, purpose },
-          ],
+          files: [{ name: 'receipt.png', type, size, purpose }],
         })
       ).rejects.toThrow(ErrorClass);
       expect(mockFileStorageClient.preSignUpload).not.toHaveBeenCalled();
     }
   );
+
+  it('rejects excessive uploads before generating references or signing', async () => {
+    await expect(
+      getService().preSignUploads({
+        userId,
+        files: [
+          { name: 'receipt.png', type: 'image/png', size: 1024, purpose },
+          { name: 'invoice.pdf', type: 'application/pdf', size: 2048, purpose },
+        ],
+      })
+    ).rejects.toThrow(fileAppError.InvalidUploadCount);
+    expect(mockedGenerateUUID).not.toHaveBeenCalled();
+    expect(mockFileStorageClient.preSignUpload).not.toHaveBeenCalled();
+  });
 
   it('maps unexpected upload preparation failures', async () => {
     mockFileStorageClient.preSignUpload.mockRejectedValue(
@@ -195,30 +162,15 @@ describe('FileManagementService', () => {
     expect(mockFileStorageClient.preSignUpload).not.toHaveBeenCalled();
   });
 
-  it('claims uploaded files in reference order using canonical storage data', async () => {
-    mockFileStorageClient.readFile
-      .mockResolvedValueOnce(storedPng)
-      .mockResolvedValueOnce({
-        ...storedPng,
-        fileUrl: 'https://example.com/second',
-        size: 2048,
-        metadata: Object.freeze({
-          'original-name': Buffer.from('second.png').toString('base64url'),
-        }),
-      });
-
+  it('claims an uploaded file using canonical storage data', async () => {
     const result = await getService().claimUploads({
       userId,
       purpose,
-      references: [reference, secondReference],
+      references: [reference],
     });
 
     expect(mockFileStorageClient.readFile).toHaveBeenNthCalledWith(1, {
       key: `${userId}/${purpose}/${reference}`,
-      range: { start: 0, end: 11 },
-    });
-    expect(mockFileStorageClient.readFile).toHaveBeenNthCalledWith(2, {
-      key: `${userId}/${purpose}/${secondReference}`,
       range: { start: 0, end: 11 },
     });
     expect(result).toEqual([
@@ -228,15 +180,20 @@ describe('FileManagementService', () => {
         type: 'image/png',
         size: 1024,
       },
-      {
-        url: 'https://example.com/second',
-        name: 'second.png',
-        type: 'image/png',
-        size: 2048,
-      },
     ]);
     expect(Object.isFrozen(result)).toBe(true);
     expect(Object.isFrozen(result[0])).toBe(true);
+  });
+
+  it('rejects excessive claim references before reading storage', async () => {
+    await expect(
+      getService().claimUploads({
+        userId,
+        purpose,
+        references: [reference, secondReference],
+      })
+    ).rejects.toThrow(fileAppError.InvalidUploadCount);
+    expect(mockFileStorageClient.readFile).not.toHaveBeenCalled();
   });
 
   it('returns an immutable empty collection without storage calls', async () => {

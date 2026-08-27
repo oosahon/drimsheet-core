@@ -111,6 +111,48 @@ describe('journalEntryEntityHelpers', () => {
       ).not.toThrow();
     });
 
+    it('should not throw for balanced zero-value lines', () => {
+      const zeroAmount = moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.USD);
+
+      expect(() =>
+        helpers.validateLine([
+          {
+            ...validDebitLine,
+            amount: zeroAmount,
+            functionalAmount: zeroAmount,
+          },
+          {
+            ...validCreditLine,
+            amount: zeroAmount,
+            functionalAmount: zeroAmount,
+          },
+        ])
+      ).not.toThrow();
+    });
+
+    it('should reject balanced negative line amounts', () => {
+      const negativeAmount = moneyValue.make(
+        -100,
+        SYSTEM_CURRENCIES.USD,
+        false
+      );
+
+      expect(() =>
+        helpers.validateLine([
+          {
+            ...validDebitLine,
+            amount: negativeAmount,
+            functionalAmount: negativeAmount,
+          },
+          {
+            ...validCreditLine,
+            amount: negativeAmount,
+            functionalAmount: negativeAmount,
+          },
+        ])
+      ).toThrow(journalEntryError.InvalidJournalLineItem);
+    });
+
     it('should throw InvalidLineItems if line length is less than 2', () => {
       expect(() => helpers.validateLine([])).toThrow(
         journalEntryError.InvalidLineItems

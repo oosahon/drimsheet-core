@@ -23,6 +23,23 @@ describe('fileUploadPolicy', () => {
     }
   );
 
+  it('exposes the journal-entry attachment file limit', () => {
+    expect(fileUploadPolicy.getPolicy(purpose).maxFiles).toBe(1);
+  });
+
+  it.each([0, 1])('accepts the valid upload count %s', (count) => {
+    expect(() => fileUploadPolicy.validateCount(purpose, count)).not.toThrow();
+  });
+
+  it.each([2, -1, 0.5, Number.NaN, Number.POSITIVE_INFINITY])(
+    'rejects the invalid upload count %s',
+    (count) => {
+      expect(() => fileUploadPolicy.validateCount(purpose, count)).toThrow(
+        fileAppError.InvalidUploadCount
+      );
+    }
+  );
+
   it.each(['image/svg+xml', 'image/gif', 'text/plain'])(
     'rejects the %s MIME type',
     (type) => {

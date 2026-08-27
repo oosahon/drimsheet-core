@@ -22,17 +22,6 @@ describe('preSignUploadsUsecase', () => {
         size: 1024,
       }),
     }),
-    Object.freeze({
-      uploadUrl: 'https://example.com/invoice?signature=secret',
-      reference: '123e4567-e89b-12d3-a456-426614174003',
-      headers: Object.freeze({ 'Content-Type': 'application/pdf' }),
-      file: Object.freeze({
-        url: 'https://example.com/invoice',
-        name: 'invoice.pdf',
-        type: 'application/pdf',
-        size: 2048,
-      }),
-    }),
   ];
 
   const getUsecase = () =>
@@ -55,12 +44,6 @@ describe('preSignUploadsUsecase', () => {
         name: ' receipt.png ',
         type: ' image/png ',
         size: 1024,
-        purpose: EFileUploadPurpose.JournalEntryAttachment,
-      },
-      {
-        name: 'invoice.pdf',
-        type: 'application/pdf',
-        size: 2048,
         purpose: EFileUploadPurpose.JournalEntryAttachment,
       },
     ];
@@ -102,6 +85,21 @@ describe('preSignUploadsUsecase', () => {
       expect(mockFileManagementService.preSignUploads).not.toHaveBeenCalled();
     }
   );
+
+  it('rejects excessive files before resolving user context', async () => {
+    const file = {
+      name: 'receipt.png',
+      type: 'image/png',
+      size: 1024,
+      purpose: EFileUploadPurpose.JournalEntryAttachment,
+    };
+
+    await expect(
+      getUsecase()([file, { ...file, name: 'invoice.png' }])
+    ).rejects.toThrow(appError.UnprocessableEntity);
+    expect(mockAppContext.get).not.toHaveBeenCalled();
+    expect(mockFileManagementService.preSignUploads).not.toHaveBeenCalled();
+  });
 
   it('propagates file-management failures', async () => {
     const error = new fileAppError.UploadUnexpected();

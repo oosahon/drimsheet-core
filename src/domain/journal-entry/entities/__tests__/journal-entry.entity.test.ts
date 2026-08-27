@@ -239,6 +239,38 @@ describe('JournalEntry Entity', () => {
       expect(() => journalEntryEntity.make(payload)).toThrow();
     });
 
+    it('should reject balanced negative line amounts', () => {
+      const negativeAmount = moneyValue.make(
+        -100,
+        SYSTEM_CURRENCIES.USD,
+        false
+      );
+      const payload: TMakePayload = {
+        ...validPayload,
+        lines: validPayload.lines.map((line) => ({
+          ...line,
+          amount: negativeAmount,
+        })),
+      };
+
+      expect(() => journalEntryEntity.make(payload)).toThrow(
+        journalEntryError.InvalidJournalLineItem
+      );
+    });
+
+    it('should accept balanced zero-value line amounts', () => {
+      const zeroAmount = moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.USD);
+      const payload: TMakePayload = {
+        ...validPayload,
+        lines: validPayload.lines.map((line) => ({
+          ...line,
+          amount: zeroAmount,
+        })),
+      };
+
+      expect(() => journalEntryEntity.make(payload)).not.toThrow();
+    });
+
     it('should throw an AppError if sequence orders are not unique', () => {
       const payload: TMakePayload = {
         ...validPayload,

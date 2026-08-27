@@ -3,12 +3,18 @@ import z from 'zod';
 import fileAttachmentError from '@shared/values/file-attachments/file-attachment.error';
 
 import fileAppError from '@app/file/errors/file.error';
+import fileUploadPolicy from '@app/file/policies/file-upload.policy';
 import { EFileUploadPurpose } from '@app/file/types/file.types';
 
 const invalidNameKey = new fileAttachmentError.InvalidName().errorKey;
 const invalidTypeKey = new fileAttachmentError.InvalidType().errorKey;
 const invalidSizeKey = new fileAttachmentError.InvalidSize().errorKey;
 const invalidPurposeKey = new fileAppError.InvalidUploadPurpose().errorKey;
+const invalidUploadCountKey = new fileAppError.InvalidUploadCount().errorKey;
+
+const maxJournalEntryAttachmentFiles = fileUploadPolicy.getPolicy(
+  EFileUploadPurpose.JournalEntryAttachment
+).maxFiles;
 
 const fileUploadValidation = z.object({
   name: z
@@ -19,4 +25,6 @@ const fileUploadValidation = z.object({
   purpose: z.enum(EFileUploadPurpose, invalidPurposeKey),
 });
 
-export const fileUploadReqValidation = z.array(fileUploadValidation);
+export const fileUploadReqValidation = z
+  .array(fileUploadValidation)
+  .max(maxJournalEntryAttachmentFiles, invalidUploadCountKey);

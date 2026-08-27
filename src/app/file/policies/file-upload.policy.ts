@@ -9,6 +9,7 @@ const FILE_SIGNATURE_BYTE_COUNT = 12;
 
 interface IFileUploadPolicy {
   readonly maxBytes: number;
+  readonly maxFiles: number;
   readonly permittedMimeTypes: readonly string[];
 }
 
@@ -17,6 +18,7 @@ const fileUploadPolicies: Readonly<
 > = {
   [EFileUploadPurpose.JournalEntryAttachment]: {
     maxBytes: JOURNAL_ENTRY_ATTACHMENT_MAX_BYTES,
+    maxFiles: 1,
     permittedMimeTypes: [
       'image/png',
       'image/jpeg',
@@ -35,6 +37,15 @@ function getPolicy(purpose: UFileUploadPurpose) {
   }
 
   return policy;
+}
+
+/** Validates the number of files submitted for an upload purpose. */
+function validateCount(purpose: UFileUploadPurpose, count: number) {
+  const { maxFiles } = getPolicy(purpose);
+
+  if (!Number.isInteger(count) || count < 0 || count > maxFiles) {
+    throw new fileAppError.InvalidUploadCount({ purpose, count, maxFiles });
+  }
 }
 
 /** Validates and normalizes an upload MIME type. */
@@ -105,6 +116,8 @@ function validateStoredFile(
 
 const fileUploadPolicy = Object.freeze({
   signatureByteCount: FILE_SIGNATURE_BYTE_COUNT,
+  getPolicy,
+  validateCount,
   validateType,
   validateSize,
   validateStoredFile,

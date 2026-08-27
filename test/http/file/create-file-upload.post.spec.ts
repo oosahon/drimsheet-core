@@ -56,12 +56,6 @@ const payload = [
     size: 1024,
     purpose: EFileUploadPurpose.JournalEntryAttachment,
   },
-  {
-    name: 'invoice.pdf',
-    type: 'application/pdf',
-    size: 2048,
-    purpose: EFileUploadPurpose.JournalEntryAttachment,
-  },
 ];
 
 const mockUser: IUser = {
@@ -88,20 +82,6 @@ const uploads: IFileUploadDto[] = [
       name: 'receipt.png',
       type: 'image/png',
       size: 1024,
-    },
-  },
-  {
-    uploadUrl: 'https://example.com/invoice?signature=secret',
-    reference: '123e4567-e89b-12d3-a456-426614174003',
-    headers: {
-      'Content-Type': 'application/pdf',
-      'x-amz-meta-original-name': 'aW52b2ljZS5wZGY',
-    },
-    file: {
-      url: 'https://example.com/invoice',
-      name: 'invoice.pdf',
-      type: 'application/pdf',
-      size: 2048,
     },
   },
 ];

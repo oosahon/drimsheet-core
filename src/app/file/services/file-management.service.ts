@@ -9,6 +9,7 @@ import IFileManagementService, {
 import IFileStorageClient from '@app/file/contracts/file-storage-client.contract';
 import fileAppError from '@app/file/errors/file.error';
 import fileUploadPolicy from '@app/file/policies/file-upload.policy';
+import { UFileUploadPurpose } from '@app/file/types/file.types';
 
 const ORIGINAL_NAME_METADATA_KEY = 'original-name';
 
@@ -110,6 +111,16 @@ function makePreSignUploads(
 ): IFileManagementService['preSignUploads'] {
   return async (payload) => {
     try {
+      const fileCounts = new Map<UFileUploadPurpose, number>();
+
+      for (const file of payload.files) {
+        fileCounts.set(file.purpose, (fileCounts.get(file.purpose) ?? 0) + 1);
+      }
+
+      for (const [purpose, count] of fileCounts) {
+        fileUploadPolicy.validateCount(purpose, count);
+      }
+
       const uploadRequests = payload.files.map((file) => {
         const contentType = fileUploadPolicy.validateType(
           file.purpose,
@@ -171,6 +182,8 @@ function makeClaimUploads(
   deps: IDependencies
 ): IFileManagementService['claimUploads'] {
   return async (payload) => {
+    fileUploadPolicy.validateCount(payload.purpose, payload.references.length);
+
     const attachments: IFileAttachment[] = [];
 
     for (const reference of payload.references) {

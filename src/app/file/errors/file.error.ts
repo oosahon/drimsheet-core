@@ -5,6 +5,7 @@ import appError from '@shared/values/errors/app.error';
 const EErrorKeys = {
   InvalidUploadPurpose: 'app_error_file_upload_purpose_invalid',
   InvalidUploadReference: 'app_error_file_upload_reference_invalid',
+  InvalidUploadCount: 'app_error_file_upload_count_invalid',
   InvalidUploadType: 'app_error_file_upload_type_invalid',
   InvalidUploadSize: 'app_error_file_upload_size_invalid',
   UploadUnexpected: 'app_error_file_upload_unexpected',

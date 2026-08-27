@@ -33,6 +33,7 @@
   "app_error_file_claim_unexpected",
   "app_error_file_delete_unexpected",
   "app_error_file_read_unexpected",
+  "app_error_file_upload_count_invalid",
   "app_error_file_upload_purpose_invalid",
   "app_error_file_upload_reference_invalid",
   "app_error_file_upload_size_invalid",
