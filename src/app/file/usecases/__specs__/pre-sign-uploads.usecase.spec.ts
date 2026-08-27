@@ -86,19 +86,31 @@ describe('preSignUploadsUsecase', () => {
     }
   );
 
-  it('rejects excessive files before resolving user context', async () => {
+  it('rejects an empty file batch before resolving user context', async () => {
+    await expect(getUsecase()([])).rejects.toThrow(
+      appError.UnprocessableEntity
+    );
+    expect(mockAppContext.get).not.toHaveBeenCalled();
+    expect(mockFileManagementService.preSignUploads).not.toHaveBeenCalled();
+  });
+
+  it('delegates purpose-specific count validation to file management', async () => {
     const file = {
       name: 'receipt.png',
       type: 'image/png',
       size: 1024,
       purpose: EFileUploadPurpose.JournalEntryAttachment,
     };
+    const payload = [file, { ...file, name: 'invoice.png' }];
+    const error = new fileAppError.InvalidUploadCount();
+    mockFileManagementService.preSignUploads.mockRejectedValue(error);
 
-    await expect(
-      getUsecase()([file, { ...file, name: 'invoice.png' }])
-    ).rejects.toThrow(appError.UnprocessableEntity);
-    expect(mockAppContext.get).not.toHaveBeenCalled();
-    expect(mockFileManagementService.preSignUploads).not.toHaveBeenCalled();
+    await expect(getUsecase()(payload)).rejects.toBe(error);
+    expect(mockAppContext.get).toHaveBeenCalledWith(['user']);
+    expect(mockFileManagementService.preSignUploads).toHaveBeenCalledWith({
+      userId,
+      files: payload,
+    });
   });
 
   it('propagates file-management failures', async () => {

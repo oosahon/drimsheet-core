@@ -5,8 +5,15 @@ import fileAppError from '@app/file/errors/file.error';
 import { EFileUploadPurpose } from '@app/file/types/file.types';
 
 describe('fileUploadReqValidation', () => {
-  it('accepts an empty upload collection', () => {
-    expect(fileUploadReqValidation.safeParse([]).success).toBe(true);
+  it('rejects an empty upload collection', () => {
+    const result = fileUploadReqValidation.safeParse([]);
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe(
+        new fileAppError.InvalidUploadCount().errorKey
+      );
+    }
   });
 
   it('accepts valid file metadata', () => {
@@ -25,7 +32,7 @@ describe('fileUploadReqValidation', () => {
     }
   });
 
-  it('rejects more than one journal-entry attachment', () => {
+  it('leaves purpose-specific count validation to the service', () => {
     const file = {
       name: 'receipt.png',
       type: 'image/png',
@@ -37,12 +44,7 @@ describe('fileUploadReqValidation', () => {
       { ...file, name: 'invoice.png' },
     ]);
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe(
-        new fileAppError.InvalidUploadCount().errorKey
-      );
-    }
+    expect(result.success).toBe(true);
   });
 
   it.each([
