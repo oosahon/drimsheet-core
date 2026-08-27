@@ -1,3 +1,5 @@
+import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
+
 import { UCounterpartyType } from '@domain/counterparty/types/counterparty.types';
 import {
   UJournalEntrySourceType,
@@ -22,10 +24,6 @@ export interface IJournalCounterpartyReq {
   id?: string;
   name: string;
   type?: UCounterpartyType;
-}
-
-export interface IJournalHeaderCreateReq {
-  sourceType: UJournalEntrySourceType;
 }
 
 export interface IJournalLineDto {
@@ -61,5 +59,6 @@ export interface IJournalHeaderDto {
 export interface IJournalEntryDto extends IJournalHeaderDto {
   id: string;
   accountingEntityId: string;
+  attachments: IFileAttachment[];
   lines: IJournalLineDto[];
 }

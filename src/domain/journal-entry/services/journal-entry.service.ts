@@ -119,7 +119,7 @@ function makeCreateReceipt(
   deps: IDependencies
 ): IJournalEntryService['createReceipt'] {
   return async (payload, repoOptions) => {
-    const { header, sourceLine, destinationLines } = payload;
+    const { header, sourceLine, destinationLines, attachments } = payload;
 
     const destinationLineAccounts = destinationLines.map((l) => l.account);
 
@@ -174,6 +174,7 @@ function makeCreateReceipt(
       memo: header.memo,
       createdBy: header.createdBy,
       functionalCurrency,
+      attachments,
       lines: [sourceLinesPayload, ...destinationLinesPayload],
     });
   };

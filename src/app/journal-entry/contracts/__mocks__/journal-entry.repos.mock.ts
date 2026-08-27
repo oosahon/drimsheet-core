@@ -1,22 +1,16 @@
-import IJournalEntryHistoryRepo from '@domain/journal-entry/repos/journal-entry-history.repo';
+import IJournalEntryAttachmentRepo from '@domain/journal-entry/repos/journal-entry-attachment.repo';
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
-import IJournalLineHistoryRepo from '@domain/journal-entry/repos/journal-line-history.repo';
 import IJournalLineRepo from '@domain/journal-entry/repos/journal-line.repo';
 
-export const mockJournalEntryHistoryRepo: jest.Mocked<IJournalEntryHistoryRepo> =
+export const mockJournalEntryAttachmentRepo: jest.Mocked<IJournalEntryAttachmentRepo> =
   {
-    create: jest.fn(),
+    save: jest.fn(),
   };
 
 export const mockJournalEntryRepo: jest.Mocked<IJournalEntryRepo> = {
   create: jest.fn(),
   findById: jest.fn(),
 };
-
-export const mockJournalLineHistoryRepo: jest.Mocked<IJournalLineHistoryRepo> =
-  {
-    create: jest.fn(),
-  };
 
 export const mockJournalLineRepo: jest.Mocked<IJournalLineRepo> = {
   create: jest.fn(),

@@ -1,22 +1,15 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import fileAppError from '@app/file/errors/file.error';
 
-import blackblazeClient, {
-  makeBlackblazeClient,
-} from '@infra/integrations/blackblaze/blackblaze-client';
-
-jest.mock('@infra/config/vars.config', () => ({
-  __esModule: true,
-  default: {
-    B2_APP_KEY_ID: 'configured-key-id',
-    B2_APP_KEY: 'configured-application-key',
-    B2_BUCKET_NAME: 'configured-bucket',
-    B2_S3_ENDPOINT: 'https://s3.us-west-004.backblazeb2.com',
-    B2_REGION: 'us-west-004',
-  },
-}));
+import makeBlackblazeClient from '@infra/integrations/blackblaze/blackblaze-client';
 
 jest.mock('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: jest.fn(),
@@ -30,29 +23,40 @@ describe('blackblazeClient', () => {
     endpoint: 'https://s3.us-west-004.backblazeb2.com',
     region: 'us-west-004',
   };
+  const uploadPayload = {
+    key: 'files/id',
+    contentType: 'image/png',
+    metadata: Object.freeze({ 'original-name': 'cmVjZWlwdC5wbmc' }),
+  };
   const presign = jest.mocked(getSignedUrl);
+  const send = jest.spyOn(S3Client.prototype, 'send');
 
   beforeEach(() => {
     jest.clearAllMocks();
     presign.mockResolvedValue(
       'https://s3.us-west-004.backblazeb2.com/drimsheet-files/files/id?X-Amz-Signature=secret'
     );
+    send.mockResolvedValue({} as never);
   });
 
-  it('presigns one Blackblaze PutObject request', async () => {
+  it('defers S3 client setup until a storage operation is requested', () => {
+    expect(() => makeBlackblazeClient({ ...config, region: '' })).not.toThrow();
+  });
+
+  it('presigns one PutObject request with metadata-bound instructions', async () => {
     const client = makeBlackblazeClient(config);
 
-    await expect(
-      client.createUpload({ key: 'files/id', contentType: 'image/png' })
-    ).resolves.toEqual({
+    await expect(client.preSignUpload(uploadPayload)).resolves.toEqual({
       uploadUrl:
         'https://s3.us-west-004.backblazeb2.com/drimsheet-files/files/id?X-Amz-Signature=secret',
       fileUrl:
         'https://s3.us-west-004.backblazeb2.com/drimsheet-files/files/id',
-      headers: { 'Content-Type': 'image/png' },
+      headers: {
+        'Content-Type': 'image/png',
+        'x-amz-meta-original-name': 'cmVjZWlwdC5wbmc',
+      },
     });
 
-    expect(presign).toHaveBeenCalledTimes(1);
     const [s3Client, command, options] = presign.mock.calls[0];
     expect(s3Client).toBeInstanceOf(S3Client);
     expect(command).toBeInstanceOf(PutObjectCommand);
@@ -60,80 +64,190 @@ describe('blackblazeClient', () => {
       Bucket: 'drimsheet-files',
       Key: 'files/id',
       ContentType: 'image/png',
+      Metadata: { 'original-name': 'cmVjZWlwdC5wbmc' },
     });
-    expect(options).toEqual({ expiresIn: 300 });
+    expect(options).toEqual({
+      expiresIn: 300,
+      unhoistableHeaders: new Set(['x-amz-meta-original-name']),
+    });
     await expect(s3Client.config.region()).resolves.toBe('us-west-004');
-    await expect(s3Client.config.endpoint?.()).resolves.toMatchObject({
-      hostname: 's3.us-west-004.backblazeb2.com',
-      protocol: 'https:',
-    });
   });
 
-  it('reuses the configured client used by IoC', async () => {
-    await blackblazeClient.createUpload({
-      key: 'files/first',
-      contentType: 'image/png',
-    });
-    await blackblazeClient.createUpload({
-      key: 'files/second',
-      contentType: 'image/jpeg',
-    });
-
-    expect(presign).toHaveBeenCalledTimes(2);
-    expect((presign.mock.calls[0][1] as PutObjectCommand).input).toMatchObject({
-      Bucket: 'configured-bucket',
-      Key: 'files/first',
-    });
-    expect((presign.mock.calls[1][1] as PutObjectCommand).input).toMatchObject({
-      Bucket: 'configured-bucket',
-      Key: 'files/second',
-    });
-  });
-
-  it('returns immutable headers and instruction metadata', async () => {
-    const result = await makeBlackblazeClient(config).createUpload({
-      key: 'files/id',
-      contentType: 'image/png',
-    });
+  it('returns immutable upload instructions', async () => {
+    const result =
+      await makeBlackblazeClient(config).preSignUpload(uploadPayload);
 
     expect(Object.isFrozen(result)).toBe(true);
     expect(Object.isFrozen(result.headers)).toBe(true);
   });
 
-  it('removes all expiring URL data from the stable file URL', async () => {
+  it('removes expiring URL data from the stable upload URL', async () => {
     presign.mockResolvedValue(
       'https://files.example.com/files/id?signature=secret#fragment'
     );
 
     await expect(
-      makeBlackblazeClient(config).createUpload({
-        key: 'files/id',
-        contentType: 'image/png',
-      })
+      makeBlackblazeClient(config).preSignUpload(uploadPayload)
     ).resolves.toMatchObject({ fileUrl: 'https://files.example.com/files/id' });
   });
 
-  it('maps presigner failures without exposing provider details', async () => {
-    presign.mockRejectedValue(
-      new Error('https://example.com?X-Amz-Credential=sensitive')
-    );
+  it('maps upload preparation failures without provider details', async () => {
+    presign.mockRejectedValue(new Error('sensitive provider detail'));
 
     await expect(
-      makeBlackblazeClient(config).createUpload({
-        key: 'files/id',
-        contentType: 'image/png',
-      })
+      makeBlackblazeClient(config).preSignUpload(uploadPayload)
     ).rejects.toEqual(new fileAppError.UploadUnexpected());
   });
 
-  it('maps malformed signed URLs to the stable upload error', async () => {
-    presign.mockResolvedValue('not-a-url');
+  it('reads provider metadata and only the requested byte range', async () => {
+    const data = Uint8Array.from([0x89, 0x50, 0x4e, 0x47]);
+    send
+      .mockResolvedValueOnce({
+        ContentType: 'image/png',
+        ContentLength: 1024,
+        Metadata: { 'original-name': 'cmVjZWlwdC5wbmc' },
+      } as never)
+      .mockResolvedValueOnce({
+        Body: {
+          transformToByteArray: jest.fn().mockResolvedValue(data),
+        },
+      } as never);
 
     await expect(
-      makeBlackblazeClient(config).createUpload({
-        key: 'files/id',
-        contentType: 'image/png',
+      makeBlackblazeClient(config).readFile({
+        key: 'users/id/reference',
+        range: { start: 0, end: 11 },
       })
-    ).rejects.toThrow(fileAppError.UploadUnexpected);
+    ).resolves.toEqual({
+      fileUrl:
+        'https://s3.us-west-004.backblazeb2.com/drimsheet-files/users/id/reference',
+      contentType: 'image/png',
+      size: 1024,
+      metadata: { 'original-name': 'cmVjZWlwdC5wbmc' },
+      data,
+    });
+
+    expect(send.mock.calls[0][0]).toBeInstanceOf(HeadObjectCommand);
+    expect((send.mock.calls[0][0] as HeadObjectCommand).input).toEqual({
+      Bucket: 'drimsheet-files',
+      Key: 'users/id/reference',
+    });
+    expect(send.mock.calls[1][0]).toBeInstanceOf(GetObjectCommand);
+    expect((send.mock.calls[1][0] as GetObjectCommand).input).toEqual({
+      Bucket: 'drimsheet-files',
+      Key: 'users/id/reference',
+      Range: 'bytes=0-11',
+    });
+  });
+
+  it('reads the complete object when no byte range is supplied', async () => {
+    send
+      .mockResolvedValueOnce({ ContentLength: 4 } as never)
+      .mockResolvedValueOnce({
+        Body: {
+          transformToByteArray: jest
+            .fn()
+            .mockResolvedValue(Uint8Array.from([1, 2, 3, 4])),
+        },
+      } as never);
+
+    await expect(
+      makeBlackblazeClient(config).readFile({ key: 'files/id' })
+    ).resolves.toMatchObject({
+      size: 4,
+      data: Uint8Array.from([1, 2, 3, 4]),
+    });
+    expect((send.mock.calls[1][0] as GetObjectCommand).input).toEqual({
+      Bucket: 'drimsheet-files',
+      Key: 'files/id',
+      Range: undefined,
+    });
+  });
+
+  it('maps a missing object to a null read', async () => {
+    send.mockRejectedValueOnce({
+      name: 'NotFound',
+      $metadata: { httpStatusCode: 404 },
+    } as never);
+
+    await expect(
+      makeBlackblazeClient(config).readFile({
+        key: 'files/missing',
+        range: { start: 0, end: 11 },
+      })
+    ).resolves.toBeNull();
+  });
+
+  it.each([
+    { name: 'NoSuchKey' },
+    { name: 'OtherError', $metadata: { httpStatusCode: 404 } },
+  ])('recognizes each supported missing-object response', async (error) => {
+    send.mockRejectedValueOnce(error as never);
+
+    await expect(
+      makeBlackblazeClient(config).readFile({
+        key: 'files/missing',
+        range: { start: 0, end: 11 },
+      })
+    ).resolves.toBeNull();
+  });
+
+  it('maps absent optional storage metadata to empty storage values', async () => {
+    send.mockResolvedValueOnce({} as never).mockResolvedValueOnce({} as never);
+
+    await expect(
+      makeBlackblazeClient(config).readFile({
+        key: 'files/incomplete',
+        range: { start: 0, end: 11 },
+      })
+    ).resolves.toEqual({
+      fileUrl:
+        'https://s3.us-west-004.backblazeb2.com/drimsheet-files/files/incomplete',
+      contentType: '',
+      size: 0,
+      metadata: {},
+      data: new Uint8Array(),
+    });
+  });
+
+  it('maps unexpected storage read failures', async () => {
+    send.mockRejectedValueOnce(new Error('provider detail') as never);
+
+    await expect(
+      makeBlackblazeClient(config).readFile({
+        key: 'files/id',
+        range: { start: 0, end: 11 },
+      })
+    ).rejects.toThrow(fileAppError.ReadUnexpected);
+  });
+
+  it('maps non-object storage read failures', async () => {
+    send.mockRejectedValueOnce('provider detail' as never);
+
+    await expect(
+      makeBlackblazeClient(config).readFile({
+        key: 'files/id',
+        range: { start: 0, end: 11 },
+      })
+    ).rejects.toThrow(fileAppError.ReadUnexpected);
+  });
+
+  it('deletes an object by key', async () => {
+    await makeBlackblazeClient(config).deleteFile('files/id');
+
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(send.mock.calls[0][0]).toBeInstanceOf(DeleteObjectCommand);
+    expect((send.mock.calls[0][0] as DeleteObjectCommand).input).toEqual({
+      Bucket: 'drimsheet-files',
+      Key: 'files/id',
+    });
+  });
+
+  it('maps deletion failures', async () => {
+    send.mockRejectedValueOnce(new Error('provider detail') as never);
+
+    await expect(
+      makeBlackblazeClient(config).deleteFile('files/id')
+    ).rejects.toThrow(fileAppError.DeleteUnexpected);
   });
 });

@@ -902,6 +902,26 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IFileAttachment": {
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["url", "name", "type", "size"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IJournalLineDto": {
         "properties": {
           "id": {
@@ -1024,6 +1044,12 @@
           "accountingEntityId": {
             "type": "string"
           },
+          "attachments": {
+            "items": {
+              "$ref": "#/components/schemas/IFileAttachment"
+            },
+            "type": "array"
+          },
           "lines": {
             "items": {
               "$ref": "#/components/schemas/IJournalLineDto"
@@ -1045,6 +1071,7 @@
           "updatedAt",
           "id",
           "accountingEntityId",
+          "attachments",
           "lines"
         ],
         "type": "object",
@@ -1111,6 +1138,13 @@
       },
       "IReceiptEntryReq": {
         "properties": {
+          "attachmentReferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "Opaque handles returned when preparing file uploads. Each corresponding\nfile must be uploaded before the receipt is created."
+          },
           "sourceLine": {
             "$ref": "#/components/schemas/IReceiptEntryLineReq"
           },
@@ -1152,30 +1186,14 @@
         "type": "object",
         "description": "Make all properties in T readonly"
       },
-      "IFileAttachment": {
-        "properties": {
-          "url": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"
-          },
-          "size": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "required": ["url", "name", "type", "size"],
-        "type": "object",
-        "additionalProperties": false
-      },
       "IFileUploadDto": {
         "properties": {
           "uploadUrl": {
             "type": "string"
+          },
+          "reference": {
+            "type": "string",
+            "description": "Opaque server-issued handle used to associate this upload with a later\napplication request. It is not a file URL or cloud-storage object key."
           },
           "headers": {
             "$ref": "#/components/schemas/Readonly_Record_string.string__"
@@ -1184,9 +1202,14 @@
             "$ref": "#/components/schemas/IFileAttachment"
           }
         },
-        "required": ["uploadUrl", "headers", "file"],
+        "required": ["uploadUrl", "reference", "headers", "file"],
         "type": "object",
         "additionalProperties": false
+      },
+      "UFileUploadPurpose": {
+        "type": "string",
+        "enum": ["journal_entry_attachment"],
+        "nullable": false
       },
       "IFileUploadReq": {
         "properties": {
@@ -1199,9 +1222,12 @@
           "size": {
             "type": "number",
             "format": "double"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/UFileUploadPurpose"
           }
         },
-        "required": ["name", "type", "size"],
+        "required": ["name", "type", "size", "purpose"],
         "type": "object",
         "additionalProperties": false
       },
@@ -2718,14 +2744,17 @@
     },
     "/files/upload": {
       "post": {
-        "operationId": "createFileUpload",
+        "operationId": "preSignUploads",
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IFileUploadDto"
+                  "items": {
+                    "$ref": "#/components/schemas/IFileUploadDto"
+                  },
+                  "type": "array"
                 }
               }
             }
@@ -2771,7 +2800,7 @@
             }
           }
         },
-        "description": "Create a direct-to-Blackblaze file upload instruction",
+        "description": "Pre-sign direct-to-Blackblaze upload instructions",
         "tags": ["File"],
         "security": [],
         "parameters": [],
@@ -2780,7 +2809,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/IFileUploadReq"
+                "items": {
+                  "$ref": "#/components/schemas/IFileUploadReq"
+                },
+                "type": "array"
               }
             }
           }

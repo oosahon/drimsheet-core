@@ -9,6 +9,7 @@ import { IUser } from '@domain/user/types/user.types';
 import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
 import { IFileUploadDto } from '@app/file/dtos/file-upload/file-upload.dto';
 import fileAppError from '@app/file/errors/file.error';
+import { EFileUploadPurpose } from '@app/file/types/file.types';
 
 import { tokenService } from '@infra/ioc/services/auth';
 import * as fileUseCases from '@infra/ioc/usecases/file';
@@ -43,12 +44,25 @@ jest.mock('../../../src/infra/persistence/repos/user', () => ({
 
 jest.mock('../../../src/infra/ioc/usecases/file', () => ({
   __esModule: true,
-  createFileUploadUseCase: jest.fn(),
+  preSignUploadsUseCase: jest.fn(),
 }));
 
 const ENDPOINT = '/api/v1/files/upload';
 const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
-const payload = { name: 'receipt.png', type: 'image/png', size: 1024 };
+const payload = [
+  {
+    name: 'receipt.png',
+    type: 'image/png',
+    size: 1024,
+    purpose: EFileUploadPurpose.JournalEntryAttachment,
+  },
+  {
+    name: 'invoice.pdf',
+    type: 'application/pdf',
+    size: 2048,
+    purpose: EFileUploadPurpose.JournalEntryAttachment,
+  },
+];
 
 const mockUser: IUser = {
   id: userId,
@@ -61,29 +75,48 @@ const mockUser: IUser = {
   updatedAt: new Date('2026-03-13T00:00:00.000Z'),
 };
 
-const upload: IFileUploadDto = {
-  uploadUrl: 'https://example.com/file?signature=secret',
-  headers: { 'Content-Type': 'image/png' },
-  file: {
-    url: 'https://example.com/file',
-    name: 'receipt.png',
-    type: 'image/png',
-    size: 1024,
+const uploads: IFileUploadDto[] = [
+  {
+    uploadUrl: 'https://example.com/receipt?signature=secret',
+    reference: '123e4567-e89b-12d3-a456-426614174002',
+    headers: {
+      'Content-Type': 'image/png',
+      'x-amz-meta-original-name': 'cmVjZWlwdC5wbmc',
+    },
+    file: {
+      url: 'https://example.com/receipt',
+      name: 'receipt.png',
+      type: 'image/png',
+      size: 1024,
+    },
   },
-};
+  {
+    uploadUrl: 'https://example.com/invoice?signature=secret',
+    reference: '123e4567-e89b-12d3-a456-426614174003',
+    headers: {
+      'Content-Type': 'application/pdf',
+      'x-amz-meta-original-name': 'aW52b2ljZS5wZGY',
+    },
+    file: {
+      url: 'https://example.com/invoice',
+      name: 'invoice.pdf',
+      type: 'application/pdf',
+      size: 2048,
+    },
+  },
+];
 
 describe('POST /files/upload', () => {
   let app: Express;
   const mockGetAuthUser = tokenService.getAuthUser as jest.Mock;
   const mockFindUser = userRepos.user.findById as jest.Mock;
-  const mockCreateFileUpload =
-    fileUseCases.createFileUploadUseCase as jest.Mock;
+  const mockPreSignUploads = fileUseCases.preSignUploadsUseCase as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue(mockUser);
-    mockCreateFileUpload.mockResolvedValue(upload);
+    mockPreSignUploads.mockResolvedValue(uploads);
     app = createApplication();
   });
 
@@ -91,7 +124,7 @@ describe('POST /files/upload', () => {
     expect(mockFeatureFlagService.canAccessAlpha1).not.toHaveBeenCalled();
   });
 
-  it('returns a direct upload instruction for an authenticated request', async () => {
+  it('returns direct upload instructions for an authenticated request', async () => {
     const response = await request(app)
       .post(ENDPOINT)
       .set('Authorization', 'Bearer valid-token')
@@ -99,15 +132,15 @@ describe('POST /files/upload', () => {
 
     expect(response.status).toBe(200);
     expect(response.type).toBe('application/json');
-    expect(response.body).toEqual(upload);
-    expect(mockCreateFileUpload).toHaveBeenCalledWith(payload);
+    expect(response.body).toEqual(uploads);
+    expect(mockPreSignUploads).toHaveBeenCalledWith(payload);
   });
 
   it('rejects an unauthenticated request', async () => {
     const response = await request(app).post(ENDPOINT).send(payload);
 
     expect(response.status).toBe(401);
-    expect(mockCreateFileUpload).not.toHaveBeenCalled();
+    expect(mockPreSignUploads).not.toHaveBeenCalled();
   });
 
   it('rejects malformed JSON metadata before orchestration', async () => {
@@ -117,11 +150,11 @@ describe('POST /files/upload', () => {
       .send({ name: 'receipt.png', size: 1024 });
 
     expect(response.status).toBe(422);
-    expect(mockCreateFileUpload).not.toHaveBeenCalled();
+    expect(mockPreSignUploads).not.toHaveBeenCalled();
   });
 
   it('returns usecase validation failures as 422 responses', async () => {
-    mockCreateFileUpload.mockRejectedValue(
+    mockPreSignUploads.mockRejectedValue(
       new appError.UnprocessableEntity([
         { field: 'size', message: 'file_attachment_error_size_invalid' },
       ])
@@ -130,7 +163,7 @@ describe('POST /files/upload', () => {
     const response = await request(app)
       .post(ENDPOINT)
       .set('Authorization', 'Bearer valid-token')
-      .send({ ...payload, size: 0 });
+      .send([{ ...payload[0], size: 0 }]);
 
     expect(response.status).toBe(422);
     expect(response.body).toMatchObject({
@@ -140,7 +173,7 @@ describe('POST /files/upload', () => {
   });
 
   it('returns the stable error when Blackblaze cannot create the instruction', async () => {
-    mockCreateFileUpload.mockRejectedValue(new fileAppError.UploadUnexpected());
+    mockPreSignUploads.mockRejectedValue(new fileAppError.UploadUnexpected());
 
     const response = await request(app)
       .post(ENDPOINT)
@@ -154,15 +187,30 @@ describe('POST /files/upload', () => {
     });
   });
 
+  it('returns a client error when the purpose policy rejects metadata', async () => {
+    mockPreSignUploads.mockRejectedValue(new fileAppError.InvalidUploadType());
+
+    const response = await request(app)
+      .post(ENDPOINT)
+      .set('Authorization', 'Bearer valid-token')
+      .send([{ ...payload[0], type: 'image/svg+xml' }]);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({
+      name: 'FileAppError',
+      errorKey: 'app_error_file_upload_type_invalid',
+    });
+  });
+
   it('does not accept multipart file uploads', async () => {
     const response = await request(app)
       .post(ENDPOINT)
       .set('Authorization', 'Bearer valid-token')
-      .field('name', payload.name)
-      .field('type', payload.type)
-      .field('size', String(payload.size));
+      .field('name', payload[0].name)
+      .field('type', payload[0].type)
+      .field('size', String(payload[0].size));
 
     expect(response.status).toBe(422);
-    expect(mockCreateFileUpload).not.toHaveBeenCalled();
+    expect(mockPreSignUploads).not.toHaveBeenCalled();
   });
 });

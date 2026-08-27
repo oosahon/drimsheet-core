@@ -22,6 +22,8 @@ import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 import IAppContext from '@app/context/contracts/app-context.contract';
 import ICounterpartyAppService from '@app/counterparty/contracts/counterparty.service.contract';
 import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
+import IFileManagementService from '@app/file/contracts/file-management.service.contract';
+import { EFileUploadPurpose } from '@app/file/types/file.types';
 import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
 import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
@@ -35,6 +37,7 @@ import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
 interface IDependencies {
   appContext: IAppContext;
   counterpartyAppService: ICounterpartyAppService;
+  fileManagementService: IFileManagementService;
   journalEntryService: IJournalEntryService;
   ledgerAccountRepo: ILedgerAccountRepo;
   counterpartyPersistenceService: ICounterpartyPersistenceService;
@@ -143,7 +146,14 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       });
     }
 
-    const receiptPayload = {
+    const attachments = await deps.fileManagementService.claimUploads({
+      userId: user.id,
+      purpose: EFileUploadPurpose.JournalEntryAttachment,
+      references: payload.attachmentReferences ?? [],
+    });
+
+    const receiptPayload: ICreateReceiptEntryPayload = {
+      attachments,
       header: headerPayload,
       sourceLine: sourceLinePayload,
       destinationLines: destinationLinesPayload,

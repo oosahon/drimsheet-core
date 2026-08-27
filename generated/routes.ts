@@ -756,6 +756,17 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IFileAttachment: {
+    dataType: 'refObject',
+    properties: {
+      url: { dataType: 'string', required: true },
+      name: { dataType: 'string', required: true },
+      type: { dataType: 'string', required: true },
+      size: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IJournalLineDto: {
     dataType: 'refObject',
     properties: {
@@ -841,6 +852,11 @@ const models: TsoaRoute.Models = {
       updatedAt: { dataType: 'datetime', required: true },
       id: { dataType: 'string', required: true },
       accountingEntityId: { dataType: 'string', required: true },
+      attachments: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IFileAttachment' },
+        required: true,
+      },
       lines: {
         dataType: 'array',
         array: { dataType: 'refObject', ref: 'IJournalLineDto' },
@@ -902,6 +918,10 @@ const models: TsoaRoute.Models = {
   IReceiptEntryReq: {
     dataType: 'refObject',
     properties: {
+      attachmentReferences: {
+        dataType: 'array',
+        array: { dataType: 'string' },
+      },
       sourceLine: { ref: 'IReceiptEntryLineReq', required: true },
       destinationLines: {
         dataType: 'array',
@@ -939,25 +959,24 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  IFileAttachment: {
-    dataType: 'refObject',
-    properties: {
-      url: { dataType: 'string', required: true },
-      name: { dataType: 'string', required: true },
-      type: { dataType: 'string', required: true },
-      size: { dataType: 'double', required: true },
-    },
-    additionalProperties: false,
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IFileUploadDto: {
     dataType: 'refObject',
     properties: {
       uploadUrl: { dataType: 'string', required: true },
+      reference: { dataType: 'string', required: true },
       headers: { ref: 'Readonly_Record_string.string__', required: true },
       file: { ref: 'IFileAttachment', required: true },
     },
     additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UFileUploadPurpose: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'enum',
+      enums: ['journal_entry_attachment'],
+      validators: {},
+    },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IFileUploadReq: {
@@ -966,6 +985,7 @@ const models: TsoaRoute.Models = {
       name: { dataType: 'string', required: true },
       type: { dataType: 'string', required: true },
       size: { dataType: 'double', required: true },
+      purpose: { ref: 'UFileUploadPurpose', required: true },
     },
     additionalProperties: false,
   },
@@ -2020,20 +2040,26 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsFileController_createFileUpload: Record<
+  const argsFileController_preSignUploads: Record<
     string,
     TsoaRoute.ParameterSchema
   > = {
-    body: { in: 'body', name: 'body', required: true, ref: 'IFileUploadReq' },
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      dataType: 'array',
+      array: { dataType: 'refObject', ref: 'IFileUploadReq' },
+    },
   };
   app.post(
     '/api/v1/files/upload',
     ...fetchMiddlewares<RequestHandler>(FileController),
     ...fetchMiddlewares<RequestHandler>(
-      FileController.prototype.createFileUpload
+      FileController.prototype.preSignUploads
     ),
 
-    async function FileController_createFileUpload(
+    async function FileController_preSignUploads(
       request: ExRequest,
       response: ExResponse,
       next: any
@@ -2043,7 +2069,7 @@ export function RegisterRoutes(app: Router) {
       let validatedArgs: any[] = [];
       try {
         validatedArgs = templateService.getValidatedArgs({
-          args: argsFileController_createFileUpload,
+          args: argsFileController_preSignUploads,
           request,
           response,
         });
@@ -2051,7 +2077,7 @@ export function RegisterRoutes(app: Router) {
         const controller = new FileController();
 
         await templateService.apiHandler({
-          methodName: 'createFileUpload',
+          methodName: 'preSignUploads',
           controller,
           response,
           next,

@@ -1,4 +1,5 @@
 import { TEntityId } from '@shared/types/uuid';
+import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
 
 import { ICurrency } from '@domain/money/types/currency.types';
 
@@ -49,6 +50,7 @@ export interface IJournalHeader {
 
 export interface IJournalEntry extends IJournalHeader {
   lines: IJournalLine[];
+  attachments: IFileAttachment[];
 }
 
 export interface IJournalEntryMakePayload extends Pick<
@@ -62,6 +64,7 @@ export interface IJournalEntryMakePayload extends Pick<
 > {
   functionalCurrency: ICurrency;
   lines: IJournalLineMakePayload[];
+  attachments?: IFileAttachment[];
 }
 
 export interface IVoidJournalEntryPayload {

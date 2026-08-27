@@ -17,6 +17,7 @@ export const journalEntryService = makeJournalEntryService({
 export const journalEntryPersistenceService =
   makeJournalEntryPersistenceService({
     repoService,
+    journalEntryAttachmentRepo: journalEntryRepos.journalEntryAttachment,
     journalEntryRepo: journalEntryRepos.journalEntry,
     journalLineRepo: journalEntryRepos.journalLine,
   });

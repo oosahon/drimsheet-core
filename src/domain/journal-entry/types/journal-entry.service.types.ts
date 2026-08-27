@@ -1,5 +1,6 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
+import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
 
 import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
@@ -32,9 +33,10 @@ export interface ICreateReceiptEntryPayload {
   header: IHeaderPayload;
   sourceLine: ILinePayload;
   destinationLines: ILinePayload[];
+  attachments: IFileAttachment[];
 }
 
-export interface ICreateOpeningBalancePayload {
+interface ICreateOpeningBalancePayload {
   accountingEntityId: TEntityId;
   functionalCurrencyCode: string;
   account: ILedgerAccount;

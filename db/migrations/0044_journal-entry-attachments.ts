@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import {
   journalEntriesTable,
   journalEntryAttachmentsTable,
@@ -8,14 +9,9 @@ export const shorthands: ColumnDefinitions | undefined = undefined;
 
 export async function up(pgm: MigrationBuilder): Promise<void> {
   pgm.createTable(journalEntryAttachmentsTable, {
-    id: {
-      type: 'uuid',
-      primaryKey: true,
-      default: pgm.func('gen_random_uuid()'),
-    },
     journal_entry_id: {
       type: 'uuid',
-      notNull: true,
+      primaryKey: true,
       references: journalEntriesTable,
       onDelete: 'CASCADE',
     },

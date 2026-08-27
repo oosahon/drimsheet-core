@@ -46,6 +46,14 @@ describe('JournalEntry Entity', () => {
         functionalCurrency: SYSTEM_CURRENCIES.USD,
         postedAt: null,
         createdBy: '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d' as TEntityId,
+        attachments: [
+          {
+            url: 'https://files.example.com/receipt.png',
+            name: 'Original receipt.png',
+            type: 'image/png',
+            size: 1024,
+          },
+        ],
         lines: [
           {
             accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
@@ -89,6 +97,9 @@ describe('JournalEntry Entity', () => {
       expect(entry.createdAt).toEqual(new Date('2026-04-15T00:00:00.000Z'));
       expect(entry.updatedAt).toEqual(new Date('2026-04-15T00:00:00.000Z'));
       expect(entry.createdBy).toBe(validPayload.createdBy);
+      expect(entry.attachments).toEqual(validPayload.attachments);
+      expect(Object.isFrozen(entry.attachments)).toBe(true);
+      expect(Object.isFrozen(entry.attachments[0])).toBe(true);
 
       expect(entry.lines).toHaveLength(2);
       expect(entry.lines[0].entryId).toBe(entry.id);
@@ -110,6 +121,7 @@ describe('JournalEntry Entity', () => {
       expect(audit.header.action).toBe(EJournalEntryAuditAction.Created);
       expect(audit.header.diff.before).toBeNull();
       expect(audit.header.diff.after).not.toHaveProperty('lines');
+      expect(audit.header.diff.after).not.toHaveProperty('attachments');
       expect(audit.lines).toHaveLength(2);
       expect(audit.lines[0]).toEqual({
         entityId: entry.lines[0].id,
@@ -136,6 +148,16 @@ describe('JournalEntry Entity', () => {
       const [entry] = journalEntryEntity.make(payload);
 
       expect(entry.lines[0].description).toBe('Test entry memo');
+    });
+
+    it('should default to an immutable empty attachment collection', () => {
+      const [entry] = journalEntryEntity.make({
+        ...validPayload,
+        attachments: undefined,
+      });
+
+      expect(entry.attachments).toEqual([]);
+      expect(Object.isFrozen(entry.attachments)).toBe(true);
     });
 
     it('should create posted entries with the supplied posting date', () => {
@@ -373,6 +395,14 @@ describe('JournalEntry Entity', () => {
         memo: 'Test entry memo',
         functionalCurrency: SYSTEM_CURRENCIES.USD,
         createdBy: '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d' as TEntityId,
+        attachments: [
+          {
+            url: 'https://files.example.com/receipt.pdf',
+            name: 'receipt.pdf',
+            type: 'application/pdf',
+            size: 2048,
+          },
+        ],
         lines: [
           {
             accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
@@ -415,6 +445,7 @@ describe('JournalEntry Entity', () => {
         })
       );
       expect(Object.isFrozen(voidedEntry)).toBe(true);
+      expect(voidedEntry.attachments).toBe(entry.attachments);
       expect(events).toEqual([
         expect.objectContaining({ type: EJournalEntryEvent.Voided }),
       ]);
@@ -422,6 +453,8 @@ describe('JournalEntry Entity', () => {
       expect(audit.diff.before).toEqual(
         expect.objectContaining({ id: entry.id })
       );
+      expect(audit.diff.before).not.toHaveProperty('attachments');
+      expect(audit.diff.after).not.toHaveProperty('attachments');
     });
 
     it('should reject voiding a draft entry', () => {
@@ -459,7 +492,10 @@ describe('JournalEntry Entity', () => {
       expect(events).toEqual([
         expect.objectContaining({ type: EJournalEntryEvent.Archived }),
       ]);
+      expect(archivedEntry.attachments).toBe(entry.attachments);
       expect(audit.action).toBe(EJournalEntryAuditAction.Archived);
+      expect(audit.diff.before).not.toHaveProperty('attachments');
+      expect(audit.diff.after).not.toHaveProperty('attachments');
     });
 
     it('should archive a draft entry', () => {

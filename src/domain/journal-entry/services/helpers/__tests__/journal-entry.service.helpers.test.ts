@@ -14,6 +14,7 @@ describe('journalEntryServiceHelpers', () => {
     destinationCounterparty: ICounterparty | null
   ): ICreateReceiptEntryPayload {
     return {
+      attachments: [],
       header: {
         accountingEntityId,
         memo: null,

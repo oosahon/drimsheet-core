@@ -15,15 +15,22 @@ import {
   toRepoDate,
 } from '@infra/persistence/helpers/date.mapper';
 
+import journalEntryAttachmentMapper, {
+  IJournalEntryAttachmentModel,
+} from './journal-entry-attachment.mapper';
 import journalLineMapper, { IJournalLineModel } from './journal-line.mapper';
 
 export interface IJournalEntryModel extends InferSelectModel<
   typeof journalEntriesInCore
 > {}
 
-export interface IJournalEntrySelectModel extends IJournalEntryModel {
+interface IJournalEntrySelectModel extends IJournalEntryModel {
+  journalEntryAttachmentsInCores: IJournalEntryAttachmentModel[];
   journalLinesInCores: IJournalLineModel[];
 }
+
+const emptyAttachments: IJournalEntry['attachments'] = [];
+Object.freeze(emptyAttachments);
 
 const journalEntryMapper = {
   toDomain(payload: IJournalEntrySelectModel): IJournalEntry {
@@ -33,6 +40,11 @@ const journalEntryMapper = {
       sourceType: payload.sourceType,
       memo: payload.memo,
       status: payload.status,
+      attachments: payload.journalEntryAttachmentsInCores[0]
+        ? journalEntryAttachmentMapper.toDomain(
+            payload.journalEntryAttachmentsInCores[0]
+          )
+        : emptyAttachments,
       lines: payload.journalLinesInCores.map((line) =>
         journalLineMapper.toDomain(line)
       ),
@@ -70,6 +82,7 @@ const journalEntryMapper = {
       id: payload.id,
       accountingEntityId: payload.accountingEntityId,
       sourceType: payload.sourceType,
+      attachments: payload.attachments,
       lines: payload.lines.map(journalLineMapper.toDto),
       memo: payload.memo,
       status: payload.status,

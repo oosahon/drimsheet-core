@@ -13,16 +13,14 @@ interface IDependencies {
   fileManagementService: IFileManagementService;
 }
 
-export default function makeCreateFileUploadUsecase(deps: IDependencies) {
-  return async (payload: IFileUploadReq): Promise<IFileUploadDto> => {
+export default function makePreSignUploadsUsecase(deps: IDependencies) {
+  return async (payload: IFileUploadReq[]): Promise<IFileUploadDto[]> => {
     zodValidationRunner(fileUploadReqValidation, payload);
     const { user } = deps.appContext.get(['user']);
 
-    return deps.fileManagementService.createUpload({
+    return deps.fileManagementService.preSignUploads({
       userId: user.id,
-      name: payload.name,
-      type: payload.type,
-      size: payload.size,
+      files: payload,
     });
   };
 }

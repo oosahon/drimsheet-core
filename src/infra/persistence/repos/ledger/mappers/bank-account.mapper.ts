@@ -3,11 +3,10 @@ import { InferSelectModel } from 'drizzle-orm';
 import { TEntityId } from '@shared/types/uuid';
 
 import { IBankDetails } from '@domain/ledger/types/asset-account.types';
-import bankDetailsValue from '@domain/ledger/values/bank-details.vo';
 
 import { bankDetailsInCore } from '@infra/config/drizzle/schema';
 
-export interface IBankAccountModel extends InferSelectModel<
+interface IBankAccountModel extends InferSelectModel<
   typeof bankDetailsInCore
 > {}
 
@@ -30,12 +29,12 @@ const bankAccountMapper = {
   },
 
   toDomain(record: IBankAccountModel): IBankDetails {
-    return bankDetailsValue.make({
+    return {
       countryCode: record.countryCode,
       bankName: record.bankName,
       accountName: record.accountName,
       accountNumber: record.accountNumber,
-    });
+    };
   },
 };
 
