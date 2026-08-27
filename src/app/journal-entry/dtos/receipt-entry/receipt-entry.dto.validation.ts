@@ -4,9 +4,19 @@ import journalEntryError from '@domain/journal-entry/errors/journal-entry.error'
 import journalLineError from '@domain/journal-entry/errors/journal-line.error';
 
 import { counterpartyNameValidation } from '@app/counterparty/dtos/counterparty/counterparty.dto.validation';
+import fileAppError from '@app/file/errors/file.error';
+import fileUploadPolicy from '@app/file/policies/file-upload.policy';
+import { EFileUploadPurpose } from '@app/file/types/file.types';
 import { journalLineReqValidation } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.validation';
 
-export const receiptEntryLineReqValidation = journalLineReqValidation.extend({
+const invalidAttachmentReferenceKey = new fileAppError.InvalidUploadReference()
+  .errorKey;
+const invalidUploadCountKey = new fileAppError.InvalidUploadCount().errorKey;
+const maxAttachmentReferences = fileUploadPolicy.getPolicy(
+  EFileUploadPurpose.JournalEntryAttachment
+).maxFiles;
+
+const receiptEntryLineReqValidation = journalLineReqValidation.extend({
   counterparty: z.object({
     id: z
       .uuid(new journalLineError.InvalidCounterpartyId().errorKey)
@@ -16,6 +26,14 @@ export const receiptEntryLineReqValidation = journalLineReqValidation.extend({
 });
 
 export const receiptEntryReqValidation = z.object({
+  attachmentReferences: z
+    .array(z.uuid(invalidAttachmentReferenceKey))
+    .max(maxAttachmentReferences, invalidUploadCountKey)
+    .refine(
+      (references) => new Set(references).size === references.length,
+      invalidAttachmentReferenceKey
+    )
+    .optional(),
   sourceLine: receiptEntryLineReqValidation,
   destinationLines: z
     .array(receiptEntryLineReqValidation)

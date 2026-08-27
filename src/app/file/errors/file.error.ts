@@ -3,7 +3,15 @@ import errorUtils from '@shared/utils/error';
 import appError from '@shared/values/errors/app.error';
 
 const EErrorKeys = {
+  InvalidUploadPurpose: 'app_error_file_upload_purpose_invalid',
+  InvalidUploadReference: 'app_error_file_upload_reference_invalid',
+  InvalidUploadCount: 'app_error_file_upload_count_invalid',
+  InvalidUploadType: 'app_error_file_upload_type_invalid',
+  InvalidUploadSize: 'app_error_file_upload_size_invalid',
   UploadUnexpected: 'app_error_file_upload_unexpected',
+  ReadUnexpected: 'app_error_file_read_unexpected',
+  ClaimUnexpected: 'app_error_file_claim_unexpected',
+  DeleteUnexpected: 'app_error_file_delete_unexpected',
 } as const satisfies TErrorKeys<'app_error_file'>;
 
 type UFileError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

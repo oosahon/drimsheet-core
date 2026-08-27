@@ -15,8 +15,6 @@
   call site unless extraction establishes meaningful ownership or reuse.
 - Document non-trivial helpers with their purpose, output, and important failure
   or consistency behavior.
-- Keep implementation-only types private. Export a type only when another
-  module intentionally depends on that contract.
 - In `for...of` loops, use a named loop variable and access its fields
   explicitly instead of destructuring in the loop declaration.
 - Use `Pick`, `Omit`, or bespoke dependency interfaces only when they express an
@@ -25,6 +23,20 @@
 - For private helpers owned by the same factory or capability, prefer the
   existing dependency type. Do not narrow dependencies solely to document which
   properties the helper currently reads.
+
+## Exports
+
+- Keep declarations file-private by default.
+- Export a function, value, class, interface, or type only when a current
+  production module outside the defining file requires it.
+- Tests do not justify exporting implementation-only declarations. Derive test
+  input and output types from the module's public API instead.
+- Dedicated mock and test-helper modules may export the test API they exist to
+  provide.
+- Framework entrypoints may remain exported when runtime discovery or generated
+  integration code requires the export.
+- Before adding or retaining a named export, search for its external consumers.
+  Remove the export when none exist.
 
 Prefer:
 

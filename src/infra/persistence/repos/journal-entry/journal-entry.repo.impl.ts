@@ -35,6 +35,7 @@ const journalEntryRepo: IJournalEntryRepo = {
     ).query.journalEntriesInCore.findFirst({
       where: eq(journalEntriesInCore.id, id),
       with: {
+        journalEntryAttachmentsInCores: true,
         journalLinesInCores: true,
       },
     });

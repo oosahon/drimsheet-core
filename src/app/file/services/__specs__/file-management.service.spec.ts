@@ -4,6 +4,7 @@ import generateUUID from '@shared/utils/uuid-generator';
 import mockFileStorageClient from '@app/file/contracts/__mocks__/file-storage-client.mock';
 import fileAppError from '@app/file/errors/file.error';
 import makeFileManagementService from '@app/file/services/file-management.service';
+import { EFileUploadPurpose } from '@app/file/types/file.types';
 
 jest.mock('@shared/utils/uuid-generator', () => ({
   __esModule: true,
@@ -11,148 +12,353 @@ jest.mock('@shared/utils/uuid-generator', () => ({
 }));
 
 describe('FileManagementService', () => {
-  const fileId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
+  const reference = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
+  const secondReference = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
   const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
+  const purpose = EFileUploadPurpose.JournalEntryAttachment;
   const mockedGenerateUUID = jest.mocked(generateUUID);
 
   const getService = () =>
-    makeFileManagementService({ blackblazeClient: mockFileStorageClient });
+    makeFileManagementService({ fileStorageClient: mockFileStorageClient });
+
+  const storedPng = {
+    fileUrl: 'https://example.com/file',
+    contentType: 'image/png',
+    size: 1024,
+    metadata: Object.freeze({
+      'original-name': Buffer.from('  Réçeipt (FINAL).png  ').toString(
+        'base64url'
+      ),
+    }),
+    data: Uint8Array.from([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0,
+    ]),
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockedGenerateUUID.mockReturnValue(fileId);
-    mockFileStorageClient.createUpload.mockResolvedValue({
+    mockedGenerateUUID.mockReturnValue(reference);
+    mockFileStorageClient.preSignUpload.mockResolvedValue({
       uploadUrl: 'https://example.com/file?signature=secret',
       fileUrl: 'https://example.com/file',
       headers: Object.freeze({ 'Content-Type': 'image/png' }),
     });
+    mockFileStorageClient.readFile.mockResolvedValue(storedPng);
+    mockFileStorageClient.deleteFile.mockResolvedValue();
   });
 
-  it('creates a user-scoped upload and preserves the original filename', async () => {
-    const result = await getService().createUpload({
+  it('pre-signs an upload with bound original-name metadata', async () => {
+    const result = await getService().preSignUploads({
       userId,
-      name: '  Réçeipt (FINAL).png  ',
-      type: ' image/png ',
-      size: 1024,
+      files: [
+        {
+          name: '  Réçeipt (FINAL).png  ',
+          type: ' image/png ',
+          size: 1024,
+          purpose,
+        },
+      ],
     });
 
-    expect(mockFileStorageClient.createUpload).toHaveBeenCalledWith({
-      key: `${userId}/${fileId}`,
+    expect(mockFileStorageClient.preSignUpload).toHaveBeenNthCalledWith(1, {
+      key: `${userId}/${purpose}/${reference}`,
       contentType: 'image/png',
-    });
-    expect(result).toEqual({
-      uploadUrl: 'https://example.com/file?signature=secret',
-      headers: { 'Content-Type': 'image/png' },
-      file: {
-        url: 'https://example.com/file',
-        name: '  Réçeipt (FINAL).png  ',
-        type: 'image/png',
-        size: 1024,
+      metadata: {
+        'original-name': Buffer.from('  Réçeipt (FINAL).png  ').toString(
+          'base64url'
+        ),
       },
     });
-    expect(Object.isFrozen(result)).toBe(true);
-    expect(Object.isFrozen(result.file)).toBe(true);
+    expect(result).toEqual([
+      {
+        uploadUrl: 'https://example.com/file?signature=secret',
+        reference,
+        headers: { 'Content-Type': 'image/png' },
+        file: {
+          url: 'https://example.com/file',
+          name: '  Réçeipt (FINAL).png  ',
+          type: 'image/png',
+          size: 1024,
+        },
+      },
+    ]);
+    expect(Object.isFrozen(result[0])).toBe(true);
+    expect(Object.isFrozen(result[0].file)).toBe(true);
   });
 
-  it('uses the authenticated user as the first key segment', async () => {
-    const anotherUserId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+  it.each([
+    ['image/svg+xml', 1024, fileAppError.InvalidUploadType],
+    ['image/png', 2 * 1024 * 1024 + 1, fileAppError.InvalidUploadSize],
+  ])(
+    'rejects invalid upload metadata before signing',
+    async (type, size, ErrorClass) => {
+      await expect(
+        getService().preSignUploads({
+          userId,
+          files: [{ name: 'receipt.png', type, size, purpose }],
+        })
+      ).rejects.toThrow(ErrorClass);
+      expect(mockFileStorageClient.preSignUpload).not.toHaveBeenCalled();
+    }
+  );
 
-    await getService().createUpload({
-      userId: anotherUserId,
-      name: 'receipt.png',
-      type: 'image/png',
-      size: 1024,
-    });
-
-    expect(mockFileStorageClient.createUpload).toHaveBeenCalledWith(
-      expect.objectContaining({ key: `${anotherUserId}/${fileId}` })
-    );
+  it('rejects excessive uploads before generating references or signing', async () => {
+    await expect(
+      getService().preSignUploads({
+        userId,
+        files: [
+          { name: 'receipt.png', type: 'image/png', size: 1024, purpose },
+          { name: 'invoice.pdf', type: 'application/pdf', size: 2048, purpose },
+        ],
+      })
+    ).rejects.toThrow(fileAppError.InvalidUploadCount);
+    expect(mockedGenerateUUID).not.toHaveBeenCalled();
+    expect(mockFileStorageClient.preSignUpload).not.toHaveBeenCalled();
   });
 
-  it('uses different opaque keys for duplicate original filenames', async () => {
-    const anotherFileId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
-    mockedGenerateUUID
-      .mockReturnValueOnce(fileId)
-      .mockReturnValueOnce(anotherFileId);
-    const payload = {
-      userId,
-      name: 'receipt.png',
-      type: 'image/png',
-      size: 1024,
-    };
-
-    await getService().createUpload(payload);
-    await getService().createUpload(payload);
-
-    expect(mockFileStorageClient.createUpload).toHaveBeenNthCalledWith(1, {
-      key: `${userId}/${fileId}`,
-      contentType: 'image/png',
-    });
-    expect(mockFileStorageClient.createUpload).toHaveBeenNthCalledWith(2, {
-      key: `${userId}/${anotherFileId}`,
-      contentType: 'image/png',
-    });
-  });
-
-  it('maps provider failures to the stable file upload error', async () => {
-    mockFileStorageClient.createUpload.mockRejectedValue(
-      new Error('provider detail that must not escape')
+  it('maps unexpected upload preparation failures', async () => {
+    mockFileStorageClient.preSignUpload.mockRejectedValue(
+      new Error('provider detail')
     );
 
     await expect(
-      getService().createUpload({
+      getService().preSignUploads({
         userId,
-        name: 'receipt.png',
-        type: 'image/png',
-        size: 1024,
+        files: [
+          {
+            name: 'receipt.png',
+            type: 'image/png',
+            size: 1024,
+            purpose,
+          },
+        ],
       })
     ).rejects.toThrow(fileAppError.UploadUnexpected);
   });
 
-  it('maps file ID generation failures to the stable upload error', async () => {
-    mockedGenerateUUID.mockImplementation(() => {
-      throw new Error('UUID generation detail that must not escape');
-    });
-
-    await expect(
-      getService().createUpload({
-        userId,
-        name: 'receipt.png',
-        type: 'image/png',
-        size: 1024,
-      })
-    ).rejects.toThrow(fileAppError.UploadUnexpected);
-    expect(mockFileStorageClient.createUpload).not.toHaveBeenCalled();
-  });
-
-  it('preserves a stable file upload error returned by the adapter', async () => {
+  it('preserves a stable upload preparation error', async () => {
     const error = new fileAppError.UploadUnexpected();
-    mockFileStorageClient.createUpload.mockRejectedValue(error);
+    mockFileStorageClient.preSignUpload.mockRejectedValue(error);
 
     await expect(
-      getService().createUpload({
+      getService().preSignUploads({
         userId,
-        name: 'receipt.png',
-        type: 'image/png',
-        size: 1024,
+        files: [
+          {
+            name: 'receipt.png',
+            type: 'image/png',
+            size: 1024,
+            purpose,
+          },
+        ],
       })
     ).rejects.toBe(error);
   });
 
-  it('maps invalid provider metadata to the stable upload error', async () => {
-    mockFileStorageClient.createUpload.mockResolvedValue({
-      uploadUrl: 'https://example.com/file?signature=secret',
+  it('returns an empty pre-signing result without storage calls', async () => {
+    const result = await getService().preSignUploads({ userId, files: [] });
+
+    expect(result).toEqual([]);
+    expect(mockFileStorageClient.preSignUpload).not.toHaveBeenCalled();
+  });
+
+  it('claims an uploaded file using canonical storage data', async () => {
+    const result = await getService().claimUploads({
+      userId,
+      purpose,
+      references: [reference],
+    });
+
+    expect(mockFileStorageClient.readFile).toHaveBeenNthCalledWith(1, {
+      key: `${userId}/${purpose}/${reference}`,
+      range: { start: 0, end: 11 },
+    });
+    expect(result).toEqual([
+      {
+        url: storedPng.fileUrl,
+        name: '  Réçeipt (FINAL).png  ',
+        type: 'image/png',
+        size: 1024,
+      },
+    ]);
+    expect(Object.isFrozen(result)).toBe(true);
+    expect(Object.isFrozen(result[0])).toBe(true);
+  });
+
+  it('rejects excessive claim references before reading storage', async () => {
+    await expect(
+      getService().claimUploads({
+        userId,
+        purpose,
+        references: [reference, secondReference],
+      })
+    ).rejects.toThrow(fileAppError.InvalidUploadCount);
+    expect(mockFileStorageClient.readFile).not.toHaveBeenCalled();
+  });
+
+  it('returns an immutable empty collection without storage calls', async () => {
+    const result = await getService().claimUploads({
+      userId,
+      purpose,
+      references: [],
+    });
+
+    expect(result).toEqual([]);
+    expect(Object.isFrozen(result)).toBe(true);
+    expect(mockFileStorageClient.readFile).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [
+      'invalid stored MIME type',
+      { ...storedPng, contentType: 'image/svg+xml' },
+      fileAppError.InvalidUploadType,
+    ],
+    [
+      'oversized stored file',
+      { ...storedPng, size: 2 * 1024 * 1024 + 1 },
+      fileAppError.InvalidUploadSize,
+    ],
+    [
+      'malformed original-name metadata',
+      { ...storedPng, metadata: Object.freeze({ 'original-name': '%' }) },
+      fileAppError.InvalidUploadReference,
+    ],
+  ])(
+    'deletes a stored object with %s',
+    async (_case, storedFile, ErrorClass) => {
+      mockFileStorageClient.readFile.mockResolvedValue(storedFile);
+
+      await expect(
+        getService().claimUploads({
+          userId,
+          purpose,
+          references: [reference],
+        })
+      ).rejects.toThrow(ErrorClass);
+      expect(mockFileStorageClient.deleteFile).toHaveBeenCalledWith(
+        `${userId}/${purpose}/${reference}`
+      );
+    }
+  );
+
+  it('does not delete an object that does not exist', async () => {
+    mockFileStorageClient.readFile.mockResolvedValue(null);
+
+    await expect(
+      getService().claimUploads({
+        userId,
+        purpose,
+        references: [reference],
+      })
+    ).rejects.toThrow(fileAppError.InvalidUploadReference);
+    expect(mockFileStorageClient.deleteFile).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed references before constructing a storage key', async () => {
+    await expect(
+      getService().claimUploads({
+        userId,
+        purpose,
+        references: ['not-a-uuid'],
+      })
+    ).rejects.toThrow(fileAppError.InvalidUploadReference);
+    expect(mockFileStorageClient.readFile).not.toHaveBeenCalled();
+  });
+
+  it('maps storage read failures without deleting the object', async () => {
+    mockFileStorageClient.readFile.mockRejectedValue(
+      new Error('provider detail')
+    );
+
+    await expect(
+      getService().claimUploads({
+        userId,
+        purpose,
+        references: [reference],
+      })
+    ).rejects.toThrow(fileAppError.ClaimUnexpected);
+    expect(mockFileStorageClient.deleteFile).not.toHaveBeenCalled();
+  });
+
+  it('maps stable storage read errors to the claim error', async () => {
+    mockFileStorageClient.readFile.mockRejectedValue(
+      new fileAppError.ReadUnexpected()
+    );
+
+    await expect(
+      getService().claimUploads({
+        userId,
+        purpose,
+        references: [reference],
+      })
+    ).rejects.toThrow(fileAppError.ClaimUnexpected);
+  });
+
+  it('maps malformed provider URLs to the stable claim error', async () => {
+    mockFileStorageClient.readFile.mockResolvedValue({
+      ...storedPng,
       fileUrl: 'not-a-url',
-      headers: Object.freeze({ 'Content-Type': 'image/png' }),
     });
 
     await expect(
-      getService().createUpload({
+      getService().claimUploads({
         userId,
-        name: 'receipt.png',
-        type: 'image/png',
-        size: 1024,
+        purpose,
+        references: [reference],
       })
-    ).rejects.toThrow(fileAppError.UploadUnexpected);
+    ).rejects.toThrow(fileAppError.ClaimUnexpected);
+    expect(mockFileStorageClient.deleteFile).not.toHaveBeenCalled();
+  });
+
+  it('deletes an object whose decoded original name is empty', async () => {
+    mockFileStorageClient.readFile.mockResolvedValue({
+      ...storedPng,
+      metadata: Object.freeze({ 'original-name': 'IA' }),
+    });
+
+    await expect(
+      getService().claimUploads({
+        userId,
+        purpose,
+        references: [reference],
+      })
+    ).rejects.toThrow(fileAppError.InvalidUploadReference);
+    expect(mockFileStorageClient.deleteFile).toHaveBeenCalled();
+  });
+
+  it('rejects the claim with a deletion error when cleanup fails', async () => {
+    mockFileStorageClient.readFile.mockResolvedValue({
+      ...storedPng,
+      contentType: 'image/svg+xml',
+    });
+    mockFileStorageClient.deleteFile.mockRejectedValue(
+      new Error('provider detail')
+    );
+
+    await expect(
+      getService().claimUploads({
+        userId,
+        purpose,
+        references: [reference],
+      })
+    ).rejects.toThrow(fileAppError.DeleteUnexpected);
+  });
+
+  it('preserves a stable deletion error from the provider', async () => {
+    const error = new fileAppError.DeleteUnexpected();
+    mockFileStorageClient.readFile.mockResolvedValue({
+      ...storedPng,
+      contentType: 'image/svg+xml',
+    });
+    mockFileStorageClient.deleteFile.mockRejectedValue(error);
+
+    await expect(
+      getService().claimUploads({
+        userId,
+        purpose,
+        references: [reference],
+      })
+    ).rejects.toBe(error);
   });
 });

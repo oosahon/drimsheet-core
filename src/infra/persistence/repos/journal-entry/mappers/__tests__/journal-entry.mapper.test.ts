@@ -13,10 +13,12 @@ import userEntity from '@domain/user/entities/user.entity';
 
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 
-import journalEntryMapper, {
-  IJournalEntrySelectModel,
-} from '@infra/persistence/repos/journal-entry/mappers/journal-entry.mapper';
+import journalEntryMapper from '@infra/persistence/repos/journal-entry/mappers/journal-entry.mapper';
 import journalLineMapper from '@infra/persistence/repos/journal-entry/mappers/journal-line.mapper';
+
+type TJournalEntrySelectModel = Parameters<
+  typeof journalEntryMapper.toDomain
+>[0];
 
 describe('Journal Entry Mapper', () => {
   const cashAccountService = makeCashAccountService({
@@ -144,22 +146,56 @@ describe('Journal Entry Mapper', () => {
   describe('toDomain', () => {
     it('maps a journal entry select model to domain', async () => {
       const entry = await makeEntry();
-      const model: IJournalEntrySelectModel = {
+      const model: TJournalEntrySelectModel = {
         ...journalEntryMapper.toRepo(entry),
         postedAt: entry.postedAt?.toISOString() ?? null,
         voidedAt: entry.voidedAt?.toISOString() ?? null,
+        journalEntryAttachmentsInCores: [],
         journalLinesInCores: entry.lines.map(journalLineMapper.toRepo),
       };
 
-      expect(journalEntryMapper.toDomain(model)).toEqual(entry);
+      const result = journalEntryMapper.toDomain(model);
+      expect(result).toEqual(entry);
+      expect(Object.isFrozen(result.attachments)).toBe(true);
+    });
+
+    it('maps the persisted attachment collection', async () => {
+      const entry = await makeEntry();
+      const attachments = [
+        {
+          url: 'https://files.example.com/receipt.pdf',
+          name: 'receipt.pdf',
+          type: 'application/pdf',
+          size: 2048,
+        },
+      ];
+      const model: TJournalEntrySelectModel = {
+        ...journalEntryMapper.toRepo(entry),
+        postedAt: entry.postedAt?.toISOString() ?? null,
+        voidedAt: entry.voidedAt?.toISOString() ?? null,
+        journalEntryAttachmentsInCores: [
+          {
+            journalEntryId: entry.id,
+            data: attachments,
+            createdAt: '2026-05-01T00:00:00.000Z',
+            updatedAt: '2026-05-01T00:00:00.000Z',
+          },
+        ],
+        journalLinesInCores: entry.lines.map(journalLineMapper.toRepo),
+      };
+
+      expect(journalEntryMapper.toDomain(model).attachments).toEqual(
+        attachments
+      );
     });
 
     it('maps nullable repo fields to domain null', async () => {
       const entry = await makeEntry();
-      const model: IJournalEntrySelectModel = {
+      const model: TJournalEntrySelectModel = {
         ...journalEntryMapper.toRepo(entry),
         postedAt: null,
         voidedAt: null,
+        journalEntryAttachmentsInCores: [],
         journalLinesInCores: entry.lines.map(journalLineMapper.toRepo),
       };
 
@@ -174,10 +210,11 @@ describe('Journal Entry Mapper', () => {
         ...(await makeEntry()),
         voidedAt: new Date('2026-05-01T02:00:00.000Z'),
       };
-      const model: IJournalEntrySelectModel = {
+      const model: TJournalEntrySelectModel = {
         ...journalEntryMapper.toRepo(entry),
         postedAt: entry.postedAt?.toISOString() ?? null,
         voidedAt: '2026-05-01T02:00:00.000Z',
+        journalEntryAttachmentsInCores: [],
         journalLinesInCores: entry.lines.map(journalLineMapper.toRepo),
       };
 

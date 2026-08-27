@@ -48,6 +48,17 @@ describe('Sentry lifecycle', () => {
     );
   });
 
+  it('warns without a signal when a manual flush times out', async () => {
+    jest.mocked(Sentry.flush).mockResolvedValue(false);
+
+    await sentryLifecycle.shutdown();
+
+    expect(mockLogger.warn).toHaveBeenCalledWith(
+      'observability.sentry.flush_failed',
+      { outcome: 'failure' }
+    );
+  });
+
   it('contains Sentry flush and logger failures', async () => {
     const error = new Error('flush unavailable');
     jest.mocked(Sentry.flush).mockRejectedValue(error);

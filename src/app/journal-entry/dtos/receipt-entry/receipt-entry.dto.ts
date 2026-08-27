@@ -8,6 +8,12 @@ interface IReceiptEntryLineReq extends IJournalLineReq {
 }
 
 export interface IReceiptEntryReq {
+  /**
+   * Opaque handles returned when preparing file uploads. Each corresponding
+   * file must be uploaded before the receipt is created.
+   */
+  attachmentReferences?: string[];
+
   sourceLine: IReceiptEntryLineReq;
   destinationLines: IReceiptEntryLineReq[];
   effectiveDate: Date;

@@ -1,6 +1,7 @@
-export interface ICreateFileUploadPayload {
+interface IPreSignFileUploadPayload {
   key: string;
   contentType: string;
+  metadata: Readonly<Record<string, string>>;
 }
 
 interface IFileUploadInstruction {
@@ -9,8 +10,30 @@ interface IFileUploadInstruction {
   headers: Readonly<Record<string, string>>;
 }
 
+interface IFileByteRange {
+  start: number;
+  end: number;
+}
+
+interface IReadStoredFilePayload {
+  key: string;
+  range?: IFileByteRange;
+}
+
+interface IStoredFile {
+  fileUrl: string;
+  contentType: string;
+  size: number;
+  metadata: Readonly<Record<string, string>>;
+  data: Uint8Array;
+}
+
 export default interface IFileStorageClient {
-  createUpload(
-    payload: ICreateFileUploadPayload
+  preSignUpload(
+    payload: IPreSignFileUploadPayload
   ): Promise<IFileUploadInstruction>;
+
+  readFile(payload: IReadStoredFilePayload): Promise<IStoredFile | null>;
+
+  deleteFile(key: string): Promise<void>;
 }

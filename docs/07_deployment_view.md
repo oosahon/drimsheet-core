@@ -107,17 +107,29 @@ Core requires these environment variables to issue direct upload instructions:
 | `B2_S3_ENDPOINT` | Region endpoint, for example `https://s3.us-west-004.backblazeb2.com`. |
 | `B2_REGION`      | Matching B2 region, for example `us-west-004`.                         |
 
-The application key must be restricted to the configured bucket and only the
-file-write capabilities required for uploads. Store the key ID and secret in
-Doppler; they must never be exposed to Web.
+The application key must be restricted to the configured bucket and include
+only the file-write, file-read, and file-delete capabilities required to
+prepare uploads, inspect claimed objects, and remove invalid objects
+(`writeFiles`, `readFiles`, and `deleteFiles` in Backblaze capability terms).
+Store the key ID and secret in Doppler; they must never be exposed to Web.
 
 Configure the bucket CORS rule with each deployed Web origin explicitly. Allow
-`PUT` and the `Content-Type` request header returned by Core. Do not use `*` for
-production origins. The browser must send the upload request to `uploadUrl`
-with exactly the returned headers; Core continues to accept JSON only.
+`PUT` and the `Content-Type` and `x-amz-meta-original-name` request headers
+returned by Core. Do not use `*` for production origins. The browser must send
+the upload request to `uploadUrl` with exactly the returned headers; Core
+continues to accept JSON only.
 
-Core generates every new B2 object key as `<user_id>/<file_id>`. The bucket is
-configured separately and is not part of the key. Original filenames are kept
-only as returned metadata and never appear in object keys. This user prefix
-provides the boundary for a future account-deletion purge; deletion itself is
-not part of the current upload flow.
+Core generates every new B2 object key as
+`<user_id>/<purpose>/<file_id>`. The bucket is configured separately and is not
+part of the key. Original filenames are UTF-8 encoded into signed
+`original-name` object metadata and never appear in object keys. During receipt
+creation, Core reconstructs keys from the authenticated user, the journal-entry
+attachment purpose, and opaque upload references; it never accepts client file
+URLs for inspection or deletion.
+
+Receipt attachments accept only PNG, JPEG, WebP, and PDF objects of no more
+than 2 MiB each. Core validates stored size, MIME type, and leading-byte
+signature before association and deletes rejected objects. Valid uploads that
+are never claimed, valid objects left after a later receipt failure, and
+single-use/exclusive claim enforcement are intentionally outside the current
+lifecycle.

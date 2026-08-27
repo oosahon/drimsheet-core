@@ -1,10 +1,10 @@
-import makeCreateOpeningBalanceUseCase from '@app/journal-entry/usecases/create-opening-balance.usecase';
 import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
 
 import {
   counterpartyAppService,
   counterpartyPersistenceService,
 } from '@infra/ioc/services/counterparty';
+import { fileManagementService } from '@infra/ioc/services/file';
 import {
   journalEntryPersistenceService,
   journalEntryService,
@@ -16,25 +16,12 @@ import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
 import ledgerRepos from '@infra/persistence/repos/ledger';
 import appContext from '@infra/runtime/app-context';
 
-export const createOpeningBalanceUseCase = makeTracedUseCase(
-  'journalEntry.createOpeningBalanceUseCase',
-  makeCreateOpeningBalanceUseCase({
-    appContext: appContext,
-    ledgerAccountRepo: ledgerRepos.ledgerAccount,
-    eventBus: messaging.eventBus,
-    journalEntryService,
-    journalEntryPersistenceService,
-    outboxService,
-    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
-    repoService: repoService,
-  })
-);
-
 export const createReceiptUseCase = makeTracedUseCase(
   'journalEntry.createReceiptUseCase',
   makeCreateReceiptUsecase({
     appContext,
     counterpartyAppService,
+    fileManagementService,
     journalEntryService,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     counterpartyPersistenceService,

@@ -1,5 +1,6 @@
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { IRepoOptions, ITransactionContext } from '@shared/types/repo.types';
+import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
 import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { SYSTEM_JURISDICTIONS } from '@domain/accounting/config/jurisdictions.config';
@@ -19,6 +20,7 @@ import moneyValue from '@domain/money/values/money.vo';
 import userEntity from '@domain/user/entities/user.entity';
 
 import {
+  mockJournalEntryAttachmentRepo,
   mockJournalEntryRepo,
   mockJournalLineRepo,
 } from '@app/journal-entry/contracts/__mocks__/journal-entry.repos.mock';
@@ -28,6 +30,7 @@ import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.re
 describe('journalEntryPersistenceService', () => {
   const service = makeJournalEntryPersistenceService({
     repoService: mockRepoService,
+    journalEntryAttachmentRepo: mockJournalEntryAttachmentRepo,
     journalEntryRepo: mockJournalEntryRepo,
     journalLineRepo: mockJournalLineRepo,
   });
@@ -44,8 +47,16 @@ describe('journalEntryPersistenceService', () => {
 
   const jurisdictionCode: keyof typeof SYSTEM_JURISDICTIONS = 'NG';
   const timestamp = new Date('2026-06-15T10:30:00.000Z');
+  const attachments: IFileAttachment[] = [
+    {
+      url: 'https://files.example.com/receipt.pdf',
+      name: 'receipt.pdf',
+      type: 'application/pdf',
+      size: 1024,
+    },
+  ];
 
-  async function makeFixture() {
+  async function makeFixture(entryAttachments: IFileAttachment[] = []) {
     const [user] = userEntity.make({
       email: 'journal.persistence@example.com',
       emailVerified: true,
@@ -103,6 +114,7 @@ describe('journalEntryPersistenceService', () => {
       memo: 'Opening balance',
       createdBy: user.id,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      attachments: entryAttachments,
       lines: [
         {
           accountId: cashAccount.id,
@@ -159,6 +171,7 @@ describe('journalEntryPersistenceService', () => {
         transactionFn('mock-tx' as unknown as ITransactionContext)
       );
     mockJournalEntryRepo.create.mockResolvedValue(undefined);
+    mockJournalEntryAttachmentRepo.save.mockResolvedValue(undefined);
     mockJournalLineRepo.create.mockResolvedValue(undefined);
   });
 
@@ -167,9 +180,10 @@ describe('journalEntryPersistenceService', () => {
   });
 
   describe('create', () => {
-    it('should persist the journal entry header and lines in a transaction', async () => {
-      const { headerHistory, journalEntry, linesHistory } = await makeFixture();
-      const { lines, ...header } = journalEntry;
+    it('should persist the journal entry header, lines, and attachments in a transaction', async () => {
+      const { headerHistory, journalEntry, linesHistory } =
+        await makeFixture(attachments);
+      const { lines, attachments: entryAttachments, ...header } = journalEntry;
 
       await service.create(
         journalEntry,
@@ -190,6 +204,29 @@ describe('journalEntryPersistenceService', () => {
         history: linesHistory,
         accountingEntityId: journalEntry.accountingEntityId,
       });
+      expect(mockJournalEntryAttachmentRepo.save).toHaveBeenCalledWith(
+        journalEntry.id,
+        entryAttachments,
+        {
+          ...mockOptions,
+          tx: expect.anything(),
+        }
+      );
+    });
+
+    it('should not save attachments when the journal entry has none', async () => {
+      const { headerHistory, journalEntry, linesHistory } = await makeFixture();
+
+      await service.create(
+        journalEntry,
+        headerHistory,
+        linesHistory,
+        mockOptions
+      );
+
+      expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
+      expect(mockJournalLineRepo.create).toHaveBeenCalledTimes(1);
+      expect(mockJournalEntryAttachmentRepo.save).not.toHaveBeenCalled();
     });
 
     it('should stop before creating lines if header persistence fails', async () => {
@@ -204,6 +241,7 @@ describe('journalEntryPersistenceService', () => {
 
       expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
       expect(mockJournalLineRepo.create).not.toHaveBeenCalled();
+      expect(mockJournalEntryAttachmentRepo.save).not.toHaveBeenCalled();
     });
 
     it('should fail if line persistence fails', async () => {
@@ -218,6 +256,22 @@ describe('journalEntryPersistenceService', () => {
 
       expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
       expect(mockJournalLineRepo.create).toHaveBeenCalledTimes(1);
+      expect(mockJournalEntryAttachmentRepo.save).not.toHaveBeenCalled();
+    });
+
+    it('should fail if attachment persistence fails', async () => {
+      const { headerHistory, journalEntry, linesHistory } =
+        await makeFixture(attachments);
+      const error = new Error('attachment persistence failed');
+      mockJournalEntryAttachmentRepo.save.mockRejectedValue(error);
+
+      await expect(
+        service.create(journalEntry, headerHistory, linesHistory, mockOptions)
+      ).rejects.toThrow(error);
+
+      expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
+      expect(mockJournalLineRepo.create).toHaveBeenCalledTimes(1);
+      expect(mockJournalEntryAttachmentRepo.save).toHaveBeenCalledTimes(1);
     });
   });
 });

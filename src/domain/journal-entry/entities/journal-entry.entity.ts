@@ -1,6 +1,8 @@
 import dateUtils from '@shared/utils/date';
 import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
+import fileAttachmentValue from '@shared/values/file-attachments/file-attachment.vo';
+import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
 
 import helpers from '@domain/journal-entry/entities/helpers/journal-entry.entity.helpers';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
@@ -43,8 +45,14 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
   );
 
   const lines = linesWithEvents.map(([item]) => item);
+
   helpers.validateLine(lines);
   helpers.validateCounterparties(payload.sourceType, lines);
+
+  const rawAttachments = (payload.attachments ?? []).map(
+    fileAttachmentValue.make
+  );
+  const attachments = Object.freeze(rawAttachments) as IFileAttachment[];
 
   const status = payload.postedAt
     ? EJournalEntryStatus.Posted
@@ -55,6 +63,7 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
     accountingEntityId: payload.accountingEntityId,
     sourceType: payload.sourceType,
     lines,
+    attachments,
     memo,
     status,
     effectiveDate: payload.effectiveDate,
@@ -70,7 +79,7 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
   const events = linesWithEvents.flatMap(([, event]) => event);
   const lineAudits = linesWithEvents.map(([, , audit]) => audit);
   const entityEvent = journalEntryEvents.created(entry);
-  const { lines: _lines, ...header } = entry;
+  const { lines: _lines, attachments: _attachments, ...header } = entry;
   const headerAudit = journalEntryAudit.make({
     before: null,
     after: header as IJournalHeader,
@@ -105,9 +114,10 @@ function voidEntry(
     payload.voidingEntryId
   );
   const event = journalEntryEvents.voided(voidedEntry);
-  const { lines: _lines, ...header } = voidedEntry;
+  const { lines: _l1, attachments: _att1, ...header } = voidedEntry;
+  const { lines: _l2, attachments: _att2, ...beforeHeader } = entry;
   const audit = journalEntryAudit.make({
-    before: entry,
+    before: beforeHeader,
     after: header,
     action: EJournalEntryAuditAction.Voided,
   });
@@ -130,9 +140,10 @@ function archive(entry: IJournalEntry): TAuditedJournalEntryTransition {
     entry.voidingEntryId
   );
   const event = journalEntryEvents.archived(archivedEntry);
-  const { lines: _lines, ...header } = archivedEntry;
+  const { lines: _l1, attachments: _att1, ...header } = archivedEntry;
+  const { lines: _l2, attachments: _att2, ...beforeHeader } = entry;
   const audit = journalEntryAudit.make({
-    before: entry,
+    before: beforeHeader,
     after: header,
     action: EJournalEntryAuditAction.Archived,
   });
@@ -152,6 +163,7 @@ function makeTransitionedEntry(
     accountingEntityId: entry.accountingEntityId,
     sourceType: entry.sourceType,
     lines: entry.lines,
+    attachments: entry.attachments,
     memo: entry.memo,
     status,
     effectiveDate: entry.effectiveDate,

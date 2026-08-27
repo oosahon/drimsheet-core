@@ -9,6 +9,7 @@ import { IUser } from '@domain/user/types/user.types';
 
 import authError from '@app/auth/errors/auth.error';
 import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
+import fileAppError from '@app/file/errors/file.error';
 import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import { IReceiptEntryReq } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto';
 
@@ -57,6 +58,7 @@ const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
 
 const validPayload: IReceiptEntryReq = {
+  attachmentReferences: ['123e4567-e89b-12d3-a456-426614174009'],
   sourceLine: {
     accountId: '123e4567-e89b-12d3-a456-426614174005',
     counterparty: { name: 'Jane Doe' },
@@ -101,6 +103,14 @@ const createdReceipt: IJournalEntryDto = {
   createdBy: userId,
   createdAt: new Date('2026-08-06T08:00:00.000Z'),
   updatedAt: new Date('2026-08-06T08:00:00.000Z'),
+  attachments: [
+    {
+      url: 'https://files.example.com/receipt.pdf',
+      name: 'Original receipt.pdf',
+      type: 'application/pdf',
+      size: 2048,
+    },
+  ],
   lines: [
     {
       id: '123e4567-e89b-12d3-a456-426614174004',
@@ -204,6 +214,20 @@ describe('POST /journal-entries/receipt', () => {
       expect(response.status).toBe(400);
       expect(response.body.errorKey).toBe('app_error_request_invalid');
       expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
+    });
+
+    it('returns the stable invalid-reference error from claiming', async () => {
+      mockCreateReceiptUseCase.mockRejectedValueOnce(
+        new fileAppError.InvalidUploadReference()
+      );
+
+      const response = await makeRequest();
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        name: 'FileAppError',
+        errorKey: 'app_error_file_upload_reference_invalid',
+      });
     });
   });
 

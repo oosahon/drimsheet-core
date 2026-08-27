@@ -180,6 +180,14 @@ describe('journalEntryService', () => {
     const amount = moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true);
 
     const payload: ICreateReceiptEntryPayload = {
+      attachments: [
+        {
+          url: 'https://files.example.com/receipt.pdf',
+          name: 'receipt.pdf',
+          type: 'application/pdf',
+          size: 2048,
+        },
+      ],
       header: {
         accountingEntityId: accountingEntity.id,
         memo: 'Customer receipt',
@@ -275,6 +283,8 @@ describe('journalEntryService', () => {
         description: 'Cash received',
       }),
     ]);
+    expect(entry.attachments).toEqual(payload.attachments);
+    expect(Object.isFrozen(entry.attachments)).toBe(true);
     expect(events.map((event) => event.type)).toEqual([
       EJournalEntryEvent.Created,
       EJournalLineItemEvent.Created,

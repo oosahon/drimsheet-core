@@ -21,6 +21,12 @@ const journalEntryDtoMapper = {
       createdBy: entry.createdBy,
       createdAt: entry.createdAt,
       updatedAt: entry.updatedAt,
+      attachments: entry.attachments.map((attachment) => ({
+        url: attachment.url,
+        name: attachment.name,
+        type: attachment.type,
+        size: attachment.size,
+      })),
       lines: entry.lines.map(journalEntryDtoMapper.toLineDto),
     };
   },

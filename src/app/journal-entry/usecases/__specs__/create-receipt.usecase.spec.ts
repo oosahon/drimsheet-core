@@ -28,6 +28,9 @@ import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import mockCounterpartyAppService from '@app/counterparty/contracts/__mocks__/counterparty.service.mock';
 import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
 import { ICounterpartyFindOrCreateRes } from '@app/counterparty/contracts/counterparty.service.contract';
+import mockFileManagementService from '@app/file/contracts/__mocks__/file-management.service.mock';
+import fileAppError from '@app/file/errors/file.error';
+import { EFileUploadPurpose } from '@app/file/types/file.types';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
 import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
@@ -191,6 +194,7 @@ describe('makeCreateReceiptUsecase', () => {
       journalEntryEvents,
       journalEntryAudit,
     ]);
+    mockFileManagementService.claimUploads.mockResolvedValue([]);
 
     mockRepoService.runInTransaction.mockImplementation(async (transactionFn) =>
       transactionFn('mock-tx' as unknown as ITransactionContext)
@@ -204,6 +208,7 @@ describe('makeCreateReceiptUsecase', () => {
     makeCreateReceiptUsecase({
       appContext: mockAppContext,
       counterpartyAppService: mockCounterpartyAppService,
+      fileManagementService: mockFileManagementService,
       journalEntryService: mockJournalEntryService,
       ledgerAccountRepo: mockLedgerAccountRepo,
       counterpartyPersistenceService: mockCounterpartyPersistenceService,
@@ -216,8 +221,19 @@ describe('makeCreateReceiptUsecase', () => {
 
   it('successfully orchestrates receipt creation, persists changes, propagates balances and returns DTO', async () => {
     const usecase = getUseCase();
+    const attachmentReferences = ['123e4567-e89b-12d3-a456-426614174010'];
+    const attachments = [
+      {
+        url: 'https://files.example.com/receipt.pdf',
+        name: 'receipt.pdf',
+        type: 'application/pdf',
+        size: 2048,
+      },
+    ];
+    mockFileManagementService.claimUploads.mockResolvedValue(attachments);
 
     const payload = {
+      attachmentReferences,
       sourceLine: {
         accountId: sourceAccount.id,
         counterparty: { name: 'Jane Doe' },
@@ -266,6 +282,12 @@ describe('makeCreateReceiptUsecase', () => {
       repoOptions
     );
 
+    expect(mockFileManagementService.claimUploads).toHaveBeenCalledWith({
+      userId: user.id,
+      purpose: EFileUploadPurpose.JournalEntryAttachment,
+      references: attachmentReferences,
+    });
+
     expect(mockJournalEntryService.createReceipt).toHaveBeenCalledWith(
       expect.objectContaining({
         header: expect.objectContaining({
@@ -284,6 +306,7 @@ describe('makeCreateReceiptUsecase', () => {
             counterparty: newCounterparty[0],
           }),
         ]),
+        attachments,
       }),
       repoOptions
     );
@@ -315,6 +338,46 @@ describe('makeCreateReceiptUsecase', () => {
     ]);
 
     expect(result).toEqual(journalEntryDtoMapper.toDto(journalEntry));
+  });
+
+  it('prevents all persistence and post-commit effects when claiming fails', async () => {
+    const error = new fileAppError.InvalidUploadReference();
+    mockFileManagementService.claimUploads.mockRejectedValue(error);
+
+    await expect(
+      getUseCase()({
+        attachmentReferences: ['123e4567-e89b-12d3-a456-426614174010'],
+        sourceLine: {
+          accountId: sourceAccount.id,
+          counterparty: { name: 'Jane Doe' },
+          amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+          exchangeRate: null,
+          description: 'Revenue',
+          sequenceOrder: 1,
+        },
+        destinationLines: [
+          {
+            accountId: destinationAccount.id,
+            counterparty: { name: 'Jane Doe' },
+            amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+            exchangeRate: null,
+            description: 'Cash',
+            sequenceOrder: 2,
+          },
+        ],
+        effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
+        postedAt: new Date('2026-08-06T00:00:00.000Z'),
+        memo: 'Receipt',
+      })
+    ).rejects.toBe(error);
+
+    expect(mockJournalEntryService.createReceipt).not.toHaveBeenCalled();
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockJournalEntryPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('orchestrates successfully when findOrCreateMany returns only existing counterparties', async () => {

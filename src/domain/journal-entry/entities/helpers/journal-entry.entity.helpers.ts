@@ -52,6 +52,18 @@ function validateLine(lines: IJournalLine[]) {
   const credits: IMoney[] = [];
 
   for (const item of lines) {
+    const zeroAmount = moneyValue.makeZeroAmount(item.amount.currency);
+
+    if (moneyValue.isLessThan(item.amount, zeroAmount)) {
+      throw new journalEntryError.InvalidJournalLineItem({
+        item: serializeBigIntInObj({
+          sequenceOrder: item.sequenceOrder,
+          side: item.side,
+          amount: item.amount,
+        }),
+      });
+    }
+
     if (item.side === EJournalSide.Debit) {
       debits.push(item.functionalAmount);
     } else if (item.side === EJournalSide.Credit) {
