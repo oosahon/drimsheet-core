@@ -7,15 +7,17 @@ import { ICreateReceiptEntryPayload } from '@domain/journal-entry/types/journal-
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 function validateAccountsAgainstRule(
-  sourceAccount: ILedgerAccount,
+  sourceAccounts: ILedgerAccount[],
   destinationAccounts: ILedgerAccount[],
   rule: IJournalEntryRule
 ) {
-  const isValidSource = journalEntryRuleValidator(sourceAccount, rule.source);
+  const invalidSource = sourceAccounts.find(
+    (account) => !journalEntryRuleValidator(account, rule.source)
+  );
 
-  if (!isValidSource) {
+  if (invalidSource) {
     throw new journalEntryError.InvalidSourceType({
-      account: sourceAccount,
+      account: invalidSource,
     });
   }
 
@@ -31,11 +33,11 @@ function validateAccountsAgainstRule(
 }
 
 async function validateAccounts(payload: ICreateReceiptEntryPayload) {
-  const { header, sourceLine, destinationLines } = payload;
+  const { header, sourceLines, destinationLine } = payload;
 
-  const allAccounts = destinationLines
-    .map((v) => v.account)
-    .concat(sourceLine.account);
+  const allAccounts = sourceLines
+    .map((line) => line.account)
+    .concat(destinationLine.account);
 
   // Assert that all accounts belong to the same accounting entity
   const wrongAccountingEntities = allAccounts.filter(
@@ -70,7 +72,7 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
   }
 
   // Assert that line currencies match their fixed-currency accounts
-  const journalLines = [sourceLine, ...destinationLines];
+  const journalLines = [...sourceLines, destinationLine];
   const mismatchedJournalLines = [];
 
   for (const journalLine of journalLines) {
@@ -98,10 +100,10 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
 }
 
 async function validateCounterparties(payload: ICreateReceiptEntryPayload) {
-  const { header, sourceLine, destinationLines } = payload;
+  const { header, sourceLines, destinationLine } = payload;
 
   const allCounterparties = new Set(
-    [sourceLine, ...destinationLines].flatMap((line) =>
+    [...sourceLines, destinationLine].flatMap((line) =>
       line.counterparty ? [line.counterparty] : []
     )
   );

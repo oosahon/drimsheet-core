@@ -5,10 +5,38 @@ describe('Receipt Entry DTO Validation', () => {
   it('should validate a correct receipt entry request payload', () => {
     const payload = {
       attachmentReferences: ['4b4c1064-a09e-4e4f-b6a3-23945cc87f77'],
-      sourceLine: {
-        accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+      sourceLines: [
+        {
+          accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+          counterparty: {
+            id: '3b4c1064-a09e-4e4f-b6a3-23945cc87f76',
+            name: 'Customer',
+          },
+          amount: {
+            amount: 900,
+            currencyCode: 'USD',
+            isMinorUnit: true,
+          },
+          exchangeRate: null,
+          description: 'Sales revenue',
+          sequenceOrder: 1,
+        },
+        {
+          accountId: '4b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+          counterparty: { name: 'Tax authority' },
+          amount: {
+            amount: 100,
+            currencyCode: 'USD',
+            isMinorUnit: true,
+          },
+          exchangeRate: null,
+          description: 'VAT payable',
+          sequenceOrder: 2,
+        },
+      ],
+      destinationLine: {
+        accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
         counterparty: {
-          id: '3b4c1064-a09e-4e4f-b6a3-23945cc87f76',
           name: 'Customer',
         },
         amount: {
@@ -17,25 +45,9 @@ describe('Receipt Entry DTO Validation', () => {
           isMinorUnit: true,
         },
         exchangeRate: null,
-        description: 'Source Line',
-        sequenceOrder: 1,
+        description: 'Cash received',
+        sequenceOrder: 3,
       },
-      destinationLines: [
-        {
-          accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
-          counterparty: {
-            name: 'Vendor',
-          },
-          amount: {
-            amount: 1000,
-            currencyCode: 'USD',
-            isMinorUnit: true,
-          },
-          exchangeRate: null,
-          description: 'Destination Line 1',
-          sequenceOrder: 2,
-        },
-      ],
       effectiveDate: new Date('2026-07-13T18:00:00Z'),
       postedAt: null,
       memo: 'Valid memo',
@@ -47,24 +59,24 @@ describe('Receipt Entry DTO Validation', () => {
 
   it('accepts an omitted attachment reference collection', () => {
     const payload = {
-      sourceLine: {
-        accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+      sourceLines: [
+        {
+          accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+          counterparty: { name: 'Customer' },
+          amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
+          exchangeRate: null,
+          description: 'Source Line',
+          sequenceOrder: 1,
+        },
+      ],
+      destinationLine: {
+        accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
         counterparty: { name: 'Customer' },
         amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
         exchangeRate: null,
-        description: 'Source Line',
-        sequenceOrder: 1,
+        description: 'Destination Line',
+        sequenceOrder: 2,
       },
-      destinationLines: [
-        {
-          accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
-          counterparty: { name: 'Vendor' },
-          amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
-          exchangeRate: null,
-          description: 'Destination Line',
-          sequenceOrder: 2,
-        },
-      ],
       effectiveDate: new Date('2026-07-13T18:00:00Z'),
       postedAt: null,
       memo: null,
@@ -94,24 +106,24 @@ describe('Receipt Entry DTO Validation', () => {
     (_case, attachmentReferences, ErrorClass) => {
       const result = receiptEntryReqValidation.safeParse({
         attachmentReferences,
-        sourceLine: {
-          accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+        sourceLines: [
+          {
+            accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+            counterparty: { name: 'Customer' },
+            amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
+            exchangeRate: null,
+            description: 'Source Line',
+            sequenceOrder: 1,
+          },
+        ],
+        destinationLine: {
+          accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
           counterparty: { name: 'Customer' },
           amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
           exchangeRate: null,
-          description: 'Source Line',
-          sequenceOrder: 1,
+          description: 'Destination Line',
+          sequenceOrder: 2,
         },
-        destinationLines: [
-          {
-            accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
-            counterparty: { name: 'Vendor' },
-            amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
-            exchangeRate: null,
-            description: 'Destination Line',
-            sequenceOrder: 2,
-          },
-        ],
         effectiveDate: new Date('2026-07-13T18:00:00Z'),
         postedAt: null,
         memo: null,
@@ -140,49 +152,24 @@ describe('Receipt Entry DTO Validation', () => {
     }
   });
 
-  it('should fail validation if counterparty is null in sourceLine', () => {
+  it('should fail validation if counterparty is null in sourceLines', () => {
     const payload = {
-      sourceLine: {
-        accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
-        counterparty: null,
-        amount: {
-          amount: 1000,
-          currencyCode: 'USD',
-          isMinorUnit: true,
-        },
-        exchangeRate: null,
-        description: 'Source Line',
-        sequenceOrder: 1,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
-          counterparty: {
-            name: 'Vendor',
-          },
+          accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+          counterparty: null,
           amount: {
             amount: 1000,
             currencyCode: 'USD',
             isMinorUnit: true,
           },
           exchangeRate: null,
-          description: 'Destination Line 1',
-          sequenceOrder: 2,
+          description: 'Source Line',
+          sequenceOrder: 1,
         },
       ],
-      effectiveDate: new Date('2026-07-13T18:00:00Z'),
-      postedAt: null,
-      memo: 'Valid memo',
-    };
-
-    const result = receiptEntryReqValidation.safeParse(payload);
-    expect(result.success).toBe(false);
-  });
-
-  it('should fail validation if destinationLines is empty', () => {
-    const payload = {
-      sourceLine: {
-        accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+      destinationLine: {
+        accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
         counterparty: {
           name: 'Customer',
         },
@@ -192,16 +179,51 @@ describe('Receipt Entry DTO Validation', () => {
           isMinorUnit: true,
         },
         exchangeRate: null,
-        description: 'Source Line',
+        description: 'Destination Line',
+        sequenceOrder: 2,
+      },
+      effectiveDate: new Date('2026-07-13T18:00:00Z'),
+      postedAt: null,
+      memo: 'Valid memo',
+    };
+
+    const result = receiptEntryReqValidation.safeParse(payload);
+    expect(result.success).toBe(false);
+  });
+
+  it('should fail validation if sourceLines is empty', () => {
+    const payload = {
+      sourceLines: [],
+      destinationLine: {
+        accountId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
+        counterparty: { name: 'Customer' },
+        amount: {
+          amount: 1000,
+          currencyCode: 'USD',
+          isMinorUnit: true,
+        },
+        exchangeRate: null,
+        description: 'Destination Line',
         sequenceOrder: 1,
       },
-      destinationLines: [],
       effectiveDate: new Date('2026-07-13T18:00:00Z'),
       postedAt: null,
       memo: null,
     };
 
     const result = receiptEntryReqValidation.safeParse(payload);
+    expect(result.success).toBe(false);
+  });
+
+  it('should fail validation for the legacy receipt line shape', () => {
+    const result = receiptEntryReqValidation.safeParse({
+      sourceLine: {},
+      destinationLines: [],
+      effectiveDate: new Date('2026-07-13T18:00:00Z'),
+      postedAt: null,
+      memo: null,
+    });
+
     expect(result.success).toBe(false);
   });
 });

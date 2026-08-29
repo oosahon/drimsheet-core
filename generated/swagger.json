@@ -1145,14 +1145,14 @@
             "type": "array",
             "description": "Opaque handles returned when preparing file uploads. Each corresponding\nfile must be uploaded before the receipt is created."
           },
-          "sourceLine": {
-            "$ref": "#/components/schemas/IReceiptEntryLineReq"
-          },
-          "destinationLines": {
+          "sourceLines": {
             "items": {
               "$ref": "#/components/schemas/IReceiptEntryLineReq"
             },
             "type": "array"
+          },
+          "destinationLine": {
+            "$ref": "#/components/schemas/IReceiptEntryLineReq"
           },
           "effectiveDate": {
             "type": "string",
@@ -1169,8 +1169,8 @@
           }
         },
         "required": [
-          "sourceLine",
-          "destinationLines",
+          "sourceLines",
+          "destinationLine",
           "effectiveDate",
           "postedAt",
           "memo"

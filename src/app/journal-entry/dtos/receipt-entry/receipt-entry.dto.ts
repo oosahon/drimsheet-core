@@ -14,8 +14,8 @@ export interface IReceiptEntryReq {
    */
   attachmentReferences?: string[];
 
-  sourceLine: IReceiptEntryLineReq;
-  destinationLines: IReceiptEntryLineReq[];
+  sourceLines: IReceiptEntryLineReq[];
+  destinationLine: IReceiptEntryLineReq;
   effectiveDate: Date;
   postedAt: Date | null;
   memo: string | null;

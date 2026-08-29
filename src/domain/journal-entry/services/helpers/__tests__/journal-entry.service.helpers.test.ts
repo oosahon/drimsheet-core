@@ -10,7 +10,7 @@ describe('journalEntryServiceHelpers', () => {
     '4b4c1064-a09e-4e4f-b6a3-23945cc87f74' as TEntityId;
 
   function makePayload(
-    sourceCounterparty: ICounterparty | null,
+    sourceCounterparties: (ICounterparty | null)[],
     destinationCounterparty: ICounterparty | null
   ): ICreateReceiptEntryPayload {
     return {
@@ -23,12 +23,12 @@ describe('journalEntryServiceHelpers', () => {
         functionalCurrencyCode: 'NGN',
         createdBy: accountingEntityId,
       },
-      sourceLine: {
-        counterparty: sourceCounterparty,
-      } as unknown as ICreateReceiptEntryPayload['sourceLine'],
-      destinationLines: [
-        { counterparty: destinationCounterparty },
-      ] as unknown as ICreateReceiptEntryPayload['destinationLines'],
+      sourceLines: sourceCounterparties.map((counterparty) => ({
+        counterparty,
+      })) as unknown as ICreateReceiptEntryPayload['sourceLines'],
+      destinationLine: {
+        counterparty: destinationCounterparty,
+      } as unknown as ICreateReceiptEntryPayload['destinationLine'],
     };
   }
 
@@ -37,7 +37,7 @@ describe('journalEntryServiceHelpers', () => {
       const counterparty = {
         accountingEntityId,
       } as ICounterparty;
-      const payload = makePayload(counterparty, counterparty);
+      const payload = makePayload([counterparty, counterparty], counterparty);
 
       await expect(
         journalEntryServiceHelpers.validateCounterparties(payload)
@@ -45,7 +45,7 @@ describe('journalEntryServiceHelpers', () => {
     });
 
     it('succeeds when every line has no counterparty', async () => {
-      const payload = makePayload(null, null);
+      const payload = makePayload([null, null], null);
 
       await expect(
         journalEntryServiceHelpers.validateCounterparties(payload)
@@ -56,7 +56,18 @@ describe('journalEntryServiceHelpers', () => {
       const invalidCounterparty = {
         accountingEntityId: 'different-entity-id' as TEntityId,
       } as ICounterparty;
-      const payload = makePayload(invalidCounterparty, null);
+      const payload = makePayload([null, invalidCounterparty], null);
+
+      await expect(
+        journalEntryServiceHelpers.validateCounterparties(payload)
+      ).rejects.toThrow(journalEntryError.InvalidCounterpartyId);
+    });
+
+    it('throws when the destination counterparty does not belong to the accounting entity', async () => {
+      const invalidCounterparty = {
+        accountingEntityId: 'different-entity-id' as TEntityId,
+      } as ICounterparty;
+      const payload = makePayload([null], invalidCounterparty);
 
       await expect(
         journalEntryServiceHelpers.validateCounterparties(payload)

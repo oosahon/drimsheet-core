@@ -31,8 +31,8 @@ interface ILinePayload {
 
 export interface ICreateReceiptEntryPayload {
   header: IHeaderPayload;
-  sourceLine: ILinePayload;
-  destinationLines: ILinePayload[];
+  sourceLines: ILinePayload[];
+  destinationLine: ILinePayload;
   attachments: IFileAttachment[];
 }
 

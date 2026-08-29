@@ -73,7 +73,7 @@ function makeCreateOpeningBalance(
     }
 
     helpers.validateAccountsAgainstRule(
-      account,
+      [account],
       [equityAccount],
       openingBalanceEntryRule
     );
@@ -119,14 +119,14 @@ function makeCreateReceipt(
   deps: IDependencies
 ): IJournalEntryService['createReceipt'] {
   return async (payload, repoOptions) => {
-    const { header, sourceLine, destinationLines, attachments } = payload;
+    const { header, sourceLines, destinationLine, attachments } = payload;
 
-    const destinationLineAccounts = destinationLines.map((l) => l.account);
+    const sourceLineAccounts = sourceLines.map((line) => line.account);
 
     // validate receipt rule
     helpers.validateAccountsAgainstRule(
-      sourceLine.account,
-      destinationLineAccounts,
+      sourceLineAccounts,
+      [destinationLine.account],
       receiptEntryRule
     );
 
@@ -144,27 +144,28 @@ function makeCreateReceipt(
       header.functionalCurrencyCode
     );
 
-    const sourceLinesPayload: IJournalLineMakePayload = {
-      accountId: sourceLine.account.id,
-      counterpartyId: sourceLine.counterparty?.id,
-      sequenceOrder: sourceLine.sequenceOrder,
-      amount: sourceLine.amount,
-      exchangeRate: sourceLine.exchangeRate,
-      side: EJournalSide.Credit,
-      description: sourceLine.description,
-      functionalCurrency,
-    };
-    const destinationLinesPayload: IJournalLineMakePayload[] =
-      destinationLines.map((line) => ({
+    const sourceLinesPayload: IJournalLineMakePayload[] = sourceLines.map(
+      (line) => ({
         accountId: line.account.id,
         counterpartyId: line.counterparty?.id,
         sequenceOrder: line.sequenceOrder,
         amount: line.amount,
         exchangeRate: line.exchangeRate,
-        side: EJournalSide.Debit,
+        side: EJournalSide.Credit,
         description: line.description,
         functionalCurrency,
-      }));
+      })
+    );
+    const destinationLinePayload: IJournalLineMakePayload = {
+      accountId: destinationLine.account.id,
+      counterpartyId: destinationLine.counterparty?.id,
+      sequenceOrder: destinationLine.sequenceOrder,
+      amount: destinationLine.amount,
+      exchangeRate: destinationLine.exchangeRate,
+      description: destinationLine.description,
+      functionalCurrency,
+      side: EJournalSide.Debit,
+    };
 
     return journalEntryEntity.make({
       accountingEntityId: header.accountingEntityId,
@@ -175,7 +176,7 @@ function makeCreateReceipt(
       createdBy: header.createdBy,
       functionalCurrency,
       attachments,
-      lines: [sourceLinesPayload, ...destinationLinesPayload],
+      lines: [...sourceLinesPayload, destinationLinePayload],
     });
   };
 }
