@@ -59,24 +59,32 @@ const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
 
 const validPayload: IReceiptEntryReq = {
   attachmentReferences: ['123e4567-e89b-12d3-a456-426614174009'],
-  sourceLine: {
-    accountId: '123e4567-e89b-12d3-a456-426614174005',
-    counterparty: { name: 'Jane Doe' },
-    amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-    exchangeRate: null,
-    description: 'Revenue line',
-    sequenceOrder: 1,
-  },
-  destinationLines: [
+  sourceLines: [
     {
-      accountId: '123e4567-e89b-12d3-a456-426614174008',
+      accountId: '123e4567-e89b-12d3-a456-426614174005',
       counterparty: { name: 'Jane Doe' },
-      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      amount: { amount: 900, currencyCode: 'NGN', isMinorUnit: true },
       exchangeRate: null,
-      description: 'Cash line',
+      description: 'Revenue line',
+      sequenceOrder: 1,
+    },
+    {
+      accountId: '123e4567-e89b-12d3-a456-426614174010',
+      counterparty: { name: 'Tax Authority' },
+      amount: { amount: 100, currencyCode: 'NGN', isMinorUnit: true },
+      exchangeRate: null,
+      description: 'VAT payable line',
       sequenceOrder: 2,
     },
   ],
+  destinationLine: {
+    accountId: '123e4567-e89b-12d3-a456-426614174008',
+    counterparty: { name: 'Jane Doe' },
+    amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+    exchangeRate: null,
+    description: 'Cash line',
+    sequenceOrder: 3,
+  },
   effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
   postedAt: null,
   memo: 'Receipt memo',
@@ -310,7 +318,7 @@ describe('POST /journal-entries/receipt', () => {
 
     it('returns 422 if usecase validation fails (zod validation runner)', async () => {
       const validationErrors = [
-        { field: 'sourceLine.accountId', message: 'required' },
+        { field: 'sourceLines.0.accountId', message: 'required' },
       ];
       mockCreateReceiptUseCase.mockRejectedValueOnce(
         new appError.UnprocessableEntity(validationErrors)
@@ -321,6 +329,22 @@ describe('POST /journal-entries/receipt', () => {
       expect(response.status).toBe(422);
       expect(response.body.errorKey).toBe('app_error_validation_error');
       expect(response.body.validationErrors).toEqual(validationErrors);
+    });
+
+    it('rejects the legacy receipt line shape before orchestration', async () => {
+      const legacyPayload = {
+        ...validPayload,
+        sourceLine: validPayload.sourceLines[0],
+        destinationLines: [validPayload.destinationLine],
+        sourceLines: undefined,
+        destinationLine: undefined,
+      };
+
+      const response = await makeRequest(legacyPayload);
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_validation_error');
+      expect(mockCreateReceiptUseCase).not.toHaveBeenCalled();
     });
   });
 

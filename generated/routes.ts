@@ -922,12 +922,12 @@ const models: TsoaRoute.Models = {
         dataType: 'array',
         array: { dataType: 'string' },
       },
-      sourceLine: { ref: 'IReceiptEntryLineReq', required: true },
-      destinationLines: {
+      sourceLines: {
         dataType: 'array',
         array: { dataType: 'refObject', ref: 'IReceiptEntryLineReq' },
         required: true,
       },
+      destinationLine: { ref: 'IReceiptEntryLineReq', required: true },
       effectiveDate: { dataType: 'datetime', required: true },
       postedAt: {
         dataType: 'union',

@@ -234,24 +234,32 @@ describe('makeCreateReceiptUsecase', () => {
 
     const payload = {
       attachmentReferences,
-      sourceLine: {
-        accountId: sourceAccount.id,
-        counterparty: { name: 'Jane Doe' },
-        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-        exchangeRate: null,
-        description: 'Revenue',
-        sequenceOrder: 1,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          accountId: destinationAccount.id,
+          accountId: sourceAccount.id,
           counterparty: { name: 'Jane Doe' },
-          amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+          amount: { amount: 900, currencyCode: 'NGN', isMinorUnit: true },
           exchangeRate: null,
-          description: 'Cash',
+          description: 'Revenue',
+          sequenceOrder: 1,
+        },
+        {
+          accountId: sourceAccount.id,
+          counterparty: { name: 'Tax Authority' },
+          amount: { amount: 100, currencyCode: 'NGN', isMinorUnit: true },
+          exchangeRate: null,
+          description: 'VAT payable',
           sequenceOrder: 2,
         },
       ],
+      destinationLine: {
+        accountId: destinationAccount.id,
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Cash',
+        sequenceOrder: 3,
+      },
       effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
       postedAt: new Date('2026-08-06T00:00:00.000Z'),
       memo: 'Receipt',
@@ -275,8 +283,9 @@ describe('makeCreateReceiptUsecase', () => {
 
     expect(mockCounterpartyAppService.findOrCreateMany).toHaveBeenCalledWith(
       expect.arrayContaining([
-        payload.sourceLine.counterparty,
-        payload.destinationLines[0].counterparty,
+        payload.sourceLines[0].counterparty,
+        payload.sourceLines[1].counterparty,
+        payload.destinationLine.counterparty,
       ]),
       accountingEntity.id,
       repoOptions
@@ -296,16 +305,22 @@ describe('makeCreateReceiptUsecase', () => {
           effectiveDate: payload.effectiveDate,
           postedAt: payload.postedAt,
         }),
-        sourceLine: expect.objectContaining({
-          account: sourceAccount,
+        sourceLines: [
+          expect.objectContaining({
+            account: sourceAccount,
+            counterparty: newCounterparty[0],
+            description: 'Revenue',
+          }),
+          expect.objectContaining({
+            account: sourceAccount,
+            counterparty: newCounterparty[0],
+            description: 'VAT payable',
+          }),
+        ],
+        destinationLine: expect.objectContaining({
+          account: destinationAccount,
           counterparty: newCounterparty[0],
         }),
-        destinationLines: expect.arrayContaining([
-          expect.objectContaining({
-            account: destinationAccount,
-            counterparty: newCounterparty[0],
-          }),
-        ]),
         attachments,
       }),
       repoOptions
@@ -347,24 +362,24 @@ describe('makeCreateReceiptUsecase', () => {
     await expect(
       getUseCase()({
         attachmentReferences: ['123e4567-e89b-12d3-a456-426614174010'],
-        sourceLine: {
-          accountId: sourceAccount.id,
-          counterparty: { name: 'Jane Doe' },
-          amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-          exchangeRate: null,
-          description: 'Revenue',
-          sequenceOrder: 1,
-        },
-        destinationLines: [
+        sourceLines: [
           {
-            accountId: destinationAccount.id,
+            accountId: sourceAccount.id,
             counterparty: { name: 'Jane Doe' },
             amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
             exchangeRate: null,
-            description: 'Cash',
-            sequenceOrder: 2,
+            description: 'Revenue',
+            sequenceOrder: 1,
           },
         ],
+        destinationLine: {
+          accountId: destinationAccount.id,
+          counterparty: { name: 'Jane Doe' },
+          amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+          exchangeRate: null,
+          description: 'Cash',
+          sequenceOrder: 2,
+        },
         effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
         postedAt: new Date('2026-08-06T00:00:00.000Z'),
         memo: 'Receipt',
@@ -399,24 +414,24 @@ describe('makeCreateReceiptUsecase', () => {
     const usecase = getUseCase();
 
     const payload = {
-      sourceLine: {
-        accountId: sourceAccount.id,
-        counterparty: { name: 'Jane Doe' },
-        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-        exchangeRate: null,
-        description: 'Revenue',
-        sequenceOrder: 1,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          accountId: destinationAccount.id,
+          accountId: sourceAccount.id,
           counterparty: { name: 'Jane Doe' },
           amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
           exchangeRate: null,
-          description: 'Cash',
-          sequenceOrder: 2,
+          description: 'Revenue',
+          sequenceOrder: 1,
         },
       ],
+      destinationLine: {
+        accountId: destinationAccount.id,
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Cash',
+        sequenceOrder: 2,
+      },
       effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
       postedAt: new Date('2026-08-06T00:00:00.000Z'),
       memo: 'Receipt',
@@ -435,24 +450,24 @@ describe('makeCreateReceiptUsecase', () => {
     mockLedgerAccountRepo.findById.mockResolvedValue(null);
 
     const payload = {
-      sourceLine: {
-        accountId: generateUUID(),
-        counterparty: { name: 'Jane Doe' },
-        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-        exchangeRate: null,
-        description: 'Revenue',
-        sequenceOrder: 1,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          accountId: destinationAccount.id,
+          accountId: generateUUID(),
           counterparty: { name: 'Jane Doe' },
           amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
           exchangeRate: null,
-          description: 'Cash',
-          sequenceOrder: 2,
+          description: 'Revenue',
+          sequenceOrder: 1,
         },
       ],
+      destinationLine: {
+        accountId: destinationAccount.id,
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Cash',
+        sequenceOrder: 2,
+      },
       effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
       postedAt: new Date('2026-08-06T00:00:00.000Z'),
       memo: 'Receipt',
@@ -479,24 +494,24 @@ describe('makeCreateReceiptUsecase', () => {
     });
 
     const payload = {
-      sourceLine: {
-        accountId: sourceAccount.id,
-        counterparty: { name: 'Jane Doe' },
-        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-        exchangeRate: null,
-        description: 'Revenue',
-        sequenceOrder: 1,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          accountId: generateUUID(),
+          accountId: sourceAccount.id,
           counterparty: { name: 'Jane Doe' },
           amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
           exchangeRate: null,
-          description: 'Cash',
-          sequenceOrder: 2,
+          description: 'Revenue',
+          sequenceOrder: 1,
         },
       ],
+      destinationLine: {
+        accountId: generateUUID(),
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Cash',
+        sequenceOrder: 2,
+      },
       effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
       postedAt: new Date('2026-08-06T00:00:00.000Z'),
       memo: 'Receipt',
@@ -522,24 +537,24 @@ describe('makeCreateReceiptUsecase', () => {
     );
 
     const payload = {
-      sourceLine: {
-        accountId: sourceAccount.id,
-        counterparty: { name: 'Jane Doe' },
-        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-        exchangeRate: null,
-        description: 'Revenue',
-        sequenceOrder: 1,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          accountId: destinationAccount.id,
+          accountId: sourceAccount.id,
           counterparty: { name: 'Jane Doe' },
           amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
           exchangeRate: null,
-          description: 'Cash',
-          sequenceOrder: 2,
+          description: 'Revenue',
+          sequenceOrder: 1,
         },
       ],
+      destinationLine: {
+        accountId: destinationAccount.id,
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Cash',
+        sequenceOrder: 2,
+      },
       effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
       postedAt: new Date('2026-08-06T00:00:00.000Z'),
       memo: 'Receipt',
@@ -559,38 +574,38 @@ describe('makeCreateReceiptUsecase', () => {
     const usecase = getUseCase();
 
     const payload = {
-      sourceLine: {
-        accountId: sourceAccount.id,
-        counterparty: { name: 'Jane Doe' },
-        amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
-        exchangeRate: {
-          baseCurrencyCode: 'USD',
-          targetCurrencyCode: 'NGN',
-          rate: 1.5,
-          type: 'negotiated' as const,
-          asOf: new Date('2026-08-06T00:00:00.000Z'),
-          source: 'test-source',
-        },
-        description: 'Revenue',
-        sequenceOrder: 1,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          accountId: destinationAccount.id,
+          accountId: sourceAccount.id,
           counterparty: { name: 'Jane Doe' },
-          amount: { amount: 1500, currencyCode: 'NGN', isMinorUnit: true },
+          amount: { amount: 1000, currencyCode: 'USD', isMinorUnit: true },
           exchangeRate: {
-            baseCurrencyCode: 'NGN',
+            baseCurrencyCode: 'USD',
             targetCurrencyCode: 'NGN',
-            rate: 1.0,
-            type: 'official' as const,
+            rate: 1.5,
+            type: 'negotiated' as const,
             asOf: new Date('2026-08-06T00:00:00.000Z'),
             source: 'test-source',
           },
-          description: 'Cash',
-          sequenceOrder: 2,
+          description: 'Revenue',
+          sequenceOrder: 1,
         },
       ],
+      destinationLine: {
+        accountId: destinationAccount.id,
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1500, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: {
+          baseCurrencyCode: 'NGN',
+          targetCurrencyCode: 'NGN',
+          rate: 1.0,
+          type: 'official' as const,
+          asOf: new Date('2026-08-06T00:00:00.000Z'),
+          source: 'test-source',
+        },
+        description: 'Cash',
+        sequenceOrder: 2,
+      },
       effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
       postedAt: new Date('2026-08-06T00:00:00.000Z'),
       memo: 'Receipt',
@@ -600,14 +615,14 @@ describe('makeCreateReceiptUsecase', () => {
 
     expect(mockJournalEntryService.createReceipt).toHaveBeenCalledWith(
       expect.objectContaining({
-        sourceLine: expect.objectContaining({
-          exchangeRate: expect.any(Object),
-        }),
-        destinationLines: expect.arrayContaining([
+        sourceLines: expect.arrayContaining([
           expect.objectContaining({
             exchangeRate: expect.any(Object),
           }),
         ]),
+        destinationLine: expect.objectContaining({
+          exchangeRate: expect.any(Object),
+        }),
       }),
       expect.any(Object)
     );
@@ -619,24 +634,24 @@ describe('makeCreateReceiptUsecase', () => {
     const usecase = getUseCase();
 
     const payload = {
-      sourceLine: {
-        accountId: sourceAccount.id,
-        counterparty: { name: 'Jane Doe' },
-        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-        exchangeRate: null,
-        description: 'Revenue',
-        sequenceOrder: 1,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          accountId: destinationAccount.id,
+          accountId: sourceAccount.id,
           counterparty: { name: 'Jane Doe' },
           amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
           exchangeRate: null,
-          description: 'Cash',
-          sequenceOrder: 2,
+          description: 'Revenue',
+          sequenceOrder: 1,
         },
       ],
+      destinationLine: {
+        accountId: destinationAccount.id,
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Cash',
+        sequenceOrder: 2,
+      },
       effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
       postedAt: new Date('2026-08-06T00:00:00.000Z'),
       memo: 'Receipt',
@@ -646,14 +661,14 @@ describe('makeCreateReceiptUsecase', () => {
 
     expect(mockJournalEntryService.createReceipt).toHaveBeenCalledWith(
       expect.objectContaining({
-        sourceLine: expect.objectContaining({
-          counterparty: null,
-        }),
-        destinationLines: expect.arrayContaining([
+        sourceLines: expect.arrayContaining([
           expect.objectContaining({
             counterparty: null,
           }),
         ]),
+        destinationLine: expect.objectContaining({
+          counterparty: null,
+        }),
       }),
       expect.any(Object)
     );
@@ -672,24 +687,24 @@ describe('makeCreateReceiptUsecase', () => {
     ]);
 
     await getUseCase()({
-      sourceLine: {
-        accountId: sourceAccount.id,
-        counterparty: { name: 'Jane Doe' },
-        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-        exchangeRate: null,
-        description: 'Revenue',
-        sequenceOrder: 1,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          accountId: destinationAccount.id,
+          accountId: sourceAccount.id,
           counterparty: { name: 'Jane Doe' },
           amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
           exchangeRate: null,
-          description: 'Cash',
-          sequenceOrder: 2,
+          description: 'Revenue',
+          sequenceOrder: 1,
         },
       ],
+      destinationLine: {
+        accountId: destinationAccount.id,
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Cash',
+        sequenceOrder: 2,
+      },
       effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
       postedAt: null,
       memo: 'Draft receipt',
@@ -704,21 +719,21 @@ describe('makeCreateReceiptUsecase', () => {
     const usecase = getUseCase();
 
     const payload = {
-      sourceLine: {
+      sourceLines: [],
+      destinationLine: {
         // Missing accountId
         counterparty: { name: 'Jane Doe' },
         amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
         exchangeRate: null,
-        description: 'Revenue',
+        description: 'Cash',
         sequenceOrder: 1,
       },
-      destinationLines: [], // Invalid, needs at least one line
       effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
       postedAt: new Date('2026-08-06T00:00:00.000Z'),
       memo: 'Receipt',
     };
 
-    await expect(usecase(payload as any)).rejects.toThrow();
+    await expect(usecase(payload as never)).rejects.toThrow();
 
     expect(mockAppContext.get).not.toHaveBeenCalled();
     expect(mockLedgerAccountRepo.findById).not.toHaveBeenCalled();

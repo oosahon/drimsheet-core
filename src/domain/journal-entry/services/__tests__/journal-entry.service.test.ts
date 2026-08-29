@@ -32,6 +32,7 @@ import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balan
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
 import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
+import makePayablesAccountService from '@domain/ledger/services/liability-account/payables.service';
 import makeServicesAccountService from '@domain/ledger/services/revenue-account/services.service';
 import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
 import { ELedgerType } from '@domain/ledger/types/ledger.types';
@@ -99,6 +100,9 @@ describe('journalEntryService', () => {
   const servicesAccountService = makeServicesAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
+  const payablesAccountService = makePayablesAccountService({
+    ledgerAccountRepo: mockLedgerAccountRepo,
+  });
 
   async function makeReceiptFixture(postedAt: Date | null = null) {
     const [user] = userEntity.make({
@@ -147,6 +151,33 @@ describe('journalEntryService', () => {
         repoOptions
       );
     mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
+    const [payablesHeader] = await payablesAccountService.createHeader(
+      {
+        name: 'Payables',
+        createdBy: user.id,
+        accountingEntity,
+      },
+      repoOptions
+    );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(payablesHeader);
+    mockLedgerAccountRepo.findLatestBySubType.mockResolvedValueOnce(null);
+    const [vatPayableAccountWithoutOpeningDate] =
+      await payablesAccountService.createStatutoryPayableSubAccount(
+        {
+          name: 'VAT Payable',
+          createdBy: user.id,
+          accountingEntity,
+          currency: SYSTEM_CURRENCIES.NGN,
+          isControlAccount: false,
+          controlAccountCode: payablesHeader.code,
+          meta: {
+            taxAuthority: 'Federal Inland Revenue Service',
+            taxType: 'vat',
+          },
+        },
+        repoOptions
+      );
+    mockLedgerAccountRepo.findByCode.mockResolvedValueOnce(null);
     const [cashHeader] = await cashAccountService.createHeader(
       {
         name: 'Cash and Cash Equivalents',
@@ -173,11 +204,17 @@ describe('journalEntryService', () => {
       sourceAccountWithoutOpeningDate,
       effectiveDate
     );
+    const [vatPayableAccount] = ledgerAccountEntity.updateOpeningBalanceDate(
+      vatPayableAccountWithoutOpeningDate,
+      effectiveDate
+    );
     const [destinationAccount] = ledgerAccountEntity.updateOpeningBalanceDate(
       destinationAccountWithoutOpeningDate,
       effectiveDate
     );
-    const amount = moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true);
+    const salesAmount = moneyValue.make(9_250n, SYSTEM_CURRENCIES.NGN, true);
+    const vatAmount = moneyValue.make(750n, SYSTEM_CURRENCIES.NGN, true);
+    const receiptAmount = moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true);
 
     const payload: ICreateReceiptEntryPayload = {
       attachments: [
@@ -196,26 +233,35 @@ describe('journalEntryService', () => {
         functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
         createdBy: user.id,
       },
-      sourceLine: {
-        account: sourceAccount,
-        counterparty,
-        sequenceOrder: 1,
-        amount,
-        exchangeRate: null,
-        description: 'Service payment',
-        meta: null,
-      },
-      destinationLines: [
+      sourceLines: [
         {
-          account: destinationAccount,
+          account: sourceAccount,
+          counterparty,
+          sequenceOrder: 1,
+          amount: salesAmount,
+          exchangeRate: null,
+          description: 'Service revenue',
+          meta: null,
+        },
+        {
+          account: vatPayableAccount,
           counterparty: taxAuthority,
           sequenceOrder: 2,
-          amount,
+          amount: vatAmount,
           exchangeRate: null,
-          description: 'Cash received',
+          description: 'VAT payable',
           meta: null,
         },
       ],
+      destinationLine: {
+        account: destinationAccount,
+        counterparty,
+        sequenceOrder: 3,
+        amount: receiptAmount,
+        exchangeRate: null,
+        description: 'Cash received',
+        meta: null,
+      },
     };
 
     return {
@@ -223,6 +269,7 @@ describe('journalEntryService', () => {
       counterparty,
       taxAuthority,
       sourceAccount,
+      vatPayableAccount,
       destinationAccount,
       user,
       accountingEntity,
@@ -251,6 +298,7 @@ describe('journalEntryService', () => {
       counterparty,
       taxAuthority,
       sourceAccount,
+      vatPayableAccount,
       destinationAccount,
     } = await makeReceiptFixture();
 
@@ -273,12 +321,19 @@ describe('journalEntryService', () => {
         counterpartyId: counterparty.id,
         sequenceOrder: 1,
         side: EJournalSide.Credit,
-        description: 'Service payment',
+        description: 'Service revenue',
+      }),
+      expect.objectContaining({
+        accountId: vatPayableAccount.id,
+        counterpartyId: taxAuthority.id,
+        sequenceOrder: 2,
+        side: EJournalSide.Credit,
+        description: 'VAT payable',
       }),
       expect.objectContaining({
         accountId: destinationAccount.id,
-        counterpartyId: taxAuthority.id,
-        sequenceOrder: 2,
+        counterpartyId: counterparty.id,
+        sequenceOrder: 3,
         side: EJournalSide.Debit,
         description: 'Cash received',
       }),
@@ -289,9 +344,11 @@ describe('journalEntryService', () => {
       EJournalEntryEvent.Created,
       EJournalLineItemEvent.Created,
       EJournalLineItemEvent.Created,
+      EJournalLineItemEvent.Created,
     ]);
     expect(audit.header.action).toBe(EJournalEntryAuditAction.Created);
     expect(audit.lines.map((lineAudit) => lineAudit.action)).toEqual([
+      EJournalLineAuditAction.Created,
       EJournalLineAuditAction.Created,
       EJournalLineAuditAction.Created,
     ]);
@@ -315,9 +372,24 @@ describe('journalEntryService', () => {
 
   it('rejects a non-permitted source account', async () => {
     const { payload } = await makeReceiptFixture();
-    payload.sourceLine = {
-      ...payload.sourceLine,
-      account: payload.destinationLines[0].account,
+    payload.sourceLines[0] = {
+      ...payload.sourceLines[0],
+      account: payload.destinationLine.account,
+    };
+
+    await expect(service.createReceipt(payload, repoOptions)).rejects.toThrow(
+      journalEntryError.InvalidSourceType
+    );
+    expect(
+      mockAccountingPeriodService.validatePostingPeriod
+    ).not.toHaveBeenCalled();
+  });
+
+  it('validates every source account against the receipt rule', async () => {
+    const { payload } = await makeReceiptFixture();
+    payload.sourceLines[1] = {
+      ...payload.sourceLines[1],
+      account: payload.destinationLine.account,
     };
 
     await expect(service.createReceipt(payload, repoOptions)).rejects.toThrow(
@@ -330,9 +402,9 @@ describe('journalEntryService', () => {
 
   it('rejects a non-permitted destination account', async () => {
     const { payload } = await makeReceiptFixture();
-    payload.destinationLines[0] = {
-      ...payload.destinationLines[0],
-      account: payload.sourceLine.account,
+    payload.destinationLine = {
+      ...payload.destinationLine,
+      account: payload.sourceLines[0].account,
     };
 
     await expect(service.createReceipt(payload, repoOptions)).rejects.toThrow(
@@ -370,8 +442,8 @@ describe('journalEntryService', () => {
       },
       repoOptions
     );
-    payload.destinationLines[0] = {
-      ...payload.destinationLines[0],
+    payload.destinationLine = {
+      ...payload.destinationLine,
       account,
     };
 
@@ -390,8 +462,8 @@ describe('journalEntryService', () => {
       },
       repoOptions
     );
-    payload.destinationLines[0] = {
-      ...payload.destinationLines[0],
+    payload.destinationLine = {
+      ...payload.destinationLine,
       account: controlAccount,
     };
 
@@ -402,8 +474,8 @@ describe('journalEntryService', () => {
 
   it('rejects a line whose amount currency does not match its fixed-currency account', async () => {
     const { payload } = await makeReceiptFixture();
-    payload.destinationLines[0] = {
-      ...payload.destinationLines[0],
+    payload.destinationLine = {
+      ...payload.destinationLine,
       amount: moneyValue.make(10_000n, SYSTEM_CURRENCIES.USD, true),
     };
 
@@ -415,20 +487,32 @@ describe('journalEntryService', () => {
     ).not.toHaveBeenCalled();
   });
 
+  it('rejects a destination amount that does not equal all source amounts', async () => {
+    const { payload } = await makeReceiptFixture();
+    payload.destinationLine = {
+      ...payload.destinationLine,
+      amount: moneyValue.make(9_999n, SYSTEM_CURRENCIES.NGN, true),
+    };
+
+    await expect(service.createReceipt(payload, repoOptions)).rejects.toThrow(
+      journalEntryError.UnbalancedJournalEntry
+    );
+  });
+
   it('allows an entry after the account opening balance date', async () => {
     const { payload } = await makeReceiptFixture();
     const openingBalanceDate = new Date('2026-08-01T10:00:00.000Z');
-    payload.sourceLine = {
-      ...payload.sourceLine,
+    payload.sourceLines[0] = {
+      ...payload.sourceLines[0],
       account: {
-        ...payload.sourceLine.account,
+        ...payload.sourceLines[0].account,
         openingBalanceDate,
       },
     };
-    payload.destinationLines[0] = {
-      ...payload.destinationLines[0],
+    payload.destinationLine = {
+      ...payload.destinationLine,
       account: {
-        ...payload.destinationLines[0].account,
+        ...payload.destinationLine.account,
         openingBalanceDate,
       },
     };
@@ -440,17 +524,17 @@ describe('journalEntryService', () => {
 
   it('allows an entry when account opening balance dates are not set', async () => {
     const { payload } = await makeReceiptFixture();
-    payload.sourceLine = {
-      ...payload.sourceLine,
+    payload.sourceLines[0] = {
+      ...payload.sourceLines[0],
       account: {
-        ...payload.sourceLine.account,
+        ...payload.sourceLines[0].account,
         openingBalanceDate: null,
       },
     };
-    payload.destinationLines[0] = {
-      ...payload.destinationLines[0],
+    payload.destinationLine = {
+      ...payload.destinationLine,
       account: {
-        ...payload.destinationLines[0].account,
+        ...payload.destinationLine.account,
         openingBalanceDate: null,
       },
     };
@@ -463,10 +547,10 @@ describe('journalEntryService', () => {
   it('rejects an entry before the account opening balance date', async () => {
     const { payload } = await makeReceiptFixture();
     const openingBalanceDate = new Date('2026-08-04T09:00:00.000Z');
-    payload.sourceLine = {
-      ...payload.sourceLine,
+    payload.sourceLines[0] = {
+      ...payload.sourceLines[0],
       account: {
-        ...payload.sourceLine.account,
+        ...payload.sourceLines[0].account,
         openingBalanceDate,
       },
     };
@@ -486,8 +570,8 @@ describe('journalEntryService', () => {
       name: 'Other Customer',
       type: ECounterpartyType.Organization,
     });
-    payload.sourceLine = {
-      ...payload.sourceLine,
+    payload.sourceLines[0] = {
+      ...payload.sourceLines[0],
       counterparty: invalidCounterparty,
     };
 

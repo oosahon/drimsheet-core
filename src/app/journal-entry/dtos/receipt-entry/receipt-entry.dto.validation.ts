@@ -34,10 +34,10 @@ export const receiptEntryReqValidation = z.object({
       invalidAttachmentReferenceKey
     )
     .optional(),
-  sourceLine: receiptEntryLineReqValidation,
-  destinationLines: z
+  sourceLines: z
     .array(receiptEntryLineReqValidation)
     .min(1, new journalEntryError.InvalidLineItems().errorKey),
+  destinationLine: receiptEntryLineReqValidation,
   effectiveDate: z.date(new journalEntryError.InvalidEffectiveDate().errorKey),
   postedAt: z
     .date(new journalEntryError.InvalidPostingDate().errorKey)

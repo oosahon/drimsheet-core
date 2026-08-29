@@ -17,6 +17,7 @@ import {
 } from '@domain/journal-entry/types/journal-entry.service.types';
 import { EJournalEntryStatus } from '@domain/journal-entry/types/journal-entry.types';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
@@ -66,21 +67,27 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
       createdBy: user.id,
     };
 
-    const sourceAccount = await deps.ledgerAccountRepo.findById(
-      payload.sourceLine.accountId as TEntityId,
-      accountingEntity.id,
-      repoOptions
-    );
+    const sourceAccounts: ILedgerAccount[] = [];
 
-    if (!sourceAccount) {
-      throw new ledgerAppError.AccountNotFound({
-        id: payload.sourceLine.accountId,
-      });
+    for (const sourceLine of payload.sourceLines) {
+      const sourceAccount = await deps.ledgerAccountRepo.findById(
+        sourceLine.accountId as TEntityId,
+        accountingEntity.id,
+        repoOptions
+      );
+
+      if (!sourceAccount) {
+        throw new ledgerAppError.AccountNotFound({
+          id: sourceLine.accountId,
+        });
+      }
+
+      sourceAccounts.push(sourceAccount);
     }
 
-    const allCounterpartiesPayload = payload.destinationLines
-      .map((dl) => dl.counterparty)
-      .concat(payload.sourceLine.counterparty)
+    const allCounterpartiesPayload = payload.sourceLines
+      .map((sourceLine) => sourceLine.counterparty)
+      .concat(payload.destinationLine.counterparty)
       .filter(Boolean);
 
     const allCounterparties =
@@ -90,61 +97,61 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
         repoOptions
       );
 
-    const sourceExchangeRate = payload.sourceLine.exchangeRate
-      ? exchangeRateValue.make(payload.sourceLine.exchangeRate)
+    const destinationAccount = await deps.ledgerAccountRepo.findById(
+      payload.destinationLine.accountId as TEntityId,
+      accountingEntity.id,
+      repoOptions
+    );
+
+    if (!destinationAccount) {
+      throw new ledgerAppError.AccountNotFound({
+        id: payload.destinationLine.accountId,
+      });
+    }
+
+    const sourceLinesPayload: ICreateReceiptEntryPayload['sourceLines'] =
+      payload.sourceLines.map((sourceLine, index) => {
+        const sourceExchangeRate = sourceLine.exchangeRate
+          ? exchangeRateValue.make(sourceLine.exchangeRate)
+          : null;
+
+        const sourceLineCounterparty =
+          deps.counterpartyAppService.getFoundOrCreated(
+            sourceLine.counterparty,
+            allCounterparties
+          )?.data[0] ?? null;
+
+        return {
+          account: sourceAccounts[index],
+          counterparty: sourceLineCounterparty,
+          sequenceOrder: sourceLine.sequenceOrder,
+          amount: moneyMapper.fromDto(sourceLine.amount),
+          exchangeRate: sourceExchangeRate,
+          description: sourceLine.description,
+          meta: null,
+        };
+      });
+
+    const destinationExchangeRate = payload.destinationLine.exchangeRate
+      ? exchangeRateValue.make(payload.destinationLine.exchangeRate)
       : null;
 
-    const sourceLineCounterparty =
+    const destinationLineCounterparty =
       deps.counterpartyAppService.getFoundOrCreated(
-        payload.sourceLine.counterparty,
+        payload.destinationLine.counterparty,
         allCounterparties
       )?.data[0] ?? null;
 
-    const sourceLinePayload: ICreateReceiptEntryPayload['sourceLine'] = {
-      account: sourceAccount,
-      counterparty: sourceLineCounterparty,
-      sequenceOrder: payload.sourceLine.sequenceOrder,
-      amount: moneyMapper.fromDto(payload.sourceLine.amount),
-      exchangeRate: sourceExchangeRate,
-      description: payload.sourceLine.description,
-      meta: null,
-    };
-
-    const destinationLinesPayload: ICreateReceiptEntryPayload['destinationLines'] =
-      [];
-
-    for (const line of payload.destinationLines) {
-      const lineAccount = await deps.ledgerAccountRepo.findById(
-        line.accountId as TEntityId,
-        accountingEntity.id,
-        repoOptions
-      );
-      if (!lineAccount) {
-        throw new ledgerAppError.AccountNotFound({
-          id: line.accountId,
-        });
-      }
-
-      const lineExchangeRate = line.exchangeRate
-        ? exchangeRateValue.make(line.exchangeRate)
-        : null;
-
-      const lineCounterparty =
-        deps.counterpartyAppService.getFoundOrCreated(
-          line.counterparty,
-          allCounterparties
-        )?.data[0] ?? null;
-
-      destinationLinesPayload.push({
-        account: lineAccount,
-        counterparty: lineCounterparty,
-        sequenceOrder: line.sequenceOrder,
-        amount: moneyMapper.fromDto(line.amount),
-        exchangeRate: lineExchangeRate,
-        description: line.description,
+    const destinationLinePayload: ICreateReceiptEntryPayload['destinationLine'] =
+      {
+        account: destinationAccount,
+        counterparty: destinationLineCounterparty,
+        sequenceOrder: payload.destinationLine.sequenceOrder,
+        amount: moneyMapper.fromDto(payload.destinationLine.amount),
+        exchangeRate: destinationExchangeRate,
+        description: payload.destinationLine.description,
         meta: null,
-      });
-    }
+      };
 
     const attachments = await deps.fileManagementService.claimUploads({
       userId: user.id,
@@ -155,8 +162,8 @@ export default function makeCreateReceiptUsecase(deps: IDependencies) {
     const receiptPayload: ICreateReceiptEntryPayload = {
       attachments,
       header: headerPayload,
-      sourceLine: sourceLinePayload,
-      destinationLines: destinationLinesPayload,
+      sourceLines: sourceLinesPayload,
+      destinationLine: destinationLinePayload,
     };
 
     const [journalEntry, journalEntryEvents, journalEntryAudit] =
