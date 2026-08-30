@@ -3,15 +3,60 @@ import generateUUID from '@shared/utils/uuid-generator';
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
+import paymentEntryRule from '@domain/journal-entry/rules/payment-entry.rule';
 import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
 import makeReceivablesAccountService from '@domain/ledger/services/asset-account/receivables-account.service';
 import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
 import makePayablesAccountService from '@domain/ledger/services/liability-account/payables.service';
 import makeServicesAccountService from '@domain/ledger/services/revenue-account/services.service';
-import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+} from '@domain/ledger/types/asset-account.types';
+import { EExpenseSubType } from '@domain/ledger/types/expense-account.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerAccountStatus,
+  ELedgerType,
+  ILedgerAccount,
+} from '@domain/ledger/types/ledger.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
+} from '@domain/ledger/types/liability-account.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+
+function makePaymentAccount(
+  overrides: Partial<ILedgerAccount>
+): ILedgerAccount {
+  const type = overrides.type ?? ELedgerType.Asset;
+  const code = overrides.code ?? '100001';
+  const [account] = ledgerAccountEntity.make({
+    code,
+    materializedPath: code,
+    accountingEntityId: overrides.accountingEntityId ?? generateUUID(),
+    type,
+    subType: overrides.subType ?? EAssetSubType.CashAndCashEquivalent,
+    behavior: overrides.behavior ?? EAssetAccountBehavior.Bank,
+    normalBalance: ledgerAccountEntity.getNormalBalance(type),
+    isControlAccount: false,
+    controlAccountId: null,
+    name: overrides.name ?? 'Payment account',
+    currency: SYSTEM_CURRENCIES.NGN,
+    status: ELedgerAccountStatus.Active,
+    contraAccountRule: EContraAccountRule.ContraPermitted,
+    adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+    meta: {},
+    createdBy: generateUUID(),
+    ...overrides,
+  });
+
+  return account;
+}
 
 describe('journal entry rules', () => {
   const accountingEntityId = generateUUID();
@@ -160,6 +205,60 @@ describe('journal entry rules', () => {
           receivableAccount,
           receiptEntryRule.destination
         )
+      ).toBe(false);
+    });
+  });
+
+  describe('paymentEntryRule', () => {
+    it.each([
+      [EAssetAccountBehavior.Bank, ELedgerType.Asset],
+      [EAssetAccountBehavior.PettyCash, ELedgerType.Asset],
+      [ELiabilityAccountBehavior.CreditCard, ELedgerType.Liability],
+    ])('permits %s as a source account', (behavior, type) => {
+      const account = makePaymentAccount({
+        behavior,
+        type,
+        subType:
+          type === ELedgerType.Asset
+            ? EAssetSubType.CashAndCashEquivalent
+            : ELiabilitySubType.ShortTermDebt,
+      });
+
+      expect(journalEntryRuleValidator(account, paymentEntryRule.source)).toBe(
+        true
+      );
+    });
+
+    it('rejects an unpermitted source behavior', () => {
+      const account = makePaymentAccount({
+        behavior: EAssetAccountBehavior.DefaultCash,
+      });
+
+      expect(journalEntryRuleValidator(account, paymentEntryRule.source)).toBe(
+        false
+      );
+    });
+
+    it.each([
+      [ELiabilitySubType.Payable, ELedgerType.Liability],
+      [ELiabilitySubType.LongTermLoan, ELedgerType.Liability],
+      [EExpenseSubType.DirectCosts, ELedgerType.Expense],
+      [EExpenseSubType.Interest, ELedgerType.Expense],
+    ])('permits %s as a destination account', (subType, type) => {
+      const account = makePaymentAccount({ subType, type });
+
+      expect(
+        journalEntryRuleValidator(account, paymentEntryRule.destination)
+      ).toBe(true);
+    });
+
+    it('rejects an unpermitted destination subtype', () => {
+      const account = makePaymentAccount({
+        subType: EAssetSubType.CashAndCashEquivalent,
+      });
+
+      expect(
+        journalEntryRuleValidator(account, paymentEntryRule.destination)
       ).toBe(false);
     });
   });

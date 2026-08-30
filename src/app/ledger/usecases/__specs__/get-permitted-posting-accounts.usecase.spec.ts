@@ -2,8 +2,12 @@ import { TEntityId } from '@shared/types/uuid';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
 import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
-import { EAssetSubType } from '@domain/ledger/types/asset-account.types';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+} from '@domain/ledger/types/asset-account.types';
 import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
+import { EExpenseSubType } from '@domain/ledger/types/expense-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -12,6 +16,10 @@ import {
   ENormalBalance,
   ILedgerAccount,
 } from '@domain/ledger/types/ledger.types';
+import {
+  ELiabilityAccountBehavior,
+  ELiabilitySubType,
+} from '@domain/ledger/types/liability-account.types';
 import currencyEntity from '@domain/money/entities/currency.entity';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
@@ -160,6 +168,46 @@ describe('makeGetPermittedPostingAccountsUsecase', () => {
         behaviors: undefined,
         currencyCodes: ['USD', null],
         isControlAccount: false,
+      })
+    );
+  });
+
+  it('selects payment source behaviors', async () => {
+    await getUseCase()({
+      ...validQuery,
+      sourceType: EJournalEntrySourceType.Payment,
+    });
+
+    expect(mockLedgerAccountRepo.findAll).toHaveBeenCalledWith(
+      accountingEntityId,
+      expect.objectContaining({
+        types: undefined,
+        subTypes: undefined,
+        behaviors: [
+          EAssetAccountBehavior.Bank,
+          EAssetAccountBehavior.PettyCash,
+          ELiabilityAccountBehavior.CreditCard,
+        ],
+      })
+    );
+  });
+
+  it('selects payment destination subtypes', async () => {
+    await getUseCase()({
+      ...validQuery,
+      sourceType: EJournalEntrySourceType.Payment,
+      side: 'destination',
+    });
+
+    expect(mockLedgerAccountRepo.findAll).toHaveBeenCalledWith(
+      accountingEntityId,
+      expect.objectContaining({
+        types: undefined,
+        subTypes: expect.arrayContaining([
+          ELiabilitySubType.Payable,
+          EExpenseSubType.RentAndUtilities,
+        ]),
+        behaviors: undefined,
       })
     );
   });

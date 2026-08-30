@@ -1,3 +1,4 @@
+import makeCreatePaymentUsecase from '@app/journal-entry/usecases/create-payment.usecase';
 import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
 
 import {
@@ -15,6 +16,23 @@ import messaging from '@infra/messaging';
 import { makeTracedUseCase } from '@infra/observability/usecase-tracing';
 import ledgerRepos from '@infra/persistence/repos/ledger';
 import appContext from '@infra/runtime/app-context';
+
+export const createPaymentUseCase = makeTracedUseCase(
+  'journalEntry.createPaymentUseCase',
+  makeCreatePaymentUsecase({
+    appContext,
+    counterpartyAppService,
+    fileManagementService,
+    journalEntryService,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    counterpartyPersistenceService,
+    journalEntryPersistenceService,
+    repoService,
+    eventBus: messaging.eventBus,
+    outboxService,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+  })
+);
 
 export const createReceiptUseCase = makeTracedUseCase(
   'journalEntry.createReceiptUseCase',

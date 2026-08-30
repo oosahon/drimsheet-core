@@ -20,7 +20,10 @@ import {
   EJournalEntryAuditAction,
   EJournalLineAuditAction,
 } from '@domain/journal-entry/types/journal-entry-audit.types';
-import { ICreateReceiptEntryPayload } from '@domain/journal-entry/types/journal-entry.service.types';
+import {
+  ICreatePaymentEntryPayload,
+  ICreateReceiptEntryPayload,
+} from '@domain/journal-entry/types/journal-entry.service.types';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
@@ -34,8 +37,22 @@ import makeCashAccountService from '@domain/ledger/services/asset-account/cash-a
 import makeEquityAccountService from '@domain/ledger/services/equity-account/equity-account.service';
 import makePayablesAccountService from '@domain/ledger/services/liability-account/payables.service';
 import makeServicesAccountService from '@domain/ledger/services/revenue-account/services.service';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+} from '@domain/ledger/types/asset-account.types';
 import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
-import { ELedgerType } from '@domain/ledger/types/ledger.types';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+} from '@domain/ledger/types/expense-account.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerAccountStatus,
+  ELedgerType,
+  ILedgerAccount,
+} from '@domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
@@ -273,6 +290,132 @@ describe('journalEntryService', () => {
       destinationAccount,
       user,
       accountingEntity,
+    };
+  }
+
+  function makePaymentAccount(
+    overrides: Partial<ILedgerAccount>
+  ): ILedgerAccount {
+    const type = overrides.type ?? ELedgerType.Asset;
+    const code = overrides.code ?? '100001';
+    const [account] = ledgerAccountEntity.make({
+      code,
+      materializedPath: code,
+      accountingEntityId: overrides.accountingEntityId ?? generateUUID(),
+      type,
+      subType: overrides.subType ?? EAssetSubType.CashAndCashEquivalent,
+      behavior: overrides.behavior ?? EAssetAccountBehavior.Bank,
+      normalBalance: ledgerAccountEntity.getNormalBalance(type),
+      isControlAccount: false,
+      controlAccountId: null,
+      name: overrides.name ?? 'Payment account',
+      currency: SYSTEM_CURRENCIES.NGN,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+      meta: {},
+      createdBy: generateUUID(),
+      ...overrides,
+    });
+
+    return account;
+  }
+
+  function makePaymentFixture(postedAt: Date | null = null) {
+    const [user] = userEntity.make({
+      email: 'payment@example.com',
+      emailVerified: true,
+      firstName: 'Payment',
+      lastName: 'Maker',
+    });
+    const [accountingEntity] = accountingEntityEntity.make({
+      name: 'Payment LLC',
+      type: EAccountingEntityType.PrivateCompany,
+      ownerId: user.id,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+      jurisdictionCode: 'NG',
+    });
+    const [counterparty] = counterpartyEntity.make({
+      accountingEntityId: accountingEntity.id,
+      name: 'Payment Vendor',
+      type: ECounterpartyType.Organization,
+    });
+    const sourceAccount = makePaymentAccount({
+      accountingEntityId: accountingEntity.id,
+      createdBy: user.id,
+      code: '100001',
+    });
+    const rentAccount = makePaymentAccount({
+      accountingEntityId: accountingEntity.id,
+      behavior: EExpenseAccountBehavior.RentAndUtilities,
+      code: '502001',
+      createdBy: user.id,
+      subType: EExpenseSubType.RentAndUtilities,
+      type: ELedgerType.Expense,
+    });
+    const payableAccount = makePaymentAccount({
+      accountingEntityId: accountingEntity.id,
+      code: '201001',
+      createdBy: user.id,
+      subType: 'payable',
+      type: ELedgerType.Liability,
+    });
+
+    const payload: ICreatePaymentEntryPayload = {
+      attachments: [
+        {
+          url: 'https://files.example.com/payment.pdf',
+          name: 'payment.pdf',
+          type: 'application/pdf',
+          size: 1024,
+        },
+      ],
+      header: {
+        accountingEntityId: accountingEntity.id,
+        memo: 'Vendor payment',
+        effectiveDate,
+        postedAt,
+        functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+        createdBy: user.id,
+      },
+      sourceLine: {
+        account: sourceAccount,
+        counterparty,
+        sequenceOrder: 1,
+        amount: moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true),
+        exchangeRate: null,
+        description: 'Bank payment',
+        meta: null,
+      },
+      destinationLines: [
+        {
+          account: rentAccount,
+          counterparty,
+          sequenceOrder: 2,
+          amount: moneyValue.make(7_000n, SYSTEM_CURRENCIES.NGN, true),
+          exchangeRate: null,
+          description: 'Rent expense',
+          meta: null,
+        },
+        {
+          account: payableAccount,
+          counterparty,
+          sequenceOrder: 3,
+          amount: moneyValue.make(3_000n, SYSTEM_CURRENCIES.NGN, true),
+          exchangeRate: null,
+          description: 'Payable settlement',
+          meta: null,
+        },
+      ],
+    };
+
+    return {
+      accountingEntity,
+      counterparty,
+      payableAccount,
+      payload,
+      rentAccount,
+      sourceAccount,
     };
   }
 
@@ -581,6 +724,105 @@ describe('journalEntryService', () => {
     expect(
       mockAccountingPeriodService.validatePostingPeriod
     ).toHaveBeenCalledTimes(1);
+  });
+
+  describe('createPayment', () => {
+    it('creates a draft payment with mapped lines, events, and audits', async () => {
+      const { payload, sourceAccount, rentAccount, payableAccount } =
+        makePaymentFixture();
+
+      const [entry, events, audit] = await service.createPayment(
+        payload,
+        repoOptions
+      );
+
+      expect(entry).toEqual(
+        expect.objectContaining({
+          accountingEntityId: payload.header.accountingEntityId,
+          sourceType: EJournalEntrySourceType.Payment,
+          status: EJournalEntryStatus.Draft,
+          postedAt: null,
+        })
+      );
+      expect(entry.lines).toEqual([
+        expect.objectContaining({
+          accountId: sourceAccount.id,
+          side: EJournalSide.Credit,
+          sequenceOrder: 1,
+        }),
+        expect.objectContaining({
+          accountId: rentAccount.id,
+          side: EJournalSide.Debit,
+          sequenceOrder: 2,
+        }),
+        expect.objectContaining({
+          accountId: payableAccount.id,
+          side: EJournalSide.Debit,
+          sequenceOrder: 3,
+        }),
+      ]);
+      expect(entry.attachments).toEqual(payload.attachments);
+      expect(events.map((event) => event.type)).toEqual([
+        EJournalEntryEvent.Created,
+        EJournalLineItemEvent.Created,
+        EJournalLineItemEvent.Created,
+        EJournalLineItemEvent.Created,
+      ]);
+      expect(audit.header.action).toBe(EJournalEntryAuditAction.Created);
+      expect(audit.lines).toHaveLength(3);
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).toHaveBeenCalledWith(
+        payload.header.accountingEntityId,
+        payload.header.effectiveDate,
+        repoOptions
+      );
+    });
+
+    it('creates a posted payment when a posting date is provided', async () => {
+      const { payload } = makePaymentFixture(timestamp);
+
+      const [entry] = await service.createPayment(payload, repoOptions);
+
+      expect(entry.status).toBe(EJournalEntryStatus.Posted);
+      expect(entry.postedAt).toBe(timestamp);
+    });
+
+    it('rejects a non-permitted source account before period validation', async () => {
+      const { payload, rentAccount } = makePaymentFixture();
+      payload.sourceLine = { ...payload.sourceLine, account: rentAccount };
+
+      await expect(service.createPayment(payload, repoOptions)).rejects.toThrow(
+        journalEntryError.InvalidSourceType
+      );
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).not.toHaveBeenCalled();
+    });
+
+    it('rejects a non-permitted destination account', async () => {
+      const { payload, sourceAccount } = makePaymentFixture();
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        account: sourceAccount,
+      };
+
+      await expect(service.createPayment(payload, repoOptions)).rejects.toThrow(
+        journalEntryError.InvalidDestinationAccount
+      );
+    });
+
+    it('rejects an unbalanced payment', async () => {
+      const { payload } = makePaymentFixture();
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        amount: moneyValue.make(6_999n, SYSTEM_CURRENCIES.NGN, true),
+      };
+
+      await expect(service.createPayment(payload, repoOptions)).rejects.toThrow(
+        journalEntryError.UnbalancedJournalEntry
+      );
+    });
   });
 
   describe('createOpeningBalance', () => {

@@ -1097,6 +1097,87 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IPaymentEntryLineReq": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "counterparty": {
+            "$ref": "#/components/schemas/IJournalCounterpartyReq"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "exchangeRate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IExchangeRateDto"
+              }
+            ],
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "sequenceOrder": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "accountId",
+          "counterparty",
+          "amount",
+          "exchangeRate",
+          "description",
+          "sequenceOrder"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "IPaymentEntryReq": {
+        "properties": {
+          "attachmentReferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "Opaque handles returned when preparing file uploads. Each corresponding\nfile must be uploaded before the payment is created."
+          },
+          "sourceLine": {
+            "$ref": "#/components/schemas/IPaymentEntryLineReq"
+          },
+          "destinationLines": {
+            "items": {
+              "$ref": "#/components/schemas/IPaymentEntryLineReq"
+            },
+            "type": "array"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "memo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sourceLine",
+          "destinationLines",
+          "effectiveDate",
+          "postedAt",
+          "memo"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
       "IReceiptEntryLineReq": {
         "properties": {
           "accountId": {
@@ -2659,6 +2740,87 @@
             }
           }
         ]
+      }
+    },
+    "/journal-entries/payment": {
+      "post": {
+        "operationId": "createPayment",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IJournalEntryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create payment journal entry",
+        "tags": ["Journal Entry"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IPaymentEntryReq"
+              }
+            }
+          }
+        }
       }
     },
     "/journal-entries/receipt": {

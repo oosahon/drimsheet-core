@@ -888,6 +888,67 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaymentEntryLineReq: {
+    dataType: 'refObject',
+    properties: {
+      accountId: { dataType: 'string', required: true },
+      counterparty: { ref: 'IJournalCounterpartyReq', required: true },
+      amount: { ref: 'IMoneyDto', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRateDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      description: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      sequenceOrder: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaymentEntryReq: {
+    dataType: 'refObject',
+    properties: {
+      attachmentReferences: {
+        dataType: 'array',
+        array: { dataType: 'string' },
+      },
+      sourceLine: { ref: 'IPaymentEntryLineReq', required: true },
+      destinationLines: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IPaymentEntryLineReq' },
+        required: true,
+      },
+      effectiveDate: { dataType: 'datetime', required: true },
+      postedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      memo: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IReceiptEntryLineReq: {
     dataType: 'refObject',
     properties: {
@@ -1989,6 +2050,50 @@ export function RegisterRoutes(app: Router) {
           next,
           validatedArgs,
           successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsJournalEntryController_createPayment: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    body: { in: 'body', name: 'body', required: true, ref: 'IPaymentEntryReq' },
+  };
+  app.post(
+    '/api/v1/journal-entries/payment',
+    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
+    ...fetchMiddlewares<RequestHandler>(
+      JournalEntryController.prototype.createPayment
+    ),
+
+    async function JournalEntryController_createPayment(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsJournalEntryController_createPayment,
+          request,
+          response,
+        });
+
+        const controller = new JournalEntryController();
+
+        await templateService.apiHandler({
+          methodName: 'createPayment',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 201,
         });
       } catch (err) {
         return next(err);
