@@ -16,8 +16,6 @@ const EErrorKeys = {
     'accounting_error_accounting_standard_code_invalid',
   TransferNotPermittedOnAccount:
     'accounting_error_transfer_not_permitted_on_account_invalid',
-  PaymentNotPermittedOnAccount:
-    'accounting_error_payment_not_permitted_on_account_invalid',
 } as const satisfies TErrorKeys<'accounting_error'>;
 
 type UAccountingError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

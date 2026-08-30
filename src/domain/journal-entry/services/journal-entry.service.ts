@@ -3,6 +3,7 @@ import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.ent
 import journalLineEntity from '@domain/journal-entry/entities/journal-line.entity';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
+import paymentEntryRule from '@domain/journal-entry/rules/payment-entry.rule';
 import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
 import helpers from '@domain/journal-entry/services/helpers/journal-entry.service.helpers';
 import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
@@ -120,6 +121,7 @@ function makeCreateReceipt(
 ): IJournalEntryService['createReceipt'] {
   return async (payload, repoOptions) => {
     const { header, sourceLines, destinationLine, attachments } = payload;
+    const journalLines = [...sourceLines, destinationLine];
 
     const sourceLineAccounts = sourceLines.map((line) => line.account);
 
@@ -130,7 +132,7 @@ function makeCreateReceipt(
       receiptEntryRule
     );
 
-    await helpers.validateAccounts(payload);
+    helpers.validateAccounts(header, journalLines);
 
     await deps.accountingPeriodService.validatePostingPeriod(
       header.accountingEntityId,
@@ -138,7 +140,7 @@ function makeCreateReceipt(
       repoOptions
     );
 
-    await helpers.validateCounterparties(payload);
+    helpers.validateCounterparties(header, journalLines);
 
     const functionalCurrency = currencyEntity.getByCode(
       header.functionalCurrencyCode
@@ -181,11 +183,76 @@ function makeCreateReceipt(
   };
 }
 
+function makeCreatePayment(
+  deps: IDependencies
+): IJournalEntryService['createPayment'] {
+  return async (payload, repoOptions) => {
+    const { header, sourceLine, destinationLines, attachments } = payload;
+    const journalLines = [sourceLine, ...destinationLines];
+
+    helpers.validateAccountsAgainstRule(
+      [sourceLine.account],
+      destinationLines.map((line) => line.account),
+      paymentEntryRule
+    );
+
+    helpers.validateAccounts(header, journalLines);
+
+    await deps.accountingPeriodService.validatePostingPeriod(
+      header.accountingEntityId,
+      header.effectiveDate,
+      repoOptions
+    );
+
+    helpers.validateCounterparties(header, journalLines);
+
+    const functionalCurrency = currencyEntity.getByCode(
+      header.functionalCurrencyCode
+    );
+
+    const sourceLinePayload: IJournalLineMakePayload = {
+      accountId: sourceLine.account.id,
+      counterpartyId: sourceLine.counterparty?.id,
+      sequenceOrder: sourceLine.sequenceOrder,
+      amount: sourceLine.amount,
+      exchangeRate: sourceLine.exchangeRate,
+      side: EJournalSide.Credit,
+      description: sourceLine.description,
+      functionalCurrency,
+    };
+    const destinationLinePayloads: IJournalLineMakePayload[] =
+      destinationLines.map((line) => ({
+        accountId: line.account.id,
+        counterpartyId: line.counterparty?.id,
+        sequenceOrder: line.sequenceOrder,
+        amount: line.amount,
+        exchangeRate: line.exchangeRate,
+        description: line.description,
+        functionalCurrency,
+        side: EJournalSide.Debit,
+      }));
+
+    return journalEntryEntity.make({
+      accountingEntityId: header.accountingEntityId,
+      sourceType: EJournalEntrySourceType.Payment,
+      effectiveDate: header.effectiveDate,
+      postedAt: header.postedAt,
+      memo: header.memo,
+      createdBy: header.createdBy,
+      functionalCurrency,
+      attachments,
+      lines: [sourceLinePayload, ...destinationLinePayloads],
+    });
+  };
+}
+
 export default function makeJournalEntryService(deps: IDependencies) {
   const service: IJournalEntryService = {
     createOpeningBalance: makeCreateOpeningBalance(deps),
 
     createReceipt: makeCreateReceipt(deps),
+
+    createPayment: makeCreatePayment(deps),
   };
 
   return Object.freeze(service);

@@ -10,7 +10,7 @@ import { IMoney } from '@domain/money/types/money.types';
 import { TAuditedJournalEntry } from './journal-entry-audit.types';
 import { IJournalLineMeta } from './journal-line.types';
 
-interface IHeaderPayload {
+export interface IJournalEntryHeaderPayload {
   accountingEntityId: TEntityId;
   memo: string | null;
   effectiveDate: Date;
@@ -19,7 +19,7 @@ interface IHeaderPayload {
   createdBy: TEntityId;
 }
 
-interface ILinePayload {
+export interface IJournalEntryLinePayload {
   account: ILedgerAccount;
   counterparty: ICounterparty | null;
   sequenceOrder: number;
@@ -30,9 +30,16 @@ interface ILinePayload {
 }
 
 export interface ICreateReceiptEntryPayload {
-  header: IHeaderPayload;
-  sourceLines: ILinePayload[];
-  destinationLine: ILinePayload;
+  header: IJournalEntryHeaderPayload;
+  sourceLines: IJournalEntryLinePayload[];
+  destinationLine: IJournalEntryLinePayload;
+  attachments: IFileAttachment[];
+}
+
+export interface ICreatePaymentEntryPayload {
+  header: IJournalEntryHeaderPayload;
+  sourceLine: IJournalEntryLinePayload;
+  destinationLines: IJournalEntryLinePayload[];
   attachments: IFileAttachment[];
 }
 
@@ -54,6 +61,11 @@ export interface IJournalEntryService {
 
   createReceipt(
     payload: ICreateReceiptEntryPayload,
+    repoOptions: IReadRepoOptions
+  ): Promise<TAuditedJournalEntry>;
+
+  createPayment(
+    payload: ICreatePaymentEntryPayload,
     repoOptions: IReadRepoOptions
   ): Promise<TAuditedJournalEntry>;
 }

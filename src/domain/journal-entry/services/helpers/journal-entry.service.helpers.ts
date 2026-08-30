@@ -3,7 +3,10 @@ import dateUtils from '@shared/utils/date';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
 import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
-import { ICreateReceiptEntryPayload } from '@domain/journal-entry/types/journal-entry.service.types';
+import {
+  IJournalEntryHeaderPayload,
+  IJournalEntryLinePayload,
+} from '@domain/journal-entry/types/journal-entry.service.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 function validateAccountsAgainstRule(
@@ -32,12 +35,11 @@ function validateAccountsAgainstRule(
   }
 }
 
-async function validateAccounts(payload: ICreateReceiptEntryPayload) {
-  const { header, sourceLines, destinationLine } = payload;
-
-  const allAccounts = sourceLines
-    .map((line) => line.account)
-    .concat(destinationLine.account);
+function validateAccounts(
+  header: IJournalEntryHeaderPayload,
+  journalLines: IJournalEntryLinePayload[]
+) {
+  const allAccounts = journalLines.map((line) => line.account);
 
   // Assert that all accounts belong to the same accounting entity
   const wrongAccountingEntities = allAccounts.filter(
@@ -72,7 +74,6 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
   }
 
   // Assert that line currencies match their fixed-currency accounts
-  const journalLines = [...sourceLines, destinationLine];
   const mismatchedJournalLines = [];
 
   for (const journalLine of journalLines) {
@@ -99,11 +100,12 @@ async function validateAccounts(payload: ICreateReceiptEntryPayload) {
   }
 }
 
-async function validateCounterparties(payload: ICreateReceiptEntryPayload) {
-  const { header, sourceLines, destinationLine } = payload;
-
+function validateCounterparties(
+  header: IJournalEntryHeaderPayload,
+  journalLines: IJournalEntryLinePayload[]
+) {
   const allCounterparties = new Set(
-    [...sourceLines, destinationLine].flatMap((line) =>
+    journalLines.flatMap((line) =>
       line.counterparty ? [line.counterparty] : []
     )
   );

@@ -3,6 +3,7 @@ import paginationValue from '@shared/values/pagination/pagination.vo';
 import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
 
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
+import paymentEntryRule from '@domain/journal-entry/rules/payment-entry.rule';
 import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
 import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
 import {
@@ -30,6 +31,7 @@ const journalEntryRules: Partial<
   Record<UJournalEntrySourceType, IJournalEntryRule>
 > = {
   [EJournalEntrySourceType.OpeningBalance]: openingBalanceEntryRule,
+  [EJournalEntrySourceType.Payment]: paymentEntryRule,
   [EJournalEntrySourceType.Receipt]: receiptEntryRule,
 };
 
