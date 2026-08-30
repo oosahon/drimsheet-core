@@ -4,6 +4,7 @@ import journalEntryError from '@domain/journal-entry/errors/journal-entry.error'
 import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
 import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
 import {
+  IJournalEntryBaseLinePayload,
   IJournalEntryHeaderPayload,
   IJournalEntryLinePayload,
 } from '@domain/journal-entry/types/journal-entry.service.types';
@@ -37,7 +38,7 @@ function validateAccountsAgainstRule(
 
 function validateAccounts(
   header: IJournalEntryHeaderPayload,
-  journalLines: IJournalEntryLinePayload[]
+  journalLines: IJournalEntryBaseLinePayload[]
 ) {
   const allAccounts = journalLines.map((line) => line.account);
 

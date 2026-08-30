@@ -212,6 +212,29 @@ describe('makeGetPermittedPostingAccountsUsecase', () => {
     );
   });
 
+  it.each(['source', 'destination'] as const)(
+    'selects transfer %s account permits',
+    async (side) => {
+      await getUseCase()({
+        ...validQuery,
+        sourceType: EJournalEntrySourceType.Transfer,
+        side,
+      });
+
+      expect(mockLedgerAccountRepo.findAll).toHaveBeenCalledWith(
+        accountingEntityId,
+        expect.objectContaining({
+          types: [ELedgerType.Asset],
+          subTypes: [EAssetSubType.CashAndCashEquivalent],
+          behaviors: [
+            EAssetAccountBehavior.Bank,
+            EAssetAccountBehavior.PettyCash,
+          ],
+        })
+      );
+    }
+  );
+
   it('omits wildcard restrictions for the opening-balance source rule', async () => {
     await getUseCase()({
       ...validQuery,

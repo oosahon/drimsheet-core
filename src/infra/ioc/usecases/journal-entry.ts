@@ -1,5 +1,6 @@
 import makeCreatePaymentUsecase from '@app/journal-entry/usecases/create-payment.usecase';
 import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
+import makeCreateTransferUsecase from '@app/journal-entry/usecases/create-transfer.usecase';
 
 import {
   counterpartyAppService,
@@ -43,6 +44,21 @@ export const createReceiptUseCase = makeTracedUseCase(
     journalEntryService,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
     counterpartyPersistenceService,
+    journalEntryPersistenceService,
+    repoService,
+    eventBus: messaging.eventBus,
+    outboxService,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+  })
+);
+
+export const createTransferUseCase = makeTracedUseCase(
+  'journalEntry.createTransferUseCase',
+  makeCreateTransferUsecase({
+    appContext,
+    fileManagementService,
+    journalEntryService,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
     journalEntryPersistenceService,
     repoService,
     eventBus: messaging.eventBus,

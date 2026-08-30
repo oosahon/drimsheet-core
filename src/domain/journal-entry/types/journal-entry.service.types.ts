@@ -19,14 +19,17 @@ export interface IJournalEntryHeaderPayload {
   createdBy: TEntityId;
 }
 
-export interface IJournalEntryLinePayload {
+export interface IJournalEntryBaseLinePayload {
   account: ILedgerAccount;
-  counterparty: ICounterparty | null;
   sequenceOrder: number;
   amount: IMoney;
   exchangeRate: IExchangeRate | null;
   description: string | null;
   meta: IJournalLineMeta | null;
+}
+
+export interface IJournalEntryLinePayload extends IJournalEntryBaseLinePayload {
+  counterparty: ICounterparty | null;
 }
 
 export interface ICreateReceiptEntryPayload {
@@ -40,6 +43,13 @@ export interface ICreatePaymentEntryPayload {
   header: IJournalEntryHeaderPayload;
   sourceLine: IJournalEntryLinePayload;
   destinationLines: IJournalEntryLinePayload[];
+  attachments: IFileAttachment[];
+}
+
+export interface ICreateTransferEntryPayload {
+  header: IJournalEntryHeaderPayload;
+  sourceLine: IJournalEntryBaseLinePayload;
+  destinationLines: IJournalEntryBaseLinePayload[];
   attachments: IFileAttachment[];
 }
 
@@ -66,6 +76,11 @@ export interface IJournalEntryService {
 
   createPayment(
     payload: ICreatePaymentEntryPayload,
+    repoOptions: IReadRepoOptions
+  ): Promise<TAuditedJournalEntry>;
+
+  createTransfer(
+    payload: ICreateTransferEntryPayload,
     repoOptions: IReadRepoOptions
   ): Promise<TAuditedJournalEntry>;
 }
