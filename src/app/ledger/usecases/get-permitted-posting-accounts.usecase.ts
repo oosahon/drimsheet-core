@@ -5,6 +5,7 @@ import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.t
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
 import paymentEntryRule from '@domain/journal-entry/rules/payment-entry.rule';
 import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
+import transferEntryRule from '@domain/journal-entry/rules/transfer-entry.rule';
 import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
 import {
   EJournalEntrySourceType,
@@ -33,6 +34,7 @@ const journalEntryRules: Partial<
   [EJournalEntrySourceType.OpeningBalance]: openingBalanceEntryRule,
   [EJournalEntrySourceType.Payment]: paymentEntryRule,
   [EJournalEntrySourceType.Receipt]: receiptEntryRule,
+  [EJournalEntrySourceType.Transfer]: transferEntryRule,
 };
 
 function getPermittedValues<T>(restriction: Set<T> | '*') {

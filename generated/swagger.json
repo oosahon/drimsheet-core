@@ -1259,6 +1259,83 @@
         "type": "object",
         "additionalProperties": false
       },
+      "ITransferEntryLineReq": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "amount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "exchangeRate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IExchangeRateDto"
+              }
+            ],
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "sequenceOrder": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "accountId",
+          "amount",
+          "exchangeRate",
+          "description",
+          "sequenceOrder"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "ITransferEntryReq": {
+        "properties": {
+          "attachmentReferences": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "description": "Opaque handles returned when preparing file uploads. Each corresponding\nfile must be uploaded before the transfer is created."
+          },
+          "sourceLine": {
+            "$ref": "#/components/schemas/ITransferEntryLineReq"
+          },
+          "destinationLines": {
+            "items": {
+              "$ref": "#/components/schemas/ITransferEntryLineReq"
+            },
+            "type": "array"
+          },
+          "effectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "postedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "memo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "sourceLine",
+          "destinationLines",
+          "effectiveDate",
+          "postedAt",
+          "memo"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
       "Readonly_Record_string.string__": {
         "properties": {},
         "additionalProperties": {
@@ -2898,6 +2975,87 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/IReceiptEntryReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/journal-entries/transfer": {
+      "post": {
+        "operationId": "createTransfer",
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IJournalEntryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Create transfer journal entry",
+        "tags": ["Journal Entry"],
+        "security": [],
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ITransferEntryReq"
               }
             }
           }

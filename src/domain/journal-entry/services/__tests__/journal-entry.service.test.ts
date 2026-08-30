@@ -23,6 +23,7 @@ import {
 import {
   ICreatePaymentEntryPayload,
   ICreateReceiptEntryPayload,
+  ICreateTransferEntryPayload,
 } from '@domain/journal-entry/types/journal-entry.service.types';
 import {
   EJournalEntrySourceType,
@@ -417,6 +418,74 @@ describe('journalEntryService', () => {
       rentAccount,
       sourceAccount,
     };
+  }
+
+  function makeTransferFixture(postedAt: Date | null = null) {
+    const [user] = userEntity.make({
+      email: 'transfer@example.com',
+      emailVerified: true,
+      firstName: 'Transfer',
+      lastName: 'Maker',
+    });
+    const [accountingEntity] = accountingEntityEntity.make({
+      name: 'Transfer LLC',
+      type: EAccountingEntityType.PrivateCompany,
+      ownerId: user.id,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+      jurisdictionCode: 'NG',
+    });
+    const sourceAccount = makePaymentAccount({
+      accountingEntityId: accountingEntity.id,
+      behavior: EAssetAccountBehavior.Bank,
+      code: '100001',
+      createdBy: user.id,
+      name: 'Operating bank',
+    });
+    const destinationAccount = makePaymentAccount({
+      accountingEntityId: accountingEntity.id,
+      behavior: EAssetAccountBehavior.PettyCash,
+      code: '100002',
+      createdBy: user.id,
+      name: 'Petty cash',
+    });
+    const payload: ICreateTransferEntryPayload = {
+      attachments: [
+        {
+          url: 'https://files.example.com/transfer.pdf',
+          name: 'transfer.pdf',
+          type: 'application/pdf',
+          size: 1024,
+        },
+      ],
+      header: {
+        accountingEntityId: accountingEntity.id,
+        memo: 'Cash transfer',
+        effectiveDate,
+        postedAt,
+        functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+        createdBy: user.id,
+      },
+      sourceLine: {
+        account: sourceAccount,
+        sequenceOrder: 1,
+        amount: moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true),
+        exchangeRate: null,
+        description: 'Transfer from bank',
+        meta: null,
+      },
+      destinationLines: [
+        {
+          account: destinationAccount,
+          sequenceOrder: 2,
+          amount: moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true),
+          exchangeRate: null,
+          description: 'Transfer to petty cash',
+          meta: null,
+        },
+      ],
+    };
+
+    return { accountingEntity, destinationAccount, payload, sourceAccount };
   }
 
   beforeEach(() => {
@@ -822,6 +891,177 @@ describe('journalEntryService', () => {
       await expect(service.createPayment(payload, repoOptions)).rejects.toThrow(
         journalEntryError.UnbalancedJournalEntry
       );
+    });
+  });
+
+  describe('createTransfer', () => {
+    it('creates a draft transfer with mapped lines, attachments, events, and audits', async () => {
+      const { destinationAccount, payload, sourceAccount } =
+        makeTransferFixture();
+
+      const [entry, events, audit] = await service.createTransfer(
+        payload,
+        repoOptions
+      );
+
+      expect(entry).toEqual(
+        expect.objectContaining({
+          accountingEntityId: payload.header.accountingEntityId,
+          sourceType: EJournalEntrySourceType.Transfer,
+          status: EJournalEntryStatus.Draft,
+          postedAt: null,
+        })
+      );
+      expect(entry.lines).toEqual([
+        expect.objectContaining({
+          accountId: sourceAccount.id,
+          counterpartyId: null,
+          side: EJournalSide.Credit,
+          sequenceOrder: 1,
+        }),
+        expect.objectContaining({
+          accountId: destinationAccount.id,
+          counterpartyId: null,
+          side: EJournalSide.Debit,
+          sequenceOrder: 2,
+        }),
+      ]);
+      expect(entry.attachments).toEqual(payload.attachments);
+      expect(Object.isFrozen(entry.attachments)).toBe(true);
+      expect(events.map((event) => event.type)).toEqual([
+        EJournalEntryEvent.Created,
+        EJournalLineItemEvent.Created,
+        EJournalLineItemEvent.Created,
+      ]);
+      expect(audit.header.action).toBe(EJournalEntryAuditAction.Created);
+      expect(audit.lines).toHaveLength(2);
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).toHaveBeenCalledWith(
+        payload.header.accountingEntityId,
+        payload.header.effectiveDate,
+        repoOptions
+      );
+    });
+
+    it('creates a posted transfer when a posting date is provided', async () => {
+      const { payload } = makeTransferFixture(timestamp);
+
+      const [entry] = await service.createTransfer(payload, repoOptions);
+
+      expect(entry.status).toBe(EJournalEntryStatus.Posted);
+      expect(entry.postedAt).toBe(timestamp);
+    });
+
+    it('creates a balanced cross-currency transfer', async () => {
+      const { payload } = makeTransferFixture();
+      const exchangeRate = exchangeRateValue.make({
+        baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+        targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+        rate: 1600,
+        type: EExchangeRateType.Official,
+        asOf: effectiveDate,
+        source: 'Test Source',
+      });
+      payload.sourceLine = {
+        ...payload.sourceLine,
+        amount: moneyValue.make(160_000n, SYSTEM_CURRENCIES.NGN, true),
+      };
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        account: {
+          ...payload.destinationLines[0].account,
+          currency: SYSTEM_CURRENCIES.USD,
+        },
+        amount: moneyValue.make(100n, SYSTEM_CURRENCIES.USD, true),
+        exchangeRate,
+      };
+
+      const [entry] = await service.createTransfer(payload, repoOptions);
+
+      expect(entry.lines[0].functionalAmount.amount).toBe(160_000n);
+      expect(entry.lines[1].functionalAmount.amount).toBe(160_000n);
+    });
+
+    it('rejects duplicate transfer accounts before period validation', async () => {
+      const { payload } = makeTransferFixture();
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        account: payload.sourceLine.account,
+      };
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.DuplicateAccountsNotPermitted);
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).not.toHaveBeenCalled();
+    });
+
+    it('rejects repeated destination accounts before period validation', async () => {
+      const { payload } = makeTransferFixture();
+      payload.destinationLines.push({
+        ...payload.destinationLines[0],
+        sequenceOrder: 3,
+      });
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.DuplicateAccountsNotPermitted);
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).not.toHaveBeenCalled();
+    });
+
+    it('rejects a non-cash source account before period validation', async () => {
+      const { payload } = makeTransferFixture();
+      payload.sourceLine = {
+        ...payload.sourceLine,
+        account: makePaymentAccount({
+          accountingEntityId: payload.header.accountingEntityId,
+          behavior: EExpenseAccountBehavior.RentAndUtilities,
+          code: '502001',
+          subType: EExpenseSubType.RentAndUtilities,
+          type: ELedgerType.Expense,
+        }),
+      };
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.InvalidSourceType);
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).not.toHaveBeenCalled();
+    });
+
+    it('rejects a non-cash destination account', async () => {
+      const { payload } = makeTransferFixture();
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        account: makePaymentAccount({
+          accountingEntityId: payload.header.accountingEntityId,
+          behavior: EExpenseAccountBehavior.RentAndUtilities,
+          code: '502001',
+          subType: EExpenseSubType.RentAndUtilities,
+          type: ELedgerType.Expense,
+        }),
+      };
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.InvalidDestinationAccount);
+    });
+
+    it('rejects an unbalanced transfer', async () => {
+      const { payload } = makeTransferFixture();
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        amount: moneyValue.make(9_999n, SYSTEM_CURRENCIES.NGN, true),
+      };
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.UnbalancedJournalEntry);
     });
   });
 

@@ -5,6 +5,7 @@ import journalEntryError from '@domain/journal-entry/errors/journal-entry.error'
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
 import paymentEntryRule from '@domain/journal-entry/rules/payment-entry.rule';
 import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
+import transferEntryRule from '@domain/journal-entry/rules/transfer-entry.rule';
 import helpers from '@domain/journal-entry/services/helpers/journal-entry.service.helpers';
 import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
 import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
@@ -246,6 +247,74 @@ function makeCreatePayment(
   };
 }
 
+function makeCreateTransfer(
+  deps: IDependencies
+): IJournalEntryService['createTransfer'] {
+  return async (payload, repoOptions) => {
+    const { header, sourceLine, destinationLines, attachments } = payload;
+    const journalLines = [sourceLine, ...destinationLines];
+    const accountIds = journalLines.map((line) => line.account.id);
+
+    if (new Set(accountIds).size !== accountIds.length) {
+      throw new journalEntryError.DuplicateAccountsNotPermitted({
+        accountIds,
+      });
+    }
+
+    const destinationAccounts = destinationLines.map((line) => line.account);
+    helpers.validateAccountsAgainstRule(
+      [sourceLine.account],
+      destinationAccounts,
+      transferEntryRule
+    );
+
+    helpers.validateAccounts(header, journalLines);
+
+    await deps.accountingPeriodService.validatePostingPeriod(
+      header.accountingEntityId,
+      header.effectiveDate,
+      repoOptions
+    );
+
+    const functionalCurrency = currencyEntity.getByCode(
+      header.functionalCurrencyCode
+    );
+    const sourceLinePayload: IJournalLineMakePayload = {
+      accountId: sourceLine.account.id,
+      counterpartyId: null,
+      sequenceOrder: sourceLine.sequenceOrder,
+      amount: sourceLine.amount,
+      exchangeRate: sourceLine.exchangeRate,
+      side: EJournalSide.Credit,
+      description: sourceLine.description,
+      functionalCurrency,
+    };
+    const destinationLinePayloads: IJournalLineMakePayload[] =
+      destinationLines.map((line) => ({
+        accountId: line.account.id,
+        counterpartyId: null,
+        sequenceOrder: line.sequenceOrder,
+        amount: line.amount,
+        exchangeRate: line.exchangeRate,
+        description: line.description,
+        functionalCurrency,
+        side: EJournalSide.Debit,
+      }));
+
+    return journalEntryEntity.make({
+      accountingEntityId: header.accountingEntityId,
+      sourceType: EJournalEntrySourceType.Transfer,
+      effectiveDate: header.effectiveDate,
+      postedAt: header.postedAt,
+      memo: header.memo,
+      createdBy: header.createdBy,
+      functionalCurrency,
+      attachments,
+      lines: [sourceLinePayload, ...destinationLinePayloads],
+    });
+  };
+}
+
 export default function makeJournalEntryService(deps: IDependencies) {
   const service: IJournalEntryService = {
     createOpeningBalance: makeCreateOpeningBalance(deps),
@@ -253,6 +322,8 @@ export default function makeJournalEntryService(deps: IDependencies) {
     createReceipt: makeCreateReceipt(deps),
 
     createPayment: makeCreatePayment(deps),
+
+    createTransfer: makeCreateTransfer(deps),
   };
 
   return Object.freeze(service);
