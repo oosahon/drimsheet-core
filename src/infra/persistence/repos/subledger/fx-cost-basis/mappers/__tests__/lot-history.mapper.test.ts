@@ -3,31 +3,38 @@ import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
-import { IFxCostBasisLotAcquisitionHistory } from '@domain/subledger/fx-cost-basis/types/acquisition.types';
+import {
+  EFxCostBasisLotStatus,
+  IFxCostBasisLotHistory,
+} from '@domain/subledger/fx-cost-basis/types/lot.types';
 
-import fxCostBasisLotAcquisitionHistoryMapper from '@infra/persistence/repos/subledger/mappers/fx-cost-basis/acquisition-history.mapper';
+import fxCostBasisLotHistoryMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/lot-history.mapper';
 
-describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
-  it('maps acquisition history to the repository model', () => {
-    const acquisitionId = 'acquisition-1' as TEntityId;
+describe('FX Cost-Basis Lot History Mapper', () => {
+  it('maps lot history to the repository model', () => {
     const lotId = 'lot-1' as TEntityId;
     const accountingEntityId = 'accounting-entity-1' as TEntityId;
     const userId = 'user-1' as TEntityId;
     const occurredAt = new Date('2026-06-30T12:00:00.000Z');
 
-    const history: IFxCostBasisLotAcquisitionHistory = {
-      entityId: acquisitionId,
+    const history: IFxCostBasisLotHistory = {
+      entityId: lotId,
       action: 'created',
       diff: {
         before: null,
         after: {
-          id: acquisitionId,
+          id: lotId,
           ledgerAccountId: 'ledger-account-1' as TEntityId,
           accountingEntityId,
-          lotId,
-          journalEntryId: 'journal-entry-1' as TEntityId,
-          quantity: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
+          status: EFxCostBasisLotStatus.Open,
+          originalQuantity: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
+          remainingQuantity: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
           costBasis: moneyValue.make(150000, SYSTEM_CURRENCIES.NGN, false),
+          remainingCostBasis: moneyValue.make(
+            150000,
+            SYSTEM_CURRENCIES.NGN,
+            false
+          ),
           acquisitionRate: {
             currencyPair: 'USD/NGN',
             baseCurrencyCode: 'USD',
@@ -39,8 +46,9 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
             createdAt: occurredAt,
           },
           acquisitionDate: occurredAt,
-          officialRate: null,
+          version: 1,
           createdAt: occurredAt,
+          updatedAt: occurredAt,
         },
       },
       occurredAt,
@@ -51,8 +59,7 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
       correlationId: 'correlation-id',
     };
 
-    expect(fxCostBasisLotAcquisitionHistoryMapper.toRepo(history)).toEqual({
-      acquisitionId,
+    expect(fxCostBasisLotHistoryMapper.toRepo(history)).toEqual({
       lotId,
       accountingEntityId,
       actorType: EHistoryActorType.User,
@@ -64,38 +71,13 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
     });
   });
 
-  it('throws an error if lot ID cannot be found in the diff', () => {
-    const history = {
-      entityId: 'acquisition-1' as TEntityId,
-      action: 'created',
-      diff: {
-        before: null,
-        after: {
-          accountingEntityId: 'accounting-entity-1' as TEntityId,
-        }, // missing lotId
-      },
-      occurredAt: new Date(),
-      actor: {
-        type: EHistoryActorType.System,
-        userId: null,
-      },
-      correlationId: 'correlation-id',
-    } as unknown as IFxCostBasisLotAcquisitionHistory;
-
-    expect(() =>
-      fxCostBasisLotAcquisitionHistoryMapper.toRepo(history)
-    ).toThrow('repo_error_missing_history_unexpected');
-  });
-
   it('throws an error if accounting entity ID cannot be found in the diff', () => {
     const history = {
-      entityId: 'acquisition-1' as TEntityId,
+      entityId: 'lot-1' as TEntityId,
       action: 'created',
       diff: {
         before: null,
-        after: {
-          lotId: 'lot-1' as TEntityId,
-        }, // missing accountingEntityId
+        after: null, // intentionally missing to trigger error
       },
       occurredAt: new Date(),
       actor: {
@@ -103,10 +85,10 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
         userId: null,
       },
       correlationId: 'correlation-id',
-    } as unknown as IFxCostBasisLotAcquisitionHistory;
+    } as unknown as IFxCostBasisLotHistory;
 
-    expect(() =>
-      fxCostBasisLotAcquisitionHistoryMapper.toRepo(history)
-    ).toThrow('repo_error_missing_history_unexpected');
+    expect(() => fxCostBasisLotHistoryMapper.toRepo(history)).toThrow(
+      'repo_error_missing_history_unexpected'
+    );
   });
 });

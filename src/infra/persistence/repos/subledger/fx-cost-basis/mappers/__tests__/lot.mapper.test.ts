@@ -10,7 +10,7 @@ import {
 
 import fxCostBasisLotMapper, {
   IFxCostBasisLotModel,
-} from '@infra/persistence/repos/subledger/mappers/fx-cost-basis/lot.mapper';
+} from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/lot.mapper';
 
 describe('FX Cost-Basis Lot Mapper', () => {
   describe('toRepo', () => {

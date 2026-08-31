@@ -32,7 +32,7 @@
     "export:errors": "tsx scripts/export-error-keys.ts",
     "json-contract-to-ts": "tsx scripts/json-contract-to-ts.ts",
     "db:docs": "node scripts/generate-db-docs.js",
-    "db:migrate": "tsx ./node_modules/.bin/node-pg-migrate -j ts -m ./db/migrations -d POSTGRES_URL",
+    "db:migrate": "tsx ./node_modules/.bin/node-pg-migrate -j ts -m ./db/migrations -d POSTGRES_URL --migration-filename-format index",
     "db:sync": "npm run db:migrate up && npm run drizzle:pull",
     "db:reset": "npm run db:migrate down 1000 && npm run db:sync"
   },

@@ -5,8 +5,8 @@ import {
   subledgerFxCostBasisLotsInCore,
 } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';
-import fxCostBasisLotHistoryMapper from '@infra/persistence/repos/subledger/mappers/fx-cost-basis/lot-history.mapper';
-import fxCostBasisLotMapper from '@infra/persistence/repos/subledger/mappers/fx-cost-basis/lot.mapper';
+import fxCostBasisLotHistoryMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/lot-history.mapper';
+import fxCostBasisLotMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/lot.mapper';
 
 const fxCostBasisLotRepo: IFxCostBasisLotRepo = {
   create: async (payload, options) => {

@@ -10,20 +10,13 @@ import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import moneyValue from '@domain/money/values/money.vo';
 import fxCostBasisLotAcquisitionEntity from '@domain/subledger/fx-cost-basis/entities/acquisition.entity';
 import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.entity';
-import IFxCostBasisLotAcquisitionRepo from '@domain/subledger/fx-cost-basis/repos/acquisition.repo';
-import IFxCostBasisLotRepo from '@domain/subledger/fx-cost-basis/repos/lot.repo';
 import { EFxCostBasisLotStatus } from '@domain/subledger/fx-cost-basis/types/lot.types';
 
+import {
+  mockFxCostBasisLotAcquisitionRepo,
+  mockFxCostBasisLotRepo,
+} from '@app/subledger/contracts/__mocks__/subledger.repos.mock';
 import makeFxLotCostBasisPersistenceService from '@app/subledger/fx-cost-basis/services/fx-cost-basis-persistence.service';
-
-const mockFxCostBasisLotAcquisitionRepo: jest.Mocked<IFxCostBasisLotAcquisitionRepo> =
-  {
-    create: jest.fn(),
-  };
-
-const mockFxCostBasisLotRepo: jest.Mocked<IFxCostBasisLotRepo> = {
-  create: jest.fn(),
-};
 
 describe('fxCostBasisPersistenceService', () => {
   const correlationId = 'test-corr-id';

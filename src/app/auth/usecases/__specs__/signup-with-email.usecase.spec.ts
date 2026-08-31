@@ -7,18 +7,14 @@ import appError from '@shared/values/errors/app.error';
 import { IUser } from '@domain/user/types/user.types';
 import emailValue from '@domain/user/values/email.vo';
 
+import mockEmailVerificationService from '@app/auth/contracts/__mocks__/email-verification.service.mock';
 import mockPasswordService from '@app/auth/contracts/__mocks__/password-service.mock';
 import mockUserAuthRepo from '@app/auth/contracts/__mocks__/user-auth.repo.mock';
-import IEmailVerificationService from '@app/auth/contracts/email-verification-service.contract';
 import { IUserSignupReq } from '@app/auth/dtos/auth/auth.dto';
 import makeSignupWithEmailUsecase from '@app/auth/usecases/signup-with-email.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
-
-const mockEmailVerificationService: jest.Mocked<IEmailVerificationService> = {
-  send: jest.fn(),
-};
 
 describe('makeSignupWithEmailUsecase', () => {
   beforeEach(() => {

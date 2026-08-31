@@ -1,5 +1,8 @@
 import { TEntityId } from '@shared/types/uuid';
-import { IEntityDelta } from '@shared/values/history/types/history.types';
+import {
+  IEntityDelta,
+  IHistory,
+} from '@shared/values/history/types/history.types';
 
 import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
 import { IMoney } from '@domain/money/types/money.types';
@@ -40,3 +43,5 @@ export type UFxCostBasisLotDispositionAuditAction =
 export interface IFxCostBasisLotDispositionAudit extends IEntityDelta<IFxCostBasisLotDisposition> {
   action: UFxCostBasisLotDispositionAuditAction;
 }
+
+export interface IFxCostBasisLotDispositionHistory extends IHistory<IFxCostBasisLotDisposition> {}

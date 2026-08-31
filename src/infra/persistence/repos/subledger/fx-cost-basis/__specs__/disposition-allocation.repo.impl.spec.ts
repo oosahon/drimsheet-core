@@ -1,0 +1,82 @@
+import { ITransactionContext } from '@shared/types/repo.types';
+
+import { IFxCostBasisLotDispositionAllocation } from '@domain/subledger/fx-cost-basis/types/disposition.types';
+
+import { subledgerFxCostBasisLotDispositionAllocationsInCore } from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import fxCostBasisLotDispositionAllocationRepo from '@infra/persistence/repos/subledger/fx-cost-basis/disposition-allocation.repo.impl';
+import fxCostBasisLotDispositionAllocationMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/disposition-allocation.mapper';
+
+jest.mock('../../../../helpers/get-db-query');
+jest.mock('../../mappers/fx-cost-basis/disposition-allocation.mapper');
+
+describe('FX Cost-Basis Lot Disposition Allocation Repo', () => {
+  const payload = {
+    id: 'allocation-1',
+  } as IFxCostBasisLotDispositionAllocation;
+  const outerTx = 'outer-transaction' as unknown as ITransactionContext;
+  const options = { correlationId: 'correlation-id', tx: outerTx };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('persists the mapped allocation through the supplied transaction', async () => {
+    const allocationRow = { id: payload.id };
+    const values = jest.fn().mockResolvedValue(undefined);
+    const query = { insert: jest.fn().mockReturnValue({ values }) };
+    jest
+      .mocked(getDbQuery)
+      .mockReturnValue(query as unknown as ReturnType<typeof getDbQuery>);
+    jest
+      .mocked(fxCostBasisLotDispositionAllocationMapper.toRepo)
+      .mockReturnValue(
+        allocationRow as unknown as ReturnType<
+          typeof fxCostBasisLotDispositionAllocationMapper.toRepo
+        >
+      );
+
+    await fxCostBasisLotDispositionAllocationRepo.create(payload, options);
+
+    expect(getDbQuery).toHaveBeenCalledWith(options);
+    expect(
+      fxCostBasisLotDispositionAllocationMapper.toRepo
+    ).toHaveBeenCalledWith(payload);
+    expect(query.insert).toHaveBeenCalledWith(
+      subledgerFxCostBasisLotDispositionAllocationsInCore
+    );
+    expect(values).toHaveBeenCalledWith(allocationRow);
+  });
+
+  it('propagates database failures unchanged', async () => {
+    const databaseError = new Error('database unavailable');
+    const query = {
+      insert: jest.fn().mockReturnValue({
+        values: jest.fn().mockRejectedValue(databaseError),
+      }),
+    };
+    jest
+      .mocked(getDbQuery)
+      .mockReturnValue(query as unknown as ReturnType<typeof getDbQuery>);
+    jest
+      .mocked(fxCostBasisLotDispositionAllocationMapper.toRepo)
+      .mockReturnValue({ id: payload.id } as unknown as ReturnType<
+        typeof fxCostBasisLotDispositionAllocationMapper.toRepo
+      >);
+
+    await expect(
+      fxCostBasisLotDispositionAllocationRepo.create(payload, options)
+    ).rejects.toBe(databaseError);
+  });
+
+  it('propagates mapper failures unchanged', async () => {
+    const mapperError = new Error('invalid allocation');
+    jest
+      .mocked(fxCostBasisLotDispositionAllocationMapper.toRepo)
+      .mockImplementation(() => {
+        throw mapperError;
+      });
+
+    await expect(
+      fxCostBasisLotDispositionAllocationRepo.create(payload, options)
+    ).rejects.toBe(mapperError);
+  });
+});

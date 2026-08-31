@@ -24,3 +24,18 @@ export const subledgerFxCostBasisLotAcquisitionHistoryTable = {
   schema: auditSchema,
   name: 'subledger_fx_cost_basis_lot_acquisition_history',
 };
+
+export const subledgerFxCostBasisLotDispositionsTable = {
+  schema: coreSchema,
+  name: 'subledger_fx_cost_basis_lot_dispositions',
+};
+
+export const subledgerFxCostBasisLotDispositionHistoryTable = {
+  schema: auditSchema,
+  name: 'subledger_fx_cost_basis_lot_disposition_history',
+};
+
+export const subledgerFxCostBasisLotDispositionAllocationsTable = {
+  schema: coreSchema,
+  name: 'subledger_fx_cost_basis_lot_disposition_allocations',
+};

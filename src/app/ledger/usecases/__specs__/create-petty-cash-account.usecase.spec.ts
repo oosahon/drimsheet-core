@@ -24,7 +24,7 @@ import mockAppContext, {
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
+import { mockJournalEntryService } from '@app/journal-entry/contracts/__mocks__/journal-entry.domain.services.mock';
 import mockLedgerAccountPersistenceService from '@app/ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
 import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockAssetAccountService } from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';

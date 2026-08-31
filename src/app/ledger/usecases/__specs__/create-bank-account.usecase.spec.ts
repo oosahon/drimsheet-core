@@ -1,5 +1,6 @@
-import IEventBus from '@shared/contracts/event-bus.contract';
-import { IRepoService } from '@shared/contracts/repo.contract';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
@@ -20,16 +21,17 @@ import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import currencyEntity from '@domain/money/entities/currency.entity';
 
 import { mockAccountingPeriodService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
-import IAppContext from '@app/context/contracts/app-context.contract';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
+import { mockJournalEntryService } from '@app/journal-entry/contracts/__mocks__/journal-entry.domain.services.mock';
+import mockLedgerAccountPersistenceService from '@app/ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
 import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockAssetAccountService } from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
 import {
   mockBankAccountRepo,
   mockLedgerAccountRepo,
 } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
-import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
 import { IBankAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import makeCreateBankAccountUseCase from '@app/ledger/usecases/create-bank-account.usecase';
@@ -51,27 +53,6 @@ describe('makeCreateBankAccountUseCase', () => {
   const cashAccountService = makeCashAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
-
-  const mockAppContext: jest.Mocked<IAppContext> = {
-    get: jest.fn().mockReturnValue({
-      correlationId: 'test-correlation-id',
-      user: { id: userId },
-      accountingEntity,
-    }),
-  } as unknown as jest.Mocked<IAppContext>;
-
-  const mockEventBus: jest.Mocked<IEventBus> = {
-    publish: jest.fn(),
-  } as unknown as jest.Mocked<IEventBus>;
-
-  const mockLedgerAccountPersistenceService: jest.Mocked<ILedgerAccountPersistenceService> =
-    {
-      create: jest.fn(),
-    };
-
-  const mockRepoService: jest.Mocked<IRepoService> = {
-    runInTransaction: jest.fn().mockImplementation((fn) => fn({})),
-  } as unknown as jest.Mocked<IRepoService>;
 
   const bankDetails: IBankDetails = bankDetailsValue.make({
     countryCode: 'NG',
@@ -185,6 +166,14 @@ describe('makeCreateBankAccountUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAppContext.get.mockReturnValue({
+      correlationId: 'test-correlation-id',
+      user: { id: userId },
+      accountingEntity,
+    } as IAppContextData);
+    mockRepoService.runInTransaction.mockImplementation((transactionFn) =>
+      transactionFn({} as ITransactionContext)
+    );
     mockBankAccountRepo.findOne.mockResolvedValue(null);
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockAssetAccountService.createBankSubAccount.mockResolvedValue([

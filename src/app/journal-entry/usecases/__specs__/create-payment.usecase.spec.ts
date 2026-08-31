@@ -48,7 +48,7 @@ import mockFileManagementService from '@app/file/contracts/__mocks__/file-manage
 import fileAppError from '@app/file/errors/file.error';
 import { EFileUploadPurpose } from '@app/file/types/file.types';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
+import { mockJournalEntryService } from '@app/journal-entry/contracts/__mocks__/journal-entry.domain.services.mock';
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
 import { IPaymentEntryReq } from '@app/journal-entry/dtos/payment-entry/payment-entry.dto';
 import makeCreatePaymentUsecase from '@app/journal-entry/usecases/create-payment.usecase';
