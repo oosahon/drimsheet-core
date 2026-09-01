@@ -1,0 +1,120 @@
+import {
+  ITransactionContext,
+  IWriteRepoOptions,
+} from '@shared/types/repo.types';
+
+import {
+  IFxCostBasisLotDisposition,
+  IFxCostBasisLotDispositionHistory,
+} from '@domain/subledger/fx-cost-basis/types/disposition.types';
+
+import {
+  subledgerFxCostBasisLotDispositionHistoryInAudit,
+  subledgerFxCostBasisLotDispositionsInCore,
+} from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import fxCostBasisLotDispositionRepo from '@infra/persistence/repos/subledger/fx-cost-basis/disposition.repo.impl';
+import fxCostBasisLotDispositionHistoryMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/disposition-history.mapper';
+import fxCostBasisLotDispositionMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/disposition.mapper';
+
+jest.mock('../../../../helpers/get-db-query');
+jest.mock('../mappers/disposition.mapper');
+jest.mock('../mappers/disposition-history.mapper');
+
+describe('FX Cost-Basis Lot Disposition Repo', () => {
+  const payload = { id: 'disposition-1' } as IFxCostBasisLotDisposition;
+  const history = {
+    entityId: payload.id,
+  } as IFxCostBasisLotDispositionHistory;
+  const outerTx = 'outer-transaction' as unknown as ITransactionContext;
+  const options: IWriteRepoOptions<IFxCostBasisLotDispositionHistory> = {
+    correlationId: 'correlation-id',
+    history,
+    tx: outerTx,
+  };
+
+  beforeEach(() => jest.clearAllMocks());
+
+  it('persists disposition and history in one transaction', async () => {
+    const dispositionRow = { id: payload.id };
+    const historyRow = { dispositionId: payload.id };
+    const values = jest.fn().mockResolvedValue(undefined);
+    const tx = { insert: jest.fn().mockReturnValue({ values }) };
+    const query = {
+      transaction: jest.fn(
+        async (callback: (transaction: typeof tx) => Promise<void>) =>
+          callback(tx)
+      ),
+    };
+    jest
+      .mocked(getDbQuery)
+      .mockReturnValue(query as unknown as ReturnType<typeof getDbQuery>);
+    jest
+      .mocked(fxCostBasisLotDispositionMapper.toRepo)
+      .mockReturnValue(
+        dispositionRow as unknown as ReturnType<
+          typeof fxCostBasisLotDispositionMapper.toRepo
+        >
+      );
+    jest
+      .mocked(fxCostBasisLotDispositionHistoryMapper.toRepo)
+      .mockReturnValue(
+        historyRow as unknown as ReturnType<
+          typeof fxCostBasisLotDispositionHistoryMapper.toRepo
+        >
+      );
+
+    await fxCostBasisLotDispositionRepo.create(payload, options);
+
+    expect(getDbQuery).toHaveBeenCalledWith(options);
+    expect(query.transaction).toHaveBeenCalledTimes(1);
+    expect(tx.insert).toHaveBeenNthCalledWith(
+      1,
+      subledgerFxCostBasisLotDispositionsInCore
+    );
+    expect(tx.insert).toHaveBeenNthCalledWith(
+      2,
+      subledgerFxCostBasisLotDispositionHistoryInAudit
+    );
+    expect(values).toHaveBeenNthCalledWith(1, dispositionRow);
+    expect(values).toHaveBeenNthCalledWith(2, historyRow);
+    expect(fxCostBasisLotDispositionMapper.toRepo).toHaveBeenCalledWith(
+      payload
+    );
+    expect(fxCostBasisLotDispositionHistoryMapper.toRepo).toHaveBeenCalledWith(
+      history
+    );
+  });
+
+  it('propagates database transaction failures unchanged', async () => {
+    const databaseError = new Error('database unavailable');
+    jest.mocked(getDbQuery).mockReturnValue({
+      transaction: jest.fn().mockRejectedValue(databaseError),
+    } as unknown as ReturnType<typeof getDbQuery>);
+
+    await expect(
+      fxCostBasisLotDispositionRepo.create(payload, options)
+    ).rejects.toBe(databaseError);
+  });
+
+  it('propagates mapper failures unchanged', async () => {
+    const mapperError = new Error('invalid disposition');
+    const query = {
+      transaction: jest.fn(async (callback: (tx: unknown) => Promise<void>) =>
+        callback({ insert: jest.fn() })
+      ),
+    };
+    jest
+      .mocked(getDbQuery)
+      .mockReturnValue(query as unknown as ReturnType<typeof getDbQuery>);
+    jest
+      .mocked(fxCostBasisLotDispositionMapper.toRepo)
+      .mockImplementation(() => {
+        throw mapperError;
+      });
+
+    await expect(
+      fxCostBasisLotDispositionRepo.create(payload, options)
+    ).rejects.toBe(mapperError);
+  });
+});

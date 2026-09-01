@@ -11,6 +11,7 @@ description: Use when creating or changing domain services, coordinated domain c
 - [Folder Responsibility](../../rules/folder-responsibility.md)
 - [Service Philosophy](../../rules/service-philosophy.md)
 - [Service Ownership](../../rules/service-ownership.md)
+- [Readability](../../rules/readability.md)
 - [Domain Modeling](../../rules/domain-modeling.md)
 - [Error Creation](../../rules/error-creation.md)
 - [Domain Unit Tests](../../rules/testing/domain.md)

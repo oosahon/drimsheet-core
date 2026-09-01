@@ -182,6 +182,19 @@ audit_subledger_fx_cost_basis_lot_acquisition_history {
     timestamptz recorded_at
 }
 
+audit_subledger_fx_cost_basis_lot_disposition_history {
+    bigint id PK
+    uuid disposition_id
+    uuid accounting_entity_id
+    uuid user_id FK
+    audit_history_actor_type actor_type
+    varchar_50_ action
+    jsonb diff
+    varchar_255_ correlation_id
+    timestamptz occurred_at
+    timestamptz recorded_at
+}
+
 audit_subledger_fx_cost_basis_lot_history {
     bigint id PK
     uuid lot_id
@@ -368,8 +381,7 @@ core_journal_entries {
 }
 
 core_journal_entry_attachments {
-    uuid id PK
-    uuid journal_entry_id FK
+    uuid journal_entry_id PK,FK
     jsonb data
     timestamptz created_at
     timestamptz updated_at
@@ -461,6 +473,14 @@ core_ledger_accounts {
     timestamptz deleted_at
 }
 
+core_outbox {
+    uuid id PK
+    varchar_255_ correlation_id
+    varchar_255_ type
+    jsonb data
+    timestamptz created_at
+}
+
 core_reporting_contexts {
     uuid id PK
     varchar_150_ name
@@ -500,6 +520,40 @@ core_subledger_fx_cost_basis_lot_acquisitions {
     jsonb acquisition_rate
     date acquisition_date
     jsonb official_rate
+    timestamptz created_at
+}
+
+core_subledger_fx_cost_basis_lot_disposition_allocations {
+    uuid id PK
+    uuid disposition_id FK
+    uuid lot_id FK
+    bigint quantity_amount
+    varchar_3_ quantity_currency FK
+    bigint cost_basis_consumed_amount
+    varchar_3_ cost_basis_consumed_currency FK
+    bigint proceeds_amount
+    varchar_3_ proceeds_currency FK
+    bigint realized_gain_loss_amount
+    varchar_3_ realized_gain_loss_currency FK
+    timestamptz created_at
+}
+
+core_subledger_fx_cost_basis_lot_dispositions {
+    uuid id PK
+    uuid ledger_account_id FK
+    uuid accounting_entity_id FK
+    uuid journal_entry_id FK
+    bigint quantity_amount
+    varchar_3_ quantity_currency FK
+    bigint cost_basis_consumed_amount
+    varchar_3_ cost_basis_consumed_currency FK
+    bigint proceeds_amount
+    varchar_3_ proceeds_currency FK
+    bigint realized_gain_loss_amount
+    varchar_3_ realized_gain_loss_currency FK
+    jsonb disposition_rate
+    jsonb official_rate
+    date disposition_date
     timestamptz created_at
 }
 
@@ -569,6 +623,7 @@ core_users ||--o{ audit_ledger_account_history : "ledger_account_history_user_id
 core_users ||--o{ audit_reporting_context_history : "reporting_context_history_user_id_fkey"
 core_users ||--o{ audit_reporting_period_history : "reporting_period_history_user_id_fkey"
 core_users ||--o{ audit_subledger_fx_cost_basis_lot_acquisition_history : "subledger_fx_cost_basis_lot_acquisition_history_user_id_fkey"
+core_users ||--o{ audit_subledger_fx_cost_basis_lot_disposition_history : "subledger_fx_cost_basis_lot_disposition_history_user_id_fkey"
 core_users ||--o{ audit_subledger_fx_cost_basis_lot_history : "subledger_fx_cost_basis_lot_history_user_id_fkey"
 core_users ||--o{ audit_user_profile_history : "user_profile_history_user_id_fkey"
 core_accounting_entities ||--o{ core_accounting_contexts : "accounting_contexts_accounting_entity_id_fkey"
@@ -628,6 +683,19 @@ core_journal_entries ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "sub
 core_ledger_accounts ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "subledger_fx_cost_basis_lot_acquisitions_ledger_account_id_fkey"
 core_subledger_fx_cost_basis_lots ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "subledger_fx_cost_basis_lot_acquisitions_lot_id_fkey"
 core_currencies ||--o{ core_subledger_fx_cost_basis_lot_acquisitions : "subledger_fx_cost_basis_lot_acquisitions_quantity_currency_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_disposition_allocations : "subledger_fx_cost_basis_lot__cost_basis_consumed_currency_fkey1"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_disposition_allocations : "subledger_fx_cost_basis_lot_d_realized_gain_loss_currency_fkey1"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_disposition_allocations : "subledger_fx_cost_basis_lot_disposition__proceeds_currency_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_disposition_allocations : "subledger_fx_cost_basis_lot_disposition__quantity_currency_fkey"
+core_subledger_fx_cost_basis_lot_dispositions ||--o{ core_subledger_fx_cost_basis_lot_disposition_allocations : "subledger_fx_cost_basis_lot_disposition_all_disposition_id_fkey"
+core_subledger_fx_cost_basis_lots ||--o{ core_subledger_fx_cost_basis_lot_disposition_allocations : "subledger_fx_cost_basis_lot_disposition_allocations_lot_id_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_dispositions : "subledger_fx_cost_basis_lot_d_cost_basis_consumed_currency_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_dispositions : "subledger_fx_cost_basis_lot_di_realized_gain_loss_currency_fkey"
+core_accounting_entities ||--o{ core_subledger_fx_cost_basis_lot_dispositions : "subledger_fx_cost_basis_lot_dispositi_accounting_entity_id_fkey"
+core_journal_entries ||--o{ core_subledger_fx_cost_basis_lot_dispositions : "subledger_fx_cost_basis_lot_dispositions_journal_entry_id_fkey"
+core_ledger_accounts ||--o{ core_subledger_fx_cost_basis_lot_dispositions : "subledger_fx_cost_basis_lot_dispositions_ledger_account_id_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_dispositions : "subledger_fx_cost_basis_lot_dispositions_proceeds_currency_fkey"
+core_currencies ||--o{ core_subledger_fx_cost_basis_lot_dispositions : "subledger_fx_cost_basis_lot_dispositions_quantity_currency_fkey"
 core_accounting_entities ||--o{ core_subledger_fx_cost_basis_lots : "subledger_fx_cost_basis_lots_accounting_entity_id_fkey"
 core_currencies ||--o{ core_subledger_fx_cost_basis_lots : "subledger_fx_cost_basis_lots_cost_basis_currency_fkey"
 core_ledger_accounts ||--o{ core_subledger_fx_cost_basis_lots : "subledger_fx_cost_basis_lots_ledger_account_id_fkey"

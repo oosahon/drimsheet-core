@@ -23,6 +23,8 @@ import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
 import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
+import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
+import IFxLotAppService from '@app/subledger/fx-cost-basis/contracts/fx-lot.service.contract';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -33,6 +35,8 @@ interface IDependencies {
   outboxService: IOutboxService;
   ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
   repoService: IRepoService;
+  fxLotAppService: IFxLotAppService;
+  fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
 }
 
 export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
@@ -58,17 +62,19 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
       ? exchangeRateValue.make(payload.exchangeRate)
       : null;
 
+    const balanceCreationPayload = {
+      accountingEntityId: accountingEntity.id,
+      functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
+      account,
+      amount,
+      effectiveDate: payload.date,
+      exchangeRate,
+      createdBy: account.createdBy,
+    };
+
     const [journalEntry, journalEvents, audit] =
       await deps.journalEntryService.createOpeningBalance(
-        {
-          accountingEntityId: accountingEntity.id,
-          functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-          account,
-          amount,
-          effectiveDate: payload.date,
-          exchangeRate,
-          createdBy: account.createdBy,
-        },
+        balanceCreationPayload,
         repoOptions
       );
 
@@ -89,6 +95,11 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
     const shouldUpdateBalance =
       journalEntry.status === EJournalEntryStatus.Posted;
 
+    const fxResult = await deps.fxLotAppService.acquire(
+      { journalEntry, account, actor },
+      repoOptions
+    );
+
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const writeRepoOptions = { ...repoOptions, tx };
 
@@ -103,6 +114,13 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
         lineHistories,
         writeRepoOptions
       );
+
+      if (fxResult) {
+        await deps.fxCostBasisPersistenceService.persistAcquisition(
+          fxResult.records,
+          writeRepoOptions
+        );
+      }
 
       if (shouldUpdateBalance) {
         await deps.outboxService.createBalancePropagation(
@@ -121,7 +139,11 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
       });
     }
 
-    const allEvents: IEvent<unknown>[] = [...accountEvents, ...journalEvents];
+    const allEvents: IEvent<unknown>[] = [
+      ...accountEvents,
+      ...journalEvents,
+      ...(fxResult?.events ?? []),
+    ];
     deps.eventBus.publish(eventValue.enrichAll(allEvents, repoOptions));
   };
 }

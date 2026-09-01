@@ -9,7 +9,7 @@ import { IFxCostBasisLotAcquisition } from '@domain/subledger/fx-cost-basis/type
 import exchangeRateMapper from '@infra/persistence/repos/money/mappers/exchange-rate.mapper';
 import fxCostBasisLotAcquisitionMapper, {
   IFxCostBasisLotAcquisitionModel,
-} from '@infra/persistence/repos/subledger/mappers/fx-cost-basis/acquisition.mapper';
+} from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/acquisition.mapper';
 
 describe('FX Cost-Basis Lot Acquisition Mapper', () => {
   beforeEach(() => {

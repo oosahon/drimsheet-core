@@ -16,14 +16,18 @@ Use this for ordinary code changes.
    Plans do not override current rules or established local patterns.
 5. Name the owner of every invariant, decision, side effect, transaction, and
    new behavior: domain, app, interface, infra, or shared.
+   For every write, verify that a use case initiates it. A dedicated persistence
+   service may compose the repository writes, but no domain or
+   non-persistence application service may invoke that capability.
 6. Before editing, run the ownership checks that match the change:
    - For HTTP outputs, search for an existing app DTO and mapper before adding
      response contracts or exposing domain entities.
    - For reusable failure behavior, inspect every caller before assigning
      rejection, best-effort handling, or reporting ownership.
    - For transactions, review callback shape separately for responsibility
-     creep, separate preparation reads from atomic writes, and name preparation
-     versus persistence phases.
+     creep, separate preparation reads from atomic writes, name preparation
+     versus persistence phases, and verify the use case invokes every write or
+     persistence service.
    - For owner APIs, reject expansions that only re-export another helper for
      call-site convenience.
 7. Justify each proposed service as a named capability. If it only shortens a

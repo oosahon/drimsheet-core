@@ -24,9 +24,11 @@ This document provides guidelines for contributing to this project to ensure a s
 ### Pragmatic Functional OOP
 
 - Domain entities, values, and pure rules should avoid side effects.
-  Repositories and application services may perform controlled side effects
-  such as persistence, cache claims, queueing, transactions, and reporting when
-  those effects belong to their layer.
+  Use cases alone initiate persistence and own workflow write ordering.
+  Application services return prepared results and must not invoke write
+  repositories or persistence services. When multiple repository writes must
+  remain atomic, a dedicated persistence service may compose them, but only a
+  use case may invoke that persistence capability.
 - Services should represent named capabilities with clear ownership. See
   [Service Philosophy](.agents/rules/service-philosophy.md) and
   [Service Ownership](.agents/rules/service-ownership.md).

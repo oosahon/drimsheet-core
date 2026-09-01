@@ -28,8 +28,14 @@ Use the folder that owns the behavior.
 - Domain must not know HTTP, Express, TSOA, Redis, Drizzle, env vars, cookies, queues, or logging.
 - Controllers and middlewares orchestrate only. Business or app decisions go to domain/app.
 - Use cases orchestrate domain/app behavior. Extract non-trivial rules to domain services, entities, values, or app policies.
-- Repositories store and retrieve data only. Keep workflow-specific
-  transactions with their use case unless persistence is a reusable capability.
+- Only use cases initiate persistence. They may call repositories directly or
+  invoke a dedicated persistence service that atomically composes repository
+  writes. Domain and application services must not invoke write repositories or
+  persistence services, except for the repository writes owned internally by a
+  dedicated persistence service itself.
+- Repositories store and retrieve data only. Persistence services compose only
+  the repository writes and storage-level invariants required for an atomic
+  persistence bundle; they do not own workflow ordering.
 - Config files configure adapters. They are not helper folders.
 - Shared must not contain product-specific rules or framework assumptions.
 - Helpers inherit the owner of the behavior they contain.

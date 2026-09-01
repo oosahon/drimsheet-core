@@ -24,7 +24,7 @@ import mockAppContext, {
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
+import { mockJournalEntryService } from '@app/journal-entry/contracts/__mocks__/journal-entry.domain.services.mock';
 import mockLedgerAccountPersistenceService from '@app/ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
 import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockAssetAccountService } from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
@@ -32,10 +32,10 @@ import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.re
 import { IPettyCashAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import makeCreatePettyCashAccountUseCase from '@app/ledger/usecases/create-petty-cash-account.usecase';
-import mockExchangeRateService from '@app/money/contracts/__mocks__/exchange-rate.service.mock';
 import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
-import { mockFxCostBasisLotDomainService } from '@app/subledger/contracts/__mocks__/subledger.domain.services.mock';
 import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
+import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
+import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
 describe('createPettyCashSubAccountUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -169,6 +169,7 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockOpeningBalanceEvents,
       mockOpeningBalanceAudit,
     ]);
+    mockFxLotAppService.acquire.mockResolvedValue(null);
   });
 
   const getUseCase = () =>
@@ -184,9 +185,8 @@ describe('createPettyCashSubAccountUseCase', () => {
       ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
       repoService: mockRepoService,
       ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
+      fxLotAppService: mockFxLotAppService,
       fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
-      fxCostBasisService: mockFxCostBasisLotDomainService,
-      exchangeRateService: mockExchangeRateService,
     });
 
   it('should successfully create a petty cash sub-account and record opening balance', async () => {
@@ -563,32 +563,38 @@ describe('createPettyCashSubAccountUseCase', () => {
         },
       ],
     };
-    mockFxCostBasisLotDomainService.acquire.mockReturnValueOnce(
-      mockLotData as any
-    );
-    mockExchangeRateService.getOfficialRate.mockResolvedValueOnce({
-      rate: 1500,
-      currencyPair: { baseCurrencyCode: 'USD', quoteCurrencyCode: 'NGN' },
-      asOf: new Date('2026-03-14T00:00:00.000Z'),
-    } as any);
+    const fxRecords = {
+      lot: mockLotData.lot[0],
+      acquisition: mockLotData.acquisition[0],
+      lotHistory: {
+        entityId: '123e4567-e89b-12d3-a456-426614174099' as TEntityId,
+      },
+      acquisitionHistory: {
+        entityId: '123e4567-e89b-12d3-a456-426614174098' as TEntityId,
+      },
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotAcquisitionAppResult['records'];
+    mockFxLotAppService.acquire.mockResolvedValueOnce({
+      records: fxRecords,
+      events: [],
+    });
 
     const useCase = getUseCase();
     await useCase(foreignPayload);
 
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      {
+        journalEntry: expect.anything(),
+        account: expect.objectContaining({ currency: SYSTEM_CURRENCIES.USD }),
+        actor: expect.objectContaining({ userId: mockUser.id }),
+      },
+      { correlationId }
+    );
     expect(
       mockFxLotCostBasisService.persistence.persistAcquisition
     ).toHaveBeenCalledWith(
-      mockLotData.lot[0],
-      mockLotData.acquisition[0],
-      expect.objectContaining({
-        entityId: '123e4567-e89b-12d3-a456-426614174099',
-        correlationId,
-      }),
-      expect.objectContaining({
-        entityId: '123e4567-e89b-12d3-a456-426614174098',
-        correlationId,
-      }),
-      { correlationId, tx: 'mock-tx' }
+      fxRecords,
+      expect.objectContaining({ correlationId })
     );
   });
 });

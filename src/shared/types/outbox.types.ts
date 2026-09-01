@@ -2,6 +2,7 @@ import { TEntityId } from '@shared/types/uuid';
 
 export const EOutboxType = {
   BalancePropagation: 'balance_propagation',
+  MissingOfficialFxRate: 'missing_official_fx_rate',
 } as const;
 
 export type UOutboxType = (typeof EOutboxType)[keyof typeof EOutboxType];

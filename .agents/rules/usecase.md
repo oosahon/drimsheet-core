@@ -14,10 +14,26 @@
 - Orchestrate the request workflow, including repository writes, transactions,
   history creation, context updates, and event publication when they are
   specific to that workflow.
-- Own the transaction boundary when atomicity is request-specific.
+- Be the sole initiator of persistence. Call repositories directly for simple
+  writes or call a dedicated persistence service for an atomic multi-repository
+  bundle. Do not delegate the decision to persist to another domain or
+  application service.
+- Own the outer workflow transaction and pass it to every persistence call that
+  must commit or roll back with the request.
 - Do not hide business rules in the use case body.
 - Move non-trivial decisions to domain entities, values, domain services, app services, or app policies.
 - Do not extract a service only to shorten the use case.
+
+## Persistence Services
+
+- A persistence service is a narrowly named write capability invoked directly
+  by a use case.
+- It may compose repository writes and enforce structural or storage-level
+  invariants needed to keep the persisted bundle coherent.
+- It may join the caller's transaction or create the local transaction required
+  to make its own write bundle atomic.
+- It must not decide whether the workflow should persist, call domain services,
+  publish events, enqueue work, or own request-specific ordering.
 
 ## Transactions
 

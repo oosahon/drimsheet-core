@@ -6,6 +6,8 @@ import mockOutboxRepo from '@app/outbox/contracts/__mocks__/outbox.repo.mock';
 import makeOutboxService from '@app/outbox/services/outbox.service';
 
 describe('makeOutboxService', () => {
+  beforeEach(() => jest.clearAllMocks());
+
   it('stores a balance propagation row using the journal ID and null data', async () => {
     const journalEntryId = generateUUID();
     const tx = 'transaction' as unknown as ITransactionContext;

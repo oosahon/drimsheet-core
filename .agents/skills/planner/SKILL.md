@@ -12,8 +12,10 @@ description: Use whenever the user asks for a plan, implementation plan, approac
    [Precedent And Deviation](../../rules/precedent-and-deviation.md).
 2. Inspect the repository enough to distinguish confirmed findings from
    assumptions and open decisions.
-3. Inspect existing services, contracts, repositories, and IoC before proposing
-   a new service or changing transaction ownership.
+3. Inspect existing services, contracts, repositories, use cases, and IoC before
+   proposing a new service or changing transaction ownership. Verify that every
+   persistence call is initiated by a use case; a persistence service may
+   compose repository writes but must be invoked directly by that use case.
 4. Validate proposed placements against durable rules and local patterns.
 5. Classify every structural decision by its requirement, rule, concrete local
    precedent, or approved deviation. Cite paths and symbols for precedents.

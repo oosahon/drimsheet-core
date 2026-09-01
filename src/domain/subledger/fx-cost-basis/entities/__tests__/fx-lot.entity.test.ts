@@ -128,6 +128,117 @@ describe('fxCostBasisLotEntity', () => {
     });
   });
 
+  describe('consume', () => {
+    it('partially consumes an open lot and records an audited disposition', () => {
+      const [lot] = fxCostBasisLotEntity.make(validPayload);
+
+      const [updated, events, audit] = fxCostBasisLotEntity.consume(
+        lot,
+        moneyValue.make(40, SYSTEM_CURRENCIES.USD, false),
+        moneyValue.make(60000, SYSTEM_CURRENCIES.NGN, false)
+      );
+
+      expect(updated.remainingQuantity).toEqual(
+        moneyValue.make(60, SYSTEM_CURRENCIES.USD, false)
+      );
+      expect(updated.remainingCostBasis).toEqual(
+        moneyValue.make(90000, SYSTEM_CURRENCIES.NGN, false)
+      );
+      expect(updated.status).toBe(EFxCostBasisLotStatus.Open);
+      expect(updated.version).toBe(lot.version + 1);
+      expect(events).toHaveLength(1);
+      expect(audit.diff).toEqual({ before: lot, after: updated });
+    });
+
+    it('closes a fully consumed lot without leaving cost-basis dust', () => {
+      const [lot] = fxCostBasisLotEntity.make(validPayload);
+
+      const [updated] = fxCostBasisLotEntity.consume(
+        lot,
+        lot.remainingQuantity,
+        lot.remainingCostBasis
+      );
+
+      expect(updated.status).toBe(EFxCostBasisLotStatus.Closed);
+      expect(moneyValue.isZeroAmount(updated.remainingQuantity)).toBe(true);
+      expect(moneyValue.isZeroAmount(updated.remainingCostBasis)).toBe(true);
+    });
+
+    it.each([
+      [
+        'zero quantity',
+        moneyValue.make(0, SYSTEM_CURRENCIES.USD, false),
+        moneyValue.make(1, SYSTEM_CURRENCIES.NGN, false),
+        fxCostBasisLotError.InvalidConsumptionQuantity,
+      ],
+      [
+        'excess quantity',
+        moneyValue.make(101, SYSTEM_CURRENCIES.USD, false),
+        moneyValue.make(1, SYSTEM_CURRENCIES.NGN, false),
+        fxCostBasisLotError.InvalidConsumptionQuantity,
+      ],
+      [
+        'quantity currency mismatch',
+        moneyValue.make(1, SYSTEM_CURRENCIES.EUR, false),
+        moneyValue.make(1, SYSTEM_CURRENCIES.NGN, false),
+        fxCostBasisLotError.InvalidConsumptionQuantity,
+      ],
+      [
+        'zero cost basis',
+        moneyValue.make(1, SYSTEM_CURRENCIES.USD, false),
+        moneyValue.make(0, SYSTEM_CURRENCIES.NGN, false),
+        fxCostBasisLotError.InvalidConsumptionCostBasis,
+      ],
+      [
+        'excess cost basis',
+        moneyValue.make(1, SYSTEM_CURRENCIES.USD, false),
+        moneyValue.make(150001, SYSTEM_CURRENCIES.NGN, false),
+        fxCostBasisLotError.InvalidConsumptionCostBasis,
+      ],
+      [
+        'cost-basis currency mismatch',
+        moneyValue.make(1, SYSTEM_CURRENCIES.USD, false),
+        moneyValue.make(1, SYSTEM_CURRENCIES.USD, false),
+        fxCostBasisLotError.InvalidConsumptionCostBasis,
+      ],
+    ])('rejects %s', (_, quantity, costBasis, ErrorClass) => {
+      const [lot] = fxCostBasisLotEntity.make(validPayload);
+
+      expect(() =>
+        fxCostBasisLotEntity.consume(lot, quantity, costBasis)
+      ).toThrow(ErrorClass);
+    });
+
+    it('rejects a closed lot', () => {
+      const [lot] = fxCostBasisLotEntity.make(validPayload);
+      const [closed] = fxCostBasisLotEntity.consume(
+        lot,
+        lot.remainingQuantity,
+        lot.remainingCostBasis
+      );
+
+      expect(() =>
+        fxCostBasisLotEntity.consume(
+          closed,
+          moneyValue.make(1, SYSTEM_CURRENCIES.USD, false),
+          moneyValue.make(1500, SYSTEM_CURRENCIES.NGN, false)
+        )
+      ).toThrow(fxCostBasisLotError.ClosedLot);
+    });
+
+    it('rejects closing a lot while leaving cost-basis dust', () => {
+      const [lot] = fxCostBasisLotEntity.make(validPayload);
+
+      expect(() =>
+        fxCostBasisLotEntity.consume(
+          lot,
+          lot.remainingQuantity,
+          moneyValue.make(149999, SYSTEM_CURRENCIES.NGN, false)
+        )
+      ).toThrow(fxCostBasisLotError.InvalidConsumptionCostBasis);
+    });
+  });
+
   describe('helpers', () => {
     it('validates status', () => {
       expect(

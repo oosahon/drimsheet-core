@@ -89,190 +89,214 @@
       "y": 1092
     },
     {
-      "name": "subledger_fx_cost_basis_lot_history",
+      "name": "subledger_fx_cost_basis_lot_disposition_history",
       "schemaName": "audit",
       "x": 1052,
+      "y": 1092
+    },
+    {
+      "name": "subledger_fx_cost_basis_lot_history",
+      "schemaName": "audit",
+      "x": 1572,
       "y": 1092
     },
     {
       "name": "user_profile_history",
       "schemaName": "audit",
-      "x": 1572,
-      "y": 1092
+      "x": 12,
+      "y": 1452
     },
     {
       "name": "accounting_contexts",
       "schemaName": "core",
-      "x": 12,
+      "x": 532,
       "y": 1452
     },
     {
       "name": "accounting_entities",
       "schemaName": "core",
-      "x": 532,
+      "x": 1052,
       "y": 1452
     },
     {
       "name": "accounting_periods",
       "schemaName": "core",
-      "x": 1052,
+      "x": 1572,
       "y": 1452
     },
     {
       "name": "accounting_standards",
       "schemaName": "core",
-      "x": 1572,
-      "y": 1452
+      "x": 12,
+      "y": 1812
     },
     {
       "name": "bank_details",
       "schemaName": "core",
-      "x": 12,
+      "x": 532,
       "y": 1812
     },
     {
       "name": "counterparties",
       "schemaName": "core",
-      "x": 532,
+      "x": 1052,
       "y": 1812
     },
     {
       "name": "counterparty_contractors",
       "schemaName": "core",
-      "x": 1052,
+      "x": 1572,
       "y": 1812
     },
     {
       "name": "counterparty_employers",
       "schemaName": "core",
-      "x": 1572,
-      "y": 1812
+      "x": 12,
+      "y": 2172
     },
     {
       "name": "counterparty_roles",
       "schemaName": "core",
-      "x": 12,
+      "x": 532,
       "y": 2172
     },
     {
       "name": "counterparty_vendors",
       "schemaName": "core",
-      "x": 532,
+      "x": 1052,
       "y": 2172
     },
     {
       "name": "currencies",
       "schemaName": "core",
-      "x": 1052,
+      "x": 1572,
       "y": 2172
     },
     {
       "name": "currency_exchange_rates",
       "schemaName": "core",
-      "x": 1572,
-      "y": 2172
+      "x": 12,
+      "y": 2532
     },
     {
       "name": "fiscal_years",
       "schemaName": "core",
-      "x": 12,
+      "x": 532,
       "y": 2532
     },
     {
       "name": "journal_entries",
       "schemaName": "core",
-      "x": 532,
+      "x": 1052,
       "y": 2532
     },
     {
       "name": "journal_entry_attachments",
       "schemaName": "core",
-      "x": 1052,
+      "x": 1572,
       "y": 2532
     },
     {
       "name": "journal_lines",
       "schemaName": "core",
-      "x": 1572,
-      "y": 2532
+      "x": 12,
+      "y": 2892
     },
     {
       "name": "jurisdiction_accounting_standards",
       "schemaName": "core",
-      "x": 12,
+      "x": 532,
       "y": 2892
     },
     {
       "name": "jurisdictions",
       "schemaName": "core",
-      "x": 532,
+      "x": 1052,
       "y": 2892
     },
     {
       "name": "ledger_account_balance_adjustments",
       "schemaName": "core",
-      "x": 1052,
+      "x": 1572,
       "y": 2892
     },
     {
       "name": "ledger_account_balances",
       "schemaName": "core",
-      "x": 1572,
-      "y": 2892
+      "x": 12,
+      "y": 3252
     },
     {
       "name": "ledger_accounts",
       "schemaName": "core",
-      "x": 12,
+      "x": 532,
+      "y": 3252
+    },
+    {
+      "name": "outbox",
+      "schemaName": "core",
+      "x": 1052,
       "y": 3252
     },
     {
       "name": "reporting_contexts",
       "schemaName": "core",
-      "x": 532,
+      "x": 1572,
       "y": 3252
     },
     {
       "name": "reporting_periods",
       "schemaName": "core",
-      "x": 1052,
-      "y": 3252
-    },
-    {
-      "name": "subledger_fx_cost_basis_lot_acquisitions",
-      "schemaName": "core",
-      "x": 1572,
-      "y": 3252
-    },
-    {
-      "name": "subledger_fx_cost_basis_lots",
-      "schemaName": "core",
       "x": 12,
       "y": 3612
     },
     {
-      "name": "user_auth",
+      "name": "subledger_fx_cost_basis_lot_acquisitions",
       "schemaName": "core",
       "x": 532,
       "y": 3612
     },
     {
-      "name": "user_preferences",
+      "name": "subledger_fx_cost_basis_lot_disposition_allocations",
       "schemaName": "core",
       "x": 1052,
       "y": 3612
     },
     {
-      "name": "user_sessions",
+      "name": "subledger_fx_cost_basis_lot_dispositions",
       "schemaName": "core",
       "x": 1572,
       "y": 3612
     },
     {
-      "name": "users",
+      "name": "subledger_fx_cost_basis_lots",
       "schemaName": "core",
       "x": 12,
       "y": 3972
+    },
+    {
+      "name": "user_auth",
+      "schemaName": "core",
+      "x": 532,
+      "y": 3972
+    },
+    {
+      "name": "user_preferences",
+      "schemaName": "core",
+      "x": 1052,
+      "y": 3972
+    },
+    {
+      "name": "user_sessions",
+      "schemaName": "core",
+      "x": 1572,
+      "y": 3972
+    },
+    {
+      "name": "users",
+      "schemaName": "core",
+      "x": 12,
+      "y": 4332
     }
   ],
   "referencePaths": [
@@ -482,6 +506,21 @@
         "user_id"
       ],
       "secondTableName": "subledger_fx_cost_basis_lot_acquisition_history",
+      "secondSchemaName": "audit",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "users",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "user_id"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_disposition_history",
       "secondSchemaName": "audit",
       "secondRelation": "*",
       "checkPoints": []
@@ -1367,6 +1406,201 @@
         "quantity_currency"
       ],
       "secondTableName": "subledger_fx_cost_basis_lot_acquisitions",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "code"
+      ],
+      "firstTableName": "currencies",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "cost_basis_consumed_currency"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_disposition_allocations",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "code"
+      ],
+      "firstTableName": "currencies",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "realized_gain_loss_currency"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_disposition_allocations",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "code"
+      ],
+      "firstTableName": "currencies",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "proceeds_currency"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_disposition_allocations",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "code"
+      ],
+      "firstTableName": "currencies",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "quantity_currency"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_disposition_allocations",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "subledger_fx_cost_basis_lot_dispositions",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "disposition_id"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_disposition_allocations",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "subledger_fx_cost_basis_lots",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "lot_id"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_disposition_allocations",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "code"
+      ],
+      "firstTableName": "currencies",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "cost_basis_consumed_currency"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_dispositions",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "code"
+      ],
+      "firstTableName": "currencies",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "realized_gain_loss_currency"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_dispositions",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "accounting_entities",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "accounting_entity_id"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_dispositions",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "journal_entries",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "journal_entry_id"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_dispositions",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "id"
+      ],
+      "firstTableName": "ledger_accounts",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "ledger_account_id"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_dispositions",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "code"
+      ],
+      "firstTableName": "currencies",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "proceeds_currency"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_dispositions",
+      "secondSchemaName": "core",
+      "secondRelation": "*",
+      "checkPoints": []
+    },
+    {
+      "firstFieldNames": [
+        "code"
+      ],
+      "firstTableName": "currencies",
+      "firstSchemaName": "core",
+      "firstRelation": "1",
+      "secondFieldNames": [
+        "quantity_currency"
+      ],
+      "secondTableName": "subledger_fx_cost_basis_lot_dispositions",
       "secondSchemaName": "core",
       "secondRelation": "*",
       "checkPoints": []

@@ -1,20 +1,13 @@
 import appError from '@shared/values/errors/app.error';
 
-import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockExchangeRateRepo } from '@app/money/contracts/__mocks__/money.repos.mock';
 import { IExchangeRateQueryParam } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 import makeGetExchangeRateUseCase from '@app/money/usecases/get-exchange-rates.usecase';
-
-const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
-  create: jest.fn(),
-  find: jest.fn(),
-  findByPairAndDate: jest.fn(),
-  findLatest: jest.fn(),
-};
 
 describe('makeGetExchangeRateUseCase', () => {
   const correlationId = 'test-correlation-id';
@@ -30,7 +23,7 @@ describe('makeGetExchangeRateUseCase', () => {
   const getUseCase = () =>
     makeGetExchangeRateUseCase({
       appContext: mockAppContext,
-      exchangeRateRepo: exchangeRateRepoMock,
+      exchangeRateRepo: mockExchangeRateRepo,
     });
 
   it('should successfully get exchange rates by query', async () => {
@@ -52,13 +45,13 @@ describe('makeGetExchangeRateUseCase', () => {
       type: EExchangeRateType.Market,
     });
 
-    exchangeRateRepoMock.find.mockResolvedValue([mockExchangeRate]);
+    mockExchangeRateRepo.find.mockResolvedValue([mockExchangeRate]);
 
     const usecase = getUseCase();
     const result = await usecase(query);
 
     expect(mockAppContext.get).toHaveBeenCalledTimes(1);
-    expect(exchangeRateRepoMock.find).toHaveBeenCalledWith(query, {
+    expect(mockExchangeRateRepo.find).toHaveBeenCalledWith(query, {
       correlationId,
     });
     expect(result).toEqual([mockExchangeRate]);
@@ -74,6 +67,6 @@ describe('makeGetExchangeRateUseCase', () => {
     await expect(usecase(invalidQuery)).rejects.toThrow(
       appError.UnprocessableEntity
     );
-    expect(exchangeRateRepoMock.find).not.toHaveBeenCalled();
+    expect(mockExchangeRateRepo.find).not.toHaveBeenCalled();
   });
 });

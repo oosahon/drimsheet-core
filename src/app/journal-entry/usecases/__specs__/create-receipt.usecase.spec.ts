@@ -32,13 +32,16 @@ import mockFileManagementService from '@app/file/contracts/__mocks__/file-manage
 import fileAppError from '@app/file/errors/file.error';
 import { EFileUploadPurpose } from '@app/file/types/file.types';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
+import { mockJournalEntryService } from '@app/journal-entry/contracts/__mocks__/journal-entry.domain.services.mock';
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
 import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
 import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
+import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
+import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
+import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
 describe('makeCreateReceiptUsecase', () => {
   const correlationId = 'test-correlation-id';
@@ -202,6 +205,7 @@ describe('makeCreateReceiptUsecase', () => {
     mockOutboxService.createBalancePropagation.mockResolvedValue();
     mockLedgerAccountBalanceAdjustmentQueue.add.mockResolvedValue();
     mockEventBus.publish.mockResolvedValue();
+    mockFxLotAppService.acquire.mockResolvedValue(null);
   });
 
   const getUseCase = () =>
@@ -217,10 +221,19 @@ describe('makeCreateReceiptUsecase', () => {
       eventBus: mockEventBus,
       outboxService: mockOutboxService,
       ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
+      fxLotAppService: mockFxLotAppService,
+      fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
     });
 
   it('successfully orchestrates receipt creation, persists changes, propagates balances and returns DTO', async () => {
     const usecase = getUseCase();
+    const fxRecords = {
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotAcquisitionAppResult['records'];
+    mockFxLotAppService.acquire.mockResolvedValueOnce({
+      records: fxRecords,
+      events: [],
+    });
     const attachmentReferences = ['123e4567-e89b-12d3-a456-426614174010'];
     const attachments = [
       {
@@ -266,6 +279,15 @@ describe('makeCreateReceiptUsecase', () => {
     };
 
     const result = await usecase(payload);
+
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      {
+        journalEntry,
+        account: destinationAccount,
+        actor: expect.objectContaining({ userId: user.id }),
+      },
+      { correlationId, idempotencyKey }
+    );
 
     expect(mockAppContext.get).toHaveBeenCalled();
     const repoOptions = { correlationId, idempotencyKey };
@@ -329,6 +351,12 @@ describe('makeCreateReceiptUsecase', () => {
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
     expect(mockCounterpartyPersistenceService.create).toHaveBeenCalled();
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition
+    ).toHaveBeenCalledWith(
+      fxRecords,
+      expect.objectContaining({ correlationId, tx: expect.anything() })
+    );
 
     expect(mockOutboxService.createBalancePropagation).toHaveBeenCalledWith(
       journalEntry.id,
@@ -353,6 +381,41 @@ describe('makeCreateReceiptUsecase', () => {
     ]);
 
     expect(result).toEqual(journalEntryDtoMapper.toDto(journalEntry));
+  });
+
+  it('propagates FX acquisition failure before persistence and prevents side effects', async () => {
+    const failure = new Error('FX acquisition failed');
+    mockFxLotAppService.acquire.mockRejectedValueOnce(failure);
+    const payload = {
+      sourceLines: [
+        {
+          accountId: sourceAccount.id,
+          counterparty: { name: 'Jane Doe' },
+          amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+          exchangeRate: null,
+          description: 'Revenue',
+          sequenceOrder: 1,
+        },
+      ],
+      destinationLine: {
+        accountId: destinationAccount.id,
+        counterparty: { name: 'Jane Doe' },
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Cash',
+        sequenceOrder: 2,
+      },
+      effectiveDate: new Date('2026-08-06T00:00:00.000Z'),
+      postedAt: new Date('2026-08-06T00:00:00.000Z'),
+      memo: 'Receipt',
+    };
+
+    await expect(getUseCase()(payload)).rejects.toBe(failure);
+
+    expect(mockJournalEntryPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('prevents all persistence and post-commit effects when claiming fails', async () => {
@@ -710,6 +773,14 @@ describe('makeCreateReceiptUsecase', () => {
       memo: 'Draft receipt',
     });
 
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      {
+        journalEntry: draftJournalEntry,
+        account: destinationAccount,
+        actor: expect.objectContaining({ userId: user.id }),
+      },
+      { correlationId, idempotencyKey }
+    );
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
     expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
     expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();

@@ -10,7 +10,7 @@ import {
 
 import fxCostBasisLotMapper, {
   IFxCostBasisLotModel,
-} from '@infra/persistence/repos/subledger/mappers/fx-cost-basis/lot.mapper';
+} from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/lot.mapper';
 
 describe('FX Cost-Basis Lot Mapper', () => {
   describe('toRepo', () => {
@@ -55,10 +55,21 @@ describe('FX Cost-Basis Lot Mapper', () => {
         status: EFxCostBasisLotStatus.Open,
         originalQuantityAmount: 10000,
         originalQuantityCurrency: 'USD',
+        remainingQuantityAmount: 6000,
         costBasisAmount: 15000000,
         costBasisCurrency: 'NGN',
         remainingCostBasisAmount: 9000000,
-        acquisitionRate: '1500',
+        acquisitionRate: {
+          currencyPair: 'USD/NGN',
+          baseCurrencyCode: 'USD',
+          targetCurrencyCode: 'NGN',
+          rate: '1500',
+          type: EExchangeRateType.Negotiated,
+          asOf: acquisitionDate.toISOString(),
+          source: 'bank',
+          createdAt: acquisitionDate.toISOString(),
+        },
+        acquisitionDate: acquisitionDate.toISOString(),
         version: 2,
         createdAt: createdAt.toISOString(),
         updatedAt: updatedAt.toISOString(),

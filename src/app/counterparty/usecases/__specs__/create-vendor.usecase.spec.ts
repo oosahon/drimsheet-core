@@ -1,9 +1,10 @@
-import IEventBus from '@shared/contracts/event-bus.contract';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import { TEntityId } from '@shared/types/uuid';
 
 import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
 
-import IAppContext from '@app/context/contracts/app-context.contract';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import { mockCounterpartyService } from '@app/counterparty/contracts/__mocks__/counterparty.domain.services.mock';
 import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
 import { IVendorCreateReq } from '@app/counterparty/dtos/vendor/vendor.dto';
@@ -17,20 +18,7 @@ describe('makeCreateVendorUsecase', () => {
   const accountingEntityId = '123e4567-e89b-12d3-a456-426614174001';
   const userId = '123e4567-e89b-12d3-a456-426614174002';
 
-  const mockAppContext = {
-    get: jest.fn().mockReturnValue({
-      correlationId: 'test-correlation-id',
-      idempotencyKey: 'test-idempotency-key',
-      user: { id: userId as TEntityId },
-      accountingEntity: { id: accountingEntityId as TEntityId },
-    }),
-  } as unknown as jest.Mocked<IAppContext>;
-
   const realCounterpartyService = makeCounterpartyService();
-
-  const mockEventBus = {
-    publish: jest.fn(),
-  } as unknown as jest.Mocked<IEventBus>;
 
   let usecase: ReturnType<typeof makeCreateVendorUsecase>;
 
@@ -47,6 +35,12 @@ describe('makeCreateVendorUsecase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAppContext.get.mockReturnValue({
+      correlationId: 'test-correlation-id',
+      idempotencyKey: 'test-idempotency-key',
+      user: { id: userId as TEntityId },
+      accountingEntity: { id: accountingEntityId as TEntityId },
+    } as IAppContextData);
     mockCounterpartyDomainServices.counterparty.createVendor.mockImplementation(
       (payload, vendor) => realCounterpartyService.createVendor(payload, vendor)
     );

@@ -10,6 +10,7 @@ description: Use when creating or changing domain entities, value objects, or th
 - [Folder Responsibility](../../rules/folder-responsibility.md)
 - [Domain Modeling](../../rules/domain-modeling.md)
 - [Error Creation](../../rules/error-creation.md)
+- [Readability](../../rules/readability.md)
 - [Domain Unit Tests](../../rules/testing/domain.md)
 
 ## Entity Pattern
@@ -18,6 +19,8 @@ description: Use when creating or changing domain entities, value objects, or th
 - Helpers: `src/domain/<domain>/entities/helpers/<name>.entity.helpers.ts`.
 - Tests: `src/domain/<domain>/entities/__tests__/<name>.entity.test.ts`.
 - Freeze returned entities and exported entity objects.
+- Delegate validation to named entity helpers; keep entity methods focused on
+  construction or transition, events, and audits.
 - Return `[entity, events, audit]` for creation/mutation methods when the local pattern does.
 - Export the frozen entity object as default.
 

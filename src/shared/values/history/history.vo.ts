@@ -7,6 +7,7 @@ import {
   IEntityDelta,
   IHistory,
   IHistoryActor,
+  IUserHistoryActor,
 } from '@shared/values/history/types/history.types';
 
 import historyError from './history.error';
@@ -90,7 +91,7 @@ function make<T extends object>(
   return Object.freeze(history);
 }
 
-function getUserActor(userId: TEntityId): IHistoryActor {
+function getUserActor(userId: TEntityId): IUserHistoryActor {
   stringUtils.validateUUID(userId, historyError.InvalidActor);
   return {
     userId,

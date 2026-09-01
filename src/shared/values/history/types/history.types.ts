@@ -15,6 +15,11 @@ export interface IHistoryActor {
   userId: TEntityId | null;
 }
 
+export interface IUserHistoryActor extends IHistoryActor {
+  type: typeof EHistoryActorType.User;
+  userId: TEntityId;
+}
+
 export interface IEntityDelta<SnapShot extends object> {
   entityId: TEntityId;
   action: string;

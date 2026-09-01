@@ -1,17 +1,10 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
 
-import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
+import { mockExchangeRateRepo } from '@app/money/contracts/__mocks__/money.repos.mock';
 import makeExchangeRateAppService from '@app/money/services/exchange-rate.service';
-
-const exchangeRateRepoMock: jest.Mocked<IExchangeRateRepo> = {
-  create: jest.fn(),
-  find: jest.fn(),
-  findByPairAndDate: jest.fn(),
-  findLatest: jest.fn(),
-};
 
 describe('ExchangeRateAppService', () => {
   const mockRepoOptions: IReadRepoOptions = { correlationId: 'test-corr-id' };
@@ -29,7 +22,7 @@ describe('ExchangeRateAppService', () => {
 
   const getService = () =>
     makeExchangeRateAppService({
-      exchangeRateRepo: exchangeRateRepoMock,
+      exchangeRateRepo: mockExchangeRateRepo,
     });
 
   it('should return user-provided rate directly when it is official', async () => {
@@ -51,7 +44,7 @@ describe('ExchangeRateAppService', () => {
     );
 
     expect(result).toBe(userProvided);
-    expect(exchangeRateRepoMock.findByPairAndDate).not.toHaveBeenCalled();
+    expect(mockExchangeRateRepo.findByPairAndDate).not.toHaveBeenCalled();
   });
 
   it('should query repository when user-provided rate is null', async () => {
@@ -65,7 +58,7 @@ describe('ExchangeRateAppService', () => {
       source: 'Repo Source',
     });
 
-    exchangeRateRepoMock.findByPairAndDate.mockResolvedValue(expectedRate);
+    mockExchangeRateRepo.findByPairAndDate.mockResolvedValue(expectedRate);
 
     const result = await service.getOfficialRate(
       'EUR/USD',
@@ -75,7 +68,7 @@ describe('ExchangeRateAppService', () => {
     );
 
     expect(result).toBe(expectedRate);
-    expect(exchangeRateRepoMock.findByPairAndDate).toHaveBeenCalledWith(
+    expect(mockExchangeRateRepo.findByPairAndDate).toHaveBeenCalledWith(
       'EUR/USD',
       asOfDate,
       mockRepoOptions
@@ -102,7 +95,7 @@ describe('ExchangeRateAppService', () => {
       source: 'Repo Source',
     });
 
-    exchangeRateRepoMock.findByPairAndDate.mockResolvedValue(expectedRate);
+    mockExchangeRateRepo.findByPairAndDate.mockResolvedValue(expectedRate);
 
     const result = await service.getOfficialRate(
       'EUR/USD',
@@ -112,7 +105,7 @@ describe('ExchangeRateAppService', () => {
     );
 
     expect(result).toBe(expectedRate);
-    expect(exchangeRateRepoMock.findByPairAndDate).toHaveBeenCalledWith(
+    expect(mockExchangeRateRepo.findByPairAndDate).toHaveBeenCalledWith(
       'EUR/USD',
       asOfDate,
       mockRepoOptions

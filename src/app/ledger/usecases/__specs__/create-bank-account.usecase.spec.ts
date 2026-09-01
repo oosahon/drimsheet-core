@@ -1,5 +1,6 @@
-import IEventBus from '@shared/contracts/event-bus.contract';
-import { IRepoService } from '@shared/contracts/repo.contract';
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
@@ -20,23 +21,24 @@ import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import currencyEntity from '@domain/money/entities/currency.entity';
 
 import { mockAccountingPeriodService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
-import IAppContext from '@app/context/contracts/app-context.contract';
+import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
-import mockJournalEntryService from '@app/journal-entry/contracts/__mocks__/journal-entry.service.mock';
+import { mockJournalEntryService } from '@app/journal-entry/contracts/__mocks__/journal-entry.domain.services.mock';
+import mockLedgerAccountPersistenceService from '@app/ledger/contracts/__mocks__/ledger-account-persistence.service.mock';
 import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockAssetAccountService } from '@app/ledger/contracts/__mocks__/ledger.domain.services.mock';
 import {
   mockBankAccountRepo,
   mockLedgerAccountRepo,
 } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
-import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
 import { IBankAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import makeCreateBankAccountUseCase from '@app/ledger/usecases/create-bank-account.usecase';
-import mockExchangeRateService from '@app/money/contracts/__mocks__/exchange-rate.service.mock';
 import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
-import { mockFxCostBasisLotDomainService } from '@app/subledger/contracts/__mocks__/subledger.domain.services.mock';
 import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
+import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
+import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
 describe('makeCreateBankAccountUseCase', () => {
   const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
@@ -51,27 +53,6 @@ describe('makeCreateBankAccountUseCase', () => {
   const cashAccountService = makeCashAccountService({
     ledgerAccountRepo: mockLedgerAccountRepo,
   });
-
-  const mockAppContext: jest.Mocked<IAppContext> = {
-    get: jest.fn().mockReturnValue({
-      correlationId: 'test-correlation-id',
-      user: { id: userId },
-      accountingEntity,
-    }),
-  } as unknown as jest.Mocked<IAppContext>;
-
-  const mockEventBus: jest.Mocked<IEventBus> = {
-    publish: jest.fn(),
-  } as unknown as jest.Mocked<IEventBus>;
-
-  const mockLedgerAccountPersistenceService: jest.Mocked<ILedgerAccountPersistenceService> =
-    {
-      create: jest.fn(),
-    };
-
-  const mockRepoService: jest.Mocked<IRepoService> = {
-    runInTransaction: jest.fn().mockImplementation((fn) => fn({})),
-  } as unknown as jest.Mocked<IRepoService>;
 
   const bankDetails: IBankDetails = bankDetailsValue.make({
     countryCode: 'NG',
@@ -178,13 +159,20 @@ describe('makeCreateBankAccountUseCase', () => {
     ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
     repoService: mockRepoService,
     ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
+    fxLotAppService: mockFxLotAppService,
     fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
-    fxCostBasisService: mockFxCostBasisLotDomainService,
-    exchangeRateService: mockExchangeRateService,
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockAppContext.get.mockReturnValue({
+      correlationId: 'test-correlation-id',
+      user: { id: userId },
+      accountingEntity,
+    } as IAppContextData);
+    mockRepoService.runInTransaction.mockImplementation((transactionFn) =>
+      transactionFn({} as ITransactionContext)
+    );
     mockBankAccountRepo.findOne.mockResolvedValue(null);
     mockLedgerAccountRepo.findByCode.mockResolvedValue(mockControlAccount);
     mockAssetAccountService.createBankSubAccount.mockResolvedValue([
@@ -197,6 +185,7 @@ describe('makeCreateBankAccountUseCase', () => {
       mockOpeningBalanceEvents,
       mockOpeningBalanceAudit,
     ]);
+    mockFxLotAppService.acquire.mockResolvedValue(null);
   });
 
   it('creates a bank account without opening balance successfully', async () => {
@@ -468,27 +457,35 @@ describe('makeCreateBankAccountUseCase', () => {
         },
       ],
     };
-    mockFxCostBasisLotDomainService.acquire.mockReturnValueOnce(
-      mockLotData as any
-    );
-    mockExchangeRateService.getOfficialRate.mockResolvedValueOnce({
-      rate: 1500,
-      currencyPair: { baseCurrencyCode: 'USD', quoteCurrencyCode: 'NGN' },
-      asOf: new Date('2026-03-01T00:00:00.000Z'),
-    } as any);
+    const fxRecords = {
+      lot: mockLotData.lot[0],
+      acquisition: mockLotData.acquisition[0],
+      lotHistory: { entityId: lotId },
+      acquisitionHistory: { entityId: acqId },
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotAcquisitionAppResult['records'];
+    mockFxLotAppService.acquire.mockResolvedValueOnce({
+      records: fxRecords,
+      events: [],
+    });
 
     const useCase = makeCreateBankAccountUseCase(deps);
     const result = await useCase(foreignReq);
 
     expect(result.id).toBe(foreignMockAccount.id);
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      {
+        journalEntry: expect.anything(),
+        account: expect.objectContaining({ id: foreignMockAccount.id }),
+        actor: expect.objectContaining({ userId }),
+      },
+      { correlationId: 'test-correlation-id' }
+    );
     expect(
       mockFxLotCostBasisService.persistence.persistAcquisition
     ).toHaveBeenCalledWith(
-      mockLotData.lot[0],
-      mockLotData.acquisition[0],
-      expect.objectContaining({ entityId: lotId }),
-      expect.objectContaining({ entityId: acqId }),
-      expect.anything()
+      fxRecords,
+      expect.objectContaining({ correlationId: 'test-correlation-id' })
     );
     expect(mockEventBus.publish).toHaveBeenCalled();
   });

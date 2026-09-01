@@ -5,7 +5,7 @@ import appError from '@shared/values/errors/app.error';
 import { IUser } from '@domain/user/types/user.types';
 import emailValue from '@domain/user/values/email.vo';
 
-import IEmailVerificationService from '@app/auth/contracts/email-verification-service.contract';
+import mockEmailVerificationService from '@app/auth/contracts/__mocks__/email-verification.service.mock';
 import authError from '@app/auth/errors/auth.error';
 import makeSendEmailVerificationEmailUseCase from '@app/auth/usecases/send-email-verification-email.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
@@ -14,16 +14,12 @@ import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeSendEmailVerificationEmailUseCase', () => {
   const correlationId = 'test-corr-id';
-  const emailVerificationService: jest.Mocked<IEmailVerificationService> = {
-    send: jest.fn(),
-  };
-
   const makeUseCase = () =>
     makeSendEmailVerificationEmailUseCase({
       appContext: mockAppContext,
       logger: mockLogger,
       userRepo: mockUserRepo,
-      emailVerificationService,
+      emailVerificationService: mockEmailVerificationService,
     });
 
   beforeEach(() => {
@@ -31,7 +27,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
     mockAppContext.get.mockReturnValue({
       correlationId,
     } as IAppContextData);
-    emailVerificationService.send.mockResolvedValue(true);
+    mockEmailVerificationService.send.mockResolvedValue(true);
   });
 
   it('rejects an invalid email', async () => {
@@ -51,7 +47,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
       emailValue.normalize(userEmail),
       { correlationId }
     );
-    expect(emailVerificationService.send).not.toHaveBeenCalled();
+    expect(mockEmailVerificationService.send).not.toHaveBeenCalled();
   });
 
   it('logs and returns when the email is already verified', async () => {
@@ -77,7 +73,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
         outcome: 'skipped',
       }
     );
-    expect(emailVerificationService.send).not.toHaveBeenCalled();
+    expect(mockEmailVerificationService.send).not.toHaveBeenCalled();
   });
 
   it('delegates delivery for an unverified user', async () => {
@@ -95,7 +91,7 @@ describe('makeSendEmailVerificationEmailUseCase', () => {
 
     await makeUseCase()(user.email);
 
-    expect(emailVerificationService.send).toHaveBeenCalledWith(
+    expect(mockEmailVerificationService.send).toHaveBeenCalledWith(
       user,
       correlationId
     );

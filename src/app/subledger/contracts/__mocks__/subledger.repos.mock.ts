@@ -19,5 +19,7 @@ export const mockFxCostBasisLotDispositionRepo: jest.Mocked<IFxCostBasisLotDispo
   };
 
 export const mockFxCostBasisLotRepo: jest.Mocked<IFxCostBasisLotRepo> = {
+  findOpenByAccountId: jest.fn(),
   create: jest.fn(),
+  update: jest.fn(),
 };

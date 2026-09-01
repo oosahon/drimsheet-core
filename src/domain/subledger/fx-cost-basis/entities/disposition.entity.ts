@@ -37,6 +37,8 @@ function make(
   helpers.validateCostBasisConsumed(payload.costBasisConsumed);
   helpers.validateProceeds(payload.proceeds);
   helpers.validateRealizedGainLoss(payload.realizedGainLoss);
+  helpers.validateFunctionalCurrency(payload);
+  helpers.validateRealizedGainLossFormula(payload);
   exchangeRateValue.validate(payload.dispositionRate);
   helpers.validateOfficialRate(payload.officialRate);
   dateUtils.validateDateIsNotInTheFuture(
