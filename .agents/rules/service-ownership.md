@@ -24,13 +24,29 @@ owner. Do not create a service merely to shorten a use case.
 - Have an independently meaningful contract and focused tests.
 - Define failure semantics in the service contract: whether the capability
   rejects or is best-effort.
-- May own transactions when the reusable capability protects a multi-repository
-  atomicity boundary.
+- Return prepared results to the use case. They must not invoke write
+  repositories or persistence services, and they must not decide to persist.
+- May perform reads required by the capability, including transaction-scoped
+  invariant reads supplied by the calling use case.
 - For best-effort capabilities, the implementation catches and reports failures
   exactly once. Callers await the capability without repeating catches or
   reporter calls.
 - Do not duplicate a single use case or hide its workflow behind a generic
   `onboarding`, `manager`, or `persistence` name.
+
+## Persistence Services
+
+- Are dedicated application-layer write capabilities with explicit
+  `PersistenceService` contracts.
+- Are invoked directly by use cases only. Domain services and other application
+  services must never call them.
+- Compose repository writes and storage-level invariants only when one persisted
+  bundle must be atomic.
+- Persist prepared domain/application records as supplied; do not revalidate
+  entities, histories, events, or application-owned outbox decisions.
+- May join a caller-owned transaction or create the transaction required for
+  their own bundle, but they do not own the outer workflow or the decision to
+  persist.
 
 ## Factories And Implementations
 
@@ -45,17 +61,18 @@ owner. Do not create a service merely to shorten a use case.
 ## Use Cases
 
 - Own the request-specific workflow and ordering.
-- May coordinate repository writes, transaction boundaries, history creation,
-  application context updates, and event publication when those steps belong
-  only to that workflow.
-- Extract persistence only when it is a reusable capability with an independent
-  contract. Services with one production caller are allowed in a growing
-  application, but must be highlighted and scrutinized during review.
+- Are the only layer allowed to initiate repository writes or invoke persistence
+  services.
+- Coordinate repository writes, outer transaction boundaries, history creation,
+  application context updates, and event publication.
+- Use a dedicated persistence service when multiple repository writes or
+  storage-level invariants form one reusable atomic persistence bundle.
 
 ## Decision Check
 
 1. Business invariant or coordinated domain creation? Domain service.
-2. Reusable application capability? Application service.
-3. Request-specific orchestration or transaction? Use case.
-4. Storage or retrieval only? Repository.
-5. Extraction only makes a function shorter? Keep it with the current owner.
+2. Reusable non-persistence application capability? Application service.
+3. Atomic repository-write bundle? Persistence service, invoked by a use case.
+4. Any decision or instruction to persist? Use case.
+5. Storage or retrieval only? Repository.
+6. Extraction only makes a function shorter? Keep it with the current owner.

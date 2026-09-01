@@ -8,6 +8,10 @@ import {
 } from '@infra/ioc/services/counterparty';
 import { fileManagementService } from '@infra/ioc/services/file';
 import {
+  fxCostBasisPersistenceService,
+  fxLotAppService,
+} from '@infra/ioc/services/fx-lot-cost-basis';
+import {
   journalEntryPersistenceService,
   journalEntryService,
 } from '@infra/ioc/services/journal-entry';
@@ -32,6 +36,8 @@ export const createPaymentUseCase = makeTracedUseCase(
     eventBus: messaging.eventBus,
     outboxService,
     ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+    fxLotAppService,
+    fxCostBasisPersistenceService,
   })
 );
 
@@ -49,6 +55,8 @@ export const createReceiptUseCase = makeTracedUseCase(
     eventBus: messaging.eventBus,
     outboxService,
     ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+    fxLotAppService,
+    fxCostBasisPersistenceService,
   })
 );
 

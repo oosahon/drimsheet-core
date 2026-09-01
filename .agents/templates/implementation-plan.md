@@ -95,7 +95,10 @@ production consumer exist.
 Identify the owner of each invariant, side effect, and transaction. For every
 proposed service, state the named reusable capability it represents and cite
 the existing contract or IoC seam it follows. Do not propose a service merely
-to shorten a use case.
+to shorten a use case. Identify every persistence call and show the use case
+that initiates it. A dedicated persistence service may compose an atomic
+repository-write bundle, but it must be invoked directly by the use case rather
+than by another service.
 
 ## Test Plan
 

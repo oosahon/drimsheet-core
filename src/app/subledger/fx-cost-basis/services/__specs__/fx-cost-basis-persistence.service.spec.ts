@@ -1,4 +1,5 @@
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { EOutboxType } from '@shared/types/outbox.types';
 import { ITransactionContext } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
@@ -6,14 +7,23 @@ import historyValue from '@shared/values/history/history.vo';
 import { EHistoryActorType } from '@shared/values/history/types/history.types';
 
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
-import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import {
+  EExchangeRateType,
+  IExchangeRate,
+} from '@domain/money/types/exchange-rate.types';
 import moneyValue from '@domain/money/values/money.vo';
 import fxCostBasisLotAcquisitionEntity from '@domain/subledger/fx-cost-basis/entities/acquisition.entity';
+import fxCostBasisLotDispositionAllocationEntity from '@domain/subledger/fx-cost-basis/entities/disposition-allocation.entity';
+import fxCostBasisLotDispositionEntity from '@domain/subledger/fx-cost-basis/entities/disposition.entity';
 import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.entity';
 import { EFxCostBasisLotStatus } from '@domain/subledger/fx-cost-basis/types/lot.types';
 
+import mockOutboxRepo from '@app/outbox/contracts/__mocks__/outbox.repo.mock';
+import { EMissingOfficialFxRateEffectKind } from '@app/outbox/types/missing-official-fx-rate.types';
 import {
   mockFxCostBasisLotAcquisitionRepo,
+  mockFxCostBasisLotDispositionAllocationRepo,
+  mockFxCostBasisLotDispositionRepo,
   mockFxCostBasisLotRepo,
 } from '@app/subledger/contracts/__mocks__/subledger.repos.mock';
 import makeFxLotCostBasisPersistenceService from '@app/subledger/fx-cost-basis/services/fx-cost-basis-persistence.service';
@@ -41,8 +51,137 @@ describe('fxCostBasisPersistenceService', () => {
     makeFxLotCostBasisPersistenceService({
       lotRepo: mockFxCostBasisLotRepo,
       acquisitionRepo: mockFxCostBasisLotAcquisitionRepo,
+      dispositionRepo: mockFxCostBasisLotDispositionRepo,
+      dispositionAllocationRepo: mockFxCostBasisLotDispositionAllocationRepo,
+      outboxRepo: mockOutboxRepo,
       repoService: mockRepoService,
     });
+
+  const makeAcquisitionBundle = (officialRate: IExchangeRate | null) => {
+    const [lot, , lotAudit] = fxCostBasisLotEntity.make({
+      ledgerAccountId: generateUUID(),
+      accountingEntityId: generateUUID(),
+      status: EFxCostBasisLotStatus.Open,
+      originalQuantity: moneyValue.make(10, SYSTEM_CURRENCIES.USD, false),
+      remainingQuantity: moneyValue.make(10, SYSTEM_CURRENCIES.USD, false),
+      costBasis: moneyValue.make(15000, SYSTEM_CURRENCIES.NGN, false),
+      remainingCostBasis: moneyValue.make(15000, SYSTEM_CURRENCIES.NGN, false),
+      acquisitionRate: mockRate,
+      acquisitionDate: mockDate,
+    });
+    const [acquisition, , acquisitionAudit] =
+      fxCostBasisLotAcquisitionEntity.make({
+        ledgerAccountId: lot.ledgerAccountId,
+        accountingEntityId: lot.accountingEntityId,
+        lotId: lot.id,
+        journalEntryId: generateUUID(),
+        quantity: lot.originalQuantity,
+        costBasis: lot.costBasis,
+        acquisitionRate: mockRate,
+        officialRate,
+        acquisitionDate: mockDate,
+      });
+    const lotHistory = historyValue.make(lotAudit, actor, correlationId);
+    const acquisitionHistory = historyValue.make(
+      acquisitionAudit,
+      actor,
+      correlationId
+    );
+    const missingOfficialRateOutbox =
+      officialRate === null
+        ? {
+            id: acquisition.id,
+            correlationId,
+            type: EOutboxType.MissingOfficialFxRate,
+            data: {
+              effectKind: EMissingOfficialFxRateEffectKind.Acquisition,
+              journalEntryId: acquisition.journalEntryId,
+              accountingEntityId: acquisition.accountingEntityId,
+              createdBy: actor.userId,
+              effectiveDate: acquisition.acquisitionDate,
+            },
+          }
+        : null;
+
+    return {
+      lot,
+      acquisition,
+      lotHistory,
+      acquisitionHistory,
+      missingOfficialRateOutbox,
+    };
+  };
+
+  const makeDispositionBundle = (officialRate: IExchangeRate | null = null) => {
+    const quantity = moneyValue.make(10, SYSTEM_CURRENCIES.USD, false);
+    const costBasis = moneyValue.make(14000, SYSTEM_CURRENCIES.NGN, false);
+    const proceeds = moneyValue.make(15000, SYSTEM_CURRENCIES.NGN, false);
+    const realizedGainLoss = moneyValue.subtract(proceeds, costBasis);
+    const [openLot] = fxCostBasisLotEntity.make({
+      ledgerAccountId: generateUUID(),
+      accountingEntityId: generateUUID(),
+      status: EFxCostBasisLotStatus.Open,
+      originalQuantity: quantity,
+      remainingQuantity: quantity,
+      costBasis,
+      remainingCostBasis: costBasis,
+      acquisitionRate: mockRate,
+      acquisitionDate: mockDate,
+    });
+    const [lot, , lotAudit] = fxCostBasisLotEntity.consume(
+      openLot,
+      quantity,
+      costBasis
+    );
+    const [disposition, , dispositionAudit] =
+      fxCostBasisLotDispositionEntity.make({
+        ledgerAccountId: lot.ledgerAccountId,
+        accountingEntityId: lot.accountingEntityId,
+        journalEntryId: generateUUID(),
+        quantity,
+        costBasisConsumed: costBasis,
+        proceeds,
+        realizedGainLoss,
+        dispositionRate: mockRate,
+        officialRate,
+        dispositionDate: mockDate,
+      });
+    const allocation = fxCostBasisLotDispositionAllocationEntity.make({
+      dispositionId: disposition.id,
+      lotId: lot.id,
+      quantity,
+      costBasisConsumed: costBasis,
+      proceeds,
+      realizedGainLoss,
+    });
+
+    return {
+      lot,
+      disposition,
+      allocation,
+      lotHistory: historyValue.make(lotAudit, actor, correlationId),
+      dispositionHistory: historyValue.make(
+        dispositionAudit,
+        actor,
+        correlationId
+      ),
+      missingOfficialRateOutbox:
+        officialRate === null
+          ? {
+              id: disposition.id,
+              correlationId,
+              type: EOutboxType.MissingOfficialFxRate,
+              data: {
+                effectKind: EMissingOfficialFxRateEffectKind.Disposition,
+                journalEntryId: disposition.journalEntryId,
+                accountingEntityId: disposition.accountingEntityId,
+                createdBy: actor.userId,
+                effectiveDate: disposition.dispositionDate,
+              },
+            }
+          : null,
+    };
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -53,7 +192,7 @@ describe('fxCostBasisPersistenceService', () => {
       );
   });
 
-  it('should successfully persist lot and acquisition in transaction when invariants are met', async () => {
+  it('persists a lot and acquisition in one transaction', async () => {
     const service = getService();
 
     const [mockLot, mockLotEvents, mockLotAudit] = fxCostBasisLotEntity.make({
@@ -77,7 +216,7 @@ describe('fxCostBasisPersistenceService', () => {
         quantity: moneyValue.make(1000, SYSTEM_CURRENCIES.USD, true),
         costBasis: moneyValue.make(1500000, SYSTEM_CURRENCIES.NGN, true),
         acquisitionRate: mockRate,
-        officialRate: mockRate,
+        officialRate: null,
         acquisitionDate: mockDate,
       });
 
@@ -90,11 +229,27 @@ describe('fxCostBasisPersistenceService', () => {
 
     const repoOptions = { correlationId };
 
+    const missingOfficialRateOutbox = {
+      id: mockAcquisition.id,
+      correlationId,
+      type: EOutboxType.MissingOfficialFxRate,
+      data: {
+        effectKind: EMissingOfficialFxRateEffectKind.Acquisition,
+        journalEntryId: mockAcquisition.journalEntryId,
+        accountingEntityId: mockAcquisition.accountingEntityId,
+        createdBy: actor.userId,
+        effectiveDate: mockAcquisition.acquisitionDate,
+      },
+    };
+
     await service.persistAcquisition(
-      mockLot,
-      mockAcquisition,
-      lotHistory,
-      acquisitionHistory,
+      {
+        lot: mockLot,
+        acquisition: mockAcquisition,
+        lotHistory,
+        acquisitionHistory,
+        missingOfficialRateOutbox,
+      },
       repoOptions
     );
 
@@ -115,101 +270,127 @@ describe('fxCostBasisPersistenceService', () => {
         history: acquisitionHistory,
       })
     );
-  });
-
-  it('should throw MalformedAcquisition if cost basis differs between lot and acquisition', async () => {
-    const service = getService();
-
-    const [mockLot, , mockLotAudit] = fxCostBasisLotEntity.make({
-      ledgerAccountId: generateUUID(),
-      accountingEntityId: generateUUID(),
-      status: EFxCostBasisLotStatus.Open,
-      originalQuantity: moneyValue.make(1000, SYSTEM_CURRENCIES.USD, true),
-      remainingQuantity: moneyValue.make(1000, SYSTEM_CURRENCIES.USD, true),
-      costBasis: moneyValue.make(1500000, SYSTEM_CURRENCIES.NGN, true),
-      remainingCostBasis: moneyValue.make(1500000, SYSTEM_CURRENCIES.NGN, true),
-      acquisitionRate: mockRate,
-      acquisitionDate: mockDate,
-    });
-
-    const [mockAcquisition, , mockAcquisitionAudit] =
-      fxCostBasisLotAcquisitionEntity.make({
-        ledgerAccountId: mockLot.ledgerAccountId,
-        accountingEntityId: mockLot.accountingEntityId,
-        lotId: mockLot.id,
-        journalEntryId: generateUUID(),
-        quantity: moneyValue.make(1000, SYSTEM_CURRENCIES.USD, true),
-        costBasis: moneyValue.make(1600000, SYSTEM_CURRENCIES.NGN, true), // Differs
-        acquisitionRate: mockRate,
-        officialRate: mockRate,
-        acquisitionDate: mockDate,
-      });
-
-    const lotHistory = historyValue.make(mockLotAudit, actor, correlationId);
-    const acquisitionHistory = historyValue.make(
-      mockAcquisitionAudit,
-      actor,
-      correlationId
-    );
-
-    await expect(
-      service.persistAcquisition(
-        mockLot,
-        mockAcquisition,
-        lotHistory,
-        acquisitionHistory,
-        { correlationId }
-      )
-    ).rejects.toThrow(
-      'app_error_fx_cost_basis_malformed_acquisition_unexpected'
+    expect(mockOutboxRepo.create).toHaveBeenCalledWith(
+      missingOfficialRateOutbox,
+      expect.objectContaining({ correlationId, tx: 'mock-tx' })
     );
   });
 
-  it('should throw MalformedAcquisition if quantity differs between lot and acquisition', async () => {
+  it('persists a rated acquisition without an outbox row', async () => {
     const service = getService();
+    const bundle = makeAcquisitionBundle(mockRate);
 
-    const [mockLot, , mockLotAudit] = fxCostBasisLotEntity.make({
-      ledgerAccountId: generateUUID(),
-      accountingEntityId: generateUUID(),
-      status: EFxCostBasisLotStatus.Open,
-      originalQuantity: moneyValue.make(1000, SYSTEM_CURRENCIES.USD, true),
-      remainingQuantity: moneyValue.make(1000, SYSTEM_CURRENCIES.USD, true),
-      costBasis: moneyValue.make(1500000, SYSTEM_CURRENCIES.NGN, true),
-      remainingCostBasis: moneyValue.make(1500000, SYSTEM_CURRENCIES.NGN, true),
-      acquisitionRate: mockRate,
-      acquisitionDate: mockDate,
-    });
+    await service.persistAcquisition(bundle, { correlationId });
 
-    const [mockAcquisition, , mockAcquisitionAudit] =
-      fxCostBasisLotAcquisitionEntity.make({
-        ledgerAccountId: mockLot.ledgerAccountId,
-        accountingEntityId: mockLot.accountingEntityId,
-        lotId: mockLot.id,
-        journalEntryId: generateUUID(),
-        quantity: moneyValue.make(1100, SYSTEM_CURRENCIES.USD, true), // Differs
-        costBasis: moneyValue.make(1500000, SYSTEM_CURRENCIES.NGN, true),
-        acquisitionRate: mockRate,
-        officialRate: mockRate,
-        acquisitionDate: mockDate,
-      });
+    expect(mockFxCostBasisLotRepo.create).toHaveBeenCalled();
+    expect(mockFxCostBasisLotAcquisitionRepo.create).toHaveBeenCalled();
+    expect(mockOutboxRepo.create).not.toHaveBeenCalled();
+  });
 
-    const lotHistory = historyValue.make(mockLotAudit, actor, correlationId);
-    const acquisitionHistory = historyValue.make(
-      mockAcquisitionAudit,
-      actor,
-      correlationId
+  it('persists updated lots, disposition, and allocations in one transaction', async () => {
+    const service = getService();
+    const {
+      lot,
+      disposition,
+      allocation,
+      lotHistory,
+      dispositionHistory,
+      missingOfficialRateOutbox,
+    } = makeDispositionBundle();
+
+    await service.persistDisposition(
+      {
+        lots: [{ lot, history: lotHistory }],
+        disposition,
+        dispositionHistory,
+        allocations: [allocation],
+        missingOfficialRateOutbox,
+      },
+      {
+        correlationId,
+        tx: 'caller-tx' as unknown as ITransactionContext,
+      }
     );
 
-    await expect(
-      service.persistAcquisition(
-        mockLot,
-        mockAcquisition,
-        lotHistory,
-        acquisitionHistory,
-        { correlationId }
-      )
-    ).rejects.toThrow(
-      'app_error_fx_cost_basis_malformed_acquisition_unexpected'
+    expect(mockRepoService.runInTransaction).toHaveBeenCalledWith(
+      expect.any(Function),
+      'caller-tx'
     );
+
+    expect(mockFxCostBasisLotRepo.update).toHaveBeenCalledWith(
+      lot,
+      expect.objectContaining({ tx: 'mock-tx', history: lotHistory })
+    );
+    expect(mockFxCostBasisLotDispositionRepo.create).toHaveBeenCalledWith(
+      disposition,
+      expect.objectContaining({ tx: 'mock-tx', history: dispositionHistory })
+    );
+    expect(
+      mockFxCostBasisLotDispositionAllocationRepo.create
+    ).toHaveBeenCalledWith(
+      allocation,
+      expect.objectContaining({ tx: 'mock-tx' })
+    );
+    expect(mockOutboxRepo.create).toHaveBeenCalledWith(
+      {
+        id: disposition.id,
+        correlationId,
+        type: EOutboxType.MissingOfficialFxRate,
+        data: {
+          effectKind: EMissingOfficialFxRateEffectKind.Disposition,
+          journalEntryId: disposition.journalEntryId,
+          accountingEntityId: disposition.accountingEntityId,
+          createdBy: actor.userId,
+          effectiveDate: disposition.dispositionDate,
+        },
+      },
+      expect.objectContaining({ correlationId, tx: 'mock-tx' })
+    );
+  });
+
+  it('does not recompute domain accounting aggregates before persistence', async () => {
+    const service = getService();
+    const bundle = makeDispositionBundle();
+    const allocationWithDifferentQuantity = {
+      ...bundle.allocation,
+      quantity: moneyValue.make(9, SYSTEM_CURRENCIES.USD, false),
+    };
+
+    await service.persistDisposition(
+      {
+        lots: [{ lot: bundle.lot, history: bundle.lotHistory }],
+        disposition: bundle.disposition,
+        dispositionHistory: bundle.dispositionHistory,
+        allocations: [allocationWithDifferentQuantity],
+        missingOfficialRateOutbox: bundle.missingOfficialRateOutbox,
+      },
+      { correlationId }
+    );
+
+    expect(
+      mockFxCostBasisLotDispositionAllocationRepo.create
+    ).toHaveBeenCalledWith(
+      allocationWithDifferentQuantity,
+      expect.objectContaining({ tx: 'mock-tx' })
+    );
+  });
+
+  it('persists a rated disposition without an outbox row', async () => {
+    const service = getService();
+    const bundle = makeDispositionBundle(mockRate);
+
+    await service.persistDisposition(
+      {
+        lots: [{ lot: bundle.lot, history: bundle.lotHistory }],
+        disposition: bundle.disposition,
+        dispositionHistory: bundle.dispositionHistory,
+        allocations: [bundle.allocation],
+        missingOfficialRateOutbox: null,
+      },
+      { correlationId }
+    );
+
+    expect(mockFxCostBasisLotDispositionRepo.create).toHaveBeenCalled();
+    expect(mockOutboxRepo.create).not.toHaveBeenCalled();
   });
 });

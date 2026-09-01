@@ -9,8 +9,8 @@ import makeGetPermittedPostingAccountsUsecase from '@app/ledger/usecases/get-per
 
 import { accountingPeriodService } from '@infra/ioc/services/accounting';
 import {
-  fxCostBasisLotService,
   fxCostBasisPersistenceService,
+  fxLotAppService,
 } from '@infra/ioc/services/fx-lot-cost-basis';
 import {
   journalEntryPersistenceService,
@@ -22,7 +22,6 @@ import {
   ledgerAccountBalanceEnrichmentService,
   ledgerAccountPersistenceService,
 } from '@infra/ioc/services/ledger';
-import { exchangeRateService } from '@infra/ioc/services/money';
 import outboxService from '@infra/ioc/services/outbox';
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
@@ -101,9 +100,8 @@ export const createPettyCashAccountUseCase = makeTracedUseCase(
     ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
     repoService,
     ledgerAccountPersistenceService,
+    fxLotAppService,
     fxCostBasisPersistenceService,
-    fxCostBasisService: fxCostBasisLotService,
-    exchangeRateService,
   })
 );
 
@@ -122,8 +120,7 @@ export const createBankAccountUseCase = makeTracedUseCase(
     ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
     repoService,
     ledgerAccountPersistenceService,
+    fxLotAppService,
     fxCostBasisPersistenceService,
-    fxCostBasisService: fxCostBasisLotService,
-    exchangeRateService,
   })
 );

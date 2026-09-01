@@ -28,8 +28,12 @@ failure semantics change.
 ## Work
 
 - Inspect nearby code before editing.
+- Verify rules and precedent before describing existing code as intentional.
 - Apply the precedent and deviation gates before introducing a new structural
   pattern or drifting from a governing plan.
+- Verify that every persistence call is initiated by a use case. A dedicated
+  persistence service may compose repository writes, but domain and other
+  application services must return prepared results rather than persist them.
 - Keep behavior in the folder that owns it.
 - Preserve meaningful intermediate names and intentional spacing.
 - Ask only when missing context makes the change risky.

@@ -23,6 +23,16 @@ const EErrorKeys = {
     'fx_cost_basis_lot_error_excess_remaining_cost_basis_invalid',
   InvalidAcquisitionRate: 'fx_cost_basis_lot_error_acquisition_rate_invalid',
   InvalidAcquisitionDate: 'fx_cost_basis_lot_error_acquisition_date_invalid',
+  InvalidJournalSide: 'fx_cost_basis_lot_error_journal_side_invalid',
+  InvalidJournalStatus: 'fx_cost_basis_lot_error_journal_status_invalid',
+  InvalidTransactionRate: 'fx_cost_basis_lot_error_transaction_rate_invalid',
+  InvalidOfficialRate: 'fx_cost_basis_lot_error_official_rate_invalid',
+  InvalidConsumptionQuantity:
+    'fx_cost_basis_lot_error_consumption_quantity_invalid',
+  InvalidConsumptionCostBasis:
+    'fx_cost_basis_lot_error_consumption_cost_basis_invalid',
+  ClosedLot: 'fx_cost_basis_lot_error_closed_invalid',
+  InsufficientQuantity: 'fx_cost_basis_lot_error_insufficient_quantity_invalid',
 } as const satisfies TErrorKeys<'fx_cost_basis_lot_error'>;
 
 type UFxCostBasisLotError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

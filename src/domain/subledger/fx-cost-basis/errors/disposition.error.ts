@@ -19,6 +19,10 @@ const EErrorKeys = {
     'fx_cost_basis_lot_disposition_disposition_date_invalid',
   InvalidDispositionRate:
     'fx_cost_basis_lot_disposition_disposition_rate_invalid',
+  MismatchedFunctionalCurrency:
+    'fx_cost_basis_lot_disposition_functional_currency_mismatched_invalid',
+  InvalidRealizedGainLossFormula:
+    'fx_cost_basis_lot_disposition_realized_gain_loss_formula_invalid',
 } as const satisfies TErrorKeys<'fx_cost_basis_lot_disposition'>;
 
 type UFxCostBasisLotDispositionError =

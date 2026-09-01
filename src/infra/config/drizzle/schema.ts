@@ -1623,13 +1623,21 @@ export const subledgerFxCostBasisLotsInCore = core.table(
       length: 3,
     }).notNull(),
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+    remainingQuantityAmount: bigint('remaining_quantity_amount', {
+      mode: 'number',
+    }).notNull(),
+    // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     costBasisAmount: bigint('cost_basis_amount', { mode: 'number' }).notNull(),
     costBasisCurrency: varchar('cost_basis_currency', { length: 3 }).notNull(),
     // You can use { mode: "bigint" } if numbers are exceeding js number limitations
     remainingCostBasisAmount: bigint('remaining_cost_basis_amount', {
       mode: 'number',
     }).notNull(),
-    acquisitionRate: numeric('acquisition_rate').notNull(),
+    acquisitionRate: jsonb('acquisition_rate').notNull(),
+    acquisitionDate: timestamp('acquisition_date', {
+      withTimezone: true,
+      mode: 'string',
+    }).notNull(),
     version: integer().default(1).notNull(),
     createdAt: timestamp('created_at', { withTimezone: true, mode: 'string' })
       .defaultNow()
@@ -1639,6 +1647,15 @@ export const subledgerFxCostBasisLotsInCore = core.table(
       .notNull(),
   },
   (table) => [
+    index('subledger_fx_cost_basis_lots_fifo_idx').using(
+      'btree',
+      table.accountingEntityId.asc().nullsLast().op('timestamptz_ops'),
+      table.ledgerAccountId.asc().nullsLast().op('timestamptz_ops'),
+      table.status.asc().nullsLast().op('timestamptz_ops'),
+      table.acquisitionDate.asc().nullsLast().op('timestamptz_ops'),
+      table.createdAt.asc().nullsLast().op('enum_ops'),
+      table.id.asc().nullsLast().op('uuid_ops')
+    ),
     foreignKey({
       columns: [table.ledgerAccountId],
       foreignColumns: [ledgerAccountsInCore.id],

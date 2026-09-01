@@ -1282,6 +1282,43 @@ describe('journalEntryService', () => {
       ).rejects.toThrow(journalEntryError.InvalidDestinationAccount);
     });
 
+    it('rejects an opening-balance account belonging to another accounting entity', async () => {
+      const fixture = await makeOpeningBalanceFixture();
+      mockLedgerAccountRepo.findBySubType.mockResolvedValue([
+        fixture.equityAccount,
+      ]);
+
+      await expect(
+        service.createOpeningBalance(
+          {
+            ...makeOpeningBalancePayload(fixture),
+            account: {
+              ...fixture.postingAccount,
+              accountingEntityId: generateUUID(),
+            },
+          },
+          repoOptions
+        )
+      ).rejects.toThrow(journalEntryError.InvalidAccountingEntity);
+    });
+
+    it('rejects an opening-balance amount that differs from the fixed account currency', async () => {
+      const fixture = await makeOpeningBalanceFixture();
+      mockLedgerAccountRepo.findBySubType.mockResolvedValue([
+        fixture.equityAccount,
+      ]);
+
+      await expect(
+        service.createOpeningBalance(
+          {
+            ...makeOpeningBalancePayload(fixture),
+            amount: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
+          },
+          repoOptions
+        )
+      ).rejects.toThrow(journalEntryError.JournalLineAccountCurrencyMismatch);
+    });
+
     it('rejects same-currency opening balances with an exchange rate', async () => {
       const fixture = await makeOpeningBalanceFixture();
       const exchangeRate = exchangeRateValue.make({

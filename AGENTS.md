@@ -28,6 +28,9 @@ Read this before changing the repository.
 
 - Put behavior in the folder that owns it.
 - Keep repositories limited to data storage and retrieval.
+- Only use cases initiate persistence. Dedicated persistence services may
+  compose atomic repository-write bundles, but must be invoked directly by a
+  use case; domain and other application services return prepared results.
 - Keep controllers and middlewares delivery-only. Keep business decisions out
   of use cases; workflow transactions remain application orchestration.
 - Use domain entities/values/services or app policies for decisions.

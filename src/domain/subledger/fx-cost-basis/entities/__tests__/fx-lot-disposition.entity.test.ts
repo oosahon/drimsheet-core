@@ -167,6 +167,24 @@ describe('fxCostBasisLotDispositionEntity', () => {
         })
       ).toThrow(fxCostBasisLotDispositionError.InvalidDispositionDate);
     });
+
+    it('rejects a realized result that does not equal proceeds less basis', () => {
+      expect(() =>
+        fxCostBasisLotDispositionEntity.make({
+          ...validPayload,
+          realizedGainLoss: moneyValue.make(9999, SYSTEM_CURRENCIES.NGN, false),
+        })
+      ).toThrow(fxCostBasisLotDispositionError.InvalidRealizedGainLossFormula);
+    });
+
+    it('rejects mismatched functional currencies', () => {
+      expect(() =>
+        fxCostBasisLotDispositionEntity.make({
+          ...validPayload,
+          proceeds: moneyValue.make(160000, SYSTEM_CURRENCIES.USD, false),
+        })
+      ).toThrow(fxCostBasisLotDispositionError.MismatchedFunctionalCurrency);
+    });
   });
 
   describe('helpers', () => {

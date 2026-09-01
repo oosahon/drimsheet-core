@@ -30,6 +30,9 @@ import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__moc
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
+import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
+import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
+import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
 describe('createOpeningBalanceUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -104,6 +107,7 @@ describe('createOpeningBalanceUseCase', () => {
       );
     mockOutboxService.createBalancePropagation.mockReset().mockResolvedValue();
     mockLedgerAccountBalanceAdjustmentQueue.add.mockReset().mockResolvedValue();
+    mockFxLotAppService.acquire.mockResolvedValue(null);
 
     mockAppContext.get.mockReturnValue({
       correlationId,
@@ -157,9 +161,18 @@ describe('createOpeningBalanceUseCase', () => {
       outboxService: mockOutboxService,
       ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
       repoService: mockRepoService,
+      fxLotAppService: mockFxLotAppService,
+      fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
     });
 
   it('should successfully record opening balance and update account openingBalanceDate', async () => {
+    const fxRecords = {
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotAcquisitionAppResult['records'];
+    mockFxLotAppService.acquire.mockResolvedValueOnce({
+      records: fxRecords,
+      events: [],
+    });
     const useCase = getUseCase();
 
     const payload = {
@@ -170,6 +183,15 @@ describe('createOpeningBalanceUseCase', () => {
     };
 
     await useCase(payload);
+
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      {
+        journalEntry: expect.anything(),
+        account: mockAssetAccount,
+        actor: expect.objectContaining({ userId: mockUser.id }),
+      },
+      { correlationId }
+    );
 
     expect(mockLedgerAccountRepo.findById).toHaveBeenCalledWith(
       mockAssetAccount.id,
@@ -214,6 +236,12 @@ describe('createOpeningBalanceUseCase', () => {
         }),
       ]),
       expect.objectContaining({ correlationId })
+    );
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition
+    ).toHaveBeenCalledWith(
+      fxRecords,
+      expect.objectContaining({ correlationId, tx: expect.anything() })
     );
     const persistedJournalEntry =
       mockJournalEntryPersistenceService.create.mock.calls[0][0];
@@ -314,6 +342,16 @@ describe('createOpeningBalanceUseCase', () => {
       date: new Date('2026-04-24T00:00:00.000Z'),
     });
 
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      {
+        journalEntry: expect.objectContaining({
+          status: EJournalEntryStatus.Draft,
+        }),
+        account: mockAssetAccount,
+        actor: expect.objectContaining({ userId: mockUser.id }),
+      },
+      { correlationId }
+    );
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
     expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
     expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();

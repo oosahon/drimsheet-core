@@ -7,7 +7,11 @@ import paymentEntryRule from '@domain/journal-entry/rules/payment-entry.rule';
 import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
 import transferEntryRule from '@domain/journal-entry/rules/transfer-entry.rule';
 import helpers from '@domain/journal-entry/services/helpers/journal-entry.service.helpers';
-import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
+import {
+  IJournalEntryBaseLinePayload,
+  IJournalEntryHeaderPayload,
+  IJournalEntryService,
+} from '@domain/journal-entry/types/journal-entry.service.types';
 import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
 import {
   EJournalSide,
@@ -79,6 +83,35 @@ function makeCreateOpeningBalance(
       [equityAccount],
       openingBalanceEntryRule
     );
+
+    const header: IJournalEntryHeaderPayload = {
+      accountingEntityId,
+      functionalCurrencyCode,
+      effectiveDate,
+      postedAt: effectiveDate,
+      memo: 'Opening balance',
+      createdBy,
+    };
+    const journalLines: IJournalEntryBaseLinePayload[] = [
+      {
+        account,
+        sequenceOrder: 1,
+        amount,
+        exchangeRate,
+        description: 'Opening balance',
+        meta: null,
+      },
+      {
+        account: equityAccount,
+        sequenceOrder: 2,
+        amount,
+        exchangeRate,
+        description: null,
+        meta: null,
+      },
+    ];
+
+    helpers.validateAccounts(header, journalLines);
 
     const functionalCurrency = currencyEntity.getByCode(functionalCurrencyCode);
 

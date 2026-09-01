@@ -4,6 +4,7 @@ import { IFxCostBasisLot } from '@domain/subledger/fx-cost-basis/types/lot.types
 
 export const EFxCostBasisLotEvent = {
   Created: 'domain:subledger:fx-lot:created',
+  Disposed: 'domain:subledger:fx-lot:disposed',
 } as const;
 
 export type UFxCostBasisLotEvent =
@@ -16,8 +17,16 @@ function makeCreatedEvent(payload: IFxCostBasisLot) {
   });
 }
 
+function makeDisposedEvent(payload: IFxCostBasisLot) {
+  return eventValue.make<IFxCostBasisLot>({
+    type: EFxCostBasisLotEvent.Disposed,
+    data: payload,
+  });
+}
+
 const FxCostBasisLotEvents = Object.freeze({
   created: makeCreatedEvent,
+  disposed: makeDisposedEvent,
 });
 
 export default FxCostBasisLotEvents;

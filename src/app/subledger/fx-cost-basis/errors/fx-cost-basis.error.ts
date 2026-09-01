@@ -8,8 +8,6 @@ const EErrorKeys = {
   MissingAcquisitionRate:
     'app_error_fx_cost_basis_missing_acquisition_rate_invalid',
   UnsupportedEntry: 'app_error_fx_cost_basis_unsupported_entry_invalid',
-  MalformedAcquisition:
-    'app_error_fx_cost_basis_malformed_acquisition_unexpected',
 } as const satisfies TErrorKeys<'app_error_fx_cost_basis'>;
 
 type ULedgerError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

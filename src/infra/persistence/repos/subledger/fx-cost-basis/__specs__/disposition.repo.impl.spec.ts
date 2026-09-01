@@ -18,8 +18,8 @@ import fxCostBasisLotDispositionHistoryMapper from '@infra/persistence/repos/sub
 import fxCostBasisLotDispositionMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/disposition.mapper';
 
 jest.mock('../../../../helpers/get-db-query');
-jest.mock('../../mappers/fx-cost-basis/disposition.mapper');
-jest.mock('../../mappers/fx-cost-basis/disposition-history.mapper');
+jest.mock('../mappers/disposition.mapper');
+jest.mock('../mappers/disposition-history.mapper');
 
 describe('FX Cost-Basis Lot Disposition Repo', () => {
   const payload = { id: 'disposition-1' } as IFxCostBasisLotDisposition;

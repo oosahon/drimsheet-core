@@ -8,7 +8,7 @@ import fxCostBasisLotDispositionAllocationRepo from '@infra/persistence/repos/su
 import fxCostBasisLotDispositionAllocationMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/disposition-allocation.mapper';
 
 jest.mock('../../../../helpers/get-db-query');
-jest.mock('../../mappers/fx-cost-basis/disposition-allocation.mapper');
+jest.mock('../mappers/disposition-allocation.mapper');
 
 describe('FX Cost-Basis Lot Disposition Allocation Repo', () => {
   const payload = {

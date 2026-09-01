@@ -17,7 +17,6 @@ import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import ICashAccountService from '@domain/ledger/types/cash-account.service.types';
 import { TCashLedgerCode } from '@domain/ledger/types/ledger-code.types';
 import currencyEntity from '@domain/money/entities/currency.entity';
-import IFxCostBasisLotDomainService from '@domain/subledger/fx-cost-basis/types/lot.service.types';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
 import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
@@ -28,14 +27,13 @@ import { pettyCashCreationReqValidation } from '@app/ledger/dtos/asset-account/a
 import { ILedgerAccountDto } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
 import helpers from '@app/ledger/usecases/helpers/create-petty-cash-account.usecase.helpers';
 import getControlAccountHelper from '@app/ledger/usecases/helpers/get-control-account.helper';
-import getFxAcquisitionDataHelper from '@app/ledger/usecases/helpers/get-fx-acquisition-data.helper';
 import getOpeningBalanceExchangeRate from '@app/ledger/usecases/helpers/get-opening-balance-exchange-rate.helper';
 import mapLedgerAccountToDto from '@app/ledger/usecases/helpers/map-ledger-account-to-dto.helper';
 import validateOpeningBalanceExchangeRate from '@app/ledger/usecases/helpers/validate-opening-balance-exchange-rate.helper';
-import IExchangeRateAppService from '@app/money/contracts/exchange-rate.service.contract';
 import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
 import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
 import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
+import IFxLotAppService from '@app/subledger/fx-cost-basis/contracts/fx-lot.service.contract';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -49,9 +47,8 @@ interface IDependencies {
   ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
   repoService: IRepoService;
   ledgerAccountPersistenceService: ILedgerAccountPersistenceService;
+  fxLotAppService: IFxLotAppService;
   fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
-  fxCostBasisService: IFxCostBasisLotDomainService;
-  exchangeRateService: IExchangeRateAppService;
 }
 
 export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
@@ -134,19 +131,6 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
         payload.openingBalance.date
       );
 
-    const fxLotDataGetterPayload = {
-      account: updatedAccount,
-      journalEntry,
-      exchangeRate,
-      functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-      repoOptions,
-    };
-
-    const fxLotData = await getFxAcquisitionDataHelper(
-      deps,
-      fxLotDataGetterPayload
-    );
-
     // Make histories
     const initialAccountHistory = historyValue.make(
       auditedAccount[2],
@@ -168,15 +152,14 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       historyValue.make(lineAudit, actor, correlationId)
     );
 
-    const fxLotHistory = fxLotData
-      ? historyValue.make(fxLotData.lot[2], actor, correlationId)
-      : null;
-    const fxAcquisitionHistory = fxLotData
-      ? historyValue.make(fxLotData.acquisition[2], actor, correlationId)
-      : null;
-
     const shouldUpdateBalance =
       journalEntry.status === EJournalEntryStatus.Posted;
+
+    const fxResult = await deps.fxLotAppService.acquire(
+      { journalEntry, account: updatedAccount, actor },
+      repoOptions
+    );
+
     // Persist entities
     const dbTransactionFn: TRepoTransactionFn = async (tx) => {
       const writeRepoOptions = { ...repoOptions, tx };
@@ -194,19 +177,16 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
         writeRepoOptions
       );
 
-      if (shouldUpdateBalance) {
-        await deps.outboxService.createBalancePropagation(
-          journalEntry.id,
+      if (fxResult) {
+        await deps.fxCostBasisPersistenceService.persistAcquisition(
+          fxResult.records,
           writeRepoOptions
         );
       }
 
-      if (fxLotData) {
-        await deps.fxCostBasisPersistenceService.persistAcquisition(
-          fxLotData.lot[0],
-          fxLotData.acquisition[0],
-          fxLotHistory!,
-          fxAcquisitionHistory!,
+      if (shouldUpdateBalance) {
+        await deps.outboxService.createBalancePropagation(
+          journalEntry.id,
           writeRepoOptions
         );
       }
@@ -226,8 +206,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       ...auditedAccount[1],
       ...updatedAccountEvents,
       ...journalEvents,
-      ...(fxLotData?.lot[1] ?? []),
-      ...(fxLotData?.acquisition[1] ?? []),
+      ...(fxResult?.events ?? []),
     ];
 
     await deps.eventBus.publish(eventValue.enrichAll(allEvents, repoOptions));

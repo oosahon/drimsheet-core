@@ -9,6 +9,10 @@ Review for bugs first.
 - Layer ownership and import boundaries.
 - Import-path compliance with [Import Paths](import-paths.md).
 - Repositories doing more than storage/retrieval.
+- Domain or non-persistence application services invoking write repositories or
+  persistence services instead of returning prepared results to a use case.
+- Persistence services being invoked by anything other than a use case, or
+  owning workflow decisions beyond their atomic write bundle.
 - Controllers, middlewares, or use cases making hidden business decisions.
 - Structural decisions without an explicit requirement or resolved plan
   decision, durable rule, concrete precedent, or explicitly approved deviation.

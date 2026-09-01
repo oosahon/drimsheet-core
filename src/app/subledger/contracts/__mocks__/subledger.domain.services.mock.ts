@@ -3,4 +3,5 @@ import IFxCostBasisLotDomainService from '@domain/subledger/fx-cost-basis/types/
 export const mockFxCostBasisLotDomainService: jest.Mocked<IFxCostBasisLotDomainService> =
   {
     acquire: jest.fn(),
+    dispose: jest.fn(),
   };

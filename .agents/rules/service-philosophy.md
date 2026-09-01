@@ -37,16 +37,14 @@ Ask:
 ### Application
 
 Application services own reusable application capabilities. They may coordinate
-domain behavior, repositories, ports, controlled side effects, and transactions
-when the capability is independently meaningful.
+domain behavior, read-only repositories, and ports when the capability is
+independently meaningful. They prepare results; they do not persist them.
 
 - Define the contract around the capability, not the feature folder.
 - Document whether the service rejects, best-efforts, queues, retries, claims
-  exclusive work, composes with an outer transaction, or owns a transaction.
-- Allow reusable persistence services to own transactions when they protect a
-  multi-repository atomicity boundary. For example, journal entries and journal
-  lines have separate repositories, but the application must save them together
-  or not at all.
+  exclusive work, or requires a caller-supplied transaction for invariant reads.
+- Do not invoke write repositories or persistence services. Return the domain
+  or application result to the use case that decides and orders persistence.
 - Keep domain decisions visible in entities, values, domain rules, or domain
   services.
 - Keep request-specific choreography in the use case, even when extraction
@@ -58,16 +56,30 @@ Ask:
 2. Does it have an independently meaningful contract?
 3. What side effects and failure semantics does the caller rely on?
 
+### Persistence Services
+
+Persistence services are the narrow exception for composing writes. They are
+application-layer capabilities, but they are invoked directly by use cases and
+do not own workflow decisions.
+
+- Compose repository writes only when the persisted bundle requires atomicity
+  or storage-level invariants across repositories.
+- Join the transaction supplied by the use case, or create only the local
+  transaction required to make their own bundle atomic.
+- Do not call domain services, decide whether to persist, publish events,
+  enqueue work, or invoke another persistence service.
+- Return persistence completion or a persistence error to the use case.
+
 ### Use Cases
 
 Use cases own request-specific ordering and orchestration.
 
 - Validate request DTOs and read request context.
 - Coordinate domain/app capabilities for one workflow.
-- Own workflow-specific transactions, history creation, app context updates,
-  and event publication.
-- Extract persistence only when it is a reusable atomic capability with an
-  independent contract.
+- Solely initiate persistence, whether through repositories or a dedicated
+  persistence service.
+- Own the outer workflow transaction, persistence ordering, history creation,
+  app context updates, and event publication.
 
 ### Repositories
 
@@ -107,10 +119,12 @@ keep their names until a migration is planned.
   contexts, events, and audits without persisting or publishing them.
 - Repository-backed domain service: find the accounting period for a posting
   date and assert that it is open.
-- Application service: persist a journal entry header and its lines in one
-  transaction so neither can exist without the other.
+- Persistence service: atomically persist a journal entry header and its lines;
+  the journal use case invokes it at the required workflow point.
 - Application service: queue balance propagation as best-effort work and report
   failures exactly once.
+- Not an application service: resolving an FX effect and then invoking its
+  persistence service. Return the resolved effect so the use case persists it.
 - Not a service: a helper that exists only to hide a few lines inside one use
   case.
 - Not a domain service: a persistence workflow that saves domain entities,

@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { accountingEntitiesTable } from '../config/accounting-entity';
 import { currenciesTable } from '../config/currencies';
 import {
@@ -53,6 +54,11 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
         onDelete: 'RESTRICT',
       },
 
+      remaining_quantity_amount: {
+        type: 'bigint',
+        notNull: true,
+      },
+
       cost_basis_amount: {
         type: 'bigint',
         notNull: true,
@@ -71,7 +77,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       },
 
       acquisition_rate: {
-        type: 'numeric',
+        type: 'jsonb',
+        notNull: true,
+      },
+
+      acquisition_date: {
+        type: 'timestamptz',
         notNull: true,
       },
 
@@ -96,6 +107,19 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     {
       ifNotExists: true,
     }
+  );
+
+  pgm.createIndex(
+    subledgerFxCostBasisLotsTable,
+    [
+      'accounting_entity_id',
+      'ledger_account_id',
+      'status',
+      'acquisition_date',
+      'created_at',
+      'id',
+    ],
+    { name: 'subledger_fx_cost_basis_lots_fifo_idx' }
   );
 }
 

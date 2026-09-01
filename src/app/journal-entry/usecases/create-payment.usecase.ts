@@ -34,6 +34,8 @@ import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
 import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
+import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
+import IFxLotAppService from '@app/subledger/fx-cost-basis/contracts/fx-lot.service.contract';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -47,6 +49,8 @@ interface IDependencies {
   eventBus: IEventBus;
   outboxService: IOutboxService;
   ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
+  fxLotAppService: IFxLotAppService;
+  fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
 }
 
 export default function makeCreatePaymentUsecase(deps: IDependencies) {
@@ -185,6 +189,13 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
 
     const shouldUpdateBalance =
       journalEntry.status === EJournalEntryStatus.Posted;
+
+    const fxResult = await deps.fxLotAppService.dispose(
+      { journalEntry, account: sourceAccount, actor: userActor },
+      repoOptions
+    );
+    const fxEvents: IEvent<unknown>[] = fxResult?.events ?? [];
+
     const dbTransactionFn: TRepoTransactionFn = async (tx) => {
       const writeOptions = { correlationId, tx };
 
@@ -202,6 +213,13 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
         journalLinesHistory,
         writeOptions
       );
+
+      if (fxResult) {
+        await deps.fxCostBasisPersistenceService.persistDisposition(
+          fxResult.records,
+          writeOptions
+        );
+      }
 
       if (shouldUpdateBalance) {
         await deps.outboxService.createBalancePropagation(
@@ -223,6 +241,7 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
     const allEvents: IEvent<unknown>[] = [
       ...counterpartyEvents.flat(),
       ...journalEntryEvents,
+      ...fxEvents,
     ];
     await deps.eventBus.publish(eventValue.enrichAll(allEvents, repoOptions));
 

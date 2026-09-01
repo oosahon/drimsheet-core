@@ -35,10 +35,10 @@ import {
 import { IBankAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import makeCreateBankAccountUseCase from '@app/ledger/usecases/create-bank-account.usecase';
-import mockExchangeRateService from '@app/money/contracts/__mocks__/exchange-rate.service.mock';
 import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
-import { mockFxCostBasisLotDomainService } from '@app/subledger/contracts/__mocks__/subledger.domain.services.mock';
 import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
+import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
+import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
 describe('makeCreateBankAccountUseCase', () => {
   const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
@@ -159,9 +159,8 @@ describe('makeCreateBankAccountUseCase', () => {
     ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
     repoService: mockRepoService,
     ledgerAccountPersistenceService: mockLedgerAccountPersistenceService,
+    fxLotAppService: mockFxLotAppService,
     fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
-    fxCostBasisService: mockFxCostBasisLotDomainService,
-    exchangeRateService: mockExchangeRateService,
   };
 
   beforeEach(() => {
@@ -186,6 +185,7 @@ describe('makeCreateBankAccountUseCase', () => {
       mockOpeningBalanceEvents,
       mockOpeningBalanceAudit,
     ]);
+    mockFxLotAppService.acquire.mockResolvedValue(null);
   });
 
   it('creates a bank account without opening balance successfully', async () => {
@@ -457,27 +457,35 @@ describe('makeCreateBankAccountUseCase', () => {
         },
       ],
     };
-    mockFxCostBasisLotDomainService.acquire.mockReturnValueOnce(
-      mockLotData as any
-    );
-    mockExchangeRateService.getOfficialRate.mockResolvedValueOnce({
-      rate: 1500,
-      currencyPair: { baseCurrencyCode: 'USD', quoteCurrencyCode: 'NGN' },
-      asOf: new Date('2026-03-01T00:00:00.000Z'),
-    } as any);
+    const fxRecords = {
+      lot: mockLotData.lot[0],
+      acquisition: mockLotData.acquisition[0],
+      lotHistory: { entityId: lotId },
+      acquisitionHistory: { entityId: acqId },
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotAcquisitionAppResult['records'];
+    mockFxLotAppService.acquire.mockResolvedValueOnce({
+      records: fxRecords,
+      events: [],
+    });
 
     const useCase = makeCreateBankAccountUseCase(deps);
     const result = await useCase(foreignReq);
 
     expect(result.id).toBe(foreignMockAccount.id);
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      {
+        journalEntry: expect.anything(),
+        account: expect.objectContaining({ id: foreignMockAccount.id }),
+        actor: expect.objectContaining({ userId }),
+      },
+      { correlationId: 'test-correlation-id' }
+    );
     expect(
       mockFxLotCostBasisService.persistence.persistAcquisition
     ).toHaveBeenCalledWith(
-      mockLotData.lot[0],
-      mockLotData.acquisition[0],
-      expect.objectContaining({ entityId: lotId }),
-      expect.objectContaining({ entityId: acqId }),
-      expect.anything()
+      fxRecords,
+      expect.objectContaining({ correlationId: 'test-correlation-id' })
     );
     expect(mockEventBus.publish).toHaveBeenCalled();
   });
