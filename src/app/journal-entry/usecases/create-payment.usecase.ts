@@ -3,6 +3,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
+import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
@@ -190,9 +191,10 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
     const shouldUpdateBalance =
       journalEntry.status === EJournalEntryStatus.Posted;
 
+    const fxReadOptions: IReadRepoOptions = { correlationId };
     const fxResult = await deps.fxLotAppService.dispose(
       { journalEntry, account: sourceAccount, actor: userActor },
-      repoOptions
+      fxReadOptions
     );
     const fxEvents: IEvent<unknown>[] = fxResult?.events ?? [];
 
