@@ -83,7 +83,7 @@ describe('Ledger Account Balance Mapper', () => {
         currencyCode: SYSTEM_CURRENCIES.NGN.code,
         functionalAmount: 100_00,
         functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
-        version: 1,
+        version: newBalance.version,
         createdAt: newBalance.createdAt.toISOString(),
         updatedAt: newBalance.updatedAt.toISOString(),
       });

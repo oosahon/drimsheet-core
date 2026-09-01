@@ -37,6 +37,7 @@ describe('CounterpartyRepoImpl', () => {
 
   const history: ICounterpartyHistory = {
     entityId: payload.id,
+    entityVersion: 1,
     action: 'created',
     actor: {
       type: 'user',

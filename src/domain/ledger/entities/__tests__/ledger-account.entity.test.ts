@@ -301,6 +301,7 @@ describe('Ledger Account Shared Entity', () => {
       expect(account.controlAccountId).toBeNull();
       expect(account.name).toBe('Main Bank Account');
       expect(account.meta).toEqual({ bankName: 'Test Bank' });
+      expect(account.version).toBe(1);
       expect(account.createdAt).toEqual(new Date('2026-04-01T00:00:00.000Z'));
       expect(account.updatedAt).toEqual(new Date('2026-04-01T00:00:00.000Z'));
       expect(account.deletedAt).toBeNull();
@@ -312,6 +313,7 @@ describe('Ledger Account Shared Entity', () => {
 
       expect(audit).toEqual({
         entityId: account.id,
+        entityVersion: account.version,
         action: ELedgerAccountAuditAction.Created,
         diff: {
           before: null,
@@ -447,6 +449,7 @@ describe('Ledger Account Shared Entity', () => {
         ledgerAccountEntity.updateOpeningBalanceDate(account, openingDate);
 
       expect(updatedAccount.openingBalanceDate).toEqual(openingDate);
+      expect(updatedAccount.version).toBe(account.version + 1);
       expect(updatedAccount.updatedAt.getTime()).toBeGreaterThanOrEqual(
         account.updatedAt.getTime()
       );
@@ -458,6 +461,7 @@ describe('Ledger Account Shared Entity', () => {
       expect(events[0].data).toEqual(updatedAccount);
 
       expect(audit.action).toBe(ELedgerAccountAuditAction.Updated);
+      expect(audit.entityVersion).toBe(updatedAccount.version);
       expect(audit.diff.before).toEqual(account);
       expect(audit.diff.after).toEqual(updatedAccount);
     });

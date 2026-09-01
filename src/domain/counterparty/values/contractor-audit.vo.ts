@@ -42,6 +42,7 @@ function make(
 
   const audit: IContractorAudit = {
     entityId: payload.after.counterpartyId,
+    entityVersion: 1,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.createdAt,

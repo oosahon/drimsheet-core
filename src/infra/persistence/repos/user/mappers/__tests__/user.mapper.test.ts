@@ -13,6 +13,7 @@ describe('User Mapper', () => {
 
   const domainUser: IUser = {
     id: 'user-1' as TEntityId,
+    version: 1,
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@example.com',
@@ -24,6 +25,7 @@ describe('User Mapper', () => {
 
   const repoModel: Parameters<typeof userMapper.toDomain>[0] = {
     id: 'user-1',
+    version: 1,
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@example.com',

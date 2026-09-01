@@ -49,6 +49,7 @@ describe('makeCreateReceiptUsecase', () => {
 
   const user: IUser = {
     id: generateUUID(),
+    version: 1,
     email: 'user@example.com',
     emailVerified: true,
     firstName: 'Test',

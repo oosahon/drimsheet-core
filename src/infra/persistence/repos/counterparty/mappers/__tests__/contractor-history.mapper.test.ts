@@ -22,6 +22,7 @@ describe('contractorHistoryMapper', () => {
 
   const history: IContractorHistory = {
     entityId: contractor.counterpartyId,
+    entityVersion: 1,
     action: 'created',
     actor: {
       type: 'user',

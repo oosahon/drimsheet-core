@@ -20,6 +20,7 @@ describe('reportingPeriodHistoryMapper', () => {
 
     const history: IReportingPeriodHistory = {
       entityId: reportingPeriodId,
+      entityVersion: 1,
       action: 'created',
       diff: {
         before: null,

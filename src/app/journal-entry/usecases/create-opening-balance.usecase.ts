@@ -105,6 +105,7 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
 
       await deps.ledgerAccountRepo.update(updatedAccount, {
         ...writeRepoOptions,
+        expectedVersion: account.version,
         history: accountHistory,
       });
 

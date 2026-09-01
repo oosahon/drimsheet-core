@@ -42,6 +42,7 @@ const ledgerAccountMapper = {
       openingBalanceDate: account.openingBalanceDate
         ? toRepoDateOnly(account.openingBalanceDate)
         : null,
+      version: account.version,
       createdBy: account.createdBy,
       ...toCommonRepoDates(account),
     };
@@ -73,6 +74,7 @@ const ledgerAccountMapper = {
       openingBalanceDate: model.openingBalanceDate
         ? fromRepoDate(model.openingBalanceDate)
         : null,
+      version: model.version,
       createdBy: model.createdBy as TEntityId,
       ...fromCommonRepoDates(model),
     };

@@ -52,6 +52,7 @@ describe('makeGetPermittedPostingAccountsUsecase', () => {
 
   const ledgerAccount: ILedgerAccount = {
     id: accountId,
+    version: 1,
     code: '400001',
     materializedPath: '400000.400001',
     accountingEntityId,

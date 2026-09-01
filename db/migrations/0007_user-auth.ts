@@ -1,4 +1,5 @@
 import { MigrationBuilder } from 'node-pg-migrate';
+
 import { userAuthTable, usersTable } from '../config/users';
 
 export const up = (pgm: MigrationBuilder) => {
@@ -18,6 +19,8 @@ export const up = (pgm: MigrationBuilder) => {
 
       strategies: { type: 'varchar(50)[]', notNull: true },
 
+      version: { type: 'integer', notNull: true },
+
       created_at: {
         type: 'timestamptz',
         default: pgm.func('now()'),
@@ -34,6 +37,10 @@ export const up = (pgm: MigrationBuilder) => {
       ifNotExists: true,
     }
   );
+
+  pgm.addConstraint(userAuthTable, 'user_auth_version_positive_ck', {
+    check: 'version > 0',
+  });
 };
 
 export const down = (pgm: MigrationBuilder) => {

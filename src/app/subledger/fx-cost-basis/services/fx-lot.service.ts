@@ -156,6 +156,7 @@ function makeDispose(deps: IDependencies): IFxLotAppService['dispose'] {
 
       return {
         lot,
+        expectedVersion: lot.version - 1,
         history: historyValue.make(
           lotAudit,
           payload.actor,

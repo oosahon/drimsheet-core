@@ -41,6 +41,7 @@ function makeHistory(
   return historyValue.make(
     {
       entityId,
+      entityVersion: 1,
       action,
       diff: {
         before: beforeSnapshot,
@@ -66,6 +67,7 @@ describe('history.vo', () => {
       );
 
       expect(history.entityId).toBe(entityId);
+      expect(history.entityVersion).toBe(1);
       expect(history.actor).toBe(userActor);
       expect(history.action).toBe('updated');
       expect(history.diff).toEqual({ before, after });
@@ -107,6 +109,7 @@ describe('history.vo', () => {
         historyValue.make(
           {
             entityId: 'invalid' as TEntityId,
+            entityVersion: 1,
             action: 'updated',
             diff: { before, after },
             occurredAt: new Date(),
@@ -116,6 +119,25 @@ describe('history.vo', () => {
         )
       ).toThrow(historyError.InvalidEntityId);
     });
+
+    it.each([undefined, 0, -1, 1.5])(
+      'rejects invalid entity version %s',
+      (entityVersion) => {
+        expect(() =>
+          historyValue.make(
+            {
+              entityId,
+              entityVersion,
+              action: 'updated',
+              diff: { before, after },
+              occurredAt: new Date(),
+            } as unknown as Parameters<typeof historyValue.make>[0],
+            userActor,
+            correlationId
+          )
+        ).toThrow(historyError.InvalidEntityVersion);
+      }
+    );
 
     it('rejects invalid actors', () => {
       const invalidActors: IHistoryActor[] = [
@@ -149,6 +171,7 @@ describe('history.vo', () => {
         historyValue.make(
           {
             entityId,
+            entityVersion: 1,
             action: '   ',
             diff: { before, after },
             occurredAt: new Date(),
@@ -162,6 +185,7 @@ describe('history.vo', () => {
         historyValue.make(
           {
             entityId,
+            entityVersion: 1,
             action: '',
             diff: { before, after },
             occurredAt: new Date(),
@@ -177,6 +201,7 @@ describe('history.vo', () => {
         historyValue.make(
           {
             entityId,
+            entityVersion: 1,
             action: 'updated',
             diff: { before, after },
             occurredAt: new Date('invalid'),
@@ -192,6 +217,7 @@ describe('history.vo', () => {
         historyValue.make(
           {
             entityId,
+            entityVersion: 1,
             action: 'updated',
             diff: { before, after },
             occurredAt: new Date(),

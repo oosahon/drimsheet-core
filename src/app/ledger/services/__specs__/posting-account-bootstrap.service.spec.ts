@@ -1,4 +1,4 @@
-import { ERepoLock, IReadRepoOptions } from '@shared/types/repo.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
@@ -43,7 +43,6 @@ const accountingEntity = {
 } as IAccountingEntity;
 const repoOptions: IReadRepoOptions = {
   correlationId: 'test-correlation-id',
-  lock: ERepoLock.Update,
 };
 const expectedAccountNames = [
   'Trade Receivables',
@@ -83,6 +82,7 @@ function makeAuditedAccount(
     [{ type: `${name}-created`, data: account, occurredAt, enrichedAt: null }],
     {
       entityId: account.id,
+      entityVersion: 1,
       action: 'created',
       diff: { before: null, after: account },
       occurredAt,
@@ -198,12 +198,6 @@ describe('postingAccountBootstrapService', () => {
           options.history.length === 1
       )
     ).toBe(true);
-    for (const [, , options] of mockLedgerAccountPersistenceService.create.mock
-      .calls) {
-      expect(options).toEqual(
-        expect.objectContaining({ lock: repoOptions.lock })
-      );
-    }
   });
 
   it('persists each prerequisite before creating its dependent account', async () => {

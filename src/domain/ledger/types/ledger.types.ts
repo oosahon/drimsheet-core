@@ -86,6 +86,7 @@ export interface ILedgerAccount {
   adjunctAccountRule: UAdjunctAccountRule;
   meta: object | null;
   openingBalanceDate: Date | null;
+  version: number;
   createdBy: TEntityId;
   createdAt: Date;
   updatedAt: Date;

@@ -51,6 +51,13 @@ owner. Do not create a service merely to shorten a use case.
 ## Factories And Implementations
 
 - Service factories construct capabilities and bind dependencies.
+- Implement each service contract method in a file-private
+  `make<Capability>(deps)` function typed as `IService['method']`. The exported
+  service factory only composes those methods into a typed service object and
+  returns the frozen object. Do not define capability bodies inline in the
+  service object or inside the exported factory.
+- Document every `make<Capability>` function with its purpose and any important
+  behavior, side effects, consistency guarantees, or failure semantics.
 - Service implementation functions own runtime behavior, including error
   handling, reporting policy, retries, and best-effort semantics.
 - Do not move catches or reporting into a factory to make a call site shorter.

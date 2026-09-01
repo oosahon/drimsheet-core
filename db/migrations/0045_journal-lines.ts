@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { counterpartiesTable } from '../config/counterparties';
 import { currenciesTable } from '../config/currencies';
 import {
@@ -89,7 +90,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     version: {
       type: 'integer',
       notNull: true,
-      default: 1,
     },
 
     created_at: {

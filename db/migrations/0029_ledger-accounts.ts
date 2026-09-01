@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { accountingEntitiesTable } from '../config/accounting-entity';
 import { currenciesTable } from '../config/currencies';
 import {
@@ -113,6 +114,10 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       meta: {
         type: 'jsonb',
       },
+      version: {
+        type: 'integer',
+        notNull: true,
+      },
       created_by: {
         type: 'uuid',
         references: usersTable,
@@ -149,6 +154,14 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     'ledger_accounts_path_accounting_entity_id_uk',
     {
       unique: ['materialized_path', 'accounting_entity_id'],
+    }
+  );
+
+  pgm.addConstraint(
+    ledgerAccountsTable,
+    'ledger_accounts_version_positive_ck',
+    {
+      check: 'version > 0',
     }
   );
 }

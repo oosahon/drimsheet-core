@@ -1,7 +1,7 @@
 import { and, eq, getTableColumns, inArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 
-import validateVersionInOptions from '@shared/helpers/validate-version-in-repo';
+import validateVersionInRepo from '@shared/helpers/validate-version-in-repo';
 import repoError from '@shared/values/errors/repo.error';
 
 import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
@@ -60,9 +60,8 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
   },
 
   async adjustBalance(payload, options) {
-    validateVersionInOptions(options);
-
     const { newBalance, adjustment } = payload;
+    validateVersionInRepo(newBalance, options);
 
     await getDbQuery(options).transaction(async (tx) => {
       await tx
@@ -71,12 +70,7 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
 
       const updated = await tx
         .update(ledgerAccountBalancesInCore)
-        .set(
-          ledgerAccountBalanceMapper.toRepo({
-            ...newBalance,
-            version: newBalance.version + 1,
-          })
-        )
+        .set(ledgerAccountBalanceMapper.toRepo(newBalance))
         .where(
           and(
             eq(
@@ -87,7 +81,7 @@ const ledgerAccountBalanceRepoImpl: ILedgerAccountBalanceRepo = {
               ledgerAccountBalancesInCore.accountingEntityId,
               newBalance.accountingEntityId
             ),
-            eq(ledgerAccountBalancesInCore.version, options.expectedVersion!)
+            eq(ledgerAccountBalancesInCore.version, options.expectedVersion)
           )
         );
 

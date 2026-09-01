@@ -116,6 +116,7 @@ describe('makeRequestPasswordResetUseCase', () => {
       emailVerified: true,
       firstName: 'John',
       lastName: 'Doe',
+      version: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
@@ -128,6 +129,9 @@ describe('makeRequestPasswordResetUseCase', () => {
       password: 'hashed-password',
       failedLoginAttempts: 0,
       strategy: ['email'],
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     } as unknown as IUserAuth;
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
@@ -177,6 +181,7 @@ describe('makeRequestPasswordResetUseCase', () => {
       emailVerified: true,
       firstName: 'John',
       lastName: 'Doe',
+      version: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
@@ -187,6 +192,9 @@ describe('makeRequestPasswordResetUseCase', () => {
       password: null,
       failedLoginAttempts: 0,
       strategy: ['google'],
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     } as unknown as IUserAuth;
 
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);

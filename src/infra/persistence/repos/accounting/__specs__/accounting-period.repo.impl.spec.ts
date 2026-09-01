@@ -1,4 +1,4 @@
-import { ERepoLock, ITransactionContext } from '@shared/types/repo.types';
+import { ITransactionContext } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
 import { IAccountingPeriod } from '@domain/accounting/types/period.types';
@@ -18,16 +18,14 @@ describe('accountingPeriodRepoImpl', () => {
   const period = { id: 'period-domain' } as IAccountingPeriod;
 
   function mockRead(results: unknown[]) {
-    const lock = jest.fn().mockResolvedValue(results);
     const baseQuery = {
-      for: lock,
       then: (resolve: (value: unknown[]) => void) => resolve(results),
     };
     const where = jest.fn().mockReturnValue(baseQuery);
     const from = jest.fn().mockReturnValue({ where });
     const select = jest.fn().mockReturnValue({ from });
     (getDbQuery as jest.Mock).mockReturnValue({ select });
-    return { select, from, where, lock };
+    return { select, from, where };
   }
 
   beforeEach(() => {
@@ -48,7 +46,6 @@ describe('accountingPeriodRepoImpl', () => {
     ).resolves.toBe(period);
     expect(query.where).toHaveBeenCalledTimes(1);
     expect(accountingPeriodMapper.toDomain).toHaveBeenCalledWith(row);
-    expect(query.lock).not.toHaveBeenCalled();
   });
 
   it('returns null when no period contains the date', async () => {
@@ -62,18 +59,16 @@ describe('accountingPeriodRepoImpl', () => {
     expect(accountingPeriodMapper.toDomain).not.toHaveBeenCalled();
   });
 
-  it('uses the supplied transaction and share lock', async () => {
-    const query = mockRead([row]);
+  it('uses the supplied transaction', async () => {
+    mockRead([row]);
     const tx = { transaction: jest.fn() } as ITransactionContext;
     const options = {
       correlationId: 'correlation-id',
       tx,
-      lock: ERepoLock.Share,
     };
 
     await accountingPeriodRepo.findByDate(accountingEntityId, date, options);
 
     expect(getDbQuery).toHaveBeenCalledWith(options);
-    expect(query.lock).toHaveBeenCalledWith(ERepoLock.Share);
   });
 });

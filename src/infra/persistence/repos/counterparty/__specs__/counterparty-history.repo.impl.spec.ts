@@ -25,6 +25,7 @@ describe('CounterpartyHistoryRepoImpl', () => {
 
   const history: ICounterpartyHistory = {
     entityId: counterparty.id,
+    entityVersion: 1,
     action: 'created',
     actor: {
       type: 'user',

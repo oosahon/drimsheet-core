@@ -40,6 +40,7 @@ function make(payload: IMakeVendorAuditPayload): Readonly<IVendorAudit> {
 
   const audit: IVendorAudit = {
     entityId: payload.after.counterpartyId,
+    entityVersion: 1,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.createdAt,

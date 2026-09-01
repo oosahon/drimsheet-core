@@ -1,16 +1,17 @@
 import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 
 import { IUser } from '@domain/user/types/user.types';
 import emailValue from '@domain/user/values/email.vo';
 
 import mockPasswordService from '@app/auth/contracts/__mocks__/password-service.mock';
-import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
 import mockUserAuthRepo from '@app/auth/contracts/__mocks__/user-auth.repo.mock';
-import mockUserSessionRepo from '@app/auth/contracts/__mocks__/user-session.repo.mock';
-import { IUserAuth } from '@app/auth/contracts/auth.types';
+import mockUserAuthService from '@app/auth/contracts/__mocks__/user-auth.service.mock';
+import mockUserSessionPersistenceService from '@app/auth/contracts/__mocks__/user-session-persistence.service.mock';
+import mockUserSessionService from '@app/auth/contracts/__mocks__/user-session.service.mock';
+import { IUserAuth, IUserSession } from '@app/auth/contracts/auth.types';
+import { IUserSessionReference } from '@app/auth/contracts/user-session.service.contract';
 import authError from '@app/auth/errors/auth.error';
 import makeLoginWithEmailUseCase from '@app/auth/usecases/login-with-email.usecase';
 import mockAppContext, {
@@ -24,15 +25,25 @@ describe('makeLoginWithEmailUseCase', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockRepoService.runInTransaction
-      .mockReset()
-      .mockImplementation(async (transactionFn) =>
-        transactionFn('mock-tx' as unknown as ITransactionContext)
-      );
     mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
     } as unknown as IAppContextData);
+    mockUserAuthService.recordFailedLogin.mockImplementation((userAuth) => ({
+      ...userAuth,
+      failedLoginAttempts: userAuth.failedLoginAttempts + 1,
+      version: userAuth.version + 1,
+      updatedAt: new Date(),
+    }));
+    mockUserAuthService.resetFailedLoginAttempts.mockImplementation(
+      (userAuth) => ({
+        ...userAuth,
+        failedLoginAttempts: 0,
+        version: userAuth.version + 1,
+        updatedAt: new Date(),
+      })
+    );
+    mockUserSessionPersistenceService.replaceClientSession.mockResolvedValue();
   });
 
   const validPayload = {
@@ -52,19 +63,37 @@ describe('makeLoginWithEmailUseCase', () => {
       password: 'hashed-password',
       failedLoginAttempts: 0,
       strategy: ['email'],
+      version: 1,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
       ...overrides,
     }) as unknown as IUserAuth;
+
+  const getPreparedSession = (
+    priorClientSession: IUserSessionReference | null = null
+  ) => ({
+    accessToken: 'auth-token',
+    refreshToken: 'refresh-token',
+    userSession: {
+      id: 'session-id' as TEntityId,
+      userId: 'existing-user-id' as TEntityId,
+      refreshToken: 'refresh-token',
+      lastLoginAt: new Date('2026-01-01T00:00:00.000Z'),
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+    } satisfies IUserSession,
+    priorClientSession,
+  });
 
   const getUseCase = () =>
     makeLoginWithEmailUseCase({
       reqContext: mockAppContext,
       userRepo: mockUserRepo,
       passwordService: mockPasswordService,
-      tokenService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
-      userSessionRepo: mockUserSessionRepo,
-      repoService: mockRepoService,
+      userAuthService: mockUserAuthService,
+      userSessionService: mockUserSessionService,
+      userSessionPersistenceService: mockUserSessionPersistenceService,
     });
 
   it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
@@ -88,13 +117,16 @@ describe('makeLoginWithEmailUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(mockUserAuth);
     mockPasswordService.compare.mockResolvedValue(true);
-    mockAuthService.generateAccessToken.mockResolvedValue('auth-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
+    const preparedSession = getPreparedSession({
+      userId: mockUser.id,
+      refreshToken: 'old-refresh-token',
+    });
+    mockUserSessionService.prepare.mockResolvedValue(preparedSession);
 
     const usecase = getUseCase();
     const result = await usecase(validPayload);
 
-    expect(mockAppContext.get).toHaveBeenCalledTimes(2);
+    expect(mockAppContext.get).toHaveBeenCalledTimes(1);
     expect(mockUserRepo.findByEmail).toHaveBeenCalledWith(
       emailValue.make(validPayload.email),
       {
@@ -105,32 +137,26 @@ describe('makeLoginWithEmailUseCase', () => {
       validPayload.password,
       mockUserAuth.password
     );
-    expect(mockAuthService.generateAccessToken).toHaveBeenCalledWith(mockUser);
-    expect(mockAuthService.generateRefreshToken).toHaveBeenCalledWith(mockUser);
-
-    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockUserSessionRepo.delete).toHaveBeenCalledWith(
-      mockUser.id,
-      'old-refresh-token',
-      { correlationId, tx: 'mock-tx' }
+    expect(mockUserSessionService.prepare).toHaveBeenCalledWith(
+      mockUser,
+      'old-refresh-token'
     );
-    expect(mockUserSessionRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: expect.any(String),
-        userId: mockUser.id,
-        refreshToken: 'refresh-token',
-        lastLoginAt: expect.any(Date),
-        createdAt: expect.any(Date),
-      }),
-      { correlationId, tx: 'mock-tx' }
+    expect(
+      mockUserSessionPersistenceService.replaceClientSession
+    ).toHaveBeenCalledWith(
+      {
+        userSession: preparedSession.userSession,
+        priorClientSession: preparedSession.priorClientSession,
+      },
+      { correlationId }
     );
     expect(mockClientSession.setRefreshToken).toHaveBeenCalledWith(
       'refresh-token'
     );
 
-    expect(mockUserAuthRepo.resetFailedLoginAttempts).toHaveBeenCalledWith(
-      mockUser.id,
-      { correlationId }
+    expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
+      expect.objectContaining({ failedLoginAttempts: 0, version: 2 }),
+      { correlationId, expectedVersion: 1 }
     );
     expect(mockEventBus.publish).toHaveBeenCalled();
 
@@ -185,9 +211,9 @@ describe('makeLoginWithEmailUseCase', () => {
       authError.InvalidCredentials
     );
     expect(mockPasswordService.compare).not.toHaveBeenCalled();
-    expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
-      mockUser.id,
-      { correlationId }
+    expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
+      expect.objectContaining({ failedLoginAttempts: 1, version: 2 }),
+      { correlationId, expectedVersion: 1 }
     );
   });
 
@@ -203,9 +229,9 @@ describe('makeLoginWithEmailUseCase', () => {
     await expect(usecase(validPayload)).rejects.toThrow(
       authError.InvalidCredentials
     );
-    expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
-      mockUser.id,
-      { correlationId }
+    expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
+      expect.objectContaining({ failedLoginAttempts: 1, version: 2 }),
+      { correlationId, expectedVersion: 1 }
     );
   });
 
@@ -226,11 +252,11 @@ describe('makeLoginWithEmailUseCase', () => {
       payload.password,
       'hashed-password'
     );
-    expect(mockUserAuthRepo.incrementFailedLoginAttempts).toHaveBeenCalledWith(
-      mockUser.id,
-      { correlationId }
+    expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
+      expect.objectContaining({ failedLoginAttempts: 1, version: 2 }),
+      { correlationId, expectedVersion: 1 }
     );
-    expect(mockAuthService.generateAccessToken).not.toHaveBeenCalled();
+    expect(mockUserSessionService.prepare).not.toHaveBeenCalled();
   });
 
   it('should not delete session if no old refresh token exists', async () => {
@@ -240,13 +266,18 @@ describe('makeLoginWithEmailUseCase', () => {
     mockUserRepo.findByEmail.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(getMockUserAuth());
     mockPasswordService.compare.mockResolvedValue(true);
-    mockAuthService.generateAccessToken.mockResolvedValue('auth-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
+    const preparedSession = getPreparedSession();
+    mockUserSessionService.prepare.mockResolvedValue(preparedSession);
 
     const usecase = getUseCase();
     await usecase(validPayload);
 
-    expect(mockUserSessionRepo.delete).not.toHaveBeenCalled();
-    expect(mockUserSessionRepo.create).toHaveBeenCalled();
+    expect(mockUserSessionService.prepare).toHaveBeenCalledWith(mockUser, null);
+    expect(
+      mockUserSessionPersistenceService.replaceClientSession
+    ).toHaveBeenCalledWith(
+      { userSession: preparedSession.userSession, priorClientSession: null },
+      { correlationId }
+    );
   });
 });

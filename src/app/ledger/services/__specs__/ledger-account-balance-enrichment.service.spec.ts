@@ -45,6 +45,7 @@ describe('ledgerAccountBalanceEnrichmentService', () => {
   ): ILedgerAccount {
     return {
       id,
+      version: 1,
       code,
       materializedPath: code,
       accountingEntityId,

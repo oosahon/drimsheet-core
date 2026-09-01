@@ -51,6 +51,7 @@ describe('ledgerAccountAudit', () => {
 
       expect(audit).toEqual({
         entityId: account.id,
+        entityVersion: 1,
         action: ELedgerAccountAuditAction.Created,
         diff: {
           before: null,

@@ -8,6 +8,7 @@ describe('userEntityHelpers', () => {
   describe('validate', () => {
     const validUser: IUser = {
       id: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+      version: 1,
       firstName: 'John',
       lastName: 'Doe',
       email: 'john.doe@example.com',

@@ -44,6 +44,7 @@ function make<TSnapshot extends IAuditableEntity, TAction extends string>(
 
   return Object.freeze({
     entityId: payload.after.id,
+    entityVersion: 1,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.updatedAt,

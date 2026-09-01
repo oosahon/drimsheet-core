@@ -74,6 +74,7 @@ function make<T extends ILedgerAccount>(
     // Proper meta validation is delegated to the specific ledger account entity
     meta: payload.meta,
     openingBalanceDate: null,
+    version: 1,
     createdBy: payload.createdBy,
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -130,6 +131,7 @@ function updateOpeningBalanceDate<T extends ILedgerAccount>(
     adjunctAccountRule: account.adjunctAccountRule,
     meta: account.meta,
     openingBalanceDate,
+    version: account.version + 1,
     createdBy: account.createdBy,
     createdAt: account.createdAt,
     updatedAt: timestamp,

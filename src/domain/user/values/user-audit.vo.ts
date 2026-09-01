@@ -31,6 +31,7 @@ function make(payload: IMakeUserAuditPayload) {
 
   const audit: IUserAudit = {
     entityId: payload.after.id,
+    entityVersion: payload.after.version,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.updatedAt,

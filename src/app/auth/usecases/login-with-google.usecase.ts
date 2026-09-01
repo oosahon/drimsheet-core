@@ -3,7 +3,6 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
-import { ERepoLock } from '@shared/types/repo.types';
 import appError from '@shared/values/errors/app.error';
 import eventValue from '@shared/values/events/event.vo';
 import historyValue from '@shared/values/history/history.vo';
@@ -14,6 +13,7 @@ import emailValue from '@domain/user/values/email.vo';
 
 import { EAuthStrategy } from '@app/auth/contracts/auth.types';
 import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
+import IUserAuthService from '@app/auth/contracts/user-auth.service.contract';
 import {
   IOAuthProfile,
   TOAuthDoneCallback,
@@ -21,13 +21,16 @@ import {
 import authError from '@app/auth/errors/auth.error';
 import IAppContext from '@app/context/contracts/app-context.contract';
 
-export default function makeLoginWithGoogleUseCase(
-  eventBus: IEventBus,
-  appContext: IAppContext,
-  userRepo: IUserRepo,
-  userAuthRepo: IUserAuthRepo,
-  repoService: IRepoService
-) {
+interface IDependencies {
+  eventBus: IEventBus;
+  appContext: IAppContext;
+  userRepo: IUserRepo;
+  userAuthRepo: IUserAuthRepo;
+  userAuthService: IUserAuthService;
+  repoService: IRepoService;
+}
+
+export default function makeLoginWithGoogleUseCase(deps: IDependencies) {
   return async (profile: IOAuthProfile, done: TOAuthDoneCallback) => {
     try {
       if (
@@ -39,31 +42,38 @@ export default function makeLoginWithGoogleUseCase(
         return done(error, false);
       }
 
-      const { correlationId, idempotencyKey } = appContext.get();
+      const { correlationId, idempotencyKey } = deps.appContext.get();
 
       const email = emailValue.normalize(profile.email);
-      const existingUser = await userRepo.findByEmail(email, { correlationId });
+      const existingUser = await deps.userRepo.findByEmail(email, {
+        correlationId,
+      });
 
       if (existingUser) {
-        await repoService.runInTransaction(async (tx) => {
-          const userAuth = await userAuthRepo.findByUserId(existingUser.id, {
-            correlationId,
-            tx,
-            lock: ERepoLock.Update,
-          });
+        await deps.repoService.runInTransaction(async (tx) => {
+          const userAuth = await deps.userAuthRepo.findByUserId(
+            existingUser.id,
+            {
+              correlationId,
+              tx,
+            }
+          );
 
           if (!userAuth) {
             throw new authError.InconsistentUserAuth();
           }
 
           if (!userAuth.strategy.includes(EAuthStrategy.Google)) {
-            await userAuthRepo.update(
-              {
-                ...userAuth,
-                strategy: [...userAuth.strategy, EAuthStrategy.Google],
-              },
-              { correlationId, tx }
+            const updatedUserAuth = deps.userAuthService.addStrategy(
+              userAuth,
+              EAuthStrategy.Google
             );
+
+            await deps.userAuthRepo.update(updatedUserAuth, {
+              correlationId,
+              expectedVersion: userAuth.version,
+              tx,
+            });
           }
         });
 
@@ -83,30 +93,24 @@ export default function makeLoginWithGoogleUseCase(
         correlationId
       );
 
-      const repoTransaction: TRepoTransactionFn = async (tx) => {
-        await userRepo.create(user, { correlationId, tx, history });
-        const timestamp = new Date();
+      const userAuth = deps.userAuthService.make({
+        userId: user.id,
+        password: null,
+        strategy: EAuthStrategy.Google,
+      });
 
-        await userAuthRepo.create(
-          {
-            userId: user.id,
-            password: null,
-            failedLoginAttempts: 0,
-            strategy: [EAuthStrategy.Google],
-            createdAt: timestamp,
-            updatedAt: timestamp,
-          },
-          { correlationId, tx }
-        );
+      const repoTransaction: TRepoTransactionFn = async (tx) => {
+        await deps.userRepo.create(user, { correlationId, tx, history });
+        await deps.userAuthRepo.create(userAuth, { correlationId, tx });
       };
 
-      await repoService.runInTransaction(repoTransaction);
+      await deps.repoService.runInTransaction(repoTransaction);
 
       const enrichedUserEvents = userEvents.map((e) =>
         eventValue.enrich(e, { correlationId, idempotencyKey })
       );
 
-      await eventBus.publish(enrichedUserEvents);
+      await deps.eventBus.publish(enrichedUserEvents);
 
       return done(null, user);
     } catch (error) {

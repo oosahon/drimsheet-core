@@ -1,6 +1,7 @@
 import {
   IPaginatedReadRepoOptions,
   IReadRepoOptions,
+  IVersionedRepoWriteOptions,
   IWriteRepoOptions,
 } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
@@ -54,7 +55,7 @@ export default interface ILedgerAccountRepo {
 
   update(
     account: ILedgerAccount,
-    options: IWriteRepoOptions<ILedgerAccountHistory>
+    options: IVersionedRepoWriteOptions<ILedgerAccountHistory>
   ): Promise<void>;
 
   findById(

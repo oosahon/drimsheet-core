@@ -46,6 +46,7 @@ describe('makeCreateTransferUsecase', () => {
   const effectiveDate = new Date('2026-08-30T00:00:00.000Z');
   const user: IUser = {
     id: generateUUID(),
+    version: 1,
     email: 'transfer@example.com',
     emailVerified: true,
     firstName: 'Transfer',

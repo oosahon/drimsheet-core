@@ -3,11 +3,7 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
-import {
-  ERepoLock,
-  IReadRepoOptions,
-  IRepoOptions,
-} from '@shared/types/repo.types';
+import { IReadRepoOptions, IRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import eventValue from '@shared/values/events/event.vo';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
@@ -48,7 +44,7 @@ async function validatePostingPeriod(
     await deps.accountingPeriodService.validatePostingPeriod(
       accountingEntityId,
       openingBalance.date,
-      { ...repoOptions, lock: ERepoLock.Share }
+      repoOptions
     );
   }
 }

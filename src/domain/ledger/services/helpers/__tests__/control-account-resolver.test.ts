@@ -1,4 +1,4 @@
-import { ERepoLock, IReadRepoOptions } from '@shared/types/repo.types';
+import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
 import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
@@ -32,7 +32,6 @@ describe('controlAccountResolverHelper', () => {
   const controlAccountId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const repoOptions: IReadRepoOptions = {
     correlationId: 'test-correlation-id',
-    lock: ERepoLock.Share,
   };
   const controlAccount = {
     id: controlAccountId,

@@ -81,6 +81,7 @@ function makePersistDisposition(
       for (const item of lots) {
         await deps.lotRepo.update(item.lot, {
           ...writeOptions,
+          expectedVersion: item.expectedVersion,
           history: item.history,
         });
       }

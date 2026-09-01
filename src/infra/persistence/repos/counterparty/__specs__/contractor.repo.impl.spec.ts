@@ -31,6 +31,7 @@ describe('ContractorRepoImpl', () => {
 
   const history: IContractorHistory = {
     entityId: payload.counterpartyId,
+    entityVersion: 1,
     action: 'created',
     actor: {
       type: 'user',

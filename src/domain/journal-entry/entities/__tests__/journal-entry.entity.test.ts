@@ -125,6 +125,7 @@ describe('JournalEntry Entity', () => {
       expect(audit.lines).toHaveLength(2);
       expect(audit.lines[0]).toEqual({
         entityId: entry.lines[0].id,
+        entityVersion: 1,
         action: EJournalLineAuditAction.Created,
         diff: {
           before: null,

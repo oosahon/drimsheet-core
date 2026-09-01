@@ -213,7 +213,6 @@ describe('createPettyCashSubAccountUseCase', () => {
       mockAccountingPeriodService.validatePostingPeriod
     ).toHaveBeenCalledWith(mockAccountingEntity.id, validOpeningBalance.date, {
       correlationId,
-      lock: 'share',
     });
 
     expect(

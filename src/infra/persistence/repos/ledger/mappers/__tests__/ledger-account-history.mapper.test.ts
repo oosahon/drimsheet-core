@@ -21,6 +21,7 @@ describe('ledgerAccountHistoryMapper', () => {
 
     const history: ILedgerAccountHistory = {
       entityId: ledgerAccountId,
+      entityVersion: 1,
       action: 'created',
       diff: {
         before: null,
@@ -59,6 +60,7 @@ describe('ledgerAccountHistoryMapper', () => {
 
     const history: ILedgerAccountHistory = {
       entityId: ledgerAccountId,
+      entityVersion: 1,
       action: 'created',
       diff: {
         before: null,

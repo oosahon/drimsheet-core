@@ -1,7 +1,11 @@
+import { eq } from 'drizzle-orm';
+
 import generateUUID from '@shared/utils/uuid-generator';
+import repoError from '@shared/values/errors/repo.error';
 
 import { IFxCostBasisLot } from '@domain/subledger/fx-cost-basis/types/lot.types';
 
+import { subledgerFxCostBasisLotsInCore } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';
 import fxCostBasisLotRepo from '@infra/persistence/repos/subledger/fx-cost-basis/lot.repo.impl';
 import fxCostBasisLotHistoryMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/lot-history.mapper';
@@ -10,6 +14,12 @@ import fxCostBasisLotMapper from '@infra/persistence/repos/subledger/fx-cost-bas
 jest.mock('../../../../helpers/get-db-query');
 jest.mock('../mappers/lot.mapper');
 jest.mock('../mappers/lot-history.mapper');
+jest.mock('drizzle-orm', () => {
+  const drizzle =
+    jest.requireActual<typeof import('drizzle-orm')>('drizzle-orm');
+
+  return { ...drizzle, eq: jest.fn(drizzle.eq) };
+});
 
 describe('FX Cost-Basis Lot Repo', () => {
   beforeEach(() => jest.clearAllMocks());
@@ -48,18 +58,18 @@ describe('FX Cost-Basis Lot Repo', () => {
   });
 
   it('updates a lot and appends its history in one repository transaction', async () => {
-    const lot = { id: generateUUID() } as IFxCostBasisLot;
-    const history = { entityId: lot.id } as any;
-    const lotRow = { id: lot.id } as any;
-    const historyRow = { lotId: lot.id } as any;
-    const where = jest.fn().mockResolvedValue(undefined);
+    const lot = { id: generateUUID(), version: 2 } as IFxCostBasisLot;
+    const history = { entityId: lot.id, entityVersion: 2 } as never;
+    const lotRow = { id: lot.id, version: lot.version } as never;
+    const historyRow = { lotId: lot.id } as never;
+    const where = jest.fn().mockResolvedValue({ rowCount: 1 });
     const set = jest.fn().mockReturnValue({ where });
     const update = jest.fn().mockReturnValue({ set });
     const values = jest.fn().mockResolvedValue(undefined);
     const insert = jest.fn().mockReturnValue({ values });
     const tx = { update, insert };
     jest.mocked(getDbQuery).mockReturnValue({
-      transaction: jest.fn(async (callback) => callback(tx as any)),
+      transaction: jest.fn(async (callback) => callback(tx as never)),
     } as unknown as ReturnType<typeof getDbQuery>);
     jest.mocked(fxCostBasisLotMapper.toRepo).mockReturnValue(lotRow);
     jest.mocked(fxCostBasisLotHistoryMapper.toRepo).mockReturnValue(historyRow);
@@ -67,10 +77,50 @@ describe('FX Cost-Basis Lot Repo', () => {
     await fxCostBasisLotRepo.update(lot, {
       correlationId: 'corr-id',
       history,
+      expectedVersion: 1,
     });
 
     expect(set).toHaveBeenCalledWith(lotRow);
+    expect(eq).toHaveBeenCalledWith(subledgerFxCostBasisLotsInCore.version, 1);
     expect(where).toHaveBeenCalledTimes(1);
     expect(values).toHaveBeenCalledWith([historyRow]);
+  });
+
+  it('throws a version conflict without appending history for a stale update', async () => {
+    const lot = { id: generateUUID(), version: 2 } as IFxCostBasisLot;
+    const history = { entityId: lot.id, entityVersion: 2 } as never;
+    const where = jest.fn().mockResolvedValue({ rowCount: 0 });
+    const set = jest.fn().mockReturnValue({ where });
+    const update = jest.fn().mockReturnValue({ set });
+    const values = jest.fn().mockResolvedValue(undefined);
+    const insert = jest.fn().mockReturnValue({ values });
+    const tx = { update, insert };
+    jest.mocked(getDbQuery).mockReturnValue({
+      transaction: jest.fn(async (callback) => callback(tx as never)),
+    } as unknown as ReturnType<typeof getDbQuery>);
+
+    await expect(
+      fxCostBasisLotRepo.update(lot, {
+        correlationId: 'corr-id',
+        history,
+        expectedVersion: 1,
+      })
+    ).rejects.toBeInstanceOf(repoError.VersionNotFound);
+
+    expect(insert).not.toHaveBeenCalled();
+  });
+
+  it('rejects a history-version mismatch before opening a transaction', async () => {
+    const lot = { id: generateUUID(), version: 2 } as IFxCostBasisLot;
+
+    await expect(
+      fxCostBasisLotRepo.update(lot, {
+        correlationId: 'corr-id',
+        history: { entityId: lot.id, entityVersion: 3 } as never,
+        expectedVersion: 1,
+      })
+    ).rejects.toBeInstanceOf(repoError.VersionMismatch);
+
+    expect(getDbQuery).not.toHaveBeenCalled();
   });
 });

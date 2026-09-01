@@ -6,6 +6,7 @@ import { IUser } from '@domain/user/types/user.types';
 import emailValue from '@domain/user/values/email.vo';
 
 import mockUserAuthRepo from '@app/auth/contracts/__mocks__/user-auth.repo.mock';
+import mockUserAuthService from '@app/auth/contracts/__mocks__/user-auth.service.mock';
 import { EAuthStrategy, IUserAuth } from '@app/auth/contracts/auth.types';
 import { IOAuthProfile } from '@app/auth/dtos/auth/auth.dto';
 import makeLoginWithGoogleUseCase from '@app/auth/usecases/login-with-google.usecase';
@@ -28,6 +29,27 @@ describe('makeLoginWithGoogleUseCase', () => {
       correlationId,
       idempotencyKey,
     } as unknown as IAppContextData);
+    mockUserAuthService.addStrategy.mockImplementation(
+      (userAuth, strategy) => ({
+        ...userAuth,
+        strategy: [...userAuth.strategy, strategy],
+        version: userAuth.version + 1,
+        updatedAt: new Date(),
+      })
+    );
+    mockUserAuthService.make.mockImplementation((payload) => {
+      const timestamp = new Date();
+
+      return {
+        userId: payload.userId,
+        password: payload.password,
+        failedLoginAttempts: 0,
+        strategy: [payload.strategy],
+        version: 1,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      };
+    });
   });
 
   const validProfile: IOAuthProfile = {
@@ -50,17 +72,21 @@ describe('makeLoginWithGoogleUseCase', () => {
       password: 'hashed-password',
       failedLoginAttempts: 0,
       strategy: [EAuthStrategy.Email],
+      version: 1,
+      createdAt: new Date('2026-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-01-01T00:00:00.000Z'),
       ...overrides,
     }) as unknown as IUserAuth;
 
   const getUseCase = () =>
-    makeLoginWithGoogleUseCase(
-      mockEventBus,
-      mockAppContext,
-      mockUserRepo,
-      mockUserAuthRepo,
-      mockRepoService
-    );
+    makeLoginWithGoogleUseCase({
+      eventBus: mockEventBus,
+      appContext: mockAppContext,
+      userRepo: mockUserRepo,
+      userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
+      repoService: mockRepoService,
+    });
 
   it('should return error if profile lacks an email address', async () => {
     const useCase = getUseCase();
@@ -101,16 +127,19 @@ describe('makeLoginWithGoogleUseCase', () => {
     expect(mockUserAuthRepo.findByUserId).toHaveBeenCalledWith(mockUser.id, {
       correlationId,
       tx: 'mock-tx',
-      lock: 'update',
     });
+    expect(mockUserAuthService.addStrategy).toHaveBeenCalledWith(
+      mockUserAuth,
+      EAuthStrategy.Google
+    );
 
     expect(mockUserAuth.strategy).toEqual([EAuthStrategy.Email]);
     expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
-      {
-        ...mockUserAuth,
+      expect.objectContaining({
         strategy: [EAuthStrategy.Email, EAuthStrategy.Google],
-      },
-      { correlationId, tx: 'mock-tx' }
+        version: 2,
+      }),
+      { correlationId, expectedVersion: 1, tx: 'mock-tx' }
     );
 
     expect(doneCallback).toHaveBeenCalledWith(null, mockUser);
@@ -206,6 +235,7 @@ describe('makeLoginWithGoogleUseCase', () => {
         password: null,
         failedLoginAttempts: 0,
         strategy: [EAuthStrategy.Google],
+        version: 1,
       }),
       expect.objectContaining({ correlationId, tx: 'mock-tx' })
     );

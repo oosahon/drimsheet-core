@@ -18,37 +18,46 @@ function getCoolDownKey(userId: string): string {
   return `app:auth:email-verification-cooldown:${userId}`;
 }
 
-export default function makeEmailVerificationService(
-  deps: IDependencies
-): IEmailVerificationService {
-  return {
-    async send(user, correlationId) {
-      const coolDownKey = getCoolDownKey(user.id);
-      const acquired = await deps.cacheStorage.setIfNotExists(
-        coolDownKey,
-        true,
-        EMAIL_VERIFICATION_COOL_DOWN_SECONDS
-      );
+/**
+ * Creates the capability that acquires the verification cooldown and sends
+ * the email, releasing the cooldown when token generation or delivery fails.
+ */
+function makeSend(deps: IDependencies): IEmailVerificationService['send'] {
+  return async (user, correlationId) => {
+    const coolDownKey = getCoolDownKey(user.id);
+    const acquired = await deps.cacheStorage.setIfNotExists(
+      coolDownKey,
+      true,
+      EMAIL_VERIFICATION_COOL_DOWN_SECONDS
+    );
 
-      if (!acquired) return false;
+    if (!acquired) return false;
 
-      try {
-        const verificationToken = await deps.tokenService.generateSignupToken({
-          id: user.id,
-        });
-        const verificationLink = `${deps.varsConfig.WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
+    try {
+      const verificationToken = await deps.tokenService.generateSignupToken({
+        id: user.id,
+      });
+      const verificationLink = `${deps.varsConfig.WEB_APP_URL}/auth/signup/complete?token=${verificationToken}`;
 
-        await deps.transactionalEmailService.sendEmailVerification({
-          user,
-          verificationLink,
-          correlationId,
-        });
+      await deps.transactionalEmailService.sendEmailVerification({
+        user,
+        verificationLink,
+        correlationId,
+      });
 
-        return true;
-      } catch (error) {
-        await deps.cacheStorage.del(coolDownKey);
-        throw error;
-      }
-    },
+      return true;
+    } catch (error) {
+      await deps.cacheStorage.del(coolDownKey);
+      throw error;
+    }
   };
+}
+
+/** Composes the immutable email-verification service from its capability. */
+export default function makeEmailVerificationService(deps: IDependencies) {
+  const service: IEmailVerificationService = {
+    send: makeSend(deps),
+  };
+
+  return Object.freeze(service);
 }

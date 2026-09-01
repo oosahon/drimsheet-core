@@ -12,6 +12,7 @@ import {
   EFxCostBasisLotAcquisitionAuditAction,
   IFxCostBasisLotAcquisition,
 } from '@domain/subledger/fx-cost-basis/types/acquisition.types';
+import fxCostBasisLotAcquisitionAudit from '@domain/subledger/fx-cost-basis/values/acquisition-audit.vo';
 
 function make(
   payload: TCreationOmits<IFxCostBasisLotAcquisition>
@@ -65,14 +66,10 @@ function make(
 
   const event = FxCostBasisLotAcquisitionEvents.created(entity);
 
-  const audit = Object.freeze({
-    entityId: entity.id,
+  const audit = fxCostBasisLotAcquisitionAudit.make({
+    before: null,
+    after: entity,
     action: EFxCostBasisLotAcquisitionAuditAction.Created,
-    diff: {
-      before: null,
-      after: entity,
-    },
-    occurredAt: timestamp,
   });
 
   return [entity, [event], audit];

@@ -10,6 +10,7 @@ import emailValue from '@domain/user/values/email.vo';
 import mockEmailVerificationService from '@app/auth/contracts/__mocks__/email-verification.service.mock';
 import mockPasswordService from '@app/auth/contracts/__mocks__/password-service.mock';
 import mockUserAuthRepo from '@app/auth/contracts/__mocks__/user-auth.repo.mock';
+import mockUserAuthService from '@app/auth/contracts/__mocks__/user-auth.service.mock';
 import { IUserSignupReq } from '@app/auth/dtos/auth/auth.dto';
 import makeSignupWithEmailUsecase from '@app/auth/usecases/signup-with-email.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
@@ -21,6 +22,19 @@ describe('makeSignupWithEmailUsecase', () => {
     jest.clearAllMocks();
     mockUserRepo.create.mockReset().mockResolvedValue(undefined);
     mockUserAuthRepo.create.mockReset().mockResolvedValue(undefined);
+    mockUserAuthService.make.mockReset().mockImplementation((payload) => {
+      const timestamp = new Date();
+
+      return {
+        userId: payload.userId,
+        password: payload.password,
+        failedLoginAttempts: 0,
+        strategy: [payload.strategy],
+        version: 1,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      };
+    });
     mockEventBus.publish.mockReset().mockResolvedValue(undefined);
     mockEmailVerificationService.send.mockReset().mockResolvedValue(true);
     mockUserRepo.findByEmail.mockReset().mockResolvedValue(null);
@@ -42,6 +56,7 @@ describe('makeSignupWithEmailUsecase', () => {
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
       repoService: mockRepoService,
       emailVerificationService: mockEmailVerificationService,
     });
@@ -82,6 +97,7 @@ describe('makeSignupWithEmailUsecase', () => {
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
       repoService: mockRepoService,
       emailVerificationService: mockEmailVerificationService,
     });
@@ -166,6 +182,7 @@ describe('makeSignupWithEmailUsecase', () => {
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
       repoService: mockRepoService,
       emailVerificationService: mockEmailVerificationService,
     });
@@ -204,6 +221,7 @@ describe('makeSignupWithEmailUsecase', () => {
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
       repoService: mockRepoService,
       emailVerificationService: mockEmailVerificationService,
     });
@@ -238,6 +256,7 @@ describe('makeSignupWithEmailUsecase', () => {
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
       repoService: mockRepoService,
       emailVerificationService: mockEmailVerificationService,
     });
@@ -274,6 +293,7 @@ describe('makeSignupWithEmailUsecase', () => {
       lastName: 'User',
       email: payload.email,
       emailVerified: false,
+      version: 1,
       createdAt: new Date('2025-01-01T00:00:00.000Z'),
       updatedAt: new Date('2025-01-01T00:00:00.000Z'),
       deletedAt: null,
@@ -286,6 +306,7 @@ describe('makeSignupWithEmailUsecase', () => {
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
       repoService: mockRepoService,
       emailVerificationService: mockEmailVerificationService,
     });
@@ -316,6 +337,7 @@ describe('makeSignupWithEmailUsecase', () => {
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
       repoService: mockRepoService,
       emailVerificationService: mockEmailVerificationService,
     });
@@ -347,6 +369,7 @@ describe('makeSignupWithEmailUsecase', () => {
       passwordService: mockPasswordService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
+      userAuthService: mockUserAuthService,
       repoService: mockRepoService,
       emailVerificationService: mockEmailVerificationService,
     });

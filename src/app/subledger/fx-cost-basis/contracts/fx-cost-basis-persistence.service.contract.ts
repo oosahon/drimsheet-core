@@ -19,6 +19,7 @@ import { IMissingOfficialFxRateOutbox } from '@app/outbox/types/missing-official
 interface IFxCostBasisLotWithHistory {
   lot: IFxCostBasisLot;
   history: IFxCostBasisLotHistory;
+  expectedVersion: number;
 }
 
 export interface IFxCostBasisAcquisitionPersistencePayload {

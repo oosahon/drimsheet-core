@@ -1,4 +1,5 @@
 import { MigrationBuilder } from 'node-pg-migrate';
+
 import { usersTable } from '../config/users';
 
 export const up = (pgm: MigrationBuilder) => {
@@ -19,6 +20,8 @@ export const up = (pgm: MigrationBuilder) => {
 
       email_verified: { type: 'boolean', notNull: true },
 
+      version: { type: 'integer', notNull: true },
+
       created_at: {
         type: 'timestamptz',
         default: pgm.func('now()'),
@@ -37,6 +40,10 @@ export const up = (pgm: MigrationBuilder) => {
       ifNotExists: true,
     }
   );
+
+  pgm.addConstraint(usersTable, 'users_version_positive_ck', {
+    check: 'version > 0',
+  });
 };
 
 export const down = (pgm: MigrationBuilder) => {

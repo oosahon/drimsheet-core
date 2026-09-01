@@ -1,12 +1,15 @@
 import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 
 import userEntity from '@domain/user/entities/user.entity';
+import { IUser } from '@domain/user/types/user.types';
 
-import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
-import mockUserSessionRepo from '@app/auth/contracts/__mocks__/user-session.repo.mock';
+import mockTokenService from '@app/auth/contracts/__mocks__/token-service.mock';
+import mockUserSessionPersistenceService from '@app/auth/contracts/__mocks__/user-session-persistence.service.mock';
+import mockUserSessionService from '@app/auth/contracts/__mocks__/user-session.service.mock';
 import authError from '@app/auth/errors/auth.error';
 import makeVerifyEmailAddressUseCase from '@app/auth/usecases/verify-email.usecase';
 import mockAppContext, {
@@ -17,225 +20,193 @@ import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 
 describe('makeVerifyEmailAddressUseCase', () => {
   const correlationId = '854e4567-e89b-42d3-a456-426614174001';
+  const tx = 'mock-tx' as unknown as ITransactionContext;
+
+  const getUseCase = () =>
+    makeVerifyEmailAddressUseCase({
+      tokenService: mockTokenService,
+      userRepo: mockUserRepo,
+      appContext: mockAppContext,
+      eventBus: mockEventBus,
+      userSessionService: mockUserSessionService,
+      userSessionPersistenceService: mockUserSessionPersistenceService,
+      repoService: mockRepoService,
+    });
+
+  const prepareSession = (user: IUser) => {
+    const preparedSession = {
+      accessToken: 'new-auth-token',
+      refreshToken: 'new-refresh-token',
+      userSession: {
+        id: '123e4567-e89b-42d3-a456-426614174003' as TEntityId,
+        userId: user.id,
+        refreshToken: 'new-refresh-token',
+        lastLoginAt: new Date('2026-04-01T00:00:00.000Z'),
+        createdAt: new Date('2026-04-01T00:00:00.000Z'),
+      },
+      priorClientSession: null,
+    };
+    mockUserSessionService.prepare.mockResolvedValue(preparedSession);
+
+    return preparedSession;
+  };
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockRepoService.runInTransaction
       .mockReset()
-      .mockImplementation(async (transactionFn) =>
-        transactionFn('mock-tx' as unknown as ITransactionContext)
-      );
+      .mockImplementation(async (transactionFn) => transactionFn(tx));
     mockAppContext.get.mockReturnValue({
       correlationId,
       clientSession: mockClientSession,
     } as unknown as IAppContextData);
+    mockClientSession.getRefreshToken.mockReturnValue(null);
+    mockUserSessionPersistenceService.replaceClientSession
+      .mockReset()
+      .mockResolvedValue();
   });
 
-  it('should throw appError.UnprocessableEntity if payload is invalid', async () => {
-    const usecase = makeVerifyEmailAddressUseCase({
-      tokenService: mockAuthService,
-      userRepo: mockUserRepo,
-      appContext: mockAppContext,
-      eventBus: mockEventBus,
-      userSessionRepo: mockUserSessionRepo,
-      repoService: mockRepoService,
-    });
-
-    await expect(usecase(123 as unknown as string)).rejects.toThrow(
+  it('throws UnprocessableEntity for an invalid token input', async () => {
+    await expect(getUseCase()(123 as unknown as string)).rejects.toThrow(
       appError.UnprocessableEntity
     );
   });
 
-  it('should successfully verify email and return tokens', async () => {
+  it('verifies the user, replaces the client session in the outer transaction, and exposes credentials after commit', async () => {
     const token = 'valid-token';
-    const [mockUser] = userEntity.make({
+    const [user] = userEntity.make({
       email: 'johndoe@example.com',
       emailVerified: false,
       firstName: 'John',
       lastName: 'Doe',
     });
-    const decodedToken = {
-      id: mockUser.id,
-      email: 'johndoe@example.com',
-    };
+    const preparedSession = prepareSession(user);
+    mockTokenService.claimSignupToken.mockResolvedValue({ id: user.id });
+    mockUserRepo.findById.mockResolvedValue(user);
 
-    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
-    mockUserRepo.findById.mockResolvedValue(mockUser);
-    mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
+    const result = await getUseCase()(token);
 
-    const usecase = makeVerifyEmailAddressUseCase({
-      tokenService: mockAuthService,
-      userRepo: mockUserRepo,
-      appContext: mockAppContext,
-      eventBus: mockEventBus,
-      userSessionRepo: mockUserSessionRepo,
-      repoService: mockRepoService,
-    });
-
-    const result = await usecase(token);
-
-    expect(mockAppContext.get).toHaveBeenCalledTimes(2);
-    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
-    expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
+    expect(mockUserRepo.findById).toHaveBeenCalledWith(user.id, {
       correlationId,
-      lock: 'update',
-      tx: 'mock-tx',
+      tx,
     });
-
-    expect(mockUserRepo.update).toHaveBeenCalledTimes(1);
-    // User update check
-    const savedUserArgs = mockUserRepo.update.mock.calls.find(
-      (c) => c[0].emailVerified === true
+    expect(mockUserRepo.update).toHaveBeenCalledWith(
+      expect.objectContaining({ id: user.id, emailVerified: true, version: 2 }),
+      expect.objectContaining({
+        correlationId,
+        expectedVersion: user.version,
+        history: expect.any(Object),
+        tx,
+      })
     );
-    expect(savedUserArgs).toBeDefined();
-    expect(savedUserArgs![0]).toMatchObject({
-      id: mockUser.id,
-      emailVerified: true,
-    });
-    expect(savedUserArgs![1]).toMatchObject({
-      correlationId,
-      history: expect.any(Object),
-    });
-
-    expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockUserSessionRepo.create).toHaveBeenCalled();
-
-    expect(mockEventBus.publish).toHaveBeenCalled();
-    const publishCalls = (mockEventBus.publish as jest.Mock).mock.calls;
-    expect(publishCalls.length).toBeGreaterThan(0);
-    publishCalls.forEach(([events]) => {
-      const eventsArray = Array.isArray(events) ? events : [events];
-      eventsArray.forEach((event) => {
-        expect(event).toMatchObject({
-          correlationId,
-        });
-      });
-    });
-
-    expect(mockAuthService.generateAccessToken).toHaveBeenCalledTimes(1);
-
-    expect(result).toEqual({
-      accessToken: 'new-auth-token',
-    });
-  });
-
-  it('should propagate AuthError if token is invalid or expired', async () => {
-    const token = 'invalid-token';
-    mockAuthService.claimSignupToken.mockRejectedValue(
-      new authError.InvalidToken()
+    expect(mockUserSessionService.prepare).toHaveBeenCalledWith(
+      expect.objectContaining({ id: user.id, emailVerified: true }),
+      null
     );
-
-    const usecase = makeVerifyEmailAddressUseCase({
-      tokenService: mockAuthService,
-      userRepo: mockUserRepo,
-      appContext: mockAppContext,
-      eventBus: mockEventBus,
-      userSessionRepo: mockUserSessionRepo,
-      repoService: mockRepoService,
-    });
-
-    await expect(usecase(token)).rejects.toThrow(authError.Base);
-
-    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
-    expect(mockUserRepo.findById).not.toHaveBeenCalled();
-    expect(mockUserRepo.update).not.toHaveBeenCalled();
-    expect(mockEventBus.publish).not.toHaveBeenCalled();
+    expect(
+      mockUserSessionPersistenceService.replaceClientSession
+    ).toHaveBeenCalledWith(
+      { userSession: preparedSession.userSession, priorClientSession: null },
+      { correlationId, tx }
+    );
+    expect(mockClientSession.setRefreshToken).toHaveBeenCalledWith(
+      preparedSession.refreshToken
+    );
+    expect(mockEventBus.publish).toHaveBeenCalledWith([
+      expect.objectContaining({ correlationId }),
+    ]);
+    expect(mockTokenService.finalizeSignupToken).toHaveBeenCalledWith(user.id);
+    expect(result).toEqual({ accessToken: preparedSession.accessToken });
   });
 
-  it('should throw appError.Unauthorized if user is not found', async () => {
-    const token = 'valid-token';
-    const decodedToken = {
-      id: '123e4567-e89b-12d3-a456-426614174000',
-      email: 'johndoe@example.com',
-    };
-
-    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
-    mockUserRepo.findById.mockResolvedValue(null);
-
-    const usecase = makeVerifyEmailAddressUseCase({
-      tokenService: mockAuthService,
-      userRepo: mockUserRepo,
-      appContext: mockAppContext,
-      eventBus: mockEventBus,
-      userSessionRepo: mockUserSessionRepo,
-      repoService: mockRepoService,
-    });
-
-    await expect(usecase(token)).rejects.toThrow(authError.InvalidToken);
-
-    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
-    expect(mockUserRepo.findById).toHaveBeenCalledWith(decodedToken.id, {
-      correlationId,
-      lock: 'update',
-      tx: 'mock-tx',
-    });
-    expect(mockUserRepo.update).not.toHaveBeenCalled();
-    expect(mockEventBus.publish).not.toHaveBeenCalled();
-  });
-
-  it('should not update user if email is already verified', async () => {
-    const token = 'valid-token';
-    const [mockUser] = userEntity.make({
+  it('creates a session without updating or publishing when email is already verified', async () => {
+    const [user] = userEntity.make({
       email: 'johndoe@example.com',
       emailVerified: true,
       firstName: 'John',
       lastName: 'Doe',
     });
-    const decodedToken = {
-      id: mockUser.id,
-      email: 'johndoe@example.com',
-    };
+    const preparedSession = prepareSession(user);
+    mockTokenService.claimSignupToken.mockResolvedValue({ id: user.id });
+    mockUserRepo.findById.mockResolvedValue(user);
 
-    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
-    mockUserRepo.findById.mockResolvedValue(mockUser);
-    mockAuthService.generateAccessToken.mockResolvedValue('new-auth-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue('new-refresh-token');
+    const result = await getUseCase()('valid-token');
 
-    const usecase = makeVerifyEmailAddressUseCase({
-      tokenService: mockAuthService,
-      userRepo: mockUserRepo,
-      appContext: mockAppContext,
-      eventBus: mockEventBus,
-      userSessionRepo: mockUserSessionRepo,
-      repoService: mockRepoService,
-    });
-
-    const result = await usecase(token);
-
-    // Save should NOT be called on the user repo because the email is already verified
     expect(mockUserRepo.update).not.toHaveBeenCalled();
-    expect(mockAuthService.generateAccessToken).toHaveBeenCalledTimes(1);
-    expect(result).toEqual({ accessToken: 'new-auth-token' });
-
-    expect(mockEventBus.publish).toHaveBeenCalledWith([]);
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+    expect(result).toEqual({ accessToken: preparedSession.accessToken });
   });
 
-  it('should release signup token claim and rethrow generic error', async () => {
-    const token = 'valid-token';
-    const decodedToken = {
-      id: 'some-user-uuid',
+  it('does not mutate the client or publish if the outer transaction fails after session persistence', async () => {
+    const [user] = userEntity.make({
       email: 'johndoe@example.com',
-    };
-
-    mockAuthService.claimSignupToken.mockResolvedValue(decodedToken as never);
-    const dbError = new Error('Database connection failed');
-    mockUserRepo.findById.mockRejectedValue(dbError);
-
-    const usecase = makeVerifyEmailAddressUseCase({
-      tokenService: mockAuthService,
-      userRepo: mockUserRepo,
-      appContext: mockAppContext,
-      eventBus: mockEventBus,
-      userSessionRepo: mockUserSessionRepo,
-      repoService: mockRepoService,
+      emailVerified: false,
+      firstName: 'John',
+      lastName: 'Doe',
     });
+    prepareSession(user);
+    mockTokenService.claimSignupToken.mockResolvedValue({ id: user.id });
+    mockUserRepo.findById.mockResolvedValue(user);
+    mockRepoService.runInTransaction.mockImplementationOnce(
+      async (transactionFn) => {
+        await transactionFn(tx);
+        throw new Error('outer transaction failed');
+      }
+    );
 
-    await expect(usecase(token)).rejects.toThrow('Database connection failed');
+    await expect(getUseCase()('valid-token')).rejects.toThrow(
+      'outer transaction failed'
+    );
 
-    expect(mockAuthService.claimSignupToken).toHaveBeenCalledWith(token);
-    expect(mockAuthService.releaseSignupTokenClaim).toHaveBeenCalledWith(
-      decodedToken.id
+    expect(
+      mockUserSessionPersistenceService.replaceClientSession
+    ).toHaveBeenCalled();
+    expect(mockClientSession.setRefreshToken).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+    expect(mockTokenService.releaseSignupTokenClaim).toHaveBeenCalledWith(
+      user.id
+    );
+  });
+
+  it('propagates an invalid token without starting persistence', async () => {
+    mockTokenService.claimSignupToken.mockRejectedValue(
+      new authError.InvalidToken()
+    );
+
+    await expect(getUseCase()('invalid-token')).rejects.toThrow(authError.Base);
+
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('maps an absent user to InvalidToken and releases the signup-token claim', async () => {
+    const userId = '123e4567-e89b-42d3-a456-426614174004' as TEntityId;
+    mockTokenService.claimSignupToken.mockResolvedValue({ id: userId });
+    mockUserRepo.findById.mockResolvedValue(null);
+
+    await expect(getUseCase()('valid-token')).rejects.toThrow(
+      authError.InvalidToken
+    );
+
+    expect(mockTokenService.releaseSignupTokenClaim).toHaveBeenCalledWith(
+      userId
+    );
+    expect(mockUserSessionService.prepare).not.toHaveBeenCalled();
+  });
+
+  it('releases the signup-token claim and rethrows an unexpected repository error', async () => {
+    const userId = '123e4567-e89b-42d3-a456-426614174005' as TEntityId;
+    mockTokenService.claimSignupToken.mockResolvedValue({ id: userId });
+    mockUserRepo.findById.mockRejectedValue(
+      new Error('Database connection failed')
+    );
+
+    await expect(getUseCase()('valid-token')).rejects.toThrow(
+      'Database connection failed'
+    );
+
+    expect(mockTokenService.releaseSignupTokenClaim).toHaveBeenCalledWith(
+      userId
     );
   });
 });

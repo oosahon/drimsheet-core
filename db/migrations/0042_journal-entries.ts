@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { accountingEntitiesTable } from '../config/accounting-entity';
 import {
   journalEntriesTable,
@@ -75,7 +76,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     version: {
       type: 'integer',
       notNull: true,
-      default: 1,
     },
 
     created_by: {

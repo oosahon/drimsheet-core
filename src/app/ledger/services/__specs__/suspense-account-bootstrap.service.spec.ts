@@ -34,6 +34,7 @@ function makeAuditedAccount(
     [{ type: `${name}-created`, data: account, occurredAt, enrichedAt: null }],
     {
       entityId: account.id,
+      entityVersion: 1,
       action: 'created',
       diff: { before: null, after: account },
       occurredAt,

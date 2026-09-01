@@ -21,6 +21,7 @@ const userAuthMapper = {
       password: userAuth.password ?? null,
       failedLoginAttempts: userAuth.failedLoginAttempts,
       strategies: userAuth.strategy,
+      version: userAuth.version,
       createdAt: toRepoDate(userAuth.createdAt),
       updatedAt: toRepoDate(userAuth.updatedAt),
     });
@@ -32,6 +33,7 @@ const userAuthMapper = {
       password: userAuth.password ?? null,
       failedLoginAttempts: userAuth.failedLoginAttempts ?? 0,
       strategy: userAuth.strategies as UAuthStrategy[],
+      version: userAuth.version,
       createdAt: fromRepoDate(userAuth.createdAt),
       updatedAt: fromRepoDate(userAuth.updatedAt),
     });

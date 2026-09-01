@@ -10,6 +10,7 @@ import { ICacheStorage } from '@shared/contracts/cache-storage.contract';
 
 import ITokenService, {
   IAuthTokenPayload,
+  IPasswordResetTokenClaim,
 } from '@app/auth/contracts/token-service.contract';
 import authError from '@app/auth/errors/auth.error';
 
@@ -18,42 +19,136 @@ interface IDependencies {
   secret: string;
 }
 
-export default function makeTokenService(deps: IDependencies): ITokenService {
-  const encodeToken = (
-    payload: Record<string, unknown>,
-    expiresInSeconds: number,
-    tokenId?: string
-  ) =>
-    jsonWebToken.sign(payload, deps.secret, {
-      algorithm: 'HS256',
-      expiresIn: expiresInSeconds,
-      ...(tokenId ? { jwtid: tokenId } : {}),
-    });
+/** Signs an auth token with the configured algorithm and lifetime. */
+function encodeToken(
+  deps: IDependencies,
+  payload: Record<string, unknown>,
+  expiresInSeconds: number,
+  tokenId?: string
+) {
+  return jsonWebToken.sign(payload, deps.secret, {
+    algorithm: 'HS256',
+    expiresIn: expiresInSeconds,
+    ...(tokenId ? { jwtid: tokenId } : {}),
+  });
+}
 
-  const verifyAuthToken = (token: string) => {
-    try {
-      return jsonWebToken.verify(token, deps.secret, {
-        algorithms: ['HS256'],
-      }) as IAuthTokenPayload & { exp?: number; type: string };
-    } catch (error) {
-      if (error instanceof TokenExpiredError) {
-        throw new authError.ExpiredToken();
-      }
-      if (error instanceof NotBeforeError) {
-        throw new authError.InvalidToken();
-      }
-      if (error instanceof JsonWebTokenError) {
-        throw new authError.MalformedToken();
-      }
-
+/**
+ * Verifies and decodes an auth token, mapping JWT failures to stable auth
+ * errors.
+ */
+function verifyAuthToken(deps: IDependencies, token: string) {
+  try {
+    return jsonWebToken.verify(token, deps.secret, {
+      algorithms: ['HS256'],
+    }) as IAuthTokenPayload & { exp?: number; type: string };
+  } catch (error) {
+    if (error instanceof TokenExpiredError) {
+      throw new authError.ExpiredToken();
+    }
+    if (error instanceof NotBeforeError) {
       throw new authError.InvalidToken();
     }
-  };
+    if (error instanceof JsonWebTokenError) {
+      throw new authError.MalformedToken();
+    }
 
-  const generateSignupToken: ITokenService['generateSignupToken'] = async ({
-    id,
-  }) => {
+    throw new authError.InvalidToken();
+  }
+}
+
+/** Claims a valid cached signup token for one verification attempt. */
+async function claimSignupToken(deps: IDependencies, token: string) {
+  const decoded = verifyAuthToken(deps, token);
+
+  if (decoded.type !== 'signup' || !decoded.id) {
+    throw new authError.InvalidToken();
+  }
+
+  const cachedToken = await deps.cacheStorage.get<string>(
+    `app:auth:signup-token:${decoded.id}`
+  );
+
+  if (!cachedToken || cachedToken !== token) {
+    throw new authError.InvalidToken();
+  }
+
+  const claimed = await deps.cacheStorage.setIfNotExists(
+    `app:auth:signup-token-claim:${decoded.id}`,
+    token,
+    30
+  );
+
+  if (!claimed) {
+    throw new authError.InvalidToken();
+  }
+
+  return decoded;
+}
+
+/** Removes a consumed signup token and its claim. */
+async function finalizeSignupToken(deps: IDependencies, id: string) {
+  await deps.cacheStorage.del(`app:auth:signup-token:${id}`);
+  await deps.cacheStorage.del(`app:auth:signup-token-claim:${id}`);
+}
+
+/** Claims a valid cached password-reset token until its token expiry. */
+async function claimPasswordResetToken(
+  deps: IDependencies,
+  token: string
+): Promise<IPasswordResetTokenClaim> {
+  const decoded = verifyAuthToken(deps, token);
+
+  if (decoded.type !== 'reset' || !decoded.id) {
+    throw new authError.InvalidToken();
+  }
+
+  const cachedToken = await deps.cacheStorage.get<string>(
+    `app:auth:reset-token:${decoded.id}`
+  );
+
+  if (!cachedToken || cachedToken !== token) {
+    throw new authError.InvalidToken();
+  }
+
+  const owner = randomUUID();
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  const claimTtlSeconds = Math.max(
+    1,
+    (decoded.exp ?? nowSeconds + 1) - nowSeconds
+  );
+  const claimed = await deps.cacheStorage.setIfNotExists(
+    `app:auth:reset-token-claim:${decoded.id}`,
+    owner,
+    claimTtlSeconds
+  );
+
+  if (!claimed) {
+    throw new authError.InvalidToken();
+  }
+
+  return { id: decoded.id, owner };
+}
+
+/** Removes a password-reset token only when the caller owns its claim. */
+async function finalizePasswordResetToken(
+  deps: IDependencies,
+  claim: IPasswordResetTokenClaim
+) {
+  await deps.cacheStorage.deleteIfValueMatches(
+    `app:auth:reset-token-claim:${claim.id}`,
+    claim.owner,
+    [`app:auth:reset-token:${claim.id}`]
+  );
+}
+
+/** Creates the capability that generates and caches a signup token. */
+function makeGenerateSignupToken(
+  deps: IDependencies
+): ITokenService['generateSignupToken'] {
+  return async ({ id }) => {
     const token = encodeToken(
+      deps,
       {
         id,
         type: 'signup',
@@ -68,69 +163,62 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
     );
     return token;
   };
+}
 
-  const claimSignupToken: ITokenService['claimSignupToken'] = async (token) => {
-    const decoded = verifyAuthToken(token);
-
-    if (decoded.type !== 'signup' || !decoded.id) {
-      throw new authError.InvalidToken();
-    }
-
-    const cachedToken = await deps.cacheStorage.get<string>(
-      `app:auth:signup-token:${decoded.id}`
-    );
-
-    if (!cachedToken || cachedToken !== token) {
-      throw new authError.InvalidToken();
-    }
-
-    const claimed = await deps.cacheStorage.setIfNotExists(
-      `app:auth:signup-token-claim:${decoded.id}`,
-      token,
-      30
-    );
-
-    if (!claimed) {
-      throw new authError.InvalidToken();
-    }
-
+/**
+ * Creates the capability that claims and immediately consumes a signup token.
+ */
+function makeVerifySignupToken(
+  deps: IDependencies
+): ITokenService['verifySignupToken'] {
+  return async (token) => {
+    const decoded = await claimSignupToken(deps, token);
+    await finalizeSignupToken(deps, decoded.id);
     return decoded;
   };
+}
 
-  const finalizeSignupToken: ITokenService['finalizeSignupToken'] = async (
-    id
-  ) => {
-    await deps.cacheStorage.del(`app:auth:signup-token:${id}`);
+/** Creates the capability that claims a cached signup token. */
+function makeClaimSignupToken(
+  deps: IDependencies
+): ITokenService['claimSignupToken'] {
+  return (token) => claimSignupToken(deps, token);
+}
+
+/** Creates the capability that finalizes a claimed signup token. */
+function makeFinalizeSignupToken(
+  deps: IDependencies
+): ITokenService['finalizeSignupToken'] {
+  return (id) => finalizeSignupToken(deps, id);
+}
+
+/** Creates the capability that releases a signup-token claim. */
+function makeReleaseSignupTokenClaim(
+  deps: IDependencies
+): ITokenService['releaseSignupTokenClaim'] {
+  return async (id) => {
     await deps.cacheStorage.del(`app:auth:signup-token-claim:${id}`);
   };
+}
 
-  const releaseSignupTokenClaim: ITokenService['releaseSignupTokenClaim'] =
-    async (id) => {
-      await deps.cacheStorage.del(`app:auth:signup-token-claim:${id}`);
-    };
-
-  const verifySignupToken: ITokenService['verifySignupToken'] = async (
-    token
-  ) => {
-    const decoded = await claimSignupToken(token);
-    await finalizeSignupToken(decoded.id);
-    return decoded;
-  };
-
-  const generateAccessToken: ITokenService['generateAccessToken'] = async ({
-    id,
-  }) => {
+/** Creates the capability that generates a short-lived access token. */
+function makeGenerateAccessToken(
+  deps: IDependencies
+): ITokenService['generateAccessToken'] {
+  return async ({ id }) => {
     const ttlSeconds = 60 * 15; // 15 minutes
-    const token = encodeToken({ id, type: 'access' }, ttlSeconds, randomUUID());
-
-    return token;
+    return encodeToken(deps, { id, type: 'access' }, ttlSeconds, randomUUID());
   };
+}
 
-  const generateRefreshToken: ITokenService['generateRefreshToken'] = async ({
-    id,
-  }) => {
+/** Creates the capability that generates a refresh token. */
+function makeGenerateRefreshToken(
+  deps: IDependencies
+): ITokenService['generateRefreshToken'] {
+  return async ({ id }) => {
     const ttlSeconds = 60 * 60 * 24 * 15; // 15 days
-    const token = encodeToken(
+    return encodeToken(
+      deps,
       {
         id,
         type: 'refresh',
@@ -138,12 +226,15 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
       ttlSeconds,
       randomUUID()
     );
-
-    return token;
   };
+}
 
-  const verifyRefreshToken: ITokenService['verifyRefreshToken'] = (token) => {
-    const { type, ...decoded } = verifyAuthToken(token);
+/** Creates the capability that verifies and decodes a refresh token. */
+function makeVerifyRefreshToken(
+  deps: IDependencies
+): ITokenService['verifyRefreshToken'] {
+  return (token) => {
+    const { type, ...decoded } = verifyAuthToken(deps, token);
 
     if (type !== 'refresh') {
       throw new authError.InvalidToken();
@@ -151,86 +242,76 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
 
     return decoded;
   };
+}
 
-  const generatePasswordResetToken: ITokenService['generatePasswordResetToken'] =
-    async ({ id }) => {
-      const ttlSeconds = 2 * 60 * 60; // 2 hours
-      const token = encodeToken(
-        {
-          id,
-          type: 'reset',
-        },
-        ttlSeconds
-      );
-      await deps.cacheStorage.set(
-        `app:auth:reset-token:${id}`,
-        token,
-        ttlSeconds
-      );
+/** Creates the capability that generates and caches a password-reset token. */
+function makeGeneratePasswordResetToken(
+  deps: IDependencies
+): ITokenService['generatePasswordResetToken'] {
+  return async ({ id }) => {
+    const ttlSeconds = 2 * 60 * 60; // 2 hours
+    const token = encodeToken(
+      deps,
+      {
+        id,
+        type: 'reset',
+      },
+      ttlSeconds
+    );
+    await deps.cacheStorage.set(
+      `app:auth:reset-token:${id}`,
+      token,
+      ttlSeconds
+    );
 
-      return token;
-    };
+    return token;
+  };
+}
 
-  const claimPasswordResetToken: ITokenService['claimPasswordResetToken'] =
-    async (token) => {
-      const decoded = verifyAuthToken(token);
+/**
+ * Creates the capability that claims and immediately consumes a password-reset
+ * token.
+ */
+function makeVerifyPasswordResetToken(
+  deps: IDependencies
+): ITokenService['verifyPasswordResetToken'] {
+  return async (token) => {
+    const decoded = await claimPasswordResetToken(deps, token);
+    await finalizePasswordResetToken(deps, decoded);
+    return decoded;
+  };
+}
 
-      if (decoded.type !== 'reset' || !decoded.id) {
-        throw new authError.InvalidToken();
-      }
+/** Creates the capability that claims a cached password-reset token. */
+function makeClaimPasswordResetToken(
+  deps: IDependencies
+): ITokenService['claimPasswordResetToken'] {
+  return (token) => claimPasswordResetToken(deps, token);
+}
 
-      const cachedToken = await deps.cacheStorage.get<string>(
-        `app:auth:reset-token:${decoded.id}`
-      );
+/** Creates the capability that finalizes an owned password-reset claim. */
+function makeFinalizePasswordResetToken(
+  deps: IDependencies
+): ITokenService['finalizePasswordResetToken'] {
+  return (claim) => finalizePasswordResetToken(deps, claim);
+}
 
-      if (!cachedToken || cachedToken !== token) {
-        throw new authError.InvalidToken();
-      }
+/** Creates the capability that releases an owned password-reset claim. */
+function makeReleasePasswordResetTokenClaim(
+  deps: IDependencies
+): ITokenService['releasePasswordResetTokenClaim'] {
+  return async (claim) => {
+    await deps.cacheStorage.deleteIfValueMatches(
+      `app:auth:reset-token-claim:${claim.id}`,
+      claim.owner
+    );
+  };
+}
 
-      const owner = randomUUID();
-      const nowSeconds = Math.floor(Date.now() / 1000);
-      const claimTtlSeconds = Math.max(
-        1,
-        (decoded.exp ?? nowSeconds + 1) - nowSeconds
-      );
-      const claimed = await deps.cacheStorage.setIfNotExists(
-        `app:auth:reset-token-claim:${decoded.id}`,
-        owner,
-        claimTtlSeconds
-      );
-      if (!claimed) {
-        throw new authError.InvalidToken();
-      }
-
-      return { id: decoded.id, owner };
-    };
-
-  const finalizePasswordResetToken: ITokenService['finalizePasswordResetToken'] =
-    async (claim) => {
-      await deps.cacheStorage.deleteIfValueMatches(
-        `app:auth:reset-token-claim:${claim.id}`,
-        claim.owner,
-        [`app:auth:reset-token:${claim.id}`]
-      );
-    };
-
-  const releasePasswordResetTokenClaim: ITokenService['releasePasswordResetTokenClaim'] =
-    async (claim) => {
-      await deps.cacheStorage.deleteIfValueMatches(
-        `app:auth:reset-token-claim:${claim.id}`,
-        claim.owner
-      );
-    };
-
-  const verifyPasswordResetToken: ITokenService['verifyPasswordResetToken'] =
-    async (token) => {
-      const decoded = await claimPasswordResetToken(token);
-      await finalizePasswordResetToken(decoded);
-      return decoded;
-    };
-
-  const getAuthUser: ITokenService['getAuthUser'] = async (token) => {
-    const decoded = verifyAuthToken(token);
+/** Creates the capability that verifies an access token's authenticated user. */
+function makeGetAuthUser(deps: IDependencies): ITokenService['getAuthUser'] {
+  return async (token) => {
+    const decoded = verifyAuthToken(deps, token);
 
     if (decoded.type !== 'access') {
       throw new authError.InvalidToken();
@@ -238,21 +319,26 @@ export default function makeTokenService(deps: IDependencies): ITokenService {
 
     return decoded;
   };
+}
 
-  return Object.freeze({
-    generateSignupToken,
-    verifySignupToken,
-    claimSignupToken,
-    finalizeSignupToken,
-    releaseSignupTokenClaim,
-    generateAccessToken,
-    generateRefreshToken,
-    verifyRefreshToken,
-    generatePasswordResetToken,
-    verifyPasswordResetToken,
-    claimPasswordResetToken,
-    finalizePasswordResetToken,
-    releasePasswordResetTokenClaim,
-    getAuthUser,
-  });
+/** Composes the immutable token service from its capabilities. */
+export default function makeTokenService(deps: IDependencies): ITokenService {
+  const service: ITokenService = {
+    generateSignupToken: makeGenerateSignupToken(deps),
+    verifySignupToken: makeVerifySignupToken(deps),
+    claimSignupToken: makeClaimSignupToken(deps),
+    finalizeSignupToken: makeFinalizeSignupToken(deps),
+    releaseSignupTokenClaim: makeReleaseSignupTokenClaim(deps),
+    generateAccessToken: makeGenerateAccessToken(deps),
+    generateRefreshToken: makeGenerateRefreshToken(deps),
+    verifyRefreshToken: makeVerifyRefreshToken(deps),
+    generatePasswordResetToken: makeGeneratePasswordResetToken(deps),
+    verifyPasswordResetToken: makeVerifyPasswordResetToken(deps),
+    claimPasswordResetToken: makeClaimPasswordResetToken(deps),
+    finalizePasswordResetToken: makeFinalizePasswordResetToken(deps),
+    releasePasswordResetTokenClaim: makeReleasePasswordResetTokenClaim(deps),
+    getAuthUser: makeGetAuthUser(deps),
+  };
+
+  return Object.freeze(service);
 }

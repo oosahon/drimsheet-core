@@ -1,23 +1,19 @@
-import IEventBus from '@shared/contracts/event-bus.contract';
-import { IRepoService } from '@shared/contracts/repo.contract';
-import { ITransactionContext } from '@shared/types/repo.types';
 import appError from '@shared/values/errors/app.error';
 
 import IUserRepo from '@domain/user/repos/user.repo';
 
 import ITokenService from '@app/auth/contracts/token-service.contract';
-import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
+import IUserSessionPersistenceService from '@app/auth/contracts/user-session-persistence.service.contract';
+import IUserSessionService from '@app/auth/contracts/user-session.service.contract';
 import authError from '@app/auth/errors/auth.error';
-import makeIssueUserSessionHelper from '@app/auth/usecases/helpers/issue-user-session.helper';
 import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
   reqContext: IAppContext;
   userRepo: IUserRepo;
   tokenService: ITokenService;
-  eventBus: IEventBus;
-  userSessionRepo: IUserSessionRepo;
-  repoService: IRepoService;
+  userSessionService: IUserSessionService;
+  userSessionPersistenceService: IUserSessionPersistenceService;
 }
 
 export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
@@ -42,29 +38,22 @@ export default function makeRefreshAccessTokenUseCase(deps: IDependencies) {
         throw new appError.Unauthorized();
       }
 
-      const consumePresentedSession = async (tx: ITransactionContext) => {
-        const deleted = await deps.userSessionRepo.delete(
-          user.id,
-          refreshToken,
-          { correlationId, tx }
-        );
+      const preparedSession = await deps.userSessionService.prepare(user);
+      const wasRotated = await deps.userSessionPersistenceService.rotateSession(
+        {
+          userSession: preparedSession.userSession,
+          presentedSession: { userId: user.id, refreshToken },
+        },
+        { correlationId }
+      );
 
-        if (!deleted) {
-          throw new appError.Unauthorized();
-        }
-      };
+      if (!wasRotated) {
+        throw new appError.Unauthorized();
+      }
 
-      return await makeIssueUserSessionHelper({
-        user,
-        reqContext: deps.reqContext,
-        tokenService: deps.tokenService,
-        userSessionRepo: deps.userSessionRepo,
-        eventBus: deps.eventBus,
-        repoService: deps.repoService,
-        events: [],
-        beforeCreate: consumePresentedSession,
-        replaceExistingClientSession: false,
-      });
+      clientSession.setRefreshToken(preparedSession.refreshToken);
+
+      return { accessToken: preparedSession.accessToken };
     } catch (error) {
       if (
         error instanceof authError.Base ||

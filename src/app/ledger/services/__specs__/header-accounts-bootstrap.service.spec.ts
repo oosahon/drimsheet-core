@@ -54,6 +54,7 @@ function makeAuditedAccount(
   };
   const audit = {
     entityId: account.id,
+    entityVersion: 1,
     action: 'created',
     diff: { before: null, after: account },
     occurredAt: event.occurredAt,

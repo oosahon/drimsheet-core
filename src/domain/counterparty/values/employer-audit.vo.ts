@@ -40,6 +40,7 @@ function make(payload: IMakeEmployerAuditPayload): Readonly<IEmployerAudit> {
 
   const audit: IEmployerAudit = {
     entityId: payload.after.counterpartyId,
+    entityVersion: 1,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.createdAt,

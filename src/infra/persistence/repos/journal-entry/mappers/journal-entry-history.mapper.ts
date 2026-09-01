@@ -23,7 +23,7 @@ const journalEntryHistoryMapper = {
       action: history.action,
       diff: history.diff,
       correlationId: history.correlationId,
-      entityVersion: header.version,
+      entityVersion: history.entityVersion,
       occurredAt: toRepoDate(history.occurredAt),
     };
   },

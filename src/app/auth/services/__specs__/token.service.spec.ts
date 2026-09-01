@@ -100,6 +100,28 @@ describe('makeTokenService', () => {
       );
     });
 
+    it('should claim and finalize a signup token separately', async () => {
+      const token = await tokenService.generateSignupToken({ id: userId });
+
+      await expect(tokenService.claimSignupToken(token)).resolves.toMatchObject(
+        { id: userId }
+      );
+      expect(mockCacheStorage.setIfNotExists).toHaveBeenCalledWith(
+        `app:auth:signup-token-claim:${userId}`,
+        token,
+        30
+      );
+
+      await tokenService.finalizeSignupToken(userId);
+
+      expect(mockCacheStorage.del).toHaveBeenCalledWith(
+        `app:auth:signup-token:${userId}`
+      );
+      expect(mockCacheStorage.del).toHaveBeenCalledWith(
+        `app:auth:signup-token-claim:${userId}`
+      );
+    });
+
     it('should throw InvalidToken if token type is incorrect', async () => {
       const wrongToken = await tokenService.generateAccessToken({ id: userId });
 

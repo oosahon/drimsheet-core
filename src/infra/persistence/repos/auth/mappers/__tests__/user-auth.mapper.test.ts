@@ -15,6 +15,7 @@ describe('User Auth Mapper', () => {
     it('maps user auth to a repo model', () => {
       const userAuth: IUserAuth = {
         userId,
+        version: 1,
         password: 'hashed-password',
         failedLoginAttempts: 2,
         strategy: [EAuthStrategy.Email],
@@ -24,6 +25,7 @@ describe('User Auth Mapper', () => {
 
       expect(userAuthMapper.toRepo(userAuth)).toEqual({
         userId,
+        version: 1,
         password: 'hashed-password',
         failedLoginAttempts: 2,
         strategies: [EAuthStrategy.Email],
@@ -35,6 +37,7 @@ describe('User Auth Mapper', () => {
     it('maps a null password to repo null', () => {
       const userAuth: IUserAuth = {
         userId,
+        version: 1,
         password: null,
         failedLoginAttempts: 0,
         strategy: [EAuthStrategy.Google],
@@ -50,6 +53,7 @@ describe('User Auth Mapper', () => {
     it('maps a repo model to user auth', () => {
       const model: IUserAuthModel = {
         userId,
+        version: 2,
         password: 'hashed-password',
         failedLoginAttempts: 1,
         strategies: [EAuthStrategy.Email, EAuthStrategy.Google],
@@ -59,6 +63,7 @@ describe('User Auth Mapper', () => {
 
       expect(userAuthMapper.toDomain(model)).toEqual({
         userId,
+        version: 2,
         password: 'hashed-password',
         failedLoginAttempts: 1,
         strategy: [EAuthStrategy.Email, EAuthStrategy.Google],
@@ -70,6 +75,7 @@ describe('User Auth Mapper', () => {
     it('defaults nullable repo fields for the domain shape', () => {
       const model: IUserAuthModel = {
         userId,
+        version: 3,
         password: null,
         failedLoginAttempts: null,
         strategies: [EAuthStrategy.Google],
@@ -79,6 +85,7 @@ describe('User Auth Mapper', () => {
 
       expect(userAuthMapper.toDomain(model)).toEqual({
         userId,
+        version: 3,
         password: null,
         failedLoginAttempts: 0,
         strategy: [EAuthStrategy.Google],

@@ -14,6 +14,7 @@ describe('accountingEntityHistoryMapper', () => {
 
     const history: IAccountingEntityAuditHistory = {
       entityId: accountingEntityId,
+      entityVersion: 1,
       action: 'created',
       diff: {
         before: null,

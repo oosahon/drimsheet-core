@@ -55,6 +55,7 @@ describe('GET /users/profile', () => {
 
   const mockUser: IUser = {
     id: '123e4567-e89b-12d3-a456-426614174000' as TEntityId,
+    version: 1,
     email: 'user@example.com',
     emailVerified: true,
     firstName: 'First',

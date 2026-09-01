@@ -20,6 +20,7 @@ describe('fiscalYearHistoryMapper', () => {
 
     const history: IFiscalYearHistory = {
       entityId: fiscalYearId,
+      entityVersion: 1,
       action: 'created',
       diff: {
         before: null,
