@@ -65,6 +65,7 @@ describe('makeCreatePaymentUsecase', () => {
   const idempotencyKey = 'payment-idempotency-key';
   const user: IUser = {
     id: generateUUID(),
+    version: 1,
     email: 'payment@example.com',
     emailVerified: true,
     firstName: 'Payment',

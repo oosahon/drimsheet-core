@@ -36,7 +36,7 @@ const journalLineHistoryMapper = {
         after: mapSnapshot(history.diff.after),
       },
       correlationId: history.correlationId,
-      entityVersion: line.version,
+      entityVersion: history.entityVersion,
       occurredAt: toRepoDate(history.occurredAt),
     };
   },

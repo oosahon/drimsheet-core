@@ -60,6 +60,7 @@ const payload = [
 
 const mockUser: IUser = {
   id: userId,
+  version: 1,
   email: 'user@example.com',
   emailVerified: true,
   firstName: 'First',

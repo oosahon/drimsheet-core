@@ -4211,7 +4211,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/IAccessToken"
+                  "properties": {
+                    "accessToken": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["accessToken"],
+                  "type": "object"
                 }
               }
             }

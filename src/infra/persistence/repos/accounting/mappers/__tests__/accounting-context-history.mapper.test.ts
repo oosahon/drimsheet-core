@@ -19,6 +19,7 @@ describe('accountingContextHistoryMapper', () => {
     } as IAccountingContext;
     const history: IAccountingContextHistory = {
       entityId: accountingContextId,
+      entityVersion: 1,
       action: 'created',
       diff: {
         before: null,

@@ -34,6 +34,7 @@ describe('accountingEntityAudit', () => {
 
       expect(audit).toEqual({
         entityId: accountingEntity.id,
+        entityVersion: 1,
         action: EAccountingEntityActions.Created,
         diff: {
           before: null,

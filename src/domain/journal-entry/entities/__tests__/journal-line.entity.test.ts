@@ -86,6 +86,7 @@ describe('JournalLineItem Entity', () => {
       expect(Object.isFrozen(lineItem)).toBe(true);
       expect(audit).toEqual({
         entityId: lineItem.id,
+        entityVersion: 1,
         action: EJournalLineAuditAction.Created,
         diff: {
           before: null,

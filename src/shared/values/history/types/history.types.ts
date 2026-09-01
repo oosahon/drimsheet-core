@@ -22,6 +22,7 @@ export interface IUserHistoryActor extends IHistoryActor {
 
 export interface IEntityDelta<SnapShot extends object> {
   entityId: TEntityId;
+  entityVersion: number;
   action: string;
   diff: IDiff<SnapShot>;
   occurredAt: Date;

@@ -20,6 +20,7 @@ describe('reportingContextHistoryMapper', () => {
 
     const history: IReportingContextHistory = {
       entityId: reportingContextId,
+      entityVersion: 1,
       action: 'updated',
       diff: {
         before: null,

@@ -200,6 +200,7 @@ describe('accountingContextEntity', () => {
 
       expect(audit).toEqual({
         entityId: entity.id,
+        entityVersion: 1,
         action: EAccountingContextActions.Created,
         diff: {
           before: null,

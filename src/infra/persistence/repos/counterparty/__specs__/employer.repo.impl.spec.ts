@@ -32,6 +32,7 @@ describe('EmployerRepoImpl', () => {
 
   const history: IEmployerHistory = {
     entityId: payload.counterpartyId,
+    entityVersion: 1,
     action: 'created',
     actor: {
       type: 'user',

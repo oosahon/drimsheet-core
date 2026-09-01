@@ -15,6 +15,7 @@ describe('makeEmailVerificationService', () => {
   const correlationId = 'test-corr-id';
   const user: IUser = {
     id: 'test-user-id' as TEntityId,
+    version: 1,
     email: emailValue.make('unverified@example.com'),
     emailVerified: false,
     firstName: 'John',

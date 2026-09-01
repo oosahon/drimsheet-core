@@ -32,4 +32,10 @@ export interface IFxCostBasisLotAcquisitionAudit extends IEntityDelta<IFxCostBas
   action: UFxCostBasisLotAcquisitionAuditAction;
 }
 
+export interface IMakeFxCostBasisLotAcquisitionAuditPayload {
+  before: IFxCostBasisLotAcquisition | null;
+  after: IFxCostBasisLotAcquisition;
+  action: UFxCostBasisLotAcquisitionAuditAction;
+}
+
 export interface IFxCostBasisLotAcquisitionHistory extends IHistory<IFxCostBasisLotAcquisition> {}

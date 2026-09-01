@@ -1,5 +1,6 @@
 import { TEntityId } from '@shared/types/uuid';
 import dateUtils from '@shared/utils/date';
+import numberUtils from '@shared/utils/number';
 import safeJSON from '@shared/utils/safe-json';
 import stringUtils from '@shared/utils/string';
 import {
@@ -67,6 +68,17 @@ function make<T extends object>(
   correlationId: string
 ): IHistory<T> {
   stringUtils.validateUUID(delta.entityId, historyError.InvalidEntityId);
+
+  const isInvalidEntityVersion =
+    typeof delta.entityVersion !== 'number' ||
+    !numberUtils.isInteger(delta.entityVersion) ||
+    !numberUtils.isPositiveNumber(delta.entityVersion);
+
+  if (isInvalidEntityVersion) {
+    throw new historyError.InvalidEntityVersion({
+      entityVersion: delta.entityVersion,
+    });
+  }
   stringUtils.validateIsNonEmptyString(
     delta.action,
     historyError.InvalidAction
@@ -81,6 +93,7 @@ function make<T extends object>(
 
   const history: IHistory<T> = {
     entityId: delta.entityId,
+    entityVersion: delta.entityVersion,
     action: delta.action,
     diff: safeJSON.normalize(delta.diff),
     occurredAt: delta.occurredAt,

@@ -1,5 +1,8 @@
 import { and, asc, eq } from 'drizzle-orm';
 
+import validateVersionInRepo from '@shared/helpers/validate-version-in-repo';
+import repoError from '@shared/values/errors/repo.error';
+
 import IFxCostBasisLotRepo from '@domain/subledger/fx-cost-basis/repos/lot.repo';
 import { EFxCostBasisLotStatus } from '@domain/subledger/fx-cost-basis/types/lot.types';
 
@@ -49,12 +52,26 @@ const fxCostBasisLotRepo: IFxCostBasisLotRepo = {
   },
 
   update: async (payload, options) => {
+    validateVersionInRepo(payload, options);
+
     await getDbQuery(options).transaction(async (tx) => {
       const repoModel = fxCostBasisLotMapper.toRepo(payload);
-      await tx
+      const updated = await tx
         .update(subledgerFxCostBasisLotsInCore)
         .set(repoModel)
-        .where(eq(subledgerFxCostBasisLotsInCore.id, payload.id));
+        .where(
+          and(
+            eq(subledgerFxCostBasisLotsInCore.id, payload.id),
+            eq(subledgerFxCostBasisLotsInCore.version, options.expectedVersion)
+          )
+        );
+
+      if (updated.rowCount === 0) {
+        throw new repoError.VersionNotFound({
+          id: payload.id,
+          version: options.expectedVersion,
+        });
+      }
 
       const historyValues = Array.isArray(options.history)
         ? options.history

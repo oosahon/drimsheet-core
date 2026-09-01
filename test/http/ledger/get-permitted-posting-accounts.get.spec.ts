@@ -70,6 +70,7 @@ const now = new Date('2026-08-09T10:00:00.000Z');
 
 const user = {
   id: userId,
+  version: 1,
   email: 'posting@example.com',
   emailVerified: true,
   firstName: 'Posting',

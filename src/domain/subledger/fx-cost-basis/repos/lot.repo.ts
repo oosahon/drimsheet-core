@@ -1,4 +1,8 @@
-import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+import {
+  IReadRepoOptions,
+  IVersionedRepoWriteOptions,
+  IWriteRepoOptions,
+} from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
 import {
@@ -20,6 +24,6 @@ export default interface IFxCostBasisLotRepo {
 
   update(
     payload: IFxCostBasisLot,
-    options: IWriteRepoOptions<IFxCostBasisLotHistory>
+    options: IVersionedRepoWriteOptions<IFxCostBasisLotHistory>
   ): Promise<void>;
 }

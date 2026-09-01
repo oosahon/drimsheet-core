@@ -9,6 +9,7 @@ describe('User DTO Mapper', () => {
     it('should map user to profile DTO correctly, freeze it, and exclude internal fields', () => {
       const mockUser: IUser & { extraField?: string } = {
         id: 'user-id-123' as unknown as TEntityId,
+        version: 1,
         email: 'john.doe@example.com',
         emailVerified: true,
         firstName: 'John',

@@ -6,6 +6,7 @@ export interface IUser {
   emailVerified: boolean;
   firstName: string;
   lastName: string;
+  version: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;

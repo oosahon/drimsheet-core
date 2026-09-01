@@ -1,7 +1,8 @@
 import { eq, inArray, isNull, or } from 'drizzle-orm';
 
-import { ERepoLock } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+import repoError from '@shared/values/errors/repo.error';
 
 import { ELedgerAccountBehavior } from '@domain/ledger/types/account-behaviors.tyypes';
 import { EAssetSubType } from '@domain/ledger/types/asset-account.types';
@@ -9,10 +10,12 @@ import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 import { ledgerAccountsInCore } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import ledgerAccountHistoryRepo from '@infra/persistence/repos/ledger/ledger-account-history.repo.impl';
 import ledgerAccountRepo from '@infra/persistence/repos/ledger/ledger-account.repo.impl';
 import ledgerAccountMapper from '@infra/persistence/repos/ledger/mappers/ledger-account.mapper';
 
 jest.mock('../../../helpers/get-db-query');
+jest.mock('../ledger-account-history.repo.impl');
 jest.mock('../mappers/ledger-account.mapper');
 jest.mock('drizzle-orm', () => {
   const drizzle =
@@ -27,6 +30,69 @@ jest.mock('drizzle-orm', () => {
   };
 });
 
+describe('ledgerAccountRepo strict updates', () => {
+  const account = { id: generateUUID(), version: 2 } as ILedgerAccount;
+  const history = { entityId: account.id, entityVersion: 2 } as never;
+  const repoModel = { id: account.id, version: account.version } as never;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.mocked(ledgerAccountMapper.toRepo).mockReturnValue(repoModel);
+  });
+
+  function mockUpdate(rowCount: number) {
+    const where = jest.fn().mockResolvedValue({ rowCount });
+    const set = jest.fn().mockReturnValue({ where });
+    const update = jest.fn().mockReturnValue({ set });
+    const tx = { update };
+    jest.mocked(getDbQuery).mockReturnValue({
+      transaction: jest.fn(async (callback) => callback(tx as never)),
+    } as unknown as ReturnType<typeof getDbQuery>);
+
+    return set;
+  }
+
+  it('persists the supplied entity and predicates the update on expectedVersion', async () => {
+    const set = mockUpdate(1);
+
+    await ledgerAccountRepo.update(account, {
+      correlationId: 'correlation-id',
+      expectedVersion: 1,
+      history,
+    });
+
+    expect(set).toHaveBeenCalledWith(repoModel);
+    expect(eq).toHaveBeenCalledWith(ledgerAccountsInCore.version, 1);
+    expect(ledgerAccountHistoryRepo.save).toHaveBeenCalled();
+  });
+
+  it('throws a version conflict without persisting history for a stale write', async () => {
+    mockUpdate(0);
+
+    await expect(
+      ledgerAccountRepo.update(account, {
+        correlationId: 'correlation-id',
+        expectedVersion: 1,
+        history,
+      })
+    ).rejects.toBeInstanceOf(repoError.VersionNotFound);
+
+    expect(ledgerAccountHistoryRepo.save).not.toHaveBeenCalled();
+  });
+
+  it('rejects a history-version mismatch before opening a transaction', async () => {
+    await expect(
+      ledgerAccountRepo.update(account, {
+        correlationId: 'correlation-id',
+        expectedVersion: 1,
+        history: { entityId: account.id, entityVersion: 3 } as never,
+      })
+    ).rejects.toBeInstanceOf(repoError.VersionMismatch);
+
+    expect(getDbQuery).not.toHaveBeenCalled();
+  });
+});
+
 describe('ledgerAccountRepoImpl allocation reads', () => {
   const accountingEntityId =
     '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
@@ -36,13 +102,8 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
   });
 
   function makeAwaitable(results: unknown[]) {
-    const lock = jest.fn().mockResolvedValue(results);
     return {
-      query: {
-        for: lock,
-        then: (resolve: (value: unknown[]) => void) => resolve(results),
-      },
-      lock,
+      then: (resolve: (value: unknown[]) => void) => resolve(results),
     };
   }
 
@@ -64,14 +125,11 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
     return { countWhere, dataWhere, limit, offset, select };
   }
 
-  it.each([
-    ['unlocked', undefined],
-    ['update locked', ERepoLock.Update],
-  ])('findByCode supports an %s allocation read', async (_label, lockMode) => {
+  it('findByCode maps an allocation read', async () => {
     const row = { id: 'account-row' };
     const account = { id: 'account-domain' } as ILedgerAccount;
     const awaitable = makeAwaitable([row]);
-    const where = jest.fn().mockReturnValue(awaitable.query);
+    const where = jest.fn().mockReturnValue(awaitable);
     const leftJoin = jest.fn().mockReturnValue({ where });
     const from = jest.fn().mockReturnValue({ leftJoin });
     const select = jest.fn().mockReturnValue({ from });
@@ -81,54 +139,35 @@ describe('ledgerAccountRepoImpl allocation reads', () => {
     await expect(
       ledgerAccountRepo.findByCode('100000', accountingEntityId, {
         correlationId: 'correlation-id',
-        lock: lockMode,
       })
     ).resolves.toBe(account);
 
     expect(leftJoin).toHaveBeenCalled();
-
-    if (lockMode) {
-      expect(awaitable.lock).toHaveBeenCalledWith(lockMode);
-    } else {
-      expect(awaitable.lock).not.toHaveBeenCalled();
-    }
   });
 
-  it.each([
-    ['unlocked', undefined],
-    ['update locked', ERepoLock.Update],
-  ])(
-    'findLatestBySubType supports an %s allocation read',
-    async (_label, lockMode) => {
-      const latest = {
-        id: 'latest-id',
-        code: '100001',
-        materializedPath: '100000.100001',
-      };
-      const awaitable = makeAwaitable([latest]);
-      const limit = jest.fn().mockReturnValue(awaitable.query);
-      const orderBy = jest.fn().mockReturnValue({ limit });
-      const where = jest.fn().mockReturnValue({ orderBy });
-      const from = jest.fn().mockReturnValue({ where });
-      const select = jest.fn().mockReturnValue({ from });
-      (getDbQuery as jest.Mock).mockReturnValue({ select });
+  it('findLatestBySubType maps the latest allocation read', async () => {
+    const latest = {
+      id: 'latest-id',
+      code: '100001',
+      materializedPath: '100000.100001',
+    };
+    const awaitable = makeAwaitable([latest]);
+    const limit = jest.fn().mockReturnValue(awaitable);
+    const orderBy = jest.fn().mockReturnValue({ limit });
+    const where = jest.fn().mockReturnValue({ orderBy });
+    const from = jest.fn().mockReturnValue({ where });
+    const select = jest.fn().mockReturnValue({ from });
+    (getDbQuery as jest.Mock).mockReturnValue({ select });
 
-      await expect(
-        ledgerAccountRepo.findLatestBySubType(
-          accountingEntityId,
-          ELedgerType.Asset,
-          EAssetSubType.CashAndCashEquivalent,
-          { correlationId: 'correlation-id', lock: lockMode }
-        )
-      ).resolves.toEqual(latest);
-
-      if (lockMode) {
-        expect(awaitable.lock).toHaveBeenCalledWith(lockMode);
-      } else {
-        expect(awaitable.lock).not.toHaveBeenCalled();
-      }
-    }
-  );
+    await expect(
+      ledgerAccountRepo.findLatestBySubType(
+        accountingEntityId,
+        ELedgerType.Asset,
+        EAssetSubType.CashAndCashEquivalent,
+        { correlationId: 'correlation-id' }
+      )
+    ).resolves.toEqual(latest);
+  });
 
   it.each([
     [

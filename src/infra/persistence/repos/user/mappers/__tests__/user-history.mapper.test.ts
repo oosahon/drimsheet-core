@@ -14,6 +14,7 @@ describe('userHistoryMapper', () => {
 
     const history: IUserHistory = {
       entityId: userProfileId,
+      entityVersion: 1,
       action: 'created',
       diff: {
         before: null,

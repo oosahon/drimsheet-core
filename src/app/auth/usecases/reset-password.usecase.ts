@@ -4,18 +4,18 @@ import {
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
 import IReporter from '@shared/contracts/reporter.contract';
-import generateUUID from '@shared/utils/uuid-generator';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
 
 import userEvents from '@domain/user/events/user.events';
 import IUserRepo from '@domain/user/repos/user.repo';
 
-import { EAuthStrategy } from '@app/auth/contracts/auth.types';
 import IPasswordService from '@app/auth/contracts/password-service.contract';
 import ITokenService from '@app/auth/contracts/token-service.contract';
 import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
-import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
+import IUserAuthService from '@app/auth/contracts/user-auth.service.contract';
+import IUserSessionPersistenceService from '@app/auth/contracts/user-session-persistence.service.contract';
+import IUserSessionService from '@app/auth/contracts/user-session.service.contract';
 import { IAccessToken, IResetPasswordReq } from '@app/auth/dtos/auth/auth.dto';
 import { resetPasswordReqValidation } from '@app/auth/dtos/auth/auth.dto.validation';
 import authError from '@app/auth/errors/auth.error';
@@ -28,7 +28,9 @@ interface IDependencies {
   tokenService: ITokenService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
-  userSessionRepo: IUserSessionRepo;
+  userAuthService: IUserAuthService;
+  userSessionService: IUserSessionService;
+  userSessionPersistenceService: IUserSessionPersistenceService;
   repoService: IRepoService;
   reporter: IReporter;
 }
@@ -63,40 +65,27 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
 
       const password = deps.passwordService.makePassword(payload.password);
       const passwordHash = await deps.passwordService.hash(password);
-      const accessToken =
-        await deps.tokenService.generateAccessToken(existingUser);
-      const refreshToken =
-        await deps.tokenService.generateRefreshToken(existingUser);
+      const preparedSession =
+        await deps.userSessionService.prepare(existingUser);
+      const updatedUserAuth = deps.userAuthService.replacePassword(
+        existingUserAuth,
+        passwordHash
+      );
 
       const repoTransaction: TRepoTransactionFn = async (tx) => {
-        await deps.userAuthRepo.update(
-          {
-            ...existingUserAuth,
-            password: passwordHash,
-            failedLoginAttempts: 0,
-            strategy: Array.from(
-              new Set([...existingUserAuth.strategy, EAuthStrategy.Email])
-            ),
-          },
-          { correlationId, tx }
-        );
-        await deps.userSessionRepo.deleteAllByUserId(existingUser.id, {
+        await deps.userAuthRepo.update(updatedUserAuth, {
           correlationId,
+          expectedVersion: existingUserAuth.version,
           tx,
         });
-        const timestamp = new Date();
-        await deps.userSessionRepo.create(
-          {
-            id: generateUUID(),
-            userId: existingUser.id,
-            refreshToken,
-            lastLoginAt: timestamp,
-            createdAt: timestamp,
-          },
+        await deps.userSessionPersistenceService.replaceAllUserSessions(
+          preparedSession.userSession,
           { correlationId, tx }
         );
       };
       await deps.repoService.runInTransaction(repoTransaction);
+
+      // TODO: What????????
       committed = true;
       try {
         await deps.tokenService.finalizePasswordResetToken(tokenPayload);
@@ -107,13 +96,13 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
       }
       deps.appContext
         .get(['clientSession'])
-        .clientSession.setRefreshToken(refreshToken);
+        .clientSession.setRefreshToken(preparedSession.refreshToken);
 
       const event = userEvents.passwordReset(existingUser);
       await deps.eventBus.publish(
         eventValue.enrich(event, { correlationId, idempotencyKey })
       );
-      return { accessToken };
+      return { accessToken: preparedSession.accessToken };
     } catch (error) {
       if (!committed) {
         try {

@@ -89,7 +89,6 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       version: {
         type: 'integer',
         notNull: true,
-        default: 1,
       },
 
       created_at: {

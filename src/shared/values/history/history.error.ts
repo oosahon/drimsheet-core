@@ -9,6 +9,7 @@ const EErrorKeys = {
   InvalidNote: 'history_error_invalid_note_unexpected',
   InvalidEntityId: 'history_error_invalid_entity_id_unexpected',
   InvalidDate: 'history_error_invalid_date_unexpected',
+  InvalidEntityVersion: 'history_error_invalid_entity_version_unexpected',
   InvalidCorrelationId: 'history_error_invalid_correlation_id_unexpected',
 } as const satisfies TErrorKeys<'history_error'>;
 

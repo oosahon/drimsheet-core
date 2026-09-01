@@ -13,7 +13,9 @@ import emailValue from '@domain/user/values/email.vo';
 import mockPasswordService from '@app/auth/contracts/__mocks__/password-service.mock';
 import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
 import mockUserAuthRepo from '@app/auth/contracts/__mocks__/user-auth.repo.mock';
-import mockUserSessionRepo from '@app/auth/contracts/__mocks__/user-session.repo.mock';
+import mockUserAuthService from '@app/auth/contracts/__mocks__/user-auth.service.mock';
+import mockUserSessionPersistenceService from '@app/auth/contracts/__mocks__/user-session-persistence.service.mock';
+import mockUserSessionService from '@app/auth/contracts/__mocks__/user-session.service.mock';
 import { EAuthStrategy, IUserAuth } from '@app/auth/contracts/auth.types';
 import authError from '@app/auth/errors/auth.error';
 import makeResetPasswordUseCase from '@app/auth/usecases/reset-password.usecase';
@@ -44,6 +46,36 @@ describe('makeResetPasswordUseCase', () => {
     mockPasswordService.makePassword
       .mockReset()
       .mockImplementation((input) => input as string);
+    mockUserAuthService.replacePassword
+      .mockReset()
+      .mockImplementation((userAuth, password) => ({
+        userId: userAuth.userId,
+        password,
+        failedLoginAttempts: 0,
+        strategy: userAuth.strategy.includes(EAuthStrategy.Email)
+          ? userAuth.strategy
+          : [...userAuth.strategy, EAuthStrategy.Email],
+        version: userAuth.version + 1,
+        createdAt: userAuth.createdAt,
+        updatedAt: new Date(),
+      }));
+    mockUserSessionService.prepare
+      .mockReset()
+      .mockImplementation(async (user) => ({
+        accessToken: 'mock-auth-token',
+        refreshToken: 'mock-refresh-token',
+        userSession: {
+          id: generateUUID(),
+          userId: user.id,
+          refreshToken: 'mock-refresh-token',
+          lastLoginAt: new Date(),
+          createdAt: new Date(),
+        },
+        priorClientSession: null,
+      }));
+    mockUserSessionPersistenceService.replaceAllUserSessions
+      .mockReset()
+      .mockResolvedValue();
   });
 
   afterEach(() => {
@@ -64,7 +96,9 @@ describe('makeResetPasswordUseCase', () => {
       tokenService: mockAuthService,
       eventBus: mockEventBus,
       userAuthRepo: mockUserAuthRepo,
-      userSessionRepo: mockUserSessionRepo,
+      userAuthService: mockUserAuthService,
+      userSessionService: mockUserSessionService,
+      userSessionPersistenceService: mockUserSessionPersistenceService,
       repoService: mockRepoService,
       reporter: mockReporter,
     });
@@ -131,6 +165,7 @@ describe('makeResetPasswordUseCase', () => {
       emailVerified: true,
       firstName: 'John',
       lastName: 'Doe',
+      version: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
@@ -144,14 +179,14 @@ describe('makeResetPasswordUseCase', () => {
     const existingUserAuth = {
       userId: mockUser.id,
       password: 'old-hash',
+      failedLoginAttempts: 0,
       strategy: ['email'],
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     } as unknown as IUserAuth;
     mockUserAuthRepo.findByUserId.mockResolvedValue(existingUserAuth);
     mockPasswordService.hash.mockResolvedValue('new-hash');
-    mockAuthService.generateAccessToken.mockResolvedValue('mock-auth-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue(
-      'mock-refresh-token'
-    );
 
     const usecase = getUseCase();
 
@@ -168,23 +203,21 @@ describe('makeResetPasswordUseCase', () => {
       payload.password
     );
     expect(mockPasswordService.hash).toHaveBeenCalledWith(payload.password);
-    expect(mockAuthService.generateAccessToken).toHaveBeenCalledWith(mockUser);
+    expect(mockUserSessionService.prepare).toHaveBeenCalledWith(mockUser);
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
     expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
-      {
-        ...existingUserAuth,
+      expect.objectContaining({
         password: 'new-hash',
         failedLoginAttempts: 0,
         strategy: ['email'],
-      },
-      { correlationId, tx: 'mock-tx' }
+        version: 2,
+      }),
+      { correlationId, expectedVersion: 1, tx: 'mock-tx' }
     );
-    expect(mockUserSessionRepo.deleteAllByUserId).toHaveBeenCalledWith(
-      mockUser.id,
-      { correlationId, tx: 'mock-tx' }
-    );
-    expect(mockUserSessionRepo.create).toHaveBeenCalledWith(
+    expect(
+      mockUserSessionPersistenceService.replaceAllUserSessions
+    ).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: mockUser.id,
         refreshToken: 'mock-refresh-token',
@@ -217,6 +250,7 @@ describe('makeResetPasswordUseCase', () => {
       emailVerified: true,
       firstName: 'Grace',
       lastName: 'Hopper',
+      version: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
@@ -226,6 +260,9 @@ describe('makeResetPasswordUseCase', () => {
       password: null,
       failedLoginAttempts: 0,
       strategy: ['google'],
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     } as unknown as IUserAuth;
 
     mockAuthService.claimPasswordResetToken.mockResolvedValue({
@@ -235,21 +272,17 @@ describe('makeResetPasswordUseCase', () => {
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue(existingUserAuth);
     mockPasswordService.hash.mockResolvedValue('new-hash');
-    mockAuthService.generateAccessToken.mockResolvedValue('mock-auth-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue(
-      'mock-refresh-token'
-    );
 
     await getUseCase()(getValidPayload());
 
     expect(mockUserAuthRepo.update).toHaveBeenCalledWith(
-      {
-        ...existingUserAuth,
+      expect.objectContaining({
         password: 'new-hash',
         failedLoginAttempts: 0,
         strategy: ['google', 'email'],
-      },
-      { correlationId, tx: 'mock-tx' }
+        version: 2,
+      }),
+      { correlationId, expectedVersion: 1, tx: 'mock-tx' }
     );
   });
 
@@ -266,11 +299,26 @@ describe('makeResetPasswordUseCase', () => {
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue({
       userId: mockUser.id,
+      password: 'old-hash',
+      failedLoginAttempts: 0,
       strategy: [EAuthStrategy.Email],
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     } as IUserAuth);
     mockPasswordService.hash.mockResolvedValue('new-hash');
-    mockAuthService.generateAccessToken.mockResolvedValue('access-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
+    mockUserSessionService.prepare.mockResolvedValue({
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      userSession: {
+        id: generateUUID(),
+        userId: mockUser.id,
+        refreshToken: 'refresh-token',
+        lastLoginAt: new Date(),
+        createdAt: new Date(),
+      },
+      priorClientSession: null,
+    });
     const failure = new Error('cache unavailable');
     mockAuthService.finalizePasswordResetToken.mockRejectedValue(failure);
 
@@ -337,11 +385,26 @@ describe('makeResetPasswordUseCase', () => {
     mockUserRepo.findById.mockResolvedValue(mockUser);
     mockUserAuthRepo.findByUserId.mockResolvedValue({
       userId: mockUser.id,
+      password: 'old-hash',
+      failedLoginAttempts: 0,
       strategy: [EAuthStrategy.Email],
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     } as IUserAuth);
     mockPasswordService.hash.mockResolvedValue('new-hash');
-    mockAuthService.generateAccessToken.mockResolvedValue('access-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue('refresh-token');
+    mockUserSessionService.prepare.mockResolvedValue({
+      accessToken: 'access-token',
+      refreshToken: 'refresh-token',
+      userSession: {
+        id: generateUUID(),
+        userId: mockUser.id,
+        refreshToken: 'refresh-token',
+        lastLoginAt: new Date(),
+        createdAt: new Date(),
+      },
+      priorClientSession: null,
+    });
 
     // Force an error after commit
     mockClientSession.setRefreshToken.mockImplementationOnce(() => {

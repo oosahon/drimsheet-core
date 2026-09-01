@@ -30,6 +30,7 @@ function make(payload: IMakeAccountingContextAuditPayload) {
 
   const audit: IAccountingContextAudit = {
     entityId: payload.after.id,
+    entityVersion: 1,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.updatedAt,

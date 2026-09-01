@@ -8,6 +8,7 @@ type TErrorPrefix = TErrorKey<'repo_error'>;
 const EErrorKeys = {
   VersionNotFound: 'repo_error_version_conflict',
   VersionRequired: 'repo_error_version_required_unexpected',
+  VersionMismatch: 'repo_error_version_mismatch_unexpected',
   MissingHistory: 'repo_error_missing_history_unexpected',
 } as const satisfies TErrorKeys<'repo_error'>;
 

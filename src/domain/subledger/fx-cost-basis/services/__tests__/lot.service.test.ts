@@ -51,6 +51,7 @@ describe('makeFxCostBasisLotService', () => {
   };
   const account: ILedgerAccount = {
     id: accountId,
+    version: 1,
     code: '100001',
     materializedPath: '100.100001',
     accountingEntityId: entityId,

@@ -1,6 +1,8 @@
 import { and, eq, isNull } from 'drizzle-orm';
 
 import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+import validateVersionInRepo from '@shared/helpers/validate-version-in-repo';
+import repoError from '@shared/values/errors/repo.error';
 
 import IUserRepo from '@domain/user/repos/user.repo';
 
@@ -22,11 +24,23 @@ const userRepo: IUserRepo = {
   },
 
   update: async (user, options) => {
+    validateVersionInRepo(user, options);
+
     await getDbQuery(options).transaction(async (tx) => {
-      await tx
+      const updated = await tx
         .update(users)
         .set(userMapper.toRepo(user))
-        .where(eq(users.id, user.id));
+        .where(
+          and(eq(users.id, user.id), eq(users.version, options.expectedVersion))
+        );
+
+      if (updated.rowCount === 0) {
+        throw new repoError.VersionNotFound({
+          id: user.id,
+          version: options.expectedVersion,
+        });
+      }
+
       await userHistoryRepo.save(
         options.history,
         passOnRepoTransaction(options, tx)
@@ -35,13 +49,10 @@ const userRepo: IUserRepo = {
   },
 
   findByEmail: async (email, options) => {
-    const baseQuery = getDbQuery(options)
+    const result = await getDbQuery(options)
       .select()
       .from(users)
       .where(and(eq(users.email, email), isNull(users.deletedAt)));
-
-    const query = options?.lock ? baseQuery.for(options.lock) : baseQuery;
-    const result = await query;
 
     if (!result.length) return null;
 
@@ -49,13 +60,10 @@ const userRepo: IUserRepo = {
   },
 
   findById: async (userId, options) => {
-    const baseQuery = getDbQuery(options)
+    const result = await getDbQuery(options)
       .select()
       .from(users)
       .where(and(eq(users.id, userId), isNull(users.deletedAt)));
-
-    const query = options?.lock ? baseQuery.for(options.lock) : baseQuery;
-    const result = await query;
 
     if (!result.length) return null;
 

@@ -12,6 +12,7 @@ import {
   EFxCostBasisLotDispositionAuditAction,
   IFxCostBasisLotDisposition,
 } from '@domain/subledger/fx-cost-basis/types/disposition.types';
+import fxCostBasisLotDispositionAudit from '@domain/subledger/fx-cost-basis/values/disposition-audit.vo';
 
 function make(
   payload: TCreationOmits<IFxCostBasisLotDisposition>
@@ -65,14 +66,10 @@ function make(
 
   const event = FxCostBasisLotDispositionEvents.created(entity);
 
-  const audit = Object.freeze({
-    entityId: entity.id,
+  const audit = fxCostBasisLotDispositionAudit.make({
+    before: null,
+    after: entity,
     action: EFxCostBasisLotDispositionAuditAction.Created,
-    diff: {
-      before: null,
-      after: entity,
-    },
-    occurredAt: timestamp,
   });
 
   return [entity, [event], audit];

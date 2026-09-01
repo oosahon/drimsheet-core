@@ -46,4 +46,10 @@ export interface IFxCostBasisLotAudit extends IEntityDelta<IFxCostBasisLot> {
   action: UFxCostBasisLotAuditAction;
 }
 
+export interface IMakeFxCostBasisLotAuditPayload {
+  before: IFxCostBasisLot | null;
+  after: IFxCostBasisLot;
+  action: UFxCostBasisLotAuditAction;
+}
+
 export interface IFxCostBasisLotHistory extends IHistory<IFxCostBasisLot> {}

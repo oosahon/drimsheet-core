@@ -10,6 +10,7 @@ function make(payload: IMakeJournalEntryAuditPayload): IJournalEntryAudit {
 
   return Object.freeze({
     entityId: payload.after.id,
+    entityVersion: payload.after.version,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.updatedAt,

@@ -1,34 +1,36 @@
-import IEventBus from '@shared/contracts/event-bus.contract';
-import { IRepoService } from '@shared/contracts/repo.contract';
-
 import { IUser } from '@domain/user/types/user.types';
 
-import ITokenService from '@app/auth/contracts/token-service.contract';
-import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
-import makeIssueUserSessionHelper from '@app/auth/usecases/helpers/issue-user-session.helper';
+import IUserSessionPersistenceService from '@app/auth/contracts/user-session-persistence.service.contract';
+import IUserSessionService from '@app/auth/contracts/user-session.service.contract';
 import IAppContext from '@app/context/contracts/app-context.contract';
 
 interface IDependencies {
   reqContext: IAppContext;
-  tokenService: ITokenService;
-  eventBus: IEventBus;
-  userSessionRepo: IUserSessionRepo;
-  repoService: IRepoService;
+  userSessionService: IUserSessionService;
+  userSessionPersistenceService: IUserSessionPersistenceService;
   webAppUrl: string;
 }
 
 export default function makeOauthUsecase(deps: IDependencies) {
   return {
     handleGoogleCallback: async (user: IUser): Promise<string> => {
-      await makeIssueUserSessionHelper({
+      const { correlationId, clientSession } = deps.reqContext.get([
+        'clientSession',
+      ]);
+      const preparedSession = await deps.userSessionService.prepare(
         user,
-        reqContext: deps.reqContext,
-        tokenService: deps.tokenService,
-        userSessionRepo: deps.userSessionRepo,
-        eventBus: deps.eventBus,
-        repoService: deps.repoService,
-        events: [],
-      });
+        clientSession.getRefreshToken()
+      );
+
+      await deps.userSessionPersistenceService.replaceClientSession(
+        {
+          userSession: preparedSession.userSession,
+          priorClientSession: preparedSession.priorClientSession,
+        },
+        { correlationId }
+      );
+
+      clientSession.setRefreshToken(preparedSession.refreshToken);
 
       return `${deps.webAppUrl}/auth/oauth-confirmation`;
     },

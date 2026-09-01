@@ -69,7 +69,7 @@ function updateBalance(
     ledgerAccountId: existingBalance.ledgerAccountId,
     accountingEntityId: existingBalance.accountingEntityId,
     accountMaterializedPath: existingBalance.accountMaterializedPath,
-    version: existingBalance.version, // version update delegated to repo implementation
+    version: existingBalance.version + 1,
     createdAt: existingBalance.createdAt,
 
     amount: moneyValue.add(existingBalance.amount, delta),

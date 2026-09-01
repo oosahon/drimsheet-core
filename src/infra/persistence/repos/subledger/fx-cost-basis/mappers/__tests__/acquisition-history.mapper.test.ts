@@ -17,6 +17,7 @@ describe('FX Cost-Basis Lot Acquisition History Mapper', () => {
 
     const history: IFxCostBasisLotAcquisitionHistory = {
       entityId: acquisitionId,
+      entityVersion: 1,
       action: 'created',
       diff: {
         before: null,

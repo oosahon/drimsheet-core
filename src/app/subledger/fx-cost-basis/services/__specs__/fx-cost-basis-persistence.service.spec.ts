@@ -300,7 +300,7 @@ describe('fxCostBasisPersistenceService', () => {
 
     await service.persistDisposition(
       {
-        lots: [{ lot, history: lotHistory }],
+        lots: [{ lot, history: lotHistory, expectedVersion: lot.version - 1 }],
         disposition,
         dispositionHistory,
         allocations: [allocation],
@@ -358,7 +358,13 @@ describe('fxCostBasisPersistenceService', () => {
 
     await service.persistDisposition(
       {
-        lots: [{ lot: bundle.lot, history: bundle.lotHistory }],
+        lots: [
+          {
+            lot: bundle.lot,
+            history: bundle.lotHistory,
+            expectedVersion: bundle.lot.version - 1,
+          },
+        ],
         disposition: bundle.disposition,
         dispositionHistory: bundle.dispositionHistory,
         allocations: [allocationWithDifferentQuantity],
@@ -381,7 +387,13 @@ describe('fxCostBasisPersistenceService', () => {
 
     await service.persistDisposition(
       {
-        lots: [{ lot: bundle.lot, history: bundle.lotHistory }],
+        lots: [
+          {
+            lot: bundle.lot,
+            history: bundle.lotHistory,
+            expectedVersion: bundle.lot.version - 1,
+          },
+        ],
         disposition: bundle.disposition,
         dispositionHistory: bundle.dispositionHistory,
         allocations: [bundle.allocation],

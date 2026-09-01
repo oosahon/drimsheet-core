@@ -72,6 +72,7 @@ describe('fxCostBasisLotEntity', () => {
 
       expect(audit).toEqual({
         entityId: entity.id,
+        entityVersion: entity.version,
         action: EFxCostBasisLotAuditAction.Created,
         diff: {
           before: null,

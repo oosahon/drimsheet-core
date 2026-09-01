@@ -23,6 +23,7 @@ describe('employerHistoryMapper', () => {
 
   const history: IEmployerHistory = {
     entityId: employer.counterpartyId,
+    entityVersion: 1,
     action: 'created',
     actor: {
       type: 'user',

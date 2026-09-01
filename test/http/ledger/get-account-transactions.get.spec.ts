@@ -62,6 +62,7 @@ const now = new Date('2026-08-20T10:00:00.000Z');
 
 const user = {
   id: userId,
+  version: 1,
   email: 'ledger@example.com',
   emailVerified: true,
   firstName: 'Ledger',

@@ -44,6 +44,7 @@ describe('fiscalYearEntity', () => {
 
       expect(audit).toEqual({
         entityId: entity.id,
+        entityVersion: 1,
         action: EPeriodActions.Created,
         diff: {
           before: null,

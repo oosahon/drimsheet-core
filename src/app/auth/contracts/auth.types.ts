@@ -12,6 +12,7 @@ export interface IUserAuth {
   password: string | null;
   failedLoginAttempts: number;
   strategy: UAuthStrategy[];
+  version: number;
   createdAt: Date;
   updatedAt: Date;
 }

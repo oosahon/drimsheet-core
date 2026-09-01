@@ -1,4 +1,7 @@
-import { eq, sql } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
+
+import validateVersionInRepo from '@shared/helpers/validate-version-in-repo';
+import repoError from '@shared/values/errors/repo.error';
 
 import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
 
@@ -28,40 +31,27 @@ const userAuthRepo: IUserAuthRepo = {
   },
 
   update: async (userAuthData, options) => {
+    validateVersionInRepo(userAuthData, options);
+
     const query = getDbQuery(options);
     const repoData = userAuthMapper.toRepo(userAuthData);
 
-    await query
+    const updated = await query
       .update(userAuth)
-      .set({
-        ...repoData,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(userAuth.userId, userAuthData.userId));
-  },
+      .set(repoData)
+      .where(
+        and(
+          eq(userAuth.userId, userAuthData.userId),
+          eq(userAuth.version, options.expectedVersion)
+        )
+      );
 
-  incrementFailedLoginAttempts: async (userId, options) => {
-    const query = getDbQuery(options);
-
-    await query
-      .update(userAuth)
-      .set({
-        failedLoginAttempts: sql`${userAuth.failedLoginAttempts} + 1`,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(userAuth.userId, userId));
-  },
-
-  resetFailedLoginAttempts: async (userId, options) => {
-    const query = getDbQuery(options);
-
-    await query
-      .update(userAuth)
-      .set({
-        failedLoginAttempts: 0,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(userAuth.userId, userId));
+    if (updated.rowCount === 0) {
+      throw new repoError.VersionNotFound({
+        id: userAuthData.userId,
+        version: options.expectedVersion,
+      });
+    }
   },
 };
 

@@ -15,6 +15,7 @@ describe('vendorHistoryMapper', () => {
 
   const history: IVendorHistory = {
     entityId: vendor.counterpartyId,
+    entityVersion: 1,
     action: 'created',
     actor: {
       type: 'user',

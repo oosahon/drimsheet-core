@@ -18,6 +18,7 @@ describe('Ledger Account DTO Mapper', () => {
 
       const mockAccount: ILedgerAccount = {
         id: 'acc-id-123' as unknown as TEntityId,
+        version: 1,
         code: '1000',
         materializedPath: '1000',
         accountingEntityId: 'entity-id-456' as unknown as TEntityId,
@@ -90,6 +91,7 @@ describe('Ledger Account DTO Mapper', () => {
 
       const mockAccount: ILedgerAccount = {
         id: 'acc-id-123' as unknown as TEntityId,
+        version: 1,
         code: '1000',
         materializedPath: '1000',
         accountingEntityId: 'entity-id-456' as unknown as TEntityId,

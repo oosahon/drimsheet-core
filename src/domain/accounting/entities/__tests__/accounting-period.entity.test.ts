@@ -74,6 +74,7 @@ describe('accountingPeriodEntity', () => {
       const firstAudit = result[0][2];
       expect(firstAudit).toEqual({
         entityId: firstEntity.id,
+        entityVersion: 1,
         action: EPeriodActions.Created,
         diff: {
           before: null,

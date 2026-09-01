@@ -11,8 +11,10 @@
   persistence operations when it improves scanning.
 - Follow the nearest established presentation pattern before introducing a new
   one.
-- Name non-trivial conditions before branching; avoid compound or negated logic
-  directly inside `if` statements.
+- Name non-trivial conditions before branching. Multi-clause conditions must be
+  assigned to a semantic boolean such as `isInvalidEntityVersion`, and the `if`
+  statement must use that name. Do not place compound or negated logic directly
+  inside an `if` condition.
 - Construct entity transition state field by field; do not spread the previous
   entity.
 - Pass behavioral helpers only the facts they evaluate, not a broader payload

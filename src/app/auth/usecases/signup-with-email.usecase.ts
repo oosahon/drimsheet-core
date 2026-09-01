@@ -15,6 +15,7 @@ import { EAuthStrategy } from '@app/auth/contracts/auth.types';
 import IEmailVerificationService from '@app/auth/contracts/email-verification-service.contract';
 import IPasswordService from '@app/auth/contracts/password-service.contract';
 import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
+import IUserAuthService from '@app/auth/contracts/user-auth.service.contract';
 import { IUserSignupReq } from '@app/auth/dtos/auth/auth.dto';
 import { userSignupReqValidation } from '@app/auth/dtos/auth/auth.dto.validation';
 import IAppContext from '@app/context/contracts/app-context.contract';
@@ -25,6 +26,7 @@ interface IDependencies {
   passwordService: IPasswordService;
   eventBus: IEventBus;
   userAuthRepo: IUserAuthRepo;
+  userAuthService: IUserAuthService;
   repoService: IRepoService;
   emailVerificationService: IEmailVerificationService;
 }
@@ -62,21 +64,15 @@ export default function makeSignupWithEmailUsecase(deps: IDependencies) {
       correlationId
     );
 
+    const userAuth = deps.userAuthService.make({
+      userId: user.id,
+      password: passwordHash,
+      strategy: EAuthStrategy.Email,
+    });
+
     const repoTransaction: TRepoTransactionFn = async (tx) => {
       await deps.userRepo.create(user, { correlationId, tx, history });
-      const timestamp = new Date();
-
-      await deps.userAuthRepo.create(
-        {
-          userId: user.id,
-          password: passwordHash,
-          failedLoginAttempts: 0,
-          strategy: [EAuthStrategy.Email],
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        },
-        { correlationId, tx }
-      );
+      await deps.userAuthRepo.create(userAuth, { correlationId, tx });
     };
 
     await deps.repoService.runInTransaction(repoTransaction);

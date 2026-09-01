@@ -11,7 +11,13 @@ import makeSignupWithEmailUsecase from '@app/auth/usecases/signup-with-email.use
 import makeVerifyEmailAddressUseCase from '@app/auth/usecases/verify-email.usecase';
 
 import vars from '@infra/config/vars.config';
-import { passwordService, tokenService } from '@infra/ioc/services/auth';
+import {
+  passwordService,
+  tokenService,
+  userAuthService,
+  userSessionPersistenceService,
+  userSessionService,
+} from '@infra/ioc/services/auth';
 import { transactionalEmailService } from '@infra/ioc/services/notification';
 import { repoService } from '@infra/ioc/services/repo';
 import messaging from '@infra/messaging';
@@ -46,6 +52,7 @@ export const signupWithEmailUseCase = makeTracedUseCase(
     passwordService,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
+    userAuthService,
     repoService,
     emailVerificationService,
   })
@@ -58,7 +65,8 @@ export const verifyEmailUseCase = makeTracedUseCase(
     userRepo: userRepos.user,
     appContext: appContext,
     eventBus: messaging.eventBus,
-    userSessionRepo: userRepos.userSession,
+    userSessionService,
+    userSessionPersistenceService,
     repoService,
   })
 );
@@ -69,11 +77,11 @@ export const loginWithEmailUseCase = makeTracedUseCase(
     reqContext: appContext,
     userRepo: userRepos.user,
     passwordService,
-    tokenService,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
-    userSessionRepo: userRepos.userSession,
-    repoService,
+    userAuthService,
+    userSessionService,
+    userSessionPersistenceService,
   })
 );
 
@@ -99,7 +107,9 @@ export const resetPasswordUseCase = makeTracedUseCase(
     tokenService,
     eventBus: messaging.eventBus,
     userAuthRepo: userRepos.userAuth,
-    userSessionRepo: userRepos.userSession,
+    userAuthService,
+    userSessionService,
+    userSessionPersistenceService,
     repoService,
     reporter: observability.reporter,
   })
@@ -107,10 +117,8 @@ export const resetPasswordUseCase = makeTracedUseCase(
 
 const oAuthUseCaseComposition = makeOauthUsecase({
   reqContext: appContext,
-  tokenService,
-  eventBus: messaging.eventBus,
-  userSessionRepo: userRepos.userSession,
-  repoService,
+  userSessionService,
+  userSessionPersistenceService,
   webAppUrl: vars.WEB_APP_URL,
 });
 
@@ -124,13 +132,14 @@ export const oAuthUseCase = {
 
 export const loginWithGoogleUseCase = makeTracedUseCase(
   'auth.loginWithGoogleUseCase',
-  makeLoginWithGoogleUseCase(
-    messaging.eventBus,
+  makeLoginWithGoogleUseCase({
+    eventBus: messaging.eventBus,
     appContext,
-    userRepos.user,
-    userRepos.userAuth,
-    repoService
-  )
+    userRepo: userRepos.user,
+    userAuthRepo: userRepos.userAuth,
+    userAuthService,
+    repoService,
+  })
 );
 
 export const refreshAccessTokenUseCase = makeTracedUseCase(
@@ -139,9 +148,8 @@ export const refreshAccessTokenUseCase = makeTracedUseCase(
     reqContext: appContext,
     userRepo: userRepos.user,
     tokenService,
-    eventBus: messaging.eventBus,
-    userSessionRepo: userRepos.userSession,
-    repoService,
+    userSessionService,
+    userSessionPersistenceService,
   })
 );
 

@@ -467,6 +467,7 @@ core_ledger_accounts {
     core_adjunct_account_rule adjunct_account_rule
     date opening_balance_date
     jsonb meta
+    integer version
     uuid created_by FK
     timestamptz created_at
     timestamptz updated_at
@@ -564,10 +565,12 @@ core_subledger_fx_cost_basis_lots {
     core_subledger_fx_cost_basis_lot_status status
     bigint original_quantity_amount
     varchar_3_ original_quantity_currency FK
+    bigint remaining_quantity_amount
     bigint cost_basis_amount
     varchar_3_ cost_basis_currency FK
     bigint remaining_cost_basis_amount
-    numeric acquisition_rate
+    jsonb acquisition_rate
+    timestamptz acquisition_date
     integer version
     timestamptz created_at
     timestamptz updated_at
@@ -578,6 +581,7 @@ core_user_auth {
     varchar_200_ password
     integer failed_login_attempts
     _varchar___ strategies
+    integer version
     timestamptz created_at
     timestamptz updated_at
 }
@@ -604,6 +608,7 @@ core_users {
     varchar_100_ last_name
     varchar_200_ email
     boolean email_verified
+    integer version
     timestamptz created_at
     timestamptz updated_at
     timestamptz deleted_at

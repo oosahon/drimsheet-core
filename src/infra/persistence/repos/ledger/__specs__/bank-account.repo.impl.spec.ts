@@ -90,25 +90,6 @@ describe('bankAccountRepoImpl', () => {
       expect(mockGetDbQuery).toHaveBeenCalledWith({});
       expect(result).toEqual(bankDetails);
     });
-
-    it('applies a lock when requested', async () => {
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        from: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        for: jest.fn().mockResolvedValue([rawRow]),
-      };
-      mockGetDbQuery.mockReturnValue(mockQuery);
-
-      const result = await bankAccountRepoImpl.findOne(
-        bankDetails.bankName,
-        bankDetails.accountNumber,
-        { correlationId: 'test-id', lock: 'update' }
-      );
-
-      expect(mockQuery.for).toHaveBeenCalledWith('update');
-      expect(result).toEqual(bankDetails);
-    });
   });
 
   describe('findByLedgerAccountId', () => {
@@ -156,24 +137,6 @@ describe('bankAccountRepoImpl', () => {
         await bankAccountRepoImpl.findByLedgerAccountId(ledgerAccountId);
 
       expect(mockGetDbQuery).toHaveBeenCalledWith({});
-      expect(result).toEqual(bankDetails);
-    });
-
-    it('applies a lock when requested', async () => {
-      const mockQuery = {
-        select: jest.fn().mockReturnThis(),
-        from: jest.fn().mockReturnThis(),
-        where: jest.fn().mockReturnThis(),
-        for: jest.fn().mockResolvedValue([rawRow]),
-      };
-      mockGetDbQuery.mockReturnValue(mockQuery);
-
-      const result = await bankAccountRepoImpl.findByLedgerAccountId(
-        ledgerAccountId,
-        { correlationId: 'test-id', lock: 'update' }
-      );
-
-      expect(mockQuery.for).toHaveBeenCalledWith('update');
       expect(result).toEqual(bankDetails);
     });
   });

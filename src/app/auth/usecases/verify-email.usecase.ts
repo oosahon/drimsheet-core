@@ -12,10 +12,12 @@ import IUserRepo from '@domain/user/repos/user.repo';
 import ITokenService, {
   IAuthTokenPayload,
 } from '@app/auth/contracts/token-service.contract';
-import IUserSessionRepo from '@app/auth/contracts/user-session.repo.contract';
+import IUserSessionPersistenceService from '@app/auth/contracts/user-session-persistence.service.contract';
+import IUserSessionService, {
+  IPreparedUserSession,
+} from '@app/auth/contracts/user-session.service.contract';
 import { IAccessToken } from '@app/auth/dtos/auth/auth.dto';
 import authError from '@app/auth/errors/auth.error';
-import makeIssueUserSessionHelper from '@app/auth/usecases/helpers/issue-user-session.helper';
 import IAppContext from '@app/context/contracts/app-context.contract';
 
 const validationSchema = z.object({
@@ -27,7 +29,8 @@ interface IDependencies {
   userRepo: IUserRepo;
   appContext: IAppContext;
   eventBus: IEventBus;
-  userSessionRepo: IUserSessionRepo;
+  userSessionService: IUserSessionService;
+  userSessionPersistenceService: IUserSessionPersistenceService;
   repoService: IRepoService;
 }
 
@@ -35,19 +38,21 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
   return async (token: string): Promise<IAccessToken> => {
     zodValidationRunner(validationSchema, { token });
 
-    const { correlationId } = deps.appContext.get();
+    const { correlationId, clientSession } = deps.appContext.get([
+      'clientSession',
+    ]);
 
     let decodedToken: IAuthTokenPayload | undefined;
 
     try {
       decodedToken = await deps.tokenService.claimSignupToken(token);
 
-      let resultSession!: IAccessToken;
+      let preparedSession!: IPreparedUserSession;
+      let eventsToPublish = eventValue.enrichAll([], { correlationId });
 
       await deps.repoService.runInTransaction(async (tx) => {
         const user = await deps.userRepo.findById(decodedToken!.id, {
           correlationId,
-          lock: 'update',
           tx,
         });
 
@@ -55,50 +60,49 @@ export default function makeVerifyEmailAddressUseCase(deps: IDependencies) {
           throw new authError.InvalidToken();
         }
 
-        if (user.emailVerified) {
-          resultSession = await makeIssueUserSessionHelper({
-            user,
-            reqContext: deps.appContext,
-            tokenService: deps.tokenService,
-            userSessionRepo: deps.userSessionRepo,
-            eventBus: deps.eventBus,
-            repoService: deps.repoService,
-            events: [],
+        let sessionUser = user;
+
+        if (!user.emailVerified) {
+          const [updatedUser, events, userAuditDelta] =
+            userEntity.verifyEmail(user);
+
+          const history = historyValue.make(
+            userAuditDelta!,
+            historyValue.getUserActor(user.id),
+            correlationId
+          );
+
+          await deps.userRepo.update(updatedUser, {
+            correlationId,
+            expectedVersion: user.version,
+            history,
             tx,
           });
-          return;
+
+          sessionUser = updatedUser;
+          eventsToPublish = eventValue.enrichAll(events, { correlationId });
         }
 
-        const [updatedUser, events, userAuditDelta] =
-          userEntity.verifyEmail(user);
-
-        const history = historyValue.make(
-          userAuditDelta!,
-          historyValue.getUserActor(user.id),
-          correlationId
+        preparedSession = await deps.userSessionService.prepare(
+          sessionUser,
+          clientSession.getRefreshToken()
         );
-
-        await deps.userRepo.update(updatedUser, {
-          correlationId,
-          history,
-          tx,
-        });
-
-        resultSession = await makeIssueUserSessionHelper({
-          user: updatedUser,
-          reqContext: deps.appContext,
-          tokenService: deps.tokenService,
-          userSessionRepo: deps.userSessionRepo,
-          eventBus: deps.eventBus,
-          repoService: deps.repoService,
-          events: eventValue.enrichAll(events, { correlationId }),
-          tx,
-        });
+        await deps.userSessionPersistenceService.replaceClientSession(
+          {
+            userSession: preparedSession.userSession,
+            priorClientSession: preparedSession.priorClientSession,
+          },
+          { correlationId, tx }
+        );
       });
 
+      clientSession.setRefreshToken(preparedSession.refreshToken);
+      if (eventsToPublish.length > 0) {
+        await deps.eventBus.publish(eventsToPublish);
+      }
       await deps.tokenService.finalizeSignupToken(decodedToken.id);
 
-      return resultSession;
+      return { accessToken: preparedSession.accessToken };
     } catch (error) {
       if (decodedToken?.id) {
         await deps.tokenService.releaseSignupTokenClaim(decodedToken.id);

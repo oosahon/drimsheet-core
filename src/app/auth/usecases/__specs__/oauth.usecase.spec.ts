@@ -1,12 +1,10 @@
-import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
-import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
-import { ITransactionContext } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import { IUser } from '@domain/user/types/user.types';
 import emailValue from '@domain/user/values/email.vo';
 
-import mockAuthService from '@app/auth/contracts/__mocks__/token-service.mock';
-import mockUserSessionRepo from '@app/auth/contracts/__mocks__/user-session.repo.mock';
+import mockUserSessionPersistenceService from '@app/auth/contracts/__mocks__/user-session-persistence.service.mock';
+import mockUserSessionService from '@app/auth/contracts/__mocks__/user-session.service.mock';
 import makeOauthUsecase from '@app/auth/usecases/oauth.usecase';
 import mockAppContext, {
   mockClientSession,
@@ -16,89 +14,103 @@ import { IAppContextData } from '@app/context/contracts/app-context.contract';
 describe('makeOauthUsecase', () => {
   const correlationId = 'test-corr-id';
   const webAppUrl = 'http://localhost:3000';
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockRepoService.runInTransaction
-      .mockReset()
-      .mockImplementation(async (transactionFn) =>
-        transactionFn('mock-tx' as unknown as ITransactionContext)
-      );
-    mockAppContext.get.mockReturnValue({
-      correlationId,
-      clientSession: mockClientSession,
-    } as unknown as IAppContextData);
-
-    mockAuthService.generateAccessToken.mockResolvedValue('mock-access-token');
-    mockAuthService.generateRefreshToken.mockResolvedValue(
-      'mock-refresh-token'
-    );
-  });
-
-  const getMockUser = () =>
-    ({
-      id: 'existing-user-id',
-      email: emailValue.make('johndoe@example.com'),
-    }) as unknown as IUser;
+  const userId = '123e4567-e89b-42d3-a456-426614174000' as TEntityId;
+  const user = {
+    id: userId,
+    email: emailValue.make('johndoe@example.com'),
+  } as unknown as IUser;
+  const userSession = {
+    id: '123e4567-e89b-42d3-a456-426614174001' as TEntityId,
+    userId,
+    refreshToken: 'new-refresh-token',
+    lastLoginAt: new Date('2026-04-01T00:00:00.000Z'),
+    createdAt: new Date('2026-04-01T00:00:00.000Z'),
+  };
 
   const getUseCase = () =>
     makeOauthUsecase({
       reqContext: mockAppContext,
-      tokenService: mockAuthService,
-      eventBus: mockEventBus,
-      userSessionRepo: mockUserSessionRepo,
-      repoService: mockRepoService,
+      userSessionService: mockUserSessionService,
+      userSessionPersistenceService: mockUserSessionPersistenceService,
       webAppUrl,
     });
 
-  describe('handleGoogleCallback', () => {
-    it('should generate tokens, update session, and return the formatted redirect URL', async () => {
-      const mockUser = getMockUser();
-      mockClientSession.getRefreshToken.mockReturnValue(null);
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockAppContext.get.mockReturnValue({
+      correlationId,
+      clientSession: mockClientSession,
+    } as unknown as IAppContextData);
+    mockUserSessionPersistenceService.replaceClientSession.mockReset();
+  });
 
-      const usecase = getUseCase();
-      const redirectUrl = await usecase.handleGoogleCallback(mockUser);
-
-      expect(mockAuthService.generateAccessToken).toHaveBeenCalledWith(
-        mockUser
-      );
-      expect(mockAuthService.generateRefreshToken).toHaveBeenCalledWith(
-        mockUser
-      );
-
-      expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-      expect(mockUserSessionRepo.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: expect.any(String),
-          userId: mockUser.id,
-          refreshToken: 'mock-refresh-token',
-          lastLoginAt: expect.any(Date),
-          createdAt: expect.any(Date),
-        }),
-        { correlationId, tx: 'mock-tx' }
-      );
-
-      expect(mockClientSession.setRefreshToken).toHaveBeenCalledWith(
-        'mock-refresh-token'
-      );
-
-      expect(mockEventBus.publish).toHaveBeenCalled();
-
-      expect(redirectUrl).toBe('http://localhost:3000/auth/oauth-confirmation');
+  it('persists a prepared session, exposes its refresh token, and returns the redirect URL', async () => {
+    mockClientSession.getRefreshToken.mockReturnValue(null);
+    mockUserSessionService.prepare.mockResolvedValue({
+      accessToken: 'access-token',
+      refreshToken: 'new-refresh-token',
+      userSession,
+      priorClientSession: null,
     });
 
-    it('should delete existing session if a previous refresh token is present', async () => {
-      const mockUser = getMockUser();
-      mockClientSession.getRefreshToken.mockReturnValue('old-refresh-token');
+    const redirectUrl = await getUseCase().handleGoogleCallback(user);
 
-      const usecase = getUseCase();
-      await usecase.handleGoogleCallback(mockUser);
+    expect(mockUserSessionService.prepare).toHaveBeenCalledWith(user, null);
+    expect(
+      mockUserSessionPersistenceService.replaceClientSession
+    ).toHaveBeenCalledWith(
+      { userSession, priorClientSession: null },
+      { correlationId }
+    );
+    expect(mockClientSession.setRefreshToken).toHaveBeenCalledWith(
+      'new-refresh-token'
+    );
+    expect(redirectUrl).toBe('http://localhost:3000/auth/oauth-confirmation');
+  });
 
-      expect(mockUserSessionRepo.delete).toHaveBeenCalledWith(
-        mockUser.id,
-        'old-refresh-token',
-        { correlationId, tx: 'mock-tx' }
-      );
+  it('forwards the prior client-session reference prepared from the current token', async () => {
+    const priorClientSession = {
+      userId,
+      refreshToken: 'old-refresh-token',
+    };
+    mockClientSession.getRefreshToken.mockReturnValue('old-refresh-token');
+    mockUserSessionService.prepare.mockResolvedValue({
+      accessToken: 'access-token',
+      refreshToken: 'new-refresh-token',
+      userSession,
+      priorClientSession,
     });
+
+    await getUseCase().handleGoogleCallback(user);
+
+    expect(mockUserSessionService.prepare).toHaveBeenCalledWith(
+      user,
+      'old-refresh-token'
+    );
+    expect(
+      mockUserSessionPersistenceService.replaceClientSession
+    ).toHaveBeenCalledWith(
+      { userSession, priorClientSession },
+      { correlationId }
+    );
+  });
+
+  it('does not expose the refresh token when persistence fails', async () => {
+    mockClientSession.getRefreshToken.mockReturnValue(null);
+    mockUserSessionService.prepare.mockResolvedValue({
+      accessToken: 'access-token',
+      refreshToken: 'new-refresh-token',
+      userSession,
+      priorClientSession: null,
+    });
+    mockUserSessionPersistenceService.replaceClientSession.mockRejectedValue(
+      new Error('persistence failed')
+    );
+
+    await expect(getUseCase().handleGoogleCallback(user)).rejects.toThrow(
+      'persistence failed'
+    );
+
+    expect(mockClientSession.setRefreshToken).not.toHaveBeenCalled();
   });
 });

@@ -18,6 +18,7 @@ describe('makeUserEmailVerifiedEventHandler', () => {
 
   const validUserData: IUser = {
     id: validUserId,
+    version: 1,
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@example.com',

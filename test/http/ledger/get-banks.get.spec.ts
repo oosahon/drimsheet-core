@@ -55,6 +55,7 @@ const userId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
 
 const mockUser: IUser = {
   id: userId,
+  version: 1,
   email: 'user@example.com',
   emailVerified: true,
   firstName: 'First',

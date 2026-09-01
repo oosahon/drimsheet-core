@@ -24,6 +24,7 @@ describe('VendorRepoImpl', () => {
 
   const history: IVendorHistory = {
     entityId: payload.counterpartyId,
+    entityVersion: 1,
     action: 'created',
     actor: {
       type: 'user',

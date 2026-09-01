@@ -1,4 +1,3 @@
-import { ERepoLock } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
 import periodError from '@domain/accounting/errors/period.error';
@@ -20,7 +19,6 @@ describe('accountingPeriodService', () => {
   const postingDate = new Date('2026-03-31T00:00:00.000Z');
   const repoOptions = {
     correlationId: 'test-correlation-id',
-    lock: ERepoLock.Share,
   };
   const openPeriod = {
     id: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,

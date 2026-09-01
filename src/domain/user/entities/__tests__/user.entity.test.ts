@@ -36,6 +36,7 @@ describe('User Entity', () => {
       expect(result.emailVerified).toBe(false);
       expect(result.firstName).toBe('John');
       expect(result.lastName).toBe('Doe');
+      expect(result.version).toBe(1);
       expect(result.createdAt).toEqual(new Date('2026-03-13T00:00:00.000Z'));
       expect(result.updatedAt).toEqual(new Date('2026-03-13T00:00:00.000Z'));
       expect(result.deletedAt).toBeNull();
@@ -53,6 +54,7 @@ describe('User Entity', () => {
       const [result, events] = userEntity.make(payload);
 
       expect(result.emailVerified).toBe(true);
+      expect(result.version).toBe(1);
       expect(events[0].data).toEqual(result);
     });
 
@@ -175,6 +177,7 @@ describe('User Entity', () => {
 
       expect(result.firstName).toBe('Updated First');
       expect(result.lastName).toBe('Updated Last');
+      expect(result.version).toBe(existingUser.version + 1);
       expect(result.updatedAt.getTime()).toBeGreaterThan(
         existingUser.updatedAt.getTime()
       );

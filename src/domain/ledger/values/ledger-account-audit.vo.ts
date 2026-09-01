@@ -33,6 +33,7 @@ function make(payload: IMakeLedgerAccountAuditPayload): ILedgerAccountAudit {
 
   const audit: ILedgerAccountAudit = {
     entityId: payload.after.id,
+    entityVersion: payload.after.version,
     action: payload.action,
     diff: { before, after },
     occurredAt: payload.after.updatedAt,

@@ -46,6 +46,7 @@ function make(
     emailVerified: !!payload.emailVerified,
     firstName,
     lastName,
+    version: 1,
     deletedAt: null,
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -70,9 +71,15 @@ function verifyEmail(user: IUser): [IUser, IEvent<IUser>[], IUserAudit | null] {
   helpers.validate(user);
 
   const updatedUser = Object.freeze({
-    ...user,
+    id: user.id,
+    email: user.email,
     emailVerified: true,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    version: user.version + 1,
+    createdAt: user.createdAt,
     updatedAt: new Date(),
+    deletedAt: user.deletedAt,
   });
 
   const event = userEvents.emailVerified(updatedUser);
@@ -118,10 +125,15 @@ function update(
   }
 
   const updatedUser: IUser = Object.freeze({
-    ...user,
+    id: user.id,
+    email: user.email,
+    emailVerified: user.emailVerified,
     firstName,
     lastName,
+    version: user.version + 1,
+    createdAt: user.createdAt,
     updatedAt: new Date(),
+    deletedAt: user.deletedAt,
   });
 
   const event = userEvents.updated(updatedUser);
