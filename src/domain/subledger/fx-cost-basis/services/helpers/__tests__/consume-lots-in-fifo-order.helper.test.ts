@@ -84,9 +84,13 @@ describe('consumeLotsInFifoOrder', () => {
   it('consumes the supplied lots in order and reconciles allocation totals', () => {
     const firstLot = makeLot(60, 60, 84_000, 84_000, 1400);
     const secondLot = makeLot(50, 50, 72_500, 72_500, 1450);
+    const unusedLot = makeLot(20, 20, 30_000, 30_000, 1500);
     const journalLine = makeJournalLine(100);
 
-    const result = consumeLotsInFifoOrder([firstLot, secondLot], journalLine);
+    const result = consumeLotsInFifoOrder(
+      [firstLot, secondLot, unusedLot],
+      journalLine
+    );
 
     expect(result.lots).toHaveLength(2);
     expect(result.lots[0][0].status).toBe(EFxCostBasisLotStatus.Closed);
