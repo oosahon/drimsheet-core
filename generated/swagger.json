@@ -1306,11 +1306,8 @@
           "sourceLine": {
             "$ref": "#/components/schemas/ITransferEntryLineReq"
           },
-          "destinationLines": {
-            "items": {
-              "$ref": "#/components/schemas/ITransferEntryLineReq"
-            },
-            "type": "array"
+          "destinationLine": {
+            "$ref": "#/components/schemas/ITransferEntryLineReq"
           },
           "effectiveDate": {
             "type": "string",
@@ -1328,7 +1325,7 @@
         },
         "required": [
           "sourceLine",
-          "destinationLines",
+          "destinationLine",
           "effectiveDate",
           "postedAt",
           "memo"

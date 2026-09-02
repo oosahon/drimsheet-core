@@ -284,8 +284,8 @@ function makeCreateTransfer(
   deps: IDependencies
 ): IJournalEntryService['createTransfer'] {
   return async (payload, repoOptions) => {
-    const { header, sourceLine, destinationLines, attachments } = payload;
-    const journalLines = [sourceLine, ...destinationLines];
+    const { header, sourceLine, destinationLine, attachments } = payload;
+    const journalLines = [sourceLine, destinationLine];
     const accountIds = journalLines.map((line) => line.account.id);
 
     if (new Set(accountIds).size !== accountIds.length) {
@@ -294,10 +294,9 @@ function makeCreateTransfer(
       });
     }
 
-    const destinationAccounts = destinationLines.map((line) => line.account);
     helpers.validateAccountsAgainstRule(
       [sourceLine.account],
-      destinationAccounts,
+      [destinationLine.account],
       transferEntryRule
     );
 
@@ -322,17 +321,16 @@ function makeCreateTransfer(
       description: sourceLine.description,
       functionalCurrency,
     };
-    const destinationLinePayloads: IJournalLineMakePayload[] =
-      destinationLines.map((line) => ({
-        accountId: line.account.id,
-        counterpartyId: null,
-        sequenceOrder: line.sequenceOrder,
-        amount: line.amount,
-        exchangeRate: line.exchangeRate,
-        description: line.description,
-        functionalCurrency,
-        side: EJournalSide.Debit,
-      }));
+    const destinationLinePayload: IJournalLineMakePayload = {
+      accountId: destinationLine.account.id,
+      counterpartyId: null,
+      sequenceOrder: destinationLine.sequenceOrder,
+      amount: destinationLine.amount,
+      exchangeRate: destinationLine.exchangeRate,
+      description: destinationLine.description,
+      functionalCurrency,
+      side: EJournalSide.Debit,
+    };
 
     return journalEntryEntity.make({
       accountingEntityId: header.accountingEntityId,
@@ -343,7 +341,7 @@ function makeCreateTransfer(
       createdBy: header.createdBy,
       functionalCurrency,
       attachments,
-      lines: [sourceLinePayload, ...destinationLinePayloads],
+      lines: [sourceLinePayload, destinationLinePayload],
     });
   };
 }

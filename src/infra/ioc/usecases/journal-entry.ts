@@ -72,5 +72,7 @@ export const createTransferUseCase = makeTracedUseCase(
     eventBus: messaging.eventBus,
     outboxService,
     ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+    fxLotAppService,
+    fxCostBasisPersistenceService,
   })
 );

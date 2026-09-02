@@ -68,15 +68,13 @@ const validPayload: ITransferEntryReq = {
     description: 'Transfer from bank',
     sequenceOrder: 1,
   },
-  destinationLines: [
-    {
-      accountId: '123e4567-e89b-12d3-a456-426614174008',
-      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-      exchangeRate: null,
-      description: 'Transfer to petty cash',
-      sequenceOrder: 2,
-    },
-  ],
+  destinationLine: {
+    accountId: '123e4567-e89b-12d3-a456-426614174008',
+    amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+    exchangeRate: null,
+    description: 'Transfer to petty cash',
+    sequenceOrder: 2,
+  },
   effectiveDate: new Date('2026-08-30T00:00:00.000Z'),
   postedAt: null,
   memo: 'Transfer memo',
@@ -291,7 +289,7 @@ describe('POST /journal-entries/transfer', () => {
 
     it('returns use-case validation failures', async () => {
       const validationErrors = [
-        { field: 'destinationLines', message: 'required' },
+        { field: 'destinationLine', message: 'required' },
       ];
       mockCreateTransferUseCase.mockRejectedValueOnce(
         new appError.UnprocessableEntity(validationErrors)
@@ -301,6 +299,18 @@ describe('POST /journal-entries/transfer', () => {
 
       expect(response.status).toBe(422);
       expect(response.body.validationErrors).toEqual(validationErrors);
+    });
+
+    it('rejects the obsolete plural destination shape before orchestration', async () => {
+      const { destinationLine, ...payload } = validPayload;
+      const response = await makeRequest({
+        ...payload,
+        destinationLines: [destinationLine],
+      });
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_validation_error');
+      expect(mockCreateTransferUseCase).not.toHaveBeenCalled();
     });
   });
 

@@ -17,7 +17,7 @@ export interface ITransferEntryReq {
   attachmentReferences?: string[];
 
   sourceLine: ITransferEntryLineReq;
-  destinationLines: ITransferEntryLineReq[];
+  destinationLine: ITransferEntryLineReq;
   effectiveDate: Date;
   postedAt: Date | null;
   memo: string | null;

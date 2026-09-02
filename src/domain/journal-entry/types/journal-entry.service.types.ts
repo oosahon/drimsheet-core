@@ -49,7 +49,7 @@ export interface ICreatePaymentEntryPayload {
 export interface ICreateTransferEntryPayload {
   header: IJournalEntryHeaderPayload;
   sourceLine: IJournalEntryBaseLinePayload;
-  destinationLines: IJournalEntryBaseLinePayload[];
+  destinationLine: IJournalEntryBaseLinePayload;
   attachments: IFileAttachment[];
 }
 

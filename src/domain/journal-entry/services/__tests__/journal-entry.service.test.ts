@@ -473,16 +473,14 @@ describe('journalEntryService', () => {
         description: 'Transfer from bank',
         meta: null,
       },
-      destinationLines: [
-        {
-          account: destinationAccount,
-          sequenceOrder: 2,
-          amount: moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true),
-          exchangeRate: null,
-          description: 'Transfer to petty cash',
-          meta: null,
-        },
-      ],
+      destinationLine: {
+        account: destinationAccount,
+        sequenceOrder: 2,
+        amount: moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true),
+        exchangeRate: null,
+        description: 'Transfer to petty cash',
+        meta: null,
+      },
     };
 
     return { accountingEntity, destinationAccount, payload, sourceAccount };
@@ -967,10 +965,10 @@ describe('journalEntryService', () => {
         ...payload.sourceLine,
         amount: moneyValue.make(160_000n, SYSTEM_CURRENCIES.NGN, true),
       };
-      payload.destinationLines[0] = {
-        ...payload.destinationLines[0],
+      payload.destinationLine = {
+        ...payload.destinationLine,
         account: {
-          ...payload.destinationLines[0].account,
+          ...payload.destinationLine.account,
           currency: SYSTEM_CURRENCIES.USD,
         },
         amount: moneyValue.make(100n, SYSTEM_CURRENCIES.USD, true),
@@ -979,31 +977,56 @@ describe('journalEntryService', () => {
 
       const [entry] = await service.createTransfer(payload, repoOptions);
 
+      expect(entry.lines).toHaveLength(2);
+      expect(entry.lines[0].amount.currency).toBe(SYSTEM_CURRENCIES.NGN);
+      expect(entry.lines[1].amount.currency).toBe(SYSTEM_CURRENCIES.USD);
+      expect(entry.lines[0].exchangeRate).toBeNull();
+      expect(entry.lines[1].exchangeRate).toBe(exchangeRate);
+      expect(entry.lines[0].functionalAmount.amount).toBe(160_000n);
+      expect(entry.lines[1].functionalAmount.amount).toBe(160_000n);
+    });
+
+    it('creates a balanced USD-source to NGN-destination transfer', async () => {
+      const { payload } = makeTransferFixture();
+      const exchangeRate = exchangeRateValue.make({
+        baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+        targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+        rate: 1600,
+        type: EExchangeRateType.Official,
+        asOf: effectiveDate,
+        source: 'Test Source',
+      });
+      payload.sourceLine = {
+        ...payload.sourceLine,
+        account: {
+          ...payload.sourceLine.account,
+          currency: SYSTEM_CURRENCIES.USD,
+        },
+        amount: moneyValue.make(100n, SYSTEM_CURRENCIES.USD, true),
+        exchangeRate,
+      };
+      payload.destinationLine = {
+        ...payload.destinationLine,
+        amount: moneyValue.make(160_000n, SYSTEM_CURRENCIES.NGN, true),
+      };
+
+      const [entry] = await service.createTransfer(payload, repoOptions);
+
+      expect(entry.lines).toHaveLength(2);
+      expect(entry.lines[0].amount.currency).toBe(SYSTEM_CURRENCIES.USD);
+      expect(entry.lines[1].amount.currency).toBe(SYSTEM_CURRENCIES.NGN);
+      expect(entry.lines[0].exchangeRate).toBe(exchangeRate);
+      expect(entry.lines[1].exchangeRate).toBeNull();
       expect(entry.lines[0].functionalAmount.amount).toBe(160_000n);
       expect(entry.lines[1].functionalAmount.amount).toBe(160_000n);
     });
 
     it('rejects duplicate transfer accounts before period validation', async () => {
       const { payload } = makeTransferFixture();
-      payload.destinationLines[0] = {
-        ...payload.destinationLines[0],
+      payload.destinationLine = {
+        ...payload.destinationLine,
         account: payload.sourceLine.account,
       };
-
-      await expect(
-        service.createTransfer(payload, repoOptions)
-      ).rejects.toThrow(journalEntryError.DuplicateAccountsNotPermitted);
-      expect(
-        mockAccountingPeriodService.validatePostingPeriod
-      ).not.toHaveBeenCalled();
-    });
-
-    it('rejects repeated destination accounts before period validation', async () => {
-      const { payload } = makeTransferFixture();
-      payload.destinationLines.push({
-        ...payload.destinationLines[0],
-        sequenceOrder: 3,
-      });
 
       await expect(
         service.createTransfer(payload, repoOptions)
@@ -1036,8 +1059,8 @@ describe('journalEntryService', () => {
 
     it('rejects a non-cash destination account', async () => {
       const { payload } = makeTransferFixture();
-      payload.destinationLines[0] = {
-        ...payload.destinationLines[0],
+      payload.destinationLine = {
+        ...payload.destinationLine,
         account: makePaymentAccount({
           accountingEntityId: payload.header.accountingEntityId,
           behavior: EExpenseAccountBehavior.RentAndUtilities,
@@ -1054,8 +1077,8 @@ describe('journalEntryService', () => {
 
     it('rejects an unbalanced transfer', async () => {
       const { payload } = makeTransferFixture();
-      payload.destinationLines[0] = {
-        ...payload.destinationLines[0],
+      payload.destinationLine = {
+        ...payload.destinationLine,
         amount: moneyValue.make(9_999n, SYSTEM_CURRENCIES.NGN, true),
       };
 

@@ -3,9 +3,11 @@ import {
   IRepoService,
   TRepoTransactionFn,
 } from '@shared/contracts/repo.contract';
+import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
+import { IEvent } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
 
 import {
@@ -14,7 +16,6 @@ import {
 } from '@domain/journal-entry/types/journal-entry.service.types';
 import { EJournalEntryStatus } from '@domain/journal-entry/types/journal-entry.types';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
-import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
@@ -29,6 +30,8 @@ import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
 import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
+import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
+import IFxLotAppService from '@app/subledger/fx-cost-basis/contracts/fx-lot.service.contract';
 
 interface IDependencies {
   appContext: IAppContext;
@@ -40,6 +43,8 @@ interface IDependencies {
   eventBus: IEventBus;
   outboxService: IOutboxService;
   ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
+  fxLotAppService: IFxLotAppService;
+  fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
 }
 
 export default function makeCreateTransferUsecase(deps: IDependencies) {
@@ -71,22 +76,16 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
       });
     }
 
-    const destinationAccounts: ILedgerAccount[] = [];
+    const destinationAccount = await deps.ledgerAccountRepo.findById(
+      payload.destinationLine.accountId as TEntityId,
+      accountingEntity.id,
+      repoOptions
+    );
 
-    for (const destinationLine of payload.destinationLines) {
-      const destinationAccount = await deps.ledgerAccountRepo.findById(
-        destinationLine.accountId as TEntityId,
-        accountingEntity.id,
-        repoOptions
-      );
-
-      if (!destinationAccount) {
-        throw new ledgerAppError.AccountNotFound({
-          id: destinationLine.accountId,
-        });
-      }
-
-      destinationAccounts.push(destinationAccount);
+    if (!destinationAccount) {
+      throw new ledgerAppError.AccountNotFound({
+        id: payload.destinationLine.accountId,
+      });
     }
 
     const sourceExchangeRate = payload.sourceLine.exchangeRate
@@ -100,17 +99,16 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
       description: payload.sourceLine.description,
       meta: null,
     };
-    const destinationLinesPayload: ICreateTransferEntryPayload['destinationLines'] =
-      payload.destinationLines.map((destinationLine, index) => ({
-        account: destinationAccounts[index],
-        sequenceOrder: destinationLine.sequenceOrder,
-        amount: moneyMapper.fromDto(destinationLine.amount),
-        exchangeRate: destinationLine.exchangeRate
-          ? exchangeRateValue.make(destinationLine.exchangeRate)
-          : null,
-        description: destinationLine.description,
-        meta: null,
-      }));
+    const destinationLinePayload = {
+      account: destinationAccount,
+      sequenceOrder: payload.destinationLine.sequenceOrder,
+      amount: moneyMapper.fromDto(payload.destinationLine.amount),
+      exchangeRate: payload.destinationLine.exchangeRate
+        ? exchangeRateValue.make(payload.destinationLine.exchangeRate)
+        : null,
+      description: payload.destinationLine.description,
+      meta: null,
+    };
 
     const attachments = await deps.fileManagementService.claimUploads({
       userId: user.id,
@@ -121,7 +119,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
       attachments,
       header: headerPayload,
       sourceLine: sourceLinePayload,
-      destinationLines: destinationLinesPayload,
+      destinationLine: destinationLinePayload,
     };
 
     const [journalEntry, journalEntryEvents, journalEntryAudit] =
@@ -141,6 +139,21 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
     );
     const shouldUpdateBalance =
       journalEntry.status === EJournalEntryStatus.Posted;
+
+    const fxReadOptions: IReadRepoOptions = { correlationId };
+    const dispositionResult = await deps.fxLotAppService.dispose(
+      { journalEntry, account: sourceAccount, actor: userActor },
+      fxReadOptions
+    );
+    const acquisitionResult = await deps.fxLotAppService.acquire(
+      { journalEntry, account: destinationAccount, actor: userActor },
+      fxReadOptions
+    );
+    const fxEvents: IEvent<unknown>[] = [
+      ...(dispositionResult?.events ?? []),
+      ...(acquisitionResult?.events ?? []),
+    ];
+
     const dbTransactionFn: TRepoTransactionFn = async (tx) => {
       const writeOptions = { correlationId, tx };
 
@@ -150,6 +163,20 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
         journalLinesHistory,
         writeOptions
       );
+
+      if (dispositionResult) {
+        await deps.fxCostBasisPersistenceService.persistDisposition(
+          dispositionResult.records,
+          writeOptions
+        );
+      }
+
+      if (acquisitionResult) {
+        await deps.fxCostBasisPersistenceService.persistAcquisition(
+          acquisitionResult.records,
+          writeOptions
+        );
+      }
 
       if (shouldUpdateBalance) {
         await deps.outboxService.createBalancePropagation(
@@ -169,7 +196,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
     }
 
     await deps.eventBus.publish(
-      eventValue.enrichAll(journalEntryEvents, repoOptions)
+      eventValue.enrichAll([...journalEntryEvents, ...fxEvents], repoOptions)
     );
 
     return journalEntryDtoMapper.toDto(journalEntry);

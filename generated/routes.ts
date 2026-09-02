@@ -1044,11 +1044,7 @@ const models: TsoaRoute.Models = {
         array: { dataType: 'string' },
       },
       sourceLine: { ref: 'ITransferEntryLineReq', required: true },
-      destinationLines: {
-        dataType: 'array',
-        array: { dataType: 'refObject', ref: 'ITransferEntryLineReq' },
-        required: true,
-      },
+      destinationLine: { ref: 'ITransferEntryLineReq', required: true },
       effectiveDate: { dataType: 'datetime', required: true },
       postedAt: {
         dataType: 'union',

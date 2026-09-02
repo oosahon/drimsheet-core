@@ -21,7 +21,7 @@ function makePayload() {
   return {
     attachmentReferences: ['4b4c1064-a09e-4e4f-b6a3-23945cc87f77'],
     sourceLine,
-    destinationLines: [destinationLine],
+    destinationLine,
     effectiveDate: new Date('2026-08-30T00:00:00.000Z'),
     postedAt: null,
     memo: 'Cash transfer',
@@ -88,12 +88,9 @@ describe('Transfer Entry DTO Validation', () => {
     }
   });
 
-  it('rejects an empty destination collection', () => {
-    expect(
-      transferEntryReqValidation.safeParse({
-        ...makePayload(),
-        destinationLines: [],
-      }).success
-    ).toBe(false);
+  it('rejects a missing destination line', () => {
+    const { destinationLine: _destinationLine, ...payload } = makePayload();
+
+    expect(transferEntryReqValidation.safeParse(payload).success).toBe(false);
   });
 });
