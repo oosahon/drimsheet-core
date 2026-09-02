@@ -434,6 +434,11 @@ describe('journalEntryService', () => {
       functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
       jurisdictionCode: 'NG',
     });
+    const [bankCounterparty] = counterpartyEntity.make({
+      accountingEntityId: accountingEntity.id,
+      name: 'Transfer provider',
+      type: ECounterpartyType.Organization,
+    });
     const sourceAccount = makePaymentAccount({
       accountingEntityId: accountingEntity.id,
       behavior: EAssetAccountBehavior.Bank,
@@ -447,6 +452,15 @@ describe('journalEntryService', () => {
       code: '100002',
       createdBy: user.id,
       name: 'Petty cash',
+    });
+    const bankChargeAccount = makePaymentAccount({
+      accountingEntityId: accountingEntity.id,
+      behavior: EExpenseAccountBehavior.BankCharge,
+      code: '507001',
+      createdBy: user.id,
+      name: 'Bank charges',
+      subType: EExpenseSubType.BankCharge,
+      type: ELedgerType.Expense,
     });
     const payload: ICreateTransferEntryPayload = {
       attachments: [
@@ -473,17 +487,27 @@ describe('journalEntryService', () => {
         description: 'Transfer from bank',
         meta: null,
       },
-      destinationLine: {
-        account: destinationAccount,
-        sequenceOrder: 2,
-        amount: moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true),
-        exchangeRate: null,
-        description: 'Transfer to petty cash',
-        meta: null,
-      },
+      destinationLines: [
+        {
+          account: destinationAccount,
+          counterparty: null,
+          sequenceOrder: 2,
+          amount: moneyValue.make(10_000n, SYSTEM_CURRENCIES.NGN, true),
+          exchangeRate: null,
+          description: 'Transfer to petty cash',
+          meta: null,
+        },
+      ],
     };
 
-    return { accountingEntity, destinationAccount, payload, sourceAccount };
+    return {
+      accountingEntity,
+      bankCounterparty,
+      bankChargeAccount,
+      destinationAccount,
+      payload,
+      sourceAccount,
+    };
   }
 
   beforeEach(() => {
@@ -897,10 +921,10 @@ describe('journalEntryService', () => {
       const { destinationAccount, payload, sourceAccount } =
         makeTransferFixture();
 
-      const [entry, events, audit] = await service.createTransfer(
-        payload,
-        repoOptions
-      );
+      const {
+        journalEntry: [entry, events, audit],
+        destinationAssetAccount,
+      } = await service.createTransfer(payload, repoOptions);
 
       expect(entry).toEqual(
         expect.objectContaining({
@@ -933,6 +957,7 @@ describe('journalEntryService', () => {
       ]);
       expect(audit.header.action).toBe(EJournalEntryAuditAction.Created);
       expect(audit.lines).toHaveLength(2);
+      expect(destinationAssetAccount).toBe(destinationAccount);
       expect(
         mockAccountingPeriodService.validatePostingPeriod
       ).toHaveBeenCalledWith(
@@ -945,10 +970,56 @@ describe('journalEntryService', () => {
     it('creates a posted transfer when a posting date is provided', async () => {
       const { payload } = makeTransferFixture(timestamp);
 
-      const [entry] = await service.createTransfer(payload, repoOptions);
+      const {
+        journalEntry: [entry],
+      } = await service.createTransfer(payload, repoOptions);
 
       expect(entry.status).toBe(EJournalEntryStatus.Posted);
       expect(entry.postedAt).toBe(timestamp);
+    });
+
+    it('creates one balanced transfer with a Bank Charge destination', async () => {
+      const {
+        bankChargeAccount,
+        bankCounterparty,
+        destinationAccount,
+        payload,
+      } = makeTransferFixture();
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        amount: moneyValue.make(9_500n, SYSTEM_CURRENCIES.NGN, true),
+      };
+      payload.destinationLines.push({
+        account: bankChargeAccount,
+        counterparty: bankCounterparty,
+        sequenceOrder: 3,
+        amount: moneyValue.make(500n, SYSTEM_CURRENCIES.NGN, true),
+        exchangeRate: null,
+        description: 'Transfer fee',
+        meta: null,
+      });
+
+      const {
+        journalEntry: [entry],
+        destinationAssetAccount,
+      } = await service.createTransfer(payload, repoOptions);
+
+      expect(entry.lines).toEqual([
+        expect.objectContaining({
+          accountId: payload.sourceLine.account.id,
+          side: EJournalSide.Credit,
+        }),
+        expect.objectContaining({
+          accountId: destinationAccount.id,
+          side: EJournalSide.Debit,
+        }),
+        expect.objectContaining({
+          accountId: bankChargeAccount.id,
+          counterpartyId: bankCounterparty.id,
+          side: EJournalSide.Debit,
+        }),
+      ]);
+      expect(destinationAssetAccount).toBe(destinationAccount);
     });
 
     it('creates a balanced cross-currency transfer', async () => {
@@ -965,17 +1036,19 @@ describe('journalEntryService', () => {
         ...payload.sourceLine,
         amount: moneyValue.make(160_000n, SYSTEM_CURRENCIES.NGN, true),
       };
-      payload.destinationLine = {
-        ...payload.destinationLine,
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
         account: {
-          ...payload.destinationLine.account,
+          ...payload.destinationLines[0].account,
           currency: SYSTEM_CURRENCIES.USD,
         },
         amount: moneyValue.make(100n, SYSTEM_CURRENCIES.USD, true),
         exchangeRate,
       };
 
-      const [entry] = await service.createTransfer(payload, repoOptions);
+      const {
+        journalEntry: [entry],
+      } = await service.createTransfer(payload, repoOptions);
 
       expect(entry.lines).toHaveLength(2);
       expect(entry.lines[0].amount.currency).toBe(SYSTEM_CURRENCIES.NGN);
@@ -986,8 +1059,13 @@ describe('journalEntryService', () => {
       expect(entry.lines[1].functionalAmount.amount).toBe(160_000n);
     });
 
-    it('creates a balanced USD-source to NGN-destination transfer', async () => {
-      const { payload } = makeTransferFixture();
+    it('creates a balanced FX transfer with a Bank Charge before the asset destination', async () => {
+      const {
+        bankChargeAccount,
+        bankCounterparty,
+        destinationAccount,
+        payload,
+      } = makeTransferFixture();
       const exchangeRate = exchangeRateValue.make({
         baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
         targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -1005,26 +1083,61 @@ describe('journalEntryService', () => {
         amount: moneyValue.make(100n, SYSTEM_CURRENCIES.USD, true),
         exchangeRate,
       };
-      payload.destinationLine = {
-        ...payload.destinationLine,
-        amount: moneyValue.make(160_000n, SYSTEM_CURRENCIES.NGN, true),
-      };
+      payload.destinationLines = [
+        {
+          account: bankChargeAccount,
+          counterparty: bankCounterparty,
+          amount: moneyValue.make(500n, SYSTEM_CURRENCIES.NGN, true),
+          description: 'Transfer fee',
+          exchangeRate: null,
+          meta: null,
+          sequenceOrder: 2,
+        },
+        {
+          ...payload.destinationLines[0],
+          amount: moneyValue.make(159_500n, SYSTEM_CURRENCIES.NGN, true),
+          sequenceOrder: 3,
+        },
+      ];
 
-      const [entry] = await service.createTransfer(payload, repoOptions);
+      const {
+        journalEntry: [entry, events, audit],
+        destinationAssetAccount,
+      } = await service.createTransfer(payload, repoOptions);
 
-      expect(entry.lines).toHaveLength(2);
+      expect(entry.lines).toHaveLength(3);
       expect(entry.lines[0].amount.currency).toBe(SYSTEM_CURRENCIES.USD);
-      expect(entry.lines[1].amount.currency).toBe(SYSTEM_CURRENCIES.NGN);
       expect(entry.lines[0].exchangeRate).toBe(exchangeRate);
       expect(entry.lines[1].exchangeRate).toBeNull();
       expect(entry.lines[0].functionalAmount.amount).toBe(160_000n);
-      expect(entry.lines[1].functionalAmount.amount).toBe(160_000n);
+      expect(entry.lines[1]).toEqual(
+        expect.objectContaining({
+          accountId: bankChargeAccount.id,
+          side: EJournalSide.Debit,
+          sequenceOrder: 2,
+        })
+      );
+      expect(entry.lines[2]).toEqual(
+        expect.objectContaining({
+          accountId: destinationAccount.id,
+          side: EJournalSide.Debit,
+          sequenceOrder: 3,
+        })
+      );
+      expect(destinationAssetAccount).toBe(destinationAccount);
+      expect(events.map((event) => event.type)).toEqual([
+        EJournalEntryEvent.Created,
+        EJournalLineItemEvent.Created,
+        EJournalLineItemEvent.Created,
+        EJournalLineItemEvent.Created,
+      ]);
+      expect(audit.lines).toHaveLength(3);
     });
 
     it('rejects duplicate transfer accounts before period validation', async () => {
       const { payload } = makeTransferFixture();
-      payload.destinationLine = {
-        ...payload.destinationLine,
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
         account: payload.sourceLine.account,
       };
 
@@ -1057,10 +1170,114 @@ describe('journalEntryService', () => {
       ).not.toHaveBeenCalled();
     });
 
-    it('rejects a non-cash destination account', async () => {
+    it('rejects a counterparty on the cash destination', async () => {
+      const { bankCounterparty, payload } = makeTransferFixture();
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        counterparty: bankCounterparty,
+      };
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.CounterpartyIdNotAllowed);
+    });
+
+    it('allows multiple Bank Charge lines to use the same expense account', async () => {
+      const { bankChargeAccount, bankCounterparty, payload } =
+        makeTransferFixture();
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        amount: moneyValue.make(9_500n, SYSTEM_CURRENCIES.NGN, true),
+      };
+      payload.destinationLines.push(
+        {
+          account: bankChargeAccount,
+          counterparty: bankCounterparty,
+          sequenceOrder: 3,
+          amount: moneyValue.make(250n, SYSTEM_CURRENCIES.NGN, true),
+          exchangeRate: null,
+          description: 'Provider fee',
+          meta: null,
+        },
+        {
+          account: bankChargeAccount,
+          counterparty: bankCounterparty,
+          sequenceOrder: 4,
+          amount: moneyValue.make(250n, SYSTEM_CURRENCIES.NGN, true),
+          exchangeRate: null,
+          description: 'Bank fee',
+          meta: null,
+        }
+      );
+
+      const {
+        journalEntry: [entry],
+      } = await service.createTransfer(payload, repoOptions);
+
+      expect(
+        entry.lines.filter((line) => line.accountId === bankChargeAccount.id)
+      ).toHaveLength(2);
+    });
+
+    it('rejects a Bank Charge counterparty from another accounting entity', async () => {
+      const { bankChargeAccount, bankCounterparty, payload } =
+        makeTransferFixture();
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
+        amount: moneyValue.make(9_500n, SYSTEM_CURRENCIES.NGN, true),
+      };
+      payload.destinationLines.push({
+        account: bankChargeAccount,
+        counterparty: {
+          ...bankCounterparty,
+          accountingEntityId: generateUUID(),
+        },
+        sequenceOrder: 3,
+        amount: moneyValue.make(500n, SYSTEM_CURRENCIES.NGN, true),
+        exchangeRate: null,
+        description: 'Transfer fee',
+        meta: null,
+      });
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.InvalidCounterpartyId);
+    });
+
+    it('rejects a destination collection without a cash asset', async () => {
+      const { bankChargeAccount, payload } = makeTransferFixture();
+      payload.destinationLines = [
+        {
+          ...payload.destinationLines[0],
+          account: bankChargeAccount,
+        },
+      ];
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.InvalidDestinationAccount);
+    });
+
+    it('rejects a destination collection with multiple cash assets', async () => {
       const { payload } = makeTransferFixture();
-      payload.destinationLine = {
-        ...payload.destinationLine,
+      payload.destinationLines.push({
+        ...payload.destinationLines[0],
+        account: makePaymentAccount({
+          accountingEntityId: payload.header.accountingEntityId,
+          code: '100003',
+        }),
+        sequenceOrder: 3,
+      });
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.InvalidDestinationAccount);
+    });
+
+    it('rejects an additional destination that is not a Bank Charge', async () => {
+      const { payload } = makeTransferFixture();
+      payload.destinationLines.push({
+        ...payload.destinationLines[0],
         account: makePaymentAccount({
           accountingEntityId: payload.header.accountingEntityId,
           behavior: EExpenseAccountBehavior.RentAndUtilities,
@@ -1068,7 +1285,8 @@ describe('journalEntryService', () => {
           subType: EExpenseSubType.RentAndUtilities,
           type: ELedgerType.Expense,
         }),
-      };
+        sequenceOrder: 3,
+      });
 
       await expect(
         service.createTransfer(payload, repoOptions)
@@ -1077,8 +1295,8 @@ describe('journalEntryService', () => {
 
     it('rejects an unbalanced transfer', async () => {
       const { payload } = makeTransferFixture();
-      payload.destinationLine = {
-        ...payload.destinationLine,
+      payload.destinationLines[0] = {
+        ...payload.destinationLines[0],
         amount: moneyValue.make(9_999n, SYSTEM_CURRENCIES.NGN, true),
       };
 

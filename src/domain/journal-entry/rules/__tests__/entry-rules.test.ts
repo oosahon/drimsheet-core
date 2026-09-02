@@ -5,7 +5,9 @@ import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.va
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
 import paymentEntryRule from '@domain/journal-entry/rules/payment-entry.rule';
 import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
-import transferEntryRule from '@domain/journal-entry/rules/transfer-entry.rule';
+import transferEntryRule, {
+  transferBankChargeDestinationPermit,
+} from '@domain/journal-entry/rules/transfer-entry.rule';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
@@ -17,7 +19,10 @@ import {
   EAssetAccountBehavior,
   EAssetSubType,
 } from '@domain/ledger/types/asset-account.types';
-import { EExpenseSubType } from '@domain/ledger/types/expense-account.types';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+} from '@domain/ledger/types/expense-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -305,6 +310,50 @@ describe('journal entry rules', () => {
 
       expect(
         journalEntryRuleValidator(account, transferEntryRule.destination)
+      ).toBe(false);
+    });
+
+    it('keeps Bank Charge accounts out of the primary destination permit', () => {
+      const account = makePaymentAccount({
+        type: ELedgerType.Expense,
+        subType: EExpenseSubType.BankCharge,
+        behavior: EExpenseAccountBehavior.BankCharge,
+      });
+
+      expect(
+        journalEntryRuleValidator(account, transferEntryRule.destination)
+      ).toBe(false);
+    });
+
+    it('permits only exact Bank Charge accounts as additional destinations', () => {
+      const bankChargeAccount = makePaymentAccount({
+        type: ELedgerType.Expense,
+        subType: EExpenseSubType.BankCharge,
+        behavior: EExpenseAccountBehavior.BankCharge,
+      });
+      const otherExpenseAccount = makePaymentAccount({
+        type: ELedgerType.Expense,
+        subType: EExpenseSubType.RentAndUtilities,
+        behavior: EExpenseAccountBehavior.RentAndUtilities,
+      });
+
+      expect(
+        journalEntryRuleValidator(
+          bankChargeAccount,
+          transferBankChargeDestinationPermit
+        )
+      ).toBe(true);
+      expect(
+        journalEntryRuleValidator(
+          otherExpenseAccount,
+          transferBankChargeDestinationPermit
+        )
+      ).toBe(false);
+      expect(
+        journalEntryRuleValidator(
+          cashAccount,
+          transferBankChargeDestinationPermit
+        )
       ).toBe(false);
     });
   });

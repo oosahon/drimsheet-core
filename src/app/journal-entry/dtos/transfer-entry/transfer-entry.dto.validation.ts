@@ -29,6 +29,7 @@ export const transferEntryReqValidation = z.object({
     .optional(),
   sourceLine: transferEntryLineReqValidation,
   destinationLine: transferEntryLineReqValidation,
+  chargeLines: z.array(journalLineReqValidation),
   effectiveDate: z.date(new journalEntryError.InvalidEffectiveDate().errorKey),
   postedAt: z
     .date(new journalEntryError.InvalidPostingDate().errorKey)

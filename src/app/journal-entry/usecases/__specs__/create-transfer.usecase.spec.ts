@@ -6,6 +6,8 @@ import generateUUID from '@shared/utils/uuid-generator';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
+import { ECounterpartyType } from '@domain/counterparty/types/counterparty.types';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
@@ -14,6 +16,10 @@ import {
   EAssetAccountBehavior,
   EAssetSubType,
 } from '@domain/ledger/types/asset-account.types';
+import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+} from '@domain/ledger/types/expense-account.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -29,6 +35,9 @@ import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import mockCounterpartyAppService from '@app/counterparty/contracts/__mocks__/counterparty.service.mock';
+import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
+import { ICounterpartyFindOrCreateRes } from '@app/counterparty/contracts/counterparty.service.contract';
 import mockFileManagementService from '@app/file/contracts/__mocks__/file-management.service.mock';
 import fileAppError from '@app/file/errors/file.error';
 import { EFileUploadPurpose } from '@app/file/types/file.types';
@@ -39,7 +48,6 @@ import { ITransferEntryReq } from '@app/journal-entry/dtos/transfer-entry/transf
 import makeCreateTransferUsecase from '@app/journal-entry/usecases/create-transfer.usecase';
 import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
-import ledgerAppError from '@app/ledger/errors/ledger.error';
 import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
 import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
@@ -113,6 +121,33 @@ describe('makeCreateTransferUsecase', () => {
     EAssetAccountBehavior.PettyCash,
     SYSTEM_CURRENCIES.USD
   );
+  const [bankChargeAccount] = ledgerAccountEntity.make({
+    code: '507001',
+    materializedPath: '507001',
+    accountingEntityId: accountingEntity.id,
+    type: ELedgerType.Expense,
+    subType: EExpenseSubType.BankCharge,
+    behavior: EExpenseAccountBehavior.BankCharge,
+    normalBalance: EJournalSide.Debit,
+    isControlAccount: false,
+    controlAccountId: null,
+    name: 'Bank charges',
+    currency: SYSTEM_CURRENCIES.NGN,
+    status: ELedgerAccountStatus.Active,
+    contraAccountRule: EContraAccountRule.ContraPermitted,
+    adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+    meta: {},
+    createdBy: user.id,
+  });
+  const bankCounterparty = counterpartyEntity.make({
+    accountingEntityId: accountingEntity.id,
+    name: 'Transfer provider',
+    type: ECounterpartyType.Organization,
+  });
+  const newBankCounterpartyResponse: ICounterpartyFindOrCreateRes = {
+    new: true,
+    data: bankCounterparty,
+  };
   const attachments = [
     {
       url: 'https://files.example.com/transfer.pdf',
@@ -139,6 +174,7 @@ describe('makeCreateTransferUsecase', () => {
         description: 'Transfer to petty cash',
         sequenceOrder: 2,
       },
+      chargeLines: [],
       effectiveDate,
       postedAt: effectiveDate,
       memo: 'Cash transfer',
@@ -185,9 +221,11 @@ describe('makeCreateTransferUsecase', () => {
   function getUseCase() {
     return makeCreateTransferUsecase({
       appContext: mockAppContext,
+      counterpartyAppService: mockCounterpartyAppService,
       fileManagementService: mockFileManagementService,
       journalEntryService: mockJournalEntryService,
       ledgerAccountRepo: mockLedgerAccountRepo,
+      counterpartyPersistenceService: mockCounterpartyPersistenceService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       repoService: mockRepoService,
       eventBus: mockEventBus,
@@ -212,16 +250,20 @@ describe('makeCreateTransferUsecase', () => {
       if (id === destinationAccount.id) return destinationAccount;
       if (id === usdSourceAccount.id) return usdSourceAccount;
       if (id === usdDestinationAccount.id) return usdDestinationAccount;
+      if (id === bankChargeAccount.id) return bankChargeAccount;
       return null;
     });
     mockFileManagementService.claimUploads.mockResolvedValue(attachments);
-    mockJournalEntryService.createTransfer.mockResolvedValue(
-      postedJournalEntry
-    );
+    mockCounterpartyAppService.findOrCreateMany.mockResolvedValue(new Map());
+    mockJournalEntryService.createTransfer.mockResolvedValue({
+      journalEntry: postedJournalEntry,
+      destinationAssetAccount: destinationAccount,
+    });
     mockRepoService.runInTransaction.mockImplementation(async (transactionFn) =>
       transactionFn('mock-tx' as unknown as ITransactionContext)
     );
     mockJournalEntryPersistenceService.create.mockResolvedValue();
+    mockCounterpartyPersistenceService.create.mockResolvedValue();
     mockOutboxService.createBalancePropagation.mockResolvedValue();
     mockLedgerAccountBalanceAdjustmentQueue.add.mockResolvedValue();
     mockEventBus.publish.mockResolvedValue();
@@ -270,11 +312,14 @@ describe('makeCreateTransferUsecase', () => {
           amount: expect.objectContaining({ amount: 1000n }),
           exchangeRate: null,
         }),
-        destinationLine: expect.objectContaining({
-          account: destinationAccount,
-          amount: expect.objectContaining({ amount: 1000n }),
-          exchangeRate: null,
-        }),
+        destinationLines: [
+          expect.objectContaining({
+            account: destinationAccount,
+            counterparty: null,
+            amount: expect.objectContaining({ amount: 1000n }),
+            exchangeRate: null,
+          }),
+        ],
       },
       repoOptions
     );
@@ -298,7 +343,7 @@ describe('makeCreateTransferUsecase', () => {
         account: sourceAccount,
         actor: expect.objectContaining({ userId: user.id }),
       },
-      { correlationId }
+      { correlationId, idempotencyKey }
     );
     expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
       {
@@ -306,7 +351,7 @@ describe('makeCreateTransferUsecase', () => {
         account: destinationAccount,
         actor: expect.objectContaining({ userId: user.id }),
       },
-      { correlationId }
+      { correlationId, idempotencyKey }
     );
     expect(
       mockFxLotCostBasisService.persistence.persistDisposition
@@ -318,11 +363,116 @@ describe('makeCreateTransferUsecase', () => {
     expect(result).toEqual(journalEntryDtoMapper.toDto(postedJournalEntry[0]));
   });
 
+  it('maps charge lines with counterparties while acquiring only the domain-classified asset', async () => {
+    const payload = makePayload();
+    payload.destinationLine.amount = {
+      amount: 900,
+      currencyCode: 'NGN',
+      isMinorUnit: true,
+    };
+    payload.chargeLines = [
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: { name: 'Transfer provider' },
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Transfer fee',
+        sequenceOrder: 3,
+      },
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: null,
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Bank fee',
+        sequenceOrder: 4,
+      },
+    ];
+    mockCounterpartyAppService.findOrCreateMany.mockResolvedValueOnce(
+      new Map([['transfer-provider', newBankCounterpartyResponse]])
+    );
+    mockCounterpartyAppService.getFoundOrCreated.mockReturnValueOnce(
+      newBankCounterpartyResponse
+    );
+
+    await getUseCase()(payload);
+
+    expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
+      2,
+      destinationAccount.id,
+      accountingEntity.id,
+      { correlationId, idempotencyKey }
+    );
+    expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
+      3,
+      bankChargeAccount.id,
+      accountingEntity.id,
+      { correlationId, idempotencyKey }
+    );
+    expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
+      4,
+      bankChargeAccount.id,
+      accountingEntity.id,
+      { correlationId, idempotencyKey }
+    );
+    expect(mockCounterpartyAppService.findOrCreateMany).toHaveBeenCalledWith(
+      [payload.chargeLines[0].counterparty],
+      accountingEntity.id,
+      { correlationId, idempotencyKey }
+    );
+    expect(mockJournalEntryService.createTransfer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        destinationLines: [
+          expect.objectContaining({
+            account: destinationAccount,
+            counterparty: null,
+          }),
+          expect.objectContaining({
+            account: bankChargeAccount,
+            counterparty: bankCounterparty[0],
+          }),
+          expect.objectContaining({
+            account: bankChargeAccount,
+            counterparty: null,
+          }),
+        ],
+      }),
+      { correlationId, idempotencyKey }
+    );
+    expect(mockCounterpartyPersistenceService.create).toHaveBeenCalledWith(
+      bankCounterparty[0],
+      expect.objectContaining({ correlationId, tx: 'mock-tx' })
+    );
+    expect(
+      mockCounterpartyPersistenceService.create.mock.invocationCallOrder[0]
+    ).toBeLessThan(
+      mockJournalEntryPersistenceService.create.mock.invocationCallOrder[0]
+    );
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledTimes(1);
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      expect.objectContaining({ account: destinationAccount }),
+      { correlationId, idempotencyKey }
+    );
+    expect(mockFxLotAppService.acquire).not.toHaveBeenCalledWith(
+      expect.objectContaining({ account: bankChargeAccount }),
+      expect.anything()
+    );
+    const [publishedEvents] = mockEventBus.publish.mock.calls[0];
+    expect(publishedEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: bankCounterparty[1][0].type }),
+      ])
+    );
+  });
+
   it('persists a draft without creating balance propagation work', async () => {
     const payload = makePayload();
     payload.postedAt = null;
     const draftJournalEntry = makeJournalEntry(null);
-    mockJournalEntryService.createTransfer.mockResolvedValue(draftJournalEntry);
+    mockJournalEntryService.createTransfer.mockResolvedValue({
+      journalEntry: draftJournalEntry,
+      destinationAssetAccount: destinationAccount,
+    });
 
     await getUseCase()(payload);
 
@@ -372,10 +522,12 @@ describe('makeCreateTransferUsecase', () => {
             targetCurrencyCode: 'NGN',
           }),
         }),
-        destinationLine: expect.objectContaining({
-          account: destinationAccount,
-          exchangeRate: null,
-        }),
+        destinationLines: [
+          expect.objectContaining({
+            account: destinationAccount,
+            exchangeRate: null,
+          }),
+        ],
       }),
       { correlationId, idempotencyKey }
     );
@@ -395,9 +547,11 @@ describe('makeCreateTransferUsecase', () => {
   it('rejects a missing source account before claiming uploads', async () => {
     mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
 
-    await expect(getUseCase()(makePayload())).rejects.toThrow(
-      ledgerAppError.AccountNotFound
-    );
+    const payload = makePayload();
+
+    await expect(getUseCase()(payload)).rejects.toMatchObject({
+      cause: { id: payload.sourceLine.accountId },
+    });
     expect(mockFileManagementService.claimUploads).not.toHaveBeenCalled();
     expect(mockJournalEntryService.createTransfer).not.toHaveBeenCalled();
   });
@@ -407,9 +561,36 @@ describe('makeCreateTransferUsecase', () => {
       .mockResolvedValueOnce(sourceAccount)
       .mockResolvedValueOnce(null);
 
-    await expect(getUseCase()(makePayload())).rejects.toThrow(
-      ledgerAppError.AccountNotFound
-    );
+    const payload = makePayload();
+
+    await expect(getUseCase()(payload)).rejects.toMatchObject({
+      cause: { id: payload.destinationLine.accountId },
+    });
+    expect(mockFileManagementService.claimUploads).not.toHaveBeenCalled();
+    expect(mockJournalEntryService.createTransfer).not.toHaveBeenCalled();
+  });
+
+  it('rejects the exact missing charge account before resolving counterparties', async () => {
+    const payload = makePayload();
+    payload.chargeLines = [
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: null,
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Transfer fee',
+        sequenceOrder: 3,
+      },
+    ];
+    mockLedgerAccountRepo.findById
+      .mockResolvedValueOnce(sourceAccount)
+      .mockResolvedValueOnce(destinationAccount)
+      .mockResolvedValueOnce(null);
+
+    await expect(getUseCase()(payload)).rejects.toMatchObject({
+      cause: { id: payload.chargeLines[0].accountId },
+    });
+    expect(mockCounterpartyAppService.findOrCreateMany).not.toHaveBeenCalled();
     expect(mockFileManagementService.claimUploads).not.toHaveBeenCalled();
     expect(mockJournalEntryService.createTransfer).not.toHaveBeenCalled();
   });
@@ -504,9 +685,10 @@ describe('makeCreateTransferUsecase', () => {
         },
       ],
     });
-    mockJournalEntryService.createTransfer.mockResolvedValueOnce(
-      foreignJournalEntry
-    );
+    mockJournalEntryService.createTransfer.mockResolvedValueOnce({
+      journalEntry: foreignJournalEntry,
+      destinationAssetAccount: usdDestinationAccount,
+    });
     const dispositionRecords = {
       missingOfficialRateOutbox: null,
     } as unknown as TFxLotDispositionAppResult['records'];
@@ -543,7 +725,7 @@ describe('makeCreateTransferUsecase', () => {
         account: usdSourceAccount,
         actor: expect.objectContaining({ userId: user.id }),
       },
-      { correlationId }
+      { correlationId, idempotencyKey }
     );
     expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
       {
@@ -551,7 +733,7 @@ describe('makeCreateTransferUsecase', () => {
         account: usdDestinationAccount,
         actor: expect.objectContaining({ userId: user.id }),
       },
-      { correlationId }
+      { correlationId, idempotencyKey }
     );
     expect(
       mockFxLotCostBasisService.persistence.persistDisposition

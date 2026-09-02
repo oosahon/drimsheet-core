@@ -1036,6 +1036,40 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalLineReq: {
+    dataType: 'refObject',
+    properties: {
+      accountId: { dataType: 'string', required: true },
+      counterparty: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IJournalCounterpartyReq' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      amount: { ref: 'IMoneyDto', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRateDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      description: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      sequenceOrder: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   ITransferEntryReq: {
     dataType: 'refObject',
     properties: {
@@ -1045,6 +1079,11 @@ const models: TsoaRoute.Models = {
       },
       sourceLine: { ref: 'ITransferEntryLineReq', required: true },
       destinationLine: { ref: 'ITransferEntryLineReq', required: true },
+      chargeLines: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IJournalLineReq' },
+        required: true,
+      },
       effectiveDate: { dataType: 'datetime', required: true },
       postedAt: {
         dataType: 'union',

@@ -64,9 +64,11 @@ export const createTransferUseCase = makeTracedUseCase(
   'journalEntry.createTransferUseCase',
   makeCreateTransferUsecase({
     appContext,
+    counterpartyAppService,
     fileManagementService,
     journalEntryService,
     ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    counterpartyPersistenceService,
     journalEntryPersistenceService,
     repoService,
     eventBus: messaging.eventBus,

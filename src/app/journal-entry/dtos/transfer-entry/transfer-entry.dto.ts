@@ -1,3 +1,4 @@
+import { IJournalLineReq } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import { IExchangeRateDto } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 import { IMoneyDto } from '@app/money/dtos/money/money.dto';
 
@@ -18,6 +19,7 @@ export interface ITransferEntryReq {
 
   sourceLine: ITransferEntryLineReq;
   destinationLine: ITransferEntryLineReq;
+  chargeLines: IJournalLineReq[];
   effectiveDate: Date;
   postedAt: Date | null;
   memo: string | null;

@@ -305,13 +305,15 @@ describe('JournalEntry Entity', () => {
       expect(() => journalEntryEntity.make(payload)).toThrow();
     });
 
-    it('should reject a transfer line with a counterparty', () => {
-      expect(() =>
-        journalEntryEntity.make({
-          ...validPayload,
-          sourceType: EJournalEntrySourceType.Transfer,
-        })
-      ).toThrow(journalEntryError.CounterpartyIdNotAllowed);
+    it('should allow a transfer line with a valid counterparty', () => {
+      const [entry] = journalEntryEntity.make({
+        ...validPayload,
+        sourceType: EJournalEntrySourceType.Transfer,
+      });
+
+      expect(entry.lines[0].counterpartyId).toBe(
+        validPayload.lines[0].counterpartyId
+      );
     });
 
     it('should reject an invalid line counterparty ID', () => {

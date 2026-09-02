@@ -2,14 +2,18 @@ import IAccountingPeriodService from '@domain/accounting/types/accounting-period
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import journalLineEntity from '@domain/journal-entry/entities/journal-line.entity';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
 import paymentEntryRule from '@domain/journal-entry/rules/payment-entry.rule';
 import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
-import transferEntryRule from '@domain/journal-entry/rules/transfer-entry.rule';
+import transferEntryRule, {
+  transferBankChargeDestinationPermit,
+} from '@domain/journal-entry/rules/transfer-entry.rule';
 import helpers from '@domain/journal-entry/services/helpers/journal-entry.service.helpers';
 import {
   IJournalEntryBaseLinePayload,
   IJournalEntryHeaderPayload,
+  IJournalEntryLinePayload,
   IJournalEntryService,
 } from '@domain/journal-entry/types/journal-entry.service.types';
 import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
@@ -20,13 +24,64 @@ import {
 import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
-import { ELedgerType } from '@domain/ledger/types/ledger.types';
+import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import currencyEntity from '@domain/money/entities/currency.entity';
 
 interface IDependencies {
   accountingPeriodService: IAccountingPeriodService;
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
   ledgerAccountRepo: ILedgerAccountRepo;
+}
+
+function validateTransferAccountComposition(
+  sourceAccount: ILedgerAccount,
+  destinationLines: IJournalEntryLinePayload[]
+): ILedgerAccount {
+  if (!journalEntryRuleValidator(sourceAccount, transferEntryRule.source)) {
+    throw new journalEntryError.InvalidSourceType({ account: sourceAccount });
+  }
+
+  const destinationAssetAccounts: ILedgerAccount[] = [];
+  const invalidDestinations: ILedgerAccount[] = [];
+
+  for (const destinationLine of destinationLines) {
+    const account = destinationLine.account;
+
+    if (journalEntryRuleValidator(account, transferEntryRule.destination)) {
+      if (destinationLine.counterparty !== null) {
+        throw new journalEntryError.CounterpartyIdNotAllowed({
+          accountId: account.id,
+          counterpartyId: destinationLine.counterparty.id,
+        });
+      }
+
+      destinationAssetAccounts.push(account);
+      continue;
+    }
+
+    if (
+      !journalEntryRuleValidator(account, transferBankChargeDestinationPermit)
+    ) {
+      invalidDestinations.push(account);
+    }
+  }
+
+  if (invalidDestinations.length > 0) {
+    throw new journalEntryError.InvalidDestinationAccount({
+      invalidDestinations,
+    });
+  }
+
+  if (destinationAssetAccounts.length !== 1) {
+    throw new journalEntryError.InvalidDestinationAccount({
+      destinationAccountIds: destinationLines.map((line) => line.account.id),
+      destinationAssetAccountIds: destinationAssetAccounts.map(
+        (account) => account.id
+      ),
+    });
+  }
+
+  return destinationAssetAccounts[0];
 }
 
 function makeCreateOpeningBalance(
@@ -284,21 +339,19 @@ function makeCreateTransfer(
   deps: IDependencies
 ): IJournalEntryService['createTransfer'] {
   return async (payload, repoOptions) => {
-    const { header, sourceLine, destinationLine, attachments } = payload;
-    const journalLines = [sourceLine, destinationLine];
-    const accountIds = journalLines.map((line) => line.account.id);
+    const { header, sourceLine, destinationLines, attachments } = payload;
+    const journalLines = [sourceLine, ...destinationLines];
 
-    if (new Set(accountIds).size !== accountIds.length) {
+    const destinationAssetAccount = validateTransferAccountComposition(
+      sourceLine.account,
+      destinationLines
+    );
+
+    if (sourceLine.account.id === destinationAssetAccount.id) {
       throw new journalEntryError.DuplicateAccountsNotPermitted({
-        accountIds,
+        accountIds: [sourceLine.account.id, destinationAssetAccount.id],
       });
     }
-
-    helpers.validateAccountsAgainstRule(
-      [sourceLine.account],
-      [destinationLine.account],
-      transferEntryRule
-    );
 
     helpers.validateAccounts(header, journalLines);
 
@@ -307,6 +360,8 @@ function makeCreateTransfer(
       header.effectiveDate,
       repoOptions
     );
+
+    helpers.validateCounterparties(header, destinationLines);
 
     const functionalCurrency = currencyEntity.getByCode(
       header.functionalCurrencyCode
@@ -321,18 +376,19 @@ function makeCreateTransfer(
       description: sourceLine.description,
       functionalCurrency,
     };
-    const destinationLinePayload: IJournalLineMakePayload = {
-      accountId: destinationLine.account.id,
-      counterpartyId: null,
-      sequenceOrder: destinationLine.sequenceOrder,
-      amount: destinationLine.amount,
-      exchangeRate: destinationLine.exchangeRate,
-      description: destinationLine.description,
-      functionalCurrency,
-      side: EJournalSide.Debit,
-    };
+    const destinationLinePayloads: IJournalLineMakePayload[] =
+      destinationLines.map((line) => ({
+        accountId: line.account.id,
+        counterpartyId: line.counterparty?.id,
+        sequenceOrder: line.sequenceOrder,
+        amount: line.amount,
+        exchangeRate: line.exchangeRate,
+        description: line.description,
+        functionalCurrency,
+        side: EJournalSide.Debit,
+      }));
 
-    return journalEntryEntity.make({
+    const journalEntry = journalEntryEntity.make({
       accountingEntityId: header.accountingEntityId,
       sourceType: EJournalEntrySourceType.Transfer,
       effectiveDate: header.effectiveDate,
@@ -341,8 +397,10 @@ function makeCreateTransfer(
       createdBy: header.createdBy,
       functionalCurrency,
       attachments,
-      lines: [sourceLinePayload, destinationLinePayload],
+      lines: [sourceLinePayload, ...destinationLinePayloads],
     });
+
+    return { journalEntry, destinationAssetAccount };
   };
 }
 
