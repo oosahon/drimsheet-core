@@ -465,6 +465,85 @@ describe('makeCreateTransferUsecase', () => {
     );
   });
 
+  it('maps unresolved charge counterparties as null with their exchange rate', async () => {
+    const payload = makePayload();
+    payload.chargeLines = [
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: { name: 'Transfer provider' },
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: {
+          baseCurrencyCode: 'USD',
+          targetCurrencyCode: 'NGN',
+          rate: 1600,
+          type: EExchangeRateType.Official,
+          asOf: effectiveDate,
+          source: 'Test Source',
+        },
+        description: 'Transfer fee',
+        sequenceOrder: 3,
+      },
+    ];
+    mockCounterpartyAppService.getFoundOrCreated.mockReturnValueOnce(undefined);
+
+    await getUseCase()(payload);
+
+    expect(mockJournalEntryService.createTransfer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        destinationLines: expect.arrayContaining([
+          expect.objectContaining({
+            account: bankChargeAccount,
+            counterparty: null,
+            exchangeRate: expect.objectContaining({
+              baseCurrencyCode: 'USD',
+              targetCurrencyCode: 'NGN',
+            }),
+          }),
+        ]),
+      }),
+      { correlationId, idempotencyKey }
+    );
+  });
+
+  it('skips persistence for an existing charge counterparty', async () => {
+    const payload = makePayload();
+    payload.chargeLines = [
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: { name: 'Transfer provider' },
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Transfer fee',
+        sequenceOrder: 3,
+      },
+    ];
+    const existingBankCounterpartyResponse: ICounterpartyFindOrCreateRes = {
+      new: false,
+      data: bankCounterparty,
+    };
+    mockCounterpartyAppService.findOrCreateMany.mockResolvedValueOnce(
+      new Map([['transfer-provider', existingBankCounterpartyResponse]])
+    );
+    mockCounterpartyAppService.getFoundOrCreated.mockReturnValueOnce(
+      existingBankCounterpartyResponse
+    );
+
+    await getUseCase()(payload);
+
+    expect(mockJournalEntryService.createTransfer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        destinationLines: expect.arrayContaining([
+          expect.objectContaining({
+            account: bankChargeAccount,
+            counterparty: bankCounterparty[0],
+          }),
+        ]),
+      }),
+      { correlationId, idempotencyKey }
+    );
+    expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
+  });
+
   it('persists a draft without creating balance propagation work', async () => {
     const payload = makePayload();
     payload.postedAt = null;
