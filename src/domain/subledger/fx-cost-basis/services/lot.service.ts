@@ -7,8 +7,8 @@ import fxCostBasisLotDispositionAllocationEntity from '@domain/subledger/fx-cost
 import fxCostBasisLotDispositionEntity from '@domain/subledger/fx-cost-basis/entities/disposition.entity';
 import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.entity';
 import IFxCostBasisLotRepo from '@domain/subledger/fx-cost-basis/repos/lot.repo';
-import consumeLotsInFifoOrder from '@domain/subledger/fx-cost-basis/services/helpers/consume-lots-in-fifo-order.helper';
-import helpers from '@domain/subledger/fx-cost-basis/services/helpers/lot.service.helpers';
+import consumeLotsInFifoOrder from '@domain/subledger/fx-cost-basis/services/consume-lots-in-fifo-order';
+import lotServiceValidation from '@domain/subledger/fx-cost-basis/services/validations/lot.validation';
 import { IFxCostBasisLotAcquisition } from '@domain/subledger/fx-cost-basis/types/acquisition.types';
 import IFxCostBasisLotDomainService from '@domain/subledger/fx-cost-basis/types/lot.service.types';
 import {
@@ -22,7 +22,7 @@ interface IDependencies {
 
 function makeAcquire(): IFxCostBasisLotDomainService['acquire'] {
   return (payload) => {
-    helpers.validateJournalStatus(payload.journalEntry);
+    lotServiceValidation.validateJournalStatus(payload.journalEntry);
 
     // Journal-entry creation owns line/account consistency; FX only selects the
     // participating account movement it was asked to classify.
@@ -30,10 +30,16 @@ function makeAcquire(): IFxCostBasisLotDomainService['acquire'] {
       (line) => line.accountId === payload.account.id
     )!;
 
-    if (!helpers.hasFxCostBasisEffect(payload.account, journalLine))
+    if (
+      !lotServiceValidation.hasFxCostBasisEffect(payload.account, journalLine)
+    )
       return null;
 
-    helpers.validateFxLine(payload, journalLine, EJournalSide.Debit);
+    lotServiceValidation.validateFxLine(
+      payload,
+      journalLine,
+      EJournalSide.Debit
+    );
 
     const lotPayload: TCreationOmits<IFxCostBasisLot, 'version'> = {
       ledgerAccountId: journalLine.accountId,
@@ -74,7 +80,7 @@ function makeDispose(
   deps: IDependencies
 ): IFxCostBasisLotDomainService['dispose'] {
   return async (payload, repoOptions) => {
-    helpers.validateJournalStatus(payload.journalEntry);
+    lotServiceValidation.validateJournalStatus(payload.journalEntry);
 
     // Journal-entry creation owns line/account consistency; FX only selects the
     // participating account movement it was asked to classify.
@@ -82,10 +88,16 @@ function makeDispose(
       (line) => line.accountId === payload.account.id
     )!;
 
-    if (!helpers.hasFxCostBasisEffect(payload.account, journalLine))
+    if (
+      !lotServiceValidation.hasFxCostBasisEffect(payload.account, journalLine)
+    )
       return null;
 
-    helpers.validateFxLine(payload, journalLine, EJournalSide.Credit);
+    lotServiceValidation.validateFxLine(
+      payload,
+      journalLine,
+      EJournalSide.Credit
+    );
 
     const openLots = await deps.lotRepo.findOpenByAccountId(
       payload.journalEntry.accountingEntityId,

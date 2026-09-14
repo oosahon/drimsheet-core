@@ -3,6 +3,7 @@ import generateUUID from '@shared/utils/uuid-generator';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
 import fxCostBasisLotDispositionAllocationEntity from '@domain/subledger/fx-cost-basis/entities/disposition-allocation.entity';
+import dispositionAllocationValidation from '@domain/subledger/fx-cost-basis/entities/validations/disposition-allocation.validation';
 import fxCostBasisLotDispositionAllocationError from '@domain/subledger/fx-cost-basis/errors/disposition-allocation.error';
 
 describe('fxCostBasisLotDispositionAllocationEntity', () => {
@@ -41,16 +42,16 @@ describe('fxCostBasisLotDispositionAllocationEntity', () => {
         currency: { ...SYSTEM_CURRENCIES.USD, code: 'INVALID' },
       };
 
-      expect(
-        fxCostBasisLotDispositionAllocationEntity.isValidMoney(malformedMoney)
-      ).toBe(false);
+      expect(dispositionAllocationValidation.isValidMoney(malformedMoney)).toBe(
+        false
+      );
     });
 
     it.each([
       [
         'malformed quantity',
         () =>
-          fxCostBasisLotDispositionAllocationEntity.validateQuantity({
+          dispositionAllocationValidation.validateQuantity({
             amount: 10n,
           }),
         fxCostBasisLotDispositionAllocationError.InvalidQuantity,
@@ -58,7 +59,7 @@ describe('fxCostBasisLotDispositionAllocationEntity', () => {
       [
         'zero quantity',
         () =>
-          fxCostBasisLotDispositionAllocationEntity.validateQuantity(
+          dispositionAllocationValidation.validateQuantity(
             moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.USD)
           ),
         fxCostBasisLotDispositionAllocationError.InvalidQuantity,
@@ -66,7 +67,7 @@ describe('fxCostBasisLotDispositionAllocationEntity', () => {
       [
         'malformed cost basis',
         () =>
-          fxCostBasisLotDispositionAllocationEntity.validateCostBasisConsumed({
+          dispositionAllocationValidation.validateCostBasisConsumed({
             amount: 14_000n,
           }),
         fxCostBasisLotDispositionAllocationError.InvalidCostBasisConsumed,
@@ -74,7 +75,7 @@ describe('fxCostBasisLotDispositionAllocationEntity', () => {
       [
         'zero cost basis',
         () =>
-          fxCostBasisLotDispositionAllocationEntity.validateCostBasisConsumed(
+          dispositionAllocationValidation.validateCostBasisConsumed(
             moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.NGN)
           ),
         fxCostBasisLotDispositionAllocationError.InvalidCostBasisConsumed,
@@ -82,7 +83,7 @@ describe('fxCostBasisLotDispositionAllocationEntity', () => {
       [
         'malformed proceeds',
         () =>
-          fxCostBasisLotDispositionAllocationEntity.validateProceeds({
+          dispositionAllocationValidation.validateProceeds({
             amount: 15_000n,
           }),
         fxCostBasisLotDispositionAllocationError.InvalidProceeds,
@@ -90,7 +91,7 @@ describe('fxCostBasisLotDispositionAllocationEntity', () => {
       [
         'zero proceeds',
         () =>
-          fxCostBasisLotDispositionAllocationEntity.validateProceeds(
+          dispositionAllocationValidation.validateProceeds(
             moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.NGN)
           ),
         fxCostBasisLotDispositionAllocationError.InvalidProceeds,
@@ -101,7 +102,7 @@ describe('fxCostBasisLotDispositionAllocationEntity', () => {
 
     it('rejects a cost-basis and proceeds currency mismatch', () => {
       expect(() =>
-        fxCostBasisLotDispositionAllocationEntity.validateFunctionalCurrency({
+        dispositionAllocationValidation.validateFunctionalCurrency({
           ...payload,
           proceeds: moneyValue.make(15_000, SYSTEM_CURRENCIES.USD, false),
         })
@@ -112,7 +113,7 @@ describe('fxCostBasisLotDispositionAllocationEntity', () => {
 
     it('rejects a proceeds and realized-result currency mismatch', () => {
       expect(() =>
-        fxCostBasisLotDispositionAllocationEntity.validateFunctionalCurrency({
+        dispositionAllocationValidation.validateFunctionalCurrency({
           ...payload,
           realizedGainLoss: moneyValue.make(
             1_000,

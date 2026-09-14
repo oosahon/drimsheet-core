@@ -5,10 +5,11 @@ import stringUtils from '@shared/utils/string';
 import currencyEntity from '@domain/money/entities/currency.entity';
 import currencyError from '@domain/money/errors/currency.error';
 import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
-import helpers from '@domain/money/values/helpers/exchange-rate.helpers';
+import getExchangeRateCurrencyPair from '@domain/money/values/helpers/get-currency-pair.helper';
+import exchangeRateValidation from '@domain/money/values/validations/exchange-rate.validation';
 
 function make(payload: TCreationOmits<IExchangeRate, 'currencyPair'>) {
-  helpers.validateType(payload.type);
+  exchangeRateValidation.validateType(payload.type);
   dateUtils.validateDateIsNotInTheFuture(
     payload.asOf,
     currencyError.InvalidValue
@@ -24,7 +25,7 @@ function make(payload: TCreationOmits<IExchangeRate, 'currencyPair'>) {
   );
   currencyEntity.validateCode(targetCurrencyCode);
 
-  const currencyPair = helpers.getCurrencyPair(
+  const currencyPair = getExchangeRateCurrencyPair(
     baseCurrencyCode,
     targetCurrencyCode
   );
@@ -53,7 +54,7 @@ function make(payload: TCreationOmits<IExchangeRate, 'currencyPair'>) {
 
 const exchangeRateValue = Object.freeze({
   make,
-  ...helpers,
+  ...exchangeRateValidation,
 });
 
 export default exchangeRateValue;

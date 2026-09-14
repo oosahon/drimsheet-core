@@ -3,7 +3,8 @@ import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
-import helpers from '@domain/accounting/entities/helpers/accounting-context.entity.helpers';
+import getAccountingContextDescription from '@domain/accounting/entities/helpers/get-description.helper';
+import accountingContextValidation from '@domain/accounting/entities/validations/accounting-context.validation';
 import accountingError from '@domain/accounting/errors/accounting.error';
 import accountingContextEvents from '@domain/accounting/events/accounting-context.events';
 import { EAccountingContextActions } from '@domain/accounting/types/accounting-context-audit.types';
@@ -17,7 +18,9 @@ function make(
     payload.accountingEntityId,
     accountingError.InvalidValue
   );
-  helpers.validateAccountingStandardCode(payload.accountingStandardCode);
+  accountingContextValidation.validateAccountingStandardCode(
+    payload.accountingStandardCode
+  );
   stringUtils.validateUUID(payload.fiscalYearId, accountingError.InvalidValue);
   stringUtils.validateUUID(
     payload.currentAccountingPeriodId,
@@ -32,7 +35,7 @@ function make(
     },
     accountingError.InvalidValue
   );
-  const description = helpers.getDescription(payload.description);
+  const description = getAccountingContextDescription(payload.description);
 
   const timestamp = new Date();
 
@@ -62,8 +65,7 @@ function make(
 
 const accountingContextEntity = Object.freeze({
   make,
-
-  ...helpers,
+  ...accountingContextValidation,
 });
 
 export default accountingContextEntity;

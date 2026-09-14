@@ -7,13 +7,16 @@ import {
   IMakeContractorPayload,
 } from '@domain/counterparty/types/counterparty.types';
 import contractorAuditValue from '@domain/counterparty/values/contractor-audit.vo';
-import helpers from '@domain/counterparty/values/helpers/counterparty-value.helpers';
+import counterpartyValidation from '@domain/counterparty/values/validations/counterparty.validation';
 
 function make(
   payload: IMakeContractorPayload
 ): TAuditedEntity<IContractor, IContractor, IContractor> {
-  helpers.validateCounterpartyId(payload.counterpartyId);
-  const address = helpers.validateAddress(payload.address, true)!;
+  counterpartyValidation.validateCounterpartyId(payload.counterpartyId);
+  const address = counterpartyValidation.validateAddress(
+    payload.address,
+    true
+  )!;
 
   const contractor: IContractor = Object.freeze({
     counterpartyId: payload.counterpartyId,
@@ -36,7 +39,10 @@ function update(
   before: IContractor,
   payload: Omit<IMakeContractorPayload, 'counterpartyId'>
 ): TAuditedEntity<IContractor, IContractor, IContractor> {
-  const address = helpers.validateAddress(payload.address, true)!;
+  const address = counterpartyValidation.validateAddress(
+    payload.address,
+    true
+  )!;
 
   const updatedContractor: IContractor = Object.freeze({
     counterpartyId: before.counterpartyId,
@@ -58,8 +64,6 @@ function update(
 const contractorEntity = Object.freeze({
   make,
   update,
-  validateCounterpartyId: helpers.validateCounterpartyId,
-  validateAddress: helpers.validateAddress,
 });
 
 export default contractorEntity;

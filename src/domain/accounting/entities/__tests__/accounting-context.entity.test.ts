@@ -1,6 +1,10 @@
 import { TEntityId } from '@shared/types/uuid';
 
 import accountingContextEntity from '@domain/accounting/entities/accounting-context.entity';
+import getAccountingContextDescription from '@domain/accounting/entities/helpers/get-description.helper';
+import getAccountingJurisdiction from '@domain/accounting/entities/helpers/get-jurisdiction.helper';
+import getAccountingStandard from '@domain/accounting/entities/helpers/get-standard.helper';
+import accountingContextValidation from '@domain/accounting/entities/validations/accounting-context.validation';
 import { EAccountingContextEvents } from '@domain/accounting/events/accounting-context.events';
 import { EAccountingContextActions } from '@domain/accounting/types/accounting-context-audit.types';
 import {
@@ -30,105 +34,104 @@ describe('accountingContextEntity', () => {
   describe('isValidAccountingStandardCode', () => {
     it('returns true for a valid accounting standard code', () => {
       expect(
-        accountingContextEntity.isValidAccountingStandardCode('IFRS')
+        accountingContextValidation.isValidAccountingStandardCode('IFRS')
       ).toBe(true);
       expect(
-        accountingContextEntity.isValidAccountingStandardCode('US_GAAP')
+        accountingContextValidation.isValidAccountingStandardCode('US_GAAP')
       ).toBe(true);
     });
 
     it('returns false for an invalid accounting standard code', () => {
       expect(
-        accountingContextEntity.isValidAccountingStandardCode('INVALID')
+        accountingContextValidation.isValidAccountingStandardCode('INVALID')
       ).toBe(false);
-      expect(accountingContextEntity.isValidAccountingStandardCode(123)).toBe(
-        false
-      );
-      expect(accountingContextEntity.isValidAccountingStandardCode(null)).toBe(
-        false
-      );
+      expect(
+        accountingContextValidation.isValidAccountingStandardCode(123)
+      ).toBe(false);
+      expect(
+        accountingContextValidation.isValidAccountingStandardCode(null)
+      ).toBe(false);
     });
   });
 
   describe('validateAccountingStandardCode', () => {
     it('does not throw for a valid accounting standard code', () => {
       expect(() =>
-        accountingContextEntity.validateAccountingStandardCode('IFRS')
+        accountingContextValidation.validateAccountingStandardCode('IFRS')
       ).not.toThrow();
     });
 
     it('throws AppError for an invalid accounting standard code', () => {
       expect(() =>
-        accountingContextEntity.validateAccountingStandardCode('INVALID')
+        accountingContextValidation.validateAccountingStandardCode('INVALID')
       ).toThrow();
     });
   });
 
-  describe('getDescription', () => {
+  describe('getAccountingContextDescription', () => {
     it('returns sanitized description if provided', () => {
-      expect(
-        accountingContextEntity.getDescription('  Valid description  ')
-      ).toBe('Valid description');
+      expect(getAccountingContextDescription('  Valid description  ')).toBe(
+        'Valid description'
+      );
     });
 
     it('returns null if description is null', () => {
-      expect(accountingContextEntity.getDescription(null)).toBeNull();
+      expect(getAccountingContextDescription(null)).toBeNull();
     });
   });
 
-  describe('getJurisdiction', () => {
+  describe('getAccountingJurisdiction', () => {
     it('returns jurisdiction for a valid code', () => {
-      const jurisdiction = accountingContextEntity.getJurisdiction('US');
+      const jurisdiction = getAccountingJurisdiction('US');
       expect(jurisdiction.code).toBe('US');
     });
 
     it('throws InvalidJurisdiction if code is empty', () => {
-      expect(() => accountingContextEntity.getJurisdiction('')).toThrow();
+      expect(() => getAccountingJurisdiction('')).toThrow();
     });
 
     it('throws InvalidJurisdiction if code is invalid', () => {
-      expect(() =>
-        accountingContextEntity.getJurisdiction('INVALID_CODE')
-      ).toThrow();
+      expect(() => getAccountingJurisdiction('INVALID_CODE')).toThrow();
     });
   });
 
   describe('validateStandardCode', () => {
     it('does not throw for a valid standard code', () => {
       expect(() =>
-        accountingContextEntity.validateStandardCode('US_GAAP')
+        accountingContextValidation.validateStandardCode('US_GAAP')
       ).not.toThrow();
     });
 
     it('throws InvalidStandard if code is empty', () => {
-      // @ts-expect-error testing invalid standard code
-      expect(() => accountingContextEntity.validateStandardCode('')).toThrow();
+      expect(() =>
+        accountingContextValidation.validateStandardCode('' as never)
+      ).toThrow();
     });
 
     it('throws InvalidStandard if code is invalid', () => {
       expect(() =>
         // @ts-expect-error testing invalid standard code
-        accountingContextEntity.validateStandardCode('INVALID_CODE')
+        accountingContextValidation.validateStandardCode('INVALID_CODE')
       ).toThrow();
     });
   });
 
-  describe('getStandard', () => {
+  describe('getAccountingStandard', () => {
     it('returns standard for a valid code', () => {
-      const standard = accountingContextEntity.getStandard('US_GAAP');
+      const standard = getAccountingStandard('US_GAAP');
       expect(standard.code).toBe('US_GAAP');
     });
 
     it('throws InvalidStandard if code is invalid', () => {
       // @ts-expect-error testing invalid standard code
-      expect(() => accountingContextEntity.getStandard('INVALID')).toThrow();
+      expect(() => getAccountingStandard('INVALID')).toThrow();
     });
   });
 
   describe('validateStandardCodeAndJurisdiction', () => {
     it('does not throw for valid standard, jurisdiction, and entity type combination', () => {
       expect(() =>
-        accountingContextEntity.validateStandardCodeAndJurisdiction(
+        accountingContextValidation.validateStandardCodeAndJurisdiction(
           'US_GAAP',
           'US',
           'individual'
@@ -140,7 +143,7 @@ describe('accountingContextEntity', () => {
       // Assuming 'Personal' might not support 'US_GAAP' or we can mock/pass an unsupported combination.
       // E.g. what if we pass 'IFRS' to 'US' if not allowed? Let's test an invalid standard for a valid jurisdiction
       expect(() =>
-        accountingContextEntity.validateStandardCodeAndJurisdiction(
+        accountingContextValidation.validateStandardCodeAndJurisdiction(
           'IFRS',
           'US',
           'individual'
@@ -160,7 +163,7 @@ describe('accountingContextEntity', () => {
 
       try {
         expect(() =>
-          accountingContextEntity.validateStandardCodeAndJurisdiction(
+          accountingContextValidation.validateStandardCodeAndJurisdiction(
             'US_GAAP',
             'US',
             testType

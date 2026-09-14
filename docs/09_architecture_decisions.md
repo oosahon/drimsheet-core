@@ -31,3 +31,4 @@ The following architectural decision records (ADRs) capture the critical technic
 | [ADR-0015](./adrs/0015-transactional-outbox-for-ledger-balance-propagation.md) | Transactional outbox for ledger balance propagation      | Accepted               |
 | [ADR-0016](./adrs/0016-direct-better-stack-observability.md)                   | Direct Better Stack Observability                        | Accepted               |
 | [ADR-0017](./adrs/0017-infrastructure-integration-adapters.md)                 | Infrastructure Integration Adapters                      | Accepted               |
+| [ADR-0018](./adrs/0018-first-class-domain-validations.md)                      | First-Class Domain Validations                           | Accepted               |

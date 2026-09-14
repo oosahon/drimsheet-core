@@ -1,7 +1,7 @@
 import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
-import helpers from '@domain/counterparty/entities/helpers/counterparty.entity.helpers';
+import counterpartyValidation from '@domain/counterparty/entities/validations/counterparty.validation';
 import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 import counterpartyEvents from '@domain/counterparty/events/counterparty.events';
 import { ECounterpartyEntityActions } from '@domain/counterparty/types/counterparty-audit.types';
@@ -15,11 +15,11 @@ import {
 import counterpartyAuditValue from '@domain/counterparty/values/counterparty-audit.vo';
 
 function make(payload: IMakeCounterpartyPayload): TAuditedCounterparty {
-  helpers.validateAccountingEntityId(payload.accountingEntityId);
-  const name = helpers.validateName(payload.name);
-  const type = helpers.validateType(payload.type);
+  counterpartyValidation.validateAccountingEntityId(payload.accountingEntityId);
+  const name = counterpartyValidation.validateName(payload.name);
+  const type = counterpartyValidation.validateType(payload.type);
   const status = payload.status
-    ? helpers.validateStatus(payload.status)
+    ? counterpartyValidation.validateStatus(payload.status)
     : ECounterpartyStatus.Active;
 
   const timestamp = new Date();
@@ -50,8 +50,8 @@ function addRole(
   counterparty: ICounterparty,
   role: UCounterpartyRole
 ): TAuditedEntity<ICounterparty, ICounterparty, ICounterparty> {
-  helpers.validateCounterparty(counterparty);
-  helpers.validateRole(role);
+  counterpartyValidation.validateCounterparty(counterparty);
+  counterpartyValidation.validateRole(role);
 
   if (counterparty.roles.includes(role)) {
     throw new counterpartyError.RoleAlreadyAssigned({
@@ -89,7 +89,7 @@ function addRole(
 const counterpartyEntity = Object.freeze({
   make,
   addRole,
-  ...helpers,
+  ...counterpartyValidation,
 });
 
 export default counterpartyEntity;

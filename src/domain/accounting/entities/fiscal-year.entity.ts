@@ -2,7 +2,8 @@ import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
-import fiscalYearHelpers from '@domain/accounting/entities/helpers/fiscal-year.helpers';
+import deriveFiscalYearName from '@domain/accounting/entities/helpers/derive-name.helper';
+import fiscalYearValidation from '@domain/accounting/entities/validations/fiscal-year.validation';
 import accountingError from '@domain/accounting/errors/accounting.error';
 import periodEvents from '@domain/accounting/events/period.events';
 import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
@@ -20,14 +21,14 @@ interface IMakePayload extends Pick<
 function make(
   payload: IMakePayload
 ): TAuditedEntity<IFiscalYear, IFiscalYear, IFiscalYear> {
-  fiscalYearHelpers.validateStatus(payload.status);
-  fiscalYearHelpers.validateStartAndEndDate(payload);
+  fiscalYearValidation.validateStatus(payload.status);
+  fiscalYearValidation.validateStartAndEndDate(payload);
   stringUtils.validateUUID(
     payload.accountingEntityId,
     accountingError.InvalidValue
   );
 
-  const name = fiscalYearHelpers.deriveName(
+  const name = deriveFiscalYearName(
     payload.startDate,
     payload.endDate,
     payload.name ?? null,
@@ -61,7 +62,7 @@ function make(
 
 const fiscalYearEntity = Object.freeze({
   make,
-  ...fiscalYearHelpers,
+  ...fiscalYearValidation,
 });
 
 export default fiscalYearEntity;

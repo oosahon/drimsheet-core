@@ -3,12 +3,12 @@ import {
   IMakeReportingContextAuditPayload,
   IReportingContextAudit,
 } from '@domain/accounting/types/reporting-context-audit.types';
-import accountingAuditHelpers from '@domain/accounting/values/helpers/accounting-audit.vo.helpers';
+import accountingAudit from '@domain/accounting/values/accounting-audit.vo';
 
 function make(
   payload: IMakeReportingContextAuditPayload
 ): IReportingContextAudit {
-  return accountingAuditHelpers.make(payload, EReportingContextActions);
+  return accountingAudit.make(payload, EReportingContextActions);
 }
 
 const reportingContextAudit = Object.freeze({

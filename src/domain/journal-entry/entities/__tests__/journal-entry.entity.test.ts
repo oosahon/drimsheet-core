@@ -1,6 +1,8 @@
 import { TEntityId } from '@shared/types/uuid';
 
+import getJournalEntryMemo from '@domain/journal-entry/entities/helpers/get-memo.helper';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import journalEntryValidation from '@domain/journal-entry/entities/validations/journal-entry.validation';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import { EJournalEntryEvent } from '@domain/journal-entry/events/journal-entry.events';
 import { EJournalLineItemEvent } from '@domain/journal-entry/events/journal-line-item.events';
@@ -336,19 +338,21 @@ describe('JournalEntry Entity', () => {
     describe('validateStatus', () => {
       it('should not throw for valid statuses', () => {
         expect(() =>
-          journalEntryEntity.validateStatus(EJournalEntryStatus.Draft)
+          journalEntryValidation.validateStatus(EJournalEntryStatus.Draft)
         ).not.toThrow();
         expect(() =>
-          journalEntryEntity.validateStatus(EJournalEntryStatus.Posted)
+          journalEntryValidation.validateStatus(EJournalEntryStatus.Posted)
         ).not.toThrow();
         expect(() =>
-          journalEntryEntity.validateStatus(EJournalEntryStatus.Voided)
+          journalEntryValidation.validateStatus(EJournalEntryStatus.Voided)
         ).not.toThrow();
       });
 
       it('should throw an AppError for an invalid status', () => {
         expect(() =>
-          journalEntryEntity.validateStatus('invalid' as UJournalEntryStatus)
+          journalEntryValidation.validateStatus(
+            'invalid' as UJournalEntryStatus
+          )
         ).toThrow();
       });
     });
@@ -379,25 +383,26 @@ describe('JournalEntry Entity', () => {
           side: EJournalSide.Credit,
         };
 
-        expect(() => journalEntryEntity.validateLine([item1, item2])).toThrow();
+        expect(() =>
+          journalEntryValidation.validateLine([item1, item2])
+        ).toThrow();
       });
     });
 
-    describe('getMemo', () => {
+    describe('getJournalEntryMemo', () => {
       it('should return null if value is empty or null', () => {
-        // @ts-expect-error Testing undefined fallback at runtime
-        expect(journalEntryEntity.getMemo(undefined)).toBeNull();
-        expect(journalEntryEntity.getMemo(null)).toBeNull();
-        expect(journalEntryEntity.getMemo('')).toBeNull();
+        expect(getJournalEntryMemo(undefined)).toBeNull();
+        expect(getJournalEntryMemo(null)).toBeNull();
+        expect(getJournalEntryMemo('')).toBeNull();
       });
 
       it('should throw an AppError if memo is too long', () => {
         const longMemo = 'a'.repeat(251);
-        expect(() => journalEntryEntity.getMemo(longMemo)).toThrow();
+        expect(() => getJournalEntryMemo(longMemo)).toThrow();
       });
 
       it('should return trimmed memo', () => {
-        expect(journalEntryEntity.getMemo('  valid memo  ')).toBe('valid memo');
+        expect(getJournalEntryMemo('  valid memo  ')).toBe('valid memo');
       });
     });
 
@@ -405,14 +410,14 @@ describe('JournalEntry Entity', () => {
       it('should not throw for valid source types', () => {
         for (const sourceType of Object.values(EJournalEntrySourceType)) {
           expect(() =>
-            journalEntryEntity.validateSourceType(sourceType)
+            journalEntryValidation.validateSourceType(sourceType)
           ).not.toThrow();
         }
       });
 
       it('should throw for an invalid source type', () => {
         expect(() =>
-          journalEntryEntity.validateSourceType(
+          journalEntryValidation.validateSourceType(
             'invalid' as UJournalEntrySourceType
           )
         ).toThrow();

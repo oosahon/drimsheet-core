@@ -5,6 +5,7 @@ import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import moneyValue from '@domain/money/values/money.vo';
 import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.entity';
+import lotValidation from '@domain/subledger/fx-cost-basis/entities/validations/lot.validation';
 import fxCostBasisLotError from '@domain/subledger/fx-cost-basis/errors/lot.error';
 import { EFxCostBasisLotEvent } from '@domain/subledger/fx-cost-basis/events/lot.events';
 import {
@@ -242,27 +243,27 @@ describe('fxCostBasisLotEntity', () => {
 
   describe('helpers', () => {
     it('validates status', () => {
-      expect(
-        fxCostBasisLotEntity.isValidStatus(EFxCostBasisLotStatus.Open)
-      ).toBe(true);
-      expect(
-        fxCostBasisLotEntity.isValidStatus(EFxCostBasisLotStatus.Closed)
-      ).toBe(true);
-      expect(fxCostBasisLotEntity.isValidStatus('invalid-status')).toBe(false);
+      expect(lotValidation.isValidStatus(EFxCostBasisLotStatus.Open)).toBe(
+        true
+      );
+      expect(lotValidation.isValidStatus(EFxCostBasisLotStatus.Closed)).toBe(
+        true
+      );
+      expect(lotValidation.isValidStatus('invalid-status')).toBe(false);
       expect(() =>
-        fxCostBasisLotEntity.validateStatus(EFxCostBasisLotStatus.Open)
+        lotValidation.validateStatus(EFxCostBasisLotStatus.Open)
       ).not.toThrow();
-      expect(() =>
-        fxCostBasisLotEntity.validateStatus('invalid-status')
-      ).toThrow(fxCostBasisLotError.InvalidStatus);
+      expect(() => lotValidation.validateStatus('invalid-status')).toThrow(
+        fxCostBasisLotError.InvalidStatus
+      );
     });
 
     it('validates money shape', () => {
+      expect(lotValidation.isValidMoney(validPayload.originalQuantity)).toBe(
+        true
+      );
       expect(
-        fxCostBasisLotEntity.isValidMoney(validPayload.originalQuantity)
-      ).toBe(true);
-      expect(
-        fxCostBasisLotEntity.isValidMoney({
+        lotValidation.isValidMoney({
           amount: 100n,
           currency: { ...SYSTEM_CURRENCIES.USD, code: 'INVALID' },
         })
@@ -271,37 +272,37 @@ describe('fxCostBasisLotEntity', () => {
 
     it('validates quantity values and invariants', () => {
       expect(() =>
-        fxCostBasisLotEntity.validateQuantity(
+        lotValidation.validateQuantity(
           validPayload.originalQuantity,
           validPayload.remainingQuantity
         )
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotEntity.validateQuantity(
+        lotValidation.validateQuantity(
           moneyValue.make(0, SYSTEM_CURRENCIES.USD, false),
           validPayload.remainingQuantity
         )
       ).toThrow(fxCostBasisLotError.InvalidOriginalQuantity);
       expect(() =>
-        fxCostBasisLotEntity.validateQuantity(
+        lotValidation.validateQuantity(
           validPayload.originalQuantity,
           moneyValue.make(0, SYSTEM_CURRENCIES.USD, false)
         )
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotEntity.validateQuantity(validPayload.originalQuantity, {
+        lotValidation.validateQuantity(validPayload.originalQuantity, {
           ...validPayload.remainingQuantity,
           amount: -1n,
         })
       ).toThrow(fxCostBasisLotError.InvalidRemainingQuantity);
       expect(() =>
-        fxCostBasisLotEntity.validateQuantity(
+        lotValidation.validateQuantity(
           validPayload.originalQuantity,
           moneyValue.make(100, SYSTEM_CURRENCIES.EUR, false)
         )
       ).toThrow(fxCostBasisLotError.MismatchedQuantityCurrency);
       expect(() =>
-        fxCostBasisLotEntity.validateQuantity(
+        lotValidation.validateQuantity(
           validPayload.originalQuantity,
           moneyValue.make(101, SYSTEM_CURRENCIES.USD, false)
         )
@@ -310,37 +311,37 @@ describe('fxCostBasisLotEntity', () => {
 
     it('validates cost basis values and invariants', () => {
       expect(() =>
-        fxCostBasisLotEntity.validateCostBasis(
+        lotValidation.validateCostBasis(
           validPayload.costBasis,
           validPayload.remainingCostBasis
         )
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotEntity.validateCostBasis(
+        lotValidation.validateCostBasis(
           moneyValue.make(0, SYSTEM_CURRENCIES.NGN, false),
           validPayload.remainingCostBasis
         )
       ).toThrow(fxCostBasisLotError.InvalidCostBasis);
       expect(() =>
-        fxCostBasisLotEntity.validateCostBasis(
+        lotValidation.validateCostBasis(
           validPayload.costBasis,
           moneyValue.make(0, SYSTEM_CURRENCIES.NGN, false)
         )
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotEntity.validateCostBasis(validPayload.costBasis, {
+        lotValidation.validateCostBasis(validPayload.costBasis, {
           ...validPayload.remainingCostBasis,
           amount: -1n,
         })
       ).toThrow(fxCostBasisLotError.InvalidRemainingCostBasis);
       expect(() =>
-        fxCostBasisLotEntity.validateCostBasis(
+        lotValidation.validateCostBasis(
           validPayload.costBasis,
           moneyValue.make(150000, SYSTEM_CURRENCIES.USD, false)
         )
       ).toThrow(fxCostBasisLotError.MismatchedCostBasisCurrency);
       expect(() =>
-        fxCostBasisLotEntity.validateCostBasis(
+        lotValidation.validateCostBasis(
           validPayload.costBasis,
           moneyValue.make(150001, SYSTEM_CURRENCIES.NGN, false)
         )

@@ -1,7 +1,8 @@
 import stringUtils from '@shared/utils/string';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
-import periodHelpers from '@domain/accounting/entities/helpers/period.helpers';
+import getPeriodIntervals from '@domain/accounting/entities/helpers/get-intervals.helper';
+import periodValidation from '@domain/accounting/entities/validations/period.validation';
 import accountingError from '@domain/accounting/errors/accounting.error';
 import periodEvents from '@domain/accounting/events/period.events';
 import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
@@ -26,9 +27,9 @@ function make(
     payload.accountingEntityId,
     accountingError.InvalidValue
   );
-  periodHelpers.validateUnit(payload.unit);
+  periodValidation.validateUnit(payload.unit);
 
-  const intervals = periodHelpers.getIntervals({
+  const intervals = getPeriodIntervals({
     startDate: payload.fiscalYear.startDate,
     endDate: payload.fiscalYear.endDate,
     unit: payload.unit,

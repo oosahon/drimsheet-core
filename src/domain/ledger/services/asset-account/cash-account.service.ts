@@ -1,9 +1,12 @@
 import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
+import getLedgerAccountMaterializedPath from '@domain/ledger/entities/helpers/get-materialized-path.helper';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
+import getNextSubledgerAccountCode from '@domain/ledger/entities/helpers/get-subledger-code.helper';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import ledgerAccountCurrencyInvarianceRule from '@domain/ledger/rules/currency-invariance.rule';
-import controlAccountResolverHelper from '@domain/ledger/services/helpers/control-account-resolver';
+import getControlAccountScope from '@domain/ledger/services/helpers/get-control-account-scope.helper';
 import {
   EAssetAccountBehavior,
   EAssetSubType,
@@ -58,7 +61,7 @@ function makeCreateHeader(
       accountingEntityId: payload.accountingEntity.id,
       code: LEDGER_CODE.HEADER,
       materializedPath: LEDGER_CODE.HEADER,
-      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Asset),
       type: ELedgerType.Asset,
       subType: EAssetSubType.CashAndCashEquivalent,
       behavior: EAssetAccountBehavior.DefaultCash,
@@ -97,7 +100,7 @@ function makeCreatePettyCashSubAccount(
     };
 
     const { controlAccount, factoryContext } =
-      await controlAccountResolverHelper<TCashLedgerCode>({
+      await getControlAccountScope<TCashLedgerCode>({
         ledgerAccountRepo: deps.ledgerAccountRepo,
         accountingEntityId: payload.accountingEntity.id,
         controlAccountCode: payload.controlAccountCode,
@@ -110,23 +113,22 @@ function makeCreatePettyCashSubAccount(
       subAccountCurrency: payload.currency,
     });
 
-    const code = ledgerAccountEntity.getSubLedgerCode(
+    const code = getNextSubledgerAccountCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
     );
 
-    const materializedPath =
-      ledgerAccountEntity.getMaterializedPath<TCashLedgerCode>(
-        factoryContext.parentMaterializedPath,
-        code
-      );
+    const materializedPath = getLedgerAccountMaterializedPath<TCashLedgerCode>(
+      factoryContext.parentMaterializedPath,
+      code
+    );
 
     return ledgerAccountEntity.make({
       name: payload.name,
       accountingEntityId: payload.accountingEntity.id,
       code,
       materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Asset),
       type: ELedgerType.Asset,
       subType: EAssetSubType.CashAndCashEquivalent,
       behavior: EAssetAccountBehavior.PettyCash,
@@ -165,7 +167,7 @@ function makeCreateBankSubAccount(
 
   return async (payload, repoOptions) => {
     const { controlAccount, factoryContext } =
-      await controlAccountResolverHelper<TCashLedgerCode>({
+      await getControlAccountScope<TCashLedgerCode>({
         ledgerAccountRepo: deps.ledgerAccountRepo,
         accountingEntityId: payload.accountingEntity.id,
         controlAccountCode: payload.controlAccountCode,
@@ -178,23 +180,22 @@ function makeCreateBankSubAccount(
       subAccountCurrency: payload.currency,
     });
 
-    const code = ledgerAccountEntity.getSubLedgerCode(
+    const code = getNextSubledgerAccountCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
     );
 
-    const materializedPath =
-      ledgerAccountEntity.getMaterializedPath<TCashLedgerCode>(
-        factoryContext.parentMaterializedPath,
-        code
-      );
+    const materializedPath = getLedgerAccountMaterializedPath<TCashLedgerCode>(
+      factoryContext.parentMaterializedPath,
+      code
+    );
 
     return ledgerAccountEntity.make({
       name: payload.name,
       accountingEntityId: payload.accountingEntity.id,
       code,
       materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Asset),
       type: ELedgerType.Asset,
       subType: EAssetSubType.CashAndCashEquivalent,
       behavior: EAssetAccountBehavior.Bank,

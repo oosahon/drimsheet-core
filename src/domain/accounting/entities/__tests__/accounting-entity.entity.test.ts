@@ -2,6 +2,7 @@ import { TCreationOmits } from '@shared/types/creation-omits.types';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
+import accountingEntityValidation from '@domain/accounting/entities/validations/accounting-entity.validation';
 import { EAccountingEntityEvents } from '@domain/accounting/events/accounting-entity.events';
 import { EAccountingEntityActions } from '@domain/accounting/types/accounting-entity-audit.types';
 import {
@@ -110,13 +111,17 @@ describe('accountingEntityEntity', () => {
     describe('isValidType', () => {
       it('should return true for valid entity types', () => {
         expect(
-          accountingEntityEntity.isValidType(EAccountingEntityType.Individual)
+          accountingEntityValidation.isValidType(
+            EAccountingEntityType.Individual
+          )
         ).toBe(true);
         expect(
-          accountingEntityEntity.isValidType(EAccountingEntityType.SoleTrader)
+          accountingEntityValidation.isValidType(
+            EAccountingEntityType.SoleTrader
+          )
         ).toBe(true);
         expect(
-          accountingEntityEntity.isValidType(
+          accountingEntityValidation.isValidType(
             EAccountingEntityType.PrivateCompany
           )
         ).toBe(true);
@@ -124,37 +129,47 @@ describe('accountingEntityEntity', () => {
 
       it('should return false for invalid entity type', () => {
         // @ts-expect-error testing invalid argument
-        expect(accountingEntityEntity.isValidType('invalid-type')).toBe(false);
+        expect(accountingEntityValidation.isValidType('invalid-type')).toBe(
+          false
+        );
       });
     });
 
     describe('validateType', () => {
       it('should not throw for valid entity type', () => {
         expect(() =>
-          accountingEntityEntity.validateType(EAccountingEntityType.Individual)
+          accountingEntityValidation.validateType(
+            EAccountingEntityType.Individual
+          )
         ).not.toThrow();
       });
 
       it('should throw AppError for invalid entity type', () => {
         expect(() =>
           // @ts-expect-error testing invalid argument
-          accountingEntityEntity.validateType('invalid-type')
+          accountingEntityValidation.validateType('invalid-type')
         ).toThrow();
       });
     });
 
     describe('isValidJurisdictionCode', () => {
       it('returns true for a valid jurisdiction code', () => {
-        expect(accountingEntityEntity.isValidJurisdictionCode('NG')).toBe(true);
-        expect(accountingEntityEntity.isValidJurisdictionCode('US')).toBe(true);
+        expect(accountingEntityValidation.isValidJurisdictionCode('NG')).toBe(
+          true
+        );
+        expect(accountingEntityValidation.isValidJurisdictionCode('US')).toBe(
+          true
+        );
       });
 
       it('returns false for an invalid jurisdiction code', () => {
-        expect(accountingEntityEntity.isValidJurisdictionCode('INVALID')).toBe(
+        expect(
+          accountingEntityValidation.isValidJurisdictionCode('INVALID')
+        ).toBe(false);
+        expect(accountingEntityValidation.isValidJurisdictionCode(123)).toBe(
           false
         );
-        expect(accountingEntityEntity.isValidJurisdictionCode(123)).toBe(false);
-        expect(accountingEntityEntity.isValidJurisdictionCode(null)).toBe(
+        expect(accountingEntityValidation.isValidJurisdictionCode(null)).toBe(
           false
         );
       });
@@ -163,13 +178,13 @@ describe('accountingEntityEntity', () => {
     describe('validateJurisdictionCode', () => {
       it('does not throw for a valid jurisdiction code', () => {
         expect(() =>
-          accountingEntityEntity.validateJurisdictionCode('NG')
+          accountingEntityValidation.validateJurisdictionCode('NG')
         ).not.toThrow();
       });
 
       it('throws AppError for an invalid jurisdiction code', () => {
         expect(() =>
-          accountingEntityEntity.validateJurisdictionCode('INVALID')
+          accountingEntityValidation.validateJurisdictionCode('INVALID')
         ).toThrow();
       });
     });
@@ -177,12 +192,12 @@ describe('accountingEntityEntity', () => {
     describe('isValidHistoryAction', () => {
       it('should return true for valid history actions', () => {
         expect(
-          accountingEntityEntity.isValidHistoryAction(
+          accountingEntityValidation.isValidHistoryAction(
             EAccountingEntityHistoryAction.Created
           )
         ).toBe(true);
         expect(
-          accountingEntityEntity.isValidHistoryAction(
+          accountingEntityValidation.isValidHistoryAction(
             EAccountingEntityHistoryAction.Updated
           )
         ).toBe(true);
@@ -191,7 +206,7 @@ describe('accountingEntityEntity', () => {
       it('should return false for invalid history action', () => {
         expect(
           // @ts-expect-error testing invalid argument
-          accountingEntityEntity.isValidHistoryAction('invalid-action')
+          accountingEntityValidation.isValidHistoryAction('invalid-action')
         ).toBe(false);
       });
     });
@@ -199,7 +214,7 @@ describe('accountingEntityEntity', () => {
     describe('validateHistoryAction', () => {
       it('should not throw for valid history action', () => {
         expect(() =>
-          accountingEntityEntity.validateHistoryAction(
+          accountingEntityValidation.validateHistoryAction(
             EAccountingEntityHistoryAction.Created
           )
         ).not.toThrow();
@@ -208,7 +223,7 @@ describe('accountingEntityEntity', () => {
       it('should throw AppError for invalid history action', () => {
         expect(() =>
           // @ts-expect-error testing invalid argument
-          accountingEntityEntity.validateHistoryAction('invalid-action')
+          accountingEntityValidation.validateHistoryAction('invalid-action')
         ).toThrow();
       });
     });

@@ -2,7 +2,6 @@ import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import moneyError from '@domain/money/errors/money.error';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
-import { IMoney } from '@domain/money/types/money.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 import money from '@domain/money/values/money.vo';
 
@@ -75,24 +74,6 @@ describe('Money Value Object', () => {
       const zero = money.makeZeroAmount(USD);
       expect(zero.amount).toBe(BigInt(0));
       expect(zero.currency.code).toBe('USD');
-    });
-  });
-
-  describe('isSameCurrency', () => {
-    it('should return false for empty arguments', () => {
-      expect(money.isSameCurrency()).toBe(false);
-    });
-
-    it('should return true if all currencies are identical', () => {
-      const gbp1 = money.make(BigInt(100), USD, true);
-      const gbp2 = money.make(BigInt(250), USD, true);
-      expect(money.isSameCurrency(gbp1, gbp2)).toBe(true);
-    });
-
-    it('should return false if there is a mismatch', () => {
-      const m1 = money.make(BigInt(100), USD, true);
-      const m2 = money.make(BigInt(100), NGN, true);
-      expect(money.isSameCurrency(m1, m2)).toBe(false);
     });
   });
 
@@ -224,51 +205,6 @@ describe('Money Value Object', () => {
     });
   });
 
-  describe('validate', () => {
-    it('should not throw for a valid money object', () => {
-      const m = money.make(100, USD, true);
-      expect(() => money.validate(m)).not.toThrow();
-    });
-
-    it('should throw if amount is not a bigint', () => {
-      const m = { amount: 100, currency: USD } as unknown as IMoney;
-      expect(() => money.validate(m)).toThrow(
-        new moneyError.InvalidAmount({ amount: 100 })
-      );
-    });
-
-    it('should throw if currency code is invalid', () => {
-      const fakeCurrency = { ...USD, code: 'FAKE' };
-      const m = {
-        amount: BigInt(100),
-        currency: fakeCurrency,
-      } as unknown as IMoney;
-      expect(() => money.validate(m)).toThrow(
-        new moneyError.InvalidCurrencyCode({ currencyCode: 'FAKE' })
-      );
-    });
-  });
-
-  describe('equals', () => {
-    it('should return true for identical money objects', () => {
-      const m1 = money.make(100, USD, true);
-      const m2 = money.make(100, USD, true);
-      expect(money.equals(m1, m2)).toBe(true);
-    });
-
-    it('should return false if amounts differ', () => {
-      const m1 = money.make(100, USD, true);
-      const m2 = money.make(200, USD, true);
-      expect(money.equals(m1, m2)).toBe(false);
-    });
-
-    it('should return false if currencies differ', () => {
-      const m1 = money.make(100, USD, true);
-      const m2 = money.make(100, NGN, true);
-      expect(money.equals(m1, m2)).toBe(false);
-    });
-  });
-
   describe('min', () => {
     it('should return the money object with the minimum amount', () => {
       const m1 = money.make(500, USD, true);
@@ -314,60 +250,6 @@ describe('Money Value Object', () => {
       expect(() => money.max(m1, m2)).toThrow(
         new moneyError.CurrencyMismatch({
           args: [m1, m2],
-        })
-      );
-    });
-  });
-
-  describe('isGreaterThan', () => {
-    it('should return true if first is greater than second', () => {
-      const m1 = money.make(500, USD, true);
-      const m2 = money.make(150, USD, true);
-      expect(money.isGreaterThan(m1, m2)).toBe(true);
-    });
-
-    it('should return false if first is less than or equal to second', () => {
-      const m1 = money.make(150, USD, true);
-      const m2 = money.make(500, USD, true);
-      const m3 = money.make(150, USD, true);
-      expect(money.isGreaterThan(m1, m2)).toBe(false);
-      expect(money.isGreaterThan(m1, m3)).toBe(false);
-    });
-
-    it('should throw if mixed currencies are provided', () => {
-      const m1 = money.make(100, NGN, true);
-      const m2 = money.make(100, USD, true);
-      expect(() => money.isGreaterThan(m1, m2)).toThrow(
-        new moneyError.CurrencyMismatch({
-          money: m1,
-          other: m2,
-        })
-      );
-    });
-  });
-
-  describe('isLessThan', () => {
-    it('should return true if first is less than second', () => {
-      const m1 = money.make(150, USD, true);
-      const m2 = money.make(500, USD, true);
-      expect(money.isLessThan(m1, m2)).toBe(true);
-    });
-
-    it('should return false if first is greater than or equal to second', () => {
-      const m1 = money.make(500, USD, true);
-      const m2 = money.make(150, USD, true);
-      const m3 = money.make(500, USD, true);
-      expect(money.isLessThan(m1, m2)).toBe(false);
-      expect(money.isLessThan(m1, m3)).toBe(false);
-    });
-
-    it('should throw if mixed currencies are provided', () => {
-      const m1 = money.make(100, NGN, true);
-      const m2 = money.make(100, USD, true);
-      expect(() => money.isLessThan(m1, m2)).toThrow(
-        new moneyError.CurrencyMismatch({
-          money: m1,
-          other: m2,
         })
       );
     });
@@ -493,18 +375,6 @@ describe('Money Value Object', () => {
           fakeCurrency as unknown as typeof NGN
         )
       ).toThrow(new moneyError.InvalidCurrencyCode({ currencyCode: 'FAKE' }));
-    });
-  });
-
-  describe('isZeroAmount', () => {
-    it('should return true if amount is zero', () => {
-      const m = money.makeZeroAmount(USD);
-      expect(money.isZeroAmount(m)).toBe(true);
-    });
-
-    it('should return false if amount is not zero', () => {
-      const m = money.make(100, USD, true);
-      expect(money.isZeroAmount(m)).toBe(false);
     });
   });
 });

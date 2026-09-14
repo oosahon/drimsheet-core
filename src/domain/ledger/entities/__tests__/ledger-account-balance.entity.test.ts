@@ -1,9 +1,11 @@
 import { TCreationOmits } from '@shared/types/creation-omits.types';
 import { TEntityId } from '@shared/types/uuid';
 
-import ledgerAccountBalanceAdjustmentEntityHelpers from '@domain/accounting/entities/helpers/ledger-account-balance-adjustment.entity.helper';
+import ledgerAccountBalanceAdjustmentValidation from '@domain/accounting/entities/validations/ledger-account-balance-adjustment.validation';
 import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
+import getLedgerAccountBalanceEffect from '@domain/ledger/entities/helpers/get-effect-from-amount.helper';
 import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
+import ledgerAccountBalanceValidation from '@domain/ledger/entities/validations/ledger-account-balance.validation';
 import {
   ELedgerAccountBalanceEffect,
   ILedgerAccountBalanceAdjustment,
@@ -229,17 +231,17 @@ describe('ledgerAccountBalanceEntity', () => {
   describe('validateEffectType', () => {
     it('should not throw for a valid effect type', () => {
       expect(() =>
-        ledgerAccountBalanceEntity.validateEffectType(
+        ledgerAccountBalanceValidation.validateEffectType(
           ELedgerAccountBalanceEffect.Increase
         )
       ).not.toThrow();
       expect(() =>
-        ledgerAccountBalanceEntity.validateEffectType(
+        ledgerAccountBalanceValidation.validateEffectType(
           ELedgerAccountBalanceEffect.Decrease
         )
       ).not.toThrow();
       expect(() =>
-        ledgerAccountBalanceEntity.validateEffectType(
+        ledgerAccountBalanceValidation.validateEffectType(
           ELedgerAccountBalanceEffect.Noop
         )
       ).not.toThrow();
@@ -249,23 +251,21 @@ describe('ledgerAccountBalanceEntity', () => {
       // @ts-expect-error: purposefully testing invalid effect
       const invalidEffect: ULedgerAccountBalanceEffect = 'INVALID';
       expect(() =>
-        ledgerAccountBalanceEntity.validateEffectType(invalidEffect)
+        ledgerAccountBalanceValidation.validateEffectType(invalidEffect)
       ).toThrow();
     });
   });
 
-  describe('getEffectFromAmount', () => {
+  describe('getLedgerAccountBalanceEffect', () => {
     it('should throw if amount is invalid', () => {
       // @ts-expect-error: purposefully testing invalid amount
       const invalidAmount: IMoney = { amount: 100n };
-      expect(() =>
-        ledgerAccountBalanceEntity.getEffectFromAmount(invalidAmount)
-      ).toThrow();
+      expect(() => getLedgerAccountBalanceEffect(invalidAmount)).toThrow();
     });
 
     it('should return Noop for zero amount', () => {
       const amount = { amount: 0n, currency: currencyEntity.getByCode('NGN') };
-      expect(ledgerAccountBalanceEntity.getEffectFromAmount(amount)).toBe(
+      expect(getLedgerAccountBalanceEffect(amount)).toBe(
         ELedgerAccountBalanceEffect.Noop
       );
     });
@@ -275,7 +275,7 @@ describe('ledgerAccountBalanceEntity', () => {
         amount: 100n,
         currency: currencyEntity.getByCode('NGN'),
       };
-      expect(ledgerAccountBalanceEntity.getEffectFromAmount(amount)).toBe(
+      expect(getLedgerAccountBalanceEffect(amount)).toBe(
         ELedgerAccountBalanceEffect.Increase
       );
     });
@@ -285,13 +285,13 @@ describe('ledgerAccountBalanceEntity', () => {
         amount: -100n,
         currency: currencyEntity.getByCode('NGN'),
       };
-      expect(ledgerAccountBalanceEntity.getEffectFromAmount(amount)).toBe(
+      expect(getLedgerAccountBalanceEffect(amount)).toBe(
         ELedgerAccountBalanceEffect.Decrease
       );
     });
   });
 
-  describe('ledgerAccountBalanceAdjustmentEntityHelpers', () => {
+  describe('ledgerAccountBalanceAdjustmentValidation', () => {
     describe('validateAccountId', () => {
       const makeJournalLine = (
         id: TEntityId,
@@ -329,7 +329,7 @@ describe('ledgerAccountBalanceEntity', () => {
           ),
         ];
         expect(() =>
-          ledgerAccountBalanceAdjustmentEntityHelpers.validateAccountId(
+          ledgerAccountBalanceAdjustmentValidation.validateAccountId(
             accountId,
             journalLines
           )
@@ -351,7 +351,7 @@ describe('ledgerAccountBalanceEntity', () => {
           ),
         ];
         expect(() =>
-          ledgerAccountBalanceAdjustmentEntityHelpers.validateAccountId(
+          ledgerAccountBalanceAdjustmentValidation.validateAccountId(
             accountId,
             journalLines
           )

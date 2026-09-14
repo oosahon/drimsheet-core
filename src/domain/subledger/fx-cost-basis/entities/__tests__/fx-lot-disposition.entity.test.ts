@@ -8,6 +8,7 @@ import {
 } from '@domain/money/types/exchange-rate.types';
 import moneyValue from '@domain/money/values/money.vo';
 import fxCostBasisLotDispositionEntity from '@domain/subledger/fx-cost-basis/entities/disposition.entity';
+import dispositionValidation from '@domain/subledger/fx-cost-basis/entities/validations/disposition.validation';
 import fxCostBasisLotDispositionError from '@domain/subledger/fx-cost-basis/errors/disposition.error';
 import { EFxCostBasisLotDispositionEvent } from '@domain/subledger/fx-cost-basis/events/disposition.events';
 import {
@@ -190,11 +191,11 @@ describe('fxCostBasisLotDispositionEntity', () => {
 
   describe('helpers', () => {
     it('validates money shape', () => {
+      expect(dispositionValidation.isValidMoney(validPayload.quantity)).toBe(
+        true
+      );
       expect(
-        fxCostBasisLotDispositionEntity.isValidMoney(validPayload.quantity)
-      ).toBe(true);
-      expect(
-        fxCostBasisLotDispositionEntity.isValidMoney({
+        dispositionValidation.isValidMoney({
           amount: 100n,
           currency: { ...SYSTEM_CURRENCIES.USD, code: 'INVALID' },
         })
@@ -203,10 +204,10 @@ describe('fxCostBasisLotDispositionEntity', () => {
 
     it('validates quantity', () => {
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateQuantity(validPayload.quantity)
+        dispositionValidation.validateQuantity(validPayload.quantity)
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateQuantity(
+        dispositionValidation.validateQuantity(
           moneyValue.make(0, SYSTEM_CURRENCIES.USD, false)
         )
       ).toThrow(fxCostBasisLotDispositionError.InvalidQuantity);
@@ -214,12 +215,12 @@ describe('fxCostBasisLotDispositionEntity', () => {
 
     it('validates cost basis consumed', () => {
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateCostBasisConsumed(
+        dispositionValidation.validateCostBasisConsumed(
           validPayload.costBasisConsumed
         )
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateCostBasisConsumed(
+        dispositionValidation.validateCostBasisConsumed(
           moneyValue.make(0, SYSTEM_CURRENCIES.NGN, false)
         )
       ).toThrow(fxCostBasisLotDispositionError.InvalidCostBasisConsumed);
@@ -227,10 +228,10 @@ describe('fxCostBasisLotDispositionEntity', () => {
 
     it('validates proceeds', () => {
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateProceeds(validPayload.proceeds)
+        dispositionValidation.validateProceeds(validPayload.proceeds)
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateProceeds(
+        dispositionValidation.validateProceeds(
           moneyValue.make(0, SYSTEM_CURRENCIES.NGN, false)
         )
       ).toThrow(fxCostBasisLotDispositionError.InvalidProceeds);
@@ -238,12 +239,12 @@ describe('fxCostBasisLotDispositionEntity', () => {
 
     it('validates realized gain loss', () => {
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateRealizedGainLoss(
+        dispositionValidation.validateRealizedGainLoss(
           validPayload.realizedGainLoss
         )
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateRealizedGainLoss({
+        dispositionValidation.validateRealizedGainLoss({
           amount: 100n,
         })
       ).toThrow(fxCostBasisLotDispositionError.InvalidRealizedGainLoss);
@@ -251,13 +252,13 @@ describe('fxCostBasisLotDispositionEntity', () => {
 
     it('validates official rate', () => {
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateOfficialRate(officialRate)
+        dispositionValidation.validateOfficialRate(officialRate)
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateOfficialRate(null)
+        dispositionValidation.validateOfficialRate(null)
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotDispositionEntity.validateOfficialRate({
+        dispositionValidation.validateOfficialRate({
           ...officialRate,
           rate: -1,
         })

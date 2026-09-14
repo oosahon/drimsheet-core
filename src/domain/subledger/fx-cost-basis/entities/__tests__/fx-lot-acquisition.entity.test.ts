@@ -8,6 +8,7 @@ import {
 } from '@domain/money/types/exchange-rate.types';
 import moneyValue from '@domain/money/values/money.vo';
 import fxCostBasisLotAcquisitionEntity from '@domain/subledger/fx-cost-basis/entities/acquisition.entity';
+import acquisitionValidation from '@domain/subledger/fx-cost-basis/entities/validations/acquisition.validation';
 import FxCostBasisLotAcquisitionError from '@domain/subledger/fx-cost-basis/errors/acquisition.error';
 import { EFxCostBasisLotAcquisitionEvent } from '@domain/subledger/fx-cost-basis/events/acquisition.events';
 import {
@@ -158,11 +159,11 @@ describe('fxCostBasisLotAcquisitionEntity', () => {
 
   describe('helpers', () => {
     it('validates money shape', () => {
+      expect(acquisitionValidation.isValidMoney(validPayload.quantity)).toBe(
+        true
+      );
       expect(
-        fxCostBasisLotAcquisitionEntity.isValidMoney(validPayload.quantity)
-      ).toBe(true);
-      expect(
-        fxCostBasisLotAcquisitionEntity.isValidMoney({
+        acquisitionValidation.isValidMoney({
           amount: 100n,
           currency: { ...SYSTEM_CURRENCIES.USD, code: 'INVALID' },
         })
@@ -171,10 +172,10 @@ describe('fxCostBasisLotAcquisitionEntity', () => {
 
     it('validates quantity', () => {
       expect(() =>
-        fxCostBasisLotAcquisitionEntity.validateQuantity(validPayload.quantity)
+        acquisitionValidation.validateQuantity(validPayload.quantity)
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotAcquisitionEntity.validateQuantity(
+        acquisitionValidation.validateQuantity(
           moneyValue.make(0, SYSTEM_CURRENCIES.USD, false)
         )
       ).toThrow(FxCostBasisLotAcquisitionError.InvalidQuantity);
@@ -182,12 +183,10 @@ describe('fxCostBasisLotAcquisitionEntity', () => {
 
     it('validates cost basis', () => {
       expect(() =>
-        fxCostBasisLotAcquisitionEntity.validateCostBasis(
-          validPayload.costBasis
-        )
+        acquisitionValidation.validateCostBasis(validPayload.costBasis)
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotAcquisitionEntity.validateCostBasis(
+        acquisitionValidation.validateCostBasis(
           moneyValue.make(0, SYSTEM_CURRENCIES.NGN, false)
         )
       ).toThrow(FxCostBasisLotAcquisitionError.InvalidCostBasis);
@@ -195,13 +194,13 @@ describe('fxCostBasisLotAcquisitionEntity', () => {
 
     it('validates official rate', () => {
       expect(() =>
-        fxCostBasisLotAcquisitionEntity.validateOfficialRate(officialRate)
+        acquisitionValidation.validateOfficialRate(officialRate)
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotAcquisitionEntity.validateOfficialRate(null)
+        acquisitionValidation.validateOfficialRate(null)
       ).not.toThrow();
       expect(() =>
-        fxCostBasisLotAcquisitionEntity.validateOfficialRate({
+        acquisitionValidation.validateOfficialRate({
           ...officialRate,
           rate: -1,
         })

@@ -5,7 +5,7 @@ import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
-import helpers from '@domain/subledger/fx-cost-basis/entities/helpers/acquisition.entity.helpers';
+import acquisitionValidation from '@domain/subledger/fx-cost-basis/entities/validations/acquisition.validation';
 import FxCostBasisLotAcquisitionError from '@domain/subledger/fx-cost-basis/errors/acquisition.error';
 import FxCostBasisLotAcquisitionEvents from '@domain/subledger/fx-cost-basis/events/acquisition.events';
 import {
@@ -39,10 +39,10 @@ function make(
     FxCostBasisLotAcquisitionError.InvalidJournalEntryId
   );
 
-  helpers.validateQuantity(payload.quantity);
-  helpers.validateCostBasis(payload.costBasis);
+  acquisitionValidation.validateQuantity(payload.quantity);
+  acquisitionValidation.validateCostBasis(payload.costBasis);
   exchangeRateValue.validate(payload.acquisitionRate);
-  helpers.validateOfficialRate(payload.officialRate);
+  acquisitionValidation.validateOfficialRate(payload.officialRate);
   dateUtils.validateDateIsNotInTheFuture(
     payload.acquisitionDate,
     FxCostBasisLotAcquisitionError.InvalidAcquisitionDate
@@ -77,8 +77,7 @@ function make(
 
 const fxCostBasisLotAcquisitionEntity = Object.freeze({
   make,
-
-  ...helpers,
+  ...acquisitionValidation,
 });
 
 export default fxCostBasisLotAcquisitionEntity;

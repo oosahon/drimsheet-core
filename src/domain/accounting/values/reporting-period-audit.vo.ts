@@ -4,12 +4,12 @@ import {
   IReportingPeriodAudit,
 } from '@domain/accounting/types/period-audit.types';
 import { IReportingPeriod } from '@domain/accounting/types/period.types';
-import accountingAuditHelpers from '@domain/accounting/values/helpers/accounting-audit.vo.helpers';
+import accountingAudit from '@domain/accounting/values/accounting-audit.vo';
 
 function make(
   payload: IMakePeriodAuditPayload<IReportingPeriod>
 ): IReportingPeriodAudit {
-  return accountingAuditHelpers.make(payload, EPeriodActions);
+  return accountingAudit.make(payload, EPeriodActions);
 }
 
 const reportingPeriodAudit = Object.freeze({

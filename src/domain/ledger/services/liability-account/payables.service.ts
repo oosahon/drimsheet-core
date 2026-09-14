@@ -1,9 +1,12 @@
 import { LIABILITY_LEDGER_CODES } from '@domain/ledger/config/liability-codes.config';
+import getLedgerAccountMaterializedPath from '@domain/ledger/entities/helpers/get-materialized-path.helper';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
+import getNextSubledgerAccountCode from '@domain/ledger/entities/helpers/get-subledger-code.helper';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import ledgerAccountCurrencyInvarianceRule from '@domain/ledger/rules/currency-invariance.rule';
-import controlAccountResolverHelper from '@domain/ledger/services/helpers/control-account-resolver';
+import getControlAccountScope from '@domain/ledger/services/helpers/get-control-account-scope.helper';
 import { TPayablesLedgerCode } from '@domain/ledger/types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -58,9 +61,7 @@ function makeCreateHeader(
       accountingEntityId: payload.accountingEntity.id,
       code: LEDGER_CODE.HEADER,
       materializedPath: LEDGER_CODE.HEADER,
-      normalBalance: ledgerAccountEntity.getNormalBalance(
-        ELedgerType.Liability
-      ),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Liability),
       type: ELedgerType.Liability,
       subType: ELiabilitySubType.Payable,
       behavior: ELiabilityAccountBehavior.DefaultPayable,
@@ -99,7 +100,7 @@ function makeCreateStatutoryPayableSubAccount(
     };
 
     const { controlAccount, factoryContext } =
-      await controlAccountResolverHelper<TPayablesLedgerCode>({
+      await getControlAccountScope<TPayablesLedgerCode>({
         ledgerAccountRepo: deps.ledgerAccountRepo,
         accountingEntityId: payload.accountingEntity.id,
         controlAccountCode: payload.controlAccountCode,
@@ -112,13 +113,13 @@ function makeCreateStatutoryPayableSubAccount(
       subAccountCurrency: payload.currency,
     });
 
-    const code = ledgerAccountEntity.getSubLedgerCode(
+    const code = getNextSubledgerAccountCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
     );
 
     const materializedPath =
-      ledgerAccountEntity.getMaterializedPath<TPayablesLedgerCode>(
+      getLedgerAccountMaterializedPath<TPayablesLedgerCode>(
         factoryContext.parentMaterializedPath,
         code
       );
@@ -128,9 +129,7 @@ function makeCreateStatutoryPayableSubAccount(
       accountingEntityId: payload.accountingEntity.id,
       code,
       materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(
-        ELedgerType.Liability
-      ),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Liability),
       type: ELedgerType.Liability,
       subType: ELiabilitySubType.Payable,
       behavior: ELiabilityAccountBehavior.TaxPayable,
@@ -169,7 +168,7 @@ function makeCreateTradePayableAccount(
     };
 
     const { controlAccount, factoryContext } =
-      await controlAccountResolverHelper<TPayablesLedgerCode>({
+      await getControlAccountScope<TPayablesLedgerCode>({
         ledgerAccountRepo: deps.ledgerAccountRepo,
         accountingEntityId: payload.accountingEntity.id,
         controlAccountCode: payload.controlAccountCode,
@@ -182,13 +181,13 @@ function makeCreateTradePayableAccount(
       subAccountCurrency: null,
     });
 
-    const code = ledgerAccountEntity.getSubLedgerCode(
+    const code = getNextSubledgerAccountCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
     );
 
     const materializedPath =
-      ledgerAccountEntity.getMaterializedPath<TPayablesLedgerCode>(
+      getLedgerAccountMaterializedPath<TPayablesLedgerCode>(
         factoryContext.parentMaterializedPath,
         code
       );
@@ -198,9 +197,7 @@ function makeCreateTradePayableAccount(
       accountingEntityId: payload.accountingEntity.id,
       code,
       materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(
-        ELedgerType.Liability
-      ),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Liability),
       type: ELedgerType.Liability,
       subType: ELiabilitySubType.Payable,
       behavior: ELiabilityAccountBehavior.TradePayable,

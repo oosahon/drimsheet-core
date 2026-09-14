@@ -1,6 +1,6 @@
 import stringUtils from '@shared/utils/string';
 
-import accountingEntityHelpers from '@domain/accounting/entities/helpers/accounting-entity.entity.helpers';
+import accountingEntityValidation from '@domain/accounting/entities/validations/accounting-entity.validation';
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import { IBankDetails } from '@domain/ledger/types/asset-account.types';
 
@@ -9,7 +9,7 @@ function make(payload: IBankDetails): Readonly<IBankDetails> {
 
   if (
     !payload ||
-    !accountingEntityHelpers.isValidJurisdictionCode(countryCode)
+    !accountingEntityValidation.isValidJurisdictionCode(countryCode)
   ) {
     throw new ledgerAccountError.InvalidCountryCode({
       countryCode: payload?.countryCode,

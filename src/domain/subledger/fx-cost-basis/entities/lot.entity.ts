@@ -6,7 +6,7 @@ import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 import moneyValue from '@domain/money/values/money.vo';
-import helpers from '@domain/subledger/fx-cost-basis/entities/helpers/lot.entity.helpers';
+import lotValidation from '@domain/subledger/fx-cost-basis/entities/validations/lot.validation';
 import fxCostBasisLotError from '@domain/subledger/fx-cost-basis/errors/lot.error';
 import FxCostBasisLotEvents from '@domain/subledger/fx-cost-basis/events/lot.events';
 import {
@@ -27,9 +27,15 @@ function make(
     payload.accountingEntityId,
     fxCostBasisLotError.InvalidAccountingEntityId
   );
-  helpers.validateStatus(payload.status);
-  helpers.validateQuantity(payload.originalQuantity, payload.remainingQuantity);
-  helpers.validateCostBasis(payload.costBasis, payload.remainingCostBasis);
+  lotValidation.validateStatus(payload.status);
+  lotValidation.validateQuantity(
+    payload.originalQuantity,
+    payload.remainingQuantity
+  );
+  lotValidation.validateCostBasis(
+    payload.costBasis,
+    payload.remainingCostBasis
+  );
   exchangeRateValue.validate(payload.acquisitionRate);
   dateUtils.validateDateIsNotInTheFuture(
     payload.acquisitionDate,
@@ -70,7 +76,7 @@ function consume(
   quantity: IFxCostBasisLot['remainingQuantity'],
   costBasis: IFxCostBasisLot['remainingCostBasis']
 ): TAuditedEntity<IFxCostBasisLot, IFxCostBasisLot, IFxCostBasisLot> {
-  helpers.validateConsumption(lot, quantity, costBasis);
+  lotValidation.validateConsumption(lot, quantity, costBasis);
 
   const remainingQuantity = moneyValue.subtract(
     lot.remainingQuantity,
@@ -82,7 +88,7 @@ function consume(
   );
   const isClosed = moneyValue.isZeroAmount(remainingQuantity);
 
-  helpers.validateConsumptionRemainder(
+  lotValidation.validateConsumptionRemainder(
     remainingQuantity,
     remainingCostBasis,
     costBasis
@@ -128,8 +134,7 @@ function consume(
 const fxCostBasisLotEntity = Object.freeze({
   make,
   consume,
-
-  ...helpers,
+  ...lotValidation,
 });
 
 export default fxCostBasisLotEntity;

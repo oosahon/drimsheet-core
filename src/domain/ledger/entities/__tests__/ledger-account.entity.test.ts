@@ -2,7 +2,13 @@ import { TCreationOmits } from '@shared/types/creation-omits.types';
 import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
+import getContraLedgerAccountBalance from '@domain/ledger/entities/helpers/get-contra-balance.helper';
+import getLedgerAccountMaterializedPath from '@domain/ledger/entities/helpers/get-materialized-path.helper';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
+import getRequiredLedgerAccountMaterializedPaths from '@domain/ledger/entities/helpers/get-required-materialized-paths.helper';
+import getNextSubledgerAccountCode from '@domain/ledger/entities/helpers/get-subledger-code.helper';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ledgerAccountValidation from '@domain/ledger/entities/validations/ledger-account.validation';
 import { ELedgerAccountEvent } from '@domain/ledger/events/ledger-account.events';
 import { ELedgerAccountAuditAction } from '@domain/ledger/types/ledger-account-audit.types';
 import {
@@ -33,7 +39,7 @@ describe('Ledger Account Shared Entity', () => {
     type: ELedgerType.Asset,
     subType: 'cash',
     behavior: 'bank',
-    normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+    normalBalance: getLedgerAccountNormalBalance(ELedgerType.Asset),
     isControlAccount: false,
     controlAccountId: null,
     name: 'Main Bank Account',
@@ -57,47 +63,51 @@ describe('Ledger Account Shared Entity', () => {
 
   describe('Validation Functions', () => {
     it('validateCode: should not throw for valid ledger codes', () => {
-      expect(() => ledgerAccountEntity.validateCode('100000')).not.toThrow();
-      expect(() => ledgerAccountEntity.validateCode('599999')).not.toThrow();
+      expect(() =>
+        ledgerAccountValidation.validateCode('100000')
+      ).not.toThrow();
+      expect(() =>
+        ledgerAccountValidation.validateCode('599999')
+      ).not.toThrow();
     });
 
     it('validateCode: should throw AppError for invalid ledger codes', () => {
-      expect(() => ledgerAccountEntity.validateCode('001000')).toThrow();
-      expect(() => ledgerAccountEntity.validateCode('600000')).toThrow();
-      expect(() => ledgerAccountEntity.validateCode('10100')).toThrow();
-      expect(() => ledgerAccountEntity.validateCode('1010011')).toThrow();
-      expect(() => ledgerAccountEntity.validateCode('101abc')).toThrow();
+      expect(() => ledgerAccountValidation.validateCode('001000')).toThrow();
+      expect(() => ledgerAccountValidation.validateCode('600000')).toThrow();
+      expect(() => ledgerAccountValidation.validateCode('10100')).toThrow();
+      expect(() => ledgerAccountValidation.validateCode('1010011')).toThrow();
+      expect(() => ledgerAccountValidation.validateCode('101abc')).toThrow();
     });
 
     it('validateType: should not throw for valid types', () => {
       expect(() =>
-        ledgerAccountEntity.validateType(ELedgerType.Asset)
+        ledgerAccountValidation.validateType(ELedgerType.Asset)
       ).not.toThrow();
     });
 
     it('validateType: should throw AppError for invalid type', () => {
       expect(() => {
         // @ts-expect-error testing invalid type
-        ledgerAccountEntity.validateType('invalid');
+        ledgerAccountValidation.validateType('invalid');
       }).toThrow();
     });
 
     it('validateStatus: should not throw for valid statuses', () => {
       expect(() =>
-        ledgerAccountEntity.validateStatus(ELedgerAccountStatus.Active)
+        ledgerAccountValidation.validateStatus(ELedgerAccountStatus.Active)
       ).not.toThrow();
     });
 
     it('validateStatus: should throw AppError for invalid status', () => {
       expect(() => {
         // @ts-expect-error testing invalid status
-        ledgerAccountEntity.validateStatus('invalid');
+        ledgerAccountValidation.validateStatus('invalid');
       }).toThrow();
     });
 
     it('validateContraRule: should not throw for valid contra rules', () => {
       expect(() =>
-        ledgerAccountEntity.validateContraRule(
+        ledgerAccountValidation.validateContraRule(
           EContraAccountRule.ContraPermitted
         )
       ).not.toThrow();
@@ -106,13 +116,13 @@ describe('Ledger Account Shared Entity', () => {
     it('validateContraRule: should throw AppError for invalid contra rule', () => {
       expect(() => {
         // @ts-expect-error testing invalid contra rule
-        ledgerAccountEntity.validateContraRule('invalid');
+        ledgerAccountValidation.validateContraRule('invalid');
       }).toThrow();
     });
 
     it('validateAdjunctRule: should not throw for valid adjunct rules', () => {
       expect(() =>
-        ledgerAccountEntity.validateAdjunctRule(
+        ledgerAccountValidation.validateAdjunctRule(
           EAdjunctAccountRule.AdjunctPermitted
         )
       ).not.toThrow();
@@ -121,16 +131,16 @@ describe('Ledger Account Shared Entity', () => {
     it('validateAdjunctRule: should throw AppError for invalid adjunct rule', () => {
       expect(() => {
         // @ts-expect-error testing invalid adjunct rule
-        ledgerAccountEntity.validateAdjunctRule('invalid');
+        ledgerAccountValidation.validateAdjunctRule('invalid');
       }).toThrow();
     });
 
     it('validateMaterializedPath: should not throw for valid lengths', () => {
       expect(() =>
-        ledgerAccountEntity.validateMaterializedPath('100000')
+        ledgerAccountValidation.validateMaterializedPath('100000')
       ).not.toThrow();
       expect(() =>
-        ledgerAccountEntity.validateMaterializedPath(
+        ledgerAccountValidation.validateMaterializedPath(
           '100000.100001.100002.100003.100004.100005.100006.100007.100008.100009'
         )
       ).not.toThrow(); // 69 characters
@@ -138,72 +148,56 @@ describe('Ledger Account Shared Entity', () => {
 
     it('validateMaterializedPath: should throw AppError for invalid lengths', () => {
       expect(() =>
-        ledgerAccountEntity.validateMaterializedPath('10000')
+        ledgerAccountValidation.validateMaterializedPath('10000')
       ).toThrow(); // 5 chars
       // 70 chars
       expect(() =>
-        ledgerAccountEntity.validateMaterializedPath(
+        ledgerAccountValidation.validateMaterializedPath(
           '100000.100001.100002.100003.100004.100005.100006.100007.100008.100009x'
         )
       ).toThrow();
     });
   });
 
-  describe('getSubLedgerCode', () => {
+  describe('getNextSubledgerAccountCode', () => {
     it('should generate the next sub-ledger code correctly', () => {
-      expect(ledgerAccountEntity.getSubLedgerCode('101', '101000')).toBe(
-        '101001'
-      );
-      expect(ledgerAccountEntity.getSubLedgerCode('101', '101009')).toBe(
-        '101010'
-      );
-      expect(ledgerAccountEntity.getSubLedgerCode('300', '300099')).toBe(
-        '300100'
-      );
+      expect(getNextSubledgerAccountCode('101', '101000')).toBe('101001');
+      expect(getNextSubledgerAccountCode('101', '101009')).toBe('101010');
+      expect(getNextSubledgerAccountCode('300', '300099')).toBe('300100');
     });
 
     it('should throw if headerCode has invalid format', () => {
-      expect(() =>
-        ledgerAccountEntity.getSubLedgerCode('10', '100000')
-      ).toThrow();
-      expect(() =>
-        ledgerAccountEntity.getSubLedgerCode('601', '601000')
-      ).toThrow();
+      expect(() => getNextSubledgerAccountCode('10', '100000')).toThrow();
+      expect(() => getNextSubledgerAccountCode('601', '601000')).toThrow();
     });
 
     it('should throw if predecessorCode does not start with the headerCode or has invalid length', () => {
-      expect(() =>
-        ledgerAccountEntity.getSubLedgerCode('101', '102000')
-      ).toThrow();
-      expect(() =>
-        ledgerAccountEntity.getSubLedgerCode('101', '10100')
-      ).toThrow();
+      expect(() => getNextSubledgerAccountCode('101', '102000')).toThrow();
+      expect(() => getNextSubledgerAccountCode('101', '10100')).toThrow();
     });
 
     it('should throw if limit is reached (999)', () => {
-      expect(() =>
-        ledgerAccountEntity.getSubLedgerCode('101', '101999')
-      ).toThrow();
+      expect(() => getNextSubledgerAccountCode('101', '101999')).toThrow();
     });
   });
 
-  describe('getMaterializedPath', () => {
+  describe('getLedgerAccountMaterializedPath', () => {
     it('returns a correct appended materialized path', () => {
-      expect(ledgerAccountEntity.getMaterializedPath('100000', '100001')).toBe(
+      expect(getLedgerAccountMaterializedPath('100000', '100001')).toBe(
         '100000.100001'
       );
     });
 
     it('throws AppError if parent path is too short', () => {
       expect(() =>
-        ledgerAccountEntity.getMaterializedPath('10000', '100001')
+        getLedgerAccountMaterializedPath('10000', '100001')
       ).toThrow();
     });
 
     it('throws AppError if parent path is too long', () => {
       // 63 characters
       expect(() =>
-        ledgerAccountEntity.getMaterializedPath(
+        getLedgerAccountMaterializedPath(
           '100000.100001.100002.100003.100004.100005.100006.100007.100008.',
           '100009'
         )
@@ -211,7 +205,7 @@ describe('Ledger Account Shared Entity', () => {
     });
   });
 
-  describe('getRequiredMaterializedPaths', () => {
+  describe('getRequiredLedgerAccountMaterializedPaths', () => {
     it('returns every unique account and ancestor path', () => {
       const [firstAccount] = ledgerAccountEntity.make({
         ...validPayload,
@@ -223,10 +217,7 @@ describe('Ledger Account Shared Entity', () => {
       });
 
       expect(
-        ledgerAccountEntity.getRequiredMaterializedPaths([
-          firstAccount,
-          secondAccount,
-        ])
+        getRequiredLedgerAccountMaterializedPaths([firstAccount, secondAccount])
       ).toEqual([
         '100000',
         '100000.100001',
@@ -236,24 +227,24 @@ describe('Ledger Account Shared Entity', () => {
     });
   });
 
-  describe('getNormalBalance', () => {
+  describe('getLedgerAccountNormalBalance', () => {
     it('returns Debit for Asset and Expense', () => {
-      expect(ledgerAccountEntity.getNormalBalance(ELedgerType.Asset)).toBe(
+      expect(getLedgerAccountNormalBalance(ELedgerType.Asset)).toBe(
         ENormalBalance.Debit
       );
-      expect(ledgerAccountEntity.getNormalBalance(ELedgerType.Expense)).toBe(
+      expect(getLedgerAccountNormalBalance(ELedgerType.Expense)).toBe(
         ENormalBalance.Debit
       );
     });
 
     it('returns Credit for Liability, Equity, and Revenue', () => {
-      expect(ledgerAccountEntity.getNormalBalance(ELedgerType.Liability)).toBe(
+      expect(getLedgerAccountNormalBalance(ELedgerType.Liability)).toBe(
         ENormalBalance.Credit
       );
-      expect(ledgerAccountEntity.getNormalBalance(ELedgerType.Equity)).toBe(
+      expect(getLedgerAccountNormalBalance(ELedgerType.Equity)).toBe(
         ENormalBalance.Credit
       );
-      expect(ledgerAccountEntity.getNormalBalance(ELedgerType.Revenue)).toBe(
+      expect(getLedgerAccountNormalBalance(ELedgerType.Revenue)).toBe(
         ENormalBalance.Credit
       );
     });
@@ -261,20 +252,20 @@ describe('Ledger Account Shared Entity', () => {
     it('throws AppError for invalid ledger type', () => {
       expect(() => {
         // @ts-expect-error testing invalid type
-        ledgerAccountEntity.getNormalBalance('INVALID_TYPE');
+        getLedgerAccountNormalBalance('INVALID_TYPE');
       }).toThrow();
     });
   });
 
-  describe('getContraBalance', () => {
+  describe('getContraLedgerAccountBalance', () => {
     it('returns Credit when normal balance is Debit', () => {
-      expect(ledgerAccountEntity.getContraBalance(ENormalBalance.Debit)).toBe(
+      expect(getContraLedgerAccountBalance(ENormalBalance.Debit)).toBe(
         ENormalBalance.Credit
       );
     });
 
     it('returns Debit when normal balance is Credit', () => {
-      expect(ledgerAccountEntity.getContraBalance(ENormalBalance.Credit)).toBe(
+      expect(getContraLedgerAccountBalance(ENormalBalance.Credit)).toBe(
         ENormalBalance.Debit
       );
     });
@@ -282,7 +273,7 @@ describe('Ledger Account Shared Entity', () => {
     it('throws AppError for invalid normal balance', () => {
       expect(() => {
         // @ts-expect-error testing invalid balance
-        ledgerAccountEntity.getContraBalance('INVALID_BALANCE');
+        getContraLedgerAccountBalance('INVALID_BALANCE');
       }).toThrow();
     });
   });

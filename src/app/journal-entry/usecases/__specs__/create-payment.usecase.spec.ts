@@ -14,6 +14,7 @@ import {
   EJournalEntryStatus,
 } from '@domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import {
   EAssetAccountBehavior,
@@ -92,7 +93,7 @@ describe('makeCreatePaymentUsecase', () => {
       type,
       subType: overrides.subType ?? EAssetSubType.CashAndCashEquivalent,
       behavior: overrides.behavior ?? EAssetAccountBehavior.Bank,
-      normalBalance: ledgerAccountEntity.getNormalBalance(type),
+      normalBalance: getLedgerAccountNormalBalance(type),
       isControlAccount: false,
       controlAccountId: null,
       name: overrides.name ?? 'Payment account',
