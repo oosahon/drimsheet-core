@@ -20,7 +20,6 @@ import {
   makeInitiateLoginWithGoogleMiddleware,
 } from '@interface/http/middlewares/google-oauth.middleware';
 import makeIsAuthenticatedUserMiddleware from '@interface/http/middlewares/is-authenticated-user.middleware';
-import makeIsOptionalAuthenticatedUserMiddleware from '@interface/http/middlewares/is-optional-authenticated-user.middleware';
 import makeRequestLoggerMiddleware from '@interface/http/middlewares/request-logger.middleware';
 import makeSignupRateLimitMiddlewares from '@interface/http/middlewares/signup-rate-limit.middleware';
 
@@ -38,11 +37,6 @@ const httpMiddlewares = {
 
   completeLoginWithGoogle: makeCompleteLoginWithGoogleMiddleware(
     oAuthUseCase.handleGoogleCallback
-  ),
-
-  isOptionalAuthenticatedUser: makeIsOptionalAuthenticatedUserMiddleware(
-    observability.logger,
-    observability.reporter
   ),
 
   appContextInit: makeAppContextInitMiddleware(appContext, vars),
