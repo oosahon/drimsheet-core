@@ -38,33 +38,33 @@ describe('userValidation', () => {
       );
     });
 
-    it('throws InvalidValue when user ID is invalid UUID', () => {
+    it('throws InvalidId when user ID is invalid UUID', () => {
       const invalidIdUser = {
         ...validUser,
         id: 'invalid-uuid' as TEntityId,
       };
       expect(() => userValidation.validate(invalidIdUser)).toThrow(
-        userError.InvalidValue
+        userError.InvalidId
       );
     });
 
-    it('throws InvalidValue when firstName is invalid', () => {
+    it('throws InvalidFirstName when firstName is invalid', () => {
       const invalidFirstNameUser = {
         ...validUser,
         firstName: '',
       };
       expect(() => userValidation.validate(invalidFirstNameUser)).toThrow(
-        userError.InvalidValue
+        userError.InvalidFirstName
       );
     });
 
-    it('throws InvalidValue when lastName is invalid', () => {
+    it('throws InvalidLastName when lastName is invalid', () => {
       const invalidLastNameUser = {
         ...validUser,
         lastName: '',
       };
       expect(() => userValidation.validate(invalidLastNameUser)).toThrow(
-        userError.InvalidValue
+        userError.InvalidLastName
       );
     });
 

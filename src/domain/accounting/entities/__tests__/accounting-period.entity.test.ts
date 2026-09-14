@@ -2,6 +2,7 @@ import getEntitiesAndEvents from '@shared/helpers/get-entities-and-events';
 import { TEntityId } from '@shared/types/uuid';
 
 import accountingPeriodEntity from '@domain/accounting/entities/accounting-period.entity';
+import periodError from '@domain/accounting/errors/period.error';
 import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
 import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
 import {
@@ -110,7 +111,9 @@ describe('accountingPeriodEntity', () => {
         ...validPayload,
         accountingEntityId: 'invalid' as TEntityId,
       };
-      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow();
+      expect(() => accountingPeriodEntity.make(invalidPayload)).toThrow(
+        periodError.InvalidAccountingEntityId
+      );
     });
   });
 });

@@ -1,3 +1,4 @@
+import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import {
   EExchangeRateType,
   UExchangeRateType,
@@ -54,6 +55,21 @@ describe('ExchangeRate Value Object', () => {
       expect(() => exchangeRateValue.make(payload)).toThrow();
     });
 
+    it('should throw InvalidSource if source is invalid', () => {
+      const payload = {
+        baseCurrencyCode: 'EUR',
+        targetCurrencyCode: 'USD',
+        rate: 1.1,
+        type: EExchangeRateType.Official,
+        asOf: new Date('2026-04-14T00:00:00.000Z'),
+        source: '',
+      };
+
+      expect(() => exchangeRateValue.make(payload)).toThrow(
+        exchangeRateError.InvalidSource
+      );
+    });
+
     it('should throw if date is in the future', () => {
       const payload = {
         baseCurrencyCode: 'EUR',
@@ -64,7 +80,9 @@ describe('ExchangeRate Value Object', () => {
         source: 'ECB',
       };
 
-      expect(() => exchangeRateValue.make(payload)).toThrow();
+      expect(() => exchangeRateValue.make(payload)).toThrow(
+        exchangeRateError.InvalidDate
+      );
     });
   });
 });

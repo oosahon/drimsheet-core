@@ -3,6 +3,7 @@ import generateUUID from '@shared/utils/uuid-generator';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
 import accountingEntityValidation from '@domain/accounting/entities/validations/accounting-entity.validation';
+import accountingEntityError from '@domain/accounting/errors/accounting-entity.error';
 import { EAccountingEntityEvents } from '@domain/accounting/events/accounting-entity.events';
 import { EAccountingEntityActions } from '@domain/accounting/types/accounting-entity-audit.types';
 import {
@@ -84,7 +85,9 @@ describe('accountingEntityEntity', () => {
       };
 
       // @ts-expect-error testing invalid ownerId type
-      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow();
+      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow(
+        accountingEntityError.InvalidOwnerId
+      );
     });
 
     it('should throw if name is too short', () => {
@@ -93,7 +96,9 @@ describe('accountingEntityEntity', () => {
         name: '',
       };
 
-      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow();
+      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow(
+        accountingEntityError.InvalidName
+      );
     });
 
     it('should throw if name is missing', () => {
@@ -103,7 +108,9 @@ describe('accountingEntityEntity', () => {
       };
 
       // @ts-expect-error testing missing property
-      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow();
+      expect(() => accountingEntityEntity.make(invalidPayload)).toThrow(
+        accountingEntityError.InvalidName
+      );
     });
   });
 

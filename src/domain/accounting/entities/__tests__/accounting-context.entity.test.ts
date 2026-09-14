@@ -5,6 +5,7 @@ import getAccountingContextDescription from '@domain/accounting/entities/helpers
 import getAccountingJurisdiction from '@domain/accounting/entities/helpers/get-jurisdiction.helper';
 import getAccountingStandard from '@domain/accounting/entities/helpers/get-standard.helper';
 import accountingContextValidation from '@domain/accounting/entities/validations/accounting-context.validation';
+import accountingError from '@domain/accounting/errors/accounting.error';
 import { EAccountingContextEvents } from '@domain/accounting/events/accounting-context.events';
 import { EAccountingContextActions } from '@domain/accounting/types/accounting-context-audit.types';
 import {
@@ -220,7 +221,9 @@ describe('accountingContextEntity', () => {
         accountingEntityId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
+        accountingError.InvalidAccountingEntityId
+      );
     });
 
     it('throws AppError if accountingStandardCode is invalid', () => {
@@ -238,7 +241,9 @@ describe('accountingContextEntity', () => {
         fiscalYearId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
+        accountingError.InvalidFiscalYearId
+      );
     });
 
     it('throws AppError if currentAccountingPeriodId is invalid', () => {
@@ -247,7 +252,9 @@ describe('accountingContextEntity', () => {
         currentAccountingPeriodId: 'invalid-uuid',
       };
       // @ts-expect-error testing invalid UUID
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
+        accountingError.InvalidCurrentAccountingPeriodId
+      );
     });
 
     it('throws AppError if name is invalid', () => {
@@ -255,7 +262,9 @@ describe('accountingContextEntity', () => {
         ...validPayload,
         name: '',
       };
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
+        accountingError.InvalidName
+      );
     });
 
     it('throws AppError if description is invalid', () => {
@@ -263,7 +272,9 @@ describe('accountingContextEntity', () => {
         ...validPayload,
         description: '',
       };
-      expect(() => accountingContextEntity.make(invalidPayload)).toThrow();
+      expect(() => accountingContextEntity.make(invalidPayload)).toThrow(
+        accountingError.InvalidDescription
+      );
     });
 
     it('creates a valid accounting context entity with a null description', () => {

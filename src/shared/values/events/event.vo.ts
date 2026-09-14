@@ -44,7 +44,7 @@ function enrich<T>(
       min: 1,
       max: 255,
     },
-    eventError.InvalidValue
+    eventError.InvalidEventType
   );
 
   return Object.freeze({
@@ -118,7 +118,7 @@ function validate<T = object>(
       min: 1,
       max: 255,
     },
-    eventError.InvalidValue
+    eventError.InvalidEventType
   );
 
   if (payload.data === undefined || payload.data === null) {

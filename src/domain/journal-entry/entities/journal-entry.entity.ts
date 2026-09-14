@@ -27,9 +27,12 @@ import journalLineEntity from './journal-line.entity';
 function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
   stringUtils.validateUUID(
     payload.accountingEntityId,
-    journalEntryError.InvalidValue
+    journalEntryError.InvalidAccountingEntityId
   );
-  stringUtils.validateUUID(payload.createdBy, journalEntryError.InvalidValue);
+  stringUtils.validateUUID(
+    payload.createdBy,
+    journalEntryError.InvalidCreatedBy
+  );
   journalEntryValidation.validateSourceType(payload.sourceType);
   dateUtils.validateDate(
     payload.effectiveDate,

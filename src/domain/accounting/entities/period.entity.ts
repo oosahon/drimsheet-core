@@ -5,7 +5,6 @@ import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 import periodValidation from '@domain/accounting/entities/validations/period.validation';
-import accountingError from '@domain/accounting/errors/accounting.error';
 import periodError from '@domain/accounting/errors/period.error';
 import periodEvents from '@domain/accounting/events/period.events';
 import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
@@ -30,24 +29,21 @@ function makeReportingPeriod(
       min: 1,
       max: 100,
     },
-    accountingError.InvalidValue
+    periodError.InvalidName
   );
 
   stringUtils.validateUUID(
     payload.accountingEntityId,
-    accountingError.InvalidValue
+    periodError.InvalidAccountingEntityId
   );
-  stringUtils.validateUUID(payload.fiscalYearId, accountingError.InvalidValue);
+  stringUtils.validateUUID(
+    payload.fiscalYearId,
+    periodError.InvalidFiscalYearId
+  );
 
   periodValidation.validateUnit(payload.unit);
 
-  numberUtils.validatePositiveNumber(
-    payload.count,
-    accountingError.InvalidValue
-  );
-
-  dateUtils.validateDate(payload.startDate, accountingError.InvalidValue);
-  dateUtils.validateDate(payload.endDate, accountingError.InvalidValue);
+  numberUtils.validatePositiveNumber(payload.count, periodError.InvalidCount);
 
   dateUtils.validateGreaterThan(
     payload.endDate,

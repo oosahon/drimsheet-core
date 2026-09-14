@@ -1,7 +1,7 @@
 import stringUtils from '@shared/utils/string';
 
 import fiscalYearValidation from '@domain/accounting/entities/validations/fiscal-year.validation';
-import accountingError from '@domain/accounting/errors/accounting.error';
+import periodError from '@domain/accounting/errors/period.error';
 
 export default function deriveFiscalYearName(
   startDate: Date,
@@ -13,7 +13,7 @@ export default function deriveFiscalYearName(
     return stringUtils.sanitizeAndValidate(
       name,
       { min: 1, max: 100 },
-      accountingError.InvalidValue
+      periodError.InvalidName
     );
   }
 

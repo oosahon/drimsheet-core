@@ -9,7 +9,7 @@ function validate(user: IUser) {
     throw new userError.InvalidAction({ reason: 'User is deleted' });
   }
 
-  stringUtils.validateUUID(user.id, userError.InvalidValue);
+  stringUtils.validateUUID(user.id, userError.InvalidId);
 
   stringUtils.sanitizeAndValidate(
     user.firstName,
@@ -17,7 +17,7 @@ function validate(user: IUser) {
       min: 1,
       max: 100,
     },
-    userError.InvalidValue
+    userError.InvalidFirstName
   );
 
   stringUtils.sanitizeAndValidate(
@@ -26,7 +26,7 @@ function validate(user: IUser) {
       min: 1,
       max: 100,
     },
-    userError.InvalidValue
+    userError.InvalidLastName
   );
 
   emailValue.validate(user.email);

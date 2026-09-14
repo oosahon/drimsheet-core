@@ -3,7 +3,6 @@ import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
 const EErrorKeys = {
-  InvalidValue: 'money_error_value_invalid',
   NonNormalizableAmount: 'money_error_non_normalizable_amount_invalid',
   InvalidCurrencyCode: 'money_error_currency_code_invalid',
   FractionalMinorUnit: 'money_error_fractional_minor_unit_invalid',

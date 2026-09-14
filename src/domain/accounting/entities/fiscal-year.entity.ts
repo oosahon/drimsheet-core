@@ -4,7 +4,7 @@ import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 import deriveFiscalYearName from '@domain/accounting/entities/helpers/derive-name.helper';
 import fiscalYearValidation from '@domain/accounting/entities/validations/fiscal-year.validation';
-import accountingError from '@domain/accounting/errors/accounting.error';
+import periodError from '@domain/accounting/errors/period.error';
 import periodEvents from '@domain/accounting/events/period.events';
 import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
 import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
@@ -25,7 +25,7 @@ function make(
   fiscalYearValidation.validateStartAndEndDate(payload);
   stringUtils.validateUUID(
     payload.accountingEntityId,
-    accountingError.InvalidValue
+    periodError.InvalidAccountingEntityId
   );
 
   const name = deriveFiscalYearName(

@@ -5,10 +5,11 @@ import DomainError from '@shared/values/errors/domain.error';
 type TErrorPrefix = TErrorKey<'user_error'>;
 
 const EErrorKeys = {
-  InvalidValue: 'user_error_value_invalid',
   InvalidAction: 'user_error_action_invalid',
   InvalidId: 'user_error_id_invalid',
   InvalidDate: 'user_error_date_invalid',
+  InvalidFirstName: 'user_error_first_name_invalid',
+  InvalidLastName: 'user_error_last_name_invalid',
 } as const satisfies TErrorKeys<'user_error'>;
 
 type UUserError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

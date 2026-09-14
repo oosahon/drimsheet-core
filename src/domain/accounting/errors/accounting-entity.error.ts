@@ -5,6 +5,8 @@ import accountingError from './accounting.error';
 
 const EErrorKeys = {
   Unauthorized: 'accounting_error_accounting_entity_access_forbidden',
+  InvalidOwnerId: 'accounting_error_accounting_entity_owner_id_invalid',
+  InvalidName: 'accounting_error_accounting_entity_name_invalid',
   InvalidType: 'accounting_error_accounting_entity_type_invalid',
   InvalidJurisdictionCode:
     'accounting_error_accounting_entity_jurisdiction_code_invalid',

@@ -3,7 +3,7 @@ import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 import getPeriodIntervals from '@domain/accounting/entities/helpers/get-intervals.helper';
 import periodValidation from '@domain/accounting/entities/validations/period.validation';
-import accountingError from '@domain/accounting/errors/accounting.error';
+import periodError from '@domain/accounting/errors/period.error';
 import periodEvents from '@domain/accounting/events/period.events';
 import { IFiscalYear } from '@domain/accounting/types/fiscal-year.types';
 import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
@@ -25,7 +25,7 @@ function make(
 ): TAuditedEntity<IReportingPeriod, IReportingPeriod, IReportingPeriod>[] {
   stringUtils.validateUUID(
     payload.accountingEntityId,
-    accountingError.InvalidValue
+    periodError.InvalidAccountingEntityId
   );
   periodValidation.validateUnit(payload.unit);
 

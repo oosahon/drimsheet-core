@@ -137,7 +137,7 @@ function validateVoidedAt(value: Date | null) {
 
 function validateVoidingEntryId(value: TEntityId | null) {
   if (value) {
-    stringUtils.validateUUID(value, journalEntryError.InvalidValue);
+    stringUtils.validateUUID(value, journalEntryError.InvalidVoidingEntryId);
   }
 }
 

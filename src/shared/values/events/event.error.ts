@@ -3,7 +3,7 @@ import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
 const EErrorKeys = {
-  InvalidValue: 'event_error_invalid_value_unexpected',
+  InvalidEventType: 'event_error_invalid_event_type_unexpected',
   CorrelationIdOverwrite: 'event_error_correlation_id_overwrite_unexpected',
   IdempotencyKeyOverwrite: 'event_error_idempotency_key_overwrite_unexpected',
   InvalidCorrelationId: 'event_error_invalid_correlation_id_unexpected',

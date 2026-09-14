@@ -1,7 +1,7 @@
 import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
 import { ITransactionContext } from '@shared/types/repo.types';
 
-import currencyError from '@domain/money/errors/currency.error';
+import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import {
   EExchangeRateType,
   IExchangeRate,
@@ -234,7 +234,7 @@ describe('makeIngestExchangeRateUseCase', () => {
     ]);
 
     await expect(makeUseCase()(payload)).rejects.toThrow(
-      currencyError.InvalidValue
+      exchangeRateError.InvalidDate
     );
 
     expect(mockExchangeRateRepo.findLatest).not.toHaveBeenCalled();

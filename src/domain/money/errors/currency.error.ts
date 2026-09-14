@@ -12,7 +12,6 @@ class CurrencyError<K extends TErrorPrefix> extends DomainError<K> {
 }
 
 const EErrorKeys = {
-  InvalidValue: 'currency_error_value_invalid',
   InvalidCode: 'currency_error_code_invalid',
 } as const satisfies TErrorKeys<'currency_error'>;
 

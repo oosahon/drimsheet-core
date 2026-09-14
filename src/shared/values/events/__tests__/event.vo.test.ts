@@ -26,7 +26,7 @@ describe('event.vo', () => {
     it('throws error if type exceeds max length', () => {
       const longType = 'a'.repeat(256);
       expect(() => eventValue.make({ type: longType, data: {} })).toThrow(
-        eventError.InvalidValue
+        eventError.InvalidEventType
       );
     });
 

@@ -1,6 +1,7 @@
 import { TCreationOmits } from '@shared/types/creation-omits.types';
 
 import userEntity from '@domain/user/entities/user.entity';
+import userError from '@domain/user/errors/user.error';
 import { EUserEntityActions } from '@domain/user/types/user-audit.types';
 import { IUser } from '@domain/user/types/user.types';
 
@@ -66,12 +67,14 @@ describe('User Entity', () => {
         emailVerified: false,
       };
 
-      expect(() => userEntity.make(payload)).toThrow();
+      expect(() => userEntity.make(payload)).toThrow(
+        userError.InvalidFirstName
+      );
 
       const longName = 'A'.repeat(101);
       expect(() =>
         userEntity.make({ ...payload, firstName: longName })
-      ).toThrow();
+      ).toThrow(userError.InvalidFirstName);
     });
 
     it('should throw an error for invalid lastName length', () => {
@@ -82,12 +85,12 @@ describe('User Entity', () => {
         emailVerified: false,
       };
 
-      expect(() => userEntity.make(payload)).toThrow();
+      expect(() => userEntity.make(payload)).toThrow(userError.InvalidLastName);
 
       const longName = 'A'.repeat(101);
-      expect(() =>
-        userEntity.make({ ...payload, lastName: longName })
-      ).toThrow();
+      expect(() => userEntity.make({ ...payload, lastName: longName })).toThrow(
+        userError.InvalidLastName
+      );
     });
   });
 
@@ -143,7 +146,9 @@ describe('User Entity', () => {
 
     it('should throw error if user is invalid before verifying', () => {
       const invalidUser = { ...unverifiedUser, firstName: '' };
-      expect(() => userEntity.verifyEmail(invalidUser)).toThrow();
+      expect(() => userEntity.verifyEmail(invalidUser)).toThrow(
+        userError.InvalidFirstName
+      );
     });
   });
 
@@ -237,7 +242,7 @@ describe('User Entity', () => {
       const invalidNameUser = { ...existingUser, firstName: '' };
       expect(() =>
         userEntity.update(invalidNameUser, { firstName: 'Changed' })
-      ).toThrow();
+      ).toThrow(userError.InvalidFirstName);
     });
   });
 });

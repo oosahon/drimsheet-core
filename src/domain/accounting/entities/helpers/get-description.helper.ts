@@ -12,7 +12,7 @@ export default function getAccountingContextDescription(
           min: 1,
           max: 255,
         },
-        accountingError.InvalidValue
+        accountingError.InvalidDescription
       )
     : null;
 }
