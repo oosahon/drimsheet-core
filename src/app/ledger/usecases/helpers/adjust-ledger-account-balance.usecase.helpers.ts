@@ -9,6 +9,7 @@ import {
   EJournalEntryStatus,
   IJournalEntry,
 } from '@domain/journal-entry/types/journal-entry.types';
+import getRequiredLedgerAccountMaterializedPaths from '@domain/ledger/entities/helpers/get-required-materialized-paths.helper';
 import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
@@ -75,7 +76,7 @@ async function prepareBalancePropagation(
     }
   );
 
-  const materializedPaths = ledgerAccountEntity.getRequiredMaterializedPaths(
+  const materializedPaths = getRequiredLedgerAccountMaterializedPaths(
     directAccountsPage.data
   );
   const accounts = await deps.ledgerAccountRepo.findAllByMaterializedPath(

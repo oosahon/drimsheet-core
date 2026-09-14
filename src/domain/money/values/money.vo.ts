@@ -7,6 +7,7 @@ import moneyError from '@domain/money/errors/money.error';
 import { ICurrency } from '@domain/money/types/currency.types';
 import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
 import { IMoney } from '@domain/money/types/money.types';
+import moneyValidation from '@domain/money/values/validations/money.validation';
 
 // TODO (i18n): translate error messages
 
@@ -81,14 +82,6 @@ function makeZeroAmount(currency: ICurrency) {
 }
 
 /**
- * Checks if all money objects have the same currency.
- */
-function isSameCurrency(...args: IMoney[]) {
-  if (!args.length) return false;
-  return args.every((a) => a.currency.code === args[0].currency.code);
-}
-
-/**
  * Adds money objects.
  */
 function add(...args: IMoney[]): IMoney {
@@ -96,7 +89,7 @@ function add(...args: IMoney[]): IMoney {
     throw new moneyError.MissingArguments();
   }
 
-  if (!isSameCurrency(...args)) {
+  if (!moneyValidation.isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
       args,
     });
@@ -116,7 +109,7 @@ function subtract(...args: IMoney[]): IMoney {
     throw new moneyError.MissingArguments();
   }
 
-  if (!isSameCurrency(...args)) {
+  if (!moneyValidation.isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
       args,
     });
@@ -169,30 +162,12 @@ function divide(
   };
 }
 
-function validate(money: IMoney) {
-  if (typeof money.amount !== 'bigint') {
-    throw new moneyError.InvalidAmount({ amount: money.amount });
-  }
-
-  if (!currencyEntity.isValidCode(money.currency.code)) {
-    throw new moneyError.InvalidCurrencyCode({
-      currencyCode: money.currency.code,
-    });
-  }
-}
-
-function equals(money: IMoney, other: IMoney) {
-  return (
-    money.amount === other.amount && money.currency.code === other.currency.code
-  );
-}
-
 function min(...args: IMoney[]) {
   if (!args.length) {
     throw new moneyError.MissingArguments();
   }
 
-  if (!isSameCurrency(...args)) {
+  if (!moneyValidation.isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
       args,
     });
@@ -206,7 +181,7 @@ function max(...args: IMoney[]) {
     throw new moneyError.MissingArguments();
   }
 
-  if (!isSameCurrency(...args)) {
+  if (!moneyValidation.isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
       args,
     });
@@ -215,34 +190,12 @@ function max(...args: IMoney[]) {
   return args.reduce((acc, param) => (acc.amount > param.amount ? acc : param));
 }
 
-function isGreaterThan(money: IMoney, other: IMoney) {
-  if (!isSameCurrency(money, other)) {
-    throw new moneyError.CurrencyMismatch({
-      money,
-      other,
-    });
-  }
-
-  return money.amount > other.amount;
-}
-
-function isLessThan(money: IMoney, other: IMoney) {
-  if (!isSameCurrency(money, other)) {
-    throw new moneyError.CurrencyMismatch({
-      money,
-      other,
-    });
-  }
-
-  return money.amount < other.amount;
-}
-
 function sortDescending(...args: IMoney[]) {
   if (!args.length) {
     throw new moneyError.MissingArguments();
   }
 
-  if (!isSameCurrency(...args)) {
+  if (!moneyValidation.isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
       args,
     });
@@ -256,7 +209,7 @@ function sortAscending(...args: IMoney[]) {
     throw new moneyError.MissingArguments();
   }
 
-  if (!isSameCurrency(...args)) {
+  if (!moneyValidation.isSameCurrency(...args)) {
     throw new moneyError.CurrencyMismatch({
       args,
     });
@@ -288,28 +241,20 @@ function convert(
   return make(amount, targetCurrencyCode, true);
 }
 
-function isZeroAmount(money: IMoney) {
-  return money.amount === 0n;
-}
-
 const moneyValue = Object.freeze({
   make,
   makeZeroAmount,
-  isSameCurrency,
   add,
   subtract,
   divide,
   multiply,
-  validate,
-  equals,
   min,
   max,
-  isGreaterThan,
-  isLessThan,
   sortDescending,
   sortAscending,
   convert,
-  isZeroAmount,
+
+  ...moneyValidation,
 });
 
 export default moneyValue;

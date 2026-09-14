@@ -4,7 +4,8 @@ import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 import { IEvent } from '@shared/values/events/types/event.types';
 
-import helpers from '@domain/journal-entry/entities/helpers/journal-line.helpers';
+import getJournalLineDescription from '@domain/journal-entry/entities/helpers/get-description.helper';
+import journalLineValidation from '@domain/journal-entry/entities/validations/journal-line.validation';
 import journalLineError from '@domain/journal-entry/errors/journal-line.error';
 import journalLineEvents from '@domain/journal-entry/events/journal-line-item.events';
 import {
@@ -31,15 +32,15 @@ function make(
     payload.accountId,
     journalLineError.InvalidAccountId
   );
-  helpers.validateCounterpartyId(payload.counterpartyId ?? null);
+  journalLineValidation.validateCounterpartyId(payload.counterpartyId ?? null);
   numberUtils.validateInteger(
     payload.sequenceOrder,
     journalLineError.InvalidSequenceOrder
   );
   moneyValue.validate(payload.amount);
 
-  helpers.validateExchangeRate(payload);
-  helpers.validateSide(payload.side);
+  journalLineValidation.validateExchangeRate(payload);
+  journalLineValidation.validateSide(payload.side);
   dateUtils.validateDate(
     entryPayload.createdAt,
     journalLineError.InvalidCreatedAt
@@ -52,7 +53,7 @@ function make(
         payload.functionalCurrency
       )
     : payload.amount;
-  const description = helpers.getDescription(
+  const description = getJournalLineDescription(
     payload.description ?? entryPayload.memo
   );
 
@@ -85,8 +86,7 @@ function make(
 
 const journalLineEntity = Object.freeze({
   make,
-
-  ...helpers,
+  ...journalLineValidation,
 });
 
 export default journalLineEntity;

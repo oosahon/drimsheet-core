@@ -4,7 +4,7 @@ import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
-import helpers from '@domain/accounting/entities/helpers/period.helpers';
+import periodValidation from '@domain/accounting/entities/validations/period.validation';
 import accountingError from '@domain/accounting/errors/accounting.error';
 import periodError from '@domain/accounting/errors/period.error';
 import periodEvents from '@domain/accounting/events/period.events';
@@ -39,7 +39,7 @@ function makeReportingPeriod(
   );
   stringUtils.validateUUID(payload.fiscalYearId, accountingError.InvalidValue);
 
-  helpers.validateUnit(payload.unit);
+  periodValidation.validateUnit(payload.unit);
 
   numberUtils.validatePositiveNumber(
     payload.count,
@@ -82,8 +82,7 @@ function makeReportingPeriod(
 
 const periodEntity = Object.freeze({
   makeReportingPeriod,
-
-  ...helpers,
+  ...periodValidation,
 });
 
 export default periodEntity;

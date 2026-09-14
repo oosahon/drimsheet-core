@@ -1,6 +1,9 @@
 import { TEntityId } from '@shared/types/uuid';
 
+import getJournalLineDescription from '@domain/journal-entry/entities/helpers/get-description.helper';
+import getOppositeJournalSide from '@domain/journal-entry/entities/helpers/get-opposite-side.helper';
 import journalLineEntity from '@domain/journal-entry/entities/journal-line.entity';
+import journalLineValidation from '@domain/journal-entry/entities/validations/journal-line.validation';
 import { EJournalLineItemEvent } from '@domain/journal-entry/events/journal-line-item.events';
 import { EJournalLineAuditAction } from '@domain/journal-entry/types/journal-entry-audit.types';
 import {
@@ -155,36 +158,34 @@ describe('JournalLineItem Entity', () => {
     describe('validateSide', () => {
       it('should not throw for valid sides', () => {
         expect(() =>
-          journalLineEntity.validateSide(EJournalSide.Debit)
+          journalLineValidation.validateSide(EJournalSide.Debit)
         ).not.toThrow();
         expect(() =>
-          journalLineEntity.validateSide(EJournalSide.Credit)
+          journalLineValidation.validateSide(EJournalSide.Credit)
         ).not.toThrow();
       });
 
       it('should throw an AppError for an invalid side', () => {
         expect(() =>
-          journalLineEntity.validateSide('invalid' as UJournalSide)
+          journalLineValidation.validateSide('invalid' as UJournalSide)
         ).toThrow();
       });
     });
 
-    describe('getDescription', () => {
+    describe('getJournalLineDescription', () => {
       it('should return trimmed description', () => {
-        expect(journalLineEntity.getDescription('  test desc  ')).toBe(
-          'test desc'
-        );
+        expect(getJournalLineDescription('  test desc  ')).toBe('test desc');
       });
 
       it('should return null if value is empty or null', () => {
-        expect(journalLineEntity.getDescription(null)).toBeNull();
-        expect(journalLineEntity.getDescription(undefined)).toBeNull();
-        expect(journalLineEntity.getDescription('')).toBeNull();
+        expect(getJournalLineDescription(null)).toBeNull();
+        expect(getJournalLineDescription(undefined)).toBeNull();
+        expect(getJournalLineDescription('')).toBeNull();
       });
 
       it('should throw if description is too long', () => {
         const longDesc = 'a'.repeat(101);
-        expect(() => journalLineEntity.getDescription(longDesc)).toThrow();
+        expect(() => getJournalLineDescription(longDesc)).toThrow();
       });
     });
 
@@ -200,7 +201,7 @@ describe('JournalLineItem Entity', () => {
 
       it('should throw if same currency but exchange rate is provided', () => {
         expect(() =>
-          journalLineEntity.validateExchangeRate({
+          journalLineValidation.validateExchangeRate({
             amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.USD, false),
             functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: validExchangeRate,
@@ -210,7 +211,7 @@ describe('JournalLineItem Entity', () => {
 
       it('should return if same currency and exchange rate is null', () => {
         expect(() =>
-          journalLineEntity.validateExchangeRate({
+          journalLineValidation.validateExchangeRate({
             amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.USD, false),
             functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: null,
@@ -220,7 +221,7 @@ describe('JournalLineItem Entity', () => {
 
       it('should throw if different currencies and exchange rate is null', () => {
         expect(() =>
-          journalLineEntity.validateExchangeRate({
+          journalLineValidation.validateExchangeRate({
             amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.EUR, false),
             functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: null,
@@ -239,7 +240,7 @@ describe('JournalLineItem Entity', () => {
         });
 
         expect(() =>
-          journalLineEntity.validateExchangeRate({
+          journalLineValidation.validateExchangeRate({
             amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.EUR, false),
             functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: invalidBaseRate,
@@ -258,7 +259,7 @@ describe('JournalLineItem Entity', () => {
         });
 
         expect(() =>
-          journalLineEntity.validateExchangeRate({
+          journalLineValidation.validateExchangeRate({
             amount: moneyValue.make(100.0, SYSTEM_CURRENCIES.EUR, false),
             functionalCurrency: SYSTEM_CURRENCIES.USD,
             exchangeRate: invalidTargetRate,
@@ -267,15 +268,15 @@ describe('JournalLineItem Entity', () => {
       });
     });
 
-    describe('getOppositeSide', () => {
+    describe('getOppositeJournalSide', () => {
       it('should return Credit when given Debit', () => {
-        expect(journalLineEntity.getOppositeSide(EJournalSide.Debit)).toBe(
+        expect(getOppositeJournalSide(EJournalSide.Debit)).toBe(
           EJournalSide.Credit
         );
       });
 
       it('should return Debit when given Credit', () => {
-        expect(journalLineEntity.getOppositeSide(EJournalSide.Credit)).toBe(
+        expect(getOppositeJournalSide(EJournalSide.Credit)).toBe(
           EJournalSide.Debit
         );
       });

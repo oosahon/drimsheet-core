@@ -1,6 +1,6 @@
 import IAccountingPeriodService from '@domain/accounting/types/accounting-period.service.types';
+import getOppositeJournalSide from '@domain/journal-entry/entities/helpers/get-opposite-side.helper';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
-import journalLineEntity from '@domain/journal-entry/entities/journal-line.entity';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
@@ -9,7 +9,7 @@ import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
 import transferEntryRule, {
   transferBankChargeDestinationPermit,
 } from '@domain/journal-entry/rules/transfer-entry.rule';
-import helpers from '@domain/journal-entry/services/helpers/journal-entry.service.helpers';
+import journalEntryServiceValidation from '@domain/journal-entry/services/validations/journal-entry.validation';
 import {
   IJournalEntryLinePayload,
   IJournalEntryService,
@@ -138,7 +138,7 @@ function makeCreateOpeningBalance(
       throw new journalEntryError.UnConfiguredOpeningBalanceAccount();
     }
 
-    helpers.validateAccountsAgainstRule(
+    journalEntryServiceValidation.validateAccountsAgainstRule(
       [account],
       [equityAccount],
       openingBalanceEntryRule
@@ -156,7 +156,7 @@ function makeCreateOpeningBalance(
       account: equityAccount,
       amount: functionalAmount,
     };
-    helpers.validateAccounts(headerValidationPayload, [
+    journalEntryServiceValidation.validateAccounts(headerValidationPayload, [
       accountValidationPayload,
       equityValidationPayload,
     ]);
@@ -180,7 +180,7 @@ function makeCreateOpeningBalance(
       exchangeRate: null,
       sequenceOrder: 2,
       description: null,
-      side: journalLineEntity.getOppositeSide(account.normalBalance),
+      side: getOppositeJournalSide(account.normalBalance),
     };
 
     return journalEntryEntity.make({
@@ -206,13 +206,13 @@ function makeCreateReceipt(
     const sourceLineAccounts = sourceLines.map((line) => line.account);
 
     // validate receipt rule
-    helpers.validateAccountsAgainstRule(
+    journalEntryServiceValidation.validateAccountsAgainstRule(
       sourceLineAccounts,
       [destinationLine.account],
       receiptEntryRule
     );
 
-    helpers.validateAccounts(header, journalLines);
+    journalEntryServiceValidation.validateAccounts(header, journalLines);
 
     await deps.accountingPeriodService.validatePostingPeriod(
       header.accountingEntityId,
@@ -220,7 +220,7 @@ function makeCreateReceipt(
       repoOptions
     );
 
-    helpers.validateCounterparties(header, journalLines);
+    journalEntryServiceValidation.validateCounterparties(header, journalLines);
 
     const functionalCurrency = currencyEntity.getByCode(
       header.functionalCurrencyCode
@@ -270,13 +270,13 @@ function makeCreatePayment(
     const { header, sourceLine, destinationLines, attachments } = payload;
     const journalLines = [sourceLine, ...destinationLines];
 
-    helpers.validateAccountsAgainstRule(
+    journalEntryServiceValidation.validateAccountsAgainstRule(
       [sourceLine.account],
       destinationLines.map((line) => line.account),
       paymentEntryRule
     );
 
-    helpers.validateAccounts(header, journalLines);
+    journalEntryServiceValidation.validateAccounts(header, journalLines);
 
     await deps.accountingPeriodService.validatePostingPeriod(
       header.accountingEntityId,
@@ -284,7 +284,7 @@ function makeCreatePayment(
       repoOptions
     );
 
-    helpers.validateCounterparties(header, journalLines);
+    journalEntryServiceValidation.validateCounterparties(header, journalLines);
 
     const functionalCurrency = currencyEntity.getByCode(
       header.functionalCurrencyCode
@@ -344,7 +344,7 @@ function makeCreateTransfer(
       });
     }
 
-    helpers.validateAccounts(header, journalLines);
+    journalEntryServiceValidation.validateAccounts(header, journalLines);
 
     await deps.accountingPeriodService.validatePostingPeriod(
       header.accountingEntityId,
@@ -352,7 +352,10 @@ function makeCreateTransfer(
       repoOptions
     );
 
-    helpers.validateCounterparties(header, destinationLines);
+    journalEntryServiceValidation.validateCounterparties(
+      header,
+      destinationLines
+    );
 
     const functionalCurrency = currencyEntity.getByCode(
       header.functionalCurrencyCode

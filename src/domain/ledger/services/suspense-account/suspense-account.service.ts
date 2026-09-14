@@ -1,5 +1,7 @@
 import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
 import { LIABILITY_LEDGER_CODES } from '@domain/ledger/config/liability-codes.config';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
+import getNextSubledgerAccountCode from '@domain/ledger/entities/helpers/get-subledger-code.helper';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import {
@@ -39,7 +41,7 @@ function makeCreateAssetSuspense(
 
     const code = !latest
       ? ASSET_LEDGER_CODES.SUSPENSE_ACCOUNT.INITIAL
-      : ledgerAccountEntity.getSubLedgerCode(
+      : getNextSubledgerAccountCode(
           ASSET_LEDGER_CODES.SUSPENSE_ACCOUNT.PREFIX,
           latest.code as TAssetSuspenseLedgerCode
         );
@@ -48,7 +50,7 @@ function makeCreateAssetSuspense(
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
 
-      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Asset),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Asset),
       code,
       materializedPath: code,
       type: ELedgerType.Asset,
@@ -79,7 +81,7 @@ function makeCreateLiabilitySuspense(
 
     const code = !latest
       ? LIABILITY_LEDGER_CODES.SUSPENSE_ACCOUNTS.INITIAL
-      : ledgerAccountEntity.getSubLedgerCode(
+      : getNextSubledgerAccountCode(
           LIABILITY_LEDGER_CODES.SUSPENSE_ACCOUNTS.PREFIX,
           latest.code as TLiabilitySuspenseLedgerCode
         );
@@ -88,9 +90,7 @@ function makeCreateLiabilitySuspense(
       name: payload.name,
       accountingEntityId: payload.accountingEntityId,
 
-      normalBalance: ledgerAccountEntity.getNormalBalance(
-        ELedgerType.Liability
-      ),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Liability),
       code,
       materializedPath: code,
       type: ELedgerType.Liability,

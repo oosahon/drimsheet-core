@@ -2,12 +2,15 @@ import accountingContextEntity from '@domain/accounting/entities/accounting-cont
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
 import accountingPeriodEntity from '@domain/accounting/entities/accounting-period.entity';
 import fiscalYearEntity from '@domain/accounting/entities/fiscal-year.entity';
-import periodEntity from '@domain/accounting/entities/period.entity';
+import getPeriodContainingCurrentDate from '@domain/accounting/entities/helpers/get-current-period.helper';
+import getAccountingJurisdiction from '@domain/accounting/entities/helpers/get-jurisdiction.helper';
 import reportingContextEntity from '@domain/accounting/entities/reporting-context.entity';
 import reportingPeriodEntity from '@domain/accounting/entities/reporting-period.entity';
+import accountingContextValidation from '@domain/accounting/entities/validations/accounting-context.validation';
+import fiscalYearValidation from '@domain/accounting/entities/validations/fiscal-year.validation';
 import errors from '@domain/accounting/errors/accounting-entity.error';
 import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
-import helpers from '@domain/accounting/services/helpers/accounting-entity.service.helpers';
+import accountingEntityServiceValidation from '@domain/accounting/services/validations/accounting-entity.validation';
 import IAccountingEntityService from '@domain/accounting/types/accounting-entity.service.types';
 import { EPeriodStatus } from '@domain/accounting/types/period.types';
 import currencyEntity from '@domain/money/entities/currency.entity';
@@ -24,25 +27,23 @@ export default function makeAccountingEntityService(
   deps: IDependencies
 ): IAccountingEntityService {
   const create: TCreate = async (input, repoOptions) => {
-    await helpers.validateExistingIndividualEntity(
+    await accountingEntityServiceValidation.validateExistingIndividualEntity(
       deps.accountingEntityRepo,
       input,
       repoOptions
     );
 
-    const jurisdiction = accountingContextEntity.getJurisdiction(
-      input.jurisdictionCode
-    );
+    const jurisdiction = getAccountingJurisdiction(input.jurisdictionCode);
 
-    accountingContextEntity.validateStandardCodeAndJurisdiction(
+    accountingContextValidation.validateStandardCodeAndJurisdiction(
       input.accountingStandardCode,
       input.jurisdictionCode,
       input.type
     );
 
-    fiscalYearEntity.validateStartAndEndDate(input.fiscalYear);
+    fiscalYearValidation.validateStartAndEndDate(input.fiscalYear);
 
-    helpers.validateFiscalYearLimit(
+    accountingEntityServiceValidation.validateFiscalYearLimit(
       jurisdiction,
       input.fiscalYear.startDate,
       input.fiscalYear.endDate
@@ -77,7 +78,7 @@ export default function makeAccountingEntityService(
     });
 
     const currentAccountingPeriod =
-      periodEntity.getCurrentPeriod(
+      getPeriodContainingCurrentDate(
         accountingPeriods.map(([entity]) => entity)
       ) ?? accountingPeriods[0][0];
 
@@ -98,7 +99,7 @@ export default function makeAccountingEntityService(
     });
 
     const currentReportingPeriod =
-      periodEntity.getCurrentPeriod(
+      getPeriodContainingCurrentDate(
         reportingPeriods.map(([entity]) => entity)
       ) ?? reportingPeriods[0][0];
 

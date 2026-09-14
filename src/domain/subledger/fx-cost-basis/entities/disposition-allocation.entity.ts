@@ -2,7 +2,7 @@ import { TCreationOmits } from '@shared/types/creation-omits.types';
 import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 
-import helpers from '@domain/subledger/fx-cost-basis/entities/helpers/disposition-allocation.entity.helpers';
+import dispositionAllocationValidation from '@domain/subledger/fx-cost-basis/entities/validations/disposition-allocation.validation';
 import fxCostBasisLotDispositionAllocationError from '@domain/subledger/fx-cost-basis/errors/disposition-allocation.error';
 import { IFxCostBasisLotDispositionAllocation } from '@domain/subledger/fx-cost-basis/types/disposition.types';
 
@@ -18,11 +18,13 @@ function make(
     fxCostBasisLotDispositionAllocationError.InvalidLotId
   );
 
-  helpers.validateQuantity(payload.quantity);
-  helpers.validateCostBasisConsumed(payload.costBasisConsumed);
-  helpers.validateProceeds(payload.proceeds);
-  helpers.validateFunctionalCurrency(payload);
-  helpers.validateRealizedGainLossFormula(payload);
+  dispositionAllocationValidation.validateQuantity(payload.quantity);
+  dispositionAllocationValidation.validateCostBasisConsumed(
+    payload.costBasisConsumed
+  );
+  dispositionAllocationValidation.validateProceeds(payload.proceeds);
+  dispositionAllocationValidation.validateFunctionalCurrency(payload);
+  dispositionAllocationValidation.validateRealizedGainLossFormula(payload);
 
   return Object.freeze({
     id: generateUUID(),
@@ -38,8 +40,7 @@ function make(
 
 const fxCostBasisLotDispositionAllocationEntity = Object.freeze({
   make,
-
-  ...helpers,
+  ...dispositionAllocationValidation,
 });
 
 export default fxCostBasisLotDispositionAllocationEntity;

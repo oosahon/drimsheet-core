@@ -1,6 +1,7 @@
 import { TEntityId } from '@shared/types/uuid';
 
 import periodEntity from '@domain/accounting/entities/period.entity';
+import periodValidation from '@domain/accounting/entities/validations/period.validation';
 import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
 import {
   EPeriodStatus,
@@ -22,29 +23,31 @@ describe('periodEntity', () => {
 
   describe('validateUnit', () => {
     it('does not throw for a valid unit', () => {
-      expect(() => periodEntity.validateUnit(EPeriodUnit.Month)).not.toThrow();
       expect(() =>
-        periodEntity.validateUnit(EPeriodUnit.Quarter)
+        periodValidation.validateUnit(EPeriodUnit.Month)
+      ).not.toThrow();
+      expect(() =>
+        periodValidation.validateUnit(EPeriodUnit.Quarter)
       ).not.toThrow();
     });
 
     it('throws InvalidPeriodUnitError if unit is invalid', () => {
-      expect(() => periodEntity.validateUnit('invalid')).toThrow();
+      expect(() => periodValidation.validateUnit('invalid')).toThrow();
     });
   });
 
   describe('validateStatus', () => {
     it('does not throw for a valid status', () => {
       expect(() =>
-        periodEntity.validateStatus(EPeriodStatus.Open)
+        periodValidation.validateStatus(EPeriodStatus.Open)
       ).not.toThrow();
       expect(() =>
-        periodEntity.validateStatus(EPeriodStatus.Pending)
+        periodValidation.validateStatus(EPeriodStatus.Pending)
       ).not.toThrow();
     });
 
     it('throws InvalidPeriodStatusError for an invalid status', () => {
-      expect(() => periodEntity.validateStatus('invalid')).toThrow();
+      expect(() => periodValidation.validateStatus('invalid')).toThrow();
     });
   });
 

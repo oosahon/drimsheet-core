@@ -4,7 +4,7 @@ import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
-import helpers from '@domain/ledger/entities/helpers/ledger-account.entity.helpers';
+import ledgerAccountValidation from '@domain/ledger/entities/validations/ledger-account.validation';
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import ledgerAccountEvents from '@domain/ledger/events/ledger-account.events';
 import { ELedgerAccountAuditAction } from '@domain/ledger/types/ledger-account-audit.types';
@@ -15,12 +15,12 @@ import currencyEntity from '@domain/money/entities/currency.entity';
 function make<T extends ILedgerAccount>(
   payload: TCreationOmits<T, 'openingBalanceDate'>
 ): TAuditedEntity<Readonly<T>, T, ILedgerAccount> {
-  helpers.validateCode(payload.code);
+  ledgerAccountValidation.validateCode(payload.code);
   stringUtils.validateUUID(
     payload.accountingEntityId,
     ledgerAccountError.InvalidAccountingEntityId
   );
-  helpers.validateType(payload.type);
+  ledgerAccountValidation.validateType(payload.type);
 
   if (payload.controlAccountId) {
     stringUtils.validateUUID(
@@ -32,22 +32,22 @@ function make<T extends ILedgerAccount>(
   if (payload.currency) {
     currencyEntity.validateCode(payload.currency.code);
   }
-  helpers.validateStatus(payload.status);
+  ledgerAccountValidation.validateStatus(payload.status);
 
-  helpers.validateContraRule(payload.contraAccountRule);
-  helpers.validateAdjunctRule(payload.adjunctAccountRule);
+  ledgerAccountValidation.validateContraRule(payload.contraAccountRule);
+  ledgerAccountValidation.validateAdjunctRule(payload.adjunctAccountRule);
   stringUtils.validateUUID(
     payload.createdBy,
     ledgerAccountError.InvalidCreatorId
   );
 
-  helpers.validateSubType(payload.subType);
-  helpers.validateBehavior(payload.behavior);
-  helpers.validateNormalBalance(payload.normalBalance);
+  ledgerAccountValidation.validateSubType(payload.subType);
+  ledgerAccountValidation.validateBehavior(payload.behavior);
+  ledgerAccountValidation.validateNormalBalance(payload.normalBalance);
 
-  helpers.validateIsControlAccount(payload.isControlAccount);
-  helpers.validateMeta(payload.meta);
-  helpers.validateMaterializedPath(payload.materializedPath);
+  ledgerAccountValidation.validateIsControlAccount(payload.isControlAccount);
+  ledgerAccountValidation.validateMeta(payload.meta);
+  ledgerAccountValidation.validateMaterializedPath(payload.materializedPath);
 
   const timestamp = new Date();
 
@@ -154,8 +154,7 @@ function updateOpeningBalanceDate<T extends ILedgerAccount>(
 const ledgerAccountEntity = Object.freeze({
   make,
   updateOpeningBalanceDate,
-
-  ...helpers,
+  ...ledgerAccountValidation,
 });
 
 export default ledgerAccountEntity;

@@ -5,7 +5,7 @@ import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
-import helpers from '@domain/subledger/fx-cost-basis/entities/helpers/disposition.entity.helpers';
+import dispositionValidation from '@domain/subledger/fx-cost-basis/entities/validations/disposition.validation';
 import FxCostBasisLotDispositionError from '@domain/subledger/fx-cost-basis/errors/disposition.error';
 import FxCostBasisLotDispositionEvents from '@domain/subledger/fx-cost-basis/events/disposition.events';
 import {
@@ -34,14 +34,14 @@ function make(
     FxCostBasisLotDispositionError.InvalidJournalEntryId
   );
 
-  helpers.validateQuantity(payload.quantity);
-  helpers.validateCostBasisConsumed(payload.costBasisConsumed);
-  helpers.validateProceeds(payload.proceeds);
-  helpers.validateRealizedGainLoss(payload.realizedGainLoss);
-  helpers.validateFunctionalCurrency(payload);
-  helpers.validateRealizedGainLossFormula(payload);
+  dispositionValidation.validateQuantity(payload.quantity);
+  dispositionValidation.validateCostBasisConsumed(payload.costBasisConsumed);
+  dispositionValidation.validateProceeds(payload.proceeds);
+  dispositionValidation.validateRealizedGainLoss(payload.realizedGainLoss);
+  dispositionValidation.validateFunctionalCurrency(payload);
+  dispositionValidation.validateRealizedGainLossFormula(payload);
   exchangeRateValue.validate(payload.dispositionRate);
-  helpers.validateOfficialRate(payload.officialRate);
+  dispositionValidation.validateOfficialRate(payload.officialRate);
   dateUtils.validateDateIsNotInTheFuture(
     payload.dispositionDate,
     FxCostBasisLotDispositionError.InvalidDispositionDate
@@ -77,8 +77,7 @@ function make(
 
 const fxCostBasisLotDispositionEntity = Object.freeze({
   make,
-
-  ...helpers,
+  ...dispositionValidation,
 });
 
 export default fxCostBasisLotDispositionEntity;

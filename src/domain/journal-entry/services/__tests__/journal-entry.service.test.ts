@@ -30,6 +30,7 @@ import {
   EJournalEntryStatus,
 } from '@domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
 import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
@@ -307,7 +308,7 @@ describe('journalEntryService', () => {
       type,
       subType: overrides.subType ?? EAssetSubType.CashAndCashEquivalent,
       behavior: overrides.behavior ?? EAssetAccountBehavior.Bank,
-      normalBalance: ledgerAccountEntity.getNormalBalance(type),
+      normalBalance: getLedgerAccountNormalBalance(type),
       isControlAccount: false,
       controlAccountId: null,
       name: overrides.name ?? 'Payment account',

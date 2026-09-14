@@ -3,7 +3,7 @@ import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
-import helpers from '@domain/accounting/entities/helpers/accounting-entity.entity.helpers';
+import accountingEntityValidation from '@domain/accounting/entities/validations/accounting-entity.validation';
 import accountingError from '@domain/accounting/errors/accounting.error';
 import accountingEntityEvents from '@domain/accounting/events/accounting-entity.events';
 import { EAccountingEntityActions } from '@domain/accounting/types/accounting-entity-audit.types';
@@ -14,10 +14,10 @@ import currencyEntity from '@domain/money/entities/currency.entity';
 function make(
   payload: TCreationOmits<IAccountingEntity>
 ): TAuditedEntity<IAccountingEntity, IAccountingEntity, IAccountingEntity> {
-  helpers.validateType(payload.type);
+  accountingEntityValidation.validateType(payload.type);
   stringUtils.validateUUID(payload.ownerId, accountingError.InvalidValue);
   currencyEntity.validateCode(payload.functionalCurrencyCode);
-  helpers.validateJurisdictionCode(payload.jurisdictionCode);
+  accountingEntityValidation.validateJurisdictionCode(payload.jurisdictionCode);
 
   const name = stringUtils.sanitizeAndValidate(
     payload.name,
@@ -54,8 +54,7 @@ function make(
 
 const accountingEntityEntity = Object.freeze({
   make,
-
-  ...helpers,
+  ...accountingEntityValidation,
 });
 
 export default accountingEntityEntity;

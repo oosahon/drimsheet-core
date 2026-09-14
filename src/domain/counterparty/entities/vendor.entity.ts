@@ -6,14 +6,17 @@ import {
   IMakeVendorPayload,
   IVendor,
 } from '@domain/counterparty/types/counterparty.types';
-import helpers from '@domain/counterparty/values/helpers/counterparty-value.helpers';
+import counterpartyValidation from '@domain/counterparty/values/validations/counterparty.validation';
 import vendorAuditValue from '@domain/counterparty/values/vendor-audit.vo';
 
 function make(
   payload: IMakeVendorPayload
 ): TAuditedEntity<IVendor, IVendor, IVendor> {
-  helpers.validateCounterpartyId(payload.counterpartyId);
-  const address = helpers.validateAddress(payload.address, false);
+  counterpartyValidation.validateCounterpartyId(payload.counterpartyId);
+  const address = counterpartyValidation.validateAddress(
+    payload.address,
+    false
+  );
 
   const vendor: IVendor = Object.freeze({
     counterpartyId: payload.counterpartyId,
@@ -36,7 +39,10 @@ function update(
   before: IVendor,
   payload: Omit<IMakeVendorPayload, 'counterpartyId'>
 ): TAuditedEntity<IVendor, IVendor, IVendor> {
-  const address = helpers.validateAddress(payload.address, false);
+  const address = counterpartyValidation.validateAddress(
+    payload.address,
+    false
+  );
 
   const updatedVendor: IVendor = Object.freeze({
     counterpartyId: before.counterpartyId,
@@ -58,8 +64,6 @@ function update(
 const vendorEntity = Object.freeze({
   make,
   update,
-  validateCounterpartyId: helpers.validateCounterpartyId,
-  validateAddress: helpers.validateAddress,
 });
 
 export default vendorEntity;

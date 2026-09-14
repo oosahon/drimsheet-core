@@ -1,9 +1,12 @@
 import { LIABILITY_LEDGER_CODES } from '@domain/ledger/config/liability-codes.config';
+import getLedgerAccountMaterializedPath from '@domain/ledger/entities/helpers/get-materialized-path.helper';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
+import getNextSubledgerAccountCode from '@domain/ledger/entities/helpers/get-subledger-code.helper';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import ledgerAccountCurrencyInvarianceRule from '@domain/ledger/rules/currency-invariance.rule';
-import controlAccountResolverHelper from '@domain/ledger/services/helpers/control-account-resolver';
+import getControlAccountScope from '@domain/ledger/services/helpers/get-control-account-scope.helper';
 import { TShortTermDebtLedgerCode } from '@domain/ledger/types/ledger-code.types';
 import {
   EAdjunctAccountRule,
@@ -58,9 +61,7 @@ function makeCreateHeader(
       accountingEntityId: payload.accountingEntity.id,
       code: LEDGER_CODE.HEADER,
       materializedPath: LEDGER_CODE.HEADER,
-      normalBalance: ledgerAccountEntity.getNormalBalance(
-        ELedgerType.Liability
-      ),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Liability),
       type: ELedgerType.Liability,
       subType: ELiabilitySubType.ShortTermDebt,
       behavior: ELiabilityAccountBehavior.DefaultShortTermDebt,
@@ -98,7 +99,7 @@ function makeCreateSubAccount(
     };
 
     const { controlAccount, factoryContext } =
-      await controlAccountResolverHelper<TShortTermDebtLedgerCode>({
+      await getControlAccountScope<TShortTermDebtLedgerCode>({
         ledgerAccountRepo: deps.ledgerAccountRepo,
         accountingEntityId: payload.accountingEntityId,
         controlAccountCode: payload.controlAccountCode,
@@ -111,13 +112,13 @@ function makeCreateSubAccount(
       subAccountCurrency: payload.currency,
     });
 
-    const code = ledgerAccountEntity.getSubLedgerCode(
+    const code = getNextSubledgerAccountCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
     );
 
     const materializedPath =
-      ledgerAccountEntity.getMaterializedPath<TShortTermDebtLedgerCode>(
+      getLedgerAccountMaterializedPath<TShortTermDebtLedgerCode>(
         factoryContext.parentMaterializedPath,
         code
       );
@@ -127,9 +128,7 @@ function makeCreateSubAccount(
       accountingEntityId: payload.accountingEntityId,
       code,
       materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(
-        ELedgerType.Liability
-      ),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Liability),
       type: ELedgerType.Liability,
       subType: ELiabilitySubType.ShortTermDebt,
       behavior: ELiabilityAccountBehavior.ShortTermLoan,
@@ -162,7 +161,7 @@ function makeCreateCreditCardSubAccount(
     };
 
     const { controlAccount, factoryContext } =
-      await controlAccountResolverHelper<TShortTermDebtLedgerCode>({
+      await getControlAccountScope<TShortTermDebtLedgerCode>({
         ledgerAccountRepo: deps.ledgerAccountRepo,
         accountingEntityId: payload.accountingEntityId,
         controlAccountCode: payload.controlAccountCode,
@@ -175,13 +174,13 @@ function makeCreateCreditCardSubAccount(
       subAccountCurrency: payload.currency,
     });
 
-    const code = ledgerAccountEntity.getSubLedgerCode(
+    const code = getNextSubledgerAccountCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
     );
 
     const materializedPath =
-      ledgerAccountEntity.getMaterializedPath<TShortTermDebtLedgerCode>(
+      getLedgerAccountMaterializedPath<TShortTermDebtLedgerCode>(
         factoryContext.parentMaterializedPath,
         code
       );
@@ -191,9 +190,7 @@ function makeCreateCreditCardSubAccount(
       accountingEntityId: payload.accountingEntityId,
       code,
       materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(
-        ELedgerType.Liability
-      ),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Liability),
       type: ELedgerType.Liability,
       subType: ELiabilitySubType.ShortTermDebt,
       behavior: ELiabilityAccountBehavior.CreditCard,

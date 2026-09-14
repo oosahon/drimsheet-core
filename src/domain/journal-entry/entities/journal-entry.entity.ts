@@ -4,7 +4,8 @@ import generateUUID from '@shared/utils/uuid-generator';
 import fileAttachmentValue from '@shared/values/file-attachments/file-attachment.vo';
 import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
 
-import helpers from '@domain/journal-entry/entities/helpers/journal-entry.entity.helpers';
+import getJournalEntryMemo from '@domain/journal-entry/entities/helpers/get-memo.helper';
+import journalEntryValidation from '@domain/journal-entry/entities/validations/journal-entry.validation';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import journalEntryEvents from '@domain/journal-entry/events/journal-entry.events';
 import {
@@ -29,16 +30,16 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
     journalEntryError.InvalidValue
   );
   stringUtils.validateUUID(payload.createdBy, journalEntryError.InvalidValue);
-  helpers.validateSourceType(payload.sourceType);
+  journalEntryValidation.validateSourceType(payload.sourceType);
   dateUtils.validateDate(
     payload.effectiveDate,
     journalEntryError.InvalidEffectiveDate
   );
   const id = generateUUID();
   const timestamp = new Date();
-  const memo = helpers.getMemo(payload.memo);
+  const memo = getJournalEntryMemo(payload.memo);
 
-  helpers.validatePostedAt(payload.postedAt);
+  journalEntryValidation.validatePostedAt(payload.postedAt);
 
   const linesWithEvents = payload.lines.map((item) =>
     journalLineEntity.make({ id, memo, createdAt: timestamp }, item)
@@ -46,8 +47,8 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
 
   const lines = linesWithEvents.map(([item]) => item);
 
-  helpers.validateLine(lines);
-  helpers.validateCounterparties(payload.sourceType, lines);
+  journalEntryValidation.validateLine(lines);
+  journalEntryValidation.validateCounterparties(payload.sourceType, lines);
 
   const rawAttachments = (payload.attachments ?? []).map(
     fileAttachmentValue.make
@@ -100,10 +101,12 @@ function voidEntry(
   entry: IJournalEntry,
   payload: IVoidJournalEntryPayload
 ): TAuditedJournalEntryTransition {
-  helpers.validateTransition(entry.status, EJournalEntryStatus.Voided, [
-    EJournalEntryStatus.Posted,
-  ]);
-  helpers.validateVoidingEntryId(payload.voidingEntryId);
+  journalEntryValidation.validateTransition(
+    entry.status,
+    EJournalEntryStatus.Voided,
+    [EJournalEntryStatus.Posted]
+  );
+  journalEntryValidation.validateVoidingEntryId(payload.voidingEntryId);
 
   const timestamp = new Date();
   const voidedEntry = makeTransitionedEntry(
@@ -126,10 +129,11 @@ function voidEntry(
 }
 
 function archive(entry: IJournalEntry): TAuditedJournalEntryTransition {
-  helpers.validateTransition(entry.status, EJournalEntryStatus.Archived, [
-    EJournalEntryStatus.Draft,
-    EJournalEntryStatus.Posted,
-  ]);
+  journalEntryValidation.validateTransition(
+    entry.status,
+    EJournalEntryStatus.Archived,
+    [EJournalEntryStatus.Draft, EJournalEntryStatus.Posted]
+  );
 
   const timestamp = new Date();
   const archivedEntry = makeTransitionedEntry(
@@ -181,8 +185,7 @@ const journalEntryEntity = Object.freeze({
   make,
   void: voidEntry,
   archive,
-
-  ...helpers,
+  ...journalEntryValidation,
 });
 
 export default journalEntryEntity;

@@ -8,6 +8,7 @@ import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
 import transferEntryRule, {
   transferBankChargeDestinationPermit,
 } from '@domain/journal-entry/rules/transfer-entry.rule';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
@@ -48,7 +49,7 @@ function makePaymentAccount(
     type,
     subType: overrides.subType ?? EAssetSubType.CashAndCashEquivalent,
     behavior: overrides.behavior ?? EAssetAccountBehavior.Bank,
-    normalBalance: ledgerAccountEntity.getNormalBalance(type),
+    normalBalance: getLedgerAccountNormalBalance(type),
     isControlAccount: false,
     controlAccountId: null,
     name: overrides.name ?? 'Payment account',

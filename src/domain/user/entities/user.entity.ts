@@ -6,7 +6,7 @@ import {
   TAuditedEntity,
 } from '@shared/values/events/types/event.types';
 
-import helpers from '@domain/user/entities/helpers/user.entity.helpers';
+import userValidation from '@domain/user/entities/validations/user.validation';
 import userError from '@domain/user/errors/user.error';
 import userEvents from '@domain/user/events/user.events';
 import {
@@ -68,7 +68,7 @@ function verifyEmail(user: IUser): [IUser, IEvent<IUser>[], IUserAudit | null] {
     return [user, [], null];
   }
 
-  helpers.validate(user);
+  userValidation.validate(user);
 
   const updatedUser = Object.freeze({
     id: user.id,
@@ -97,7 +97,7 @@ function update(
   user: IUser,
   options: Partial<Pick<IUser, 'firstName' | 'lastName'>>
 ): [IUser, IEvent<IUser>[], IUserAudit | null] {
-  helpers.validate(user);
+  userValidation.validate(user);
 
   const firstName = stringUtils.sanitizeAndValidate(
     options.firstName ?? user.firstName,
@@ -151,7 +151,7 @@ const userEntity = Object.freeze({
   make,
   verifyEmail,
   update,
-  ...helpers,
+  ...userValidation,
 });
 
 export default userEntity;

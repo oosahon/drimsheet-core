@@ -7,14 +7,19 @@ import {
   IMakeEmployerPayload,
 } from '@domain/counterparty/types/counterparty.types';
 import employerAuditValue from '@domain/counterparty/values/employer-audit.vo';
-import helpers from '@domain/counterparty/values/helpers/counterparty-value.helpers';
+import counterpartyValidation from '@domain/counterparty/values/validations/counterparty.validation';
 
 function make(
   payload: IMakeEmployerPayload
 ): TAuditedEntity<IEmployer, IEmployer, IEmployer> {
-  helpers.validateCounterpartyId(payload.counterpartyId);
-  const displayName = helpers.sanitizeDisplayName(payload.displayName);
-  const address = helpers.validateAddress(payload.address, true)!;
+  counterpartyValidation.validateCounterpartyId(payload.counterpartyId);
+  const displayName = counterpartyValidation.sanitizeDisplayName(
+    payload.displayName
+  );
+  const address = counterpartyValidation.validateAddress(
+    payload.address,
+    true
+  )!;
 
   const employer: IEmployer = Object.freeze({
     counterpartyId: payload.counterpartyId,
@@ -38,8 +43,13 @@ function update(
   before: IEmployer,
   payload: Omit<IMakeEmployerPayload, 'counterpartyId'>
 ): TAuditedEntity<IEmployer, IEmployer, IEmployer> {
-  const displayName = helpers.sanitizeDisplayName(payload.displayName);
-  const address = helpers.validateAddress(payload.address, true)!;
+  const displayName = counterpartyValidation.sanitizeDisplayName(
+    payload.displayName
+  );
+  const address = counterpartyValidation.validateAddress(
+    payload.address,
+    true
+  )!;
 
   const updatedEmployer: IEmployer = Object.freeze({
     counterpartyId: before.counterpartyId,
@@ -62,9 +72,6 @@ function update(
 const employerEntity = Object.freeze({
   make,
   update,
-  validateCounterpartyId: helpers.validateCounterpartyId,
-  validateAddress: helpers.validateAddress,
-  sanitizeDisplayName: helpers.sanitizeDisplayName,
 });
 
 export default employerEntity;

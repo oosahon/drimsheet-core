@@ -2,7 +2,9 @@ import { TCreationOmits } from '@shared/types/creation-omits.types';
 import stringUtils from '@shared/utils/string';
 import generateUUID from '@shared/utils/uuid-generator';
 
-import helpers from '@domain/ledger/entities/helpers/ledger-account-balance.entity.helpers';
+import getLedgerAccountBalanceEffect from '@domain/ledger/entities/helpers/get-effect-from-amount.helper';
+import ledgerAccountBalanceValidation from '@domain/ledger/entities/validations/ledger-account-balance.validation';
+import ledgerAccountValidation from '@domain/ledger/entities/validations/ledger-account.validation';
 import ledgerAccountBalanceError from '@domain/ledger/errors/ledger-account-balance.error';
 import {
   ILedgerAccountBalance,
@@ -12,8 +14,6 @@ import {
 import currencyEntity from '@domain/money/entities/currency.entity';
 import { IMoney } from '@domain/money/types/money.types';
 import moneyValue from '@domain/money/values/money.vo';
-
-import ledgerAccountEntity from './ledger-account.entity';
 
 interface IMakePayload extends Pick<
   ILedgerAccountBalance,
@@ -33,7 +33,9 @@ function make(payload: IMakePayload): ILedgerAccountBalance {
     ledgerAccountBalanceError.InvalidAccountingEntityId
   );
 
-  ledgerAccountEntity.validateMaterializedPath(payload.accountMaterializedPath);
+  ledgerAccountValidation.validateMaterializedPath(
+    payload.accountMaterializedPath
+  );
 
   const baseCurrency = currencyEntity.getByCode(payload.currencyCode);
   const functionalCurrency = currencyEntity.getByCode(
@@ -102,7 +104,7 @@ function adjust(
     ledgerAccountBalanceError.InvalidCreatorId
   );
 
-  const effect = helpers.getEffectFromAmount(payload.amount);
+  const effect = getLedgerAccountBalanceEffect(payload.amount);
 
   const adjustment = Object.freeze({
     id: generateUUID(),
@@ -131,8 +133,7 @@ function adjust(
 const ledgerAccountBalanceEntity = Object.freeze({
   make,
   adjust,
-
-  ...helpers,
+  ...ledgerAccountBalanceValidation,
 });
 
 export default ledgerAccountBalanceEntity;

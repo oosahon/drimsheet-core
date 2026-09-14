@@ -3,12 +3,12 @@ import {
   IAccountingEntityAudit,
   IMakeAccountingEntityAuditPayload,
 } from '@domain/accounting/types/accounting-entity-audit.types';
-import accountingAuditHelpers from '@domain/accounting/values/helpers/accounting-audit.vo.helpers';
+import accountingAudit from '@domain/accounting/values/accounting-audit.vo';
 
 function make(
   payload: IMakeAccountingEntityAuditPayload
 ): IAccountingEntityAudit {
-  return accountingAuditHelpers.make(payload, EAccountingEntityActions);
+  return accountingAudit.make(payload, EAccountingEntityActions);
 }
 
 const accountingEntityAudit = Object.freeze({

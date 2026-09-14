@@ -1,9 +1,12 @@
 import { EXPENSE_LEDGER_CODES } from '@domain/ledger/config/expense-codes.config';
+import getLedgerAccountMaterializedPath from '@domain/ledger/entities/helpers/get-materialized-path.helper';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
+import getNextSubledgerAccountCode from '@domain/ledger/entities/helpers/get-subledger-code.helper';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import ledgerAccountCurrencyInvarianceRule from '@domain/ledger/rules/currency-invariance.rule';
-import controlAccountResolverHelper from '@domain/ledger/services/helpers/control-account-resolver';
+import getControlAccountScope from '@domain/ledger/services/helpers/get-control-account-scope.helper';
 import { IDirectCostsAccountService } from '@domain/ledger/types/direct-costs.service.types';
 import {
   EExpenseAccountBehavior,
@@ -47,7 +50,7 @@ function makeCreateHeader(
       accountingEntityId: payload.accountingEntity.id,
       code: LEDGER_CODE.HEADER,
       materializedPath: LEDGER_CODE.HEADER,
-      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Expense),
       type: ELedgerType.Expense,
       subType: EExpenseSubType.DirectCosts,
       behavior: payload.behavior,
@@ -75,7 +78,7 @@ function makeCreateSubAccount(
         account.behavior === EExpenseAccountBehavior.Default);
 
     const { controlAccount, factoryContext } =
-      await controlAccountResolverHelper<TDirectCostsLedgerCode>({
+      await getControlAccountScope<TDirectCostsLedgerCode>({
         ledgerAccountRepo: deps.ledgerAccountRepo,
         accountingEntityId: payload.accountingEntityId,
         controlAccountCode: payload.controlAccountCode,
@@ -88,12 +91,12 @@ function makeCreateSubAccount(
       subAccountCurrency: null,
     });
 
-    const code = ledgerAccountEntity.getSubLedgerCode(
+    const code = getNextSubledgerAccountCode(
       LEDGER_CODE.PREFIX,
       factoryContext.precedingCode
     );
     const materializedPath =
-      ledgerAccountEntity.getMaterializedPath<TDirectCostsLedgerCode>(
+      getLedgerAccountMaterializedPath<TDirectCostsLedgerCode>(
         factoryContext.parentMaterializedPath,
         code
       );
@@ -103,7 +106,7 @@ function makeCreateSubAccount(
       accountingEntityId: payload.accountingEntityId,
       code,
       materializedPath,
-      normalBalance: ledgerAccountEntity.getNormalBalance(ELedgerType.Expense),
+      normalBalance: getLedgerAccountNormalBalance(ELedgerType.Expense),
       type: ELedgerType.Expense,
       subType: EExpenseSubType.DirectCosts,
       behavior: payload.behavior,
