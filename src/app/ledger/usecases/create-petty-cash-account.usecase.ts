@@ -25,7 +25,7 @@ import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-
 import { IPettyCashAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
 import { pettyCashCreationReqValidation } from '@app/ledger/dtos/asset-account/asset-account.dto.validation';
 import { ILedgerAccountDto } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
-import helpers from '@app/ledger/usecases/helpers/create-petty-cash-account.usecase.helpers';
+import finalizeWithoutOpeningBalance from '@app/ledger/usecases/helpers/finalize-without-opening-balance.helper';
 import getControlAccountHelper from '@app/ledger/usecases/helpers/get-control-account.helper';
 import getOpeningBalanceExchangeRate from '@app/ledger/usecases/helpers/get-opening-balance-exchange-rate.helper';
 import mapLedgerAccountToDto from '@app/ledger/usecases/helpers/map-ledger-account-to-dto.helper';
@@ -71,12 +71,13 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       payload.openingBalance
     );
 
-    await helpers.validatePostingPeriod(
-      deps,
-      accountingEntity.id,
-      payload.openingBalance,
-      repoOptions
-    );
+    if (payload.openingBalance?.date) {
+      await deps.accountingPeriodService.validatePostingPeriod(
+        accountingEntity.id,
+        payload.openingBalance.date,
+        repoOptions
+      );
+    }
 
     const controlAccount = await getControlAccountHelper<TCashLedgerCode>({
       ledgerAccountRepo: deps.ledgerAccountRepo,
@@ -100,13 +101,12 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       );
 
     if (!payload.openingBalance) {
-      return await helpers.finalizeWithoutOpeningBalance(
-        deps,
+      return await finalizeWithoutOpeningBalance(deps, {
         auditedAccount,
         accountingEntity,
         actor,
-        repoOptions
-      );
+        repoOptions,
+      });
     }
 
     const exchangeRate = getOpeningBalanceExchangeRate(payload.openingBalance);

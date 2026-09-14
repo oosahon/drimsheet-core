@@ -13,6 +13,7 @@ import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.
 import { EJournalEntryStatus } from '@domain/journal-entry/types/journal-entry.types';
 import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import IBankAccountRepo from '@domain/ledger/repos/bank-account.repo';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import ICashAccountService from '@domain/ledger/types/cash-account.service.types';
@@ -27,7 +28,7 @@ import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-
 import { IBankAccountCreationReq } from '@app/ledger/dtos/asset-account/asset-account.dto';
 import { bankAccountCreationReqValidation } from '@app/ledger/dtos/asset-account/asset-account.dto.validation';
 import { ILedgerAccountDto } from '@app/ledger/dtos/ledger-account/ledger-account.dto';
-import helpers from '@app/ledger/usecases/helpers/create-bank-account.usecase.helpers';
+import finalizeWithoutOpeningBalance from '@app/ledger/usecases/helpers/finalize-without-opening-balance.helper';
 import getControlAccountHelper from '@app/ledger/usecases/helpers/get-control-account.helper';
 import getOpeningBalanceExchangeRate from '@app/ledger/usecases/helpers/get-opening-balance-exchange-rate.helper';
 import mapLedgerAccountToDto from '@app/ledger/usecases/helpers/map-ledger-account-to-dto.helper';
@@ -74,18 +75,24 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
       payload.openingBalance
     );
 
-    await helpers.validatePostingPeriod(
-      deps,
-      accountingEntity.id,
-      payload.openingBalance,
-      repoOptions
-    );
+    if (payload.openingBalance?.date) {
+      await deps.accountingPeriodService.validatePostingPeriod(
+        accountingEntity.id,
+        payload.openingBalance.date,
+        repoOptions
+      );
+    }
 
-    await helpers.checkForExistingBankAccount(
-      deps,
-      payload.bankAccount,
+    const existingBankAccount = await deps.bankAccountRepo.findOne(
+      payload.bankAccount.bankName,
+      payload.bankAccount.accountNumber,
       repoOptions
     );
+    if (existingBankAccount) {
+      throw new ledgerAccountError.DuplicateBankAccount({
+        details: payload.bankAccount,
+      });
+    }
 
     const bankDetails = bankDetailsValue.make({
       countryCode: accountingEntity.jurisdictionCode,
@@ -118,14 +125,20 @@ export default function makeCreateBankAccountUseCase(deps: IDependencies) {
     );
 
     if (!payload.openingBalance) {
-      return await helpers.finalizeWithoutOpeningBalance(
-        deps,
+      return await finalizeWithoutOpeningBalance(deps, {
         auditedAccount,
         accountingEntity,
-        bankDetails,
         actor,
-        repoOptions
-      );
+        repoOptions,
+        persistRelatedRecords: async (account, writeRepoOptions) => {
+          await deps.bankAccountRepo.create(
+            account.id,
+            accountingEntity.id,
+            bankDetails,
+            writeRepoOptions
+          );
+        },
+      });
     }
 
     const exchangeRate = getOpeningBalanceExchangeRate(payload.openingBalance);
