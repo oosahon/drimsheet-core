@@ -95,26 +95,26 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
       await deps.repoService.runInTransaction(repoTransaction);
       existingUser = user;
     } catch (error) {
-      await deps.tokenService
-        .releasePasswordResetTokenClaim(tokenPayload)
-        .catch((cleanupError) =>
-          deps.reporter.report(
-            'auth.password_reset.claim_release_failed',
-            cleanupError,
-            { operation: operations.tokenClaim }
-          )
+      try {
+        await deps.tokenService.releasePasswordResetTokenClaim(tokenPayload);
+      } catch (cleanupError) {
+        deps.reporter.report(
+          'auth.password_reset.claim_release_failed',
+          cleanupError,
+          { operation: operations.tokenClaim }
         );
+      }
 
       throw error;
     }
 
-    await deps.tokenService
-      .finalizePasswordResetToken(tokenPayload)
-      .catch((error) =>
-        deps.reporter.report('auth.password_reset.finalization_failed', error, {
-          operation: operations.finalization,
-        })
-      );
+    try {
+      await deps.tokenService.finalizePasswordResetToken(tokenPayload);
+    } catch (error) {
+      deps.reporter.report('auth.password_reset.finalization_failed', error, {
+        operation: operations.finalization,
+      });
+    }
 
     deps.appContext
       .get(['clientSession'])
