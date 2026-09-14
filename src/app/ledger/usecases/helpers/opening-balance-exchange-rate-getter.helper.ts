@@ -3,7 +3,7 @@ import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
 import { IOpeningBalanceDto } from '@app/journal-entry/dtos/opening-balance/opening-balance.dto';
 
-export default function getOpeningBalanceExchangeRate(
+export default function openingBalanceExchangeRateGetter(
   openingBalance: IOpeningBalanceDto | null
 ): IExchangeRate | null {
   return openingBalance?.exchangeRate

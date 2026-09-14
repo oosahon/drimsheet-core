@@ -14,7 +14,7 @@ import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
 import ILedgerAccountPersistenceService from '@app/ledger/contracts/ledger-account-persistence.service.contract';
 
-import mapLedgerAccountToDto from './map-ledger-account-to-dto.helper';
+import ledgerAccountToDtoMapperHelper from './ledger-account-to-dto-mapper.helper';
 
 interface IDependencies {
   eventBus: IEventBus;
@@ -72,7 +72,7 @@ export default async function finalizeWithoutOpeningBalance(
     eventValue.enrichAll(events, payload.repoOptions)
   );
 
-  return mapLedgerAccountToDto(
+  return ledgerAccountToDtoMapperHelper(
     account,
     null,
     payload.accountingEntity.functionalCurrencyCode

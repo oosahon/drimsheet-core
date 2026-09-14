@@ -13,7 +13,7 @@ import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 import moneyValue from '@domain/money/values/money.vo';
 
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
-import mapLedgerAccountToDto from '@app/ledger/usecases/helpers/map-ledger-account-to-dto.helper';
+import mapLedgerAccountToDto from '@app/ledger/usecases/helpers/ledger-account-to-dto-mapper.helper';
 
 describe('mapLedgerAccountToDto', () => {
   const mockUser = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;

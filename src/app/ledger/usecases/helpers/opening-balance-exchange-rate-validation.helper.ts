@@ -1,7 +1,7 @@
 import { IOpeningBalanceDto } from '@app/journal-entry/dtos/opening-balance/opening-balance.dto';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 
-export default function validateOpeningBalanceExchangeRate(
+export default function openingBalanceExchangeRateValidationHelper(
   functionalCurrencyCode: string,
   currencyCode: string,
   openingBalance: IOpeningBalanceDto | null

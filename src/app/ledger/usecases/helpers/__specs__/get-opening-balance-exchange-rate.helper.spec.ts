@@ -1,4 +1,4 @@
-import getOpeningBalanceExchangeRate from '@app/ledger/usecases/helpers/get-opening-balance-exchange-rate.helper';
+import getOpeningBalanceExchangeRate from '@app/ledger/usecases/helpers/opening-balance-exchange-rate-getter.helper';
 
 describe('getOpeningBalanceExchangeRate', () => {
   it('returns null when opening balance is null or exchangeRate is null', () => {
