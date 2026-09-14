@@ -1,5 +1,4 @@
 import { TCreationOmits } from '@shared/types/creation-omits.types';
-import numberUtils from '@shared/utils/number';
 
 import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
 import { IMoney } from '@domain/money/types/money.types';
@@ -30,10 +29,7 @@ function getCostBasisConsumed(lot: IFxCostBasisLot, quantity: IMoney) {
 
   const convertedBasis = moneyValue.convert(
     quantity,
-    numberUtils.toFactor(
-      lot.acquisitionRate.rate,
-      fxCostBasisLotError.InvalidTransactionRate
-    ),
+    lot.acquisitionRate,
     lot.remainingCostBasis.currency
   );
 
@@ -54,10 +50,7 @@ function getAllocationProceeds(
 
   return moneyValue.convert(
     quantity,
-    numberUtils.toFactor(
-      journalLine.exchangeRate!.rate,
-      fxCostBasisLotError.InvalidTransactionRate
-    ),
+    journalLine.exchangeRate!,
     journalLine.functionalAmount.currency
   );
 }

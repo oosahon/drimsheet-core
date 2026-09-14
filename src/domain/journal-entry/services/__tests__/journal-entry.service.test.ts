@@ -55,6 +55,7 @@ import {
   ILedgerAccount,
 } from '@domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { ICurrency } from '@domain/money/types/currency.types';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 import moneyValue from '@domain/money/values/money.vo';
@@ -1307,7 +1308,9 @@ describe('journalEntryService', () => {
   });
 
   describe('createOpeningBalance', () => {
-    async function makeOpeningBalanceFixture() {
+    async function makeOpeningBalanceFixture(
+      postingCurrency: ICurrency = SYSTEM_CURRENCIES.NGN
+    ) {
       const [user] = userEntity.make({
         email: 'opening.balance@example.com',
         emailVerified: true,
@@ -1335,7 +1338,7 @@ describe('journalEntryService', () => {
         await cashAccountService.createPettyCashSubAccount(
           {
             name: 'Main Petty Cash',
-            currency: SYSTEM_CURRENCIES.NGN,
+            currency: postingCurrency,
             isControlAccount: false,
             controlAccountCode: controlAccount.code,
             accountingEntity,
@@ -1355,7 +1358,7 @@ describe('journalEntryService', () => {
 
       return {
         accountingEntity,
-        amount: moneyValue.make(125_000n, SYSTEM_CURRENCIES.NGN, true),
+        amount: moneyValue.make(125_000n, postingCurrency, true),
         controlAccount,
         equityAccount,
         postingAccount,
@@ -1426,6 +1429,53 @@ describe('journalEntryService', () => {
         EEquitySubType.OpeningBalance,
         repoOptions
       );
+    });
+
+    it('creates a foreign-currency opening balance with a functional-currency equity line', async () => {
+      const fixture = await makeOpeningBalanceFixture(SYSTEM_CURRENCIES.USD);
+      const amount = moneyValue.make(100, SYSTEM_CURRENCIES.USD, false);
+      const functionalAmount = moneyValue.make(
+        135_000,
+        SYSTEM_CURRENCIES.NGN,
+        false
+      );
+      const exchangeRate = exchangeRateValue.make({
+        baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+        targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+        rate: 1350,
+        type: EExchangeRateType.Market,
+        asOf: new Date('2026-08-03T10:00:00.000Z'),
+        source: 'Test Source',
+      });
+      mockLedgerAccountRepo.findBySubType.mockResolvedValue([
+        fixture.equityAccount,
+      ]);
+
+      const [entry] = await service.createOpeningBalance(
+        {
+          ...makeOpeningBalancePayload(fixture),
+          amount,
+          exchangeRate,
+        },
+        repoOptions
+      );
+
+      expect(entry.lines).toEqual([
+        expect.objectContaining({
+          accountId: fixture.postingAccount.id,
+          amount,
+          functionalAmount,
+          exchangeRate,
+          side: EJournalSide.Debit,
+        }),
+        expect.objectContaining({
+          accountId: fixture.equityAccount.id,
+          amount: functionalAmount,
+          functionalAmount,
+          exchangeRate: null,
+          side: EJournalSide.Credit,
+        }),
+      ]);
     });
 
     it('rejects a control account before repository checks', async () => {

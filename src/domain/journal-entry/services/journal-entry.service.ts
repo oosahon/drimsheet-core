@@ -11,8 +11,6 @@ import transferEntryRule, {
 } from '@domain/journal-entry/rules/transfer-entry.rule';
 import helpers from '@domain/journal-entry/services/helpers/journal-entry.service.helpers';
 import {
-  IJournalEntryBaseLinePayload,
-  IJournalEntryHeaderPayload,
   IJournalEntryLinePayload,
   IJournalEntryService,
 } from '@domain/journal-entry/types/journal-entry.service.types';
@@ -26,6 +24,7 @@ import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
 import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import currencyEntity from '@domain/money/entities/currency.entity';
+import moneyValue from '@domain/money/values/money.vo';
 
 interface IDependencies {
   accountingPeriodService: IAccountingPeriodService;
@@ -98,6 +97,12 @@ function makeCreateOpeningBalance(
       createdBy,
     } = payload;
 
+    const functionalCurrency = currencyEntity.getByCode(functionalCurrencyCode);
+
+    const functionalAmount = exchangeRate
+      ? moneyValue.convert(amount, exchangeRate, functionalCurrency)
+      : amount;
+
     if (account.isControlAccount) {
       throw new journalEntryError.ControlAccountOpeningBalanceNotAllowed({
         accountId: account.id,
@@ -139,36 +144,22 @@ function makeCreateOpeningBalance(
       openingBalanceEntryRule
     );
 
-    const header: IJournalEntryHeaderPayload = {
+    const headerValidationPayload = {
       accountingEntityId,
-      functionalCurrencyCode,
       effectiveDate,
-      postedAt: effectiveDate,
-      memo: 'Opening balance',
-      createdBy,
     };
-    const journalLines: IJournalEntryBaseLinePayload[] = [
-      {
-        account,
-        sequenceOrder: 1,
-        amount,
-        exchangeRate,
-        description: 'Opening balance',
-        meta: null,
-      },
-      {
-        account: equityAccount,
-        sequenceOrder: 2,
-        amount,
-        exchangeRate,
-        description: null,
-        meta: null,
-      },
-    ];
-
-    helpers.validateAccounts(header, journalLines);
-
-    const functionalCurrency = currencyEntity.getByCode(functionalCurrencyCode);
+    const accountValidationPayload = {
+      account,
+      amount,
+    };
+    const equityValidationPayload = {
+      account: equityAccount,
+      amount: functionalAmount,
+    };
+    helpers.validateAccounts(headerValidationPayload, [
+      accountValidationPayload,
+      equityValidationPayload,
+    ]);
 
     const accountSide: IJournalLineMakePayload = {
       accountId: account.id,
@@ -185,8 +176,8 @@ function makeCreateOpeningBalance(
       accountId: equityAccount.id,
       counterpartyId: null,
       functionalCurrency,
-      amount,
-      exchangeRate,
+      amount: functionalAmount,
+      exchangeRate: null,
       sequenceOrder: 2,
       description: null,
       side: journalLineEntity.getOppositeSide(account.normalBalance),

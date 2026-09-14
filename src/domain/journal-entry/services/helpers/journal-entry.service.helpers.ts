@@ -37,8 +37,11 @@ function validateAccountsAgainstRule(
 }
 
 function validateAccounts(
-  header: IJournalEntryHeaderPayload,
-  journalLines: IJournalEntryBaseLinePayload[]
+  header: Pick<
+    IJournalEntryHeaderPayload,
+    'accountingEntityId' | 'effectiveDate'
+  >,
+  journalLines: Pick<IJournalEntryBaseLinePayload, 'account' | 'amount'>[]
 ) {
   const allAccounts = journalLines.map((line) => line.account);
 

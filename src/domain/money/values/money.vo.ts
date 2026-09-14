@@ -1,8 +1,11 @@
 import { IFactor } from '@shared/types/number.types';
+import numberUtils from '@shared/utils/number';
 
 import currencyEntity from '@domain/money/entities/currency.entity';
+import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import moneyError from '@domain/money/errors/money.error';
 import { ICurrency } from '@domain/money/types/currency.types';
+import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
 import { IMoney } from '@domain/money/types/money.types';
 
 // TODO (i18n): translate error messages
@@ -264,11 +267,25 @@ function sortAscending(...args: IMoney[]) {
 
 function convert(
   money: IMoney,
-  factor: IFactor,
+  exchangeRate: IExchangeRate,
   targetCurrencyCode: ICurrency
 ) {
-  const amount = multiply(money, factor);
-  return make(amount.amount, targetCurrencyCode, true);
+  numberUtils.validatePositiveNumber(
+    exchangeRate.rate,
+    exchangeRateError.InvalidRate
+  );
+  const factor = numberUtils.toFactor(
+    exchangeRate.rate,
+    exchangeRateError.InvalidRate
+  );
+
+  if (!isValidFactor(factor)) {
+    throw new exchangeRateError.InvalidRate({ value: exchangeRate.rate });
+  }
+
+  const { amount } = multiply(money, factor);
+
+  return make(amount, targetCurrencyCode, true);
 }
 
 function isZeroAmount(money: IMoney) {

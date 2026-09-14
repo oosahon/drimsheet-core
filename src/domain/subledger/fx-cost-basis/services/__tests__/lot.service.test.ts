@@ -81,7 +81,7 @@ describe('makeFxCostBasisLotService', () => {
   ): IJournalEntry {
     const functionalAmount = moneyValue.convert(
       quantity,
-      { numerator: 1500, denominator: 1 },
+      rate,
       SYSTEM_CURRENCIES.NGN
     );
     const id = generateUUID();

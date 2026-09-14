@@ -1,12 +1,26 @@
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import moneyError from '@domain/money/errors/money.error';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import { IMoney } from '@domain/money/types/money.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 import money from '@domain/money/values/money.vo';
 
 describe('Money Value Object', () => {
   const NGN = SYSTEM_CURRENCIES.NGN;
   const USD = SYSTEM_CURRENCIES.USD;
   const JPY = SYSTEM_CURRENCIES.JPY;
+
+  function makeExchangeRate(rate: number) {
+    return exchangeRateValue.make({
+      baseCurrencyCode: USD.code,
+      targetCurrencyCode: NGN.code,
+      rate,
+      type: EExchangeRateType.Market,
+      asOf: new Date('2026-08-01T00:00:00.000Z'),
+      source: 'test',
+    });
+  }
 
   describe('make', () => {
     it('should create money from minor units correctly', () => {
@@ -418,11 +432,11 @@ describe('Money Value Object', () => {
   });
 
   describe('convert', () => {
-    it('should convert money from one currency to another using a factor', () => {
+    it('should convert money from one currency to another using an exchange rate', () => {
       const sourceMoney = money.make(1000, USD, true);
-      const factor = { numerator: 1500, denominator: 1 };
+      const exchangeRate = makeExchangeRate(1500);
 
-      const result = money.convert(sourceMoney, factor, NGN);
+      const result = money.convert(sourceMoney, exchangeRate, NGN);
 
       expect(result.amount).toBe(BigInt(1500000));
       expect(result.currency.code).toBe('NGN');
@@ -431,32 +445,51 @@ describe('Money Value Object', () => {
 
     it('should truncate decimal results during conversion', () => {
       const sourceMoney = money.make(1000, USD, true);
-      const factor = { numerator: 1, denominator: 3 };
+      const exchangeRate = makeExchangeRate(0.3333);
 
-      const result = money.convert(sourceMoney, factor, NGN);
+      const result = money.convert(sourceMoney, exchangeRate, NGN);
 
       expect(result.amount).toBe(BigInt(333));
       expect(result.currency.code).toBe('NGN');
     });
 
-    it('should throw an error if the conversion factor is invalid', () => {
+    it('should throw an error if the exchange rate is not positive', () => {
       const sourceMoney = money.make(1000, USD, true);
-      const invalidFactor = { numerator: 1, denominator: 0 };
+      const exchangeRate = makeExchangeRate(0);
 
-      expect(() => money.convert(sourceMoney, invalidFactor, NGN)).toThrow(
-        new moneyError.InvalidFactor({ factor: invalidFactor })
+      expect(() => money.convert(sourceMoney, exchangeRate, NGN)).toThrow(
+        new exchangeRateError.InvalidRate({ value: 0 })
+      );
+    });
+
+    it('should throw an error if the exchange rate is not finite', () => {
+      const sourceMoney = money.make(1000, USD, true);
+      const exchangeRate = makeExchangeRate(Infinity);
+
+      expect(() => money.convert(sourceMoney, exchangeRate, NGN)).toThrow(
+        new exchangeRateError.InvalidRate({ value: Infinity })
+      );
+    });
+
+    it('should throw an error if the exchange rate cannot form a safe factor', () => {
+      const sourceMoney = money.make(1000, USD, true);
+      const unsafeRate = Number.MAX_SAFE_INTEGER + 1;
+      const exchangeRate = makeExchangeRate(unsafeRate);
+
+      expect(() => money.convert(sourceMoney, exchangeRate, NGN)).toThrow(
+        new exchangeRateError.InvalidRate({ value: unsafeRate })
       );
     });
 
     it('should throw an error if the target currency code is invalid', () => {
       const sourceMoney = money.make(1000, USD, true);
-      const factor = { numerator: 1500, denominator: 1 };
+      const exchangeRate = makeExchangeRate(1500);
       const fakeCurrency = { ...NGN, code: 'FAKE' };
 
       expect(() =>
         money.convert(
           sourceMoney,
-          factor,
+          exchangeRate,
           fakeCurrency as unknown as typeof NGN
         )
       ).toThrow(new moneyError.InvalidCurrencyCode({ currencyCode: 'FAKE' }));

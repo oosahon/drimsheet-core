@@ -75,6 +75,7 @@ describe('JournalLineItem Entity', () => {
       expect(lineItem.amount.currency).toEqual(SYSTEM_CURRENCIES.EUR);
       expect(lineItem.exchangeRate?.rate).toBe(1.1);
 
+      expect(lineItem.functionalAmount.amount).toBe(11_000n);
       expect(lineItem.functionalAmount.currency).toEqual(SYSTEM_CURRENCIES.USD);
 
       expect(lineItem.side).toBe(EJournalSide.Debit);

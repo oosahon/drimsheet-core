@@ -55,6 +55,8 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
     const { correlationId, accountingEntity, user, idempotencyKey } =
       deps.appContext.get(['user', 'accountingEntity']);
 
+    const userActor = historyValue.getUserActor(user.id);
+
     const repoOptions = { correlationId, idempotencyKey };
 
     const sourceAccount = await getLedgerAccountHelper({
@@ -135,7 +137,6 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
       repoOptions
     );
 
-    const userActor = historyValue.getUserActor(user.id);
     const journalHeaderHistory = historyValue.make(
       journalEntryAudit.header,
       userActor,
