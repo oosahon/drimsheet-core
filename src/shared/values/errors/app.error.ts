@@ -10,7 +10,6 @@ import DomainError from './domain.error';
 type TErrorKeyPrefix = TErrorKey<'app_error'>;
 
 const EErrorKeys = {
-  InvalidValue: 'app_error_value_invalid',
   BadRequest: 'app_error_request_invalid',
   Unauthorized: 'app_error_unauthorized',
   PaymentRequired: 'app_error_payment_required',

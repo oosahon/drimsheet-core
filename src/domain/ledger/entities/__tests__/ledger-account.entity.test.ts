@@ -5,7 +5,6 @@ import generateUUID from '@shared/utils/uuid-generator';
 import getContraLedgerAccountBalance from '@domain/ledger/entities/helpers/get-contra-balance.helper';
 import getLedgerAccountMaterializedPath from '@domain/ledger/entities/helpers/get-materialized-path.helper';
 import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
-import getRequiredLedgerAccountMaterializedPaths from '@domain/ledger/entities/helpers/get-required-materialized-paths.helper';
 import getNextSubledgerAccountCode from '@domain/ledger/entities/helpers/get-subledger-code.helper';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ledgerAccountValidation from '@domain/ledger/entities/validations/ledger-account.validation';
@@ -205,7 +204,7 @@ describe('Ledger Account Shared Entity', () => {
     });
   });
 
-  describe('getRequiredLedgerAccountMaterializedPaths', () => {
+  describe('getMaterializedPaths', () => {
     it('returns every unique account and ancestor path', () => {
       const [firstAccount] = ledgerAccountEntity.make({
         ...validPayload,
@@ -217,7 +216,7 @@ describe('Ledger Account Shared Entity', () => {
       });
 
       expect(
-        getRequiredLedgerAccountMaterializedPaths([firstAccount, secondAccount])
+        ledgerAccountEntity.getMaterializedPaths([firstAccount, secondAccount])
       ).toEqual([
         '100000',
         '100000.100001',

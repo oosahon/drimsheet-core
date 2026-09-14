@@ -17,16 +17,16 @@ function make(
 ): TAuditedEntity<IReportingContext, IReportingContext, IReportingContext> {
   stringUtils.validateUUID(
     payload.accountingEntityId,
-    accountingError.InvalidValue
+    accountingError.InvalidAccountingEntityId
   );
   currencyEntity.validateCode(payload.reportingCurrencyCode);
   stringUtils.validateUUID(
     payload.accountingContextId,
-    accountingError.InvalidValue
+    accountingError.InvalidAccountingContextId
   );
   stringUtils.validateUUID(
     payload.currentReportingPeriodId,
-    accountingError.InvalidValue
+    accountingError.InvalidCurrentReportingPeriodId
   );
   accountingContextValidation.validateAccountingStandardCode(
     payload.accountingStandardCode
@@ -38,7 +38,7 @@ function make(
       min: 1,
       max: 150,
     },
-    accountingError.InvalidValue
+    accountingError.InvalidName
   );
   const description = getAccountingContextDescription(payload.description);
 

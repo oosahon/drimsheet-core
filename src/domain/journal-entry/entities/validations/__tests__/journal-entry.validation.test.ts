@@ -345,12 +345,12 @@ describe('journalEntryValidation', () => {
       ).not.toThrow();
     });
 
-    it('should throw InvalidValue for an invalid UUID format', () => {
+    it('should throw InvalidVoidingEntryId for an invalid UUID format', () => {
       expect(() =>
         journalEntryValidation.validateVoidingEntryId(
           'invalid-uuid' as TEntityId
         )
-      ).toThrow(journalEntryError.InvalidValue);
+      ).toThrow(journalEntryError.InvalidVoidingEntryId);
     });
   });
 });

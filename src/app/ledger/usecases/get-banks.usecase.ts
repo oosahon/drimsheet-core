@@ -6,7 +6,8 @@ import {
 } from '@app/ledger/dtos/bank-directory/bank-directory.dto';
 import { getBanksQueryValidationSchema } from '@app/ledger/dtos/bank-directory/bank-directory.dto.validation';
 
-// TODO: Replace temporary static bank directory with provider-backed integration (e.g. Flutterwave/Paystack) in PUR-xx
+// TODO: Replace temporary static bank directory with provider-backed integration (e.g. Flutterwave/Paystack)
+// https://drimsheet-app.atlassian.net/browse/ENG-120
 const TEMPORARY_DUMMY_BANKS: Record<
   string,
   ReadonlyArray<Omit<IBankDirectoryDto, 'countryCode'>>

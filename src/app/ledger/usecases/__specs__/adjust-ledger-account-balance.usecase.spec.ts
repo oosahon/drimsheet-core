@@ -5,18 +5,11 @@ import { ITransactionContext } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
-import { EJournalEntryStatus } from '@domain/journal-entry/types/journal-entry.types';
-import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
-import ILedgerAccountBalanceAdjustmentService from '@domain/ledger/types/ledger-account-balance-adjustment.service.types';
-import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 
-import { mockJournalEntryRepo } from '@app/journal-entry/contracts/__mocks__/journal-entry.repos.mock';
-import {
-  mockLedgerAccountBalanceRepo,
-  mockLedgerAccountRepo,
-} from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
+import mockLedgerBalancePropagationPreparationService from '@app/ledger/contracts/__mocks__/ledger-balance-propagation-preparation.service.mock';
+import { mockLedgerAccountBalanceRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
 import { ILedgerAccountBalanceAdjustmentDto } from '@app/ledger/dtos/ledger-account-balance-adjustment/ledger-account-balance-adjustment.dto';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import makeAdjustLedgerAccountBalanceUseCase from '@app/ledger/usecases/adjust-ledger-account-balance.usecase';
@@ -31,32 +24,6 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
   const childAccountId = generateUUID();
   const parentAccountId = generateUUID();
 
-  const childAccount = {
-    id: childAccountId,
-    accountingEntityId,
-    materializedPath: '100000.100001',
-    currency: SYSTEM_CURRENCIES.USD,
-  } as ILedgerAccount;
-  const parentAccount = {
-    ...childAccount,
-    id: parentAccountId,
-    materializedPath: '100000',
-    currency: SYSTEM_CURRENCIES.NGN,
-  };
-  const journalEntry = {
-    id: journalEntryId,
-    accountingEntityId,
-    status: EJournalEntryStatus.Posted,
-    createdBy: creatorId,
-    lines: [
-      {
-        accountId: childAccountId,
-        side: EJournalSide.Debit,
-        amount: { amount: 100n, currency: SYSTEM_CURRENCIES.USD },
-        functionalAmount: { amount: 150_000n, currency: SYSTEM_CURRENCIES.NGN },
-      },
-    ],
-  } as Awaited<ReturnType<typeof mockJournalEntryRepo.findById>> & {};
   const outbox: IOutbox = {
     id: journalEntryId,
     correlationId,
@@ -67,55 +34,57 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
   const childBalance = ledgerAccountBalanceEntity.make({
     ledgerAccountId: childAccountId,
     accountingEntityId,
-    accountMaterializedPath: childAccount.materializedPath,
+    accountMaterializedPath: '100000.100001',
     currencyCode: SYSTEM_CURRENCIES.USD.code,
     functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
   });
   const parentBalance = ledgerAccountBalanceEntity.make({
     ledgerAccountId: parentAccountId,
     accountingEntityId,
-    accountMaterializedPath: parentAccount.materializedPath,
+    accountMaterializedPath: '100000',
     currencyCode: SYSTEM_CURRENCIES.NGN.code,
     functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
   });
-  const deltas = [
+  const preparedAdjustments = [
     {
-      ledgerAccountId: childAccountId,
-      amount: { amount: 100n, currency: SYSTEM_CURRENCIES.USD },
-      functionalAmount: {
-        amount: 150_000n,
-        currency: SYSTEM_CURRENCIES.NGN,
-      },
+      balanceAdjustment: ledgerAccountBalanceEntity.adjust(childBalance, {
+        ledgerAccountId: childAccountId,
+        amount: { amount: 100n, currency: SYSTEM_CURRENCIES.USD },
+        functionalAmount: {
+          amount: 150_000n,
+          currency: SYSTEM_CURRENCIES.NGN,
+        },
+        journalEntryId,
+        createdBy: creatorId,
+      }),
+      expectedVersion: childBalance.version,
     },
     {
-      ledgerAccountId: parentAccountId,
-      amount: { amount: 150_000n, currency: SYSTEM_CURRENCIES.NGN },
-      functionalAmount: {
-        amount: 150_000n,
-        currency: SYSTEM_CURRENCIES.NGN,
-      },
+      balanceAdjustment: ledgerAccountBalanceEntity.adjust(parentBalance, {
+        ledgerAccountId: parentAccountId,
+        amount: { amount: 150_000n, currency: SYSTEM_CURRENCIES.NGN },
+        functionalAmount: {
+          amount: 150_000n,
+          currency: SYSTEM_CURRENCIES.NGN,
+        },
+        journalEntryId,
+        createdBy: creatorId,
+      }),
+      expectedVersion: parentBalance.version,
     },
   ];
-  const adjustmentService: jest.Mocked<ILedgerAccountBalanceAdjustmentService> =
-    { calculate: jest.fn() };
   const payload: ILedgerAccountBalanceAdjustmentDto = {
     journalEntryId,
     correlationId,
   };
 
-  const page = (data: ILedgerAccount[]) => ({
-    data,
-    meta: { page: 1, limit: data.length, total: data.length, totalPages: 1 },
-  });
-
   const getUseCase = () =>
     makeAdjustLedgerAccountBalanceUseCase({
       repoService: mockRepoService,
       outboxRepo: mockOutboxRepo,
-      journalEntryRepo: mockJournalEntryRepo,
-      ledgerAccountRepo: mockLedgerAccountRepo,
       ledgerAccountBalanceRepo: mockLedgerAccountBalanceRepo,
-      ledgerAccountBalanceAdjustmentService: adjustmentService,
+      balancePropagationPreparationService:
+        mockLedgerBalancePropagationPreparationService,
       reporter: mockReporter,
     });
 
@@ -124,17 +93,9 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     mockRepoService.runInTransaction.mockImplementation((fn) => fn(tx));
     mockOutboxRepo.findByIdAndType.mockResolvedValue(outbox);
     mockOutboxRepo.delete.mockResolvedValue(true);
-    mockJournalEntryRepo.findById.mockResolvedValue(journalEntry);
-    mockLedgerAccountRepo.findAll.mockResolvedValueOnce(page([childAccount]));
-    mockLedgerAccountRepo.findAllByMaterializedPath.mockResolvedValue([
-      parentAccount,
-      childAccount,
-    ]);
-    adjustmentService.calculate.mockReturnValue(deltas);
-    mockLedgerAccountBalanceRepo.findAllByAccountIds.mockResolvedValue([
-      parentBalance,
-      childBalance,
-    ]);
+    mockLedgerBalancePropagationPreparationService.prepare.mockResolvedValue(
+      preparedAdjustments
+    );
     mockLedgerAccountBalanceRepo.adjustBalance.mockResolvedValue();
   });
 
@@ -146,42 +107,28 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
       EOutboxType.BalancePropagation,
       { correlationId }
     );
-    expect(mockJournalEntryRepo.findById).toHaveBeenCalledWith(journalEntryId, {
-      correlationId,
-    });
     expect(
-      mockLedgerAccountRepo.findAllByMaterializedPath
-    ).toHaveBeenCalledWith(accountingEntityId, ['100000', '100000.100001'], {
-      correlationId,
-    });
-    expect(adjustmentService.calculate).toHaveBeenCalledWith(journalEntry, [
-      parentAccount,
-      childAccount,
-    ]);
-    expect(
-      mockLedgerAccountBalanceRepo.findAllByAccountIds
-    ).toHaveBeenCalledWith(
-      accountingEntityId,
-      [childAccountId, parentAccountId].sort(),
-      { correlationId }
+      mockLedgerBalancePropagationPreparationService.prepare
+    ).toHaveBeenCalledWith(journalEntryId, { correlationId });
+    expect(mockLedgerAccountBalanceRepo.adjustBalance).toHaveBeenNthCalledWith(
+      1,
+      preparedAdjustments[0].balanceAdjustment,
+      { correlationId, tx, expectedVersion: childBalance.version }
+    );
+    expect(mockLedgerAccountBalanceRepo.adjustBalance).toHaveBeenNthCalledWith(
+      2,
+      preparedAdjustments[1].balanceAdjustment,
+      { correlationId, tx, expectedVersion: parentBalance.version }
     );
     expect(mockLedgerAccountBalanceRepo.adjustBalance).toHaveBeenCalledTimes(2);
-    expect(mockLedgerAccountBalanceRepo.adjustBalance).toHaveBeenCalledWith(
-      expect.objectContaining({
-        adjustment: expect.objectContaining({
-          journalEntryId,
-          createdBy: creatorId,
-        }),
-      }),
-      expect.objectContaining({ correlationId, tx, expectedVersion: 1 })
-    );
     expect(mockOutboxRepo.delete).toHaveBeenCalledWith(outbox.id, {
       correlationId,
       tx,
     });
     expect(mockReporter.report).not.toHaveBeenCalled();
     expect(
-      adjustmentService.calculate.mock.invocationCallOrder[0]
+      mockLedgerBalancePropagationPreparationService.prepare.mock
+        .invocationCallOrder[0]
     ).toBeLessThan(
       mockRepoService.runInTransaction.mock.invocationCallOrder[0]
     );
@@ -206,14 +153,16 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     );
     expect(mockLedgerAccountBalanceRepo.adjustBalance).not.toHaveBeenCalled();
     expect(mockOutboxRepo.delete).not.toHaveBeenCalled();
-    expect(mockJournalEntryRepo.findById).not.toHaveBeenCalled();
+    expect(
+      mockLedgerBalancePropagationPreparationService.prepare
+    ).not.toHaveBeenCalled();
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
   });
 
-  it('does not delete the outbox when a balance is missing', async () => {
-    mockLedgerAccountBalanceRepo.findAllByAccountIds.mockResolvedValue([
-      childBalance,
-    ]);
+  it('does not open a transaction when preparation fails', async () => {
+    mockLedgerBalancePropagationPreparationService.prepare.mockRejectedValueOnce(
+      new ledgerAppError.BalanceNotFound()
+    );
 
     await expect(getUseCase()(payload)).rejects.toThrow(
       ledgerAppError.BalanceNotFound
@@ -221,34 +170,6 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     expect(mockLedgerAccountBalanceRepo.adjustBalance).not.toHaveBeenCalled();
     expect(mockOutboxRepo.delete).not.toHaveBeenCalled();
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-  });
-
-  it('does not delete the outbox when the required balance row is not returned', async () => {
-    const unrelatedBalance = {
-      ...parentBalance,
-      ledgerAccountId: generateUUID(),
-    };
-    mockLedgerAccountBalanceRepo.findAllByAccountIds.mockResolvedValue([
-      childBalance,
-      unrelatedBalance,
-    ]);
-
-    await expect(getUseCase()(payload)).rejects.toThrow(
-      ledgerAppError.BalanceNotFound
-    );
-    expect(mockLedgerAccountBalanceRepo.adjustBalance).not.toHaveBeenCalled();
-    expect(mockOutboxRepo.delete).not.toHaveBeenCalled();
-    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-  });
-
-  it('rejects an unavailable journal before opening a transaction', async () => {
-    mockJournalEntryRepo.findById.mockResolvedValue(null);
-
-    await expect(getUseCase()(payload)).rejects.toThrow();
-
-    expect(mockLedgerAccountRepo.findAll).not.toHaveBeenCalled();
-    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-    expect(mockOutboxRepo.delete).not.toHaveBeenCalled();
   });
 
   it('does not delete the outbox when an adjustment write fails', async () => {
@@ -266,5 +187,8 @@ describe('makeAdjustLedgerAccountBalanceUseCase', () => {
     ).rejects.toThrow();
 
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(
+      mockLedgerBalancePropagationPreparationService.prepare
+    ).not.toHaveBeenCalled();
   });
 });

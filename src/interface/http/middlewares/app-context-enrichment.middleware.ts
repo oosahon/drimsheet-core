@@ -1,6 +1,5 @@
 import { RequestHandler } from 'express';
 
-import ILogger from '@shared/contracts/logger.contract';
 import { IReadRepoOptions } from '@shared/types/repo.types';
 
 import IAccountingEntityRepo from '@domain/accounting/repos/accounting-entity.repo';
@@ -16,8 +15,7 @@ export default function makeAppContextEnrichmentMiddleware(
   appContext: IAppContext,
   accountingEntityRepo: IAccountingEntityRepo,
   tokenService: ITokenService,
-  userRepo: IUserRepo,
-  logger: ILogger
+  userRepo: IUserRepo
 ): RequestHandler {
   return async (req, _res, next) => {
     const { correlationId } = appContext.get();
@@ -26,7 +24,6 @@ export default function makeAppContextEnrichmentMiddleware(
     const user = await getAuthUserFromRequest(
       req,
       tokenService,
-      logger,
       userRepo,
       repoOptions
     );

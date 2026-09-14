@@ -3,6 +3,7 @@ import { TEntityId } from '@shared/types/uuid';
 import fiscalYearEntity from '@domain/accounting/entities/fiscal-year.entity';
 import deriveFiscalYearName from '@domain/accounting/entities/helpers/derive-name.helper';
 import fiscalYearValidation from '@domain/accounting/entities/validations/fiscal-year.validation';
+import periodError from '@domain/accounting/errors/period.error';
 import { EPeriodEvents } from '@domain/accounting/events/period.events';
 import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
 import { EPeriodStatus } from '@domain/accounting/types/period.types';
@@ -70,7 +71,9 @@ describe('fiscalYearEntity', () => {
         ...validPayload,
         accountingEntityId: 'invalid' as TEntityId,
       };
-      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow();
+      expect(() => fiscalYearEntity.make(invalidPayload)).toThrow(
+        periodError.InvalidAccountingEntityId
+      );
     });
 
     it('throws InvalidPeriodDateRangeError if startDate is invalid', () => {
@@ -136,6 +139,16 @@ describe('fiscalYearEntity', () => {
           '  Custom FY 2026  '
         );
         expect(name).toBe('Custom FY 2026');
+      });
+
+      it('throws InvalidName when the provided name is invalid', () => {
+        expect(() =>
+          deriveFiscalYearName(
+            new Date('2026-01-01T00:00:00.000Z'),
+            new Date('2026-12-31T23:59:59.999Z'),
+            'a'.repeat(101)
+          )
+        ).toThrow(periodError.InvalidName);
       });
 
       it('validates dates by default when name is not provided', () => {

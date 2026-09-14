@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Middlewares,
   OperationId,
   Queries,
   Route,
@@ -11,7 +10,6 @@ import {
 
 import { IExchangeRateQueryParam } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 
-import middlewares from '@infra/ioc/middlewares/http';
 import {
   getAllCurrenciesUseCase,
   getExchangeRateUseCase,
@@ -26,7 +24,6 @@ export class CurrencyController extends Controller {
   @Get('/')
   @OperationId('getAllCurrencies')
   @SuccessResponse('200')
-  @Middlewares(middlewares.isOptionalAuthenticatedUser)
   public async getAllCurrencies() {
     return getAllCurrenciesUseCase();
   }

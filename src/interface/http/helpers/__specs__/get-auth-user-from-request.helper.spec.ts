@@ -1,6 +1,5 @@
 import { Request } from 'express';
 
-import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
@@ -28,7 +27,6 @@ describe('getAuthUserFromRequest', () => {
     return getAuthUserFromRequest(
       mockReq as Request,
       mockTokenService,
-      mockLogger,
       mockUserRepo,
       repoOptions
     );

@@ -9,6 +9,7 @@ import { IGainOnAssetSaleAccountService } from '@domain/ledger/types/gain-on-sal
 import { IGiftsAccountService } from '@domain/ledger/types/gifts.service.types';
 import { IGrantsAccountService } from '@domain/ledger/types/grants.service.types';
 import { IInterestAccountService } from '@domain/ledger/types/interest.service.types';
+import ILedgerAccountBalanceAdjustmentService from '@domain/ledger/types/ledger-account-balance-adjustment.service.types';
 import { IPayablesAccountService } from '@domain/ledger/types/payables.service.types';
 import { IReceivablesAccountService } from '@domain/ledger/types/receivables-account.service.types';
 import { IRentAndUtilitiesAccountService } from '@domain/ledger/types/rent-and-utilities.service.types';
@@ -138,3 +139,8 @@ export const mockEquityAccountService: jest.Mocked<IEquityAccountService> = {
   createOpeningBalanceAccount: jest.fn(),
   createRetainedEarningsAccount: jest.fn(),
 };
+
+export const mockLedgerAccountBalanceAdjustmentService: jest.Mocked<ILedgerAccountBalanceAdjustmentService> =
+  {
+    calculate: jest.fn(),
+  };

@@ -197,7 +197,6 @@ describe('makeCreateBankAccountUseCase', () => {
     expect(result.id).toBe(mockAccount.id);
     expect(result.name).toBe(validReq.name);
     expect(result.behavior).toBe('bank');
-    expect(result.meta).toEqual(bankDetails);
 
     expect(mockBankAccountRepo.findOne).toHaveBeenCalledWith(
       bankDetails.bankName,

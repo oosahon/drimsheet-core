@@ -182,7 +182,16 @@ describe('JournalEntry Entity', () => {
           ...validPayload,
           accountingEntityId: 'invalid' as TEntityId,
         })
-      ).toThrow();
+      ).toThrow(journalEntryError.InvalidAccountingEntityId);
+    });
+
+    it('should throw InvalidCreatedBy if createdBy is invalid', () => {
+      expect(() =>
+        journalEntryEntity.make({
+          ...validPayload,
+          createdBy: 'invalid' as TEntityId,
+        })
+      ).toThrow(journalEntryError.InvalidCreatedBy);
     });
 
     it('should throw an AppError if sourceType is invalid', () => {
@@ -515,7 +524,7 @@ describe('JournalEntry Entity', () => {
             voidingEntryId: 'invalid' as TEntityId,
           }
         )
-      ).toThrow(journalEntryError.InvalidValue);
+      ).toThrow(journalEntryError.InvalidVoidingEntryId);
     });
 
     it('should archive draft and posted entries with audit and event metadata', () => {

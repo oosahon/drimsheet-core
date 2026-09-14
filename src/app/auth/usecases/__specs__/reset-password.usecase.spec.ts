@@ -76,6 +76,10 @@ describe('makeResetPasswordUseCase', () => {
     mockUserSessionPersistenceService.replaceAllUserSessions
       .mockReset()
       .mockResolvedValue();
+    mockAuthService.releasePasswordResetTokenClaim
+      .mockReset()
+      .mockResolvedValue();
+    mockAuthService.finalizePasswordResetToken.mockReset().mockResolvedValue();
   });
 
   afterEach(() => {

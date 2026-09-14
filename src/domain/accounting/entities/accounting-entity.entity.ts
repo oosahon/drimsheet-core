@@ -4,7 +4,7 @@ import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
 import accountingEntityValidation from '@domain/accounting/entities/validations/accounting-entity.validation';
-import accountingError from '@domain/accounting/errors/accounting.error';
+import accountingEntityError from '@domain/accounting/errors/accounting-entity.error';
 import accountingEntityEvents from '@domain/accounting/events/accounting-entity.events';
 import { EAccountingEntityActions } from '@domain/accounting/types/accounting-entity-audit.types';
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
@@ -15,7 +15,10 @@ function make(
   payload: TCreationOmits<IAccountingEntity>
 ): TAuditedEntity<IAccountingEntity, IAccountingEntity, IAccountingEntity> {
   accountingEntityValidation.validateType(payload.type);
-  stringUtils.validateUUID(payload.ownerId, accountingError.InvalidValue);
+  stringUtils.validateUUID(
+    payload.ownerId,
+    accountingEntityError.InvalidOwnerId
+  );
   currencyEntity.validateCode(payload.functionalCurrencyCode);
   accountingEntityValidation.validateJurisdictionCode(payload.jurisdictionCode);
 
@@ -25,7 +28,7 @@ function make(
       min: 1,
       max: 100,
     },
-    accountingError.InvalidValue
+    accountingEntityError.InvalidName
   );
 
   const timestamp = new Date();

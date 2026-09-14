@@ -151,9 +151,23 @@ function updateOpeningBalanceDate<T extends ILedgerAccount>(
   return [entity, [event], audit];
 }
 
+/** Returns each account path and all of its ancestor paths without duplicates. */
+function getMaterializedPaths(
+  accounts: Pick<ILedgerAccount, 'materializedPath'>[]
+) {
+  const accountPaths = accounts.flatMap((account) => {
+    const segments = account.materializedPath.split('.');
+
+    return segments.map((_, index) => segments.slice(0, index + 1).join('.'));
+  });
+
+  return [...new Set(accountPaths)];
+}
+
 const ledgerAccountEntity = Object.freeze({
   make,
   updateOpeningBalanceDate,
+  getMaterializedPaths,
   ...ledgerAccountValidation,
 });
 

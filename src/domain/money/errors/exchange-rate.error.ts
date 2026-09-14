@@ -10,6 +10,7 @@ const EErrorKeys = {
   UpdateNotPermitted:
     'currency_error_exchange_rate_update_not_permitted_conflict',
   InvalidDate: 'currency_error_exchange_rate_date_invalid',
+  InvalidCreatedAt: 'currency_error_exchange_rate_created_at_invalid',
   InvalidRate: 'currency_error_exchange_rate_rate_invalid',
   InvalidSource: 'currency_error_exchange_rate_source_invalid',
 } as const satisfies TErrorKeys<'currency_error_exchange_rate'>;

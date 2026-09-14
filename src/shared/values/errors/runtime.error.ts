@@ -4,7 +4,6 @@ import errorUtils from '@shared/utils/error';
 import DomainError from './domain.error';
 
 const EErrorKeys = {
-  InvalidValue: 'runtime_error_context_invalid_value_unexpected',
   ContextNotFound: 'runtime_error_context_context_not_found_unexpected',
   CorrelationIdRequired:
     'runtime_error_context_correlation_id_required_unexpected',

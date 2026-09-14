@@ -2,6 +2,7 @@ import { TEntityId } from '@shared/types/uuid';
 
 import fiscalYearEntity from '@domain/accounting/entities/fiscal-year.entity';
 import reportingPeriodEntity from '@domain/accounting/entities/reporting-period.entity';
+import periodError from '@domain/accounting/errors/period.error';
 import { EPeriodEvents } from '@domain/accounting/events/period.events';
 import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
 import {
@@ -83,7 +84,9 @@ describe('reportingPeriodEntity', () => {
         accountingEntityId: 'invalid-id' as TEntityId,
       };
 
-      expect(() => reportingPeriodEntity.make(payload)).toThrow();
+      expect(() => reportingPeriodEntity.make(payload)).toThrow(
+        periodError.InvalidAccountingEntityId
+      );
     });
 
     it('throws if the period unit is invalid', () => {

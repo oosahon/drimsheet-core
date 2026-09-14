@@ -3,7 +3,6 @@ import numberUtils from '@shared/utils/number';
 import stringUtils from '@shared/utils/string';
 
 import currencyEntity from '@domain/money/entities/currency.entity';
-import currencyError from '@domain/money/errors/currency.error';
 import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import {
   EExchangeRateType,
@@ -29,7 +28,7 @@ function validateCurrencyPair(
       min: 7,
       max: 7,
     },
-    currencyError.InvalidValue
+    exchangeRateError.InvalidPair
   );
 
   const [base, target] = params.currencyPair.split('/');
@@ -49,11 +48,11 @@ function validate(exchangeRate: IExchangeRate) {
   validateCurrencyPair(exchangeRate);
   numberUtils.validatePositiveNumber(
     exchangeRate.rate,
-    currencyError.InvalidValue
+    exchangeRateError.InvalidRate
   );
   dateUtils.validateDateIsNotInTheFuture(
     exchangeRate.asOf,
-    currencyError.InvalidValue
+    exchangeRateError.InvalidDate
   );
   stringUtils.validateStringWithinRange(
     exchangeRate.source,
@@ -61,11 +60,14 @@ function validate(exchangeRate: IExchangeRate) {
       min: 3,
       max: 100,
     },
-    currencyError.InvalidValue
+    exchangeRateError.InvalidSource
   );
 
   validateType(exchangeRate.type);
-  dateUtils.validateDate(exchangeRate.createdAt, currencyError.InvalidValue);
+  dateUtils.validateDate(
+    exchangeRate.createdAt,
+    exchangeRateError.InvalidCreatedAt
+  );
 }
 
 const exchangeRateValidation = Object.freeze({

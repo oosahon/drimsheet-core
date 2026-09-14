@@ -2,6 +2,7 @@ import { TEntityId } from '@shared/types/uuid';
 
 import periodEntity from '@domain/accounting/entities/period.entity';
 import periodValidation from '@domain/accounting/entities/validations/period.validation';
+import periodError from '@domain/accounting/errors/period.error';
 import { EPeriodActions } from '@domain/accounting/types/period-audit.types';
 import {
   EPeriodStatus,
@@ -98,7 +99,9 @@ describe('periodEntity', () => {
         ...validPayload,
         accountingEntityId: 'invalid' as TEntityId,
       };
-      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow();
+      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow(
+        periodError.InvalidAccountingEntityId
+      );
     });
 
     it('throws AppError if fiscalYearId is invalid', () => {
@@ -106,7 +109,21 @@ describe('periodEntity', () => {
         ...validPayload,
         fiscalYearId: 'invalid' as TEntityId,
       };
-      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow();
+      expect(() => periodEntity.makeReportingPeriod(invalidPayload)).toThrow(
+        periodError.InvalidFiscalYearId
+      );
+    });
+
+    it('throws InvalidName if name is invalid', () => {
+      expect(() =>
+        periodEntity.makeReportingPeriod({ ...validPayload, name: '' })
+      ).toThrow(periodError.InvalidName);
+    });
+
+    it('throws InvalidCount if count is invalid', () => {
+      expect(() =>
+        periodEntity.makeReportingPeriod({ ...validPayload, count: 0 })
+      ).toThrow(periodError.InvalidCount);
     });
 
     it('throws InvalidPeriodUnitError if unit is invalid', () => {

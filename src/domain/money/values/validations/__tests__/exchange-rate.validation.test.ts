@@ -1,3 +1,4 @@
+import exchangeRateError from '@domain/money/errors/exchange-rate.error';
 import {
   EExchangeRateType,
   UExchangeRateType,
@@ -65,7 +66,7 @@ describe('exchangeRateValidation', () => {
           baseCurrencyCode: 'EUR',
           targetCurrencyCode: 'USD',
         })
-      ).toThrow();
+      ).toThrow(exchangeRateError.InvalidPair);
 
       expect(() =>
         exchangeRateValidation.validateCurrencyPair({
@@ -73,7 +74,7 @@ describe('exchangeRateValidation', () => {
           baseCurrencyCode: 'EURO',
           targetCurrencyCode: 'USD',
         })
-      ).toThrow();
+      ).toThrow(exchangeRateError.InvalidPair);
     });
 
     it('throws if base does not match currency pair', () => {
@@ -130,14 +131,14 @@ describe('exchangeRateValidation', () => {
           ...validExchangeRate,
           rate: -1.1,
         })
-      ).toThrow();
+      ).toThrow(exchangeRateError.InvalidRate);
 
       expect(() =>
         exchangeRateValidation.validate({
           ...validExchangeRate,
           rate: 0,
         })
-      ).toThrow();
+      ).toThrow(exchangeRateError.InvalidRate);
     });
 
     it('throws if asOf is in the future', () => {
@@ -146,7 +147,7 @@ describe('exchangeRateValidation', () => {
           ...validExchangeRate,
           asOf: new Date('2026-04-16T00:00:00.000Z'),
         })
-      ).toThrow();
+      ).toThrow(exchangeRateError.InvalidDate);
     });
 
     it('throws if source length is out of range', () => {
@@ -155,14 +156,14 @@ describe('exchangeRateValidation', () => {
           ...validExchangeRate,
           source: 'ab',
         })
-      ).toThrow();
+      ).toThrow(exchangeRateError.InvalidSource);
 
       expect(() =>
         exchangeRateValidation.validate({
           ...validExchangeRate,
           source: 'a'.repeat(101),
         })
-      ).toThrow();
+      ).toThrow(exchangeRateError.InvalidSource);
     });
 
     it('throws if type is invalid', () => {
@@ -180,7 +181,7 @@ describe('exchangeRateValidation', () => {
           ...validExchangeRate,
           createdAt: new Date('invalid'),
         })
-      ).toThrow();
+      ).toThrow(exchangeRateError.InvalidCreatedAt);
     });
   });
 });

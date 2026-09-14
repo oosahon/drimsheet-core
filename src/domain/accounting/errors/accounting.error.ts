@@ -5,10 +5,18 @@ import DomainError from '@shared/values/errors/domain.error';
 type TErrorPrefix = TErrorKey<'accounting_error'>;
 
 const EErrorKeys = {
-  InvalidValue: 'accounting_error_value_invalid',
   InvalidAction: 'accounting_error_action_invalid',
   InvalidId: 'accounting_error_id_invalid',
   InvalidDate: 'accounting_error_date_invalid',
+  InvalidAccountingEntityId: 'accounting_error_accounting_entity_id_invalid',
+  InvalidFiscalYearId: 'accounting_error_fiscal_year_id_invalid',
+  InvalidCurrentAccountingPeriodId:
+    'accounting_error_current_accounting_period_id_invalid',
+  InvalidAccountingContextId: 'accounting_error_accounting_context_id_invalid',
+  InvalidCurrentReportingPeriodId:
+    'accounting_error_current_reporting_period_id_invalid',
+  InvalidName: 'accounting_error_name_invalid',
+  InvalidDescription: 'accounting_error_description_invalid',
   InvalidJurisdictionCode: 'accounting_error_jurisdiction_code_invalid',
   InvalidAccountingEntityType:
     'accounting_error_invalid_accounting_entity_type_invalid',

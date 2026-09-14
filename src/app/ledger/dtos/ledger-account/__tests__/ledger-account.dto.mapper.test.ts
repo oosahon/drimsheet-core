@@ -62,7 +62,6 @@ describe('Ledger Account DTO Mapper', () => {
         status: 'active',
         contraAccountRule: 'contra_permitted',
         adjunctAccountRule: 'adjunct_permitted',
-        meta: undefined,
         openingBalanceDate: null,
         createdBy: 'user-id-789',
         createdAt: new Date('2026-07-13T18:00:00Z'),

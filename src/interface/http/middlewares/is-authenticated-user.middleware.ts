@@ -6,7 +6,7 @@ import IAccountingEntityService from '@domain/accounting/types/accounting-entity
 
 import IAppContext from '@app/context/contracts/app-context.contract';
 
-import httpHandlers from '@interface/http/handlers';
+import httpHandlers from '@infra/ioc/handlers/http';
 
 export default function makeIsAuthenticatedUserMiddleware(
   appContext: IAppContext,

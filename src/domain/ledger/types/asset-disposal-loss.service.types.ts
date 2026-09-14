@@ -24,7 +24,6 @@ interface ISubAccountPayload {
   name: string;
   createdBy: TEntityId;
   accountingEntityId: TEntityId;
-  // TODO: remove currency from expense
   isControlAccount: boolean;
   controlAccountCode: TAssetDisposalLossLedgerCode;
 }

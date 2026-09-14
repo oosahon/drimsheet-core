@@ -28,7 +28,7 @@ function make(
       min: 1,
       max: 100,
     },
-    userError.InvalidValue
+    userError.InvalidFirstName
   );
 
   const lastName = stringUtils.sanitizeAndValidate(
@@ -37,7 +37,7 @@ function make(
       min: 1,
       max: 100,
     },
-    userError.InvalidValue
+    userError.InvalidLastName
   );
 
   const user: IUser = Object.freeze({
@@ -105,7 +105,7 @@ function update(
       min: 1,
       max: 100,
     },
-    userError.InvalidValue
+    userError.InvalidFirstName
   );
 
   const lastName = stringUtils.sanitizeAndValidate(
@@ -114,7 +114,7 @@ function update(
       min: 1,
       max: 100,
     },
-    userError.InvalidValue
+    userError.InvalidLastName
   );
 
   const isUnchanged =

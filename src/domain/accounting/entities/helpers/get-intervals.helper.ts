@@ -3,7 +3,6 @@ import numberUtils from '@shared/utils/number';
 
 import { MAX_GENERATED_PERIODS } from '@domain/accounting/config/period-limits.config';
 import periodValidation from '@domain/accounting/entities/validations/period.validation';
-import accountingError from '@domain/accounting/errors/accounting.error';
 import periodError from '@domain/accounting/errors/period.error';
 import { EPeriodUnit, IPeriod } from '@domain/accounting/types/period.types';
 
@@ -22,9 +21,6 @@ export default function getPeriodIntervals(
   if (!isValidCount) {
     throw new periodError.InvalidInterval();
   }
-
-  dateUtils.validateDate(startDate, accountingError.InvalidValue);
-  dateUtils.validateDate(endDate, accountingError.InvalidValue);
 
   const distanceMaps = {
     [EPeriodUnit.Day]: dateUtils.getDaysDistance,

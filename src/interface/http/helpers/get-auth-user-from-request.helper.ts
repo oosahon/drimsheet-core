@@ -1,6 +1,5 @@
 import { Request } from 'express';
 
-import ILogger from '@shared/contracts/logger.contract';
 import { IReadRepoOptions } from '@shared/types/repo.types';
 
 import IUserRepo from '@domain/user/repos/user.repo';
@@ -13,8 +12,6 @@ import getHttpHeaderValue from './get-http-header-value';
 export default async function getAuthUserFromRequest(
   req: Request,
   tokenService: ITokenService,
-  // TODO: remove logger
-  logger: ILogger,
   userRepo: IUserRepo,
   repoOptions: IReadRepoOptions
 ): Promise<IUser | null> {

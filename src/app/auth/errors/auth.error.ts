@@ -3,7 +3,6 @@ import errorUtils from '@shared/utils/error';
 import DomainError from '@shared/values/errors/domain.error';
 
 const EErrorKeys = {
-  InvalidValue: 'auth_error_value_invalid',
   ExpiredToken: 'auth_error_token_expired_unauthorized',
   InvalidToken: 'auth_error_token_invalid_unauthorized',
   MalformedToken: 'auth_error_token_malformed_unauthorized',

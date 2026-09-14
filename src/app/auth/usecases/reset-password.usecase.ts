@@ -9,13 +9,16 @@ import eventValue from '@shared/values/events/event.vo';
 
 import userEvents from '@domain/user/events/user.events';
 import IUserRepo from '@domain/user/repos/user.repo';
+import { IUser } from '@domain/user/types/user.types';
 
 import IPasswordService from '@app/auth/contracts/password-service.contract';
 import ITokenService from '@app/auth/contracts/token-service.contract';
 import IUserAuthRepo from '@app/auth/contracts/user-auth.repo.contract';
 import IUserAuthService from '@app/auth/contracts/user-auth.service.contract';
 import IUserSessionPersistenceService from '@app/auth/contracts/user-session-persistence.service.contract';
-import IUserSessionService from '@app/auth/contracts/user-session.service.contract';
+import IUserSessionService, {
+  IPreparedUserSession,
+} from '@app/auth/contracts/user-session.service.contract';
 import { IAccessToken, IResetPasswordReq } from '@app/auth/dtos/auth/auth.dto';
 import { resetPasswordReqValidation } from '@app/auth/dtos/auth/auth.dto.validation';
 import authError from '@app/auth/errors/auth.error';
@@ -35,6 +38,11 @@ interface IDependencies {
   reporter: IReporter;
 }
 
+const operations = {
+  tokenClaim: 'release-password-reset-token-claim',
+  finalization: 'finalize-password-reset-token',
+};
+
 export default function makeResetPasswordUseCase(deps: IDependencies) {
   return async (payload: IResetPasswordReq): Promise<IAccessToken> => {
     zodValidationRunner(resetPasswordReqValidation, payload);
@@ -44,20 +52,22 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
     const tokenPayload = await deps.tokenService.claimPasswordResetToken(
       payload.token
     );
-    let committed = false;
+
+    let existingUser!: IUser;
+    let preparedSession!: IPreparedUserSession;
+
     try {
-      const existingUser = await deps.userRepo.findById(tokenPayload.id, {
+      const user = await deps.userRepo.findById(tokenPayload.id, {
         correlationId,
       });
 
-      if (!existingUser) {
+      if (!user) {
         throw new authError.InvalidToken();
       }
 
-      const existingUserAuth = await deps.userAuthRepo.findByUserId(
-        existingUser.id,
-        { correlationId }
-      );
+      const existingUserAuth = await deps.userAuthRepo.findByUserId(user.id, {
+        correlationId,
+      });
 
       if (!existingUserAuth) {
         throw new authError.InvalidToken();
@@ -65,8 +75,7 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
 
       const password = deps.passwordService.makePassword(payload.password);
       const passwordHash = await deps.passwordService.hash(password);
-      const preparedSession =
-        await deps.userSessionService.prepare(existingUser);
+      preparedSession = await deps.userSessionService.prepare(user);
       const updatedUserAuth = deps.userAuthService.replacePassword(
         existingUserAuth,
         passwordHash
@@ -84,40 +93,38 @@ export default function makeResetPasswordUseCase(deps: IDependencies) {
         );
       };
       await deps.repoService.runInTransaction(repoTransaction);
-
-      // TODO: What????????
-      committed = true;
-      try {
-        await deps.tokenService.finalizePasswordResetToken(tokenPayload);
-      } catch (error) {
-        deps.reporter.report('auth.password_reset.finalization_failed', error, {
-          operation: 'finalize-password-reset-token',
-        });
-      }
-      deps.appContext
-        .get(['clientSession'])
-        .clientSession.setRefreshToken(preparedSession.refreshToken);
-
-      const event = userEvents.passwordReset(existingUser);
-      await deps.eventBus.publish(
-        eventValue.enrich(event, { correlationId, idempotencyKey })
-      );
-      return { accessToken: preparedSession.accessToken };
+      existingUser = user;
     } catch (error) {
-      if (!committed) {
-        try {
-          await deps.tokenService.releasePasswordResetTokenClaim(tokenPayload);
-        } catch (cleanupError) {
-          deps.reporter.report(
-            'auth.password_reset.claim_release_failed',
-            cleanupError,
-            {
-              operation: 'release-password-reset-token-claim',
-            }
-          );
-        }
+      try {
+        await deps.tokenService.releasePasswordResetTokenClaim(tokenPayload);
+      } catch (cleanupError) {
+        deps.reporter.report(
+          'auth.password_reset.claim_release_failed',
+          cleanupError,
+          { operation: operations.tokenClaim }
+        );
       }
+
       throw error;
     }
+
+    try {
+      await deps.tokenService.finalizePasswordResetToken(tokenPayload);
+    } catch (error) {
+      deps.reporter.report('auth.password_reset.finalization_failed', error, {
+        operation: operations.finalization,
+      });
+    }
+
+    deps.appContext
+      .get(['clientSession'])
+      .clientSession.setRefreshToken(preparedSession.refreshToken);
+
+    const event = userEvents.passwordReset(existingUser);
+    await deps.eventBus.publish(
+      eventValue.enrich(event, { correlationId, idempotencyKey })
+    );
+
+    return { accessToken: preparedSession.accessToken };
   };
 }

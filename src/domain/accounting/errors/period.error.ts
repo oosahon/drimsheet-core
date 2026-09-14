@@ -4,6 +4,11 @@ import errorUtils from '@shared/utils/error';
 import accountingError from './accounting.error';
 
 const EErrorKeys = {
+  InvalidAccountingEntityId:
+    'accounting_error_period_accounting_entity_id_invalid',
+  InvalidFiscalYearId: 'accounting_error_period_fiscal_year_id_invalid',
+  InvalidName: 'accounting_error_period_name_invalid',
+  InvalidCount: 'accounting_error_period_count_invalid',
   InvalidUnit: 'accounting_error_period_unit_invalid',
   InvalidStatus: 'accounting_error_period_status_invalid',
   InvalidDateRange: 'accounting_error_period_date_range_invalid',
