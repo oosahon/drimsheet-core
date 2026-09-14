@@ -45,8 +45,7 @@ const httpMiddlewares = {
     appContext,
     accountingRepos.accountingEntity,
     tokenService,
-    userRepos.user,
-    observability.logger
+    userRepos.user
   ),
 
   errorHandler: makeErrorHandlerMiddleware(),

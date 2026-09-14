@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 
-import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 
@@ -43,8 +42,7 @@ describe('makeAppContextEnrichmentMiddleware', () => {
       mockAppContext,
       mockAccountingEntityRepo,
       mockTokenService,
-      mockUserRepo,
-      mockLogger
+      mockUserRepo
     );
   }
 
