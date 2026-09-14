@@ -46,7 +46,6 @@ interface ICreateCreditCardPayload {
   currency: ICurrency;
   isControlAccount: boolean;
   controlAccountCode: TShortTermDebtLedgerCode;
-  // TODO: update meta to include bank details
   meta: ICreditCardAccountMeta;
 }
 

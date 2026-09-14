@@ -83,7 +83,6 @@ function updateBalance(
   });
 }
 
-// TODO:  move to a domain service
 function adjust(
   existingBalance: ILedgerAccountBalance,
   payload: TCreationOmits<ILedgerAccountBalanceAdjustment, 'effect'>

@@ -68,7 +68,7 @@ function make(
     functionalAmount,
     side: payload.side,
     description,
-    meta: null, // TODO: add meta when needed
+    meta: null,
     version: 1,
     createdAt: entryPayload.createdAt,
     updatedAt: entryPayload.createdAt,

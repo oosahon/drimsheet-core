@@ -12,7 +12,6 @@ interface IMakePayload {
   name: string;
   createdBy: TEntityId;
   accountingEntityId: TEntityId;
-  // TODO: remove currency from suspense account
   currency: ICurrency;
 }
 

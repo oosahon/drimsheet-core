@@ -146,7 +146,6 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
       userId: user.id,
       lastActiveAccountingEntityId: accountingEntity.id,
       appPreferences: {
-        // TODO: receive usage mode from dto when it becomes available
         appUsageMode: EAppUsageModePreference.NonPowerUser,
       },
     };
@@ -201,7 +200,6 @@ export default function createAccountingEntityUseCase(deps: IDependencies) {
         ...headerBootstrap.events,
       ];
 
-      // TODO: only apply for non-power users when the feature is ready
       const postingBootstrap =
         await deps.postingAccountBootstrapService.bootstrap(
           accountingEntity,
