@@ -1,5 +1,3 @@
-// TODO: move this to a domain service instead of an app helper
-
 import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
@@ -16,14 +14,14 @@ import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import ILedgerAccountBalanceAdjustmentService, {
   ILedgerAccountBalanceDelta,
 } from '@domain/ledger/types/ledger-account-balance-adjustment.service.types';
-import {
-  ILedgerAccountBalance,
-  INewLedgerAccountBalanceAndAdjustment,
-} from '@domain/ledger/types/ledger-account-balance.types';
+import { ILedgerAccountBalance } from '@domain/ledger/types/ledger-account-balance.types';
 
+import ILedgerBalancePropagationPreparationService, {
+  IPreparedLedgerAccountBalanceAdjustment,
+} from '@app/ledger/contracts/ledger-balance-propagation-preparation.service.contract';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 
-interface IAdjustLedgerAccountBalanceHelperDependencies {
+interface IDependencies {
   journalEntryRepo: IJournalEntryRepo;
   ledgerAccountRepo: ILedgerAccountRepo;
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
@@ -36,20 +34,13 @@ interface IBalancePropagation {
   ledgerAccountIds: TEntityId[];
 }
 
-interface IPreparedBalanceAdjustment {
-  balanceAdjustment: INewLedgerAccountBalanceAndAdjustment;
-  expectedVersion: number;
-}
-
 /**
- * Prepares the complete balance propagation from the posted journal.
- *
- * Resolves the journal's directly affected accounts and their ancestors, then
- * calculates one aggregated delta per account. Deltas and account IDs are
- * returned in account-ID order so the use case processes them consistently.
+ * Resolves a posted journal's directly affected accounts and ancestors, then
+ * calculates one aggregated delta per account in deterministic account-ID
+ * order. Invalid or unavailable journals reject before further reads.
  */
 async function prepareBalancePropagation(
-  deps: IAdjustLedgerAccountBalanceHelperDependencies,
+  deps: IDependencies,
   journalEntryId: TEntityId,
   repoOptions: IReadRepoOptions
 ): Promise<IBalancePropagation> {
@@ -105,16 +96,14 @@ async function prepareBalancePropagation(
 }
 
 /**
- * Applies calculated deltas to the current balance entities in memory.
- *
- * Each prepared write includes the balance version that was read so the
- * repository can enforce optimistic concurrency. Missing required balances
- * fail preparation before any adjustment is persisted.
+ * Applies calculated deltas to the supplied balance entities in memory and
+ * pairs each prepared write with the version that was read. Missing required
+ * balances reject before any adjustment can be persisted.
  */
 function prepareBalanceAdjustments(
   propagation: IBalancePropagation,
   balances: ILedgerAccountBalance[]
-): IPreparedBalanceAdjustment[] {
+): IPreparedLedgerAccountBalanceAdjustment[] {
   const { journalEntry, balanceDeltas, ledgerAccountIds } = propagation;
   const balancesByAccountId = new Map(
     balances.map((balance) => [balance.ledgerAccountId, balance])
@@ -124,7 +113,7 @@ function prepareBalanceAdjustments(
     throw new ledgerAppError.BalanceNotFound();
   }
 
-  const preparedAdjustments: IPreparedBalanceAdjustment[] = [];
+  const preparedAdjustments: IPreparedLedgerAccountBalanceAdjustment[] = [];
 
   for (const balanceDelta of balanceDeltas) {
     const existingBalance = balancesByAccountId.get(
@@ -155,9 +144,32 @@ function prepareBalanceAdjustments(
   return preparedAdjustments;
 }
 
-const adjustLedgerAccountBalanceUseCaseHelpers = Object.freeze({
-  prepareBalancePropagation,
-  prepareBalanceAdjustments,
-});
+/**
+ * Builds the complete read-only balance-propagation preparation operation.
+ * Repository and domain failures reject unchanged, and all reads complete
+ * before the caller decides whether to persist the returned adjustments.
+ */
+function makePrepare(
+  deps: IDependencies
+): ILedgerBalancePropagationPreparationService['prepare'] {
+  return async (journalEntryId, repoOptions) => {
+    const propagation = await prepareBalancePropagation(
+      deps,
+      journalEntryId,
+      repoOptions
+    );
+    const balances = await deps.ledgerAccountBalanceRepo.findAllByAccountIds(
+      propagation.journalEntry.accountingEntityId,
+      propagation.ledgerAccountIds,
+      repoOptions
+    );
 
-export default adjustLedgerAccountBalanceUseCaseHelpers;
+    return prepareBalanceAdjustments(propagation, balances);
+  };
+}
+
+export default function makeLedgerBalancePropagationPreparationService(
+  deps: IDependencies
+): ILedgerBalancePropagationPreparationService {
+  return Object.freeze({ prepare: makePrepare(deps) });
+}

@@ -23,10 +23,12 @@ import makeSuspenseAccountService from '@domain/ledger/services/suspense-account
 import makeHeaderAccountsBootstrapService from '@app/ledger/services/header-accounts-bootstrap.service';
 import makeLedgerAccountBalanceEnrichmentService from '@app/ledger/services/ledger-account-balance-enrichment.service';
 import makeLedgerAccountPersistenceService from '@app/ledger/services/ledger-account-persistence.service';
+import makeLedgerBalancePropagationPreparationService from '@app/ledger/services/ledger-balance-propagation-preparation.service';
 import makePostingAccountBootstrapService from '@app/ledger/services/posting-account-bootstrap.service';
 import makeSuspenseAccountBootstrapService from '@app/ledger/services/suspense-account-bootstrap.service';
 
 import observability from '@infra/observability';
+import journalEntryRepos from '@infra/persistence/repos/journal-entry';
 import ledgerRepos from '@infra/persistence/repos/ledger';
 
 import { repoService } from './repo';
@@ -167,8 +169,16 @@ export const postingAccountBootstrapService =
 export const suspenseAccountBootstrapService =
   makeSuspenseAccountBootstrapService({ suspenseAccountService });
 
-export const ledgerAccountBalanceAdjustmentService =
+const ledgerAccountBalanceAdjustmentService =
   ledgerAccountBalanceAdjustmentDomainService;
+
+export const ledgerBalancePropagationPreparationService =
+  makeLedgerBalancePropagationPreparationService({
+    journalEntryRepo: journalEntryRepos.journalEntry,
+    ledgerAccountRepo: ledgerRepos.ledgerAccount,
+    ledgerAccountBalanceRepo: ledgerRepos.ledgerAccountBalance,
+    ledgerAccountBalanceAdjustmentService,
+  });
 
 export const ledgerAccountBalanceEnrichmentService =
   makeLedgerAccountBalanceEnrichmentService({

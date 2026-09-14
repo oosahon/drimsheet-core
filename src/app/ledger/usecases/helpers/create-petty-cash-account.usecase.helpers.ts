@@ -42,6 +42,7 @@ async function validatePostingPeriod(
   }
 }
 
+// TODO: make this into a service. Similar to `src/app/ledger/usecases/helpers/create-bank-account.usecase.helpers.ts`
 async function finalizeWithoutOpeningBalance(
   deps: IDependencies,
   auditedAccount: TAuditedEntity<

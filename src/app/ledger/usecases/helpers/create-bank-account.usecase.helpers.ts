@@ -65,6 +65,7 @@ async function checkForExistingBankAccount(
   }
 }
 
+// TODO: this should be an app service. Similar to `src/app/ledger/usecases/helpers/create-petty-cash-account.usecase.helpers.ts`
 async function finalizeWithoutOpeningBalance(
   deps: IDependencies,
   auditedAccount: TAuditedEntity<
