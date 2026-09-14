@@ -37,7 +37,6 @@ export default function makeGetLedgerAccountUseCase(deps: IDependencies) {
       throw new ledgerAppError.AccountNotFound();
     }
 
-    // TODO: add proper user access validation;
     const isOwner = account?.createdBy === user.id;
 
     if (!isOwner) {

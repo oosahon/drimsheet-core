@@ -97,12 +97,6 @@ const createdAccount: ILedgerAccountDto = {
   status: 'active',
   contraAccountRule: 'contra_permitted',
   adjunctAccountRule: 'adjunct_permitted',
-  meta: {
-    countryCode: 'NG',
-    bankName: 'First Bank of Nigeria',
-    accountName: 'Company Operating Account',
-    accountNumber: '0123456789',
-  },
   openingBalanceDate: null,
   createdBy: userId,
   createdAt: new Date('2026-03-14T01:00:00.000Z'),

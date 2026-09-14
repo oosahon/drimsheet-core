@@ -37,7 +37,6 @@ export interface ILedgerAccountDto {
   status: ULedgerAccountStatus;
   contraAccountRule: UContraAccountRule;
   adjunctAccountRule: UAdjunctAccountRule;
-  meta?: Record<string, string>; // TODO: replace with actual metadata when its decided
   openingBalanceDate: Date | null;
   createdBy: TEntityId;
   createdAt: Date;

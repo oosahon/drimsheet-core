@@ -1,5 +1,3 @@
-// TODO: use standard errors
-
 import z from 'zod';
 
 import { currencyCodeValidation } from '@app/money/dtos/currency/currency.dto.validation';
