@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events';
 
 import IEventBus from '@shared/contracts/event-bus.contract';
 import eventError from '@shared/values/events/event.error';
+import type { TEventHandler } from '@shared/values/events/types/event.types';
 
 import reporter from '@infra/integrations/sentry/sentry-reporter';
 
@@ -15,7 +16,6 @@ const validateEventType = (eventType: string) => {
 };
 
 const eventBus: IEventBus = {
-  // TODO: check if publishing really needs async
   publish: async (event) => {
     const eventTypes = (Array.isArray(event) ? event : [event]).map(
       ({ type }) => type
@@ -25,11 +25,12 @@ const eventBus: IEventBus = {
       const eventsArray = Array.isArray(event) ? event : [event];
       for (const event of eventsArray) {
         validateEventType(event.type);
-        await Promise.all(
-          emitter.listeners(event.type).map((handler) => handler(event))
-        );
+        const handlers = emitter.listeners(
+          event.type
+        ) as TEventHandler<unknown>[];
+
+        await Promise.all(handlers.map((handler) => handler(event)));
       }
-      // TODO add redis pub/sub
     } catch (error) {
       reporter.report('event.publication.failed', error, { eventTypes });
     }
@@ -40,7 +41,6 @@ const eventBus: IEventBus = {
       validateEventType(eventType);
       emitter.on(eventType, handler);
       return () => emitter.off(eventType, handler);
-      // TODO add redis pub/sub
     } catch (error) {
       reporter.report('event.subscription.failed', error, { eventType });
       return () => undefined;

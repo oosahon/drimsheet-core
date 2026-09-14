@@ -1,13 +1,12 @@
 import vars from '@infra/config/vars.config';
 import observability from '@infra/observability';
 
-import makeHttpErrorHandler from './error.handler';
+import makeHttpErrorHandler from '@interface/http/handlers/error.handler';
 
 const httpHandlers = {
   error: makeHttpErrorHandler({
     reporter: observability.reporter,
     logger: observability.logger,
-    // TODO: ?? why is this not in ioc?
     nodeEnv: vars.APP_ENV,
   }),
 };

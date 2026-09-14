@@ -98,6 +98,7 @@ export default [
   {
     files: ['src/**/*.ts'],
     ignores: [
+      'src/infra/ioc/handlers/http.ts',
       'src/infra/ioc/middlewares/http.ts',
       'src/infra/server/index.ts',
       'src/infra/runtime/_bootstrap/**/*.ts',
