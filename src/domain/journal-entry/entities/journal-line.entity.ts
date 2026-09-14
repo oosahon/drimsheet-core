@@ -45,14 +45,13 @@ function make(
     journalLineError.InvalidCreatedAt
   );
 
-  const functionalAmount = moneyValue.convert(
-    payload.amount,
-    numberUtils.toFactor(
-      payload.exchangeRate?.rate ?? 1,
-      journalLineError.InvalidExchangeRate
-    ),
-    payload.functionalCurrency
-  );
+  const functionalAmount = payload.exchangeRate
+    ? moneyValue.convert(
+        payload.amount,
+        payload.exchangeRate,
+        payload.functionalCurrency
+      )
+    : payload.amount;
   const description = helpers.getDescription(
     payload.description ?? entryPayload.memo
   );

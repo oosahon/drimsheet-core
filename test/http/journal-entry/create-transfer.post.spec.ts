@@ -63,18 +63,26 @@ const validPayload: ITransferEntryReq = {
   attachmentReferences: ['123e4567-e89b-12d3-a456-426614174009'],
   sourceLine: {
     accountId: '123e4567-e89b-12d3-a456-426614174005',
-    amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+    amount: { amount: 1050, currencyCode: 'NGN', isMinorUnit: true },
     exchangeRate: null,
     description: 'Transfer from bank',
     sequenceOrder: 1,
   },
-  destinationLines: [
+  destinationLine: {
+    accountId: '123e4567-e89b-12d3-a456-426614174008',
+    amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+    exchangeRate: null,
+    description: 'Transfer to petty cash',
+    sequenceOrder: 2,
+  },
+  chargeLines: [
     {
-      accountId: '123e4567-e89b-12d3-a456-426614174008',
-      amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+      accountId: '123e4567-e89b-12d3-a456-426614174011',
+      counterparty: { name: 'Transfer provider' },
+      amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
       exchangeRate: null,
-      description: 'Transfer to petty cash',
-      sequenceOrder: 2,
+      description: 'Transfer fee',
+      sequenceOrder: 3,
     },
   ],
   effectiveDate: new Date('2026-08-30T00:00:00.000Z'),
@@ -200,6 +208,15 @@ describe('POST /journal-entries/transfer', () => {
         effectiveDate: expect.any(Date),
       });
     });
+
+    it('accepts a transfer without charge lines', async () => {
+      const response = await makeRequest({ ...validPayload, chargeLines: [] });
+
+      expect(response.status).toBe(201);
+      expect(mockCreateTransferUseCase).toHaveBeenCalledWith(
+        expect.objectContaining({ chargeLines: [] })
+      );
+    });
   });
 
   describe('400 Response', () => {
@@ -291,7 +308,7 @@ describe('POST /journal-entries/transfer', () => {
 
     it('returns use-case validation failures', async () => {
       const validationErrors = [
-        { field: 'destinationLines', message: 'required' },
+        { field: 'destinationLine', message: 'required' },
       ];
       mockCreateTransferUseCase.mockRejectedValueOnce(
         new appError.UnprocessableEntity(validationErrors)
@@ -301,6 +318,27 @@ describe('POST /journal-entries/transfer', () => {
 
       expect(response.status).toBe(422);
       expect(response.body.validationErrors).toEqual(validationErrors);
+    });
+
+    it('rejects missing charge lines before orchestration', async () => {
+      const { chargeLines: _chargeLines, ...payload } = validPayload;
+      const response = await makeRequest(payload);
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_validation_error');
+      expect(mockCreateTransferUseCase).not.toHaveBeenCalled();
+    });
+
+    it('rejects the obsolete plural destination shape before orchestration', async () => {
+      const { destinationLine, ...payload } = validPayload;
+      const response = await makeRequest({
+        ...payload,
+        destinationLines: [destinationLine],
+      });
+
+      expect(response.status).toBe(422);
+      expect(response.body.errorKey).toBe('app_error_validation_error');
+      expect(mockCreateTransferUseCase).not.toHaveBeenCalled();
     });
   });
 

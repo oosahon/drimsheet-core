@@ -49,8 +49,13 @@ export interface ICreatePaymentEntryPayload {
 export interface ICreateTransferEntryPayload {
   header: IJournalEntryHeaderPayload;
   sourceLine: IJournalEntryBaseLinePayload;
-  destinationLines: IJournalEntryBaseLinePayload[];
+  destinationLines: IJournalEntryLinePayload[];
   attachments: IFileAttachment[];
+}
+
+export interface ICreateTransferEntryResult {
+  journalEntry: TAuditedJournalEntry;
+  destinationAssetAccount: ILedgerAccount;
 }
 
 interface ICreateOpeningBalancePayload {
@@ -82,5 +87,5 @@ export interface IJournalEntryService {
   createTransfer(
     payload: ICreateTransferEntryPayload,
     repoOptions: IReadRepoOptions
-  ): Promise<TAuditedJournalEntry>;
+  ): Promise<ICreateTransferEntryResult>;
 }

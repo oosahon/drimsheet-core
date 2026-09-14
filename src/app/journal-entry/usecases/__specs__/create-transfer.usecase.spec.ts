@@ -6,6 +6,8 @@ import generateUUID from '@shared/utils/uuid-generator';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
 import { EAccountingEntityType } from '@domain/accounting/types/accounting-entity.types';
+import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
+import { ECounterpartyType } from '@domain/counterparty/types/counterparty.types';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
@@ -15,18 +17,27 @@ import {
   EAssetSubType,
 } from '@domain/ledger/types/asset-account.types';
 import {
+  EExpenseAccountBehavior,
+  EExpenseSubType,
+} from '@domain/ledger/types/expense-account.types';
+import {
   EAdjunctAccountRule,
   EContraAccountRule,
   ELedgerAccountStatus,
   ELedgerType,
 } from '@domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import mockCounterpartyAppService from '@app/counterparty/contracts/__mocks__/counterparty.service.mock';
+import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
+import { ICounterpartyFindOrCreateRes } from '@app/counterparty/contracts/counterparty.service.contract';
 import mockFileManagementService from '@app/file/contracts/__mocks__/file-management.service.mock';
 import fileAppError from '@app/file/errors/file.error';
 import { EFileUploadPurpose } from '@app/file/types/file.types';
@@ -37,8 +48,13 @@ import { ITransferEntryReq } from '@app/journal-entry/dtos/transfer-entry/transf
 import makeCreateTransferUsecase from '@app/journal-entry/usecases/create-transfer.usecase';
 import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
 import { mockLedgerAccountRepo } from '@app/ledger/contracts/__mocks__/ledger.repos.mock';
-import ledgerAppError from '@app/ledger/errors/ledger.error';
 import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
+import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
+import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
+import {
+  TFxLotAcquisitionAppResult,
+  TFxLotDispositionAppResult,
+} from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
 describe('makeCreateTransferUsecase', () => {
   const correlationId = 'transfer-correlation-id';
@@ -65,7 +81,8 @@ describe('makeCreateTransferUsecase', () => {
 
   function makeAccount(
     code: string,
-    behavior: (typeof EAssetAccountBehavior)[keyof typeof EAssetAccountBehavior]
+    behavior: (typeof EAssetAccountBehavior)[keyof typeof EAssetAccountBehavior],
+    currency = SYSTEM_CURRENCIES.NGN
   ) {
     const [account] = ledgerAccountEntity.make({
       code,
@@ -78,7 +95,7 @@ describe('makeCreateTransferUsecase', () => {
       isControlAccount: false,
       controlAccountId: null,
       name: `Transfer account ${code}`,
-      currency: SYSTEM_CURRENCIES.NGN,
+      currency,
       status: ELedgerAccountStatus.Active,
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
@@ -94,6 +111,43 @@ describe('makeCreateTransferUsecase', () => {
     '100002',
     EAssetAccountBehavior.PettyCash
   );
+  const usdSourceAccount = makeAccount(
+    '100003',
+    EAssetAccountBehavior.Bank,
+    SYSTEM_CURRENCIES.USD
+  );
+  const usdDestinationAccount = makeAccount(
+    '100004',
+    EAssetAccountBehavior.PettyCash,
+    SYSTEM_CURRENCIES.USD
+  );
+  const [bankChargeAccount] = ledgerAccountEntity.make({
+    code: '507001',
+    materializedPath: '507001',
+    accountingEntityId: accountingEntity.id,
+    type: ELedgerType.Expense,
+    subType: EExpenseSubType.BankCharge,
+    behavior: EExpenseAccountBehavior.BankCharge,
+    normalBalance: EJournalSide.Debit,
+    isControlAccount: false,
+    controlAccountId: null,
+    name: 'Bank charges',
+    currency: SYSTEM_CURRENCIES.NGN,
+    status: ELedgerAccountStatus.Active,
+    contraAccountRule: EContraAccountRule.ContraPermitted,
+    adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+    meta: {},
+    createdBy: user.id,
+  });
+  const bankCounterparty = counterpartyEntity.make({
+    accountingEntityId: accountingEntity.id,
+    name: 'Transfer provider',
+    type: ECounterpartyType.Organization,
+  });
+  const newBankCounterpartyResponse: ICounterpartyFindOrCreateRes = {
+    new: true,
+    data: bankCounterparty,
+  };
   const attachments = [
     {
       url: 'https://files.example.com/transfer.pdf',
@@ -113,15 +167,14 @@ describe('makeCreateTransferUsecase', () => {
         description: 'Transfer from bank',
         sequenceOrder: 1,
       },
-      destinationLines: [
-        {
-          accountId: destinationAccount.id,
-          amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
-          exchangeRate: null,
-          description: 'Transfer to petty cash',
-          sequenceOrder: 2,
-        },
-      ],
+      destinationLine: {
+        accountId: destinationAccount.id,
+        amount: { amount: 1000, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Transfer to petty cash',
+        sequenceOrder: 2,
+      },
+      chargeLines: [],
       effectiveDate,
       postedAt: effectiveDate,
       memo: 'Cash transfer',
@@ -168,14 +221,18 @@ describe('makeCreateTransferUsecase', () => {
   function getUseCase() {
     return makeCreateTransferUsecase({
       appContext: mockAppContext,
+      counterpartyAppService: mockCounterpartyAppService,
       fileManagementService: mockFileManagementService,
       journalEntryService: mockJournalEntryService,
       ledgerAccountRepo: mockLedgerAccountRepo,
+      counterpartyPersistenceService: mockCounterpartyPersistenceService,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       repoService: mockRepoService,
       eventBus: mockEventBus,
       outboxService: mockOutboxService,
       ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
+      fxLotAppService: mockFxLotAppService,
+      fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
     });
   }
 
@@ -191,19 +248,29 @@ describe('makeCreateTransferUsecase', () => {
     mockLedgerAccountRepo.findById.mockImplementation(async (id: TEntityId) => {
       if (id === sourceAccount.id) return sourceAccount;
       if (id === destinationAccount.id) return destinationAccount;
+      if (id === usdSourceAccount.id) return usdSourceAccount;
+      if (id === usdDestinationAccount.id) return usdDestinationAccount;
+      if (id === bankChargeAccount.id) return bankChargeAccount;
       return null;
     });
     mockFileManagementService.claimUploads.mockResolvedValue(attachments);
-    mockJournalEntryService.createTransfer.mockResolvedValue(
-      postedJournalEntry
-    );
+    mockCounterpartyAppService.findOrCreateMany.mockResolvedValue(new Map());
+    mockJournalEntryService.createTransfer.mockResolvedValue({
+      journalEntry: postedJournalEntry,
+      destinationAssetAccount: destinationAccount,
+    });
     mockRepoService.runInTransaction.mockImplementation(async (transactionFn) =>
       transactionFn('mock-tx' as unknown as ITransactionContext)
     );
     mockJournalEntryPersistenceService.create.mockResolvedValue();
+    mockCounterpartyPersistenceService.create.mockResolvedValue();
     mockOutboxService.createBalancePropagation.mockResolvedValue();
     mockLedgerAccountBalanceAdjustmentQueue.add.mockResolvedValue();
     mockEventBus.publish.mockResolvedValue();
+    mockFxLotAppService.dispose.mockResolvedValue(null);
+    mockFxLotAppService.acquire.mockResolvedValue(null);
+    mockFxLotCostBasisService.persistence.persistDisposition.mockResolvedValue();
+    mockFxLotCostBasisService.persistence.persistAcquisition.mockResolvedValue();
   });
 
   it('orchestrates a posted transfer with attachments and returns its DTO', async () => {
@@ -248,6 +315,7 @@ describe('makeCreateTransferUsecase', () => {
         destinationLines: [
           expect.objectContaining({
             account: destinationAccount,
+            counterparty: null,
             amount: expect.objectContaining({ amount: 1000n }),
             exchangeRate: null,
           }),
@@ -269,21 +337,235 @@ describe('makeCreateTransferUsecase', () => {
       journalEntryId: postedJournalEntry[0].id,
       correlationId,
     });
+    expect(mockFxLotAppService.dispose).toHaveBeenCalledWith(
+      {
+        journalEntry: postedJournalEntry[0],
+        account: sourceAccount,
+        actor: expect.objectContaining({ userId: user.id }),
+      },
+      { correlationId, idempotencyKey }
+    );
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      {
+        journalEntry: postedJournalEntry[0],
+        account: destinationAccount,
+        actor: expect.objectContaining({ userId: user.id }),
+      },
+      { correlationId, idempotencyKey }
+    );
+    expect(
+      mockFxLotCostBasisService.persistence.persistDisposition
+    ).not.toHaveBeenCalled();
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition
+    ).not.toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
     expect(result).toEqual(journalEntryDtoMapper.toDto(postedJournalEntry[0]));
+  });
+
+  it('maps charge lines with counterparties while acquiring only the domain-classified asset', async () => {
+    const payload = makePayload();
+    payload.destinationLine.amount = {
+      amount: 900,
+      currencyCode: 'NGN',
+      isMinorUnit: true,
+    };
+    payload.chargeLines = [
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: { name: 'Transfer provider' },
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Transfer fee',
+        sequenceOrder: 3,
+      },
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: null,
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Bank fee',
+        sequenceOrder: 4,
+      },
+    ];
+    mockCounterpartyAppService.findOrCreateMany.mockResolvedValueOnce(
+      new Map([['transfer-provider', newBankCounterpartyResponse]])
+    );
+    mockCounterpartyAppService.getFoundOrCreated.mockReturnValueOnce(
+      newBankCounterpartyResponse
+    );
+
+    await getUseCase()(payload);
+
+    expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
+      2,
+      destinationAccount.id,
+      accountingEntity.id,
+      { correlationId, idempotencyKey }
+    );
+    expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
+      3,
+      bankChargeAccount.id,
+      accountingEntity.id,
+      { correlationId, idempotencyKey }
+    );
+    expect(mockLedgerAccountRepo.findById).toHaveBeenNthCalledWith(
+      4,
+      bankChargeAccount.id,
+      accountingEntity.id,
+      { correlationId, idempotencyKey }
+    );
+    expect(mockCounterpartyAppService.findOrCreateMany).toHaveBeenCalledWith(
+      [payload.chargeLines[0].counterparty],
+      accountingEntity.id,
+      { correlationId, idempotencyKey }
+    );
+    expect(mockJournalEntryService.createTransfer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        destinationLines: [
+          expect.objectContaining({
+            account: destinationAccount,
+            counterparty: null,
+          }),
+          expect.objectContaining({
+            account: bankChargeAccount,
+            counterparty: bankCounterparty[0],
+          }),
+          expect.objectContaining({
+            account: bankChargeAccount,
+            counterparty: null,
+          }),
+        ],
+      }),
+      { correlationId, idempotencyKey }
+    );
+    expect(mockCounterpartyPersistenceService.create).toHaveBeenCalledWith(
+      bankCounterparty[0],
+      expect.objectContaining({ correlationId, tx: 'mock-tx' })
+    );
+    expect(
+      mockCounterpartyPersistenceService.create.mock.invocationCallOrder[0]
+    ).toBeLessThan(
+      mockJournalEntryPersistenceService.create.mock.invocationCallOrder[0]
+    );
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledTimes(1);
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      expect.objectContaining({ account: destinationAccount }),
+      { correlationId, idempotencyKey }
+    );
+    expect(mockFxLotAppService.acquire).not.toHaveBeenCalledWith(
+      expect.objectContaining({ account: bankChargeAccount }),
+      expect.anything()
+    );
+    const [publishedEvents] = mockEventBus.publish.mock.calls[0];
+    expect(publishedEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: bankCounterparty[1][0].type }),
+      ])
+    );
+  });
+
+  it('maps unresolved charge counterparties as null with their exchange rate', async () => {
+    const payload = makePayload();
+    payload.chargeLines = [
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: { name: 'Transfer provider' },
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: {
+          baseCurrencyCode: 'USD',
+          targetCurrencyCode: 'NGN',
+          rate: 1600,
+          type: EExchangeRateType.Official,
+          asOf: effectiveDate,
+          source: 'Test Source',
+        },
+        description: 'Transfer fee',
+        sequenceOrder: 3,
+      },
+    ];
+    mockCounterpartyAppService.getFoundOrCreated.mockReturnValueOnce(undefined);
+
+    await getUseCase()(payload);
+
+    expect(mockJournalEntryService.createTransfer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        destinationLines: expect.arrayContaining([
+          expect.objectContaining({
+            account: bankChargeAccount,
+            counterparty: null,
+            exchangeRate: expect.objectContaining({
+              baseCurrencyCode: 'USD',
+              targetCurrencyCode: 'NGN',
+            }),
+          }),
+        ]),
+      }),
+      { correlationId, idempotencyKey }
+    );
+  });
+
+  it('skips persistence for an existing charge counterparty', async () => {
+    const payload = makePayload();
+    payload.chargeLines = [
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: { name: 'Transfer provider' },
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Transfer fee',
+        sequenceOrder: 3,
+      },
+    ];
+    const existingBankCounterpartyResponse: ICounterpartyFindOrCreateRes = {
+      new: false,
+      data: bankCounterparty,
+    };
+    mockCounterpartyAppService.findOrCreateMany.mockResolvedValueOnce(
+      new Map([['transfer-provider', existingBankCounterpartyResponse]])
+    );
+    mockCounterpartyAppService.getFoundOrCreated.mockReturnValueOnce(
+      existingBankCounterpartyResponse
+    );
+
+    await getUseCase()(payload);
+
+    expect(mockJournalEntryService.createTransfer).toHaveBeenCalledWith(
+      expect.objectContaining({
+        destinationLines: expect.arrayContaining([
+          expect.objectContaining({
+            account: bankChargeAccount,
+            counterparty: bankCounterparty[0],
+          }),
+        ]),
+      }),
+      { correlationId, idempotencyKey }
+    );
+    expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
   });
 
   it('persists a draft without creating balance propagation work', async () => {
     const payload = makePayload();
     payload.postedAt = null;
     const draftJournalEntry = makeJournalEntry(null);
-    mockJournalEntryService.createTransfer.mockResolvedValue(draftJournalEntry);
+    mockJournalEntryService.createTransfer.mockResolvedValue({
+      journalEntry: draftJournalEntry,
+      destinationAssetAccount: destinationAccount,
+    });
 
     await getUseCase()(payload);
 
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalledTimes(1);
     expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
     expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
+    expect(mockFxLotAppService.dispose).toHaveBeenCalledTimes(1);
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledTimes(1);
+    expect(
+      mockFxLotCostBasisService.persistence.persistDisposition
+    ).not.toHaveBeenCalled();
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition
+    ).not.toHaveBeenCalled();
     expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
   });
 
@@ -297,8 +579,17 @@ describe('makeCreateTransferUsecase', () => {
       asOf: effectiveDate,
       source: 'Test Source',
     };
-    payload.sourceLine.exchangeRate = exchangeRate;
-    payload.destinationLines[0].exchangeRate = exchangeRate;
+    payload.sourceLine = {
+      ...payload.sourceLine,
+      accountId: usdSourceAccount.id,
+      amount: { amount: 100, currencyCode: 'USD', isMinorUnit: true },
+      exchangeRate,
+    };
+    payload.destinationLine.amount = {
+      amount: 160_000,
+      currencyCode: 'NGN',
+      isMinorUnit: true,
+    };
 
     await getUseCase()(payload);
 
@@ -312,10 +603,8 @@ describe('makeCreateTransferUsecase', () => {
         }),
         destinationLines: [
           expect.objectContaining({
-            exchangeRate: expect.objectContaining({
-              baseCurrencyCode: 'USD',
-              targetCurrencyCode: 'NGN',
-            }),
+            account: destinationAccount,
+            exchangeRate: null,
           }),
         ],
       }),
@@ -337,9 +626,11 @@ describe('makeCreateTransferUsecase', () => {
   it('rejects a missing source account before claiming uploads', async () => {
     mockLedgerAccountRepo.findById.mockResolvedValueOnce(null);
 
-    await expect(getUseCase()(makePayload())).rejects.toThrow(
-      ledgerAppError.AccountNotFound
-    );
+    const payload = makePayload();
+
+    await expect(getUseCase()(payload)).rejects.toMatchObject({
+      cause: { id: payload.sourceLine.accountId },
+    });
     expect(mockFileManagementService.claimUploads).not.toHaveBeenCalled();
     expect(mockJournalEntryService.createTransfer).not.toHaveBeenCalled();
   });
@@ -349,9 +640,36 @@ describe('makeCreateTransferUsecase', () => {
       .mockResolvedValueOnce(sourceAccount)
       .mockResolvedValueOnce(null);
 
-    await expect(getUseCase()(makePayload())).rejects.toThrow(
-      ledgerAppError.AccountNotFound
-    );
+    const payload = makePayload();
+
+    await expect(getUseCase()(payload)).rejects.toMatchObject({
+      cause: { id: payload.destinationLine.accountId },
+    });
+    expect(mockFileManagementService.claimUploads).not.toHaveBeenCalled();
+    expect(mockJournalEntryService.createTransfer).not.toHaveBeenCalled();
+  });
+
+  it('rejects the exact missing charge account before resolving counterparties', async () => {
+    const payload = makePayload();
+    payload.chargeLines = [
+      {
+        accountId: bankChargeAccount.id,
+        counterparty: null,
+        amount: { amount: 50, currencyCode: 'NGN', isMinorUnit: true },
+        exchangeRate: null,
+        description: 'Transfer fee',
+        sequenceOrder: 3,
+      },
+    ];
+    mockLedgerAccountRepo.findById
+      .mockResolvedValueOnce(sourceAccount)
+      .mockResolvedValueOnce(destinationAccount)
+      .mockResolvedValueOnce(null);
+
+    await expect(getUseCase()(payload)).rejects.toMatchObject({
+      cause: { id: payload.chargeLines[0].accountId },
+    });
+    expect(mockCounterpartyAppService.findOrCreateMany).not.toHaveBeenCalled();
     expect(mockFileManagementService.claimUploads).not.toHaveBeenCalled();
     expect(mockJournalEntryService.createTransfer).not.toHaveBeenCalled();
   });
@@ -391,9 +709,221 @@ describe('makeCreateTransferUsecase', () => {
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
+  it('coordinates both FX lot effects for a foreign-to-foreign transfer in one transaction and publishes their events in order', async () => {
+    const payload = makePayload();
+    const exchangeRateDto = {
+      baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+      targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+      rate: 1600,
+      type: EExchangeRateType.Official,
+      asOf: effectiveDate,
+      source: 'Test Source',
+    };
+    const exchangeRate = exchangeRateValue.make(exchangeRateDto);
+    payload.sourceLine = {
+      ...payload.sourceLine,
+      accountId: usdSourceAccount.id,
+      amount: { amount: 100, currencyCode: 'USD', isMinorUnit: true },
+      exchangeRate: exchangeRateDto,
+    };
+    payload.destinationLine = {
+      ...payload.destinationLine,
+      accountId: usdDestinationAccount.id,
+      amount: { amount: 100, currencyCode: 'USD', isMinorUnit: true },
+      exchangeRate: exchangeRateDto,
+    };
+    const foreignJournalEntry = journalEntryEntity.make({
+      accountingEntityId: accountingEntity.id,
+      sourceType: EJournalEntrySourceType.Transfer,
+      effectiveDate,
+      postedAt: effectiveDate,
+      memo: payload.memo,
+      createdBy: user.id,
+      functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      attachments,
+      lines: [
+        {
+          accountId: usdSourceAccount.id,
+          counterpartyId: null,
+          sequenceOrder: 1,
+          amount: { amount: 100n, currency: SYSTEM_CURRENCIES.USD },
+          exchangeRate,
+          side: EJournalSide.Credit,
+          description: payload.sourceLine.description,
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+        {
+          accountId: usdDestinationAccount.id,
+          counterpartyId: null,
+          sequenceOrder: 2,
+          amount: { amount: 100n, currency: SYSTEM_CURRENCIES.USD },
+          exchangeRate,
+          side: EJournalSide.Debit,
+          description: payload.destinationLine.description,
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+      ],
+    });
+    mockJournalEntryService.createTransfer.mockResolvedValueOnce({
+      journalEntry: foreignJournalEntry,
+      destinationAssetAccount: usdDestinationAccount,
+    });
+    const dispositionRecords = {
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotDispositionAppResult['records'];
+    const acquisitionRecords = {
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotAcquisitionAppResult['records'];
+    const dispositionEvent = {
+      type: 'domain:fx-lot:disposed',
+      data: { accountId: sourceAccount.id },
+      occurredAt: effectiveDate,
+      enrichedAt: null,
+    };
+    const acquisitionEvent = {
+      type: 'domain:fx-lot:acquired',
+      data: { accountId: destinationAccount.id },
+      occurredAt: effectiveDate,
+      enrichedAt: null,
+    };
+    mockFxLotAppService.dispose.mockResolvedValueOnce({
+      records: dispositionRecords,
+      events: [dispositionEvent],
+    });
+    mockFxLotAppService.acquire.mockResolvedValueOnce({
+      records: acquisitionRecords,
+      events: [acquisitionEvent],
+    });
+
+    await getUseCase()(payload);
+
+    const writeOptions = { correlationId, tx: 'mock-tx' };
+    expect(mockFxLotAppService.dispose).toHaveBeenCalledWith(
+      {
+        journalEntry: foreignJournalEntry[0],
+        account: usdSourceAccount,
+        actor: expect.objectContaining({ userId: user.id }),
+      },
+      { correlationId, idempotencyKey }
+    );
+    expect(mockFxLotAppService.acquire).toHaveBeenCalledWith(
+      {
+        journalEntry: foreignJournalEntry[0],
+        account: usdDestinationAccount,
+        actor: expect.objectContaining({ userId: user.id }),
+      },
+      { correlationId, idempotencyKey }
+    );
+    expect(
+      mockFxLotCostBasisService.persistence.persistDisposition
+    ).toHaveBeenCalledWith(dispositionRecords, writeOptions);
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition
+    ).toHaveBeenCalledWith(acquisitionRecords, writeOptions);
+    expect(
+      mockJournalEntryPersistenceService.create.mock.invocationCallOrder[0]
+    ).toBeLessThan(
+      mockFxLotCostBasisService.persistence.persistDisposition.mock
+        .invocationCallOrder[0]
+    );
+    expect(
+      mockFxLotCostBasisService.persistence.persistDisposition.mock
+        .invocationCallOrder[0]
+    ).toBeLessThan(
+      mockFxLotCostBasisService.persistence.persistAcquisition.mock
+        .invocationCallOrder[0]
+    );
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition.mock
+        .invocationCallOrder[0]
+    ).toBeLessThan(
+      mockOutboxService.createBalancePropagation.mock.invocationCallOrder[0]
+    );
+    const [publishedEvents] = mockEventBus.publish.mock.calls[0];
+    expect(Array.isArray(publishedEvents)).toBe(true);
+    if (!Array.isArray(publishedEvents)) {
+      throw new Error('Expected transfer events to be published as an array');
+    }
+    expect(publishedEvents.slice(-2)).toEqual([
+      expect.objectContaining({ type: dispositionEvent.type }),
+      expect.objectContaining({ type: acquisitionEvent.type }),
+    ]);
+  });
+
+  it('persists only a source disposition when acquisition preparation returns null', async () => {
+    const records = {
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotDispositionAppResult['records'];
+    mockFxLotAppService.dispose.mockResolvedValueOnce({ records, events: [] });
+
+    await getUseCase()(makePayload());
+
+    expect(
+      mockFxLotCostBasisService.persistence.persistDisposition
+    ).toHaveBeenCalledWith(records, { correlationId, tx: 'mock-tx' });
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition
+    ).not.toHaveBeenCalled();
+  });
+
+  it('persists only a destination acquisition when disposition preparation returns null', async () => {
+    const records = {
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotAcquisitionAppResult['records'];
+    mockFxLotAppService.acquire.mockResolvedValueOnce({ records, events: [] });
+
+    await getUseCase()(makePayload());
+
+    expect(
+      mockFxLotCostBasisService.persistence.persistDisposition
+    ).not.toHaveBeenCalled();
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition
+    ).toHaveBeenCalledWith(records, { correlationId, tx: 'mock-tx' });
+  });
+
+  it('prevents persistence when disposition preparation fails', async () => {
+    const failure = new Error('FX disposition failed');
+    mockFxLotAppService.dispose.mockRejectedValueOnce(failure);
+
+    await expect(getUseCase()(makePayload())).rejects.toBe(failure);
+
+    expect(mockFxLotAppService.acquire).not.toHaveBeenCalled();
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('prevents persistence when acquisition preparation fails', async () => {
+    const failure = new Error('FX acquisition failed');
+    mockFxLotAppService.acquire.mockRejectedValueOnce(failure);
+
+    await expect(getUseCase()(makePayload())).rejects.toBe(failure);
+
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('does not run post-commit effects when FX persistence fails', async () => {
+    const records = {
+      missingOfficialRateOutbox: null,
+    } as unknown as TFxLotDispositionAppResult['records'];
+    mockFxLotAppService.dispose.mockResolvedValueOnce({ records, events: [] });
+    mockFxLotCostBasisService.persistence.persistDisposition.mockRejectedValueOnce(
+      new Error('FX persistence failed')
+    );
+
+    await expect(getUseCase()(makePayload())).rejects.toThrow(
+      'FX persistence failed'
+    );
+
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
   it('rejects invalid input before reading request context', async () => {
     const payload = makePayload();
-    payload.destinationLines = [];
+    delete (payload as Partial<ITransferEntryReq>).destinationLine;
 
     await expect(getUseCase()(payload)).rejects.toThrow();
     expect(mockAppContext.get).not.toHaveBeenCalled();

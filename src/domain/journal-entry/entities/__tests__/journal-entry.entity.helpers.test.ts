@@ -236,33 +236,41 @@ describe('journalEntryEntityHelpers', () => {
   });
 
   describe('validateCounterparties', () => {
-    it('should throw CounterpartyIdNotAllowed if source type is Transfer and any line has a counterparty', () => {
-      const lineWithCounterparty = {
+    it('should reject a counterparty on a transfer credit line', () => {
+      const sourceLineWithCounterparty = {
         counterpartyId: 'cp1' as TEntityId,
+        side: EJournalSide.Credit,
       } as IJournalLine;
+
       expect(() =>
         helpers.validateCounterparties(EJournalEntrySourceType.Transfer, [
-          lineWithCounterparty,
+          sourceLineWithCounterparty,
         ])
       ).toThrow(journalEntryError.CounterpartyIdNotAllowed);
     });
 
-    it('should not throw if source type is Transfer and no lines have a counterparty', () => {
-      const lineWithoutCounterparty = { counterpartyId: null } as IJournalLine;
+    it('should allow a counterparty on a transfer debit line', () => {
+      const destinationLineWithCounterparty = {
+        counterpartyId: 'cp1' as TEntityId,
+        side: EJournalSide.Debit,
+      } as IJournalLine;
+
       expect(() =>
         helpers.validateCounterparties(EJournalEntrySourceType.Transfer, [
-          lineWithoutCounterparty,
+          destinationLineWithCounterparty,
         ])
       ).not.toThrow();
     });
 
-    it('should not throw for non-Transfer source types even if lines have a counterparty', () => {
-      const lineWithCounterparty = {
+    it('should allow counterparties on non-transfer lines', () => {
+      const sourceLineWithCounterparty = {
         counterpartyId: 'cp1' as TEntityId,
+        side: EJournalSide.Credit,
       } as IJournalLine;
+
       expect(() =>
         helpers.validateCounterparties(EJournalEntrySourceType.Receipt, [
-          lineWithCounterparty,
+          sourceLineWithCounterparty,
         ])
       ).not.toThrow();
     });

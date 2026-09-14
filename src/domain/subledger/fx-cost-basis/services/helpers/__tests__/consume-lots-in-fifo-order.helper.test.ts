@@ -37,7 +37,7 @@ describe('consumeLotsInFifoOrder', () => {
       exchangeRate: dispositionRate,
       functionalAmount: moneyValue.convert(
         amount,
-        { numerator: 1500, denominator: 1 },
+        dispositionRate,
         SYSTEM_CURRENCIES.NGN
       ),
       side: 'credit',

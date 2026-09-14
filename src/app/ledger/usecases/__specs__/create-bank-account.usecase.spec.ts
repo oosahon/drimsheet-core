@@ -19,6 +19,8 @@ import { IBankDetails } from '@domain/ledger/types/asset-account.types';
 import bankDetailsValue from '@domain/ledger/values/bank-details.vo';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import currencyEntity from '@domain/money/entities/currency.entity';
+import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
 
 import { mockAccountingPeriodService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
@@ -350,6 +352,15 @@ describe('makeCreateBankAccountUseCase', () => {
   });
 
   it('creates a bank account with opening balance in foreign currency and persists FX acquisition data', async () => {
+    const openingBalanceDate = new Date('2026-03-01T00:00:00.000Z');
+    const exchangeRate = exchangeRateValue.make({
+      baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+      targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+      rate: 1500,
+      type: EExchangeRateType.Market,
+      source: 'manual',
+      asOf: openingBalanceDate,
+    });
     const foreignReq: IBankAccountCreationReq = {
       name: 'USD Bank Account',
       currencyCode: 'USD',
@@ -360,15 +371,8 @@ describe('makeCreateBankAccountUseCase', () => {
       },
       openingBalance: {
         amount: { amount: 5000, currencyCode: 'USD', isMinorUnit: true },
-        exchangeRate: {
-          baseCurrencyCode: 'USD',
-          targetCurrencyCode: 'NGN',
-          rate: 1500,
-          type: 'market' as any,
-          source: 'manual',
-          asOf: new Date('2026-03-01T00:00:00.000Z'),
-        },
-        date: new Date('2026-03-01T00:00:00.000Z'),
+        exchangeRate,
+        date: openingBalanceDate,
       },
     };
 
@@ -397,28 +401,43 @@ describe('makeCreateBankAccountUseCase', () => {
       mockAudit as any,
     ]);
 
-    const mockForeignJournalEntry = {
-      ...mockOpeningBalanceJournalEntry,
+    const [
+      mockForeignJournalEntry,
+      mockForeignJournalEvents,
+      mockForeignJournalAudit,
+    ] = journalEntryEntity.make({
+      accountingEntityId,
+      sourceType: EJournalEntrySourceType.OpeningBalance,
+      effectiveDate: openingBalanceDate,
+      postedAt: openingBalanceDate,
+      memo: 'Opening balance',
+      createdBy: userId,
+      functionalCurrency: SYSTEM_CURRENCIES.NGN,
       lines: [
         {
           accountId: foreignMockAccount.id,
           sequenceOrder: 1,
           amount: { amount: 5000n, currency: SYSTEM_CURRENCIES.USD },
-          functionalAmount: {
-            amount: 7500000n,
-            currency: SYSTEM_CURRENCIES.NGN,
-          },
-          exchangeRate: null,
+          exchangeRate,
           side: EJournalSide.Debit,
           description: 'Opening balance',
           functionalCurrency: SYSTEM_CURRENCIES.NGN,
         },
+        {
+          accountId: mockOpeningBalanceJournalEntry.lines[1].accountId,
+          sequenceOrder: 2,
+          amount: { amount: 7500000n, currency: SYSTEM_CURRENCIES.NGN },
+          exchangeRate: null,
+          side: EJournalSide.Credit,
+          description: 'Opening balance',
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
       ],
-    };
+    });
     mockJournalEntryService.createOpeningBalance.mockResolvedValueOnce([
-      mockForeignJournalEntry as any,
-      mockOpeningBalanceEvents,
-      mockOpeningBalanceAudit,
+      mockForeignJournalEntry,
+      mockForeignJournalEvents,
+      mockForeignJournalAudit,
     ]);
 
     const lotId = '123e4567-e89b-12d3-a456-426614174099' as TEntityId;

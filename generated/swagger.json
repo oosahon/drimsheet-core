@@ -1294,6 +1294,50 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IJournalLineReq": {
+        "properties": {
+          "accountId": {
+            "type": "string"
+          },
+          "counterparty": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IJournalCounterpartyReq"
+              }
+            ],
+            "nullable": true
+          },
+          "amount": {
+            "$ref": "#/components/schemas/IMoneyDto"
+          },
+          "exchangeRate": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/IExchangeRateDto"
+              }
+            ],
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "sequenceOrder": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "accountId",
+          "counterparty",
+          "amount",
+          "exchangeRate",
+          "description",
+          "sequenceOrder"
+        ],
+        "type": "object",
+        "additionalProperties": false
+      },
       "ITransferEntryReq": {
         "properties": {
           "attachmentReferences": {
@@ -1306,9 +1350,12 @@
           "sourceLine": {
             "$ref": "#/components/schemas/ITransferEntryLineReq"
           },
-          "destinationLines": {
+          "destinationLine": {
+            "$ref": "#/components/schemas/ITransferEntryLineReq"
+          },
+          "chargeLines": {
             "items": {
-              "$ref": "#/components/schemas/ITransferEntryLineReq"
+              "$ref": "#/components/schemas/IJournalLineReq"
             },
             "type": "array"
           },
@@ -1328,7 +1375,8 @@
         },
         "required": [
           "sourceLine",
-          "destinationLines",
+          "destinationLine",
+          "chargeLines",
           "effectiveDate",
           "postedAt",
           "memo"
