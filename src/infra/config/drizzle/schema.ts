@@ -127,12 +127,6 @@ export const subledgerFxCostBasisLotStatusInCore = core.enum(
   ['open', 'closed']
 );
 
-export const pgmigrations = pgTable('pgmigrations', {
-  id: serial().primaryKey().notNull(),
-  name: varchar({ length: 255 }).notNull(),
-  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
-});
-
 export const usersInCore = core.table(
   'users',
   {
@@ -842,6 +836,12 @@ export const reportingContextsInCore = core.table(
     }).onDelete('restrict'),
   ]
 );
+
+export const pgmigrations = pgTable('pgmigrations', {
+  id: serial().primaryKey().notNull(),
+  name: varchar({ length: 255 }).notNull(),
+  runOn: timestamp('run_on', { mode: 'string' }).notNull(),
+});
 
 export const reportingContextHistoryInAudit = audit.table(
   'reporting_context_history',

@@ -14,6 +14,10 @@ import {
 import ILedgerAccountRepo, {
   IFindAllLedgerAccountsOptions,
 } from '@domain/ledger/repos/ledger-account.repo';
+import {
+  ELedgerAccountSubType,
+  ULedgerAccountSubType,
+} from '@domain/ledger/types/ledger-aggregate.types';
 import currencyEntity from '@domain/money/entities/currency.entity';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
@@ -39,6 +43,11 @@ const journalEntryRules: Partial<
 
 function getPermittedValues<T>(restriction: Set<T> | '*') {
   return restriction === '*' ? undefined : Array.from(restriction);
+}
+
+function filterSuspense(options?: ULedgerAccountSubType[]) {
+  const allOptions = options || Object.values(ELedgerAccountSubType);
+  return allOptions.filter((v) => v !== ELedgerAccountSubType.Suspense);
 }
 
 export default function makeGetPermittedPostingAccountsUsecase(
@@ -73,10 +82,14 @@ export default function makeGetPermittedPostingAccountsUsecase(
 
     const repoOptions = { correlationId };
 
+    const types = getPermittedValues(permits.permittedTypes);
+    const subTypes = getPermittedValues(permits.permittedSubTypes);
+    const behaviors = getPermittedValues(permits.permittedBehaviors);
+
     const accountRepoOptions: IFindAllLedgerAccountsOptions = {
-      types: getPermittedValues(permits.permittedTypes),
-      subTypes: getPermittedValues(permits.permittedSubTypes),
-      behaviors: getPermittedValues(permits.permittedBehaviors),
+      types,
+      subTypes: query.filterSuspense ? filterSuspense(subTypes) : subTypes,
+      behaviors,
       currencyCodes,
       isControlAccount: false,
       limit: query.limit,

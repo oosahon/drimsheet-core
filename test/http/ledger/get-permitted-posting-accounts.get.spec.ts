@@ -143,7 +143,7 @@ describe('GET /ledger/posting-accounts', () => {
     it('returns the permitted posting-account page and forwards coerced query values', async () => {
       const response = await request(app)
         .get(
-          `${ENDPOINT}?sourceType=receipt&side=destination&currencyCode=usd&page=2&limit=5`
+          `${ENDPOINT}?sourceType=receipt&side=destination&filterSuspense=true&currencyCode=usd&page=2&limit=5`
         )
         .set('Authorization', 'Bearer valid-token')
         .set('x-accounting-entity-id', accountingEntityId);
@@ -169,6 +169,7 @@ describe('GET /ledger/posting-accounts', () => {
       expect(mockGetPermittedPostingAccounts).toHaveBeenCalledWith({
         sourceType: 'receipt',
         side: 'destination',
+        filterSuspense: true,
         currencyCode: 'usd',
         page: 2,
         limit: 5,
@@ -248,6 +249,10 @@ describe('GET /ledger/posting-accounts', () => {
       [`${ENDPOINT}?sourceType=receipt`, 'side'],
       [`${ENDPOINT}?sourceType=not_a_source&side=source`, 'sourceType'],
       [`${ENDPOINT}?sourceType=receipt&side=debit`, 'side'],
+      [
+        `${ENDPOINT}?sourceType=receipt&side=source&filterSuspense=not_boolean`,
+        'filterSuspense',
+      ],
     ])('rejects malformed query %s', async (endpoint, _field) => {
       const response = await request(app)
         .get(endpoint)
