@@ -1,3 +1,4 @@
+import { TEntityId } from '@shared/types/uuid';
 import dateUtils from '@shared/utils/date';
 
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
@@ -8,7 +9,10 @@ import {
   IJournalEntryHeaderPayload,
   IJournalEntryLinePayload,
 } from '@domain/journal-entry/types/journal-entry.service.types';
+import { ILedgerAccountBalance } from '@domain/ledger/types/ledger-account-balance.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { IMoney } from '@domain/money/types/money.types';
+import moneyValue from '@domain/money/values/money.vo';
 
 function validateAccountsAgainstRule(
   sourceAccounts: ILedgerAccount[],
@@ -125,10 +129,34 @@ function validateCounterparties(
   }
 }
 
+function validateSourceAccountBalance(
+  sourceAccountId: TEntityId,
+  sourceAmount: IMoney,
+  sourceAccountBalance: ILedgerAccountBalance | null
+) {
+  if (!sourceAccountBalance) {
+    throw new journalEntryError.MissingSourceAccountBalance({
+      sourceAccountId,
+    });
+  }
+
+  const hasInsufficientBalance = moneyValue.isGreaterThan(
+    sourceAmount,
+    sourceAccountBalance.amount
+  );
+
+  if (hasInsufficientBalance) {
+    throw new journalEntryError.InsufficientSourceAccountBalance({
+      sourceAccountId,
+    });
+  }
+}
+
 const journalEntryValidation = Object.freeze({
   validateAccounts,
   validateAccountsAgainstRule,
   validateCounterparties,
+  validateSourceAccountBalance,
 });
 
 export default journalEntryValidation;

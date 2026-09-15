@@ -8,6 +8,7 @@ import {
 } from '@domain/ledger/types/asset-account.types';
 import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
 import { EExpenseSubType } from '@domain/ledger/types/expense-account.types';
+import { ELedgerAccountSubType } from '@domain/ledger/types/ledger-aggregate.types';
 import {
   EAdjunctAccountRule,
   EContraAccountRule,
@@ -213,6 +214,27 @@ describe('makeGetPermittedPostingAccountsUsecase', () => {
     );
   });
 
+  it('filters suspense from permitted payment destination subtypes when requested', async () => {
+    await getUseCase()({
+      ...validQuery,
+      sourceType: EJournalEntrySourceType.Payment,
+      side: 'destination',
+      filterSuspense: true,
+    });
+
+    const accountRepoOptions = mockLedgerAccountRepo.findAll.mock.calls[0][1];
+
+    expect(accountRepoOptions.subTypes).toEqual(
+      expect.arrayContaining([
+        ELiabilitySubType.Payable,
+        EExpenseSubType.RentAndUtilities,
+      ])
+    );
+    expect(accountRepoOptions.subTypes).not.toContain(
+      ELedgerAccountSubType.Suspense
+    );
+  });
+
   it.each(['source', 'destination'] as const)(
     'selects transfer %s account permits',
     async (side) => {
@@ -248,6 +270,23 @@ describe('makeGetPermittedPostingAccountsUsecase', () => {
         types: undefined,
         subTypes: undefined,
         behaviors: undefined,
+      })
+    );
+  });
+
+  it('expands wildcard subtypes without suspense when filtering is requested', async () => {
+    await getUseCase()({
+      ...validQuery,
+      sourceType: EJournalEntrySourceType.OpeningBalance,
+      filterSuspense: true,
+    });
+
+    expect(mockLedgerAccountRepo.findAll).toHaveBeenCalledWith(
+      accountingEntityId,
+      expect.objectContaining({
+        subTypes: Object.values(ELedgerAccountSubType).filter(
+          (subType) => subType !== ELedgerAccountSubType.Suspense
+        ),
       })
     );
   });

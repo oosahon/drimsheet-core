@@ -26,6 +26,7 @@ const permittedPostingAccountCurrencyValidation = currencyCodeValidation.refine(
 export const getPermittedPostingAccountsQueryValidationSchema = z.object({
   sourceType: journalEntrySourceTypeValidation,
   side: permittedPostingAccountSideValidation,
+  filterSuspense: z.boolean().optional(),
   currencyCode: permittedPostingAccountCurrencyValidation.optional(),
   page: paginationDtoValidation.shape.page,
   limit: paginationDtoValidation.shape.limit,

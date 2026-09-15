@@ -259,14 +259,6 @@
           "adjunct_not_applicable"
         ]
       },
-      "Record_string.string_": {
-        "properties": {},
-        "additionalProperties": {
-          "type": "string"
-        },
-        "type": "object",
-        "description": "Construct a type with a set of properties K of type T"
-      },
       "IMoneyDto": {
         "properties": {
           "amount": {
@@ -325,9 +317,6 @@
           },
           "adjunctAccountRule": {
             "$ref": "#/components/schemas/UAdjunctAccountRule"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/Record_string.string_"
           },
           "openingBalanceDate": {
             "type": "string",
@@ -558,6 +547,9 @@
             "type": "string",
             "enum": ["source", "destination"],
             "nullable": false
+          },
+          "filterSuspense": {
+            "type": "boolean"
           },
           "currencyCode": {
             "type": "string"
@@ -2603,6 +2595,14 @@
             "schema": {
               "type": "string",
               "enum": ["source", "destination"]
+            }
+          },
+          {
+            "in": "query",
+            "name": "filterSuspense",
+            "required": false,
+            "schema": {
+              "type": "boolean"
             }
           },
           {

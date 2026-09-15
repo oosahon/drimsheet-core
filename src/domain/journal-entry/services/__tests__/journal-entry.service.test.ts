@@ -1,4 +1,5 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
 
 import accountingEntityEntity from '@domain/accounting/entities/accounting-entity.entity';
@@ -324,6 +325,29 @@ describe('journalEntryService', () => {
     return account;
   }
 
+  function makeSourceAccountBalance(
+    ledgerAccountId: TEntityId,
+    accountingEntityId: TEntityId,
+    currency: ICurrency,
+    amount: bigint
+  ) {
+    const balance = ledgerAccountBalanceEntity.make({
+      ledgerAccountId,
+      accountingEntityId,
+      accountMaterializedPath: '100001',
+      currencyCode: currency.code,
+      functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+    });
+
+    return ledgerAccountBalanceEntity.adjust(balance, {
+      ledgerAccountId,
+      amount: moneyValue.make(amount, currency, true),
+      functionalAmount: moneyValue.make(amount, SYSTEM_CURRENCIES.NGN, true),
+      journalEntryId: generateUUID(),
+      createdBy: generateUUID(),
+    }).newBalance;
+  }
+
   function makePaymentFixture(postedAt: Date | null = null) {
     const [user] = userEntity.make({
       email: 'payment@example.com',
@@ -422,6 +446,41 @@ describe('journalEntryService', () => {
     };
   }
 
+  function makeForexPaymentFixture(postedAt: Date | null = null) {
+    const fixture = makePaymentFixture(postedAt);
+    const exchangeRate = exchangeRateValue.make({
+      baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+      targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+      rate: 1600,
+      type: EExchangeRateType.Official,
+      asOf: effectiveDate,
+      source: 'Test Source',
+    });
+    const sourceAccount = {
+      ...fixture.sourceAccount,
+      currency: SYSTEM_CURRENCIES.USD,
+    };
+
+    fixture.payload.sourceLine = {
+      ...fixture.payload.sourceLine,
+      account: sourceAccount,
+      amount: moneyValue.make(100n, SYSTEM_CURRENCIES.USD, true),
+      exchangeRate,
+    };
+    fixture.payload.destinationLines = [
+      {
+        ...fixture.payload.destinationLines[0],
+        amount: moneyValue.make(112_000n, SYSTEM_CURRENCIES.NGN, true),
+      },
+      {
+        ...fixture.payload.destinationLines[1],
+        amount: moneyValue.make(48_000n, SYSTEM_CURRENCIES.NGN, true),
+      },
+    ];
+
+    return { ...fixture, sourceAccount };
+  }
+
   function makeTransferFixture(postedAt: Date | null = null) {
     const [user] = userEntity.make({
       email: 'transfer@example.com',
@@ -518,6 +577,15 @@ describe('journalEntryService', () => {
     jest.clearAllMocks();
     mockLedgerAccountBalanceRepo.findAdjustmentsByAccountId.mockResolvedValue(
       []
+    );
+    mockLedgerAccountBalanceRepo.findByAccountId.mockImplementation(
+      async (ledgerAccountId, accountingEntityId) =>
+        makeSourceAccountBalance(
+          ledgerAccountId,
+          accountingEntityId,
+          SYSTEM_CURRENCIES.NGN,
+          1_000_000n
+        )
     );
     mockAccountingPeriodService.validatePostingPeriod.mockResolvedValue(
       openPeriod
@@ -879,6 +947,89 @@ describe('journalEntryService', () => {
 
       expect(entry.status).toBe(EJournalEntryStatus.Posted);
       expect(entry.postedAt).toBe(timestamp);
+      expect(
+        mockLedgerAccountBalanceRepo.findByAccountId
+      ).not.toHaveBeenCalled();
+    });
+
+    it('creates a posted payment from an un-denominated source account without reading its balance', async () => {
+      const { payload } = makePaymentFixture(timestamp);
+      payload.sourceLine = {
+        ...payload.sourceLine,
+        account: { ...payload.sourceLine.account, currency: null },
+      };
+
+      const [entry] = await service.createPayment(payload, repoOptions);
+
+      expect(entry.status).toBe(EJournalEntryStatus.Posted);
+      expect(
+        mockLedgerAccountBalanceRepo.findByAccountId
+      ).not.toHaveBeenCalled();
+    });
+
+    it('creates a draft FOREX payment without reading the source account balance', async () => {
+      const { payload } = makeForexPaymentFixture();
+
+      const [entry] = await service.createPayment(payload, repoOptions);
+
+      expect(entry.status).toBe(EJournalEntryStatus.Draft);
+      expect(
+        mockLedgerAccountBalanceRepo.findByAccountId
+      ).not.toHaveBeenCalled();
+    });
+
+    it('creates a posted FOREX payment when the source amount equals the source account balance', async () => {
+      const { payload } = makeForexPaymentFixture(timestamp);
+      const sourceAccountBalance = makeSourceAccountBalance(
+        payload.sourceLine.account.id,
+        payload.header.accountingEntityId,
+        SYSTEM_CURRENCIES.USD,
+        100n
+      );
+      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(
+        sourceAccountBalance
+      );
+
+      await expect(
+        service.createPayment(payload, repoOptions)
+      ).resolves.toEqual(expect.any(Array));
+      expect(mockLedgerAccountBalanceRepo.findByAccountId).toHaveBeenCalledWith(
+        payload.sourceLine.account.id,
+        payload.header.accountingEntityId,
+        repoOptions
+      );
+    });
+
+    it('rejects a posted FOREX payment larger than the source account balance before period validation', async () => {
+      const { payload } = makeForexPaymentFixture(timestamp);
+      const sourceAccountBalance = makeSourceAccountBalance(
+        payload.sourceLine.account.id,
+        payload.header.accountingEntityId,
+        SYSTEM_CURRENCIES.USD,
+        99n
+      );
+      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(
+        sourceAccountBalance
+      );
+
+      await expect(service.createPayment(payload, repoOptions)).rejects.toThrow(
+        journalEntryError.InsufficientSourceAccountBalance
+      );
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).not.toHaveBeenCalled();
+    });
+
+    it('rejects a posted FOREX payment with a missing source account balance before period validation', async () => {
+      const { payload } = makeForexPaymentFixture(timestamp);
+      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(null);
+
+      await expect(service.createPayment(payload, repoOptions)).rejects.toThrow(
+        journalEntryError.MissingSourceAccountBalance
+      );
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).not.toHaveBeenCalled();
     });
 
     it('rejects a non-permitted source account before period validation', async () => {
@@ -967,6 +1118,9 @@ describe('journalEntryService', () => {
         payload.header.effectiveDate,
         repoOptions
       );
+      expect(
+        mockLedgerAccountBalanceRepo.findByAccountId
+      ).not.toHaveBeenCalled();
     });
 
     it('creates a posted transfer when a posting date is provided', async () => {
@@ -978,6 +1132,62 @@ describe('journalEntryService', () => {
 
       expect(entry.status).toBe(EJournalEntryStatus.Posted);
       expect(entry.postedAt).toBe(timestamp);
+      expect(mockLedgerAccountBalanceRepo.findByAccountId).toHaveBeenCalledWith(
+        payload.sourceLine.account.id,
+        payload.header.accountingEntityId,
+        repoOptions
+      );
+    });
+
+    it('creates a transfer when the source amount equals the source account balance', async () => {
+      const { payload } = makeTransferFixture(timestamp);
+      const sourceAccountBalance = makeSourceAccountBalance(
+        payload.sourceLine.account.id,
+        payload.header.accountingEntityId,
+        SYSTEM_CURRENCIES.NGN,
+        10_000n
+      );
+      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(
+        sourceAccountBalance
+      );
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).resolves.toEqual(
+        expect.objectContaining({ journalEntry: expect.any(Array) })
+      );
+    });
+
+    it('rejects a transfer larger than the source account balance before period validation', async () => {
+      const { payload } = makeTransferFixture(timestamp);
+      const sourceAccountBalance = makeSourceAccountBalance(
+        payload.sourceLine.account.id,
+        payload.header.accountingEntityId,
+        SYSTEM_CURRENCIES.NGN,
+        9_999n
+      );
+      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(
+        sourceAccountBalance
+      );
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.InsufficientSourceAccountBalance);
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).not.toHaveBeenCalled();
+    });
+
+    it('rejects a transfer with a missing source account balance before period validation', async () => {
+      const { payload } = makeTransferFixture(timestamp);
+      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(null);
+
+      await expect(
+        service.createTransfer(payload, repoOptions)
+      ).rejects.toThrow(journalEntryError.MissingSourceAccountBalance);
+      expect(
+        mockAccountingPeriodService.validatePostingPeriod
+      ).not.toHaveBeenCalled();
     });
 
     it('creates one balanced transfer with a Bank Charge destination', async () => {
@@ -1067,7 +1277,7 @@ describe('journalEntryService', () => {
         bankCounterparty,
         destinationAccount,
         payload,
-      } = makeTransferFixture();
+      } = makeTransferFixture(timestamp);
       const exchangeRate = exchangeRateValue.make({
         baseCurrencyCode: SYSTEM_CURRENCIES.USD.code,
         targetCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
@@ -1101,6 +1311,14 @@ describe('journalEntryService', () => {
           sequenceOrder: 3,
         },
       ];
+      mockLedgerAccountBalanceRepo.findByAccountId.mockResolvedValueOnce(
+        makeSourceAccountBalance(
+          payload.sourceLine.account.id,
+          payload.header.accountingEntityId,
+          SYSTEM_CURRENCIES.USD,
+          100n
+        )
+      );
 
       const {
         journalEntry: [entry, events, audit],
@@ -1149,6 +1367,9 @@ describe('journalEntryService', () => {
       expect(
         mockAccountingPeriodService.validatePostingPeriod
       ).not.toHaveBeenCalled();
+      expect(
+        mockLedgerAccountBalanceRepo.findByAccountId
+      ).not.toHaveBeenCalled();
     });
 
     it('rejects a non-cash source account before period validation', async () => {
@@ -1169,6 +1390,9 @@ describe('journalEntryService', () => {
       ).rejects.toThrow(journalEntryError.InvalidSourceType);
       expect(
         mockAccountingPeriodService.validatePostingPeriod
+      ).not.toHaveBeenCalled();
+      expect(
+        mockLedgerAccountBalanceRepo.findByAccountId
       ).not.toHaveBeenCalled();
     });
 

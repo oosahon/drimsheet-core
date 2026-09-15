@@ -34,7 +34,17 @@ describe('Permitted Posting Account DTO Validation', () => {
     }
   );
 
-  it('accepts omitted optional currency and pagination', () => {
+  it.each([true, false])('accepts filterSuspense=%s', (filterSuspense) => {
+    const result = getPermittedPostingAccountsQueryValidationSchema.safeParse({
+      sourceType: EJournalEntrySourceType.Receipt,
+      side: 'source',
+      filterSuspense,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('accepts omitted optional suspense filter, currency, and pagination', () => {
     const result = getPermittedPostingAccountsQueryValidationSchema.safeParse({
       sourceType: EJournalEntrySourceType.OpeningBalance,
       side: 'destination',
@@ -66,6 +76,14 @@ describe('Permitted Posting Account DTO Validation', () => {
         currencyCode: 'US',
       },
       'malformed currency',
+    ],
+    [
+      {
+        sourceType: EJournalEntrySourceType.Receipt,
+        side: 'source',
+        filterSuspense: 'true',
+      },
+      'non-boolean suspense filter',
     ],
     [
       { sourceType: EJournalEntrySourceType.Receipt, side: 'source', page: 0 },

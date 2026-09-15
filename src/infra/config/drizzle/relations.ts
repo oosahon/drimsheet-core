@@ -70,16 +70,16 @@ export const usersInCoreRelations = relations(usersInCore, ({ many }) => ({
   accountingContextHistoryInAudits: many(accountingContextHistoryInAudit),
   reportingPeriodHistoryInAudits: many(reportingPeriodHistoryInAudit),
   reportingContextHistoryInAudits: many(reportingContextHistoryInAudit),
-  ledgerAccountsInCores: many(ledgerAccountsInCore),
   ledgerAccountHistoryInAudits: many(ledgerAccountHistoryInAudit),
+  ledgerAccountsInCores: many(ledgerAccountsInCore),
   counterpartyHistoryInAudits: many(counterpartyHistoryInAudit),
   counterpartyVendorHistoryInAudits: many(counterpartyVendorHistoryInAudit),
   counterpartyEmployerHistoryInAudits: many(counterpartyEmployerHistoryInAudit),
   counterpartyContractorHistoryInAudits: many(
     counterpartyContractorHistoryInAudit
   ),
-  journalEntriesInCores: many(journalEntriesInCore),
   journalEntryHistoryInAudits: many(journalEntryHistoryInAudit),
+  journalEntriesInCores: many(journalEntriesInCore),
   journalLineHistoryInAudits: many(journalLineHistoryInAudit),
   ledgerAccountBalanceAdjustmentsInCores: many(
     ledgerAccountBalanceAdjustmentsInCore
@@ -499,6 +499,16 @@ export const reportingContextHistoryInAuditRelations = relations(
   })
 );
 
+export const ledgerAccountHistoryInAuditRelations = relations(
+  ledgerAccountHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [ledgerAccountHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
 export const ledgerAccountsInCoreRelations = relations(
   ledgerAccountsInCore,
   ({ one, many }) => ({
@@ -537,16 +547,6 @@ export const ledgerAccountsInCoreRelations = relations(
       subledgerFxCostBasisLotDispositionsInCore
     ),
     bankDetailsInCores: many(bankDetailsInCore),
-  })
-);
-
-export const ledgerAccountHistoryInAuditRelations = relations(
-  ledgerAccountHistoryInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [ledgerAccountHistoryInAudit.userId],
-      references: [usersInCore.id],
-    }),
   })
 );
 
@@ -601,22 +601,22 @@ export const counterpartyHistoryInAuditRelations = relations(
   })
 );
 
-export const counterpartyVendorsInCoreRelations = relations(
-  counterpartyVendorsInCore,
-  ({ one }) => ({
-    counterpartiesInCore: one(counterpartiesInCore, {
-      fields: [counterpartyVendorsInCore.counterpartyId],
-      references: [counterpartiesInCore.id],
-    }),
-  })
-);
-
 export const counterpartyVendorHistoryInAuditRelations = relations(
   counterpartyVendorHistoryInAudit,
   ({ one }) => ({
     usersInCore: one(usersInCore, {
       fields: [counterpartyVendorHistoryInAudit.userId],
       references: [usersInCore.id],
+    }),
+  })
+);
+
+export const counterpartyVendorsInCoreRelations = relations(
+  counterpartyVendorsInCore,
+  ({ one }) => ({
+    counterpartiesInCore: one(counterpartiesInCore, {
+      fields: [counterpartyVendorsInCore.counterpartyId],
+      references: [counterpartiesInCore.id],
     }),
   })
 );
@@ -661,6 +661,16 @@ export const counterpartyContractorHistoryInAuditRelations = relations(
   })
 );
 
+export const journalEntryHistoryInAuditRelations = relations(
+  journalEntryHistoryInAudit,
+  ({ one }) => ({
+    usersInCore: one(usersInCore, {
+      fields: [journalEntryHistoryInAudit.userId],
+      references: [usersInCore.id],
+    }),
+  })
+);
+
 export const journalEntriesInCoreRelations = relations(
   journalEntriesInCore,
   ({ one, many }) => ({
@@ -693,16 +703,6 @@ export const journalEntriesInCoreRelations = relations(
     subledgerFxCostBasisLotDispositionsInCores: many(
       subledgerFxCostBasisLotDispositionsInCore
     ),
-  })
-);
-
-export const journalEntryHistoryInAuditRelations = relations(
-  journalEntryHistoryInAudit,
-  ({ one }) => ({
-    usersInCore: one(usersInCore, {
-      fields: [journalEntryHistoryInAudit.userId],
-      references: [usersInCore.id],
-    }),
   })
 );
 

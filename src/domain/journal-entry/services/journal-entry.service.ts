@@ -278,6 +278,27 @@ function makeCreatePayment(
 
     journalEntryServiceValidation.validateAccounts(header, journalLines);
 
+    const sourceAccountCurrencyCode = sourceLine.account.currency?.code ?? null;
+    const isForexSourceAccount =
+      sourceAccountCurrencyCode !== null &&
+      sourceAccountCurrencyCode !== header.functionalCurrencyCode;
+    const shouldValidateSourceBalance =
+      header.postedAt !== null && isForexSourceAccount;
+
+    if (shouldValidateSourceBalance) {
+      const sourceAccountBalance =
+        await deps.ledgerAccountBalanceRepo.findByAccountId(
+          sourceLine.account.id,
+          header.accountingEntityId,
+          repoOptions
+        );
+      journalEntryServiceValidation.validateSourceAccountBalance(
+        sourceLine.account.id,
+        sourceLine.amount,
+        sourceAccountBalance
+      );
+    }
+
     await deps.accountingPeriodService.validatePostingPeriod(
       header.accountingEntityId,
       header.effectiveDate,
@@ -345,6 +366,22 @@ function makeCreateTransfer(
     }
 
     journalEntryServiceValidation.validateAccounts(header, journalLines);
+
+    const shouldValidateSourceBalance = header.postedAt !== null;
+
+    if (shouldValidateSourceBalance) {
+      const sourceAccountBalance =
+        await deps.ledgerAccountBalanceRepo.findByAccountId(
+          sourceLine.account.id,
+          header.accountingEntityId,
+          repoOptions
+        );
+      journalEntryServiceValidation.validateSourceAccountBalance(
+        sourceLine.account.id,
+        sourceLine.amount,
+        sourceAccountBalance
+      );
+    }
 
     await deps.accountingPeriodService.validatePostingPeriod(
       header.accountingEntityId,

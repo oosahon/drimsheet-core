@@ -297,16 +297,6 @@ const models: TsoaRoute.Models = {
     },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  'Record_string.string_': {
-    dataType: 'refAlias',
-    type: {
-      dataType: 'nestedObjectLiteral',
-      nestedProperties: {},
-      additionalProperties: { dataType: 'string' },
-      validators: {},
-    },
-  },
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IMoneyDto: {
     dataType: 'refObject',
     properties: {
@@ -334,7 +324,6 @@ const models: TsoaRoute.Models = {
       status: { ref: 'ULedgerAccountStatus', required: true },
       contraAccountRule: { ref: 'UContraAccountRule', required: true },
       adjunctAccountRule: { ref: 'UAdjunctAccountRule', required: true },
-      meta: { ref: 'Record_string.string_' },
       openingBalanceDate: {
         dataType: 'union',
         subSchemas: [
@@ -519,6 +508,7 @@ const models: TsoaRoute.Models = {
         enums: ['source', 'destination'],
         required: true,
       },
+      filterSuspense: { dataType: 'boolean' },
       currencyCode: { dataType: 'string' },
       page: { dataType: 'double' },
       limit: { dataType: 'double' },

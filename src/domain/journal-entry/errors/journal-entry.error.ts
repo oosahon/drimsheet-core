@@ -60,6 +60,10 @@ const EErrorKeys = {
   InvalidSourceAccount: 'journal_entry_error_entry_source_account_invalid',
   InvalidDestinationAccount:
     'journal_entry_error_entry_destination_account_invalid',
+  InsufficientSourceAccountBalance:
+    'journal_entry_error_source_account_balance_insufficient_invalid',
+  MissingSourceAccountBalance:
+    'journal_entry_error_source_account_balance_missing_unexpected',
   EffectiveDateIsBeforeOpeningDate:
     'journal_entry_error_entry_cannot_record_entry_before_account_opening_date_invalid',
 } as const satisfies TErrorKeys<'journal_entry_error'>;
