@@ -1,3 +1,5 @@
+import journalEntryQueryRepo from '@infra/persistence/repos/journal-entry/queries/journal-entry.query.repo.impl';
+
 import journalEntryAttachmentRepo from './journal-entry-attachment.repo.impl';
 import journalEntryHistoryRepo from './journal-entry-history.repo.impl';
 import journalEntryRepo from './journal-entry.repo.impl';
@@ -10,6 +12,10 @@ const journalEntryRepos = {
   journalEntry: journalEntryRepo,
   journalLineHistory: journalLineHistoryRepo,
   journalLine: journalLineRepo,
+
+  queries: {
+    journalEntry: journalEntryQueryRepo,
+  },
 };
 
 export default journalEntryRepos;

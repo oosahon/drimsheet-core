@@ -9,7 +9,8 @@ import moneyValue from '@domain/money/values/money.vo';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
-import { mockJournalEntryRepo } from '@app/journal-entry/contracts/__mocks__/journal-entry.repos.mock';
+import mockJournalEntryQueryRepo from '@app/journal-entry/contracts/__mocks__/journal-entry.query.repo.mock';
+import { IJournalEntryDetails } from '@app/journal-entry/contracts/journal-entry.query.repo.contract';
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
 import makeGetJournalEntriesUsecase from '@app/journal-entry/usecases/get-journal-entries.usecase';
 
@@ -19,6 +20,7 @@ describe('makeGetJournalEntriesUsecase', () => {
   const userId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
   const otherAccountId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
+  const counterpartyId = '123e4567-e89b-12d3-a456-426614174005' as TEntityId;
   const correlationId = 'test-correlation-id';
   const amount = moneyValue.make(25_00, SYSTEM_CURRENCIES.NGN, true);
   const [journalEntry] = journalEntryEntity.make({
@@ -50,11 +52,27 @@ describe('makeGetJournalEntriesUsecase', () => {
       },
     ],
   });
+  const journalEntryDetails: IJournalEntryDetails = {
+    ...journalEntry,
+    lines: [
+      {
+        ...journalEntry.lines[0],
+        counterpartyId,
+        account: { id: accountId, name: 'Cash' },
+        counterparty: { id: counterpartyId, name: 'Acme Ltd' },
+      },
+      {
+        ...journalEntry.lines[1],
+        account: { id: otherAccountId, name: 'Sales' },
+        counterparty: null,
+      },
+    ],
+  };
 
   const getUseCase = () =>
     makeGetJournalEntriesUsecase({
       appContext: mockAppContext,
-      journalEntryRepo: mockJournalEntryRepo,
+      journalEntryQueryRepo: mockJournalEntryQueryRepo,
     });
 
   beforeEach(() => {
@@ -72,8 +90,8 @@ describe('makeGetJournalEntriesUsecase', () => {
         updatedAt: new Date('2026-09-01T00:00:00.000Z'),
       },
     } as IAppContextData);
-    mockJournalEntryRepo.findAll.mockResolvedValue({
-      data: [journalEntry],
+    mockJournalEntryQueryRepo.findAll.mockResolvedValue({
+      data: [journalEntryDetails],
       meta: { page: 2, limit: 25, total: 1, totalPages: 1 },
     });
   });
@@ -90,7 +108,7 @@ describe('makeGetJournalEntriesUsecase', () => {
 
     const result = await getUseCase()(query);
 
-    expect(mockJournalEntryRepo.findAll).toHaveBeenCalledWith(
+    expect(mockJournalEntryQueryRepo.findAll).toHaveBeenCalledWith(
       accountingEntityId,
       {
         accountId,
@@ -103,13 +121,13 @@ describe('makeGetJournalEntriesUsecase', () => {
       }
     );
     expect(result).toEqual({
-      data: [journalEntryDtoMapper.toDto(journalEntry)],
+      data: [journalEntryDtoMapper.toListDto(journalEntryDetails)],
       meta: { page: 2, limit: 25, total: 1, totalPages: 1 },
     });
   });
 
   it('supports an unfiltered empty page', async () => {
-    mockJournalEntryRepo.findAll.mockResolvedValue({
+    mockJournalEntryQueryRepo.findAll.mockResolvedValue({
       data: [],
       meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
     });
@@ -118,7 +136,7 @@ describe('makeGetJournalEntriesUsecase', () => {
       data: [],
       meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
     });
-    expect(mockJournalEntryRepo.findAll).toHaveBeenCalledWith(
+    expect(mockJournalEntryQueryRepo.findAll).toHaveBeenCalledWith(
       accountingEntityId,
       {
         accountId: undefined,
@@ -138,12 +156,12 @@ describe('makeGetJournalEntriesUsecase', () => {
     ).rejects.toThrow();
 
     expect(mockAppContext.get).not.toHaveBeenCalled();
-    expect(mockJournalEntryRepo.findAll).not.toHaveBeenCalled();
+    expect(mockJournalEntryQueryRepo.findAll).not.toHaveBeenCalled();
   });
 
   it('propagates repository failures', async () => {
     const repositoryFailure = new Error('repository failure');
-    mockJournalEntryRepo.findAll.mockRejectedValue(repositoryFailure);
+    mockJournalEntryQueryRepo.findAll.mockRejectedValue(repositoryFailure);
 
     await expect(getUseCase()({})).rejects.toBe(repositoryFailure);
   });

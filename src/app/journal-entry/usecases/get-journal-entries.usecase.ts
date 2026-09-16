@@ -3,27 +3,26 @@ import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import paginationValue from '@shared/values/pagination/pagination.vo';
 import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
 
-import IJournalEntryRepo, {
-  IFindAllJournalEntriesOptions,
-} from '@domain/journal-entry/repos/journal-entry.repo';
-
 import IAppContext from '@app/context/contracts/app-context.contract';
+import IJournalEntryQueryRepo, {
+  IFindAllJournalEntriesOptions,
+} from '@app/journal-entry/contracts/journal-entry.query.repo.contract';
 import {
   IGetJournalEntriesQuery,
-  IJournalEntryDto,
+  IJournalEntryListDto,
 } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
 import { getJournalEntriesQueryValidationSchema } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.validation';
 
 interface IDependencies {
   appContext: IAppContext;
-  journalEntryRepo: IJournalEntryRepo;
+  journalEntryQueryRepo: IJournalEntryQueryRepo;
 }
 
 export default function makeGetJournalEntriesUsecase(deps: IDependencies) {
   return async (
     query: IGetJournalEntriesQuery
-  ): Promise<IPaginatedResponse<IJournalEntryDto>> => {
+  ): Promise<IPaginatedResponse<IJournalEntryListDto>> => {
     zodValidationRunner(getJournalEntriesQueryValidationSchema, query);
 
     const { correlationId, accountingEntity } = deps.appContext.get([
@@ -40,13 +39,13 @@ export default function makeGetJournalEntriesUsecase(deps: IDependencies) {
       correlationId,
     };
 
-    const journalEntries = await deps.journalEntryRepo.findAll(
+    const journalEntries = await deps.journalEntryQueryRepo.findAll(
       accountingEntity.id,
       repoOptions
     );
 
     return {
-      data: journalEntries.data.map(journalEntryDtoMapper.toDto),
+      data: journalEntries.data.map(journalEntryDtoMapper.toListDto),
       meta: journalEntries.meta,
     };
   };

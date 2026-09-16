@@ -28,7 +28,7 @@ export const getJournalEntriesUseCase = makeTracedUseCase(
   'journalEntry.getJournalEntriesUseCase',
   makeGetJournalEntriesUsecase({
     appContext,
-    journalEntryRepo: journalEntryRepos.journalEntry,
+    journalEntryQueryRepo: journalEntryRepos.queries.journalEntry,
   })
 );
 

@@ -2,7 +2,6 @@ import { IFileAttachment } from '@shared/values/file-attachments/types/file-atta
 import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
 
 import { UCounterpartyType } from '@domain/counterparty/types/counterparty.types';
-import { UJournalEntrySortBy } from '@domain/journal-entry/repos/journal-entry.repo';
 import {
   UJournalEntrySourceType,
   UJournalEntryStatus,
@@ -10,6 +9,7 @@ import {
 import { UJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
 
+import { UJournalEntrySortBy } from '@app/journal-entry/contracts/journal-entry.query.repo.contract';
 import { IExchangeRateDto } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 import { IMoneyDto } from '@app/money/dtos/money/money.dto';
 
@@ -68,4 +68,33 @@ export interface IJournalEntryDto extends IJournalHeaderDto {
   accountingEntityId: string;
   attachments: IFileAttachment[];
   lines: IJournalLineDto[];
+}
+
+interface IJournalLineListDto {
+  id: string;
+  entryId: string;
+  account: {
+    id: string;
+    name: string;
+  };
+  counterparty: {
+    id: string;
+    name: string;
+  } | null;
+  sequenceOrder: number;
+  amount: IMoneyDto;
+  exchangeRate: IExchangeRate | null;
+  functionalAmount: IMoneyDto;
+  side: UJournalSide;
+  description: string | null;
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IJournalEntryListDto extends IJournalHeaderDto {
+  id: string;
+  accountingEntityId: string;
+  attachments: IFileAttachment[];
+  lines: IJournalLineListDto[];
 }

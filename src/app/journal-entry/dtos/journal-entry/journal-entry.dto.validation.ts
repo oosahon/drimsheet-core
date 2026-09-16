@@ -7,10 +7,6 @@ import paginationError from '@shared/values/pagination/pagination.error';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import journalLineError from '@domain/journal-entry/errors/journal-line.error';
 import {
-  EJournalEntrySortBy,
-  UJournalEntrySortBy,
-} from '@domain/journal-entry/repos/journal-entry.repo';
-import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
   UJournalEntrySourceType,
@@ -22,6 +18,10 @@ import {
 } from '@domain/journal-entry/types/journal-line.types';
 
 import { counterpartyNameValidation } from '@app/counterparty/dtos/counterparty/counterparty.dto.validation';
+import {
+  EJournalEntrySortBy,
+  UJournalEntrySortBy,
+} from '@app/journal-entry/contracts/journal-entry.query.repo.contract';
 import { exchangeRateDtoValidation } from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
 import { moneyDtoValidation } from '@app/money/dtos/money/money.dto.validation';
 
