@@ -1069,6 +1069,52 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IPaginatedResponse_IJournalEntryDto_": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/IJournalEntryDto"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/IPaginationResponseMeta"
+          }
+        },
+        "required": ["data", "meta"],
+        "type": "object",
+        "additionalProperties": false
+      },
+      "UJournalEntrySortBy": {
+        "type": "string",
+        "enum": ["createdAt", "effectiveDate"]
+      },
+      "IGetJournalEntriesQuery": {
+        "properties": {
+          "limit": {
+            "type": "number",
+            "format": "double"
+          },
+          "orderBy": {
+            "$ref": "#/components/schemas/UJournalEntrySortBy"
+          },
+          "sortDirection": {
+            "$ref": "#/components/schemas/UPaginationSortDirection"
+          },
+          "search": {
+            "type": "string"
+          },
+          "page": {
+            "type": "number",
+            "format": "double"
+          },
+          "accountId": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "additionalProperties": false
+      },
       "UCounterpartyType": {
         "type": "string",
         "enum": ["individual", "organization"]
@@ -2862,6 +2908,136 @@
             "schema": {
               "format": "double",
               "type": "number"
+            }
+          }
+        ]
+      }
+    },
+    "/journal-entries": {
+      "get": {
+        "operationId": "getJournalEntries",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IPaginatedResponse_IJournalEntryDto_"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Get paginated journal entries with optional account participation filter",
+        "tags": ["Journal Entry"],
+        "security": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sortDirection",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UPaginationSortDirection"
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "format": "double",
+              "type": "number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "accountId",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "orderBy",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/UJournalEntrySortBy"
             }
           }
         ]

@@ -856,6 +856,44 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaginatedResponse_IJournalEntryDto_: {
+    dataType: 'refObject',
+    properties: {
+      data: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IJournalEntryDto' },
+        required: true,
+      },
+      meta: { ref: 'IPaginationResponseMeta', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UJournalEntrySortBy: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['createdAt'] },
+        { dataType: 'enum', enums: ['effectiveDate'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IGetJournalEntriesQuery: {
+    dataType: 'refObject',
+    properties: {
+      limit: { dataType: 'double' },
+      orderBy: { ref: 'UJournalEntrySortBy' },
+      sortDirection: { ref: 'UPaginationSortDirection' },
+      search: { dataType: 'string' },
+      page: { dataType: 'double' },
+      accountId: { dataType: 'string' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   UCounterpartyType: {
     dataType: 'refAlias',
     type: {
@@ -2130,6 +2168,55 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'listTransactions',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsJournalEntryController_getJournalEntries: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    query: {
+      in: 'queries',
+      name: 'query',
+      required: true,
+      ref: 'IGetJournalEntriesQuery',
+    },
+  };
+  app.get(
+    '/api/v1/journal-entries',
+    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
+    ...fetchMiddlewares<RequestHandler>(
+      JournalEntryController.prototype.getJournalEntries
+    ),
+
+    async function JournalEntryController_getJournalEntries(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsJournalEntryController_getJournalEntries,
+          request,
+          response,
+        });
+
+        const controller = new JournalEntryController();
+
+        await templateService.apiHandler({
+          methodName: 'getJournalEntries',
           controller,
           response,
           next,

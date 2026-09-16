@@ -1,7 +1,15 @@
+import { omit } from 'lodash';
 import z from 'zod';
+
+import { paginationDtoValidation } from '@shared/values/pagination/dto/pagination.dto.validation';
+import paginationError from '@shared/values/pagination/pagination.error';
 
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import journalLineError from '@domain/journal-entry/errors/journal-line.error';
+import {
+  EJournalEntrySortBy,
+  UJournalEntrySortBy,
+} from '@domain/journal-entry/repos/journal-entry.repo';
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
@@ -26,6 +34,21 @@ const sequenceOrderError = new journalLineError.InvalidSequenceOrder().errorKey;
 
 const sourceTypeError = new journalEntryError.InvalidSourceType().errorKey;
 const journalEntryStatusError = new journalEntryError.InvalidStatus().errorKey;
+const orderByError = new paginationError.InvalidOrderBy().errorKey;
+
+const journalEntryOrderByValidation = z.enum(
+  Object.values(EJournalEntrySortBy) as [
+    UJournalEntrySortBy,
+    ...UJournalEntrySortBy[],
+  ],
+  orderByError
+);
+
+export const getJournalEntriesQueryValidationSchema = z.object({
+  ...omit(paginationDtoValidation.shape, ['orderBy']),
+  accountId: z.uuid(accountIdError).optional(),
+  orderBy: journalEntryOrderByValidation.optional(),
+});
 
 /**
  * Journal entry source type validation schema

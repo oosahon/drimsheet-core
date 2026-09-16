@@ -1,6 +1,8 @@
 import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
+import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
 
 import { UCounterpartyType } from '@domain/counterparty/types/counterparty.types';
+import { UJournalEntrySortBy } from '@domain/journal-entry/repos/journal-entry.repo';
 import {
   UJournalEntrySourceType,
   UJournalEntryStatus,
@@ -10,6 +12,11 @@ import { IExchangeRate } from '@domain/money/types/exchange-rate.types';
 
 import { IExchangeRateDto } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 import { IMoneyDto } from '@app/money/dtos/money/money.dto';
+
+export interface IGetJournalEntriesQuery extends IPaginationDto {
+  accountId?: string;
+  orderBy?: UJournalEntrySortBy;
+}
 
 export interface IJournalLineReq {
   accountId: string;
