@@ -1,5 +1,6 @@
-import { ESLint } from 'eslint';
 import assert from 'node:assert/strict';
+
+import { ESLint } from 'eslint';
 
 const eslint = new ESLint();
 const importPathRule = 'local/layer-import-paths';

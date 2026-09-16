@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { historyActorType } from '../config/history';
 import { journalLineHistoryTable } from '../config/journal-entries';
 import { usersTable } from '../config/users';

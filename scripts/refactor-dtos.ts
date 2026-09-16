@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+
 import { Project, SyntaxKind } from 'ts-morph';
 
 const project = new Project({

@@ -1,4 +1,5 @@
 import { MigrationBuilder } from 'node-pg-migrate';
+
 import {
   DATABASE_USER_ADMIN,
   DATABASE_USER_CORE,

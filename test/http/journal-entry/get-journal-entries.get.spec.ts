@@ -9,7 +9,7 @@ import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.ty
 import { IUser } from '@domain/user/types/user.types';
 
 import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
-import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
+import { IJournalEntryListDto } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 
 import { tokenService } from '@infra/ioc/services/auth';
 import * as journalEntryUseCases from '@infra/ioc/usecases/journal-entry';
@@ -60,6 +60,7 @@ const accountingEntityId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
 const accountId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
 const entryId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
 const lineId = '123e4567-e89b-12d3-a456-426614174005' as TEntityId;
+const counterpartyId = '123e4567-e89b-12d3-a456-426614174006' as TEntityId;
 const now = new Date('2026-09-16T09:00:00.000Z');
 
 const user = {
@@ -104,8 +105,8 @@ const journalEntry = {
     {
       id: lineId,
       entryId,
-      accountId,
-      counterpartyId: null,
+      account: { id: accountId, name: 'Cash' },
+      counterparty: { id: counterpartyId, name: 'Acme Ltd' },
       sequenceOrder: 1,
       amount: { amount: 50_00, currencyCode: 'NGN', isMinorUnit: true },
       exchangeRate: null,
@@ -121,12 +122,12 @@ const journalEntry = {
       updatedAt: now,
     },
   ],
-} satisfies IJournalEntryDto;
+} satisfies IJournalEntryListDto;
 
 const paginatedEntries = {
   data: [journalEntry],
   meta: { page: 2, limit: 5, total: 1, totalPages: 1 },
-} satisfies IPaginatedResponse<IJournalEntryDto>;
+} satisfies IPaginatedResponse<IJournalEntryListDto>;
 
 describe('GET /journal-entries', () => {
   let app: Express;
