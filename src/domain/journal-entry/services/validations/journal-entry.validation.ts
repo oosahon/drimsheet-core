@@ -3,6 +3,9 @@ import dateUtils from '@shared/utils/date';
 
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
+import transferEntryRule, {
+  transferBankChargeDestinationPermit,
+} from '@domain/journal-entry/rules/transfer-entry.rule';
 import { IJournalEntryRule } from '@domain/journal-entry/types/entry.rules.types';
 import {
   IJournalEntryBaseLinePayload,
@@ -152,11 +155,66 @@ function validateSourceAccountBalance(
   }
 }
 
+function validateTransferAccountComposition(
+  sourceAccount: ILedgerAccount,
+  destinationLines: IJournalEntryLinePayload[]
+) {
+  if (!journalEntryRuleValidator(sourceAccount, transferEntryRule.source)) {
+    throw new journalEntryError.InvalidSourceType({ account: sourceAccount });
+  }
+
+  const destinationAssetAccounts: ILedgerAccount[] = [];
+  const invalidDestinations: ILedgerAccount[] = [];
+
+  for (const destinationLine of destinationLines) {
+    const account = destinationLine.account;
+
+    if (isTransferAssetAccount(account)) {
+      if (destinationLine.counterparty !== null) {
+        throw new journalEntryError.CounterpartyIdNotAllowed({
+          accountId: account.id,
+          counterpartyId: destinationLine.counterparty.id,
+        });
+      }
+
+      destinationAssetAccounts.push(account);
+      continue;
+    }
+
+    if (
+      !journalEntryRuleValidator(account, transferBankChargeDestinationPermit)
+    ) {
+      invalidDestinations.push(account);
+    }
+  }
+
+  if (invalidDestinations.length > 0) {
+    throw new journalEntryError.InvalidDestinationAccount({
+      invalidDestinations,
+    });
+  }
+
+  if (destinationAssetAccounts.length !== 1) {
+    throw new journalEntryError.InvalidDestinationAccount({
+      destinationAccountIds: destinationLines.map((line) => line.account.id),
+      destinationAssetAccountIds: destinationAssetAccounts.map(
+        (account) => account.id
+      ),
+    });
+  }
+}
+
+function isTransferAssetAccount(account: ILedgerAccount) {
+  return journalEntryRuleValidator(account, transferEntryRule.destination);
+}
+
 const journalEntryValidation = Object.freeze({
+  isTransferAssetAccount,
   validateAccounts,
   validateAccountsAgainstRule,
   validateCounterparties,
   validateSourceAccountBalance,
+  validateTransferAccountComposition,
 });
 
 export default journalEntryValidation;
