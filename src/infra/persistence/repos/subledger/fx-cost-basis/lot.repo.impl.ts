@@ -15,6 +15,16 @@ import fxCostBasisLotHistoryMapper from '@infra/persistence/repos/subledger/fx-c
 import fxCostBasisLotMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/lot.mapper';
 
 const fxCostBasisLotRepo: IFxCostBasisLotRepo = {
+  findById: async (id, options) => {
+    const result = await getDbQuery(options)
+      .select()
+      .from(subledgerFxCostBasisLotsInCore)
+      .where(eq(subledgerFxCostBasisLotsInCore.id, id))
+      .limit(1);
+
+    return result[0] ? fxCostBasisLotMapper.toDomain(result[0]) : null;
+  },
+
   findOpenByAccountId: async (accountingEntityId, ledgerAccountId, options) => {
     const results = await getDbQuery(options)
       .select()

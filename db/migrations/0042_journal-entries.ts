@@ -23,7 +23,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     'payment',
     'receipt',
     'adjustment',
-    'system',
+    'reversal',
     'opening_balance',
   ]);
 
@@ -71,6 +71,7 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
     voiding_entry_id: {
       type: 'uuid',
       references: journalEntriesTable,
+      unique: true,
     },
 
     version: {

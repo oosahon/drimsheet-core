@@ -90,6 +90,7 @@ const models: TsoaRoute.Models = {
     properties: {
       theme: { ref: 'UAppThemePreference' },
       appUsageMode: { ref: 'UAppUsageModePreference', required: true },
+      suppressJournalEntryRectificationNotice: { dataType: 'boolean' },
     },
     additionalProperties: false,
   },
@@ -153,6 +154,7 @@ const models: TsoaRoute.Models = {
     properties: {
       theme: { ref: 'UAppThemePreference' },
       appUsageMode: { ref: 'UAppUsageModePreference' },
+      suppressJournalEntryRectificationNotice: { dataType: 'boolean' },
     },
     additionalProperties: false,
   },
@@ -483,7 +485,6 @@ const models: TsoaRoute.Models = {
     type: {
       dataType: 'union',
       subSchemas: [
-        { dataType: 'enum', enums: ['system'] },
         { dataType: 'enum', enums: ['expense'] },
         { dataType: 'enum', enums: ['opening_balance'] },
         { dataType: 'enum', enums: ['sale'] },
@@ -494,6 +495,7 @@ const models: TsoaRoute.Models = {
         { dataType: 'enum', enums: ['payment'] },
         { dataType: 'enum', enums: ['receipt'] },
         { dataType: 'enum', enums: ['adjustment'] },
+        { dataType: 'enum', enums: ['reversal'] },
       ],
       validators: {},
     },
@@ -1243,6 +1245,274 @@ const models: TsoaRoute.Models = {
       },
     },
     additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UJournalEntryRectificationMode: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['update_draft'] },
+        { dataType: 'enum', enums: ['update_meta'] },
+        { dataType: 'enum', enums: ['void_and_replace'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalEntryRectificationDto: {
+    dataType: 'refObject',
+    properties: {
+      mode: { ref: 'UJournalEntryRectificationMode', required: true },
+      originalJournalEntryId: { dataType: 'string', required: true },
+      currentJournalEntryId: { dataType: 'string', required: true },
+      reversingJournalEntryId: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      journalEntry: { ref: 'IJournalEntryDto', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalEntryRectificationCounterpartyLineReq: {
+    dataType: 'refObject',
+    properties: {
+      accountId: { dataType: 'string', required: true },
+      counterparty: { ref: 'IJournalCounterpartyReq', required: true },
+      amount: { ref: 'IMoneyDto', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRateDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      description: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      sequenceOrder: { dataType: 'double', required: true },
+      id: { dataType: 'string' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaymentJournalEntryRectificationReq: {
+    dataType: 'refObject',
+    properties: {
+      expectedVersion: { dataType: 'double', required: true },
+      attachments: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IFileAttachment' },
+        required: true,
+      },
+      effectiveDate: { dataType: 'datetime', required: true },
+      postedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      memo: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      sourceType: { dataType: 'enum', enums: ['payment'], required: true },
+      sourceLine: {
+        ref: 'IJournalEntryRectificationCounterpartyLineReq',
+        required: true,
+      },
+      destinationLines: {
+        dataType: 'array',
+        array: {
+          dataType: 'refObject',
+          ref: 'IJournalEntryRectificationCounterpartyLineReq',
+        },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IReceiptJournalEntryRectificationReq: {
+    dataType: 'refObject',
+    properties: {
+      expectedVersion: { dataType: 'double', required: true },
+      attachments: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IFileAttachment' },
+        required: true,
+      },
+      effectiveDate: { dataType: 'datetime', required: true },
+      postedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      memo: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      sourceType: { dataType: 'enum', enums: ['receipt'], required: true },
+      sourceLines: {
+        dataType: 'array',
+        array: {
+          dataType: 'refObject',
+          ref: 'IJournalEntryRectificationCounterpartyLineReq',
+        },
+        required: true,
+      },
+      destinationLine: {
+        ref: 'IJournalEntryRectificationCounterpartyLineReq',
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ITransferJournalEntryRectificationLineReq: {
+    dataType: 'refObject',
+    properties: {
+      id: { dataType: 'string' },
+      accountId: { dataType: 'string', required: true },
+      amount: { ref: 'IMoneyDto', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRateDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      description: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      sequenceOrder: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalEntryRectificationLineReq: {
+    dataType: 'refObject',
+    properties: {
+      accountId: { dataType: 'string', required: true },
+      counterparty: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IJournalCounterpartyReq' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      amount: { ref: 'IMoneyDto', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRateDto' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      description: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      sequenceOrder: { dataType: 'double', required: true },
+      id: { dataType: 'string' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  ITransferJournalEntryRectificationReq: {
+    dataType: 'refObject',
+    properties: {
+      expectedVersion: { dataType: 'double', required: true },
+      attachments: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IFileAttachment' },
+        required: true,
+      },
+      effectiveDate: { dataType: 'datetime', required: true },
+      postedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      memo: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      sourceType: { dataType: 'enum', enums: ['transfer'], required: true },
+      sourceLine: {
+        ref: 'ITransferJournalEntryRectificationLineReq',
+        required: true,
+      },
+      destinationLine: {
+        ref: 'ITransferJournalEntryRectificationLineReq',
+        required: true,
+      },
+      chargeLines: {
+        dataType: 'array',
+        array: {
+          dataType: 'refObject',
+          ref: 'IJournalEntryRectificationLineReq',
+        },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  TJournalEntryRectificationReq: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { ref: 'IPaymentJournalEntryRectificationReq' },
+        { ref: 'IReceiptJournalEntryRectificationReq' },
+        { ref: 'ITransferJournalEntryRectificationReq' },
+      ],
+      validators: {},
+    },
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   'Readonly_Record_string.string__': {
@@ -2471,6 +2741,56 @@ export function RegisterRoutes(app: Router) {
           next,
           validatedArgs,
           successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsJournalEntryController_rectifyJournalEntry: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    id: { in: 'path', name: 'id', required: true, dataType: 'string' },
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'TJournalEntryRectificationReq',
+    },
+  };
+  app.post(
+    '/api/v1/journal-entries/:id/rectify',
+    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
+    ...fetchMiddlewares<RequestHandler>(
+      JournalEntryController.prototype.rectifyJournalEntry
+    ),
+
+    async function JournalEntryController_rectifyJournalEntry(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsJournalEntryController_rectifyJournalEntry,
+          request,
+          response,
+        });
+
+        const controller = new JournalEntryController();
+
+        await templateService.apiHandler({
+          methodName: 'rectifyJournalEntry',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
         });
       } catch (err) {
         return next(err);

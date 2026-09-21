@@ -71,6 +71,7 @@ describe('makeUserPreferencesService', () => {
       appPreferences: {
         theme: EAppThemePreference.Light,
         appUsageMode: EAppUsageModePreference.NonPowerUser,
+        suppressJournalEntryRectificationNotice: true,
       },
       createdAt: new Date('2026-07-01T10:00:00.000Z'),
       updatedAt: new Date('2026-07-02T10:00:00.000Z'),
@@ -87,12 +88,43 @@ describe('makeUserPreferencesService', () => {
       appPreferences: {
         theme: EAppThemePreference.System,
         appUsageMode: EAppUsageModePreference.NonPowerUser,
+        suppressJournalEntryRectificationNotice: true,
       },
       updatedAt: new Date('2026-08-19T12:00:00.000Z'),
     });
     expect(mockUserPreferencesRepo.update).toHaveBeenCalledWith(
       result,
       options
+    );
+  });
+
+  it('stores the journal-entry rectification notice preference', async () => {
+    const existingPreferences: IUserPreferences = {
+      userId,
+      lastActiveAccountingEntityId: accountingEntityId,
+      appPreferences: {
+        appUsageMode: EAppUsageModePreference.NonPowerUser,
+      },
+      createdAt: new Date('2026-07-01T10:00:00.000Z'),
+      updatedAt: new Date('2026-07-02T10:00:00.000Z'),
+    };
+    mockUserPreferencesRepo.findById.mockResolvedValue(existingPreferences);
+
+    const result = await service.update(
+      {
+        userId,
+        appPreferences: {
+          suppressJournalEntryRectificationNotice: true,
+        },
+      },
+      options
+    );
+
+    expect(result.appPreferences.suppressJournalEntryRectificationNotice).toBe(
+      true
+    );
+    expect(result.appPreferences.appUsageMode).toBe(
+      EAppUsageModePreference.NonPowerUser
     );
   });
 

@@ -39,6 +39,7 @@ describe('User DTO Validation', () => {
   it.each([
     { theme: EAppThemePreference.Dark },
     { appUsageMode: EAppUsageModePreference.NonPowerUser },
+    { suppressJournalEntryRectificationNotice: true },
   ])('validates a non-empty preference update', (preferences) => {
     expect(userPreferencesUpdateDtoSchema.safeParse(preferences).success).toBe(
       true
@@ -50,6 +51,7 @@ describe('User DTO Validation', () => {
       userAppPreferencesValidation.safeParse({
         theme: EAppThemePreference.System,
         appUsageMode: EAppUsageModePreference.PowerUser,
+        suppressJournalEntryRectificationNotice: false,
       }).success
     ).toBe(true);
   });

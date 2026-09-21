@@ -131,9 +131,92 @@ function consume(
   return [entity, [event], audit];
 }
 
+function reverseAcquisition(
+  lot: IFxCostBasisLot,
+  quantity: IFxCostBasisLot['remainingQuantity'],
+  costBasis: IFxCostBasisLot['remainingCostBasis']
+): TAuditedEntity<IFxCostBasisLot, IFxCostBasisLot, IFxCostBasisLot> {
+  lotValidation.validateConsumption(lot, quantity, costBasis);
+
+  const remainingQuantity = moneyValue.subtract(
+    lot.remainingQuantity,
+    quantity
+  );
+  const remainingCostBasis = moneyValue.subtract(
+    lot.remainingCostBasis,
+    costBasis
+  );
+  const status = moneyValue.isZeroAmount(remainingQuantity)
+    ? EFxCostBasisLotStatus.Closed
+    : EFxCostBasisLotStatus.Open;
+  const timestamp = new Date();
+  const entity: IFxCostBasisLot = Object.freeze({
+    id: lot.id,
+    ledgerAccountId: lot.ledgerAccountId,
+    accountingEntityId: lot.accountingEntityId,
+    status,
+    originalQuantity: lot.originalQuantity,
+    remainingQuantity,
+    costBasis: lot.costBasis,
+    remainingCostBasis,
+    acquisitionRate: lot.acquisitionRate,
+    acquisitionDate: lot.acquisitionDate,
+    version: lot.version + 1,
+    createdAt: lot.createdAt,
+    updatedAt: timestamp,
+  });
+  const event = FxCostBasisLotEvents.reversed(entity);
+  const audit = fxCostBasisLotAudit.make({
+    before: lot,
+    after: entity,
+    action: EFxCostBasisLotAuditAction.Reversed,
+  });
+
+  return [entity, [event], audit];
+}
+
+function reverseDisposition(
+  lot: IFxCostBasisLot,
+  quantity: IFxCostBasisLot['remainingQuantity'],
+  costBasis: IFxCostBasisLot['remainingCostBasis']
+): TAuditedEntity<IFxCostBasisLot, IFxCostBasisLot, IFxCostBasisLot> {
+  const remainingQuantity = moneyValue.add(lot.remainingQuantity, quantity);
+  const remainingCostBasis = moneyValue.add(lot.remainingCostBasis, costBasis);
+
+  lotValidation.validateQuantity(lot.originalQuantity, remainingQuantity);
+  lotValidation.validateCostBasis(lot.costBasis, remainingCostBasis);
+
+  const timestamp = new Date();
+  const entity: IFxCostBasisLot = Object.freeze({
+    id: lot.id,
+    ledgerAccountId: lot.ledgerAccountId,
+    accountingEntityId: lot.accountingEntityId,
+    status: EFxCostBasisLotStatus.Open,
+    originalQuantity: lot.originalQuantity,
+    remainingQuantity,
+    costBasis: lot.costBasis,
+    remainingCostBasis,
+    acquisitionRate: lot.acquisitionRate,
+    acquisitionDate: lot.acquisitionDate,
+    version: lot.version + 1,
+    createdAt: lot.createdAt,
+    updatedAt: timestamp,
+  });
+  const event = FxCostBasisLotEvents.reversed(entity);
+  const audit = fxCostBasisLotAudit.make({
+    before: lot,
+    after: entity,
+    action: EFxCostBasisLotAuditAction.Reversed,
+  });
+
+  return [entity, [event], audit];
+}
+
 const fxCostBasisLotEntity = Object.freeze({
   make,
   consume,
+  reverseAcquisition,
+  reverseDisposition,
   ...lotValidation,
 });
 

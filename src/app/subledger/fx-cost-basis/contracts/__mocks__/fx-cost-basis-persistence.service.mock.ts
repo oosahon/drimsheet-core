@@ -3,6 +3,7 @@ import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contrac
 const persistence: jest.Mocked<IFxCostBasisPersistenceService> = {
   persistAcquisition: jest.fn(),
   persistDisposition: jest.fn(),
+  persistReversal: jest.fn(),
 };
 
 const mockFxLotCostBasisService = Object.freeze({

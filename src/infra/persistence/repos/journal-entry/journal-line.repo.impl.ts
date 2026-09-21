@@ -1,7 +1,9 @@
-import { and, eq, ilike, sql } from 'drizzle-orm';
+import { and, eq, ilike, inArray, sql } from 'drizzle-orm';
 
 import drizzleFilters from '@shared/helpers/drizzle-filters';
 import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+import validateVersionInRepo from '@shared/helpers/validate-version-in-repo';
+import repoError from '@shared/values/errors/repo.error';
 import paginationValue from '@shared/values/pagination/pagination.vo';
 
 import IJournalLineRepo from '@domain/journal-entry/repos/journal-line.repo';
@@ -27,6 +29,44 @@ const journalLineRepo: IJournalLineRepo = {
         passOnRepoTransaction(options, tx)
       );
     });
+  },
+
+  update: async (payload, options) => {
+    validateVersionInRepo(payload, options);
+
+    await getDbQuery(options).transaction(async (tx) => {
+      const updated = await tx
+        .update(journalLinesInCore)
+        .set(journalLineMapper.toRepo(payload))
+        .where(
+          and(
+            eq(journalLinesInCore.id, payload.id),
+            eq(journalLinesInCore.version, options.expectedVersion)
+          )
+        );
+
+      if (updated.rowCount === 0) {
+        throw new repoError.VersionNotFound({
+          id: payload.id,
+          version: options.expectedVersion,
+        });
+      }
+
+      await journalLineHistoryRepo.create(
+        payload,
+        options.history,
+        options.accountingEntityId,
+        passOnRepoTransaction(options, tx)
+      );
+    });
+  },
+
+  delete: async (ids, options) => {
+    if (!ids.length) return;
+
+    await getDbQuery(options)
+      .delete(journalLinesInCore)
+      .where(inArray(journalLinesInCore.id, ids));
   },
 
   findAllByAccountId: async (accountId, options) => {

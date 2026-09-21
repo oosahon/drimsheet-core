@@ -1,4 +1,10 @@
+import { IJournalEntryRectificationService } from '@domain/journal-entry/types/journal-entry-rectification.types';
 import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
+
+export const mockJournalEntryRectificationService: jest.Mocked<IJournalEntryRectificationService> =
+  {
+    rectify: jest.fn(),
+  };
 
 export const mockJournalEntryService: jest.Mocked<IJournalEntryService> = {
   createOpeningBalance: jest.fn(),

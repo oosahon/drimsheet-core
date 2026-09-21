@@ -198,6 +198,46 @@ describe('fxLotAppService', () => {
     mockExchangeRateService.getOfficialRate.mockResolvedValue(officialRate);
   });
 
+  it('prepares versioned histories for an FX lot reversal', async () => {
+    const journalEntry = makeJournal(
+      EJournalEntryStatus.Posted,
+      EJournalSide.Debit
+    );
+    const [lot] = makeAcquisitionResult(journalEntry, officialRate).lot;
+    const reversedLot = fxCostBasisLotEntity.reverseAcquisition(
+      lot,
+      lot.remainingQuantity,
+      lot.remainingCostBasis
+    );
+    mockFxCostBasisLotDomainService.reverse.mockResolvedValue({
+      lots: [reversedLot],
+    });
+
+    const result = await service.reverse(journalEntry.id, actor, {
+      correlationId,
+    });
+
+    expect(mockFxCostBasisLotDomainService.reverse).toHaveBeenCalledWith(
+      journalEntry.id,
+      { correlationId }
+    );
+    expect(result?.records.lots[0]).toMatchObject({
+      lot: reversedLot[0],
+      expectedVersion: lot.version,
+      history: { actor, correlationId, action: 'reversed' },
+    });
+    expect(result?.events).toEqual(reversedLot[1]);
+  });
+
+  it('returns null when there is no FX lot effect to reverse', async () => {
+    const journalEntryId = generateUUID();
+    mockFxCostBasisLotDomainService.reverse.mockResolvedValue(null);
+
+    await expect(
+      service.reverse(journalEntryId, actor, { correlationId })
+    ).resolves.toBeNull();
+  });
+
   it('returns null for draft acquisitions and dispositions before dependency calls', async () => {
     const draftAcquisition = makeJournal(
       EJournalEntryStatus.Draft,

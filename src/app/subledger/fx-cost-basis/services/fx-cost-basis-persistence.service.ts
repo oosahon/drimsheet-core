@@ -102,11 +102,33 @@ function makePersistDisposition(
   };
 }
 
+/** Persists prepared FX-lot reversal updates in the caller's transaction. */
+function makePersistReversal(
+  deps: IDependencies
+): IFxCostBasisPersistenceService['persistReversal'] {
+  return async (payload, repoOptions) => {
+    const transactionFn: TRepoTransactionFn = async (tx) => {
+      const writeOptions = { ...repoOptions, tx };
+
+      for (const item of payload.lots) {
+        await deps.lotRepo.update(item.lot, {
+          ...writeOptions,
+          expectedVersion: item.expectedVersion,
+          history: item.history,
+        });
+      }
+    };
+
+    await deps.repoService.runInTransaction(transactionFn, repoOptions.tx);
+  };
+}
+
 export default function makeFxLotCostBasisPersistenceService(
   deps: IDependencies
 ): IFxCostBasisPersistenceService {
   return Object.freeze({
     persistAcquisition: makePersistAcquisition(deps),
     persistDisposition: makePersistDisposition(deps),
+    persistReversal: makePersistReversal(deps),
   });
 }

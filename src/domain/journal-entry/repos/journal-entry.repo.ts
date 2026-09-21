@@ -1,7 +1,14 @@
-import { IReadRepoOptions, IWriteRepoOptions } from '@shared/types/repo.types';
+import {
+  IReadRepoOptions,
+  IVersionedRepoWriteOptions,
+  IWriteRepoOptions,
+} from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
-import { IJournalEntryHistory } from '@domain/journal-entry/types/journal-entry-audit.types';
+import {
+  IJournalEntryHistory,
+  IJournalEntryRectificationHistory,
+} from '@domain/journal-entry/types/journal-entry-audit.types';
 import {
   IJournalEntry,
   IJournalHeader,
@@ -11,6 +18,13 @@ export default interface IJournalEntryRepo {
   create(
     payload: IJournalHeader | IJournalHeader[],
     options: IWriteRepoOptions<IJournalEntryHistory | IJournalEntryHistory[]>
+  ): Promise<void>;
+
+  update(
+    payload: IJournalHeader,
+    options: IVersionedRepoWriteOptions<
+      IJournalEntryHistory | IJournalEntryRectificationHistory
+    >
   ): Promise<void>;
 
   findById(

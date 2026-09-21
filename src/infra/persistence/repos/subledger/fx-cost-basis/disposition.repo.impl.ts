@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm';
+
 import IFxCostBasisLotDispositionRepo from '@domain/subledger/fx-cost-basis/repos/disposition.repo';
 
 import {
@@ -9,6 +11,23 @@ import fxCostBasisLotDispositionHistoryMapper from '@infra/persistence/repos/sub
 import fxCostBasisLotDispositionMapper from '@infra/persistence/repos/subledger/fx-cost-basis/mappers/disposition.mapper';
 
 const fxCostBasisLotDispositionRepo: IFxCostBasisLotDispositionRepo = {
+  findByJournalEntryId: async (journalEntryId, options) => {
+    const result = await getDbQuery(options)
+      .select()
+      .from(subledgerFxCostBasisLotDispositionsInCore)
+      .where(
+        eq(
+          subledgerFxCostBasisLotDispositionsInCore.journalEntryId,
+          journalEntryId
+        )
+      )
+      .limit(1);
+
+    return result[0]
+      ? fxCostBasisLotDispositionMapper.toDomain(result[0])
+      : null;
+  },
+
   create: async (payload, options) => {
     await getDbQuery(options).transaction(async (tx) => {
       const repoModel = fxCostBasisLotDispositionMapper.toRepo(payload);

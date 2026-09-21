@@ -8,6 +8,7 @@ import {
 export interface IUserPreferencesUpdateDto {
   theme?: UAppThemePreference;
   appUsageMode?: UAppUsageModePreference;
+  suppressJournalEntryRectificationNotice?: boolean;
 }
 
 export interface IUserProfileDto {

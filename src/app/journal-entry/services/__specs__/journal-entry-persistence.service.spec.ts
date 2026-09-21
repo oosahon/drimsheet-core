@@ -274,4 +274,124 @@ describe('journalEntryPersistenceService', () => {
       expect(mockJournalEntryAttachmentRepo.save).toHaveBeenCalledTimes(1);
     });
   });
+
+  describe('rectify', () => {
+    it('persists prepared journal entries before a lineage update in one transaction', async () => {
+      const { headerHistory, journalEntry, linesHistory } =
+        await makeFixture(attachments);
+      const updatedEntry = {
+        ...journalEntry,
+        version: journalEntry.version + 1,
+      };
+
+      await service.rectify(
+        {
+          entriesToCreate: [
+            {
+              entry: journalEntry,
+              headerHistory,
+              lineHistories: linesHistory,
+            },
+          ],
+          entryUpdate: {
+            entry: updatedEntry,
+            expectedVersion: journalEntry.version,
+            headerHistory: {
+              ...headerHistory,
+              entityVersion: updatedEntry.version,
+            },
+            lineHistories: [],
+            linesToCreate: [],
+            linesToUpdate: [],
+            lineIdsToDelete: [],
+          },
+        },
+        {
+          ...mockOptions,
+          tx: 'caller-tx' as unknown as ITransactionContext,
+        }
+      );
+
+      expect(mockRepoService.runInTransaction).toHaveBeenCalledWith(
+        expect.any(Function),
+        'caller-tx'
+      );
+      expect(mockJournalEntryRepo.create).toHaveBeenCalledTimes(1);
+      expect(mockJournalEntryRepo.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: updatedEntry.id,
+          version: updatedEntry.version,
+        }),
+        expect.objectContaining({
+          expectedVersion: journalEntry.version,
+          tx: 'mock-tx',
+        })
+      );
+      expect(
+        mockJournalEntryRepo.create.mock.invocationCallOrder[0]
+      ).toBeLessThan(mockJournalEntryRepo.update.mock.invocationCallOrder[0]);
+      expect(mockJournalEntryAttachmentRepo.save).toHaveBeenLastCalledWith(
+        updatedEntry.id,
+        updatedEntry.attachments,
+        expect.objectContaining({ tx: 'mock-tx' })
+      );
+    });
+
+    it('persists prepared line additions, updates, and removals', async () => {
+      const { headerHistory, journalEntry, linesHistory } = await makeFixture();
+      const [firstLine, secondLine] = journalEntry.lines;
+      const updatedLine = {
+        ...firstLine,
+        description: 'Updated description',
+        version: firstLine.version + 1,
+      };
+      const createdLine = {
+        ...secondLine,
+        id: journalEntry.lines[0].id,
+      };
+      const updatedEntry = {
+        ...journalEntry,
+        lines: [updatedLine, createdLine],
+        version: journalEntry.version + 1,
+      };
+
+      await service.rectify(
+        {
+          entriesToCreate: [],
+          entryUpdate: {
+            entry: updatedEntry,
+            expectedVersion: journalEntry.version,
+            headerHistory: {
+              ...headerHistory,
+              entityVersion: updatedEntry.version,
+            },
+            lineHistories: [
+              { ...linesHistory[0], entityVersion: updatedLine.version },
+              linesHistory[1],
+            ],
+            linesToCreate: [createdLine],
+            linesToUpdate: [updatedLine],
+            lineIdsToDelete: [secondLine.id],
+          },
+        },
+        mockOptions
+      );
+
+      expect(mockJournalLineRepo.delete).toHaveBeenCalledWith(
+        [secondLine.id],
+        expect.objectContaining({ tx: 'mock-tx' })
+      );
+      expect(mockJournalLineRepo.create).toHaveBeenCalledWith(
+        [createdLine],
+        expect.objectContaining({ tx: 'mock-tx' })
+      );
+      expect(mockJournalLineRepo.update).toHaveBeenCalledWith(
+        updatedLine,
+        expect.objectContaining({
+          tx: 'mock-tx',
+          expectedVersion: firstLine.version,
+        })
+      );
+    });
+  });
 });

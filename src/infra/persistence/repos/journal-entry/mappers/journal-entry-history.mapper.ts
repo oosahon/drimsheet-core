@@ -1,6 +1,9 @@
 import { InferSelectModel } from 'drizzle-orm';
 
-import { IJournalEntryHistory } from '@domain/journal-entry/types/journal-entry-audit.types';
+import {
+  IJournalEntryHistory,
+  IJournalEntryRectificationHistory,
+} from '@domain/journal-entry/types/journal-entry-audit.types';
 import { IJournalHeader } from '@domain/journal-entry/types/journal-entry.types';
 
 import { journalEntryHistoryInAudit } from '@infra/config/drizzle/schema';
@@ -13,7 +16,7 @@ export interface IJournalEntryHistoryModel extends InferSelectModel<
 const journalEntryHistoryMapper = {
   toRepo(
     header: IJournalHeader,
-    history: IJournalEntryHistory
+    history: IJournalEntryHistory | IJournalEntryRectificationHistory
   ): Omit<IJournalEntryHistoryModel, 'id' | 'recordedAt'> {
     return {
       journalEntryId: history.entityId,

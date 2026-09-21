@@ -2,6 +2,7 @@ import makeCreatePaymentUsecase from '@app/journal-entry/usecases/create-payment
 import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
 import makeCreateTransferUsecase from '@app/journal-entry/usecases/create-transfer.usecase';
 import makeGetJournalEntriesUsecase from '@app/journal-entry/usecases/get-journal-entries.usecase';
+import makeRectifyJournalEntryUsecase from '@app/journal-entry/usecases/rectify-journal-entry.usecase';
 
 import {
   counterpartyAppService,
@@ -14,6 +15,7 @@ import {
 } from '@infra/ioc/services/fx-lot-cost-basis';
 import {
   journalEntryPersistenceService,
+  journalEntryRectificationPreparationService,
   journalEntryService,
 } from '@infra/ioc/services/journal-entry';
 import outboxService from '@infra/ioc/services/outbox';
@@ -85,6 +87,22 @@ export const createTransferUseCase = makeTracedUseCase(
     outboxService,
     ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
     fxLotAppService,
+    fxCostBasisPersistenceService,
+  })
+);
+
+export const rectifyJournalEntryUseCase = makeTracedUseCase(
+  'journalEntry.rectifyJournalEntryUseCase',
+  makeRectifyJournalEntryUsecase({
+    appContext,
+    counterpartyPersistenceService,
+    journalEntryRepo: journalEntryRepos.journalEntry,
+    journalEntryRectificationPreparationService,
+    journalEntryPersistenceService,
+    repoService,
+    eventBus: messaging.eventBus,
+    outboxService,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
     fxCostBasisPersistenceService,
   })
 );

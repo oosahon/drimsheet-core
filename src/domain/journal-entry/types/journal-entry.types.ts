@@ -15,7 +15,7 @@ export const EJournalEntrySourceType = {
   Payment: 'payment',
   Receipt: 'receipt',
   Adjustment: 'adjustment',
-  System: 'system',
+  Reversal: 'reversal',
   OpeningBalance: 'opening_balance',
 } as const;
 
@@ -62,6 +62,7 @@ export interface IJournalEntryMakePayload extends Pick<
   | 'memo'
   | 'createdBy'
 > {
+  id?: TEntityId;
   functionalCurrency: ICurrency;
   lines: IJournalLineMakePayload[];
   attachments?: IFileAttachment[];

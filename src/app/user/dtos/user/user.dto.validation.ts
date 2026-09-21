@@ -28,6 +28,7 @@ export const userAppPreferencesValidation = z
   .object({
     theme: userAppThemePreferenceValidation.optional(),
     appUsageMode: userAppUsageModePreferenceValidation,
+    suppressJournalEntryRectificationNotice: z.boolean().optional(),
   })
   .strict();
 
@@ -35,6 +36,9 @@ export const userPreferencesUpdateDtoSchema = z
   .object({
     theme: userAppPreferencesValidation.shape.theme,
     appUsageMode: userAppPreferencesValidation.shape.appUsageMode.optional(),
+    suppressJournalEntryRectificationNotice:
+      userAppPreferencesValidation.shape
+        .suppressJournalEntryRectificationNotice,
   })
   .strict()
   .refine((preferences) => Object.keys(preferences).length > 0, {

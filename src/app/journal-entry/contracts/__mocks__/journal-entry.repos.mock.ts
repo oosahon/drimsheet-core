@@ -9,10 +9,13 @@ export const mockJournalEntryAttachmentRepo: jest.Mocked<IJournalEntryAttachment
 
 export const mockJournalEntryRepo: jest.Mocked<IJournalEntryRepo> = {
   create: jest.fn(),
+  update: jest.fn(),
   findById: jest.fn(),
 };
 
 export const mockJournalLineRepo: jest.Mocked<IJournalLineRepo> = {
   create: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
   findAllByAccountId: jest.fn(),
 };

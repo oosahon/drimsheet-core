@@ -14,6 +14,9 @@ import { repoService } from './repo';
 
 export const fxCostBasisLotService = makeFxCostBasisLotService({
   lotRepo: fxCostBasisLotRepo,
+  acquisitionRepo: fxCostBasisLotAcquisitionRepo,
+  dispositionRepo: fxCostBasisLotDispositionRepo,
+  dispositionAllocationRepo: fxCostBasisLotDispositionAllocationRepo,
 });
 
 export const fxLotAppService = makeFxLotAppService({

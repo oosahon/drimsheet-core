@@ -22,17 +22,37 @@ import {
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
 import moneyValue from '@domain/money/values/money.vo';
+import fxCostBasisLotAcquisitionEntity from '@domain/subledger/fx-cost-basis/entities/acquisition.entity';
+import fxCostBasisLotDispositionAllocationEntity from '@domain/subledger/fx-cost-basis/entities/disposition-allocation.entity';
+import fxCostBasisLotDispositionEntity from '@domain/subledger/fx-cost-basis/entities/disposition.entity';
 import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.entity';
 import fxCostBasisLotError from '@domain/subledger/fx-cost-basis/errors/lot.error';
+import IFxCostBasisLotAcquisitionRepo from '@domain/subledger/fx-cost-basis/repos/acquisition.repo';
+import IFxCostBasisLotDispositionAllocationRepo from '@domain/subledger/fx-cost-basis/repos/disposition-allocation.repo';
+import IFxCostBasisLotDispositionRepo from '@domain/subledger/fx-cost-basis/repos/disposition.repo';
 import IFxCostBasisLotRepo from '@domain/subledger/fx-cost-basis/repos/lot.repo';
 import makeFxCostBasisLotService from '@domain/subledger/fx-cost-basis/services/lot.service';
 import { EFxCostBasisLotStatus } from '@domain/subledger/fx-cost-basis/types/lot.types';
 
 const mockFxCostBasisLotRepo: jest.Mocked<IFxCostBasisLotRepo> = {
+  findById: jest.fn(),
   findOpenByAccountId: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
 };
+const mockAcquisitionRepo: jest.Mocked<IFxCostBasisLotAcquisitionRepo> = {
+  create: jest.fn(),
+  findByJournalEntryId: jest.fn(),
+};
+const mockDispositionRepo: jest.Mocked<IFxCostBasisLotDispositionRepo> = {
+  create: jest.fn(),
+  findByJournalEntryId: jest.fn(),
+};
+const mockDispositionAllocationRepo: jest.Mocked<IFxCostBasisLotDispositionAllocationRepo> =
+  {
+    create: jest.fn(),
+    findAllByDispositionId: jest.fn(),
+  };
 
 describe('makeFxCostBasisLotService', () => {
   const date = new Date('2026-08-01T00:00:00.000Z');
@@ -123,6 +143,9 @@ describe('makeFxCostBasisLotService', () => {
 
   const service = makeFxCostBasisLotService({
     lotRepo: mockFxCostBasisLotRepo,
+    acquisitionRepo: mockAcquisitionRepo,
+    dispositionRepo: mockDispositionRepo,
+    dispositionAllocationRepo: mockDispositionAllocationRepo,
   });
 
   beforeEach(() => jest.clearAllMocks());
@@ -359,5 +382,116 @@ describe('makeFxCostBasisLotService', () => {
         { correlationId: 'corr-id' }
       )
     ).rejects.toBeInstanceOf(fxCostBasisLotError.InsufficientQuantity);
+  });
+
+  it('reverses the acquisition created by a journal entry', async () => {
+    const journalEntry = makeJournal(EJournalSide.Debit);
+    const [lot] = fxCostBasisLotEntity.make({
+      ledgerAccountId: accountId,
+      accountingEntityId: entityId,
+      status: EFxCostBasisLotStatus.Open,
+      originalQuantity: journalEntry.lines[0].amount,
+      remainingQuantity: journalEntry.lines[0].amount,
+      costBasis: journalEntry.lines[0].functionalAmount,
+      remainingCostBasis: journalEntry.lines[0].functionalAmount,
+      acquisitionRate: rate,
+      acquisitionDate: date,
+    });
+    const [acquisition] = fxCostBasisLotAcquisitionEntity.make({
+      ledgerAccountId: accountId,
+      accountingEntityId: entityId,
+      lotId: lot.id,
+      journalEntryId: journalEntry.id,
+      quantity: lot.originalQuantity,
+      costBasis: lot.costBasis,
+      acquisitionRate: rate,
+      acquisitionDate: date,
+      officialRate: null,
+    });
+    mockAcquisitionRepo.findByJournalEntryId.mockResolvedValue(acquisition);
+    mockDispositionRepo.findByJournalEntryId.mockResolvedValue(null);
+    mockFxCostBasisLotRepo.findById.mockResolvedValue(lot);
+
+    const result = await service.reverse(journalEntry.id, {
+      correlationId: 'corr-id',
+    });
+
+    expect(result?.lots[0][0]).toMatchObject({
+      id: lot.id,
+      status: EFxCostBasisLotStatus.Closed,
+      version: 2,
+      remainingQuantity: moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.USD),
+      remainingCostBasis: moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.NGN),
+    });
+    expect(result?.lots[0][2].action).toBe('reversed');
+  });
+
+  it('restores lots consumed by the disposition created by a journal entry', async () => {
+    const journalEntry = makeJournal(EJournalSide.Credit);
+    const quantity = journalEntry.lines[0].amount;
+    const costBasis = journalEntry.lines[0].functionalAmount;
+    const [openLot] = fxCostBasisLotEntity.make({
+      ledgerAccountId: accountId,
+      accountingEntityId: entityId,
+      status: EFxCostBasisLotStatus.Open,
+      originalQuantity: quantity,
+      remainingQuantity: quantity,
+      costBasis,
+      remainingCostBasis: costBasis,
+      acquisitionRate: rate,
+      acquisitionDate: date,
+    });
+    const [closedLot] = fxCostBasisLotEntity.consume(
+      openLot,
+      quantity,
+      costBasis
+    );
+    const [disposition] = fxCostBasisLotDispositionEntity.make({
+      ledgerAccountId: accountId,
+      accountingEntityId: entityId,
+      journalEntryId: journalEntry.id,
+      quantity,
+      costBasisConsumed: costBasis,
+      proceeds: costBasis,
+      realizedGainLoss: moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.NGN),
+      dispositionRate: rate,
+      officialRate: null,
+      dispositionDate: date,
+    });
+    const allocation = fxCostBasisLotDispositionAllocationEntity.make({
+      dispositionId: disposition.id,
+      lotId: closedLot.id,
+      quantity,
+      costBasisConsumed: costBasis,
+      proceeds: costBasis,
+      realizedGainLoss: moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.NGN),
+    });
+    mockAcquisitionRepo.findByJournalEntryId.mockResolvedValue(null);
+    mockDispositionRepo.findByJournalEntryId.mockResolvedValue(disposition);
+    mockDispositionAllocationRepo.findAllByDispositionId.mockResolvedValue([
+      allocation,
+    ]);
+    mockFxCostBasisLotRepo.findById.mockResolvedValue(closedLot);
+
+    const result = await service.reverse(journalEntry.id, {
+      correlationId: 'corr-id',
+    });
+
+    expect(result?.lots[0][0]).toMatchObject({
+      id: closedLot.id,
+      status: EFxCostBasisLotStatus.Open,
+      version: 3,
+      remainingQuantity: quantity,
+      remainingCostBasis: costBasis,
+    });
+  });
+
+  it('returns null when a journal entry has no FX lot effect', async () => {
+    mockAcquisitionRepo.findByJournalEntryId.mockResolvedValue(null);
+    mockDispositionRepo.findByJournalEntryId.mockResolvedValue(null);
+
+    await expect(
+      service.reverse(generateUUID(), { correlationId: 'corr-id' })
+    ).resolves.toBeNull();
   });
 });

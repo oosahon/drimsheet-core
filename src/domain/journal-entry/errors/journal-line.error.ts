@@ -4,6 +4,7 @@ import errorUtils from '@shared/utils/error';
 import journalEntryError from './journal-entry.error';
 
 const EErrorKeys = {
+  InvalidId: 'journal_entry_error_journal_line_id_invalid',
   InvalidSide: 'journal_entry_error_journal_line_side_invalid',
   UnsupportedExchangeRate:
     'journal_entry_error_journal_line_unsupported_exchange_rate_invalid',

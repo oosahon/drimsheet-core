@@ -1,5 +1,6 @@
 import {
   IPaginatedReadRepoOptions,
+  IVersionedRepoWriteOptions,
   IWriteRepoOptions,
 } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
@@ -15,6 +16,15 @@ export default interface IJournalLineRepo {
       accountingEntityId: TEntityId;
     }
   ): Promise<void>;
+
+  update(
+    payload: IJournalLine,
+    options: IVersionedRepoWriteOptions<IJournalLineHistory> & {
+      accountingEntityId: TEntityId;
+    }
+  ): Promise<void>;
+
+  delete(ids: TEntityId[], options: IWriteRepoOptions): Promise<void>;
 
   findAllByAccountId(
     accountId: string,

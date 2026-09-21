@@ -20,9 +20,7 @@ import journalEntryAttachmentMapper, {
 } from './journal-entry-attachment.mapper';
 import journalLineMapper, { IJournalLineModel } from './journal-line.mapper';
 
-export interface IJournalEntryModel extends InferSelectModel<
-  typeof journalEntriesInCore
-> {}
+export type IJournalEntryModel = InferSelectModel<typeof journalEntriesInCore>;
 
 interface IJournalEntrySelectModel extends IJournalEntryModel {
   journalEntryAttachmentsInCores: IJournalEntryAttachmentModel[];

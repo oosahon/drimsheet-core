@@ -1,20 +1,62 @@
 import { InferSelectModel } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
+
 import { IFxCostBasisLotDisposition } from '@domain/subledger/fx-cost-basis/types/disposition.types';
 
 import { subledgerFxCostBasisLotDispositionsInCore } from '@infra/config/drizzle/schema';
 import {
+  fromRepoDate,
   toRepoDate,
   toRepoDateOnly,
 } from '@infra/persistence/helpers/date.mapper';
 import moneyMapper from '@infra/persistence/helpers/money.mapper';
-import exchangeRateMapper from '@infra/persistence/repos/money/mappers/exchange-rate.mapper';
+import exchangeRateMapper, {
+  IExchangeRateModel,
+} from '@infra/persistence/repos/money/mappers/exchange-rate.mapper';
 
 export interface IFxCostBasisLotDispositionModel extends InferSelectModel<
   typeof subledgerFxCostBasisLotDispositionsInCore
 > {}
 
 const fxCostBasisLotDispositionMapper = {
+  toDomain(
+    payload: IFxCostBasisLotDispositionModel
+  ): IFxCostBasisLotDisposition {
+    return {
+      id: payload.id as TEntityId,
+      ledgerAccountId: payload.ledgerAccountId as TEntityId,
+      accountingEntityId: payload.accountingEntityId as TEntityId,
+      journalEntryId: payload.journalEntryId as TEntityId,
+      quantity: moneyMapper.fromRepo(
+        payload.quantityAmount,
+        payload.quantityCurrency
+      ),
+      costBasisConsumed: moneyMapper.fromRepo(
+        payload.costBasisConsumedAmount,
+        payload.costBasisConsumedCurrency
+      ),
+      proceeds: moneyMapper.fromRepo(
+        payload.proceedsAmount,
+        payload.proceedsCurrency
+      ),
+      realizedGainLoss: moneyMapper.fromRepo(
+        payload.realizedGainLossAmount,
+        payload.realizedGainLossCurrency
+      ),
+      dispositionRate: exchangeRateMapper.toDomain(
+        payload.dispositionRate as IExchangeRateModel
+      ),
+      officialRate: payload.officialRate
+        ? exchangeRateMapper.toDomain(
+            payload.officialRate as IExchangeRateModel
+          )
+        : null,
+      dispositionDate: fromRepoDate(payload.dispositionDate),
+      createdAt: fromRepoDate(payload.createdAt),
+    };
+  },
+
   toRepo(payload: IFxCostBasisLotDisposition): IFxCostBasisLotDispositionModel {
     return {
       id: payload.id,

@@ -3,6 +3,7 @@ import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journa
 const mockJournalEntryPersistenceService: jest.Mocked<IJournalEntryPersistenceService> =
   {
     create: jest.fn(),
+    rectify: jest.fn(),
   };
 
 export default mockJournalEntryPersistenceService;

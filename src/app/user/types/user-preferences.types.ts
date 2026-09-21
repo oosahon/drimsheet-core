@@ -19,6 +19,7 @@ export type UAppThemePreference =
 export interface IUserAppPreferences {
   theme?: UAppThemePreference;
   appUsageMode: UAppUsageModePreference;
+  suppressJournalEntryRectificationNotice?: boolean;
 }
 
 export interface IUserPreferences {
@@ -34,6 +35,7 @@ export interface IUserPreferencesUpdate {
   appPreferences?: {
     theme?: UAppThemePreference;
     appUsageMode?: UAppUsageModePreference;
+    suppressJournalEntryRectificationNotice?: boolean;
   };
   lastActiveAccountingEntityId?: TEntityId | null;
 }

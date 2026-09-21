@@ -1,0 +1,180 @@
+import IEventBus from '@shared/contracts/event-bus.contract';
+import {
+  IRepoService,
+  TRepoTransactionFn,
+} from '@shared/contracts/repo.contract';
+import { TEntityId } from '@shared/types/uuid';
+import stringUtils from '@shared/utils/string';
+import zodValidationRunner from '@shared/utils/zod-validation-runner';
+import appError from '@shared/values/errors/app.error';
+import eventValue from '@shared/values/events/event.vo';
+import { IEvent } from '@shared/values/events/types/event.types';
+import historyValue from '@shared/values/history/history.vo';
+
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
+
+import IAppContext from '@app/context/contracts/app-context.contract';
+import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
+import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
+import IJournalEntryRectificationPreparationService from '@app/journal-entry/contracts/journal-entry-rectification-preparation.service.contract';
+import {
+  IJournalEntryRectificationDto,
+  TJournalEntryRectificationReq,
+} from '@app/journal-entry/dtos/journal-entry-rectification/journal-entry-rectification.dto';
+import journalEntryRectificationDtoMapper from '@app/journal-entry/dtos/journal-entry-rectification/journal-entry-rectification.dto.mapper';
+import { journalEntryRectificationReqValidation } from '@app/journal-entry/dtos/journal-entry-rectification/journal-entry-rectification.dto.validation';
+import getNewCounterpartiesHelper from '@app/journal-entry/helpers/get-new-counterparties.helper';
+import helpers from '@app/journal-entry/usecases/helpers/rectify-journal-entry.usecase.helpers';
+import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
+import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
+import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
+
+interface IDependencies {
+  appContext: IAppContext;
+  counterpartyPersistenceService: ICounterpartyPersistenceService;
+  journalEntryRepo: IJournalEntryRepo;
+  journalEntryRectificationPreparationService: IJournalEntryRectificationPreparationService;
+  journalEntryPersistenceService: IJournalEntryPersistenceService;
+  repoService: IRepoService;
+  eventBus: IEventBus;
+  outboxService: IOutboxService;
+  ledgerBalanceAdjustmentQueue: ILedgerBalanceAdjustmentQueue;
+  fxCostBasisPersistenceService: IFxCostBasisPersistenceService;
+}
+
+export default function makeRectifyJournalEntryUsecase(deps: IDependencies) {
+  return async (
+    id: string,
+    payload: TJournalEntryRectificationReq
+  ): Promise<IJournalEntryRectificationDto> => {
+    stringUtils.validateUUID(id, journalEntryError.InvalidJournalEntry);
+    zodValidationRunner(journalEntryRectificationReqValidation, payload);
+
+    const { correlationId, idempotencyKey, accountingEntity, user } =
+      deps.appContext.get(['user', 'accountingEntity']);
+    const repoOptions = { correlationId, idempotencyKey };
+
+    const originalEntry = await deps.journalEntryRepo.findById(
+      id as TEntityId,
+      repoOptions
+    );
+
+    if (originalEntry?.accountingEntityId !== accountingEntity.id) {
+      throw new appError.ResourceNotFound({ id });
+    }
+
+    if (originalEntry.createdBy !== user.id) {
+      throw new appError.Forbidden({ id });
+    }
+
+    if (payload.expectedVersion !== originalEntry.version) {
+      throw new appError.Conflict({
+        expectedVersion: payload.expectedVersion,
+        actualVersion: originalEntry.version,
+      });
+    }
+
+    if (payload.sourceType !== originalEntry.sourceType) {
+      throw new appError.BadRequest({ sourceType: payload.sourceType });
+    }
+
+    const actor = historyValue.getUserActor(user.id);
+
+    const preparationPayload = {
+      originalEntry,
+      requestedEntry: payload,
+      accountingEntity,
+      createdBy: user.id,
+      actor,
+    };
+    const preparedRectification =
+      await deps.journalEntryRectificationPreparationService.prepare(
+        preparationPayload,
+        repoOptions
+      );
+
+    const newCounterparties = getNewCounterpartiesHelper(
+      preparedRectification.counterparties,
+      actor,
+      correlationId
+    );
+    const rectificationPersistencePayload = helpers.getPersistencePayload(
+      preparedRectification.rectification,
+      actor,
+      correlationId
+    );
+
+    const entriesForBalancePropagation =
+      helpers.getEntriesForBalancePropagation(
+        preparedRectification.rectification
+      );
+
+    const transactionFn: TRepoTransactionFn = async (tx) => {
+      const writeOptions = { correlationId, tx };
+
+      for (const counterpartyWithHistory of newCounterparties.records) {
+        const [counterparty, history] = counterpartyWithHistory;
+        await deps.counterpartyPersistenceService.create(counterparty, {
+          ...writeOptions,
+          history,
+        });
+      }
+
+      await deps.journalEntryPersistenceService.rectify(
+        rectificationPersistencePayload,
+        writeOptions
+      );
+
+      if (preparedRectification.fxReversal) {
+        await deps.fxCostBasisPersistenceService.persistReversal(
+          preparedRectification.fxReversal.records,
+          writeOptions
+        );
+      }
+
+      if (preparedRectification.fxDisposition) {
+        await deps.fxCostBasisPersistenceService.persistDisposition(
+          preparedRectification.fxDisposition.records,
+          writeOptions
+        );
+      }
+
+      if (preparedRectification.fxAcquisition) {
+        await deps.fxCostBasisPersistenceService.persistAcquisition(
+          preparedRectification.fxAcquisition.records,
+          writeOptions
+        );
+      }
+
+      for (const journalEntry of entriesForBalancePropagation) {
+        await deps.outboxService.createBalancePropagation(
+          journalEntry.id,
+          writeOptions
+        );
+      }
+    };
+
+    await deps.repoService.runInTransaction(transactionFn);
+
+    for (const journalEntry of entriesForBalancePropagation) {
+      await deps.ledgerBalanceAdjustmentQueue.add({
+        journalEntryId: journalEntry.id,
+        correlationId,
+      });
+    }
+
+    const events: IEvent<unknown>[] = [
+      ...newCounterparties.events,
+      ...preparedRectification.rectification.events,
+      ...(preparedRectification.fxReversal?.events ?? []),
+      ...(preparedRectification.fxDisposition?.events ?? []),
+      ...(preparedRectification.fxAcquisition?.events ?? []),
+    ];
+    await deps.eventBus.publish(eventValue.enrichAll(events, repoOptions));
+
+    return journalEntryRectificationDtoMapper.toDto(
+      preparedRectification.rectification
+    );
+  };
+}

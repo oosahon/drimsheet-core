@@ -11,6 +11,11 @@ import {
 } from '@domain/subledger/fx-cost-basis/types/lot.types';
 
 export default interface IFxCostBasisLotRepo {
+  findById(
+    id: TEntityId,
+    options: IReadRepoOptions
+  ): Promise<IFxCostBasisLot | null>;
+
   findOpenByAccountId(
     accountingEntityId: TEntityId,
     ledgerAccountId: TEntityId,
