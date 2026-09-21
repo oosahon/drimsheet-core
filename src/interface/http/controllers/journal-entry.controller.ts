@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   Middlewares,
   OperationId,
   Post,
+  Queries,
   Response,
   Route,
   SuccessResponse,
@@ -12,6 +14,7 @@ import {
 
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 
+import { IGetJournalEntriesQuery } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import { IPaymentEntryReq } from '@app/journal-entry/dtos/payment-entry/payment-entry.dto';
 import { IReceiptEntryReq } from '@app/journal-entry/dtos/receipt-entry/receipt-entry.dto';
 import { ITransferEntryReq } from '@app/journal-entry/dtos/transfer-entry/transfer-entry.dto';
@@ -21,11 +24,32 @@ import {
   createPaymentUseCase,
   createReceiptUseCase,
   createTransferUseCase,
+  getJournalEntriesUseCase,
 } from '@infra/ioc/usecases/journal-entry';
 
 @Route('journal-entries')
 @Tags('Journal Entry')
 export class JournalEntryController extends Controller {
+  /**
+   * Get paginated journal entries with optional account participation filter
+   */
+  @Get('/')
+  @OperationId('getJournalEntries')
+  @SuccessResponse('200')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
+  @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
+    middlewares.accountingEntityAccess
+  )
+  public async getJournalEntries(@Queries() query: IGetJournalEntriesQuery) {
+    return getJournalEntriesUseCase(query);
+  }
+
   /**
    * Create payment journal entry
    */

@@ -12,7 +12,11 @@ const walk = (root) => {
     const entryPath = join(root, entry.name);
 
     if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === 'coverage') {
+      if (
+        entry.name === 'node_modules' ||
+        entry.name === 'dist' ||
+        entry.name === 'coverage'
+      ) {
         return [];
       }
 
@@ -50,7 +54,10 @@ const isDependencyFreePath = (normalizedPath) => {
     return true;
   }
 
-  return normalizedPath.startsWith('src/domain/') || normalizedPath.startsWith('src/shared/');
+  return (
+    normalizedPath.startsWith('src/domain/') ||
+    normalizedPath.startsWith('src/shared/')
+  );
 };
 
 const expectedNamingFor = (normalizedPath) => {
@@ -68,7 +75,9 @@ const expectedNamingFor = (normalizedPath) => {
 const buildExpectedPath = (normalizedPath, expected) => {
   const segments = normalizedPath.split('/');
   const fileName = segments.at(-1) ?? '';
-  const currentDirIndex = segments.findIndex((segment) => TEST_DIRS.has(segment));
+  const currentDirIndex = segments.findIndex((segment) =>
+    TEST_DIRS.has(segment)
+  );
   const expectedFileName = fileName
     .replace(/\.test\.ts$/, expected.suffix)
     .replace(/\.spec\.ts$/, expected.suffix);
@@ -116,7 +125,9 @@ const getMismatches = () => {
         reasons.push(`expected no test directory but found ${currentDir}`);
       }
     } else if (currentDir !== expected.directory) {
-      reasons.push(`expected directory ${expected.directory} but found ${currentDir ?? 'none'}`);
+      reasons.push(
+        `expected directory ${expected.directory} but found ${currentDir ?? 'none'}`
+      );
     }
 
     if (!filePath.endsWith(expected.suffix)) {

@@ -2,18 +2,11 @@ import IAccountingPeriodService from '@domain/accounting/types/accounting-period
 import getOppositeJournalSide from '@domain/journal-entry/entities/helpers/get-opposite-side.helper';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
-import journalEntryRuleValidator from '@domain/journal-entry/rules/entry-rule.validator';
 import openingBalanceEntryRule from '@domain/journal-entry/rules/opening-balance-entry.rule';
 import paymentEntryRule from '@domain/journal-entry/rules/payment-entry.rule';
 import receiptEntryRule from '@domain/journal-entry/rules/receipt-entry.rule';
-import transferEntryRule, {
-  transferBankChargeDestinationPermit,
-} from '@domain/journal-entry/rules/transfer-entry.rule';
 import journalEntryServiceValidation from '@domain/journal-entry/services/validations/journal-entry.validation';
-import {
-  IJournalEntryLinePayload,
-  IJournalEntryService,
-} from '@domain/journal-entry/types/journal-entry.service.types';
+import { IJournalEntryService } from '@domain/journal-entry/types/journal-entry.service.types';
 import { EJournalEntrySourceType } from '@domain/journal-entry/types/journal-entry.types';
 import {
   EJournalSide,
@@ -22,7 +15,7 @@ import {
 import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
 import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 import { EEquitySubType } from '@domain/ledger/types/equity-account.types';
-import { ELedgerType, ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { ELedgerType } from '@domain/ledger/types/ledger.types';
 import currencyEntity from '@domain/money/entities/currency.entity';
 import moneyValue from '@domain/money/values/money.vo';
 
@@ -30,57 +23,6 @@ interface IDependencies {
   accountingPeriodService: IAccountingPeriodService;
   ledgerAccountBalanceRepo: ILedgerAccountBalanceRepo;
   ledgerAccountRepo: ILedgerAccountRepo;
-}
-
-function validateTransferAccountComposition(
-  sourceAccount: ILedgerAccount,
-  destinationLines: IJournalEntryLinePayload[]
-): ILedgerAccount {
-  if (!journalEntryRuleValidator(sourceAccount, transferEntryRule.source)) {
-    throw new journalEntryError.InvalidSourceType({ account: sourceAccount });
-  }
-
-  const destinationAssetAccounts: ILedgerAccount[] = [];
-  const invalidDestinations: ILedgerAccount[] = [];
-
-  for (const destinationLine of destinationLines) {
-    const account = destinationLine.account;
-
-    if (journalEntryRuleValidator(account, transferEntryRule.destination)) {
-      if (destinationLine.counterparty !== null) {
-        throw new journalEntryError.CounterpartyIdNotAllowed({
-          accountId: account.id,
-          counterpartyId: destinationLine.counterparty.id,
-        });
-      }
-
-      destinationAssetAccounts.push(account);
-      continue;
-    }
-
-    if (
-      !journalEntryRuleValidator(account, transferBankChargeDestinationPermit)
-    ) {
-      invalidDestinations.push(account);
-    }
-  }
-
-  if (invalidDestinations.length > 0) {
-    throw new journalEntryError.InvalidDestinationAccount({
-      invalidDestinations,
-    });
-  }
-
-  if (destinationAssetAccounts.length !== 1) {
-    throw new journalEntryError.InvalidDestinationAccount({
-      destinationAccountIds: destinationLines.map((line) => line.account.id),
-      destinationAssetAccountIds: destinationAssetAccounts.map(
-        (account) => account.id
-      ),
-    });
-  }
-
-  return destinationAssetAccounts[0];
 }
 
 function makeCreateOpeningBalance(
@@ -354,10 +296,14 @@ function makeCreateTransfer(
     const { header, sourceLine, destinationLines, attachments } = payload;
     const journalLines = [sourceLine, ...destinationLines];
 
-    const destinationAssetAccount = validateTransferAccountComposition(
+    journalEntryServiceValidation.validateTransferAccountComposition(
       sourceLine.account,
       destinationLines
     );
+
+    const destinationAssetAccount = destinationLines.find((line) =>
+      journalEntryServiceValidation.isTransferAssetAccount(line.account)
+    )!.account;
 
     if (sourceLine.account.id === destinationAssetAccount.id) {
       throw new journalEntryError.DuplicateAccountsNotPermitted({

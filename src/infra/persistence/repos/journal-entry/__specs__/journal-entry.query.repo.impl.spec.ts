@@ -1,0 +1,187 @@
+import { TEntityId } from '@shared/types/uuid';
+
+import {
+  journalEntriesInCore,
+  journalLinesInCore,
+} from '@infra/config/drizzle/schema';
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import journalEntryDetailsMapper from '@infra/persistence/repos/journal-entry/mappers/journal-entry-details.mapper';
+import journalEntryQueryRepo from '@infra/persistence/repos/journal-entry/queries/journal-entry.query.repo.impl';
+
+jest.mock('../../../helpers/get-db-query');
+jest.mock('../mappers/journal-entry-details.mapper');
+
+describe('journalEntryQueryRepo', () => {
+  const accountingEntityId =
+    '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
+  const accountId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
+  const journalEntryId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+  const options = { correlationId: 'test-correlation-id' };
+  const findMany = jest.fn();
+
+  function mockPaginatedQuery(total: number, entries: object[]) {
+    const countWhere = jest.fn().mockResolvedValue([{ count: total }]);
+    const countFrom = jest.fn().mockReturnValue({ where: countWhere });
+    const select = jest.fn().mockReturnValue({ from: countFrom });
+
+    jest.mocked(getDbQuery).mockReturnValue({
+      select,
+      query: {
+        journalEntriesInCore: {
+          findMany: findMany.mockResolvedValue(entries),
+        },
+      },
+    } as unknown as ReturnType<typeof getDbQuery>);
+
+    return { countFrom };
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    findMany.mockReset();
+  });
+
+  it('returns an empty paginated response without hydrating entries', async () => {
+    const { countFrom } = mockPaginatedQuery(0, []);
+
+    await expect(
+      journalEntryQueryRepo.findAll(accountingEntityId, {
+        correlationId: options.correlationId,
+        limit: 25,
+        offset: 25,
+      })
+    ).resolves.toEqual({
+      data: [],
+      meta: { page: 2, limit: 25, total: 0, totalPages: 0 },
+    });
+    expect(countFrom).toHaveBeenCalledWith(journalEntriesInCore);
+    expect(findMany).not.toHaveBeenCalled();
+  });
+
+  it('treats an absent count row as an empty result', async () => {
+    const countWhere = jest.fn().mockResolvedValue([]);
+    const countFrom = jest.fn().mockReturnValue({ where: countWhere });
+    const select = jest.fn().mockReturnValue({ from: countFrom });
+    jest.mocked(getDbQuery).mockReturnValue({
+      select,
+      query: {
+        journalEntriesInCore: { findMany },
+      },
+    } as unknown as ReturnType<typeof getDbQuery>);
+
+    await expect(
+      journalEntryQueryRepo.findAll(accountingEntityId, options)
+    ).resolves.toEqual({
+      data: [],
+      meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
+    });
+    expect(findMany).not.toHaveBeenCalled();
+  });
+
+  it('paginates scoped entries and hydrates line relationship summaries', async () => {
+    const persistedEntries = [
+      { id: journalEntryId },
+      { id: accountingEntityId },
+    ];
+    const mappedEntries = [{ id: journalEntryId }, { id: accountingEntityId }];
+    mockPaginatedQuery(2, persistedEntries);
+    jest
+      .mocked(journalEntryDetailsMapper.toDetails)
+      .mockReturnValueOnce(
+        mappedEntries[0] as ReturnType<
+          typeof journalEntryDetailsMapper.toDetails
+        >
+      )
+      .mockReturnValueOnce(
+        mappedEntries[1] as ReturnType<
+          typeof journalEntryDetailsMapper.toDetails
+        >
+      );
+
+    const result = await journalEntryQueryRepo.findAll(accountingEntityId, {
+      correlationId: options.correlationId,
+      limit: 10,
+      offset: 0,
+    });
+
+    expect(findMany).toHaveBeenCalledWith({
+      where: expect.anything(),
+      with: {
+        journalEntryAttachmentsInCores: true,
+        journalLinesInCores: {
+          with: {
+            ledgerAccountsInCore: {
+              columns: { id: true, name: true },
+            },
+            counterpartiesInCore: {
+              columns: { id: true, name: true },
+            },
+          },
+        },
+      },
+      orderBy: [expect.anything(), expect.anything()],
+      limit: 10,
+      offset: 0,
+    });
+    expect(journalEntryDetailsMapper.toDetails).toHaveBeenNthCalledWith(
+      1,
+      persistedEntries[0],
+      0,
+      persistedEntries
+    );
+    expect(result).toEqual({
+      data: mappedEntries,
+      meta: { page: 1, limit: 10, total: 2, totalPages: 1 },
+    });
+  });
+
+  it('filters by account and search while supporting effective-date ordering', async () => {
+    const countWhere = jest.fn().mockResolvedValue([{ count: 1 }]);
+    const countFrom = jest.fn().mockReturnValue({ where: countWhere });
+    const participantWhere = jest.fn().mockReturnValue({});
+    const participantFrom = jest
+      .fn()
+      .mockReturnValue({ where: participantWhere });
+    const select = jest
+      .fn()
+      .mockReturnValueOnce({ from: participantFrom })
+      .mockReturnValueOnce({ from: countFrom });
+    const persistedEntry = { id: journalEntryId };
+    const mappedEntry = { id: journalEntryId } as ReturnType<
+      typeof journalEntryDetailsMapper.toDetails
+    >;
+
+    jest.mocked(getDbQuery).mockReturnValue({
+      select,
+      query: {
+        journalEntriesInCore: {
+          findMany: findMany.mockResolvedValue([persistedEntry]),
+        },
+      },
+    } as unknown as ReturnType<typeof getDbQuery>);
+    jest
+      .mocked(journalEntryDetailsMapper.toDetails)
+      .mockReturnValue(mappedEntry);
+
+    const result = await journalEntryQueryRepo.findAll(accountingEntityId, {
+      accountId,
+      correlationId: options.correlationId,
+      orderBy: 'effectiveDate',
+      search: 'receipt',
+      sortDirection: 'asc',
+    });
+
+    expect(participantFrom).toHaveBeenCalledWith(journalLinesInCore);
+    expect(participantWhere).toHaveBeenCalledWith(expect.anything());
+    expect(countFrom).toHaveBeenCalledWith(journalEntriesInCore);
+    expect(findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.anything(),
+        orderBy: [expect.anything(), expect.anything()],
+        limit: 10,
+        offset: 0,
+      })
+    );
+    expect(result.data).toEqual([mappedEntry]);
+  });
+});

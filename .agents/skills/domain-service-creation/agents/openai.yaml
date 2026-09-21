@@ -1,4 +1,4 @@
 interface:
-  display_name: "Domain Service Creation"
-  short_description: "Create domain services with correct ownership"
-  default_prompt: "Use $domain-service-creation to create or change a domain service and its tests."
+  display_name: 'Domain Service Creation'
+  short_description: 'Create domain services with correct ownership'
+  default_prompt: 'Use $domain-service-creation to create or change a domain service and its tests.'

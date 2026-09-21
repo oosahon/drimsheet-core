@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { accountingEntitiesTable } from '../config/accounting-entity';
 import {
   counterpartiesTable,

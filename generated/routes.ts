@@ -757,6 +757,156 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalLineListDto: {
+    dataType: 'refObject',
+    properties: {
+      id: { dataType: 'string', required: true },
+      entryId: { dataType: 'string', required: true },
+      account: {
+        dataType: 'nestedObjectLiteral',
+        nestedProperties: {
+          name: { dataType: 'string', required: true },
+          id: { dataType: 'string', required: true },
+        },
+        required: true,
+      },
+      counterparty: {
+        dataType: 'union',
+        subSchemas: [
+          {
+            dataType: 'nestedObjectLiteral',
+            nestedProperties: {
+              name: { dataType: 'string', required: true },
+              id: { dataType: 'string', required: true },
+            },
+          },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      sequenceOrder: { dataType: 'double', required: true },
+      amount: { ref: 'IMoneyDto', required: true },
+      exchangeRate: {
+        dataType: 'union',
+        subSchemas: [
+          { ref: 'IExchangeRate' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      functionalAmount: { ref: 'IMoneyDto', required: true },
+      side: { ref: 'UJournalSide', required: true },
+      description: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      version: { dataType: 'double', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalEntryListDto: {
+    dataType: 'refObject',
+    properties: {
+      sourceType: { ref: 'UJournalEntrySourceType', required: true },
+      memo: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      status: { ref: 'UJournalEntryStatus', required: true },
+      effectiveDate: { dataType: 'datetime', required: true },
+      postedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      voidedAt: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'datetime' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      voidingEntryId: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'string' },
+          { dataType: 'enum', enums: [null] },
+        ],
+        required: true,
+      },
+      version: { dataType: 'double', required: true },
+      createdBy: { dataType: 'string', required: true },
+      createdAt: { dataType: 'datetime', required: true },
+      updatedAt: { dataType: 'datetime', required: true },
+      id: { dataType: 'string', required: true },
+      accountingEntityId: { dataType: 'string', required: true },
+      attachments: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IFileAttachment' },
+        required: true,
+      },
+      lines: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IJournalLineListDto' },
+        required: true,
+      },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IPaginatedResponse_IJournalEntryListDto_: {
+    dataType: 'refObject',
+    properties: {
+      data: {
+        dataType: 'array',
+        array: { dataType: 'refObject', ref: 'IJournalEntryListDto' },
+        required: true,
+      },
+      meta: { ref: 'IPaginationResponseMeta', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  UJournalEntrySortBy: {
+    dataType: 'refAlias',
+    type: {
+      dataType: 'union',
+      subSchemas: [
+        { dataType: 'enum', enums: ['createdAt'] },
+        { dataType: 'enum', enums: ['effectiveDate'] },
+      ],
+      validators: {},
+    },
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IGetJournalEntriesQuery: {
+    dataType: 'refObject',
+    properties: {
+      limit: { dataType: 'double' },
+      orderBy: { ref: 'UJournalEntrySortBy' },
+      sortDirection: { ref: 'UPaginationSortDirection' },
+      search: { dataType: 'string' },
+      page: { dataType: 'double' },
+      accountId: { dataType: 'string' },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   IJournalLineDto: {
     dataType: 'refObject',
     properties: {
@@ -2130,6 +2280,55 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'listTransactions',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsJournalEntryController_getJournalEntries: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    query: {
+      in: 'queries',
+      name: 'query',
+      required: true,
+      ref: 'IGetJournalEntriesQuery',
+    },
+  };
+  app.get(
+    '/api/v1/journal-entries',
+    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
+    ...fetchMiddlewares<RequestHandler>(
+      JournalEntryController.prototype.getJournalEntries
+    ),
+
+    async function JournalEntryController_getJournalEntries(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsJournalEntryController_getJournalEntries,
+          request,
+          response,
+        });
+
+        const controller = new JournalEntryController();
+
+        await templateService.apiHandler({
+          methodName: 'getJournalEntries',
           controller,
           response,
           next,

@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { reportingContextHistoryTable } from '../config/accounting';
 import { historyActorType } from '../config/history';
 import { usersTable } from '../config/users';

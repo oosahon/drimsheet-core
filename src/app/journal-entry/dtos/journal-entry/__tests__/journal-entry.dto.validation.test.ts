@@ -4,7 +4,9 @@ import {
 } from '@domain/journal-entry/types/journal-entry.types';
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 
+import { EJournalEntrySortBy } from '@app/journal-entry/contracts/journal-entry.query.repo.contract';
 import {
+  getJournalEntriesQueryValidationSchema,
   journalEntrySideValidation,
   journalEntrySourceTypeValidation,
   journalEntryStatusValidation,
@@ -12,6 +14,38 @@ import {
 } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.validation';
 
 describe('Journal Entry DTO Validation', () => {
+  describe('getJournalEntriesQueryValidationSchema', () => {
+    it('validates pagination and account filters', () => {
+      const result = getJournalEntriesQueryValidationSchema.safeParse({
+        accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+        page: 2,
+        limit: 25,
+        orderBy: EJournalEntrySortBy.EffectiveDate,
+        sortDirection: 'asc',
+        search: 'invoice',
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('validates an empty query', () => {
+      expect(getJournalEntriesQueryValidationSchema.safeParse({}).success).toBe(
+        true
+      );
+    });
+
+    it.each([
+      [{ accountId: 'invalid-account-id' }],
+      [{ page: 0 }],
+      [{ limit: 0 }],
+      [{ orderBy: 'memo' }],
+    ])('rejects invalid query values', (query) => {
+      expect(
+        getJournalEntriesQueryValidationSchema.safeParse(query).success
+      ).toBe(false);
+    });
+  });
+
   describe('journalEntrySourceTypeValidation', () => {
     it('should validate valid source types', () => {
       expect(

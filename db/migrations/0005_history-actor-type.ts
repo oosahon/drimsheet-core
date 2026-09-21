@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { historyActorType } from '../config/history';
 
 export const shorthands: ColumnDefinitions | undefined = undefined;

@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { subledgerFxCostBasisLotAcquisitionHistoryTable } from '../config/fx-cost-basis-lots';
 import { historyActorType } from '../config/history';
 import { usersTable } from '../config/users';

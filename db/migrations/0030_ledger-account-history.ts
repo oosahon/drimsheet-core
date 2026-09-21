@@ -1,4 +1,5 @@
 import { ColumnDefinitions, MigrationBuilder } from 'node-pg-migrate';
+
 import { historyActorType } from '../config/history';
 import { ledgerAccountHistoryTable } from '../config/ledger-accounts';
 import { usersTable } from '../config/users';

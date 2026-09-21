@@ -1,4 +1,5 @@
 import { MigrationBuilder } from 'node-pg-migrate';
+
 import { userSessionsTable, usersTable } from '../config/users';
 
 export const up = (pgm: MigrationBuilder) => {

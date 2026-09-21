@@ -1,10 +1,28 @@
 import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
 
 import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import journalEntryServiceValidation from '@domain/journal-entry/services/validations/journal-entry.validation';
-import { ICreateReceiptEntryPayload } from '@domain/journal-entry/types/journal-entry.service.types';
+import {
+  ICreateReceiptEntryPayload,
+  IJournalEntryLinePayload,
+} from '@domain/journal-entry/types/journal-entry.service.types';
+import getLedgerAccountNormalBalance from '@domain/ledger/entities/helpers/get-normal-balance.helper';
 import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
+import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
+import {
+  EAssetAccountBehavior,
+  EAssetSubType,
+  UAssetAccountBehavior,
+} from '@domain/ledger/types/asset-account.types';
+import {
+  EAdjunctAccountRule,
+  EContraAccountRule,
+  ELedgerAccountStatus,
+  ELedgerType,
+  ILedgerAccount,
+} from '@domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
 
@@ -33,6 +51,33 @@ describe('journalEntryServiceValidation', () => {
       journalEntryId: '6b4c1064-a09e-4e4f-b6a3-23945cc87f76' as TEntityId,
       createdBy: '7b4c1064-a09e-4e4f-b6a3-23945cc87f77' as TEntityId,
     }).newBalance;
+  }
+
+  function makeTransferAccount(
+    code: string,
+    behavior: UAssetAccountBehavior
+  ): ILedgerAccount {
+    const type = ELedgerType.Asset;
+    const [account] = ledgerAccountEntity.make({
+      code,
+      materializedPath: code,
+      accountingEntityId,
+      type,
+      subType: EAssetSubType.CashAndCashEquivalent,
+      behavior,
+      normalBalance: getLedgerAccountNormalBalance(type),
+      isControlAccount: false,
+      controlAccountId: null,
+      name: 'Transfer account',
+      currency: SYSTEM_CURRENCIES.NGN,
+      status: ELedgerAccountStatus.Active,
+      contraAccountRule: EContraAccountRule.ContraPermitted,
+      adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
+      meta: {},
+      createdBy: generateUUID(),
+    });
+
+    return account;
   }
 
   function makePayload(
@@ -161,6 +206,30 @@ describe('journalEntryServiceValidation', () => {
           sourceAccountBalance
         )
       ).not.toThrow();
+    });
+  });
+
+  describe('validateTransferAccountComposition', () => {
+    it('returns nothing for a valid transfer composition', () => {
+      const sourceAccount = makeTransferAccount(
+        '100001',
+        EAssetAccountBehavior.Bank
+      );
+      const destinationAccount = makeTransferAccount(
+        '100002',
+        EAssetAccountBehavior.PettyCash
+      );
+      const destinationLine = {
+        account: destinationAccount,
+        counterparty: null,
+      } as IJournalEntryLinePayload;
+
+      expect(
+        journalEntryServiceValidation.validateTransferAccountComposition(
+          sourceAccount,
+          [destinationLine]
+        )
+      ).toBeUndefined();
     });
   });
 });
