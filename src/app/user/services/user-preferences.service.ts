@@ -36,16 +36,6 @@ export default function makeUserPreferencesService(
         appPreferences.theme = theme;
       }
 
-      const suppressJournalEntryRectificationNotice =
-        payload.appPreferences?.suppressJournalEntryRectificationNotice ??
-        existingPreferences?.appPreferences
-          .suppressJournalEntryRectificationNotice;
-
-      if (suppressJournalEntryRectificationNotice !== undefined) {
-        appPreferences.suppressJournalEntryRectificationNotice =
-          suppressJournalEntryRectificationNotice;
-      }
-
       const preferences = {
         userId: payload.userId,
         lastActiveAccountingEntityId:

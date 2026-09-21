@@ -16,7 +16,6 @@ describe('User Preferences Mapper', () => {
     appPreferences: {
       theme: 'dark',
       appUsageMode: 'non_power_user',
-      suppressJournalEntryRectificationNotice: true,
     },
     createdAt,
     updatedAt,
@@ -28,7 +27,6 @@ describe('User Preferences Mapper', () => {
     appPreferences: {
       theme: 'dark',
       appUsageMode: 'non_power_user',
-      suppressJournalEntryRectificationNotice: true,
     },
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
@@ -40,7 +38,6 @@ describe('User Preferences Mapper', () => {
       appPreferences: {
         theme: 'dark',
         appUsageMode: 'non_power_user',
-        suppressJournalEntryRectificationNotice: true,
       },
     });
   });
@@ -53,7 +50,6 @@ describe('User Preferences Mapper', () => {
       appPreferences: {
         theme: 'dark',
         appUsageMode: 'non_power_user',
-        suppressJournalEntryRectificationNotice: true,
       },
     });
     expect(Object.isFrozen(result)).toBe(true);
@@ -73,7 +69,6 @@ describe('User Preferences Mapper', () => {
       appPreferences: {
         theme: undefined,
         appUsageMode: undefined,
-        suppressJournalEntryRectificationNotice: undefined,
       },
     });
   });

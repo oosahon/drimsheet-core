@@ -27,8 +27,6 @@ const userPreferencesMapper = {
       appPreferences: {
         theme: preferences.appPreferences.theme,
         appUsageMode: preferences.appPreferences.appUsageMode,
-        suppressJournalEntryRectificationNotice:
-          preferences.appPreferences.suppressJournalEntryRectificationNotice,
       },
       createdAt: toRepoDate(preferences.createdAt),
       updatedAt: toRepoDate(preferences.updatedAt),
@@ -46,8 +44,6 @@ const userPreferencesMapper = {
       appPreferences: Object.freeze({
         theme: appPreferences.theme,
         appUsageMode: appPreferences.appUsageMode,
-        suppressJournalEntryRectificationNotice:
-          appPreferences.suppressJournalEntryRectificationNotice,
       }),
       createdAt: fromRepoDate(payload.createdAt),
       updatedAt: fromRepoDate(payload.updatedAt),

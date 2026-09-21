@@ -90,7 +90,6 @@ const models: TsoaRoute.Models = {
     properties: {
       theme: { ref: 'UAppThemePreference' },
       appUsageMode: { ref: 'UAppUsageModePreference', required: true },
-      suppressJournalEntryRectificationNotice: { dataType: 'boolean' },
     },
     additionalProperties: false,
   },
@@ -154,7 +153,6 @@ const models: TsoaRoute.Models = {
     properties: {
       theme: { ref: 'UAppThemePreference' },
       appUsageMode: { ref: 'UAppUsageModePreference' },
-      suppressJournalEntryRectificationNotice: { dataType: 'boolean' },
     },
     additionalProperties: false,
   },

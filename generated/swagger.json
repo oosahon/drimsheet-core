@@ -40,9 +40,6 @@
           },
           "appUsageMode": {
             "$ref": "#/components/schemas/UAppUsageModePreference"
-          },
-          "suppressJournalEntryRectificationNotice": {
-            "type": "boolean"
           }
         },
         "required": ["appUsageMode"],
@@ -135,9 +132,6 @@
           },
           "appUsageMode": {
             "$ref": "#/components/schemas/UAppUsageModePreference"
-          },
-          "suppressJournalEntryRectificationNotice": {
-            "type": "boolean"
           }
         },
         "type": "object",
