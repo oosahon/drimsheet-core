@@ -1,4 +1,7 @@
-import { IPaginatedReadRepoOptions } from '@shared/types/repo.types';
+import {
+  IPaginatedReadRepoOptions,
+  IReadRepoOptions,
+} from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
 
@@ -33,6 +36,12 @@ export interface IJournalEntryDetails extends Omit<IJournalEntry, 'lines'> {
 }
 
 export default interface IJournalEntryQueryRepo {
+  findById(
+    id: TEntityId,
+    accountingEntityId: TEntityId,
+    options: IReadRepoOptions
+  ): Promise<IJournalEntryDetails | null>;
+
   findAll(
     accountingEntityId: TEntityId,
     options: IFindAllJournalEntriesOptions

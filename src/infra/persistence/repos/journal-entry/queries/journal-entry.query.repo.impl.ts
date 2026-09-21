@@ -15,6 +15,32 @@ import getDbQuery from '@infra/persistence/helpers/get-db-query';
 import journalEntryDetailsMapper from '@infra/persistence/repos/journal-entry/mappers/journal-entry-details.mapper';
 
 const journalEntryQueryRepo: IJournalEntryQueryRepo = {
+  async findById(id, accountingEntityId, options) {
+    const entry = await getDbQuery(
+      options
+    ).query.journalEntriesInCore.findFirst({
+      where: and(
+        eq(journalEntriesInCore.id, id),
+        eq(journalEntriesInCore.accountingEntityId, accountingEntityId)
+      ),
+      with: {
+        journalEntryAttachmentsInCores: true,
+        journalLinesInCores: {
+          with: {
+            ledgerAccountsInCore: {
+              columns: { id: true, name: true },
+            },
+            counterpartiesInCore: {
+              columns: { id: true, name: true },
+            },
+          },
+        },
+      },
+    });
+
+    return entry ? journalEntryDetailsMapper.toDetails(entry) : null;
+  },
+
   async findAll(accountingEntityId, options) {
     const dbQuery = getDbQuery(options);
     const conditions = [

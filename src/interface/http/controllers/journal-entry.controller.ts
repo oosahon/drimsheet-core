@@ -27,6 +27,7 @@ import {
   createReceiptUseCase,
   createTransferUseCase,
   getJournalEntriesUseCase,
+  getJournalEntryUseCase,
   rectifyJournalEntryUseCase,
 } from '@infra/ioc/usecases/journal-entry';
 
@@ -51,6 +52,26 @@ export class JournalEntryController extends Controller {
   )
   public async getJournalEntries(@Queries() query: IGetJournalEntriesQuery) {
     return getJournalEntriesUseCase(query);
+  }
+
+  /**
+   * Get a journal entry by id
+   */
+  @Get('/{id}')
+  @OperationId('getJournalEntry')
+  @SuccessResponse('200')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
+  @Response<IHttpErrorDto>('404')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
+    middlewares.accountingEntityAccess
+  )
+  public async getJournalEntry(@Path() id: string) {
+    return getJournalEntryUseCase(id);
   }
 
   /**

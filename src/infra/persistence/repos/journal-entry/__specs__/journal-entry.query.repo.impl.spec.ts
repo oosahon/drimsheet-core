@@ -17,6 +17,7 @@ describe('journalEntryQueryRepo', () => {
   const accountId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const journalEntryId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
   const options = { correlationId: 'test-correlation-id' };
+  const findFirst = jest.fn();
   const findMany = jest.fn();
 
   function mockPaginatedQuery(total: number, entries: object[]) {
@@ -38,7 +39,71 @@ describe('journalEntryQueryRepo', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    findFirst.mockReset();
     findMany.mockReset();
+  });
+
+  it('finds and maps an enriched entry scoped to its accounting entity', async () => {
+    const persistedEntry = { id: journalEntryId };
+    const mappedEntry = { id: journalEntryId } as ReturnType<
+      typeof journalEntryDetailsMapper.toDetails
+    >;
+    jest.mocked(getDbQuery).mockReturnValue({
+      query: {
+        journalEntriesInCore: {
+          findFirst: findFirst.mockResolvedValue(persistedEntry),
+        },
+      },
+    } as unknown as ReturnType<typeof getDbQuery>);
+    jest
+      .mocked(journalEntryDetailsMapper.toDetails)
+      .mockReturnValue(mappedEntry);
+
+    const result = await journalEntryQueryRepo.findById(
+      journalEntryId,
+      accountingEntityId,
+      options
+    );
+
+    expect(findFirst).toHaveBeenCalledWith({
+      where: expect.anything(),
+      with: {
+        journalEntryAttachmentsInCores: true,
+        journalLinesInCores: {
+          with: {
+            ledgerAccountsInCore: {
+              columns: { id: true, name: true },
+            },
+            counterpartiesInCore: {
+              columns: { id: true, name: true },
+            },
+          },
+        },
+      },
+    });
+    expect(journalEntryDetailsMapper.toDetails).toHaveBeenCalledWith(
+      persistedEntry
+    );
+    expect(result).toBe(mappedEntry);
+  });
+
+  it('returns null when no scoped entry exists', async () => {
+    jest.mocked(getDbQuery).mockReturnValue({
+      query: {
+        journalEntriesInCore: {
+          findFirst: findFirst.mockResolvedValue(undefined),
+        },
+      },
+    } as unknown as ReturnType<typeof getDbQuery>);
+
+    await expect(
+      journalEntryQueryRepo.findById(
+        journalEntryId,
+        accountingEntityId,
+        options
+      )
+    ).resolves.toBeNull();
+    expect(journalEntryDetailsMapper.toDetails).not.toHaveBeenCalled();
   });
 
   it('returns an empty paginated response without hydrating entries', async () => {
