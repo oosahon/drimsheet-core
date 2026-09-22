@@ -486,6 +486,92 @@ describe('makeFxCostBasisLotService', () => {
     });
   });
 
+  it('rejects an acquisition reversal when its lot is missing', async () => {
+    const journalEntry = makeJournal(EJournalSide.Debit);
+    const lotId = generateUUID();
+    const [acquisition] = fxCostBasisLotAcquisitionEntity.make({
+      ledgerAccountId: accountId,
+      accountingEntityId: entityId,
+      lotId,
+      journalEntryId: journalEntry.id,
+      quantity: journalEntry.lines[0].amount,
+      costBasis: journalEntry.lines[0].functionalAmount,
+      acquisitionRate: rate,
+      acquisitionDate: date,
+      officialRate: null,
+    });
+    mockAcquisitionRepo.findByJournalEntryId.mockResolvedValue(acquisition);
+    mockDispositionRepo.findByJournalEntryId.mockResolvedValue(null);
+    mockFxCostBasisLotRepo.findById.mockResolvedValue(null);
+    const repoOptions = { correlationId: 'corr-id' };
+
+    const reversal = service.reverse(journalEntry.id, repoOptions);
+
+    await expect(reversal).rejects.toBeInstanceOf(
+      fxCostBasisLotError.LotNotFound
+    );
+    await expect(reversal).rejects.toMatchObject({
+      cause: { journalEntryId: journalEntry.id, lotId },
+    });
+    expect(mockFxCostBasisLotRepo.findById).toHaveBeenCalledWith(
+      lotId,
+      repoOptions
+    );
+    expect(
+      mockDispositionAllocationRepo.findAllByDispositionId
+    ).not.toHaveBeenCalled();
+  });
+
+  it('rejects a disposition reversal when an allocated lot is missing', async () => {
+    const journalEntry = makeJournal(EJournalSide.Credit);
+    const quantity = journalEntry.lines[0].amount;
+    const costBasis = journalEntry.lines[0].functionalAmount;
+    const realizedGainLoss = moneyValue.makeZeroAmount(SYSTEM_CURRENCIES.NGN);
+    const [disposition] = fxCostBasisLotDispositionEntity.make({
+      ledgerAccountId: accountId,
+      accountingEntityId: entityId,
+      journalEntryId: journalEntry.id,
+      quantity,
+      costBasisConsumed: costBasis,
+      proceeds: costBasis,
+      realizedGainLoss,
+      dispositionRate: rate,
+      officialRate: null,
+      dispositionDate: date,
+    });
+    const allocation = fxCostBasisLotDispositionAllocationEntity.make({
+      dispositionId: disposition.id,
+      lotId: generateUUID(),
+      quantity,
+      costBasisConsumed: costBasis,
+      proceeds: costBasis,
+      realizedGainLoss,
+    });
+    mockAcquisitionRepo.findByJournalEntryId.mockResolvedValue(null);
+    mockDispositionRepo.findByJournalEntryId.mockResolvedValue(disposition);
+    mockDispositionAllocationRepo.findAllByDispositionId.mockResolvedValue([
+      allocation,
+    ]);
+    mockFxCostBasisLotRepo.findById.mockResolvedValue(null);
+    const repoOptions = { correlationId: 'corr-id' };
+
+    const reversal = service.reverse(journalEntry.id, repoOptions);
+
+    await expect(reversal).rejects.toBeInstanceOf(
+      fxCostBasisLotError.LotNotFound
+    );
+    await expect(reversal).rejects.toMatchObject({
+      cause: { journalEntryId: journalEntry.id, lotId: allocation.lotId },
+    });
+    expect(
+      mockDispositionAllocationRepo.findAllByDispositionId
+    ).toHaveBeenCalledWith(disposition.id, repoOptions);
+    expect(mockFxCostBasisLotRepo.findById).toHaveBeenCalledWith(
+      allocation.lotId,
+      repoOptions
+    );
+  });
+
   it('returns null when a journal entry has no FX lot effect', async () => {
     mockAcquisitionRepo.findByJournalEntryId.mockResolvedValue(null);
     mockDispositionRepo.findByJournalEntryId.mockResolvedValue(null);

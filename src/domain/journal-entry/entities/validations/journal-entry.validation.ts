@@ -237,6 +237,18 @@ function validateUpdate(
   }
 }
 
+function validateBalancePropagation(entry: IJournalEntry) {
+  const isPosted = entry.status === EJournalEntryStatus.Posted;
+  const isArchivedAfterPosting =
+    entry.status === EJournalEntryStatus.Archived && entry.postedAt !== null;
+
+  if (!isPosted && !isArchivedAfterPosting) {
+    throw new journalEntryError.InvalidJournalEntry({
+      journalEntryId: entry.id,
+    });
+  }
+}
+
 const journalEntryValidation = Object.freeze({
   validateStatus,
   validateTransition,
@@ -249,6 +261,7 @@ const journalEntryValidation = Object.freeze({
   validateVoidingEntryId,
   hasOnlyMetadataChanges,
   validateUpdate,
+  validateBalancePropagation,
 });
 
 export default journalEntryValidation;

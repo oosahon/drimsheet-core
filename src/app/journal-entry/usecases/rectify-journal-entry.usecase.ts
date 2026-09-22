@@ -6,7 +6,6 @@ import {
 import { TEntityId } from '@shared/types/uuid';
 import stringUtils from '@shared/utils/string';
 import zodValidationRunner from '@shared/utils/zod-validation-runner';
-import appError from '@shared/values/errors/app.error';
 import eventValue from '@shared/values/events/event.vo';
 import { IEvent } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
@@ -25,6 +24,7 @@ import {
 import journalEntryRectificationDtoMapper from '@app/journal-entry/dtos/journal-entry-rectification/journal-entry-rectification.dto.mapper';
 import { journalEntryRectificationReqValidation } from '@app/journal-entry/dtos/journal-entry-rectification/journal-entry-rectification.dto.validation';
 import getNewCounterpartiesHelper from '@app/journal-entry/helpers/get-new-counterparties.helper';
+import journalEntryMutationPolicy from '@app/journal-entry/policies/journal-entry-mutation.policy';
 import helpers from '@app/journal-entry/usecases/helpers/rectify-journal-entry.usecase.helpers';
 import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
@@ -55,29 +55,18 @@ export default function makeRectifyJournalEntryUsecase(deps: IDependencies) {
       deps.appContext.get(['user', 'accountingEntity']);
     const repoOptions = { correlationId, idempotencyKey };
 
-    const originalEntry = await deps.journalEntryRepo.findById(
+    const storedEntry = await deps.journalEntryRepo.findById(
       id as TEntityId,
       repoOptions
     );
 
-    if (originalEntry?.accountingEntityId !== accountingEntity.id) {
-      throw new appError.ResourceNotFound({ id });
-    }
-
-    if (originalEntry.createdBy !== user.id) {
-      throw new appError.Forbidden({ id });
-    }
-
-    if (payload.expectedVersion !== originalEntry.version) {
-      throw new appError.Conflict({
-        expectedVersion: payload.expectedVersion,
-        actualVersion: originalEntry.version,
-      });
-    }
-
-    if (payload.sourceType !== originalEntry.sourceType) {
-      throw new appError.BadRequest({ sourceType: payload.sourceType });
-    }
+    const originalEntry = journalEntryMutationPolicy.validate({
+      id,
+      entry: storedEntry,
+      accountingEntityId: accountingEntity.id,
+      userId: user.id,
+      expectedVersion: payload.expectedVersion,
+    });
 
     const actor = historyValue.getUserActor(user.id);
 

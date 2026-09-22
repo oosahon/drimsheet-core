@@ -1,12 +1,10 @@
 import { IReadRepoOptions } from '@shared/types/repo.types';
 import { TEntityId } from '@shared/types/uuid';
 
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
-import {
-  EJournalEntryStatus,
-  IJournalEntry,
-} from '@domain/journal-entry/types/journal-entry.types';
+import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
 import ledgerAccountBalanceEntity from '@domain/ledger/entities/ledger-account-balance.entity';
 import ledgerAccountEntity from '@domain/ledger/entities/ledger-account.entity';
 import ILedgerAccountBalanceRepo from '@domain/ledger/repos/ledger-account-balance.repo';
@@ -49,9 +47,11 @@ async function prepareBalancePropagation(
     repoOptions
   );
 
-  if (journalEntry?.status !== EJournalEntryStatus.Posted) {
+  if (!journalEntry) {
     throw new journalEntryError.InvalidJournalEntry({ journalEntryId });
   }
+
+  journalEntryEntity.validateBalancePropagation(journalEntry);
 
   const directAccountIds = Array.from(
     new Set(journalEntry.lines.map((line) => line.accountId))

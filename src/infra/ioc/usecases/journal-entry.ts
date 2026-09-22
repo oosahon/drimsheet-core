@@ -1,3 +1,4 @@
+import makeArchiveJournalEntryUsecase from '@app/journal-entry/usecases/archive-journal-entry.usecase';
 import makeCreatePaymentUsecase from '@app/journal-entry/usecases/create-payment.usecase';
 import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
 import makeCreateTransferUsecase from '@app/journal-entry/usecases/create-transfer.usecase';
@@ -32,6 +33,15 @@ export const getJournalEntryUseCase = makeTracedUseCase(
   makeGetJournalEntryUsecase({
     appContext,
     journalEntryQueryRepo: journalEntryRepos.queries.journalEntry,
+  })
+);
+
+export const archiveJournalEntryUseCase = makeTracedUseCase(
+  'journalEntry.archiveJournalEntryUseCase',
+  makeArchiveJournalEntryUsecase({
+    appContext,
+    eventBus: messaging.eventBus,
+    journalEntryRepo: journalEntryRepos.journalEntry,
   })
 );
 

@@ -71,6 +71,20 @@ describe('journalEntryRectificationValidation', () => {
     ).toThrow(journalEntryError.RectificationNotPermitted);
   });
 
+  it('rejects a journal entry that is already archived', () => {
+    const originalEntry = {
+      ...makeEntry(),
+      status: EJournalEntryStatus.Archived,
+    };
+
+    expect(() =>
+      journalEntryRectificationValidation.validatePayload({
+        originalEntry,
+        newEntry: { id: generateUUID(), memo: 'Corrected' },
+      })
+    ).toThrow(journalEntryError.RectificationNotPermitted);
+  });
+
   it('rejects journal-entry state without a correction', () => {
     const originalEntry = makeEntry();
 
@@ -131,6 +145,20 @@ describe('journalEntryRectificationValidation', () => {
       journalEntryRectificationValidation.validatePayload({
         originalEntry,
         newEntry: { id: generateUUID(), createdBy: generateUUID() },
+      })
+    ).toThrow(journalEntryError.RectificationNotPermitted);
+  });
+
+  it('rejects a source type that differs from the original journal entry', () => {
+    const originalEntry = makeEntry();
+
+    expect(() =>
+      journalEntryRectificationValidation.validatePayload({
+        originalEntry,
+        newEntry: {
+          id: generateUUID(),
+          sourceType: EJournalEntrySourceType.Payment,
+        },
       })
     ).toThrow(journalEntryError.RectificationNotPermitted);
   });

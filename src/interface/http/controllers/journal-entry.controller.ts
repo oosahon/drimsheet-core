@@ -15,6 +15,7 @@ import {
 
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 
+import { IJournalEntryArchiveReq } from '@app/journal-entry/dtos/journal-entry-archive/journal-entry-archive.dto';
 import { TJournalEntryRectificationReq } from '@app/journal-entry/dtos/journal-entry-rectification/journal-entry-rectification.dto';
 import { IGetJournalEntriesQuery } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import { IPaymentEntryReq } from '@app/journal-entry/dtos/payment-entry/payment-entry.dto';
@@ -23,6 +24,7 @@ import { ITransferEntryReq } from '@app/journal-entry/dtos/transfer-entry/transf
 
 import middlewares from '@infra/ioc/middlewares/http';
 import {
+  archiveJournalEntryUseCase,
   createPaymentUseCase,
   createReceiptUseCase,
   createTransferUseCase,
@@ -132,6 +134,31 @@ export class JournalEntryController extends Controller {
   )
   public async createTransfer(@Body() body: ITransferEntryReq) {
     return createTransferUseCase(body);
+  }
+
+  /**
+   * Archive a journal entry without changing its financial effect.
+   */
+  @Post('/{id}/archive')
+  @OperationId('archiveJournalEntry')
+  @SuccessResponse('200')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
+  @Response<IHttpErrorDto>('404')
+  @Response<IHttpErrorDto>('409')
+  @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
+    middlewares.accountingEntityAccess
+  )
+  public async archiveJournalEntry(
+    @Path() id: string,
+    @Body() body: IJournalEntryArchiveReq
+  ) {
+    return archiveJournalEntryUseCase(id, body);
   }
 
   /**
