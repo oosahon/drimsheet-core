@@ -144,6 +144,19 @@ function validateVoidingEntryId(value: TEntityId | null) {
   }
 }
 
+function validateVoid(entry: IJournalEntry) {
+  const isPosted = entry.status === EJournalEntryStatus.Posted;
+  const isArchivedAfterPosting =
+    entry.status === EJournalEntryStatus.Archived && entry.postedAt !== null;
+
+  if (!isPosted && !isArchivedAfterPosting) {
+    throw new journalEntryError.InvalidStatusTransition({
+      currentStatus: entry.status,
+      nextStatus: EJournalEntryStatus.Voided,
+    });
+  }
+}
+
 function hasOnlyMetadataChanges(
   entry: IJournalEntry,
   newEntry: Partial<IJournalEntry> & { id: TEntityId }
@@ -259,6 +272,7 @@ const journalEntryValidation = Object.freeze({
   validatePostedAt,
   validateVoidedAt,
   validateVoidingEntryId,
+  validateVoid,
   hasOnlyMetadataChanges,
   validateUpdate,
   validateBalancePropagation,

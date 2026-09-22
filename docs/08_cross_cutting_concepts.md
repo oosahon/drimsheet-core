@@ -11,12 +11,14 @@ Drimsheet natively supports multiple distinct contexts: Individuals, Sole Trader
 
 ## 8.2 Immutability & Auditability
 
-To maintain strict adherence to accounting constraints (Section 2.2) and data integrity (Section 1.2), Drimsheet enforces an append-only architecture for all financial records.
+To maintain strict adherence to accounting constraints (Section 2.2) and data integrity (Section 1.2), Drimsheet makes journal entries append-only once they have affected the ledger.
 
 - **Mechanism**:
-  - **No Deletion**: Records such as Journal Entries cannot be deleted or mutated via `DELETE` or `UPDATE` statements that alter business meaning.
-  - **Voiding**: Corrections must be made by posting a reversing journal entry.
-  - **Auditable Trails**: Database triggers or repository base classes automatically capture state changes into a secure audit log, providing a complete historical trail of all financial actions regardless of the actor.
+  - **Never-posted deletion**: A creator-owned, current-version Draft or Archived journal entry with no posting date may be totally deleted, including its current rows and journal audit history, because it has no accounting effect.
+  - **Posted immutability**: A Posted journal entry, or an Archived journal entry that was previously posted, cannot be physically deleted or overwritten to change its accounting meaning.
+  - **Voiding**: Removing the effect of a posted or previously-posted entry creates a balanced reversing journal entry and retains the original as Voided with reversal lineage.
+  - **Reversal retention**: System-generated journal entries whose source type is `reversal` are never deletable, regardless of status.
+  - **Auditable Trails**: History for every retained entry is immutable and provides a complete trail of financial actions regardless of the actor.
 
 ## 8.3 Double-Entry Core Validation
 

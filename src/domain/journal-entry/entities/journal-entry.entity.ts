@@ -175,11 +175,7 @@ function voidEntry(
   entry: IJournalEntry,
   payload: IVoidJournalEntryPayload
 ): TAuditedJournalEntryTransition {
-  journalEntryValidation.validateTransition(
-    entry.status,
-    EJournalEntryStatus.Voided,
-    [EJournalEntryStatus.Posted]
-  );
+  journalEntryValidation.validateVoid(entry);
   journalEntryValidation.validateVoidingEntryId(payload.voidingEntryId);
 
   const timestamp = new Date();

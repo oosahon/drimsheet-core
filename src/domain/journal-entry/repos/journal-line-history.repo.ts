@@ -11,4 +11,9 @@ export default interface IJournalLineHistoryRepo {
     accountingEntityId: TEntityId,
     options: IWriteRepoOptions
   ): Promise<void>;
+
+  deleteByJournalEntryId(
+    journalEntryId: TEntityId,
+    options: IWriteRepoOptions
+  ): Promise<void>;
 }

@@ -12,6 +12,7 @@ import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
 
+import getJournalEntryPersistencePayloadHelper from '@app/journal-entry/usecases/helpers/get-journal-entry-persistence-payload.helper';
 import helpers from '@app/journal-entry/usecases/helpers/rectify-journal-entry.usecase.helpers';
 
 describe('rectifyJournalEntryUseCaseHelpers', () => {
@@ -69,7 +70,7 @@ describe('rectifyJournalEntryUseCaseHelpers', () => {
       },
     });
 
-    const payload = helpers.getPersistencePayload(
+    const payload = getJournalEntryPersistencePayloadHelper(
       rectification,
       actor,
       correlationId
@@ -92,9 +93,9 @@ describe('rectifyJournalEntryUseCaseHelpers', () => {
       events: [],
     } as IJournalEntryRectificationResult;
 
-    expect(helpers.getPersistencePayload(result, actor, correlationId)).toEqual(
-      { entriesToCreate: [], entryUpdate: null }
-    );
+    expect(
+      getJournalEntryPersistencePayloadHelper(result, actor, correlationId)
+    ).toEqual({ entriesToCreate: [], entryUpdate: null });
   });
 
   it('propagates reversing and posted current entries except metadata updates', () => {

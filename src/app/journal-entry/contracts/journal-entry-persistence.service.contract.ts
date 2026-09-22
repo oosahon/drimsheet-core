@@ -1,4 +1,5 @@
 import { IRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import {
   IJournalEntryHistory,
@@ -28,6 +29,11 @@ export interface IJournalEntryRectificationPersistencePayload {
   entryUpdate: IRectificationEntryUpdate | null;
 }
 
+export interface IDeleteJournalEntryPersistencePayload {
+  journalEntryId: TEntityId;
+  expectedVersion: number;
+}
+
 export default interface IJournalEntryPersistenceService {
   create(
     entry: IJournalEntry,
@@ -38,6 +44,11 @@ export default interface IJournalEntryPersistenceService {
 
   rectify(
     payload: IJournalEntryRectificationPersistencePayload,
+    repoOptions: IRepoOptions
+  ): Promise<void>;
+
+  delete(
+    payload: IDeleteJournalEntryPersistencePayload,
     repoOptions: IRepoOptions
   ): Promise<void>;
 }

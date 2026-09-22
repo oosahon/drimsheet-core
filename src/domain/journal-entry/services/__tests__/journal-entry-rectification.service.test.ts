@@ -98,8 +98,57 @@ describe('makeJournalEntryRectificationService', () => {
   afterAll(() => jest.useRealTimers());
 
   it('exposes only the rectify operation', () => {
-    expect(Object.keys(service)).toEqual(['rectify']);
+    expect(Object.keys(service)).toEqual(['rectify', 'reverse']);
     expect(Object.isFrozen(service)).toBe(true);
+  });
+
+  it.each([
+    ['posted', false],
+    ['previously-posted archived', true],
+  ])('prepares a balanced reversal for a %s entry', (_, archived) => {
+    const [postedEntry] = makeEntry({ posted: true });
+    const originalEntry = archived
+      ? { ...postedEntry, status: EJournalEntryStatus.Archived }
+      : postedEntry;
+
+    const result = service.reverse(originalEntry);
+
+    expect(result.entriesToCreate).toHaveLength(1);
+    expect(result.reversingJournalEntry).toMatchObject({
+      sourceType: EJournalEntrySourceType.Reversal,
+      status: EJournalEntryStatus.Posted,
+      effectiveDate: now,
+      postedAt: now,
+    });
+    expect(result.reversingJournalEntry.lines).toEqual([
+      expect.objectContaining({
+        accountId: originalEntry.lines[0].accountId,
+        amount: originalEntry.lines[0].amount,
+        side: EJournalSide.Credit,
+      }),
+      expect.objectContaining({
+        accountId: originalEntry.lines[1].accountId,
+        amount: originalEntry.lines[1].amount,
+        side: EJournalSide.Debit,
+      }),
+    ]);
+    expect(result.entryUpdate.entry).toMatchObject({
+      id: originalEntry.id,
+      status: EJournalEntryStatus.Voided,
+      voidingEntryId: result.reversingJournalEntry.id,
+    });
+  });
+
+  it('rejects reversal preparation for an archived entry that was never posted', () => {
+    const [draftEntry] = makeEntry();
+    const archivedEntry = {
+      ...draftEntry,
+      status: EJournalEntryStatus.Archived,
+    };
+
+    expect(() => service.reverse(archivedEntry)).toThrow(
+      journalEntryError.InvalidStatusTransition
+    );
   });
 
   it('updates a draft journal entry in place', () => {

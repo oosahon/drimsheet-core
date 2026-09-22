@@ -4,6 +4,7 @@ const mockJournalEntryPersistenceService: jest.Mocked<IJournalEntryPersistenceSe
   {
     create: jest.fn(),
     rectify: jest.fn(),
+    delete: jest.fn(),
   };
 
 export default mockJournalEntryPersistenceService;

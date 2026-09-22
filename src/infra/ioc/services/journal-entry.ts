@@ -1,4 +1,5 @@
 import makeJournalEntryRectificationService from '@domain/journal-entry/services/journal-entry-rectification.service';
+import makeJournalEntryRemovalService from '@domain/journal-entry/services/journal-entry-removal.service';
 import makeJournalEntryService from '@domain/journal-entry/services/journal-entry.service';
 
 import makeJournalEntryPersistenceService from '@app/journal-entry/services/journal-entry-persistence.service';
@@ -21,6 +22,10 @@ export const journalEntryService = makeJournalEntryService({
 export const journalEntryRectificationService =
   makeJournalEntryRectificationService();
 
+export const journalEntryRemovalService = makeJournalEntryRemovalService({
+  journalEntryRectificationService,
+});
+
 export const journalEntryRectificationPreparationService =
   makeJournalEntryRectificationPreparationService({
     counterpartyAppService,
@@ -34,6 +39,8 @@ export const journalEntryPersistenceService =
   makeJournalEntryPersistenceService({
     repoService,
     journalEntryAttachmentRepo: journalEntryRepos.journalEntryAttachment,
+    journalEntryHistoryRepo: journalEntryRepos.journalEntryHistory,
     journalEntryRepo: journalEntryRepos.journalEntry,
+    journalLineHistoryRepo: journalEntryRepos.journalLineHistory,
     journalLineRepo: journalEntryRepos.journalLine,
   });

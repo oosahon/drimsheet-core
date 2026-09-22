@@ -6,6 +6,7 @@ import {
   IJournalEntryRectificationPayload,
   IJournalEntryRectificationResult,
   IJournalEntryRectificationService,
+  IJournalEntryReversalResult,
   UJournalEntryRectificationMode,
 } from '@domain/journal-entry/types/journal-entry-rectification.types';
 import {
@@ -104,6 +105,24 @@ function voidAndReplace(
     })),
   });
   const [correctedJournalEntry, correctedEvents] = correctedEntry;
+  const reversal = reverseEntry(originalEntry, timestamp);
+
+  return {
+    mode: EJournalEntryRectificationMode.VoidAndReplace,
+    originalJournalEntryId: originalEntry.id,
+    currentJournalEntry: correctedJournalEntry,
+    reversingJournalEntry: reversal.reversingJournalEntry,
+    entriesToCreate: [...reversal.entriesToCreate, correctedEntry],
+    entryUpdate: reversal.entryUpdate,
+    events: [...reversal.events, ...correctedEvents],
+  };
+}
+
+function reverseEntry(
+  originalEntry: IJournalEntryRectificationPayload['originalEntry'],
+  timestamp: Date
+): IJournalEntryReversalResult {
+  const functionalCurrency = originalEntry.lines[0].functionalAmount.currency;
   const reversalEntry = journalEntryEntity.make({
     accountingEntityId: originalEntry.accountingEntityId,
     sourceType: EJournalEntrySourceType.Reversal,
@@ -132,11 +151,9 @@ function voidAndReplace(
   );
 
   return {
-    mode: EJournalEntryRectificationMode.VoidAndReplace,
     originalJournalEntryId: originalEntry.id,
-    currentJournalEntry: correctedJournalEntry,
     reversingJournalEntry,
-    entriesToCreate: [reversalEntry, correctedEntry],
+    entriesToCreate: [reversalEntry],
     entryUpdate: {
       entry: voidedOriginal,
       expectedVersion: originalEntry.version,
@@ -146,7 +163,7 @@ function voidAndReplace(
       linesToUpdate: [],
       lineIdsToDelete: [],
     },
-    events: [...voidEvents, ...reversingEvents, ...correctedEvents],
+    events: [...voidEvents, ...reversingEvents],
   };
 }
 
@@ -169,8 +186,17 @@ function makeRectify(): IJournalEntryRectificationService['rectify'] {
   };
 }
 
+/**
+ * Prepares a balanced reversing entry and the original entry's Voided
+ * transition without performing persistence or publishing events.
+ */
+function makeReverse(): IJournalEntryRectificationService['reverse'] {
+  return (originalEntry) => reverseEntry(originalEntry, new Date());
+}
+
 export default function makeJournalEntryRectificationService(): IJournalEntryRectificationService {
   return Object.freeze({
     rectify: makeRectify(),
+    reverse: makeReverse(),
   });
 }

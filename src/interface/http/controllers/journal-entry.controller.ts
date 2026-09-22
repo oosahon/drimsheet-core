@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Middlewares,
   OperationId,
@@ -16,6 +17,7 @@ import {
 import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 
 import { IJournalEntryArchiveReq } from '@app/journal-entry/dtos/journal-entry-archive/journal-entry-archive.dto';
+import { IJournalEntryDeletionReq } from '@app/journal-entry/dtos/journal-entry-deletion/journal-entry-deletion.dto';
 import { TJournalEntryRectificationReq } from '@app/journal-entry/dtos/journal-entry-rectification/journal-entry-rectification.dto';
 import { IGetJournalEntriesQuery } from '@app/journal-entry/dtos/journal-entry/journal-entry.dto';
 import { IPaymentEntryReq } from '@app/journal-entry/dtos/payment-entry/payment-entry.dto';
@@ -28,6 +30,7 @@ import {
   createPaymentUseCase,
   createReceiptUseCase,
   createTransferUseCase,
+  deleteJournalEntryUseCase,
   getArchivedJournalEntriesUseCase,
   getJournalEntriesUseCase,
   getJournalEntryUseCase,
@@ -182,6 +185,31 @@ export class JournalEntryController extends Controller {
     @Body() body: IJournalEntryArchiveReq
   ) {
     return archiveJournalEntryUseCase(id, body);
+  }
+
+  /**
+   * Delete a never-posted journal entry or reverse a previously-posted entry.
+   */
+  @Delete('/{id}')
+  @OperationId('deleteJournalEntry')
+  @SuccessResponse('204')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
+  @Response<IHttpErrorDto>('404')
+  @Response<IHttpErrorDto>('409')
+  @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
+    middlewares.accountingEntityAccess
+  )
+  public async deleteJournalEntry(
+    @Path() id: string,
+    @Body() body: IJournalEntryDeletionReq
+  ): Promise<void> {
+    await deleteJournalEntryUseCase(id, body);
   }
 
   /**

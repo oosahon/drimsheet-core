@@ -1,10 +1,14 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray, isNull, ne } from 'drizzle-orm';
 
 import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
 import validateVersionInRepo from '@shared/helpers/validate-version-in-repo';
 import repoError from '@shared/values/errors/repo.error';
 
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '@domain/journal-entry/types/journal-entry.types';
 
 import { journalEntriesInCore } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';
@@ -58,6 +62,30 @@ const journalEntryRepo: IJournalEntryRepo = {
         passOnRepoTransaction(options, tx)
       );
     });
+  },
+
+  delete: async (id, options) => {
+    const deleted = await getDbQuery(options)
+      .delete(journalEntriesInCore)
+      .where(
+        and(
+          eq(journalEntriesInCore.id, id),
+          eq(journalEntriesInCore.version, options.expectedVersion),
+          isNull(journalEntriesInCore.postedAt),
+          inArray(journalEntriesInCore.status, [
+            EJournalEntryStatus.Draft,
+            EJournalEntryStatus.Archived,
+          ]),
+          ne(journalEntriesInCore.sourceType, EJournalEntrySourceType.Reversal)
+        )
+      );
+
+    if (deleted.rowCount === 0) {
+      throw new repoError.VersionNotFound({
+        id,
+        version: options.expectedVersion,
+      });
+    }
   },
 
   async findById(id, options) {
