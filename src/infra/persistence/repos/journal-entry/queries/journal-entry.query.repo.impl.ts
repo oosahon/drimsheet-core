@@ -48,11 +48,17 @@ const journalEntryQueryRepo: IJournalEntryQueryRepo = {
 
   async findAll(accountingEntityId, options) {
     const dbQuery = getDbQuery(options);
+    const status = options.status ?? EJournalEntryStatus.Posted;
     const conditions = [
       eq(journalEntriesInCore.accountingEntityId, accountingEntityId),
-      eq(journalEntriesInCore.status, EJournalEntryStatus.Posted),
-      ne(journalEntriesInCore.sourceType, EJournalEntrySourceType.Reversal),
+      eq(journalEntriesInCore.status, status),
     ];
+
+    if (status === EJournalEntryStatus.Posted) {
+      conditions.push(
+        ne(journalEntriesInCore.sourceType, EJournalEntrySourceType.Reversal)
+      );
+    }
 
     if (options.accountId) {
       const participatingEntryIds = dbQuery

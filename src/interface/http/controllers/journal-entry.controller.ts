@@ -28,6 +28,7 @@ import {
   createPaymentUseCase,
   createReceiptUseCase,
   createTransferUseCase,
+  getArchivedJournalEntriesUseCase,
   getJournalEntriesUseCase,
   getJournalEntryUseCase,
   rectifyJournalEntryUseCase,
@@ -54,6 +55,28 @@ export class JournalEntryController extends Controller {
   )
   public async getJournalEntries(@Queries() query: IGetJournalEntriesQuery) {
     return getJournalEntriesUseCase(query);
+  }
+
+  /**
+   * Get paginated archived journal entries with optional account participation filter
+   */
+  @Get('/archived')
+  @OperationId('getArchivedJournalEntries')
+  @SuccessResponse('200')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
+  @Response<IHttpErrorDto>('422')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
+    middlewares.accountingEntityAccess
+  )
+  public async getArchivedJournalEntries(
+    @Queries() query: IGetJournalEntriesQuery
+  ) {
+    return getArchivedJournalEntriesUseCase(query);
   }
 
   /**
