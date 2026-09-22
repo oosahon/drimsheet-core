@@ -380,7 +380,29 @@ describe('makeRectifyJournalEntryUsecase', () => {
     ).rejects.toBeInstanceOf(appError.Forbidden);
   });
 
-  it('rejects a source type that differs from the original journal entry', async () => {
+  it('does not persist an archived entry rejected by domain preparation', async () => {
+    const [originalEntry] = makeEntry(100);
+    const archivedEntry = {
+      ...originalEntry,
+      status: EJournalEntryStatus.Archived,
+    };
+    mockJournalEntryRepo.findById.mockResolvedValue(archivedEntry);
+    mockJournalEntryRectificationPreparationService.prepare.mockRejectedValue(
+      new journalEntryError.RectificationNotPermitted({
+        status: EJournalEntryStatus.Archived,
+      })
+    );
+
+    await expect(
+      getUsecase()(archivedEntry.id, makePayload(archivedEntry))
+    ).rejects.toBeInstanceOf(journalEntryError.RectificationNotPermitted);
+
+    expect(mockJournalEntryPersistenceService.rectify).not.toHaveBeenCalled();
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+
+  it('propagates domain rejection of a source-type change without persisting', async () => {
     const [originalEntry] = makeEntry(100);
     const transferPayload = makePayload(originalEntry);
     const payload: TJournalEntryRectificationReq = {
@@ -402,10 +424,22 @@ describe('makeRectifyJournalEntryUsecase', () => {
       ],
     };
     mockJournalEntryRepo.findById.mockResolvedValue(originalEntry);
+    const error = new journalEntryError.RectificationNotPermitted();
+    mockJournalEntryRectificationPreparationService.prepare.mockRejectedValue(
+      error
+    );
 
-    await expect(
-      getUsecase()(originalEntry.id, payload)
-    ).rejects.toBeInstanceOf(appError.BadRequest);
+    await expect(getUsecase()(originalEntry.id, payload)).rejects.toBe(error);
+
+    expect(
+      mockJournalEntryRectificationPreparationService.prepare
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({ originalEntry, requestedEntry: payload }),
+      { correlationId, idempotencyKey }
+    );
+    expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
+    expect(mockJournalEntryPersistenceService.rectify).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('rejects an invalid journal entry id before repository access', async () => {

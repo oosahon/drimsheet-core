@@ -1595,6 +1595,17 @@
         "type": "object",
         "additionalProperties": false
       },
+      "IJournalEntryArchiveReq": {
+        "properties": {
+          "expectedVersion": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": ["expectedVersion"],
+        "type": "object",
+        "additionalProperties": false
+      },
       "UJournalEntryRectificationMode": {
         "type": "string",
         "enum": ["update_draft", "update_meta", "void_and_replace"]
@@ -3869,6 +3880,116 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ITransferEntryReq"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/journal-entries/{id}/archive": {
+      "post": {
+        "operationId": "archiveJournalEntry",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IJournalEntryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IHttpErrorDto"
+                }
+              }
+            }
+          }
+        },
+        "description": "Archive a journal entry without changing its financial effect.",
+        "tags": ["Journal Entry"],
+        "security": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IJournalEntryArchiveReq"
               }
             }
           }

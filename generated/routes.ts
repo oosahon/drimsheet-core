@@ -1245,6 +1245,14 @@ const models: TsoaRoute.Models = {
     additionalProperties: false,
   },
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  IJournalEntryArchiveReq: {
+    dataType: 'refObject',
+    properties: {
+      expectedVersion: { dataType: 'double', required: true },
+    },
+    additionalProperties: false,
+  },
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   UJournalEntryRectificationMode: {
     dataType: 'refAlias',
     type: {
@@ -2783,6 +2791,56 @@ export function RegisterRoutes(app: Router) {
           next,
           validatedArgs,
           successStatus: 201,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsJournalEntryController_archiveJournalEntry: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    id: { in: 'path', name: 'id', required: true, dataType: 'string' },
+    body: {
+      in: 'body',
+      name: 'body',
+      required: true,
+      ref: 'IJournalEntryArchiveReq',
+    },
+  };
+  app.post(
+    '/api/v1/journal-entries/:id/archive',
+    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
+    ...fetchMiddlewares<RequestHandler>(
+      JournalEntryController.prototype.archiveJournalEntry
+    ),
+
+    async function JournalEntryController_archiveJournalEntry(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsJournalEntryController_archiveJournalEntry,
+          request,
+          response,
+        });
+
+        const controller = new JournalEntryController();
+
+        await templateService.apiHandler({
+          methodName: 'archiveJournalEntry',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
         });
       } catch (err) {
         return next(err);

@@ -53,6 +53,32 @@ describe('journalEntryValidation', () => {
     });
   });
 
+  describe('validateBalancePropagation', () => {
+    const baseEntry = {
+      id: generateUUID(),
+      postedAt: new Date('2026-09-22T00:00:00.000Z'),
+    } as IJournalEntry;
+
+    it.each([
+      { ...baseEntry, status: EJournalEntryStatus.Posted },
+      { ...baseEntry, status: EJournalEntryStatus.Archived },
+    ])('accepts a $status entry with a posting effect', (entry) => {
+      expect(() =>
+        journalEntryValidation.validateBalancePropagation(entry)
+      ).not.toThrow();
+    });
+
+    it.each([
+      { ...baseEntry, status: EJournalEntryStatus.Draft, postedAt: null },
+      { ...baseEntry, status: EJournalEntryStatus.Voided },
+      { ...baseEntry, status: EJournalEntryStatus.Archived, postedAt: null },
+    ])('rejects a $status entry without a current posting effect', (entry) => {
+      expect(() =>
+        journalEntryValidation.validateBalancePropagation(entry)
+      ).toThrow(journalEntryError.InvalidJournalEntry);
+    });
+  });
+
   describe('validateTransition', () => {
     it('should not throw if currentStatus is in allowedStatuses', () => {
       expect(() =>
@@ -377,6 +403,26 @@ describe('journalEntryValidation', () => {
         journalEntryValidation.validateUpdate(entry, {
           id: entry.id,
           memo: 'changed',
+        })
+      ).toThrow(journalEntryError.RectificationNotPermitted);
+    });
+
+    it.each([
+      { memo: 'changed' },
+      { attachments: [] },
+      { effectiveDate: new Date('2026-09-23T00:00:00.000Z') },
+      { postedAt: new Date('2026-09-23T00:00:00.000Z') },
+      { lines: [{ id: generateUUID() } as never] },
+      { status: EJournalEntryStatus.Draft },
+      { status: EJournalEntryStatus.Posted },
+      { status: EJournalEntryStatus.Voided },
+    ])('rejects the archived-entry update %#', (update) => {
+      const entry = makeEntry(EJournalEntryStatus.Archived);
+
+      expect(() =>
+        journalEntryValidation.validateUpdate(entry, {
+          id: entry.id,
+          ...update,
         })
       ).toThrow(journalEntryError.RectificationNotPermitted);
     });

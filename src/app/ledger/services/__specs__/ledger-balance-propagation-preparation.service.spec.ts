@@ -173,9 +173,34 @@ describe('makeLedgerBalancePropagationPreparationService', () => {
     expect(mockLedgerAccountBalanceRepo.adjustBalance).not.toHaveBeenCalled();
   });
 
+  it('prepares an existing posting after the journal is archived', async () => {
+    const archivedEntry = {
+      ...journalEntry,
+      status: EJournalEntryStatus.Archived,
+      postedAt: new Date('2026-09-22T00:00:00.000Z'),
+    };
+    mockJournalEntryRepo.findById.mockResolvedValueOnce(archivedEntry);
+
+    await expect(
+      service.prepare(journalEntryId, repoOptions)
+    ).resolves.toHaveLength(2);
+
+    expect(
+      mockLedgerAccountBalanceAdjustmentService.calculate
+    ).toHaveBeenCalledWith(archivedEntry, [parentAccount, childAccount]);
+  });
+
   it.each<[string, IJournalEntry | null]>([
     ['unavailable', null],
     ['not posted', { ...journalEntry, status: EJournalEntryStatus.Draft }],
+    [
+      'archived before posting',
+      {
+        ...journalEntry,
+        status: EJournalEntryStatus.Archived,
+        postedAt: null,
+      },
+    ],
   ])('rejects when the journal is %s', async (_, storedJournalEntry) => {
     mockJournalEntryRepo.findById.mockResolvedValueOnce(storedJournalEntry);
 
