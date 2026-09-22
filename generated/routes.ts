@@ -2617,6 +2617,55 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsJournalEntryController_getArchivedJournalEntries: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    query: {
+      in: 'queries',
+      name: 'query',
+      required: true,
+      ref: 'IGetJournalEntriesQuery',
+    },
+  };
+  app.get(
+    '/api/v1/journal-entries/archived',
+    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
+    ...fetchMiddlewares<RequestHandler>(
+      JournalEntryController.prototype.getArchivedJournalEntries
+    ),
+
+    async function JournalEntryController_getArchivedJournalEntries(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsJournalEntryController_getArchivedJournalEntries,
+          request,
+          response,
+        });
+
+        const controller = new JournalEntryController();
+
+        await templateService.apiHandler({
+          methodName: 'getArchivedJournalEntries',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   const argsJournalEntryController_getJournalEntry: Record<
     string,
     TsoaRoute.ParameterSchema

@@ -69,12 +69,10 @@ describe('journalLineRepo', () => {
         .mockReturnValue({ set: jest.fn().mockReturnValue({ where }) }),
       insert: jest.fn(),
     };
-    jest
-      .mocked(getDbQuery)
-      .mockReturnValue({
-        transaction: jest.fn(async (callback) => callback(tx as never)),
-        insert: jest.fn(),
-      } as never);
+    jest.mocked(getDbQuery).mockReturnValue({
+      transaction: jest.fn(async (callback) => callback(tx as never)),
+      insert: jest.fn(),
+    } as never);
 
     await expect(
       journalLineRepo.update({ id: lineId, version: 2 } as never, {

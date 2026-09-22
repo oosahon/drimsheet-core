@@ -1,4 +1,8 @@
+import { eq, SQL } from 'drizzle-orm';
+import { PgDialect, QueryBuilder } from 'drizzle-orm/pg-core';
+
 import { TEntityId } from '@shared/types/uuid';
+import paginationValue from '@shared/values/pagination/pagination.vo';
 
 import {
   journalEntriesInCore,
@@ -34,7 +38,7 @@ describe('journalEntryQueryRepo', () => {
       },
     } as unknown as ReturnType<typeof getDbQuery>);
 
-    return { countFrom };
+    return { countFrom, countWhere };
   }
 
   beforeEach(() => {
@@ -42,6 +46,53 @@ describe('journalEntryQueryRepo', () => {
     findFirst.mockReset();
     findMany.mockReset();
   });
+
+  it.each([undefined, 'posted', 'archived'] as const)(
+    'scopes count and rows for status %s and retains default pagination',
+    async (status) => {
+      const { countWhere } = mockPaginatedQuery(1, []);
+      const result = await journalEntryQueryRepo.findAll(accountingEntityId, {
+        ...options,
+        status,
+      });
+      const rowQuery = findMany.mock.calls[0][0] as {
+        where: SQL;
+        orderBy: SQL[];
+        limit: number;
+        offset: number;
+      };
+      const dialect = new PgDialect();
+      const predicate = dialect.sqlToQuery(rowQuery.where);
+      expect(countWhere).toHaveBeenCalledWith(rowQuery.where);
+      expect(predicate.sql).toContain('"accounting_entity_id" = $1');
+      expect(predicate.sql).toContain('"status" = $2');
+      if (status === 'archived') {
+        expect(predicate.params).toEqual([accountingEntityId, 'archived']);
+        expect(predicate.sql).not.toContain('"source_type"');
+      } else {
+        expect(predicate.params).toEqual([
+          accountingEntityId,
+          'posted',
+          'reversal',
+        ]);
+        expect(predicate.sql).toContain('"source_type" <> $3');
+      }
+      expect(rowQuery.limit).toBe(paginationValue.getLimit());
+      expect(rowQuery.offset).toBe(0);
+      expect(result.meta).toEqual({
+        page: 1,
+        limit: paginationValue.getLimit(),
+        total: 1,
+        totalPages: 1,
+      });
+      expect(
+        rowQuery.orderBy.map((order) => dialect.sqlToQuery(order).sql)
+      ).toEqual([
+        '"core"."journal_entries"."created_at" desc',
+        '"core"."journal_entries"."id" desc',
+      ]);
+    }
+  );
 
   it('finds and maps an enriched entry scoped to its accounting entity', async () => {
     const persistedEntry = { id: journalEntryId };
@@ -203,7 +254,14 @@ describe('journalEntryQueryRepo', () => {
   it('filters by account and search while supporting effective-date ordering', async () => {
     const countWhere = jest.fn().mockResolvedValue([{ count: 1 }]);
     const countFrom = jest.fn().mockReturnValue({ where: countWhere });
-    const participantWhere = jest.fn().mockReturnValue({});
+    const participantWhere = jest
+      .fn()
+      .mockReturnValue(
+        new QueryBuilder()
+          .select({ entryId: journalLinesInCore.entryId })
+          .from(journalLinesInCore)
+          .where(eq(journalLinesInCore.accountId, accountId))
+      );
     const participantFrom = jest
       .fn()
       .mockReturnValue({ where: participantWhere });
@@ -231,6 +289,7 @@ describe('journalEntryQueryRepo', () => {
     const result = await journalEntryQueryRepo.findAll(accountingEntityId, {
       accountId,
       correlationId: options.correlationId,
+      status: 'archived',
       orderBy: 'effectiveDate',
       search: 'receipt',
       sortDirection: 'asc',
@@ -247,6 +306,30 @@ describe('journalEntryQueryRepo', () => {
         offset: 0,
       })
     );
+    const rowQuery = findMany.mock.calls[0][0] as {
+      where: SQL;
+      orderBy: SQL[];
+    };
+    const dialect = new PgDialect();
+    const predicate = dialect.sqlToQuery(rowQuery.where);
+    expect(countWhere).toHaveBeenCalledWith(rowQuery.where);
+    expect(predicate.params).toEqual([
+      accountingEntityId,
+      'archived',
+      accountId,
+      '%receipt%',
+    ]);
+    expect(predicate.sql).toContain('"accounting_entity_id" = $1');
+    expect(predicate.sql).toContain('"status" = $2');
+    expect(predicate.sql).toContain(' in (select ');
+    expect(predicate.sql).toContain('"account_id" = $3');
+    expect(predicate.sql).toContain('"memo" ilike $4');
+    expect(
+      rowQuery.orderBy.map((order) => dialect.sqlToQuery(order).sql)
+    ).toEqual([
+      '"core"."journal_entries"."effective_date" asc',
+      '"core"."journal_entries"."id" asc',
+    ]);
     expect(result.data).toEqual([mappedEntry]);
   });
 });

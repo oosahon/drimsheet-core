@@ -6,7 +6,10 @@ import { TEntityId } from '@shared/types/uuid';
 import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
 
 import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
-import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
+import {
+  EJournalEntryStatus,
+  IJournalEntry,
+} from '@domain/journal-entry/types/journal-entry.types';
 import { IJournalLine } from '@domain/journal-entry/types/journal-line.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 
@@ -22,6 +25,9 @@ export interface IFindAllJournalEntriesOptions extends Omit<
   IPaginatedReadRepoOptions,
   'orderBy'
 > {
+  status?:
+    | typeof EJournalEntryStatus.Posted
+    | typeof EJournalEntryStatus.Archived;
   accountId?: TEntityId;
   orderBy?: UJournalEntrySortBy;
 }
