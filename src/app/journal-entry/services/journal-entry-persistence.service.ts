@@ -4,7 +4,9 @@ import {
 } from '@shared/contracts/repo.contract';
 
 import IJournalEntryAttachmentRepo from '@domain/journal-entry/repos/journal-entry-attachment.repo';
+import IJournalEntryHistoryRepo from '@domain/journal-entry/repos/journal-entry-history.repo';
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
+import IJournalLineHistoryRepo from '@domain/journal-entry/repos/journal-line-history.repo';
 import IJournalLineRepo from '@domain/journal-entry/repos/journal-line.repo';
 
 import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
@@ -12,7 +14,9 @@ import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journa
 interface IDependencies {
   repoService: IRepoService;
   journalEntryAttachmentRepo: IJournalEntryAttachmentRepo;
+  journalEntryHistoryRepo: IJournalEntryHistoryRepo;
   journalEntryRepo: IJournalEntryRepo;
+  journalLineHistoryRepo: IJournalLineHistoryRepo;
   journalLineRepo: IJournalLineRepo;
 }
 
@@ -134,12 +138,44 @@ function makeRectify(
   };
 }
 
+/**
+ * Atomically removes a never-posted journal aggregate and all of its audit
+ * history. A stale header version rolls the history deletions back.
+ */
+function makeDelete(
+  deps: IDependencies
+): IJournalEntryPersistenceService['delete'] {
+  return async (payload, repoOptions) => {
+    const transactionFn: TRepoTransactionFn = async (tx) => {
+      const writeOptions = { ...repoOptions, tx };
+
+      await deps.journalLineHistoryRepo.deleteByJournalEntryId(
+        payload.journalEntryId,
+        writeOptions
+      );
+
+      await deps.journalEntryHistoryRepo.deleteByJournalEntryId(
+        payload.journalEntryId,
+        writeOptions
+      );
+
+      await deps.journalEntryRepo.delete(payload.journalEntryId, {
+        ...writeOptions,
+        expectedVersion: payload.expectedVersion,
+      });
+    };
+
+    await deps.repoService.runInTransaction(transactionFn, repoOptions.tx);
+  };
+}
+
 export default function makeJournalEntryPersistenceService(
   deps: IDependencies
 ) {
   const service: IJournalEntryPersistenceService = Object.freeze({
     create: makeCreate(deps),
     rectify: makeRectify(deps),
+    delete: makeDelete(deps),
   });
 
   return service;

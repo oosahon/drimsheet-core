@@ -1,4 +1,5 @@
 import { IWriteRepoOptions } from '@shared/types/repo.types';
+import { TEntityId } from '@shared/types/uuid';
 
 import {
   IJournalEntryHistory,
@@ -13,6 +14,11 @@ export default interface IJournalEntryHistoryRepo {
       | IJournalEntryHistory
       | IJournalEntryRectificationHistory
       | (IJournalEntryHistory | IJournalEntryRectificationHistory)[],
+    options: IWriteRepoOptions
+  ): Promise<void>;
+
+  deleteByJournalEntryId(
+    journalEntryId: TEntityId,
     options: IWriteRepoOptions
   ): Promise<void>;
 }

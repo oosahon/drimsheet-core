@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm';
+
 import journalLineError from '@domain/journal-entry/errors/journal-line.error';
 import IJournalLineHistoryRepo from '@domain/journal-entry/repos/journal-line-history.repo';
 
@@ -29,6 +31,12 @@ const journalLineHistoryRepo: IJournalLineHistoryRepo = {
     });
 
     await getDbQuery(options).insert(journalLineHistoryInAudit).values(values);
+  },
+
+  deleteByJournalEntryId: async (journalEntryId, options) => {
+    await getDbQuery(options)
+      .delete(journalLineHistoryInAudit)
+      .where(eq(journalLineHistoryInAudit.journalEntryId, journalEntryId));
   },
 };
 

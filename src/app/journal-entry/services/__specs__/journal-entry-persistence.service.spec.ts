@@ -21,7 +21,9 @@ import userEntity from '@domain/user/entities/user.entity';
 
 import {
   mockJournalEntryAttachmentRepo,
+  mockJournalEntryHistoryRepo,
   mockJournalEntryRepo,
+  mockJournalLineHistoryRepo,
   mockJournalLineRepo,
 } from '@app/journal-entry/contracts/__mocks__/journal-entry.repos.mock';
 import makeJournalEntryPersistenceService from '@app/journal-entry/services/journal-entry-persistence.service';
@@ -31,7 +33,9 @@ describe('journalEntryPersistenceService', () => {
   const service = makeJournalEntryPersistenceService({
     repoService: mockRepoService,
     journalEntryAttachmentRepo: mockJournalEntryAttachmentRepo,
+    journalEntryHistoryRepo: mockJournalEntryHistoryRepo,
     journalEntryRepo: mockJournalEntryRepo,
+    journalLineHistoryRepo: mockJournalLineHistoryRepo,
     journalLineRepo: mockJournalLineRepo,
   });
   const cashAccountService = makeCashAccountService({
@@ -171,7 +175,14 @@ describe('journalEntryPersistenceService', () => {
         transactionFn('mock-tx' as unknown as ITransactionContext)
       );
     mockJournalEntryRepo.create.mockResolvedValue(undefined);
+    mockJournalEntryRepo.delete.mockResolvedValue(undefined);
     mockJournalEntryAttachmentRepo.save.mockResolvedValue(undefined);
+    mockJournalEntryHistoryRepo.deleteByJournalEntryId.mockResolvedValue(
+      undefined
+    );
+    mockJournalLineHistoryRepo.deleteByJournalEntryId.mockResolvedValue(
+      undefined
+    );
     mockJournalLineRepo.create.mockResolvedValue(undefined);
   });
 
@@ -437,6 +448,94 @@ describe('journalEntryPersistenceService', () => {
           expectedVersion: firstLine.version,
         })
       );
+    });
+  });
+
+  describe('delete', () => {
+    it('deletes histories before the versioned header in one transaction', async () => {
+      const { journalEntry } = await makeFixture();
+
+      await service.delete(
+        {
+          journalEntryId: journalEntry.id,
+          expectedVersion: journalEntry.version,
+        },
+        {
+          ...mockOptions,
+          tx: 'caller-tx' as unknown as ITransactionContext,
+        }
+      );
+
+      expect(mockRepoService.runInTransaction).toHaveBeenCalledWith(
+        expect.any(Function),
+        'caller-tx'
+      );
+      expect(
+        mockJournalLineHistoryRepo.deleteByJournalEntryId
+      ).toHaveBeenCalledWith(
+        journalEntry.id,
+        expect.objectContaining({ tx: 'mock-tx' })
+      );
+      expect(
+        mockJournalEntryHistoryRepo.deleteByJournalEntryId
+      ).toHaveBeenCalledWith(
+        journalEntry.id,
+        expect.objectContaining({ tx: 'mock-tx' })
+      );
+      expect(mockJournalEntryRepo.delete).toHaveBeenCalledWith(
+        journalEntry.id,
+        expect.objectContaining({
+          tx: 'mock-tx',
+          expectedVersion: journalEntry.version,
+        })
+      );
+      expect(
+        mockJournalLineHistoryRepo.deleteByJournalEntryId.mock
+          .invocationCallOrder[0]
+      ).toBeLessThan(
+        mockJournalEntryHistoryRepo.deleteByJournalEntryId.mock
+          .invocationCallOrder[0]
+      );
+      expect(
+        mockJournalEntryHistoryRepo.deleteByJournalEntryId.mock
+          .invocationCallOrder[0]
+      ).toBeLessThan(mockJournalEntryRepo.delete.mock.invocationCallOrder[0]);
+    });
+
+    it('stops before deleting the header when history deletion fails', async () => {
+      const { journalEntry } = await makeFixture();
+      const failure = new Error('history deletion failed');
+      mockJournalEntryHistoryRepo.deleteByJournalEntryId.mockRejectedValueOnce(
+        failure
+      );
+
+      await expect(
+        service.delete(
+          {
+            journalEntryId: journalEntry.id,
+            expectedVersion: journalEntry.version,
+          },
+          mockOptions
+        )
+      ).rejects.toBe(failure);
+
+      expect(mockJournalEntryRepo.delete).not.toHaveBeenCalled();
+    });
+
+    it('propagates a versioned header deletion failure', async () => {
+      const { journalEntry } = await makeFixture();
+      const failure = new Error('stale version');
+      mockJournalEntryRepo.delete.mockRejectedValueOnce(failure);
+
+      await expect(
+        service.delete(
+          {
+            journalEntryId: journalEntry.id,
+            expectedVersion: journalEntry.version,
+          },
+          mockOptions
+        )
+      ).rejects.toBe(failure);
     });
   });
 });

@@ -1,3 +1,6 @@
+import { SQL } from 'drizzle-orm';
+import { PgDialect } from 'drizzle-orm/pg-core';
+
 import { TEntityId } from '@shared/types/uuid';
 import repoError from '@shared/values/errors/repo.error';
 
@@ -110,6 +113,48 @@ describe('journalEntryRepo', () => {
         ...options,
         expectedVersion: 1,
         history: { entityId: journalEntryId, entityVersion: 2 } as never,
+      })
+    ).rejects.toBeInstanceOf(repoError.VersionNotFound);
+  });
+
+  it('deletes only a current-version never-posted non-reversal Draft or Archived entry', async () => {
+    const where = jest.fn().mockResolvedValue({ rowCount: 1 });
+    const deleteQuery = jest.fn().mockReturnValue({ where });
+    jest.mocked(getDbQuery).mockReturnValue({ delete: deleteQuery } as never);
+
+    await journalEntryRepo.delete(journalEntryId, {
+      ...options,
+      expectedVersion: 3,
+    });
+
+    expect(deleteQuery).toHaveBeenCalledWith(journalEntriesInCore);
+    expect(where).toHaveBeenCalledWith(expect.anything());
+
+    const predicate = new PgDialect().sqlToQuery(where.mock.calls[0][0] as SQL);
+    expect(predicate.sql).toContain('"id" = $1');
+    expect(predicate.sql).toContain('"version" = $2');
+    expect(predicate.sql).toContain('"posted_at" is null');
+    expect(predicate.sql).toContain('"status" in ($3, $4)');
+    expect(predicate.sql).toContain('"source_type" <> $5');
+    expect(predicate.params).toEqual([
+      journalEntryId,
+      3,
+      'draft',
+      'archived',
+      'reversal',
+    ]);
+  });
+
+  it('rejects when the version or deletion-safety predicate does not match', async () => {
+    const where = jest.fn().mockResolvedValue({ rowCount: 0 });
+    jest.mocked(getDbQuery).mockReturnValue({
+      delete: jest.fn().mockReturnValue({ where }),
+    } as never);
+
+    await expect(
+      journalEntryRepo.delete(journalEntryId, {
+        ...options,
+        expectedVersion: 3,
       })
     ).rejects.toBeInstanceOf(repoError.VersionNotFound);
   });

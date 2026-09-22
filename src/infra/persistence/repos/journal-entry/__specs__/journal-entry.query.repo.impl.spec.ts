@@ -65,17 +65,28 @@ describe('journalEntryQueryRepo', () => {
       const predicate = dialect.sqlToQuery(rowQuery.where);
       expect(countWhere).toHaveBeenCalledWith(rowQuery.where);
       expect(predicate.sql).toContain('"accounting_entity_id" = $1');
-      expect(predicate.sql).toContain('"status" = $2');
       if (status === 'archived') {
+        expect(predicate.sql).toContain('"status" = $2');
         expect(predicate.params).toEqual([accountingEntityId, 'archived']);
         expect(predicate.sql).not.toContain('"source_type"');
-      } else {
+      } else if (status === 'posted') {
+        expect(predicate.sql).toContain('"status" = $2');
         expect(predicate.params).toEqual([
           accountingEntityId,
           'posted',
           'reversal',
         ]);
         expect(predicate.sql).toContain('"source_type" <> $3');
+      } else {
+        expect(predicate.sql).toContain('"status" in ($2, $3, $4)');
+        expect(predicate.params).toEqual([
+          accountingEntityId,
+          'draft',
+          'posted',
+          'voided',
+          'reversal',
+        ]);
+        expect(predicate.sql).toContain('"source_type" <> $5');
       }
       expect(rowQuery.limit).toBe(paginationValue.getLimit());
       expect(rowQuery.offset).toBe(0);

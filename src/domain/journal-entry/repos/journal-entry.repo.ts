@@ -27,6 +27,8 @@ export default interface IJournalEntryRepo {
     >
   ): Promise<void>;
 
+  delete(id: TEntityId, options: IVersionedRepoWriteOptions): Promise<void>;
+
   findById(
     id: TEntityId,
     options: IReadRepoOptions

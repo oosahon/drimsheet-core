@@ -595,6 +595,39 @@ describe('JournalEntry Entity', () => {
       ).toThrow(journalEntryError.InvalidStatusTransition);
     });
 
+    it('should void a previously-posted archived entry', () => {
+      const archivedEntry = {
+        ...makeEntry(new Date('2026-04-15T00:00:00.000Z')),
+        status: EJournalEntryStatus.Archived,
+      };
+      const voidingEntryId =
+        'f7930be4-f709-4cf2-bf2f-a885b22421fd' as TEntityId;
+
+      const [voidedEntry] = journalEntryEntity.void(archivedEntry, {
+        voidingEntryId,
+      });
+
+      expect(voidedEntry).toMatchObject({
+        id: archivedEntry.id,
+        status: EJournalEntryStatus.Voided,
+        postedAt: archivedEntry.postedAt,
+        voidingEntryId,
+      });
+    });
+
+    it('should reject voiding a never-posted archived entry', () => {
+      const archivedEntry = {
+        ...makeEntry(null),
+        status: EJournalEntryStatus.Archived,
+      };
+
+      expect(() =>
+        journalEntryEntity.void(archivedEntry, {
+          voidingEntryId: 'f7930be4-f709-4cf2-bf2f-a885b22421fd' as TEntityId,
+        })
+      ).toThrow(journalEntryError.InvalidStatusTransition);
+    });
+
     it('should archive draft and posted entries with audit and event metadata', () => {
       const entry = makeEntry(new Date('2026-04-15T00:00:00.000Z'));
 

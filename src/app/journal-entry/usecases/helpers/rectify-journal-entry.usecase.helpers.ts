@@ -1,6 +1,3 @@
-import historyValue from '@shared/values/history/history.vo';
-import { IUserHistoryActor } from '@shared/values/history/types/history.types';
-
 import {
   EJournalEntryRectificationMode,
   IJournalEntryRectificationResult,
@@ -9,42 +6,6 @@ import {
   EJournalEntryStatus,
   IJournalEntry,
 } from '@domain/journal-entry/types/journal-entry.types';
-
-import { IJournalEntryRectificationPersistencePayload } from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
-
-function getPersistencePayload(
-  result: IJournalEntryRectificationResult,
-  actor: IUserHistoryActor,
-  correlationId: string
-): IJournalEntryRectificationPersistencePayload {
-  const entriesToCreate = result.entriesToCreate.map(([entry, , audit]) => ({
-    entry,
-    headerHistory: historyValue.make(audit.header, actor, correlationId),
-    lineHistories: audit.lines.map((lineAudit) =>
-      historyValue.make(lineAudit, actor, correlationId)
-    ),
-  }));
-
-  const entryUpdate = result.entryUpdate
-    ? {
-        entry: result.entryUpdate.entry,
-        expectedVersion: result.entryUpdate.expectedVersion,
-        headerHistory: historyValue.make(
-          result.entryUpdate.headerAudit,
-          actor,
-          correlationId
-        ),
-        lineHistories: result.entryUpdate.lineAudits.map((lineAudit) =>
-          historyValue.make(lineAudit, actor, correlationId)
-        ),
-        linesToCreate: result.entryUpdate.linesToCreate,
-        linesToUpdate: result.entryUpdate.linesToUpdate,
-        lineIdsToDelete: result.entryUpdate.lineIdsToDelete,
-      }
-    : null;
-
-  return { entriesToCreate, entryUpdate };
-}
 
 function getEntriesForBalancePropagation(
   result: IJournalEntryRectificationResult
@@ -67,7 +28,6 @@ function getEntriesForBalancePropagation(
 }
 
 const rectifyJournalEntryUseCaseHelpers = Object.freeze({
-  getPersistencePayload,
   getEntriesForBalancePropagation,
 });
 

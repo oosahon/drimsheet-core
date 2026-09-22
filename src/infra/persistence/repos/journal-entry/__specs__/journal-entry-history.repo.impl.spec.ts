@@ -1,5 +1,6 @@
 import { TEntityId } from '@shared/types/uuid';
 
+import { journalEntryHistoryInAudit } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';
 import journalEntryHistoryRepo from '@infra/persistence/repos/journal-entry/journal-entry-history.repo.impl';
 import journalEntryHistoryMapper from '@infra/persistence/repos/journal-entry/mappers/journal-entry-history.mapper';
@@ -36,5 +37,16 @@ describe('journalEntryHistoryRepo', () => {
 
     expect(insert).toHaveBeenCalledTimes(2);
     expect(values).toHaveBeenCalledTimes(2);
+  });
+
+  it('deletes all history for a journal entry', async () => {
+    const where = jest.fn().mockResolvedValue(undefined);
+    const deleteQuery = jest.fn().mockReturnValue({ where });
+    jest.mocked(getDbQuery).mockReturnValue({ delete: deleteQuery } as never);
+
+    await journalEntryHistoryRepo.deleteByJournalEntryId(entryId, options);
+
+    expect(deleteQuery).toHaveBeenCalledWith(journalEntryHistoryInAudit);
+    expect(where).toHaveBeenCalledWith(expect.anything());
   });
 });

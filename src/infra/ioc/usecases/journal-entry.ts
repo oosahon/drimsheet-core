@@ -2,6 +2,7 @@ import makeArchiveJournalEntryUsecase from '@app/journal-entry/usecases/archive-
 import makeCreatePaymentUsecase from '@app/journal-entry/usecases/create-payment.usecase';
 import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
 import makeCreateTransferUsecase from '@app/journal-entry/usecases/create-transfer.usecase';
+import makeDeleteJournalEntryUsecase from '@app/journal-entry/usecases/delete-journal-entry.usecase';
 import makeGetArchivedJournalEntriesUsecase from '@app/journal-entry/usecases/get-archived-journal-entries.usecase';
 import makeGetJournalEntriesUsecase from '@app/journal-entry/usecases/get-journal-entries.usecase';
 import makeGetJournalEntryUsecase from '@app/journal-entry/usecases/get-journal-entry.usecase';
@@ -19,6 +20,7 @@ import {
 import {
   journalEntryPersistenceService,
   journalEntryRectificationPreparationService,
+  journalEntryRemovalService,
   journalEntryService,
 } from '@infra/ioc/services/journal-entry';
 import outboxService from '@infra/ioc/services/outbox';
@@ -43,6 +45,22 @@ export const archiveJournalEntryUseCase = makeTracedUseCase(
     appContext,
     eventBus: messaging.eventBus,
     journalEntryRepo: journalEntryRepos.journalEntry,
+  })
+);
+
+export const deleteJournalEntryUseCase = makeTracedUseCase(
+  'journalEntry.deleteJournalEntryUseCase',
+  makeDeleteJournalEntryUsecase({
+    appContext,
+    eventBus: messaging.eventBus,
+    fxCostBasisPersistenceService,
+    fxLotAppService,
+    journalEntryPersistenceService,
+    journalEntryRemovalService,
+    journalEntryRepo: journalEntryRepos.journalEntry,
+    ledgerBalanceAdjustmentQueue: messaging.queues.ledgerBalanceAdjustment,
+    outboxService,
+    repoService,
   })
 );
 

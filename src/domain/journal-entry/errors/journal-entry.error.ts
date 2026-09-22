@@ -71,6 +71,7 @@ const EErrorKeys = {
   RectificationHasNoChanges:
     'journal_entry_error_rectification_has_no_changes_invalid',
   RectificationLineId: 'journal_entry_error_rectification_line_id_invalid',
+  DeletionNotPermitted: 'journal_entry_error_deletion_not_permitted_invalid',
 } as const satisfies TErrorKeys<'journal_entry_error'>;
 
 const journalEntryError = Object.freeze({

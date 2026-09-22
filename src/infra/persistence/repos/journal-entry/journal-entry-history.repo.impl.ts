@@ -1,3 +1,5 @@
+import { eq } from 'drizzle-orm';
+
 import IJournalEntryHistoryRepo from '@domain/journal-entry/repos/journal-entry-history.repo';
 
 import { journalEntryHistoryInAudit } from '@infra/config/drizzle/schema';
@@ -14,6 +16,12 @@ const journalEntryHistoryRepo: IJournalEntryHistoryRepo = {
     );
 
     await getDbQuery(options).insert(journalEntryHistoryInAudit).values(values);
+  },
+
+  deleteByJournalEntryId: async (journalEntryId, options) => {
+    await getDbQuery(options)
+      .delete(journalEntryHistoryInAudit)
+      .where(eq(journalEntryHistoryInAudit.journalEntryId, journalEntryId));
   },
 };
 

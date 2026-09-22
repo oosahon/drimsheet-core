@@ -44,8 +44,18 @@ export interface IJournalEntryRectificationResult {
   events: IEvent<unknown>[];
 }
 
+export interface IJournalEntryReversalResult {
+  originalJournalEntryId: TEntityId;
+  reversingJournalEntry: IJournalEntry;
+  entriesToCreate: TAuditedJournalEntry[];
+  entryUpdate: IJournalEntryRectificationUpdate;
+  events: IEvent<unknown>[];
+}
+
 export interface IJournalEntryRectificationService {
   rectify(
     payload: IJournalEntryRectificationPayload
   ): IJournalEntryRectificationResult;
+
+  reverse(originalEntry: IJournalEntry): IJournalEntryReversalResult;
 }

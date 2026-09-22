@@ -25,6 +25,7 @@ import journalEntryRectificationDtoMapper from '@app/journal-entry/dtos/journal-
 import { journalEntryRectificationReqValidation } from '@app/journal-entry/dtos/journal-entry-rectification/journal-entry-rectification.dto.validation';
 import getNewCounterpartiesHelper from '@app/journal-entry/helpers/get-new-counterparties.helper';
 import journalEntryMutationPolicy from '@app/journal-entry/policies/journal-entry-mutation.policy';
+import getJournalEntryPersistencePayloadHelper from '@app/journal-entry/usecases/helpers/get-journal-entry-persistence-payload.helper';
 import helpers from '@app/journal-entry/usecases/helpers/rectify-journal-entry.usecase.helpers';
 import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
@@ -88,11 +89,12 @@ export default function makeRectifyJournalEntryUsecase(deps: IDependencies) {
       actor,
       correlationId
     );
-    const rectificationPersistencePayload = helpers.getPersistencePayload(
-      preparedRectification.rectification,
-      actor,
-      correlationId
-    );
+    const rectificationPersistencePayload =
+      getJournalEntryPersistencePayloadHelper(
+        preparedRectification.rectification,
+        actor,
+        correlationId
+      );
 
     const entriesForBalancePropagation =
       helpers.getEntriesForBalancePropagation(
