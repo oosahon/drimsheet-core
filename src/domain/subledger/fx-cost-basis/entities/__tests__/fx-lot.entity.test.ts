@@ -241,6 +241,61 @@ describe('fxCostBasisLotEntity', () => {
     });
   });
 
+  describe('reverseAcquisition', () => {
+    it('keeps a partially reversed lot open', () => {
+      const [lot] = fxCostBasisLotEntity.make(validPayload);
+
+      const [updated] = fxCostBasisLotEntity.reverseAcquisition(
+        lot,
+        moneyValue.make(40, SYSTEM_CURRENCIES.USD, false),
+        moneyValue.make(60000, SYSTEM_CURRENCIES.NGN, false)
+      );
+
+      expect(updated.status).toBe(EFxCostBasisLotStatus.Open);
+    });
+
+    it('reverses an acquisition and can close the lot', () => {
+      const [lot] = fxCostBasisLotEntity.make(validPayload);
+
+      const [updated, events, audit] = fxCostBasisLotEntity.reverseAcquisition(
+        lot,
+        lot.remainingQuantity,
+        lot.remainingCostBasis
+      );
+
+      expect(updated.status).toBe(EFxCostBasisLotStatus.Closed);
+      expect(updated.version).toBe(2);
+      expect(events[0].type).toBe(EFxCostBasisLotEvent.Reversed);
+      expect(audit.action).toBe(EFxCostBasisLotAuditAction.Reversed);
+    });
+  });
+
+  describe('reverseDisposition', () => {
+    it('restores a disposed lot to an open state', () => {
+      const [lot] = fxCostBasisLotEntity.make({
+        ...validPayload,
+        remainingQuantity: moneyValue.make(60, SYSTEM_CURRENCIES.USD, false),
+        remainingCostBasis: moneyValue.make(
+          90000,
+          SYSTEM_CURRENCIES.NGN,
+          false
+        ),
+      });
+
+      const [updated, events, audit] = fxCostBasisLotEntity.reverseDisposition(
+        lot,
+        moneyValue.make(40, SYSTEM_CURRENCIES.USD, false),
+        moneyValue.make(60000, SYSTEM_CURRENCIES.NGN, false)
+      );
+
+      expect(updated.status).toBe(EFxCostBasisLotStatus.Open);
+      expect(updated.remainingQuantity).toEqual(validPayload.originalQuantity);
+      expect(updated.remainingCostBasis).toEqual(validPayload.costBasis);
+      expect(events[0].type).toBe(EFxCostBasisLotEvent.Reversed);
+      expect(audit.action).toBe(EFxCostBasisLotAuditAction.Reversed);
+    });
+  });
+
   describe('helpers', () => {
     it('validates status', () => {
       expect(lotValidation.isValidStatus(EFxCostBasisLotStatus.Open)).toBe(

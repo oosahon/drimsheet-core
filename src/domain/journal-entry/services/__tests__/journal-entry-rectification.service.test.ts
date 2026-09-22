@@ -120,6 +120,21 @@ describe('makeJournalEntryRectificationService', () => {
     expect(result.entryUpdate?.linesToUpdate).toHaveLength(2);
   });
 
+  it('tracks deleted lines when updating a draft entry', () => {
+    const [originalEntry] = makeEntry();
+    const newEntry = makePayload(originalEntry, makeEntry({ amount: 125 }));
+    newEntry.newEntry.lines = [
+      newEntry.newEntry.lines![0],
+      { ...newEntry.newEntry.lines![1], id: generateUUID() },
+    ];
+
+    const result = service.rectify(newEntry);
+
+    expect(result.entryUpdate?.lineIdsToDelete).toEqual([
+      originalEntry.lines[1].id,
+    ]);
+  });
+
   it('updates only descriptions and attachments on a posted journal entry', () => {
     const [originalEntry] = makeEntry({ posted: true });
     const newEntry = makeEntry({
@@ -189,6 +204,31 @@ describe('makeJournalEntryRectificationService', () => {
     const result = service.rectify(makePayload(originalEntry, newEntry));
 
     expect(result.mode).toBe(EJournalEntryRectificationMode.VoidAndReplace);
+  });
+
+  it('uses the original lines when a replacement omits lines', () => {
+    const [originalEntry] = makeEntry({ posted: true, memo: 'Before' });
+
+    const result = service.rectify({
+      originalEntry,
+      newEntry: { id: generateUUID(), memo: null },
+    });
+
+    expect(result.currentJournalEntry.lines).toHaveLength(2);
+  });
+
+  it('uses the original memo when a replacement omits memo', () => {
+    const [originalEntry] = makeEntry({ posted: true, memo: 'Before' });
+
+    const result = service.rectify({
+      originalEntry,
+      newEntry: {
+        id: generateUUID(),
+        effectiveDate: new Date('2026-09-02T00:00:00.000Z'),
+      },
+    });
+
+    expect(result.currentJournalEntry.memo).toBe('Before');
   });
 
   it('rejects a rectification with no changes', () => {

@@ -68,8 +68,7 @@ function validateHasChanges(payload: IJournalEntryRectificationPayload) {
         (item) => item.id === line.id
       );
       const lineHasChanged =
-        !originalLine ||
-        originalLine.accountId !== line.accountId ||
+        originalLine?.accountId !== line.accountId ||
         originalLine.counterpartyId !== line.counterpartyId ||
         originalLine.sequenceOrder !== line.sequenceOrder ||
         !isEqual(originalLine.amount, line.amount) ||

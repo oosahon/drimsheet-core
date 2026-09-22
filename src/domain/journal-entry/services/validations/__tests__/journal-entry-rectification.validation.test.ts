@@ -89,4 +89,49 @@ describe('journalEntryRectificationValidation', () => {
       })
     ).toThrow(journalEntryError.RectificationHasNoChanges);
   });
+
+  it('rejects duplicate rectification line IDs', () => {
+    const originalEntry = makeEntry();
+
+    expect(() =>
+      journalEntryRectificationValidation.validatePayload({
+        originalEntry,
+        newEntry: {
+          id: generateUUID(),
+          lines: [
+            originalEntry.lines[0],
+            { ...originalEntry.lines[1], id: originalEntry.lines[0].id },
+          ],
+        },
+      })
+    ).toThrow(journalEntryError.RectificationLineId);
+  });
+
+  it('accepts a new line ID while detecting its accounting change', () => {
+    const originalEntry = makeEntry();
+
+    expect(() =>
+      journalEntryRectificationValidation.validateHasChanges({
+        originalEntry,
+        newEntry: {
+          id: generateUUID(),
+          lines: [
+            originalEntry.lines[0],
+            { ...originalEntry.lines[1], id: generateUUID() },
+          ],
+        },
+      })
+    ).not.toThrow();
+  });
+
+  it('rejects changes to the owning fields', () => {
+    const originalEntry = makeEntry();
+
+    expect(() =>
+      journalEntryRectificationValidation.validatePayload({
+        originalEntry,
+        newEntry: { id: generateUUID(), createdBy: generateUUID() },
+      })
+    ).toThrow(journalEntryError.RectificationNotPermitted);
+  });
 });

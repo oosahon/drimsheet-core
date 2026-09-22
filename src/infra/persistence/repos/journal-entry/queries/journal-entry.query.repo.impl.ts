@@ -1,7 +1,12 @@
-import { and, eq, ilike, inArray, sql } from 'drizzle-orm';
+import { and, eq, ilike, inArray, ne, sql } from 'drizzle-orm';
 
 import drizzleFilters from '@shared/helpers/drizzle-filters';
 import paginationValue from '@shared/values/pagination/pagination.vo';
+
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '@domain/journal-entry/types/journal-entry.types';
 
 import IJournalEntryQueryRepo, {
   EJournalEntrySortBy,
@@ -45,6 +50,8 @@ const journalEntryQueryRepo: IJournalEntryQueryRepo = {
     const dbQuery = getDbQuery(options);
     const conditions = [
       eq(journalEntriesInCore.accountingEntityId, accountingEntityId),
+      eq(journalEntriesInCore.status, EJournalEntryStatus.Posted),
+      ne(journalEntriesInCore.sourceType, EJournalEntrySourceType.Reversal),
     ];
 
     if (options.accountId) {

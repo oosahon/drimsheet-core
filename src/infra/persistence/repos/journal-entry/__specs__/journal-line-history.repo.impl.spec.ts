@@ -1,0 +1,54 @@
+import { TEntityId } from '@shared/types/uuid';
+
+import getDbQuery from '@infra/persistence/helpers/get-db-query';
+import journalLineHistoryRepo from '@infra/persistence/repos/journal-entry/journal-line-history.repo.impl';
+import journalLineHistoryMapper from '@infra/persistence/repos/journal-entry/mappers/journal-line-history.mapper';
+
+jest.mock('../../../helpers/get-db-query');
+jest.mock('../mappers/journal-line-history.mapper');
+
+describe('journalLineHistoryRepo', () => {
+  const lineId = '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
+  const options = { correlationId: 'correlation-id' };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest
+      .mocked(journalLineHistoryMapper.toRepo)
+      .mockReturnValue({ id: lineId } as never);
+  });
+
+  it('rejects a line without matching history', async () => {
+    jest.mocked(getDbQuery).mockReturnValue({ insert: jest.fn() } as never);
+
+    await expect(
+      journalLineHistoryRepo.create(
+        { id: lineId } as never,
+        { entityId: '123e4567-e89b-12d3-a456-426614174002' } as never,
+        lineId,
+        options
+      )
+    ).rejects.toBeInstanceOf(Error);
+  });
+
+  it('creates history for single and multiple lines', async () => {
+    const values = jest.fn().mockResolvedValue(undefined);
+    const insert = jest.fn().mockReturnValue({ values });
+    jest.mocked(getDbQuery).mockReturnValue({ insert } as never);
+
+    await journalLineHistoryRepo.create(
+      { id: lineId } as never,
+      { entityId: lineId } as never,
+      lineId,
+      options
+    );
+    await journalLineHistoryRepo.create(
+      [{ id: lineId }] as never,
+      [{ entityId: lineId }] as never,
+      lineId,
+      options
+    );
+
+    expect(values).toHaveBeenCalledTimes(2);
+  });
+});

@@ -276,6 +276,51 @@ describe('journalEntryPersistenceService', () => {
   });
 
   describe('rectify', () => {
+    it('saves attachments for entries created during rectification', async () => {
+      const { headerHistory, journalEntry, linesHistory } =
+        await makeFixture(attachments);
+
+      await service.rectify(
+        {
+          entriesToCreate: [
+            {
+              entry: journalEntry,
+              headerHistory,
+              lineHistories: linesHistory,
+            },
+          ],
+          entryUpdate: null,
+        },
+        mockOptions
+      );
+
+      expect(mockJournalEntryAttachmentRepo.save).toHaveBeenCalledWith(
+        journalEntry.id,
+        journalEntry.attachments,
+        expect.objectContaining({ tx: 'mock-tx' })
+      );
+    });
+
+    it('skips attachments for created entries without attachments', async () => {
+      const { headerHistory, journalEntry, linesHistory } = await makeFixture();
+
+      await service.rectify(
+        {
+          entriesToCreate: [
+            {
+              entry: journalEntry,
+              headerHistory,
+              lineHistories: linesHistory,
+            },
+          ],
+          entryUpdate: null,
+        },
+        mockOptions
+      );
+
+      expect(mockJournalEntryAttachmentRepo.save).not.toHaveBeenCalled();
+    });
+
     it('persists prepared journal entries before a lineage update in one transaction', async () => {
       const { headerHistory, journalEntry, linesHistory } =
         await makeFixture(attachments);

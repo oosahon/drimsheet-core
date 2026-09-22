@@ -535,6 +535,17 @@ describe('JournalEntry Entity', () => {
       });
     });
 
+    it('uses the existing lines when lines are omitted and accepts explicit posting values', () => {
+      const entry = makeEntry(null);
+      const [updatedEntry] = journalEntryEntity.update(entry, {
+        id: entry.id,
+        postedAt: null,
+      });
+
+      expect(updatedEntry.lines).toEqual(entry.lines);
+      expect(updatedEntry.postedAt).toBeNull();
+    });
+
     it('rejects accounting-value updates on a posted journal entry', () => {
       const entry = makeEntry(new Date('2026-04-15T00:00:00.000Z'));
       const amount = moneyValue.make(150, SYSTEM_CURRENCIES.USD, false);

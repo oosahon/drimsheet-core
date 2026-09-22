@@ -209,6 +209,32 @@ describe('JournalLineItem Entity', () => {
       expect(events).toEqual([]);
       expect(audit).toBeNull();
     });
+
+    it('should recalculate functional amount when an exchange rate is supplied', () => {
+      const [line] = journalLineEntity.make(entryPayload, {
+        ...makePayload,
+        amount: moneyValue.make(100, SYSTEM_CURRENCIES.EUR, false),
+        exchangeRate: exchangeRateValue.make({
+          baseCurrencyCode: SYSTEM_CURRENCIES.EUR.code,
+          targetCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+          rate: 1.1,
+          type: EExchangeRateType.Official,
+          asOf: new Date('2026-04-14T00:00:00.000Z'),
+          source: 'Open Exchange Rates',
+        }),
+        functionalCurrency: SYSTEM_CURRENCIES.USD,
+      });
+
+      const [updatedLine] = journalLineEntity.update(line, {
+        ...line,
+        description: 'After',
+      });
+
+      expect(updatedLine.functionalAmount.amount).toBe(11_000n);
+      expect(updatedLine.functionalAmount.currency).toEqual(
+        SYSTEM_CURRENCIES.USD
+      );
+    });
   });
 
   describe('Helpers', () => {
