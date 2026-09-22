@@ -6,11 +6,17 @@ import fxCostBasisLotAcquisitionEntity from '@domain/subledger/fx-cost-basis/ent
 import fxCostBasisLotDispositionAllocationEntity from '@domain/subledger/fx-cost-basis/entities/disposition-allocation.entity';
 import fxCostBasisLotDispositionEntity from '@domain/subledger/fx-cost-basis/entities/disposition.entity';
 import fxCostBasisLotEntity from '@domain/subledger/fx-cost-basis/entities/lot.entity';
+import fxCostBasisLotError from '@domain/subledger/fx-cost-basis/errors/lot.error';
+import IFxCostBasisLotAcquisitionRepo from '@domain/subledger/fx-cost-basis/repos/acquisition.repo';
+import IFxCostBasisLotDispositionAllocationRepo from '@domain/subledger/fx-cost-basis/repos/disposition-allocation.repo';
+import IFxCostBasisLotDispositionRepo from '@domain/subledger/fx-cost-basis/repos/disposition.repo';
 import IFxCostBasisLotRepo from '@domain/subledger/fx-cost-basis/repos/lot.repo';
 import consumeLotsInFifoOrder from '@domain/subledger/fx-cost-basis/services/consume-lots-in-fifo-order';
 import lotServiceValidation from '@domain/subledger/fx-cost-basis/services/validations/lot.validation';
 import { IFxCostBasisLotAcquisition } from '@domain/subledger/fx-cost-basis/types/acquisition.types';
-import IFxCostBasisLotDomainService from '@domain/subledger/fx-cost-basis/types/lot.service.types';
+import IFxCostBasisLotDomainService, {
+  IFxCostBasisReversalResult,
+} from '@domain/subledger/fx-cost-basis/types/lot.service.types';
 import {
   EFxCostBasisLotStatus,
   IFxCostBasisLot,
@@ -18,6 +24,9 @@ import {
 
 interface IDependencies {
   lotRepo: IFxCostBasisLotRepo;
+  acquisitionRepo: IFxCostBasisLotAcquisitionRepo;
+  dispositionRepo: IFxCostBasisLotDispositionRepo;
+  dispositionAllocationRepo: IFxCostBasisLotDispositionAllocationRepo;
 }
 
 function makeAcquire(): IFxCostBasisLotDomainService['acquire'] {
@@ -30,10 +39,12 @@ function makeAcquire(): IFxCostBasisLotDomainService['acquire'] {
       (line) => line.accountId === payload.account.id
     )!;
 
-    if (
-      !lotServiceValidation.hasFxCostBasisEffect(payload.account, journalLine)
-    )
-      return null;
+    const hasFxEffect = lotServiceValidation.hasFxCostBasisEffect(
+      payload.account,
+      journalLine
+    );
+
+    if (!hasFxEffect) return null;
 
     lotServiceValidation.validateFxLine(
       payload,
@@ -135,6 +146,70 @@ function makeDispose(
   };
 }
 
+function makeReverse(
+  deps: IDependencies
+): IFxCostBasisLotDomainService['reverse'] {
+  return async (journalEntryId, repoOptions) => {
+    const acquisition = await deps.acquisitionRepo.findByJournalEntryId(
+      journalEntryId,
+      repoOptions
+    );
+    const disposition = await deps.dispositionRepo.findByJournalEntryId(
+      journalEntryId,
+      repoOptions
+    );
+    const lots: IFxCostBasisReversalResult['lots'] = [];
+
+    if (acquisition) {
+      const lot = await deps.lotRepo.findById(acquisition.lotId, repoOptions);
+
+      if (!lot) {
+        throw new fxCostBasisLotError.LotNotFound({
+          journalEntryId,
+          lotId: acquisition.lotId,
+        });
+      }
+
+      lots.push(
+        fxCostBasisLotEntity.reverseAcquisition(
+          lot,
+          acquisition.quantity,
+          acquisition.costBasis
+        )
+      );
+    }
+
+    if (disposition) {
+      const allocations =
+        await deps.dispositionAllocationRepo.findAllByDispositionId(
+          disposition.id,
+          repoOptions
+        );
+
+      for (const allocation of allocations) {
+        const lot = await deps.lotRepo.findById(allocation.lotId, repoOptions);
+
+        if (!lot) {
+          throw new fxCostBasisLotError.LotNotFound({
+            journalEntryId,
+            lotId: allocation.lotId,
+          });
+        }
+
+        lots.push(
+          fxCostBasisLotEntity.reverseDisposition(
+            lot,
+            allocation.quantity,
+            allocation.costBasisConsumed
+          )
+        );
+      }
+    }
+
+    return lots.length ? { lots } : null;
+  };
+}
+
 export default function makeFxCostBasisLotService(
   deps: IDependencies
 ): IFxCostBasisLotDomainService {
@@ -142,6 +217,8 @@ export default function makeFxCostBasisLotService(
     acquire: makeAcquire(),
 
     dispose: makeDispose(deps),
+
+    reverse: makeReverse(deps),
   };
 
   return Object.freeze(service);

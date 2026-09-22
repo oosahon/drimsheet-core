@@ -25,8 +25,9 @@ import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
 import { ITransferEntryReq } from '@app/journal-entry/dtos/transfer-entry/transfer-entry.dto';
 import { transferEntryReqValidation } from '@app/journal-entry/dtos/transfer-entry/transfer-entry.dto.validation';
-import getLedgerAccountHelper from '@app/journal-entry/usecases/helpers/account-getter.helper';
-import helpers from '@app/journal-entry/usecases/helpers/create-transfer.usecase.helpers';
+import getLedgerAccountHelper from '@app/journal-entry/helpers/account-getter.helper';
+import getNewCounterpartiesHelper from '@app/journal-entry/helpers/get-new-counterparties.helper';
+import helpers from '@app/journal-entry/helpers/transfer-entry.helpers';
 import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 import IOutboxService from '@app/outbox/contracts/outbox.service.contract';
 import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
@@ -146,10 +147,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
       historyValue.make(line, userActor, correlationId)
     );
 
-    const {
-      counterparties: counterpartiesToCreate,
-      events: counterpartyEvents,
-    } = helpers.getNewCounterparties(
+    const newCounterparties = getNewCounterpartiesHelper(
       allCounterparties,
       userActor,
       correlationId
@@ -170,7 +168,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
     const dbTransactionFn: TRepoTransactionFn = async (tx) => {
       const writeOptions = { correlationId, tx };
 
-      for (const counterpartyWithHistory of counterpartiesToCreate) {
+      for (const counterpartyWithHistory of newCounterparties.records) {
         const [counterparty, history] = counterpartyWithHistory;
         await deps.counterpartyPersistenceService.create(counterparty, {
           ...writeOptions,
@@ -222,7 +220,7 @@ export default function makeCreateTransferUsecase(deps: IDependencies) {
     ];
 
     const allEvents: IEvent<unknown>[] = [
-      ...counterpartyEvents.flat(),
+      ...newCounterparties.events,
       ...journalEntryEvents,
       ...fxEvents,
     ];

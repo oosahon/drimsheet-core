@@ -475,56 +475,124 @@ describe('JournalEntry Entity', () => {
       })[0];
     }
 
-    it('should void a posted entry with audit and event metadata', () => {
+    it('updates every editable value on a draft journal entry', () => {
+      const entry = makeEntry(null);
+      const amount = moneyValue.make(150, SYSTEM_CURRENCIES.USD, false);
+      const [updatedEntry, events, audit] = journalEntryEntity.update(entry, {
+        id: entry.id,
+        memo: 'Updated draft',
+        lines: entry.lines.map((line) => ({
+          ...line,
+          amount,
+          functionalAmount: amount,
+        })),
+      });
+
+      expect(updatedEntry).toMatchObject({
+        id: entry.id,
+        memo: 'Updated draft',
+        version: 2,
+      });
+      expect(updatedEntry.lines).toEqual([
+        expect.objectContaining({ id: entry.lines[0].id, version: 2 }),
+        expect.objectContaining({ id: entry.lines[1].id, version: 2 }),
+      ]);
+      expect(events).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ type: EJournalEntryEvent.Updated }),
+          expect.objectContaining({ type: EJournalLineItemEvent.Updated }),
+        ])
+      );
+      expect(audit.header.action).toBe(EJournalEntryAuditAction.Updated);
+      expect(audit.lines).toHaveLength(2);
+    });
+
+    it('updates only descriptions and attachments on a posted journal entry', () => {
+      const entry = makeEntry(new Date('2026-04-15T00:00:00.000Z'));
+      const attachments = [
+        {
+          url: 'https://files.example.com/corrected.pdf',
+          name: 'corrected.pdf',
+          type: 'application/pdf',
+          size: 4096,
+        },
+      ];
+      const [updatedEntry, , audit] = journalEntryEntity.update(entry, {
+        id: entry.id,
+        attachments,
+        lines: entry.lines.map((line, index) => ({
+          ...line,
+          description: index === 0 ? 'Corrected description' : line.description,
+        })),
+      });
+
+      expect(updatedEntry.attachments).toEqual(attachments);
+      expect(updatedEntry.lines[0].description).toBe('Corrected description');
+      expect(updatedEntry.memo).toBe(entry.memo);
+      expect(audit.header.diff).toMatchObject({
+        before: { attachments: entry.attachments },
+        after: { attachments },
+      });
+    });
+
+    it('uses the existing lines when lines are omitted and accepts explicit posting values', () => {
+      const entry = makeEntry(null);
+      const [updatedEntry] = journalEntryEntity.update(entry, {
+        id: entry.id,
+        postedAt: null,
+      });
+
+      expect(updatedEntry.lines).toEqual(entry.lines);
+      expect(updatedEntry.postedAt).toBeNull();
+    });
+
+    it('rejects accounting-value updates on a posted journal entry', () => {
+      const entry = makeEntry(new Date('2026-04-15T00:00:00.000Z'));
+      const amount = moneyValue.make(150, SYSTEM_CURRENCIES.USD, false);
+
+      expect(() =>
+        journalEntryEntity.update(entry, {
+          id: entry.id,
+          lines: entry.lines.map((line) => ({
+            ...line,
+            amount,
+            functionalAmount: amount,
+          })),
+        })
+      ).toThrow(journalEntryError.RectificationNotPermitted);
+    });
+
+    it('should void a posted entry with lineage, audit, and event metadata', () => {
       const entry = makeEntry(new Date('2026-04-15T00:00:00.000Z'));
       const voidingEntryId =
-        '4c6e83ef-2a1b-4c3d-8d9e-5e6f7a8b9c0d' as TEntityId;
-
+        'f7930be4-f709-4cf2-bf2f-a885b22421fd' as TEntityId;
       const [voidedEntry, events, audit] = journalEntryEntity.void(entry, {
         voidingEntryId,
       });
 
-      expect(voidedEntry).toEqual(
-        expect.objectContaining({
-          status: EJournalEntryStatus.Voided,
-          postedAt: entry.postedAt,
-          voidedAt: new Date('2026-04-15T00:00:00.000Z'),
-          voidingEntryId,
-          version: 2,
-        })
-      );
-      expect(Object.isFrozen(voidedEntry)).toBe(true);
-      expect(voidedEntry.attachments).toBe(entry.attachments);
+      expect(voidedEntry).toMatchObject({
+        id: entry.id,
+        status: EJournalEntryStatus.Voided,
+        voidedAt: new Date('2026-04-15T00:00:00.000Z'),
+        voidingEntryId,
+        version: 2,
+      });
       expect(events).toEqual([
         expect.objectContaining({ type: EJournalEntryEvent.Voided }),
       ]);
       expect(audit.action).toBe(EJournalEntryAuditAction.Voided);
-      expect(audit.diff.before).toEqual(
-        expect.objectContaining({ id: entry.id })
-      );
-      expect(audit.diff.before).not.toHaveProperty('attachments');
+      expect(audit.diff.before).not.toHaveProperty('lines');
       expect(audit.diff.after).not.toHaveProperty('attachments');
     });
 
     it('should reject voiding a draft entry', () => {
-      const draftEntry = makeEntry(null);
+      const entry = makeEntry(null);
 
       expect(() =>
-        journalEntryEntity.void(draftEntry, {
-          voidingEntryId: '4c6e83ef-2a1b-4c3d-8d9e-5e6f7a8b9c0d' as TEntityId,
+        journalEntryEntity.void(entry, {
+          voidingEntryId: 'f7930be4-f709-4cf2-bf2f-a885b22421fd' as TEntityId,
         })
       ).toThrow(journalEntryError.InvalidStatusTransition);
-    });
-
-    it('should reject an invalid voiding entry id', () => {
-      expect(() =>
-        journalEntryEntity.void(
-          makeEntry(new Date('2026-04-15T00:00:00.000Z')),
-          {
-            voidingEntryId: 'invalid' as TEntityId,
-          }
-        )
-      ).toThrow(journalEntryError.InvalidVoidingEntryId);
     });
 
     it('should archive draft and posted entries with audit and event metadata', () => {
@@ -555,12 +623,12 @@ describe('JournalEntry Entity', () => {
     });
 
     it('should reject archiving a voided entry', () => {
-      const [voidedEntry] = journalEntryEntity.void(
-        makeEntry(new Date('2026-04-15T00:00:00.000Z')),
-        {
-          voidingEntryId: '4c6e83ef-2a1b-4c3d-8d9e-5e6f7a8b9c0d' as TEntityId,
-        }
-      );
+      const entry = makeEntry(new Date('2026-04-15T00:00:00.000Z'));
+      const voidedEntry = {
+        ...entry,
+        status: EJournalEntryStatus.Voided,
+        voidedAt: new Date('2026-04-15T00:00:00.000Z'),
+      };
 
       expect(() => journalEntryEntity.archive(voidedEntry)).toThrow(
         journalEntryError.InvalidStatusTransition

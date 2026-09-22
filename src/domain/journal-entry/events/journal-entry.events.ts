@@ -4,6 +4,7 @@ import { IJournalEntry } from '@domain/journal-entry/types/journal-entry.types';
 
 export const EJournalEntryEvent = {
   Created: 'domain:journal-entry:created',
+  Updated: 'domain:journal-entry:updated',
   Voided: 'domain:journal-entry:voided',
   Archived: 'domain:journal-entry:archived',
 } as const;
@@ -25,6 +26,13 @@ function makeJournalEntryVoidedEvent(payload: IJournalEntry) {
   });
 }
 
+function makeJournalEntryUpdatedEvent(payload: IJournalEntry) {
+  return eventValue.make<IJournalEntry>({
+    type: EJournalEntryEvent.Updated,
+    data: payload,
+  });
+}
+
 function makeJournalEntryArchivedEvent(payload: IJournalEntry) {
   return eventValue.make<IJournalEntry>({
     type: EJournalEntryEvent.Archived,
@@ -34,6 +42,7 @@ function makeJournalEntryArchivedEvent(payload: IJournalEntry) {
 
 const journalEntryEvents = Object.freeze({
   created: makeJournalEntryCreatedEvent,
+  updated: makeJournalEntryUpdatedEvent,
   voided: makeJournalEntryVoidedEvent,
   archived: makeJournalEntryArchivedEvent,
 });

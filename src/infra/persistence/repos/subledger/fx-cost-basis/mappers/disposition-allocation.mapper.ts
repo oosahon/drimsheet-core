@@ -1,9 +1,14 @@
 import { InferSelectModel } from 'drizzle-orm';
 
+import { TEntityId } from '@shared/types/uuid';
+
 import { IFxCostBasisLotDispositionAllocation } from '@domain/subledger/fx-cost-basis/types/disposition.types';
 
 import { subledgerFxCostBasisLotDispositionAllocationsInCore } from '@infra/config/drizzle/schema';
-import { toRepoDate } from '@infra/persistence/helpers/date.mapper';
+import {
+  fromRepoDate,
+  toRepoDate,
+} from '@infra/persistence/helpers/date.mapper';
 import moneyMapper from '@infra/persistence/helpers/money.mapper';
 
 export interface IFxCostBasisLotDispositionAllocationModel extends InferSelectModel<
@@ -11,6 +16,33 @@ export interface IFxCostBasisLotDispositionAllocationModel extends InferSelectMo
 > {}
 
 const fxCostBasisLotDispositionAllocationMapper = {
+  toDomain(
+    payload: IFxCostBasisLotDispositionAllocationModel
+  ): IFxCostBasisLotDispositionAllocation {
+    return {
+      id: payload.id as TEntityId,
+      dispositionId: payload.dispositionId as TEntityId,
+      lotId: payload.lotId as TEntityId,
+      quantity: moneyMapper.fromRepo(
+        payload.quantityAmount,
+        payload.quantityCurrency
+      ),
+      costBasisConsumed: moneyMapper.fromRepo(
+        payload.costBasisConsumedAmount,
+        payload.costBasisConsumedCurrency
+      ),
+      proceeds: moneyMapper.fromRepo(
+        payload.proceedsAmount,
+        payload.proceedsCurrency
+      ),
+      realizedGainLoss: moneyMapper.fromRepo(
+        payload.realizedGainLossAmount,
+        payload.realizedGainLossCurrency
+      ),
+      createdAt: fromRepoDate(payload.createdAt),
+    };
+  },
+
   toRepo(
     payload: IFxCostBasisLotDispositionAllocation
   ): IFxCostBasisLotDispositionAllocationModel {

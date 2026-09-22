@@ -19,17 +19,28 @@ export const EJournalEntryAuditAction = {
 export type UJournalEntryAuditAction =
   (typeof EJournalEntryAuditAction)[keyof typeof EJournalEntryAuditAction];
 
-export interface IJournalEntryAudit extends IEntityDelta<IJournalHeader> {
+export interface IJournalEntryAudit<
+  TJournalEntry extends IJournalHeader = IJournalHeader,
+> extends IEntityDelta<TJournalEntry> {
   action: UJournalEntryAuditAction;
 }
 
-export interface IMakeJournalEntryAuditPayload {
-  before: IJournalHeader | null;
-  after: IJournalHeader;
+export type IJournalEntryRectificationAudit = IJournalEntryAudit<IJournalEntry>;
+
+export interface IMakeJournalEntryAuditPayload<
+  TJournalEntry extends IJournalHeader = IJournalHeader,
+> {
+  before: TJournalEntry | null;
+  after: TJournalEntry;
   action: UJournalEntryAuditAction;
 }
+
+export type IMakeJournalEntryRectificationAuditPayload =
+  IMakeJournalEntryAuditPayload<IJournalEntry>;
 
 export interface IJournalEntryHistory extends IHistory<IJournalHeader> {}
+
+export interface IJournalEntryRectificationHistory extends IHistory<IJournalEntry> {}
 
 export const EJournalLineAuditAction = {
   Created: 'created',
@@ -65,4 +76,13 @@ export type TAuditedJournalEntryTransition = [
   IJournalEntry,
   IEvent<IJournalEntry>[],
   IJournalEntryAudit,
+];
+
+export type TAuditedJournalEntryUpdate = [
+  IJournalEntry,
+  IEvent<IJournalEntry | IJournalLine>[],
+  {
+    header: IJournalEntryRectificationAudit;
+    lines: IJournalLineAudit[];
+  },
 ];

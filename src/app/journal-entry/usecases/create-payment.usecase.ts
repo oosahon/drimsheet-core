@@ -10,8 +10,6 @@ import eventValue from '@shared/values/events/event.vo';
 import { IEvent } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
 
-import { ICounterpartyHistory } from '@domain/counterparty/types/counterparty-audit.types';
-import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
 import {
   ICreatePaymentEntryPayload,
   IJournalEntryService,
@@ -31,6 +29,7 @@ import { IJournalEntryDto } from '@app/journal-entry/dtos/journal-entry/journal-
 import journalEntryDtoMapper from '@app/journal-entry/dtos/journal-entry/journal-entry.dto.mapper';
 import { IPaymentEntryReq } from '@app/journal-entry/dtos/payment-entry/payment-entry.dto';
 import { paymentEntryReqValidation } from '@app/journal-entry/dtos/payment-entry/payment-entry.dto.validation';
+import getNewCounterpartiesHelper from '@app/journal-entry/helpers/get-new-counterparties.helper';
 import ILedgerBalanceAdjustmentQueue from '@app/ledger/contracts/ledger-balance-adjustment-queue.contract';
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 import moneyMapper from '@app/money/dtos/money/money.dto.mapper';
@@ -176,17 +175,11 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
     const journalLinesHistory = journalEntryAudit.lines.map((line) =>
       historyValue.make(line, userActor, correlationId)
     );
-    const counterpartiesToCreate: [ICounterparty, ICounterpartyHistory][] = [];
-    const counterpartyEvents: IEvent<ICounterparty>[][] = [];
-
-    for (const foundOrCreatedCounterparty of allCounterparties.values()) {
-      if (!foundOrCreatedCounterparty.new) continue;
-
-      const [counterparty, events, audit] = foundOrCreatedCounterparty.data;
-      const history = historyValue.make(audit, userActor, correlationId);
-      counterpartiesToCreate.push([counterparty, history]);
-      counterpartyEvents.push(events);
-    }
+    const newCounterparties = getNewCounterpartiesHelper(
+      allCounterparties,
+      userActor,
+      correlationId
+    );
 
     const shouldUpdateBalance =
       journalEntry.status === EJournalEntryStatus.Posted;
@@ -201,7 +194,7 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
     const dbTransactionFn: TRepoTransactionFn = async (tx) => {
       const writeOptions = { correlationId, tx };
 
-      for (const counterpartyWithHistory of counterpartiesToCreate) {
+      for (const counterpartyWithHistory of newCounterparties.records) {
         const [counterparty, history] = counterpartyWithHistory;
         await deps.counterpartyPersistenceService.create(counterparty, {
           ...writeOptions,
@@ -241,7 +234,7 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
     }
 
     const allEvents: IEvent<unknown>[] = [
-      ...counterpartyEvents.flat(),
+      ...newCounterparties.events,
       ...journalEntryEvents,
       ...fxEvents,
     ];

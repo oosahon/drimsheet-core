@@ -405,4 +405,50 @@ describe('fxCostBasisPersistenceService', () => {
     expect(mockFxCostBasisLotDispositionRepo.create).toHaveBeenCalled();
     expect(mockOutboxRepo.create).not.toHaveBeenCalled();
   });
+
+  it('persists prepared FX lot reversal updates in the caller transaction', async () => {
+    const service = getService();
+    const bundle = makeDispositionBundle();
+    const [reversedLot, , reversalAudit] =
+      fxCostBasisLotEntity.reverseDisposition(
+        bundle.lot,
+        bundle.allocation.quantity,
+        bundle.allocation.costBasisConsumed
+      );
+    const reversalHistory = historyValue.make(
+      reversalAudit,
+      actor,
+      correlationId
+    );
+
+    await service.persistReversal(
+      {
+        lots: [
+          {
+            lot: reversedLot,
+            history: reversalHistory,
+            expectedVersion: bundle.lot.version,
+          },
+        ],
+      },
+      {
+        correlationId,
+        tx: 'caller-tx' as unknown as ITransactionContext,
+      }
+    );
+
+    expect(mockRepoService.runInTransaction).toHaveBeenCalledWith(
+      expect.any(Function),
+      'caller-tx'
+    );
+    expect(mockFxCostBasisLotRepo.update).toHaveBeenCalledWith(
+      reversedLot,
+      expect.objectContaining({
+        correlationId,
+        tx: 'mock-tx',
+        expectedVersion: bundle.lot.version,
+        history: reversalHistory,
+      })
+    );
+  });
 });

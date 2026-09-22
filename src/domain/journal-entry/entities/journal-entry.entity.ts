@@ -5,6 +5,7 @@ import fileAttachmentValue from '@shared/values/file-attachments/file-attachment
 import { IFileAttachment } from '@shared/values/file-attachments/types/file-attachment.types';
 
 import getJournalEntryMemo from '@domain/journal-entry/entities/helpers/get-memo.helper';
+import updateJournalEntryLines from '@domain/journal-entry/entities/helpers/update-journal-entry-lines.helper';
 import journalEntryValidation from '@domain/journal-entry/entities/validations/journal-entry.validation';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import journalEntryEvents from '@domain/journal-entry/events/journal-entry.events';
@@ -12,6 +13,7 @@ import {
   EJournalEntryAuditAction,
   TAuditedJournalEntry,
   TAuditedJournalEntryTransition,
+  TAuditedJournalEntryUpdate,
 } from '@domain/journal-entry/types/journal-entry-audit.types';
 import {
   EJournalEntryStatus,
@@ -38,9 +40,11 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
     payload.effectiveDate,
     journalEntryError.InvalidEffectiveDate
   );
-  const id = generateUUID();
+  const id = payload.id ?? generateUUID();
   const timestamp = new Date();
   const memo = getJournalEntryMemo(payload.memo);
+
+  stringUtils.validateUUID(id, journalEntryError.InvalidJournalEntry);
 
   journalEntryValidation.validatePostedAt(payload.postedAt);
 
@@ -100,6 +104,73 @@ function make(payload: IJournalEntryMakePayload): TAuditedJournalEntry {
   ];
 }
 
+function update(
+  entry: IJournalEntry,
+  newEntry: Partial<IJournalEntry> & { id: IJournalEntry['id'] }
+): TAuditedJournalEntryUpdate {
+  journalEntryValidation.validateUpdate(entry, newEntry);
+
+  const timestamp = new Date();
+  const memo =
+    newEntry.memo === undefined
+      ? entry.memo
+      : getJournalEntryMemo(newEntry.memo);
+  const effectiveDate = newEntry.effectiveDate ?? entry.effectiveDate;
+  const postedAt =
+    newEntry.postedAt === undefined ? entry.postedAt : newEntry.postedAt;
+  const status = newEntry.status ?? entry.status;
+  const {
+    lines,
+    events: lineEvents,
+    audits: lineAudits,
+  } = updateJournalEntryLines({
+    entry,
+    lines: newEntry.lines ?? entry.lines,
+    memo,
+    updatedAt: timestamp,
+  });
+
+  dateUtils.validateDate(effectiveDate, journalEntryError.InvalidEffectiveDate);
+  journalEntryValidation.validatePostedAt(postedAt);
+  journalEntryValidation.validateStatus(status);
+  journalEntryValidation.validateLine(lines);
+  journalEntryValidation.validateCounterparties(entry.sourceType, lines);
+
+  const rawAttachments = (newEntry.attachments ?? entry.attachments).map(
+    fileAttachmentValue.make
+  );
+  const attachments = Object.freeze(rawAttachments) as IFileAttachment[];
+  const updatedEntry: IJournalEntry = Object.freeze({
+    id: entry.id,
+    accountingEntityId: entry.accountingEntityId,
+    sourceType: entry.sourceType,
+    lines,
+    attachments,
+    memo,
+    status,
+    effectiveDate,
+    postedAt,
+    voidedAt: entry.voidedAt,
+    voidingEntryId: entry.voidingEntryId,
+    version: entry.version + 1,
+    createdBy: entry.createdBy,
+    createdAt: entry.createdAt,
+    updatedAt: timestamp,
+  });
+  const event = journalEntryEvents.updated(updatedEntry);
+  const audit = journalEntryAudit.make({
+    before: entry,
+    after: updatedEntry,
+    action: EJournalEntryAuditAction.Updated,
+  });
+
+  return [
+    updatedEntry,
+    [event, ...lineEvents],
+    { header: audit, lines: lineAudits },
+  ];
+}
+
 function voidEntry(
   entry: IJournalEntry,
   payload: IVoidJournalEntryPayload
@@ -120,8 +191,12 @@ function voidEntry(
     payload.voidingEntryId
   );
   const event = journalEntryEvents.voided(voidedEntry);
-  const { lines: _l1, attachments: _att1, ...header } = voidedEntry;
-  const { lines: _l2, attachments: _att2, ...beforeHeader } = entry;
+  const { lines: _lines, attachments: _attachments, ...header } = voidedEntry;
+  const {
+    lines: _beforeLines,
+    attachments: _beforeAttachments,
+    ...beforeHeader
+  } = entry;
   const audit = journalEntryAudit.make({
     before: beforeHeader,
     after: header,
@@ -186,6 +261,7 @@ function makeTransitionedEntry(
 
 const journalEntryEntity = Object.freeze({
   make,
+  update,
   void: voidEntry,
   archive,
   ...journalEntryValidation,

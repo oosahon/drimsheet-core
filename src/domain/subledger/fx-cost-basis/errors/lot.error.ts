@@ -33,6 +33,7 @@ const EErrorKeys = {
     'fx_cost_basis_lot_error_consumption_cost_basis_invalid',
   ClosedLot: 'fx_cost_basis_lot_error_closed_invalid',
   InsufficientQuantity: 'fx_cost_basis_lot_error_insufficient_quantity_invalid',
+  LotNotFound: 'fx_cost_basis_lot_error_not_found_unexpected',
 } as const satisfies TErrorKeys<'fx_cost_basis_lot_error'>;
 
 type UFxCostBasisLotError = (typeof EErrorKeys)[keyof typeof EErrorKeys];

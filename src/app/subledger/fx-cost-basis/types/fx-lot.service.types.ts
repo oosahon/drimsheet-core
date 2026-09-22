@@ -7,6 +7,7 @@ import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import {
   IFxCostBasisAcquisitionPersistencePayload,
   IFxCostBasisDispositionPersistencePayload,
+  IFxCostBasisReversalPersistencePayload,
 } from '@app/subledger/fx-cost-basis/contracts/fx-cost-basis-persistence.service.contract';
 
 export interface IFxLotAppOperationPayload {
@@ -25,3 +26,6 @@ export type TFxLotAcquisitionAppResult =
 
 export type TFxLotDispositionAppResult =
   IFxLotAppResult<IFxCostBasisDispositionPersistencePayload>;
+
+export type TFxLotReversalAppResult =
+  IFxLotAppResult<IFxCostBasisReversalPersistencePayload>;

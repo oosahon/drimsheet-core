@@ -1,0 +1,420 @@
+import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
+import mockRepoService from '@shared/contracts/__mocks__/repo.mock';
+import { ITransactionContext } from '@shared/types/repo.types';
+import generateUUID from '@shared/utils/uuid-generator';
+import appError from '@shared/values/errors/app.error';
+
+import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
+import { ECounterpartyType } from '@domain/counterparty/types/counterparty.types';
+import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
+import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
+import makeJournalEntryRectificationService from '@domain/journal-entry/services/journal-entry-rectification.service';
+import { EJournalEntryRectificationMode } from '@domain/journal-entry/types/journal-entry-rectification.types';
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '@domain/journal-entry/types/journal-entry.types';
+import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
+import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
+import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import moneyValue from '@domain/money/values/money.vo';
+
+import mockAppContext, {
+  mockClientSession,
+} from '@app/context/contracts/__mocks__/app-context.mock';
+import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
+import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
+import mockJournalEntryRectificationPreparationService from '@app/journal-entry/contracts/__mocks__/journal-entry-rectification-preparation.service.mock';
+import { mockJournalEntryRepo } from '@app/journal-entry/contracts/__mocks__/journal-entry.repos.mock';
+import {
+  ITransferJournalEntryRectificationReq,
+  TJournalEntryRectificationReq,
+} from '@app/journal-entry/dtos/journal-entry-rectification/journal-entry-rectification.dto';
+import makeRectifyJournalEntryUsecase from '@app/journal-entry/usecases/rectify-journal-entry.usecase';
+import mockLedgerAccountBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/ledger-balance-adjustment-queue.mock';
+import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
+import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
+import {
+  TFxLotAcquisitionAppResult,
+  TFxLotDispositionAppResult,
+} from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
+
+describe('makeRectifyJournalEntryUsecase', () => {
+  const correlationId = 'rectification-correlation-id';
+  const idempotencyKey = 'rectification-idempotency-key';
+  const userId = generateUUID();
+  const accountingEntityId = generateUUID();
+  const sourceAccount = { id: generateUUID() } as ILedgerAccount;
+  const destinationAccount = { id: generateUUID() } as ILedgerAccount;
+  const effectiveDate = new Date('2026-09-01T00:00:00.000Z');
+  const now = new Date('2026-09-21T10:00:00.000Z');
+  const rectificationService = makeJournalEntryRectificationService();
+
+  function makeEntry(
+    amountValue: number,
+    description = 'Transfer',
+    postedAt: Date | null = effectiveDate
+  ) {
+    const amount = moneyValue.make(amountValue, SYSTEM_CURRENCIES.NGN, false);
+
+    return journalEntryEntity.make({
+      accountingEntityId,
+      sourceType: EJournalEntrySourceType.Transfer,
+      effectiveDate,
+      postedAt,
+      memo: 'Move funds',
+      createdBy: userId,
+      functionalCurrency: SYSTEM_CURRENCIES.NGN,
+      attachments: [],
+      lines: [
+        {
+          accountId: sourceAccount.id,
+          counterpartyId: null,
+          sequenceOrder: 1,
+          amount,
+          exchangeRate: null,
+          side: EJournalSide.Credit,
+          description,
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+        {
+          accountId: destinationAccount.id,
+          counterpartyId: null,
+          sequenceOrder: 2,
+          amount,
+          exchangeRate: null,
+          side: EJournalSide.Debit,
+          description: null,
+          functionalCurrency: SYSTEM_CURRENCIES.NGN,
+        },
+      ],
+    });
+  }
+
+  function makePayload(
+    originalEntry: ReturnType<typeof makeEntry>[0],
+    amount = 150,
+    description = 'Transfer'
+  ): ITransferJournalEntryRectificationReq {
+    return {
+      sourceType: 'transfer',
+      expectedVersion: originalEntry.version,
+      attachments: [],
+      effectiveDate,
+      postedAt: effectiveDate,
+      memo: 'Move funds',
+      sourceLine: {
+        id: originalEntry.lines[0].id,
+        accountId: sourceAccount.id,
+        amount: {
+          amount,
+          currencyCode: SYSTEM_CURRENCIES.NGN.code,
+          isMinorUnit: false,
+        },
+        exchangeRate: null,
+        description,
+        sequenceOrder: 1,
+      },
+      destinationLine: {
+        id: originalEntry.lines[1].id,
+        accountId: destinationAccount.id,
+        amount: {
+          amount,
+          currencyCode: SYSTEM_CURRENCIES.NGN.code,
+          isMinorUnit: false,
+        },
+        exchangeRate: null,
+        description: null,
+        sequenceOrder: 2,
+      },
+      chargeLines: [],
+    };
+  }
+
+  function getUsecase() {
+    return makeRectifyJournalEntryUsecase({
+      appContext: mockAppContext,
+      counterpartyPersistenceService: mockCounterpartyPersistenceService,
+      journalEntryRepo: mockJournalEntryRepo,
+      journalEntryRectificationPreparationService:
+        mockJournalEntryRectificationPreparationService,
+      journalEntryPersistenceService: mockJournalEntryPersistenceService,
+      repoService: mockRepoService,
+      eventBus: mockEventBus,
+      outboxService: mockOutboxService,
+      ledgerBalanceAdjustmentQueue: mockLedgerAccountBalanceAdjustmentQueue,
+      fxCostBasisPersistenceService: mockFxLotCostBasisService.persistence,
+    });
+  }
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(now);
+    jest.clearAllMocks();
+    mockAppContext.get.mockReturnValue({
+      correlationId,
+      idempotencyKey,
+      user: { id: userId },
+      accountingEntity: {
+        id: accountingEntityId,
+        functionalCurrencyCode: SYSTEM_CURRENCIES.NGN.code,
+      },
+      clientSession: mockClientSession,
+    } as unknown as IAppContextData);
+    mockRepoService.runInTransaction.mockImplementation(async (fn) =>
+      fn('mock-tx' as unknown as ITransactionContext)
+    );
+    mockEventBus.publish.mockResolvedValue();
+    mockOutboxService.createBalancePropagation.mockResolvedValue();
+    mockLedgerAccountBalanceAdjustmentQueue.add.mockResolvedValue();
+  });
+
+  afterEach(() => jest.useRealTimers());
+
+  it('persists and propagates a reversing and corrected journal entry', async () => {
+    const [originalEntry] = makeEntry(100);
+    const newEntryResult = makeEntry(150);
+    const newEntry = {
+      ...newEntryResult[0],
+      lines: newEntryResult[0].lines.map((line, index) => ({
+        ...line,
+        id: originalEntry.lines[index].id,
+      })),
+    };
+    const result = rectificationService.rectify({
+      originalEntry,
+      newEntry,
+    });
+    mockJournalEntryRepo.findById.mockResolvedValue(originalEntry);
+    const counterparty = counterpartyEntity.make({
+      accountingEntityId,
+      name: 'Vendor',
+      type: ECounterpartyType.Organization,
+    });
+    const counterparties = new Map([
+      ['vendor', { new: true, data: counterparty }],
+    ]);
+    const fxDisposition = {
+      records: {} as TFxLotDispositionAppResult['records'],
+      events: [],
+    };
+    const fxAcquisition = {
+      records: {} as TFxLotAcquisitionAppResult['records'],
+      events: [],
+    };
+    const fxReversal = { records: { lots: [] }, events: [] };
+    mockJournalEntryRectificationPreparationService.prepare.mockResolvedValue({
+      rectification: result,
+      counterparties,
+      fxReversal,
+      fxDisposition,
+      fxAcquisition,
+    });
+
+    const response = await getUsecase()(
+      originalEntry.id,
+      makePayload(originalEntry)
+    );
+
+    expect(
+      mockJournalEntryRectificationPreparationService.prepare
+    ).toHaveBeenCalledWith(
+      expect.objectContaining({
+        originalEntry,
+        requestedEntry: expect.objectContaining({
+          sourceType: EJournalEntrySourceType.Transfer,
+        }),
+        actor: expect.objectContaining({ userId }),
+      }),
+      { correlationId, idempotencyKey }
+    );
+    expect(mockJournalEntryPersistenceService.rectify).toHaveBeenCalledWith(
+      expect.objectContaining({
+        entriesToCreate: expect.arrayContaining([
+          expect.objectContaining({
+            entry: expect.objectContaining({
+              sourceType: EJournalEntrySourceType.Reversal,
+            }),
+          }),
+          expect.objectContaining({ entry: result.currentJournalEntry }),
+        ]),
+        entryUpdate: expect.objectContaining({
+          entry: expect.objectContaining({
+            status: EJournalEntryStatus.Voided,
+          }),
+        }),
+      }),
+      expect.objectContaining({ tx: 'mock-tx' })
+    );
+    expect(mockOutboxService.createBalancePropagation).toHaveBeenCalledTimes(2);
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledTimes(
+      2
+    );
+    expect(mockCounterpartyPersistenceService.create).toHaveBeenCalledTimes(1);
+    expect(
+      mockFxLotCostBasisService.persistence.persistReversal
+    ).toHaveBeenCalledWith(fxReversal.records, expect.any(Object));
+    expect(
+      mockFxLotCostBasisService.persistence.persistDisposition
+    ).toHaveBeenCalledWith(fxDisposition.records, expect.any(Object));
+    expect(
+      mockFxLotCostBasisService.persistence.persistAcquisition
+    ).toHaveBeenCalledWith(fxAcquisition.records, expect.any(Object));
+    expect(response).toMatchObject({
+      mode: EJournalEntryRectificationMode.VoidAndReplace,
+      originalJournalEntryId: originalEntry.id,
+      currentJournalEntryId: result.currentJournalEntry.id,
+      reversingJournalEntryId: result.reversingJournalEntry?.id,
+    });
+  });
+
+  it('updates posted metadata without FX or balance propagation', async () => {
+    const [originalEntry] = makeEntry(100);
+    const newEntryResult = makeEntry(100, 'Corrected description');
+    const newEntry = {
+      ...newEntryResult[0],
+      lines: newEntryResult[0].lines.map((line, index) => ({
+        ...line,
+        id: originalEntry.lines[index].id,
+      })),
+    };
+    const result = rectificationService.rectify({
+      originalEntry,
+      newEntry,
+    });
+    mockJournalEntryRepo.findById.mockResolvedValue(originalEntry);
+    const existingCounterparty = counterpartyEntity.make({
+      accountingEntityId,
+      name: 'Existing vendor',
+      type: ECounterpartyType.Organization,
+    });
+    mockJournalEntryRectificationPreparationService.prepare.mockResolvedValue({
+      rectification: result,
+      counterparties: new Map([
+        ['existing-vendor', { new: false, data: existingCounterparty }],
+      ]),
+      fxReversal: null,
+      fxDisposition: null,
+      fxAcquisition: null,
+    });
+
+    const response = await getUsecase()(
+      originalEntry.id,
+      makePayload(originalEntry, 100, 'Corrected description')
+    );
+
+    expect(response.mode).toBe(EJournalEntryRectificationMode.UpdateMeta);
+    expect(mockJournalEntryPersistenceService.rectify).toHaveBeenCalledTimes(1);
+    expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
+  });
+
+  it('rejects a stale expected version before preparing a correction', async () => {
+    const [originalEntry] = makeEntry(100);
+    const payload = makePayload(originalEntry);
+    payload.expectedVersion += 1;
+    mockJournalEntryRepo.findById.mockResolvedValue(originalEntry);
+
+    await expect(
+      getUsecase()(originalEntry.id, payload)
+    ).rejects.toBeInstanceOf(appError.Conflict);
+
+    expect(
+      mockJournalEntryRectificationPreparationService.prepare
+    ).not.toHaveBeenCalled();
+  });
+
+  it('prepares current FX effects when a draft rectification is posted', async () => {
+    const [originalEntry] = makeEntry(100, 'Transfer', null);
+    const candidateResult = makeEntry(100);
+    const candidate = {
+      ...candidateResult[0],
+      lines: candidateResult[0].lines.map((line, index) => ({
+        ...line,
+        id: originalEntry.lines[index].id,
+      })),
+    };
+    const result = rectificationService.rectify({
+      originalEntry,
+      newEntry: candidate,
+    });
+    mockJournalEntryRepo.findById.mockResolvedValue(originalEntry);
+    mockJournalEntryRectificationPreparationService.prepare.mockResolvedValue({
+      rectification: result,
+      counterparties: new Map(),
+      fxReversal: null,
+      fxDisposition: null,
+      fxAcquisition: null,
+    });
+
+    await getUsecase()(originalEntry.id, makePayload(originalEntry, 100));
+
+    expect(mockOutboxService.createBalancePropagation).toHaveBeenCalledTimes(1);
+    expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledTimes(
+      1
+    );
+  });
+
+  it('hides journal entries outside the active accounting entity', async () => {
+    const [originalEntry] = makeEntry(100);
+    mockJournalEntryRepo.findById.mockResolvedValue({
+      ...originalEntry,
+      accountingEntityId: generateUUID(),
+    });
+
+    await expect(
+      getUsecase()(originalEntry.id, makePayload(originalEntry))
+    ).rejects.toBeInstanceOf(appError.ResourceNotFound);
+  });
+
+  it('rejects rectification by a user who did not create the journal entry', async () => {
+    const [originalEntry] = makeEntry(100);
+    mockJournalEntryRepo.findById.mockResolvedValue({
+      ...originalEntry,
+      createdBy: generateUUID(),
+    });
+
+    await expect(
+      getUsecase()(originalEntry.id, makePayload(originalEntry))
+    ).rejects.toBeInstanceOf(appError.Forbidden);
+  });
+
+  it('rejects a source type that differs from the original journal entry', async () => {
+    const [originalEntry] = makeEntry(100);
+    const transferPayload = makePayload(originalEntry);
+    const payload: TJournalEntryRectificationReq = {
+      sourceType: EJournalEntrySourceType.Payment,
+      expectedVersion: transferPayload.expectedVersion,
+      attachments: transferPayload.attachments,
+      effectiveDate: transferPayload.effectiveDate,
+      postedAt: transferPayload.postedAt,
+      memo: transferPayload.memo,
+      sourceLine: {
+        ...transferPayload.sourceLine,
+        counterparty: { name: 'Source counterparty' },
+      },
+      destinationLines: [
+        {
+          ...transferPayload.destinationLine,
+          counterparty: { name: 'Destination counterparty' },
+        },
+      ],
+    };
+    mockJournalEntryRepo.findById.mockResolvedValue(originalEntry);
+
+    await expect(
+      getUsecase()(originalEntry.id, payload)
+    ).rejects.toBeInstanceOf(appError.BadRequest);
+  });
+
+  it('rejects an invalid journal entry id before repository access', async () => {
+    const [originalEntry] = makeEntry(100);
+
+    await expect(
+      getUsecase()('not-a-uuid', makePayload(originalEntry))
+    ).rejects.toBeInstanceOf(journalEntryError.InvalidJournalEntry);
+
+    expect(mockJournalEntryRepo.findById).not.toHaveBeenCalled();
+  });
+});

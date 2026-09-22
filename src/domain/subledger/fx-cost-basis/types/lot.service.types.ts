@@ -26,6 +26,10 @@ export interface IFxCostBasisDispositionResult {
   allocations: IFxCostBasisLotDispositionAllocation[];
 }
 
+export interface IFxCostBasisReversalResult {
+  lots: ReturnType<typeof fxCostBasisLotEntity.reverseAcquisition>[];
+}
+
 export default interface IFxCostBasisLotDomainService {
   acquire(
     payload: IFxCostBasisLotOperationPayload
@@ -35,4 +39,9 @@ export default interface IFxCostBasisLotDomainService {
     payload: IFxCostBasisLotOperationPayload,
     repoOptions: IReadRepoOptions
   ): Promise<IFxCostBasisDispositionResult | null>;
+
+  reverse(
+    journalEntryId: IJournalEntry['id'],
+    repoOptions: IReadRepoOptions
+  ): Promise<IFxCostBasisReversalResult | null>;
 }

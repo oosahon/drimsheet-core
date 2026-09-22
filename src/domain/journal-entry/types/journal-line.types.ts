@@ -42,6 +42,7 @@ export interface IJournalLineMakePayload extends Pick<
   | 'side'
   | 'description'
 > {
+  id?: TEntityId;
   counterpartyId?: TEntityId | null;
   functionalCurrency: ICurrency;
 }

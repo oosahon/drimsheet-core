@@ -1,6 +1,8 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
+import validateVersionInRepo from '@shared/helpers/validate-version-in-repo';
+import repoError from '@shared/values/errors/repo.error';
 
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
 
@@ -24,6 +26,35 @@ const journalEntryRepo: IJournalEntryRepo = {
       await journalEntryHistoryRepo.create(
         entriesArray,
         historiesArray,
+        passOnRepoTransaction(options, tx)
+      );
+    });
+  },
+
+  update: async (payload, options) => {
+    validateVersionInRepo(payload, options);
+
+    await getDbQuery(options).transaction(async (tx) => {
+      const updated = await tx
+        .update(journalEntriesInCore)
+        .set(journalEntryMapper.toRepo(payload))
+        .where(
+          and(
+            eq(journalEntriesInCore.id, payload.id),
+            eq(journalEntriesInCore.version, options.expectedVersion)
+          )
+        );
+
+      if (updated.rowCount === 0) {
+        throw new repoError.VersionNotFound({
+          id: payload.id,
+          version: options.expectedVersion,
+        });
+      }
+
+      await journalEntryHistoryRepo.create(
+        payload,
+        options.history,
         passOnRepoTransaction(options, tx)
       );
     });

@@ -4,8 +4,11 @@ import {
   IJournalEntryAudit,
   IMakeJournalEntryAuditPayload,
 } from '@domain/journal-entry/types/journal-entry-audit.types';
+import { IJournalHeader } from '@domain/journal-entry/types/journal-entry.types';
 
-function make(payload: IMakeJournalEntryAuditPayload): IJournalEntryAudit {
+function make<TJournalEntry extends IJournalHeader>(
+  payload: IMakeJournalEntryAuditPayload<TJournalEntry>
+): IJournalEntryAudit<TJournalEntry> {
   const { before, after } = generateDiff(payload.after, payload.before);
 
   return Object.freeze({

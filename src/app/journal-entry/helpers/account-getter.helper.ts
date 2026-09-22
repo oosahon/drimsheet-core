@@ -5,7 +5,7 @@ import ILedgerAccountRepo from '@domain/ledger/repos/ledger-account.repo';
 
 import ledgerAppError from '@app/ledger/errors/ledger.error';
 
-interface IPayload {
+interface IGetLedgerAccountPayload {
   id: string;
   accountingEntityId: string;
   repo: ILedgerAccountRepo;
@@ -17,7 +17,7 @@ export default async function getLedgerAccountHelper({
   accountingEntityId,
   repo,
   repoOptions,
-}: IPayload) {
+}: IGetLedgerAccountPayload) {
   const account = await repo.findById(
     id as TEntityId,
     accountingEntityId as TEntityId,

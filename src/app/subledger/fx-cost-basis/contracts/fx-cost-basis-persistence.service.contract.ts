@@ -38,6 +38,10 @@ export interface IFxCostBasisDispositionPersistencePayload {
   missingOfficialRateOutbox: IMissingOfficialFxRateOutbox | null;
 }
 
+export interface IFxCostBasisReversalPersistencePayload {
+  lots: IFxCostBasisLotWithHistory[];
+}
+
 export default interface IFxCostBasisPersistenceService {
   /**
    * Atomically writes a prepared acquisition bundle, joining the supplied
@@ -54,6 +58,11 @@ export default interface IFxCostBasisPersistenceService {
    */
   persistDisposition(
     payload: IFxCostBasisDispositionPersistencePayload,
+    repoOptions: IWriteRepoOptions
+  ): Promise<void>;
+
+  persistReversal(
+    payload: IFxCostBasisReversalPersistencePayload,
     repoOptions: IWriteRepoOptions
   ): Promise<void>;
 }

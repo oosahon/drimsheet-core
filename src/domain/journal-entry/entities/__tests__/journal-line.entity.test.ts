@@ -154,6 +154,89 @@ describe('JournalLineItem Entity', () => {
     });
   });
 
+  describe('update', () => {
+    const entryPayload: TEntryPayload = {
+      id: '2b4c10ab-5c31-419b-ab29-688001d9f8e4' as TEntityId,
+      memo: 'General Memo',
+      createdAt: new Date('2026-04-15T00:00:00.000Z'),
+    };
+    const makePayload: TMakePayload = {
+      accountId: 'd571fba2-d5cb-43dc-8e6c-2f3b97b0a70f' as TEntityId,
+      counterpartyId: null,
+      sequenceOrder: 1,
+      amount: moneyValue.make(100, SYSTEM_CURRENCIES.USD, false),
+      exchangeRate: null,
+      side: EJournalSide.Debit,
+      description: 'Before',
+      functionalCurrency: SYSTEM_CURRENCIES.USD,
+    };
+
+    it('should update the line and return its event and audit', () => {
+      const [line] = journalLineEntity.make(entryPayload, makePayload);
+
+      const [updatedLine, events, audit] = journalLineEntity.update(line, {
+        ...line,
+        description: 'After',
+      });
+
+      expect(updatedLine).toMatchObject({
+        id: line.id,
+        entryId: line.entryId,
+        description: 'After',
+        version: 2,
+      });
+      expect(events).toHaveLength(1);
+      expect(events[0]).toMatchObject({
+        type: EJournalLineItemEvent.Updated,
+        data: updatedLine,
+      });
+      expect(audit).toMatchObject({
+        entityId: line.id,
+        entityVersion: 2,
+        action: EJournalLineAuditAction.Updated,
+      });
+    });
+
+    it('should return the existing line when no properties changed', () => {
+      const [line] = journalLineEntity.make(entryPayload, makePayload);
+
+      const [unchangedLine, events, audit] = journalLineEntity.update(
+        line,
+        line
+      );
+
+      expect(unchangedLine).toBe(line);
+      expect(events).toEqual([]);
+      expect(audit).toBeNull();
+    });
+
+    it('should recalculate functional amount when an exchange rate is supplied', () => {
+      const [line] = journalLineEntity.make(entryPayload, {
+        ...makePayload,
+        amount: moneyValue.make(100, SYSTEM_CURRENCIES.EUR, false),
+        exchangeRate: exchangeRateValue.make({
+          baseCurrencyCode: SYSTEM_CURRENCIES.EUR.code,
+          targetCurrencyCode: SYSTEM_CURRENCIES.USD.code,
+          rate: 1.1,
+          type: EExchangeRateType.Official,
+          asOf: new Date('2026-04-14T00:00:00.000Z'),
+          source: 'Open Exchange Rates',
+        }),
+        functionalCurrency: SYSTEM_CURRENCIES.USD,
+      });
+
+      const [updatedLine] = journalLineEntity.update(line, {
+        ...line,
+        description: 'After',
+      });
+
+      expect(updatedLine.functionalAmount.amount).toBe(11_000n);
+      expect(updatedLine.functionalAmount.currency).toEqual(
+        SYSTEM_CURRENCIES.USD
+      );
+    });
+  });
+
   describe('Helpers', () => {
     describe('validateSide', () => {
       it('should not throw for valid sides', () => {

@@ -196,12 +196,39 @@ function makeDispose(deps: IDependencies): IFxLotAppService['dispose'] {
 }
 
 /**
+ * Prepares versioned lot updates that reverse the FX effects associated with a
+ * journal entry. The caller owns persistence and transaction ordering.
+ */
+function makeReverse(deps: IDependencies): IFxLotAppService['reverse'] {
+  return async (journalEntryId, actor, repoOptions) => {
+    const domainResult = await deps.fxCostBasisLotService.reverse(
+      journalEntryId,
+      repoOptions
+    );
+
+    if (!domainResult) return null;
+
+    return {
+      records: {
+        lots: domainResult.lots.map(([lot, , audit]) => ({
+          lot,
+          expectedVersion: lot.version - 1,
+          history: historyValue.make(audit, actor, repoOptions.correlationId),
+        })),
+      },
+      events: domainResult.lots.flatMap(([, events]) => events),
+    };
+  };
+}
+
+/**
  * Constructs the immutable FX lot application preparation capability.
  */
 export default function makeFxLotAppService(
   deps: IDependencies
 ): IFxLotAppService {
   return Object.freeze({
+    reverse: makeReverse(deps),
     acquire: makeAcquire(deps),
     dispose: makeDispose(deps),
   });

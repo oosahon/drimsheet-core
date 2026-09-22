@@ -37,6 +37,7 @@ export const EFxCostBasisLotAuditAction = {
   Disposed: 'disposed',
   Closed: 'closed',
   Reopened: 'reopened',
+  Reversed: 'reversed',
 } as const;
 
 export type UFxCostBasisLotAuditAction =

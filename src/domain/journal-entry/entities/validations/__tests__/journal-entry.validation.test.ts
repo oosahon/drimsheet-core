@@ -1,4 +1,5 @@
 import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
 
 import getJournalEntryMemo from '@domain/journal-entry/entities/helpers/get-memo.helper';
 import journalEntryEntity from '@domain/journal-entry/entities/journal-entry.entity';
@@ -7,6 +8,7 @@ import journalEntryError from '@domain/journal-entry/errors/journal-entry.error'
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
+  IJournalEntry,
   UJournalEntrySourceType,
   UJournalEntryStatus,
 } from '@domain/journal-entry/types/journal-entry.types';
@@ -351,6 +353,78 @@ describe('journalEntryValidation', () => {
           'invalid-uuid' as TEntityId
         )
       ).toThrow(journalEntryError.InvalidVoidingEntryId);
+    });
+  });
+
+  describe('validateUpdate', () => {
+    function makeEntry(
+      status: UJournalEntryStatus = EJournalEntryStatus.Draft
+    ): IJournalEntry {
+      return {
+        id: generateUUID(),
+        accountingEntityId: generateUUID(),
+        sourceType: EJournalEntrySourceType.Transfer,
+        status,
+        createdBy: generateUUID(),
+        lines: [],
+      } as unknown as IJournalEntry;
+    }
+
+    it('rejects updates to a non-rectifiable entry', () => {
+      const entry = makeEntry(EJournalEntryStatus.Voided);
+
+      expect(() =>
+        journalEntryValidation.validateUpdate(entry, {
+          id: entry.id,
+          memo: 'changed',
+        })
+      ).toThrow(journalEntryError.RectificationNotPermitted);
+    });
+
+    it('rejects changing the owner of an entry', () => {
+      const entry = makeEntry();
+
+      expect(() =>
+        journalEntryValidation.validateUpdate(entry, {
+          id: entry.id,
+          createdBy: generateUUID(),
+        })
+      ).toThrow(journalEntryError.RectificationNotPermitted);
+    });
+
+    it('rejects an invalid draft status transition', () => {
+      const entry = makeEntry();
+
+      expect(() =>
+        journalEntryValidation.validateUpdate(entry, {
+          id: entry.id,
+          status: EJournalEntryStatus.Voided,
+        })
+      ).toThrow(journalEntryError.InvalidStatusTransition);
+    });
+
+    it('rejects accounting changes on a posted entry', () => {
+      const entry = makeEntry(EJournalEntryStatus.Posted);
+
+      expect(() =>
+        journalEntryValidation.validateUpdate(entry, {
+          id: entry.id,
+          lines: [{ id: generateUUID() } as never],
+        })
+      ).toThrow(journalEntryError.RectificationNotPermitted);
+    });
+
+    it('rejects a posted update containing an unknown line', () => {
+      const entry = makeEntry(EJournalEntryStatus.Posted);
+      const existingLine = { id: generateUUID() } as never;
+      const postedEntry = { ...entry, lines: [existingLine] } as IJournalEntry;
+
+      expect(() =>
+        journalEntryValidation.validateUpdate(postedEntry, {
+          id: entry.id,
+          lines: [{ id: generateUUID() } as never],
+        })
+      ).toThrow(journalEntryError.RectificationNotPermitted);
     });
   });
 });

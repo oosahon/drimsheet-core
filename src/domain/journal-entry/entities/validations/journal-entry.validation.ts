@@ -1,3 +1,5 @@
+import { isEqual } from 'lodash';
+
 import { TEntityId } from '@shared/types/uuid';
 import dateUtils from '@shared/utils/date';
 import serializeBigIntInObj from '@shared/utils/serialize-bigint-in-object';
@@ -7,6 +9,7 @@ import journalEntryError from '@domain/journal-entry/errors/journal-entry.error'
 import {
   EJournalEntrySourceType,
   EJournalEntryStatus,
+  IJournalEntry,
   UJournalEntrySourceType,
   UJournalEntryStatus,
 } from '@domain/journal-entry/types/journal-entry.types';
@@ -141,6 +144,99 @@ function validateVoidingEntryId(value: TEntityId | null) {
   }
 }
 
+function hasOnlyMetadataChanges(
+  entry: IJournalEntry,
+  newEntry: Partial<IJournalEntry> & { id: TEntityId }
+) {
+  const lines = newEntry.lines ?? entry.lines;
+  const hasHeaderAccountingChange =
+    (newEntry.accountingEntityId !== undefined &&
+      newEntry.accountingEntityId !== entry.accountingEntityId) ||
+    (newEntry.sourceType !== undefined &&
+      newEntry.sourceType !== entry.sourceType) ||
+    (newEntry.memo !== undefined && newEntry.memo !== entry.memo) ||
+    (newEntry.status !== undefined && newEntry.status !== entry.status) ||
+    (newEntry.effectiveDate !== undefined &&
+      !isEqual(newEntry.effectiveDate, entry.effectiveDate)) ||
+    (newEntry.postedAt !== undefined &&
+      !isEqual(newEntry.postedAt, entry.postedAt));
+
+  if (hasHeaderAccountingChange || lines.length !== entry.lines.length) {
+    return false;
+  }
+
+  for (const line of lines) {
+    const originalLine = entry.lines.find((item) => item.id === line.id);
+
+    if (!originalLine) return false;
+
+    const hasAccountingLineChange =
+      originalLine.accountId !== line.accountId ||
+      originalLine.counterpartyId !== line.counterpartyId ||
+      originalLine.sequenceOrder !== line.sequenceOrder ||
+      !moneyValue.equals(originalLine.amount, line.amount) ||
+      !isEqual(originalLine.exchangeRate, line.exchangeRate) ||
+      !moneyValue.equals(
+        originalLine.functionalAmount,
+        line.functionalAmount
+      ) ||
+      originalLine.side !== line.side ||
+      !isEqual(originalLine.meta, line.meta);
+
+    if (hasAccountingLineChange) return false;
+  }
+
+  return true;
+}
+
+function validateUpdate(
+  entry: IJournalEntry,
+  newEntry: Partial<IJournalEntry> & { id: TEntityId }
+) {
+  const isUpdatable =
+    entry.status === EJournalEntryStatus.Draft ||
+    entry.status === EJournalEntryStatus.Posted;
+
+  if (!isUpdatable) {
+    throw new journalEntryError.RectificationNotPermitted({
+      status: entry.status,
+    });
+  }
+
+  const changesOwner =
+    (newEntry.accountingEntityId !== undefined &&
+      newEntry.accountingEntityId !== entry.accountingEntityId) ||
+    (newEntry.sourceType !== undefined &&
+      newEntry.sourceType !== entry.sourceType) ||
+    (newEntry.createdBy !== undefined &&
+      newEntry.createdBy !== entry.createdBy);
+
+  if (changesOwner) {
+    throw new journalEntryError.RectificationNotPermitted();
+  }
+
+  const nextStatus = newEntry.status ?? entry.status;
+  const hasInvalidDraftStatus =
+    entry.status === EJournalEntryStatus.Draft &&
+    nextStatus !== EJournalEntryStatus.Draft &&
+    nextStatus !== EJournalEntryStatus.Posted;
+
+  if (hasInvalidDraftStatus) {
+    throw new journalEntryError.InvalidStatusTransition({
+      currentStatus: entry.status,
+      nextStatus,
+    });
+  }
+
+  const changesPostedAccountingValues =
+    entry.status === EJournalEntryStatus.Posted &&
+    !hasOnlyMetadataChanges(entry, newEntry);
+
+  if (changesPostedAccountingValues) {
+    throw new journalEntryError.RectificationNotPermitted();
+  }
+}
+
 const journalEntryValidation = Object.freeze({
   validateStatus,
   validateTransition,
@@ -151,6 +247,8 @@ const journalEntryValidation = Object.freeze({
   validatePostedAt,
   validateVoidedAt,
   validateVoidingEntryId,
+  hasOnlyMetadataChanges,
+  validateUpdate,
 });
 
 export default journalEntryValidation;

@@ -1,7 +1,12 @@
-import { and, eq, ilike, inArray, sql } from 'drizzle-orm';
+import { and, eq, ilike, inArray, ne, sql } from 'drizzle-orm';
 
 import drizzleFilters from '@shared/helpers/drizzle-filters';
 import paginationValue from '@shared/values/pagination/pagination.vo';
+
+import {
+  EJournalEntrySourceType,
+  EJournalEntryStatus,
+} from '@domain/journal-entry/types/journal-entry.types';
 
 import IJournalEntryQueryRepo, {
   EJournalEntrySortBy,
@@ -15,10 +20,38 @@ import getDbQuery from '@infra/persistence/helpers/get-db-query';
 import journalEntryDetailsMapper from '@infra/persistence/repos/journal-entry/mappers/journal-entry-details.mapper';
 
 const journalEntryQueryRepo: IJournalEntryQueryRepo = {
+  async findById(id, accountingEntityId, options) {
+    const entry = await getDbQuery(
+      options
+    ).query.journalEntriesInCore.findFirst({
+      where: and(
+        eq(journalEntriesInCore.id, id),
+        eq(journalEntriesInCore.accountingEntityId, accountingEntityId)
+      ),
+      with: {
+        journalEntryAttachmentsInCores: true,
+        journalLinesInCores: {
+          with: {
+            ledgerAccountsInCore: {
+              columns: { id: true, name: true },
+            },
+            counterpartiesInCore: {
+              columns: { id: true, name: true },
+            },
+          },
+        },
+      },
+    });
+
+    return entry ? journalEntryDetailsMapper.toDetails(entry) : null;
+  },
+
   async findAll(accountingEntityId, options) {
     const dbQuery = getDbQuery(options);
     const conditions = [
       eq(journalEntriesInCore.accountingEntityId, accountingEntityId),
+      eq(journalEntriesInCore.status, EJournalEntryStatus.Posted),
+      ne(journalEntriesInCore.sourceType, EJournalEntrySourceType.Reversal),
     ];
 
     if (options.accountId) {
