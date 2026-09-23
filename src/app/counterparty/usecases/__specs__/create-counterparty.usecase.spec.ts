@@ -6,7 +6,7 @@ import makeCounterpartyService from '@domain/counterparty/services/counterparty.
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import { mockCounterpartyService } from '@app/counterparty/contracts/__mocks__/counterparty.domain.services.mock';
-import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
+import { mockCounterpartyRepo } from '@app/counterparty/contracts/__mocks__/counterparty.repos.mock';
 import { ICounterpartyCreateReq } from '@app/counterparty/dtos/counterparty/counterparty.dto';
 import makeCreateCounterpartyUsecase from '@app/counterparty/usecases/create-counterparty.usecase';
 
@@ -15,7 +15,6 @@ const mockCounterpartyDomainServices = Object.freeze({
 });
 
 describe('makeCreateCounterpartyUsecase', () => {
-  const validUuid = '123e4567-e89b-12d3-a456-426614174000';
   const accountingEntityId = '123e4567-e89b-12d3-a456-426614174001';
   const userId = '123e4567-e89b-12d3-a456-426614174002';
 
@@ -30,7 +29,7 @@ describe('makeCreateCounterpartyUsecase', () => {
   };
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
     mockAppContext.get.mockReturnValue({
       correlationId: 'test-correlation-id',
       idempotencyKey: 'test-idempotency-key',
@@ -43,7 +42,7 @@ describe('makeCreateCounterpartyUsecase', () => {
     usecase = makeCreateCounterpartyUsecase({
       appContext: mockAppContext,
       counterpartyService: mockCounterpartyDomainServices.counterparty,
-      counterpartyPersistenceService: mockCounterpartyPersistenceService,
+      counterpartyRepo: mockCounterpartyRepo,
       eventBus: mockEventBus,
     });
   });
@@ -60,12 +59,13 @@ describe('makeCreateCounterpartyUsecase', () => {
       status: 'active',
     });
 
-    expect(mockCounterpartyPersistenceService.create).toHaveBeenCalledWith(
+    expect(mockCounterpartyRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({
         accountingEntityId,
         name: 'Jane Doe',
         type: 'individual',
         status: 'active',
+        meta: {},
         roles: [],
       }),
       expect.objectContaining({
@@ -93,30 +93,11 @@ describe('makeCreateCounterpartyUsecase', () => {
       name: 'Jane Doe',
       status: 'active',
       type: 'individual',
+      meta: {},
       roles: [],
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
     });
-
-    // Verify role methods are NOT called
-    expect(
-      mockCounterpartyDomainServices.counterparty.createVendor
-    ).not.toHaveBeenCalled();
-    expect(
-      mockCounterpartyDomainServices.counterparty.createContractor
-    ).not.toHaveBeenCalled();
-    expect(
-      mockCounterpartyDomainServices.counterparty.createEmployer
-    ).not.toHaveBeenCalled();
-    expect(
-      mockCounterpartyPersistenceService.createVendor
-    ).not.toHaveBeenCalled();
-    expect(
-      mockCounterpartyPersistenceService.createContractor
-    ).not.toHaveBeenCalled();
-    expect(
-      mockCounterpartyPersistenceService.createEmployer
-    ).not.toHaveBeenCalled();
   });
 
   it('should stop and throw if validation fails', async () => {
@@ -130,7 +111,7 @@ describe('makeCreateCounterpartyUsecase', () => {
     expect(
       mockCounterpartyDomainServices.counterparty.create
     ).not.toHaveBeenCalled();
-    expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
@@ -143,17 +124,73 @@ describe('makeCreateCounterpartyUsecase', () => {
 
     await expect(usecase(validPayload)).rejects.toThrow('domain error');
 
-    expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('should stop before event publication if persistence fails', async () => {
-    mockCounterpartyPersistenceService.create.mockRejectedValueOnce(
+    mockCounterpartyRepo.create.mockRejectedValueOnce(
       new Error('database error')
     );
 
     await expect(usecase(validPayload)).rejects.toThrow('database error');
 
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
+  });
+  it('persists one final multi-role counterparty and audit before publishing every transition', async () => {
+    const address = {
+      line1: ' Main Street ',
+      city: ' Lagos ',
+      countryCode: 'ng',
+    };
+    const payload = {
+      ...validPayload,
+      meta: { employer: { address }, vendor: {}, contractor: { address } },
+    };
+    const result = await usecase(payload);
+
+    expect(mockCounterpartyService.create).toHaveBeenCalledTimes(1);
+    expect(mockCounterpartyService.create).toHaveBeenCalledWith(
+      expect.objectContaining({ accountingEntityId, meta: payload.meta })
+    );
+    expect(mockCounterpartyRepo.create).toHaveBeenCalledTimes(1);
+    const [saved, options] = mockCounterpartyRepo.create.mock.calls[0];
+    expect(saved.roles).toEqual(['employer', 'vendor', 'contractor']);
+    expect(options.history.diff).toEqual({
+      before: null,
+      after: JSON.parse(JSON.stringify(saved)),
+    });
+    expect(saved.meta.employer?.displayName).toBeNull();
+    expect(saved.meta.employer?.address.countryCode).toBe('NG');
+    expect(saved.meta.vendor?.address).toBeNull();
+    expect(result.roles).toEqual(saved.roles);
+    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+    expect(mockEventBus.publish.mock.calls[0][0]).toHaveLength(4);
+    expect(
+      mockCounterpartyRepo.create.mock.invocationCallOrder[0]
+    ).toBeLessThan(mockEventBus.publish.mock.invocationCallOrder[0]);
+  });
+
+  it('propagates publication failure after successful persistence', async () => {
+    mockEventBus.publish.mockRejectedValueOnce(new Error('publication failed'));
+    await expect(usecase(validPayload)).rejects.toThrow('publication failed');
+    expect(mockCounterpartyRepo.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('rejects the entire request when one nested role is invalid', async () => {
+    await expect(
+      usecase({
+        ...validPayload,
+        meta: {
+          vendor: {},
+          contractor: {
+            address: { line1: '', city: 'Lagos', countryCode: 'NG' },
+          },
+        },
+      })
+    ).rejects.toThrow();
+    expect(mockCounterpartyService.create).not.toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 });

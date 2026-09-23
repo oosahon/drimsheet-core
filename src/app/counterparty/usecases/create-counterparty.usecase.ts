@@ -3,10 +3,10 @@ import zodValidationRunner from '@shared/utils/zod-validation-runner';
 import eventValue from '@shared/values/events/event.vo';
 import historyValue from '@shared/values/history/history.vo';
 
+import ICounterpartyRepo from '@domain/counterparty/repos/counterparty.repo';
 import ICounterpartyService from '@domain/counterparty/types/counterparty.service.types';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
-import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
 import {
   ICounterpartyCreateReq,
   ICounterpartyDto,
@@ -17,7 +17,7 @@ import { counterpartyCreateReqValidation } from '@app/counterparty/dtos/counterp
 interface IDependencies {
   appContext: IAppContext;
   counterpartyService: ICounterpartyService;
-  counterpartyPersistenceService: ICounterpartyPersistenceService;
+  counterpartyRepo: ICounterpartyRepo;
   eventBus: IEventBus;
 }
 
@@ -28,17 +28,17 @@ export default function makeCreateCounterpartyUsecase(deps: IDependencies) {
     const { correlationId, idempotencyKey, user, accountingEntity } =
       deps.appContext.get(['user', 'accountingEntity']);
 
-    const [counterparty, events, audit] = deps.counterpartyService.create({
-      accountingEntityId: accountingEntity.id,
-      name: payload.name,
-      type: payload.type,
-      status: payload.status,
-    });
+    const creationPayload = counterpartyDtoMapper.fromDto(
+      payload,
+      accountingEntity.id
+    );
+    const creation = deps.counterpartyService.create(creationPayload);
+    const [counterparty, events, audit] = creation;
 
     const actor = historyValue.getUserActor(user.id);
     const history = historyValue.make(audit, actor, correlationId);
 
-    await deps.counterpartyPersistenceService.create(counterparty, {
+    await deps.counterpartyRepo.create(counterparty, {
       correlationId,
       history,
     });

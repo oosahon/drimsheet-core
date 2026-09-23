@@ -1,4 +1,5 @@
 import { TEntityId } from '@shared/types/uuid';
+import { TCreateAddressPayload } from '@shared/values/contact-details/address.vo';
 import { IAddress } from '@shared/values/contact-details/types/address.types';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
@@ -34,28 +35,36 @@ export interface ICounterparty {
   status: UCounterpartyStatus;
   type: UCounterpartyType;
   roles: UCounterpartyRole[];
+  meta: ICounterpartyMeta;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface IEmployer {
-  counterpartyId: TEntityId;
+export interface ICounterpartyEmployerMeta {
   displayName: string | null;
   address: IAddress;
-  createdAt: Date;
 }
 
-export interface IVendor {
-  counterpartyId: TEntityId;
+export interface ICounterpartyVendorMeta {
   address: IAddress | null;
-  createdAt: Date;
 }
 
-export interface IContractor {
-  counterpartyId: TEntityId;
+export interface ICounterpartyContractorMeta {
   address: IAddress;
-  createdAt: Date;
 }
+
+export interface ICounterpartyMeta {
+  employer?: ICounterpartyEmployerMeta;
+  vendor?: ICounterpartyVendorMeta;
+  contractor?: ICounterpartyContractorMeta;
+}
+
+export type TCounterpartyRoleDetails = {
+  [Role in UCounterpartyRole]: {
+    role: Role;
+    meta: NonNullable<ICounterpartyMeta[Role]>;
+  };
+}[UCounterpartyRole];
 
 export interface IMakeCounterpartyPayload {
   accountingEntityId: TEntityId;
@@ -64,20 +73,27 @@ export interface IMakeCounterpartyPayload {
   status?: UCounterpartyStatus;
 }
 
-export interface IMakeEmployerPayload {
-  counterpartyId: TEntityId;
+export interface ICreateCounterpartyEmployerMeta {
   displayName?: string | null;
-  address: IAddress;
+  address: TCreateAddressPayload;
 }
 
-export interface IMakeVendorPayload {
-  counterpartyId: TEntityId;
-  address?: IAddress | null;
+export interface ICreateCounterpartyVendorMeta {
+  address?: TCreateAddressPayload | null;
 }
 
-export interface IMakeContractorPayload {
-  counterpartyId: TEntityId;
-  address: IAddress;
+export interface ICreateCounterpartyContractorMeta {
+  address: TCreateAddressPayload;
+}
+
+export interface ICreateCounterpartyMeta {
+  employer?: ICreateCounterpartyEmployerMeta;
+  vendor?: ICreateCounterpartyVendorMeta;
+  contractor?: ICreateCounterpartyContractorMeta;
+}
+
+export interface ICreateCounterpartyPayload extends IMakeCounterpartyPayload {
+  meta?: ICreateCounterpartyMeta;
 }
 
 export type TAuditedCounterparty = TAuditedEntity<

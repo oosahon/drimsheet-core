@@ -1,6 +1,7 @@
 import { omit } from 'lodash';
 import z from 'zod';
 
+import { addressDtoValidation } from '@shared/values/contact-details/dto/address.dto.validation';
 import { paginationDtoValidation } from '@shared/values/pagination/dto/pagination.dto.validation';
 import paginationError from '@shared/values/pagination/pagination.error';
 
@@ -23,8 +24,9 @@ const invalidTypeKey = new counterpartyError.InvalidType().errorKey;
 const invalidStatusKey = new counterpartyError.InvalidStatus().errorKey;
 const invalidRoleKey = new counterpartyError.InvalidRole().errorKey;
 const invalidOrderByKey = new paginationError.InvalidOrderBy().errorKey;
+const invalidMetaKey = new counterpartyError.InvalidMeta().errorKey;
 
-export const counterpartyStatusValidation = z.enum(
+const counterpartyStatusValidation = z.enum(
   Object.values(ECounterpartyStatus) as [
     UCounterpartyStatus,
     ...UCounterpartyStatus[],
@@ -32,7 +34,7 @@ export const counterpartyStatusValidation = z.enum(
   invalidStatusKey
 );
 
-export const counterpartyTypeValidation = z.enum(
+const counterpartyTypeValidation = z.enum(
   Object.values(ECounterpartyType) as [
     UCounterpartyType,
     ...UCounterpartyType[],
@@ -40,7 +42,7 @@ export const counterpartyTypeValidation = z.enum(
   invalidTypeKey
 );
 
-export const counterpartyRoleValidation = z.enum(
+const counterpartyRoleValidation = z.enum(
   Object.values(ECounterpartyRole) as [
     UCounterpartyRole,
     ...UCounterpartyRole[],
@@ -48,7 +50,7 @@ export const counterpartyRoleValidation = z.enum(
   invalidRoleKey
 );
 
-export const counterpartyOrderByValidationSchema = z.enum(
+const counterpartyOrderByValidationSchema = z.enum(
   Object.values(ECounterpartySortBy) as [
     UCounterpartySortBy,
     ...UCounterpartySortBy[],
@@ -62,11 +64,63 @@ export const counterpartyNameValidation = z
   .min(1, invalidNameKey)
   .max(255, invalidNameKey);
 
-export const counterpartyCreateReqValidation = z.object({
-  name: counterpartyNameValidation,
-  status: counterpartyStatusValidation,
-  type: counterpartyTypeValidation,
-});
+const counterpartyAddressValidation = z.strictObject(
+  addressDtoValidation.shape,
+  invalidMetaKey
+);
+
+const counterpartyCreateMetaValidation = z
+  .strictObject(
+    {
+      employer: z
+        .strictObject(
+          {
+            displayName: z
+              .string(invalidNameKey)
+              .trim()
+              .max(255, invalidNameKey)
+              .nullish(),
+            address: counterpartyAddressValidation,
+          },
+          invalidMetaKey
+        )
+        .optional(),
+      vendor: z
+        .strictObject(
+          {
+            address: counterpartyAddressValidation.nullish(),
+          },
+          invalidMetaKey
+        )
+        .optional(),
+      contractor: z
+        .strictObject(
+          {
+            address: counterpartyAddressValidation,
+          },
+          invalidMetaKey
+        )
+        .optional(),
+    },
+    invalidMetaKey
+  )
+  .superRefine((meta, ctx) => {
+    for (const role of Object.keys(meta)) {
+      if (meta[role as UCounterpartyRole] === undefined) {
+        ctx.addIssue({ code: 'custom', path: [role], message: invalidMetaKey });
+      }
+    }
+  });
+
+export const counterpartyCreateReqValidation = z.strictObject(
+  {
+    name: counterpartyNameValidation,
+    status: counterpartyStatusValidation,
+    type: counterpartyTypeValidation,
+    meta: counterpartyCreateMetaValidation.optional(),
+  },
+  invalidMetaKey
+);
 
 export const getCounterpartiesQueryValidationSchema = z.object({
   ...omit(paginationDtoValidation.shape, ['orderBy']),

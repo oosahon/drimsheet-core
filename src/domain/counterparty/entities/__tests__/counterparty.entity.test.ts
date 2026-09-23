@@ -1,5 +1,6 @@
 import { TEntityId } from '@shared/types/uuid';
 import generateUUID from '@shared/utils/uuid-generator';
+import addressValue from '@shared/values/contact-details/address.vo';
 
 import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
 import counterpartyError from '@domain/counterparty/errors/counterparty.error';
@@ -106,7 +107,7 @@ describe('Counterparty Entity', () => {
 
       const [updatedCounterparty, events, audit] = counterpartyEntity.addRole(
         initialCounterparty,
-        ECounterpartyRole.Vendor
+        { role: ECounterpartyRole.Vendor, meta: { address: null } }
       );
 
       expect(updatedCounterparty.roles).toEqual([ECounterpartyRole.Vendor]);
@@ -133,14 +134,14 @@ describe('Counterparty Entity', () => {
 
       const [counterpartyWithRole] = counterpartyEntity.addRole(
         initialCounterparty,
-        ECounterpartyRole.Vendor
+        { role: ECounterpartyRole.Vendor, meta: { address: null } }
       );
 
       expect(() =>
-        counterpartyEntity.addRole(
-          counterpartyWithRole,
-          ECounterpartyRole.Vendor
-        )
+        counterpartyEntity.addRole(counterpartyWithRole, {
+          role: ECounterpartyRole.Vendor,
+          meta: { address: null },
+        })
       ).toThrow(counterpartyError.RoleAlreadyAssigned);
     });
 
@@ -152,8 +153,77 @@ describe('Counterparty Entity', () => {
       });
 
       expect(() =>
-        counterpartyEntity.addRole(initialCounterparty, 'invalid-role' as any)
+        counterpartyEntity.addRole(initialCounterparty, {
+          role: 'invalid-role',
+          meta: { address: null },
+        } as unknown as Parameters<typeof counterpartyEntity.addRole>[1])
       ).toThrow(counterpartyError.InvalidRole);
     });
+  });
+});
+
+describe('Counterparty role metadata transitions', () => {
+  const [generic] = counterpartyEntity.make({
+    accountingEntityId: generateUUID(),
+    name: 'Party',
+    type: 'organization',
+  });
+  const address = addressValue.make({
+    line1: 'Main Street',
+    city: 'Lagos',
+    countryCode: 'NG',
+  });
+
+  it('adds multiple roles in stable order while preserving previous details and identity', () => {
+    const [contractor] = counterpartyEntity.addRole(generic, {
+      role: 'contractor',
+      meta: { address },
+    });
+    const [employer] = counterpartyEntity.addRole(contractor, {
+      role: 'employer',
+      meta: { displayName: null, address },
+    });
+    expect(employer.roles).toEqual(['employer', 'contractor']);
+    expect(employer.id).toBe(generic.id);
+    expect(employer.createdAt).toBe(generic.createdAt);
+    expect(employer.meta.contractor).toEqual(contractor.meta.contractor);
+    expect(contractor.meta.employer).toBeUndefined();
+    expect(Object.isFrozen(employer.meta)).toBe(true);
+    expect(Object.isFrozen(employer.meta.employer?.address)).toBe(true);
+  });
+
+  it.each(['vendor', 'employer'])(
+    'rejects inconsistent membership %j',
+    (role) => {
+      const invalid = { ...generic, roles: [role] } as unknown as Parameters<
+        typeof counterpartyEntity.validateCounterparty
+      >[0];
+      expect(() => counterpartyEntity.validateCounterparty(invalid)).toThrow(
+        counterpartyError.InvalidRole
+      );
+    }
+  );
+
+  it('rejects wrong roles and duplicate roles even when metadata counts look plausible', () => {
+    const [vendor] = counterpartyEntity.addRole(generic, {
+      role: 'vendor',
+      meta: { address: null },
+    });
+    expect(() =>
+      counterpartyEntity.validateCounterparty({
+        ...vendor,
+        roles: ['employer'],
+      })
+    ).toThrow(counterpartyError.InvalidRole);
+    const [both] = counterpartyEntity.addRole(vendor, {
+      role: 'contractor',
+      meta: { address },
+    });
+    expect(() =>
+      counterpartyEntity.validateCounterparty({
+        ...both,
+        roles: ['vendor', 'vendor'],
+      })
+    ).toThrow(counterpartyError.InvalidRole);
   });
 });

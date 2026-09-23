@@ -33,9 +33,6 @@ jest.mock('../../../src/infra/ioc/services/auth', () => ({
 jest.mock('../../../src/infra/ioc/usecases/counterparty', () => ({
   __esModule: true,
   createCounterpartyUseCase: jest.fn(),
-  createVendorUseCase: jest.fn(),
-  createContractorUseCase: jest.fn(),
-  createEmployerUseCase: jest.fn(),
   getCounterpartiesUseCase: jest.fn(),
 }));
 
@@ -72,6 +69,7 @@ const mockResult = {
       name: 'Acme Corp',
       status: 'active',
       type: 'organization',
+      meta: { vendor: { address: null } },
       roles: ['vendor'],
       createdAt: new Date('2026-08-01T08:00:00.000Z'),
       updatedAt: new Date('2026-08-01T08:00:00.000Z'),

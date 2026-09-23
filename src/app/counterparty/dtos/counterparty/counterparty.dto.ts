@@ -1,3 +1,4 @@
+import { IAddressDto } from '@shared/values/contact-details/dto/address.dto';
 import { IPaginationDto } from '@shared/values/pagination/dto/pagination.dto';
 
 import { UCounterpartySortBy } from '@domain/counterparty/repos/counterparty.repo';
@@ -11,6 +12,19 @@ export interface ICounterpartyCreateReq {
   name: string;
   status: UCounterpartyStatus;
   type: UCounterpartyType;
+  meta?: ICounterpartyCreateMetaReq;
+}
+
+interface ICounterpartyCreateMetaReq {
+  employer?: { displayName?: string | null; address: IAddressDto };
+  vendor?: { address?: IAddressDto | null };
+  contractor?: { address: IAddressDto };
+}
+
+interface ICounterpartyMetaDto {
+  employer?: { displayName: string | null; address: IAddressDto };
+  vendor?: { address: IAddressDto | null };
+  contractor?: { address: IAddressDto };
 }
 
 export interface ICounterpartyDto {
@@ -20,6 +34,7 @@ export interface ICounterpartyDto {
   status: UCounterpartyStatus;
   type: UCounterpartyType;
   roles: UCounterpartyRole[];
+  meta: ICounterpartyMetaDto;
   createdAt: Date;
   updatedAt: Date;
 }

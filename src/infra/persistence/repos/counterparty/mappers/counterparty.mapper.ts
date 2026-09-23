@@ -1,10 +1,12 @@
 import { InferSelectModel } from 'drizzle-orm';
 
 import { TEntityId } from '@shared/types/uuid';
+import deepFreeze from '@shared/utils/deep-freeze';
 
+import getCounterpartyRolesHelper from '@domain/counterparty/entities/helpers/get-counterparty-roles.helper';
 import {
   ICounterparty,
-  UCounterpartyRole,
+  ICounterpartyMeta,
   UCounterpartyStatus,
   UCounterpartyType,
 } from '@domain/counterparty/types/counterparty.types';
@@ -27,22 +29,22 @@ const counterpartyMapper = {
       name: entity.name,
       status: entity.status,
       type: entity.type,
+      meta: structuredClone(entity.meta),
       createdAt: toRepoDate(entity.createdAt),
       updatedAt: toRepoDate(entity.updatedAt),
     };
   },
 
-  toDomain(
-    payload: ICounterpartyModel,
-    roles: UCounterpartyRole[] = []
-  ): ICounterparty {
-    return Object.freeze({
+  toDomain(payload: ICounterpartyModel): ICounterparty {
+    const meta = structuredClone(payload.meta) as ICounterpartyMeta;
+    return deepFreeze({
       id: payload.id as TEntityId,
       accountingEntityId: payload.accountingEntityId as TEntityId,
       name: payload.name,
       status: payload.status as UCounterpartyStatus,
       type: payload.type as UCounterpartyType,
-      roles: [...roles],
+      roles: getCounterpartyRolesHelper(meta),
+      meta,
       createdAt: fromRepoDate(payload.createdAt),
       updatedAt: fromRepoDate(payload.updatedAt),
     });

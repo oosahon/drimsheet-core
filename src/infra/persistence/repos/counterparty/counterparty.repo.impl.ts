@@ -1,4 +1,4 @@
-import { and, eq, ilike, inArray, sql } from 'drizzle-orm';
+import { and, eq, ilike, or, sql } from 'drizzle-orm';
 
 import drizzleFilters from '@shared/helpers/drizzle-filters';
 import passOnRepoTransaction from '@shared/helpers/passon-repo-transaction';
@@ -7,14 +7,9 @@ import paginationValue from '@shared/values/pagination/pagination.vo';
 import ICounterpartyRepo, {
   ECounterpartySortBy,
 } from '@domain/counterparty/repos/counterparty.repo';
-import { UCounterpartyRole } from '@domain/counterparty/types/counterparty.types';
 
-import {
-  counterpartiesInCore,
-  counterpartyRolesInCore,
-} from '@infra/config/drizzle/schema';
+import { counterpartiesInCore } from '@infra/config/drizzle/schema';
 import getDbQuery from '@infra/persistence/helpers/get-db-query';
-import counterpartyRoleMapper from '@infra/persistence/repos/counterparty/mappers/counterparty-role.mapper';
 import counterpartyMapper from '@infra/persistence/repos/counterparty/mappers/counterparty.mapper';
 
 import counterpartyHistoryRepo from './counterparty-history.repo.impl';
@@ -31,12 +26,6 @@ const counterpartyRepo: ICounterpartyRepo = {
         options.history,
         passOnRepoTransaction(options, tx)
       );
-
-      if (payload.roles?.length) {
-        await tx
-          .insert(counterpartyRolesInCore)
-          .values(counterpartyRoleMapper.toRepoMany(payload.id, payload.roles));
-      }
     });
   },
 
@@ -59,12 +48,12 @@ const counterpartyRepo: ICounterpartyRepo = {
 
     const dbQuery = getDbQuery(options);
 
-    if (options.roles && options.roles.length > 0) {
-      const subquery = dbQuery
-        .select({ counterpartyId: counterpartyRolesInCore.counterpartyId })
-        .from(counterpartyRolesInCore)
-        .where(inArray(counterpartyRolesInCore.role, options.roles));
-      conditions.push(inArray(counterpartiesInCore.id, subquery));
+    const roles = options.roles ?? [];
+    const hasRoleFilter = roles.length > 0;
+    if (hasRoleFilter) {
+      conditions.push(
+        or(...roles.map((role) => sql`${counterpartiesInCore.meta} ? ${role}`))!
+      );
     }
 
     const whereClause = and(...conditions);
@@ -103,27 +92,7 @@ const counterpartyRepo: ICounterpartyRepo = {
       .limit(limit)
       .offset(offset);
 
-    const counterpartyIds = results.map((r) => r.id);
-
-    const roles = await dbQuery
-      .select()
-      .from(counterpartyRolesInCore)
-      .where(inArray(counterpartyRolesInCore.counterpartyId, counterpartyIds));
-
-    const rolesMap = roles.reduce(
-      (acc, row) => {
-        if (!acc[row.counterpartyId]) {
-          acc[row.counterpartyId] = [];
-        }
-        acc[row.counterpartyId].push(row.role as UCounterpartyRole);
-        return acc;
-      },
-      {} as Record<string, UCounterpartyRole[]>
-    );
-
-    const counterparties = results.map((row) =>
-      counterpartyMapper.toDomain(row, rolesMap[row.id] || [])
-    );
+    const counterparties = results.map(counterpartyMapper.toDomain);
 
     return paginationValue.getPaginatedResponse(
       counterparties,
@@ -133,9 +102,7 @@ const counterpartyRepo: ICounterpartyRepo = {
   },
 
   async findById(id, accountingEntityId, options) {
-    const dbQuery = getDbQuery(options);
-
-    const [result] = await dbQuery
+    const [row] = await getDbQuery(options)
       .select()
       .from(counterpartiesInCore)
       .where(
@@ -146,19 +113,7 @@ const counterpartyRepo: ICounterpartyRepo = {
       )
       .limit(1);
 
-    if (!result) {
-      return null;
-    }
-
-    const roles = await dbQuery
-      .select()
-      .from(counterpartyRolesInCore)
-      .where(eq(counterpartyRolesInCore.counterpartyId, result.id));
-
-    return counterpartyMapper.toDomain(
-      result,
-      roles.map((role) => role.role as UCounterpartyRole)
-    );
+    return row ? counterpartyMapper.toDomain(row) : null;
   },
 };
 

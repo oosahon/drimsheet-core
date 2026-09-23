@@ -3,7 +3,7 @@ import paginationValue from '@shared/values/pagination/pagination.vo';
 import { IPaginatedResponse } from '@shared/values/pagination/types/pagination.types';
 
 import ICounterpartyRepo, {
-  IFindAllOptions,
+  IFindAllCounterpartiesOptions,
 } from '@domain/counterparty/repos/counterparty.repo';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
@@ -29,7 +29,7 @@ export default function makeGetCounterpartiesUsecase(deps: IDependencies) {
     ]);
 
     const offset = paginationValue.pageToOffset(query.page, query.limit);
-    const repoOptions: IFindAllOptions = {
+    const repoOptions: IFindAllCounterpartiesOptions = {
       ...query,
       offset,
       correlationId,

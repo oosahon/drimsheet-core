@@ -10,11 +10,11 @@ import eventValue from '@shared/values/events/event.vo';
 import { IEvent } from '@shared/values/events/types/event.types';
 import historyValue from '@shared/values/history/history.vo';
 
+import ICounterpartyRepo from '@domain/counterparty/repos/counterparty.repo';
 import journalEntryError from '@domain/journal-entry/errors/journal-entry.error';
 import IJournalEntryRepo from '@domain/journal-entry/repos/journal-entry.repo';
 
 import IAppContext from '@app/context/contracts/app-context.contract';
-import ICounterpartyPersistenceService from '@app/counterparty/contracts/persistence.service.contract';
 import IJournalEntryPersistenceService from '@app/journal-entry/contracts/journal-entry-persistence.service.contract';
 import IJournalEntryRectificationPreparationService from '@app/journal-entry/contracts/journal-entry-rectification-preparation.service.contract';
 import {
@@ -33,7 +33,7 @@ import IFxCostBasisPersistenceService from '@app/subledger/fx-cost-basis/contrac
 
 interface IDependencies {
   appContext: IAppContext;
-  counterpartyPersistenceService: ICounterpartyPersistenceService;
+  counterpartyRepo: ICounterpartyRepo;
   journalEntryRepo: IJournalEntryRepo;
   journalEntryRectificationPreparationService: IJournalEntryRectificationPreparationService;
   journalEntryPersistenceService: IJournalEntryPersistenceService;
@@ -106,7 +106,7 @@ export default function makeRectifyJournalEntryUsecase(deps: IDependencies) {
 
       for (const counterpartyWithHistory of newCounterparties.records) {
         const [counterparty, history] = counterpartyWithHistory;
-        await deps.counterpartyPersistenceService.create(counterparty, {
+        await deps.counterpartyRepo.create(counterparty, {
           ...writeOptions,
           history,
         });

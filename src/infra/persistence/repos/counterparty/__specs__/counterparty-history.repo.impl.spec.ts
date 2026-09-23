@@ -18,6 +18,7 @@ describe('CounterpartyHistoryRepoImpl', () => {
     name: 'Acme Corp',
     status: 'active',
     type: 'organization',
+    meta: {},
     roles: [],
     createdAt: now,
     updatedAt: now,

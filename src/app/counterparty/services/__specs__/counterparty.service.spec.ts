@@ -21,7 +21,6 @@ describe('makeCounterpartyAppService', () => {
   const accountingEntityId = generateUUID();
   const repoOptions = {
     correlationId: 'test-correlation-id',
-    transaction: {} as any,
   };
 
   afterEach(() => {
@@ -37,6 +36,7 @@ describe('makeCounterpartyAppService', () => {
           accountingEntityId,
           name: 'Jane Doe',
           type: ECounterpartyType.Individual,
+          meta: {},
           roles: [],
           status: 'active',
           createdAt: new Date(),

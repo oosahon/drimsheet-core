@@ -21,6 +21,19 @@ describe('makeGetCounterpartyUsecase', () => {
     name: 'Acme Corp',
     status: 'active',
     type: 'organization',
+    meta: {
+      vendor: { address: null },
+      contractor: {
+        address: {
+          line1: 'Main Street',
+          line2: null,
+          city: 'Lagos',
+          region: null,
+          postalCode: null,
+          countryCode: 'NG',
+        },
+      },
+    },
     roles: ['vendor', 'contractor'],
     createdAt: new Date('2026-08-01T00:00:00.000Z'),
     updatedAt: new Date('2026-08-02T00:00:00.000Z'),
@@ -66,6 +79,19 @@ describe('makeGetCounterpartyUsecase', () => {
       name: 'Acme Corp',
       status: 'active',
       type: 'organization',
+      meta: {
+        vendor: { address: null },
+        contractor: {
+          address: {
+            line1: 'Main Street',
+            line2: undefined,
+            city: 'Lagos',
+            region: undefined,
+            postalCode: undefined,
+            countryCode: 'NG',
+          },
+        },
+      },
       roles: ['vendor', 'contractor'],
       createdAt: counterparty.createdAt,
       updatedAt: counterparty.updatedAt,
