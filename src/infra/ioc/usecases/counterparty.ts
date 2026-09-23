@@ -3,6 +3,7 @@ import makeCreateCounterpartyUsecase from '@app/counterparty/usecases/create-cou
 import makeCreateEmployerUsecase from '@app/counterparty/usecases/create-employer.usecase';
 import makeCreateVendorUsecase from '@app/counterparty/usecases/create-vendor.usecase';
 import makeGetCounterpartiesUsecase from '@app/counterparty/usecases/get-counterparties.usecase';
+import makeGetCounterpartyUsecase from '@app/counterparty/usecases/get-counterparty.usecase';
 
 import {
   counterpartyPersistenceService,
@@ -56,6 +57,14 @@ export const createEmployerUseCase = makeTracedUseCase(
 export const getCounterpartiesUseCase = makeTracedUseCase(
   'counterparty.getCounterpartiesUseCase',
   makeGetCounterpartiesUsecase({
+    appContext,
+    counterpartyRepo: counterpartyRepos.counterparty,
+  })
+);
+
+export const getCounterpartyUseCase = makeTracedUseCase(
+  'counterparty.getCounterpartyUseCase',
+  makeGetCounterpartyUsecase({
     appContext,
     counterpartyRepo: counterpartyRepos.counterparty,
   })

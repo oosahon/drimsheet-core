@@ -29,6 +29,7 @@ export interface IFindAllJournalEntriesOptions extends Omit<
     | typeof EJournalEntryStatus.Posted
     | typeof EJournalEntryStatus.Archived;
   accountId?: TEntityId;
+  counterpartyId?: TEntityId;
   orderBy?: UJournalEntrySortBy;
 }
 

@@ -903,6 +903,14 @@ const models: TsoaRoute.Models = {
       search: { dataType: 'string' },
       page: { dataType: 'double' },
       accountId: { dataType: 'string' },
+      counterpartyId: { dataType: 'string' },
+      status: {
+        dataType: 'union',
+        subSchemas: [
+          { dataType: 'enum', enums: ['posted'] },
+          { dataType: 'enum', enums: ['archived'] },
+        ],
+      },
     },
     additionalProperties: false,
   },
@@ -2625,55 +2633,6 @@ export function RegisterRoutes(app: Router) {
     }
   );
   // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-  const argsJournalEntryController_getArchivedJournalEntries: Record<
-    string,
-    TsoaRoute.ParameterSchema
-  > = {
-    query: {
-      in: 'queries',
-      name: 'query',
-      required: true,
-      ref: 'IGetJournalEntriesQuery',
-    },
-  };
-  app.get(
-    '/api/v1/journal-entries/archived',
-    ...fetchMiddlewares<RequestHandler>(JournalEntryController),
-    ...fetchMiddlewares<RequestHandler>(
-      JournalEntryController.prototype.getArchivedJournalEntries
-    ),
-
-    async function JournalEntryController_getArchivedJournalEntries(
-      request: ExRequest,
-      response: ExResponse,
-      next: any
-    ) {
-      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-      let validatedArgs: any[] = [];
-      try {
-        validatedArgs = templateService.getValidatedArgs({
-          args: argsJournalEntryController_getArchivedJournalEntries,
-          request,
-          response,
-        });
-
-        const controller = new JournalEntryController();
-
-        await templateService.apiHandler({
-          methodName: 'getArchivedJournalEntries',
-          controller,
-          response,
-          next,
-          validatedArgs,
-          successStatus: 200,
-        });
-      } catch (err) {
-        return next(err);
-      }
-    }
-  );
-  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
   const argsJournalEntryController_getJournalEntry: Record<
     string,
     TsoaRoute.ParameterSchema
@@ -3374,6 +3333,50 @@ export function RegisterRoutes(app: Router) {
 
         await templateService.apiHandler({
           methodName: 'getCounterparties',
+          controller,
+          response,
+          next,
+          validatedArgs,
+          successStatus: 200,
+        });
+      } catch (err) {
+        return next(err);
+      }
+    }
+  );
+  // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+  const argsCounterpartyController_getCounterparty: Record<
+    string,
+    TsoaRoute.ParameterSchema
+  > = {
+    id: { in: 'path', name: 'id', required: true, dataType: 'string' },
+  };
+  app.get(
+    '/api/v1/counterparties/:id',
+    ...fetchMiddlewares<RequestHandler>(CounterpartyController),
+    ...fetchMiddlewares<RequestHandler>(
+      CounterpartyController.prototype.getCounterparty
+    ),
+
+    async function CounterpartyController_getCounterparty(
+      request: ExRequest,
+      response: ExResponse,
+      next: any
+    ) {
+      // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+      let validatedArgs: any[] = [];
+      try {
+        validatedArgs = templateService.getValidatedArgs({
+          args: argsCounterpartyController_getCounterparty,
+          request,
+          response,
+        });
+
+        const controller = new CounterpartyController();
+
+        await templateService.apiHandler({
+          methodName: 'getCounterparty',
           controller,
           response,
           next,

@@ -3,7 +3,6 @@ import makeCreatePaymentUsecase from '@app/journal-entry/usecases/create-payment
 import makeCreateReceiptUsecase from '@app/journal-entry/usecases/create-receipt.usecase';
 import makeCreateTransferUsecase from '@app/journal-entry/usecases/create-transfer.usecase';
 import makeDeleteJournalEntryUsecase from '@app/journal-entry/usecases/delete-journal-entry.usecase';
-import makeGetArchivedJournalEntriesUsecase from '@app/journal-entry/usecases/get-archived-journal-entries.usecase';
 import makeGetJournalEntriesUsecase from '@app/journal-entry/usecases/get-journal-entries.usecase';
 import makeGetJournalEntryUsecase from '@app/journal-entry/usecases/get-journal-entry.usecase';
 import makeRectifyJournalEntryUsecase from '@app/journal-entry/usecases/rectify-journal-entry.usecase';
@@ -67,14 +66,6 @@ export const deleteJournalEntryUseCase = makeTracedUseCase(
 export const getJournalEntriesUseCase = makeTracedUseCase(
   'journalEntry.getJournalEntriesUseCase',
   makeGetJournalEntriesUsecase({
-    appContext,
-    journalEntryQueryRepo: journalEntryRepos.queries.journalEntry,
-  })
-);
-
-export const getArchivedJournalEntriesUseCase = makeTracedUseCase(
-  'journalEntry.getArchivedJournalEntriesUseCase',
-  makeGetArchivedJournalEntriesUsecase({
     appContext,
     journalEntryQueryRepo: journalEntryRepos.queries.journalEntry,
   })

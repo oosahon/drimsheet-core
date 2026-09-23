@@ -4,6 +4,7 @@ import {
   Get,
   Middlewares,
   OperationId,
+  Path,
   Post,
   Queries,
   Response,
@@ -17,6 +18,7 @@ import { IHttpErrorDto } from '@shared/values/errors/error.dto';
 import { IContractorCreateReq } from '@app/counterparty/dtos/contractor/contractor.dto';
 import {
   ICounterpartyCreateReq,
+  ICounterpartyDto,
   IGetCounterpartiesQuery,
 } from '@app/counterparty/dtos/counterparty/counterparty.dto';
 import { IEmployerCreateReq } from '@app/counterparty/dtos/employer/employer.dto';
@@ -29,6 +31,7 @@ import {
   createEmployerUseCase,
   createVendorUseCase,
   getCounterpartiesUseCase,
+  getCounterpartyUseCase,
 } from '@infra/ioc/usecases/counterparty';
 
 @Route('counterparties')
@@ -136,5 +139,25 @@ export class CounterpartyController extends Controller {
   )
   public async getCounterparties(@Queries() query: IGetCounterpartiesQuery) {
     return await getCounterpartiesUseCase(query);
+  }
+
+  /**
+   * Get a counterparty by id
+   */
+  @Get('/{id}')
+  @OperationId('getCounterparty')
+  @SuccessResponse('200')
+  @Response<IHttpErrorDto>('400')
+  @Response<IHttpErrorDto>('401')
+  @Response<IHttpErrorDto>('403')
+  @Response<IHttpErrorDto>('404')
+  @Response<IHttpErrorDto>('500')
+  @Middlewares(
+    middlewares.isAuthenticatedUser,
+    middlewares.featureFlagAccess.canAccessAlpha1,
+    middlewares.accountingEntityAccess
+  )
+  public async getCounterparty(@Path() id: string): Promise<ICounterpartyDto> {
+    return await getCounterpartyUseCase(id);
   }
 }

@@ -15,7 +15,9 @@ import { IMoneyDto } from '@app/money/dtos/money/money.dto';
 
 export interface IGetJournalEntriesQuery extends IPaginationDto {
   accountId?: string;
+  counterpartyId?: string;
   orderBy?: UJournalEntrySortBy;
+  status?: 'posted' | 'archived';
 }
 
 export interface IJournalLineReq {

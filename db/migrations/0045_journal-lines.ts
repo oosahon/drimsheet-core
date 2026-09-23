@@ -104,6 +104,10 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       default: pgm.func('now()'),
     },
   });
+
+  pgm.createIndex(journalLinesTable, ['counterparty_id', 'entry_id'], {
+    name: 'journal_lines_counterparty_entry_idx',
+  });
 }
 
 export async function down(pgm: MigrationBuilder): Promise<void> {

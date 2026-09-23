@@ -15,12 +15,14 @@ import {
 
 describe('Journal Entry DTO Validation', () => {
   describe('getJournalEntriesQueryValidationSchema', () => {
-    it('validates pagination and account filters', () => {
+    it('validates pagination and line participation filters', () => {
       const result = getJournalEntriesQueryValidationSchema.safeParse({
         accountId: '2b4c1064-a09e-4e4f-b6a3-23945cc87f74',
+        counterpartyId: '1b4c1064-a09e-4e4f-b6a3-23945cc87f75',
         page: 2,
         limit: 25,
         orderBy: EJournalEntrySortBy.EffectiveDate,
+        status: EJournalEntryStatus.Archived,
         sortDirection: 'asc',
         search: 'invoice',
       });
@@ -34,11 +36,23 @@ describe('Journal Entry DTO Validation', () => {
       );
     });
 
+    it('accepts posted journal entries', () => {
+      expect(
+        getJournalEntriesQueryValidationSchema.safeParse({
+          status: EJournalEntryStatus.Posted,
+        }).success
+      ).toBe(true);
+    });
+
     it.each([
       [{ accountId: 'invalid-account-id' }],
+      [{ counterpartyId: 'invalid-counterparty-id' }],
       [{ page: 0 }],
       [{ limit: 0 }],
       [{ orderBy: 'memo' }],
+      [{ status: EJournalEntryStatus.Draft }],
+      [{ status: EJournalEntryStatus.Voided }],
+      [{ status: 'invalid-status' }],
     ])('rejects invalid query values', (query) => {
       expect(
         getJournalEntriesQueryValidationSchema.safeParse(query).success

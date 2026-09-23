@@ -50,34 +50,36 @@ const journalEntryQueryRepo: IJournalEntryQueryRepo = {
     const dbQuery = getDbQuery(options);
     const conditions = [
       eq(journalEntriesInCore.accountingEntityId, accountingEntityId),
+      ne(journalEntriesInCore.sourceType, EJournalEntrySourceType.Reversal),
     ];
 
     if (options.status) {
       conditions.push(eq(journalEntriesInCore.status, options.status));
-
-      if (options.status === EJournalEntryStatus.Posted) {
-        conditions.push(
-          ne(journalEntriesInCore.sourceType, EJournalEntrySourceType.Reversal)
-        );
-      }
     } else {
       conditions.push(
         inArray(journalEntriesInCore.status, [
           EJournalEntryStatus.Draft,
           EJournalEntryStatus.Posted,
-          EJournalEntryStatus.Voided,
-        ]),
-        ne(journalEntriesInCore.sourceType, EJournalEntrySourceType.Reversal)
+        ])
       );
     }
 
     if (options.accountId) {
-      const participatingEntryIds = dbQuery
+      const accountEntryIds = dbQuery
         .select({ entryId: journalLinesInCore.entryId })
         .from(journalLinesInCore)
         .where(eq(journalLinesInCore.accountId, options.accountId));
 
-      conditions.push(inArray(journalEntriesInCore.id, participatingEntryIds));
+      conditions.push(inArray(journalEntriesInCore.id, accountEntryIds));
+    }
+
+    if (options.counterpartyId) {
+      const counterpartyEntryIds = dbQuery
+        .select({ entryId: journalLinesInCore.entryId })
+        .from(journalLinesInCore)
+        .where(eq(journalLinesInCore.counterpartyId, options.counterpartyId));
+
+      conditions.push(inArray(journalEntriesInCore.id, counterpartyEntryIds));
     }
 
     if (options.search) {

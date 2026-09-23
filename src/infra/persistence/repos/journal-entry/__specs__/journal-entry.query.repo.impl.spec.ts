@@ -20,6 +20,7 @@ describe('journalEntryQueryRepo', () => {
     '123e4567-e89b-12d3-a456-426614174001' as TEntityId;
   const accountId = '123e4567-e89b-12d3-a456-426614174002' as TEntityId;
   const journalEntryId = '123e4567-e89b-12d3-a456-426614174003' as TEntityId;
+  const counterpartyId = '123e4567-e89b-12d3-a456-426614174004' as TEntityId;
   const options = { correlationId: 'test-correlation-id' };
   const findFirst = jest.fn();
   const findMany = jest.fn();
@@ -65,28 +66,29 @@ describe('journalEntryQueryRepo', () => {
       const predicate = dialect.sqlToQuery(rowQuery.where);
       expect(countWhere).toHaveBeenCalledWith(rowQuery.where);
       expect(predicate.sql).toContain('"accounting_entity_id" = $1');
+      expect(predicate.sql).toContain('"source_type" <> $2');
       if (status === 'archived') {
-        expect(predicate.sql).toContain('"status" = $2');
-        expect(predicate.params).toEqual([accountingEntityId, 'archived']);
-        expect(predicate.sql).not.toContain('"source_type"');
-      } else if (status === 'posted') {
-        expect(predicate.sql).toContain('"status" = $2');
+        expect(predicate.sql).toContain('"status" = $3');
         expect(predicate.params).toEqual([
           accountingEntityId,
-          'posted',
           'reversal',
+          'archived',
         ]);
-        expect(predicate.sql).toContain('"source_type" <> $3');
-      } else {
-        expect(predicate.sql).toContain('"status" in ($2, $3, $4)');
+      } else if (status === 'posted') {
+        expect(predicate.sql).toContain('"status" = $3');
         expect(predicate.params).toEqual([
           accountingEntityId,
+          'reversal',
+          'posted',
+        ]);
+      } else {
+        expect(predicate.sql).toContain('"status" in ($3, $4)');
+        expect(predicate.params).toEqual([
+          accountingEntityId,
+          'reversal',
           'draft',
           'posted',
-          'voided',
-          'reversal',
         ]);
-        expect(predicate.sql).toContain('"source_type" <> $5');
       }
       expect(rowQuery.limit).toBe(paginationValue.getLimit());
       expect(rowQuery.offset).toBe(0);
@@ -262,10 +264,10 @@ describe('journalEntryQueryRepo', () => {
     });
   });
 
-  it('filters by account and search while supporting effective-date ordering', async () => {
+  it('filters by line participants and search while supporting effective-date ordering', async () => {
     const countWhere = jest.fn().mockResolvedValue([{ count: 1 }]);
     const countFrom = jest.fn().mockReturnValue({ where: countWhere });
-    const participantWhere = jest
+    const accountParticipantWhere = jest
       .fn()
       .mockReturnValue(
         new QueryBuilder()
@@ -273,12 +275,24 @@ describe('journalEntryQueryRepo', () => {
           .from(journalLinesInCore)
           .where(eq(journalLinesInCore.accountId, accountId))
       );
-    const participantFrom = jest
+    const accountParticipantFrom = jest
       .fn()
-      .mockReturnValue({ where: participantWhere });
+      .mockReturnValue({ where: accountParticipantWhere });
+    const counterpartyParticipantWhere = jest
+      .fn()
+      .mockReturnValue(
+        new QueryBuilder()
+          .select({ entryId: journalLinesInCore.entryId })
+          .from(journalLinesInCore)
+          .where(eq(journalLinesInCore.counterpartyId, counterpartyId))
+      );
+    const counterpartyParticipantFrom = jest
+      .fn()
+      .mockReturnValue({ where: counterpartyParticipantWhere });
     const select = jest
       .fn()
-      .mockReturnValueOnce({ from: participantFrom })
+      .mockReturnValueOnce({ from: accountParticipantFrom })
+      .mockReturnValueOnce({ from: counterpartyParticipantFrom })
       .mockReturnValueOnce({ from: countFrom });
     const persistedEntry = { id: journalEntryId };
     const mappedEntry = { id: journalEntryId } as ReturnType<
@@ -299,6 +313,7 @@ describe('journalEntryQueryRepo', () => {
 
     const result = await journalEntryQueryRepo.findAll(accountingEntityId, {
       accountId,
+      counterpartyId,
       correlationId: options.correlationId,
       status: 'archived',
       orderBy: 'effectiveDate',
@@ -306,8 +321,14 @@ describe('journalEntryQueryRepo', () => {
       sortDirection: 'asc',
     });
 
-    expect(participantFrom).toHaveBeenCalledWith(journalLinesInCore);
-    expect(participantWhere).toHaveBeenCalledWith(expect.anything());
+    expect(accountParticipantFrom).toHaveBeenCalledWith(journalLinesInCore);
+    expect(accountParticipantWhere).toHaveBeenCalledWith(expect.anything());
+    expect(counterpartyParticipantFrom).toHaveBeenCalledWith(
+      journalLinesInCore
+    );
+    expect(counterpartyParticipantWhere).toHaveBeenCalledWith(
+      expect.anything()
+    );
     expect(countFrom).toHaveBeenCalledWith(journalEntriesInCore);
     expect(findMany).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -326,15 +347,19 @@ describe('journalEntryQueryRepo', () => {
     expect(countWhere).toHaveBeenCalledWith(rowQuery.where);
     expect(predicate.params).toEqual([
       accountingEntityId,
+      'reversal',
       'archived',
       accountId,
+      counterpartyId,
       '%receipt%',
     ]);
     expect(predicate.sql).toContain('"accounting_entity_id" = $1');
-    expect(predicate.sql).toContain('"status" = $2');
+    expect(predicate.sql).toContain('"source_type" <> $2');
+    expect(predicate.sql).toContain('"status" = $3');
     expect(predicate.sql).toContain(' in (select ');
-    expect(predicate.sql).toContain('"account_id" = $3');
-    expect(predicate.sql).toContain('"memo" ilike $4');
+    expect(predicate.sql).toContain('"account_id" = $4');
+    expect(predicate.sql).toContain('"counterparty_id" = $5');
+    expect(predicate.sql).toContain('"memo" ilike $6');
     expect(
       rowQuery.orderBy.map((order) => dialect.sqlToQuery(order).sql)
     ).toEqual([
