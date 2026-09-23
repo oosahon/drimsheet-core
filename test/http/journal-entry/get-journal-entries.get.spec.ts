@@ -159,9 +159,11 @@ describe('GET /journal-entries', () => {
     it('returns journal entries and forwards coerced query values', async () => {
       const response = await makeRequest({
         accountId,
+        counterpartyId,
         page: 2,
         limit: 5,
         orderBy: 'effectiveDate',
+        status: 'archived',
         sortDirection: 'asc',
         search: 'receipt',
       });
@@ -192,9 +194,11 @@ describe('GET /journal-entries', () => {
       );
       expect(mockGetJournalEntries).toHaveBeenCalledWith({
         accountId,
+        counterpartyId,
         page: 2,
         limit: 5,
         orderBy: 'effectiveDate',
+        status: 'archived',
         sortDirection: 'asc',
         search: 'receipt',
       });
@@ -224,6 +228,13 @@ describe('GET /journal-entries', () => {
   });
 
   describe('422 Response', () => {
+    it('rejects unsupported journal entry statuses', async () => {
+      const response = await makeRequest({ status: 'voided' });
+
+      expect(response.status).toBe(422);
+      expect(mockGetJournalEntries).not.toHaveBeenCalled();
+    });
+
     it('rejects invalid query formats before orchestration', async () => {
       const response = await makeRequest({ limit: 'not-a-number' });
 
@@ -235,15 +246,17 @@ describe('GET /journal-entries', () => {
     it('maps use-case validation failures', async () => {
       const validationErrors = [
         {
-          field: 'accountId',
-          message: 'journal_line_error_account_id_invalid',
+          field: 'counterpartyId',
+          message: 'journal_line_error_counterparty_id_invalid',
         },
       ];
       mockGetJournalEntries.mockRejectedValueOnce(
         new appError.UnprocessableEntity(validationErrors)
       );
 
-      const response = await makeRequest({ accountId: 'invalid-account-id' });
+      const response = await makeRequest({
+        counterpartyId: 'invalid-counterparty-id',
+      });
 
       expect(response.status).toBe(422);
       expect(response.body.validationErrors).toEqual(validationErrors);

@@ -30,7 +30,9 @@ export default function makeGetJournalEntriesUsecase(deps: IDependencies) {
     ]);
 
     const repoOptions: IFindAllJournalEntriesOptions = {
+      status: query.status,
       accountId: query.accountId as TEntityId | undefined,
+      counterpartyId: query.counterpartyId as TEntityId | undefined,
       limit: query.limit,
       offset: paginationValue.pageToOffset(query.page, query.limit),
       orderBy: query.orderBy,

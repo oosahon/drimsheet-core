@@ -47,7 +47,14 @@ const journalEntryOrderByValidation = z.enum(
 export const getJournalEntriesQueryValidationSchema = z.object({
   ...omit(paginationDtoValidation.shape, ['orderBy']),
   accountId: z.uuid(accountIdError).optional(),
+  counterpartyId: z.uuid(counterpartyIdError).optional(),
   orderBy: journalEntryOrderByValidation.optional(),
+  status: z
+    .enum(
+      [EJournalEntryStatus.Posted, EJournalEntryStatus.Archived],
+      journalEntryStatusError
+    )
+    .optional(),
 });
 
 /**

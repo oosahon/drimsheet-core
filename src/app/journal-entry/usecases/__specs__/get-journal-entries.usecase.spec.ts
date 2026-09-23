@@ -96,12 +96,14 @@ describe('makeGetJournalEntriesUsecase', () => {
     });
   });
 
-  it('returns mapped journal entries and forwards the account filter', async () => {
+  it('returns mapped journal entries and forwards line participation filters', async () => {
     const query = {
       accountId,
+      counterpartyId,
       page: 2,
       limit: 25,
       orderBy: 'effectiveDate' as const,
+      status: 'archived' as const,
       sortDirection: 'asc' as const,
       search: 'receipt',
     };
@@ -112,9 +114,11 @@ describe('makeGetJournalEntriesUsecase', () => {
       accountingEntityId,
       {
         accountId,
+        counterpartyId,
         limit: 25,
         offset: 25,
         orderBy: 'effectiveDate',
+        status: 'archived',
         search: 'receipt',
         sortDirection: 'asc',
         correlationId,
@@ -140,9 +144,11 @@ describe('makeGetJournalEntriesUsecase', () => {
       accountingEntityId,
       {
         accountId: undefined,
+        counterpartyId: undefined,
         limit: undefined,
         offset: 0,
         orderBy: undefined,
+        status: undefined,
         search: undefined,
         sortDirection: undefined,
         correlationId,
@@ -152,7 +158,16 @@ describe('makeGetJournalEntriesUsecase', () => {
 
   it('rejects an invalid query before reading context', async () => {
     await expect(
-      getUseCase()({ accountId: 'invalid-account-id' })
+      getUseCase()({ counterpartyId: 'invalid-counterparty-id' })
+    ).rejects.toThrow();
+
+    expect(mockAppContext.get).not.toHaveBeenCalled();
+    expect(mockJournalEntryQueryRepo.findAll).not.toHaveBeenCalled();
+  });
+
+  it('rejects unsupported statuses before reading context', async () => {
+    await expect(
+      getUseCase()({ status: 'voided' as 'posted' })
     ).rejects.toThrow();
 
     expect(mockAppContext.get).not.toHaveBeenCalled();
