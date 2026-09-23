@@ -25,8 +25,8 @@ import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockCounterpartyRepo } from '@app/counterparty/contracts/__mocks__/counterparty.repos.mock';
 import mockCounterpartyAppService from '@app/counterparty/contracts/__mocks__/counterparty.service.mock';
-import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
 import { ICounterpartyFindOrCreateRes } from '@app/counterparty/contracts/counterparty.service.contract';
 import mockFileManagementService from '@app/file/contracts/__mocks__/file-management.service.mock';
 import fileAppError from '@app/file/errors/file.error';
@@ -216,7 +216,7 @@ describe('makeCreateReceiptUsecase', () => {
       fileManagementService: mockFileManagementService,
       journalEntryService: mockJournalEntryService,
       ledgerAccountRepo: mockLedgerAccountRepo,
-      counterpartyPersistenceService: mockCounterpartyPersistenceService,
+      counterpartyRepo: mockCounterpartyRepo,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       repoService: mockRepoService,
       eventBus: mockEventBus,
@@ -350,7 +350,15 @@ describe('makeCreateReceiptUsecase', () => {
     );
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockCounterpartyPersistenceService.create).toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        correlationId,
+        history: expect.any(Object),
+        tx: 'mock-tx',
+      })
+    );
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
     expect(
       mockFxLotCostBasisService.persistence.persistAcquisition
@@ -452,7 +460,7 @@ describe('makeCreateReceiptUsecase', () => {
 
     expect(mockJournalEntryService.createReceipt).not.toHaveBeenCalled();
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-    expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).not.toHaveBeenCalled();
     expect(mockJournalEntryPersistenceService.create).not.toHaveBeenCalled();
     expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
     expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();
@@ -504,7 +512,7 @@ describe('makeCreateReceiptUsecase', () => {
     await usecase(payload);
 
     expect(mockRepoService.runInTransaction).toHaveBeenCalled();
-    expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).not.toHaveBeenCalled();
     expect(mockJournalEntryPersistenceService.create).toHaveBeenCalled();
   });
 
@@ -627,7 +635,7 @@ describe('makeCreateReceiptUsecase', () => {
     await expect(usecase(payload)).rejects.toThrow('Domain Error');
 
     expect(mockRepoService.runInTransaction).not.toHaveBeenCalled();
-    expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).not.toHaveBeenCalled();
     expect(mockJournalEntryPersistenceService.create).not.toHaveBeenCalled();
     expect(mockOutboxService.createBalancePropagation).not.toHaveBeenCalled();
     expect(mockLedgerAccountBalanceAdjustmentQueue.add).not.toHaveBeenCalled();

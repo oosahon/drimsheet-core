@@ -64,7 +64,7 @@ describe('counterpartyValidation', () => {
 
     it('should throw InvalidType error for invalid type', () => {
       expect(() =>
-        counterpartyValidation.validateType('invalid' as any)
+        counterpartyValidation.validateType('invalid' as never)
       ).toThrow(counterpartyError.InvalidType);
     });
   });
@@ -81,7 +81,7 @@ describe('counterpartyValidation', () => {
 
     it('should throw InvalidStatus error for invalid status', () => {
       expect(() =>
-        counterpartyValidation.validateStatus('invalid' as any)
+        counterpartyValidation.validateStatus('invalid' as never)
       ).toThrow(counterpartyError.InvalidStatus);
     });
   });
@@ -95,7 +95,7 @@ describe('counterpartyValidation', () => {
 
     it('should throw InvalidRole error for invalid role', () => {
       expect(() =>
-        counterpartyValidation.validateRole('invalid' as any)
+        counterpartyValidation.validateRole('invalid' as never)
       ).toThrow(counterpartyError.InvalidRole);
     });
   });
@@ -108,6 +108,18 @@ describe('counterpartyValidation', () => {
         name: 'Jane Doe',
         status: ECounterpartyStatus.Active,
         type: ECounterpartyType.Individual,
+        meta: {
+          contractor: {
+            address: {
+              line1: 'Main Street',
+              line2: null,
+              city: 'Lagos',
+              region: null,
+              postalCode: null,
+              countryCode: 'NG',
+            },
+          },
+        },
         roles: [ECounterpartyRole.Contractor],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -120,24 +132,29 @@ describe('counterpartyValidation', () => {
 
     it('should throw InvalidCounterpartyEntity for null or non-object', () => {
       expect(() =>
-        counterpartyValidation.validateCounterparty(null as any)
+        counterpartyValidation.validateCounterparty(
+          null as unknown as ICounterparty
+        )
       ).toThrow(counterpartyError.InvalidCounterpartyEntity);
     });
 
     it('should throw InvalidRole if roles is not an array', () => {
-      const invalidCounterparty: any = {
+      const invalidCounterparty = {
         id: validUUID,
         accountingEntityId: validUUID2,
         name: 'Jane Doe',
         status: ECounterpartyStatus.Active,
         type: ECounterpartyType.Individual,
+        meta: {},
         roles: 'not-an-array',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
       expect(() =>
-        counterpartyValidation.validateCounterparty(invalidCounterparty)
+        counterpartyValidation.validateCounterparty(
+          invalidCounterparty as unknown as ICounterparty
+        )
       ).toThrow(counterpartyError.InvalidRole);
     });
   });

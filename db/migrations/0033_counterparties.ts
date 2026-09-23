@@ -42,6 +42,12 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       notNull: true,
     },
 
+    meta: {
+      type: 'jsonb',
+      notNull: true,
+      default: pgm.func("'{}'::jsonb"),
+    },
+
     created_at: {
       type: 'timestamptz',
       notNull: true,
@@ -54,6 +60,21 @@ export async function up(pgm: MigrationBuilder): Promise<void> {
       default: pgm.func('now()'),
     },
   });
+
+  pgm.addConstraint(counterpartiesTable, 'counterparties_meta_check', {
+    check: `jsonb_typeof(meta) = 'object'
+      AND meta - ARRAY['employer', 'vendor', 'contractor']::text[] = '{}'::jsonb`,
+  });
+
+  for (const role of ['employer', 'vendor', 'contractor']) {
+    pgm.addConstraint(
+      counterpartiesTable,
+      `counterparties_${role}_meta_check`,
+      {
+        check: `NOT (meta ? '${role}') OR COALESCE(jsonb_typeof(meta->'${role}') = 'object', false)`,
+      }
+    );
+  }
 
   pgm.createIndex(counterpartiesTable, ['accounting_entity_id'], {
     name: 'counterparties_accounting_entity_id_idx',

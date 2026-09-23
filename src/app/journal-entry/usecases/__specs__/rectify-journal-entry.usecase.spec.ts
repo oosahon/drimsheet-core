@@ -23,7 +23,7 @@ import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
-import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
+import { mockCounterpartyRepo } from '@app/counterparty/contracts/__mocks__/counterparty.repos.mock';
 import mockJournalEntryPersistenceService from '@app/journal-entry/contracts/__mocks__/journal-entry-persistence.service.mock';
 import mockJournalEntryRectificationPreparationService from '@app/journal-entry/contracts/__mocks__/journal-entry-rectification-preparation.service.mock';
 import { mockJournalEntryRepo } from '@app/journal-entry/contracts/__mocks__/journal-entry.repos.mock';
@@ -135,7 +135,7 @@ describe('makeRectifyJournalEntryUsecase', () => {
   function getUsecase() {
     return makeRectifyJournalEntryUsecase({
       appContext: mockAppContext,
-      counterpartyPersistenceService: mockCounterpartyPersistenceService,
+      counterpartyRepo: mockCounterpartyRepo,
       journalEntryRepo: mockJournalEntryRepo,
       journalEntryRectificationPreparationService:
         mockJournalEntryRectificationPreparationService,
@@ -251,7 +251,15 @@ describe('makeRectifyJournalEntryUsecase', () => {
     expect(mockLedgerAccountBalanceAdjustmentQueue.add).toHaveBeenCalledTimes(
       2
     );
-    expect(mockCounterpartyPersistenceService.create).toHaveBeenCalledTimes(1);
+    expect(mockCounterpartyRepo.create).toHaveBeenCalledTimes(1);
+    expect(mockCounterpartyRepo.create).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        correlationId,
+        history: expect.any(Object),
+        tx: 'mock-tx',
+      })
+    );
     expect(
       mockFxLotCostBasisService.persistence.persistReversal
     ).toHaveBeenCalledWith(fxReversal.records, expect.any(Object));

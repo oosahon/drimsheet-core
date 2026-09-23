@@ -4,8 +4,6 @@ import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 
 import {
   counterpartyCreateReqValidation,
-  counterpartyStatusValidation,
-  counterpartyTypeValidation,
   getCounterpartiesQueryValidationSchema,
 } from '@app/counterparty/dtos/counterparty/counterparty.dto.validation';
 
@@ -20,45 +18,33 @@ describe('Counterparty DTO validation', () => {
     type: 'organization',
   };
 
-  describe('counterpartyStatusValidation', () => {
-    it('accepts valid statuses', () => {
-      expect(counterpartyStatusValidation.safeParse('active').success).toBe(
-        true
-      );
-      expect(counterpartyStatusValidation.safeParse('archived').success).toBe(
-        true
-      );
-    });
-
-    it('rejects invalid statuses', () => {
-      const result = counterpartyStatusValidation.safeParse('invalid_status');
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(invalidStatusKey);
-      }
-    });
-  });
-
-  describe('counterpartyTypeValidation', () => {
-    it('accepts valid types', () => {
-      expect(counterpartyTypeValidation.safeParse('individual').success).toBe(
-        true
-      );
-      expect(counterpartyTypeValidation.safeParse('organization').success).toBe(
-        true
-      );
-    });
-
-    it('rejects invalid types', () => {
-      const result = counterpartyTypeValidation.safeParse('invalid_type');
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(invalidTypeKey);
-      }
-    });
-  });
-
   describe('counterpartyCreateReqValidation', () => {
+    it.each(['active', 'archived'])('accepts creation status %s', (status) => {
+      expect(
+        counterpartyCreateReqValidation.safeParse({ ...validPayload, status })
+          .success
+      ).toBe(true);
+    });
+    it.each(['individual', 'organization'])(
+      'accepts creation type %s',
+      (type) => {
+        expect(
+          counterpartyCreateReqValidation.safeParse({ ...validPayload, type })
+            .success
+        ).toBe(true);
+      }
+    );
+    it.each([{ type: 'invalid' }, { status: 'invalid' }])(
+      'rejects invalid creation enums %j',
+      (fields) => {
+        expect(
+          counterpartyCreateReqValidation.safeParse({
+            ...validPayload,
+            ...fields,
+          }).success
+        ).toBe(false);
+      }
+    );
     it('accepts a valid payload', () => {
       const result = counterpartyCreateReqValidation.safeParse(validPayload);
       expect(result.success).toBe(true);
@@ -207,5 +193,69 @@ describe('Counterparty DTO validation', () => {
         expect(result.error.issues[0].message).toBe(invalidLimitKey);
       }
     });
+  });
+});
+
+describe('creation metadata request validation', () => {
+  const base = { name: 'Acme', status: 'active', type: 'organization' };
+  const address = { line1: 'Street', city: 'Lagos', countryCode: 'ng' };
+
+  it.each([
+    {},
+    { vendor: {} },
+    { vendor: { address: null } },
+    { vendor: { address } },
+    { employer: { address } },
+    { employer: { address, displayName: null } },
+    { employer: { address, displayName: ' ' } },
+    { contractor: { address } },
+    { employer: { address }, vendor: {}, contractor: { address } },
+  ])('accepts metadata %j', (meta) => {
+    expect(
+      counterpartyCreateReqValidation.safeParse({ ...base, meta }).success
+    ).toBe(true);
+  });
+
+  it.each([
+    { meta: null },
+    { meta: [] },
+    { meta: 'vendor' },
+    { meta: { customer: {} } },
+    { meta: { vendor: undefined } },
+    { meta: { vendor: null } },
+    { meta: { employer: {} } },
+    { meta: { contractor: {} } },
+    { meta: { contractor: { address: null } } },
+    { meta: { vendor: { extra: true } } },
+    { meta: { contractor: { address, displayName: 'No' } } },
+    { meta: { employer: { address, displayName: 5 } } },
+    { meta: { employer: { address, displayName: 'x'.repeat(256) } } },
+    { meta: { vendor: { address: { ...address, extra: true } } } },
+    { meta: { vendor: { address: { ...address, line2: null } } } },
+    { roles: ['vendor'] },
+    { address },
+    { displayName: 'Old input' },
+    { accountingEntityId: 'not-client-owned' },
+    { id: 'not-client-owned' },
+    { createdAt: '2026-01-01' },
+  ])('rejects invalid or unsupported creation fields %j', (fields) => {
+    expect(
+      counterpartyCreateReqValidation.safeParse({ ...base, ...fields }).success
+    ).toBe(false);
+  });
+
+  it('identifies nested address errors at their request path', () => {
+    const parsed = counterpartyCreateReqValidation.safeParse({
+      ...base,
+      meta: { contractor: { address: { ...address, city: '' } } },
+    });
+    expect(parsed.success).toBe(false);
+    if (parsed.success) throw new Error('Expected invalid city');
+    expect(parsed.error.issues[0].path).toEqual([
+      'meta',
+      'contractor',
+      'address',
+      'city',
+    ]);
   });
 });

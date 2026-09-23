@@ -2,6 +2,7 @@ import { TEntityId } from '@shared/types/uuid';
 import dateUtils from '@shared/utils/date';
 import stringUtils from '@shared/utils/string';
 
+import getCounterpartyRolesHelper from '@domain/counterparty/entities/helpers/get-counterparty-roles.helper';
 import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 import {
   ECounterpartyRole,
@@ -12,6 +13,7 @@ import {
   UCounterpartyStatus,
   UCounterpartyType,
 } from '@domain/counterparty/types/counterparty.types';
+import counterpartyMetaValidation from '@domain/counterparty/values/validations/counterparty-meta.validation';
 
 function validateAccountingEntityId(accountingEntityId: TEntityId): void {
   stringUtils.validateUUID(
@@ -56,7 +58,8 @@ function validateRole(role: UCounterpartyRole): UCounterpartyRole {
 }
 
 function validateCounterparty(counterparty: ICounterparty): void {
-  if (!counterparty || typeof counterparty !== 'object') {
+  const isInvalidEntity = !counterparty || typeof counterparty !== 'object';
+  if (isInvalidEntity) {
     throw new counterpartyError.InvalidCounterpartyEntity({ counterparty });
   }
 
@@ -75,6 +78,14 @@ function validateCounterparty(counterparty: ICounterparty): void {
   for (const role of counterparty.roles) {
     validateRole(role);
   }
+
+  counterpartyMetaValidation.validate(counterparty.meta);
+  const expectedRoles = getCounterpartyRolesHelper(counterparty.meta);
+  const hasInconsistentRoles =
+    counterparty.roles.length !== expectedRoles.length ||
+    expectedRoles.some((role) => !counterparty.roles.includes(role));
+  if (hasInconsistentRoles)
+    throw new counterpartyError.InvalidRole({ roles: counterparty.roles });
 
   dateUtils.validateDate(counterparty.createdAt, counterpartyError.InvalidDate);
   dateUtils.validateDate(counterparty.updatedAt, counterpartyError.InvalidDate);

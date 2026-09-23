@@ -1,9 +1,90 @@
-import { ICounterparty } from '@domain/counterparty/types/counterparty.types';
+import { TEntityId } from '@shared/types/uuid';
+import { TCreateAddressPayload } from '@shared/values/contact-details/address.vo';
+import { IAddressDto } from '@shared/values/contact-details/dto/address.dto';
+import { IAddress } from '@shared/values/contact-details/types/address.types';
 
-import { ICounterpartyDto } from './counterparty.dto';
+import {
+  ICounterparty,
+  ICreateCounterpartyMeta,
+  ICreateCounterpartyPayload,
+} from '@domain/counterparty/types/counterparty.types';
+
+import { ICounterpartyCreateReq, ICounterpartyDto } from './counterparty.dto';
+
+function fromAddressDto(address: IAddressDto): TCreateAddressPayload {
+  return {
+    line1: address.line1,
+    line2: address.line2,
+    city: address.city,
+    region: address.region,
+    postalCode: address.postalCode,
+    countryCode: address.countryCode,
+  };
+}
+
+function toAddressDto(address: IAddress): IAddressDto {
+  return {
+    line1: address.line1,
+    line2: address.line2 ?? undefined,
+    city: address.city,
+    region: address.region ?? undefined,
+    postalCode: address.postalCode ?? undefined,
+    countryCode: address.countryCode,
+  };
+}
 
 const counterpartyDtoMapper = {
+  fromDto(
+    payload: ICounterpartyCreateReq,
+    accountingEntityId: TEntityId
+  ): ICreateCounterpartyPayload {
+    let meta: ICreateCounterpartyMeta | undefined;
+    if (payload.meta !== undefined) {
+      meta = {};
+      if (payload.meta.employer) {
+        meta.employer = {
+          displayName: payload.meta.employer.displayName,
+          address: fromAddressDto(payload.meta.employer.address),
+        };
+      }
+      if (payload.meta.vendor) {
+        const address = payload.meta.vendor.address;
+        meta.vendor = {
+          address: address == null ? address : fromAddressDto(address),
+        };
+      }
+      if (payload.meta.contractor) {
+        meta.contractor = {
+          address: fromAddressDto(payload.meta.contractor.address),
+        };
+      }
+    }
+    return {
+      accountingEntityId,
+      name: payload.name,
+      type: payload.type,
+      status: payload.status,
+      meta,
+    };
+  },
   toDto(counterparty: ICounterparty): ICounterpartyDto {
+    const meta: ICounterpartyDto['meta'] = {};
+    if (counterparty.meta.employer)
+      meta.employer = {
+        displayName: counterparty.meta.employer.displayName,
+        address: toAddressDto(counterparty.meta.employer.address),
+      };
+    if (counterparty.meta.vendor)
+      meta.vendor = {
+        address:
+          counterparty.meta.vendor.address === null
+            ? null
+            : toAddressDto(counterparty.meta.vendor.address),
+      };
+    if (counterparty.meta.contractor)
+      meta.contractor = {
+        address: toAddressDto(counterparty.meta.contractor.address),
+      };
     return {
       id: counterparty.id,
       accountingEntityId: counterparty.accountingEntityId,
@@ -11,6 +92,7 @@ const counterpartyDtoMapper = {
       status: counterparty.status,
       type: counterparty.type,
       roles: [...counterparty.roles],
+      meta,
       createdAt: counterparty.createdAt,
       updatedAt: counterparty.updatedAt,
     };

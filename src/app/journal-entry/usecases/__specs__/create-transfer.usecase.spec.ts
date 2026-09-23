@@ -35,8 +35,8 @@ import mockAppContext, {
   mockClientSession,
 } from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
+import { mockCounterpartyRepo } from '@app/counterparty/contracts/__mocks__/counterparty.repos.mock';
 import mockCounterpartyAppService from '@app/counterparty/contracts/__mocks__/counterparty.service.mock';
-import mockCounterpartyPersistenceService from '@app/counterparty/contracts/__mocks__/persistence.service.mock';
 import { ICounterpartyFindOrCreateRes } from '@app/counterparty/contracts/counterparty.service.contract';
 import mockFileManagementService from '@app/file/contracts/__mocks__/file-management.service.mock';
 import fileAppError from '@app/file/errors/file.error';
@@ -225,7 +225,7 @@ describe('makeCreateTransferUsecase', () => {
       fileManagementService: mockFileManagementService,
       journalEntryService: mockJournalEntryService,
       ledgerAccountRepo: mockLedgerAccountRepo,
-      counterpartyPersistenceService: mockCounterpartyPersistenceService,
+      counterpartyRepo: mockCounterpartyRepo,
       journalEntryPersistenceService: mockJournalEntryPersistenceService,
       repoService: mockRepoService,
       eventBus: mockEventBus,
@@ -263,7 +263,7 @@ describe('makeCreateTransferUsecase', () => {
       transactionFn('mock-tx' as unknown as ITransactionContext)
     );
     mockJournalEntryPersistenceService.create.mockResolvedValue();
-    mockCounterpartyPersistenceService.create.mockResolvedValue();
+    mockCounterpartyRepo.create.mockResolvedValue();
     mockOutboxService.createBalancePropagation.mockResolvedValue();
     mockLedgerAccountBalanceAdjustmentQueue.add.mockResolvedValue();
     mockEventBus.publish.mockResolvedValue();
@@ -439,12 +439,12 @@ describe('makeCreateTransferUsecase', () => {
       }),
       { correlationId, idempotencyKey }
     );
-    expect(mockCounterpartyPersistenceService.create).toHaveBeenCalledWith(
+    expect(mockCounterpartyRepo.create).toHaveBeenCalledWith(
       bankCounterparty[0],
       expect.objectContaining({ correlationId, tx: 'mock-tx' })
     );
     expect(
-      mockCounterpartyPersistenceService.create.mock.invocationCallOrder[0]
+      mockCounterpartyRepo.create.mock.invocationCallOrder[0]
     ).toBeLessThan(
       mockJournalEntryPersistenceService.create.mock.invocationCallOrder[0]
     );
@@ -541,7 +541,7 @@ describe('makeCreateTransferUsecase', () => {
       }),
       { correlationId, idempotencyKey }
     );
-    expect(mockCounterpartyPersistenceService.create).not.toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).not.toHaveBeenCalled();
   });
 
   it('persists a draft without creating balance propagation work', async () => {

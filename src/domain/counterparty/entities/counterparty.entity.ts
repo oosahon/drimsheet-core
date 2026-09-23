@@ -1,6 +1,8 @@
+import deepFreeze from '@shared/utils/deep-freeze';
 import generateUUID from '@shared/utils/uuid-generator';
 import { TAuditedEntity } from '@shared/values/events/types/event.types';
 
+import getCounterpartyRolesHelper from '@domain/counterparty/entities/helpers/get-counterparty-roles.helper';
 import counterpartyValidation from '@domain/counterparty/entities/validations/counterparty.validation';
 import counterpartyError from '@domain/counterparty/errors/counterparty.error';
 import counterpartyEvents from '@domain/counterparty/events/counterparty.events';
@@ -10,9 +12,10 @@ import {
   ICounterparty,
   IMakeCounterpartyPayload,
   TAuditedCounterparty,
-  UCounterpartyRole,
+  TCounterpartyRoleDetails,
 } from '@domain/counterparty/types/counterparty.types';
 import counterpartyAuditValue from '@domain/counterparty/values/counterparty-audit.vo';
+import counterpartyMetaValidation from '@domain/counterparty/values/validations/counterparty-meta.validation';
 
 function make(payload: IMakeCounterpartyPayload): TAuditedCounterparty {
   counterpartyValidation.validateAccountingEntityId(payload.accountingEntityId);
@@ -24,13 +27,14 @@ function make(payload: IMakeCounterpartyPayload): TAuditedCounterparty {
 
   const timestamp = new Date();
 
-  const counterparty: ICounterparty = Object.freeze({
+  const counterparty: ICounterparty = deepFreeze({
     id: generateUUID(),
     accountingEntityId: payload.accountingEntityId,
     name,
     status,
     type,
-    roles: Object.freeze([]) as unknown as UCounterpartyRole[],
+    roles: [],
+    meta: {},
     createdAt: timestamp,
     updatedAt: timestamp,
   });
@@ -48,9 +52,10 @@ function make(payload: IMakeCounterpartyPayload): TAuditedCounterparty {
 
 function addRole(
   counterparty: ICounterparty,
-  role: UCounterpartyRole
+  details: TCounterpartyRoleDetails
 ): TAuditedEntity<ICounterparty, ICounterparty, ICounterparty> {
   counterpartyValidation.validateCounterparty(counterparty);
+  const { role } = details;
   counterpartyValidation.validateRole(role);
 
   if (counterparty.roles.includes(role)) {
@@ -60,17 +65,21 @@ function addRole(
     });
   }
 
+  const meta = {
+    ...counterparty.meta,
+    [role]: details.meta,
+  };
+  counterpartyMetaValidation.validate(meta);
   const timestamp = new Date();
 
-  const updatedCounterparty: ICounterparty = Object.freeze({
+  const updatedCounterparty: ICounterparty = deepFreeze({
     id: counterparty.id,
     accountingEntityId: counterparty.accountingEntityId,
     name: counterparty.name,
     status: counterparty.status,
     type: counterparty.type,
-    roles: Object.freeze(
-      counterparty.roles.concat(role)
-    ) as unknown as UCounterpartyRole[],
+    roles: getCounterpartyRolesHelper(meta),
+    meta,
     createdAt: counterparty.createdAt,
     updatedAt: timestamp,
   });
@@ -86,7 +95,7 @@ function addRole(
   return [updatedCounterparty, [event], audit] as const;
 }
 
-const counterpartyEntity = Object.freeze({
+const counterpartyEntity = deepFreeze({
   make,
   addRole,
   ...counterpartyValidation,

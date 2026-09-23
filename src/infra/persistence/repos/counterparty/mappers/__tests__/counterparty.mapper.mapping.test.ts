@@ -1,66 +1,142 @@
-import { TEntityId } from '@shared/types/uuid';
+import generateUUID from '@shared/utils/uuid-generator';
+import addressValue from '@shared/values/contact-details/address.vo';
 
-import {
-  ECounterpartyRole,
-  ECounterpartyStatus,
-  ECounterpartyType,
-  ICounterparty,
-} from '@domain/counterparty/types/counterparty.types';
+import counterpartyEntity from '@domain/counterparty/entities/counterparty.entity';
+import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
 
-import counterpartyMapper, {
-  ICounterpartyModel,
-} from '@infra/persistence/repos/counterparty/mappers/counterparty.mapper';
+import counterpartyMapper from '@infra/persistence/repos/counterparty/mappers/counterparty.mapper';
+
+const service = makeCounterpartyService();
+const payload = {
+  accountingEntityId: generateUUID(),
+  name: 'Example',
+  type: 'organization' as const,
+};
 
 describe('counterpartyMapper', () => {
-  const now = new Date('2026-08-01T00:00:00.000Z');
+  it.each([0, 1, 2, 3, 4, 5, 6, 7])(
+    'round-trips role combination %i',
+    (combination) => {
+      const address = {
+        line1: 'Main Street',
+        city: 'Lagos',
+        countryCode: 'NG',
+      };
+      const meta: NonNullable<Parameters<typeof service.create>[0]['meta']> =
+        {};
+      if (combination & 1) meta.employer = { address };
+      if (combination & 2) meta.vendor = { address: null };
+      if (combination & 4) meta.contractor = { address };
 
-  const entity: ICounterparty = {
-    id: '123e4567-e89b-12d3-a456-426614174001' as TEntityId,
-    accountingEntityId: '123e4567-e89b-12d3-a456-426614174002' as TEntityId,
-    name: 'Acme Corp',
-    status: ECounterpartyStatus.Active,
-    type: ECounterpartyType.Organization,
-    roles: [ECounterpartyRole.Vendor],
-    createdAt: now,
-    updatedAt: now,
-  };
+      const [entity] = service.create({ ...payload, meta });
+      const row = counterpartyMapper.toRepo(entity);
 
-  const repoModel: ICounterpartyModel = {
-    id: '123e4567-e89b-12d3-a456-426614174001',
-    accountingEntityId: '123e4567-e89b-12d3-a456-426614174002',
-    name: 'Acme Corp',
-    status: ECounterpartyStatus.Active,
-    type: ECounterpartyType.Organization,
-    createdAt: now.toISOString(),
-    updatedAt: now.toISOString(),
-  };
+      expect(row.meta).toEqual(entity.meta);
+      expect(counterpartyMapper.toDomain(row)).toEqual(entity);
+    }
+  );
 
-  it('maps domain entity to repo model', () => {
-    const result = counterpartyMapper.toRepo(entity);
-
-    expect(result).toEqual(repoModel);
+  it('round-trips a generic counterparty with empty metadata', () => {
+    const [entity] = service.create(payload);
+    const row = counterpartyMapper.toRepo(entity);
+    expect(row.meta).toEqual({});
+    expect(counterpartyMapper.toDomain(row)).toEqual(entity);
   });
 
-  it('maps repo model to domain entity with copied roles', () => {
-    const roles = [ECounterpartyRole.Vendor, ECounterpartyRole.Employer];
-
-    const result = counterpartyMapper.toDomain(repoModel, roles);
-
-    expect(result).toEqual({
-      ...entity,
-      roles,
+  it('derives stable roles from metadata and isolates nested values', () => {
+    const address = addressValue.make({
+      line1: 'Main Street',
+      city: 'Lagos',
+      countryCode: 'NG',
     });
-    expect(result.roles).not.toBe(roles);
-    expect(Object.isFrozen(result)).toBe(true);
+    const [vendor] = service.create({
+      ...payload,
+      meta: { vendor: { address: null } },
+    });
+    const [entity] = counterpartyEntity.addRole(vendor, {
+      role: 'employer',
+      meta: { displayName: null, address },
+    });
+    const row = counterpartyMapper.toRepo(entity);
+    const hydrated = counterpartyMapper.toDomain(row);
+    expect(hydrated).toEqual(entity);
+    expect(hydrated.roles).toEqual(['employer', 'vendor']);
+    expect(hydrated.meta).not.toBe(row.meta);
+    expect(row.meta).not.toBe(entity.meta);
+    expect(row.meta).toEqual(entity.meta);
+    expect(Object.isFrozen(hydrated.meta.employer?.address)).toBe(true);
+    expect(Object.isFrozen(hydrated.roles)).toBe(true);
   });
 
-  it('maps repo model to domain entity with empty roles by default', () => {
-    const result = counterpartyMapper.toDomain(repoModel);
-
-    expect(result).toEqual({
-      ...entity,
-      roles: [],
+  it('round-trips distinct addresses for every role in metadata', () => {
+    const employerAddress = addressValue.make({
+      line1: 'Employer Street',
+      city: 'Lagos',
+      countryCode: 'NG',
     });
-    expect(Object.isFrozen(result)).toBe(true);
+    const vendorAddress = addressValue.make({
+      line1: 'Vendor Street',
+      line2: 'Suite 2',
+      city: 'Abuja',
+      region: 'FCT',
+      postalCode: '900001',
+      countryCode: 'NG',
+    });
+    const contractorAddress = addressValue.make({
+      line1: 'Contractor Street',
+      city: 'Ibadan',
+      countryCode: 'NG',
+    });
+    const [employer] = service.create({
+      ...payload,
+      meta: {
+        employer: {
+          displayName: 'Acme',
+          address: employerAddress,
+        },
+      },
+    });
+    const [vendor] = counterpartyEntity.addRole(employer, {
+      role: 'vendor',
+      meta: { address: vendorAddress },
+    });
+    const [entity] = counterpartyEntity.addRole(vendor, {
+      role: 'contractor',
+      meta: { address: contractorAddress },
+    });
+    const row = counterpartyMapper.toRepo(entity);
+    const hydrated = counterpartyMapper.toDomain(row);
+    expect(row.meta).toEqual(entity.meta);
+    expect(hydrated).toEqual(entity);
+    expect(hydrated.meta.vendor?.address).not.toBe(vendorAddress);
+    expect(Object.isFrozen(hydrated.meta.contractor?.address)).toBe(true);
+  });
+
+  it('isolates stored addresses from the entity and hydrated addresses from the row', () => {
+    const [entity] = service.create({
+      ...payload,
+      meta: {
+        contractor: {
+          address: { line1: 'Main Street', city: 'Lagos', countryCode: 'NG' },
+        },
+      },
+    });
+    const row = counterpartyMapper.toRepo(entity);
+    const storedMeta = row.meta as typeof entity.meta;
+    const hydrated = counterpartyMapper.toDomain(row);
+
+    expect(storedMeta.contractor?.address).not.toBe(
+      entity.meta.contractor?.address
+    );
+    expect(hydrated.meta.contractor?.address).not.toBe(
+      storedMeta.contractor?.address
+    );
+    storedMeta.contractor!.address.city = 'Abuja';
+    expect(entity.meta.contractor?.address.city).toBe('Lagos');
+    expect(hydrated.meta.contractor?.address.city).toBe('Lagos');
+    expect(row.createdAt).toBe(entity.createdAt.toISOString());
+    expect(row.updatedAt).toBe(entity.updatedAt.toISOString());
+    expect(hydrated.createdAt).toEqual(entity.createdAt);
+    expect(hydrated.updatedAt).toEqual(entity.updatedAt);
   });
 });

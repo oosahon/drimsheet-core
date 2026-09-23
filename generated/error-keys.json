@@ -92,6 +92,7 @@
   "counterparty_error_counterparty_id_invalid",
   "counterparty_error_counterparty_payload_invalid",
   "counterparty_error_date_invalid",
+  "counterparty_error_meta_invalid",
   "counterparty_error_name_invalid",
   "counterparty_error_role_already_assigned_conflict",
   "counterparty_error_role_invalid",

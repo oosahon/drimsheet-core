@@ -22,7 +22,7 @@ export const ECounterpartySortBy = {
 export type UCounterpartySortBy =
   (typeof ECounterpartySortBy)[keyof typeof ECounterpartySortBy];
 
-export interface IFindAllOptions extends Omit<
+export interface IFindAllCounterpartiesOptions extends Omit<
   IPaginatedReadRepoOptions,
   'orderBy'
 > {
@@ -34,13 +34,13 @@ export interface IFindAllOptions extends Omit<
 
 export default interface ICounterpartyRepo {
   create(
-    payload: ICounterparty,
-    repoOptions: IWriteRepoOptions<ICounterpartyHistory>
+    counterparty: ICounterparty,
+    options: IWriteRepoOptions<ICounterpartyHistory>
   ): Promise<void>;
 
   findAll(
     accountingEntityId: TEntityId,
-    options: IFindAllOptions
+    options: IFindAllCounterpartiesOptions
   ): Promise<IPaginatedResponse<ICounterparty>>;
 
   findById(

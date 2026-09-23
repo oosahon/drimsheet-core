@@ -23,280 +23,238 @@
       "y": 12
     },
     {
-      "name": "counterparty_contractor_history",
+      "name": "counterparty_history",
       "schemaName": "audit",
       "x": 1572,
       "y": 12
     },
     {
-      "name": "counterparty_employer_history",
-      "schemaName": "audit",
-      "x": 12,
-      "y": 372
-    },
-    {
-      "name": "counterparty_history",
-      "schemaName": "audit",
-      "x": 532,
-      "y": 372
-    },
-    {
-      "name": "counterparty_vendor_history",
-      "schemaName": "audit",
-      "x": 1052,
-      "y": 372
-    },
-    {
       "name": "fiscal_year_history",
       "schemaName": "audit",
-      "x": 1572,
+      "x": 12,
       "y": 372
     },
     {
       "name": "journal_entry_history",
       "schemaName": "audit",
-      "x": 12,
-      "y": 732
+      "x": 532,
+      "y": 372
     },
     {
       "name": "journal_line_history",
       "schemaName": "audit",
-      "x": 532,
-      "y": 732
+      "x": 1052,
+      "y": 372
     },
     {
       "name": "ledger_account_history",
       "schemaName": "audit",
-      "x": 1052,
-      "y": 732
+      "x": 1572,
+      "y": 372
     },
     {
       "name": "reporting_context_history",
       "schemaName": "audit",
-      "x": 1572,
+      "x": 12,
       "y": 732
     },
     {
       "name": "reporting_period_history",
       "schemaName": "audit",
-      "x": 12,
-      "y": 1092
+      "x": 532,
+      "y": 732
     },
     {
       "name": "subledger_fx_cost_basis_lot_acquisition_history",
       "schemaName": "audit",
-      "x": 532,
-      "y": 1092
+      "x": 1052,
+      "y": 732
     },
     {
       "name": "subledger_fx_cost_basis_lot_disposition_history",
       "schemaName": "audit",
-      "x": 1052,
-      "y": 1092
+      "x": 1572,
+      "y": 732
     },
     {
       "name": "subledger_fx_cost_basis_lot_history",
       "schemaName": "audit",
-      "x": 1572,
+      "x": 12,
       "y": 1092
     },
     {
       "name": "user_profile_history",
       "schemaName": "audit",
-      "x": 12,
-      "y": 1452
+      "x": 532,
+      "y": 1092
     },
     {
       "name": "accounting_contexts",
       "schemaName": "core",
-      "x": 532,
-      "y": 1452
+      "x": 1052,
+      "y": 1092
     },
     {
       "name": "accounting_entities",
       "schemaName": "core",
-      "x": 1052,
-      "y": 1452
+      "x": 1572,
+      "y": 1092
     },
     {
       "name": "accounting_periods",
       "schemaName": "core",
-      "x": 1572,
+      "x": 12,
       "y": 1452
     },
     {
       "name": "accounting_standards",
       "schemaName": "core",
-      "x": 12,
-      "y": 1812
+      "x": 532,
+      "y": 1452
     },
     {
       "name": "bank_details",
       "schemaName": "core",
-      "x": 532,
-      "y": 1812
+      "x": 1052,
+      "y": 1452
     },
     {
       "name": "counterparties",
       "schemaName": "core",
-      "x": 1052,
-      "y": 1812
-    },
-    {
-      "name": "counterparty_contractors",
-      "schemaName": "core",
       "x": 1572,
-      "y": 1812
-    },
-    {
-      "name": "counterparty_employers",
-      "schemaName": "core",
-      "x": 12,
-      "y": 2172
-    },
-    {
-      "name": "counterparty_roles",
-      "schemaName": "core",
-      "x": 532,
-      "y": 2172
-    },
-    {
-      "name": "counterparty_vendors",
-      "schemaName": "core",
-      "x": 1052,
-      "y": 2172
+      "y": 1452
     },
     {
       "name": "currencies",
       "schemaName": "core",
-      "x": 1572,
-      "y": 2172
+      "x": 12,
+      "y": 1812
     },
     {
       "name": "currency_exchange_rates",
       "schemaName": "core",
-      "x": 12,
-      "y": 2532
+      "x": 532,
+      "y": 1812
     },
     {
       "name": "fiscal_years",
       "schemaName": "core",
-      "x": 532,
-      "y": 2532
+      "x": 1052,
+      "y": 1812
     },
     {
       "name": "journal_entries",
       "schemaName": "core",
-      "x": 1052,
-      "y": 2532
+      "x": 1572,
+      "y": 1812
     },
     {
       "name": "journal_entry_attachments",
       "schemaName": "core",
-      "x": 1572,
-      "y": 2532
+      "x": 12,
+      "y": 2172
     },
     {
       "name": "journal_lines",
       "schemaName": "core",
-      "x": 12,
-      "y": 2892
+      "x": 532,
+      "y": 2172
     },
     {
       "name": "jurisdiction_accounting_standards",
       "schemaName": "core",
-      "x": 532,
-      "y": 2892
+      "x": 1052,
+      "y": 2172
     },
     {
       "name": "jurisdictions",
       "schemaName": "core",
-      "x": 1052,
-      "y": 2892
+      "x": 1572,
+      "y": 2172
     },
     {
       "name": "ledger_account_balance_adjustments",
       "schemaName": "core",
-      "x": 1572,
-      "y": 2892
+      "x": 12,
+      "y": 2532
     },
     {
       "name": "ledger_account_balances",
       "schemaName": "core",
-      "x": 12,
-      "y": 3252
+      "x": 532,
+      "y": 2532
     },
     {
       "name": "ledger_accounts",
       "schemaName": "core",
-      "x": 532,
-      "y": 3252
+      "x": 1052,
+      "y": 2532
     },
     {
       "name": "outbox",
       "schemaName": "core",
-      "x": 1052,
-      "y": 3252
+      "x": 1572,
+      "y": 2532
     },
     {
       "name": "reporting_contexts",
       "schemaName": "core",
-      "x": 1572,
-      "y": 3252
+      "x": 12,
+      "y": 2892
     },
     {
       "name": "reporting_periods",
       "schemaName": "core",
-      "x": 12,
-      "y": 3612
+      "x": 532,
+      "y": 2892
     },
     {
       "name": "subledger_fx_cost_basis_lot_acquisitions",
       "schemaName": "core",
-      "x": 532,
-      "y": 3612
+      "x": 1052,
+      "y": 2892
     },
     {
       "name": "subledger_fx_cost_basis_lot_disposition_allocations",
       "schemaName": "core",
-      "x": 1052,
-      "y": 3612
+      "x": 1572,
+      "y": 2892
     },
     {
       "name": "subledger_fx_cost_basis_lot_dispositions",
       "schemaName": "core",
-      "x": 1572,
-      "y": 3612
+      "x": 12,
+      "y": 3252
     },
     {
       "name": "subledger_fx_cost_basis_lots",
       "schemaName": "core",
-      "x": 12,
-      "y": 3972
+      "x": 532,
+      "y": 3252
     },
     {
       "name": "user_auth",
       "schemaName": "core",
-      "x": 532,
-      "y": 3972
+      "x": 1052,
+      "y": 3252
     },
     {
       "name": "user_preferences",
       "schemaName": "core",
-      "x": 1052,
-      "y": 3972
+      "x": 1572,
+      "y": 3252
     },
     {
       "name": "user_sessions",
       "schemaName": "core",
-      "x": 1572,
-      "y": 3972
+      "x": 12,
+      "y": 3612
     },
     {
       "name": "users",
       "schemaName": "core",
-      "x": 12,
-      "y": 4332
+      "x": 532,
+      "y": 3612
     }
   ],
   "referencePaths": [
@@ -355,52 +313,7 @@
       "secondFieldNames": [
         "user_id"
       ],
-      "secondTableName": "counterparty_contractor_history",
-      "secondSchemaName": "audit",
-      "secondRelation": "*",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
-        "id"
-      ],
-      "firstTableName": "users",
-      "firstSchemaName": "core",
-      "firstRelation": "1",
-      "secondFieldNames": [
-        "user_id"
-      ],
-      "secondTableName": "counterparty_employer_history",
-      "secondSchemaName": "audit",
-      "secondRelation": "*",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
-        "id"
-      ],
-      "firstTableName": "users",
-      "firstSchemaName": "core",
-      "firstRelation": "1",
-      "secondFieldNames": [
-        "user_id"
-      ],
       "secondTableName": "counterparty_history",
-      "secondSchemaName": "audit",
-      "secondRelation": "*",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
-        "id"
-      ],
-      "firstTableName": "users",
-      "firstSchemaName": "core",
-      "firstRelation": "1",
-      "secondFieldNames": [
-        "user_id"
-      ],
-      "secondTableName": "counterparty_vendor_history",
       "secondSchemaName": "audit",
       "secondRelation": "*",
       "checkPoints": []
@@ -731,66 +644,6 @@
         "accounting_entity_id"
       ],
       "secondTableName": "counterparties",
-      "secondSchemaName": "core",
-      "secondRelation": "*",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
-        "id"
-      ],
-      "firstTableName": "counterparties",
-      "firstSchemaName": "core",
-      "firstRelation": "1",
-      "secondFieldNames": [
-        "counterparty_id"
-      ],
-      "secondTableName": "counterparty_contractors",
-      "secondSchemaName": "core",
-      "secondRelation": "*",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
-        "id"
-      ],
-      "firstTableName": "counterparties",
-      "firstSchemaName": "core",
-      "firstRelation": "1",
-      "secondFieldNames": [
-        "counterparty_id"
-      ],
-      "secondTableName": "counterparty_employers",
-      "secondSchemaName": "core",
-      "secondRelation": "*",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
-        "id"
-      ],
-      "firstTableName": "counterparties",
-      "firstSchemaName": "core",
-      "firstRelation": "1",
-      "secondFieldNames": [
-        "counterparty_id"
-      ],
-      "secondTableName": "counterparty_roles",
-      "secondSchemaName": "core",
-      "secondRelation": "*",
-      "checkPoints": []
-    },
-    {
-      "firstFieldNames": [
-        "id"
-      ],
-      "firstTableName": "counterparties",
-      "firstSchemaName": "core",
-      "firstRelation": "1",
-      "secondFieldNames": [
-        "counterparty_id"
-      ],
-      "secondTableName": "counterparty_vendors",
       "secondSchemaName": "core",
       "secondRelation": "*",
       "checkPoints": []
