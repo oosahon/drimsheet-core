@@ -13,6 +13,7 @@ import { RegisterRoutes } from '../../../generated/routes';
 interface IApplicationDependencies {
   bullMqDashboardRouter?: Router;
   healthRouter?: Router;
+  mcpRouter?: Router;
 }
 
 export default function createApplication(
@@ -48,6 +49,10 @@ export default function createApplication(
   app.use(passport.initialize());
 
   app.use(httpMiddlewares.appContextEnrichment);
+
+  if (dependencies.mcpRouter) {
+    app.use('/mcp', dependencies.mcpRouter);
+  }
 
   RegisterRoutes(app);
 
