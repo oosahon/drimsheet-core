@@ -10,8 +10,14 @@ import { makeRuntimeHealth } from '@infra/server/health';
 const mockListen = jest.fn();
 const mockDashboardRouter = { router: 'dashboard' };
 const mockHealthRouter = { router: 'health' };
+const mockMcpRouter = { router: 'mcp' };
 const mockMarkStartupComplete = jest.fn();
 const mockMarkStartupFailed = jest.fn();
+
+jest.mock('@infra/ioc/mcp', () => ({
+  __esModule: true,
+  default: { router: 'mcp' },
+}));
 
 jest.mock('@infra/integrations/oauth/google-oauth.strategy', () => ({
   __esModule: true,
@@ -80,6 +86,7 @@ describe('server setup', () => {
     expect(getMockCreateApplication()).toHaveBeenCalledWith({
       bullMqDashboardRouter: mockDashboardRouter,
       healthRouter: mockHealthRouter,
+      mcpRouter: mockMcpRouter,
     });
     expect(mockListen).toHaveBeenCalledWith(3_000, expect.any(Function));
 

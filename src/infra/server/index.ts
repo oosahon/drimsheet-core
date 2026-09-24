@@ -3,6 +3,7 @@ import { ELogOutcome } from '@shared/types/observability.types';
 import vars from '@infra/config/vars.config';
 import setupOAuth from '@infra/integrations/oauth/google-oauth.strategy';
 import reporter from '@infra/integrations/sentry/sentry-reporter';
+import mcpRouter from '@infra/ioc/mcp';
 import logger from '@infra/observability/logger';
 
 import createApplication from '@interface/http/application';
@@ -20,6 +21,7 @@ function setupServer(bootstrap?: () => Promise<void>) {
   const app = createApplication({
     bullMqDashboardRouter: bullMqServerAdapter.getRouter(),
     healthRouter: runtimeHealth.router,
+    mcpRouter,
   });
 
   app.listen(vars.PORT, async () => {

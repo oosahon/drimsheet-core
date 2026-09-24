@@ -86,6 +86,49 @@ It does not start the API or workers. Coolify owns the production cron schedule
 and any platform-level rerun policy. The job requires `POSTGRES_URL` and may use
 the same optional Sentry and Better Stack configuration as the API.
 
+### MCP server foundation
+
+The existing HTTP process serves MCP at `/mcp` using the TypeScript SDK v2.
+Node.js 20 or later is required. The endpoint exposes two read tools:
+
+| Tool                  | Result                                                |
+| --------------------- | ----------------------------------------------------- |
+| `get_ledger_accounts` | Paginated ledger accounts with existing balance DTOs. |
+| `get_journal_entries` | Paginated journal entries and their lines.            |
+
+Both accept their existing query filters and pagination fields. Pagination
+defaults to 10 results and allows up to 200 per page. Results preserve `data`
+and `meta`, with JSON text and structured content. Dates are ISO strings and
+monetary amounts retain their minor-unit representation and currency code.
+
+With core running locally, discover tools using:
+
+```bash
+curl http://localhost:3000/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+Use the configured `PORT` if it differs from 3000. Outside `APP_ENV=local`,
+requests must use the hostname configured in `APP_URL`; local mode also allows
+loopback hostnames. Existing Origin checks, body limits, correlation IDs, and
+rate limiting apply. The SDK owns protocol negotiation and response framing;
+the verified `2025-06-18` request path returns SSE messages.
+
+Authentication is deferred. Read calls retain the application use cases'
+accounting-entity context prerequisite and fail safely when it is absent. The
+integration suite supplies synthetic fixture context to verify tool reads;
+live caller authentication and entity selection are separate work. No new MCP
+credential or login flow is provided in this phase.
+
+Run the focused protocol and integration tests with:
+
+```bash
+npm test -- --runInBand src/interface/mcp test/http/mcp src/infra/ioc/__specs__/mcp.spec.ts
+```
+
 ### Testing
 
 Run the test suite:
