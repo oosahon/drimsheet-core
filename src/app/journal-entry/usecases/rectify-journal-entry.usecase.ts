@@ -53,8 +53,8 @@ export default function makeRectifyJournalEntryUsecase(deps: IDependencies) {
     stringUtils.validateUUID(id, journalEntryError.InvalidJournalEntry);
     zodValidationRunner(journalEntryRectificationReqValidation, payload);
 
-    const { correlationId, idempotencyKey, accountingEntity, user } =
-      deps.appContext.get(['user', 'accountingEntity']);
+    const { correlationId, idempotencyKey, accountingEntity, user, actor } =
+      deps.appContext.get(['user', 'actor', 'accountingEntity']);
     deps.accountingEntityService.validateAccess(accountingEntity, user.id);
 
     const repoOptions = { correlationId, idempotencyKey };
@@ -71,13 +71,11 @@ export default function makeRectifyJournalEntryUsecase(deps: IDependencies) {
       expectedVersion: payload.expectedVersion,
     });
 
-    const actor = user.actorId;
-
     const preparationPayload = {
       originalEntry,
       requestedEntry: payload,
       accountingEntity,
-      actor,
+      actor: actor.id,
     };
     const preparedRectification =
       await deps.journalEntryRectificationPreparationService.prepare(
@@ -87,13 +85,13 @@ export default function makeRectifyJournalEntryUsecase(deps: IDependencies) {
 
     const newCounterparties = getNewCounterpartiesHelper(
       preparedRectification.counterparties,
-      actor,
+      actor.id,
       correlationId
     );
     const rectificationPersistencePayload =
       getJournalEntryPersistencePayloadHelper(
         preparedRectification.rectification,
-        actor,
+        actor.id,
         correlationId
       );
 

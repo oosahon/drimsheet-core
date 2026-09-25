@@ -3,10 +3,12 @@ import request from 'supertest';
 
 import { TEntityId } from '@shared/types/uuid';
 
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import authError from '@app/auth/errors/auth.error';
 import mockFeatureFlagService from '@app/context/contracts/__mocks__/feature-flag.service.mock';
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 import {
   EAppThemePreference,
   EAppUsageModePreference,
@@ -83,6 +85,13 @@ describe('PATCH /users/preferences', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockActorService.resolveUser.mockReset().mockResolvedValue({
+      ...actorEntity.makeUser({
+        email: 'user@example.com',
+        displayName: 'User',
+      })[0],
+      id: user.actorId,
+    });
     mockGetAuthUser.mockResolvedValue({ id: userId });
     mockFindUser.mockResolvedValue(user);
     mockFindPreferences.mockResolvedValue(existingPreferences);

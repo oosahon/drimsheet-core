@@ -25,19 +25,18 @@ export default function makeCreateCounterpartyUsecase(deps: IDependencies) {
   return async (payload: ICounterpartyCreateReq): Promise<ICounterpartyDto> => {
     zodValidationRunner(counterpartyCreateReqValidation, payload);
 
-    const { correlationId, idempotencyKey, user, accountingEntity } =
-      deps.appContext.get(['user', 'accountingEntity']);
+    const { correlationId, idempotencyKey, actor, accountingEntity } =
+      deps.appContext.get(['actor', 'accountingEntity']);
 
     const creationPayload = counterpartyDtoMapper.fromDto(
       payload,
       accountingEntity.id,
-      user.actorId
+      actor.id
     );
     const creation = deps.counterpartyService.create(creationPayload);
     const [counterparty, events, audit] = creation;
 
-    const actor = user.actorId;
-    const history = historyValue.make(audit, actor, correlationId);
+    const history = historyValue.make(audit, actor.id, correlationId);
 
     await deps.counterpartyRepo.create(counterparty, {
       correlationId,

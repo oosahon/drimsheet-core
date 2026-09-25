@@ -18,6 +18,13 @@ import { mockUserRepo } from '@app/user/contracts/__mocks__/user.repos.mock';
 import makeAppContextEnrichmentMiddleware from '@interface/http/middlewares/app-context-enrichment.middleware';
 
 describe('makeAppContextEnrichmentMiddleware', () => {
+  const actor = {
+    ...actorEntity.makeUser({
+      email: 'user@example.com',
+      displayName: 'User',
+    })[0],
+    id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+  };
   const correlationId = 'request-correlation-id';
   const userId = 'user-id' as TEntityId;
   const accountingEntityId =
@@ -28,7 +35,8 @@ describe('makeAppContextEnrichmentMiddleware', () => {
   let mockNext: jest.MockedFunction<NextFunction>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
+    mockActorService.resolveUser.mockResolvedValue(actor);
 
     mockAppContext.get.mockReturnValue({
       correlationId,
@@ -81,6 +89,7 @@ describe('makeAppContextEnrichmentMiddleware', () => {
     });
     expect(mockAppContext.set).toHaveBeenCalledWith({
       user,
+      actor,
     });
     expect(mockNext).toHaveBeenCalledTimes(1);
   });
@@ -118,6 +127,7 @@ describe('makeAppContextEnrichmentMiddleware', () => {
     expect(userRepoOptions).toEqual({ correlationId });
     expect(mockAppContext.set).toHaveBeenCalledWith({
       user,
+      actor,
       accountingEntity,
     });
     expect(mockNext).toHaveBeenCalledTimes(1);
@@ -203,7 +213,11 @@ describe('makeAppContextEnrichmentMiddleware', () => {
     expect(mockAppContext.set).toHaveBeenCalledWith({ user, actor });
   });
 
-  it.each([actorError.Disabled, actorError.NotFound])(
+  it.each([
+    actorError.Disabled,
+    actorError.NotFound,
+    actorError.InvalidUserLink,
+  ])(
     'does not populate context when actor resolution fails',
     async (ActorError) => {
       mockReq.headers = { authorization: 'Bearer valid-token' };

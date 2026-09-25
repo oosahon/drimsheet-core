@@ -17,6 +17,7 @@ import { ICashAndCashEquivalentAccount } from '@domain/ledger/types/asset-accoun
 import { IOpeningBalanceEquityAccount } from '@domain/ledger/types/equity-account.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import { EExchangeRateType } from '@domain/money/types/exchange-rate.types';
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext, {
@@ -33,6 +34,14 @@ import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mo
 import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
 import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
+
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
 
 describe('createOpeningBalanceUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -114,9 +123,9 @@ describe('createOpeningBalanceUseCase', () => {
     mockFxLotAppService.acquire.mockResolvedValue(null);
 
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       clientSession: mockClientSession,
-      user: mockUser,
       accountingEntity: mockAccountingEntity,
     } as unknown as IAppContextData);
 
@@ -213,7 +222,7 @@ describe('createOpeningBalanceUseCase', () => {
         }),
         effectiveDate: payload.date,
         exchangeRate: null,
-        createdBy: mockAssetAccount.createdBy,
+        createdBy: actor.id,
       },
       { correlationId }
     );

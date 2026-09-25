@@ -2,6 +2,7 @@ import { TEntityId } from '@shared/types/uuid';
 import appError from '@shared/values/errors/app.error';
 
 import { IAccountingEntity } from '@domain/accounting/types/accounting-entity.types';
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import { mockAccountingEntityRepo } from '@app/accounting/contracts/__mocks__/accounting.repos.mock';
@@ -9,6 +10,14 @@ import accountingAppError from '@app/accounting/errors/accounting.error';
 import makeSwitchAccountingEntityUsecase from '@app/accounting/usecases/switch-accounting-entity.usecase';
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import mockUserPreferencesService from '@app/user/contracts/__mocks__/user-preferences.service.mock';
+
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
 
 describe('switchAccountingEntityUsecase', () => {
   const correlationId = 'test-correlation-id';
@@ -41,9 +50,10 @@ describe('switchAccountingEntityUsecase', () => {
     jest.clearAllMocks();
 
     mockAppContext.get.mockReset().mockReturnValue({
+      actor,
       user: {
         createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
-        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
         id: userId,
       } as IUser,
       accountingEntity: currentAccountingEntity,
@@ -92,9 +102,10 @@ describe('switchAccountingEntityUsecase', () => {
 
   it('resolves and sets an entity that is already current', async () => {
     mockAppContext.get.mockReturnValue({
+      actor,
       user: {
         createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
-        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
         id: userId,
       } as IUser,
       accountingEntity: targetAccountingEntity,

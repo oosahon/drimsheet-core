@@ -50,8 +50,8 @@ export default function makeDeleteJournalEntryUsecase(deps: IDependencies) {
     stringUtils.validateUUID(id, journalEntryError.InvalidJournalEntry);
     zodValidationRunner(journalEntryDeletionReqValidation, payload);
 
-    const { correlationId, idempotencyKey, accountingEntity, user } =
-      deps.appContext.get(['user', 'accountingEntity']);
+    const { correlationId, idempotencyKey, accountingEntity, user, actor } =
+      deps.appContext.get(['user', 'actor', 'accountingEntity']);
 
     deps.accountingEntityService.validateAccess(accountingEntity, user.id);
 
@@ -71,7 +71,7 @@ export default function makeDeleteJournalEntryUsecase(deps: IDependencies) {
 
     const removal = deps.journalEntryRemovalService.prepare(
       originalEntry,
-      user.actorId
+      actor.id
     );
 
     if (removal.mode === EJournalEntryRemovalMode.Delete) {
@@ -86,17 +86,15 @@ export default function makeDeleteJournalEntryUsecase(deps: IDependencies) {
       return;
     }
 
-    const actor = user.actorId;
-
     const fxReversal = await deps.fxLotAppService.reverse(
       originalEntry.id,
-      actor,
+      actor.id,
       repoOptions
     );
 
     const journalPersistencePayload = getJournalEntryPersistencePayloadHelper(
       removal,
-      actor,
+      actor.id,
       correlationId
     );
     const reversingJournalEntry = removal.reversingJournalEntry;

@@ -13,6 +13,7 @@ import {
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
+import actorEntity from '@domain/user/entities/actor.entity';
 
 import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext, {
@@ -21,6 +22,14 @@ import mockAppContext, {
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
 import { mockJournalEntryRepo } from '@app/journal-entry/contracts/__mocks__/journal-entry.repos.mock';
 import makeArchiveJournalEntryUsecase from '@app/journal-entry/usecases/archive-journal-entry.usecase';
+
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
 
 describe('makeArchiveJournalEntryUsecase', () => {
   const correlationId = 'archive-correlation-id';
@@ -77,11 +86,12 @@ describe('makeArchiveJournalEntryUsecase', () => {
     jest.setSystemTime(now);
     jest.clearAllMocks();
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       idempotencyKey,
       user: {
         id: userId,
-        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
       },
       accountingEntity: { id: accountingEntityId },
       clientSession: mockClientSession,

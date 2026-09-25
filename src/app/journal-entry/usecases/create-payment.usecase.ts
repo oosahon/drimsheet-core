@@ -57,8 +57,8 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
   return async (payload: IPaymentEntryReq): Promise<IJournalEntryDto> => {
     zodValidationRunner(paymentEntryReqValidation, payload);
 
-    const { correlationId, accountingEntity, user, idempotencyKey } =
-      deps.appContext.get(['user', 'accountingEntity']);
+    const { correlationId, accountingEntity, user, actor, idempotencyKey } =
+      deps.appContext.get(['user', 'actor', 'accountingEntity']);
     const repoOptions = { correlationId, idempotencyKey };
 
     const headerPayload: ICreatePaymentEntryPayload['header'] = {
@@ -67,7 +67,7 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
       effectiveDate: payload.effectiveDate,
       postedAt: payload.postedAt,
       functionalCurrencyCode: accountingEntity.functionalCurrencyCode,
-      createdBy: user.actorId,
+      createdBy: actor.id,
     };
 
     const sourceAccount = await deps.ledgerAccountRepo.findById(
@@ -108,7 +108,7 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
       await deps.counterpartyAppService.findOrCreateMany(
         allCounterpartiesPayload,
         accountingEntity.id,
-        user.actorId,
+        actor.id,
         repoOptions
       );
 
@@ -167,18 +167,17 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
     const [journalEntry, journalEntryEvents, journalEntryAudit] =
       await deps.journalEntryService.createPayment(paymentPayload, repoOptions);
 
-    const userActor = user.actorId;
     const journalHeaderHistory = historyValue.make(
       journalEntryAudit.header,
-      userActor,
+      actor.id,
       correlationId
     );
     const journalLinesHistory = journalEntryAudit.lines.map((line) =>
-      historyValue.make(line, userActor, correlationId)
+      historyValue.make(line, actor.id, correlationId)
     );
     const newCounterparties = getNewCounterpartiesHelper(
       allCounterparties,
-      userActor,
+      actor.id,
       correlationId
     );
 
@@ -187,7 +186,7 @@ export default function makeCreatePaymentUsecase(deps: IDependencies) {
 
     const fxReadOptions: IReadRepoOptions = { correlationId };
     const fxResult = await deps.fxLotAppService.dispose(
-      { journalEntry, account: sourceAccount, actor: userActor },
+      { journalEntry, account: sourceAccount, actor: actor.id },
       fxReadOptions
     );
     const fxEvents: IEvent<unknown>[] = fxResult?.events ?? [];

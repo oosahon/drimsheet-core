@@ -36,6 +36,7 @@ import {
   ELiabilitySubType,
 } from '@domain/ledger/types/liability-account.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import mockAppContext, {
@@ -61,12 +62,20 @@ import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__
 import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
 import { TFxLotDispositionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
 
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
+
 describe('makeCreatePaymentUsecase', () => {
   const correlationId = 'payment-correlation-id';
   const idempotencyKey = 'payment-idempotency-key';
   const user: IUser = {
     createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
-    actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+    actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
     id: generateUUID(),
     version: 1,
     email: 'payment@example.com',
@@ -105,7 +114,7 @@ describe('makeCreatePaymentUsecase', () => {
       contraAccountRule: EContraAccountRule.ContraPermitted,
       adjunctAccountRule: EAdjunctAccountRule.AdjunctPermitted,
       meta: {},
-      createdBy: user.actorId,
+      createdBy: actor.id,
       ...overrides,
     });
 
@@ -155,7 +164,7 @@ describe('makeCreatePaymentUsecase', () => {
       effectiveDate: new Date('2026-08-30T00:00:00.000Z'),
       postedAt: new Date('2026-08-30T00:00:00.000Z'),
       memo: 'Payment',
-      createdBy: user.actorId,
+      createdBy: actor.id,
       functionalCurrency: SYSTEM_CURRENCIES.NGN,
       lines: [
         {
@@ -247,6 +256,7 @@ describe('makeCreatePaymentUsecase', () => {
     jest.clearAllMocks();
     mockFxLotAppService.dispose.mockResolvedValue(null);
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       idempotencyKey,
       user,
@@ -318,7 +328,7 @@ describe('makeCreatePaymentUsecase', () => {
         officialRate: null,
       },
       dispositionHistory: {
-        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
         onBehalfOf: null,
         entityId: dispositionId,
       },
@@ -338,7 +348,7 @@ describe('makeCreatePaymentUsecase', () => {
       {
         journalEntry: postedJournalEntry,
         account: sourceAccount,
-        actor: user.actorId,
+        actor: actor.id,
       },
       { correlationId }
     );
@@ -446,7 +456,7 @@ describe('makeCreatePaymentUsecase', () => {
       {
         journalEntry: draftJournalEntry,
         account: sourceAccount,
-        actor: user.actorId,
+        actor: actor.id,
       },
       { correlationId }
     );

@@ -7,13 +7,13 @@ import zodValidationRunner from '@shared/utils/zod-validation-runner';
 
 import IExchangeRateRepo from '@domain/money/repos/exchange-rate.repo';
 import exchangeRateValue from '@domain/money/values/exchange-rate.vo';
-import IActorService from '@domain/user/types/actor.service.types';
 
+import IAppContext from '@app/context/contracts/app-context.contract';
 import { IExchangeRateIngestionDto } from '@app/money/dtos/exchange-rate/exchange-rate.dto';
 import { exchangeRateIngestionDtoValidation } from '@app/money/dtos/exchange-rate/exchange-rate.dto.validation';
 
 interface IDependencies {
-  actorService: IActorService;
+  appContext: IAppContext;
   exchangeRateRepo: IExchangeRateRepo;
   repoService: IRepoService;
 }
@@ -21,6 +21,8 @@ interface IDependencies {
 export default function makeIngestExchangeRateUseCase(deps: IDependencies) {
   return async (payload: IExchangeRateIngestionDto) => {
     zodValidationRunner(exchangeRateIngestionDtoValidation, payload);
+
+    const { actor } = deps.appContext.get(['actor']);
 
     const exchangeRates = payload.exchangeRates.map((exchangeRate) =>
       exchangeRateValue.make({
@@ -58,10 +60,6 @@ export default function makeIngestExchangeRateUseCase(deps: IDependencies) {
     if (selectedExchangeRates.length === 0) {
       return Object.freeze({ processedCount: 0 });
     }
-
-    const actor = await deps.actorService.resolveByUsername('drimsheet-core', {
-      correlationId: payload.correlationId,
-    });
 
     const transactionFn: TRepoTransactionFn = async (tx) => {
       const batches = batchArray(selectedExchangeRates, 100);

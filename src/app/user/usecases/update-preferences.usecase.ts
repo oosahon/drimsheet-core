@@ -17,11 +17,14 @@ export default function makeUpdateUserPreferencesUsecase(deps: IDependencies) {
   ): Promise<IUserPreferences> => {
     zodValidationRunner(userPreferencesUpdateDtoSchema, payload);
 
-    const { user, correlationId } = deps.appContext.get(['user']);
+    const { user, actor, correlationId } = deps.appContext.get([
+      'user',
+      'actor',
+    ]);
 
     const updatePayload = {
       userId: user.id,
-      createdBy: user.actorId,
+      createdBy: actor.id,
       appPreferences: payload,
     };
 

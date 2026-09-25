@@ -19,6 +19,7 @@ import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import { ILedgerAccount } from '@domain/ledger/types/ledger.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
+import actorEntity from '@domain/user/entities/actor.entity';
 
 import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext, {
@@ -41,6 +42,14 @@ import {
   TFxLotAcquisitionAppResult,
   TFxLotDispositionAppResult,
 } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
+
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
 
 describe('makeRectifyJournalEntryUsecase', () => {
   const correlationId = 'rectification-correlation-id';
@@ -162,11 +171,12 @@ describe('makeRectifyJournalEntryUsecase', () => {
     jest.setSystemTime(now);
     jest.clearAllMocks();
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       idempotencyKey,
       user: {
         id: userId,
-        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
       },
       accountingEntity: {
         id: accountingEntityId,
@@ -195,7 +205,7 @@ describe('makeRectifyJournalEntryUsecase', () => {
       })),
     };
     const result = rectificationService.rectify({
-      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: actor.id,
       originalEntry,
       newEntry,
     });
@@ -302,7 +312,7 @@ describe('makeRectifyJournalEntryUsecase', () => {
       })),
     };
     const result = rectificationService.rectify({
-      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: actor.id,
       originalEntry,
       newEntry,
     });
@@ -360,7 +370,7 @@ describe('makeRectifyJournalEntryUsecase', () => {
       })),
     };
     const result = rectificationService.rectify({
-      actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+      actorId: actor.id,
       originalEntry,
       newEntry: candidate,
     });

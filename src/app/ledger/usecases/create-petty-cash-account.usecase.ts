@@ -55,11 +55,10 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
   return async (
     payload: IPettyCashAccountCreationReq
   ): Promise<ILedgerAccountDto> => {
-    const { correlationId, user, accountingEntity } = deps.appContext.get([
-      'user',
+    const { correlationId, actor, accountingEntity } = deps.appContext.get([
+      'actor',
       'accountingEntity',
     ]);
-    const actor = user.actorId;
     const repoOptions = { correlationId };
 
     // Validate data
@@ -93,7 +92,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
           name: payload.name,
           currency: currencyEntity.getByCode(payload.currencyCode),
           isControlAccount: payload.isControlAccount,
-          createdBy: user.actorId,
+          createdBy: actor.id,
           accountingEntity,
           controlAccountCode: controlAccount.code,
         },
@@ -104,7 +103,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
       return await finalizeWithoutOpeningBalance(deps, {
         auditedAccount,
         accountingEntity,
-        actor,
+        actor: actor.id,
         repoOptions,
       });
     }
@@ -122,7 +121,7 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
           amount: moneyMapper.fromDto(payload.openingBalance.amount),
           effectiveDate: payload.openingBalance.date,
           exchangeRate,
-          createdBy: user.actorId,
+          createdBy: actor.id,
         },
         repoOptions
       );
@@ -136,29 +135,29 @@ export default function makeCreatePettyCashAccountUseCase(deps: IDependencies) {
     // Make histories
     const initialAccountHistory = historyValue.make(
       auditedAccount[2],
-      actor,
+      actor.id,
       correlationId
     );
     const updatedAccountHistory = historyValue.make(
       updatedAccountAudit,
-      actor,
+      actor.id,
       correlationId
     );
     const accountHistory = [initialAccountHistory, updatedAccountHistory];
     const journalHeaderHistory = historyValue.make(
       journalAudit.header,
-      actor,
+      actor.id,
       correlationId
     );
     const journalLineHistories = journalAudit.lines.map((lineAudit) =>
-      historyValue.make(lineAudit, actor, correlationId)
+      historyValue.make(lineAudit, actor.id, correlationId)
     );
 
     const shouldUpdateBalance =
       journalEntry.status === EJournalEntryStatus.Posted;
 
     const fxResult = await deps.fxLotAppService.acquire(
-      { journalEntry, account: updatedAccount, actor },
+      { journalEntry, account: updatedAccount, actor: actor.id },
       repoOptions
     );
 

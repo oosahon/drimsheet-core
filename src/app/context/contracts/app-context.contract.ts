@@ -12,7 +12,9 @@ export interface IClientSession {
 }
 
 export interface IAppContextData extends ICorrelationId, IIdempotencyKey {
+  /** User subject for identity, ownership, preferences, and upload workflows. */
   user?: IUser;
+  /** Verified caller resolved at the entry boundary; source of write attribution. */
   actor?: IActor;
   accountingEntity?: IAccountingEntity;
   clientSession?: IClientSession;

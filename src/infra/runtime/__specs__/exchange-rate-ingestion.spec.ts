@@ -1,6 +1,12 @@
 import mockLogger from '@shared/contracts/__mocks__/logger.mock';
 import mockReporter from '@shared/contracts/__mocks__/reporter.mock';
 import mockTracer from '@shared/contracts/__mocks__/tracer.mock';
+import runtimeError from '@shared/values/errors/runtime.error';
+
+import actorEntity from '@domain/user/entities/actor.entity';
+import actorError from '@domain/user/errors/actor.error';
+
+import { mockActorService } from '@app/user/contracts/__mocks__/actor.services.mock';
 
 import { postgres } from '@infra/config/postgres.config';
 import {
@@ -11,6 +17,7 @@ import {
 import { mapCbnExchangeRates } from '@infra/integrations/cbn/cbn-exchange-rate.mapper';
 import { ingestExchangeRateUseCase } from '@infra/ioc/usecases/money';
 import observability from '@infra/observability';
+import appContext from '@infra/runtime/app-context';
 import exchangeRateIngestionRuntime, {
   isRetryableExchangeRateIngestionError,
   makeExchangeRateIngestionRuntime,
@@ -23,6 +30,12 @@ jest.mock('@infra/config/postgres.config', () => ({
 
 jest.mock('@infra/ioc/usecases/money', () => ({
   ingestExchangeRateUseCase: jest.fn(),
+}));
+
+jest.mock('@infra/ioc/services/user', () => ({
+  actorService: jest.requireActual(
+    '@app/user/contracts/__mocks__/actor.services.mock'
+  ).mockActorService,
 }));
 
 jest.mock('@infra/integrations/cbn/cbn-exchange-rate.client', () => ({
@@ -52,6 +65,9 @@ jest.mock('@infra/runtime/observability-lifecycle', () => ({
 type TShutdownSignal = 'SIGINT' | 'SIGTERM';
 
 describe('exchange-rate ingestion runtime', () => {
+  const [systemActor] = actorEntity.makeSystem(
+    actorEntity.makeMigration()[0].id
+  );
   const records = [
     {
       centralrate: '1500.25',
@@ -89,6 +105,8 @@ describe('exchange-rate ingestion runtime', () => {
 
   const makeRuntime = () =>
     makeExchangeRateIngestionRuntime({
+      actorService: mockActorService,
+      appContext,
       closeDatabase,
       fetchExchangeRates,
       generateCorrelationId,
@@ -106,6 +124,9 @@ describe('exchange-rate ingestion runtime', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockActorService.resolveByUsername
+      .mockReset()
+      .mockResolvedValue(systemActor);
     signalHandlers.clear();
     closeDatabase.mockResolvedValue(undefined);
     fetchExchangeRates.mockResolvedValue(records);
@@ -140,8 +161,25 @@ describe('exchange-rate ingestion runtime', () => {
 
   it('runs one traced attempt, closes resources, and returns success', async () => {
     const runtime = makeRuntime();
+    ingestExchangeRates.mockImplementationOnce(async (payload) => {
+      await Promise.resolve();
+      expect(appContext.get(['actor'])).toEqual({
+        actor: systemActor,
+        correlationId: payload.correlationId,
+        idempotencyKey: '',
+      });
+      return { processedCount: 1 };
+    });
 
     await expect(runtime.run()).resolves.toBe(0);
+
+    expect(mockActorService.resolveByUsername).toHaveBeenCalledWith(
+      'drimsheet-core',
+      {
+        correlationId: generateCorrelationId(),
+      }
+    );
+    expect(() => appContext.get()).toThrow(runtimeError.StoreNotFound);
 
     expect(process.once).toHaveBeenCalledTimes(2);
     expect(mockTracer.startRootSpan).toHaveBeenCalledWith(
@@ -181,7 +219,11 @@ describe('exchange-rate ingestion runtime', () => {
     });
     jest
       .mocked(ingestExchangeRateUseCase)
-      .mockResolvedValue({ processedCount: 1 });
+      .mockImplementationOnce(async (payload) => {
+        expect(appContext.get(['actor']).actor).toBe(systemActor);
+        expect(appContext.get().correlationId).toBe(payload.correlationId);
+        return { processedCount: 1 };
+      });
     jest.mocked(getCbnRetryAfterMs).mockReturnValue(undefined);
     jest.mocked(isRetryableCbnExchangeRateError).mockReturnValue(false);
     jest.mocked(observabilityLifecycle.shutdown).mockResolvedValue(undefined);
@@ -214,6 +256,92 @@ describe('exchange-rate ingestion runtime', () => {
         skippedCurrencyCount: 25,
       }
     );
+  });
+
+  it.each([actorError.NotFound, actorError.Disabled])(
+    'does not invoke ingestion when system actor resolution fails',
+    async (ActorError) => {
+      const error = new ActorError();
+      mockActorService.resolveByUsername.mockRejectedValueOnce(error);
+
+      await expect(makeRuntime().run()).resolves.toBe(1);
+
+      expect(ingestExchangeRates).not.toHaveBeenCalled();
+      expect(mockActorService.resolveByUsername).toHaveBeenCalledTimes(1);
+      expect(mockReporter.report).toHaveBeenCalledTimes(1);
+      expect(mockReporter.report).toHaveBeenCalledWith(
+        'integration.cbn_exchange_rate.failed',
+        error,
+        { operation: 'ingest', source: 'cbn-exchange-rate' }
+      );
+      expect(closeDatabase).toHaveBeenCalledTimes(1);
+      expect(shutdownObservability).toHaveBeenCalledTimes(1);
+      expect(() => appContext.get()).toThrow(runtimeError.StoreNotFound);
+    }
+  );
+
+  it('resolves the system actor even for a zero-row ingestion', async () => {
+    mapExchangeRates.mockReturnValue({
+      exchangeRates: [],
+      unsupportedCurrencyLabels: [],
+    });
+    ingestExchangeRates.mockImplementationOnce(async () => {
+      expect(appContext.get(['actor']).actor).toBe(systemActor);
+      return { processedCount: 0 };
+    });
+
+    await expect(makeRuntime().run()).resolves.toBe(0);
+
+    expect(mockActorService.resolveByUsername).toHaveBeenCalledTimes(1);
+    expect(ingestExchangeRates).toHaveBeenCalledWith({
+      correlationId: generateCorrelationId(),
+      exchangeRates: [],
+    });
+  });
+
+  it('retries transient actor lookup failures before invoking ingestion', async () => {
+    jest.useFakeTimers();
+    mockActorService.resolveByUsername.mockRejectedValueOnce({ code: '40001' });
+
+    const run = makeRuntime().run();
+    await jest.runOnlyPendingTimersAsync();
+    await expect(run).resolves.toBe(0);
+
+    expect(mockActorService.resolveByUsername).toHaveBeenCalledTimes(2);
+    expect(ingestExchangeRates).toHaveBeenCalledTimes(1);
+    expect(mockReporter.report).not.toHaveBeenCalled();
+  });
+
+  it('re-resolves the actor and isolates context when ingestion is retried', async () => {
+    jest.useFakeTimers();
+    const [nextActor] = actorEntity.makeSystem(
+      actorEntity.makeMigration()[0].id
+    );
+    mockActorService.resolveByUsername
+      .mockResolvedValueOnce(systemActor)
+      .mockResolvedValueOnce(nextActor);
+    ingestExchangeRates
+      .mockImplementationOnce(async () => {
+        expect(appContext.get(['actor']).actor).toBe(systemActor);
+        appContext.set({ idempotencyKey: 'first-attempt' });
+        throw { code: '40001' };
+      })
+      .mockImplementationOnce(async (payload) => {
+        expect(appContext.get(['actor'])).toEqual({
+          actor: nextActor,
+          correlationId: payload.correlationId,
+          idempotencyKey: '',
+        });
+        return { processedCount: 1 };
+      });
+
+    const run = makeRuntime().run();
+    await jest.runOnlyPendingTimersAsync();
+    await expect(run).resolves.toBe(0);
+
+    expect(mockActorService.resolveByUsername).toHaveBeenCalledTimes(2);
+    expect(ingestExchangeRates).toHaveBeenCalledTimes(2);
+    expect(() => appContext.get()).toThrow(runtimeError.StoreNotFound);
   });
 
   it('retries a transient provider failure with Retry-After', async () => {

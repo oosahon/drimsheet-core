@@ -43,8 +43,8 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
   return async (payload: IOpeningBalanceCreationReq) => {
     zodValidationRunner(openingBalanceCreationReqValidation, payload);
 
-    const { accountingEntity, correlationId, user } = deps.appContext.get([
-      'user',
+    const { accountingEntity, correlationId, actor } = deps.appContext.get([
+      'actor',
       'accountingEntity',
     ]);
     const repoOptions = { correlationId };
@@ -69,7 +69,7 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
       amount,
       effectiveDate: payload.date,
       exchangeRate,
-      createdBy: account.createdBy,
+      createdBy: actor.id,
     };
 
     const [journalEntry, journalEvents, audit] =
@@ -81,22 +81,25 @@ export default function makeCreateOpeningBalanceUseCase(deps: IDependencies) {
     const [updatedAccount, accountEvents, accountAudit] =
       ledgerAccountEntity.updateOpeningBalanceDate(account, payload.date);
 
-    const actor = user.actorId;
     const accountHistory = historyValue.make(
       accountAudit,
-      actor,
+      actor.id,
       correlationId
     );
-    const headerHistory = historyValue.make(audit.header, actor, correlationId);
+    const headerHistory = historyValue.make(
+      audit.header,
+      actor.id,
+      correlationId
+    );
     const lineHistories = audit.lines.map((lineAudit) =>
-      historyValue.make(lineAudit, actor, correlationId)
+      historyValue.make(lineAudit, actor.id, correlationId)
     );
 
     const shouldUpdateBalance =
       journalEntry.status === EJournalEntryStatus.Posted;
 
     const fxResult = await deps.fxLotAppService.acquire(
-      { journalEntry, account, actor },
+      { journalEntry, account, actor: actor.id },
       repoOptions
     );
 

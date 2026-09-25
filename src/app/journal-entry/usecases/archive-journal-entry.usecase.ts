@@ -32,8 +32,8 @@ export default function makeArchiveJournalEntryUsecase(deps: IDependencies) {
     stringUtils.validateUUID(id, journalEntryError.InvalidJournalEntry);
     zodValidationRunner(journalEntryArchiveReqValidation, payload);
 
-    const { correlationId, idempotencyKey, accountingEntity, user } =
-      deps.appContext.get(['user', 'accountingEntity']);
+    const { correlationId, idempotencyKey, accountingEntity, user, actor } =
+      deps.appContext.get(['user', 'actor', 'accountingEntity']);
 
     deps.accountingEntityService.validateAccess(accountingEntity, user.id);
 
@@ -53,8 +53,7 @@ export default function makeArchiveJournalEntryUsecase(deps: IDependencies) {
 
     const [archivedEntry, events, audit] =
       journalEntryEntity.archive(authorizedEntry);
-    const actor = user.actorId;
-    const history = historyValue.make(audit, actor, correlationId);
+    const history = historyValue.make(audit, actor.id, correlationId);
 
     const {
       lines: _lines,

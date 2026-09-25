@@ -1,7 +1,9 @@
 import mockEventBus from '@shared/contracts/__mocks__/event-bus.mock';
 import { TEntityId } from '@shared/types/uuid';
+import runtimeError from '@shared/values/errors/runtime.error';
 
 import makeCounterpartyService from '@domain/counterparty/services/counterparty.service';
+import actorEntity from '@domain/user/entities/actor.entity';
 
 import mockAppContext from '@app/context/contracts/__mocks__/app-context.mock';
 import { IAppContextData } from '@app/context/contracts/app-context.contract';
@@ -14,9 +16,16 @@ const mockCounterpartyDomainServices = Object.freeze({
   counterparty: mockCounterpartyService,
 });
 
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
+
 describe('makeCreateCounterpartyUsecase', () => {
   const accountingEntityId = '123e4567-e89b-12d3-a456-426614174001';
-  const userId = '123e4567-e89b-12d3-a456-426614174002';
 
   const realCounterpartyService = makeCounterpartyService();
 
@@ -31,13 +40,9 @@ describe('makeCreateCounterpartyUsecase', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId: 'test-correlation-id',
       idempotencyKey: 'test-idempotency-key',
-      user: {
-        createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
-        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
-        id: userId as TEntityId,
-      },
       accountingEntity: {
         createdBy: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
         id: accountingEntityId as TEntityId,
@@ -56,6 +61,11 @@ describe('makeCreateCounterpartyUsecase', () => {
 
   it('should successfully create, persist, enrich/publish events, and return a mapped DTO', async () => {
     const result = await usecase(validPayload);
+
+    expect(mockAppContext.get).toHaveBeenCalledWith([
+      'actor',
+      'accountingEntity',
+    ]);
 
     expect(
       mockCounterpartyDomainServices.counterparty.create
@@ -107,6 +117,44 @@ describe('makeCreateCounterpartyUsecase', () => {
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
     });
+  });
+
+  it.each([
+    actorEntity.makeSystem(actor.id)[0],
+    actorEntity.makeAgent({ createdBy: actor.id })[0],
+  ])('attributes creation to a $type actor without a user', async (caller) => {
+    mockAppContext.get.mockReturnValue({
+      ...mockAppContext.get(),
+      actor: caller,
+    });
+
+    const result = await usecase(validPayload);
+
+    expect(result.createdBy).toBe(caller.id);
+    expect(mockCounterpartyRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ createdBy: caller.id }),
+      expect.objectContaining({
+        history: expect.objectContaining({ actorId: caller.id }),
+      })
+    );
+  });
+
+  it('stops before creation or effects when the actor context is missing', async () => {
+    mockAppContext.get.mockImplementationOnce(() => {
+      throw new runtimeError.ContextNotFound();
+    });
+
+    await expect(usecase(validPayload)).rejects.toThrow(
+      runtimeError.ContextNotFound
+    );
+
+    expect(mockAppContext.get).toHaveBeenCalledWith([
+      'actor',
+      'accountingEntity',
+    ]);
+    expect(mockCounterpartyService.create).not.toHaveBeenCalled();
+    expect(mockCounterpartyRepo.create).not.toHaveBeenCalled();
+    expect(mockEventBus.publish).not.toHaveBeenCalled();
   });
 
   it('should stop and throw if validation fails', async () => {

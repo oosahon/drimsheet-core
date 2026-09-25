@@ -18,6 +18,7 @@ import {
 import { EJournalSide } from '@domain/journal-entry/types/journal-line.types';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
 import moneyValue from '@domain/money/values/money.vo';
+import actorEntity from '@domain/user/entities/actor.entity';
 
 import { mockAccountingEntityService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
 import mockAppContext, {
@@ -32,6 +33,14 @@ import mockLedgerBalanceAdjustmentQueue from '@app/ledger/contracts/__mocks__/le
 import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mock';
 import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
+
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
 
 describe('makeDeleteJournalEntryUsecase', () => {
   const correlationId = 'delete-journal-entry-correlation-id';
@@ -113,11 +122,12 @@ describe('makeDeleteJournalEntryUsecase', () => {
     jest.setSystemTime(now);
     jest.clearAllMocks();
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       idempotencyKey,
       user: {
         id: userId,
-        actorId: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+        actorId: 'b2222222-2222-4222-8222-222222222222' as TEntityId,
       },
       accountingEntity: { id: accountingEntityId },
       clientSession: mockClientSession,

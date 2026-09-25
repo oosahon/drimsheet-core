@@ -16,6 +16,7 @@ import { ASSET_LEDGER_CODES } from '@domain/ledger/config/asset-codes.config';
 import ledgerAccountError from '@domain/ledger/errors/ledger-account.error';
 import makeCashAccountService from '@domain/ledger/services/asset-account/cash-account.service';
 import { SYSTEM_CURRENCIES } from '@domain/money/config/currencies.config';
+import actorEntity from '@domain/user/entities/actor.entity';
 import { IUser } from '@domain/user/types/user.types';
 
 import { mockAccountingPeriodService } from '@app/accounting/contracts/__mocks__/accounting.domain.services.mock';
@@ -36,6 +37,14 @@ import mockOutboxService from '@app/outbox/contracts/__mocks__/outbox.service.mo
 import mockFxLotCostBasisService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-cost-basis-persistence.service.mock';
 import mockFxLotAppService from '@app/subledger/fx-cost-basis/contracts/__mocks__/fx-lot.service.mock';
 import { TFxLotAcquisitionAppResult } from '@app/subledger/fx-cost-basis/types/fx-lot.service.types';
+
+const actor = {
+  ...actorEntity.makeUser({
+    email: 'actor@example.com',
+    displayName: 'Actor',
+  })[0],
+  id: 'a1111111-1111-4111-8111-111111111111' as TEntityId,
+};
 
 describe('createPettyCashSubAccountUseCase', () => {
   const correlationId = 'test-corr-id';
@@ -154,9 +163,9 @@ describe('createPettyCashSubAccountUseCase', () => {
     mockLedgerAccountBalanceAdjustmentQueue.add.mockReset().mockResolvedValue();
 
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       clientSession: mockClientSession,
-      user: mockUser,
       accountingEntity: mockAccountingEntity,
     } as unknown as IAppContextData);
 
@@ -438,18 +447,13 @@ describe('createPettyCashSubAccountUseCase', () => {
     ).rejects.toThrow();
   });
 
-  it('should throw error if user is not authorized to create account for entity', async () => {
+  it('propagates account service rejection without a user context', async () => {
     const useCase = getUseCase();
 
-    const anotherUser = {
-      ...mockUser,
-      id: '123e4567-e89b-12d3-a456-426614174006' as TEntityId,
-    };
-
     mockAppContext.get.mockReturnValue({
+      actor,
       correlationId,
       clientSession: mockClientSession,
-      user: anotherUser,
       accountingEntity: mockAccountingEntity,
     } as unknown as IAppContextData);
 
